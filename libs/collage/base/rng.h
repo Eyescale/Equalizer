@@ -23,6 +23,9 @@
 #include <co/base/nonCopyable.h>
 
 #ifdef _WIN32
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
 #  include <WinCrypt.h>
 #  pragma comment(lib, "advapi32.lib")
 #endif

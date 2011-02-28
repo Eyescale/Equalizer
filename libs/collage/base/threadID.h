@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,9 @@
 #ifndef COBASE_THREADID_H
 #define COBASE_THREADID_H
 
-#include <co/base/os.h>     // COBASE_API definition
+#include <co/base/api.h>     // COBASE_API definition
+
+#include <ostream>
 
 namespace co
 {

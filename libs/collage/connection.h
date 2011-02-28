@@ -21,11 +21,10 @@
 #include <co/connectionType.h>        // enum
 #include <co/packets.h>               // used in inline method
 #include <co/types.h>                 // Connections type
-
 #include <co/api.h>
+
 #include <co/base/refPtr.h>
-#include <co/base/referenced.h>
-#include <co/base/scopedMutex.h>
+#include <co/base/referenced.h>   // base class
 #include <co/base/lock.h>
 
 #include <sys/types.h>

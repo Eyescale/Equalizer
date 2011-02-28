@@ -19,6 +19,8 @@
 #define EQ_OS_H
 
 #include <eq/api.h>
+#include <co/base/os.h>
+#include <co/base/types.h>
 
 #include <string>
 

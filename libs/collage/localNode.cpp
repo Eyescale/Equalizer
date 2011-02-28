@@ -28,6 +28,7 @@
 
 #include <co/base/log.h>
 #include <co/base/requestHandler.h>
+#include <co/base/scopedMutex.h>
 
 namespace co
 {

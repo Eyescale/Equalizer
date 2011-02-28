@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #define EQFABRIC_IATTRIBUTE_H
 
 #include <eq/fabric/api.h>
+#include <iostream>
 
 namespace eq
 {
@@ -62,4 +63,3 @@ namespace fabric
 }
 
 #endif // EQFABRIC_IATTRIBUTE_H
-

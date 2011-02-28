@@ -36,6 +36,8 @@
 #  include "pgmConnection.h"
 #endif
 
+#include <co/base/scopedMutex.h>
+
 #include <errno.h>
 
 namespace co

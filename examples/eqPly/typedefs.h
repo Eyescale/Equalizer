@@ -38,29 +38,29 @@
 #define EQUALIZER  1
 
 #ifdef EQUALIZER
-#   include <eq/eq.h>
-#   define MESHASSERT  EQASSERT
-#   define MESHERROR   EQERROR
-#   define MESHWARN    EQWARN
-#   define MESHINFO    EQINFO
+#  include <eq/eq.h>
+#  define MESHASSERT  EQASSERT
+#  define MESHERROR   EQERROR
+#  define MESHWARN    EQWARN
+#  define MESHINFO    EQINFO
 #else
-#   ifdef _WIN32
-#      include <Winsock2.h>
-#      include <Windows.h>
-#   endif
-#   ifdef __APPLE__
-#      include <OpenGL/gl.h>
-#   else
-#      include <GL/gl.h>
-#   endif
-#   include <cassert>
-#   define MESHASSERT  assert
-#   define MESHERROR   std::cerr
-#   define MESHWARN    std::cout
-#   define MESHINFO    std::cout
+#  include <vmmlib/vmmlib.hpp>
+#  ifdef _WIN32
+#    include <Winsock2.h>
+#    include <Windows.h>
+#  endif
+#  ifdef __APPLE__
+#    include <OpenGL/gl.h>
+#  else
+#    include <GL/gl.h>
+#  endif
+#  include <cassert>
+#  define MESHASSERT  assert
+#  define MESHERROR   std::cerr
+#  define MESHWARN    std::cout
+#  define MESHINFO    std::cout
 #endif
 
-#include <vmmlib/vmmlib.hpp>
 
 #include <exception>
 #include <iostream>

@@ -20,8 +20,8 @@
 #define COBASE_PLUGIN_H
 
 #include <co/plugins/compressor.h> // member
-#include <co/base/os.h>
 #include <co/base/dso.h>           // member
+#include <co/base/types.h>
 
 namespace co
 {

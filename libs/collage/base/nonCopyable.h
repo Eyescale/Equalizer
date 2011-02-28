@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef COBASE_NONCOPYABLE_H
 #define COBASE_NONCOPYABLE_H
 
-#include <co/base/os.h> // for COBASE_API
+#include <co/base/api.h> // for COBASE_API
 
 namespace co
 {

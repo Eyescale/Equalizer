@@ -23,6 +23,12 @@
 #include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/uint128_t.h>
+
+#define VMMLIB_CUSTOM_CONFIG
+#ifndef NDEBUG
+#  define VMMLIB_SAFE_ACCESSORS
+#endif
+#define VMMLIB_ALIGN( var ) var
 #include <vmmlib/vmmlib.hpp>
 
 namespace eq

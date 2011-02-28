@@ -25,6 +25,7 @@
 #include "log.h"
 
 #include <co/base/rng.h>
+#include <co/base/scopedMutex.h>
 #include <co/base/sleep.h>
 
 #include <boost/bind.hpp>

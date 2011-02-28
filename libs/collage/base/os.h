@@ -24,6 +24,7 @@
 #define COBASE_OS_H
 
 #include <co/base/defines.h>
+#include <co/base/compiler.h>
 
 #ifdef _WIN32
 #  ifndef _MSC_VER
@@ -38,8 +39,6 @@
 #  include <windows.h>
 #  include <windef.h>
 #endif
-
-#include <co/base/api.h>
 
 // Defining our own min/max macros seems to be the only sane way to get this
 // functionality across platforms thanks to some screwup in the MS header files.
@@ -61,23 +60,5 @@
 #elif !defined(_WIN32)
 extern "C" char **environ;
 #endif
-
-#include <co/base/types.h>
-#include <co/base/compiler.h>
-
-// defines
-/** A 'NULL' value for an uint32.*/
-#define EQ_UNDEFINED_UINT32   (0xffffffffu)
-/** The biggest usable value when using special uint32 values.*/
-#define EQ_MAX_UINT32         (0xfffffff0u)
-
-/** Constant defining 'wait forever' in methods with wait parameters. */
-#define EQ_TIMEOUT_INDEFINITE 0
-
-#define VMMLIB_CUSTOM_CONFIG
-#ifndef NDEBUG
-#  define VMMLIB_SAFE_ACCESSORS
-#endif
-#define VMMLIB_ALIGN( var ) var
 
 #endif //COBASE_OS_H

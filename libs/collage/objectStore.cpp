@@ -23,12 +23,14 @@
 #include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
-#include "instanceCache.h" // member
+#include "instanceCache.h"
 #include "log.h"
 #include "nodePackets.h"
 #include "objectCM.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
+
+#include <co/base/scopedMutex.h>
 
 //#define DEBUG_DISPATCH
 #ifdef DEBUG_DISPATCH

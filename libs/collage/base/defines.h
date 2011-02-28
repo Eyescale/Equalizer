@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,5 +27,13 @@
 #ifdef _WIN32 //_MSC_VER
 #  include <co/base/definesWin32.h>
 #endif
+
+/** A 'NULL' value for an uint32.*/
+#define EQ_UNDEFINED_UINT32   (0xffffffffu)
+/** The biggest usable value when using special uint32 values.*/
+#define EQ_MAX_UINT32         (0xfffffff0u)
+
+/** Constant defining 'wait forever' in methods with wait parameters. */
+#define EQ_TIMEOUT_INDEFINITE 0
 
 #endif // COBASE_DEFINES_H

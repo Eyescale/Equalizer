@@ -22,6 +22,7 @@
 #include "objectVersion.h"
 
 #include <co/base/debug.h>
+#include <co/base/scopedMutex.h>
 
 namespace co
 {

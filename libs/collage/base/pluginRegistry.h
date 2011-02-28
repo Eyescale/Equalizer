@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,12 @@
 #ifndef COBASE_PLUGINREGISTRY_H
 #define COBASE_PLUGINREGISTRY_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
+#include <co/base/types.h>
 
-namespace co 
+#include <string>
+
+namespace co
 {
 namespace base
 {

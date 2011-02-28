@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published 
@@ -18,8 +18,9 @@
 #ifndef COBASE_MEMORYMAP_H
 #define COBASE_MEMORYMAP_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/nonCopyable.h>
+#include <co/base/os.h>
 
 #include <string>
 

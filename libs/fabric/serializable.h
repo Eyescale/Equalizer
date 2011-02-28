@@ -19,7 +19,7 @@
 #define EQFABRIC_SERIALIZABLE_H
 
 #include <co/object.h>        // base class
-#include <eq/fabric/types.h>      // member
+#include <eq/fabric/types.h>
 #include <co/dataOStream.h>   // used inline
 #include <co/dataIStream.h>   // used inline
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,16 +19,15 @@
 #ifndef COBASE_CLOCK_H
 #define COBASE_CLOCK_H
 
+#include <co/base/api.h>
 #include <co/base/os.h>
+#include <co/base/types.h>
 
 #ifdef Darwin
 // http://developer.apple.com/qa/qa2004/qa1398.html
 #  include <mach/mach_time.h>
 #endif
-
-#ifdef _WIN32
-#  include <windows.h>
-#else
+#ifndef _WIN32
 #  include <time.h>
 #endif
 

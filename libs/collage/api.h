@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #ifndef CO_API_H
 #define CO_API_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 
 
 #ifdef EQ_USE_DEPRECATED

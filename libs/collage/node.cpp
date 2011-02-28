@@ -21,6 +21,7 @@
 #include "nodePackets.h"
 
 #include <co/base/os.h>
+#include <co/base/scopedMutex.h>
 
 namespace co
 {

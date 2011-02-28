@@ -28,10 +28,6 @@
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/zoom.h>
 #include <co/base/debug.h>
-#include <vmmlib/vmmlib.hpp>
-
-using namespace co::base;
-using namespace std;
 
 namespace eq
 {
@@ -76,7 +72,7 @@ private:
 
 MonitorEqualizer::MonitorEqualizer()
 {
-    EQINFO << "New monitor equalizer @" << (void*)this << endl;
+    EQINFO << "New monitor equalizer @" << (void*)this << std::endl;
 }
 
 MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
@@ -86,7 +82,7 @@ MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
 MonitorEqualizer::~MonitorEqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete monitor equalizer @" << (void*)this << endl;
+    EQINFO << "Delete monitor equalizer @" << (void*)this << std::endl;
 }
 
 void MonitorEqualizer::attach( Compound* compound )

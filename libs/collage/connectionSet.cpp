@@ -22,6 +22,7 @@
 #include "eventConnection.h"
 
 #include <co/base/os.h>
+#include <co/base/scopedMutex.h>
 #include <co/base/stdExt.h>
 #include <co/base/thread.h>
 

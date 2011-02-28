@@ -19,8 +19,9 @@
 #ifndef COBASE_DSO_H
 #define COBASE_DSO_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/nonCopyable.h>
+#include <co/base/os.h>
 
 #include <string>
 

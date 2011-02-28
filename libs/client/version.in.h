@@ -19,6 +19,7 @@
 #define EQ_VERSION_H
 
 #include <eq/api.h>
+#include <co/base/types.h>
 #include <string>
 
 namespace eq

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,18 +18,14 @@
 #ifndef CO_DISPATCHER_H
 #define CO_DISPATCHER_H
 
-#include <co/commandFunc.h> // member
-
 #include <co/api.h>
+#include <co/commandFunc.h> // member
+#include <co/types.h>
 
 #include <vector>
 
 namespace co
 {
-    class Connection;
-    class Command;
-    class CommandQueue;
-
     /** 
      * A helper class providing command packet dispatch functionality to
      * networked objects.
@@ -102,7 +98,7 @@ namespace co
                                 const CommandFunc< T >& func,
                                 CommandQueue* destinationQueue )
     {
-        _registerCommand( command, CommandFunc< Dispatcher >( func ),
+        _registerCommand( command, Dispatcher::Func( func ),
                           destinationQueue );
     }
 }
