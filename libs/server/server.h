@@ -25,6 +25,7 @@
 #include <eq/fabric/server.h>    // base class
 #include <co/command.h>      // used in inline method
 #include <co/commandQueue.h> // member
+#include <co/base/clock.h>   // member
 
 namespace eq
 {

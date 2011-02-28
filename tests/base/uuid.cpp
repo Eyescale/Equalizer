@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,9 +18,10 @@
 // Tests the functionality of universally unique identifiers
 
 #include <test.h>
+#include <co/base/clock.h>
+#include <co/base/init.h>
 #include <co/base/thread.h>
 #include <co/base/uuid.h>
-#include <co/base/init.h>
 
 #define N_UUIDS 10000
 #define N_THREADS 10

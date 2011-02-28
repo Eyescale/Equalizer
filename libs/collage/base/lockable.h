@@ -18,13 +18,14 @@
 #ifndef COBASE_LOCKABLE_H
 #define COBASE_LOCKABLE_H
 
-#include <co/base/lock.h>
 #include <co/base/nonCopyable.h>
 
 namespace co
 {
 namespace base
 {
+    class Lock;
+
     /**
      * A convenience structure to hold data together with a lock for access.
      * 

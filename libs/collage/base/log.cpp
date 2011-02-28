@@ -18,6 +18,8 @@
 #include <pthread.h>
 
 #include "log.h"
+
+#include "clock.h"
 #include "perThread.h"
 #include "thread.h"
 

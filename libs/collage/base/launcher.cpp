@@ -19,6 +19,7 @@
 
 #include "debug.h"
 #include "log.h"
+#include "os.h"
 
 #include <errno.h>
 #include <string.h>

@@ -21,6 +21,7 @@
 #include <co/api.h>
 #include <co/types.h>
 
+#include <co/base/clock.h>     // member
 #include <co/base/lockable.h>  // member
 #include <co/base/stdExt.h>    // member
 #include <co/base/thread.h>    // member

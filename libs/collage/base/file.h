@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 #define COBASE_FILESEARCH_H
 
 #include <co/base/debug.h> // EQASSERTINFO macro
+#include <co/base/os.h>
 #include <co/base/types.h>
 
 #ifndef _MSC_VER
@@ -47,7 +48,6 @@ inline Strings searchDirectory( const std::string directory,
     Strings files;
    
 #ifdef _MSC_VER
-
     WIN32_FIND_DATA file;
     const std::string search = 
         directory.empty() ? pattern : directory + '\\' + pattern;

@@ -27,8 +27,7 @@
 #ifndef COBASE_LOG_H
 #define COBASE_LOG_H
 
-#include <co/base/os.h>
-#include <co/base/clock.h>
+#include <co/base/api.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -40,6 +39,8 @@ namespace co
 {
 namespace base
 {
+    class Clock;
+
     /** The logging levels. @version 1.0 */
     enum LogLevel
     {

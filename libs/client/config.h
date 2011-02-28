@@ -24,6 +24,7 @@
 #include <eq/visitorResult.h> // enum
 
 #include <eq/fabric/config.h>        // base class
+#include <co/base/clock.h>           // member
 #include <co/base/monitor.h>         // member
 #include <co/base/spinLock.h>        // member
 
@@ -428,7 +429,7 @@ namespace eq
        co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
-       co::base::Clock _clock;
+        co::base::Clock _clock;
 
         std::deque< int64_t > _frameTimes; //!< Start time of last frames
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef COBASE_REQUESTHANDLER_H
 #define COBASE_REQUESTHANDLER_H
 
-#include <co/base/os.h>      // COBASE_API definition
+#include <co/base/api.h>       // COBASE_API definition
 #include <co/base/hash.h>      // member
 #include <co/base/thread.h>    // thread-safety macros
 #include <co/base/spinLock.h>  // member
@@ -178,7 +178,8 @@ namespace base
         uint32_t            _requestID;
         RequestHash         _requests;
         std::list<Request*> _freeRequests;
-        friend COBASE_API std::ostream& operator << (std::ostream&, const RequestHandler&);
+        friend COBASE_API std::ostream& operator << (std::ostream&,
+                                                     const RequestHandler&);
 
         bool _waitRequest( const uint32_t requestID, Request::Result& result,
                            const uint32_t timeout );
@@ -186,7 +187,8 @@ namespace base
         EQ_TS_VAR( _thread );
     };
 
-    COBASE_API std::ostream& operator << ( std::ostream&, const RequestHandler& );
+    COBASE_API std::ostream& operator << ( std::ostream&,
+                                           const RequestHandler& );
 }
 
 }

@@ -20,6 +20,7 @@
 
 
 #include <test.h>
+#include <co/base/clock.h>
 #include <co/base/monitor.h>
 #include <co/connectionSet.h>
 #include <co/init.h>

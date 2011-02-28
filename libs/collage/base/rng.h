@@ -21,11 +21,13 @@
 #include <co/base/debug.h> // for EQASSERT
 #include <co/base/init.h>  // friend functions
 #include <co/base/nonCopyable.h>
+#include <co/base/types.h>
 
 #ifdef _WIN32
 #  ifndef NOMINMAX
 #    define NOMINMAX
 #  endif
+#  include <wtypes.h>
 #  include <WinCrypt.h>
 #  pragma comment(lib, "advapi32.lib")
 #endif

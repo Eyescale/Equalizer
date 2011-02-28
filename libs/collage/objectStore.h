@@ -21,14 +21,13 @@
 
 #include <co/dispatcher.h>    // parent
 
-#include <co/localNode.h>     // member
 #include <co/objectVersion.h> // member
 #include <co/packets.h>       // used in inline method
 #include <co/version.h>       // enum
 
+#include <co/base/clock.h>     // member
 #include <co/base/os.h>
 #include <co/base/lockable.h>
-
 #include <co/base/spinLock.h>
 
 namespace co

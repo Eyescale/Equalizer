@@ -29,7 +29,6 @@
 
 namespace co
 {
-
     /**
      * Manages a node.
      *

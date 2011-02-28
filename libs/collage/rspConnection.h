@@ -28,6 +28,7 @@
 
 #include <co/base/api.h>
 #include <co/base/buffer.h>  // member
+#include <co/base/clock.h>   // member
 #include <co/base/lfQueue.h> // member
 #include <co/base/mtQueue.h> // member
 

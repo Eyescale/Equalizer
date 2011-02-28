@@ -19,6 +19,7 @@
 #define COBASE_BUFFER_H
 
 #include <co/base/debug.h>       // EQASSERT macro
+#include <co/base/types.h>
 
 namespace co
 {

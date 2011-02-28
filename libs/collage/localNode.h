@@ -49,8 +49,7 @@ namespace co
      * Local nodes listen on network connections, manage connections to other
      * nodes and provide session registration, mapping and command dispatch.
      */
-    class LocalNode : public base::RequestHandler
-                    , public Node
+    class LocalNode : public base::RequestHandler, public Node
     {
     public:
         CO_API LocalNode( );

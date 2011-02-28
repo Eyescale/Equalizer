@@ -18,6 +18,7 @@
 #include "memoryMap.h"
 
 #include "debug.h"
+#include "types.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>
