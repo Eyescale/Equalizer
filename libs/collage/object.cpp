@@ -178,6 +178,24 @@ uint128_t Object::commit()
     return commitSync( requestID );
 }
 
+uint32_t Object::commitNB()
+{
+    if( isDirty( ))
+        return _cm->commitNB();
+
+    _cm->increaseCommitCount();
+    return EQ_UNDEFINED_UINT32;
+}
+
+uint128_t Object::commitSync( const uint32_t commitID ) 
+{
+    if( commitID == EQ_UNDEFINED_UINT32 )
+        return isMaster() ? getVersion() : VERSION_NONE;
+
+    return _cm->commitSync( commitID );
+}
+
+
 void Object::setupChangeManager( const Object::ChangeType type, 
                                  const bool master, LocalNodePtr localNode,
                                  const uint32_t masterInstanceID )
@@ -272,24 +290,6 @@ void Object::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                const uint128_t& version )
 {
     _cm->addInstanceDatas( cache, version );
-}
-
-uint32_t Object::commitNB()
-{
-    if( !isDirty( ))
-    {
-        _cm->increaseCommitCount();
-        return EQ_UNDEFINED_UINT32;
-    }
-    return _cm->commitNB();
-}
-
-uint128_t Object::commitSync( const uint32_t commitID ) 
-{
-    if( commitID == EQ_UNDEFINED_UINT32 )
-        return isMaster() ? getVersion() : VERSION_NONE;
-
-    return _cm->commitSync( commitID );
 }
 
 void Object::setAutoObsolete( const uint32_t count )
