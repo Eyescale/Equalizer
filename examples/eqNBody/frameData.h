@@ -54,7 +54,8 @@ namespace eqNbody
         void initHostData();
         void exit();        
 
-        void updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts);
+        void updateParameters( NBodyConfig config, float clusterScale,
+                               float velocityScale, float ts );
         
         void toggleStatistics();
         bool useStatistics() const { return _statistics; }
@@ -71,7 +72,7 @@ namespace eqNbody
                             const eq::uint128_t& version,
                             const float *range );
         
-        virtual uint32_t commitNB();
+        virtual uint32_t commitNB( const uint32_t incarnation );
         bool isReady();
 
         const float* getPosData() const {return _hPos;}

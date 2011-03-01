@@ -20,7 +20,7 @@
 
 /**
  * @namespace co::base
- * @brief Equalizer base abstraction layer.
+ * @brief Base abstraction layer and common utility classes.
  *
  * The co::base namespace provides C++ classes to abstract the underlying
  * operating system and implements common helper functionality. Classes with

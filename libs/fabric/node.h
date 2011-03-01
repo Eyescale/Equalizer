@@ -161,7 +161,8 @@ namespace fabric
         void _addPipe( P* pipe );
         bool _removePipe( P* pipe );
 
-        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
 

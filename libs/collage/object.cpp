@@ -129,9 +129,8 @@ void Object::_setChangeManager( ObjectCM* cm )
     {
         EQVERB
             << "Overriding existing object change manager, obj "
-            << base::className( this ) << ", old cm " 
-            << base::className( _cm ) << ", new cm " 
-            << base::className( cm ) << std::endl;
+            << base::className( this ) << ", old cm " << base::className( _cm )
+            << ", new cm " << base::className( cm ) << std::endl;
         delete _cm;
     }
 
@@ -172,18 +171,17 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
-uint128_t Object::commit()
+uint128_t Object::commit( const uint32_t incarnation )
 {
-    const uint32_t requestID = commitNB();
-    return commitSync( requestID );
+    return commitSync( commitNB( incarnation ));
 }
 
-uint32_t Object::commitNB()
+uint32_t Object::commitNB( const uint32_t incarnation )
 {
     if( isDirty( ))
-        return _cm->commitNB();
+        return _cm->commitNB( incarnation );
 
-    _cm->increaseCommitCount();
+    _cm->increaseCommitCount( incarnation );
     return EQ_UNDEFINED_UINT32;
 }
 

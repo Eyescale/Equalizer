@@ -117,7 +117,7 @@ namespace server
         void commitData();
 
         /** Commit the frame */
-        EQSERVER_EXPORT virtual uint32_t commitNB();
+        EQSERVER_EXPORT virtual uint32_t commitNB( const uint32_t incarnation );
 
         /** 
          * Cycle the current FrameData.

@@ -473,6 +473,11 @@ void Config::deregister()
     accept( deregistrator );
 }
 
+uint128_t Config::commit()
+{
+    return Super::commit( _currentFrame + 1 );
+}
+
 void Config::restore()
 {
     _currentFrame = 0;

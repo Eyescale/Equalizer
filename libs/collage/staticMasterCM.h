@@ -19,7 +19,7 @@
 #ifndef CO_STATICMASTERCM_H
 #define CO_STATICMASTERCM_H
 
-#include <co/objectCM.h> // base class
+#include "objectCM.h"    // base class
 #include <co/version.h>  // enum
 #include "objectInstanceDataOStream.h"
 
@@ -45,7 +45,8 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
+        virtual uint32_t commitNB( const uint32_t )
+            { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_FIRST; }
 

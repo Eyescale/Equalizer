@@ -402,8 +402,7 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
 void ObjectStore::unmapObject( Object* object )
 {
     EQASSERT( object );
-
-    if( !object->isAttached() ) // not registered
+    if( !object->isAttached( )) // not registered
         return;
 
     const base::UUID& id = object->getID();
@@ -471,7 +470,7 @@ bool ObjectStore::registerObject( Object* object )
 void ObjectStore::deregisterObject( Object* object )
 {
     EQASSERT( object );
-    if( !object->isAttached() ) // not registered
+    if( !object->isAttached( )) // not registered
         return;
 
     EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;

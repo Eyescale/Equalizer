@@ -66,7 +66,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
 
     EQASSERT( _version != VERSION_NONE );
 
-    ++_commitCount;
+    _updateCommitCount( packet->incarnation );
 
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
@@ -83,7 +83,6 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
         {
             // save instance data
             InstanceData* instanceData = _newInstanceData();
-            instanceData->commitCount = _commitCount;
 
             instanceData->os.enableCommit( _version + 1, Nodes( ));
             _object->getInstanceData( instanceData->os );

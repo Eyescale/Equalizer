@@ -36,7 +36,7 @@ Equalizer 1.0-beta is a developer release, representing the full feature set
 and API of Equalizer 1.0. It is intended for application developers to
 provide feedback and preview the 1.0 release. Equalizer 1.0-beta can be
 retrieved by downloading the `source code`_, updating the subversion trunk to
-revision XXX (``svn up -r XXX``) or by using:
+revision 5659 (``svn up -r 5659``) or by using:
 ``svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release
 -1.0-beta`` The internal version number of this release is 0.9.3.
 

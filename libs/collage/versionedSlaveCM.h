@@ -46,7 +46,7 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB();
+        virtual uint32_t commitNB( const uint32_t incarnation );
         virtual uint128_t commitSync( const uint32_t commitID );
 
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }

@@ -55,7 +55,7 @@ bool Object::isDirty() const
     return Serializable::isDirty();
 }
 
-uint32_t Object::commitNB()
+uint32_t Object::commitNB( const uint32_t incarnation )
 {
     if( _userData )
     {
@@ -69,7 +69,7 @@ uint32_t Object::commitNB()
 
         if( _userData->isDirty() && _userData->isAttached( ))
         {
-            const uint128_t& version = _userData->commit();
+            const uint128_t& version = _userData->commit( incarnation );
             EQASSERT( version != co::VERSION_NONE );
 //            EQINFO << "Committed " << _userData->getID() << " v" << version
 //                   << " of " << co::base::className( _userData ) << " @"
@@ -93,7 +93,7 @@ uint32_t Object::commitNB()
         }
     }
 
-    return Serializable::commitNB();
+    return Serializable::commitNB( incarnation );
 }
 
 void Object::notifyDetach()

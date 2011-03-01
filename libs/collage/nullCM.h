@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQNET_NULLCM_H
 #define EQNET_NULLCM_H
 
-#include <co/objectCM.h> // base class
+#include "objectCM.h"    // base class
 #include <co/version.h>  // used enum
 
 namespace co
@@ -41,7 +41,8 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
+        virtual uint32_t commitNB( const uint32_t )
+            { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 

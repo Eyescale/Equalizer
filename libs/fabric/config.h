@@ -223,6 +223,9 @@ namespace fabric
         virtual bool mapNodeObjects() const { return false; } //!< @internal
 
         /** @internal */
+        EQFABRIC_INL uint128_t commit( const uint32_t incarnation );
+
+        /** @internal */
         virtual VisitorResult _acceptCompounds( V& )
             { return TRAVERSE_CONTINUE; }
         /** @internal */
@@ -282,7 +285,8 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
 
         template< class, class > friend class Observer;
         void _addObserver( O* observer );

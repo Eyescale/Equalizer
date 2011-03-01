@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -214,7 +214,8 @@ namespace fabric
         EQFABRIC_INL bool _removeWindow( W* window );
         template< class, class, class > friend class Window;
 
-        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
 
         typedef co::CommandFunc< Pipe< N, P, W, V > > CmdFunc;

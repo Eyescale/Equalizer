@@ -52,6 +52,9 @@ namespace admin
 
         EQADMIN_EXPORT co::CommandQueue* getMainThreadQueue(); //!< @internal
 
+        /** Commit all changes on this config and its children. @version 1.0 */
+        EQADMIN_EXPORT uint128_t commit();
+
         /** @internal */
         const Channel* findChannel( const std::string& name ) const
             { return find< Channel >( name ); }

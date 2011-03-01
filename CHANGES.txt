@@ -1,6 +1,12 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+01/Mar/2011
+  Added new 'incarnation' parameter to co::Object::commit, with a
+  default parameter selecting the previous behavior for commit wrt auto
+  obsoletion. co::Object::commitNB has the same new parameter, with no
+  default value.
+
 --------------------------------1.0 beta-----------------------------------
 
 10/Feb/2011

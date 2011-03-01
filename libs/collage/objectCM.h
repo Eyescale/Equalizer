@@ -53,10 +53,11 @@ namespace co
         /** 
          * Start committing a new version.
          * 
+         * @param incarnation the commit incarnation for auto obsoletion.
          * @return the commit identifier to be passed to commitSync
          * @sa commitSync
          */
-        virtual uint32_t commitNB() = 0;
+        virtual uint32_t commitNB( const uint32_t incarnation ) = 0;
         
         /** 
          * Finalize a commit transaction.
@@ -67,7 +68,8 @@ namespace co
         virtual uint128_t commitSync( const uint32_t commitID ) = 0;
 
         /** Increase the count of how often commit() was called. */
-        virtual void increaseCommitCount() { /* NOP */ }
+        virtual void increaseCommitCount( const uint32_t incarnation )
+            { /* NOP */ }
 
         /** 
          * Automatically obsolete old versions.

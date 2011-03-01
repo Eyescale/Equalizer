@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -178,7 +178,7 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        virtual uint32_t commitNB(); //!< @internal
+        virtual uint32_t commitNB( const uint32_t incarnation ); //!< @internal
     };
 
     template< class C, class S, class CH >

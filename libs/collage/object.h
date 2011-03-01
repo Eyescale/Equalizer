@@ -27,6 +27,8 @@ namespace co
 {
     class ObjectCM;
 
+#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
+
     /** 
      * A generic, distributed object.
      *
@@ -101,7 +103,7 @@ namespace co
          * Commit a new version of this object.
          *
          * This method is a convenience function for <code>commitSync( commitNB(
-         * ))</code>.
+         * incarnation ))</code>.
          *
          * Objects using the change type STATIC can not be committed.
          *
@@ -117,10 +119,22 @@ namespace co
          * since the last commit. The high value of a successful commit will
          * never be 0.
          *
+         * The incarnation count is meaningful for buffered master objects. The
+         * commit implementation will keep all instance data committed with an
+         * incarnation count newer than <code>current_incarnation -
+         * getAutoObsolete()</code>. By default, each call to commit creates a
+         * new incarnation, retaining the data from last getAutoObsolete()
+         * commit calls. When the application wishes to auto obsolete by another
+         * metric than commit calls, it has to consistently provide an
+         * incarnation counter. Buffers with a higher incarnation count than the
+         * current are discarded. A typical use case is to tie the auto
+         * obsoletion to rendering frames in a visualization application.
+         *
+         * @param incarnation the commit incarnation for auto obsoletion.
          * @return the new head version.
          * @sa commitNB(), commitSync()
          */
-        CO_API uint128_t commit();
+        CO_API uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
 
         /** 
          * Start committing a new version of this object.
@@ -128,10 +142,11 @@ namespace co
          * The commit transaction has to be completed using commitSync, passing
          * the returned identifier.
          *
+         * @param incarnation the commit incarnation for auto obsoletion.
          * @return the commit identifier to be passed to commitSync
-         * @sa commitSync()
+         * @sa commit(), commitSync()
          */
-        CO_API virtual uint32_t commitNB();
+        CO_API virtual uint32_t commitNB( const uint32_t incarnation );
         
         /** 
          * Finalize a commit transaction.

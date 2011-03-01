@@ -66,7 +66,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
-uint32_t VersionedSlaveCM::commitNB()
+uint32_t VersionedSlaveCM::commitNB( const uint32_t /*incarnation*/ )
 {
     LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;

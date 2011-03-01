@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *               2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,11 +102,11 @@ void Pipe< N, P, W, V >::attach( const co::base::UUID& id,
 }
 
 template< class N, class P, class W, class V >
-uint32_t Pipe< N, P, W, V >::commitNB()
+uint32_t Pipe< N, P, W, V >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_WINDOWS ))
-        commitChildren< W, PipeNewWindowPacket >( _windows );
-    return Object::commitNB();
+        commitChildren< W, PipeNewWindowPacket >( _windows, incarnation );
+    return Object::commitNB( incarnation );
 }
 
 template< class N, class P, class W, class V >

@@ -240,7 +240,7 @@ bool Config::exit()
 
 bool Config::update()
 {
-    commit();
+    commit( CO_COMMIT_NEXT );
 
     // send update req to server
     ClientPtr client = getClient();
@@ -415,7 +415,7 @@ void Config::setLatency( const uint32_t latency )
 void Config::changeLatency( const uint32_t latency )
 {
     finishAllFrames();
-    commit();
+    commit( CO_COMMIT_NEXT );
 
     // update views
     ChangeLatencyVisitor changeLatencyVisitor( latency );

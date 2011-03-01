@@ -61,12 +61,13 @@ MasterCM::~MasterCM()
     _slaves.clear();
 }
 
-uint32_t MasterCM::commitNB()
+uint32_t MasterCM::commitNB( const uint32_t incarnation )
 {
     LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID  = localNode->registerRequest();
+    packet.incarnation = incarnation;
 
     _object->send( localNode, packet );
     return packet.requestID;

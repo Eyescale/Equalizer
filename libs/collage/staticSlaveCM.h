@@ -18,8 +18,8 @@
 #ifndef CO_STATICSLAVECM_H
 #define CO_STATICSLAVECM_H
 
-#include <co/objectCM.h>     // base class
-#include <co/version.h>      // enum
+#include "objectCM.h"     // base class
+#include <co/version.h>   // enum
 
 namespace co
 {
@@ -39,7 +39,8 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
+        virtual uint32_t commitNB( const uint32_t )
+            { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
