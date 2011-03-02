@@ -77,9 +77,6 @@ namespace server
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
-
-        /** Update the view (wall/projection). */
-        void _updateView();
     };
 }
 }
