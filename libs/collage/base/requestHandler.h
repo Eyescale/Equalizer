@@ -19,7 +19,7 @@
 #define COBASE_REQUESTHANDLER_H
 
 #include <co/base/api.h>       // COBASE_API definition
-#include <co/base/hash.h>      // member
+#include <co/base/stdExt.h>    // member
 #include <co/base/thread.h>    // thread-safety macros
 #include <co/base/spinLock.h>  // member
 #include <co/base/timedLock.h> // member

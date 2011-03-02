@@ -174,6 +174,8 @@ namespace co
         /** startSendOnRegister() invocations. */
         base::a_int32_t _sendOnRegister;
 
+        typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
+
         /** All registered and mapped objects. 
          *   - write locked only in receiver thread
          *   - read unlocked in receiver thread 

@@ -21,7 +21,6 @@
 
 #include <eq/commandQueue.h>  // member
 #include <eq/types.h>         // typedefs
-#include <eq/visitorResult.h> // enum
 
 #include <eq/fabric/config.h>        // base class
 #include <co/base/clock.h>           // member
@@ -45,7 +44,7 @@ namespace eq
      * The Config in the application process has access to all Canvas, Segment,
      * Layout, View and Observer instances. Only the active Layout of the each
      * Canvas, the Frustum of each View and the Observer parameters are
-     * writable. Views can be subclassed to attach application-specific data.
+     * writable. Views can be sub-classed to attach application-specific data.
      *
      * The render client processes have only access to the current View for each
      * of their channels.
@@ -418,15 +417,15 @@ namespace eq
         co::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
-        std::deque< FrameStatistics > _statistics;
-       co::base::Lock                    _statisticsMutex;
+        co::base::Lockable< std::deque< FrameStatistics >, co::base::SpinLock >
+            _statistics;
         
         /** The last started frame. */
         uint32_t _currentFrame;
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-       co::base::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
         co::base::Clock _clock;

@@ -74,18 +74,7 @@ namespace base
 
         /** The NULL UUID. @version 1.0 */
         static COBASE_API const UUID ZERO;
-#ifdef _MSC_VER
-        friend size_t stde::hash_compare< co::base::UUID >::operator() 
-            ( const co::base::UUID& key ) const;
-#else
-        friend struct stde::hash< co::base::UUID >;
-#endif
     };
-
-    /** A hash for UUID keys. @version 1.0 */
-    template<class T> class UUIDHash : public stde::hash_map< UUID, T > {};
-
-
 }
 }
 

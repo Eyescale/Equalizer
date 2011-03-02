@@ -82,8 +82,8 @@ namespace co
 
 }
 
-EQ_STDEXT_NAMESPACE_OPEN
-#ifdef EQ_STDEXT_VC8
+CO_STDEXT_NAMESPACE_OPEN
+#ifdef CO_STDEXT_MSVC
     /** ObjectVersion hash function. */
     template<>
     inline size_t hash_compare< co::ObjectVersion >::operator()
@@ -105,6 +105,6 @@ EQ_STDEXT_NAMESPACE_OPEN
         }
     };
 #endif
-EQ_STDEXT_NAMESPACE_CLOSE
+CO_STDEXT_NAMESPACE_CLOSE
 
 #endif // CO_OBJECT_H

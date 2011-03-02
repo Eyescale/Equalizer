@@ -18,12 +18,10 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
-#include <co/base/hash.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
 
 #include <deque>
-#include <list>
 #include <vector>
 
 namespace co
@@ -88,8 +86,6 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 /** @cond IGNORE */
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
-typedef std::list< Command* > CommandList;
-typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;

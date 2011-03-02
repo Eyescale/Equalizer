@@ -336,6 +336,8 @@ namespace co
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
     private:
+        typedef std::list< Command* > CommandList;
+
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
     

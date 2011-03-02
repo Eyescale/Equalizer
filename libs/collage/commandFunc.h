@@ -18,7 +18,7 @@
 #ifndef CO_COMMANDFUNC_H
 #define CO_COMMANDFUNC_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/debug.h>
 
 namespace co

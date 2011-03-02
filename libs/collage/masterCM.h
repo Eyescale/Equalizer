@@ -23,6 +23,7 @@
 
 #include <co/base/mtQueue.h> // member
 #include <co/base/pool.h>    // member
+#include <co/base/stdExt.h>  // member
 #include <co/base/thread.h>  // thread-safety check
 
 namespace co

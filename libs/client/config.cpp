@@ -508,10 +508,10 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            co::base::ScopedMutex<> mutex( _statisticsMutex );
+            co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
 
-            for( std::deque< FrameStatistics >::iterator i =_statistics.begin();
-                 i != _statistics.end(); ++i )
+            for( std::deque<FrameStatistics>::iterator i =_statistics->begin();
+                 i != _statistics->end(); ++i )
             {
                 FrameStatistics& frameStats = *i;
                 if( frameStats.first == frame )
@@ -523,8 +523,8 @@ bool Config::handleEvent( const ConfigEvent* event )
                 }
             }
             
-            _statistics.push_back( FrameStatistics( ));
-            FrameStatistics& frameStats = _statistics.back();
+            _statistics->push_back( FrameStatistics( ));
+            FrameStatistics& frameStats = _statistics->back();
             frameStats.first = frame;
 
             SortedStatistics& sortedStats = frameStats.second;
@@ -581,27 +581,24 @@ bool Config::_needsLocalSync() const
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
     // keep statistics for three frames
-    _statisticsMutex.set();
-    while( !_statistics.empty() &&
-           finishedFrame - _statistics.front().first > 2 )
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    while( !_statistics->empty() &&
+           finishedFrame - _statistics->front().first > 2 )
     {
-        _statistics.pop_front();
+        _statistics->pop_front();
     }
-    _statisticsMutex.unset();
 }
 
 void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 {
-    _statisticsMutex.set();
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
 
-    for( std::deque< FrameStatistics >::const_iterator i = _statistics.begin();
-         i != _statistics.end(); ++i )
+    for( std::deque<FrameStatistics>::const_iterator i = _statistics->begin();
+         i != _statistics->end(); ++i )
     {
         if( (*i).first <= _finishedFrame.get( ))
             statistics.push_back( *i );
     }
-
-    _statisticsMutex.unset();
 }
 
 bool Config::mapViewObjects() const

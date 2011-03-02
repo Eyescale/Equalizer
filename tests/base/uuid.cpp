@@ -20,6 +20,7 @@
 #include <test.h>
 #include <co/base/clock.h>
 #include <co/base/init.h>
+#include <co/base/stdExt.h>
 #include <co/base/thread.h>
 #include <co/base/uuid.h>
 
