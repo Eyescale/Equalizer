@@ -19,20 +19,18 @@
 #ifndef CO_OBJECTSTORE_H
 #define CO_OBJECTSTORE_H
 
-#include <co/dispatcher.h>    // parent
-
-#include <co/objectVersion.h> // member
-#include <co/packets.h>       // used in inline method
+#include <co/dispatcher.h>    // base class
 #include <co/version.h>       // enum
 
 #include <co/base/clock.h>     // member
-#include <co/base/os.h>
-#include <co/base/lockable.h>
-#include <co/base/spinLock.h>
+#include <co/base/lockable.h>  // member
+#include <co/base/spinLock.h>  // member
+#include <co/base/stdExt.h>    // member
 
 namespace co
 {
     class InstanceCache;
+    struct ObjectVersion;
 
     /** An object store manages Object mapping for a LocalNode. */
     class ObjectStore : public Dispatcher
@@ -87,13 +85,12 @@ namespace co
 
         /** Start mapping a distributed object. */
         uint32_t mapObjectNB( Object* object, const base::UUID& id, 
-                              const uint128_t& version = VERSION_OLDEST );
+                              const uint128_t& version );
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
 
         /** Convenience wrapper for mapObjectNB(). */
-        uint32_t mapObjectNB( Object* object, const ObjectVersion& v )
-            { return mapObjectNB( object, v.identifier, v.version ); }
+        uint32_t mapObjectNB( Object* object, const ObjectVersion& v );
 
         /** 
          * Unmap a mapped object.

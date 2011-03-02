@@ -329,6 +329,11 @@ void ObjectStore::_detachObject( Object* object )
     return;
 }
 
+uint32_t ObjectStore::mapObjectNB( Object* object, const ObjectVersion& v )
+{
+    return mapObjectNB( object, v.identifier, v.version );
+}
+
 uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
                                    const uint128_t& version )
 {

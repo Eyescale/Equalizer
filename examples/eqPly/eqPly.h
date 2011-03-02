@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,9 @@
 #include "vertexBufferDist.h"
 #include "vertexBufferRoot.h"
 
+#ifndef M_PI_2
+#  define M_PI_2 1.57079632679489661923
+#endif
 
 /** The Equalizer polygonal rendering example. */
 namespace eqPly

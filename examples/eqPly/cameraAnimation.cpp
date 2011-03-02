@@ -27,7 +27,6 @@
  */
 
 #include "cameraAnimation.h"
-#include <co/base/debug.h>
 
 #include <iostream>
 #include <fstream>

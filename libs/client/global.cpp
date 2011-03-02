@@ -18,7 +18,6 @@
 
 #include "global.h"
 #include "nodeFactory.h"
-#include <co/base/os.h>
 #include <co/base/lock.h>
 
 namespace eq

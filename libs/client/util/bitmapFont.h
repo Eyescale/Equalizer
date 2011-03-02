@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,9 @@
 #define EQUTIL_BITMAPFONT_H
 
 #include <eq/util/types.h>
-#include <eq/os.h>           // GL prototypes
+#include <eq/api.h>
 #include <eq/windowSystem.h> // enum used
-#include <co/base/os.h>
+#include <co/base/types.h>
 
 #include <string>
 
@@ -73,7 +73,7 @@ namespace util
          * @version 1.0
          */
         EQ_API bool init( const WindowSystem ws, const std::string& name,
-                             const uint32_t size = 12 );
+                          const uint32_t size = 12 );
 
         /** De-initialize this bitmap font. @version 1.0 */
         EQ_API void exit();
@@ -92,7 +92,7 @@ namespace util
         bool _initWGL( const std::string& name, const uint32_t size );
         bool _initAGL( const std::string& name, const uint32_t size );
 
-        GLuint _setupLists( const GLsizei num );
+        uint32_t _setupLists( const int num );
     };
 }
 }

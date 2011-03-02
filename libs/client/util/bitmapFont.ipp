@@ -250,7 +250,7 @@ bool BitmapFont< OMT >::_initAGL( const std::string&, const uint32_t )
 #endif
 
 template< class OMT >
-GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
+uint32_t BitmapFont< OMT >::_setupLists( const int num )
 {
     GLuint lists = _gl.getList( _key );
     if( lists != ObjectManager< OMT >::INVALID )
