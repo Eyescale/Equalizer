@@ -18,7 +18,6 @@
 #ifndef COBASE_HASH_H
 #define COBASE_HASH_H
 
-#include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/stdExt.h>
 #include <co/base/uuid.h>

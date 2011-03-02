@@ -18,7 +18,6 @@
 #ifndef COBASE_MTQUEUE_H
 #define COBASE_MTQUEUE_H
 
-#include <co/base/os.h>
 #include <co/base/condition.h>
 #include <co/base/debug.h>
 

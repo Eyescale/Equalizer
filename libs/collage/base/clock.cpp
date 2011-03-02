@@ -18,6 +18,8 @@
 
 #include "clock.h"
 
+#include "os.h"
+
 namespace co
 {
 namespace base

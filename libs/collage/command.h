@@ -20,7 +20,7 @@
 
 #include <co/localNode.h> // NodePtr members
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/refPtr.h>
 
 namespace co

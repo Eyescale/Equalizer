@@ -42,9 +42,7 @@ namespace co
 
         virtual void init(){}
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
         virtual uint32_t commitNB( const uint32_t incarnation );
         virtual uint128_t commitSync( const uint32_t commitID );
@@ -62,7 +60,7 @@ namespace co
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
     protected:
-        /** The list of subsribed slave nodes. */
+        /** The list of subscribed slave nodes. */
         Nodes _slaves;
 
         /** The number of object instances subscribed per slave node. */

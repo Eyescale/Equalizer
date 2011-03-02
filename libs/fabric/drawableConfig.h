@@ -18,8 +18,6 @@
 #ifndef EQ_DRAWABLECONFIG_H
 #define EQ_DRAWABLECONFIG_H
 
-#include <co/base/os.h>
-
 #include <iostream>
 
 namespace eq

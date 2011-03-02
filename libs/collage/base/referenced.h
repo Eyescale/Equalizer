@@ -18,7 +18,7 @@
 #ifndef COBASE_REFERENCED_H
 #define COBASE_REFERENCED_H
 
-#include <co/base/os.h>     // for COBASE_API
+#include <co/base/api.h>      // for COBASE_API
 #include <co/base/debug.h>    // for EQERROR
 #include <co/base/atomic.h>   // member
 #ifdef EQ_REFERENCED_DEBUG

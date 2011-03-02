@@ -20,7 +20,6 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
-#include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/uint128_t.h>
 
