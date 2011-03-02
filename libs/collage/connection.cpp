@@ -37,6 +37,7 @@
 #endif
 
 #include <co/base/scopedMutex.h>
+#include <co/base/stdExt.h>
 
 #include <errno.h>
 
