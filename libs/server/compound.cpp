@@ -432,18 +432,6 @@ bool Compound::isDestination() const
     return true;
 }
 
-bool Compound::isChildOf( const Compound* compound ) const
-{
-    const Compound* parent = _parent;
-    while( parent )
-    {
-        if( parent == compound )
-            return true;
-        parent = parent->_parent;
-    }
-    return false;
-}
-
 bool Compound::hasDestinationChannel() const
 {
     return getChannel() && getChannel() == getInheritChannel();

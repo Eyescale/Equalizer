@@ -73,8 +73,11 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
                                frame->getOffset();
 
-        if( !outputFrame->getCompound()->isChildOf( compound ))
+        if( outputFrame->getCompound()->getInheritChannel( ) != 
+                compound->getInheritChannel( ) )
+        {
             frameOffset = frame->getOffset();
+        }
         else if( channel != compound->getInheritChannel( ))
         {
             // compute delta offset between source and destination, since the
