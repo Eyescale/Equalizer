@@ -70,16 +70,15 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //----- Set frame parameters:
         // 1) Frame offset
         Frame* outputFrame = j->second;
-        Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
-                               frame->getOffset();
+        const Channel* iChannel = compound->getInheritChannel();
 
-        if( outputFrame->getCompound()->getInheritChannel( ) != 
-                compound->getInheritChannel( ) )
+        if( outputFrame->getCompound()->getInheritChannel() != iChannel )
+            frame->setInheritOffset( frame->getOffset( ));
+        else if( channel != iChannel )
         {
-            frameOffset = frame->getOffset();
-        }
-        else if( channel != compound->getInheritChannel( ))
-        {
+            Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
+                                   frame->getOffset();
+
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
             const Viewport& frameVP = frame->getViewport();
@@ -90,12 +89,12 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             frameOffset.x() -= framePVP.x;
             frameOffset.y() -= framePVP.y;
 
-            const Channel* iChannel = compound->getInheritChannel();
             const PixelViewport& iChannelPVP = iChannel->getPixelViewport();
             frameOffset.x() -= iChannelPVP.x;
             frameOffset.y() -= iChannelPVP.y;
+
+            frame->setInheritOffset( frameOffset );
         }
-        frame->setInheritOffset( frameOffset );
 
         // 2) zoom
         _updateZoom( compound, frame, outputFrame );
@@ -118,8 +117,9 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                 EQLOG( LOG_ASSEMBLY )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
-                    << frame->getVersion() << "\" tile pos " << frameOffset
-                    << ' ' << frame->getInheritZoom() << std::endl;
+                    << frame->getVersion() << "\" tile pos "
+                    << frame->getInheritOffset() << ' '
+                    << frame->getInheritZoom() << std::endl;
                 break;
             }
         }

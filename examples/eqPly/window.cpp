@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -128,11 +128,10 @@ void Window::_loadLogo()
         return;
     }
 
-    _logoTexture = om->newEqTexture( _logoTextureName, GL_TEXTURE_2D );
+    _logoTexture = om->newEqTexture(_logoTextureName, GL_TEXTURE_RECTANGLE_ARB);
     EQASSERT( _logoTexture );
     
-    image.upload( eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO,
-                  om );
+    image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
     EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }
