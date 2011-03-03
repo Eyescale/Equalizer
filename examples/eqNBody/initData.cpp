@@ -37,7 +37,7 @@ using namespace std;
 
 namespace eqNbody
 {
-    InitData::InitData() : _frameDataID( UUID::ZERO )
+    InitData::InitData() : _frameDataID( co::base::UUID::ZERO )
     {
     _damping    = 0.995f;
     _p        = 256;
@@ -47,7 +47,7 @@ namespace eqNbody
     
     InitData::~InitData()
     {
-           setFrameDataID( UUID::ZERO );
+           setFrameDataID( co::base::UUID::ZERO );
     }
     
     void InitData::getInstanceData( co::DataOStream& os )
@@ -58,6 +58,6 @@ namespace eqNbody
     void InitData::applyInstanceData( co::DataIStream& is )
     {
            is >> _frameDataID;
-           EQASSERT( _frameDataID != UUID::ZERO );
+           EQASSERT( _frameDataID != co::base::UUID::ZERO );
     }
 }
