@@ -21,7 +21,6 @@
 #include "connectionListener.h"
 #include "mcipConnection.h"
 #include "log.h"
-#include "node.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
 #include "rspConnection.h"
@@ -38,8 +37,6 @@
 
 #include <co/base/scopedMutex.h>
 #include <co/base/stdExt.h>
-
-#include <errno.h>
 
 namespace co
 {

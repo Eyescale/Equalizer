@@ -24,9 +24,7 @@
 #include <co/base/monitor.h>  // member
 #include <co/base/threadID.h> // member
 
-#include <vector>
-#include <typeinfo>
-#include <sstream>
+#include <ostream>
 
 namespace co
 {
