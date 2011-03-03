@@ -97,14 +97,9 @@ ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
 
 bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 {
-    if( compound->getChannel() != _channel ||
-        !compound->isInheritActive( _eye ) ||
-        compound->getInheritTasks() == fabric::TASK_NONE )
-    {
-        return true;
-    }
-
-    return false;
+    return ( compound->getChannel() != _channel ||
+             !compound->isInheritActive( _eye ) ||
+             compound->getInheritTasks() == fabric::TASK_NONE );
 }
 
 VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
