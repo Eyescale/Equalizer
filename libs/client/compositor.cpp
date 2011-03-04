@@ -27,10 +27,12 @@
 #include "image.h"
 #include "log.h"
 #include "server.h"
+#include "window.h"
 #include "windowSystem.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
 
 #include <co/base/debug.h>
 #include <co/base/global.h>

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,7 +28,7 @@ namespace fabric
     struct DrawableConfig
     {
         DrawableConfig()
-                : stencilBits( 0 ), colorBits( 0 ), alphaBits( 0 ), accumBits( 0 )
+                : stencilBits(0), colorBits(0), alphaBits(0), accumBits(0)
                 , glVersion( 0.f ), stereo( false ), doublebuffered( false ) {}
 
         int32_t stencilBits;    //!< Number of stencil bits

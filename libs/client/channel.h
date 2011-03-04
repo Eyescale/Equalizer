@@ -20,13 +20,11 @@
 #define EQ_CHANNEL_H
 
 #include <eq/event.h>          // member
-#include <eq/eye.h>            // enum
 #include <eq/types.h>
-#include <eq/visitorResult.h>  // enum
-#include <eq/window.h>         // nested Window::ObjectManager class
 #include <eq/os.h>             // GLEWContext
 
 #include <eq/fabric/channel.h>        // base class
+#include <eq/fabric/drawableConfig.h> // member
 
 namespace eq
 {
@@ -101,7 +99,7 @@ namespace eq
         EQ_API const GLEWContext* glewGetContext() const;
 
         /** @return the window's object manager instance. @version 1.0 */
-        EQ_API Window::ObjectManager* getObjectManager();
+        EQ_API ObjectManager* getObjectManager();
 
         /** @return the channel's drawable config. @version 1.0 */
         EQ_API const DrawableConfig& getDrawableConfig() const;
@@ -540,7 +538,8 @@ namespace eq
         struct FrameStatistics
         {
             Statistics data; //!< all events for one frame
-            co::base::a_int32_t used; //!< reference count by pipe and xmit thread
+            /** reference count by pipe and transmit thread */
+            co::base::a_int32_t used;
         };
 
         typedef std::vector< FrameStatistics > StatisticsRB;

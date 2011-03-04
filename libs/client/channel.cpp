@@ -42,6 +42,7 @@
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>

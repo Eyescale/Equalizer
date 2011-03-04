@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,6 +37,7 @@
 #include "windowStatistics.h"
 #include "uiFactory.h"
 
+#include <eq/util/objectManager.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>

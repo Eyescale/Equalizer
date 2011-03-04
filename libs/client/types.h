@@ -19,9 +19,11 @@
 #ifndef EQ_TYPES_H
 #define EQ_TYPES_H
 
+#include <eq/util/types.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
+
 #include <map>
 #include <vector>
 
@@ -142,6 +144,9 @@ typedef co::base::RefPtr< Client >        ClientPtr;
 typedef co::base::RefPtr< const Client >  ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
 typedef co::base::RefPtr< Server >        ServerPtr;
+
+/** The OpenGL object manager used in the client library. */
+typedef util::ObjectManager< const void* > ObjectManager;
 
 typedef fabric::Matrix3d Matrix3d;   //!< A 3x3 double matrix
 typedef fabric::Matrix4d Matrix4d;   //!< A 4x4 double matrix

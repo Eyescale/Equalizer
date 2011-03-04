@@ -19,7 +19,6 @@
 #include "node.h"
 
 #include "client.h"
-#include "channel.h"
 #include "config.h"
 #include "configPackets.h"
 #include "error.h"

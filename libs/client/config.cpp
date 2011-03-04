@@ -37,6 +37,7 @@
 #include "pipe.h"
 #include "server.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,12 +19,11 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
+#include <eq/os.h>            // GLEWContext
 #include <eq/types.h>
 #include <eq/visitorResult.h> // enum
 
 #include <eq/util/bitmapFont.h>      // member
-#include <eq/util/objectManager.h>   // member
-#include <eq/fabric/channel.h>       // friend
 #include <eq/fabric/renderContext.h> // member
 #include <eq/fabric/window.h>        // base class
 
@@ -65,7 +64,7 @@ namespace eq
     {
     public:
         /** The per-window OpenGL object manager. @version 1.0 */
-        typedef util::ObjectManager< const void* > ObjectManager;
+        typedef eq::ObjectManager ObjectManager;
 
         /** Fonts used for overlays. @version 1.0 */
         typedef util::BitmapFont< const void* > Font;
