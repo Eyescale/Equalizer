@@ -19,8 +19,10 @@
 #define COBASE_REFERENCED_H
 
 #include <co/base/api.h>      // for COBASE_API
-#include <co/base/debug.h>    // for EQERROR
 #include <co/base/atomic.h>   // member
+#include <co/base/debug.h>    // for EQERROR
+#include <co/base/refPtr.h>   // EQ_REFERENCED_ARGS
+
 #ifdef EQ_REFERENCED_DEBUG
 #  include <co/base/hash.h>
 #  include <co/base/lock.h>

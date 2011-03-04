@@ -1,5 +1,4 @@
-- Fix and cleanup cuda context
-- Fix and cleanup eqNbody 
+- add missing include 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
