@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ namespace eq
 
 AGLPipe::AGLPipe( Pipe* parent )
     : SystemPipe( parent )
-    , _cgDisplayID( 0 )
+    , _cgDisplayID( kCGNullDirectDisplay )
 {
 }
 
@@ -109,7 +109,7 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
 void AGLPipe::configExit()
 {
 #ifdef AGL
-    _setCGDisplayID( 0 );
+    _setCGDisplayID( kCGNullDirectDisplay );
     EQINFO << "Reset CG displayID " << endl;
 #endif
 }

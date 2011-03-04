@@ -176,8 +176,8 @@ bool LocalNode::listen()
 
     _state = STATE_LISTENING;
 
-    EQVERB << base::className( this ) 
-           << " start command and receiver thread " << std::endl;
+    EQVERB << base::className( this ) << " start command and receiver thread "
+           << std::endl;
     _receiverThread->start();
 
     EQINFO << *this << " listening." << std::endl;

@@ -57,8 +57,16 @@ namespace eq
     class AGLWindow : public AGLWindowIF
     {
     public:
-        /** Create a new AGL window for the given eq::Window. @version 1.0 */
-        EQ_API AGLWindow( Window* parent );
+        /**
+         * Create a new AGL window for the given eq::Window.
+         *
+         * If kCGNullDirectDisplay is specified as the displayID (the default),
+         * the constructor will try to query the corresponding data from the
+         * pipe's system pipe (AGLPipe).
+         * @version 1.0
+         */
+        EQ_API AGLWindow( Window* parent,
+                          CGDirectDisplayID displayID = kCGNullDirectDisplay );
 
         /** Destruct the AGL window. @version 1.0 */
         EQ_API virtual ~AGLWindow();
@@ -237,12 +245,18 @@ namespace eq
         //@}
 
     private:
+        /** Carbon display identifier. */
+        CGDirectDisplayID _cgDisplayID;
+
         /** The AGL context. */
         AGLContext _aglContext;
+
         /** The carbon window reference. */
         WindowRef _carbonWindow;
+
         /** The AGL PBuffer object. */
         AGLPbuffer _aglPBuffer;
+
         /** The AGL event handler. */
         AGLEventHandler* _eventHandler;
 

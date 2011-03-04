@@ -76,7 +76,7 @@ namespace eq
         void _setCGDisplayID( CGDirectDisplayID id );
         //@}
 
-        /** Window-system specific display information. */
+        /** Carbon display identifier. */
         CGDirectDisplayID _cgDisplayID;
 
         struct Private;
