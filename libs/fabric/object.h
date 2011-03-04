@@ -169,6 +169,14 @@ namespace fabric
         template< class C, class PKG, class S >
         void commitChild( C* child, S* sender, const uint32_t incarnation );
 
+        /** @internal commit slave instance to the server. */
+        template< class C > inline 
+        void commitChild( C* child, const uint32_t incarnation )
+            {
+                EQASSERT( child->isAttached( ));
+                child->commit( incarnation );
+            }
+
         /** @internal commit, register child slave instances with the server. */
         template< class C, class PKG, class S >
         void commitChildren( const std::vector< C* >& children, S* sender,

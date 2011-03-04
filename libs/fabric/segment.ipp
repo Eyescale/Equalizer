@@ -54,8 +54,7 @@ template< class C, class S, class CH >
 uint32_t Segment< C, S, CH >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNEL ) && _channel )
-        commitChild< typename CH::Parent, PipeNewWindowPacket, Object >
-            ( _channel->getWindow(), _channel->getPipe(), incarnation );
+        commitChild< typename CH::Parent >( _channel->getWindow(), incarnation);
     return Object::commitNB( incarnation );
 }
 
