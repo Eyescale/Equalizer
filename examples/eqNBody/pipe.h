@@ -54,6 +54,7 @@ namespace eqNbody
 
     private:
         SharedData *_data;
+        bool _isInitialized;
     };
 }
 

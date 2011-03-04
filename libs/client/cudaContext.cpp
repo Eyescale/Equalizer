@@ -19,6 +19,10 @@
 #include "cudaContext.h"
 #include "pipe.h"
 
+#ifdef WIN32_API
+# include "wglpipe.h"
+#endif
+
 #ifdef EQ_USE_CUDA
 # if defined __GNUC__
 #  pragma GCC diagnostic ignored "-Wshadow"
@@ -40,7 +44,12 @@ namespace eq
     CUDAContext::~CUDAContext()
     {
     }
-
+#ifdef WIN32_API
+    WGLEWContext* CUDAContext::wglewGetContext() 
+    {
+        return static_cast<WGLPipe*>(getPipe()->getSystemPipe())->wglewGetContext(); 
+    }
+#endif
     //--------------------------------------------------------------------------
     // CUDA init
     //--------------------------------------------------------------------------
@@ -76,9 +85,23 @@ namespace eq
 
         int usedDevice = static_cast< int >( device );
 #ifdef _WIN32
-        // retrieve the CUDA device associated to the handle returned by 
-        // WGL_NV_gpu_affinity().
-        cudaWGLGetDevice( &usedDevice, 0 );
+
+        HGPUNV handle = 0;
+
+        if( !WGLEW_NV_gpu_affinity )
+        {
+            EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring device setting"
+                   << std::endl;
+            return true;
+        }
+
+        if( !wglEnumGpusNV( device, &handle ))
+        {
+           EQWARN << "wglEnumGpusNV failed : " << co::base::sysError << std::endl;
+            return false;
+        }
+
+        cudaWGLGetDevice( &usedDevice, handle );
 #else
         cudaGetDevice( &usedDevice );
 #endif

@@ -1,3 +1,6 @@
+#Equalizer 1.1 ascii
+
+# one-pipe config, using cuda interopability
 global
 {
 }
@@ -10,8 +13,8 @@ server
         {
             pipe
             {
-				device 0
-				attributes { hint_cuda_GL_interop ON }
+                device 0
+                attributes { hint_cuda_GL_interop ON }
                 window
                 {
                     viewport [ 0.25 0.25 0.5 0.5 ]                    
@@ -19,15 +22,14 @@ server
                 }
             }
         }
-        compound
-        { 
-            channel "channel1"
-            wall
-            {
-                bottom_left  [ -.32 -.20 -.75 ]
-                bottom_right [  .32 -.20 -.75 ]
-                top_left     [ -.32  .20 -.75 ]
-            }
+        
+        observer{}
+        layout{ view { observer 0 }}
+        canvas
+        {
+            layout 0
+            wall {}
+            segment { channel "channel1" }
         }
     }    
 }

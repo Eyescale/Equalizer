@@ -38,7 +38,9 @@ using namespace std;
 namespace eqNbody
 {
 
-Pipe::Pipe( eq::Node* parent ) : eq::Pipe( parent ) 
+Pipe::Pipe( eq::Node* parent ) 
+    : eq::Pipe( parent ) 
+    , _isInitialized( false )
 {
 }
 
@@ -71,19 +73,21 @@ bool Pipe::configExit()
 
     config->unmapObject( &fd );
     EQASSERT( _data );
+    _data->releaseMemory();
     delete _data;
     return eq::Pipe::configExit();
 }
 
 void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
 {
-    static bool isInitialized = false;
+    
     FrameData& fd = const_cast<FrameData&>(_data->getFrameData());
 
     // Allocate the CUDA memory after proper CUDA initialisation!
-    if(isInitialized == false) {
+    if( _isInitialized == false) 
+    {
         fd.initHostData();
-        isInitialized = true;
+        _isInitialized = true;
     }
 
     // Sync for the next frame - wait for the data broadcast!

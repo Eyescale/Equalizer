@@ -9,6 +9,8 @@ endif()
 # WAR bug in FindCUDA.cmake:
 remove_definitions(-DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")
 
+SET(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:LIBC;LIBCMT;MSVCRT)
+
 cuda_compile(NBODY_FILES nbody.cu)
 
 eq_add_example(eqNBody
@@ -28,7 +30,7 @@ eq_add_example(eqNBody
     sharedDataProxy.h
     window.h
   SOURCES
-    ${NBODY_FILES}
+    nbody.cu
     channel.cpp
     client.cpp
     config.cpp
