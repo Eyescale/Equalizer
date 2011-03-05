@@ -245,9 +245,6 @@ namespace eq
         //@}
 
     private:
-        /** Carbon display identifier. */
-        CGDirectDisplayID _cgDisplayID;
-
         /** The AGL context. */
         AGLContext _aglContext;
 
@@ -259,6 +256,9 @@ namespace eq
 
         /** The AGL event handler. */
         AGLEventHandler* _eventHandler;
+
+        /** Carbon display identifier. */
+        CGDirectDisplayID _cgDisplayID;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
