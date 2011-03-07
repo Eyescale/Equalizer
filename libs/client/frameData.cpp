@@ -18,12 +18,10 @@
 
 #include "frameData.h"
 
-#include "config.h"
 #include "nodeStatistics.h"
 #include "channelStatistics.h"
 #include "image.h"
 #include "log.h"
-#include "node.h"
 #include "nodePackets.h"
 #include "roiFinder.h"
 

@@ -37,7 +37,6 @@
 #include "pipe.h"
 #include "server.h"
 #include "systemWindow.h"
-#include "view.h"
 #include "windowPackets.h"
 
 #include <eq/util/accum.h>

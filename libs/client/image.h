@@ -23,13 +23,14 @@
 #include <eq/pixelData.h>     // member
 #include <eq/windowSystem.h>  // for OpenGL types
 
-#include <eq/fabric/pixelViewport.h> // member
-#include <eq/fabric/viewport.h>      // member
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
-#include <co/base/buffer.h>          // member
+#include <eq/fabric/pixelViewport.h> // member
+#include <eq/fabric/viewport.h>      // member
 
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
+#include <co/base/buffer.h>          // member
+
 
 namespace eq
 {

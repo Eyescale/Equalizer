@@ -24,8 +24,6 @@
 #include "configEvent.h"
 #include "configStatistics.h"
 #include "configPackets.h"
-#include "frame.h"
-#include "frameData.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"

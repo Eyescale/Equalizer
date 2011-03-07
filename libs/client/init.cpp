@@ -22,7 +22,6 @@
 #include "config.h"
 #include "configParams.h"
 #include "global.h"
-#include "node.h"
 #include "nodeFactory.h"
 #include "os.h"
 #include "server.h"
