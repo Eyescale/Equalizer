@@ -500,9 +500,6 @@ private:
 
 void ViewEqualizer::_updateResources()
 {
-    if( _nPipes > 0 )
-        return;
-
     PipeCounter counter;
     const Compound* compound = getCompound();
     compound->accept( counter );

@@ -670,11 +670,9 @@ void Config::setupServerConnections( const char* connectionData )
          i != descriptions.end(); ++i )
     {
         co::ConnectionPtr connection = co::Connection::create( *i );
-        
         if( !connection )
         {
-            EQWARN << "Unsupported connection: " << *i
-                   << std::endl;
+            EQWARN << "Unsupported connection: " << *i << std::endl;
             continue;
         }
 

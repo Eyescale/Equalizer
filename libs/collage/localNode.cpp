@@ -124,8 +124,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
                     EQASSERTINFO( data.empty(), data );
                 }
                 else
-                    EQWARN << "Ignoring listen option: " << argv[i]
-                           << std::endl;
+                    EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
             }
         }
     }
@@ -150,14 +149,10 @@ bool LocalNode::listen()
              descriptions.begin(); i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
-        ConnectionPtr            connection = Connection::create( description );
+        ConnectionPtr connection = Connection::create( description );
 
         if( !connection )
-        {
-            EQWARN << "Unsupported connection: " << description
-                   << std::endl;
             continue;
-        }
 
         if( !connection->listen( ))
         {
@@ -179,7 +174,6 @@ bool LocalNode::listen()
         connection->acceptNB();
 
         EQVERB << "Added node " << _id << " using " << connection << std::endl;
-        
     }
     
     _state = STATE_LISTENING;
@@ -581,14 +575,7 @@ bool LocalNode::connect( NodePtr node )
 
         ConnectionPtr connection = Connection::create( description );
         
-        if( !connection )
-        {
-            EQWARN << "Unsupported connection: " << description
-                   << std::endl;
-            continue;
-        }
-
-        if( !connection->connect( ))
+        if( !connection || !connection->connect( ))
             continue;
 
         return _connect( node, connection );

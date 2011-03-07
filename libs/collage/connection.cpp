@@ -118,7 +118,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 #endif
         default:
             EQWARN << "Connection type not implemented" << std::endl;
-            return connection;
+            return 0;
     }
 
     if( description->bandwidth == 0 )

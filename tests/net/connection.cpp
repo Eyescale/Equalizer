@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -59,14 +59,9 @@ int main( int argc, char **argv )
             desc->setHostname( "127.0.0.1" );
 
         co::ConnectionPtr listener = co::Connection::create( desc );
-
         if( !listener )
-        {
-            EQWARN << "Unsupported connection: " << desc
-                   << std::endl;
-            co::exit();
-            return EXIT_FAILURE;
-        }
+            continue;
+
         co::ConnectionPtr writer;
         co::ConnectionPtr reader;
 
