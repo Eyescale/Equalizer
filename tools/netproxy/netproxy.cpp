@@ -52,6 +52,15 @@ int main( int argc, char **argv )
 
     // wait for input connection
     co::ConnectionPtr connection = co::Connection::create( listen );
+
+    if( !connection )
+    {
+        EQWARN << "Unsupported connection: " << listen.get()
+               << std::endl;
+        co::exit();
+        return EXIT_FAILURE;
+    }
+
     if( !connection->listen( ))
     {
         EQERROR << "Can't open listening socket " << listen << std::endl;

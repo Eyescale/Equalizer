@@ -152,6 +152,13 @@ bool LocalNode::listen()
         ConnectionDescriptionPtr description = *i;
         ConnectionPtr            connection = Connection::create( description );
 
+        if( !connection )
+        {
+            EQWARN << "Unsupported connection: " << description
+                   << std::endl;
+            continue;
+        }
+
         if( !connection->listen( ))
         {
             EQWARN << "Can't create listener connection: " << description
@@ -172,10 +179,11 @@ bool LocalNode::listen()
         connection->acceptNB();
 
         EQVERB << "Added node " << _id << " using " << connection << std::endl;
+        
     }
-
+    
     _state = STATE_LISTENING;
-
+    
     EQVERB << base::className( this ) << " start command and receiver thread "
            << std::endl;
     _receiverThread->start();
@@ -572,8 +580,15 @@ bool LocalNode::connect( NodePtr node )
             continue; // Don't use multicast for primary connections
 
         ConnectionPtr connection = Connection::create( description );
+        
+        if( !connection )
+        {
+            EQWARN << "Unsupported connection: " << description
+                   << std::endl;
+            continue;
+        }
 
-        if( !connection || !connection->connect( ))
+        if( !connection->connect( ))
             continue;
 
         return _connect( node, connection );

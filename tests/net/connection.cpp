@@ -59,6 +59,14 @@ int main( int argc, char **argv )
             desc->setHostname( "127.0.0.1" );
 
         co::ConnectionPtr listener = co::Connection::create( desc );
+
+        if( !listener )
+        {
+            EQWARN << "Unsupported connection: " << desc
+                   << std::endl;
+            co::exit();
+            return EXIT_FAILURE;
+        }
         co::ConnectionPtr writer;
         co::ConnectionPtr reader;
 

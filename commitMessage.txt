@@ -1,9 +1,9 @@
-- add missing include 
+Fix bug item 3199651 Improve handling of unsupported
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

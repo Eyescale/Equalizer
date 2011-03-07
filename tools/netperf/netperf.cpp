@@ -358,6 +358,14 @@ int main( int argc, char **argv )
 
     // run
     co::ConnectionPtr connection = co::Connection::create( description );
+    if( !connection )
+    {
+        EQWARN << "Unsupported connection: " << description
+               << std::endl;
+        co::exit();
+        return EXIT_FAILURE;
+    }
+
     Selector* selector = 0;
     if( isClient )
     {
