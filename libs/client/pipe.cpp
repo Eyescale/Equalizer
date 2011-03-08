@@ -625,7 +625,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Pipe::_cmdCreateWindow(  co::Command& command  )
+bool Pipe::_cmdCreateWindow( co::Command& command )
 {
     const PipeCreateWindowPacket* packet = 
         command.getPacket<PipeCreateWindowPacket>();

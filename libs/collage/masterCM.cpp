@@ -186,6 +186,8 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 
         _queuedDeltas.push( istream );
         _object->notifyNewVersion();
+        EQASSERTINFO( _queuedDeltas.getSize() < 100,
+                      "More than 100 queued slave commits!?" );
 #if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "
