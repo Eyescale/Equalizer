@@ -71,14 +71,13 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         // 1) Frame offset
         Frame* outputFrame = j->second;
         const Channel* iChannel = compound->getInheritChannel();
+        Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
+                               frame->getOffset();
 
         if( outputFrame->getCompound()->getInheritChannel() != iChannel )
-            frame->setInheritOffset( frame->getOffset( ));
+            frameOffset = frame->getOffset();
         else if( channel != iChannel )
         {
-            Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
-                                   frame->getOffset();
-
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
             const Viewport& frameVP = frame->getViewport();
@@ -92,9 +91,8 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             const PixelViewport& iChannelPVP = iChannel->getPixelViewport();
             frameOffset.x() -= iChannelPVP.x;
             frameOffset.y() -= iChannelPVP.y;
-
-            frame->setInheritOffset( frameOffset );
         }
+        frame->setInheritOffset( frameOffset );
 
         // 2) zoom
         _updateZoom( compound, frame, outputFrame );

@@ -106,7 +106,7 @@ void Barrier::enter()
     BarrierEnterPacket packet;
     packet.version = getVersion();
     send( _master, packet );
-    
+
     _leaveNotify.waitEQ( leaveVal );
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << std::endl;
