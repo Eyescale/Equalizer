@@ -163,12 +163,12 @@ CO_STDEXT_NAMESPACE_OPEN
     template<> inline size_t hash_compare< co::base::uint128_t >::operator() 
         ( const co::base::uint128_t& key ) const
     {
-        return key.high() ^ key.low();
+        return static_cast< size_t >( key.high() ^ key.low() );
     }
 
     template<> inline size_t hash_value( const co::base::uint128_t& key )
     {
-        return key.high() ^ key.low();
+        return static_cast< size_t >( key.high() ^ key.low() );
     }
 
 #else // MSVC
