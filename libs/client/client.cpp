@@ -266,7 +266,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     EQASSERTINFO( description.empty(), description );
     if( !connect( server ))
     {
-        EQERROR << "Can't connect server node" << std::endl;
+        EQERROR << "Can't connect server node using " << *server << std::endl;
         return false;
     }
 

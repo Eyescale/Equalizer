@@ -496,18 +496,18 @@ bool Config::_updateRunning()
     if( _state == STATE_STOPPED )
         return true;
 
-    const bool failValue =
+    const bool canFail =
         (getIAttribute( IATTR_ROBUSTNESS ) == OFF) ? false : true;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
-    if( !_connectNodes() && !failValue )
+    if( !_connectNodes() && !canFail )
         return false;
 
     _startNodes();
     _updateCanvases();
-    const bool result = _updateNodes() ? true : failValue;
+    const bool result = _updateNodes() ? true : canFail;
     _stopNodes();
 
     // Don't use visitor, it would get confused with modified child vectors

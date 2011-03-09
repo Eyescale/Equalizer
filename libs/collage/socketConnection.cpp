@@ -585,7 +585,7 @@ bool SocketConnection::listen()
     if( !_createSocket())
         return false;
 
-    const bool bound = (::bind(_readFD, (sockaddr *)&address, size) == 0);
+    const bool bound = (::bind( _readFD, (sockaddr *)&address, size ) == 0);
 
     if( !bound )
     {

@@ -144,22 +144,10 @@ VisitorResult Server::accept( ServerVisitor& visitor ) const
     return _accept( this, visitor );
 }
 
-bool Server::listen()
-{
-    if( getConnectionDescriptions().empty( )) // add default listener
-    {
-        co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
-        connDesc->type = co::CONNECTIONTYPE_TCPIP;
-        connDesc->port = co::Global::getDefaultPort();
-        addConnectionDescription( connDesc );
-    }
-    return Super::listen();
-}
-
 void Server::init()
 {
-    EQASSERT( isListening( ));
     co::base::Thread::setName( co::base::className( this ));
+    EQASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
     if( configs.empty( ))
@@ -310,13 +298,22 @@ bool Server::_cmdChooseConfig( co::Command& command )
     const co::ConnectionDescriptions& descs = 
         appNode->getConnectionDescriptions();
 
-    if( descs.empty() && node->getConnectionDescriptions().empty() &&
-        config->getNodes().size() > 1 )
+    if( config->getNodes().size() > 1 )
     {
-        EQWARN << "Likely misconfiguration: Neither the application nor the "
-               << "config file has a connection for this multi-node config. "
-               << "Render clients will be unable to communicate with the app."
-               << std::endl;
+        if( descs.empty() && node->getConnectionDescriptions().empty( ))
+        {
+            EQWARN << "Likely misconfiguration: Neither the application nor the"
+                   << " config file has a connection for this multi-node "
+                   << "config. Render clients will be unable to communicate "
+                   << "with the application process." << std::endl;
+        }
+        if( getConnectionDescriptions().empty( ))
+        {
+            EQWARN << "Likely misconfiguration: The server has no listening "
+                   << "connection for this multi-node config. Render clients "
+                   << "will be unable to communicate with the server."
+                   << std::endl;
+        }
     }
 
     node->send( reply, co::serialize( descs ));

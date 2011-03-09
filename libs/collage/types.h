@@ -73,8 +73,11 @@ typedef Objects::const_iterator                  ObjectsCIter;
 
 /** A vector of Barriers. */
 typedef std::vector< Barrier* >                  Barriers;
+
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
+/** A const iterator for a vector of ConnectionPtr's. */
+typedef Connections::const_iterator   ConnectionsCIter;
 
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;

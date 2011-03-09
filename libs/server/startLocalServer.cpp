@@ -49,7 +49,6 @@ protected:
     virtual void run()
         {
             _server->run();
-
             _server->close();
             _server->deleteConfigs();
 
@@ -90,16 +89,16 @@ EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
+    eq::server::Loader::addOutputCompounds( server );
+    eq::server::Loader::addDestinationViews( server );
+    eq::server::Loader::addDefaultObserver( server );
+    eq::server::Loader::convertTo11( server );
+
     if( !server->listen( ))
     {
         EQERROR << "Failed to setup server listener" << std::endl;
         return 0;
     }
-
-    eq::server::Loader::addOutputCompounds( server );
-    eq::server::Loader::addDestinationViews( server );
-    eq::server::Loader::addDefaultObserver( server );
-    eq::server::Loader::convertTo11( server );
 
     co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))

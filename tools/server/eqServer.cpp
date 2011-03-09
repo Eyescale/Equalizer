@@ -59,6 +59,14 @@ int main( const int argc, char** argv )
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
 
+    if( server->getConnectionDescriptions().empty( )) // add default listener
+    {
+        EQINFO << "Adding default server connection" << std::endl;
+        co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
+        connDesc->port = co::Global::getDefaultPort();
+        server->addConnectionDescription( connDesc );
+    }
+
     if( !server->initLocal( argc, argv ))
     {
         EQERROR << "Can't create listener for server, please consult log" 
