@@ -1,4 +1,4 @@
-Fix bug item 3199651 Improve handling of unsupported
+Fix bug item 3203934  Channel statistics-related race  
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

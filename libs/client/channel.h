@@ -544,9 +544,8 @@ namespace eq
 
         typedef std::vector< FrameStatistics > StatisticsRB;
 
-        /** The statistics events gathered during the current frame. */
-        StatisticsRB _statistics;
-        
+        /** Global statistics events, index per frame and channel. */
+        co::base::Lockable< StatisticsRB, co::base::SpinLock > _statistics;
         /* Index of current vector StatisticsRB */ 
         uint32_t _statisticsIndex;
         friend class ChannelStatistics;

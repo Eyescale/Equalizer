@@ -46,6 +46,7 @@
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/base/rng.h>
+#include <co/base/scopedMutex.h>
 
 namespace eq
 {
@@ -66,7 +67,7 @@ Channel::Channel( Window* parent )
 
 Channel::~Channel()
 {  
-    _statistics.clear();
+    _statistics->clear();
     EQASSERT( !_fbo );
 }
 
@@ -307,9 +308,10 @@ void Channel::notifyViewportChanged()
 
 void Channel::addStatistic( Event& event, const uint32_t index )
 {
-    EQASSERT( index < _statistics.size( ));
-    EQASSERT( _statistics[ index ].used > 0 );
-    Statistics& statistics = _statistics[ index ].data;
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    EQASSERT( index < _statistics->size( ));
+    EQASSERT( _statistics->at( index ).used > 0 );
+    Statistics& statistics = _statistics->at( index ).data;
 
     statistics.push_back( event.statistic );
     processEvent( event );
@@ -472,13 +474,13 @@ const View* Channel::getNativeView() const
 void Channel::changeLatency( const uint32_t latency )
 {
 #ifndef NDEBUG
-    for(  StatisticsRB::const_iterator i = _statistics.begin();
-         i != _statistics.end(); ++i )
+    for(  StatisticsRB::const_iterator i = _statistics->begin();
+         i != _statistics->end(); ++i )
     {
         EQASSERT( (*i).used == 0 );
     }
 #endif //NDEBUG
-    _statistics.resize( latency + 1 );
+    _statistics->resize( latency + 1 );
     _statisticsIndex = 0;
 }
 
@@ -1137,7 +1139,7 @@ void Channel::outlineViewport()
 
 void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 {
-    Channel::FrameStatistics& stats = _statistics[ index ];
+    Channel::FrameStatistics& stats = _statistics->at( index );
     if( --stats.used != 0 ) // Frame still in use
         return;
 
@@ -1410,10 +1412,11 @@ bool Channel::_cmdFrameStart( co::Command& command )
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
 
-    _statisticsIndex = ( _statisticsIndex + 1 ) % _statistics.size();
-    EQASSERT( _statistics[ _statisticsIndex ].data.empty( ));
-    EQASSERT( _statistics[ _statisticsIndex ].used == 0 );
-    _statistics[ _statisticsIndex ].used = 1;
+    _statisticsIndex = ( _statisticsIndex + 1 ) % _statistics->size();
+    FrameStatistics& statistic = _statistics->at( _statisticsIndex );
+    EQASSERT( statistic.data.empty( ));
+    EQASSERT( statistic.used == 0 );
+    statistic.used = 1;
     resetContext();
     return true;
 }
@@ -1581,7 +1584,7 @@ bool Channel::_cmdFrameTransmit( co::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << std::endl;
 
-    ++_statistics[ _statisticsIndex ].used;
+    ++_statistics->at( _statisticsIndex ).used;
 
     packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
     packet->statisticsIndex = _statisticsIndex;
