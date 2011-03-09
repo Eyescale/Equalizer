@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -121,6 +121,9 @@ ObserverPath Observer< C, O >::getPath() const
 template< typename C, typename O >
 void Observer< C, O >::setEyeBase( const float eyeBase )
 {
+    if( _data.eyeBase == eyeBase )
+        return;
+
     _data.eyeBase = eyeBase;
     setDirty( DIRTY_EYE_BASE );
 }
@@ -128,6 +131,9 @@ void Observer< C, O >::setEyeBase( const float eyeBase )
 template< typename C, typename O >
 void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
+    if( _data.headMatrix == matrix )
+        return;
+
     _data.headMatrix = matrix;
     setDirty( DIRTY_HEAD );
 }

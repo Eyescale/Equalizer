@@ -253,12 +253,7 @@ namespace server
          */
         void disableBuffer( const Frame::Buffer buffer )
             { _data.buffers &= ~buffer; }
- 
-        /** @internal */
-        void setSendToken( const bool use ) { _useSendToken = use; }
-        /** @internal */       
-        bool getSendToken(){ return _useSendToken; }
-        //@}
+         //@}
 
         /** @internal */
         bool addImage( const NodeFrameDataTransmitPacket* packet );
@@ -310,7 +305,6 @@ namespace server
         co::base::Lockable< Listeners, co::base::SpinLock > _listeners;
 
         bool _useAlpha;
-        bool _useSendToken;
         float _colorQuality;
         float _depthQuality;
 

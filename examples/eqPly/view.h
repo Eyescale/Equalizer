@@ -59,8 +59,8 @@ namespace eqPly
             /** The changed parts of the view. */
             enum DirtyBits
             {
-                DIRTY_MODEL       = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-                DIRTY_IDLE        = eq::fabric::Serializable::DIRTY_CUSTOM << 1
+                DIRTY_MODEL = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
+                DIRTY_IDLE  = eq::fabric::Serializable::DIRTY_CUSTOM << 1
             };
 
             virtual void serialize( co::DataOStream& os,

@@ -44,7 +44,6 @@ typedef co::CommandFunc<FrameData> CmdFunc;
 FrameData::FrameData() 
         : _version( co::VERSION_NONE.low( ))
         , _useAlpha( true )
-        , _useSendToken( false )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
 {
