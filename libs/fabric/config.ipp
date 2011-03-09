@@ -535,7 +535,7 @@ void Config< S, C, O, L, CV, N, V >::setLatency( const uint32_t latency )
         return;
 
     _data.latency = latency;
-    setDirty( DIRTY_MEMBER );
+    setDirty( DIRTY_LATENCY );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -559,7 +559,7 @@ void Config< S, C, O, L, CV, N, V >::restore()
     }
     else
         _data = _backup;
-    setDirty( DIRTY_MEMBER );
+    setDirty( DIRTY_MEMBER | DIRTY_LATENCY );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

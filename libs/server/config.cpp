@@ -945,7 +945,7 @@ bool Config::_cmdInit( co::Command& command )
     if( !reply.result )
         exit();
 
-    sync( co::VERSION_HEAD );
+    sync();
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
 
