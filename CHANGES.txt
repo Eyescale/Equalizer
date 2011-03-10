@@ -1,6 +1,11 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+10/Mar/2011
+  Do not include window system headers by default to avoid global
+  namespace pollution. Define EQ_SYSTEM_INCLUDES before including
+  eq/eq.h to get previous definitions.
+
 01/Mar/2011
   Added new 'incarnation' parameter to co::Object::commit, with a
   default parameter selecting the previous behavior for commit wrt auto
