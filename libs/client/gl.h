@@ -18,9 +18,6 @@
 #ifndef EQ_GL_H
 #define EQ_GL_H
 
-#include <eq/api.h>
-
-#include <string>
 /**
  * @file eq/gl.h
  * 
@@ -30,7 +27,14 @@
  * trouble with your system-installed OpenGL header and do not need GLEW.
  */
 
+#include <eq/api.h>
+
+#include <string>
+
 /** @cond IGNORE */
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
 #ifndef EQ_IGNORE_GLEW
 #  include <GL/glew.h>
 #  ifdef GLX
