@@ -32,6 +32,7 @@
 #include "types.h"
 #include "unbufferedMasterCM.h"
 
+#include "base/cpuCompressor.h"
 #include <co/base/scopedMutex.h>
 #include <iostream>
 
@@ -327,6 +328,11 @@ void Object::notifyNewHeadVersion( const uint128_t& version )
     EQASSERTINFO( getVersion() == VERSION_NONE || 
                   version < getVersion() + 100, 
                   base::className( this ));
+}
+
+uint32_t Object::chooseCompressor() const
+{
+    return base::CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
 }
 
 uint32_t Object::getMasterInstanceID() const

@@ -252,7 +252,7 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
 
     _localNode->flushCommands(); // redispatch pending commands
 
-    EQLOG( LOG_OBJECTS ) << "attached " << object << " @" 
+    EQLOG( LOG_OBJECTS ) << "attached " << *object << " @" 
                          << static_cast< void* >( object ) << std::endl;
 }
 

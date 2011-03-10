@@ -86,6 +86,17 @@ namespace co
         /** @return how the changes are to be handled. */
         virtual ChangeType getChangeType() const { return STATIC; }
 
+        /**
+         * Return the compressor to be used for data transmission.
+         *
+         * This default implementation chooses the compressor with the highest
+         * compression ratio with lossless compression for
+         * EQ_COMPRESSOR_DATATYPE_BYTE tokens. The application may override this
+         * method to deactivate compression by returning EQ_COMPRESSOR_NONE or
+         * to select object-specific compressors.
+         */
+        CO_API virtual uint32_t chooseCompressor() const;
+
         /** 
          * Return if this object needs a commit.
          * 

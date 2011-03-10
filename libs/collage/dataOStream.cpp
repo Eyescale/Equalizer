@@ -52,9 +52,6 @@ DataOStream::DataOStream()
         , _dataSent( false )
         , _save( false )
 {
-    EQCHECK( _compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f ));
-    EQ_TS_RESET( _compressor->_thread );
-    EQVERB << "Using byte compressor " << _compressor->getName() << std::endl;
 }
 
 DataOStream::~DataOStream()
@@ -62,6 +59,12 @@ DataOStream::~DataOStream()
     // Can't call disable() from destructor since it uses virtual functions
     EQASSERT( !_enabled );
     delete _compressor;
+}
+
+void DataOStream::_initCompressor( const uint32_t compressor )
+{
+    EQCHECK( _compressor->base::Compressor::initCompressor( compressor ));
+    EQ_TS_RESET( _compressor->_thread );
 }
 
 void DataOStream::_enable()

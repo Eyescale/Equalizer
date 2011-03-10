@@ -439,15 +439,22 @@ namespace eq
         class LatencyObject : public co::Object
         {
         public:
-            LatencyObject( const ChangeType type ) : _changeType( type ) {}
-            uint32_t frameNumber;
+            LatencyObject( const ChangeType type, const uint32_t compressor,
+                           const uint32_t frame )
+                    : frameNumber( frame ), _changeType( type ),
+                      _compressor( compressor ) {}
+
+            const uint32_t frameNumber;
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
             virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
             virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
+            virtual uint32_t chooseCompressor() const { return _compressor; }
+
         private:
             const ChangeType _changeType;
+            const uint32_t _compressor;
         };
         
         /** list of the current latency object */

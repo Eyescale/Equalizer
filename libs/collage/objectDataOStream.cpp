@@ -18,6 +18,7 @@
 
 #include "objectDataOStream.h"
 
+#include "log.h"
 #include "objectCM.h"
 #include "objectPackets.h"
 
@@ -27,6 +28,18 @@
 
 namespace co
 {
+ObjectDataOStream::ObjectDataOStream( const ObjectCM* cm )
+        : _cm( cm )
+        , _version( VERSION_INVALID )
+        , _sequence( 0 )
+{
+    const Object* object = cm->getObject();
+    const uint32_t name = object->chooseCompressor();
+    _initCompressor( name );
+    EQLOG( LOG_OBJECTS )
+        << "Using byte compressor 0x" << std::hex << name << std::dec << " for "
+        << base::className( object ) << std::endl;
+}
 
 void ObjectDataOStream::reset()
 {

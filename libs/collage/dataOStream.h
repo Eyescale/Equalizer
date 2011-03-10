@@ -85,6 +85,9 @@ namespace DataStreamTest
         //@}
  
     protected:
+        /** Initialize the given compressor. */
+        void _initCompressor( const uint32_t compressor );
+
         /** Enable output. */
         CO_API void _enable();
 

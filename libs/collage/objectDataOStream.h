@@ -29,8 +29,7 @@ namespace co
     class ObjectDataOStream : public DataOStream
     {
     public:
-        ObjectDataOStream( const ObjectCM* cm )
-                : _cm( cm ), _version( VERSION_INVALID ) , _sequence( 0 ) {}
+        ObjectDataOStream( const ObjectCM* cm );
         virtual ~ObjectDataOStream(){}
  
         virtual void reset();

@@ -771,7 +771,7 @@ void Config::_releaseObjects()
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
-        if ( latencyObject->frameNumber > _currentFrame )
+        if( latencyObject->frameNumber > _currentFrame )
             break;
 
         client->deregisterObject( latencyObject );
@@ -907,8 +907,9 @@ bool Config::_cmdSwapObject( co::Command& command )
 
     co::Object* object = packet->object;
 
-    LatencyObject* latencyObject = new LatencyObject( object->getChangeType( ));
-    latencyObject->frameNumber   = _currentFrame + getLatency() + 1;
+    LatencyObject* latencyObject =
+        new LatencyObject( object->getChangeType(), object->chooseCompressor(),
+                           _currentFrame + getLatency() + 1 );
 
     getLocalNode()->swapObject( object, latencyObject  );
     

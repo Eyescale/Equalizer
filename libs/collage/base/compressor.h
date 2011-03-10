@@ -38,7 +38,7 @@ namespace base
         COBASE_API virtual ~Compressor();
 
         /**
-         * Initialize the specified compressor or downloader 
+         * Initialize the specified compressor or downloader.
          *
          * @param name the name of the compressor
          * @return true on success, false otherwise.
@@ -46,7 +46,7 @@ namespace base
         COBASE_API bool initCompressor( uint32_t name );
 
         /**
-         * Initialize the specified decompressor or uploader 
+         * Initialize the specified decompressor or uploader. 
          *
          * @param name the name of the compressor
          * @return true on success, false otherwise.
