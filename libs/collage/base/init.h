@@ -27,9 +27,6 @@ namespace base
     /** 
      * Initialize the Equalizer base classes.
      *
-     * If the command line parameter '--eq-logfile &lt;filename&gt;' is present,
-     * all log output is redirected to the given file.
-     *
      * @param argc the command line argument count.
      * @param argv the command line argument values.
      * @return true if the library was successfully initialised, false otherwise

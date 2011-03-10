@@ -30,6 +30,8 @@ namespace eq
      *
      * The following command line options are recognized by this function:
      * <ul>
+     *   <li>--eq-logfile &lt;filename&gt; redirect all log output to the given
+     *         file.</li>
      *   <li>--eq-server &lt;hostname&gt; to specify an explicit server
      *         address (cf. Global::setServer())</li>
      *   <li>--eq-config &lt;filename&gt; to specify the configuration file if
