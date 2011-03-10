@@ -221,7 +221,8 @@ bool Client::initLocal( const int argc, char** argv )
         EQVERB << "Client node started from command line with option " 
                << clientOpts << std::endl;
 
-        EQCHECK( _setupClient( clientOpts ));
+        if( !_setupClient( clientOpts ))
+            return false;
         clientLoop();
         exitClient();
     }
