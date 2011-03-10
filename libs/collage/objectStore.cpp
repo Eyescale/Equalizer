@@ -169,6 +169,8 @@ void ObjectStore::disableSendOnRegister()
 //---------------------------------------------------------------------------
 NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
 {
+    EQ_TS_NOT_THREAD( _commandThread );
+
     // OPT: look up locally first?
     Nodes nodes;
     _localNode->getNodes( nodes );
@@ -177,6 +179,8 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     for( Nodes::iterator i = nodes.begin(); i != nodes.end(); i++ )
     {
         NodePtr node = *i;
+        EQLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
+                             << std::endl;
 
         NodeFindMasterNodeIDPacket packet;
         packet.requestID = _localNode->registerRequest();
@@ -185,10 +189,12 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
 
         NodeID masterNodeID = base::UUID::ZERO;
         _localNode->waitRequest( packet.requestID, masterNodeID );
-        EQLOG( LOG_OBJECTS ) << "Find " << identifier << " on " << node << ": "
-                             << masterNodeID << std::endl;
         if( masterNodeID != base::UUID::ZERO )
+        {
+            EQLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
+                                 << masterNodeID << std::endl;
             return masterNodeID;
+        }
     }
 
     return base::UUID::ZERO;
