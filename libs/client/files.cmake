@@ -7,6 +7,7 @@ set(CLIENT_HEADERS
   aglPipe.h
   aglWindow.h
   aglWindowEvent.h
+  aglTypes.h
   api.h
   base.h
   canvas.h

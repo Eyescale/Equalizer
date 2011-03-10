@@ -18,8 +18,8 @@
 #ifndef EQ_AGLMESSAGEPUMP_H
 #define EQ_AGLMESSAGEPUMP_H
 
+#include <eq/aglTypes.h>
 #include <eq/messagePump.h>  // base class
-#include <eq/types.h>
 
 namespace eq
 {

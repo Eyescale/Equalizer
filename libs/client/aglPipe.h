@@ -19,8 +19,8 @@
 #ifndef EQ_AGL_PIPE_H
 #define EQ_AGL_PIPE_H
 
+#include <eq/aglTypes.h>
 #include <eq/systemPipe.h> // base class
-#include <eq/types.h>
 
 namespace eq
 {

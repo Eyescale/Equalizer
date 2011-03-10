@@ -18,6 +18,7 @@
 #ifndef EQ_AGLEVENTHANDLER_H
 #define EQ_AGLEVENTHANDLER_H
 
+#include <eq/aglTypes.h>
 #include <eq/eventHandler.h> // base class
 
 namespace eq
