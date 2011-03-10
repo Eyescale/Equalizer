@@ -222,7 +222,11 @@ bool Client::initLocal( const int argc, char** argv )
                << clientOpts << std::endl;
 
         if( !_setupClient( clientOpts ))
+        {
+            exitLocal();
             return false;
+        }
+
         clientLoop();
         exitClient();
     }
