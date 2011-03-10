@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,6 @@
 #define EQ_WGLWINDOWEVENT_H
 
 #include <eq/event.h>        // base class
-#include <eq/windowSystem.h> // windows.h
 
 namespace eq
 {
