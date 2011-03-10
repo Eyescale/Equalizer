@@ -102,6 +102,7 @@
 #include <eq/pipe.h>
 #include <eq/server.h>
 #include <eq/segment.h>
+#include <eq/systemWindow.h>
 #include <eq/types.h>
 #include <eq/version.h>
 #include <eq/view.h>

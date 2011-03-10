@@ -54,7 +54,8 @@ bool GLXPipe::configInit( )
     if( !xDisplay )
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
-        EQWARN << getError() << ": " << XDisplayName( displayName.c_str( ));
+        EQWARN << getError() << " " << XDisplayName( displayName.c_str( ))
+               << co::base::sysError << std::endl;
         return false;
     }
 
