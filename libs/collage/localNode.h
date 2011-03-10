@@ -397,7 +397,7 @@ namespace co
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
-        NodePtr _connect( const NodeID& nodeID, NodePtr server );
+        NodePtr _connect( const NodeID& nodeID, NodePtr peer );
 
         /** 
          * @return <code>true</code> if executed from the command handler

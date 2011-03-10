@@ -653,11 +653,11 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
             return node;
     }
         
-    EQWARN << "Node connection failed" << std::endl;
+    EQWARN << "Node " << nodeID << " connection failed" << std::endl;
     return 0;
 }
 
-NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
+NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 {
     EQASSERT( nodeID != NodeID::ZERO );
 
@@ -690,14 +690,15 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
     NodeGetNodeDataPacket packet;
     packet.requestID = registerRequest();
     packet.nodeID    = nodeID;
-    server->send( packet );
+    peer->send( packet );
 
     void* result = 0;
     waitRequest( packet.requestID, result );
 
     if( !result )
     {
-        EQWARN << "Node not found on server" << std::endl;
+        EQINFO << "Node " << nodeID << " not found on " << peer->getNodeID() 
+               << std::endl;
         return 0;
     }
 
