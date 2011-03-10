@@ -185,24 +185,15 @@ typedef std::map< uint32_t, Statistics > SortedStatistics;
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 /** @endcond */
-
-#ifdef EQ_USE_DEPRECATED
-typedef Configs ConfigVector;
-typedef Nodes NodeVector;
-typedef Pipes PipeVector;
-typedef Windows WindowVector;
-typedef Channels ChannelVector;
-typedef Frames FrameVector;
-typedef Images ImageVector;
-typedef Observers ObserverVector;
-typedef Canvases CanvasVector;
-typedef Layouts LayoutVector;
-typedef Segments SegmentVector;
-typedef Views ViewVector;
-typedef Viewports ViewportVector;
-typedef PixelViewports PixelViewportVector;
-typedef Statistics StatisticVector;
-typedef Strings StringVector;
-#endif
 }
+
+/** @cond IGNORE */
+struct GLEWContextStruct;
+struct WGLEWContextStruct;
+struct GLXEWContextStruct;
+typedef struct GLEWContextStruct GLEWContext;
+typedef struct WGLEWContextStruct WGLEWContext;
+typedef struct GLXEWContextStruct GLXEWContext;
+/** @endcond */
+
 #endif // EQ_TYPES_H

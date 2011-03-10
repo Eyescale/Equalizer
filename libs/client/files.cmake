@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 set(CLIENT_HEADERS
   aglEventHandler.h
@@ -31,6 +31,7 @@ set(CLIENT_HEADERS
   eye.h
   frame.h
   frameData.h
+  gl.h
   glWindow.h
   glXEventHandler.h
   glXMessagePump.h
@@ -93,6 +94,7 @@ set(CLIENT_SOURCES
   eventHandler.cpp
   frame.cpp
   frameData.cpp
+  gl.cpp
   glWindow.cpp
   global.cpp
   image.cpp
