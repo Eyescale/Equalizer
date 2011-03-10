@@ -22,6 +22,7 @@
 #include "aglPipe.h"
 #include "aglWindowEvent.h"
 #include "global.h"
+#include "os.h"
 #include "pipe.h"
 #include "window.h"
 

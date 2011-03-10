@@ -22,7 +22,7 @@
 #include <eq/util/texture.h> // member
 #include <eq/util/types.h>
 
-#include <eq/os.h>           // for GLEW
+#include <eq/gl.h>           // for GLEW
 #include <co/base/error.h>
 
 #include <vector>

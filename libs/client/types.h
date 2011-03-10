@@ -19,6 +19,7 @@
 #ifndef EQ_TYPES_H
 #define EQ_TYPES_H
 
+#include <eq/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
@@ -188,12 +189,25 @@ typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 }
 
 /** @cond IGNORE */
+// GLEW
 struct GLEWContextStruct;
 struct WGLEWContextStruct;
 struct GLXEWContextStruct;
 typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
 typedef struct GLXEWContextStruct GLXEWContext;
+
+#ifdef AGL
+typedef uint32_t CGDirectDisplayID;
+typedef struct OpaqueWindowPtr* WindowPtr;
+typedef WindowPtr WindowRef;
+typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
+typedef struct __AGLContextRec* AGLContext;
+typedef struct __AGLPixelFormatRec* AGLPixelFormat;
+typedef struct __AGLPBufferRec* AGLPbuffer;
+typedef struct OpaqueEventRef* EventRef;
+typedef struct OpaqueEventQueueRef* EventQueueRef;
+#endif
 /** @endcond */
 
 #endif // EQ_TYPES_H

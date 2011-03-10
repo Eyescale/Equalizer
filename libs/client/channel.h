@@ -21,7 +21,7 @@
 
 #include <eq/event.h>          // member
 #include <eq/types.h>
-#include <eq/os.h>             // GLEWContext
+#include <eq/gl.h>             // GLEWContext
 
 #include <eq/fabric/channel.h>        // base class
 #include <eq/fabric/drawableConfig.h> // member

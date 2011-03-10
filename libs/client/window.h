@@ -19,7 +19,7 @@
 #ifndef EQ_WINDOW_H
 #define EQ_WINDOW_H
 
-#include <eq/os.h>            // GLEWContext
+#include <eq/gl.h>            // GLEWContext
 #include <eq/types.h>
 #include <eq/visitorResult.h> // enum
 

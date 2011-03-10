@@ -108,15 +108,6 @@ typedef void* GLXContext;
 typedef void* GLXFBConfig;
 #endif
 
-#ifndef AGL
-typedef int32_t CGDirectDisplayID;
-typedef void*   WindowRef;
-typedef void*   EventHandlerRef;
-typedef void*   AGLContext;
-typedef void*   AGLPixelFormat;
-typedef void*   AGLPbuffer;
-#endif
-
 #ifndef WGL
 typedef void* HDC;
 typedef void* HWND;

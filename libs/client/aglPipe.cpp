@@ -19,11 +19,10 @@
 #include "aglPipe.h"
 
 #include "global.h"
+#include "os.h"
 #include "pipe.h"
 
 #include <sstream>
-
-using namespace std;
 
 namespace eq
 {
@@ -43,7 +42,6 @@ AGLPipe::~AGLPipe( )
 //---------------------------------------------------------------------------
 bool AGLPipe::configInit()
 {
-#ifdef AGL
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
 
@@ -69,18 +67,13 @@ bool AGLPipe::configInit()
     }
 
     _setCGDisplayID( displayID );
-    EQINFO << "Using CG displayID " << displayID << endl;
+    EQINFO << "Using CG displayID " << displayID << std::endl;
     return true;
-#else
-    setError( ERROR_AGL_MISSING_SUPPORT );
-    return false;
-#endif
 }
 
 
 void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
 {
-#ifdef AGL
     if( _cgDisplayID == id )
         return;
 
@@ -102,16 +95,13 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
         pvp.invalidate();
 
     getPipe()->setPixelViewport( pvp );
-#endif
 }
 
 
 void AGLPipe::configExit()
 {
-#ifdef AGL
     _setCGDisplayID( kCGNullDirectDisplay );
-    EQINFO << "Reset CG displayID " << endl;
-#endif
+    EQINFO << "Reset CG displayID " << std::endl;
 }
 
 } //namespace eq

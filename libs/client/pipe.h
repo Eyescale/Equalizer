@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@
 #define EQ_PIPE_H
 
 #include <eq/eye.h>            // Eye enum
-#include <eq/os.h>             // WGLEWContext
+#include <eq/gl.h>             // WGLEWContext
 #include <eq/types.h>
 #include <eq/visitorResult.h>  // enum
 #include <eq/windowSystem.h>   // enum

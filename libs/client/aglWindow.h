@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+                      2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,8 +65,7 @@ namespace eq
          * pipe's system pipe (AGLPipe).
          * @version 1.0
          */
-        EQ_API AGLWindow( Window* parent,
-                          CGDirectDisplayID displayID = kCGNullDirectDisplay );
+        EQ_API AGLWindow( Window* parent, CGDirectDisplayID displayID = 0 );
 
         /** Destruct the AGL window. @version 1.0 */
         EQ_API virtual ~AGLWindow();

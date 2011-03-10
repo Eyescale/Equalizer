@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #define EQ_AGLMESSAGEPUMP_H
 
 #include <eq/messagePump.h>  // base class
-#include <eq/os.h>           // EventQueueRef definition
+#include <eq/types.h>
 
 namespace eq
 {
