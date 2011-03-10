@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,12 +18,10 @@
 // We need to instantiate a PerThread< DisplayPtr >
 #include <pthread.h>
 
-#include "os.h"
+#include "glXTypes.h"
 
-#include <co/base/debug.h>
 #include <co/base/perThread.h>
 
-#ifdef GLX
 namespace eq
 {
 namespace
@@ -64,4 +62,3 @@ Display* XGetCurrentDisplay()
 }
 
 }
-#endif // GLX

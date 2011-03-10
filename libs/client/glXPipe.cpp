@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,6 +27,7 @@
 
 namespace eq
 {
+static int XErrorHandler( Display* display, XErrorEvent* event );
 
 GLXPipe::GLXPipe( Pipe* parent )
         : SystemPipe( parent )
@@ -119,7 +120,7 @@ void GLXPipe::setXDisplay( Display* display )
     {
 #ifndef NDEBUG
         // somewhat reduntant since it is a global handler
-        XSetErrorHandler( eq::GLXPipe::XErrorHandler );
+        XSetErrorHandler( XErrorHandler );
 #endif
 
         std::string displayString = DisplayString( display );
@@ -236,7 +237,7 @@ bool GLXPipe::_configInitGLXEW()
     return success;
 }
 
-int GLXPipe::XErrorHandler( Display* display, XErrorEvent* event )
+int XErrorHandler( Display* display, XErrorEvent* event )
 {
     EQWARN << co::base::disableFlush;
     EQWARN << "X Error occured: " << co::base::disableHeader 

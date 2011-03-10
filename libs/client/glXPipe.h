@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,8 +19,9 @@
 #ifndef EQ_GLX_PIPE_H
 #define EQ_GLX_PIPE_H
 
+#include <eq/gl.h>         // GLXEWContext
+#include <eq/glXTypes.h>
 #include <eq/systemPipe.h> // base class
-#include <eq/os.h>     // X11 types
 
 namespace eq
 {
@@ -89,8 +90,6 @@ namespace eq
         virtual bool configInitGL() { return true; }
 
     private:
-        static int XErrorHandler( Display* display, XErrorEvent* event );
-
         /** Window-system specific display information. */
         Display* _xDisplay;
  

@@ -25,9 +25,9 @@
 #include "glXMessagePump.h"
 #include "global.h"
 #include "log.h"
+#include "os.h"
 #include "pipe.h"
 #include "window.h"
-#include "X11Connection.h"
 
 #include <co/base/perThread.h>
 

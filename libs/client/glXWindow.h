@@ -20,7 +20,6 @@
 #define EQ_OS_WINDOW_GLX_H
 
 #include <eq/glWindow.h>       // base class
-#include <eq/glXWindowEvent.h> // used in inline method
 
 namespace eq
 {

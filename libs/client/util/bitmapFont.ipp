@@ -29,6 +29,9 @@
 
 #include "objectManager.h"
 
+#ifdef GLX
+#  include <eq/glXTypes.h>
+#endif
 #include <eq/os.h>
 #include <co/base/debug.h>
 #include <co/base/lock.h>

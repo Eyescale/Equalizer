@@ -100,14 +100,6 @@ typedef BOOL (WINAPI * PFNWGLDELETEDCNVPROC) (HDC hAffinityDC);
 #  endif // WGL_NV_gpu_affinity
 #endif
 
-#ifndef GLX
-typedef void Display;
-typedef void XErrorEvent;
-typedef unsigned long XID;
-typedef void* GLXContext;
-typedef void* GLXFBConfig;
-#endif
-
 #ifndef WGL
 typedef void* HDC;
 typedef void* HWND;
@@ -117,27 +109,6 @@ typedef void* HGLRC;
 #  define WINAPI
 #endif
 /** @endcond */
-
-namespace eq
-{
-#ifdef GLX
-/** 
- * Set the current X display connection.
- *
- * This function stores a per-thread display connection, similar to the current
- * WGL/AGL context. It is used by some  eq and eq::util classes to retrieve the
- * display without having to know the eq::Pipe. The GLXPipe sets it
- * automatically. Applications using the GLX window system with a custom
- * SystemPipe implementation have to set it using this function.
- *
- * @param display the current display connection to use.
- */
-void XSetCurrentDisplay( Display* display );
-
-/** @return the current display connection for the calling thread. */
-Display* XGetCurrentDisplay();
-#endif
-}
 
 #endif // EQ_OS_H
 

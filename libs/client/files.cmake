@@ -5,9 +5,9 @@ set(CLIENT_HEADERS
   aglEventHandler.h
   aglMessagePump.h
   aglPipe.h
+  aglTypes.h
   aglWindow.h
   aglWindowEvent.h
-  aglTypes.h
   api.h
   base.h
   canvas.h
@@ -37,6 +37,7 @@ set(CLIENT_HEADERS
   glXEventHandler.h
   glXMessagePump.h
   glXPipe.h
+  glXTypes.h
   glXWindow.h
   glXWindowEvent.h
   global.h
@@ -106,7 +107,6 @@ set(CLIENT_SOURCES
   nodeFactory.cpp
   nodeStatistics.cpp
   observer.cpp
-  os.cpp
   pipe.cpp
   pipeStatistics.cpp
   pixelData.cpp
@@ -149,6 +149,7 @@ endif(WIN32)
 if(EQ_GLX_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     glXEventHandler.cpp
+    glXTypes.cpp
     glXMessagePump.cpp
     glXWindow.cpp
     glXPipe.cpp
