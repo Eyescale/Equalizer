@@ -15,7 +15,7 @@ server
         appNode
         {
             connection { hostname "127.0.0.1" }
-#            connection { hostname "roku.local" }
+            connection { hostname "roku.local" }
             pipe 
             {
                 window

@@ -1,6 +1,6 @@
 
 /* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2006 Robert Osfield 
- *                           2010 Stefan Eilemann <eile@eyescale.ch>
+ *                           2010-2011 Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is open source and may be redistributed and/or modified under  
  * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or 
@@ -17,6 +17,7 @@
 #include <osgUtil/UpdateVisitor>
 #include <osgUtil/GLObjectsVisitor>
 
+#include <osg/Version>
 #include <osg/Timer>
 #include <osg/GLExtensions>
 #include <osg/GLObjects>
@@ -248,7 +249,12 @@ void SceneView::updateUniforms()
     
     if ((_activeUniforms & FRAME_NUMBER_UNIFORM) && _frameStamp.valid())
     {
+#if OSG_MIN_VERSION_REQUIRED(2,9,11)
         osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_FrameNumber",osg::Uniform::UNSIGNED_INT);
+#else
+        osg::Uniform* uniform = _localStateSet->getOrCreateUniform("osg_FrameNumber",osg::Uniform::INT);
+#endif
+
         uniform->set(_frameStamp->getFrameNumber());        
     }
     
