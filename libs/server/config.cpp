@@ -528,15 +528,36 @@ bool Config::_updateRunning()
     return result;
 }
 
-void Config::_updateCanvases()
+bool Config::_connectNodes()
 {
-    const Canvases& canvases = getCanvases();
-    for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
+    bool success = true;
+    co::base::Clock clock;
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        Canvas* canvas = *i;
-        if( canvas->needsDelete( ))
-            canvas->exit();
+        Node* node = *i;
+        if( !node->isActive( ))
+            continue;
+
+        if( !node->connect( ))
+        {
+            setError( node->getError( ));
+            success = false;
+            break;
+        }
     }
+
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isActive() && !node->syncLaunch( clock ))
+        {
+            setError( node->getError( ));
+            success = false;
+        }
+    }
+
+    return success;
 }
 
 void Config::_startNodes()
@@ -568,39 +589,16 @@ void Config::_startNodes()
     }
 }
 
-//----- connect new nodes
-bool Config::_connectNodes()
+void Config::_updateCanvases()
 {
-    bool success = true;
-    co::base::Clock clock;
-    const Nodes& nodes = getNodes();
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Canvases& canvases = getCanvases();
+    for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
     {
-        Node* node = *i;
-        if( node->isActive( ))
-        {
-            if( !node->connect( ))
-            {
-                setError( node->getError( ));
-                success = false;
-                break;
-            }
-        }
+        Canvas* canvas = *i;
+        if( canvas->needsDelete( ))
+            canvas->exit();
     }
-
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        Node* node = *i;
-        if( node->isActive() && !node->syncLaunch( clock ))
-        {
-            setError( node->getError( ));
-            success = false;
-        }
-    }
-
-    return success;
 }
-
 
 void Config::_stopNodes()
 {
@@ -611,14 +609,10 @@ void Config::_stopNodes()
     {
         Node* node = *i;
         const State state = node->getState();
-
-        if( !node->isActive() && state == STATE_FAILED )
-            node->setState( STATE_STOPPED );
-
-        if( state != STATE_STOPPED )
+        if( state != STATE_STOPPED && state != STATE_FAILED )
             continue;
 
-        EQASSERT( !node->isActive( ));
+        EQASSERT( !node->isActive() || state == STATE_FAILED );
         if( node->isApplicationNode( ))
             continue;
 
@@ -628,8 +622,10 @@ void Config::_stopNodes()
 
         EQLOG( LOG_INIT ) << "Exiting node" << std::endl;
 
+        if( state == STATE_FAILED )
+            node->setState( STATE_STOPPED );
+
         stoppingNodes.push_back( node );
-        EQASSERT( !node->isActive( ));
         EQASSERT( netNode.isValid( ));
 
         fabric::ServerDestroyConfigPacket destroyConfigPacket;
@@ -650,12 +646,8 @@ void Config::_stopNodes()
         node->setNode( 0 );
 
         if( nSleeps )
-        {
             while( netNode->isConnected() && --nSleeps )
-            {
                 co::base::sleep( 100 ); // ms
-            }
-        }
 
         if( netNode->isConnected( ))
         {
