@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
@@ -14,6 +14,7 @@ eq_add_example(eqPly
     config.h
     configEvent.h
     eqPly.h
+    error.h
     frameData.h
     initData.h
     localInitData.h
@@ -40,6 +41,7 @@ eq_add_example(eqPly
     config.cpp
     configEvent.cpp
     eqPly.cpp
+    error.cpp
     frameData.cpp
     initData.cpp
     localInitData.cpp

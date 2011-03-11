@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -71,17 +71,19 @@ bool Config::init()
     return true;
 }
 
-void Config::mapData( const eq::uint128_t& initDataID )
+bool Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached() )
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        if( !mapObject( &_initData, initDataID ))
+            return false;
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
         EQASSERT( _initData.getID() == initDataID );
     }
+    return true;
 }
 
 bool Config::exit()

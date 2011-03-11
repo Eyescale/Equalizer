@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,28 +26,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "node.h"
+#ifndef EQPLY_ERROR_H
+#define EQPLY_ERROR_H
 
-#include "config.h"
-#include "error.h"
+#include <eq/error.h>
 
-namespace eVolve
+namespace eqPly
 {
-bool Node::configInit( const eq::uint128_t& initID )
-{
-    if( !eq::Node::configInit( initID ))
-        return false;
-
-    // All render data is static or multi-buffered, we can run asynchronously
-    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
-
-    Config* config = static_cast< Config* >( getConfig( ));
-    if( !config->mapData( initID ))
+    /** Defines errors produced by eqPly. */
+    enum Error
     {
-        setError( ERROR_EVOLVE_MAPOBJECT_FAILED );
-        return false;
-    }
-    return true;
+        ERROR_EQPLY_MAPOBJECT_FAILED = eq::ERROR_CUSTOM
+    };
+
+    /** Set up eqPly-specific error codes. */
+    void initErrors();
+
+    /** Clear eqPly-specific error codes. */
+    void exitErrors();
 }
-}
+#endif // EQPLY_ERROR_H

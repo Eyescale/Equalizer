@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,28 +26,45 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "node.h"
-
-#include "config.h"
 #include "error.h"
 
-namespace eVolve
-{
-bool Node::configInit( const eq::uint128_t& initID )
-{
-    if( !eq::Node::configInit( initID ))
-        return false;
+#include <co/base/errorRegistry.h>
+#include <co/base/global.h>
 
-    // All render data is static or multi-buffered, we can run asynchronously
-    if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
-        setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
+namespace eqPly
+{
 
-    Config* config = static_cast< Config* >( getConfig( ));
-    if( !config->mapData( initID ))
-    {
-        setError( ERROR_EVOLVE_MAPOBJECT_FAILED );
-        return false;
-    }
-    return true;
+namespace
+{
+struct ErrorData
+{
+    const uint32_t code;
+    const std::string text;
+};
+
+ErrorData _errors[] = {
+    { ERROR_EQPLY_MAPOBJECT_FAILED, 
+      "Mapping data from application process failed" },
+
+    { 0, "" } // last!
+};
 }
+
+void initErrors()
+{
+    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+
+    for( size_t i=0; _errors[i].code != 0; ++i )
+        registry.setString( _errors[i].code, _errors[i].text );
 }
+
+void exitErrors()
+{
+    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+
+    for( size_t i=0; _errors[i].code != 0; ++i )
+        registry.eraseString( _errors[i].code );
+}
+
+}
+

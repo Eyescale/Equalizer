@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ namespace eVolve
         const InitData& getInitData() const { return _initData; }
 
         /** Map per-config data to the local node process */
-        void mapData( const eq::uint128_t& initDataID );
+        bool mapData( const eq::uint128_t& initDataID );
 
     protected:
         virtual ~Config();

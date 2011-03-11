@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,8 @@ namespace eVolve
         ERROR_EVOLVE_EXT_BLEND_FUNC_SEPARATE_MISSING,
         ERROR_EVOLVE_ARB_MULTITEXTURE_MISSING,
         ERROR_EVOLVE_LOADSHADERS_FAILED,
-        ERROR_EVOLVE_LOADMODEL_FAILED
+        ERROR_EVOLVE_LOADMODEL_FAILED,
+        ERROR_EVOLVE_MAPOBJECT_FAILED
     };
 
     /** Set up eVolve-specific error codes. */

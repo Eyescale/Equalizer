@@ -254,17 +254,19 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID::ZERO );
 }
 
-void Config::mapData( const eq::uint128_t& initDataID )
+bool Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached() )
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        if( !mapObject( &_initData, initDataID ))
+            return false;
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
-    else  // appNode, _initData is registered already
+    else // appNode, _initData is registered already
     {
         EQASSERT( _initData.getID() == initDataID );
     }
+    return true;
 }
 
 void Config::unmapData()
