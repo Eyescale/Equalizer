@@ -27,7 +27,9 @@
 
 namespace eq
 {
+#ifndef NDEBUG
 static int XErrorHandler( Display* display, XErrorEvent* event );
+#endif
 
 GLXPipe::GLXPipe( Pipe* parent )
         : SystemPipe( parent )
@@ -238,6 +240,7 @@ bool GLXPipe::_configInitGLXEW()
     return success;
 }
 
+#ifndef NDEBUG
 int XErrorHandler( Display* display, XErrorEvent* event )
 {
     EQWARN << co::base::disableFlush;
@@ -282,5 +285,6 @@ int XErrorHandler( Display* display, XErrorEvent* event )
 
     return 0;
 }
+#endif // !NDEBUG
 
 }
