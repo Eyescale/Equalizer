@@ -54,15 +54,15 @@ namespace co
     struct NodeConnectReplyPacket : public NodePacket
     {
         NodeConnectReplyPacket( const NodeConnectPacket* request ) 
+                : requestID( request->requestID )
             {
                 command     = CMD_NODE_CONNECT_REPLY;
                 size        = sizeof( NodeConnectReplyPacket ); 
-                requestID   = request->requestID;
                 nodeData[0] = '\0';
             }
 
         NodeID   nodeID;
-        uint32_t requestID;
+        const uint32_t requestID;
         uint32_t nodeType;
         EQ_ALIGN8( char nodeData[8] );
     };

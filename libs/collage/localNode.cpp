@@ -418,15 +418,6 @@ void LocalNode::_connectMulticast( NodePtr node )
     }
 }
 
-NodePtr LocalNode::getNode( const NodeID& id ) const
-{ 
-    base::ScopedMutex< base::SpinLock > mutex( _nodes );
-    NodeHash::const_iterator i = _nodes->find( id );
-    if( i == _nodes->end( ))
-        return 0;
-    return i->second;
-}
-
 bool LocalNode::disconnect( NodePtr node )
 {
     if( !node || _state != STATE_LISTENING )
@@ -553,102 +544,25 @@ void LocalNode::releaseSendToken( NodePtr node )
 //----------------------------------------------------------------------
 // Connecting a node
 //----------------------------------------------------------------------
-bool LocalNode::connect( NodePtr node )
-{
-    EQASSERTINFO( _state == STATE_LISTENING, _state );
-    if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
-        return true;
-
-    EQASSERT( node->_state == STATE_CLOSED );
-
-    // try connecting using the given descriptions
-    const ConnectionDescriptions& cds = node->getConnectionDescriptions();
-    if( node->getConnectionDescriptions().empty( ))
-        EQWARN << "Can't connect to a node with no listening connections"
-               << std::endl;
-    for( ConnectionDescriptions::const_iterator i = cds.begin();
-        i != cds.end(); ++i )
-    {
-        ConnectionDescriptionPtr description = *i;
-        if( description->type >= CONNECTIONTYPE_MULTICAST )
-            continue; // Don't use multicast for primary connections
-
-        ConnectionPtr connection = Connection::create( description );
-        
-        if( !connection || !connection->connect( ))
-            continue;
-
-        return _connect( node, connection );
-    }
-    return false;
-}
-
-bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
-{
-    EQASSERT( connection.isValid( ));
-    EQASSERT( node->getNodeID() != getNodeID( ));
-
-    if( !node.isValid() || _state != STATE_LISTENING ||
-        !connection->isConnected() || node->_state != STATE_CLOSED )
-    {
-        return false;
-    }
-
-    _addConnection( connection );
-
-    // send connect packet to peer
-    NodeConnectPacket packet;
-    packet.requestID = registerRequest( node.get( ));
-    packet.nodeID    = _id;
-    packet.nodeType  = getType();
-    connection->send( packet, serialize( ));
-
-    bool connected = false;
-    waitRequest( packet.requestID, connected );
-    if( !connected )
-        return false;
-
-    EQASSERT( node->_id != NodeID::ZERO );
-    EQASSERTINFO( node->_id != _id, _id );
-    EQINFO << node << " connected to " << *(Node*)this << std::endl;
-    return true;
-}
-
-void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
-{
-    base::ScopedMutex< base::SpinLock > mutex( _nodes );
-    for( NodeHash::const_iterator i = _nodes->begin();
-         i != _nodes->end(); ++i )
-    {
-        if( addSelf || i->second != this )
-            nodes.push_back( i->second );
-    }
-}
-
 NodePtr LocalNode::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
     EQASSERT( _state == STATE_LISTENING );
 
-    // Extract all node pointers, the _nodes hash will be modified later
     Nodes nodes;
+    getNodes( nodes );
+
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
-        for( NodeHash::const_iterator i = _nodes->begin();
-             i != _nodes->end(); ++i )
-        {
-            NodePtr node = i->second;
-
-            if( node->getNodeID() == nodeID && node->isConnected( )) //early out
-                return node;
-
-            nodes.push_back( node );
-        }
+        NodePtr peer = *i;
+        if( peer->getNodeID() == nodeID && peer->isConnected( )) // early out
+            return peer;
     }
 
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        NodePtr node = _connect( nodeID, *i );
+        NodePtr peer = *i;
+        NodePtr node = _connect( nodeID, peer );
         if( node.isValid( ))
             return node;
     }
@@ -679,6 +593,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     if( node.isValid( ))
     {
+        EQASSERT( node->isConnected( ));
         if( !node->isConnected( ))
             connect( node );
         return node->isConnected() ? node : 0;
@@ -719,13 +634,94 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
         if( i != _nodes->end( ))
         {
             node = i->second;
-            if( node->isConnected( ))
-                return node;
+            if( !node->isConnected( ))
+                connect( node );
         }
     }
 
-    connect( node );
     return node->isConnected() ? node : 0;
+}
+
+bool LocalNode::connect( NodePtr node )
+{
+    EQASSERTINFO( _state == STATE_LISTENING, _state );
+    if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
+        return true;
+
+    EQASSERT( node->_state == STATE_CLOSED );
+
+    // try connecting using the given descriptions
+    const ConnectionDescriptions& cds = node->getConnectionDescriptions();
+    if( node->getConnectionDescriptions().empty( ))
+        EQWARN << "Can't connect to a node with no listening connections"
+               << std::endl;
+    for( ConnectionDescriptions::const_iterator i = cds.begin();
+        i != cds.end(); ++i )
+    {
+        ConnectionDescriptionPtr description = *i;
+        if( description->type >= CONNECTIONTYPE_MULTICAST )
+            continue; // Don't use multicast for primary connections
+
+        ConnectionPtr connection = Connection::create( description );
+        if( !connection || !connection->connect( ))
+            continue;
+
+        return _connect( node, connection );
+    }
+    return false;
+}
+
+bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
+{
+    EQASSERT( connection.isValid( ));
+    EQASSERT( node->getNodeID() != getNodeID( ));
+
+    if( !node.isValid() || _state != STATE_LISTENING ||
+        !connection->isConnected() || node->_state != STATE_CLOSED )
+    {
+        return false;
+    }
+
+    _addConnection( connection );
+
+    // send connect packet to peer
+    NodeConnectPacket packet;
+    packet.requestID = registerRequest( node.get( ));
+    packet.nodeID    = _id;
+    packet.nodeType  = getType();
+    connection->send( packet, serialize( ));
+
+    bool connected = false;
+    waitRequest( packet.requestID, connected );
+    if( !connected )
+        return false;
+
+    EQASSERT( node->_id != NodeID::ZERO );
+    EQASSERTINFO( node->_id != _id, _id );
+    EQINFO << node << " connected to " << *(Node*)this << std::endl;
+    return true;
+}
+
+NodePtr LocalNode::getNode( const NodeID& id ) const
+{ 
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
+    NodeHash::const_iterator i = _nodes->find( id );
+    if( i == _nodes->end( ))
+        return 0;
+    EQASSERT( i->second->isConnected( ));
+    return i->second;
+}
+
+void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
+{
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
+    for( NodeHash::const_iterator i = _nodes->begin();
+         i != _nodes->end(); ++i )
+    {
+        EQASSERT( i->second->isConnected( ));
+        if( addSelf || i->second != this )
+            nodes.push_back( i->second );
+    }
 }
 
 //----------------------------------------------------------------------
@@ -1415,12 +1411,6 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     if( !node->deserialize( data ))
         EQWARN << "Failed to initialize node data" << std::endl;
     EQASSERT( data.empty( ));
-
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
-        _nodes.data[ nodeID ] = node;
-    }
-    EQVERB << "Added node " << nodeID << " without connection" << std::endl;
 
     node->ref( EQ_REFERENCED_PARAM );
     serveRequest( requestID, node.get( ));
