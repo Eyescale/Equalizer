@@ -24,7 +24,7 @@
 #include <eq/fabric/pixelViewport.h>
 #include <eq/zoomFilter.h>
 
-#include <GL/glew.h>
+#include <eq/GL/glew.h>
 
 #include "yuv420readback_glsl.h"
 #include "yuv420unpack_glsl.h"

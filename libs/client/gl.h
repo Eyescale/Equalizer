@@ -36,12 +36,12 @@
 #  define NOMINMAX
 #endif
 #ifndef EQ_IGNORE_GLEW
-#  include <GL/glew.h>
+#  include <eq/GL/glew.h>
 #  ifdef GLX
-#    include <GL/glxew.h>
+#    include <eq/GL/glxew.h>
 #  endif
 #  ifdef WGL
-#    include <GL/wglew.h>
+#    include <eq/GL/wglew.h>
 #  endif
 #endif
 

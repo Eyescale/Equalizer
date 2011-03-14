@@ -1,6 +1,10 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+14/Mar/2011
+  Moved include/GL to include/eq/GL. Use '#include <eq/gl.h>' to include
+  OpenGL headers only.
+
 10/Mar/2011
   Do not include window system headers by default to avoid global
   namespace pollution. Define EQ_SYSTEM_INCLUDES before including
