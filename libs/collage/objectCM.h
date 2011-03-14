@@ -28,7 +28,7 @@
 
 namespace co
 {
-    struct ObjectInstancePacket;
+    struct NodeMapObjectReplyPacket;
 
     /**
      * @internal
@@ -96,9 +96,6 @@ namespace co
 
         /** @return the current version. */
         virtual uint128_t getVersion() const = 0;
-
-        /** @return the oldest available version. */
-        virtual uint128_t getOldestVersion() const = 0;
         //@}
 
         /** @return if this object keeps instance data buffers. */
@@ -120,9 +117,11 @@ namespace co
          * Add a subscribed slave to the managed object.
          * 
          * @param command the subscribe command initiating the add.
+         * @param reply the reply packet.
          * @return the first version the slave has to use from its cache.
          */
-        virtual uint128_t addSlave( Command& command ) = 0;
+        virtual void addSlave( Command& command,
+                               NodeMapObjectReplyPacket& reply ) = 0;
 
         /** 
          * Remove a subscribed slave.

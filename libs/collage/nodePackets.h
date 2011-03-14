@@ -249,12 +249,12 @@ namespace co
     struct NodeMapObjectPacket : public NodePacket
     {
         NodeMapObjectPacket()
+                : minCachedVersion( VERSION_HEAD )
+                , maxCachedVersion( VERSION_NONE )
+                , useCache( false )
             {
                 command = CMD_NODE_MAP_OBJECT;
                 size    = sizeof( NodeMapObjectPacket );
-                minCachedVersion = VERSION_HEAD;
-                maxCachedVersion = VERSION_NONE;
-                useCache   = false;
             }
 
         uint128_t     requestedVersion;
@@ -293,23 +293,24 @@ namespace co
         NodeMapObjectReplyPacket( 
             const NodeMapObjectPacket* request )
                 : objectID( request->objectID )
+                , version( request->requestedVersion )
                 , requestID( request->requestID )
-                , useCache( request->useCache )
+                , result( false )
+                , releaseCache( request->useCache )
+                , useCache( false )
             {
                 command   = CMD_NODE_MAP_OBJECT_REPLY;
                 size      = sizeof( NodeMapObjectReplyPacket ); 
-                version   = request->requestedVersion;
-                cachedVersion = VERSION_INVALID;
             }
         
         NodeID nodeID;
         const base::UUID objectID;
         uint128_t version;
-        uint128_t cachedVersion;
         const uint32_t requestID;
         
         bool result;
-        const bool useCache;
+        const bool releaseCache;
+        bool useCache;
     };
 
     struct NodeUnmapObjectPacket : public NodePacket
@@ -437,10 +438,10 @@ namespace co
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                               const NodeMapObjectReplyPacket* packet )
+                                       const NodeMapObjectReplyPacket* packet )
     {
         os << (NodePacket*)packet << " id " << packet->objectID << " req "
-           << packet->requestID << " v" << packet->cachedVersion;
+           << packet->requestID;
         return os;
     }
 

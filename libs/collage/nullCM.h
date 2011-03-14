@@ -54,15 +54,14 @@ namespace co
 
         virtual uint128_t getHeadVersion() const   { return VERSION_NONE; }
         virtual uint128_t getVersion() const       { return VERSION_NONE; }
-        virtual uint128_t getOldestVersion() const { return VERSION_NONE; }
         //@}
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
 
-        virtual uint128_t addSlave( Command& )
-            { EQDONTCALL; return VERSION_INVALID; }
+        virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
+            { EQDONTCALL; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }

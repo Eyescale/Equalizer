@@ -26,6 +26,7 @@
 namespace co
 {
     class ObjectCM;
+    struct NodeMapObjectReplyPacket;
 
 #  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
 
@@ -221,9 +222,6 @@ namespace co
         /** @return the currently synchronized version. */
         CO_API uint128_t getVersion() const;
 
-        /** @return the oldest available version. */
-        CO_API uint128_t getOldestVersion() const;
-
         /** 
          * Notification that a new head version was received by a slave object.
          *
@@ -326,7 +324,8 @@ namespace co
         /** @internal @return the master object instance identifier. */
         NodePtr getMasterNode();
 
-        uint128_t addSlave( Command& command ); //!< @internal
+        /** @internal */
+        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
         void removeSlave( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
         /** @internal */

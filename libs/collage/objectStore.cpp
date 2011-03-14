@@ -746,8 +746,7 @@ bool ObjectStore::_cmdDeregisterObject( Command& command )
 bool ObjectStore::_cmdMapObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+    NodeMapObjectPacket* packet = command.getPacket<NodeMapObjectPacket>();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr node = command.getNode();
@@ -780,45 +779,22 @@ bool ObjectStore::_cmdMapObject( Command& command )
     {
         // Check requested version
         const uint128_t version = packet->requestedVersion;
-        const uint128_t oldestVersion = master->getOldestVersion();
-        if( version == VERSION_OLDEST || version == VERSION_NONE ||
-            version >= oldestVersion)
-        {
-            NodeMapObjectSuccessPacket successPacket( packet );
-            successPacket.changeType       = master->getChangeType();
-            successPacket.masterInstanceID = master->getInstanceID();
-            successPacket.nodeID = node->getNodeID();
+        NodeMapObjectSuccessPacket successPacket( packet );
+        successPacket.changeType       = master->getChangeType();
+        successPacket.masterInstanceID = master->getInstanceID();
+        successPacket.nodeID = node->getNodeID();
 
-            // Prefer multicast connection, since this will be used by the CM as
-            // well. If we send the packet on another connection, it might
-            // arrive after the packets below
-            if( !node->multicast( successPacket ))
-                node->send( successPacket );
+        // Prefer multicast connection, since this will be used by the CM as
+        // well. If we send the packet on another connection, it might arrive
+        // after the packets below
+        if( !node->multicast( successPacket ))
+            node->send( successPacket );
         
-            reply.cachedVersion = master->addSlave( command );
-            reply.result = true;
-
-            if( reply.version == VERSION_OLDEST )
-                reply.version = master->getOldestVersion();
-            else if( reply.version == VERSION_NONE )
-                reply.version = master->getVersion();
-        }
-        else
-        {
-            EQWARN
-                << "Version " << version << " of " 
-                << base::className( master )
-                << " " << id << " no longer available (have v"
-                << master->getOldestVersion() << ".." << master->getVersion()
-                << " [" << master->getAutoObsolete() << "])" << std::endl;
-            reply.result = false;
-        }
+        master->addSlave( command, reply );
+        reply.result = true;
     }
     else
-    {
         EQWARN << "Can't find master object to map " << id << std::endl;
-        reply.result = false;
-    }
 
     if( !node->multicast( reply ))
         node->send( reply );
@@ -879,23 +855,20 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
 
         if( packet->useCache )
         {
-            const base::UUID& id = packet->objectID;
-            const uint128_t& start = packet->cachedVersion;
-            
+            EQASSERT( packet->releaseCache );
             EQASSERT( _instanceCache );
-            if( start != VERSION_INVALID )
-            {
-                const InstanceCache::Data& cached = (*_instanceCache)[ id ];
-                EQASSERT( cached != InstanceCache::Data::NONE );
-                EQASSERT( !cached.versions.empty( ));
+
+            const base::UUID& id = packet->objectID;
+            const InstanceCache::Data& cached = (*_instanceCache)[ id ];
+            EQASSERT( cached != InstanceCache::Data::NONE );
+            EQASSERT( !cached.versions.empty( ));
             
-                object->addInstanceDatas( cached.versions, start );
-               EQCHECK( _instanceCache->release( id, 2 ));
-            }
-            else
-            {
-                EQCHECK( _instanceCache->release( id ));
-            }
+            object->addInstanceDatas( cached.versions, packet->version );
+            EQCHECK( _instanceCache->release( id, 2 ));
+        }
+        else if( packet->releaseCache )
+        {
+            EQCHECK( _instanceCache->release( packet->objectID ));
         }
     }
     else

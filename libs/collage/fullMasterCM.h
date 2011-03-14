@@ -46,10 +46,10 @@ namespace co
         virtual void setAutoObsolete( const uint32_t count );
         virtual void increaseCommitCount( const uint32_t incarnation );
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
-        virtual uint128_t getOldestVersion() const;
         //@}
 
-        virtual uint128_t addSlave( Command& command );
+        virtual void addSlave( Command& command,
+                               NodeMapObjectReplyPacket& reply );
         virtual void removeSlave( NodePtr node );
 
         /** Speculatively send instance data to all nodes. */

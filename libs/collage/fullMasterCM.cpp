@@ -184,16 +184,7 @@ void FullMasterCM::_obsolete()
     _checkConsistency();
 }
 
-uint128_t FullMasterCM::getOldestVersion() const
-{
-    EQ_TS_THREAD( _cmdThread );
-    if( _version == VERSION_NONE )
-        return VERSION_NONE;
-
-    return _instanceDatas.front()->os.getVersion();
-}
-
-uint128_t FullMasterCM::addSlave( Command& command )
+void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
@@ -216,16 +207,26 @@ uint128_t FullMasterCM::addSlave( Command& command )
     if( requested == VERSION_NONE ) // no data to send
     {
         _sendEmptyVersion( node, instanceID );
-        return VERSION_INVALID;
+        reply.version = _version;
+        return;
     }
 
-    const uint128_t oldest = getOldestVersion();
-    uint128_t start = (requested == VERSION_OLDEST) ? oldest : requested;
-    uint128_t end   = _version;
+    const uint128_t oldest = _instanceDatas.front()->os.getVersion();
+    uint128_t start = (requested == VERSION_OLDEST || requested < oldest ) ?
+                          oldest : requested;
+    uint128_t end = _version;
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
-    const uint128_t result = useCache ? start : VERSION_INVALID;
 
-    if( packet->useCache && useCache )
+#ifndef NDEBUG
+    if( requested != VERSION_OLDEST && requested < start )
+        EQINFO << "Mapping version " << start << " instead of requested version"
+               << requested << std::endl;
+#endif
+
+    reply.version = start;
+    reply.useCache = packet->useCache && useCache;
+
+    if( reply.useCache )
     {
         if( packet->minCachedVersion <= start && 
             packet->maxCachedVersion >= start )
@@ -276,7 +277,6 @@ uint128_t FullMasterCM::addSlave( Command& command )
         EQINFO << "Cached " << _hit << "/" << _hit + _miss
                << " instance data transmissions" << std::endl;
 #endif
-    return result;
 }
 
 void FullMasterCM::removeSlave( NodePtr node )

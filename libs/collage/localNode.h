@@ -213,9 +213,11 @@ namespace co
          * If VERSION_OLDEST is provided, the oldest available version is
          * mapped.
          *
-         * If the requested version does no longer exist, mapObject()
-         * will fail. If the requested version is newer than the head version,
-         * mapObject() will block until the requested version is available.
+         * If a concrete requested version no longer exists, mapObject() will
+         * map the oldest available version.
+         *
+         * If the requested version is newer than the head version, mapObject()
+         * will block until the requested version is available.
          *
          * Mapping an object is a potentially time-consuming operation. Using
          * mapObjectNB() and mapObjectSync() to asynchronously map multiple

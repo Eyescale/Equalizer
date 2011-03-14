@@ -2,6 +2,12 @@
 This file lists all changes in the public Equalizer API, latest on top:
 
 14/Mar/2011
+  Changed object mapping behavior when using a concrete version from:
+    If the requested version does no longer exist, mapObject() will fail.
+  to:
+    If a concrete requested version no longer exists, mapObject() will
+    map the oldest available version.
+
   Moved include/GL to include/eq/GL. Use '#include <eq/gl.h>' to include
   OpenGL headers only.
 

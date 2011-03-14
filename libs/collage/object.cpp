@@ -270,9 +270,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-uint128_t Object::addSlave( Command& command )
+void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
-    return _cm->addSlave( command );
+    _cm->addSlave( command, reply );
 }
 
 void Object::removeSlave( NodePtr node )
@@ -316,11 +316,6 @@ uint128_t Object::getHeadVersion() const
 uint128_t Object::getVersion() const
 {
     return _cm->getVersion();
-}
-
-uint128_t Object::getOldestVersion() const
-{
-    return _cm->getOldestVersion();
 }
 
 void Object::notifyNewHeadVersion( const uint128_t& version )
