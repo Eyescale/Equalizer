@@ -1,9 +1,6 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
-14/Mar/2011
-  Moved include/GL and include/vmmlib to include/eq
-
 10/Mar/2011
   Do not include window system headers by default to avoid global
   namespace pollution. Define EQ_SYSTEM_INCLUDES before including

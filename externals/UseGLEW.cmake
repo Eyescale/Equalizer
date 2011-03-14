@@ -1,5 +1,4 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
 
 find_path(GLEW_INCLUDE_DIRS GL/glew.h
   /usr/include
@@ -58,10 +57,6 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
 
   set(GLEW_INCLUDE_DIRS ${GLEW_DIR}/include)
   set(GLEW_LIBRARY ${GLEW_NAME}-MX-Equalizer)
-  set(GLEW_INCLUDES
-    ${GLEW_INCLUDE_DIRS}/GL/glew.h
-    ${GLEW_INCLUDE_DIRS}/GL/glxew.h
-    ${GLEW_INCLUDE_DIRS}/GL/wglew.h)
 
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
   add_library(${GLEW_LIBRARY} STATIC ${GLEW_DIR}/src/glew.c)
@@ -70,7 +65,7 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
     add_definitions(-DGLEW_APPLE_GLX=1)
   endif(EQ_GLX_USED)
   
-  install(FILES ${GLEW_INCLUDES} DESTINATION include/eq/GL COMPONENT eqdev)
+  install(DIRECTORY ${GLEW_INCLUDE_DIRS} DESTINATION . COMPONENT eqdev)
   install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT eqdev)
 endif(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
 
