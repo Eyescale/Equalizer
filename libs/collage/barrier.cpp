@@ -96,8 +96,14 @@ void Barrier::enter()
         _master = localNode->connect( _masterID );
     }
 
-    EQASSERT( _master.isValid( ));
+    EQASSERT( _master );
     EQASSERT( _master->isConnected( ));
+    if( !_master || !_master->isConnected( ))
+    {
+        EQWARN << "Can't connect barrier master node " << _masterID <<std::endl;
+        return;
+    }
+
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << std::endl;
 

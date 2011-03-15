@@ -1170,6 +1170,13 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( command->netNodeID );
+    if( !toNode || !toNode->isConnected( ))
+    {
+        EQWARN << "Can't connect node " << command->netNodeID
+               << " to send input frame" << std::endl;
+        return;
+    }
+
     co::ConnectionPtr connection = toNode->getConnection();
     co::ConnectionDescriptionPtr description = connection->getDescription();
 
@@ -1337,7 +1344,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     // all data transmitted -> ready
     NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID  = command->clientNodeID;
+    readyPacket.objectID = command->clientNodeID;
     toNode->send( readyPacket );
 }
 
