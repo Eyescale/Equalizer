@@ -196,12 +196,13 @@ bool Thread::start()
             EQVERB << "Created pthread " << this << std::endl;
             break;
         }
-        if( error != EAGAIN || nTries==0 )
+        if( error != EAGAIN || nTries == 0 )
         {
             EQWARN << "Could not create thread: " << strerror( error )
                    << std::endl;
             return false;
         }
+        sleep( 1 ); // Give EAGAIN some time to recover
     }
 
     _state.waitNE( STATE_STARTING );
