@@ -206,6 +206,8 @@ bool Thread::start()
         sleep( 1 ); // Give EAGAIN some time to recover
     }
 
+    // avoid memleak, we don't use pthread_join
+    pthread_detach( _id._data->pthread );
     _state.waitNE( STATE_STARTING );
     return (_state != STATE_STOPPED);
 }

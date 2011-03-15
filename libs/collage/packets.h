@@ -66,9 +66,12 @@ namespace co
     struct ObjectPacket : public NodePacket
     {
         ObjectPacket()
+                : instanceID( EQ_INSTANCE_ALL )
+#ifndef NDEBUG
+                , pad( 0 ) // valgrind: write points to uninitialised byte(s)
+#endif
             {
                 type = PACKETTYPE_CO_OBJECT; 
-                instanceID = EQ_INSTANCE_ALL;
             }
         base::UUID objectID;
         uint32_t instanceID;

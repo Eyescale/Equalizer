@@ -115,6 +115,8 @@ ObjectStore::~ObjectStore()
     //EQASSERT( _objects->empty( ))
 #endif
    clear();
+   delete _instanceCache;
+   _instanceCache = 0;
 }
 
 void ObjectStore::clear( )
