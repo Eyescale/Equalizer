@@ -289,8 +289,9 @@ void DataOStream::_compress( void* src, const uint64_t size,
     {
         _compressorState = STATE_UNCOMPRESSIBLE;
 #ifndef CO_AGGRESSIVE_CACHING
+        const uint32_t name = _compressor->getName();
         _compressor->reset();
-        _compressor->initCompressor( EQ_COMPRESSOR_DATATYPE_BYTE, 1.f );
+        EQCHECK( _compressor->base::Compressor::initCompressor( name ));
 #endif
         return;
     }

@@ -104,7 +104,7 @@ namespace base
                     return _data;
 
                 // avoid excessive reallocs
-                const uint64_t nElems = newSize + (newSize >> 3)
+                const uint64_t nElems = newSize + (newSize >> 3);
                 const uint64_t nBytes = nElems * sizeof( T );
                 _data = static_cast< T* >( realloc( _data, nBytes ));
                 _maxSize = nElems;
