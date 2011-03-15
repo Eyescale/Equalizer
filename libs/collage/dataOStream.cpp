@@ -292,6 +292,9 @@ void DataOStream::_compress( void* src, const uint64_t size,
         const uint32_t name = _compressor->getName();
         _compressor->reset();
         EQCHECK( _compressor->base::Compressor::initCompressor( name ));
+
+        if( result == STATE_COMPLETE )
+            _buffer.pack();
 #endif
         return;
     }
