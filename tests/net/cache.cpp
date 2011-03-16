@@ -15,6 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef NDEBUG
+#  define EQ_TEST_RUNTIME 600000 // 10min
+#endif
+
 #include <test.h>
 
 #include <co/command.h>
@@ -31,8 +35,12 @@
 // Tests the functionality of the network packet cache
 
 #define N_READER 1
-#define PACKET_SIZE 4096
 #define RUNTIME 5000
+#ifdef NDEBUG
+#  define PACKET_SIZE 4096
+#else
+#  define PACKET_SIZE 2048
+#endif
 
 co::base::Clock _clock;
 
@@ -61,8 +69,8 @@ protected:
                 ++ops;
             }
             const uint64_t time = _clock.getTime64();
-            EQINFO << hits << " read hits in " << ops << " operations, "
-                   << ops / time << " ops/ms" << std::endl;
+            std::cout << hits << " read hits in " << ops << " operations, "
+                      << ops / time << " ops/ms" << std::endl;
         }
 
 private:
@@ -126,8 +134,8 @@ int main( int argc, char **argv )
     }
 
     const uint64_t time = _clock.getTime64();
-    EQINFO << hits << " write hits in " << ops << " operations, "
-           << ops / time << " ops/ms" << std::endl;
+    std::cout << hits << " write hits in " << ops << " operations, "
+              << ops / time << " ops/ms" << std::endl;
 
     for( size_t i = 0; i < N_READER; ++i )
     {
@@ -135,7 +143,7 @@ int main( int argc, char **argv )
         delete readers[ i ];
     }
 
-    EQINFO << cache << std::endl;
+    std::cout << cache << std::endl;
 
     for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
@@ -151,7 +159,7 @@ int main( int argc, char **argv )
         TEST( cache[ key ] == co::InstanceCache::Data::NONE );
     }
 
-    EQINFO << cache << std::endl;
+    std::cout << cache << std::endl;
 
     TESTINFO( cache.getSize() == 0, cache.getSize( ));
     TEST( command.isFree( ));

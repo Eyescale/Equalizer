@@ -97,6 +97,9 @@ int main( int argc, char **argv )
         file.close();
     }
 
+#ifndef EQ_TEST_NO_WATCHDOG
+    watchdog.cancel();
+#endif
     return EXIT_SUCCESS;
 }
 

@@ -55,8 +55,16 @@ Condition::Condition()
 
 Condition::~Condition()
 {
-    pthread_mutex_destroy( &_data->mutex );
-    pthread_cond_destroy( &_data->cond );
+    int error = pthread_mutex_destroy( &_data->mutex );
+    if( error )
+        EQERROR << "Error destroying pthread mutex: " << strerror( error )
+                << std::endl;
+
+    error = pthread_cond_destroy( &_data->cond );
+    if( error )
+        EQERROR << "Error destroying pthread condition: " << strerror( error )
+                << std::endl;
+
     delete _data;
 }
 

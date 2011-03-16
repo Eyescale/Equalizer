@@ -95,6 +95,7 @@ namespace co
         NodePtr _master;
 
         void _syncToHead();
+        void _releaseStream( ObjectDataIStream* stream );
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,7 +42,7 @@ public:
             }
 
             const float time = clock.getTimef();
-            EQINFO << 2*NLOOPS/time << " ops/ms" << std::endl;
+            std::cout << 2*NLOOPS/time << " ops/ms" << std::endl;
         }
 };
 
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
     const float time = clock.getTimef();
 
     TEST( waiter.join( ));
-    EQINFO << 2*NLOOPS/time << " ops/ms" << std::endl;
+    std::cout << 2*NLOOPS/time << " ops/ms" << std::endl;
     return EXIT_SUCCESS;
 }
 

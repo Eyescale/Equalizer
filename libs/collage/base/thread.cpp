@@ -226,11 +226,10 @@ void Thread::cancel()
 {
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
-    EQINFO << "Cancelling thread " << className( this ) << std::endl;
+    EQINFO << "Canceling thread " << className( this ) << std::endl;
     _state = STATE_STOPPING;
 
     pthread_cancel( _id._data->pthread );
-    EQUNREACHABLE;
 }
 
 bool Thread::join()
