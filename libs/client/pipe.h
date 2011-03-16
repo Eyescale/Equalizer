@@ -227,7 +227,7 @@ namespace eq
         //@}
 
         /** @internal @sa Serializable::setDirty() */
-        virtual void setDirty( const uint64_t bits );
+        EQ_API virtual void setDirty( const uint64_t bits );
 
     protected:
         /** @name Operations */
