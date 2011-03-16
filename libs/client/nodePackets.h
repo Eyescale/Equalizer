@@ -60,7 +60,7 @@ namespace eq
 
     struct NodeConfigExitReplyPacket : public NodePacket
     {
-        NodeConfigExitReplyPacket( const co::base::UUID& nodeID, const bool res )
+        NodeConfigExitReplyPacket( const UUID& nodeID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_NODE_CONFIG_EXIT_REPLY;
@@ -132,6 +132,17 @@ namespace eq
         uint32_t frameNumber;
     };
         
+    struct NodeSyncPacket : public NodePacket
+    {
+        NodeSyncPacket( const uint128_t& v ) : version( v )
+            {
+                command        = fabric::CMD_NODE_SYNC;
+                size           = sizeof( NodeSyncPacket );
+            }
+
+        const uint128_t version;
+    };
+
     struct NodeFrameDrawFinishPacket : public NodePacket
     {
         NodeFrameDrawFinishPacket()

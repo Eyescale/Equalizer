@@ -343,7 +343,7 @@ namespace fabric
         EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
                                                   const uint64_t dirtyBits );
 
-        /** @sa Serializable::setDirty() @internal */
+        /** @internal @sa Serializable::setDirty() */
         EQFABRIC_INL virtual void setDirty( const uint64_t bits );
 
         void setDrawable( const uint32_t drawable ); //!< @internal

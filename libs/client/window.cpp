@@ -749,7 +749,6 @@ bool Window::_cmdFrameFinish( co::Command& command )
 
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
-    commit();
     return true;
 }
 

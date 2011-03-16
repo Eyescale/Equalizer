@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -104,6 +104,7 @@ namespace fabric
         CMD_NODE_FRAME_START, 
         CMD_NODE_FRAME_FINISH,
         CMD_NODE_FRAME_FINISH_REPLY,
+        CMD_NODE_SYNC,
         CMD_NODE_FRAME_DRAW_FINISH,
         CMD_NODE_FRAME_TASKS_FINISH,
         CMD_NODE_FRAMEDATA_TRANSMIT,       
@@ -123,6 +124,7 @@ namespace fabric
         CMD_PIPE_DESTROY_WINDOW,
         CMD_PIPE_FRAME_START,
         CMD_PIPE_FRAME_FINISH,
+        CMD_PIPE_SYNC,
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_START_CLOCK,
         CMD_PIPE_EXIT_THREAD,

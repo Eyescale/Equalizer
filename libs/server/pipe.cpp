@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -63,12 +63,15 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    co::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
+    co::CommandQueue* mainQ = getMainThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
-                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
-                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
+    registerCommand( fabric::CMD_PIPE_SYNC,
+                     PipeFunc( this, &Pipe::_cmdSync ), mainQ );
 }
 
 void Pipe::removeChild( const co::base::UUID& id )
@@ -315,6 +318,13 @@ bool Pipe::_cmdConfigExitReply( co::Command& command )
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    return true;
+}
+
+bool Pipe::_cmdSync( co::Command& command )
+{
+    const PipeSyncPacket* packet = command.getPacket< PipeSyncPacket >();
+    sync( packet->version );
     return true;
 }
 

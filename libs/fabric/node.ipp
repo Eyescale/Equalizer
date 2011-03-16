@@ -93,9 +93,6 @@ uint32_t Node< C, N, P, V >::commitNB( const uint32_t incarnation )
 template< class C, class N, class P, class V > void
 Node< C, N, P, V >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    EQASSERTINFO( dirtyBits == DIRTY_ALL || 
-                  getConfig()->Serializable::isDirty( C::DIRTY_NODES ),
-                  getConfig()->getDirty( ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));

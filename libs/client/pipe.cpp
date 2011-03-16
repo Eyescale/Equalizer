@@ -89,6 +89,7 @@ Config* Pipe::getConfig()
     EQASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
+
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
@@ -134,6 +135,13 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
     registerCommand( fabric::CMD_PIPE_EXIT_THREAD,
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
+}
+
+void Pipe::setDirty( const uint64_t bits )
+{
+    // jump over fabric setDirty to avoid dirty'ing node pipes list
+    // pipes are individually synced in frame finish for thread-safety
+    Object::setDirty( bits );
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -723,10 +731,10 @@ bool Pipe::_cmdConfigInit( co::Command& command )
 
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
-    co::NodePtr nodePtr = command.getNode();
+    co::NodePtr netNode = command.getNode();
 
     commit();
-    send( nodePtr, reply );
+    send( netNode, reply );
     return true;
 }
 
@@ -833,7 +841,13 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     }
 
     _releaseViews();
-    commit();
+
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        PipeSyncPacket syncPacket( version );
+        send( command.getNode(), syncPacket );
+    }
     return true;
 }
 

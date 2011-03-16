@@ -93,6 +93,13 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
                      NodeFunc( this, &Node::_cmdFrameDataReady ), commandQ );
 }
 
+void Node::setDirty( const uint64_t bits )
+{
+    // jump over fabric setDirty to avoid dirty'ing config node list
+    // nodes are individually synced in frame finish
+    Object::setDirty( bits );
+}
+
 ClientPtr Node::getClient()
 {
     Config* config = getConfig();
@@ -513,7 +520,13 @@ bool Node::_cmdFrameFinish( co::Command& command )
 
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );
-    commit();
+
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        NodeSyncPacket syncPacket( version );
+        send( command.getNode(), syncPacket );
+    }
     return true;
 }
 

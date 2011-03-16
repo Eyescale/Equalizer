@@ -89,14 +89,17 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    co::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
+    co::CommandQueue* mainQ = getMainThreadQueue();
 
     registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
-                     NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
+                     NodeFunc( this, &Node::_cmdFrameFinishReply ), cmdQ );
+    registerCommand( fabric::CMD_NODE_SYNC,
+                     NodeFunc( this, &Node::_cmdSync ), mainQ );
 }
 
 ServerPtr Node::getServer()
@@ -717,6 +720,13 @@ bool Node::_cmdFrameFinishReply( co::Command& command )
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );
 
+    return true;
+}
+
+bool Node::_cmdSync( co::Command& command )
+{
+    const NodeSyncPacket* packet = command.getPacket< NodeSyncPacket >();
+    sync( packet->version );
     return true;
 }
 

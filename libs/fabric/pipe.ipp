@@ -113,9 +113,6 @@ template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::serialize( co::DataOStream& os, 
                                     const uint64_t dirtyBits )
 {
-    EQASSERTINFO( dirtyBits == DIRTY_ALL || 
-                  getNode()->Serializable::isDirty( N::DIRTY_PIPES ),
-                  getNode()->getDirty( ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));

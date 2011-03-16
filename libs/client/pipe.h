@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -225,6 +225,9 @@ namespace eq
         /** @return the pipe's message pump, or 0. @version 1.0 */
         MessagePump* getMessagePump();
         //@}
+
+        /** @internal @sa Serializable::setDirty() */
+        virtual void setDirty( const uint64_t bits );
 
     protected:
         /** @name Operations */

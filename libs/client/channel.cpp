@@ -1440,7 +1440,6 @@ bool Channel::_cmdFrameFinish( co::Command& command )
     overrideContext( packet->context );
     frameFinish( packet->context.frameID, packet->frameNumber );
     resetContext();
-    commit();
 
     _unrefFrame( packet->frameNumber, _statisticsIndex );
     return true;

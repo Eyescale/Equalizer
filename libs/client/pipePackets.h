@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -81,7 +81,7 @@ namespace eq
 
     struct PipeConfigExitReplyPacket : public co::ObjectPacket
     {
-        PipeConfigExitReplyPacket( const co::base::UUID& pipeID, const bool res )
+        PipeConfigExitReplyPacket( const UUID& pipeID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_PIPE_CONFIG_EXIT_REPLY;
@@ -124,6 +124,17 @@ namespace eq
 
         uint128_t frameID;
         uint32_t frameNumber;
+    };
+
+    struct PipeSyncPacket : public PipePacket
+    {
+        PipeSyncPacket( const uint128_t& v ) : version( v )
+            {
+                command        = fabric::CMD_PIPE_SYNC;
+                size           = sizeof( PipeSyncPacket );
+            }
+
+        const uint128_t version;
     };
 
     struct PipeFrameDrawFinishPacket : public PipePacket
