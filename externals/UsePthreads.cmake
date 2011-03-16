@@ -1,4 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 
 find_package(Threads REQUIRED)
 
@@ -12,7 +13,7 @@ ENDIF(NOT WIN32)
 
 message(STATUS "Pthreads will be built by Equalizer.")
 
-set(PTHREADS_NAME pthreads-w32-2-8-0-release)
+set(PTHREADS_NAME pthreads-2011-03-16)
 set(PTHREADS_TGZ ${CMAKE_SOURCE_DIR}/externals/${PTHREADS_NAME}.tar.gz)
 set(PTHREADS_DIR ${CMAKE_BINARY_DIR}/${PTHREADS_NAME})
 
