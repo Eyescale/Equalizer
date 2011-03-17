@@ -259,13 +259,10 @@ void LocalNode::_removeConnection( ConnectionPtr connection )
     _incoming.removeConnection( connection );
 
     void* buffer( 0 );
-    if( !connection->isListening( ))
-    {
-        uint64_t bytes( 0 );
-        connection->getRecvData( &buffer, &bytes );
-        EQASSERTINFO( buffer, *connection );
-        EQASSERT( bytes == sizeof( uint64_t ));
-    }
+    uint64_t bytes( 0 );
+    connection->getRecvData( &buffer, &bytes );
+    EQASSERTINFO( !connection->isConnected() || buffer, *connection );
+    EQASSERT( !buffer || bytes == sizeof( uint64_t ));
 
     if( !connection->isClosed( ))
         connection->close(); // cancels pending IO's
