@@ -402,13 +402,12 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
     uint128_t version = VERSION_NONE;
     _localNode->waitRequest( requestID, version );
 
-    const bool mapped = ( object->isAttached() );
+    const bool mapped = object->isAttached();
     if( mapped )
         object->applyMapData( version ); // apply initial instance data
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) 
-                         << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << std::endl;
     return mapped;
 }
 
