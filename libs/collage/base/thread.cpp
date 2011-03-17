@@ -37,6 +37,9 @@
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
 #endif
+#ifdef Linux
+#  include <sys/prctl.h>
+#endif
 
 namespace co
 {
@@ -412,6 +415,8 @@ void Thread::setName( const std::string& name )
 #  endif
 #elif __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     pthread_setname_np( name.c_str( ));
+#elif defined(Linux)
+    prctl( PR_SET_NAME, name.c_str(), 0, 0, 0 );
 #else
     // Not implemented
     EQVERB << "Thread::setName( " << name << " ) not implemented" << std::endl;
