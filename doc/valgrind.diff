@@ -1,0 +1,24 @@
+Index: examples/eqPly/CMakeLists.txt
+===================================================================
+--- examples/eqPly/CMakeLists.txt	(revision 5737)
++++ examples/eqPly/CMakeLists.txt	(working copy)
+@@ -64,6 +64,7 @@
+   LINK_LIBRARIES
+     Equalizer
+     shared EqualizerAdmin
++    shared EqualizerServer
+   )
+ 
+ install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
+Index: examples/eqPly/channel.cpp
+===================================================================
+--- examples/eqPly/channel.cpp	(revision 5737)
++++ examples/eqPly/channel.cpp	(working copy)
+@@ -777,6 +777,7 @@
+ 
+ void Channel::_drawHelp()
+ {
++    return;
+     const FrameData& frameData = _getFrameData();
+     std::string message = frameData.getMessage();
+ 
