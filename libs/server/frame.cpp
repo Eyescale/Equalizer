@@ -79,10 +79,10 @@ void Frame::flush()
     while( !_datas.empty( ))
     {
         FrameData* data = _datas.front();
-        getLocalNode()->deregisterObject( data );
         _datas.pop_front();
+        getLocalNode()->deregisterObject( data );
+        delete data;
     }
-
 }
 
 void Frame::unsetData()
