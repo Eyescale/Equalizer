@@ -319,7 +319,7 @@ void ObjectStore::_detachObject( Object* object )
     const base::UUID& id = object->getID();
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
-    EQLOG( LOG_OBJECTS ) << "Detach " << object << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Detach " << *object << std::endl;
 
     Objects& objects = _objects.data[ id ];
     Objects::iterator i = find( objects.begin(),objects.end(), object );
@@ -485,7 +485,7 @@ void ObjectStore::deregisterObject( Object* object )
     if( !object->isAttached( )) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Deregister " << object << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Deregister " << *object << std::endl;
     EQASSERT( object->isMaster( ));
 
     object->notifyDetach();
