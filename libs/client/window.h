@@ -235,7 +235,7 @@ namespace eq
         EQ_API virtual void bindFrameBuffer() const;
 
         /** @internal Notify this window that the viewport has changed. */
-        virtual void notifyViewportChanged();
+        EQ_API virtual void notifyViewportChanged();
         //@}
 
         /**  @name SystemWindow interface */
