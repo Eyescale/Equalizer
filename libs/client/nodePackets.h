@@ -132,17 +132,6 @@ namespace eq
         uint32_t frameNumber;
     };
         
-    struct NodeSyncPacket : public NodePacket
-    {
-        NodeSyncPacket( const uint128_t& v ) : version( v )
-            {
-                command        = fabric::CMD_NODE_SYNC;
-                size           = sizeof( NodeSyncPacket );
-            }
-
-        const uint128_t version;
-    };
-
     struct NodeFrameDrawFinishPacket : public NodePacket
     {
         NodeFrameDrawFinishPacket()

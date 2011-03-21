@@ -66,12 +66,12 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
     co::CommandQueue* cmdQ = getCommandThreadQueue();
     co::CommandQueue* mainQ = getMainThreadQueue();
 
+    registerCommand( fabric::CMD_OBJECT_SYNC,
+                     PipeFunc( this, &Pipe::_cmdSync ), mainQ );
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
                      PipeFunc( this, &Pipe::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
-    registerCommand( fabric::CMD_PIPE_SYNC,
-                     PipeFunc( this, &Pipe::_cmdSync ), mainQ );
 }
 
 void Pipe::removeChild( const co::base::UUID& id )
@@ -318,13 +318,6 @@ bool Pipe::_cmdConfigExitReply( co::Command& command )
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
-    return true;
-}
-
-bool Pipe::_cmdSync( co::Command& command )
-{
-    const PipeSyncPacket* packet = command.getPacket< PipeSyncPacket >();
-    sync( packet->version );
     return true;
 }
 

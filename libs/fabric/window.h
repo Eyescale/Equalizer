@@ -99,7 +99,7 @@ namespace fabric
         bool hasFixedViewport( ) const { return _data.fixedVP; }
 
         /** @internal Notify this window that the viewport has changed. */
-        void notifyViewportChanged();
+        virtual void notifyViewportChanged();
 
         /** 
          * Traverse this window and all children using a window visitor.

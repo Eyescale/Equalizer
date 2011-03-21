@@ -44,6 +44,7 @@
 #endif
 
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <sstream>
@@ -845,7 +846,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
     {
-        PipeSyncPacket syncPacket( version );
+        fabric::ObjectSyncPacket syncPacket( version );
         send( command.getNode(), syncPacket );
     }
     return true;

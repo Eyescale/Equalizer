@@ -34,6 +34,7 @@
 #include "uiFactory.h"
 
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
@@ -524,7 +525,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
     {
-        NodeSyncPacket syncPacket( version );
+        fabric::ObjectSyncPacket syncPacket( version );
         send( command.getNode(), syncPacket );
     }
     return true;

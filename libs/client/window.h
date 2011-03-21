@@ -233,6 +233,9 @@ namespace eq
 
         /** @internal Bind the window's FBO, if it uses one. */
         EQ_API virtual void bindFrameBuffer() const;
+
+        /** @internal Notify this window that the viewport has changed. */
+        virtual void notifyViewportChanged();
         //@}
 
         /**  @name SystemWindow interface */

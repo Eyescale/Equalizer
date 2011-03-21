@@ -126,17 +126,6 @@ namespace eq
         uint32_t frameNumber;
     };
 
-    struct PipeSyncPacket : public PipePacket
-    {
-        PipeSyncPacket( const uint128_t& v ) : version( v )
-            {
-                command        = fabric::CMD_PIPE_SYNC;
-                size           = sizeof( PipeSyncPacket );
-            }
-
-        const uint128_t version;
-    };
-
     struct PipeFrameDrawFinishPacket : public PipePacket
     {
         PipeFrameDrawFinishPacket()

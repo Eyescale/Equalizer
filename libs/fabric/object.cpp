@@ -17,8 +17,10 @@
 
 #include "object.h"
 
+#include "packets.h"
 #include "task.h"
 
+#include <co/command.h>
 #include <co/types.h>
 
 namespace eq
@@ -291,6 +293,14 @@ void Object::postRemove( const Object* child )
 
     _removedChildren.push_back( child->getID( ));
     setDirty( DIRTY_REMOVED );
+}
+
+bool Object::_cmdSync( co::Command& command )
+{
+    EQASSERT( isMaster( ));
+    const ObjectSyncPacket* packet = command.getPacket< ObjectSyncPacket >();
+    sync( packet->version );
+    return true;
 }
 
 }

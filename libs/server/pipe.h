@@ -150,7 +150,6 @@ namespace server
         /* command handler functions. */
         bool _cmdConfigInitReply( co::Command& command );
         bool _cmdConfigExitReply( co::Command& command );
-        bool _cmdSync( co::Command& command );
     };
 }
 }

@@ -201,6 +201,9 @@ namespace fabric
         template< class P, class C >
         inline void releaseChildren( const std::vector< C* >& children );
 
+        /** @internal sync master object to the given slave commit. */
+        bool _cmdSync( co::Command& command );
+
     private:
         struct BackupData
         {

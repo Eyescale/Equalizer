@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -92,14 +92,14 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
     co::CommandQueue* cmdQ = getCommandThreadQueue();
     co::CommandQueue* mainQ = getMainThreadQueue();
 
+    registerCommand( fabric::CMD_OBJECT_SYNC,
+                     NodeFunc( this, &Node::_cmdSync ), mainQ );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
                      NodeFunc( this, &Node::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), cmdQ );
-    registerCommand( fabric::CMD_NODE_SYNC,
-                     NodeFunc( this, &Node::_cmdSync ), mainQ );
 }
 
 ServerPtr Node::getServer()
@@ -720,13 +720,6 @@ bool Node::_cmdFrameFinishReply( co::Command& command )
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );
 
-    return true;
-}
-
-bool Node::_cmdSync( co::Command& command )
-{
-    const NodeSyncPacket* packet = command.getPacket< NodeSyncPacket >();
-    sync( packet->version );
     return true;
 }
 

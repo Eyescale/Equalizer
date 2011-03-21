@@ -39,6 +39,7 @@
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
@@ -121,6 +122,22 @@ void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdSwap), queue );
     registerCommand( fabric::CMD_WINDOW_FRAME_DRAW_FINISH, 
                      WindowFunc( this, &Window::_cmdFrameDrawFinish ), queue );
+}
+
+void Window::notifyViewportChanged()
+{
+    Super::notifyViewportChanged();
+    if( !isRunning( ))
+        return;
+
+    // Commit immediately so that the server has the new data before the app
+    // does send the startFrame() after a resize event.
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        fabric::ObjectSyncPacket syncPacket( version );
+        send( getServer(), syncPacket );
+    }
 }
 
 void Window::_updateFPS()
@@ -687,10 +704,8 @@ bool Window::_cmdConfigInit( co::Command& command )
     }
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
-    co::NodePtr node = command.getNode();
-
     commit();
-    send( node, reply );
+    send( command.getNode(), reply );
     return true;
 }
 
