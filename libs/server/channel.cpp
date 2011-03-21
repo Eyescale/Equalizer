@@ -457,7 +457,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 bool Channel::_cmdConfigInitReply( co::Command& command ) 
 {
     const ChannelConfigInitReplyPacket* packet = 
-        command.getPacket<ChannelConfigInitReplyPacket>();
+        command.get<ChannelConfigInitReplyPacket>();
     EQLOG( LOG_INIT ) << "handle channel configInit reply " << packet
                       << std::endl;
 
@@ -468,7 +468,7 @@ bool Channel::_cmdConfigInitReply( co::Command& command )
 bool Channel::_cmdConfigExitReply( co::Command& command ) 
 {
     const ChannelConfigExitReplyPacket* packet = 
-        command.getPacket<ChannelConfigExitReplyPacket>();
+        command.get<ChannelConfigExitReplyPacket>();
     EQLOG( LOG_INIT ) << "handle channel configExit reply " << packet
                       << std::endl;
 
@@ -479,7 +479,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
     const ChannelFrameFinishReplyPacket* packet = 
-        command.getPacket<ChannelFrameFinishReplyPacket>();
+        command.get<ChannelFrameFinishReplyPacket>();
 
     _fireLoadData( packet->frameNumber, packet->nStatistics,
                    packet->statistics );

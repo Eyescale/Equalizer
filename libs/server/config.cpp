@@ -924,7 +924,7 @@ bool Config::_cmdInit( co::Command& command )
 {
     EQ_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
-        command.getPacket<ConfigInitPacket>();
+        command.get<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
 
     sync();
@@ -950,7 +950,7 @@ bool Config::_cmdInit( co::Command& command )
 bool Config::_cmdExit( co::Command& command ) 
 {
     const ConfigExitPacket* packet = 
-        command.getPacket<ConfigExitPacket>();
+        command.get<ConfigExitPacket>();
     ConfigExitReplyPacket   reply( packet );
     EQVERB << "handle config exit " << packet << std::endl;
     setError( ERROR_NONE );
@@ -968,7 +968,7 @@ bool Config::_cmdExit( co::Command& command )
 bool Config::_cmdUpdate( co::Command& command )
 {
     const ConfigUpdatePacket* packet = 
-        command.getPacket<ConfigUpdatePacket>();
+        command.get<ConfigUpdatePacket>();
 
     EQVERB << "handle config update " << packet << std::endl;
 
@@ -1013,7 +1013,7 @@ bool Config::_cmdUpdate( co::Command& command )
 bool Config::_cmdStartFrame( co::Command& command ) 
 {
     const ConfigStartFramePacket* packet = 
-        command.getPacket<ConfigStartFramePacket>();
+        command.get<ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << std::endl;
 
     _startFrame( packet->frameID );
@@ -1032,7 +1032,7 @@ bool Config::_cmdStartFrame( co::Command& command )
 bool Config::_cmdFinishAllFrames( co::Command& command ) 
 {
     const ConfigFinishAllFramesPacket* packet = 
-        command.getPacket<ConfigFinishAllFramesPacket>();
+        command.get<ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
@@ -1042,7 +1042,7 @@ bool Config::_cmdFinishAllFrames( co::Command& command )
 bool Config::_cmdStopFrames( co::Command& command )
 {
     const ConfigStopFramesPacket* packet = 
-        command.getPacket<ConfigStopFramesPacket>();
+        command.get<ConfigStopFramesPacket>();
     EQVERB << "handle config stop frames " << packet << std::endl;
 
     ChannelStopFrameVisitor visitor( _currentFrame );
@@ -1056,7 +1056,7 @@ bool Config::_cmdCreateReply( co::Command& command )
     EQ_TS_THREAD( _cmdThread );
     EQ_TS_NOT_THREAD( _mainThread );
     const fabric::ConfigCreateReplyPacket* packet = 
-        command.getPacket< fabric::ConfigCreateReplyPacket >();
+        command.get< fabric::ConfigCreateReplyPacket >();
 
     getLocalNode()->serveRequest( packet->requestID );
     return true;
@@ -1091,7 +1091,7 @@ private:
 bool Config::_cmdFreezeLoadBalancing( co::Command& command ) 
 {
     const ConfigFreezeLoadBalancingPacket* packet = 
-        command.getPacket<ConfigFreezeLoadBalancingPacket>();
+        command.get<ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );

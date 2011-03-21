@@ -70,7 +70,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
 {
     EQ_TS_THREAD( _thread );
 
-    const ObjectDataPacket* packet = command.getPacket< ObjectDataPacket >();
+    const ObjectDataPacket* packet = command.get< ObjectDataPacket >();
 #ifndef NDEBUG
     if( _commands.size() < 2 )
     {
@@ -79,7 +79,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
     else
     {
         const ObjectDataPacket* previous = 
-            _commands.back()->getPacket< ObjectDataPacket >();
+            _commands.back()->get< ObjectDataPacket >();
         EQASSERTINFO( packet->sequence == previous->sequence+1, 
                       packet->sequence << ", " << previous->sequence );
         EQASSERT( packet->version == previous->version );
@@ -118,7 +118,7 @@ size_t ObjectDataIStream::getDataSize() const
             continue;
 
         const ObjectDataPacket* packet = 
-            command->getPacket< ObjectDataPacket >();
+            command->get< ObjectDataPacket >();
         size += packet->dataSize;
     }
     return size;
@@ -133,7 +133,7 @@ uint128_t ObjectDataIStream::getPendingVersion() const
     if( !command )
         return VERSION_INVALID;
     
-    const ObjectDataPacket* packet = command->getPacket< ObjectDataPacket >();
+    const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
     return packet->version;
 }
 
@@ -165,7 +165,7 @@ bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
     if( !command )
         return false;
 
-    const ObjectDataPacket* packet = command->getPacket< ObjectDataPacket >();
+    const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
     EQASSERT( packet->command == CMD_OBJECT_INSTANCE ||
               packet->command == CMD_OBJECT_DELTA ||
               packet->command == CMD_OBJECT_SLAVE_DELTA );
@@ -180,13 +180,13 @@ bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
     switch( packet->command )
     {
       case CMD_OBJECT_INSTANCE:
-        *chunkData = command->getPacket< ObjectInstancePacket >()->data;
+        *chunkData = command->get< ObjectInstancePacket >()->data;
         break;
       case CMD_OBJECT_DELTA:
-        *chunkData = command->getPacket< ObjectDeltaPacket >()->data;
+        *chunkData = command->get< ObjectDeltaPacket >()->data;
         break;
       case CMD_OBJECT_SLAVE_DELTA:
-        *chunkData = command->getPacket< ObjectSlaveDeltaPacket >()->data;
+        *chunkData = command->get< ObjectSlaveDeltaPacket >()->data;
         break;
     }
     return true;

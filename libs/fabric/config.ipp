@@ -791,7 +791,7 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     co::Command& command )
 {
     const ConfigNewLayoutPacket* packet =
-        command.getPacket< ConfigNewLayoutPacket >();
+        command.get< ConfigNewLayoutPacket >();
     
     L* layout = 0;
     create( &layout );
@@ -811,7 +811,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
 {
     const ConfigNewCanvasPacket* packet =
-        command.getPacket< ConfigNewCanvasPacket >();
+        command.get< ConfigNewCanvasPacket >();
     
     CV* canvas = 0;
     create( &canvas );
@@ -831,7 +831,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 {
     const ConfigNewObserverPacket* packet =
-        command.getPacket< ConfigNewObserverPacket >();
+        command.get< ConfigNewObserverPacket >();
     
     O* observer = 0;
     create( &observer );
@@ -851,7 +851,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& command )
 {
     const ConfigNewEntityReplyPacket* packet =
-        command.getPacket< ConfigNewEntityReplyPacket >();
+        command.get< ConfigNewEntityReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->entityID );
 
     return true;

@@ -487,7 +487,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 bool Window::_cmdConfigInitReply( co::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
-        command.getPacket<WindowConfigInitReplyPacket>();
+        command.get<WindowConfigInitReplyPacket>();
     EQVERB << "handle window configInit reply " << packet << std::endl;
 
     EQASSERT( !needsDelete( ));
@@ -498,7 +498,7 @@ bool Window::_cmdConfigInitReply( co::Command& command )
 bool Window::_cmdConfigExitReply( co::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
-        command.getPacket<WindowConfigExitReplyPacket>();
+        command.get<WindowConfigExitReplyPacket>();
     EQVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )

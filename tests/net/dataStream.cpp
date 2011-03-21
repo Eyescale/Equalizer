@@ -91,7 +91,7 @@ protected:
 
             TESTINFO( (*command)->command == 2, *command );
 
-            DataPacket* packet = command->getPacket<DataPacket>();
+            DataPacket* packet = command->get<DataPacket>();
             
             *compressor = packet->compressorName;
             *nChunks = packet->nChunks;
@@ -173,7 +173,7 @@ int main( int argc, char **argv )
         co::Command& command = commandCache.alloc( 0, 0, size );
         size -= sizeof( size );
 
-        char*      ptr     = reinterpret_cast< char* >( command.getPacket( )) +
+        char* ptr = reinterpret_cast< char* >( command.get< co::Packet >( )) +
                                                         sizeof( size );
         connection->recvNB( ptr, size );
         TEST( connection->recvSync( 0, 0 ) );
@@ -184,7 +184,7 @@ int main( int argc, char **argv )
             case 2:
                 stream.addDataCommand( command );
                 TEST( !command.isFree( ));
-                receiving = !command.getPacket< DataPacket >()->last;
+                receiving = !command.get< DataPacket >()->last;
                 break;
             default:
                 TEST( false );

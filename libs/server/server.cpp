@@ -251,7 +251,7 @@ void Server::handleCommands()
 bool Server::_cmdChooseConfig( co::Command& command ) 
 {
     const ServerChooseConfigPacket* packet = 
-        command.getPacket<ServerChooseConfigPacket>();
+        command.get<ServerChooseConfigPacket>();
     EQINFO << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
@@ -323,7 +323,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
 bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
-        command.getPacket<ServerReleaseConfigPacket>();
+        command.get<ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
@@ -370,7 +370,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 bool Server::_cmdDestroyConfigReply( co::Command& command ) 
 {
     const fabric::ServerDestroyConfigReplyPacket* packet = 
-        command.getPacket< fabric::ServerDestroyConfigReplyPacket >();
+        command.get< fabric::ServerDestroyConfigReplyPacket >();
 
     serveRequest( packet->requestID );
     return true;
@@ -379,7 +379,7 @@ bool Server::_cmdDestroyConfigReply( co::Command& command )
 bool Server::_cmdShutdown( co::Command& command )
 {
     const ServerShutdownPacket* packet = 
-        command.getPacket< ServerShutdownPacket >();
+        command.get< ServerShutdownPacket >();
 
     ServerShutdownReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
@@ -436,7 +436,7 @@ bool Server::_cmdMap( co::Command& command )
     }
 
     const admin::ServerMapPacket* packet =
-        command.getPacket< admin::ServerMapPacket >();
+        command.get< admin::ServerMapPacket >();
     admin::ServerMapReplyPacket reply( packet );
     node->send( reply );
     return true;
@@ -463,7 +463,7 @@ bool Server::_cmdUnmap( co::Command& command )
     }
 
     const admin::ServerUnmapPacket* packet = 
-        command.getPacket< admin::ServerUnmapPacket >();
+        command.get< admin::ServerUnmapPacket >();
     admin::ServerUnmapReplyPacket reply( packet );
     node->send( reply );
     return true;

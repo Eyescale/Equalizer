@@ -442,7 +442,7 @@ template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
 {
     const WindowNewChannelPacket* packet =
-        command.getPacket< WindowNewChannelPacket >();
+        command.get< WindowNewChannelPacket >();
     
     C* channel = 0;
     create( &channel );
@@ -463,7 +463,7 @@ template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 {
     const WindowNewChannelReplyPacket* packet =
-        command.getPacket< WindowNewChannelReplyPacket >();
+        command.get< WindowNewChannelReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->channelID );
 
     return true;

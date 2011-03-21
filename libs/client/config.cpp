@@ -436,7 +436,7 @@ const ConfigEvent* Config::nextEvent()
     if( _lastEvent )
         _lastEvent->release();
     _lastEvent = _eventQueue.pop();
-    return _lastEvent->getPacket<ConfigEvent>();
+    return _lastEvent->get<ConfigEvent>();
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -448,7 +448,7 @@ const ConfigEvent* Config::tryNextEvent()
     if( _lastEvent )
         _lastEvent->release();
     _lastEvent = command;
-    return command->getPacket<ConfigEvent>();
+    return command->get<ConfigEvent>();
 }
 
 void Config::handleEvents()
@@ -787,7 +787,7 @@ void Config::_releaseObjects()
 bool Config::_cmdCreateNode( co::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
-        command.getPacket<ConfigCreateNodePacket>();
+        command.get<ConfigCreateNodePacket>();
     EQVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
@@ -798,7 +798,7 @@ bool Config::_cmdCreateNode( co::Command& command )
 bool Config::_cmdDestroyNode( co::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
-        command.getPacket<ConfigDestroyNodePacket>();
+        command.get<ConfigDestroyNodePacket>();
     EQVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
@@ -819,7 +819,7 @@ bool Config::_cmdDestroyNode( co::Command& command )
 bool Config::_cmdInitReply( co::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
-        command.getPacket<ConfigInitReplyPacket>();
+        command.get<ConfigInitReplyPacket>();
     EQVERB << "handle init reply " << packet << std::endl;
 
     sync( packet->version );
@@ -830,7 +830,7 @@ bool Config::_cmdInitReply( co::Command& command )
 bool Config::_cmdExitReply( co::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
-        command.getPacket<ConfigExitReplyPacket>();
+        command.get<ConfigExitReplyPacket>();
     EQVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
@@ -841,7 +841,7 @@ bool Config::_cmdExitReply( co::Command& command )
 bool Config::_cmdUpdateVersion( co::Command& command )
 {
     const ConfigUpdateVersionPacket* packet = 
-        command.getPacket<ConfigUpdateVersionPacket>();
+        command.get<ConfigUpdateVersionPacket>();
 
     getClient()->serveRequest( packet->versionID, packet->version );
     getClient()->serveRequest( packet->finishID, packet->requestID );
@@ -851,7 +851,7 @@ bool Config::_cmdUpdateVersion( co::Command& command )
 bool Config::_cmdUpdateReply( co::Command& command )
 {
     const ConfigUpdateReplyPacket* packet = 
-        command.getPacket<ConfigUpdateReplyPacket>();
+        command.get<ConfigUpdateReplyPacket>();
 
     sync( packet->version );
     getClient()->serveRequest( packet->requestID, packet->result );
@@ -861,7 +861,7 @@ bool Config::_cmdUpdateReply( co::Command& command )
 bool Config::_cmdReleaseFrameLocal( co::Command& command )
 {
     const ConfigReleaseFrameLocalPacket* packet =
-        command.getPacket< ConfigReleaseFrameLocalPacket >();
+        command.get< ConfigReleaseFrameLocalPacket >();
 
     _frameStart(); // never happened from node
     releaseFrameLocal( packet->frameNumber );
@@ -871,7 +871,7 @@ bool Config::_cmdReleaseFrameLocal( co::Command& command )
 bool Config::_cmdFrameFinish( co::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
-        command.getPacket<ConfigFrameFinishPacket>();
+        command.get<ConfigFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
 
     _finishedFrame = packet->frameNumber;
@@ -890,7 +890,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
 bool Config::_cmdSyncClock( co::Command& command )
 {
     const ConfigSyncClockPacket* packet = 
-        command.getPacket< ConfigSyncClockPacket >();
+        command.get< ConfigSyncClockPacket >();
 
     EQVERB << "sync global clock to " << packet->time << ", drift " 
            << packet->time - _clock.getTime64() << std::endl;
@@ -902,7 +902,7 @@ bool Config::_cmdSyncClock( co::Command& command )
 bool Config::_cmdSwapObject( co::Command& command )
 {
     const ConfigSwapObjectPacket* packet = 
-        command.getPacket<ConfigSwapObjectPacket>();
+        command.get<ConfigSwapObjectPacket>();
     EQVERB << "Cmd swap object " << packet << std::endl;
 
     co::Object* object = packet->object;

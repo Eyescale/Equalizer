@@ -100,7 +100,7 @@ co::CommandQueue* Server::getMainThreadQueue()
 bool Server::_cmdMapReply( co::Command& command )
 {
     const ServerMapReplyPacket* packet = 
-        command.getPacket< ServerMapReplyPacket >();
+        command.get< ServerMapReplyPacket >();
     ClientPtr client = getClient();
     client->serveRequest( packet->requestID );
     return true;
@@ -109,7 +109,7 @@ bool Server::_cmdMapReply( co::Command& command )
 bool Server::_cmdUnmapReply( co::Command& command )
 {
     const ServerUnmapReplyPacket* packet = 
-        command.getPacket< ServerUnmapReplyPacket >();
+        command.get< ServerUnmapReplyPacket >();
 
     ClientPtr client = getClient();
     client->serveRequest( packet->requestID );

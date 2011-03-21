@@ -74,7 +74,7 @@ protected:
             TEST( cmd->command == co::CMD_NODE_CUSTOM );
             TEST( _messagesLeft > 0 );
 
-            const DataPacket* packet = cmd.getPacket< DataPacket >();
+            const DataPacket* packet = cmd.get< DataPacket >();
             TESTINFO( message == packet->data, packet->data );
 
             --_messagesLeft;

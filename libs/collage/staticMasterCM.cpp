@@ -43,7 +43,7 @@ void StaticMasterCM::addSlave( Command& command,
 
     NodePtr node = command.getNode();
     NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+        command.get<NodeMapObjectPacket>();
     const uint32_t instanceID = packet->instanceID;
     const uint128_t version = packet->requestedVersion;
     EQASSERT( version == VERSION_OLDEST || version == VERSION_FIRST ||

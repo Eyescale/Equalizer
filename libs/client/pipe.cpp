@@ -637,7 +637,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 bool Pipe::_cmdCreateWindow( co::Command& command )
 {
     const PipeCreateWindowPacket* packet = 
-        command.getPacket<PipeCreateWindowPacket>();
+        command.get<PipeCreateWindowPacket>();
     EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
@@ -652,7 +652,7 @@ bool Pipe::_cmdCreateWindow( co::Command& command )
 bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
-        command.getPacket<PipeDestroyWindowPacket>();
+        command.get<PipeDestroyWindowPacket>();
     EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
@@ -696,7 +696,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
-        command.getPacket<PipeConfigInitPacket>();
+        command.get<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     if( !isThreaded( ))
@@ -743,7 +743,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
-        command.getPacket<PipeConfigExitPacket>();
+        command.get<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
     // send before node gets a chance to send its destroy packet
@@ -781,7 +781,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
-        command.getPacket<PipeFrameStartPacket>();
+        command.get<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
     sync( packet->version );
@@ -814,7 +814,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
-        command.getPacket<PipeFrameFinishPacket>();
+        command.get<PipeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -856,7 +856,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     PipeFrameDrawFinishPacket* packet = 
-        command.getPacket< PipeFrameDrawFinishPacket >();
+        command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 

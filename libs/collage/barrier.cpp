@@ -123,7 +123,7 @@ bool Barrier::_cmdEnter( Command& command )
     EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getLocalNode(), _master );
 
-    BarrierEnterPacket* packet = command.getPacket< BarrierEnterPacket >();
+    BarrierEnterPacket* packet = command.get< BarrierEnterPacket >();
     if( packet->handled )
         return true;
     packet->handled = true;

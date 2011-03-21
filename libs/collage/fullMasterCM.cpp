@@ -192,7 +192,7 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 
     NodePtr node = command.getNode();
     NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+        command.get<NodeMapObjectPacket>();
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
@@ -376,7 +376,7 @@ void FullMasterCM::_releaseInstanceData( InstanceData* data )
 bool FullMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
@@ -417,7 +417,7 @@ bool FullMasterCM::_cmdObsolete( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     const ObjectObsoletePacket* packet = 
-        command.getPacket<ObjectObsoletePacket>();
+        command.get<ObjectObsoletePacket>();
 
     _nVersions = packet->count;
     _obsolete();

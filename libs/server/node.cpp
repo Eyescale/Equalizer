@@ -690,7 +690,7 @@ void Node::flushSendBuffer()
 bool Node::_cmdConfigInitReply( co::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
-        command.getPacket<NodeConfigInitReplyPacket>();
+        command.get<NodeConfigInitReplyPacket>();
     EQVERB << "handle configInit reply " << packet << std::endl;
     EQASSERT( _state == STATE_INITIALIZING );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -701,7 +701,7 @@ bool Node::_cmdConfigInitReply( co::Command& command )
 bool Node::_cmdConfigExitReply( co::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
-        command.getPacket<NodeConfigExitReplyPacket>();
+        command.get<NodeConfigExitReplyPacket>();
     EQVERB << "handle configExit reply " << packet << std::endl;
     EQASSERT( _state == STATE_EXITING );
 
@@ -712,7 +712,7 @@ bool Node::_cmdConfigExitReply( co::Command& command )
 bool Node::_cmdFrameFinishReply( co::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
-        command.getPacket<NodeFrameFinishReplyPacket>();
+        command.get<NodeFrameFinishReplyPacket>();
     EQVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;

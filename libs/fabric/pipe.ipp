@@ -382,7 +382,7 @@ template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
 {
     const PipeNewWindowPacket* packet =
-        command.getPacket< PipeNewWindowPacket >();
+        command.get< PipeNewWindowPacket >();
     
     W* window = 0;
     create( &window );
@@ -402,7 +402,7 @@ template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& command )
 {
     const PipeNewWindowReplyPacket* packet =
-        command.getPacket< PipeNewWindowReplyPacket >();
+        command.get< PipeNewWindowReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->windowID );
 
     return true;

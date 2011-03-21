@@ -39,12 +39,9 @@ namespace co
     public:
         /** @name Data access. */
         //@{
-        Packet*       getPacket()              { return _packet; }
-        const Packet* getPacket() const        { return _packet; }
-
-        template< class P > P* getPacket()
+        template< class P > P* get()
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
-        template< class P > const P* getPacket() const
+        template< class P > const P* get() const
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }

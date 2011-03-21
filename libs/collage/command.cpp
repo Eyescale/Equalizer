@@ -135,7 +135,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
     if( command.isValid( ))
     {
         os << base::disableFlush << "command< ";
-        const Packet* packet = command.getPacket() ;
+        const Packet* packet = command.get< Packet >() ;
         switch( packet->type )
         {
             case PACKETTYPE_CO_NODE:

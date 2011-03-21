@@ -648,7 +648,7 @@ bool Window::processEvent( const Event& event )
 bool Window::_cmdCreateChannel( co::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
-        command.getPacket<WindowCreateChannelPacket>();
+        command.get<WindowCreateChannelPacket>();
     EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
@@ -664,7 +664,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
 bool Window::_cmdDestroyChannel( co::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
-        command.getPacket<WindowDestroyChannelPacket>();
+        command.get<WindowDestroyChannelPacket>();
     EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
     Channel* channel = _findChannel( packet->channelID );
@@ -683,7 +683,7 @@ bool Window::_cmdDestroyChannel( co::Command& command )
 bool Window::_cmdConfigInit( co::Command& command )
 {
     const WindowConfigInitPacket* packet = 
-        command.getPacket<WindowConfigInitPacket>();
+        command.get<WindowConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
     WindowConfigInitReplyPacket reply;
@@ -710,8 +710,7 @@ bool Window::_cmdConfigInit( co::Command& command )
 
 bool Window::_cmdConfigExit( co::Command& command )
 {
-    WindowConfigExitPacket* packet =
-        command.getPacket<WindowConfigExitPacket>();
+    WindowConfigExitPacket* packet = command.get<WindowConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
@@ -736,7 +735,7 @@ bool Window::_cmdFrameStart( co::Command& command )
     EQ_TS_THREAD( _pipeThread );
 
     const WindowFrameStartPacket* packet = 
-        command.getPacket<WindowFrameStartPacket>();
+        command.get<WindowFrameStartPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
                        << std::endl;
 
@@ -758,7 +757,7 @@ bool Window::_cmdFrameStart( co::Command& command )
 bool Window::_cmdFrameFinish( co::Command& command )
 {
     const WindowFrameFinishPacket* packet =
-        command.getPacket<WindowFrameFinishPacket>();
+        command.get<WindowFrameFinishPacket>();
     EQVERB << "handle window frame sync " << packet << std::endl;
 
     makeCurrent();
@@ -777,8 +776,7 @@ bool Window::_cmdFinish( co::Command& )
 
 bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
-    WindowThrottleFramerate* packet = 
-        command.getPacket< WindowThrottleFramerate >();
+    WindowThrottleFramerate* packet = command.get< WindowThrottleFramerate >();
     EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << packet << std::endl;
 
@@ -798,8 +796,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
         
 bool Window::_cmdBarrier( co::Command& command )
 {
-    const WindowBarrierPacket* packet = 
-        command.getPacket<WindowBarrierPacket>();
+    const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
@@ -809,8 +806,7 @@ bool Window::_cmdBarrier( co::Command& command )
 
 bool Window::_cmdNVBarrier( co::Command& command )
 {
-    const WindowNVBarrierPacket* packet = 
-        command.getPacket<WindowNVBarrierPacket>();
+    const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     
     EQASSERT( _systemWindow );
@@ -822,7 +818,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
 
 bool Window::_cmdSwap( co::Command& command ) 
 {
-    WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
+    WindowSwapPacket* packet = command.get< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << std::endl;
 
@@ -839,7 +835,7 @@ bool Window::_cmdSwap( co::Command& command )
 bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
-        command.getPacket< WindowFrameDrawFinishPacket >();
+        command.get< WindowFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 

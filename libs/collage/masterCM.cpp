@@ -154,7 +154,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     const ObjectSlaveDeltaPacket* packet = 
-        command.getPacket< ObjectSlaveDeltaPacket >();
+        command.get< ObjectSlaveDeltaPacket >();
 
     EQASSERTINFO( _pendingDeltas.size() < 100,
                   "More than 100 unfinished slave commits!?" );

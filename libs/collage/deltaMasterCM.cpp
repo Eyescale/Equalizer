@@ -58,7 +58,7 @@ DeltaMasterCM::~DeltaMasterCM()
 bool DeltaMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get< ObjectCommitPacket >();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;

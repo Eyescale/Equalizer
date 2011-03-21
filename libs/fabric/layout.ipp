@@ -274,7 +274,7 @@ template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewView( co::Command& command )
 {
     const LayoutNewViewPacket* packet =
-        command.getPacket< LayoutNewViewPacket >();
+        command.get< LayoutNewViewPacket >();
     
     V* view = 0;
     create( &view );
@@ -295,7 +295,7 @@ template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 {
     const LayoutNewViewReplyPacket* packet =
-        command.getPacket< LayoutNewViewReplyPacket >();
+        command.get< LayoutNewViewReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->viewID );
 
     return true;

@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 
     co::Command& command = commandCache.alloc( node, node, PACKET_SIZE );
     co::ObjectInstancePacket* packet = 
-        command.getPacket< co::ObjectInstancePacket >();
+        command.get< co::ObjectInstancePacket >();
     *packet = co::ObjectInstancePacket();
     packet->last = true;
     packet->dataSize = PACKET_SIZE;

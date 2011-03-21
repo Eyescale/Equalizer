@@ -302,7 +302,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 bool Pipe::_cmdConfigInitReply( co::Command& command ) 
 {
     const PipeConfigInitReplyPacket* packet = 
-        command.getPacket<PipeConfigInitReplyPacket>();
+        command.get<PipeConfigInitReplyPacket>();
     EQVERB << "handle pipe configInit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -312,7 +312,7 @@ bool Pipe::_cmdConfigInitReply( co::Command& command )
 bool Pipe::_cmdConfigExitReply( co::Command& command ) 
 {
     const PipeConfigExitReplyPacket* packet = 
-        command.getPacket<PipeConfigExitReplyPacket>();
+        command.get<PipeConfigExitReplyPacket>();
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;

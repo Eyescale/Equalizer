@@ -87,7 +87,7 @@ template< class CL, class S, class CFG, class NF, class N > bool
 Server< CL, S, CFG, NF, N >::_cmdCreateConfig( co::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
-        command.getPacket<ServerCreateConfigPacket>();
+        command.get<ServerCreateConfigPacket>();
     EQVERB << "Handle create config " << packet << std::endl;
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
@@ -105,7 +105,7 @@ template< class CL, class S, class CFG, class NF, class N > bool
 Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( co::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
-        command.getPacket<ServerDestroyConfigPacket>();
+        command.get<ServerDestroyConfigPacket>();
     EQVERB << "Handle destroy config " << packet << std::endl;
     
     co::LocalNodePtr localNode = command.getLocalNode();

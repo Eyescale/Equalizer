@@ -1354,7 +1354,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet = 
-        command.getPacket<ChannelConfigInitPacket>();
+        command.get<ChannelConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
     const Config* config = getConfig();
@@ -1397,7 +1397,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
 bool Channel::_cmdConfigExit( co::Command& command )
 {
     const ChannelConfigExitPacket* packet =
-        command.getPacket<ChannelConfigExitPacket>();
+        command.get<ChannelConfigExitPacket>();
     EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
@@ -1411,7 +1411,7 @@ bool Channel::_cmdConfigExit( co::Command& command )
 bool Channel::_cmdFrameStart( co::Command& command )
 {
     ChannelFrameStartPacket* packet = 
-        command.getPacket<ChannelFrameStartPacket>();
+        command.get<ChannelFrameStartPacket>();
     EQVERB << "handle channel frame start " << packet << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
@@ -1433,7 +1433,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
 bool Channel::_cmdFrameFinish( co::Command& command )
 {
     ChannelFrameFinishPacket* packet =
-        command.getPacket<ChannelFrameFinishPacket>();
+        command.get<ChannelFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
@@ -1449,7 +1449,7 @@ bool Channel::_cmdFrameClear( co::Command& command )
 {
     EQASSERT( _state == STATE_RUNNING );
     ChannelFrameClearPacket* packet = 
-        command.getPacket<ChannelFrameClearPacket>();
+        command.get<ChannelFrameClearPacket>();
     EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
                        << std::endl;
 
@@ -1464,7 +1464,7 @@ bool Channel::_cmdFrameClear( co::Command& command )
 bool Channel::_cmdFrameDraw( co::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
-        command.getPacket<ChannelFrameDrawPacket>();
+        command.get<ChannelFrameDrawPacket>();
     EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
                        << std::endl;
 
@@ -1479,7 +1479,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
 bool Channel::_cmdFrameDrawFinish( co::Command& command )
 {
     ChannelFrameDrawFinishPacket* packet = 
-        command.getPacket< ChannelFrameDrawFinishPacket >();
+        command.get< ChannelFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
@@ -1492,7 +1492,7 @@ bool Channel::_cmdFrameDrawFinish( co::Command& command )
 bool Channel::_cmdFrameAssemble( co::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
-        command.getPacket<ChannelFrameAssemblePacket>();
+        command.get<ChannelFrameAssemblePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                        << packet << std::endl;
 
@@ -1524,7 +1524,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
-        command.getPacket<ChannelFrameReadbackPacket>();
+        command.get<ChannelFrameReadbackPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
                                        << packet << std::endl;
 
@@ -1588,7 +1588,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 bool Channel::_cmdFrameTransmit( co::Command& command )
 {
     ChannelFrameTransmitPacket* packet = 
-        command.getPacket<ChannelFrameTransmitPacket>();
+        command.get<ChannelFrameTransmitPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
                                       << packet << std::endl;
 
@@ -1604,7 +1604,7 @@ bool Channel::_cmdFrameTransmit( co::Command& command )
 bool Channel::_cmdFrameTransmitAsync( co::Command& command )
 {
     const ChannelFrameTransmitPacket* packet = 
-        command.getPacket<ChannelFrameTransmitPacket>();
+        command.get<ChannelFrameTransmitPacket>();
 
     _transmit( packet );
     _unrefFrame( packet->frameNumber, packet->statisticsIndex );
@@ -1614,7 +1614,7 @@ bool Channel::_cmdFrameTransmitAsync( co::Command& command )
 bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
-        command.getPacket<ChannelFrameViewStartPacket>();
+        command.get<ChannelFrameViewStartPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
                                        << packet << std::endl;
 
@@ -1628,7 +1628,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
-        command.getPacket<ChannelFrameViewFinishPacket>();
+        command.get<ChannelFrameViewFinishPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName()
                                       <<  " " << packet << std::endl;
 
@@ -1643,7 +1643,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 bool Channel::_cmdStopFrame( co::Command& command )
 {
     ChannelStopFramePacket* packet = 
-        command.getPacket<ChannelStopFramePacket>();
+        command.get<ChannelStopFramePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
 

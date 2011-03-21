@@ -912,7 +912,7 @@ bool LocalNode::_handleData()
     EQASSERT( size > sizeof( size ));
 
     Command& command = _commandCache.alloc( node, this, size );
-    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
+    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.get< Packet >()) +
                                                  sizeof( uint64_t );
 
     connection->recvNB( ptr, size - sizeof( uint64_t ));
@@ -1043,7 +1043,7 @@ void LocalNode::_runCommandThread()
 bool LocalNode::_cmdAckRequest( Command& command )
 {
     const NodeAckRequestPacket* packet = 
-        command.getPacket<NodeAckRequestPacket>();
+        command.get<NodeAckRequestPacket>();
     EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
 
     serveRequest( packet->requestID );
@@ -1067,7 +1067,7 @@ bool LocalNode::_cmdConnect( Command& command )
     EQASSERT( !command.getNode().isValid( ));
     EQASSERT( _inReceiverThread( ));
 
-    const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
+    const NodeConnectPacket* packet = command.get<NodeConnectPacket>();
     ConnectionPtr connection = _incoming.getConnection();
     const NodeID& nodeID = packet->nodeID;
 
@@ -1135,7 +1135,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     const NodeConnectReplyPacket* packet = 
-        command.getPacket<NodeConnectReplyPacket>();
+        command.get<NodeConnectReplyPacket>();
     ConnectionPtr connection = _incoming.getConnection();
 
     const NodeID& nodeID = packet->nodeID;
@@ -1220,7 +1220,7 @@ bool LocalNode::_cmdID( Command& command )
 {
     EQASSERT( _inReceiverThread( ));
 
-    const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
+    const NodeIDPacket* packet = command.get< NodeIDPacket >();
     NodeID nodeID = packet->id;
 
     if( command.getNode().isValid( ))
@@ -1313,7 +1313,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     const NodeDisconnectPacket* packet =
-        command.getPacket<NodeDisconnectPacket>();
+        command.get<NodeDisconnectPacket>();
 
     NodePtr node = static_cast<Node*>( getRequestData( packet->requestID ));
     EQASSERT( node.isValid( ));
@@ -1346,7 +1346,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
 bool LocalNode::_cmdGetNodeData( Command& command)
 {
     const NodeGetNodeDataPacket* packet = 
-        command.getPacket<NodeGetNodeDataPacket>();
+        command.get<NodeGetNodeDataPacket>();
     EQVERB << "cmd get node data: " << packet << std::endl;
 
     const NodeID& nodeID = packet->nodeID;
@@ -1376,7 +1376,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     NodeGetNodeDataReplyPacket* packet = 
-        command.getPacket<NodeGetNodeDataReplyPacket>();
+        command.get<NodeGetNodeDataReplyPacket>();
     EQVERB << "cmd get node data reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
@@ -1427,7 +1427,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
     _hasSendToken = false;
 
     NodeAcquireSendTokenPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenPacket>();
+        command.get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
     return true;
@@ -1436,7 +1436,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
 bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 {
     NodeAcquireSendTokenReplyPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenReplyPacket>();
+        command.get<NodeAcquireSendTokenReplyPacket>();
 
     serveRequest( packet->requestID );
     return true;
@@ -1457,7 +1457,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
     _sendTokenQueue.pop_front();
 
     NodeAcquireSendTokenPacket* packet = 
-        request->getPacket<NodeAcquireSendTokenPacket>();
+        request->get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
 
     request->getNode()->send( reply );
@@ -1468,7 +1468,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
 bool LocalNode::_cmdAddListener( Command& command )
 {
     NodeAddListenerPacket* packet = 
-        command.getPacket< NodeAddListenerPacket >();
+        command.get< NodeAddListenerPacket >();
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );
@@ -1501,7 +1501,7 @@ bool LocalNode::_cmdAddListener( Command& command )
 bool LocalNode::_cmdRemoveListener( Command& command )
 {
     NodeRemoveListenerPacket* packet = 
-        command.getPacket< NodeRemoveListenerPacket >();
+        command.get< NodeRemoveListenerPacket >();
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );

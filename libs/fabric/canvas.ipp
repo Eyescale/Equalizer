@@ -386,7 +386,7 @@ template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
 {
     const CanvasNewSegmentPacket* packet =
-        command.getPacket< CanvasNewSegmentPacket >();
+        command.get< CanvasNewSegmentPacket >();
     
     S* segment = 0;
     create( &segment );
@@ -407,7 +407,7 @@ template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
 {
     const CanvasNewSegmentReplyPacket* packet =
-        command.getPacket< CanvasNewSegmentReplyPacket >();
+        command.get< CanvasNewSegmentReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->segmentID );
 
     return true;
