@@ -846,7 +846,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
     {
-        fabric::ObjectSyncPacket syncPacket( version );
+        fabric::ObjectSyncPacket syncPacket;
         send( command.getNode(), syncPacket );
     }
     return true;

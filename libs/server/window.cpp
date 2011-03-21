@@ -68,15 +68,13 @@ void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    co::CommandQueue* cmdQ = getCommandThreadQueue();
-    co::CommandQueue* mainQ = getMainThreadQueue();
-
+    co::CommandQueue* queue = getCommandThreadQueue();
     registerCommand( fabric::CMD_OBJECT_SYNC,
-                     WindowFunc( this, &Window::_cmdSync ), mainQ );
+                     WindowFunc( this, &Window::_cmdSync ), queue );
     registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigInitReply ), cmdQ );
+                     WindowFunc( this, &Window::_cmdConfigInitReply ), queue );
     registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigExitReply ), cmdQ );
+                     WindowFunc( this, &Window::_cmdConfigExitReply ), queue );
 }
 
 void Window::removeChild( const co::base::UUID& id )

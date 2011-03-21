@@ -135,16 +135,15 @@ void Window::notifyViewportChanged()
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
     {
-        fabric::ObjectSyncPacket syncPacket( version );
+        fabric::ObjectSyncPacket syncPacket;
         send( getServer(), syncPacket );
     }
 }
 
 void Window::_updateFPS()
 {
-    const float curTime      = static_cast< float >( getConfig()->getTime( ));
-    const float curInterval  = curTime - _lastTime;
-
+    const float curTime = float( getConfig()->getTime( ));
+    const float curInterval = curTime - _lastTime;
     const bool isFirstFrame = _lastTime == 0.0f;
     _lastTime = curTime;
 

@@ -42,13 +42,11 @@ namespace fabric
    
     struct ObjectSyncPacket : public co::ObjectPacket
     {
-        ObjectSyncPacket( const uint128_t& v ) : version( v )
+        ObjectSyncPacket()
             {
-                command        = CMD_OBJECT_SYNC;
-                size           = sizeof( ObjectSyncPacket );
+                command = CMD_OBJECT_SYNC;
+                size = sizeof( ObjectSyncPacket );
             }
-
-        const uint128_t version;
     };
 /** @endcond */
 

@@ -181,7 +181,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         setDirty( dirtyBits & getRedistributableBits( ));
 
     // Update user data state
-    if( !(dirtyBits & DIRTY_USERDATA) ||!_userData )
+    if( !(dirtyBits & DIRTY_USERDATA) || !_userData )
         return;
 
     EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
@@ -298,8 +298,7 @@ void Object::postRemove( const Object* child )
 bool Object::_cmdSync( co::Command& command )
 {
     EQASSERT( isMaster( ));
-    const ObjectSyncPacket* packet = command.getPacket< ObjectSyncPacket >();
-    sync( packet->version );
+    sync( co::VERSION_HEAD );
     return true;
 }
 

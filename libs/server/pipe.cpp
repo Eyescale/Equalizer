@@ -62,16 +62,14 @@ Pipe::~Pipe()
 void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
-    co::CommandQueue* cmdQ = getCommandThreadQueue();
-    co::CommandQueue* mainQ = getMainThreadQueue();
 
+    co::CommandQueue* queue = getCommandThreadQueue();
     registerCommand( fabric::CMD_OBJECT_SYNC,
-                     PipeFunc( this, &Pipe::_cmdSync ), mainQ );
+                     PipeFunc( this, &Pipe::_cmdSync ), queue );
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
-                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), cmdQ );
+                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
     registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
-                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
+                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
 }
 
 void Pipe::removeChild( const co::base::UUID& id )

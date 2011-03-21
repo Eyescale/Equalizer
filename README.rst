@@ -581,8 +581,8 @@ information.
 .. _compatibility matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
-.. _hard-copy   (0.9): http://www.lulu.com/content/paperback-
-    book/equalizer-09-programming-and-user-guide/7501548
+.. _hard-copy   (0.9): http://www.lulu.com/product/paperback/equalizer-10
+    -programming-and-user-guide/15165632
 .. _online   (1.0   beta): http://www.equalizergraphics.com/survey.html
 .. _API   documentation:
     http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html
