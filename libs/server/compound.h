@@ -321,9 +321,7 @@ namespace server
             { return (_inherit.eyes & eye); }
         //@}
 
-        /**
-         * @name Frustum Operations
-         */
+        /** @name Frustum Operations */
         //@{
         /** 
          * Set the compound's frustum using a wall description.
