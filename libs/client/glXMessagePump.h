@@ -22,6 +22,7 @@
 #include <eq/messagePump.h> // base class
 
 #include <co/connectionSet.h>  // member
+#include <co/base/stdExt.h>    // member
 
 namespace eq
 {
