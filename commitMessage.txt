@@ -1,9 +1,9 @@
-Fix bug item 3203934  Channel statistics-related race  
+Minor Cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
