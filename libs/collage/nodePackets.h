@@ -20,6 +20,7 @@
 #define EQNET_NODEPACKETS_H
 
 #include <co/packets.h> // base structs
+#include <co/base/compiler.h> // align macros
 
 /** @cond IGNORE */
 namespace co
