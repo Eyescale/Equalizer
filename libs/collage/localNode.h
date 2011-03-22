@@ -28,6 +28,7 @@
 #include <co/objectVersion.h>   // used in inline method
 
 
+#include <co/base/hash.h>           // member
 #include <co/base/lockable.h>       // member
 #include <co/base/spinLock.h>       // member
 #include <co/base/types.h>          // member

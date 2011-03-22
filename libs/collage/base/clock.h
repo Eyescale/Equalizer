@@ -36,7 +36,7 @@ namespace base
         COBASE_API Clock();
 
         /** Destroy the clock. @version 1.0 */
-        ~Clock();
+        COBASE_API ~Clock();
 
         /**
          * Reset the base time of the clock to the current time.

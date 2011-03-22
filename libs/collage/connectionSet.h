@@ -20,11 +20,8 @@
 
 #include <co/connectionListener.h> // base class
 
-#include <co/base/os.h>
-#include <co/base/buffer.h>
-#include <co/base/hash.h>
-#include <co/base/monitor.h>
-#include <co/base/refPtr.h>
+#include <co/base/buffer.h> // member
+#include <co/base/refPtr.h> // member
 #include <co/base/thread.h> // for EQ_TS_VAR
 
 #ifndef _WIN32
