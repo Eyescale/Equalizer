@@ -21,7 +21,6 @@
 
 #include <co/base/api.h>
 #include <co/base/nonCopyable.h>
-#include <co/base/os.h>
 
 #include <string>
 
@@ -29,12 +28,17 @@ namespace co
 {
 namespace base
 {
+    class DSOPrivate;
+
     /** Helper to access dynamic shared objects (DSO) */
     class DSO : public NonCopyable
     {
     public:
         /** Construct a new dynamic shared object. @version 1.0 */
-        DSO() : _dso( 0 ) {}
+        COBASE_API DSO();
+
+        /** Destruct this DSO handle. @version 1.0 */
+        COBASE_API ~DSO();
 
         /** 
          * Open a dynamic shared object.
@@ -59,14 +63,10 @@ namespace base
         COBASE_API void* getFunctionPointer( const std::string& functionName );
 
         /** @return true if the DSO is loaded. @version 1.0 */
-        bool isOpen() const { return _dso != 0; }
+        COBASE_API bool isOpen() const;
 
     private:
-#ifdef _WIN32 //_MSC_VER
-        HMODULE _dso;
-#else
-        void* _dso;
-#endif
+        DSOPrivate* _data;
     };
 
 }
