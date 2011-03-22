@@ -37,6 +37,7 @@ namespace base
 class DSOPrivate
 {
 public:
+    DSOPrivate() : dso( 0 ) {}
 #ifdef _WIN32 //_MSC_VER
     HMODULE dso;
 #else
