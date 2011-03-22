@@ -17,6 +17,7 @@
 
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/compareAndSwap.h> // used in inline methods
+#include <co/base/compiler.h>       // GCC version
 
 #include <string> // _Atomic_word
 
