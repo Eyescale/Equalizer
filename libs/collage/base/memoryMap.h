@@ -20,7 +20,6 @@
 
 #include <co/base/api.h>
 #include <co/base/nonCopyable.h>
-#include <co/base/os.h>
 
 #include <string>
 
@@ -67,7 +66,7 @@ namespace base
 
     private:
 #ifdef _WIN32
-        HANDLE _map;
+        void* _map;
 #else
         int _fd;
 #endif

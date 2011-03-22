@@ -36,7 +36,6 @@
 #include <eq/windowPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
-//#include <co/base/os.h>
 #include <co/base/debug.h>
 
 #include "channel.ipp"

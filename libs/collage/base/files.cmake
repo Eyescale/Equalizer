@@ -85,6 +85,7 @@ set(COBASE_HEADERS
     referenced.cpp
     requestHandler.cpp
     rng.cpp
+    sleep.cpp
     thread.cpp
     threadID.cpp
     timedLock.cpp

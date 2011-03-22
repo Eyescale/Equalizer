@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,18 +15,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_SLEEP_H
-#define COBASE_SLEEP_H
+#include "sleep.h"
 
-#include <co/base/api.h>
-#include <co/base/types.h>
+#include "os.h"
 
 namespace co
 {
 namespace base
 {
-    /** Sleep the current thread for a number of milliseconds. @version 1.0 */
-    COBASE_API void sleep( const uint32_t milliSeconds );
+void sleep( const uint32_t milliSeconds )
+{
+#ifdef _WIN32 //_MSC_VER
+    ::Sleep( milliSeconds );
+#else
+    ::usleep( milliSeconds * 1000 );
+#endif
+}
+
 }
 }
-#endif  // COBASE_SLEEP_H
