@@ -89,15 +89,15 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    co::CommandQueue* queue = getCommandThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
     registerCommand( fabric::CMD_OBJECT_SYNC,
-                     NodeFunc( this, &Node::_cmdSync ), queue );
+                     NodeFunc( this, &Node::_cmdSync ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
-                     NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
+                     NodeFunc( this, &Node::_cmdFrameFinishReply ), cmdQ );
 }
 
 ServerPtr Node::getServer()

@@ -110,15 +110,15 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    co::CommandQueue* serverQ  = getMainThreadQueue();
-    co::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* mainQ  = getMainThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
-                     CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
+                     CmdFunc( this, &Channel::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-                     CmdFunc( this, &Channel::_cmdConfigExitReply ), commandQ );
+                     CmdFunc( this, &Channel::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
-                     CmdFunc( this, &Channel::_cmdFrameFinishReply ), serverQ );
+                     CmdFunc( this, &Channel::_cmdFrameFinishReply ), mainQ );
 }
 
 Channel::~Channel()

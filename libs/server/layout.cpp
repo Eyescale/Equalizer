@@ -21,7 +21,6 @@
 #include "view.h"
 
 #include <eq/fabric/paths.h>
-#include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
 namespace eq
@@ -32,13 +31,9 @@ typedef fabric::Layout< Config, Layout, View > Super;
 
 Layout::Layout( Config* parent )
         : Super( parent )
-        , _state( STATE_ACTIVE )
-{
-}
+        , _state( STATE_ACTIVE ){}
 
-Layout::~Layout()
-{
-}
+Layout::~Layout(){}
 
 ServerPtr Layout::getServer() 
 {
