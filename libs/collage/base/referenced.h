@@ -114,14 +114,14 @@ namespace base
     protected:
         /** Construct a new reference-counted object. @version 1.0 */
         Referenced()
-            : _refCount( 0 )
-            , _hasBeenDeleted( false )
+                : _refCount( 0 )
+                , _hasBeenDeleted( false )
             {}
 
         /** Construct a new copy of a reference-counted object. @version 1.0 */
         Referenced( const Referenced& ) 
-            : _refCount( 0 )
-            , _hasBeenDeleted( false )
+                : _refCount( 0 )
+                , _hasBeenDeleted( false )
             {}
 
         /** Destruct a reference-counted object. @version 1.0 */

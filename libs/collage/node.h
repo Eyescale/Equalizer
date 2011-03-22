@@ -263,6 +263,7 @@ namespace co
                 ConnectionPtr connection = _outgoing;
                 if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
                     return connection;
+                EQUNREACHABLE;
                 return 0;
             }
     };

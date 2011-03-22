@@ -39,6 +39,14 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
+set(WINDOWING_LIBRARIES)
+if(EQ_AGL_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${CARBON_LIBRARY}) 
+endif()
+if(EQ_GLX_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${X11_LIBRARIES}) 
+endif()
+
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
 purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
@@ -66,8 +74,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     Collage
     shared eq_fabric
     ${GLEW_LIBRARY}
-    ${CARBON_LIBRARY}
-    ${X11_LIBRARIES}
+    ${WINDOWING_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
   )

@@ -36,6 +36,7 @@
 #include <co/command.h>
 #include <co/base/clock.h>
 #include <co/base/launcher.h>
+#include <co/base/os.h>
 #include <co/base/sleep.h>
 
 namespace eq
