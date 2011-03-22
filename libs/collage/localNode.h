@@ -309,6 +309,9 @@ namespace co
         Command& cloneCommand( Command& command )
             { return _commandCache.clone( command ); }
 
+        /** @internal Allocate a local command from the receiver thread. */
+        CO_API Command& allocCommand( const uint64_t size );
+
         /** 
          * Dispatches a packet to the registered command queue.
          * 

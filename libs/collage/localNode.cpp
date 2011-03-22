@@ -944,6 +944,12 @@ bool LocalNode::_handleData()
     return true;
 }
 
+Command& LocalNode::allocCommand( const uint64_t size )
+{
+    EQASSERT( _inReceiverThread( ));
+    return _commandCache.alloc( this, this, size );
+}
+
 void LocalNode::_dispatchCommand( Command& command )
 {
     EQASSERT( command.isValid( ));

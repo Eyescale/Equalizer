@@ -462,6 +462,7 @@ namespace eq
         bool _cmdFrameFinish( co::Command& command );
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
+        bool _cmdDetachView( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

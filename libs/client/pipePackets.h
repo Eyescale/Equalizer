@@ -146,6 +146,17 @@ namespace eq
             }
     };
 
+    struct PipeDetachViewPacket : public co::ObjectPacket
+    {
+        PipeDetachViewPacket( const uint128_t& view ) : viewID( view )
+            {
+                command        = fabric::CMD_PIPE_DETACH_VIEW;
+                size           = sizeof( PipeDetachViewPacket );
+            }
+
+        uint128_t viewID;
+    };
+
     inline std::ostream& operator << ( std::ostream& os, 
                                        const PipeCreateWindowPacket* packet )
     {

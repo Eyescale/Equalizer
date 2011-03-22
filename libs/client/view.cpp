@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,10 +20,12 @@
 #include "config.h"
 #include "event.h"
 #include "pipe.h"
+#include "pipePackets.h"
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
 
+#include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -49,6 +51,22 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     {
         _baseFrustum = *this; // save baseline data for resizing
     }
+}
+
+void View::detach()
+{
+    if( _pipe )
+    {
+        co::LocalNodePtr localNode = getLocalNode();
+        co::Command& command =
+            localNode->allocCommand( sizeof( PipeDetachViewPacket ));
+
+        PipeDetachViewPacket* packet = command.get< PipeDetachViewPacket >();
+        *packet = PipeDetachViewPacket( getID( ));
+
+        _pipe->dispatchCommand( command );
+    }
+    Super::detach();
 }
 
 Config* View::getConfig()

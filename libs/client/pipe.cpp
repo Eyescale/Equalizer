@@ -136,6 +136,8 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
     registerCommand( fabric::CMD_PIPE_EXIT_THREAD,
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
+    registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
+                     PipeFunc( this, &Pipe::_cmdDetachView ), queue );
 }
 
 void Pipe::setDirty( const uint64_t bits )
@@ -268,8 +270,8 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         EQCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
-    
-    frame->sync( frameVersion.version );
+    else
+        frame->sync( frameVersion.version );
 
     const co::ObjectVersion& data = frame->getDataVersion( eye );
     EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
@@ -362,9 +364,10 @@ void Pipe::_releaseViews()
                 continue;
 
             // release unused view to avoid memory leaks due to deltas piling up
+            view->_pipe = 0;
+
             ClientPtr client = getClient();
-            client->unmapObject( view );
-            
+            client->unmapObject( view );            
             _views.erase( i );
 
             NodeFactory* nodeFactory = Global::getNodeFactory();
@@ -385,6 +388,7 @@ void Pipe::_flushViews()
     for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
     {
         View* view = i->second;
+        view->_pipe = 0;
 
         client->unmapObject( view );
         nodeFactory->releaseView( view );
@@ -855,12 +859,29 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
-    PipeFrameDrawFinishPacket* packet = 
+    PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
+    return true;
+}
+
+bool Pipe::_cmdDetachView( co::Command& command )
+{
+    EQ_TS_THREAD( _pipeThread );
+    const PipeDetachViewPacket* packet = command.get< PipeDetachViewPacket >();
+
+    ViewHash::iterator i = _views.find( packet->viewID );
+    if( i != _views.end( ))
+    {
+        View* view = i->second;
+        _views.erase( i );
+
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        nodeFactory->releaseView( view );
+    }
     return true;
 }
 
