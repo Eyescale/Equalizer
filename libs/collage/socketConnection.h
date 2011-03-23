@@ -72,7 +72,7 @@ namespace co
                                   const bool block );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
-        typedef size_t Socket;
+        typedef UINT_PTR Socket;
 #else
         //! @cond IGNORE
         typedef int    Socket;

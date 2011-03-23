@@ -17,8 +17,8 @@
 
 #include "debug.h"
 
+#include "os.h" // must come before atomic.h, ordering issue
 #include "atomic.h"
-#include "os.h"
 
 #include <errno.h>
 #ifndef _WIN32

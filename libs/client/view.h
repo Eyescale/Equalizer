@@ -85,7 +85,7 @@ namespace eq
         const Frustum& getBaseFrustum() const { return _baseFrustum; }
 
         /** @internal trigger deletion for render-client views. */
-        virtual void detach();
+        EQ_API virtual void detach();
 
     private:
         Pipe* _pipe; // for render-client views
