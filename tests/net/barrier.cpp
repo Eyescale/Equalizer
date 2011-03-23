@@ -46,7 +46,6 @@ public:
 
             if( _master )
             {
-
                 co::Barrier barrier( node, 2 );
                 node->registerObject( &barrier );
                 TEST( barrier.isAttached( ));

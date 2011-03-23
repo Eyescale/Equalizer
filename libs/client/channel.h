@@ -313,7 +313,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API void attach( const co::base::UUID& id, const uint32_t instanceID );
+        EQ_API void attach( const UUID& id, const uint32_t instanceID );
 
         /** @name Actions */
         //@{

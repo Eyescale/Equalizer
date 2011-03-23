@@ -291,7 +291,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     EQLOG( co::base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
-                           << std::endl;
+                               << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
 }
@@ -345,7 +345,7 @@ uint32_t Config::finishFrame()
     _releaseObjects();
 
     EQLOG( co::base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
-                           << " (" << _currentFrame << ')' << std::endl;
+                               << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
 

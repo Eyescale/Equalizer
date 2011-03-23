@@ -260,7 +260,8 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     if( stopRendering( ))
         return;

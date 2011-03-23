@@ -391,7 +391,7 @@ namespace eq
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-       co::base::Lock            _frameTimeMutex;
+        co::base::Lock _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
