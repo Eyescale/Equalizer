@@ -159,15 +159,17 @@ void testIncrement()
     }
 
     {
-        uint128_t test128( 0, 0xffffffffffffffffull );
+        uint128_t test128( 0, std::numeric_limits< uint64_t >::max() );
         ++test128;
         TEST( test128.high() == 1 && test128.low() == 0 );
         --test128;
-        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
+        TEST( test128.high() == 0 &&
+              test128.low() == std::numeric_limits< uint64_t >::max() );
         test128 = test128 + 1;
         TEST( test128.high() == 1 && test128.low() == 0 );
         test128 = test128 - 1;
-        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
+        TEST( test128.high() == 0 &&
+              test128.low() == std::numeric_limits< uint64_t >::max() );
     }
 
     {
@@ -183,14 +185,16 @@ void testIncrement()
     }
 
     {
-        co::base::UUID test128( 0, 0xffffffffffffffffull );
+        co::base::UUID test128( 0, std::numeric_limits< uint64_t >::max() );
         ++test128;
         TEST( test128.high() == 1 && test128.low() == 0 );
         --test128;
-        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
+        TEST( test128.high() == 0 &&
+              test128.low() == std::numeric_limits< uint64_t >::max() );
         test128 = test128 + 1;
         TEST( test128.high() == 1 && test128.low() == 0 );
         test128 = test128 - 1;
-        TEST( test128.high() == 0 && test128.low() == 0xffffffffffffffffull );
+        TEST( test128.high() == 0 && 
+              test128.low() == std::numeric_limits< uint64_t >::max() );
     }
 }

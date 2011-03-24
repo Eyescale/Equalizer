@@ -10,7 +10,6 @@ option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
-option(EQUALIZER_CPACK_AUX "Package auxiliary software" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
@@ -230,9 +229,7 @@ endif()
 
 message(STATUS "Supported Features:${EQ_FEATURES} [${EQUALIZER_BUILD_ARCH}]")
 
-if(NOT EQUALIZER_CPACK_AUX)
-  include(CPackConfig)
-endif()
+include(CPackConfig)
 include(copyScript)
 
 SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
