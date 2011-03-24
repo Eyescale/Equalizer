@@ -335,7 +335,7 @@ private:
 };
 #endif
 typedef Atomic< long > a_int32_t; //!< An atomic 32 bit integer variable
-}
 
+}
 }
 #endif  // COBASE_ATOMIC_H
