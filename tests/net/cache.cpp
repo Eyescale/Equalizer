@@ -163,5 +163,7 @@ int main( int argc, char **argv )
 
     TESTINFO( cache.getSize() == 0, cache.getSize( ));
     TEST( command.isFree( ));
+
+    TEST( co::exit( ));
     return EXIT_SUCCESS;
 }

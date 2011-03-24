@@ -92,6 +92,8 @@ typedef std::deque< Command* > CommandDeque;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
+
+typedef Commands::const_iterator CommandsCIter;
 /** @endcond */
 
 #ifdef EQ_USE_DEPRECATED

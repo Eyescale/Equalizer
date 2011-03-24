@@ -20,6 +20,7 @@
 
 #include <co/types.h>
 #include <co/api.h>
+#include <co/base/atomic.h> // member
 #include <co/base/thread.h> // thread-safety checks
 
 #include <vector>
@@ -61,17 +62,23 @@ namespace co
         /** The caches. */
         Commands _cache[ CACHE_ALL ];
 
-        /** The total size of each cache */
-        size_t _size[ CACHE_ALL ];
-
         /** Last lookup position in each cache. */
         size_t _position[ CACHE_ALL ];
+
+        /** The current number of free items in each cache */
+        base::a_int32_t _free[ CACHE_ALL ];
+
+        /** The maximum number of free items in each cache */
+        int32_t _maxFree[ CACHE_ALL ];
 
         void _compact( const Cache which );
         Command& _newCommand( const Cache which );
 
+        friend std::ostream& operator << ( std::ostream&, const CommandCache& );
         EQ_TS_VAR( _thread );
     };
+
+    std::ostream& operator << ( std::ostream&, const CommandCache& );
 }
 
 #endif //CO_COMMANDCACHE_H
