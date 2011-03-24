@@ -39,7 +39,7 @@ struct Packet : public co::Packet
 };
 
 
-class Reader : public co::base::Thread, public co::Dispatcher
+class Reader : public co::Dispatcher, public co::base::Thread
 {
 public:
     bool _cmd( co::Command& command ) { return true; }
