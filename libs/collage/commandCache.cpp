@@ -134,7 +134,7 @@ Command& CommandCache::_newCommand( const Cache which )
     EQ_TS_THREAD( _thread );
 
     Data& cache = _cache[ which ];
-    const size_t cacheSize = cache.size();        
+    const uint32_t cacheSize = uint32_t( cache.size( ));
     base::a_int32_t& freeCounter = _free[ which ];
     EQASSERTINFO( size_t( freeCounter ) <= cacheSize,
                   freeCounter << " > " << cacheSize );
@@ -183,7 +183,7 @@ Command& CommandCache::_newCommand( const Cache which )
     ++_misses;
 #endif
     
-    const size_t add = (cacheSize >> 3) + 1;
+    const uint32_t add = (cacheSize >> 3) + 1;
     for( size_t j = 0; j < add; ++j )
         cache.push_back( new Command( freeCounter ));
 
