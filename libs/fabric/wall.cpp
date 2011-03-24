@@ -142,25 +142,25 @@ Wall& Wall::operator = ( const Projection& projection )
     topLeft[1]     = height * 0.5f;
     topLeft[2]     = 0;
 
-    const float cosP       = cos(DEG2RAD( projection.hpr[1]));
-    const float sinP       = sin(DEG2RAD( projection.hpr[1]));
-    const float cosH       = cos(DEG2RAD( projection.hpr[0]));
-    const float sinH       = sin(DEG2RAD( projection.hpr[0]));
-    const float cosR       = cos(DEG2RAD( projection.hpr[2]));
-    const float sinR       = sin(DEG2RAD( projection.hpr[2]));
+    const float cosP = cos(DEG2RAD( projection.hpr[1] ));
+    const float sinP = sin(DEG2RAD( projection.hpr[1] ));
+    const float cosH = cos(DEG2RAD( projection.hpr[0] ));
+    const float sinH = sin(DEG2RAD( projection.hpr[0] ));
+    const float cosR = cos(DEG2RAD( projection.hpr[2] ));
+    const float sinR = sin(DEG2RAD( projection.hpr[2] ));
 
     Matrix3f  mat ;
-    const float cosPsinH      =   cosP * sinH;
-    const float sinPsinH      =   sinP * sinH;
+    const float cosPsinH = cosP * sinH;
+    const float sinPsinH = sinP * sinH;
 
-    mat.array[0]  =   cosH * cosR;
-    mat.array[1]  =  -cosH * sinR;
-    mat.array[2]  =  -sinH;
-    mat.array[3]  = -sinPsinH * cosR + cosP * sinR;
-    mat.array[4]  =  sinPsinH * sinR + cosP * cosR;
-    mat.array[5]  =  -sinP * cosH;
-    mat.array[6]  =  cosPsinH * cosR + sinP * sinR;
-    mat.array[7]  = -cosPsinH * sinR + sinP * cosR;
+    mat.array[0] =   cosH * cosR;
+    mat.array[1] =  -cosH * sinR;
+    mat.array[2] =  -sinH;
+    mat.array[3] = -sinPsinH * cosR + cosP * sinR;
+    mat.array[4] =  sinPsinH * sinR + cosP * cosR;
+    mat.array[5] =  -sinP * cosH;
+    mat.array[6] =  cosPsinH * cosR + sinP * sinR;
+    mat.array[7] = -cosPsinH * sinR + sinP * cosR;
     mat.array[8] =   cosP * cosH;
 
     bottomLeft  = mat * bottomLeft;
