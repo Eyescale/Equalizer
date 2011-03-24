@@ -23,7 +23,7 @@
 #include <co/base/atomic.h> // member
 #include <co/base/thread.h> // thread-safety checks
 
-#include <vector>
+#include <list>
 
 namespace co
 {
@@ -59,11 +59,18 @@ namespace co
             CACHE_ALL
         };
 
+#if 0
+        typedef std::list< Command* > Data;
+#else
+        typedef std::vector< Command* > Data;
+#endif
+        typedef Data::const_iterator DataCIter;
+
         /** The caches. */
-        Commands _cache[ CACHE_ALL ];
+        Data _cache[ CACHE_ALL ];
 
         /** Last lookup position in each cache. */
-        size_t _position[ CACHE_ALL ];
+        DataCIter _position[ CACHE_ALL ];
 
         /** The current number of free items in each cache */
         base::a_int32_t _free[ CACHE_ALL ];

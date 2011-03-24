@@ -47,10 +47,10 @@ CommandCache::CommandCache()
 {
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        _cache[ i ].push_back( new Command( _free[i] ));
-        _position[ i ] = 0;
-        _free[ i ] = 1;
-        _maxFree[ i ] = _minFree[ i ];
+        _cache[i].push_back( new Command( _free[i] ));
+        _position[i] = _cache[i].begin();
+        _free[i] = 1;
+        _maxFree[i] = _minFree[i];
     }
 }
 
@@ -72,22 +72,22 @@ void CommandCache::flush()
 {
     for( size_t i = 0; i < CACHE_ALL; ++i )
     {
-        Commands& cache = _cache[ i ];
+        Data& cache = _cache[i];
         EQASSERTINFO( size_t( _free[i] ) == cache.size(),
                       _free[i] << " != " << cache.size() );
 
-        for( Commands::const_iterator j = cache.begin(); j != cache.end(); ++j )
+        for( DataCIter j = cache.begin(); j != cache.end(); ++j )
         {
             Command* command = *j;
             EQASSERT( command->isFree( ));
             delete command;
         }
-        cache.clear();
 
-        _position[ i ] = 0;
-        _free[ i ] = 1;
-        _maxFree[ i ] = _minFree[ i ];
+        cache.clear();
         cache.push_back( new Command( _free[i] ));
+        _free[i] = 1;
+        _maxFree[i] = _minFree[i];
+        _position[i] = _cache[i].begin();
     }
 }
 
@@ -103,8 +103,8 @@ void CommandCache::_compact( const Cache which )
 
     const int32_t target = maxFree >> 1;
     EQASSERT( target > 0 );
-    Commands& cache = _cache[ which ];
-    for( Commands::iterator i = cache.begin(); i != cache.end(); )
+    Data& cache = _cache[ which ];
+    for( Data::iterator i = cache.begin(); i != cache.end(); )
     {
         const Command* cmd = *i;
         if( cmd->isFree( ))
@@ -125,6 +125,7 @@ void CommandCache::_compact( const Cache which )
 
     const int32_t num = int32_t( cache.size() >> _freeShift );
     maxFree = EQ_MAX( _minFree[ which ] , num );
+    _position[ which ] = cache.begin();
 #endif // COMPACT
 }
 
@@ -132,7 +133,7 @@ Command& CommandCache::_newCommand( const Cache which )
 {
     EQ_TS_THREAD( _thread );
 
-    Commands& cache = _cache[ which ];
+    Data& cache = _cache[ which ];
     const size_t cacheSize = cache.size();        
     base::a_int32_t& freeCounter = _free[ which ];
     EQASSERTINFO( size_t( freeCounter ) <= cacheSize,
@@ -142,17 +143,17 @@ Command& CommandCache::_newCommand( const Cache which )
     {
         EQASSERT( cacheSize > 0 );
 
-        size_t& i = _position[ which ];
-        i = i % cacheSize;
+        const DataCIter end = _position[ which ];
+        DataCIter& i = _position[ which ];
 
-        const size_t end = i + cacheSize;
-
-        for( ++i; i <= end; ++i )
+        for( ++i; i != end; ++i )
         {
+            if( i == cache.end( ))
+                i = cache.begin();
 #ifdef PROFILE
             ++_lookups;
 #endif
-            Command* command = cache[ i%cacheSize ];
+            Command* command = *i;
             if( command->isFree( ))
             {
 #ifdef PROFILE
@@ -162,8 +163,8 @@ Command& CommandCache::_newCommand( const Cache which )
                     for( size_t j = 0; j < CACHE_ALL; ++j )
                     {
                         size_t size = 0;
-                        const Commands& cmds = _cache[ j ];
-                        for( CommandsCIter k=cmds.begin(); k != cmds.end(); ++k)
+                        const Data& cmds = _cache[ j ];
+                        for( DataCIter k=cmds.begin(); k != cmds.end(); ++k)
                             size += (*k)->getAllocationSize();
 
                         EQINFO << _hits << "/" << _hits + _misses << " hits, "
@@ -189,6 +190,7 @@ Command& CommandCache::_newCommand( const Cache which )
     freeCounter += add;
     const int32_t num = int32_t( cache.size() >> _freeShift );
     _maxFree[ which ] = EQ_MAX( _minFree[ which ], num );
+    _position[ which ] = cache.begin();
 
 #ifdef PROFILE
     _allocs += add;
@@ -223,13 +225,14 @@ Command& CommandCache::clone( Command& from )
 
 std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
 {
-    const Commands& commands = cache._cache[ CommandCache::CACHE_SMALL ];
+    const CommandCache::Data& commands =
+        cache._cache[ CommandCache::CACHE_SMALL ];
     os << base::disableFlush << "Cache has "
        << commands.size() - cache._free[ CommandCache::CACHE_SMALL ]
        << " used small packets:" << std::endl
        << base::indent << base::disableHeader;
 
-    for( CommandsCIter i = commands.begin(); i != commands.end(); ++i )
+    for( CommandCache::DataCIter i = commands.begin(); i != commands.end(); ++i)
     {
         const Command* command = *i;
         if( !command->isFree( ))
