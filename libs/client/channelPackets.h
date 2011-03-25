@@ -143,10 +143,12 @@ namespace eq
     struct ChannelFrameDrawPacket : public ChannelTaskPacket
     {
         ChannelFrameDrawPacket()
+                : finish( false )
             {
                 command       = fabric::CMD_CHANNEL_FRAME_DRAW;
                 size          = sizeof( ChannelFrameDrawPacket );
             }
+        bool finish;
     };
         
     struct ChannelFrameAssemblePacket : public ChannelTaskPacket
