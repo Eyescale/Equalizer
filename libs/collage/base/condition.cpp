@@ -100,7 +100,7 @@ void Condition::wait()
     pthread_cond_wait( &_data->cond, &_data->mutex );
 }
 
-bool Condition::timedWait( const uint32_t timeout )
+bool Condition::timedWait( const unsigned timeout )
 {
     timespec ts = { 0, 0 };
     if( timeout > 0 )
