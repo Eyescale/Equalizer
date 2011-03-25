@@ -23,8 +23,6 @@
 #include <co/base/atomic.h> // member
 #include <co/base/thread.h> // thread-safety checks
 
-#include <list>
-
 namespace co
 {
     class Command;
@@ -59,11 +57,7 @@ namespace co
             CACHE_ALL
         };
 
-#if 0
-        typedef std::list< Command* > Data;
-#else
         typedef std::vector< Command* > Data;
-#endif
         typedef Data::const_iterator DataCIter;
 
         /** The caches. */
