@@ -236,8 +236,8 @@ namespace eq
          * Start mapping a distributed object from a known master.
          * @version 1.0
          */
-        uint32_t mapObjectNB( co::Object* object, const UUID& id, 
-                              const uint128_t& version, co::NodePtr master );
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id, 
+                                 const uint128_t& version, co::NodePtr master );
 
         /** Finalize the mapping of a distributed object. @version 1.0 */
         EQ_API virtual bool mapObjectSync( const uint32_t requestID );
