@@ -239,9 +239,17 @@ namespace co
         bool mapObject( Object* object, const ObjectVersion& v )
             { return mapObject( object, v.identifier, v.version ); }
 
-        /** Start mapping a distributed object. */
+        /** Start mapping a distributed object. @sa mapObject() */
         CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
                                     const uint128_t& version = VERSION_OLDEST );
+
+        /**
+         * Start mapping a distributed object from a known master.
+         * @sa mapObject()
+         */
+        CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                                     const uint128_t& version, NodePtr master );
+
         /** Finalize the mapping of a distributed object. */
         CO_API bool mapObjectSync( const uint32_t requestID );
 

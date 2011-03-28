@@ -72,6 +72,12 @@ namespace eq
         /** @return the local client node. @version 1.0 */
         EQ_API ConstClientPtr getClient() const;
 
+        /**
+         * @return the application node.
+         * @warning experimental, may not be supported in the future
+         */
+        co::NodePtr getApplicationNode() { return _appNode; }
+
         EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
@@ -218,15 +224,21 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API virtual bool mapObject( co::Object* object,
-                                       const co::base::UUID& id, 
+        EQ_API virtual bool mapObject( co::Object* object, const UUID& id, 
                                 const uint128_t& version = co::VERSION_OLDEST );
 
 
         /** Start mapping a distributed object. @version 1.0 */
-        EQ_API virtual uint32_t mapObjectNB( co::Object* object,
-                                             const co::base::UUID& id, 
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
                                 const uint128_t& version = co::VERSION_OLDEST );
+
+        /**
+         * Start mapping a distributed object from a known master.
+         * @version 1.0
+         */
+        uint32_t mapObjectNB( co::Object* object, const UUID& id, 
+                              const uint128_t& version, co::NodePtr master );
+
         /** Finalize the mapping of a distributed object. @version 1.0 */
         EQ_API virtual bool mapObjectSync( const uint32_t requestID );
 

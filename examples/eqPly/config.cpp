@@ -256,9 +256,12 @@ void Config::_deregisterData()
 
 bool Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( !_initData.isAttached() )
+    if( !_initData.isAttached( ))
     {
-        if( !mapObject( &_initData, initDataID ))
+        const uint32_t request = mapObjectNB( &_initData, initDataID,
+                                              co::VERSION_OLDEST,
+                                              getApplicationNode( ));
+        if( !mapObjectSync( request ))
             return false;
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }

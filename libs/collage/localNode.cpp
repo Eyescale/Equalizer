@@ -492,6 +492,13 @@ uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id,
     return _objectStore->mapObjectNB( object, id, version );
 }
 
+uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
+                                 const uint128_t& version, NodePtr master )
+{
+    return _objectStore->mapObjectNB( object, id, version, master );
+}
+
+
 bool LocalNode::mapObjectSync( const uint32_t requestID )
 {
     return _objectStore->mapObjectSync( requestID );
