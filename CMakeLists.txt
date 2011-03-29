@@ -209,12 +209,10 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/
   add_subdirectory(auxiliary)
 ENDIF()
 
-install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc
-        PATTERN ".svn" EXCLUDE)
+install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)
 IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
-  install(DIRECTORY man/man3 DESTINATION man COMPONENT man
-          PATTERN "*_docs_*" EXCLUDE PATTERN ".svn" EXCLUDE)
+  install(DIRECTORY man/man3 DESTINATION man COMPONENT man PATTERN "*_docs_*" EXCLUDE)
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 
 if(APPLE AND CMAKE_OSX_ARCHITECTURES)
