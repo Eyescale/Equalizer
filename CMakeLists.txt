@@ -22,9 +22,9 @@ list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 
 include(revision)
 
-set(VERSION_MAJOR "0")
-set(VERSION_MINOR "9")
-set(VERSION_SUB "3")
+set(VERSION_MAJOR "1")
+set(VERSION_MINOR "1")
+set(VERSION_SUB "0")
 if(EQ_REVISION AND NOT EQUALIZER_RELEASE)
   set(VERSION_PATCH ${VERSION_SUB}.${EQ_REVISION})
 else()

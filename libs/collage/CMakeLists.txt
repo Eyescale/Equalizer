@@ -7,7 +7,7 @@
 
 include(files.cmake)
 include(configure.cmake)
-set(CO_VERSION "0.2.0")
+set(CO_VERSION "0.5.0")
 
 option(COLLAGE_BUILD_STATIC_LIBS "Build static Collage libraries" OFF)
 if(NOT COLLAGE_BUILD_STATIC_LIBS)
