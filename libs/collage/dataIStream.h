@@ -266,6 +266,16 @@ namespace co{
     DataIStream::operator >> ( std::vector< uint8_t >& value )
     { return _readFlatVector( value );}
 
+    /** Optimized specialization to read a std::vector of uint16_t. */
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< uint16_t >& value )
+    { return _readFlatVector( value ); }
+
+    /** Optimized specialization to read a std::vector of int16_t. */
+    template<> inline DataIStream&
+    DataIStream::operator >> ( std::vector< int16_t >& value )
+    { return _readFlatVector( value ); }
+
     /** Optimized specialization to read a std::vector of uint32_t. */
     template<> inline DataIStream&
     DataIStream::operator >> ( std::vector< uint32_t >& value )

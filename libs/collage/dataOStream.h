@@ -253,6 +253,16 @@ namespace co
     DataOStream::operator << ( const std::vector< uint8_t >& value )
     { return _writeFlatVector( value ); }
 
+    /** Optimized specialization to write a std::vector of uint16_t. */
+    template<> inline DataOStream& 
+    DataOStream::operator << ( const std::vector< uint16_t >& value )
+    { return _writeFlatVector( value ); }
+
+    /** Optimized specialization to write a std::vector of int16_t. */
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< int16_t >& value )
+    { return _writeFlatVector( value ); }
+
     /** Optimized specialization to write a std::vector of uint32_t. */
     template<> inline DataOStream& 
     DataOStream::operator << ( const std::vector< uint32_t >& value )
