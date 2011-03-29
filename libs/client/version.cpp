@@ -18,6 +18,9 @@
 #include <eq/version.h>
 #include <sstream>
 
+#define QUOTE( string ) STRINGIFY( string )
+#define STRINGIFY( foo ) #foo
+
 namespace eq
 {
 
@@ -33,9 +36,9 @@ uint32_t Version::getPatch()
 {
     return EQ_VERSION_PATCH; 
 }
-uint32_t Version::getRevision() 
+std::string Version::getRevision() 
 {
-    return EQ_VERSION_REVISION;
+    return std::string( QUOTE( EQ_VERSION_REVISION ));
 }
 
 uint32_t Version::getInt()
@@ -57,8 +60,8 @@ std::string Version::getString()
     if( EQ_VERSION_PATCH > 0 )
         version << '.' << EQ_VERSION_PATCH;
 
-    const uint32_t revision = getRevision();
-    if( revision > 0 )
+    const std::string revision = getRevision();
+    if( revision != "0" )
         version << '.' << revision;
 
     return version.str();

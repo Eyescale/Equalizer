@@ -1,6 +1,15 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+29/Mar/2011
+  Changed
+    uint32_t eq::Version::getRevision();
+  to:
+    std::string eq::Version::getRevision();
+
+
+--------------------------------1.0 RC1------------------------------------
+
 14/Mar/2011
   Changed object mapping behavior when using a concrete version from:
     If the requested version does no longer exist, mapObject() will fail.

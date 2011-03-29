@@ -34,7 +34,7 @@ namespace eq
     /** The current patch level. @version 1.0 */
 #   define EQ_VERSION_PATCH ${VERSION_SUB}
 
-    /** The subversion revision, may be 0. @version 1.0 */
+    /** The git wc hash revision, may be 0. @version 1.0 */
 #   define EQ_VERSION_REVISION ${EQ_REVISION}
 
 /** True if the current version is newer than the given one. @version 1.0 */
@@ -75,7 +75,7 @@ namespace eq
         static uint32_t getPatch();
 
         /** @return the current revision of Equalizer. @version 1.0 */
-        static uint32_t getRevision();
+        static std::string getRevision();
 
         /** @return the current Equalizer version (MMmmpp). @version 1.0 */
         static uint32_t getInt();
