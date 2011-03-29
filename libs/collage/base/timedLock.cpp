@@ -38,7 +38,7 @@ bool TimedLock::set( const uint32_t timeout )
     bool acquired = true;
     while( _locked )
     {
-        if( timeout )
+        if( timeout != EQ_TIMEOUT_INDEFINITE )
         {
             if( !_condition.timedWait( timeout ))
             {

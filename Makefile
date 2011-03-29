@@ -55,11 +55,11 @@ docs: ../website/build/documents/Developer/API
 
 .PHONY: ../website/build/documents/Developer/API/internal
 ../website/build/documents/Developer/API/internal:
-	$(DOXYGEN) Doxyfile.int
+	$(DOXYGEN) doc/Doxyfile.int
 
-../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install Doxyfile.ext
-	$(DOXYGEN) Doxyfile.ext
-	$(DOXYGEN) Doxyfile.co
+../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co
+	$(DOXYGEN) doc/Doxyfile.ext
+	$(DOXYGEN) doc/Doxyfile.co
 
 docs/install: docs/Makefile
 	@rm -rf $@
