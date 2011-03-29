@@ -78,7 +78,7 @@ Config::~Config()
     co::base::Log::setClock( 0 );
 }
 
-void Config::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -428,7 +428,8 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( getAppNodeID() != co::NodeID::ZERO );
     EQASSERT( _appNode.isValid( ));
 
-    send( _appNode, event );
+    if( _appNode.isValid( ))
+        send( _appNode, event );
 }
 
 const ConfigEvent* Config::nextEvent()
@@ -535,7 +536,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            EQASSERT( event->data.originator != co::base::UUID::ZERO );
+            EQASSERT( event->data.originator != UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -717,7 +718,7 @@ void Config::deregisterObject( co::Object* object )
         return;
     }
 
-    if( !object->isAttached() ) // not registered
+    if( !object->isAttached( )) // not registered
         return;
 
     // Keep a distributed object latency frames.
@@ -737,10 +738,16 @@ bool Config::mapObject( co::Object* object, const UUID& id,
     return mapObjectSync( mapObjectNB( object, id, version ));
 }
 
-uint32_t Config::mapObjectNB( co::Object* object, const co::base::UUID& id, 
+uint32_t Config::mapObjectNB( co::Object* object, const UUID& id, 
                               const uint128_t& version )
 {
     return getClient()->mapObjectNB( object, id, version );
+}
+
+uint32_t Config::mapObjectNB( co::Object* object, const UUID& id, 
+                              const uint128_t& version, co::NodePtr master )
+{
+    return getClient()->mapObjectNB( object, id, version, master );
 }
 
 bool Config::mapObjectSync( const uint32_t requestID )

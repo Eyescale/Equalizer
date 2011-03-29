@@ -360,8 +360,18 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
 
     NodePtr master = _connectMaster( id );
     EQASSERT( master );
-    if( !master )
+    return mapObjectNB( object, id, version, master );
+}
+
+uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id, 
+                                   const uint128_t& version, NodePtr master )
+{
+    if( !master || !master->isConnected( ))
+    {
+        EQWARN << "Mapping of object " << id << " failed, invalid master node"
+               << std::endl;
         return EQ_UNDEFINED_UINT32;
+    }
 
     NodeMapObjectPacket packet;
     packet.requestID        = _localNode->registerRequest( object );

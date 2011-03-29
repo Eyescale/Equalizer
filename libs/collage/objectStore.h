@@ -82,10 +82,14 @@ namespace co
          */
         virtual void deregisterObject( Object* object );
 
-
         /** Start mapping a distributed object. */
         uint32_t mapObjectNB( Object* object, const base::UUID& id, 
                               const uint128_t& version );
+
+        /** Start mapping a distributed object. */
+        uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                              const uint128_t& version, NodePtr master );
+
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
 

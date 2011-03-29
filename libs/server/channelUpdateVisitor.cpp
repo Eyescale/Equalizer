@@ -162,6 +162,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
         ChannelFrameDrawPacket drawPacket;
 
         drawPacket.context = context;
+        drawPacket.finish = _channel->hasListeners(); // finish for equalizers
         _channel->send( drawPacket );
         _updated = true;
         EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 

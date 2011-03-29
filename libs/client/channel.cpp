@@ -1469,7 +1469,8 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                        << std::endl;
 
     _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this,
+                             packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
     resetContext();
 

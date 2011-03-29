@@ -311,7 +311,7 @@ namespace co
          * @return true if all data has been read, false if not.
          */
         CO_API bool send( Packet& packet, const void* data,
-                             const uint64_t size );
+                          const uint64_t size );
 
         /** 
          * Sends a packaged message to multiple connections.

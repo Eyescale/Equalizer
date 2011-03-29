@@ -178,6 +178,8 @@ namespace server
         void addListener( ChannelListener* listener );
         /** Deregister a channel listener. */
         void removeListener( ChannelListener* listener );
+        /** @return true if the channel has listeners */
+        bool hasListeners() const { return !_listeners.empty(); }
         //@}
 
         bool omitOutput() const; //!< @internal
