@@ -5,7 +5,7 @@
   <key>Label</key>
   <string>equalizer.cdash</string>
   <key>WorkingDirectory</key>
-  <string>/Users/eile/equalizer</string>
+  <string>/Users/eile/Equalizer</string>
   <key>ProgramArguments</key>
   <array>
     <string>env</string>
