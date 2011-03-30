@@ -161,10 +161,9 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
     {
         ScopedMutex< SpinLock > mutex( _mutex );
         RequestHash::const_iterator i = _requests.find( requestID );
-        EQASSERTINFO( i != _requests.end(),
-                      "Attempt to serve unregistered request " << requestID );
 
-        request = i->second;
+        if( i != _requests.end( ))
+            request = i->second;
     }
     if( request )
     {
@@ -179,10 +178,9 @@ void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
     {
         ScopedMutex< SpinLock > mutex( _mutex );
         RequestHash::const_iterator i = _requests.find( requestID );
-        EQASSERTINFO( i != _requests.end(),
-                      "Attempt to serve unregistered request " << requestID );
 
-        request = i->second;
+        if( i != _requests.end( ))
+            request = i->second;
     }
     if( request )
     {
@@ -197,10 +195,9 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
     {
         ScopedMutex< SpinLock > mutex( _mutex );
         RequestHash::const_iterator i = _requests.find( requestID );
-        EQASSERTINFO( i != _requests.end(),
-                      "Attempt to serve unregistered request " << requestID );
 
-        request = i->second;
+        if( i != _requests.end( ))
+            request = i->second;
     }
     if( request )
     {
@@ -215,10 +212,9 @@ void RequestHandler::serveRequest( const uint32_t requestID, const uint128_t& re
     {
         ScopedMutex< SpinLock > mutex( _mutex );
         RequestHash::const_iterator i = _requests.find( requestID );
-        EQASSERTINFO( i != _requests.end(),
-                      "Attempt to serve unregistered request " << requestID );
 
-        request = i->second;
+        if( i != _requests.end( ))
+            request = i->second;
     }
         
     if( request )

@@ -696,7 +696,12 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     connection->send( packet, serialize( ));
 
     bool connected = false;
-    waitRequest( packet.requestID, connected );
+    if( !waitRequest( packet.requestID, connected, 10000 /*ms*/ ))
+    {
+        EQWARN << "Node connection handshake timeout - peer not a Collage node?"
+               << std::endl;
+        return false;
+    }
     if( !connected )
         return false;
 
@@ -847,7 +852,7 @@ void LocalNode::_handleDisconnect()
             node->_outMulticast = 0;
             node->_multicasts.clear();
 
-            EQINFO << node << " disconnected from " << this << std::endl;
+            EQINFO << node << " disconnected from " << *this << std::endl;
             base::ScopedMutex< base::SpinLock > mutex( _nodes );
             _nodes->erase( node->_id );
         }
