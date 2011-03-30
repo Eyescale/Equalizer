@@ -1,4 +1,4 @@
-Minor Cleanup
+Update launchctl CDash plist
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
