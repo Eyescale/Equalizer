@@ -1421,7 +1421,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
 
-    _statisticsIndex = ( _statisticsIndex + 1 ) % _statistics->size();
+    _statisticsIndex = ( _statisticsIndex + 1 ) % uint32_t(_statistics->size());
     FrameStatistics& statistic = _statistics.data[ _statisticsIndex ];
     EQASSERT( statistic.data.empty( ));
     EQASSERT( statistic.used == 0 );
