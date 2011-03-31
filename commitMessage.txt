@@ -1,4 +1,4 @@
-Update launchctl CDash plist
+Increase commandcache test runtime
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
