@@ -28,8 +28,11 @@
 #  define VMMLIB_SAFE_ACCESSORS
 #endif
 #define VMMLIB_ALIGN( var ) var
-#include <vmmlib/vmmlib.hpp>
 
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#  include <vmmlib/vmmlib.hpp>
+#pragma warning(pop)
 namespace eq
 {
 namespace fabric
