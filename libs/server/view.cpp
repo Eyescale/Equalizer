@@ -62,7 +62,12 @@ namespace
 class FrustumUpdater : public ConfigVisitor
 {
 public:
-    FrustumUpdater( const Channels& channels ) : _channels( channels ) {}
+    FrustumUpdater( const Channels& channels, const Vector3f& eye,
+                    const float ratio )
+            : _channels( channels )
+            , _eye( eye )
+            , _ratio( ratio )
+        {}
     virtual ~FrustumUpdater() {}
 
     virtual VisitorResult visit( Compound* compound )
@@ -77,13 +82,15 @@ public:
             if( std::find( _channels.begin(), _channels.end(), channel ) !=
                 _channels.end( )) // our destination channel
             {
-                compound->updateFrustum();
+                compound->updateFrustum( _eye, _ratio );
             }
 
             return TRAVERSE_PRUNE;
         }
 private:
     const Channels& _channels;
+    const Vector3f& _eye;
+    const float _ratio;
 };
 
 class CapabilitiesUpdater : public ConfigVisitor
@@ -150,14 +157,7 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     Super::deserialize( is, dirtyBits );
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
-    {
-        const Channels& channels = getChannels();
-        Config* config = getConfig();
-        EQASSERT( config );
-
-        FrustumUpdater updater( channels );
-        config->accept( updater );
-    }
+        updateFrusta();
 }
 
 Config* View::getConfig()
@@ -275,6 +275,70 @@ void View::updateCapabilities()
     CapabilitiesUpdater visitor( this );
     getConfig()->accept( visitor );
     setCapabilities( visitor.getCapabilities( ));
+}
+
+void View::updateFrusta()
+{
+    const Channels& channels = getChannels();
+    Vector3f eye;
+    const float ratio = _computeFocusRatio( eye );
+
+    Config* config = getConfig();
+    FrustumUpdater updater( channels, eye, ratio );
+
+    config->accept( updater );
+}
+
+float View::_computeFocusRatio( Vector3f& eye )
+{
+    eye = Vector3f::ZERO;
+    const Observer* observer = getObserver();
+    const FocusMode mode = observer ? observer->getFocusMode() :FOCUSMODE_FIXED;
+    if( mode == FOCUSMODE_FIXED )
+        return 1.f;
+
+    const Channels& channels = getChannels();
+    if( channels.empty( ))
+        return 1.f;
+
+    Vector4f view4 = Vector3f::FORWARD;
+    if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
+    {
+        view4 = observer->getHeadMatrix() * view4;
+        eye = observer->getEyePosition( EYE_CYCLOP );
+    }
+    const Vector3f view = view4;
+
+    // Find closest segment and its distance from cyclop eye
+    Segment* closest = 0;
+    float distance = std::numeric_limits< float >::max();
+
+    for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
+    {
+        Segment* segment = (*i)->getSegment();
+        if( segment->getCurrentType() == Frustum::TYPE_NONE )
+        {
+            segment->notifyFrustumChanged();
+            if( segment->getCurrentType() == Frustum::TYPE_NONE )
+                continue;
+        }
+        
+        // http://en.wikipedia.org/wiki/Line-plane_intersection
+        const Wall& wall = segment->getWall();
+        const Vector3f w = wall.getW();
+        const float denom = view.dot( w );
+        if( denom == 0.f ) // view parallel to wall
+            continue;
+
+        const float d = (wall.bottomLeft - eye).dot( w ) / denom;
+        if( d > distance || d <= 0.f ) // further away or behind
+            continue;
+
+        closest = segment;
+        distance = d;
+    }
+
+    return closest ? observer->getFocusDistance() / distance : 1.f;
 }
 
 }

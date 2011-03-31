@@ -37,9 +37,6 @@ Observer::Observer( Config* parent )
         , _inverseHeadMatrix( Matrix4f::IDENTITY )
         , _state( STATE_ACTIVE )
 {
-#ifdef EQ_USE_DEPRECATED
-    setEyeBase(Global::instance()->getConfigFAttribute(Config::FATTR_EYE_BASE));
-#endif
     _updateEyes();
 }
 
@@ -60,6 +57,12 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & ( DIRTY_EYE_BASE | DIRTY_HEAD ))
         _updateEyes();
+    if( dirtyBits & DIRTY_FOCUS ||
+        ( (dirtyBits & DIRTY_HEAD) && 
+          getFocusMode() == fabric::FOCUSMODE_RELATIVE_TO_OBSERVER ))
+    {
+        _updateViews();
+    }
     if( dirtyBits & DIRTY_HEAD )
         getHeadMatrix().inverse( _inverseHeadMatrix );
 }
@@ -88,6 +91,7 @@ void Observer::removeView( View* view )
 void Observer::init()
 {
     _updateEyes();
+    _updateViews();
     getHeadMatrix().inverse( _inverseHeadMatrix );
 }
     
@@ -118,6 +122,12 @@ void Observer::_updateEyes()
     _eyes[ right ]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
     EQVERB << "Eye position: " << _eyes[ cyclop ] << std::endl;
+}
+
+void Observer::_updateViews()
+{
+    for( ViewsIter i = _views.begin(); i != _views.end(); ++i )
+        (*i)->updateFrusta();
 }
 
 void Observer::postDelete()

@@ -93,6 +93,10 @@ namespace server
         virtual void activateMode( const Mode mode );
 
         virtual void updateCapabilities();
+
+        /** Update all segment frusta based on the current settings. */
+        void updateFrusta();
+
         virtual void setDirty( const uint64_t bits ); //!< @internal
         //@}
 
@@ -110,6 +114,7 @@ namespace server
         Private* _private; // placeholder for binary-compatible changes
 
         void _updateChannels() const;
+        float _computeFocusRatio( Vector3f& eye );
     };
 }
 }

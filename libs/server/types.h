@@ -18,6 +18,7 @@
 #ifndef EQSERVER_TYPES_H
 #define EQSERVER_TYPES_H
 
+#include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
@@ -93,6 +94,8 @@ typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
+typedef Channels::const_iterator ChannelsCIter;
+typedef Channels::iterator ChannelsIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
@@ -149,6 +152,10 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 class ConfigVisitor;
 class ServerVisitor;
 
+using fabric::FocusMode;
+using fabric::FOCUSMODE_FIXED;
+using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
+using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
 }
 }
 #endif // EQSERVER_TYPES_H

@@ -1,56 +1,46 @@
 #Equalizer 1.1 ascii
-
 global
 {
     EQ_CONFIG_FATTR_FOCUS_DISTANCE      2.
-    EQ_CONFIG_IATTR_FOCUS_MODE          fixed
     EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_origin
-    EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_observer
 }
 
-# 'Hello, World!' config: one window rendering from the application process.
 server
 {
     connection { hostname "127.0.0.1" }
     config
     {
-        attributes
-        {
-            focus_distance 1.5
-            focus_mode     fixed
-            focus_mode     relative_to_observer
-            focus_mode     relative_to_origin
-        }
         appNode
         {
             pipe
             {
                 window
                 {
-                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    viewport [ 0. 0.25 0.5 0.5 ]
                     
                     channel { name "channel" }
                 }
+                window
+                {
+                    viewport [ 0.5 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel2" }
+                }
             }
         }
-        observer
-        {
-            focus_distance 1.2
-            focus_mode     relative_to_observer
-            focus_mode     relative_to_origin
-            focus_mode     fixed
-        }
-        layout{ view { observer 0 }}
+        observer{}
+        layout{ view { }}
         canvas
         {
             layout 0
             wall{}
-            segment { channel "channel" }
-        }
-        compound
-        {
-            channel  ( segment 0 view 0 )
-            wall {}
+            segment { wall{} channel "channel" }
+            segment { 
+                wall{
+                    bottom_left  [ -1.6 -1 -2 ]
+                    bottom_right [ 1.6 -1 -2 ]
+                    top_left [ -1.6 1 -2 ]
+                } channel "channel2" }
         }
     }    
 }

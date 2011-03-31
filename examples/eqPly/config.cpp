@@ -754,6 +754,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
         }
 
+        case '+':
+            _changeFocusDistance( .1f );
+            return true;
+
+        case '-':
+            _changeFocusDistance( -.1f );
+            return true;
+
         default:
             return false;
     }
@@ -933,6 +941,20 @@ const eq::Matrix4f& Config::_getHeadMatrix() const
         return eq::Matrix4f::IDENTITY;
 
     return observers[0]->getHeadMatrix();
+}
+
+void Config::_changeFocusDistance( const float delta )
+{
+    const eq::Observers& observers = getObservers();
+    for( eq::Observers::const_iterator i = observers.begin();
+         i != observers.end(); ++i )
+    {
+        eq::Observer* observer = *i;
+        observer->setFocusDistance( observer->getFocusDistance() + delta );
+        std::stringstream stream;
+        stream << "Set focus distance to " << observer->getFocusDistance();
+        _setMessage( stream.str( ));
+    }
 }
 
 void Config::_setMessage( const std::string& message )

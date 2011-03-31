@@ -135,6 +135,7 @@ namespace eqPly
 
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
+        void _changeFocusDistance( const float delta );
 
         /** @return a pointer to a connected admin server. */
         eq::admin::ServerPtr _getAdminServer();

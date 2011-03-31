@@ -352,7 +352,7 @@ namespace server
         const Frustum& getFrustum() const { return _frustum; }
 
         /** Update the frustum from the view or segment. */
-        void updateFrustum();
+        void updateFrustum( const Vector3f& eye, const float ratio );
 
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }

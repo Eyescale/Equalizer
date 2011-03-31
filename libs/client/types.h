@@ -21,6 +21,7 @@
 
 #include <eq/defines.h>
 #include <eq/util/types.h>
+#include <eq/fabric/focusMode.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
@@ -163,6 +164,11 @@ typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
 typedef fabric::Vector4f Vector4f;   //!< A four-component float vector
 typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
 typedef fabric::Frustumf Frustumf;   //!< A frustum definition
+
+using fabric::FocusMode;
+using fabric::FOCUSMODE_FIXED;
+using fabric::FOCUSMODE_RELATIVE_TO_ORIGIN;
+using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
 
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;

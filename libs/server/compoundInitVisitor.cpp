@@ -40,11 +40,16 @@ CompoundInitVisitor::CompoundInitVisitor( )
 
 VisitorResult CompoundInitVisitor::visit( Compound* compound )
 {
+    Channel* channel = compound->getChannel();
+
     compound->setTaskID( ++_taskID );
-    compound->updateFrustum();
+    if( channel && channel->getView( ))
+        channel->getView()->updateFrusta();
+    else
+        compound->updateFrustum( Vector3f::ZERO, 1.f );
+
     compound->updateInheritData( 0 ); // Compound::activate needs _inherit.eyes
 
-    Channel* channel = compound->getChannel();
     if( !channel || // non-channel root compounds
         ( compound->isDestination() && !channel->getSegment( )))
     {

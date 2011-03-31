@@ -93,6 +93,18 @@ namespace fabric
          */
         EQFABRIC_API void resizeBottom( const float ratio );
 
+        /** 
+         * Resize the wall by the given ratio as observed from the eye position.
+         *
+         * Each wall corner is moved by ratio along the vector eye -> wall
+         * corner.
+         *
+         * @param eye the observer position
+         * @param ratio the relative ratio to the current position
+         * @version 1.1
+         */
+        EQFABRIC_API void moveFocus( const Vector3f& eye, const float ratio );
+
         /**
          * Compute the sub-frustum for a 2D area on the full wall.
          * @version 1.0
@@ -116,6 +128,15 @@ namespace fabric
 
         /** @return true if the two walls are not identical. @version 1.0 */
         EQFABRIC_API bool operator != ( const Wall& rhs ) const;
+
+        /** @return the horizontal vector. @version 1.1 */
+        Vector3f getU() const { return bottomRight - bottomLeft; }
+
+        /** @return the vertical vector. @version 1.1 */
+        Vector3f getV() const { return topLeft - bottomLeft; }
+
+        /** @return the perpendicular vector. @version 1.1 */
+        Vector3f getW() const { return getU().cross( getV( )); }
 
         Vector3f bottomLeft;  //!< The bottom-left corner
         Vector3f bottomRight; //!< The bottom-right corner

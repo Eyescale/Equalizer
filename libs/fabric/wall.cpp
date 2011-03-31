@@ -114,6 +114,16 @@ void Wall::resizeBottom( const float ratio )
     bottomRight -= delta;
 }
 
+void Wall::moveFocus( const Vector3f& eye, const float ratio )
+{
+    if( ratio == 1.0f )
+        return;
+
+    bottomLeft  = eye + ( bottomLeft - eye ) * ratio;
+    bottomRight = eye + ( bottomRight - eye ) * ratio;
+    topLeft     = eye + ( topLeft - eye ) * ratio;
+}
+
 void Wall::apply( const Viewport& viewport )
 {
     const Vector3f u = bottomRight - bottomLeft;

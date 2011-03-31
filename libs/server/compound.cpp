@@ -452,15 +452,12 @@ void Compound::setProjection( const Projection& projection )
     EQVERB << "Projection: " << _data.frustumData << std::endl;
 }
 
-void Compound::updateFrustum()
+void Compound::updateFrustum( const Vector3f& eye, const float ratio )
 {
     if( !isDestination( )) // only set view/segment frusta on destination
         return;
 
     Channel* channel = getChannel();
-    if( !channel )
-        return;
-
     Segment* segment = channel->getSegment();
     const View* view = channel->getView();
     if( !segment || !view )
@@ -519,6 +516,7 @@ void Compound::updateFrustum()
     const Viewport  coverage  = outputVP.getCoverage( channelVP );
 
     Wall wall( segment->getWall( ));
+    wall.moveFocus( eye, ratio );
     wall.apply( coverage );
     _updateOverdraw( wall );
 
@@ -1045,7 +1043,7 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
     _inherit.channel = channel;
     _inherit.pvp = channel->getPixelViewport( );
 
-    const View* view = channel->getView();
+    View* view = channel->getView();
     if( !view || !_inherit.pvp.isValid( ))
     {
         EQASSERT( channel->getOverdraw() == Vector4i::ZERO );
@@ -1060,7 +1058,7 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
 
     if( oldPVP != _inherit.pvp ) // channel PVP changed
     {
-        updateFrustum();
+        view->updateFrusta();
         EQASSERT( overdraw == channel->getOverdraw( ));
     }
 

@@ -102,6 +102,7 @@ namespace server
         Private* _private; // placeholder for binary-compatible changes
 
         void _updateEyes();
+        void _updateViews();
     };
 }
 }
