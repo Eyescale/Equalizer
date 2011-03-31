@@ -205,7 +205,7 @@ void Config::activateCanvas( Canvas* canvas )
                 Viewport viewport = segment->getViewport();
                 viewport.intersect( view->getViewport( ));
 
-                if( !viewport.hasArea())
+                if( !viewport.hasArea( ))
                 {
                     EQLOG( LOG_VIEW )
                         << "View " << view->getName() << view->getViewport()
@@ -216,7 +216,7 @@ void Config::activateCanvas( Canvas* canvas )
                 }
                       
                 Channel* segmentChannel = segment->getChannel();
-                if (!segmentChannel)
+                if( !segmentChannel )
                 {
                     EQWARN << "Segment " << segment->getName()
                            << " has no output channel" << std::endl;
@@ -236,14 +236,25 @@ void Config::activateCanvas( Canvas* canvas )
                 contribution.transform( segment->getViewport( ));
             
                 // segment output area
-                Viewport subViewport = segmentChannel->getViewport();
-                if( !subViewport.isValid( ))
-                    subViewport = eq::fabric::Viewport::FULL;
+                if( segmentChannel->hasFixedViewport( ))
+                {
+                    Viewport subViewport = segmentChannel->getViewport();
+                    EQASSERT( subViewport.isValid( ));
+                    if( !subViewport.isValid( ))
+                        subViewport = eq::fabric::Viewport::FULL;
 
-                // ...our part of it
-                subViewport.apply( contribution );
+                    // ...our part of it
+                    subViewport.apply( contribution );
+                    channel->setViewport( subViewport );
+                }
+                else
+                {
+                    PixelViewport pvp = segmentChannel->getPixelViewport();
+                    EQASSERT( pvp.isValid( ));
+                    pvp.apply( contribution );
+                    channel->setPixelViewport( pvp );
+                }
 
-                channel->setViewport( subViewport );
                 if( channel->getWindow()->isAttached() )
                     // parent is already registered - register channel as well
                     getServer()->registerObject( channel );
