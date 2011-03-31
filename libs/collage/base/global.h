@@ -38,6 +38,22 @@ namespace base
         /** @return the error registry. @version 1.0 */
         COBASE_API static ErrorRegistry& getErrorRegistry();
 
+        /** @name Attributes */
+        //@{
+        /** Global integer attributes. */
+        enum IAttribute
+        {
+            IATTR_TIMEOUT_DEFAULT,       //!< @internal timeout for reliabilty
+            IATTR_ALL
+        };
+
+        /** Set an integer attribute. */
+        COBASE_API static void setIAttribute( const IAttribute attr,
+                                              const int32_t value );
+
+        /** @return the value of an integer attribute. */
+        COBASE_API static int32_t getIAttribute( const IAttribute attr );
+        //@}
     private:
         friend COBASE_API bool init( const int argc, char** argv );
         friend COBASE_API bool exit();

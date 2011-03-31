@@ -22,7 +22,6 @@
 #include <co/dispatcher.h>    // base class
 #include <co/version.h>       // enum
 
-#include <co/base/clock.h>     // member
 #include <co/base/lockable.h>  // member
 #include <co/base/spinLock.h>  // member
 #include <co/base/stdExt.h>    // member
@@ -183,9 +182,6 @@ namespace co
          *   - read locked in all other threads
          */
         base::Lockable< ObjectsHash, base::SpinLock > _objects;
-
-        /** The global clock for send-on-register timeout. */
-        base::Clock _clock;
 
         struct SendQueueItem
         {

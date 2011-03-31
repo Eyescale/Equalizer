@@ -177,6 +177,123 @@ namespace base
                 return newValue;
             }
 
+        /** @name Monitor the value with a timeout. */
+        //@{
+        /**
+         * Block until the monitor has the given value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        const bool timedWaitEQ( const T& value, const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value != value )
+                {
+                    if( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has not the given value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        const bool timedWaitNE( const T& value, const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value == value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has none of the given values.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        const bool timedWaitNE( const T& v1, const T& v2,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value == v1 || _value == v2 )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has a value greater or equal to the given
+         * value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        const bool timedWaitGE( const T& value, T& newValue,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value < value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has a value less or equal to the given
+         * value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        const bool timedWaitLE( const T& value, T& newValue,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value > value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
         //@}
 
         /** @name Comparison Operators. @version 1.0 */
