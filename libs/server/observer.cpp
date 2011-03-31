@@ -25,8 +25,6 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-using namespace co::base;
-
 namespace eq
 {
 namespace server

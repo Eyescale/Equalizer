@@ -28,22 +28,25 @@ std::ostream& operator << ( std::ostream& os, const IAttribute value )
     switch( value )
     {
         case UNDEFINED:     os << "UNDEFINED"; break;
-        case OFF:           os << "OFF"; break;
         case ON:            os << "ON"; break; 
+        case OFF:           os << "OFF"; break;
         case AUTO:          os << "AUTO"; break;
         case NICEST:        os << "NICEST"; break;
-        case QUAD:          os << "QUAD"; break;
-        case ANAGLYPH:      os << "ANAGLYPH"; break;
         case PASSIVE:       os << "PASSIVE"; break;
+        case ANAGLYPH:      os << "ANAGLYPH"; break;
+        case QUAD:          os << "QUAD"; break;
         case VERTICAL:      os << "VERTICAL"; break;
         case WINDOW:        os << "window"; break;
         case PBUFFER:       os << "pbuffer"; break; 
-        case FBO:           os << "FBO"; break; 
-        case RGBA16F:       os << "RGBA16F"; break;
-        case RGBA32F:       os << "RGBA32F"; break;
         case ASYNC:         os << "ASYNC"; break; 
         case DRAW_SYNC:     os << "DRAW_SYNC"; break; 
         case LOCAL_SYNC:    os << "LOCAL_SYNC"; break; 
+        case FBO:           os << "FBO"; break; 
+        case RGBA16F:       os << "RGBA16F"; break;
+        case RGBA32F:       os << "RGBA32F"; break;
+        case FIXED:         os << "fixed"; break;
+        case RELATIVE_TO_ORIGIN:   os << "relative_to_origin"; break;
+        case RELATIVE_TO_OBSERVER: os << "relative_to_observer"; break;
         default:            os << static_cast< int >( value );
     }
     return os;

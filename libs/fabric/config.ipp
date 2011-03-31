@@ -40,10 +40,12 @@ std::string _fAttributeStrings[] =
 {
     MAKE_ATTR_STRING( FATTR_EYE_BASE ),
     MAKE_ATTR_STRING( FATTR_VERSION ),
+    MAKE_ATTR_STRING( FATTR_FOCUS_DISTANCE ),
 };
 std::string _iAttributeStrings[] = 
 {
     MAKE_ATTR_STRING( IATTR_ROBUSTNESS ),
+    MAKE_ATTR_STRING( IATTR_FOCUS_MODE ),
 };
 }
 
@@ -873,10 +875,14 @@ std::ostream& operator << ( std::ostream& os,
     os << std::endl;
 
     os << "attributes" << std::endl << "{" << std::endl << co::base::indent
-       << "eye_base     " << config.getFAttribute( C::FATTR_EYE_BASE )
+       << "eye_base       " << config.getFAttribute( C::FATTR_EYE_BASE )
        << std::endl
-       << "robustness   " << config.getIAttribute( C::IATTR_ROBUSTNESS )
+       << "focus_distance " << config.getFAttribute( C::FATTR_FOCUS_DISTANCE )
        << std::endl
+       << "robustness     "
+       << IAttribute( config.getIAttribute( C::IATTR_ROBUSTNESS )) << std::endl
+       << "focus_mode     " 
+       << IAttribute( config.getIAttribute( C::IATTR_FOCUS_MODE )) << std::endl
        << co::base::exdent << "}" << std::endl;
 
     const typename C::Nodes& nodes = config.getNodes();

@@ -124,6 +124,7 @@ namespace fabric
         {
             FATTR_EYE_BASE, //!< The default interocular distance in meters
             FATTR_VERSION,  //!< The version of the file loaded
+            FATTR_FOCUS_DISTANCE, //!< The default focal convergence
             FATTR_LAST,
             FATTR_ALL = FATTR_LAST + 5
         };
@@ -132,6 +133,7 @@ namespace fabric
         enum IAttribute
         {
             IATTR_ROBUSTNESS, //!< Tolerate resource failures
+            IATTR_FOCUS_MODE, //!< Focal convergence mode
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
         };

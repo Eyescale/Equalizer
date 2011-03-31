@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,8 @@
 #define EQFABRIC_OBSERVER_H
 
 #include <eq/fabric/api.h>
-#include <eq/fabric/object.h>         // base class
+#include <eq/fabric/focusMode.h>     // enum
+#include <eq/fabric/object.h>        // base class
 #include <eq/fabric/types.h>
 #include <eq/fabric/visitorResult.h> // enum
 
@@ -53,6 +54,18 @@ namespace fabric
 
         /** @return the current eye separation. @version 1.0 */
         float getEyeBase() const { return _data.eyeBase; }
+
+        /** Set the focal distance. @sa setFocusMode @version 1.1 */
+        EQFABRIC_INL void setFocusDistance( const float focusDistance );
+
+        /** @return the current focal distance. @version 1.1 */
+        float getFocusDistance() const { return _data.focusDistance; }
+
+        /** Set the focal mode. @sa setFocusMode @version 1.1 */
+        EQFABRIC_INL void setFocusMode( const FocusMode focusMode );
+
+        /** @return the current focal mode. @version 1.1 */
+        FocusMode getFocusMode() const { return _data.focusMode; }
 
         /** 
          * Set the head matrix.
@@ -110,8 +123,9 @@ namespace fabric
         {
             DIRTY_EYE_BASE   = Object::DIRTY_CUSTOM << 0,
             DIRTY_HEAD       = Object::DIRTY_CUSTOM << 1,
+            DIRTY_FOCUS      = Object::DIRTY_CUSTOM << 2,
             DIRTY_OBSERVER_BITS =
-                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_OBJECT_BITS
+                DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS | DIRTY_OBJECT_BITS
         };
 
         /** @internal @return the bits to be re-committed by the master. */
@@ -124,10 +138,16 @@ namespace fabric
 
         struct BackupData
         {
-            BackupData() : eyeBase( .05f ), headMatrix( Matrix4f::IDENTITY ) {}
+            BackupData();
 
             /** The current eye separation. */
             float eyeBase;
+
+            /** The current focal distance. */
+            float focusDistance;
+
+            /** The current focal distance calculation mode. */
+            FocusMode focusMode;
 
             /** The current head position. */
             Matrix4f headMatrix;

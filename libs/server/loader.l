@@ -91,7 +91,9 @@ EQ_CONNECTION_SATTR_PIPE_FILENAME { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_SATTR_FILENAME     { return EQTOKEN_CONNECTION_SATTR_FILENAME; }
 EQ_CONNECTION_IATTR_BANDWIDTH    { return EQTOKEN_CONNECTION_IATTR_BANDWIDTH; }
 EQ_CONFIG_FATTR_EYE_BASE         { return EQTOKEN_CONFIG_FATTR_EYE_BASE; }
+EQ_CONFIG_FATTR_FOCUS_DISTANCE   { return EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE; }
 EQ_CONFIG_IATTR_ROBUSTNESS       { return EQTOKEN_CONFIG_IATTR_ROBUSTNESS; }
+EQ_CONFIG_IATTR_FOCUS_MODE       { return EQTOKEN_CONFIG_IATTR_FOCUS_MODE; }
 EQ_NODE_SATTR_LAUNCH_COMMAND     { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
 EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_NODE_IATTR_THREAD_MODEL       { return EQTOKEN_NODE_IATTR_THREAD_MODEL; }
@@ -191,6 +193,8 @@ RSP                             { return EQTOKEN_RSP; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
+relative_to_observer            { return EQTOKEN_RELATIVE_TO_OBSERVER; }
+relative_to_origin              { return EQTOKEN_RELATIVE_TO_ORIGIN; }
 HMD                             { return EQTOKEN_HMD; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 interface                       { return EQTOKEN_INTERFACE; }
@@ -206,6 +210,8 @@ filename                        { return EQTOKEN_FILENAME; }
 task                            { return EQTOKEN_TASK; }
 eye                             { return EQTOKEN_EYE; }
 eye_base                        { return EQTOKEN_EYE_BASE; }
+focus_distance                  { return EQTOKEN_FOCUS_DISTANCE; }
+focus_mode                      { return EQTOKEN_FOCUS_MODE; }
 robustness                      { return EQTOKEN_ROBUSTNESS; }
 buffer                          { return EQTOKEN_BUFFER; }
 CLEAR                           { return EQTOKEN_CLEAR; }

@@ -105,7 +105,9 @@
 %token EQTOKEN_CONNECTION_IATTR_TYPE
 %token EQTOKEN_CONNECTION_IATTR_PORT
 %token EQTOKEN_CONFIG_FATTR_EYE_BASE
+%token EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE
 %token EQTOKEN_CONFIG_IATTR_ROBUSTNESS
+%token EQTOKEN_CONFIG_IATTR_FOCUS_MODE
 %token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
@@ -197,6 +199,8 @@
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
 %token EQTOKEN_FIXED
+%token EQTOKEN_RELATIVE_TO_ORIGIN
+%token EQTOKEN_RELATIVE_TO_OBSERVER
 %token EQTOKEN_HMD
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_INTERFACE
@@ -208,6 +212,8 @@
 %token EQTOKEN_TASK
 %token EQTOKEN_EYE
 %token EQTOKEN_EYE_BASE
+%token EQTOKEN_FOCUS_DISTANCE
+%token EQTOKEN_FOCUS_MODE
 %token EQTOKEN_ROBUSTNESS
 %token EQTOKEN_THREAD_MODEL
 %token EQTOKEN_ASYNC
@@ -341,10 +347,20 @@ global:
          eq::server::Global::instance()->setConfigFAttribute(
              eq::server::Config::FATTR_EYE_BASE, $2 );
      }
+     | EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE FLOAT
+     {
+         eq::server::Global::instance()->setConfigFAttribute(
+             eq::server::Config::FATTR_FOCUS_DISTANCE, $2 );
+     }
      | EQTOKEN_CONFIG_IATTR_ROBUSTNESS IATTR
      {
          eq::server::Global::instance()->setConfigIAttribute(
              eq::server::Config::IATTR_ROBUSTNESS, $2 );
+     }
+     | EQTOKEN_CONFIG_IATTR_FOCUS_MODE IATTR
+     {
+         eq::server::Global::instance()->setConfigIAttribute(
+             eq::server::Config::IATTR_FOCUS_MODE, $2 );
      }
      | EQTOKEN_NODE_SATTR_LAUNCH_COMMAND STRING
      {
@@ -536,8 +552,12 @@ configAttributes: /*null*/ | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
+    | EQTOKEN_FOCUS_DISTANCE FLOAT { config->setFAttribute( 
+                             eq::server::Config::FATTR_FOCUS_DISTANCE, $2 ); }
     | EQTOKEN_ROBUSTNESS IATTR { config->setIAttribute( 
                                  eq::server::Config::IATTR_ROBUSTNESS, $2 ); }
+    | EQTOKEN_FOCUS_MODE IATTR { config->setIAttribute( 
+                                 eq::server::Config::IATTR_FOCUS_MODE, $2 ); }
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {
@@ -710,6 +730,9 @@ observerFields: /*null*/ | observerFields observerField
 observerField:
     EQTOKEN_NAME STRING { observer->setName( $2 ); }
     | EQTOKEN_EYE_BASE FLOAT { observer->setEyeBase( $2 ); }
+    | EQTOKEN_FOCUS_DISTANCE FLOAT { observer->setFocusDistance( $2 ); }
+    | EQTOKEN_FOCUS_MODE IATTR
+        { observer->setFocusMode( eq::fabric::FocusMode( $2 )); }
 
 layout: EQTOKEN_LAYOUT '{' { layout = new eq::server::Layout( config ); }
             layoutFields '}' { layout = 0; }
@@ -1263,6 +1286,9 @@ IATTR:
     | EQTOKEN_LOCAL_SYNC { $$ = eq::fabric::LOCAL_SYNC; }
     | EQTOKEN_RGBA16F    { $$ = eq::fabric::RGBA16F; }
     | EQTOKEN_RGBA32F    { $$ = eq::fabric::RGBA32F; }
+    | EQTOKEN_FIXED      { $$ = eq::fabric::FIXED; }
+    | EQTOKEN_RELATIVE_TO_ORIGIN   { $$ = eq::fabric::RELATIVE_TO_ORIGIN; }
+    | EQTOKEN_RELATIVE_TO_OBSERVER { $$ = eq::fabric::RELATIVE_TO_OBSERVER; }
     | INTEGER            { $$ = $1; }
 
 STRING: EQTOKEN_STRING

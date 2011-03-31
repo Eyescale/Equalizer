@@ -36,6 +36,8 @@ Observer< C, O >::Observer( C* config )
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
+    _data.focusDistance = config->getFAttribute( C::FATTR_FOCUS_DISTANCE );
+    _data.focusMode = FocusMode( config->getIAttribute( C::IATTR_FOCUS_MODE ));
     EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
@@ -45,6 +47,14 @@ Observer< C, O >::~Observer()
     EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     _config->_removeObserver( static_cast< O* >( this ));
 }
+
+template< typename C, typename O >
+Observer< C, O >::BackupData::BackupData()
+        : eyeBase( .05f )
+        , focusDistance( 1.f )
+        , focusMode( FOCUSMODE_FIXED )
+        , headMatrix( Matrix4f::IDENTITY )
+{}
 
 template< typename C, typename O >
 void Observer< C, O >::backup()
@@ -58,7 +68,7 @@ void Observer< C, O >::restore()
 {
     _data = _backup;
     Object::restore();
-    setDirty( DIRTY_EYE_BASE | DIRTY_HEAD );
+    setDirty( DIRTY_EYE_BASE | DIRTY_HEAD | DIRTY_FOCUS );
 }
 
 template< typename C, typename O >
@@ -69,6 +79,8 @@ void Observer< C, O >::serialize( co::DataOStream& os,
 
     if( dirtyBits & DIRTY_EYE_BASE )
         os << _data.eyeBase;
+    if( dirtyBits & DIRTY_FOCUS )
+        os << _data.focusDistance << _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
         os << _data.headMatrix;
 }
@@ -81,6 +93,8 @@ void Observer< C, O >::deserialize( co::DataIStream& is,
 
     if( dirtyBits & DIRTY_EYE_BASE )
         is >> _data.eyeBase;
+    if( dirtyBits & DIRTY_FOCUS )
+        is >> _data.focusDistance >> _data.focusMode;
     if( dirtyBits & DIRTY_HEAD )
         is >> _data.headMatrix;
 }
@@ -129,6 +143,26 @@ void Observer< C, O >::setEyeBase( const float eyeBase )
 }
 
 template< typename C, typename O >
+void Observer< C, O >::setFocusDistance( const float focusDistance )
+{
+    if( _data.focusDistance == focusDistance )
+        return;
+
+    _data.focusDistance = focusDistance;
+    setDirty( DIRTY_FOCUS );
+}
+
+template< typename C, typename O >
+void Observer< C, O >::setFocusMode( const FocusMode focusMode )
+{
+    if( _data.focusMode == focusMode )
+        return;
+
+    _data.focusMode = focusMode;
+    setDirty( DIRTY_FOCUS );
+}
+
+template< typename C, typename O >
 void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 {
     if( _data.headMatrix == matrix )
@@ -150,8 +184,19 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
         os << "name     \"" << name << "\"" << std::endl;
 
     const float eyeBase = observer.getEyeBase();
-    if( eyeBase != 0.05f /* TODO use Config::FATTR_EYE_BASE */ )
-        os << "eye_base " << eyeBase << std::endl;
+    if( eyeBase != observer.getConfig()->getFAttribute( C::FATTR_EYE_BASE ))
+        os << "eye_base       " << eyeBase << std::endl;
+
+    const float focusDistance = observer.getFocusDistance();
+    if( focusDistance != 
+        observer.getConfig()->getFAttribute( C::FATTR_FOCUS_DISTANCE ))
+    {
+        os << "focus_distance " << focusDistance << std::endl;
+    }
+
+    const FocusMode focusMode = observer.getFocusMode();
+    if( focusMode != observer.getConfig()->getIAttribute( C::IATTR_FOCUS_MODE ))
+        os << "focus_mode     " << focusMode << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader
        << co::base::enableFlush;

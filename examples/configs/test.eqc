@@ -1,75 +1,56 @@
 #Equalizer 1.1 ascii
 
-# two-to-one sort-first config, for cluster change hostnames
 global
 {
-#    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+    EQ_CONFIG_FATTR_FOCUS_DISTANCE      2.
+    EQ_CONFIG_IATTR_FOCUS_MODE          fixed
+    EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_origin
+    EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_observer
 }
 
+# 'Hello, World!' config: one window rendering from the application process.
 server
 {
     connection { hostname "127.0.0.1" }
-    connection { hostname "roku.local" }
     config
     {
+        attributes
+        {
+            focus_distance 1.5
+            focus_mode     fixed
+            focus_mode     relative_to_observer
+            focus_mode     relative_to_origin
+        }
         appNode
         {
-            connection { hostname "127.0.0.1" }
-            connection { hostname "roku.local" }
-            pipe 
+            pipe
             {
                 window
                 {
-                    viewport [ .25 .25 .5 .5 ]
-                    attributes{ hint_drawable window }
-                    channel { name "channel1" }
+                    viewport [ 0.25 0.25 0.5 0.5 ]
+                    
+                    channel { name "channel" }
                 }
             }
         }
-        node
+        observer
         {
-            connection { hostname "eyescale.local" }
-            pipe { window { channel { name "channel2" }}}
+            focus_distance 1.2
+            focus_mode     relative_to_observer
+            focus_mode     relative_to_origin
+            focus_mode     fixed
         }
-
-        observer {}
-        layout { name "2D static" view{ observer "" }}
-        layout { name "2D load-balanced" view{ observer "" }}
+        layout{ view { observer 0 }}
         canvas
         {
-            layout   "2D static"
-            layout   "2D load-balanced"
+            layout 0
+            wall{}
+            segment { channel "channel" }
+        }
+        compound
+        {
+            channel  ( segment 0 view 0 )
             wall {}
-
-            segment { channel  "channel1" }
-        }
-
-        compound
-        {
-            channel ( layout "2D static" )
-            compound
-            {
-                viewport [ 0 0 1 .5 ]
-            }
-            compound
-            {
-                channel "channel2"
-                viewport [ 0 .5 1 .5 ]
-                outputframe {}
-            }
-            inputframe { name "frame.channel2" }
-        }
-        compound
-        {
-            channel ( layout "2D load-balanced" )
-            load_equalizer{}
-            compound {}
-            compound
-            {
-                channel "channel2"
-                outputframe {}
-            }
-            inputframe { name "frame.channel2" }
         }
     }    
 }

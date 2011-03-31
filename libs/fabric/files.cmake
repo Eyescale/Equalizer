@@ -7,30 +7,31 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/canvas.h
     ../fabric/canvasPackets.h
     ../fabric/channel.h
+    ../fabric/client.h
     ../fabric/colorMask.h
     ../fabric/commands.h
     ../fabric/config.h
     ../fabric/configPackets.h
     ../fabric/configVisitor.h
-    ../fabric/client.h
     ../fabric/drawableConfig.h
     ../fabric/elementVisitor.h
-    ../fabric/eye.h
     ../fabric/error.h
+    ../fabric/eye.h
+    ../fabric/focusMode.h
     ../fabric/frustum.h
     ../fabric/global.h
-    ../fabric/layout.h
-    ../fabric/layoutPackets.h
     ../fabric/iAttribute.h
     ../fabric/init.h
+    ../fabric/layout.h
+    ../fabric/layoutPackets.h
     ../fabric/leafVisitor.h
     ../fabric/log.h
     ../fabric/node.h
     ../fabric/nodeType.h
     ../fabric/object.h
     ../fabric/observer.h
-    ../fabric/packets.h
     ../fabric/packetType.h
+    ../fabric/packets.h
     ../fabric/paths.h
     ../fabric/pipe.h
     ../fabric/pipePackets.h
@@ -46,8 +47,8 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/subPixel.h
     ../fabric/task.h
     ../fabric/types.h
-    ../fabric/viewport.h
     ../fabric/view.h
+    ../fabric/viewport.h
     ../fabric/visitorResult.h
     ../fabric/wall.h
     ../fabric/window.h

@@ -29,6 +29,9 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
+        RELATIVE_TO_OBSERVER = -17, //!< focal convergence relative to observer
+        RELATIVE_TO_ORIGIN   = -16, //!< focal convergence relative to origin
+        FIXED      = -15, //!< config or observer focus fixed on wall/projection
         RGBA32F    = -14, //!< Float32 framebuffer (Window::IATTR_PLANES_COLOR)
         RGBA16F    = -13, //!< Float16 framebuffer (Window::IATTR_PLANES_COLOR)
         FBO        = -12, //!< FBO drawable (Window::IATTR_HINT_DRAWABLE)
