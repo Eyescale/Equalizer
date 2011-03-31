@@ -246,6 +246,11 @@ void Config::activateCanvas( Canvas* canvas )
                     // ...our part of it
                     subViewport.apply( contribution );
                     channel->setViewport( subViewport );
+                    EQLOG( LOG_VIEW ) 
+                        << "View @" << (void*)view << ' ' << view->getViewport()
+                        << " intersects " << segment->getName()
+                        << segment->getViewport() << " at " << subViewport
+                        << " using channel @" << (void*)channel << std::endl;
                 }
                 else
                 {
@@ -253,17 +258,16 @@ void Config::activateCanvas( Canvas* canvas )
                     EQASSERT( pvp.isValid( ));
                     pvp.apply( contribution );
                     channel->setPixelViewport( pvp );
+                    EQLOG( LOG_VIEW ) 
+                        << "View @" << (void*)view << ' ' << view->getViewport()
+                        << " intersects " << segment->getName()
+                        << segment->getViewport() << " at " << pvp
+                        << " using channel @" << (void*)channel << std::endl;
                 }
 
                 if( channel->getWindow()->isAttached() )
                     // parent is already registered - register channel as well
                     getServer()->registerObject( channel );
-
-                EQLOG( LOG_VIEW ) 
-                    << "View @" << (void*)view << ' ' << view->getViewport()
-                    << " intersects " << segment->getName()
-                    << segment->getViewport() << " at " << subViewport
-                    << " using channel @" << (void*)channel << std::endl;
             }
         }
     }
