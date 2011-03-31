@@ -3,6 +3,7 @@ global
 {
     EQ_CONFIG_FATTR_FOCUS_DISTANCE      2.
     EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_observer
+#    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
@@ -16,21 +17,11 @@ server
             {
                 window
                 {
-                    viewport [ 10 200 1200 400 ]
+#                    viewport [ 0 0 1600 1200 ]
                     channel 
                     {
-                        viewport [ 0 0 400 400 ]
-                        name "channel-left"
-                    }
-                    channel 
-                    {
-                        viewport [ 400 0 400 400 ]
+                        viewport [ 500 0 600 1200 ]
                         name "channel-middle"
-                    }
-                    channel 
-                    {
-                        viewport [ 800 0 400 400 ]
-                        name "channel-right"
                     }
                 }
             }
@@ -41,17 +32,6 @@ server
         {
             layout 0
             segment
-            { 
-                channel "channel-left"
-                viewport [ 0 0 .3333 1 ]
-                wall
-                {
-                    bottom_left  [ -1 -1  1 ]
-                    bottom_right [ -1 -1 -1 ]
-                    top_left     [ -1  1  1 ]
-                }
-            }
-            segment
             {
                 channel "channel-middle"
                 viewport [ 0.3333 0 .3334 1 ]
@@ -60,17 +40,6 @@ server
                     bottom_left  [ -1 -1 -1 ]
                     bottom_right [  1 -1 -1 ]
                     top_left     [ -1  1 -1 ]
-                }
-            }
-            segment
-            {
-                channel "channel-right"
-                viewport [ 0.6667 0 .3333 1 ]
-                wall
-                {
-                    bottom_left  [ 1 -1 -1 ]
-                    bottom_right [ 1 -1  1 ]
-                    top_left     [ 1  1 -1 ]
                 }
             }
         }
