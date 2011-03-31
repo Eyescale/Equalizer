@@ -219,6 +219,8 @@ void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
     EQINFO << "Exiting thread " << className( this ) << std::endl;
+    Log::instance().forceFlush();
+    Log::instance().exit();
 
     _state = STATE_STOPPING;
     pthread_exit( 0 );
