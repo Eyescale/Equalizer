@@ -37,7 +37,6 @@
 
 typedef int        socklen_t;
 
-#define EQ_TIMEOUT_DEFAULT 0xffffffffu
 #  ifdef _MSC_VER
 typedef UINT64     uint64_t;
 typedef INT64      int64_t;
