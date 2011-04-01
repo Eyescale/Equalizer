@@ -338,7 +338,18 @@ float View::_computeFocusRatio( Vector3f& eye )
         distance = d;
     }
 
-    return closest ? observer->getFocusDistance() / distance : 1.f;
+    float focusDistance = observer->getFocusDistance();
+    if( mode == FOCUSMODE_RELATIVE_TO_ORIGIN )
+    {
+        eye = observer->getEyePosition( EYE_CYCLOP );
+        distance += eye.z();
+        focusDistance += eye.z();
+
+        if( fabsf( distance ) <= std::numeric_limits< float >::epsilon( ))
+            distance = 2.f * std::numeric_limits< float >::epsilon();
+    }
+
+    return closest ? focusDistance / distance : 1.f;
 }
 
 }

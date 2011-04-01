@@ -58,8 +58,7 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & ( DIRTY_EYE_BASE | DIRTY_HEAD ))
         _updateEyes();
     if( dirtyBits & DIRTY_FOCUS ||
-        ( (dirtyBits & DIRTY_HEAD) && 
-          getFocusMode() == fabric::FOCUSMODE_RELATIVE_TO_OBSERVER ))
+        ( (dirtyBits & DIRTY_HEAD) && getFocusMode() != FOCUSMODE_FIXED ))
     {
         _updateViews();
     }

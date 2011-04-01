@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,6 @@
 
 namespace eqPly
 {
-    typedef std::vector< Model* >     Models;
-    typedef std::vector< ModelDist* > ModelDists;
-
     /**
      * The configuration, run be the EqPly application. 
      *
@@ -136,6 +133,7 @@ namespace eqPly
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
         void _changeFocusDistance( const float delta );
+        void _setFocusMode( const eq::FocusMode mode );
 
         /** @return a pointer to a connected admin server. */
         eq::admin::ServerPtr _getAdminServer();
