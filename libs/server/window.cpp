@@ -261,7 +261,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 }
 
 co::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
-                                         co::Barrier* netBarrier )
+                                        co::Barrier* netBarrier )
 { 
     EQASSERTINFO( !_nvSwapBarrier, 
                   "Only one NV_swap_group barrier per window allowed" );
