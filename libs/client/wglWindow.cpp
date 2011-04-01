@@ -857,7 +857,7 @@ bool WGLWindow::processEvent( const WGLWindowEvent& event )
 
 void WGLWindow::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 {
-    if( group == 0 && barrier == 0 )
+    if( group == 0 )
         return;
 
     if( !WGLEW_NV_swap_group )
