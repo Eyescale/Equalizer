@@ -63,18 +63,18 @@ struct PixelData;
 struct Statistic;
 struct Event;
 
-typedef fabric::ColorMask ColorMask;
-typedef fabric::DrawableConfig DrawableConfig;
-typedef fabric::Frustum Frustum;
-typedef fabric::Pixel Pixel;
-typedef fabric::PixelViewport PixelViewport;
-typedef fabric::Projection Projection;
-typedef fabric::Range Range;
-typedef fabric::RenderContext RenderContext;
-typedef fabric::SubPixel SubPixel;
-typedef fabric::Viewport Viewport;
-typedef fabric::Wall Wall;
-typedef fabric::Zoom Zoom;
+using fabric::ColorMask;
+using fabric::DrawableConfig;
+using fabric::Frustum;
+using fabric::Pixel;
+using fabric::PixelViewport;
+using fabric::Projection;
+using fabric::Range;
+using fabric::RenderContext;
+using fabric::SubPixel;
+using fabric::Viewport;
+using fabric::Wall;
+using fabric::Zoom;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
@@ -140,6 +140,37 @@ typedef std::vector< PixelViewport > PixelViewports;
 /** A vector of eq::Statistic events */
 typedef std::vector< Statistic > Statistics;
 
+/** A const_iterator over a eq::Config vector */
+typedef Configs::const_iterator ConfigsCIter;
+/** A const_iterator over a eq::Node vector */
+typedef Nodes::const_iterator NodesCIter;
+/** A const_iterator over a eq::Pipe vector */
+typedef Pipes::const_iterator PipesCIter;
+/** A const_iterator over a eq::Window vector */
+typedef Windows::const_iterator WindowsCIter;
+/** A const_iterator over a eq::Channel vector */
+typedef Channels::const_iterator ChannelsCIter;
+/** A const_iterator over a eq::Frame vector */
+typedef Frames::const_iterator FramesCIter;
+/** A const_iterator over a eq::Image vector */
+typedef Images::const_iterator ImagesCIter;
+/** A const_iterator over a eq::Observer vector */
+typedef Observers::const_iterator ObserversCIter;
+/** A const_iterator over a eq::Canvas vector */
+typedef Canvases::const_iterator CanvasesCIter;
+/** A const_iterator over a eq::Layout vector */
+typedef Layouts::const_iterator LayoutsCIter;
+/** A const_iterator over a eq::Segment vector */
+typedef Segments::const_iterator SegmentsCIter;
+/** A const_iterator over a eq::View vector */
+typedef Views::const_iterator ViewsCIter;
+/** A const_iterator over a eq::Viewport vector */
+typedef Viewports::const_iterator ViewportsCIter;
+/** A const_iterator over a eq::PixelViewport vector */
+typedef PixelViewports::const_iterator PixelViewportsCIter;
+/** A const_iterator over a eq::Statistic events vector */
+typedef Statistics::const_iterator StatisticsCIter;
+
 /** A reference-counted pointer to an eq::Client */
 typedef co::base::RefPtr< Client >        ClientPtr;
 /** A reference-counted pointer to a const eq::Client */
@@ -150,20 +181,20 @@ typedef co::base::RefPtr< Server >        ServerPtr;
 /** The OpenGL object manager used in the client library. */
 typedef util::ObjectManager< const void* > ObjectManager;
 
-typedef fabric::Matrix3d Matrix3d;   //!< A 3x3 double matrix
-typedef fabric::Matrix4d Matrix4d;   //!< A 4x4 double matrix
-typedef fabric::Matrix3f Matrix3f;   //!< A 3x3 float matrix
-typedef fabric::Matrix4f Matrix4f;   //!< A 4x4 float matrix
-typedef fabric::Vector2i Vector2i;   //!< A two-component integer vector
-typedef fabric::Vector3i Vector3i;   //!< A three-component integer vector
-typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
-typedef fabric::Vector3d Vector3d;   //!< A three-component double vector
-typedef fabric::Vector4d Vector4d;   //!< A four-component double vector
-typedef fabric::Vector2f Vector2f;   //!< A two-component float vector
-typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
-typedef fabric::Vector4f Vector4f;   //!< A four-component float vector
-typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
-typedef fabric::Frustumf Frustumf;   //!< A frustum definition
+using fabric::Matrix3d;   //!< A 3x3 double matrix
+using fabric::Matrix4d;   //!< A 4x4 double matrix
+using fabric::Matrix3f;   //!< A 3x3 float matrix
+using fabric::Matrix4f;   //!< A 4x4 float matrix
+using fabric::Vector2i;   //!< A two-component integer vector
+using fabric::Vector3i;   //!< A three-component integer vector
+using fabric::Vector4i;   //!< A four-component integer vector
+using fabric::Vector3d;   //!< A three-component double vector
+using fabric::Vector4d;   //!< A four-component double vector
+using fabric::Vector2f;   //!< A two-component float vector
+using fabric::Vector3f;   //!< A three-component float vector
+using fabric::Vector4f;   //!< A four-component float vector
+using fabric::Vector3ub;  //!< A three-component byte vector
+using fabric::Frustumf;   //!< A frustum definition
 
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
@@ -173,15 +204,18 @@ using fabric::FOCUSMODE_RELATIVE_TO_OBSERVER;
 /** Frustum culling helper */
 typedef vmml::frustum_culler< float >  FrustumCullerf;
 
-/** A vector of std::string */
-typedef std::vector< std::string >   Strings;
+/** A vector of std::strings */
+typedef std::vector< std::string > Strings;
 /** A vector of bytes */
 typedef std::vector< uint8_t >    Vectorub;
 /** A vector of unsigned shorts */
 typedef std::vector< uint16_t >   Vectorus;
 
-typedef co::base::uint128_t uint128_t;
-typedef co::base::UUID UUID;
+/** A const_iterator over a std::string vector */
+typedef Strings::const_iterator StringsCIter;
+
+using co::base::uint128_t;
+using co::base::UUID;
 
 /** @cond IGNORE */
 typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;

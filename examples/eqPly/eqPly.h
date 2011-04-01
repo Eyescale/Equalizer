@@ -46,6 +46,12 @@ namespace eqPly
     typedef mesh::VertexBufferRoot    Model;
     typedef VertexBufferDist          ModelDist;
 
+    typedef std::vector< Model* > Models;
+    typedef std::vector< ModelDist* > ModelDists;
+
+    typedef Models::const_iterator ModelsCIter;
+    typedef ModelDists::const_iterator ModelDistsCIter;
+
     /** The EqPly application instance */
     class EqPly : public eq::Client
     {
