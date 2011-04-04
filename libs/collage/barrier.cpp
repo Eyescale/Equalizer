@@ -35,7 +35,6 @@ Barrier::Barrier( NodePtr master, const uint32_t height )
         : _masterID( master->getNodeID( ))
         , _height( height )
         , _master( master )
-        , _incarnation( 0 )
 {
     EQASSERT( _masterID != NodeID::ZERO );
     EQINFO << "New barrier of height " << _height << std::endl;
@@ -56,25 +55,25 @@ Barrier::~Barrier()
 void Barrier::getInstanceData( DataOStream& os )
 {
     os << _height << _masterID;
-    _incarnation = 0;
+    _leaveNotify = 0;
 }
 
 void Barrier::applyInstanceData( DataIStream& is )
 {
     is >> _height >> _masterID;
-    _incarnation = 0;
+    _leaveNotify = 0;
 }
 
 void Barrier::pack( DataOStream& os )
 {
     os << _height;
-    _incarnation = 0;
+    _leaveNotify = 0;
 }
 
 void Barrier::unpack( DataIStream& is )
 {
     is >> _height;
-    _incarnation = 0;
+    _leaveNotify = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -119,7 +118,7 @@ void Barrier::enter( const uint32_t timeout )
 
     BarrierEnterPacket packet;
     packet.version = getVersion();
-    packet.incarnation = _incarnation++;
+    packet.incarnation = _leaveNotify.get();
     packet.timeout = timeout;
     send( _master, packet );
 

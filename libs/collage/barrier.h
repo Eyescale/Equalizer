@@ -101,9 +101,6 @@ namespace co
         /** The local, connected instantiation of the master node. */
         NodePtr _master;
 
-        /** The nth enter operation of this barrier and version */
-        uint32_t _incarnation;
-
         struct Request
         {
             Request() 
