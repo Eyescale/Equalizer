@@ -8,7 +8,7 @@ This file lists all changes in the public Equalizer API, latest on top:
     std::string eq::Version::getRevision();
 
 
---------------------------------1.0 RC1------------------------------------
+-----------------------------------1.0-------------------------------------
 
 14/Mar/2011
   Changed object mapping behavior when using a concrete version from:

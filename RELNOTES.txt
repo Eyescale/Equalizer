@@ -24,14 +24,15 @@
    Collage library, support for GPU compression plugins and an administrative
    API for runtime configuration changes.
 
-   Equalizer 1.0-beta is a developer release, representing the full feature
-   set and API of Equalizer 1.0. It is intended for application developers to
-   provide feedback and preview the 1.0 release. Equalizer 1.0-beta can be
-   retrieved by downloading the source code, updating the subversion trunk to
-   revision 5659 (svn up -r 5659) or by using:
+   Equalizer 1.0 culminates over 6 years of development and decades of
+   experience into a feature-rich, high-performance and mature parallel
+   rendering framework and an object-oriented high-level network library. It
+   is intended for all application developers creating parallel, interactive
+   OpenGL applications. Equalizer 1.0 can be retrieved by downloading the
+   source code, updating the subversion trunk to revision XXX (svn up -r XX)
+   or by using:
    svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0-beta
-   The internal version number of this release is 0.9.3.
+   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0
 
   1.1. Features
 
@@ -55,12 +56,12 @@
 
 2. New in this release
 
-   Equalizer 1.0-beta contains the following features, enhancements, bug
-   fixes and documentation changes:
+   Equalizer 1.0 contains the following features, enhancements, bug fixes and
+   documentation changes:
 
   2.1. New Features
 
-   1.0-beta (0.9.3): No new features
+   1.0, 1.0-beta (0.9.3): No new features
 
    1.0-alpha (0.9.2):
 
@@ -91,6 +92,11 @@
      * Support for writing applications which are not using OpenGL
 
   2.2. Enhancements
+
+   1.0
+
+     * RFE 3237701: Allow direct mapping of objects with known master node
+     * Make co::Object serialization compressor configurable
 
    1.0-beta (0.9.3):
 
@@ -130,6 +136,11 @@
 
   2.3. Optimizations
 
+   1.0:
+
+     * Optimize Collage command cache performance
+     * Optimize short int data transmission
+
    1.0-beta (0.9.3): No new optimizations
 
    1.0-alpha (0.9.2):
@@ -150,7 +161,7 @@
 
   2.4. Examples
 
-   1.0-beta (0.9.3): No significant example changes
+   1.0, 1.0-beta (0.9.3): No significant example changes
 
    1.0-alpha (0.9.2):
 
@@ -189,6 +200,8 @@
    The following documentation has been added or substantially improved since
    the last release:
 
+   1.0: No significant documentation changes.
+
    1.0-beta (0.9.3):
 
      * The Programming and User Guide has been extended to 102 pages and 56
@@ -217,8 +230,20 @@
 
   2.8. Bug Fixes
 
-   Equalizer 1.0-beta includes various bugfixes over the 0.9 release,
-   including the following:
+   Equalizer 1.0 includes various bugfixes over the 0.9 release, including
+   the following:
+
+   1.0:
+
+     * 3264449: View/segment channel viewport failure when using pvp
+     * 3234693: Delete 'channel' views when view is deleted using admin API
+     * Fixed some minor memory leak found with valgrind
+     * 3213628: Win32: co::base::Condition leaks memory on destruction
+     * 3206311: Node process does not exit after failed Node::configInit
+     * 3203934: Channel statistics-related race
+     * 3201871: View equalizer: changing capabilities does not update nPipes
+     * 3199651: Improve handling of unsupported connections
+     * 3196124: View mapping may fail when Config::update is used
 
    1.0-beta (0.9.3):
 
@@ -292,7 +317,7 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 1.0-beta has been tested on:
+   when available. Version 1.0 has been tested on:
 
   3.1. Operating System Support
 
@@ -311,9 +336,8 @@
 
   3.3. Documentation
 
-   The Programming and User Guide is available as a hard-copy (0.9) and
-   online (1.0 beta). API documentation can be found on the Equalizer
-   website.
+   The Programming and User Guide is available as a hard-copy and online. API
+   documentation can be found on the Equalizer website.
 
    As with any open source project, the available source code, in particular
    the shipped examples provide a reference for developing or porting
