@@ -284,7 +284,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     Pipe* pipe = _channel->getPipe();
     const Window* lastDrawWindow = pipe->getLastDrawWindow();
     if( lastDrawWindow && lastDrawWindow != window )
-        return;
+        return;            
 
     PipeFrameDrawFinishPacket pipePacket;
     pipePacket.objectID    = pipe->getID();

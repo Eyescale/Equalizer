@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +27,7 @@
 
 namespace co
 {
+    struct BarrierEnterReplyPacket;
     /** A networked, versioned barrier. */
     class Barrier : public Object
     {
@@ -73,8 +75,9 @@ namespace co
          *
          * The implementation currently assumes that the master node instance
          * also enters the barrier.
+         * If a timeout happens a timeout execption is thrown.
          */
-        CO_API void enter();
+        CO_API void enter( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         //@}
 
     protected:
@@ -98,11 +101,26 @@ namespace co
         /** The local, connected instantiation of the master node. */
         NodePtr _master;
 
+        struct Request
+        {
+            Request() 
+                : time( 0 )
+                , timeout( EQ_TIMEOUT_INDEFINITE )
+                , incarnation( 0 ){}
+            uint64_t time;
+            uint32_t timeout;
+            uint32_t incarnation;
+            Nodes nodes;
+        };
+
         /** Slave nodes which have entered the barrier, index per version. */
-        std::map< uint128_t, Nodes > _enteredNodes;
-        
+        std::map< uint128_t, Request > _enteredNodes;
+
         /** The monitor used for barrier leave notification. */
         base::Monitor< uint32_t > _leaveNotify;
+
+        void _cleanup( const uint64_t time );
+        void _sendNotify( const uint128_t version, NodePtr& node );
 
         /* The command handlers. */
         bool _cmdEnter( Command& command );

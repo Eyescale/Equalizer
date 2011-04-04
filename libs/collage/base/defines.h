@@ -40,5 +40,7 @@
 
 /** Constant defining 'wait forever' in methods with wait parameters. */
 #define EQ_TIMEOUT_INDEFINITE 0
+#define EQ_TIMEOUT_DEFAULT 0xffffffffu
+
 
 #endif // COBASE_DEFINES_H

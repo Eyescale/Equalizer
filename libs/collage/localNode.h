@@ -27,7 +27,7 @@
 #include <co/connectionSet.h>   // member
 #include <co/objectVersion.h>   // used in inline method
 
-
+#include <co/base/clock.h>          // member
 #include <co/base/hash.h>           // member
 #include <co/base/lockable.h>       // member
 #include <co/base/spinLock.h>       // member
@@ -295,6 +295,9 @@ namespace co
          *         not.
          */
         bool inCommandThread() const  { return _commandThread->isCurrent(); }
+
+        /** @internal */
+        int64_t getTime64(){ return _clock.getTime64(); }
         //@}
 
         /** @name Operations */
@@ -382,6 +385,9 @@ namespace co
 
         /** The connection set of all connections from/to this node. */
         ConnectionSet _incoming;
+
+        /** The process-global clock. */
+        base::Clock _clock;
     
         friend EQSERVER_EXPORT 
         co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));

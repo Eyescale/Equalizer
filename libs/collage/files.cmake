@@ -21,6 +21,7 @@ set(CO_FORWARD_HEADERS
     dataIStream.h
     dataOStream.h
     dispatcher.h
+    exception.h
     global.h
     init.h
     instanceCache.h

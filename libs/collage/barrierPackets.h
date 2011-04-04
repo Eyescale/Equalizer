@@ -33,16 +33,22 @@ namespace co
                 size    = sizeof( BarrierEnterPacket );
             }
         uint128_t version;
+        uint32_t incarnation;
+        uint32_t timeout;
         bool handled;
     };
 
     struct BarrierEnterReplyPacket : public ObjectPacket
     {
-        BarrierEnterReplyPacket()
+        BarrierEnterReplyPacket( const base::UUID objectID_, 
+                                 const uint128_t version_ ) 
+                : version( version_ )
             {
                 command = CMD_BARRIER_ENTER_REPLY;
                 size    = sizeof( BarrierEnterReplyPacket );
+                objectID = objectID_;
             }
+        const uint128_t version;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

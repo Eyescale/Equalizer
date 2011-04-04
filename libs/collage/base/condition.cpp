@@ -17,6 +17,8 @@
 
 #include "condition.h"
 
+#include <co/base/global.h>
+
 #include <cstring>
 #include <errno.h>
 #include <pthread.h>
@@ -103,17 +105,21 @@ void Condition::wait()
 bool Condition::timedWait( const unsigned timeout )
 {
     timespec ts = { 0, 0 };
-    if( timeout > 0 )
+
+    const uint32_t time = timeout == EQ_TIMEOUT_DEFAULT ?
+                   Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
+                          
+    if( time > 0 )
     {
-        ts.tv_sec  = static_cast<int>( timeout / 1000 );
-        ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
+        ts.tv_sec  = static_cast<int>( time / 1000 );
+        ts.tv_nsec = ( time - ts.tv_sec * 1000 ) * 1000000;
     }
 
     timeb tb;
     ftime( &tb );
     ts.tv_sec  += tb.time;
     ts.tv_nsec += tb.millitm * 1000000;
-            
+
     int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
     if( error == ETIMEDOUT )
         return false;
