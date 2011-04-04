@@ -937,6 +937,12 @@ void Config::_setHeadMatrix( const eq::Matrix4f& matrix )
     {
         (*i)->setHeadMatrix( matrix );
     }
+
+    eq::Vector3f trans;
+    matrix.get_translation( trans );
+    std::ostringstream stream;
+    stream << "Observer at " << trans;
+    _setMessage( stream.str( ));
 }
 
 const eq::Matrix4f& Config::_getHeadMatrix() const
@@ -955,7 +961,7 @@ void Config::_changeFocusDistance( const float delta )
     {
         eq::Observer* observer = *i;
         observer->setFocusDistance( observer->getFocusDistance() + delta );
-        std::stringstream stream;
+        std::ostringstream stream;
         stream << "Set focus distance to " << observer->getFocusDistance();
         _setMessage( stream.str( ));
     }
@@ -967,7 +973,7 @@ void Config::_setFocusMode( const eq::FocusMode mode )
     for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
         (*i)->setFocusMode( mode );
 
-    std::stringstream stream;
+    std::ostringstream stream;
     stream << "Set focus mode to " << mode;
     _setMessage( stream.str( ));
 }

@@ -202,14 +202,16 @@ bool Wall::operator != ( const Wall& rhs ) const
 
 std::ostream& operator << ( std::ostream& os, const Wall& wall )
 {
-    os << "wall" << std::endl;
-    os << "{" << std::endl << co::base::indent;
-    os << "bottom_left  " << wall.bottomLeft << std::endl;
-    os << "bottom_right " << wall.bottomRight << std::endl;
-    os << "top_left     " << wall.topLeft << std::endl;
+    os << co::base::disableHeader << co::base::disableFlush
+       << "wall" << std::endl
+       << "{" << std::endl << co::base::indent
+       << "bottom_left  " << wall.bottomLeft << std::endl
+       << "bottom_right " << wall.bottomRight << std::endl
+       << "top_left     " << wall.topLeft << std::endl;
     if( wall.type != Wall::TYPE_FIXED )
         os << "type         " << wall.type << std::endl;
-    os << co::base::exdent << "}" << std::endl;
+    os << co::base::exdent << "}"
+       << co::base::enableFlush << co::base::enableHeader << std::endl;
     return os;
 }
 

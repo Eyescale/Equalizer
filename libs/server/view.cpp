@@ -307,8 +307,8 @@ float View::_computeFocusRatio( Vector3f& eye )
         view4 = observer->getHeadMatrix() * view4;
         eye = observer->getEyePosition( EYE_CYCLOP );
     }
-    const Vector3f view = view4;
-
+    Vector3f view = view4;
+    view.normalize();
     // Find closest segment and its distance from cyclop eye
     Segment* closest = 0;
     float distance = std::numeric_limits< float >::max();
@@ -336,6 +336,7 @@ float View::_computeFocusRatio( Vector3f& eye )
 
         closest = segment;
         distance = d;
+      //EQINFO << "Eye " << eye << " is " << d << " from " << wall << std::endl;
     }
 
     float focusDistance = observer->getFocusDistance();
