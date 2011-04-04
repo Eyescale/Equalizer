@@ -20,7 +20,7 @@
 
 namespace co 
 {
-    /** A base Exception for collage operations. **/ 
+    /** A base Exception for collage operations. */
     class Exception : public std::exception
     {
     public:
@@ -37,7 +37,7 @@ namespace co
         Exception( const uint32_t type ) : _type( type ) {}
 
         /** Construct a new Exception with a knowing type */
-        virtual ~Exception(){}
+        virtual ~Exception() throw() {}
 
         /** get the type of this exception */
         uint32_t getType() const { return _type; }

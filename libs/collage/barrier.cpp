@@ -228,7 +228,7 @@ bool Barrier::_cmdEnter( Command& command )
     return true;
 }
 
-void Barrier::_sendNotify( const uint128_t version, NodePtr& node )
+void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 {
     EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getLocalNode(), _master );

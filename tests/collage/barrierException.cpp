@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Cedric Stalder
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +23,7 @@
 #include <co/init.h>
 #include <co/node.h>
 #include <co/base/global.h>
-#include <co/Exception.h>
+#include <co/exception.h>
 #include <co/base/sleep.h>
 #include <co/base/uuid.h>
 
