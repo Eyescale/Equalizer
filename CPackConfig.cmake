@@ -3,8 +3,10 @@
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
+SET(CPACK_SET_DESTDIR ON)
+
 set(CPACK_PACKAGE_NAME "Equalizer")
-set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch")
+set(CPACK_PACKAGE_VENDOR "www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
@@ -34,8 +36,8 @@ set(CPACK_COMPONENT_EQDEV_DEPENDS vmmlib eqlib codev)
 set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Man Pages")
 set(CPACK_COMPONENT_MAN_DESCRIPTION "Manual Pages")
 
-set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Documentation")
-set(CPACK_COMPONENT_MAN_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
+set(CPACK_COMPONENT_DOC_DISPLAY_NAME "Documentation")
+set(CPACK_COMPONENT_DOC_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
 
 set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")
 set(CPACK_COMPONENT_APPS_DESCRIPTION "Example programs build with Equalizer")
