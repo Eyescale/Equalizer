@@ -11,11 +11,10 @@ option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
+option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
-
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
@@ -44,6 +43,13 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
   endif()
 endif(NOT CMAKE_BUILD_TYPE)
+
+
+if(EQUALIZER_USE_SOLUTION_FOLDERS)
+  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+else()
+  set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
