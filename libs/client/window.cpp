@@ -23,8 +23,8 @@
 #include "client.h"
 #include "config.h"
 #include "configEvent.h"
-#include "event.h"
 #include "error.h"
+#include "event.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -43,6 +43,7 @@
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
+#include <co/exception.h>
 #include <co/base/sleep.h>
 
 namespace eq
@@ -526,7 +527,14 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     co::Barrier* netBarrier = node->getBarrier( barrier );
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
-    netBarrier->enter();
+    try
+    {
+        netBarrier->enter( EQ_TIMEOUT_DEFAULT );
+    }
+    catch( co::Exception& e )
+    {
+        EQWARN << "swap barrier timeout  " << e << std::endl;
+    } 
 }
 
 

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -151,7 +152,7 @@ namespace base
          * @return the value when reaching the condition.
          * @version 1.0
          */
-        const T& waitGE( const T& value ) const
+         const T& waitGE( const T& value ) const
             {
                 _cond.lock();
                 while( _value < value )
@@ -160,7 +161,6 @@ namespace base
                 _cond.unlock();
                 return newValue;
             }
-
         /**
          * Block until the monitor has a value less or equal to the given
          * value.
@@ -175,6 +175,123 @@ namespace base
                 const T& newValue = _value;
                 _cond.unlock();
                 return newValue;
+            }
+
+        /** @name Monitor the value with a timeout. */
+        //@{
+        /**
+         * Block until the monitor has the given value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        bool timedWaitEQ( const T& value, const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value != value )
+                {
+                    if( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has not the given value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        bool timedWaitNE( const T& value, const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value == value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has none of the given values.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        bool timedWaitNE( const T& v1, const T& v2,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value == v1 || _value == v2 )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has a value greater or equal to the given
+         * value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+       bool timedWaitGE( const T& value, T& newValue,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value < value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
+            }
+
+        /**
+         * Block until the monitor has a value less or equal to the given
+         * value.
+         * @param value the exact value to monitor.
+         * @param timeout the timeout in milliseconds to wait for the value.
+         * @return true on success, false on timeout.
+         * @version 1.1
+         */
+        bool timedWaitLE( const T& value, T& newValue,
+                                const uint32_t timeout ) const
+            {
+                _cond.lock();
+                while( _value > value )
+                {
+                    if ( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                _cond.unlock();
+                return true;
             }
 
         //@}

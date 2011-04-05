@@ -543,7 +543,7 @@ bool ObjectStore::notifyCommandThreadIdle()
     EQASSERT( _sendOnRegister > 0 );
     SendQueueItem& item = _sendQueue.front();
 
-    if( item.age > _clock.getTime64( ))
+    if( item.age > _localNode->getTime64( ))
     {
         Nodes nodes;
         _localNode->getNodes( nodes, false );
@@ -719,7 +719,7 @@ bool ObjectStore::_cmdRegisterObject( Command& command )
     const int32_t age = Global::getIAttribute(
                             Global::IATTR_NODE_SEND_QUEUE_AGE );
     SendQueueItem item;
-    item.age = age ? age + _clock.getTime64() :
+    item.age = age ? age + _localNode->getTime64() :
                      std::numeric_limits< int64_t >::max();
     item.object = packet->object;
     _sendQueue.push_back( item );

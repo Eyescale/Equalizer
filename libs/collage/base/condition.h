@@ -68,7 +68,7 @@ namespace base
          * @return true on success, false on timeout.
          * @version 1.0
          */
-        bool timedWait( const unsigned timeout );
+        COBASE_API bool timedWait( const unsigned timeout );
 
     private:
         ConditionPrivate* const _data;

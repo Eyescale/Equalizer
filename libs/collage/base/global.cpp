@@ -31,6 +31,11 @@ namespace
 {
 static PluginRegistry _pluginRegistry;
 static ErrorRegistry _errorRegistry;
+
+int32_t _iAttributes[Global::IATTR_ALL] =
+{
+    2000,// IATTR_TIMEOUT_DEFAULT
+};
 }
 
 PluginRegistry& Global::getPluginRegistry()
@@ -41,6 +46,16 @@ PluginRegistry& Global::getPluginRegistry()
 ErrorRegistry& Global::getErrorRegistry()
 {
     return _errorRegistry;
+}
+
+void Global::setIAttribute( const IAttribute attr, const int32_t value )
+{
+    _iAttributes[ attr ] = value;
+}
+
+int32_t Global::getIAttribute( const IAttribute attr )
+{
+    return _iAttributes[ attr ];
 }
 
 }
