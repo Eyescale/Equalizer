@@ -120,7 +120,7 @@ namespace co
         base::Monitor< uint32_t > _leaveNotify;
 
         void _cleanup( const uint64_t time );
-        void _sendNotify( const uint128_t version, NodePtr& node );
+        void _sendNotify( const uint128_t version, NodePtr node );
 
         /* The command handlers. */
         bool _cmdEnter( Command& command );

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -228,7 +229,7 @@ bool Barrier::_cmdEnter( Command& command )
     return true;
 }
 
-void Barrier::_sendNotify( const uint128_t version, NodePtr& node )
+void Barrier::_sendNotify( const uint128_t version, NodePtr node )
 {
     EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getLocalNode(), _master );

@@ -17,6 +17,7 @@
 
 #ifndef CO_EXCEPTION_H
 #define CO_EXCEPTION_H
+#include <sstream>
 
 namespace co 
 {
@@ -37,10 +38,18 @@ namespace co
         Exception( const uint32_t type ) : _type( type ) {}
 
         /** Construct a new Exception with a knowing type */
-        virtual ~Exception(){}
+        virtual ~Exception() throw(){}
 
         /** get the type of this exception */
-        uint32_t getType() const { return _type; }
+        virtual uint32_t getType() const { return _type; }
+
+        virtual const char* what() const throw() 
+        { 
+            std::stringstream os;
+            os << this;
+            return os.str().c_str(); 
+        }
+
     private:
         /** The type of this eception instance **/
         const uint32_t _type;
@@ -48,13 +57,7 @@ namespace co
 
     inline std::ostream& operator << ( std::ostream& os, const Exception& e )
     {
-        os << e.getType();
-        return os;
-    }
-
-    inline std::ostream& operator << ( std::ostream& os, const Exception::Type& t )
-    {     
-        switch( t )
+        switch( e.getType() )
         {
         case Exception::EXCEPTION_WRITE_TIMEOUT :
             os << " EXCEPTION: Timeout on write operation";
