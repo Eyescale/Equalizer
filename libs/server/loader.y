@@ -347,20 +347,10 @@ global:
          eq::server::Global::instance()->setConfigFAttribute(
              eq::server::Config::FATTR_EYE_BASE, $2 );
      }
-     | EQTOKEN_CONFIG_FATTR_FOCUS_DISTANCE FLOAT
-     {
-         eq::server::Global::instance()->setConfigFAttribute(
-             eq::server::Config::FATTR_FOCUS_DISTANCE, $2 );
-     }
      | EQTOKEN_CONFIG_IATTR_ROBUSTNESS IATTR
      {
          eq::server::Global::instance()->setConfigIAttribute(
              eq::server::Config::IATTR_ROBUSTNESS, $2 );
-     }
-     | EQTOKEN_CONFIG_IATTR_FOCUS_MODE IATTR
-     {
-         eq::server::Global::instance()->setConfigIAttribute(
-             eq::server::Config::IATTR_FOCUS_MODE, $2 );
      }
      | EQTOKEN_NODE_SATTR_LAUNCH_COMMAND STRING
      {
@@ -552,12 +542,8 @@ configAttributes: /*null*/ | configAttributes configAttribute
 configAttribute:
     EQTOKEN_EYE_BASE FLOAT { config->setFAttribute( 
                              eq::server::Config::FATTR_EYE_BASE, $2 ); }
-    | EQTOKEN_FOCUS_DISTANCE FLOAT { config->setFAttribute( 
-                             eq::server::Config::FATTR_FOCUS_DISTANCE, $2 ); }
     | EQTOKEN_ROBUSTNESS IATTR { config->setIAttribute( 
                                  eq::server::Config::IATTR_ROBUSTNESS, $2 ); }
-    | EQTOKEN_FOCUS_MODE IATTR { config->setIAttribute( 
-                                 eq::server::Config::IATTR_FOCUS_MODE, $2 ); }
 
 node: appNode | renderNode
 renderNode: EQTOKEN_NODE '{' {

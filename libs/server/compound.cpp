@@ -474,6 +474,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         Wall wall( view->getWall( ));
 
         wall.apply( coverage );
+        wall.moveFocus( eye, ratio );
         _updateOverdraw( wall );
 
         switch( view->getCurrentType( ))
