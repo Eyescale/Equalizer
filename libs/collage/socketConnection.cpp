@@ -146,7 +146,7 @@ bool SocketConnection::connect()
 
     if( !connected )
     {
-        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
+        EQINFO << "Could not connect to '" << _description->getHostname() << ":"
                << _description->port << "': " << base::sysError 
                << std::endl;
         close();

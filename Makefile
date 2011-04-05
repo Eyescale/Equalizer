@@ -71,7 +71,7 @@ docs/Makefile:
 
 
 RELNOTES.txt: libs/RelNotes.dox
-	-links -dump $< > $@.tmp && mv $@.tmp $@
+	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@
 
 README.rst: libs/RelNotes.dox
 	-$(PYTHON) CMake/html2rst.py $< > $@
