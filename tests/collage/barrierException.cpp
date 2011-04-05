@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Cedric Stalder
+/* Copyright (c) 2011, Cedric stalder <cedric.stalder@gmail.com>> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
