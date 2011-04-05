@@ -75,3 +75,4 @@ eq_add_example(eqPly
 
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
 install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)

@@ -36,9 +36,6 @@
 
 #include "initData.h"
 
-using namespace co::base;
-using namespace std;
-
 namespace eVolve
 {
 
@@ -48,14 +45,12 @@ InitData::InitData()
         , _precision( 2 )
         , _brightness( 1.0f )
         , _alpha( 1.0f )
-#ifdef _MSC_VER
-# ifdef EQ_BUILD_DIR
-        , _filename( "../../../../examples/eqPly" )
-# else
-        , _filename( "../examples/eVolve/Bucky32x32x32_d.raw" )
-# endif
+#ifdef EQ_RELEASE
+        , _filename( std::string( EQ_INSTALL_DIR ) +
+                     std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
 #else
-        , _filename( "../share/data/Bucky32x32x32_d.raw" )
+        , _filename( std::string( EQ_SOURCE_DIR ) + 
+                     std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
 #endif
 {}
 
@@ -76,6 +71,5 @@ void InitData::applyInstanceData( co::DataIStream& is )
        >> _filename;
 
     EQASSERT( _frameDataID != co::base::UUID::ZERO );
-    EQINFO << "New InitData instance" << endl;
 }
 }

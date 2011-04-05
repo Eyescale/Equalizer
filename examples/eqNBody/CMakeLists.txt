@@ -7,7 +7,7 @@ if(NOT CUDA_FOUND)
 endif()
 
 # WAR bug in FindCUDA.cmake:
-remove_definitions(-DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/")
+remove_definitions(${EQ_DEFINITIONS})
 
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS /NODEFAULTLIB:LIBC;LIBCMT;MSVCRT)
