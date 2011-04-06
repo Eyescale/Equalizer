@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -310,7 +310,6 @@ float View::_computeFocusRatio( Vector3f& eye )
     Vector3f view = view4;
     view.normalize();
 
-    bool valid = false;
     float distance = std::numeric_limits< float >::max();
     if( getCurrentType() != Frustum::TYPE_NONE ) // frustum from view
     {
@@ -319,8 +318,9 @@ float View::_computeFocusRatio( Vector3f& eye )
         const float denom = view.dot( w );
         if( denom != 0.f ) // view parallel to wall
         {
-            distance = (wall.bottomLeft - eye).dot( w ) / denom;
-            valid = distance > 0.f;
+            const float d = (wall.bottomLeft - eye).dot( w ) / denom;
+            if( d > 0.f )
+                distance = d;
         }
     }
     else
@@ -347,9 +347,9 @@ float View::_computeFocusRatio( Vector3f& eye )
             if( d > distance || d <= 0.f ) // further away or behind
                 continue;
 
-            valid = true;
             distance = d;
-            //EQINFO << "Eye " << eye << " is " << d << " from " << wall << std::endl;
+            //EQINFO << "Eye " << eye << " is " << d << " from " << wall
+            // << std::endl;
         }
     }
 
@@ -357,14 +357,19 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( mode == FOCUSMODE_RELATIVE_TO_ORIGIN )
     {
         eye = observer->getEyePosition( EYE_CYCLOP );
-        distance += eye.z();
-        focusDistance += eye.z();
 
-        if( fabsf( distance ) <= std::numeric_limits< float >::epsilon( ))
-            distance = 2.f * std::numeric_limits< float >::epsilon();
+        if( distance != std::numeric_limits< float >::max( ))
+        {
+            distance += eye.z();
+            focusDistance += eye.z();
+            if( fabsf( distance ) <= std::numeric_limits< float >::epsilon( ))
+                distance = 2.f * std::numeric_limits< float >::epsilon();
+        }
     }
 
-    return valid ? focusDistance / distance : 1.f;
+    if( distance == std::numeric_limits< float >::max( ))
+        return 1.f;
+    return focusDistance / distance;
 }
 
 }
