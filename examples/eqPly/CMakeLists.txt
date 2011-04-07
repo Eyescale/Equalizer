@@ -7,6 +7,27 @@ endif(MSVC)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(KD_HEADERS
+    ply.h
+    vertexBufferBase.h
+    vertexBufferData.h
+    vertexBufferDist.h
+    vertexBufferLeaf.h
+    vertexBufferNode.h
+    vertexBufferRoot.h
+    vertexBufferState.h
+    vertexData.h
+)
+set(KD_SOURCES
+    plyfile.cpp
+    vertexBufferBase.cpp
+    vertexBufferDist.cpp
+    vertexBufferLeaf.cpp
+    vertexBufferNode.cpp
+    vertexBufferRoot.cpp
+    vertexData.cpp
+)
+
 eq_add_example(eqPly
   HEADERS
     cameraAnimation.h
@@ -22,19 +43,11 @@ eq_add_example(eqPly
     node.h
     node.h
     pipe.h
-    ply.h
     tracker.h
     typedefs.h
-    vertexBufferBase.h
-    vertexBufferData.h
-    vertexBufferDist.h
-    vertexBufferLeaf.h
-    vertexBufferNode.h
-    vertexBufferRoot.h
-    vertexBufferState.h
-    vertexData.h
     view.h
     window.h
+    ${KD_HEADERS}
   SOURCES
     cameraAnimation.cpp
     channel.cpp
@@ -48,16 +61,10 @@ eq_add_example(eqPly
     main.cpp
     node.cpp
     pipe.cpp
-    plyfile.cpp
     tracker.cpp
-    vertexBufferBase.cpp
-    vertexBufferDist.cpp
-    vertexBufferLeaf.cpp
-    vertexBufferNode.cpp
-    vertexBufferRoot.cpp
-    vertexData.cpp
     view.cpp
     window.cpp
+    ${KD_SOURCES}
   SHADERS
     vertexShader.glsl
     fragmentShader.glsl
@@ -66,4 +73,6 @@ eq_add_example(eqPly
     shared EqualizerAdmin
   )
 
+source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
 install(FILES rockerArm.ply screwdriver.ply DESTINATION share/Equalizer/data COMPONENT data)
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)

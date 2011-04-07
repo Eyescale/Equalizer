@@ -45,14 +45,13 @@ LocalInitData::LocalInitData()
         , _color( true )
         , _isResident( false )
 {
-    _filenames.push_back( "examples/eqPly/" );
-    _filenames.push_back( "../examples/eqPly/" );
-    _filenames.push_back( "./../../../examples/eqPly" ); 
-    _filenames.push_back( "../../../../examples/eqPly" );
-    _filenames.push_back( "../share/data/" );
-    _filenames.push_back( "/opt/local/share/data/" );
-    _filenames.push_back( "/usr/local/share/data/" );
-    _filenames.push_back( "/usr/share/data/" );
+#ifdef EQ_RELEASE
+    _filenames.push_back( std::string( EQ_INSTALL_DIR ) +
+                          std::string( "share/Equalizer/data" ));
+#else
+    _filenames.push_back( std::string( EQ_SOURCE_DIR ) + 
+                          std::string( "examples/eqPly" ));
+#endif
 }
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )

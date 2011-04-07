@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010,      Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -309,48 +309,67 @@ float View::_computeFocusRatio( Vector3f& eye )
     }
     Vector3f view = view4;
     view.normalize();
-    // Find closest segment and its distance from cyclop eye
-    Segment* closest = 0;
-    float distance = std::numeric_limits< float >::max();
 
-    for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
+    float distance = std::numeric_limits< float >::max();
+    if( getCurrentType() != Frustum::TYPE_NONE ) // frustum from view
     {
-        Segment* segment = (*i)->getSegment();
-        if( segment->getCurrentType() == Frustum::TYPE_NONE )
-        {
-            segment->notifyFrustumChanged();
-            if( segment->getCurrentType() == Frustum::TYPE_NONE )
-                continue;
-        }
-        
-        // http://en.wikipedia.org/wiki/Line-plane_intersection
-        const Wall& wall = segment->getWall();
+        const Wall& wall = getWall();
         const Vector3f w = wall.getW();
         const float denom = view.dot( w );
-        if( denom == 0.f ) // view parallel to wall
-            continue;
+        if( denom != 0.f ) // view parallel to wall
+        {
+            const float d = (wall.bottomLeft - eye).dot( w ) / denom;
+            if( d > 0.f )
+                distance = d;
+        }
+    }
+    else
+    {
+        // Find closest segment and its distance from cyclop eye
+        for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
+        {
+            Segment* segment = (*i)->getSegment();
+            if( segment->getCurrentType() == Frustum::TYPE_NONE )
+            {
+                segment->notifyFrustumChanged();
+                if( segment->getCurrentType() == Frustum::TYPE_NONE )
+                    continue;
+            }
 
-        const float d = (wall.bottomLeft - eye).dot( w ) / denom;
-        if( d > distance || d <= 0.f ) // further away or behind
-            continue;
+            // http://en.wikipedia.org/wiki/Line-plane_intersection
+            const Wall& wall = segment->getWall();
+            const Vector3f w = wall.getW();
+            const float denom = view.dot( w );
+            if( denom == 0.f ) // view parallel to wall
+                continue;
 
-        closest = segment;
-        distance = d;
-      //EQINFO << "Eye " << eye << " is " << d << " from " << wall << std::endl;
+            const float d = (wall.bottomLeft - eye).dot( w ) / denom;
+            if( d > distance || d <= 0.f ) // further away or behind
+                continue;
+
+            distance = d;
+            //EQINFO << "Eye " << eye << " is " << d << " from " << wall
+            // << std::endl;
+        }
     }
 
     float focusDistance = observer->getFocusDistance();
     if( mode == FOCUSMODE_RELATIVE_TO_ORIGIN )
     {
         eye = observer->getEyePosition( EYE_CYCLOP );
-        distance += eye.z();
-        focusDistance += eye.z();
 
-        if( fabsf( distance ) <= std::numeric_limits< float >::epsilon( ))
-            distance = 2.f * std::numeric_limits< float >::epsilon();
+        if( distance != std::numeric_limits< float >::max( ))
+        {
+            distance += eye.z();
+            focusDistance += eye.z();
+            if( fabsf( distance ) <= std::numeric_limits< float >::epsilon( ))
+                distance = 2.f * std::numeric_limits< float >::epsilon();
+        }
     }
 
-    return closest ? focusDistance / distance : 1.f;
+    if( distance == std::numeric_limits< float >::max( ))
+        return 1.f;
+    return focusDistance / distance;
 }
 
 }

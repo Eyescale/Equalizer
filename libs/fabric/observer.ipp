@@ -36,8 +36,6 @@ Observer< C, O >::Observer( C* config )
     EQASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
-    _data.focusDistance = config->getFAttribute( C::FATTR_FOCUS_DISTANCE );
-    _data.focusMode = FocusMode( config->getIAttribute( C::IATTR_FOCUS_MODE ));
     EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
@@ -188,15 +186,10 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
         os << "eye_base       " << eyeBase << std::endl;
 
     const float focusDistance = observer.getFocusDistance();
-    if( focusDistance != 
-        observer.getConfig()->getFAttribute( C::FATTR_FOCUS_DISTANCE ))
-    {
-        os << "focus_distance " << focusDistance << std::endl;
-    }
+    os << "focus_distance " << focusDistance << std::endl;
 
     const FocusMode focusMode = observer.getFocusMode();
-    if( focusMode != observer.getConfig()->getIAttribute( C::IATTR_FOCUS_MODE ))
-        os << "focus_mode     " << focusMode << std::endl;
+    os << "focus_mode     " << focusMode << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader
        << co::base::enableFlush;

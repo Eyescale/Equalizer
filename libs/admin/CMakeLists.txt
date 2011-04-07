@@ -2,9 +2,7 @@
 
 include(PurpleAddLibrary)
 
-purple_add_library(EqualizerAdmin SHARED
-  HEADERS_PREFIX "eq/admin/"
-  FORWARD HEADERS
+set(ADMIN_HEADERS
     admin.h
     api.h
     base.h
@@ -24,7 +22,9 @@ purple_add_library(EqualizerAdmin SHARED
     view.h
     visitorResult.h
     window.h
-  SOURCES
+)
+
+set(ADMIN_SOURCES
     canvas.cpp
     channel.cpp
     client.cpp
@@ -39,6 +39,13 @@ purple_add_library(EqualizerAdmin SHARED
     server.cpp
     view.cpp
     window.cpp
-  LINK_LIBRARIES
-    Equalizer
+)
+
+purple_add_library(EqualizerAdmin SHARED
+  HEADERS_PREFIX "eq/admin/"
+  FORWARD HEADERS ${ADMIN_HEADERS}
+  SOURCES ${ADMIN_SOURCES}
+  LINK_LIBRARIES Equalizer
   )
+set_target_properties(lib_EqualizerAdmin_shared PROPERTIES
+  FOLDER "Libraries" PROJECT_LABEL "Admin")

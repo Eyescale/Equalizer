@@ -1,8 +1,6 @@
 #Equalizer 1.1 ascii
 global
 {
-    EQ_CONFIG_FATTR_FOCUS_DISTANCE      2.
-    EQ_CONFIG_IATTR_FOCUS_MODE          relative_to_observer
 #    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 

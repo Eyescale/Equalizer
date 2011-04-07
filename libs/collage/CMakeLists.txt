@@ -45,11 +45,11 @@ if(WIN32)
   list(APPEND CO_ADD_LINKLIB mswsock) 
 endif(WIN32)
 
-#TO-DO Add base directory. The problem is about the path of file here.
-#      Maybe remove base\CMakeLists.txt and build base lib here. 
-source_group("plugin" FILES ${PLUGIN_HEADERS} )
-source_group("collage" FILES ${CO_FORWARD_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
-source_group("compressor" FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
+source_group(base REGULAR_EXPRESSION .*)
+source_group(\\ FILES CMakeLists.txt)
+source_group(plugin FILES ${PLUGIN_HEADERS} )
+source_group(collage FILES ${CO_FORWARD_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
+source_group(compressor FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
 
 purple_add_library(co ${CO_LIB_VARIANT}
   HEADERS_PREFIX "co/"
