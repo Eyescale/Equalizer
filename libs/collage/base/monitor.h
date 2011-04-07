@@ -254,8 +254,7 @@ namespace base
          * @return true on success, false on timeout.
          * @version 1.1
          */
-       bool timedWaitGE( const T& value, T& newValue,
-                                const uint32_t timeout ) const
+       bool timedWaitGE( const T& value, const uint32_t timeout ) const
             {
                 _cond.lock();
                 while( _value < value )
@@ -278,8 +277,7 @@ namespace base
          * @return true on success, false on timeout.
          * @version 1.1
          */
-        bool timedWaitLE( const T& value, T& newValue,
-                                const uint32_t timeout ) const
+        bool timedWaitLE( const T& value, const uint32_t timeout ) const
             {
                 _cond.lock();
                 while( _value > value )
