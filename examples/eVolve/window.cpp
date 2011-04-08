@@ -84,27 +84,33 @@ bool Window::configInitGL( const eq::uint128_t& initID )
     return true;
 }
 
-static const char* _logoTextureName = "eVolve_logo";
+namespace
+{
+#ifdef EQ_RELEASE
+static const std::string _logoTextureName = std::string( EQ_INSTALL_DIR ) +
+                                 std::string( "share/Equalizer/data/logo.rgb" );
+#else
+static const std::string _logoTextureName = std::string( EQ_SOURCE_DIR ) +
+                                      std::string( "examples/eVolve/logo.rgb" );
+#endif
+}
 
 void Window::_loadLogo()
 {
     eq::Window::ObjectManager* om = getObjectManager();
-    _logoTexture = om->getEqTexture( _logoTextureName );
+    _logoTexture = om->getEqTexture( _logoTextureName.c_str( ));
     if( _logoTexture )
         return;
 
     eq::Image image;
-    if( !image.readImage( "logo.rgb", eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "../examples/eVolve/logo.rgb",
-                          eq::Frame::BUFFER_COLOR ) &&
-        !image.readImage( "./examples/eVolve/logo.rgb", 
-                          eq::Frame::BUFFER_COLOR ))
+    if( !image.readImage( _logoTextureName, eq::Frame::BUFFER_COLOR ))
     {
-        EQWARN << "Can't load overlay logo 'logo.rgb'" << std::endl;
+        EQWARN << "Can't load overlay logo " << _logoTextureName << std::endl;
         return;
     }
 
-    _logoTexture = om->newEqTexture(_logoTextureName, GL_TEXTURE_RECTANGLE_ARB);
+    _logoTexture = om->newEqTexture( _logoTextureName.c_str(),
+                                     GL_TEXTURE_RECTANGLE_ARB );
     EQASSERT( _logoTexture );
     
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
