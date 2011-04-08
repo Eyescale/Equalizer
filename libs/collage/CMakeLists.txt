@@ -21,29 +21,26 @@ endif(NOT COLLAGE_BUILD_MODULARIZED)
 
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
 
+add_definitions(-DCO_EXPORTS -DEQ_PLUGIN_BUILD )
+add_subdirectory( base )
+
 set(CO_ADD_LINKLIB)
 
 if(WIN32)
-  list(APPEND CO_ADD_LINKLIB Ws2_32 mswsock )
+  list(APPEND CO_ADD_LINKLIB Ws2_32 mswsock)
 endif(WIN32)
-
-add_definitions(-DCO_EXPORTS -DEQ_PLUGIN_BUILD )
-
-add_subdirectory( base )
+if(MSVC)
+  list(APPEND CO_SOURCES pgmConnection.cpp)
+endif(MSVC)
 
 if(Boost_FOUND)
   list(APPEND CO_SOURCES rspConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY})
+  if(NOT Boost_USE_STATIC_LIBS)
+    list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
+  endif()
 endif(Boost_FOUND)
 
-if(MSVC)
-  list(APPEND CO_SOURCES pgmConnection.cpp)
-  list(APPEND CO_ADD_LINKLIB Ws2_32) 
-endif(MSVC)
-
-if(WIN32)
-  list(APPEND CO_ADD_LINKLIB mswsock) 
-endif(WIN32)
 
 source_group(base REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
@@ -67,7 +64,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
     shared co_base
     ${CO_ADD_LINKLIB}
   )
-  
+
 purple_add_amalgamation(Collage co ${CO_VERSION} ${CO_VERSION}
     shared co_base
     shared co
