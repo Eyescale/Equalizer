@@ -1,7 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010-2011, Stefan Eilemann <eile@eyescale.ch>
 
-option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 if(NOT EQUALIZER_BUILD_TESTS)
   return()
 endif(NOT EQUALIZER_BUILD_TESTS)

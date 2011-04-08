@@ -12,6 +12,8 @@ option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
+option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
+option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
