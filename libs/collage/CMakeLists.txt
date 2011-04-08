@@ -34,6 +34,7 @@ add_subdirectory( base )
 if(Boost_FOUND)
   list(APPEND CO_SOURCES rspConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY})
+  list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
 endif(Boost_FOUND)
 
 if(MSVC)
