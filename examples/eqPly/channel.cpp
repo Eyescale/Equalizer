@@ -863,8 +863,9 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     front.normalize();
     front *= boundingSphere.w();
 
-    const eq::Vector3f center = boundingSphere.get_sub_vector< 3 >() + 
-                        frameData.getCameraPosition( ).get_sub_vector< 3 >();
+    const eq::Vector3f center =  
+        frameData.getCameraPosition().get_sub_vector< 3 >() -
+        boundingSphere.get_sub_vector< 3 >();
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 
