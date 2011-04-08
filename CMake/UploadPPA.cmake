@@ -153,10 +153,13 @@ file(WRITE ${DEBIAN_SOURCE_DIR}/debian/source/format "3.0 (native)")
 set(DEBIAN_CHANGELOG ${DEBIAN_SOURCE_DIR}/debian/changelog)
 execute_process(COMMAND date -R  OUTPUT_VARIABLE DATE_TIME)
 file(WRITE ${DEBIAN_CHANGELOG}
-  "${CPACK_DEBIAN_PACKAGE_NAME} (${CPACK_PACKAGE_VERSION}) maverick; urgency=low\n\n"
-  "  * Package built with CMake\n\n"
-  " -- ${CPACK_PACKAGE_CONTACT}  ${DATE_TIME}"
+  "${CPACK_DEBIAN_PACKAGE_NAME} (${CPACK_PACKAGE_VERSION}) natty; urgency=low\n\n"
+  "  * Package built with CMake\n"
   )
+if(UBUNTU_LP_BUG)
+  file(APPEND ${DEBIAN_CHANGELOG} "  * LP: #${UBUNTU_LP_BUG}\n")
+endif()
+file(APPEND ${DEBIAN_CHANGELOG} "\n -- ${CPACK_PACKAGE_CONTACT}  ${DATE_TIME}")
 
 ##############################################################################
 # debuild -S
