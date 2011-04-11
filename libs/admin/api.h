@@ -26,11 +26,11 @@
 #include <co/base/api.h>
 
 #if defined(EQUALIZERADMIN_STATIC)
-#  define EQADMIN_EXPORT
+#  define EQADMIN_API
 #elif defined(EQUALIZERADMIN_SHARED)
-#  define EQADMIN_EXPORT EQ_DLLEXPORT
+#  define EQADMIN_API EQ_DLLEXPORT
 #else
-#  define EQADMIN_EXPORT EQ_DLLIMPORT
+#  define EQADMIN_API EQ_DLLIMPORT
 #endif
 
 #endif //EQADMIN_API_H

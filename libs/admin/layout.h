@@ -32,15 +32,15 @@ namespace admin
     {
     public:
         /** Construct a new layout. @version 1.0 */
-        EQADMIN_EXPORT Layout( Config* parent );
+        EQADMIN_API Layout( Config* parent );
 
         /** Destruct a layout. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Layout();
+        EQADMIN_API virtual ~Layout();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this layout. @version 1.0 */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
         //@}
 
     private:
