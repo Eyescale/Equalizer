@@ -43,7 +43,7 @@ namespace eq
 namespace
 {
 static std::ofstream* _logFile = 0;
-static bool _initialized = false;
+static co::base::a_int32_t _initialized;
 }
 
 static void _parseArguments( const int argc, char** argv );
@@ -59,12 +59,12 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
-    if( _initialized )
+    if( ++_initialized != 1 ) // not first
     {
-        EQERROR << "Equalizer client library already initialized" << std::endl;
-        return false;
+        EQINFO << "Equalizer client library initialized more than once"
+               << std::endl;
+        return true;
     }
-    _initialized = true;
     _initErrors();
 
 #ifdef AGL
@@ -90,12 +90,13 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 
 bool exit()
 {
-    if( !_initialized )
+    if( _initialized <= 0 )
     {
         EQERROR << "Equalizer client library not initialized" << std::endl;
         return false;
     }
-    _initialized = false;
+    if( --_initialized != 0 ) // not last
+        return true;
 
 #ifdef EQ_USE_PARACOMP
     pcSystemFinalize();
@@ -133,7 +134,13 @@ void _parseArguments( const int argc, char** argv )
             ++i;
             if( i<argc )
             {
-                EQASSERT( !_logFile );
+                if( _logFile )
+                {
+                    EQWARN << "Redirecting log to " << argv[i] << std::endl;
+                    _logFile->close();
+                    delete _logFile;
+                }
+
                 _logFile = new std::ofstream( argv[i] );
                 if( _logFile->is_open( ))
                     co::base::Log::setOutput( *_logFile );
