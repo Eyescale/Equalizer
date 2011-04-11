@@ -53,7 +53,7 @@ namespace admin
      * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
      */
-    EQADMIN_EXPORT bool init( const int argc, char** argv );
+    EQADMIN_API bool init( const int argc, char** argv );
     
     /**
      * De-initialize the Equalizer administrative library.
@@ -64,7 +64,7 @@ namespace admin
      * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.
      */
-    EQADMIN_EXPORT bool exit();
+    EQADMIN_API bool exit();
 }
 }
 

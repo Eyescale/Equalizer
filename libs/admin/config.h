@@ -39,21 +39,21 @@ namespace admin
                                 ConfigVisitor > Super;
 
         /** Construct a new config. @version 1.0 */
-        EQADMIN_EXPORT Config( ServerPtr parent );
+        EQADMIN_API Config( ServerPtr parent );
 
         /** Destruct a config. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Config();
+        EQADMIN_API virtual ~Config();
 
         /** @return the local client node. @version 1.0 */
-        EQADMIN_EXPORT ClientPtr getClient();
+        EQADMIN_API ClientPtr getClient();
 
         /** @return the local client node. @version 1.0 */
-        EQADMIN_EXPORT ConstClientPtr getClient() const;
+        EQADMIN_API ConstClientPtr getClient() const;
 
-        EQADMIN_EXPORT co::CommandQueue* getMainThreadQueue(); //!< @internal
+        EQADMIN_API co::CommandQueue* getMainThreadQueue(); //!< @internal
 
         /** Commit all changes on this config and its children. @version 1.0 */
-        EQADMIN_EXPORT uint128_t commit();
+        EQADMIN_API uint128_t commit();
 
         /** @internal */
         const Channel* findChannel( const std::string& name ) const

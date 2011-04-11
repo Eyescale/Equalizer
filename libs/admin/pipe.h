@@ -32,16 +32,16 @@ namespace admin
     {
     public:
         /** Construct a new pipe. @version 1.0 */
-        EQADMIN_EXPORT Pipe( Node* parent );
+        EQADMIN_API Pipe( Node* parent );
 
         /** Destruct a pipe. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Pipe();
+        EQADMIN_API virtual ~Pipe();
 
         /** @name Data Access. */
         //@{
         ServerPtr getServer(); //!< @return the server node
         ClientPtr getClient(); //!< @return the local client node
-        EQADMIN_EXPORT Config* getConfig();   //!< @return the parent configuration
+        EQADMIN_API Config* getConfig();   //!< @return the parent configuration
         const Config* getConfig() const; //!< @return the parent configuration
 
         co::CommandQueue* getMainThreadQueue(); //!< @internal

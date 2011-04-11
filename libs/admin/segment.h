@@ -31,21 +31,21 @@ namespace admin
     {
     public:
         /** Construct a new segment. @version 1.0 */
-        EQADMIN_EXPORT Segment( Canvas* parent );
+        EQADMIN_API Segment( Canvas* parent );
 
         /** Destruct a segment. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Segment();
+        EQADMIN_API virtual ~Segment();
 
         /** @name Data Access */
         //@{
         /** @return the config of this segment. */
-        EQADMIN_EXPORT Config* getConfig();
+        EQADMIN_API Config* getConfig();
 
         /** @return the config of this segment. */
-        EQADMIN_EXPORT const Config* getConfig() const;
+        EQADMIN_API const Config* getConfig() const;
 
         /** @return the Server of this segment. */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
         //@}
 
     private:

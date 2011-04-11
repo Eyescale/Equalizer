@@ -32,10 +32,10 @@ namespace admin
     {
     public:
         /** Construct a new node. @version 1.0 */
-        EQADMIN_EXPORT Node( Config* parent );
+        EQADMIN_API Node( Config* parent );
 
         /** Destruct a node. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Node();
+        EQADMIN_API virtual ~Node();
 
         /** @name Data Access. */
         //@{
