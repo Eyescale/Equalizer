@@ -16,9 +16,9 @@
  */
 
 /**
- * @file admin/api.h
+ * @file eq/admin/api.h
  *
- * Includes key system header files and defines essential admin macros.
+ * Defines admin API export macros.
  */
 #ifndef EQADMIN_API_H
 #define EQADMIN_API_H
