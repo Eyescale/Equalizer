@@ -478,6 +478,9 @@ void Node::setFailed()
         Pipe* pipe = *i;
         pipe->setFailed();
     }
+
+    getLocalNode()->disconnect( _node );
+    _node = 0;
 }
 
 //---------------------------------------------------------------------------
