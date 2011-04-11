@@ -29,21 +29,21 @@ namespace admin
     {
     public:
         /** Construct a new window. @version 1.0 */
-        EQADMIN_EXPORT Window( Pipe* parent );
+        EQADMIN_API Window( Pipe* parent );
 
         /** Destruct this window. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Window();
+        EQADMIN_API virtual ~Window();
 
         /** @name Data Access */
         //@{
         /** @return the Config of this window. */
-        EQADMIN_EXPORT const Config* getConfig() const;
+        EQADMIN_API const Config* getConfig() const;
 
         /** @return the Server of this window. */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
 
         /** @return the Config of this window. */
-        EQADMIN_EXPORT Config* getConfig();
+        EQADMIN_API Config* getConfig();
         //@}
 
     private:

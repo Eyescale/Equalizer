@@ -31,15 +31,15 @@ namespace admin
     {
     public:
         /** Construct a new observer. @version 1.0 */
-        EQADMIN_EXPORT Observer( Config* parent );
+        EQADMIN_API Observer( Config* parent );
 
         /** Destruct this observer. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Observer();
+        EQADMIN_API virtual ~Observer();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this observer. @version 1.0 */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
         //@}
 
         void addView( View* ) { /* nop */ } //!< @internal

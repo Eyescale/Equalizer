@@ -31,15 +31,15 @@ namespace admin
     {
     public:
         /** Construct a new canvas. @version 1.0 */
-        EQADMIN_EXPORT Canvas( Config* parent );
+        EQADMIN_API Canvas( Config* parent );
 
         /** Destruct this canvas. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Canvas();
+        EQADMIN_API virtual ~Canvas();
 
         /** @name Data Access */
         //@{
         /** @return the Server of this canvas. @version 1.0 */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
         //@}
 
     private:

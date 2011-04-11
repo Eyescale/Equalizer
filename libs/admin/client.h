@@ -39,10 +39,10 @@ namespace admin
     {
     public:
         /** Construct a new client. @version 1.0 */
-        EQADMIN_EXPORT Client();
+        EQADMIN_API Client();
 
         /** Destruct the client. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Client();
+        EQADMIN_API virtual ~Client();
 
         /** 
          * Open and connect an Equalizer server to the local client.
@@ -53,7 +53,7 @@ namespace admin
          * @return true if the server was connected, false if not.
          * @version 1.0 
          */
-        EQADMIN_EXPORT bool connectServer( ServerPtr server );
+        EQADMIN_API bool connectServer( ServerPtr server );
 
         /** 
          * Disconnect and close the connection to an Equalizer server.
@@ -62,7 +62,7 @@ namespace admin
          * @return true if the server was disconnected, false if not.
          * @version 1.0 
          */
-        EQADMIN_EXPORT bool disconnectServer( ServerPtr server );
+        EQADMIN_API bool disconnectServer( ServerPtr server );
 
         /** @return the command queue to the main node thread. @internal */
         virtual co::CommandQueue* getMainThreadQueue()
@@ -76,7 +76,7 @@ namespace admin
         Private* _private; // placeholder for binary-compatible changes
 
         /** @sa co::Node::createNode */
-        EQADMIN_EXPORT virtual co::NodePtr createNode( const uint32_t type );
+        EQADMIN_API virtual co::NodePtr createNode( const uint32_t type );
     };
 }
 }
