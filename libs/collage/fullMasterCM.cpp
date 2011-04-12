@@ -184,6 +184,12 @@ void FullMasterCM::_obsolete()
     _checkConsistency();
 }
 
+bool FullMasterCM::hasSlave( NodePtr node ) const
+{
+    Nodes::const_iterator i = find( _slaves.begin(), _slaves.end(), node );
+    return i != _slaves.end( );
+}
+
 void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
     EQ_TS_THREAD( _cmdThread );

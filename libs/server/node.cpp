@@ -479,7 +479,9 @@ void Node::setFailed()
         pipe->setFailed();
     }
 
-    getLocalNode()->disconnect( _node );
+    co::LocalNodePtr localNode = getLocalNode();
+    localNode->removeNode( _node );
+    localNode->disconnect( _node );
     _node = 0;
 }
 

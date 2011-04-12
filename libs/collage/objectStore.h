@@ -162,6 +162,12 @@ namespace co
          * @return true if more work is pending.
          */
         virtual bool notifyCommandThreadIdle();
+
+        /**
+         * @internal
+         * Remove a slave node in all objects
+         */
+        void removeNode( NodePtr node );
         //@}
 
     private:
@@ -223,6 +229,7 @@ namespace co
         bool _cmdRegisterObject( Command& command );
         bool _cmdDeregisterObject( Command& command );
         bool _cmdDisableSendOnRegister( Command& command );
+        bool _cmdNodeRemove( Command& command );
 
         EQ_TS_VAR( _receiverThread );
         EQ_TS_VAR( _commandThread );
@@ -231,4 +238,3 @@ namespace co
     std::ostream& operator << ( std::ostream& os, ObjectStore* objectStore );
 }
 #endif // CO_OBJECTSTORE_H
-

@@ -43,6 +43,7 @@ namespace co
         virtual uint32_t getAutoObsolete() const { return 0; }
         //@}
 
+        virtual bool hasSlave( NodePtr node ) const;
         virtual void addSlave( Command& command, 
                                NodeMapObjectReplyPacket& reply );
         virtual void removeSlave( NodePtr node );

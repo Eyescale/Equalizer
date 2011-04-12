@@ -133,6 +133,9 @@ namespace co
         /** @return the vector of current slave nodes. */
         virtual const Nodes* getSlaveNodes() const { return 0; }
 
+        /** @return return true if the node is part of slave nodes. */
+        virtual bool hasSlave( NodePtr node ) const { return false; }
+
         /** Apply the initial data after mapping. */
         virtual void applyMapData( const uint128_t& version ) = 0;
 
