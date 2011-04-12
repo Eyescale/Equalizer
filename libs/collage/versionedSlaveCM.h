@@ -101,8 +101,7 @@ namespace co
         virtual void _unpackOneVersion( ObjectDataIStream* is );
 
         /* The command handlers. */
-        bool _cmdInstance( Command& command );
-        bool _cmdDelta( Command& command );
+        bool _cmdData( Command& command );
         bool _cmdCommit( Command& command );
 
         EQ_TS_VAR( _cmdThread );
