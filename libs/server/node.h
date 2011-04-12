@@ -221,7 +221,7 @@ namespace server
         };
 
         /** @internal Set a string integer attribute. */
-        void setSAttribute( const SAttribute attr, const std::string& value );
+        EQSERVER_EXPORT void setSAttribute( const SAttribute attr, const std::string& value );
 
         /** @internal Set a character integer attribute. */
         void setCAttribute( const CAttribute attr, const char value );
