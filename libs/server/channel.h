@@ -100,6 +100,9 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
+        /** Switch to the state failed. */
+        void setFailed();
+
         /** Set the output view and segment for this channel. */
         void setOutput( View* view, Segment* segment );
 

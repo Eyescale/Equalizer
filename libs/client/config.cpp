@@ -337,7 +337,9 @@ uint32_t Config::finishFrame()
         }
 
         // global sync
-        _finishedFrame.waitGE( frameToFinish );
+        if( !_finishedFrame.timedWaitGE( frameToFinish, EQ_TIMEOUT_DEFAULT ))
+            EQWARN << "Timeout waiting for at least one node to finish frame " 
+                   << frameToFinish << std::endl;
     }
 
     handleEvents();

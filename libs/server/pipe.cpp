@@ -177,6 +177,18 @@ void Pipe::send( co::ObjectPacket& packet )
     node->send( packet ); 
 }
 
+void Pipe::setFailed()
+{
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
+    
+    const Windows& windows = getWindows(); 
+    for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
+    {
+        Window* window = *i;
+        window->setFailed( );
+    }
+}
+
 //===========================================================================
 // Operations
 //===========================================================================
