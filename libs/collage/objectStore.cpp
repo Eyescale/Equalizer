@@ -84,8 +84,8 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CmdFunc( this, &ObjectStore::_cmdDisableSendOnRegister ), queue );
-    localNode->_registerCommand( CMD_NODE_REMOVE,
-        CmdFunc( this, &ObjectStore::_cmdNodeRemove ), queue );
+    localNode->_registerCommand( CMD_NODE_REMOVE_NODE,
+        CmdFunc( this, &ObjectStore::_cmdRemoveNode ), queue );
 }
 
 ObjectStore::~ObjectStore()
@@ -563,7 +563,7 @@ bool ObjectStore::notifyCommandThreadIdle()
 
 void ObjectStore::removeNode( NodePtr node )
 {
-    NodeRemovePacket packet;
+    NodeRemoveNodePacket packet;
     packet.nodeID = node->getNodeID();
 
     _localNode->send( packet );
@@ -904,34 +904,6 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
     return true;
 }
 
-bool ObjectStore::_cmdNodeRemove( Command& command )
-{
-    EQ_TS_THREAD( _commandThread );
-    NodeRemovePacket* packet =
-        command.get<NodeRemovePacket>();
-
-    EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
-    NodePtr node = _localNode->getNode( packet->nodeID );
-
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
-        for ( ObjectsHash::const_iterator i = _objects->begin();  
-                          i != _objects->end(); i++ )
-        {
-            const Objects& objects = i->second;
-
-            for( Objects::const_iterator j = objects.begin();
-                 j != objects.end(); ++j )
-            {
-                Object* object = *j;
-                if( object->hasSlave( node ))
-                    object->removeSlave( node );
-            }
-        }
-    }
-    return true;
-}
-
 bool ObjectStore::_cmdUnsubscribeObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
@@ -1068,6 +1040,24 @@ bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
     NodeDisableSendOnRegisterPacket* packet =
         command.get< NodeDisableSendOnRegisterPacket >();
     _localNode->serveRequest( packet->requestID );
+    return true;
+}
+
+bool ObjectStore::_cmdRemoveNode( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    NodeRemoveNodePacket* packet = command.get<NodeRemoveNodePacket>();
+
+    EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
+    NodePtr node = _localNode->getNode( packet->nodeID );
+
+    base::ScopedMutex< base::SpinLock > mutex( _objects );
+    for ( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
+    {
+        const Objects& objects = i->second;
+        for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
+            (*j)->removeSlaves( node );
+    }
     return true;
 }
 

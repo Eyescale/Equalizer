@@ -52,14 +52,6 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
 UnbufferedMasterCM::~UnbufferedMasterCM()
 {}
 
-bool UnbufferedMasterCM::hasSlave( NodePtr node ) const
-{
-    EQ_TS_THREAD( _cmdThread );
-    Nodes::const_iterator i = find( _slaves.begin(), _slaves.end(), node );
-    
-    return i != _slaves.end( );
-}
-
 void UnbufferedMasterCM::addSlave( Command& command, 
                                    NodeMapObjectReplyPacket& reply )
 {

@@ -92,10 +92,6 @@ void DataOStream::_setupConnections( const Nodes& receivers )
     for( Nodes::const_iterator i = receivers.begin(); i != receivers.end(); ++i)
     {
         NodePtr       node       = *i;
-
-        if( !node->isConnected() )
-            continue;
-
         ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
         
         if( connection.isValid( ))
@@ -108,8 +104,9 @@ void DataOStream::_setupConnections( const Nodes& receivers )
         }
         else
             connection = node->getConnection();
-        
-        _connections.push_back( connection );
+
+        if( connection.isValid( ))
+            _connections.push_back( connection );
     }
 }
 
