@@ -36,6 +36,9 @@ endif(MSVC)
 if(Boost_FOUND)
   list(APPEND CO_SOURCES rspConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY})
+  if(NOT Boost_USE_STATIC_LIBS)
+    list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
+  endif()
 endif(Boost_FOUND)
 
 

@@ -40,10 +40,10 @@ namespace admin
     {
     public:
         /** Construct a new server. @version 1.0 */
-        EQADMIN_EXPORT Server();
+        EQADMIN_API Server();
 
         /** Destruct the server. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Server() {}
+        EQADMIN_API virtual ~Server() {}
 
         /** Map all server data. @internal */
         void map();
@@ -52,7 +52,7 @@ namespace admin
         void unmap();
 
         /** Synchronize all sever data. @version 1.0  **/
-        EQADMIN_EXPORT void syncConfig( const co::uint128_t& configID,
+        EQADMIN_API void syncConfig( const co::uint128_t& configID,
                                         const co::uint128_t& version );
 
         virtual void setClient( ClientPtr client ); //!< @internal

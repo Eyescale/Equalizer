@@ -1215,7 +1215,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
 
     texture->bind();
     texture->applyZoomFilter( op.zoomFilter );
-    texture->applyWrap();    
+    texture->applyWrap();
 
     if ( which == Frame::BUFFER_COLOR )
         glDepthMask( false );

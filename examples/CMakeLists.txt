@@ -1,5 +1,9 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+
+if(NOT EQUALIZER_BUILD_EXAMPLES)
+  return()
+endif()
 
 include(ParseArguments)
 include(PurpleExpandLibraries)

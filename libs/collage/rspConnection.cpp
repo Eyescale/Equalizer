@@ -646,7 +646,6 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
     while( _bucketSize < size )
     {
-        //base::sleep( 1 );
         base::Thread::yield();
         float time = _clock.resetTimef();
 
@@ -768,7 +767,6 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         while( !newBuffer ) // no more data buffers, wait for app to drain
         {
             newBuffer = connection->_newDataBuffer( *buffer );
-            //base::sleep( 1 );
             base::Thread::yield();
         }
 

@@ -31,27 +31,27 @@ namespace admin
     {
     public:
         /** Construct a new channel. @version 1.0 */
-        EQADMIN_EXPORT Channel( Window* parent );
+        EQADMIN_API Channel( Window* parent );
 
         /** Destruct a channel. @version 1.0 */
-        EQADMIN_EXPORT virtual ~Channel();
+        EQADMIN_API virtual ~Channel();
 
         /** @name Data Access */
         //@{
         /** @return the parent pipe. @version 1.0 */
-        EQADMIN_EXPORT Pipe* getPipe();
+        EQADMIN_API Pipe* getPipe();
 
         /** @return the parent pipe. @version 1.0 */
-        EQADMIN_EXPORT const Pipe* getPipe() const;
+        EQADMIN_API const Pipe* getPipe() const;
 
         /** @return the parent config. @version 1.0 */
-        EQADMIN_EXPORT Config* getConfig();
+        EQADMIN_API Config* getConfig();
 
         /** @return the parent config. @version 1.0 */
-        EQADMIN_EXPORT const Config* getConfig() const;
+        EQADMIN_API const Config* getConfig() const;
 
         /** @return the parent server. @version 1.0 */
-        EQADMIN_EXPORT ServerPtr getServer();
+        EQADMIN_API ServerPtr getServer();
         //@}
 
     private:
