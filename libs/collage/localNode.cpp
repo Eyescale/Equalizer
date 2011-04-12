@@ -1031,6 +1031,11 @@ void LocalNode::_redispatchCommands()
 #endif
 }
 
+void LocalNode::removeNode( NodePtr node )
+{
+    _objectStore->removeNode( node );
+}
+
 //----------------------------------------------------------------------
 // command thread functions
 //----------------------------------------------------------------------

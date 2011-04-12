@@ -326,7 +326,8 @@ namespace co
 
         /** @internal */
         void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
-        void removeSlave( NodePtr node ); //!< @internal
+        CO_API void removeSlave( NodePtr node ); //!< @internal
+        CO_API bool hasSlave( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
         /** @internal */
         void addInstanceDatas( const ObjectDataIStreamDeque&, const uint128_t&);
