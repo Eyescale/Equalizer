@@ -74,6 +74,7 @@ purple_add_library(EqualizerServer SHARED
     compoundVisitor.h
     global.h
     window.h
+    setFailedVisitor.h
     canvas.cpp
     channel.cpp
     channelUpdateVisitor.cpp
