@@ -332,7 +332,8 @@ namespace co
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
             }
-        NodeID nodeID;
+        NodeID       nodeID;
+        uint32_t     requestID;
     };
 
     struct NodeUnsubscribeObjectPacket : public NodePacket
@@ -390,8 +391,8 @@ namespace co
         }
 
         base::UUID      objectID;
-        uint32_t            requestID;
-        uint32_t            objectInstanceID;
+        uint32_t        requestID;
+        uint32_t        objectInstanceID;
     };
 
     struct NodeDisableSendOnRegisterPacket : public NodePacket
