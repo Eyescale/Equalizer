@@ -363,6 +363,19 @@ bool Window::syncConfigExit()
     return success;
 }
 
+void Window::setFailed()
+{
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
+    
+    const Channels& channels = getChannels(); 
+    for( Channels::const_iterator i = channels.begin(); 
+         i != channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        channel->setFailed();
+    }
+}
+
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------

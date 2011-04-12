@@ -468,6 +468,23 @@ bool Node::syncConfigInit()
     return false;
 }
 
+void Node::setFailed()
+{
+    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
+
+    const Pipes& pipes = getPipes();
+    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        pipe->setFailed();
+    }
+
+    co::LocalNodePtr localNode = getLocalNode();
+    localNode->removeNode( _node );
+    localNode->disconnect( _node );
+    _node = 0;
+}
+
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
@@ -489,7 +506,7 @@ bool Node::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
-    
+
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );

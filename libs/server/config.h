@@ -229,7 +229,7 @@ namespace server
         template< class T >
         void _deleteEntities( const std::vector< T* >& entities );
         void _syncClock();
-
+        void _verifyFrameFinished( const uint32_t frameNumber );
         bool _init( const uint128_t& initID );
 
         void _startFrame( const uint128_t& frameID );
