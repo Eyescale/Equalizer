@@ -66,7 +66,8 @@ namespace
                 return TRAVERSE_CONTINUE;
 
             channel = compound->getInheritChannel();
-            _viewSet.insert( channel->getView( ));
+            if ( channel->getView( ))
+                _viewSet.insert( channel->getView( ));
             return TRAVERSE_CONTINUE;
         }
 
