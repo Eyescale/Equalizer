@@ -67,6 +67,7 @@ namespace co
         virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
             { EQDONTCALL; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
+        virtual void removeSlaves( NodePtr ) {}
 
         virtual void applyMapData( const uint128_t& version );
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&, 
@@ -101,8 +102,7 @@ namespace co
         virtual void _unpackOneVersion( ObjectDataIStream* is );
 
         /* The command handlers. */
-        bool _cmdInstance( Command& command );
-        bool _cmdDelta( Command& command );
+        bool _cmdData( Command& command );
         bool _cmdCommit( Command& command );
 
         EQ_TS_VAR( _cmdThread );

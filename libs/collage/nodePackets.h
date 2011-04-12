@@ -325,12 +325,12 @@ namespace co
         base::UUID objectID;
     };
 
-    struct NodeRemovePacket : public NodePacket
+    struct NodeRemoveNodePacket : public NodePacket
     {
-        NodeRemovePacket()
+        NodeRemoveNodePacket()
             {
-                command = CMD_NODE_REMOVE;
-                size    = sizeof( NodeRemovePacket ); 
+                command = CMD_NODE_REMOVE_NODE;
+                size    = sizeof( NodeRemoveNodePacket ); 
             }
         NodeID nodeID;
     };

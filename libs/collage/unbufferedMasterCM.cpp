@@ -52,14 +52,6 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
 UnbufferedMasterCM::~UnbufferedMasterCM()
 {}
 
-bool UnbufferedMasterCM::hasSlave( NodePtr node ) const
-{
-    EQ_TS_THREAD( _cmdThread );
-    Nodes::const_iterator i = find( _slaves.begin(), _slaves.end(), node );
-    
-    return i != _slaves.end( );
-}
-
 void UnbufferedMasterCM::addSlave( Command& command, 
                                    NodeMapObjectReplyPacket& reply )
 {
@@ -115,17 +107,15 @@ void UnbufferedMasterCM::addSlave( Command& command,
 #ifdef EQ_INSTRUMENT_MULTICAST
     ++_miss;
 #endif
-    if( version != VERSION_NONE ) // send current data
-    {
-        // send instance data
-        ObjectInstanceDataOStream os( this );
 
-        os.enableMap( _version, node, instanceID );
-        _object->getInstanceData( os );
-        os.disable();
-        if( os.hasSentData( ))
-            return;
-    }
+    // send instance data
+    ObjectInstanceDataOStream os( this );
+
+    os.enableMap( _version, node, instanceID );
+    _object->getInstanceData( os );
+    os.disable();
+    if( os.hasSentData( ))
+        return;
 
     // no data, send empty packet to set version
     _sendEmptyVersion( node, instanceID );

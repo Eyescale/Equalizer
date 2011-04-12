@@ -45,10 +45,9 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
     CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdInstance ),
-                             q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), q );
     object->registerCommand( CMD_OBJECT_DELTA,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), q );
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), q);
 }
@@ -313,7 +312,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool VersionedSlaveCM::_cmdInstance( Command& command )
+bool VersionedSlaveCM::_cmdData( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
@@ -345,36 +344,6 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
     return true;
 }
 
-bool VersionedSlaveCM::_cmdDelta( Command& command )
-{
-    EQ_TS_THREAD( _cmdThread );
-
-    if( !_currentIStream )
-        _currentIStream = _iStreamCache.alloc();
-
-    _currentIStream->addDataPacket( command );
-    if( _currentIStream->isReady( ))
-    {
-        const uint128_t& version = _currentIStream->getVersion();
-#if 0
-        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
-                             << "." << _object->getInstanceID() << " ready"
-                             << std::endl;
-#endif
-#ifndef NDEBUG
-        ObjectDataIStream* debugStream = 0;
-        _queuedVersions.getBack( debugStream );
-        if ( debugStream )
-        {
-            EQASSERT( debugStream->getVersion() + 1 == version );
-        }
-#endif
-        _queuedVersions.push( _currentIStream );
-        _object->notifyNewHeadVersion( version );
-        _currentIStream = 0;
-    }
-    return true;
-}
 
 bool VersionedSlaveCM::_cmdCommit( Command& command )
 {

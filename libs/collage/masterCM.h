@@ -57,14 +57,18 @@ namespace co
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
         virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
+        
+        virtual void removeSlaves( NodePtr node );
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
     protected:
         /** The list of subscribed slave nodes. */
         Nodes _slaves;
 
+        typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
+
         /** The number of object instances subscribed per slave node. */
-        stde::hash_map< uint128_t, uint32_t > _slavesCount;
+        SlavesCount _slavesCount;
 
         /** The current version. */
         uint128_t _version;
