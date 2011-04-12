@@ -332,7 +332,7 @@ namespace co
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
             }
-        NodeID       nodeID;
+        Node*         node;
         uint32_t     requestID;
     };
 

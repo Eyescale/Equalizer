@@ -564,7 +564,7 @@ bool ObjectStore::notifyCommandThreadIdle()
 void ObjectStore::removeNode( NodePtr node )
 {
     NodeRemoveNodePacket packet;
-    packet.nodeID = node->getNodeID();
+    packet.node = node.get();
     packet.requestID = _localNode->registerRequest( );
     _localNode->send( packet );
     _localNode->waitRequest( packet.requestID );
@@ -1050,7 +1050,7 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     NodeRemoveNodePacket* packet = command.get<NodeRemoveNodePacket>();
 
     EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
-    NodePtr node = _localNode->getNode( packet->nodeID );
+    NodePtr node( packet->node );
 
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     for ( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
