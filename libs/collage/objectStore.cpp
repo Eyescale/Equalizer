@@ -1050,14 +1050,13 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     NodeRemoveNodePacket* packet = command.get<NodeRemoveNodePacket>();
 
     EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
-    NodePtr node( packet->node );
 
     base::ScopedMutex< base::SpinLock > mutex( _objects );
     for ( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
     {
         const Objects& objects = i->second;
         for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
-            (*j)->removeSlaves( node );
+            (*j)->removeSlaves( packet->node );
     }
     _localNode->serveRequest( packet->requestID );
     return true;
