@@ -45,7 +45,7 @@ namespace server
         /** 
          * Constructs a new Window.
          */
-        EQSERVER_EXPORT Window( Pipe* parent );
+        EQSERVER_API Window( Pipe* parent );
         
         virtual ~Window();
         /**

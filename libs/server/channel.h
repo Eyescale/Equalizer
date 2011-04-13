@@ -44,7 +44,7 @@ namespace server
     {
     public:
         /** Construct a new channel. */
-        EQSERVER_EXPORT Channel( Window* parent );
+        EQSERVER_API Channel( Window* parent );
 
         /** Construct a copy of a channel. */
         Channel( const Channel& from );
@@ -65,8 +65,8 @@ namespace server
         Config* getConfig();
         const Config* getConfig() const;
 
-        EQSERVER_EXPORT Node* getNode();
-        EQSERVER_EXPORT const Node* getNode() const;
+        EQSERVER_API Node* getNode();
+        EQSERVER_API const Node* getNode() const;
 
         Pipe* getPipe();
         const Pipe* getPipe() const;
@@ -122,7 +122,7 @@ namespace server
         bool supportsView( const View* view ) const;
 
         /** @return the channel's layout. */
-        EQSERVER_EXPORT const Layout* getLayout() const;
+        EQSERVER_API const Layout* getLayout() const;
 
         /** @return the channel's segment. */
         const Segment* getSegment() const { return _segment; }

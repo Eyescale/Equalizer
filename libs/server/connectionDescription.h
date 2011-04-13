@@ -27,7 +27,7 @@ namespace server
     class ConnectionDescription : public co::ConnectionDescription
     {
     public:
-        EQSERVER_EXPORT ConnectionDescription();
+        EQSERVER_API ConnectionDescription();
 
     protected:
         virtual ~ConnectionDescription() {}

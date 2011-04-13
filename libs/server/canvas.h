@@ -36,7 +36,7 @@ namespace server
     {
     public:
         /** Construct a new Canvas. */
-        EQSERVER_EXPORT Canvas( Config* parent );
+        EQSERVER_API Canvas( Config* parent );
 
         /** Destruct this canvas. */
         virtual ~Canvas();
