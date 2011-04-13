@@ -468,16 +468,6 @@ bool Node::syncConfigInit()
     return false;
 }
 
-void Node::setFailed()
-{
-    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
-
-    co::LocalNodePtr localNode = getLocalNode();
-    localNode->removeNode( _node );
-    localNode->disconnect( _node );
-    _node = 0;
-}
-
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------

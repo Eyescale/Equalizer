@@ -324,11 +324,6 @@ bool Channel::syncConfigInit()
     return false;
 }
 
-void Channel::setFailed()
-{
-   _state = isActive() ? STATE_FAILED : STATE_STOPPED;
-}
-
 //---------------------------------------------------------------------------
 // exit
 //---------------------------------------------------------------------------
