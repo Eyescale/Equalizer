@@ -81,6 +81,7 @@ namespace co
         size_t getSize() const { return _commands.getSize(); }
 
         EQ_TS_VAR( _thread );
+
     private:
         /** Thread-safe command queue. */
         base::MTQueue< Command* >  _commands;
