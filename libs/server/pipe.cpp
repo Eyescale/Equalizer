@@ -177,11 +177,6 @@ void Pipe::send( co::ObjectPacket& packet )
     node->send( packet ); 
 }
 
-void Pipe::setFailed()
-{
-    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
-}
-
 //===========================================================================
 // Operations
 //===========================================================================

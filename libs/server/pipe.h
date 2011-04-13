@@ -82,9 +82,6 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        /** Switch to the state failed. */
-        void setFailed();
-
         /**
          * @name Data Access
          */

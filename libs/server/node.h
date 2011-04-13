@@ -81,9 +81,6 @@ namespace server
         /** @return if this node is stopped. */
         bool isStopped() const { return _state == STATE_STOPPED; }
 
-        /** Switch to the state failed. */
-        void setFailed();
-
         /**
          * Add additional tasks this pipe, and all its parents, might
          * potentially execute.
