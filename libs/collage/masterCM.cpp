@@ -147,6 +147,21 @@ void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID )
     _object->send( node, instancePacket );
 }
 
+void MasterCM::removeSlaves( NodePtr node )
+{
+    EQ_TS_THREAD( _cmdThread );
+
+    const NodeID& nodeID = node->getNodeID();
+    SlavesCount::iterator i = _slavesCount.find( nodeID );
+    if( i == _slavesCount.end( ))
+        return;
+
+    Nodes::iterator j = stde::find( _slaves, node );
+    EQASSERT( j != _slaves.end( ));
+    _slaves.erase( j );
+    _slavesCount.erase( i );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

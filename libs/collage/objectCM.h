@@ -130,6 +130,9 @@ namespace co
          */
         virtual void removeSlave( NodePtr node ) = 0;
 
+        /** Remove all subscribed slaves from the given node. */
+        virtual void removeSlaves( NodePtr node ) = 0;
+
         /** @return the vector of current slave nodes. */
         virtual const Nodes* getSlaveNodes() const { return 0; }
 

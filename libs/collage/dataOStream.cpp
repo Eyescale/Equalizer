@@ -104,8 +104,9 @@ void DataOStream::_setupConnections( const Nodes& receivers )
         }
         else
             connection = node->getConnection();
-        
-        _connections.push_back( connection );
+
+        if( connection.isValid( ))
+            _connections.push_back( connection );
     }
 }
 

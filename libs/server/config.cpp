@@ -50,6 +50,7 @@
 #include "configRegistrator.h"
 #include "configUpdateVisitor.h"
 #include "configUpdateSyncVisitor.h"
+#include "nodeFailedVisitor.h"
 
 namespace eq
 {
@@ -832,7 +833,7 @@ bool Config::exit()
 void Config::_startFrame( const uint128_t& frameID )
 {
     EQASSERT( _state == STATE_RUNNING );
-    
+    _verifyFrameFinished( _currentFrame );
     _syncClock();
 
     ++_currentFrame;
@@ -872,6 +873,21 @@ void Config::_startFrame( const uint128_t& frameID )
 
     // Fix 2976899: Config::finishFrame deadlocks when no nodes are active
     notifyNodeFrameFinished( _currentFrame );
+}
+
+void Config::_verifyFrameFinished( const uint32_t frameNumber )
+{
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isRunning() && 
+            node->getFinishedFrame() + getLatency() < frameNumber )
+        {
+            NodeFailedVisitor nodeFailedVisitor;
+            node->accept( nodeFailedVisitor );
+        }
+    }
 }
 
 void Config::notifyNodeFrameFinished( const uint32_t frameNumber )

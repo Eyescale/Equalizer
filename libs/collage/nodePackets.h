@@ -325,6 +325,17 @@ namespace co
         base::UUID objectID;
     };
 
+    struct NodeRemoveNodePacket : public NodePacket
+    {
+        NodeRemoveNodePacket()
+            {
+                command = CMD_NODE_REMOVE_NODE;
+                size    = sizeof( NodeRemoveNodePacket ); 
+            }
+        Node*         node;
+        uint32_t     requestID;
+    };
+
     struct NodeUnsubscribeObjectPacket : public NodePacket
     {
         NodeUnsubscribeObjectPacket()
@@ -334,9 +345,9 @@ namespace co
             }
        
         base::UUID      objectID;
-        uint32_t            requestID;
-        uint32_t            masterInstanceID;
-        uint32_t            slaveInstanceID;
+        uint32_t        requestID;
+        uint32_t        masterInstanceID;
+        uint32_t        slaveInstanceID;
     };
 
     struct NodeRegisterObjectPacket : public NodePacket
@@ -380,8 +391,8 @@ namespace co
         }
 
         base::UUID      objectID;
-        uint32_t            requestID;
-        uint32_t            objectInstanceID;
+        uint32_t        requestID;
+        uint32_t        objectInstanceID;
     };
 
     struct NodeDisableSendOnRegisterPacket : public NodePacket
@@ -451,4 +462,3 @@ namespace co
 /** @endcond */
 
 #endif // EQNET_NODEPACKETS_H
-

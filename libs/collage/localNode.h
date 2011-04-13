@@ -333,8 +333,11 @@ namespace co
         CO_API bool dispatchCommand( Command& command );
         //@}
 
-        /** @internal ack an operation to the sender. */
+        /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
+
+        /** @internal Remove a slave node for all objects. */
+        CO_API void removeNode( NodePtr node );
 
     protected:
         /** 
@@ -357,13 +360,13 @@ namespace co
 
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
-    
+
         /** The command 'allocator' */
         CommandCache _commandCache;
 
         /** The receiver->command command queue. */
-        CommandQueue _commandThreadQueue;        
-    
+        CommandQueue _commandThreadQueue;
+
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
         std::deque< Command* > _sendTokenQueue;

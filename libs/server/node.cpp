@@ -489,7 +489,7 @@ bool Node::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
-    
+
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );

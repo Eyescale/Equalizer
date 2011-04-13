@@ -280,6 +280,11 @@ void Object::removeSlave( NodePtr node )
     _cm->removeSlave( node );
 }
 
+void Object::removeSlaves( NodePtr node )
+{
+    _cm->removeSlaves( node );
+}
+
 void Object::setMasterNode( NodePtr node )
 {
     _cm->setMasterNode( node );
