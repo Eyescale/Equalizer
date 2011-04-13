@@ -565,7 +565,6 @@ void ObjectStore::removeNode( NodePtr node )
 {
     NodeRemoveNodePacket packet;
     packet.node = node.get();
-    packet.sync = true;
     packet.requestID = _localNode->registerRequest( );
     _localNode->send( packet );
     _localNode->waitRequest( packet.requestID );
@@ -1060,7 +1059,7 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
             (*j)->removeSlaves( packet->node );
     }
 
-    if( packet->sync )
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
         _localNode->serveRequest( packet->requestID );
 
     return true;
