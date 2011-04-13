@@ -50,6 +50,7 @@
 #include "configRegistrator.h"
 #include "configUpdateVisitor.h"
 #include "configUpdateSyncVisitor.h"
+#include "setFailedVisitor.h"
 
 namespace eq
 {
@@ -883,7 +884,8 @@ void Config::_verifyFrameFinished( const uint32_t frameNumber )
         if( node->isRunning() && 
             node->getFinishedFrame() + getLatency() < frameNumber )
         {
-            node->setFailed();
+            SetFailedVisitor setFailedVisitor;
+            node->accept( setFailedVisitor );
         }
     }
 }

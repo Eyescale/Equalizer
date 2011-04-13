@@ -472,13 +472,6 @@ void Node::setFailed()
 {
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
 
-    const Pipes& pipes = getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        pipe->setFailed();
-    }
-
     co::LocalNodePtr localNode = getLocalNode();
     localNode->removeNode( _node );
     localNode->disconnect( _node );
