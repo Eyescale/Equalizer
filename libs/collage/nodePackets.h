@@ -332,8 +332,9 @@ namespace co
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
             }
-        Node*         node;
+        Node*        node;
         uint32_t     requestID;
+        bool         sync;
     };
 
     struct NodeUnsubscribeObjectPacket : public NodePacket
