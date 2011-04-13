@@ -100,8 +100,6 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        /** Switch to the state failed. */
-        void setFailed();
         /** 
          * Join a swap barrier for the next update.
          * 

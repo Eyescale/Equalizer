@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder<cedric.stalder@gmail.com>
+/* Copyright (c) 2011, Cedric Stalder<cedric.stalder@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,8 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_SETFAILEDVISITOR_H
-#define EQSERVER_SETFAILEDVISITOR_H
+#ifndef EQSERVER_NODEFAILEDVISITOR_H
+#define EQSERVER_NODEFAILEDVISITOR_H
+
 #include "visitorResult.h" // 'base' class
 #include "pipe.h" // member
 #include "node.h" // member
@@ -29,37 +31,50 @@ namespace server
 {
     
 /** Set Failed State all node branch. */
-class SetFailedVisitor : public ConfigVisitor
+class NodeFailedVisitor : public ConfigVisitor
 {
 public:
-    virtual ~SetFailedVisitor(){}
+    virtual ~NodeFailedVisitor(){}
 
-    virtual VisitorResult visitPost( Node* node )
-        { 
-            node->setFailed( );
-            return TRAVERSE_TERMINATE; 
-        }
+    virtual VisitorResult visitPre( Node* node )
+        {
+            _updateState( node );
 
-    virtual VisitorResult visit( Channel* channel )
-        { 
-            channel->setFailed( );
+            co::LocalNodePtr localNode = node->getLocalNode();
+            co::NodePtr netNode = node->getNode();
+            localNode->removeNode( netNode );
+            localNode->disconnect( netNode );
+            node->setNode( 0 );
+
             return TRAVERSE_CONTINUE; 
         }
 
     virtual VisitorResult visitPre( Pipe* pipe )
         { 
-            pipe->setFailed( );
+            _updateState( pipe );
             return TRAVERSE_CONTINUE; 
         }
 
     virtual VisitorResult visitPre( Window* window )
-        { 
-            window->setFailed( );
+        {
+            _updateState( window );
             return TRAVERSE_CONTINUE; 
+        }
+
+    virtual VisitorResult visit( Channel* channel )
+        {
+            _updateState( channel );
+            return TRAVERSE_CONTINUE; 
+        }
+
+private:
+    template< class T > void _updateState( T* entity )
+        {
+            entity->setState( entity->isActive() ? STATE_FAILED:STATE_STOPPED );
         }
 };
 
 }
 
 }
-#endif // EQSERVER_SETFAILEDVISITOR_H
+#endif // EQSERVER_NODEFAILEDVISITOR_H

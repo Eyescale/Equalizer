@@ -363,11 +363,6 @@ bool Window::syncConfigExit()
     return success;
 }
 
-void Window::setFailed()
-{
-    _state = isActive() ? STATE_FAILED : STATE_STOPPED;
-}
-
 //---------------------------------------------------------------------------
 // update
 //---------------------------------------------------------------------------
