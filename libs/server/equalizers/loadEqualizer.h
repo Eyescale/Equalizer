@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *                          Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,7 @@ namespace server
     class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        EQSERVER_EXPORT LoadEqualizer();
+        EQSERVER_API LoadEqualizer();
         LoadEqualizer( const LoadEqualizer& from );
         virtual ~LoadEqualizer();
         virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }

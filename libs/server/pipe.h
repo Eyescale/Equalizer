@@ -43,7 +43,7 @@ namespace server
     {
     public:
         /** Construct a new Pipe. */
-        EQSERVER_EXPORT Pipe(  Node* parent );
+        EQSERVER_API Pipe(  Node* parent );
 
         virtual ~Pipe();
 

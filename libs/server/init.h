@@ -41,7 +41,7 @@ namespace server
      * @return <code>true</code> if the library was successfully initialized,
      *         <code>false</code> otherwise.
      */
-    EQSERVER_EXPORT bool init( const int argc, char** argv );
+    EQSERVER_API bool init( const int argc, char** argv );
     
     /**
      * De-initialize the Equalizer server namespace.
@@ -49,7 +49,7 @@ namespace server
      * @return <code>true</code> if the library was successfully de-initialized,
      *         <code>false</code> otherwise.
      */
-    EQSERVER_EXPORT bool exit();
+    EQSERVER_API bool exit();
 }
 }
 #endif // EQSERVER_INIT_H

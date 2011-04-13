@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ namespace server
     class ViewEqualizer : public Equalizer
     {
     public:            
-        EQSERVER_EXPORT ViewEqualizer();
+        EQSERVER_API ViewEqualizer();
         ViewEqualizer( const ViewEqualizer& from );
         virtual ~ViewEqualizer();
         virtual Equalizer* clone() const { return new ViewEqualizer(*this); }
