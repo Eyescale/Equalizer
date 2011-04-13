@@ -328,13 +328,13 @@ namespace co
     struct NodeRemoveNodePacket : public NodePacket
     {
         NodeRemoveNodePacket()
+             : requestID( EQ_UNDEFINED_UINT32 )
             {
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
             }
         Node*        node;
         uint32_t     requestID;
-        bool         sync;
     };
 
     struct NodeUnsubscribeObjectPacket : public NodePacket
