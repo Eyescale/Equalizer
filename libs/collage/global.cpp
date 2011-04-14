@@ -20,8 +20,12 @@
 #include <limits>
 #include <stdlib.h>
 
+#include <vector>
+#include <sstream>
+
 namespace co
 {
+#define SEPARATOR '#'
 
 #ifndef Darwin
 #  define BIG_SEND
@@ -69,6 +73,52 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
 };
 }
 
+bool Global::fromString(const std::string& data )
+{
+    if (data.empty() || data[0] != SEPARATOR)
+        return false;
+
+    std::vector<uint32_t> newGlobals;
+	newGlobals.reserve(IATTR_ALL);
+
+    size_t startMarker(1u);
+    size_t endMarker(1u);
+    while (true)
+    {
+        startMarker = data.find( SEPARATOR, endMarker );
+        if (startMarker == std::string::npos)
+            break;
+
+        endMarker = data.find( SEPARATOR, startMarker + 1 );
+        if (endMarker == std::string::npos )
+            break;
+
+        std::string sub = data.substr( startMarker + 1, endMarker - startMarker - 1);
+        if( !sub.empty() && isdigit( sub[0] ))
+            newGlobals.push_back( atoi( sub.c_str( )) );
+        else
+            break;
+    }
+
+    // only apply a 'complete' global list
+    if (newGlobals.size() != IATTR_ALL )
+        return false;
+
+    std::copy( newGlobals.begin(), newGlobals.end(), _iAttributes );
+    return true;
+}
+
+void Global::toString( std::string& data)
+{
+    std::stringstream stream;
+    stream << SEPARATOR << SEPARATOR;
+    
+    for (uint32_t i = 0; i < IATTR_ALL; ++i)
+        stream << _iAttributes[i] << SEPARATOR;
+
+    stream << SEPARATOR;
+    data = stream.str();
+}
 
 void Global::setProgramName( const std::string& programName )
 {
