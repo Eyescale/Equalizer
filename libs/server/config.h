@@ -177,9 +177,7 @@ namespace server
 
     protected:
         /** @internal */
-        void attach( const UUID& id, const uint32_t instanceID );
-
-        friend class Server; // for commit()
+        virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
         virtual void removeChild( const co::base::UUID& id );
