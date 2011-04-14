@@ -74,6 +74,9 @@ namespace eq
          * @version 1.0
          */
         EQ_API virtual bool handleEvent( const Event& event );
+
+        /** @warning Experimental - may not be supported in the future */
+        EQ_API void freezeLoadBalancing( const bool onOff );
         //@}
 
     protected:

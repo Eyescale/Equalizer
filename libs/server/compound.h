@@ -53,10 +53,10 @@ namespace server
     {
     public:
         /** Construct a new root compound. */
-        EQSERVER_EXPORT Compound( Config* parent );
+        EQSERVER_API Compound( Config* parent );
 
         /** Construct a new compound child. */
-        EQSERVER_EXPORT Compound( Compound* parent );
+        EQSERVER_API Compound( Compound* parent );
 
         /** Destruct the compound and all children. */
         virtual ~Compound();
@@ -91,7 +91,7 @@ namespace server
          */
         //@{
         /** Reparent the given child to this compound. */
-        EQSERVER_EXPORT void adopt( Compound* child );
+        EQSERVER_API void adopt( Compound* child );
 
         /** @return if the compound is a leaf compound. */
         bool isLeaf() const { return _children.empty(); }
@@ -137,7 +137,7 @@ namespace server
          * 
          * @param channel the channel.
          */
-        EQSERVER_EXPORT void setChannel( Channel* channel );
+        EQSERVER_API void setChannel( Channel* channel );
 
         /** 
          * Return the channel of this compound.
@@ -147,8 +147,8 @@ namespace server
          *
          * @return the channel of this compound.
          */
-        EQSERVER_EXPORT Channel* getChannel();
-        EQSERVER_EXPORT const Channel* getChannel() const;
+        EQSERVER_API Channel* getChannel();
+        EQSERVER_API const Channel* getChannel() const;
 
         Window* getWindow();
         const Window* getWindow() const;
@@ -160,7 +160,7 @@ namespace server
         Frustum& getFrustum() { return _frustum; }
 
         /** Attach a load balancer to this compound. */
-        EQSERVER_EXPORT void addEqualizer( Equalizer* equalizer );
+        EQSERVER_API void addEqualizer( Equalizer* equalizer );
 
         /** Get the attached load balancers. */
         const Equalizers& getEqualizers() const { return _equalizers; }
@@ -261,7 +261,7 @@ namespace server
          *
          * @param frame the input frame.
          */
-        EQSERVER_EXPORT void addInputFrame( Frame* frame );
+        EQSERVER_API void addInputFrame( Frame* frame );
 
         /** @return the vector of input frames. */
         const Frames& getInputFrames() const {return _inputFrames; }
@@ -271,7 +271,7 @@ namespace server
          *
          * @param frame the output frame.
          */
-        EQSERVER_EXPORT void addOutputFrame( Frame* frame );
+        EQSERVER_API void addOutputFrame( Frame* frame );
 
         /** @return the vector of output frames. */
         const Frames& getOutputFrames() const { return _outputFrames; }
@@ -328,7 +328,7 @@ namespace server
          * 
          * @param wall the wall description.
          */
-        EQSERVER_EXPORT void setWall( const Wall& wall );
+        EQSERVER_API void setWall( const Wall& wall );
         
         /** @return the last specified wall description. */
         const Wall& getWall() const { return _frustum.getWall(); }
@@ -338,7 +338,7 @@ namespace server
          * 
          * @param projection the projection description.
          */
-        EQSERVER_EXPORT void setProjection( const Projection& projection );
+        EQSERVER_API void setProjection( const Projection& projection );
 
         /** @return the last specified projection description. */
         const Projection& getProjection() const 
@@ -384,9 +384,9 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor ) const;
+        EQSERVER_API VisitorResult accept( CompoundVisitor& visitor ) const;
         /** Non-const version of accept(). */
-        EQSERVER_EXPORT VisitorResult accept( CompoundVisitor& visitor );
+        EQSERVER_API VisitorResult accept( CompoundVisitor& visitor );
 
         /** @internal Activate the given eyes for the the compound tree. */
         void activate( const uint32_t eyes );

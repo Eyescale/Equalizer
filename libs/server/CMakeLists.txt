@@ -22,57 +22,58 @@ purple_add_library(EqualizerServer SHARED
     ${BISON_PARSER_OUTPUTS}
     ${FLEX_LEXER_OUTPUTS}
     api.h
-    config.h
-    init.h
     canvas.h
-    configBackupVisitor.h
-    layout.h
     changeLatencyVisitor.h
+    channel.h
+    channelListener.h
+    channelStopFrameVisitor.h
+    channelUpdateVisitor.h
+    colorMask.h
+    compound.h
+    compoundActivateVisitor.h
+    compoundExitVisitor.h
+    compoundInitVisitor.h
+    compoundListener.h
+    compoundUpdateDataVisitor.h
+    compoundUpdateInputVisitor.h
+    compoundUpdateOutputVisitor.h
+    compoundVisitor.h
+    config.h
+    configBackupVisitor.h
     configDeregistrator.h
+    configDestCompoundVisitor.h
+    configRegistrator.h
+    configRestoreVisitor.h
+    configUnmapVisitor.h
+    configUpdateDataVisitor.h
+    configUpdateSyncVisitor.h
+    configUpdateVisitor.h
+    configVisitor.h
+    connectionDescription.h
+    frame.h
+    frameData.h
+    frustum.h
+    frustumData.h
+    global.h
+    init.h
+    layout.h
     loader.h
     loader.l
     loader.y
-    channel.h
-    configDestCompoundVisitor.h
     log.h
-    channelListener.h
-    configRegistrator.h
     node.h
-    channelStopFrameVisitor.h
-    configRestoreVisitor.h
     nodeFactory.h
-    channelUpdateVisitor.h
-    configUnmapVisitor.h
+    nodeFailedVisitor.h
     observer.h
-    colorMask.h
-    configUpdateDataVisitor.h
     pipe.h
-    compound.h
-    configUpdateSyncVisitor.h
     segment.h
-    compoundActivateVisitor.h
-    configUpdateVisitor.h
     server.h
-    compoundExitVisitor.h
-    configVisitor.h
     serverVisitor.h
-    compoundInitVisitor.h
-    connectionDescription.h
     state.h
-    compoundListener.h
-    frame.h
     swapBarrier.h
-    compoundUpdateDataVisitor.h
-    frameData.h
     types.h
-    compoundUpdateInputVisitor.h
-    frustum.h
     view.h
-    compoundUpdateOutputVisitor.h
-    frustumData.h
     visitorResult.h
-    compoundVisitor.h
-    global.h
     window.h
     canvas.cpp
     channel.cpp

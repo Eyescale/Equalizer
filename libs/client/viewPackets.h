@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,27 +16,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_CONNECTION_DESCRIPTION_H
-#define EQSERVER_CONNECTION_DESCRIPTION_H
+#ifndef EQ_VIEWPACKETS_H
+#define EQ_VIEWPACKETS_H
 
-#include <co/connectionDescription.h>
+#include <eq/packets.h> // base structs
 
+/** @cond IGNORE */
 namespace eq
 {
-namespace server
-{
-    class ConnectionDescription : public co::ConnectionDescription
+    struct ViewFreezeLoadBalancingPacket : public co::ObjectPacket
     {
-    public:
-        EQSERVER_API ConnectionDescription();
-
-    protected:
-        virtual ~ConnectionDescription() {}
-
-    private:
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-    };
+        ViewFreezeLoadBalancingPacket()
+            {
+                command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
+                size    = sizeof( ViewFreezeLoadBalancingPacket );
+            }
+        bool freeze;
+    }; 
 }
-}
-#endif // EQNET_CONNECTION_DESCRIPTION_H
+/** @endcond */
+
+#endif //EQ_VIEWPACKETS_H

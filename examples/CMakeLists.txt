@@ -23,6 +23,7 @@ function(EQ_ADD_EXAMPLE NAME)
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
+  add_dependencies(${THIS_TARGET} lib_EqualizerServer_shared) # dlopen'ed
 
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)
   install(FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}

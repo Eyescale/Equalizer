@@ -43,7 +43,7 @@ namespace server
         /** 
          * Constructs a new Node.
          */
-        EQSERVER_EXPORT Node( Config* parent );
+        EQSERVER_API Node( Config* parent );
 
         virtual ~Node();
 
@@ -191,7 +191,7 @@ namespace server
          * @return true if the connection description was removed, false
          *         otherwise.
          */
-        EQSERVER_EXPORT bool removeConnectionDescription(
+        EQSERVER_API bool removeConnectionDescription(
             co::ConnectionDescriptionPtr cd );
 
         /** @return the vector of connection descriptions. */
@@ -218,7 +218,7 @@ namespace server
         };
 
         /** @internal Set a string integer attribute. */
-        void setSAttribute( const SAttribute attr, const std::string& value );
+        EQSERVER_API void setSAttribute( const SAttribute attr, const std::string& value );
 
         /** @internal Set a character integer attribute. */
         void setCAttribute( const CAttribute attr, const char value );

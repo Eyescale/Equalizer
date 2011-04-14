@@ -66,6 +66,7 @@ namespace co
         virtual void addSlave( Command& command,
                                NodeMapObjectReplyPacket& reply );
         virtual void removeSlave( NodePtr ) {}
+        virtual void removeSlaves( NodePtr ) {}
 
         virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
 

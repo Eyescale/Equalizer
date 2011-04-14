@@ -337,7 +337,9 @@ uint32_t Config::finishFrame()
         }
 
         // global sync
-        _finishedFrame.waitGE( frameToFinish );
+        if( !_finishedFrame.timedWaitGE( frameToFinish, EQ_TIMEOUT_DEFAULT ))
+            EQWARN << "Timeout waiting for at least one node to finish frame " 
+                   << frameToFinish << std::endl;
     }
 
     handleEvents();
@@ -688,13 +690,6 @@ void Config::setupServerConnections( const char* connectionData )
             EQASSERT( connection->isListening( ));
         }
     }
-}
-
-void Config::freezeLoadBalancing( const bool onOff )
-{
-    ConfigFreezeLoadBalancingPacket packet;
-    packet.freeze = onOff;
-    send( getServer(), packet );
 }
 
 bool Config::registerObject( co::Object* object )

@@ -111,7 +111,6 @@ namespace eqPly
         uint64_t _messageTime;
 
         bool _redraw;
-        bool _freeze;
         bool _useIdleAA;
 
         uint32_t _numFramesAA;
@@ -128,6 +127,7 @@ namespace eqPly
         void _switchView();
         void _switchViewMode();
         void _switchModel();
+        void _freezeLoadBalancing( const bool onOff );
         void _switchLayout( int32_t increment );
 
         void _setHeadMatrix( const eq::Matrix4f& matrix );

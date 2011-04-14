@@ -271,7 +271,7 @@ void Barrier::_cleanup( const uint64_t time)
                         base::Global::getIAttribute( 
                             base::Global::IATTR_TIMEOUT_DEFAULT );
                
-        if( time < cleanNodes.time + timeout )
+        if( time > cleanNodes.time + timeout )
         {
             _enteredNodes.erase( i );
             return;

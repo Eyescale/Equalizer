@@ -34,6 +34,7 @@
 #include <eq/fabric/paths.h>
 #include <co/barrier.h>
 #include <co/command.h>
+#include <co/global.h>
 #include <co/base/clock.h>
 #include <co/base/launcher.h>
 #include <co/base/os.h>
@@ -417,10 +418,13 @@ std::string Node::_createRemoteCommand()
     const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     const std::string ownData = getServer()->serialize();
     const std::string remoteData = _node->serialize();
+    std::string collageGlobals;
+    co::Global::toString( collageGlobals );
 
     stringStream
         << quote << program << quote << " -- --eq-client " << quote
-        << remoteData << workDir << CO_SEPARATOR << ownData << quote;
+        << remoteData << workDir << CO_SEPARATOR << ownData << quote 
+        << " --co-globals " << collageGlobals << quote;
 
     return stringStream.str();
 }
@@ -489,7 +493,7 @@ bool Node::syncConfigExit()
 {
     EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
-    
+
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     EQASSERT( success || _state == STATE_EXIT_FAILED );

@@ -24,6 +24,7 @@
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
+#include "viewPackets.h"
 
 #include <co/command.h>
 #include <co/dataIStream.h>
@@ -146,6 +147,13 @@ bool View::handleEvent( const Event& event )
     }
     
     return false;
+}
+
+void View::freezeLoadBalancing( const bool onOff )
+{
+    ViewFreezeLoadBalancingPacket packet;
+    packet.freeze = onOff;
+    send( getServer(), packet );
 }
 
 }

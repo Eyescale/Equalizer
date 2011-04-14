@@ -56,8 +56,6 @@ ConnectionDescriptions Node::getConnectionDescriptions() const
 
 ConnectionPtr Node::getMulticast()
 {
-    EQASSERT( isConnected( ));
-
     if( !isConnected( ))
         return 0;
     

@@ -67,7 +67,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( 
+EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
     const std::string& file )
 {
     if( _serverThread.isRunning( ))
@@ -119,7 +119,7 @@ EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer(
     return connection;
 }
 
-EQSERVER_EXPORT void eqsJoinLocalServer()
+EQSERVER_API void eqsJoinLocalServer()
 {
     _serverThread.join();
 }

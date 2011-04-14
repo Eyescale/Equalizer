@@ -106,7 +106,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
     // We do not use getopt_long because it really does not work due to the
     // following aspects:
     // - reordering of arguments
-    // - different behaviour of GNU and BSD implementations
+    // - different behavior of GNU and BSD implementations
     // - incomplete man pages
     for( int i=1; i<argc; ++i )
     {
@@ -125,6 +125,18 @@ bool LocalNode::initLocal( const int argc, char** argv )
                 }
                 else
                     EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
+            }
+        }
+        else if ( std::string( "--co-globals" ) == argv[i] )
+        {
+            if( i<argc && argv[i+1][0] != '-' )
+            {
+                const std::string data = argv[++i];
+                if( !Global::fromString( data ))
+                {
+                    EQWARN << "Invalid global variables string: " << data
+                           << ", using default global variables." << std::endl;
+                }
             }
         }
     }
@@ -430,6 +442,7 @@ bool LocalNode::disconnect( NodePtr node )
     send( packet );
 
     waitRequest( packet.requestID );
+    _objectStore->removeNode( node );
     return true;
 }
 
@@ -839,6 +852,13 @@ void LocalNode::_handleDisconnect()
     if( i != _connectionNodes.end( ))
     {
         NodePtr node = i->second;
+        Command& command = _commandCache.alloc( node, this,
+                                                sizeof( NodeRemoveNodePacket ));
+        NodeRemoveNodePacket* packet = command.get< NodeRemoveNodePacket >();
+        *packet = NodeRemoveNodePacket();
+        packet->node = node.get();
+        _dispatchCommand( command );
+
         if( node->_outgoing == connection )
         {
             _objectStore->removeInstanceData( node->_id );

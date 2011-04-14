@@ -35,9 +35,9 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const
-                                                                 std::string& );
-extern "C" EQSERVER_EXPORT void eqsJoinLocalServer();
+extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( const
+                                                               std::string& );
+extern "C" EQSERVER_API void eqsJoinLocalServer();
 #pragma warning(pop)
 
 namespace co
@@ -66,14 +66,20 @@ namespace co
         /** 
          * Initialize the node.
          *
-         * Before calling listen(), the '--eq-listen &lt;connection
-         * description&gt;' command line options is recognized by this method to
-         * add listening connections to this node. This parameter might be used
-         * multiple times. ConnectionDescription::fromString() is used to parse
-         * the provided description.
+         * Parses the following command line options and calls listen()
+         * afterwards:
+         *
+         * The '--eq-listen &lt;connection description&gt;' command line option
+         * is parsed by this method to add listening connections to this
+         * node. This parameter might be used multiple times.
+         * ConnectionDescription::fromString() is used to parse the provided
+         * description.
+         *
+         * The '--co-globals &lt;string&gt;' option is used to initialize the
+         * Globals. The string is parsed used Globals::fromString().
          *
          * Please note that further command line parameters are recognized by
-         * eq::init().
+         * co::init().
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
@@ -333,7 +339,7 @@ namespace co
         CO_API bool dispatchCommand( Command& command );
         //@}
 
-        /** @internal ack an operation to the sender. */
+        /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
     protected:
@@ -357,13 +363,13 @@ namespace co
 
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
-    
+
         /** The command 'allocator' */
         CommandCache _commandCache;
 
         /** The receiver->command command queue. */
-        CommandQueue _commandThreadQueue;        
-    
+        CommandQueue _commandThreadQueue;
+
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
         std::deque< Command* > _sendTokenQueue;
@@ -389,7 +395,7 @@ namespace co
         /** The process-global clock. */
         base::Clock _clock;
     
-        friend EQSERVER_EXPORT 
+        friend EQSERVER_API 
         co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         /** @name Receiver management */

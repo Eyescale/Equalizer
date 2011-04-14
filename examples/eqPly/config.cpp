@@ -47,7 +47,6 @@ Config::Config( co::base::RefPtr< eq::Server > parent )
         , _currentCanvas( 0 )
         , _messageTime( 0 )
         , _redraw( true )
-        , _freeze( false )
         , _useIdleAA( true )
         , _numFramesAA( 0 )
 {
@@ -593,9 +592,11 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
             
         case 'f':
+            _freezeLoadBalancing( true );
+            return true;
+
         case 'F':
-            _freeze = !_freeze;
-            freezeLoadBalancing( _freeze );
+            _freezeLoadBalancing( false );
             return true;
 
         case eq::KC_F1:
@@ -895,6 +896,14 @@ void Config::_switchViewMode()
         current->changeMode( eq::View::MODE_MONO );
         _setMessage( "Switched to monoscopic rendering" );
     }
+}
+
+void Config::_freezeLoadBalancing( const bool onOff )
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    eq::View* view = find< eq::View >( viewID );
+    if ( view )
+        view->freezeLoadBalancing( onOff );
 }
 
 void Config::_switchLayout( int32_t increment )

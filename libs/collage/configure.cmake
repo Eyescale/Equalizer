@@ -7,10 +7,6 @@
 
 set(COLLAGE_DEFINES)
 
-# is the LITTLE_ENDIAN macro actually used?
-# maybe use BOOST_LITTLE_ENDIAN and BOOST_BIG_ENDIAN instead?
-include(TestBigEndian)
-test_big_endian(EQ_BIG_ENDIAN)
 if(NOT EQ_BIG_ENDIAN)
   list(APPEND COLLAGE_DEFINES LITTLE_ENDIAN)
 endif(NOT EQ_BIG_ENDIAN)

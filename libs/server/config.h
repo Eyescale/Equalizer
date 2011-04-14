@@ -43,7 +43,7 @@ namespace server
                                 ConfigVisitor > Super;
 
         /** Construct a new config. */
-        EQSERVER_EXPORT Config( ServerPtr parent );
+        EQSERVER_API Config( ServerPtr parent );
         virtual ~Config();
 
         /**
@@ -67,7 +67,7 @@ namespace server
          * 
          * @param compound the compound.
          */
-        EQSERVER_EXPORT void addCompound( Compound* compound );
+        EQSERVER_API void addCompound( Compound* compound );
 
         /** 
          * Removes a compound from this config.
@@ -76,7 +76,7 @@ namespace server
          * @return <code>true</code> if the compound was removed,
          *         <code>false</code> otherwise.
          */
-        EQSERVER_EXPORT bool removeCompound( Compound* compound );
+        EQSERVER_API bool removeCompound( Compound* compound );
 
         /** @return the vector of compounds. */
         const Compounds& getCompounds() const { return _compounds; }
@@ -97,11 +97,11 @@ namespace server
          * @param view the view.
          * @return the channel for updating the view/segment intersection.
          */
-        EQSERVER_EXPORT Channel* findChannel( const Segment* segment,
+        EQSERVER_API Channel* findChannel( const Segment* segment,
                                               const View* view );
 
         /** @return the application node, or 0. */
-        EQSERVER_EXPORT Node* findApplicationNode();
+        EQSERVER_API Node* findApplicationNode();
         //@}
 
         /** @sa fabric::Config::changeLatency() */
@@ -229,7 +229,7 @@ namespace server
         template< class T >
         void _deleteEntities( const std::vector< T* >& entities );
         void _syncClock();
-
+        void _verifyFrameFinished( const uint32_t frameNumber );
         bool _init( const uint128_t& initID );
 
         void _startFrame( const uint128_t& frameID );
