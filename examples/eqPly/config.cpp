@@ -593,15 +593,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
             
         case 'f':
-        case 'F':
-        {
-            _freeze = !_freeze;
-            const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-            eq::View* view = find< eq::View >( viewID );
-            if ( view )
-                view->freezeLoadBalancing( _freeze );
+            _freezeLoadBalancing( true );
             return true;
-        }
+
+        case 'F':
+            _freezeLoadBalancing( false );
+            return true;
 
         case eq::KC_F1:
         case 'h':
@@ -900,6 +897,14 @@ void Config::_switchViewMode()
         current->changeMode( eq::View::MODE_MONO );
         _setMessage( "Switched to monoscopic rendering" );
     }
+}
+
+void Config::_freezeLoadBalancing( const bool onOff )
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    eq::View* view = find< eq::View >( viewID );
+    if ( view )
+        view->freezeLoadBalancing( onOff );
 }
 
 void Config::_switchLayout( int32_t increment )
