@@ -76,6 +76,23 @@ namespace co
         /** @return the minimum buffer size for Object serialization. */
         CO_API static uint32_t getObjectBufferSize();
 
+        /** 
+         * Sets the global variables.
+         *
+         * data is expected to be a list of unsigned ints in the following style:
+         * ##uint0#uint1#uint2#...#uint(n-1)##
+         * with n = Global::IATTR_ALL. if data's format is correct, global 
+         * variables will be changed and true will be returned. if otherwise,
+         * there will be no change and false will be returned
+         *
+         * @param data the global variables in the described format
+         */
+        CO_API static bool fromString( const std::string& data );
+
+        /** @param data function writes global variables to data in 
+                        the format described in Global::fromString()*/
+        CO_API static void toString( std::string& data);
+
         /** @name Attributes */
         //@{
         // Note: also update string array initialization in global.cpp
