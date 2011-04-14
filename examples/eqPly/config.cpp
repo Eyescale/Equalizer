@@ -47,7 +47,6 @@ Config::Config( co::base::RefPtr< eq::Server > parent )
         , _currentCanvas( 0 )
         , _messageTime( 0 )
         , _redraw( true )
-        , _freeze( false )
         , _useIdleAA( true )
         , _numFramesAA( 0 )
 {

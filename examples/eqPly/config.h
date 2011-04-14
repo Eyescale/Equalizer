@@ -111,7 +111,6 @@ namespace eqPly
         uint64_t _messageTime;
 
         bool _redraw;
-        bool _freeze;
         bool _useIdleAA;
 
         uint32_t _numFramesAA;
