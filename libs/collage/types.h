@@ -90,6 +90,7 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
 typedef std::vector< ObjectVersion > ObjectVersions;
+typedef ObjectVersions::const_iterator ObjectVersionsCIter;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
 
