@@ -68,6 +68,9 @@ set(EQ_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
 include_directories(BEFORE ${EQ_INCLUDE_DIR})
 
+include(TestBigEndian)
+test_big_endian(EQ_BIG_ENDIAN)
+
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   add_definitions(
