@@ -192,16 +192,6 @@ namespace eq
             }
     };
 
-    struct ConfigFreezeLoadBalancingPacket : public ConfigPacket
-    {
-        ConfigFreezeLoadBalancingPacket()
-            {
-                command = fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING;
-                size    = sizeof( ConfigFreezeLoadBalancingPacket );
-            }
-        bool freeze;
-    };
-
     struct ConfigSyncClockPacket : public ConfigPacket
     {
         ConfigSyncClockPacket()

@@ -594,9 +594,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             
         case 'f':
         case 'F':
+        {
             _freeze = !_freeze;
-            freezeLoadBalancing( _freeze );
+            const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+            eq::View* view = find< eq::View >( viewID );
+            if ( view )
+                view->freezeLoadBalancing( _freeze );
             return true;
+        }
 
         case eq::KC_F1:
         case 'h':
