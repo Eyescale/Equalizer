@@ -38,10 +38,10 @@ namespace server
     class Global
     {
     public:
-        EQSERVER_EXPORT static Global* instance();
+        EQSERVER_API static Global* instance();
 
         /** De-allocate the global instance. */
-        EQSERVER_EXPORT static void clear();
+        EQSERVER_API static void clear();
 
         /** @name Connection (Description) Attributes. */
         //@{
@@ -158,11 +158,11 @@ namespace server
         void _setupDefaults();
         void _readEnvironment();
 
-        friend EQSERVER_EXPORT std::ostream& operator << ( std::ostream&,
+        friend EQSERVER_API std::ostream& operator << ( std::ostream&,
                                                            const Global* );
     };
 
-    EQSERVER_EXPORT std::ostream& operator << ( std::ostream&, const Global* );
+    EQSERVER_API std::ostream& operator << ( std::ostream&, const Global* );
 }
 }
 #endif // EQSERVER_GLOBAL_H

@@ -35,9 +35,9 @@
 
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_EXPORT co::ConnectionPtr eqsStartLocalServer( const
-                                                                 std::string& );
-extern "C" EQSERVER_EXPORT void eqsJoinLocalServer();
+extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( const
+                                                               std::string& );
+extern "C" EQSERVER_API void eqsJoinLocalServer();
 #pragma warning(pop)
 
 namespace co
@@ -336,9 +336,6 @@ namespace co
         /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
-        /** @internal Remove a slave node for all objects. */
-        CO_API void removeNode( NodePtr node );
-
     protected:
         /** 
          * Connect a node proxy to this node.
@@ -392,7 +389,7 @@ namespace co
         /** The process-global clock. */
         base::Clock _clock;
     
-        friend EQSERVER_EXPORT 
+        friend EQSERVER_API 
         co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
 
         /** @name Receiver management */

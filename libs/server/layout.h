@@ -37,7 +37,7 @@ namespace server
     {
     public:
         /** Construct a new Layout. */
-        EQSERVER_EXPORT Layout( Config* parent );
+        EQSERVER_API Layout( Config* parent );
 
          /** Destruct this layout. */
         virtual ~Layout();

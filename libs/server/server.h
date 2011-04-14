@@ -39,32 +39,32 @@ namespace server
         /** 
          * Constructs a new Server.
          */
-        EQSERVER_EXPORT Server();
+        EQSERVER_API Server();
 
         /** 
          * Initialize the server.
          */
-        EQSERVER_EXPORT void init();
+        EQSERVER_API void init();
 
         /** 
          * Exit the server.
          */
-        EQSERVER_EXPORT void exit();
+        EQSERVER_API void exit();
 
         /** 
          * The actual main loop of server.
          */
-        EQSERVER_EXPORT void handleCommands(); 
+        EQSERVER_API void handleCommands(); 
 
         /** 
          * Run the server.
          *
          * Convenience function for init(), handleCommands() and exit().
          */
-        EQSERVER_EXPORT void run();
+        EQSERVER_API void run();
 
         /** Delete all configs of this server (exit). */
-        EQSERVER_EXPORT void deleteConfigs();
+        EQSERVER_API void deleteConfigs();
 
         /** @return the command queue to the server thread */
         co::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
@@ -75,8 +75,8 @@ namespace server
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          */
-        EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor );
-        EQSERVER_EXPORT VisitorResult accept( ServerVisitor& visitor ) const;
+        EQSERVER_API VisitorResult accept( ServerVisitor& visitor );
+        EQSERVER_API VisitorResult accept( ServerVisitor& visitor ) const;
 
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }

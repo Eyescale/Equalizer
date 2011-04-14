@@ -39,8 +39,8 @@ namespace server
         /** 
          * Constructs a new Frame.
          */
-        EQSERVER_EXPORT Frame();
-        EQSERVER_EXPORT virtual ~Frame();
+        EQSERVER_API Frame();
+        EQSERVER_API virtual ~Frame();
         Frame( const Frame& from );
 
         /**
@@ -123,7 +123,7 @@ namespace server
         void commitData();
 
         /** Commit the frame */
-        EQSERVER_EXPORT virtual uint32_t commitNB( const uint32_t incarnation );
+        EQSERVER_API virtual uint32_t commitNB( const uint32_t incarnation );
 
         /** 
          * Cycle the current FrameData.
@@ -185,10 +185,10 @@ namespace server
         //@}
         
     protected:
-        EQSERVER_EXPORT virtual ChangeType getChangeType() const 
+        EQSERVER_API virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
-        EQSERVER_EXPORT virtual void getInstanceData( co::DataOStream& os );
-        EQSERVER_EXPORT virtual void applyInstanceData( co::DataIStream& is );
+        EQSERVER_API virtual void getInstanceData( co::DataOStream& os );
+        EQSERVER_API virtual void applyInstanceData( co::DataIStream& is );
 
     private:
         /** The parent compound. */

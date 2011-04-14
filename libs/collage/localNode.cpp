@@ -442,6 +442,7 @@ bool LocalNode::disconnect( NodePtr node )
     send( packet );
 
     waitRequest( packet.requestID );
+    _objectStore->removeNode( node );
     return true;
 }
 
@@ -851,6 +852,13 @@ void LocalNode::_handleDisconnect()
     if( i != _connectionNodes.end( ))
     {
         NodePtr node = i->second;
+        Command& command = _commandCache.alloc( node, this,
+                                                sizeof( NodeRemoveNodePacket ));
+        NodeRemoveNodePacket* packet = command.get< NodeRemoveNodePacket >();
+        *packet = NodeRemoveNodePacket();
+        packet->node = node.get();
+        _dispatchCommand( command );
+
         if( node->_outgoing == connection )
         {
             _objectStore->removeInstanceData( node->_id );
@@ -1041,11 +1049,6 @@ void LocalNode::_redispatchCommands()
                << std::endl;
     EQASSERT( _pendingCommands.size() < 200 );
 #endif
-}
-
-void LocalNode::removeNode( NodePtr node )
-{
-    _objectStore->removeNode( node );
 }
 
 //----------------------------------------------------------------------

@@ -42,7 +42,6 @@ public:
 
             co::LocalNodePtr localNode = node->getLocalNode();
             co::NodePtr netNode = node->getNode();
-            localNode->removeNode( netNode );
             localNode->disconnect( netNode );
             node->setNode( 0 );
 

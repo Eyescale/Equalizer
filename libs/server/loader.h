@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -39,7 +39,7 @@ namespace server
     /**
      * The config file loader.
      */
-    class EQSERVER_EXPORT Loader
+    class Loader
     {
     public:
         /** 
@@ -57,7 +57,7 @@ namespace server
          * @param filename the name of the config file.
          * @return The parsed config, or <code>0</code> upon error.
          */
-        ServerPtr loadFile( const std::string& filename );
+        EQSERVER_API ServerPtr loadFile( const std::string& filename );
 
         /** 
          * Parse a config file given as a parameter.
@@ -65,7 +65,7 @@ namespace server
          * @param config the config file.
          * @return the parsed server.
          */
-        ServerPtr parseServer( const char* config );
+        EQSERVER_API ServerPtr parseServer( const char* config );
 
         /**
          * Add a Compound for each output channel.
@@ -75,7 +75,7 @@ namespace server
          *
          * @param server the server.
          */
-        static void addOutputCompounds( ServerPtr server );
+        EQSERVER_API static void addOutputCompounds( ServerPtr server );
 
         /**
          * Add segments and layouts for dest channels in non-view configs.
@@ -85,7 +85,7 @@ namespace server
          *
          * @param server the server.
          */
-        static void addDestinationViews( ServerPtr server );
+        EQSERVER_API static void addDestinationViews( ServerPtr server );
 
         /**
          * Convert config to version 1.1
@@ -98,7 +98,7 @@ namespace server
          *
          * @param server the server.
          */
-        static void convertTo11( ServerPtr server );
+        EQSERVER_API static void convertTo11( ServerPtr server );
 
         /**
          * Add one observer for observer-less configurations.
@@ -108,7 +108,7 @@ namespace server
          *
          * @param server the server.
          */
-        static void addDefaultObserver( ServerPtr server );
+        EQSERVER_API static void addDefaultObserver( ServerPtr server );
 
     private:
         void _parseString( const char* config );

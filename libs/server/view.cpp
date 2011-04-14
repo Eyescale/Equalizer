@@ -26,8 +26,11 @@
 #include "layout.h"
 #include "observer.h"
 #include "segment.h"
+#include "equalizers/equalizer.h"
 
+#include <eq/viewPackets.h>
 #include <eq/fabric/paths.h>
+#include <eq/fabric/commands.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -36,6 +39,7 @@ namespace eq
 namespace server
 {
 typedef  fabric::View< Layout, View, Observer > Super;
+typedef co::CommandFunc<View> ViewFunc;
 
 View::View( Layout* parent )
         : Super( parent )
@@ -55,6 +59,17 @@ View::~View()
 
     EQASSERT( _channels.empty( ));
     _channels.clear();
+}
+
+void View::attach( const UUID& id, const uint32_t instanceID )
+{
+    Super::attach( id, instanceID );
+
+    co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
+
+    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
+                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ),
+                     mainQ );
 }
 
 namespace
@@ -123,6 +138,39 @@ public:
 private:
     View* const _view;
     uint64_t _capabilities;
+};
+
+class FreezeVisitor : public ConfigVisitor
+{
+public:
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    FreezeVisitor( const View* view, const bool freeze )
+            : _view( view ), _freeze( freeze )
+        {}
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if ( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if ( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        const Equalizers& equalizers = compound->getEqualizers();
+        for( Equalizers::const_iterator i = equalizers.begin();
+            i != equalizers.end(); ++i )
+        {
+            (*i)->setFrozen( _freeze );
+        }
+        return TRAVERSE_CONTINUE; 
+    }
+
+private:
+    const bool _freeze;
+    const View* _view;
 };
 
 }
@@ -370,6 +418,17 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( distance == std::numeric_limits< float >::max( ))
         return 1.f;
     return focusDistance / distance;
+}
+
+bool View::_cmdFreezeLoadBalancing( co::Command& command ) 
+{
+    const ViewFreezeLoadBalancingPacket* packet = 
+        command.get<ViewFreezeLoadBalancingPacket>();
+
+    FreezeVisitor visitor( this, packet->freeze );
+    getConfig()->accept( visitor );
+
+    return true;
 }
 
 }

@@ -65,6 +65,7 @@ set(CLIENT_HEADERS
   types.h
   uiFactory.h
   view.h
+  viewPackets.h
   visitorResult.h
   wglEventHandler.h
   wglMessagePump.h

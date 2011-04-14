@@ -36,7 +36,7 @@ namespace server
     {
     public:
         /** Construct a new Segment. */
-        EQSERVER_EXPORT Segment( Canvas* parent );
+        EQSERVER_API Segment( Canvas* parent );
 
         /** Destruct this segment. */
         virtual ~Segment();

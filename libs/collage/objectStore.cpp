@@ -1058,7 +1058,10 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
         for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
             (*j)->removeSlaves( packet->node );
     }
-    _localNode->serveRequest( packet->requestID );
+
+    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+        _localNode->serveRequest( packet->requestID );
+
     return true;
 }
 

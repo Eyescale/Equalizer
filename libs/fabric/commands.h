@@ -93,7 +93,6 @@ namespace fabric
         CMD_CONFIG_FINISH_ALL_FRAMES,
         CMD_CONFIG_STOP_FRAMES,
         CMD_CONFIG_EVENT,
-        CMD_CONFIG_FREEZE_LOAD_BALANCING,
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
         CMD_CONFIG_CUSTOM = 40 // some buffer for binary-compatible patches
@@ -191,6 +190,12 @@ namespace fabric
         CMD_LAYOUT_NEW_VIEW = CMD_OBJECT_CUSTOM, // 11 
         CMD_LAYOUT_NEW_VIEW_REPLY,
         CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
+    };
+
+    enum ViewCommand
+    {
+        CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 11
+        CMD_VIEW_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */
 }

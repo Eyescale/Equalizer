@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,7 @@ namespace server
     class View : public fabric::View< Layout, View, Observer >
     {
     public:
-        EQSERVER_EXPORT View( Layout* parent );
+        EQSERVER_API View( Layout* parent );
 
         virtual ~View();
 
@@ -102,6 +102,9 @@ namespace server
 
 
     protected:
+        /** @internal */
+        void attach( const UUID& id, const uint32_t instanceID );
+
         /** @sa eq::View::deserialize() */
         virtual void deserialize( co::DataIStream&, const uint64_t );
         virtual void notifyAttached() { _updateChannels(); }
@@ -115,6 +118,9 @@ namespace server
 
         void _updateChannels() const;
         float _computeFocusRatio( Vector3f& eye );
+
+        /** The command functions. */
+        bool _cmdFreezeLoadBalancing( co::Command& command );
     };
 }
 }

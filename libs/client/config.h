@@ -188,9 +188,6 @@ namespace eq
          */
         EQ_API bool update();
         
-        /** @warning Experimental - may not be supported in the future */
-        EQ_API void freezeLoadBalancing( const bool onOff );
-
         /** @sa fabric::Config::setLatency() */
         EQ_API virtual void setLatency( const uint32_t latency );
         //@}

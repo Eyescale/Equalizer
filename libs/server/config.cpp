@@ -111,9 +111,6 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdStopFrames ), cmdQ );
     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
-    registerCommand( fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING, 
-                     ConfigFunc( this, &Config::_cmdFreezeLoadBalancing ),
-                     mainQ );
 }
 
 namespace
@@ -1090,43 +1087,6 @@ bool Config::_cmdCreateReply( co::Command& command )
         command.get< fabric::ConfigCreateReplyPacket >();
 
     getLocalNode()->serveRequest( packet->requestID );
-    return true;
-}
-
-namespace
-{
-class FreezeVisitor : public ConfigVisitor
-{
-public:
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    FreezeVisitor( const bool freeze ) : _freeze( freeze ) {}
-
-    virtual VisitorResult visit( Compound* compound )
-        { 
-            const Equalizers& equalizers = compound->getEqualizers();
-            for( Equalizers::const_iterator i = equalizers.begin();
-                 i != equalizers.end(); ++i )
-            {
-                (*i)->setFrozen( _freeze );
-            }
-            return TRAVERSE_CONTINUE; 
-        }
-
-private:
-    const bool _freeze;
-};
-}
-
-bool Config::_cmdFreezeLoadBalancing( co::Command& command ) 
-{
-    const ConfigFreezeLoadBalancingPacket* packet = 
-        command.get<ConfigFreezeLoadBalancingPacket>();
-
-    FreezeVisitor visitor( packet->freeze );
-    accept( visitor );
-
     return true;
 }
 

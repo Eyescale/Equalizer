@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +40,7 @@ namespace server
     class FramerateEqualizer : public Equalizer
     {
     public:
-        EQSERVER_EXPORT FramerateEqualizer();
+        EQSERVER_API FramerateEqualizer();
         FramerateEqualizer( const FramerateEqualizer& from );
         virtual ~FramerateEqualizer();
         virtual Equalizer* clone() const
