@@ -103,7 +103,7 @@ namespace server
 
     protected:
         /** @internal */
-        void attach( const UUID& id, const uint32_t instanceID );
+        virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @sa eq::View::deserialize() */
         virtual void deserialize( co::DataIStream&, const uint64_t );

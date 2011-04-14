@@ -30,7 +30,6 @@
 
 #include <eq/viewPackets.h>
 #include <eq/fabric/paths.h>
-#include <eq/fabric/commands.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -66,10 +65,8 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
 
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
-
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
-                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ),
-                     mainQ );
+                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
 }
 
 namespace
@@ -153,10 +150,10 @@ public:
     virtual VisitorResult visit( Compound* compound )
     {
         const Channel* dest = compound->getInheritChannel();
-        if ( !dest )
+        if( !dest )
             return TRAVERSE_CONTINUE;
 
-        if ( dest->getView() != _view )
+        if( dest->getView() != _view )
             return TRAVERSE_PRUNE;
 
         const Equalizers& equalizers = compound->getEqualizers();
@@ -169,8 +166,8 @@ public:
     }
 
 private:
+    const View* const _view;
     const bool _freeze;
-    const View* _view;
 };
 
 }

@@ -35,4 +35,5 @@ namespace eq
     }; 
 }
 /** @endcond */
+
 #endif //EQ_VIEWPACKETS_H
