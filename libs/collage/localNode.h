@@ -66,14 +66,20 @@ namespace co
         /** 
          * Initialize the node.
          *
-         * Before calling listen(), the '--eq-listen &lt;connection
-         * description&gt;' command line options is recognized by this method to
-         * add listening connections to this node. This parameter might be used
-         * multiple times. ConnectionDescription::fromString() is used to parse
-         * the provided description.
+         * Parses the following command line options and calls listen()
+         * afterwards:
+         *
+         * The '--eq-listen &lt;connection description&gt;' command line option
+         * is parsed by this method to add listening connections to this
+         * node. This parameter might be used multiple times.
+         * ConnectionDescription::fromString() is used to parse the provided
+         * description.
+         *
+         * The '--co-globals &lt;string&gt;' option is used to initialize the
+         * Globals. The string is parsed used Globals::fromString().
          *
          * Please note that further command line parameters are recognized by
-         * eq::init().
+         * co::init().
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
