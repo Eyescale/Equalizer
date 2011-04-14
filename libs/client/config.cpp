@@ -692,13 +692,6 @@ void Config::setupServerConnections( const char* connectionData )
     }
 }
 
-void Config::freezeLoadBalancing( const bool onOff )
-{
-    ConfigFreezeLoadBalancingPacket packet;
-    packet.freeze = onOff;
-    send( getServer(), packet );
-}
-
 bool Config::registerObject( co::Object* object )
 {
     if( !getClient()->registerObject( object ))
