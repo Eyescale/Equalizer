@@ -80,10 +80,10 @@ namespace co
          * Set the global variables.
          *
          * The data is expected to be a list of unsigned ints in the format
-         * ##uint0#uint1#uint2#...#uint(n-1)## with n = Global::IATTR_ALL. If
-         * the data format is correct, global variables will be changed and true
-         * will be returned. Otherwise there will be no change and false will be
-         * returned.
+         * &#35;&#35;uint0&#35;uint1&#35;uint2&#35;...&#35;uint(n-1)&#35;&#35;
+         * with n = Global::IATTR_ALL. If the data format is correct, global
+         * variables will be changed and true will be returned. Otherwise there
+         * will be no change and false will be returned.
          *
          * @param data the global variables in the described format
          * @return true on success, false otherwise.
