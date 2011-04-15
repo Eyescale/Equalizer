@@ -34,20 +34,16 @@ namespace util
 {
 template< class T >
 ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
-        : _glewContext( glewContext )
-        , _data( new SharedData )
+        : _data( new SharedData( glewContext ))
 {
     EQASSERT( glewContext );
 }
 
 template< class T >
-ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext, 
-                                   ObjectManager* shared )
-        : _glewContext( glewContext )
-        , _data( shared->_data )
+ObjectManager< T >::ObjectManager( ObjectManager* shared )
+        : _data( shared->_data )
 {
     EQASSERT( shared );
-    EQASSERT( glewContext );
 }
 
 template< class T >
@@ -57,12 +53,21 @@ ObjectManager<T>::~ObjectManager()
 }
 
 template< class T >
+ObjectManager<T>::SharedData::SharedData( const GLEWContext* gl )
+        : glewContext( new GLEWContext )
+{
+    EQASSERT( gl );
+    memcpy( glewContext, gl, sizeof( GLEWContext ));
+}
+
+template< class T >
 ObjectManager<T>::SharedData::~SharedData()
 {
     // Do not delete GL objects, we may no longer have a GL context.
     if( !lists.empty( ))
         EQWARN << lists.size() 
-               << " lists still allocated in ObjectManager destructor" << std::endl;
+               << " lists still allocated in ObjectManager destructor"
+               << std::endl;
     lists.clear();
 
     if( !textures.empty( ))
@@ -112,6 +117,7 @@ ObjectManager<T>::SharedData::~SharedData()
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
     eqUploaders.clear();
+    delete glewContext;
 }
 
 template< class T >
@@ -544,7 +550,7 @@ Accum* ObjectManager<T>::newEqAccum( const T& key )
         return 0;
     }
 
-    Accum* accum = new Accum( _glewContext );
+    Accum* accum = new Accum( _data->glewContext );
     _data->accums[ key ] = accum;
     return accum;
 }
@@ -592,7 +598,7 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
         return 0;
     }
 
-    GPUCompressor* compressorData = new GPUCompressor( _glewContext );
+    GPUCompressor* compressorData = new GPUCompressor( _data->glewContext );
     _data->eqUploaders[ key ] = compressorData;
     return compressorData;
 }
@@ -645,7 +651,7 @@ Texture* ObjectManager<T>::newEqTexture( const T& key, const GLenum target )
         return 0;
     }
 
-    Texture* texture = new Texture( target, _glewContext );
+    Texture* texture = new Texture( target, _data->glewContext );
     _data->eqTextures[ key ] = texture;
     return texture;
 }
@@ -751,7 +757,7 @@ FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
     }
 
     FrameBufferObject* frameBufferObject = 
-                                        new FrameBufferObject( _glewContext );
+                                    new FrameBufferObject( _data->glewContext );
     _data->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
 }

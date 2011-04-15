@@ -318,7 +318,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
     for( unsigned i = 0; i < 2; ++i )
     {
-        Frame::Buffer buffer = buffers[i];
+        const Frame::Buffer buffer = buffers[i];
         
         if( packet->buffers & buffer )
         {
