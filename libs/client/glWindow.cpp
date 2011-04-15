@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,10 @@
 
 #include <eq/util/frameBufferObject.h>
 
+#ifdef _WIN32
+#  define bzero( ptr, size ) { memset( ptr, 0, size ); }
+#endif
+
 namespace eq
 {
 
@@ -38,6 +42,9 @@ GLWindow::GLWindow( Window* parent )
 GLWindow::~GLWindow()
 {
     _glewInitialized = false;
+#ifndef NDEBUG
+    bzero( _glewContext, sizeof( GLEWContext ));
+#endif
     delete _glewContext;
 }
 
