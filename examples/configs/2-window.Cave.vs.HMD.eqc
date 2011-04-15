@@ -11,6 +11,7 @@ server
             {
                 window
                 {
+                    name "Cave tracking"
                     viewport [ .05 .3 .4 .4 ]
                     channel
                     {
@@ -19,6 +20,7 @@ server
                 }
                 window
                 {
+                    name "HMD tracking"
                     viewport [ .55 .3 .4 .4 ]
                     channel
                     {
