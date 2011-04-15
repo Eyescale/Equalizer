@@ -61,7 +61,7 @@ source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(util FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
 source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
-source_group(client FILES ${CLIENT_HEADERS} ${CLIENT_SOURCES})
+source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 
 purple_add_library(eq_client ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"

@@ -1475,7 +1475,8 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp,
     glDisable( GL_STENCIL_TEST );
     glDisable( GL_TEXTURE_1D );
     glDisable( GL_TEXTURE_2D );
-    glDisable( GL_TEXTURE_3D );
+    if( GLEW_VERSION_1_2 )
+        glDisable( GL_TEXTURE_3D );
     glDisable( GL_FOG );
     glDisable( GL_CLIP_PLANE0 );
     glDisable( GL_CLIP_PLANE1 );
