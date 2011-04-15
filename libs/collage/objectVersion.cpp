@@ -21,7 +21,7 @@
 
 namespace co
 {
-ObjectVersion NONE;
+ObjectVersion ObjectVersion::NONE;
 
 ObjectVersion::ObjectVersion()
         : identifier( base::UUID::ZERO ), version( VERSION_NONE )

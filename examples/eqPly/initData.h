@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,6 @@
 #define EQ_PLY_INITDATA_H
 
 #include "eqPly.h"
-#include "frameData.h"
-
-#include <eq/eq.h>
 
 namespace eqPly
 {
