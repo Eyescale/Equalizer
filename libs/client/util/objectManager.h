@@ -66,7 +66,7 @@ namespace util
 
         /** Construct a new object manager sharing data with another manager. */
         EQ_API ObjectManager( const GLEWContext* const glewContext,
-                                 ObjectManager* shared );
+                              ObjectManager* shared );
 
         EQ_API virtual ~ObjectManager();
 

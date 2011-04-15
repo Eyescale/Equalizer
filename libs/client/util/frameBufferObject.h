@@ -70,9 +70,8 @@ namespace util
          * @version 1.0
          */
         EQ_API bool init( const int32_t width, const int32_t height, 
-                             const GLuint colorFormat,
-                             const int32_t depthSize,
-                             const int32_t stencilSize );
+                          const GLuint colorFormat, const int32_t depthSize,
+                          const int32_t stencilSize );
 
         /** De-initialize the Frame Buffer Object. @version 1.0 */
         EQ_API void exit();
