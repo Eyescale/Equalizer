@@ -24,6 +24,7 @@
 namespace seq
 {
 using eq::Config;
+class ObjectMap;
 
 using eq::uint128_t;
 }

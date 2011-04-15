@@ -18,7 +18,8 @@
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
-#include <eq/sequel/api.h>
+#include <eq/sequel/types.h>
+
 #include <eq/client.h>      // base class
 #include <eq/nodeFactory.h> // base class
 
@@ -61,7 +62,8 @@ namespace seq
         SEQ_API virtual bool exit();
 
     private:
-        eq::Config* _config;
+        Config* _config;
+        ObjectMap* _objects;
     };
 
     /** A shared pointer to an application instance. */

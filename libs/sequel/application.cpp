@@ -17,6 +17,8 @@
 
 #include "application.h"
 
+#include "objectMap.h"
+
 #include <eq/config.h>
 #include <eq/configParams.h>
 #include <eq/init.h>
@@ -27,6 +29,7 @@ namespace seq
 
 Application::Application()
         : _config( 0 )
+        , _objects( 0 )
 {}
 
 Application::~Application()
@@ -62,8 +65,8 @@ bool Application::init( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    eq::ConfigParams configParams;
-    eq::Config* config = server->chooseConfig( configParams );
+    eq::ConfigParams cp;
+    Config* config = static_cast< Config* >( server->chooseConfig( cp ));
 
     if( !config )
     {
@@ -72,10 +75,15 @@ bool Application::init( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    if( !config->init( 0 ))
+    ObjectMap* objects = new ObjectMap( config );
+    EQCHECK( config->registerObject( objects ));
+
+    if( !config->init( objects->getID( )))
     {
         EQWARN << "Error during configuration initialization: "
                << config->getError() << std::endl;
+        delete objects;
+        config->deregisterObject( objects );
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
@@ -84,6 +92,7 @@ bool Application::init( const int argc, char** argv )
         EQWARN << "Error during configuration initialization: "
                << config->getError() << std::endl;
 
+    _objects = objects;
     _config = config;
     return true;
 }
@@ -100,6 +109,7 @@ bool Application::exit()
 
     eq::ServerPtr server = _config->getServer();
     bool retVal = _config->exit();
+    _config->deregisterObject( _objects );
     server->releaseConfig( _config );
 
     if( !disconnectServer( server ))
