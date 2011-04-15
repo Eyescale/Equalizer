@@ -47,7 +47,7 @@ template< class OMT >
 BitmapFont< OMT >::BitmapFont( ObjectManager< OMT >& gl, const OMT& key )
         // We create a new shared object manager. Typically we are exited by
         // the last user, at which point the given OM may have been deleted
-        : _gl( gl.glewGetContext(), &gl )
+        : _gl( &gl )
         , _key( key )
 {
 }

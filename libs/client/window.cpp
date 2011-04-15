@@ -396,7 +396,7 @@ void Window::_setupObjectManager()
     ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
 
     if( sharedOM )
-        _objectManager = new ObjectManager( glewGetContext(), sharedOM );
+        _objectManager = new ObjectManager( sharedOM );
     else
         _objectManager = new ObjectManager( glewGetContext( ));
 }
