@@ -34,7 +34,7 @@
 
 #include "fragmentShader.glsl.h"
 #include "vertexShader.glsl.h"
-    
+
 #include <fstream>
 #include <sstream>
 
@@ -121,6 +121,13 @@ static const std::string _logoTextureName = std::string( EQ_SOURCE_DIR ) +
 
 void Window::_loadLogo()
 {
+    if( !GLEW_ARB_texture_rectangle )
+    {
+        EQWARN << "Can't load overlay logo, GL_ARB_texture_rectangle not "
+               << "available" << std::endl;
+        return;
+    }
+
     eq::Window::ObjectManager* om = getObjectManager();
     _logoTexture = om->getEqTexture( _logoTextureName.c_str( ));
     if( _logoTexture )
