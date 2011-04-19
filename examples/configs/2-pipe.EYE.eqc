@@ -26,6 +26,7 @@ server
                 }
             }
         }
+
         observer{}
         layout{ view { mode STEREO observer 0 }}
         canvas
@@ -34,6 +35,7 @@ server
             wall{}
             segment { channel "channel" }
         }
+
         compound 
         {
             channel  ( canvas 0 segment 0 layout 0 view 0 )

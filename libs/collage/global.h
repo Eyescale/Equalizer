@@ -77,21 +77,21 @@ namespace co
         CO_API static uint32_t getObjectBufferSize();
 
         /** 
-         * Sets the global variables.
+         * Set the global variables.
          *
-         * data is expected to be a list of unsigned ints in the following style:
-         * ##uint0#uint1#uint2#...#uint(n-1)##
-         * with n = Global::IATTR_ALL. if data's format is correct, global 
-         * variables will be changed and true will be returned. if otherwise,
-         * there will be no change and false will be returned
+         * The data is expected to be a list of unsigned ints in the format
+         * &#35;&#35;uint0&#35;uint1&#35;uint2&#35;...&#35;uint(n-1)&#35;&#35;
+         * with n = Global::IATTR_ALL. If the data format is correct, global
+         * variables will be changed and true will be returned. Otherwise there
+         * will be no change and false will be returned.
          *
          * @param data the global variables in the described format
+         * @return true on success, false otherwise.
          */
         CO_API static bool fromString( const std::string& data );
 
-        /** @param data function writes global variables to data in 
-                        the format described in Global::fromString()*/
-        CO_API static void toString( std::string& data);
+        /** Write global variables to data in the format for fromString(). */
+        CO_API static void toString( std::string& data );
 
         /** @name Attributes */
         //@{

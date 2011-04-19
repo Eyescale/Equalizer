@@ -79,11 +79,11 @@ bool Global::fromString(const std::string& data )
         return false;
 
     std::vector<uint32_t> newGlobals;
-	newGlobals.reserve(IATTR_ALL);
+    newGlobals.reserve(IATTR_ALL);
 
     size_t startMarker(1u);
     size_t endMarker(1u);
-    while (true)
+    while( true )
     {
         startMarker = data.find( SEPARATOR, endMarker );
         if (startMarker == std::string::npos)
@@ -93,7 +93,8 @@ bool Global::fromString(const std::string& data )
         if (endMarker == std::string::npos )
             break;
 
-        std::string sub = data.substr( startMarker + 1, endMarker - startMarker - 1);
+        const std::string sub = data.substr( startMarker + 1,
+                                             endMarker - startMarker - 1);
         if( !sub.empty() && isdigit( sub[0] ))
             newGlobals.push_back( atoi( sub.c_str( )) );
         else
@@ -101,7 +102,7 @@ bool Global::fromString(const std::string& data )
     }
 
     // only apply a 'complete' global list
-    if (newGlobals.size() != IATTR_ALL )
+    if( newGlobals.size() != IATTR_ALL )
         return false;
 
     std::copy( newGlobals.begin(), newGlobals.end(), _iAttributes );

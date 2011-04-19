@@ -131,11 +131,11 @@ bool LocalNode::initLocal( const int argc, char** argv )
         {
             if( i<argc && argv[i+1][0] != '-' )
             {
-                std::string data = argv[++i];
-                if (!Global::fromString( data ))
+                const std::string data = argv[++i];
+                if( !Global::fromString( data ))
                 {
                     EQWARN << "Invalid global variables string: " << data
-                           << ". Using default global variables." << std::endl;
+                           << ", using default global variables." << std::endl;
                 }
             }
         }
