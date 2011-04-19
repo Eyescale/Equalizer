@@ -28,6 +28,7 @@
 #define COBASE_LOG_H
 
 #include <co/base/api.h>
+#include <co/base/lock.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -96,18 +97,7 @@ namespace base
     protected:
         virtual int_type overflow( LogBuffer::int_type c );
         
-        virtual int sync() 
-            {
-                if( !_blocked )
-                {
-                    const std::string& string = _stringStream.str();
-                    _stream.write( string.c_str(), string.length( ));
-                    _stream.rdbuf()->pubsync();
-                    _stringStream.str( "" );
-                }
-                _newLine = true;
-                return 0;
-            }
+        virtual int sync();
 
     private:
         LogBuffer( const LogBuffer& );
