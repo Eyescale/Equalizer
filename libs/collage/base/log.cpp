@@ -23,6 +23,8 @@
 #include "perThread.h"
 #include "thread.h"
 
+#include "scopedMutex.h"
+
 #include <cstdio>
 #ifdef WIN32_API
 #  include <process.h>
@@ -198,6 +200,21 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 
     _stringStream << (char)c;
     return c;
+}
+
+int LogBuffer::sync()
+{
+    if( !_blocked )
+    {
+        static co::base::Lock _lock;
+        co::base::ScopedMutex< co::base::Lock > mutex( _lock ); 
+        const std::string& string = _stringStream.str();
+        _stream.write( string.c_str(), string.length( ));
+        _stream.rdbuf()->pubsync();
+        _stringStream.str( "" );
+    }
+    _newLine = true;
+    return 0;
 }
 
 
