@@ -129,6 +129,9 @@ namespace base
 
         /** The wrapped ostream. */
         std::ostream& _stream;
+
+        /** The write lock. */
+        static co::base::Lock _lock;
     };
 
     /** The logging class. @internal */
