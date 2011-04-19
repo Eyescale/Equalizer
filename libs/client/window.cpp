@@ -522,7 +522,7 @@ const GLEWContext* Window::glewGetContext() const
 
 void Window::_enterBarrier( co::ObjectVersion barrier )
 {
-    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << std::endl;
+    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName() << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
 
@@ -533,7 +533,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
     catch( co::Exception& e )
     {
-        EQWARN << "swap barrier timeout  " << e << std::endl;
+        EQWARN << "swap barrier timeout  " << e << netBarrier->getID() << " v" << netBarrier->getVersion() << std::endl;
     } 
 }
 

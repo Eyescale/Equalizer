@@ -127,7 +127,7 @@ void Barrier::enter( const uint32_t timeout )
     {
         if( !_leaveNotify.timedWaitEQ( leaveVal, timeout ))
         {
-            EQWARN << "Barrier Timeout " << std::endl;
+            EQWARN << "Barrier Timeout " << getID() << " v" << getVersion() << std::endl;
             throw Exception( Exception::EXCEPTION_BARRIER_TIMEOUT );
         }
     }
