@@ -31,6 +31,7 @@ server
                 }
             }
         }
+
         observer{}
         layout{ view { observer 0 }}
         canvas
@@ -39,6 +40,7 @@ server
             wall{}
             segment { channel "channel1" }
         }
+
         compound
         {
             channel  ( segment 0 view 0 )
