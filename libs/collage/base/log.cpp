@@ -23,6 +23,8 @@
 #include "perThread.h"
 #include "thread.h"
 
+#include "scopedMutex.h"
+
 #include <cstdio>
 #ifdef WIN32_API
 #  include <process.h>
@@ -68,10 +70,11 @@ static LogTable _logTable[ LOG_TABLE_SIZE ] =
 };
 }
 
-int        Log::level  = getLogLevel();
-unsigned   Log::topics = getLogTopics();
-Clock      _defaultClock;
-Clock*     _clock = &_defaultClock;
+int             Log::level  = getLogLevel();
+unsigned        Log::topics = getLogTopics();
+Clock           _defaultClock;
+Clock*          _clock = &_defaultClock;
+co::base::Lock  LogBuffer::_lock;
 
 static PerThread< Log > _logInstance;
 
@@ -198,6 +201,20 @@ LogBuffer::int_type LogBuffer::overflow( LogBuffer::int_type c )
 
     _stringStream << (char)c;
     return c;
+}
+
+int LogBuffer::sync()
+{
+    if( !_blocked )
+    {
+        co::base::ScopedMutex< co::base::Lock > mutex( _lock ); 
+        const std::string& string = _stringStream.str();
+        _stream.write( string.c_str(), string.length( ));
+        _stream.rdbuf()->pubsync();
+        _stringStream.str( "" );
+    }
+    _newLine = true;
+    return 0;
 }
 
 
