@@ -28,7 +28,6 @@
 #define COBASE_LOG_H
 
 #include <co/base/api.h>
-#include <co/base/lock.h>
 
 #include <assert.h>
 #include <iomanip>
@@ -41,6 +40,7 @@ namespace co
 namespace base
 {
     class Clock;
+    class Lock;
 
     /** The logging levels. @version 1.0 */
     enum LogLevel
@@ -131,7 +131,7 @@ namespace base
         std::ostream& _stream;
 
         /** The write lock. */
-        static co::base::Lock _lock;
+        static Lock _lock;
     };
 
     /** The logging class. @internal */
