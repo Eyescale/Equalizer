@@ -40,6 +40,7 @@ namespace co
 namespace base
 {
     class Clock;
+    class Lock;
 
     /** The logging levels. @version 1.0 */
     enum LogLevel
@@ -96,18 +97,7 @@ namespace base
     protected:
         virtual int_type overflow( LogBuffer::int_type c );
         
-        virtual int sync() 
-            {
-                if( !_blocked )
-                {
-                    const std::string& string = _stringStream.str();
-                    _stream.write( string.c_str(), string.length( ));
-                    _stream.rdbuf()->pubsync();
-                    _stringStream.str( "" );
-                }
-                _newLine = true;
-                return 0;
-            }
+        virtual int sync();
 
     private:
         LogBuffer( const LogBuffer& );
@@ -139,6 +129,9 @@ namespace base
 
         /** The wrapped ostream. */
         std::ostream& _stream;
+
+        /** The write lock. */
+        static Lock _lock;
     };
 
     /** The logging class. @internal */

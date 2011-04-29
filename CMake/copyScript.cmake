@@ -87,7 +87,7 @@ if(WIN32)
         "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\server\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\"\n"
         "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\server\\equalizers\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\\equalizers\"\n"
         
-        "\"%ProgramFiles%\\TortoiseSVN\\bin\\SubWCRev.exe\" \"${WIN_SOURCE_DIR}\" > \"${COPY_TARGET}\\include\\eq\\Version.txt\"\n"
+        "\"%ProgramFiles(x86)%\\Git\\bin\\git.exe\" --no-pager log --max-count=1 \"${WIN_SOURCE_DIR}\" > \"${COPY_TARGET}\\include\\eq\\Version.txt\"\n"
         "pause\n"
     )
 endif(WIN32)

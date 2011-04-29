@@ -224,29 +224,6 @@ namespace base
             }
 
         /**
-         * Block until the monitor has none of the given values.
-         * @param value the exact value to monitor.
-         * @param timeout the timeout in milliseconds to wait for the value.
-         * @return true on success, false on timeout.
-         * @version 1.1
-         */
-        bool timedWaitNE( const T& v1, const T& v2,
-                                const uint32_t timeout ) const
-            {
-                _cond.lock();
-                while( _value == v1 || _value == v2 )
-                {
-                    if ( !_cond.timedWait( timeout ) )
-                    {
-                        _cond.unlock();
-                        return false;
-                    }
-                }
-                _cond.unlock();
-                return true;
-            }
-
-        /**
          * Block until the monitor has a value greater or equal to the given
          * value.
          * @param value the exact value to monitor.
