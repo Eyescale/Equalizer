@@ -32,7 +32,7 @@
 
 #include "libs/collage/objectPackets.h" // private header
 
-// Tests the functionality of the network packet cache
+// Tests the functionality of the instance cache
 
 #define N_READER 1
 #define RUNTIME 5000
