@@ -1031,7 +1031,6 @@ bool Config::_cmdUpdate( co::Command& command )
                << std::endl;
         exit();
     }
-    EQINFO << "Updated " << *this << std::endl;
 
     reply.version = commit();
     send( command.getNode(), reply );

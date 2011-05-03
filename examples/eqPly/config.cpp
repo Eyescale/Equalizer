@@ -154,45 +154,42 @@ static bool _isPlyfile( const std::string& filename )
 
 void Config::_loadModels()
 {
-    if( _models.empty( )) // only load on the first config run
-    {
-        eq::Strings filenames = _initData.getFilenames();
-        while( !filenames.empty( ))
-        {
-            const std::string filename = filenames.back();
-            filenames.pop_back();
-     
-            if( _isPlyfile( filename ))
-            {
-                Model* model = new Model;
+    if( !_models.empty( )) // only load on the first config run
+        return;
 
-                if( _initData.useInvertedFaces() )
-                    model->useInvertedFaces();
+    eq::Strings filenames = _initData.getFilenames();
+    while( !filenames.empty( ))
+    {
+        const std::string filename = filenames.back();
+        filenames.pop_back();
+     
+        if( _isPlyfile( filename ))
+        {
+            Model* model = new Model;
+
+            if( _initData.useInvertedFaces() )
+                model->useInvertedFaces();
         
-                if( !model->readFromFile( filename.c_str() ) )
-                {
-                    EQWARN << "Can't load model: " << filename << std::endl;
-                    delete model;
-                }
-                else
-                    _models.push_back( model );
+            if( !model->readFromFile( filename.c_str() ) )
+            {
+                EQWARN << "Can't load model: " << filename << std::endl;
+                delete model;
             }
             else
-            {
-                const std::string basename = co::base::getFilename( filename );
-                if( basename == "." || basename == ".." )
-                    continue;
+                _models.push_back( model );
+        }
+        else
+        {
+            const std::string basename = co::base::getFilename( filename );
+            if( basename == "." || basename == ".." )
+                continue;
 
-                // recursively search directories
-                const eq::Strings subFiles =
-                    co::base::searchDirectory( filename, "*" );
+            // recursively search directories
+            const eq::Strings subFiles = co::base::searchDirectory( filename,
+                                                                    "*" );
 
-                for( eq::StringsCIter i = subFiles.begin();
-                     i != subFiles.end(); ++i )
-                {
-                    filenames.push_back( filename + '/' + *i );
-                }
-            }
+            for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
+                filenames.push_back( filename + '/' + *i );
         }
     }
 }

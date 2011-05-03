@@ -1,6 +1,9 @@
 #Equalizer 1.1 ascii
 
-#Passive stereo powerwall
+# Passive stereo powerwall
+#   In stereo mode each GPU renders its own eye pass
+#   In mono mode, each GPU renders a part of the image and the left eye GPU
+#   displays the result
 
 server
 {
@@ -10,9 +13,10 @@ server
         {
             pipe
             {
+                device 0
                 window
                 {
-                    viewport [ 1.25 .25 .5 .5 ]
+                    viewport [ .25 .25 .5 .5 ]
                     attributes{ hint_drawable window }
                     channel 
                     {
@@ -22,6 +26,7 @@ server
             }
             pipe
             {
+                device 1
                 window
                 {
                     attributes{ hint_drawable pbuffer }
@@ -70,6 +75,7 @@ server
            channel ( view 0 segment 0 ) 
            eye [ CYCLOP ] 
            load_equalizer{} 
+
            compound {} 
            compound 
            {
