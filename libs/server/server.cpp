@@ -360,7 +360,6 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 
     ConfigRestoreVisitor restore;
     config->accept( restore );
-    EQINFO << "Released " << *config << std::endl;
 
     node->send( reply );
     EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;

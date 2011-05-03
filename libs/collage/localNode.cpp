@@ -1066,6 +1066,7 @@ void LocalNode::_runCommandThread()
             EQABORT( "Error handling " << *command );
         }
         command->release();
+
         while( _commandThreadQueue.isEmpty( ))
         {
             if( !_objectStore->notifyCommandThreadIdle( )) // nothing to do

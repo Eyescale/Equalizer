@@ -3,7 +3,7 @@
 # single-pipe three-to-one sort-last, direct-send pipelined demo configuration
 # The assembly happens pipelined from the draw operation in another window. 
 # All windows, with the exception of the final destination view on assemble3 
-# should be offscreen (pending on Equalizer FBO support).
+# should be offscreen
 
 global
 {
@@ -66,8 +66,9 @@ server
         {
             layout 0
             wall{}
-            segment { channel "channel3" }
+            segment { channel "assemble3" }
         }
+
         compound
         {
             channel  ( segment 0 view 0 )
@@ -119,7 +120,6 @@ server
                 inputframe { name "f2.c3" }
                 outputframe { buffer [ COLOR ] viewport [ 0  0 .5 .666 ] }
             }
-
 
             compound
             {
