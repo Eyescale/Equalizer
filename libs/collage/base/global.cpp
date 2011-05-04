@@ -32,9 +32,22 @@ namespace
 static PluginRegistry _pluginRegistry;
 static ErrorRegistry _errorRegistry;
 
+static uint32_t _getTimeOutDefault()
+{
+    const char* env = getenv( "EQ_BASE_TIME_DEFAULT" );
+    if( !env )
+        return 2000;
+
+    const int64_t size = atoi( env );
+    if( size > 0 )
+        return size;
+
+    return 2000;
+}
+
 int32_t _iAttributes[Global::IATTR_ALL] =
 {
-    2000,// IATTR_TIMEOUT_DEFAULT
+    _getTimeOutDefault(),// IATTR_TIMEOUT_DEFAULT
 };
 }
 

@@ -819,6 +819,11 @@ void LocalNode::_runReceiverThread()
         command->release();
     }
 
+    Command& command = allocCommand( sizeof( NodeStopPacket ));
+    command->type = PACKETTYPE_CO_NODE;
+    command->command = CMD_NODE_STOP;
+    _dispatchCommand( command );
+
     EQCHECK( _commandThread->join( ));
     _objectStore->clear();
     _pendingCommands.clear();
@@ -1056,7 +1061,7 @@ void LocalNode::_redispatchCommands()
 //----------------------------------------------------------------------
 void LocalNode::_runCommandThread()
 {
-    while( _state == STATE_LISTENING )
+    while( _state == STATE_LISTENING || _state == STATE_CLOSING )
     {
         Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
@@ -1092,14 +1097,19 @@ bool LocalNode::_cmdAckRequest( Command& command )
 bool LocalNode::_cmdStop( Command& )
 {
     EQINFO << "Cmd stop " << this << std::endl;
-    EQASSERT( _state == STATE_LISTENING );
-    
-    _state = STATE_CLOSED;
-    _incoming.interrupt();
+    EQASSERT( _state == STATE_LISTENING || _state == STATE_CLOSING );
+    if( _state == STATE_CLOSING )
+    {
+        _state = STATE_CLOSED;
+    }
+    else
+    {
+        _state = STATE_CLOSING;
+        _incoming.interrupt();
+    }
 
     return true;
 }
-
 
 bool LocalNode::_cmdConnect( Command& command )
 {

@@ -367,6 +367,12 @@ const std::string& Config< S, C, O, L, CV, N, V >::getIAttributeString(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+bool Config< S, C, O, L, CV, N, V >::useRobustness() const
+{
+    return getIAttribute( IATTR_ROBUSTNESS ) != OFF;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 L* Config< S, C, O, L, CV, N, V >::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,
