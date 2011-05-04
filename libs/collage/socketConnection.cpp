@@ -18,8 +18,11 @@
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
+#include "exception.h"
 
 #include <co/base/os.h>
+#include <co/base/clock.h>
+#include <co/base/global.h>
 #include <co/base/log.h>
 #include <co/base/sleep.h>
 
@@ -291,6 +294,7 @@ ConnectionPtr SocketConnection::acceptSync()
     // complete accept
     DWORD got   = 0;
     DWORD flags = 0;
+
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
         EQWARN << "Accept completion failed: " << base::sysError 
@@ -320,6 +324,13 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_description->bandwidth = _description->bandwidth;
     newConnection->_description->port      = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
+
+    const uint32_t timeOut = base::Global::getIAttribute( 
+                                        base::Global::IATTR_TIMEOUT_DEFAULT );
+    setsockopt( newConnection->_readFD, SOL_SOCKET, SO_RCVTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+    setsockopt( newConnection->_writeFD, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
 
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
@@ -386,9 +397,12 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 
     ResetEvent( _overlapped.hEvent );
     _overlappedDone = 0;
-
     const int result = WSARecv( _readFD, &wsaBuffer, 1, &_overlappedDone,
                                 &flags, &_overlapped, 0 );
+
+    if( result == -1 )
+        return;
+
     if( result == 0 ) // got data already
     {
         if( _overlappedDone == 0 ) // socket closed
@@ -397,6 +411,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
             close();
         }
         SetEvent( _overlapped.hEvent );
+        return;
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
@@ -404,6 +419,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                << ", closing connection" << std::endl;
         close();
     }
+    EQASSERT(false);
 }
 
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
@@ -484,6 +500,9 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
+        if( GetLastError( ) != WSAETIMEDOUT )
+            return -1;
+
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
@@ -544,6 +563,15 @@ bool SocketConnection::_createSocket()
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
+    const uint32_t timeOut = base::Global::getIAttribute( 
+                                 base::Global::IATTR_TIMEOUT_DEFAULT );
+
+
+    setsockopt( _readFD, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+    setsockopt( _writeFD, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+
     return true;
 }
 
@@ -606,7 +634,7 @@ bool SocketConnection::listen()
         EQINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, SOMAXCONN ) == 0);
-        
+
     if( !listening )
     {
         EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
@@ -632,7 +660,7 @@ bool SocketConnection::listen()
         else
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
-    
+
     _initAIOAccept();
     _state = STATE_LISTENING;
     _fireStateChanged();
@@ -640,7 +668,7 @@ bool SocketConnection::listen()
     EQINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( address.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
-    
+
     return true;
 }
 

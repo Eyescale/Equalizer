@@ -20,9 +20,11 @@
 #include "namedPipeConnection.h"
 
 #include "connectionDescription.h"
+#include "exception.h"
 #include "node.h"
 
 #include <co/base/os.h>
+#include <co/base/global.h>
 #include <co/base/log.h>
 
 #include <errno.h>
@@ -380,6 +382,11 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         close();
     }
 
+    const uint32_t timeOut = base::Global::getIAttribute( 
+                                     base::Global::IATTR_TIMEOUT_DEFAULT );
+
+    const bool timeoutDetect = WAIT_TIMEOUT == 
+                             WaitForSingleObject( _write.hEvent, timeOut ); 
     DWORD got = 0;
     if( !GetOverlappedResult( _fd, &_write, &got, true ))
     {
@@ -387,7 +394,10 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         {        
             return 0; 
         } 
-
+        if( timeoutDetect )
+        {
+            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
+        }
         EQWARN << "Write complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();
