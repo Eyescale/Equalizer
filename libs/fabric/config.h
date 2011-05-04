@@ -59,8 +59,8 @@ namespace fabric
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const Canvases& getCanvases() const { return _canvases; }
 
-        /** @return true if use robustness configuration. @version 1.1 */
-        bool useRobustness() const;
+        /** @internal @return the timeout in ms for resource failures. */
+        uint32_t getTimeout() const;
 
         /**
          * @return the vector of nodes instantiated in this process.

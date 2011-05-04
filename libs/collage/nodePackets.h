@@ -29,7 +29,7 @@ namespace co
     {
         NodeStopPacket()
             {
-                command = CMD_NODE_STOP;
+                command = CMD_NODE_STOP_RCV;
                 size    = sizeof( NodeStopPacket );
             }
     };

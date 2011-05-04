@@ -215,9 +215,9 @@ namespace co
         enum State
         {
             STATE_CLOSED,    //!< initial state
-            STATE_CLOSING,   //!< Is being to close
             STATE_CONNECTED, //!< proxy for a remote node, connected  
-            STATE_LISTENING  //!< local node, listening
+            STATE_LISTENING, //!< local node, listening
+            STATE_CLOSING    //!< listening, about to close
         };
 
         friend CO_API std::ostream& operator << ( std::ostream& os, 

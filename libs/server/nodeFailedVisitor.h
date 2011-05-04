@@ -70,7 +70,6 @@ private:
     template< class T > void _updateState( T* entity )
         {
             entity->setState( entity->isActive() ? STATE_FAILED:STATE_STOPPED );
-            entity->setError( ERROR_NODE_FAILURE ); 
         }
 };
 

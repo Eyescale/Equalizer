@@ -367,9 +367,11 @@ const std::string& Config< S, C, O, L, CV, N, V >::getIAttributeString(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::useRobustness() const
+uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 {
-    return getIAttribute( IATTR_ROBUSTNESS ) != OFF;
+    if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
+        return EQ_TIMEOUT_INDEFINITE;
+    return EQ_TIMEOUT_DEFAULT;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
