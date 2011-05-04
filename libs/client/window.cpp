@@ -528,9 +528,12 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     co::Barrier* netBarrier = node->getBarrier( barrier );
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
+    Config* config = getConfig();
+    const uint32_t timeout = config->useRobustness() ? EQ_TIMEOUT_DEFAULT :
+                                                       EQ_TIMEOUT_INDEFINITE;
     try
     {
-        netBarrier->enter( EQ_TIMEOUT_DEFAULT );
+        netBarrier->enter( timeout );
     }
     catch( co::Exception& e )
     {
