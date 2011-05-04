@@ -20,4 +20,6 @@ purple_add_library(co_base ${CO_LIB_VARIANT}
     ${COBASE_HEADERS}
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}
+    dl
+    rt
   )
