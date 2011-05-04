@@ -47,8 +47,10 @@ LocalNode::LocalNode( )
     CommandQueue* queue = &_commandThreadQueue;
     _registerCommand( CMD_NODE_ACK_REQUEST, 
                       CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
-    registerCommand( CMD_NODE_STOP,
-                     CmdFunc( this, &LocalNode::_cmdStop ), queue );
+    registerCommand( CMD_NODE_STOP_RCV,
+                     CmdFunc( this, &LocalNode::_cmdStopRcv ), 0 );
+    registerCommand( CMD_NODE_STOP_CMD,
+                     CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_CONNECT,
                     CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -751,6 +753,8 @@ void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 //----------------------------------------------------------------------
 void LocalNode::_runReceiverThread()
 {
+    EQ_TS_THREAD( _rcvThread );
+
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
@@ -818,11 +822,6 @@ void LocalNode::_runReceiverThread()
         Command* command = *i;
         command->release();
     }
-
-    Command& command = allocCommand( sizeof( NodeStopPacket ));
-    command->type = PACKETTYPE_CO_NODE;
-    command->command = CMD_NODE_STOP;
-    _dispatchCommand( command );
 
     EQCHECK( _commandThread->join( ));
     _objectStore->clear();
@@ -1061,7 +1060,8 @@ void LocalNode::_redispatchCommands()
 //----------------------------------------------------------------------
 void LocalNode::_runCommandThread()
 {
-    while( _state == STATE_LISTENING || _state == STATE_CLOSING )
+    EQ_TS_THREAD( _cmdThread );
+    while( _state != STATE_CLOSED )
     {
         Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
@@ -1094,20 +1094,26 @@ bool LocalNode::_cmdAckRequest( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdStop( Command& )
+bool LocalNode::_cmdStopRcv( Command& command )
 {
-    EQINFO << "Cmd stop " << this << std::endl;
-    EQASSERT( _state == STATE_LISTENING || _state == STATE_CLOSING );
-    if( _state == STATE_CLOSING )
-    {
-        _state = STATE_CLOSED;
-    }
-    else
-    {
-        _state = STATE_CLOSING;
-        _incoming.interrupt();
-    }
+    EQ_TS_THREAD( _rcvThread );
+    EQASSERT( _state == STATE_LISTENING );
+    EQINFO << "Cmd stop receiver " << this << std::endl;
 
+    _state = STATE_CLOSING; // causes rcv thread exit
+
+    command->command = CMD_NODE_STOP_CMD; // causes cmd thread exit
+    _dispatchCommand( command );
+    return true;
+}
+
+bool LocalNode::_cmdStopCmd( Command& command )
+{
+    EQ_TS_THREAD( _cmdThread );
+    EQASSERT( _state == STATE_CLOSING );
+    EQINFO << "Cmd stop command " << this << std::endl;
+
+    _state = STATE_CLOSED;
     return true;
 }
 

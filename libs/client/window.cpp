@@ -529,8 +529,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
     WindowStatistics stat( Statistic::WINDOW_SWAP_BARRIER, this );
     Config* config = getConfig();
-    const uint32_t timeout = config->useRobustness() ? EQ_TIMEOUT_DEFAULT :
-                                                       EQ_TIMEOUT_INDEFINITE;
+    const uint32_t timeout = config->getTimeout();
     try
     {
         netBarrier->enter( timeout );
