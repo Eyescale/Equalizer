@@ -114,7 +114,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
     {
         if( std::string( "--eq-listen" ) == argv[i] )
         {
-            if( i<argc && argv[i+1][0] != '-' )
+            if( (i+1)<argc && argv[i+1][0] != '-' )
             {
                 std::string data = argv[++i];
                 ConnectionDescriptionPtr desc = new ConnectionDescription;
@@ -128,10 +128,14 @@ bool LocalNode::initLocal( const int argc, char** argv )
                 else
                     EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
             }
+            else
+            {
+                EQWARN << "No argument given to --eq-listen!" << std::endl;
+            }
         }
         else if ( std::string( "--co-globals" ) == argv[i] )
         {
-            if( i<argc && argv[i+1][0] != '-' )
+            if( (i+1)<argc && argv[i+1][0] != '-' )
             {
                 const std::string data = argv[++i];
                 if( !Global::fromString( data ))
@@ -139,6 +143,10 @@ bool LocalNode::initLocal( const int argc, char** argv )
                     EQWARN << "Invalid global variables string: " << data
                            << ", using default global variables." << std::endl;
                 }
+            }
+            else
+            {
+                EQWARN << "No argument given to --co-globals!" << std::endl;
             }
         }
     }
