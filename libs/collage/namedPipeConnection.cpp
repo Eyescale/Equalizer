@@ -354,8 +354,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
 
         EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
-        close();
-        return 0;
+        return -1;
 
     }
 
@@ -375,29 +374,31 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     {
         return wrote;
     }
-    else if( GetLastError() != ERROR_IO_PENDING )
+    
+    if( GetLastError() != ERROR_IO_PENDING )
     {
         EQWARN << "Could not start write: " << base::sysError
             << ", closing connection" << std::endl;
-        close();
+        return -1;
     }
+
+    DWORD got = 0;
+    if( GetOverlappedResult( _fd, &_write, &got, false ))
+        return got;
 
     const uint32_t timeOut = base::Global::getIAttribute( 
                                      base::Global::IATTR_TIMEOUT_DEFAULT );
 
     const bool timeoutDetect = WAIT_TIMEOUT == 
-                             WaitForSingleObject( _write.hEvent, timeOut ); 
-    DWORD got = 0;
-    if( !GetOverlappedResult( _fd, &_write, &got, true ))
+                             WaitForSingleObject( _write.hEvent, timeOut );
+        
+    if( !GetOverlappedResult( _fd, &_write, &got, false ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         {        
             return 0; 
-        } 
-        if( timeoutDetect )
-        {
-            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
         }
+             
         EQWARN << "Write complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
         close();

@@ -325,13 +325,6 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_description->port      = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
-    const uint32_t timeOut = base::Global::getIAttribute( 
-                                        base::Global::IATTR_TIMEOUT_DEFAULT );
-    setsockopt( newConnection->_readFD, SOL_SOCKET, SO_RCVTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
-    setsockopt( newConnection->_writeFD, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
-
     EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
     return connection;
@@ -500,32 +493,34 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
-        if( GetLastError( ) != WSAETIMEDOUT )
-            return -1;
-
-        // error
-        if( GetLastError( ) != WSAEWOULDBLOCK )
+        switch( GetLastError( ) )
         {
-            EQWARN << "Error during write: " << base::sysError << " on "
-                   << _description << std::endl;
-            return -1;
-        }
-
-        // Buffer full - try again
+            case WSAEWOULDBLOCK:
+                {
+                    EQWARN << "Error during write: " << base::sysError << " on "
+                           << _description << std::endl;
+                }
+            case WSAETIMEDOUT:
+                    return -1;
+            default:
+                {
+                    // Buffer full - try again
 #if 1
-        // Wait for writable socket
-        fd_set set;
-        FD_ZERO( &set );
-        FD_SET( _writeFD, &set );
+                    // Wait for writable socket
+                    fd_set set;
+                    FD_ZERO( &set );
+                    FD_SET( _writeFD, &set );
 
-        const int result = select( _writeFD+1, 0, &set, 0, 0 );
-        if( result <= 0 )
-        {
-            EQWARN << "Error during select: " << base::sysError 
-                   << std::endl;
-            return -1;
-        }
+                    const int result = select( _writeFD+1, 0, &set, 0, 0 );
+                    if( result <= 0 )
+                    {
+                        EQWARN << "Error during select: " << base::sysError 
+                               << std::endl;
+                        return -1;
+                    }
 #endif
+                }
+        }
     }
 
     EQUNREACHABLE;
@@ -563,14 +558,7 @@ bool SocketConnection::_createSocket()
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
-    const uint32_t timeOut = base::Global::getIAttribute( 
-                                 base::Global::IATTR_TIMEOUT_DEFAULT );
 
-
-    setsockopt( _readFD, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
-    setsockopt( _writeFD, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
 
     return true;
 }
@@ -583,6 +571,12 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     
+    const uint32_t timeOut = base::Global::getIAttribute( 
+                                 base::Global::IATTR_TIMEOUT_DEFAULT );
+    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
 #ifdef _WIN32
     const int size = 128768;
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
