@@ -33,7 +33,6 @@ set(CO_FORWARD_HEADERS
     objectVersion.h
     packets.h
     types.h
-    version.h
   )
 
 set(CO_HEADERS 
