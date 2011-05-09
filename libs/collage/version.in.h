@@ -1,0 +1,94 @@
+
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ *  
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#ifndef CO_VERSION_H
+#define CO_VERSION_H
+
+#include <co/api.h>
+#include <co/base/types.h>
+#include <string>
+
+namespace co
+{
+    // Collage version macros and functions
+    /** The current major version. @version 1.0 */
+#   define CO_VERSION_MAJOR ${CO_VERSION_MAJOR}
+
+    /** The current minor version. @version 1.0 */
+#   define CO_VERSION_MINOR ${CO_VERSION_MINOR}
+
+    /** The current patch level. @version 1.0 */
+#   define CO_VERSION_PATCH ${CO_VERSION_SUB}
+
+    /** The git wc hash revision, may be 0. @version 1.0 */
+#   define CO_VERSION_REVISION ${EQ_REVISION}
+
+/** True if the current version is newer than the given one. @version 1.0 */
+#   define CO_VERSION_GT( MAJOR, MINOR, PATCH )                         \
+    ( (CO_VERSION_MAJOR>MAJOR) ||                                       \
+      (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR>MINOR ||            \
+                          (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH>PATCH))))
+
+/** True if the current version is equal or newer to the given. @version 1.0 */
+#   define CO_VERSION_GE( MAJOR, MINOR, PATCH )                         \
+    ( (CO_VERSION_MAJOR>MAJOR) ||                                       \
+      (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR>MINOR ||            \
+                         (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH>=PATCH))))
+
+/** True if the current version is older than the given one. @version 1.0 */
+#   define CO_VERSION_LT( MAJOR, MINOR, PATCH )                         \
+    ( (CO_VERSION_MAJOR<MAJOR) ||                                       \
+      (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR<MINOR ||            \
+                          (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH<PATCH))))
+
+/** True if the current version is older or equal to the given. @version 1.0 */
+#   define CO_VERSION_LE( MAJOR, MINOR, PATCH )                         \
+    ( (CO_VERSION_MAJOR<MAJOR) ||                                       \
+      (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR<MINOR ||            \
+                         (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH<=PATCH))))
+
+    /** Information about the current Collage version. */
+    class CO_API Version
+    {
+    public:
+        /** @return the current major version of Collage. @version 1.0 */
+        static uint32_t getMajor();
+
+        /** @return the current minor version of Collage. @version 1.0 */
+        static uint32_t getMinor();
+
+        /** @return the current patch level of Collage. @version 1.0 */
+        static uint32_t getPatch();
+
+        /** @return the current revision of Collage. @version 1.0 */
+        static std::string getRevision();
+
+        /** @return the current Collage version (MMmmpp). @version 1.0 */
+        static uint32_t getInt();
+
+        /** @return the current Collage version (MM.mmpp). @version 1.0 */
+        static float    getFloat();
+
+        /**
+         * @return the current Collage version (MM.mm.pp[.rr]).
+         * @version 1.1
+         */
+        static std::string getString();
+    };
+}
+
+#endif //CO_VERSION_H

@@ -21,6 +21,14 @@
 
 namespace co
 {
+/** Special object version values */
+const uint128_t VERSION_NONE( 0, 0 );
+const uint128_t VERSION_FIRST( 0, 1 );
+const uint128_t VERSION_OLDEST( 0, 0xfffffffffffffffcull );
+const uint128_t VERSION_NEXT( 0, 0xfffffffffffffffdull );
+const uint128_t VERSION_INVALID( 0, 0xfffffffffffffffeull ) ;
+const uint128_t VERSION_HEAD( 0, 0xffffffffffffffffull );
+
 ObjectVersion ObjectVersion::NONE;
 
 ObjectVersion::ObjectVersion()
