@@ -18,8 +18,11 @@
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
+#include "exception.h"
 
 #include <co/base/os.h>
+#include <co/base/clock.h>
+#include <co/base/global.h>
 #include <co/base/log.h>
 #include <co/base/sleep.h>
 
@@ -291,6 +294,7 @@ ConnectionPtr SocketConnection::acceptSync()
     // complete accept
     DWORD got   = 0;
     DWORD flags = 0;
+
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
         EQWARN << "Accept completion failed: " << base::sysError 
@@ -386,9 +390,12 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 
     ResetEvent( _overlapped.hEvent );
     _overlappedDone = 0;
-
     const int result = WSARecv( _readFD, &wsaBuffer, 1, &_overlappedDone,
                                 &flags, &_overlapped, 0 );
+
+    if( result == -1 )
+        return;
+
     if( result == 0 ) // got data already
     {
         if( _overlappedDone == 0 ) // socket closed
@@ -397,6 +404,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
             close();
         }
         SetEvent( _overlapped.hEvent );
+        return;
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
@@ -404,6 +412,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                << ", closing connection" << std::endl;
         close();
     }
+    EQASSERT(false);
 }
 
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
@@ -484,29 +493,34 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
-        // error
-        if( GetLastError( ) != WSAEWOULDBLOCK )
+        switch( GetLastError( ) )
         {
-            EQWARN << "Error during write: " << base::sysError << " on "
-                   << _description << std::endl;
-            return -1;
-        }
-
-        // Buffer full - try again
+            case WSAEWOULDBLOCK:
+                {
+                    EQWARN << "Error during write: " << base::sysError << " on "
+                           << _description << std::endl;
+                }
+            case WSAETIMEDOUT:
+                    return -1;
+            default:
+                {
+                    // Buffer full - try again
 #if 1
-        // Wait for writable socket
-        fd_set set;
-        FD_ZERO( &set );
-        FD_SET( _writeFD, &set );
+                    // Wait for writable socket
+                    fd_set set;
+                    FD_ZERO( &set );
+                    FD_SET( _writeFD, &set );
 
-        const int result = select( _writeFD+1, 0, &set, 0, 0 );
-        if( result <= 0 )
-        {
-            EQWARN << "Error during select: " << base::sysError 
-                   << std::endl;
-            return -1;
-        }
+                    const int result = select( _writeFD+1, 0, &set, 0, 0 );
+                    if( result <= 0 )
+                    {
+                        EQWARN << "Error during select: " << base::sysError 
+                               << std::endl;
+                        return -1;
+                    }
 #endif
+                }
+        }
     }
 
     EQUNREACHABLE;
@@ -544,6 +558,8 @@ bool SocketConnection::_createSocket()
 
     _readFD  = fd;
     _writeFD = fd; // TCP/IP sockets are bidirectional
+
+
     return true;
 }
 
@@ -555,6 +571,12 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     
+    const uint32_t timeOut = base::Global::getIAttribute( 
+                                 base::Global::IATTR_TIMEOUT_DEFAULT );
+    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
+                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
 #ifdef _WIN32
     const int size = 128768;
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 
@@ -606,7 +628,7 @@ bool SocketConnection::listen()
         EQINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, SOMAXCONN ) == 0);
-        
+
     if( !listening )
     {
         EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
@@ -632,7 +654,7 @@ bool SocketConnection::listen()
         else
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
-    
+
     _initAIOAccept();
     _state = STATE_LISTENING;
     _fireStateChanged();
@@ -640,7 +662,7 @@ bool SocketConnection::listen()
     EQINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( address.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
-    
+
     return true;
 }
 

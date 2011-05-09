@@ -31,6 +31,7 @@ namespace co
             EXCEPTION_WRITE_TIMEOUT,   //!< A write timeout operation 
             EXCEPTION_READ_TIMEOUT,    //!< A read timeout operation
             EXCEPTION_BARRIER_TIMEOUT, //!< A barrier timeout operation
+            EXCEPTION_COMMANDQUEUE_TIMEOUT, //!< a command queue timeout
             EXCEPTION_CUSTOM      = 20 // leave some room
         };
 
@@ -67,6 +68,9 @@ namespace co
             break;
         case Exception::EXCEPTION_BARRIER_TIMEOUT :
             os << " EXCEPTION: Timeout on barrier ";
+            break;
+        case Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT :
+            os << " EXCEPTION: Timeout on command queue ";
             break;
         default:
             {

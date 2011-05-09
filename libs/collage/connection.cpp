@@ -320,6 +320,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         {
             EQERROR << "Error during write after " << bytes - bytesLeft 
                     << " bytes" << std::endl;
+            close();
             return false;
         }
         else if( wrote == 0 )

@@ -53,9 +53,11 @@ namespace fabric
         /** 
          * Get and process one pending command from the node command queue.
          *
-         * @version 1.0 
+         * @param timeout the timout configuration.
+         * @version 1.1 
          */
-        EQFABRIC_API void processCommand();
+        EQFABRIC_API void processCommand( 
+                          const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /** @return the command queue to the main node thread. @internal */
         virtual co::CommandQueue* getMainThreadQueue() = 0;
