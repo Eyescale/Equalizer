@@ -493,32 +493,53 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
-        switch( GetLastError( ) )
+        const DWORD err = GetLastError( ); 
+        switch( err )
         {
             case WSAEWOULDBLOCK:
                 {
-                    EQWARN << "Error during write: " << base::sysError << " on "
-                           << _description << std::endl;
-                }
-            case WSAETIMEDOUT:
-                    return -1;
-            default:
-                {
-                    // Buffer full - try again
 #if 1
+                    // Buffer full - try again
                     // Wait for writable socket
                     fd_set set;
                     FD_ZERO( &set );
                     FD_SET( _writeFD, &set );
+                    const uint32_t timeOut = base::Global::getIAttribute( 
+                                 base::Global::IATTR_TIMEOUT_DEFAULT );
+                    struct timeval tv;
 
-                    const int result = select( _writeFD+1, 0, &set, 0, 0 );
-                    if( result <= 0 )
+                    tv.tv_sec = timeOut / 1000000;
+                    tv.tv_usec = timeOut % 1000000;
+                    const int result = select( _writeFD+1, 0, &set, 0, &tv );
+                    
+                    if( result < 0 )
                     {
                         EQWARN << "Error during select: " << base::sysError 
                                << std::endl;
                         return -1;
                     }
+
+                    if( result == 0 )
+                    {
+                        EQWARN << "Error timout select: " << base::sysError 
+                               << std::endl;
+                        return -1;
+                    }
 #endif
+                    break;
+                }
+            case WSAETIMEDOUT:
+            case WSAECONNABORTED:
+                {
+                    throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
+                    EQWARN << "Error during write: " << base::sysError << " on "
+                           << _description << std::endl;
+                }
+            default:
+                {   
+                    EQWARN << "Error during write: " << base::sysError << " on "
+                           << _description << std::endl;
+                    return -1;
                 }
         }
     }
