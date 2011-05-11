@@ -396,7 +396,7 @@ void Window::_setupObjectManager()
     ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
 
     if( sharedOM )
-        _objectManager = new ObjectManager( glewGetContext(), sharedOM );
+        _objectManager = new ObjectManager( sharedOM );
     else
         _objectManager = new ObjectManager( glewGetContext( ));
 }
@@ -522,7 +522,8 @@ const GLEWContext* Window::glewGetContext() const
 
 void Window::_enterBarrier( co::ObjectVersion barrier )
 {
-    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName() << std::endl;
+    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName()
+                             << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
 
@@ -533,7 +534,8 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
     catch( co::Exception& e )
     {
-        EQWARN << "swap barrier timeout  " << e << netBarrier->getID() << " v" << netBarrier->getVersion() << std::endl;
+        EQWARN << "swap barrier timeout " << e << " for " << *netBarrier
+               << std::endl;
     } 
 }
 

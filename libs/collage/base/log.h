@@ -41,6 +41,7 @@ namespace co
 namespace base
 {
     class Clock;
+    class Lock;
 
     /** The logging levels. @version 1.0 */
     enum LogLevel
@@ -129,6 +130,9 @@ namespace base
 
         /** The wrapped ostream. */
         std::ostream& _stream;
+
+        /** The write lock. */
+        static Lock _lock;
     };
 
     /** The logging class. @internal */
