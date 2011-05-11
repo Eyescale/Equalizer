@@ -352,6 +352,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
 
         EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
+        close();
         return -1;
 
     }
