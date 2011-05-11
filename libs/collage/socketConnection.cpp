@@ -18,7 +18,6 @@
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
-#include "exception.h"
 
 #include <co/base/os.h>
 #include <co/base/clock.h>
@@ -392,10 +391,6 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     _overlappedDone = 0;
     const int result = WSARecv( _readFD, &wsaBuffer, 1, &_overlappedDone,
                                 &flags, &_overlapped, 0 );
-
-    if( result == -1 )
-        return;
-
     if( result == 0 ) // got data already
     {
         if( _overlappedDone == 0 ) // socket closed
@@ -404,7 +399,6 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
             close();
         }
         SetEvent( _overlapped.hEvent );
-        return;
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
@@ -412,7 +406,6 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                << ", closing connection" << std::endl;
         close();
     }
-    EQASSERT(false);
 }
 
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
@@ -482,8 +475,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD  wrote;
-    WSABUF wsaBuffer = 
-        { 
+    WSABUF wsaBuffer =
+        {
             EQ_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
@@ -493,34 +486,29 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
             return wrote;
 
-        switch( GetLastError( ) )
+        // error
+        if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            case WSAEWOULDBLOCK:
-                {
-                    EQWARN << "Error during write: " << base::sysError << " on "
-                           << _description << std::endl;
-                }
-            case WSAETIMEDOUT:
-                    return -1;
-            default:
-                {
-                    // Buffer full - try again
-#if 1
-                    // Wait for writable socket
-                    fd_set set;
-                    FD_ZERO( &set );
-                    FD_SET( _writeFD, &set );
-
-                    const int result = select( _writeFD+1, 0, &set, 0, 0 );
-                    if( result <= 0 )
-                    {
-                        EQWARN << "Error during select: " << base::sysError 
-                               << std::endl;
-                        return -1;
-                    }
-#endif
-                }
+            EQWARN << "Error during write: " << base::sysError << " on "
+                   << _description << std::endl;
+            return -1;
         }
+
+        // Buffer full - try again
+#if 1
+        // Wait for writable socket
+        fd_set set;
+        FD_ZERO( &set );
+        FD_SET( _writeFD, &set );
+
+        const int result = select( _writeFD+1, 0, &set, 0, 0 );
+        if( result <= 0 )
+        {
+            EQWARN << "Error during select: " << base::sysError 
+                   << std::endl;
+            return -1;
+        }
+#endif
     }
 
     EQUNREACHABLE;
@@ -571,12 +559,12 @@ void SocketConnection::_tuneSocket( const Socket fd )
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     
-    const uint32_t timeOut = base::Global::getIAttribute( 
+    const uint32_t timeout = base::Global::getIAttribute( 
                                  base::Global::IATTR_TIMEOUT_DEFAULT );
     setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+                reinterpret_cast<const char*>( &timeout ), sizeof( timeout ));
     setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+                reinterpret_cast<const char*>( &timeout ), sizeof( timeout ));
 #ifdef _WIN32
     const int size = 128768;
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 

@@ -41,8 +41,8 @@
   application developers creating parallel, interactive OpenGL
   applications. Equalizer 1.0 can be retrieved by downloading the
   <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.0.tar.gz">source
-    code</a>, updating the subversion trunk to revision XXX (<code>svn up -r
-    XX</code>) or by using:<br>
+    code</a>, updating the subversion trunk to revision 5809 (<code>svn up -r
+    5809</code>) or by using:<br>
   <code>svn co
     https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0</code>
 </p>

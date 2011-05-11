@@ -115,7 +115,7 @@ namespace base
                 _cond.lock();
                 while( _queue.empty( ))
                 {
-                    if( !_cond.timedWait( timeout ) )
+                    if( !_cond.timedWait( timeout ))
                     {
                         _cond.unlock();
                         return false;

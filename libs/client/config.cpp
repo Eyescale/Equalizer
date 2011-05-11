@@ -371,7 +371,7 @@ uint32_t Config::finishAllFrames()
         }
         catch( co::Exception& e )
         {
-            EQWARN << "finishAllFrame timeout " << e << std::endl;
+            EQWARN << "Timeout in finishAllFrames " << e << std::endl;
             break;
         } 
     }
