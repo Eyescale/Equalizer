@@ -28,7 +28,6 @@
 #define COBASE_LOG_H
 
 #include <co/base/api.h>
-#include <co/base/lock.h>
 
 #include <assert.h>
 #include <iomanip>
