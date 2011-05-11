@@ -18,6 +18,7 @@
 #include "socketConnection.h"
 
 #include "connectionDescription.h"
+#include "exception.h"
 
 #include <co/base/os.h>
 #include <co/base/global.h>
