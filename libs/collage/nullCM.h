@@ -19,7 +19,7 @@
 #define EQNET_NULLCM_H
 
 #include "objectCM.h"    // base class
-#include <co/version.h>  // used enum
+#include <co/objectVersion.h> // VERSION_FOO values
 
 namespace co
 {

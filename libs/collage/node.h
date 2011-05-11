@@ -47,10 +47,10 @@ namespace co
         //@{
         bool operator == ( const Node* n ) const;
 
-        bool isConnected() const 
-            { return (_state == STATE_CONNECTED || _state == STATE_LISTENING);}
+        bool isConnected() const { return !isClosed();}
         bool isClosed() const { return _state == STATE_CLOSED; }
-        bool isListening() const { return _state == STATE_LISTENING; }
+        bool isListening() const { return _state == STATE_LISTENING || 
+                                          _state == STATE_CLOSING; }
 
         //@}
 
@@ -216,7 +216,8 @@ namespace co
         {
             STATE_CLOSED,    //!< initial state
             STATE_CONNECTED, //!< proxy for a remote node, connected  
-            STATE_LISTENING  //!< local node, listening
+            STATE_LISTENING, //!< local node, listening
+            STATE_CLOSING    //!< listening, about to close
         };
 
         friend CO_API std::ostream& operator << ( std::ostream& os, 
@@ -261,7 +262,7 @@ namespace co
         ConnectionPtr _getConnection()
             {
                 ConnectionPtr connection = _outgoing;
-                if( _state == STATE_CONNECTED || _state == STATE_LISTENING )
+                if( _state != STATE_CLOSED )
                     return connection;
                 EQUNREACHABLE;
                 return 0;

@@ -47,8 +47,10 @@ LocalNode::LocalNode( )
     CommandQueue* queue = &_commandThreadQueue;
     _registerCommand( CMD_NODE_ACK_REQUEST, 
                       CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
-    registerCommand( CMD_NODE_STOP,
-                     CmdFunc( this, &LocalNode::_cmdStop ), queue );
+    registerCommand( CMD_NODE_STOP_RCV,
+                     CmdFunc( this, &LocalNode::_cmdStopRcv ), 0 );
+    registerCommand( CMD_NODE_STOP_CMD,
+                     CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_CONNECT,
                     CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -112,7 +114,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
     {
         if( std::string( "--eq-listen" ) == argv[i] )
         {
-            if( i<argc && argv[i+1][0] != '-' )
+            if( (i+1)<argc && argv[i+1][0] != '-' )
             {
                 std::string data = argv[++i];
                 ConnectionDescriptionPtr desc = new ConnectionDescription;
@@ -126,10 +128,14 @@ bool LocalNode::initLocal( const int argc, char** argv )
                 else
                     EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
             }
+            else
+            {
+                EQWARN << "No argument given to --eq-listen!" << std::endl;
+            }
         }
         else if ( std::string( "--co-globals" ) == argv[i] )
         {
-            if( i<argc && argv[i+1][0] != '-' )
+            if( (i+1)<argc && argv[i+1][0] != '-' )
             {
                 const std::string data = argv[++i];
                 if( !Global::fromString( data ))
@@ -137,6 +143,10 @@ bool LocalNode::initLocal( const int argc, char** argv )
                     EQWARN << "Invalid global variables string: " << data
                            << ", using default global variables." << std::endl;
                 }
+            }
+            else
+            {
+                EQWARN << "No argument given to --co-globals!" << std::endl;
             }
         }
     }
@@ -751,6 +761,8 @@ void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 //----------------------------------------------------------------------
 void LocalNode::_runReceiverThread()
 {
+    EQ_TS_THREAD( _rcvThread );
+
     int nErrors = 0;
     while( _state == STATE_LISTENING )
     {
@@ -1056,7 +1068,8 @@ void LocalNode::_redispatchCommands()
 //----------------------------------------------------------------------
 void LocalNode::_runCommandThread()
 {
-    while( _state == STATE_LISTENING )
+    EQ_TS_THREAD( _cmdThread );
+    while( _state != STATE_CLOSED )
     {
         Command* command = _commandThreadQueue.pop();
         EQASSERT( command->isValid( ));
@@ -1066,6 +1079,7 @@ void LocalNode::_runCommandThread()
             EQABORT( "Error handling " << *command );
         }
         command->release();
+
         while( _commandThreadQueue.isEmpty( ))
         {
             if( !_objectStore->notifyCommandThreadIdle( )) // nothing to do
@@ -1088,17 +1102,28 @@ bool LocalNode::_cmdAckRequest( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdStop( Command& )
+bool LocalNode::_cmdStopRcv( Command& command )
 {
-    EQINFO << "Cmd stop " << this << std::endl;
+    EQ_TS_THREAD( _rcvThread );
     EQASSERT( _state == STATE_LISTENING );
-    
-    _state = STATE_CLOSED;
-    _incoming.interrupt();
+    EQINFO << "Cmd stop receiver " << this << std::endl;
 
+    _state = STATE_CLOSING; // causes rcv thread exit
+
+    command->command = CMD_NODE_STOP_CMD; // causes cmd thread exit
+    _dispatchCommand( command );
     return true;
 }
 
+bool LocalNode::_cmdStopCmd( Command& command )
+{
+    EQ_TS_THREAD( _cmdThread );
+    EQASSERT( _state == STATE_CLOSING );
+    EQINFO << "Cmd stop command " << this << std::endl;
+
+    _state = STATE_CLOSED;
+    return true;
+}
 
 bool LocalNode::_cmdConnect( Command& command )
 {

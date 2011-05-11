@@ -53,7 +53,6 @@ server
         compound
         {
             channel  ( segment 0 view 0 )
-            attributes{ stereo_mode ANAGLYPH } # remove for quad-buffered stereo
 
             compound
             {

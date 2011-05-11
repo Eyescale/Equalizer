@@ -89,12 +89,11 @@ bool Client::disconnectServer( co::NodePtr server )
     return false;
 }
 
-void Client::processCommand()
+void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
     EQASSERT( queue );
-
-    co::Command* command = queue->pop();
+    co::Command* command = queue->pop( timeout );
     if( !command ) // just a wakeup()
         return;
 

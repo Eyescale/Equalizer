@@ -19,7 +19,7 @@
 #define CO_STATICSLAVECM_H
 
 #include "objectCM.h"     // base class
-#include <co/version.h>   // enum
+#include <co/objectVersion.h> // VERSION_FOO values
 
 namespace co
 {

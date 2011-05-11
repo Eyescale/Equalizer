@@ -103,6 +103,32 @@ namespace base
             }
 
         /** 
+         * Retrieve and pop the front element from the queue, may block
+         * until timeout value.
+         * @param timeout the timout configuration
+         * @param element the element returned
+         * @return true if no timeout detected
+         * @version 1.0
+         */
+        bool timedPop( const unsigned timeout, T& element )
+            {
+                _cond.lock();
+                while( _queue.empty( ))
+                {
+                    if( !_cond.timedWait( timeout ) )
+                    {
+                        _cond.unlock();
+                        return false;
+                    }
+                }
+                EQASSERT( !_queue.empty( ));
+                element = _queue.front();
+                _queue.pop_front();
+                _cond.unlock();
+                return true;
+            }
+
+        /** 
          * Retrieve and pop the front element from the queue if it is not empty.
          *
          * @param result the front value or unmodified.

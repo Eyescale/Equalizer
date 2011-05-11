@@ -22,7 +22,8 @@ namespace co
 {
     enum NodeCommand
     {
-        CMD_NODE_STOP,
+        CMD_NODE_STOP_RCV,
+        CMD_NODE_STOP_CMD,
         CMD_NODE_MESSAGE,
         CMD_NODE_CONNECT,
         CMD_NODE_CONNECT_REPLY,

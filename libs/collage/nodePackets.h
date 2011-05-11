@@ -20,6 +20,7 @@
 #define EQNET_NODEPACKETS_H
 
 #include <co/packets.h> // base structs
+#include <co/objectVersion.h> // VERSION_FOO values
 #include <co/base/compiler.h> // align macros
 
 /** @cond IGNORE */
@@ -29,7 +30,7 @@ namespace co
     {
         NodeStopPacket()
             {
-                command = CMD_NODE_STOP;
+                command = CMD_NODE_STOP_RCV;
                 size    = sizeof( NodeStopPacket );
             }
     };

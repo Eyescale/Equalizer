@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,9 +32,22 @@ namespace
 static PluginRegistry _pluginRegistry;
 static ErrorRegistry _errorRegistry;
 
+static uint32_t _getTimeout()
+{
+    const char* env = getenv( "CO_TIMEOUT" );
+    if( !env )
+        return 2000; // ms
+
+    const int64_t size = atoi( env );
+    if( size == 0 )
+        return 2000; // ms
+
+    return size;
+}
+
 int32_t _iAttributes[Global::IATTR_ALL] =
 {
-    2000,// IATTR_TIMEOUT_DEFAULT
+    _getTimeout(),// IATTR_TIMEOUT_DEFAULT
 };
 }
 
