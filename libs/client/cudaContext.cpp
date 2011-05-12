@@ -20,7 +20,7 @@
 #include "pipe.h"
 
 #ifdef WIN32_API
-# include "wglpipe.h"
+# include "wglPipe.h"
 #endif
 
 #ifdef EQ_USE_CUDA

@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define _WIN32_WINNT 0x500 // 2000, for WM_XBUTTONDOWN and others
 #include <co/base/os.h>      // first get windows.h
 #include <pthread.h>           // then get pthreads
 #include <co/base/perThread.h> // then get perThread to have template code
