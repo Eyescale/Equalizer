@@ -24,7 +24,6 @@
 #include "node.h"
 
 #include <co/base/os.h>
-#include <co/base/global.h>
 #include <co/base/log.h>
 
 #include <errno.h>
@@ -366,7 +365,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD wrote;
-    DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
+    const DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     ResetEvent( _write.hEvent );
     if( WriteFile( _fd, buffer, use, &wrote, &_write ))
@@ -388,13 +387,12 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return 0;
       case ERROR_IO_PENDING:
       {
-        const uint32_t timeOut = base::Global::getIAttribute( 
-                                     base::Global::IATTR_TIMEOUT_DEFAULT );
+            const uint32_t timeOut = _getTimeOut();
 
-        if( WAIT_TIMEOUT != WaitForSingleObject( _write.hEvent, timeOut ))
+        if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeOut ))
         {
             EQWARN << "Write timeout" << std::endl;
-            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );;
+            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
         }
       }
 
