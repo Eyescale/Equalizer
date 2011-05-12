@@ -47,6 +47,7 @@ static uint32_t _getTimeout()
 
 int32_t _iAttributes[Global::IATTR_ALL] =
 {
+    0,            // IATTR_ROBUSTNESS
     _getTimeout(),// IATTR_TIMEOUT_DEFAULT
 };
 }
