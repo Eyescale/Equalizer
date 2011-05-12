@@ -413,4 +413,3 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
 }
 
 }
-}

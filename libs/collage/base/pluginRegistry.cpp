@@ -33,6 +33,8 @@
 #ifdef _MSC_VER
 #  include <direct.h>
 #  define getcwd _getcwd
+#else
+#  include <unistd.h>   // for getcwd
 #endif
 
 #ifndef MAXPATHLEN

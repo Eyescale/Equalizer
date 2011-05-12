@@ -209,9 +209,9 @@ void ConnectionDescription::setHostname( const std::string& hostname )
     _hostname = hostname;
 }
 
-void ConnectionDescription::setInterface( const std::string& interface )
+void ConnectionDescription::setInterface( const std::string& interface_ )
 {
-    _interface = interface;
+    _interface = interface_;
 }
 
 void ConnectionDescription::setFilename( const std::string& filename )

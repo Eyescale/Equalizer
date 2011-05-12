@@ -23,6 +23,7 @@
 #include <co/base/global.h>
 #include <co/base/log.h>
 #include <co/base/sleep.h>
+#include <co/exception.h>
 
 #include <limits>
 #include <sstream>
