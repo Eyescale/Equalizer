@@ -28,7 +28,7 @@
 #    define NOMINMAX
 #  endif
 #  include <wtypes.h>
-#  include <WinCrypt.h>
+#  include <wincrypt.h>
 #  pragma comment(lib, "advapi32.lib")
 #endif
 
