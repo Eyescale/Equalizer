@@ -31,7 +31,7 @@ add_subdirectory( base )
 set(CO_ADD_LINKLIB)
 
 if(WIN32)
-  list(APPEND CO_ADD_LINKLIB Ws2_32 mswsock)
+  list(APPEND CO_ADD_LINKLIB ws2_32 mswsock)
 endif(WIN32)
 if(MSVC)
   list(APPEND CO_SOURCES pgmConnection.cpp)

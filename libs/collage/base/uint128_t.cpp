@@ -18,6 +18,8 @@
 #include "uint128_t.h"
 #include "debug.h" 
 
+#include <cstdlib>      // for strtoull
+
 namespace co
 {
 namespace base
