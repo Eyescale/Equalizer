@@ -24,7 +24,6 @@
 #include "node.h"
 
 #include <co/base/os.h>
-#include <co/base/global.h>
 #include <co/base/log.h>
 
 #include <errno.h>
@@ -348,12 +347,11 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
     if( !GetOverlappedResult( _fd, &_read, &got, true ))
     {
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
-        {        
             return 0; 
-        } 
 
         EQWARN << "Read complete failed: " << base::sysError 
                << ", closing connection" << std::endl;
+        close();
         return -1;
 
     }
@@ -367,18 +365,15 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD wrote;
-    DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
+    const DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     ResetEvent( _write.hEvent );
-    if( WriteFile( _fd, buffer, use, &wrote, &_write ) )
-    {
+    if( WriteFile( _fd, buffer, use, &wrote, &_write ))
         return wrote;
-    }
     
     if( GetLastError() != ERROR_IO_PENDING )
     {
-        EQWARN << "Could not start write: " << base::sysError
-            << ", closing connection" << std::endl;
+        EQWARN << "Could not start write: " << base::sysError << std::endl;
         return -1;
     }
 
@@ -386,25 +381,33 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     if( GetOverlappedResult( _fd, &_write, &got, false ))
         return got;
 
-    const uint32_t timeOut = base::Global::getIAttribute( 
-                                     base::Global::IATTR_TIMEOUT_DEFAULT );
-
-    const bool timeoutDetect = WAIT_TIMEOUT == 
-                             WaitForSingleObject( _write.hEvent, timeOut );
-        
-    if( !GetOverlappedResult( _fd, &_write, &got, false ))
+    switch( GetLastError( ))
     {
-        if( GetLastError() == ERROR_PIPE_CONNECTED ) 
-        {        
-            return 0; 
-        }
-             
-        EQWARN << "Write complete failed: " << base::sysError 
-               << ", closing connection" << std::endl;
-        close();
-        return -1;
-    }
+      case ERROR_PIPE_CONNECTED:
+        return 0;
+      case ERROR_IO_PENDING:
+      {
+            const uint32_t timeOut = _getTimeOut();
 
-    return got;
+        if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeOut ))
+        {
+            EQWARN << "Write timeout" << std::endl;
+            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
+        }
+      }
+
+      default:
+        EQWARN << "Write complete failed: " << base::sysError << std::endl;
+    }
+        
+    if( GetOverlappedResult( _fd, &_write, &got, false ))
+        return got;
+
+    if( GetLastError() == ERROR_PIPE_CONNECTED ) 
+        return 0; 
+             
+    EQWARN << "Write complete failed: " << base::sysError << std::endl;
+    return -1;
 }
+
 }

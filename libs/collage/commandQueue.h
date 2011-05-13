@@ -55,8 +55,9 @@ namespace co
          *
          * The returned command has to be released after usage.
          * 
-         * @param timeout the timout configuration
+         * @param timeout the time in ms to wait for the operation.
          * @return the next command in the queue.
+         * @throws Exception on timeout.
          */
         CO_API virtual Command* pop( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 

@@ -21,8 +21,6 @@
 #include "exception.h"
 
 #include <co/base/os.h>
-#include <co/base/clock.h>
-#include <co/base/global.h>
 #include <co/base/log.h>
 #include <co/base/sleep.h>
 
@@ -59,7 +57,8 @@ SocketConnection::SocketConnection( const ConnectionType type )
 #endif
 {
 #ifdef _WIN32
-    memset( &_overlapped, 0, sizeof( _overlapped ));
+    memset( &_overlappedRead, 0, sizeof( _overlappedRead ));
+    memset( &_overlappedWrite, 0, sizeof( _overlappedWrite ));
 #endif
 
     EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
@@ -197,10 +196,12 @@ void SocketConnection::close()
 #ifdef _WIN32
 void SocketConnection::_initAIORead()
 {
-    _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlapped.hEvent );
+    _overlappedRead.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _overlappedRead.hEvent );
 
-    if( !_overlapped.hEvent )
+    _overlappedWrite.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
+    EQASSERT( _overlappedWrite.hEvent );
+    if( !_overlappedRead.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
                 << base::sysError << std::endl;
 }
@@ -223,10 +224,16 @@ void SocketConnection::_exitAIOAccept()
 }
 void SocketConnection::_exitAIORead()
 {
-    if( _overlapped.hEvent )
+    if( _overlappedRead.hEvent )
     {
-        CloseHandle( _overlapped.hEvent );
-        _overlapped.hEvent = 0;
+        CloseHandle( _overlappedRead.hEvent );
+        _overlappedRead.hEvent = 0;
+    }
+
+    if( _overlappedWrite.hEvent )
+    {
+        CloseHandle( _overlappedWrite.hEvent );
+        _overlappedWrite.hEvent = 0;
     }
 }
 #else
@@ -267,11 +274,11 @@ void SocketConnection::acceptNB()
         reinterpret_cast<const char*>( &on ), sizeof( on ));
 
     // Start accept
-    ResetEvent( _overlapped.hEvent );
+    ResetEvent( _overlappedRead.hEvent );
     DWORD got;
     if( !AcceptEx( _readFD, _overlappedSocket, _overlappedAcceptData, 0,
                    sizeof( sockaddr_in ) + 16, sizeof( sockaddr_in ) + 16,
-                   &got, &_overlapped ) &&
+                   &got, &_overlappedRead ) &&
         GetLastError() != WSA_IO_PENDING )
     {
         EQERROR << "Could not start accept operation: " 
@@ -295,7 +302,7 @@ ConnectionPtr SocketConnection::acceptSync()
     DWORD got   = 0;
     DWORD flags = 0;
 
-    if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
+    if( !WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, TRUE, &flags ))
     {
         EQWARN << "Accept completion failed: " << base::sysError 
                << ", closing socket" << std::endl;
@@ -388,14 +395,10 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                          reinterpret_cast< char* >( buffer ) };
     DWORD  flags = 0;
 
-    ResetEvent( _overlapped.hEvent );
+    ResetEvent( _overlappedRead.hEvent );
     _overlappedDone = 0;
     const int result = WSARecv( _readFD, &wsaBuffer, 1, &_overlappedDone,
-                                &flags, &_overlapped, 0 );
-
-    if( result == -1 )
-        return;
-
+                                &flags, &_overlappedRead, 0 );
     if( result == 0 ) // got data already
     {
         if( _overlappedDone == 0 ) // socket closed
@@ -403,8 +406,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
             EQINFO << "Got EOF, closing connection" << std::endl;
             close();
         }
-        SetEvent( _overlapped.hEvent );
-        return;
+        SetEvent( _overlappedRead.hEvent );
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
@@ -412,7 +414,6 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
                << ", closing connection" << std::endl;
         close();
     }
-    EQASSERT(false);
 }
 
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
@@ -435,7 +436,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
     while( true )
     {
-        if( WSAGetOverlappedResult(_readFD, &_overlapped, &got, block, &flags ))
+        if( WSAGetOverlappedResult(_readFD, &_overlappedRead, &got, block, &flags ))
             return got;
 
         const int err = WSAGetLastError();
@@ -482,66 +483,49 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD  wrote;
-    WSABUF wsaBuffer = 
-        { 
+    WSABUF wsaBuffer =
+        {
             EQ_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
+    const uint32_t timeOut = _getTimeOut();
 
     while( true )
     {
-        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, 0, 0 ) ==  0 ) // ok
+        ResetEvent( _overlappedWrite.hEvent );
+        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, &_overlappedWrite, 0 ) ==  0 ) // ok
             return wrote;
 
-        const DWORD err = GetLastError( ); 
-        switch( err )
+        switch( WSAGetLastError() )
         {
-            case WSAEWOULDBLOCK:
-                {
-#if 1
-                    // Buffer full - try again
-                    // Wait for writable socket
-                    fd_set set;
-                    FD_ZERO( &set );
-                    FD_SET( _writeFD, &set );
-                    const uint32_t timeOut = base::Global::getIAttribute( 
-                                 base::Global::IATTR_TIMEOUT_DEFAULT );
-                    struct timeval tv;
-
-                    tv.tv_sec = timeOut / 1000000;
-                    tv.tv_usec = timeOut % 1000000;
-                    const int result = select( _writeFD+1, 0, &set, 0, &tv );
-                    
-                    if( result < 0 )
-                    {
-                        EQWARN << "Error during select: " << base::sysError 
-                               << std::endl;
-                        return -1;
-                    }
-
-                    if( result == 0 )
-                    {
-                        EQWARN << "Error timout select: " << base::sysError 
-                               << std::endl;
-                        return -1;
-                    }
-#endif
-                    break;
-                }
-            case WSAETIMEDOUT:
-            case WSAECONNABORTED:
-                {
-                    throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
-                    EQWARN << "Error during write: " << base::sysError << " on "
-                           << _description << std::endl;
-                }
-            default:
-                {   
-                    EQWARN << "Error during write: " << base::sysError << " on "
-                           << _description << std::endl;
-                    return -1;
-                }
+        case WSA_IO_PENDING:
+            break;
+        case WSAEWOULDBLOCK:
+          {
+              // Buffer full - try again, wait for writable socket
+              EQUNREACHABLE;
+              continue;
+          }
+        default:
+            return -1;
         }
+        DWORD got = 0;
+        DWORD flags = 0;
+        if( WSAGetOverlappedResult(_writeFD, &_overlappedWrite, &got, false, &flags ))
+            return got;
+
+        if( WSA_IO_INCOMPLETE == WSAGetLastError() )
+        {
+            if( WAIT_OBJECT_0 != 
+                WaitForSingleObject( _overlappedWrite.hEvent, timeOut ))
+            {
+                EQWARN << "Write timeout" << std::endl;
+                throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
+            }
+        }
+
+        if( WSAGetOverlappedResult(_writeFD, &_overlappedWrite, &got, false, &flags ))
+            return got;
     }
 
     EQUNREACHABLE;
@@ -591,13 +575,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
     setsockopt( fd, SOL_SOCKET, SO_REUSEADDR, 
                 reinterpret_cast<const char*>( &on ), sizeof( on ));
-    
-    const uint32_t timeOut = base::Global::getIAttribute( 
-                                 base::Global::IATTR_TIMEOUT_DEFAULT );
-    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
-    setsockopt( fd, SOL_SOCKET, SO_SNDTIMEO,
-                reinterpret_cast<const char*>( &timeOut ), sizeof( timeOut ));
+
 #ifdef _WIN32
     const int size = 128768;
     setsockopt( fd, SOL_SOCKET, SO_RCVBUF, 

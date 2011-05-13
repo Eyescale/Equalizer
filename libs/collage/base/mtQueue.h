@@ -103,11 +103,11 @@ namespace base
             }
 
         /** 
-         * Retrieve and pop the front element from the queue, may block
-         * until timeout value.
-         * @param timeout the timout configuration
+         * Retrieve and pop the front element from the queue.
+         * @param timeout the timeout
          * @param element the element returned
-         * @return true if no timeout detected
+         * @return true if an element was popped
+         * throws Exception on timeout.
          * @version 1.0
          */
         bool timedPop( const unsigned timeout, T& element )
@@ -115,7 +115,7 @@ namespace base
                 _cond.lock();
                 while( _queue.empty( ))
                 {
-                    if( !_cond.timedWait( timeout ) )
+                    if( !_cond.timedWait( timeout ))
                     {
                         _cond.unlock();
                         return false;
