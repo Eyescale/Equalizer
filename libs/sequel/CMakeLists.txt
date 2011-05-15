@@ -7,12 +7,17 @@ purple_add_library(Sequel SHARED
   FORWARD HEADERS
     api.h
     application.h
+    error.h
     sequel.h
     types.h
   SOURCES
     application.cpp
-    objectMap.h
-    objectMap.cpp
+    error.cpp
+    detail/application.cpp
+    detail/node.h
+    detail/node.cpp
+    detail/objectMap.h
+    detail/objectMap.cpp
   LINK_LIBRARIES Equalizer
   )
 set_target_properties(lib_Sequel_shared PROPERTIES

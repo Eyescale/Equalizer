@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,40 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
+#include "node.h"
 
-#include <eq/sequel/api.h>
-#include <eq/types.h>
+#include "application.h"
+
+#include <eq/sequel/error.h>
 
 namespace seq
 {
-using eq::uint128_t;
-
-class Application;
-typedef co::base::RefPtr< Application > ApplicationPtr;
-
-/** @cond IGNORE */
 namespace detail
 {
-using eq::Config;
-using eq::Pipe;
 
-class Application;
-class ObjectMap;
-class Node;
-}
-/** @endcond */
+Node::Node( Application* app, eq::Config* parent )
+        : eq::Node( parent ) 
+        , _app( app )
+{}
+
+bool Node::configInit( const uint128_t& initID )
+{
+    if( !eq::Node::configInit( initID ))
+        return false;
+
+    if( !_app->mapData( initID ))
+    {
+        setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+        return false;
+    }
+    return true;
 }
 
-#endif // EQSEQUEL_TYPES_H
+bool Node::configExit()
+{
+    _app->unmapData();
+    return eq::Node::configExit();
+}
+
+}
+}

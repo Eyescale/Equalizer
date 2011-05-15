@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
+#ifndef EQSEQUEL_ERROR_H
+#define EQSEQUEL_ERROR_H
 
-#include <eq/sequel/api.h>
-#include <eq/types.h>
+#include <eq/error.h>
 
 namespace seq
 {
-using eq::uint128_t;
+    /** Defines errors produced by Sequel. */
+    enum Error
+    {
+        ERROR_SEQUEL_MAPOBJECT_FAILED = eq::ERROR_CUSTOM
+    };
 
-class Application;
-typedef co::base::RefPtr< Application > ApplicationPtr;
+    /** Set up eqPly-specific error codes. */
+    void initErrors();
 
-/** @cond IGNORE */
-namespace detail
-{
-using eq::Config;
-using eq::Pipe;
-
-class Application;
-class ObjectMap;
-class Node;
-}
-/** @endcond */
+    /** Clear eqPly-specific error codes. */
+    void exitErrors();
 }
 
-#endif // EQSEQUEL_TYPES_H
+#endif // EQSEQUEL_ERROR_H

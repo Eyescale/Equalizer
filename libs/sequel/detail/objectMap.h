@@ -15,15 +15,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_OBJECTMAP_H
-#define EQSEQUEL_OBJECTMAP_H
+#ifndef EQSEQUEL_DETAIL_OBJECTMAP_H
+#define EQSEQUEL_DETAIL_OBJECTMAP_H
 
 #include <eq/sequel/types.h>
 #include <eq/fabric/serializable.h> // base class
 
 namespace seq
 {
-    /** @internal Central distributed object registry. */
+namespace detail
+{
+    /** Central distributed object registry. */
     class ObjectMap : public eq::fabric::Serializable
     {
     public:
@@ -81,6 +83,6 @@ namespace seq
         /** Commit and note new master versions. */
         void _commitMasters( const uint32_t incarnation );
     };
-
 }
-#endif // EQSEQUEL_OBJECTMAP_H
+}
+#endif // EQSEQUEL_DETAIL_OBJECTMAP_H

@@ -18,10 +18,11 @@
 #include "objectMap.h"
 
 #include <eq/config.h>
-
 #include <co/base/scopedMutex.h>
 
 namespace seq
+{
+namespace detail
 {
 typedef co::base::ScopedMutex< co::base::SpinLock> ScopedMutex;
 
@@ -217,4 +218,5 @@ bool ObjectMap::map( co::Object* object, const uint128_t& identifier )
     return true;
 }
 
+}
 }

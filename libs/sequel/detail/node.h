@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
+#ifndef EQSEQUEL_DETAIL_NODE_H
+#define EQSEQUEL_DETAIL_NODE_H
 
-#include <eq/sequel/api.h>
-#include <eq/types.h>
+#include <eq/sequel/types.h>
+
+#include <eq/node.h> // base class
 
 namespace seq
 {
-using eq::uint128_t;
-
-class Application;
-typedef co::base::RefPtr< Application > ApplicationPtr;
-
-/** @cond IGNORE */
 namespace detail
 {
-using eq::Config;
-using eq::Pipe;
+    class Node : public eq::Node
+    {
+    public:
+        Node( Application* app, eq::Config* parent );
 
-class Application;
-class ObjectMap;
-class Node;
+        Application* getApplication() { return _app; }
+
+    protected:
+        virtual ~Node(){}
+
+        virtual bool configInit( const eq::uint128_t& initID );
+        virtual bool configExit();
+
+    private:
+        Application* const _app;
+    };
 }
-/** @endcond */
 }
 
-#endif // EQSEQUEL_TYPES_H
+#endif // EQSEQUEL_DETAIL_NODE_H

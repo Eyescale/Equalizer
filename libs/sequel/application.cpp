@@ -16,8 +16,7 @@
  */
 
 #include "application.h"
-
-#include "objectMap.h"
+#include "detail/application.h"
 
 #include <eq/config.h>
 #include <eq/configParams.h>
@@ -28,24 +27,25 @@ namespace seq
 {
 
 Application::Application()
-        : _config( 0 )
-        , _objects( 0 )
-{}
+{
+    _impl = new detail::Application( this );
+}
 
 Application::~Application()
 {
-    EQASSERT( !_config );
+    delete _impl;
+    _impl = 0;
 }
 
 bool Application::init( const int argc, char** argv )
 {
-    if( _config )
+    if( _impl->isInitialized( ))
     {
         EQERROR << "Already initialized" << std::endl;
         return false;
     }
 
-    if( !eq::init( argc, argv, this ))
+    if( !eq::init( argc, argv, _impl ))
     {
         EQERROR << "Equalizer initialization failed" << std::endl;
         return false;
@@ -54,46 +54,16 @@ bool Application::init( const int argc, char** argv )
     if( !initLocal( argc, argv ))
     {
         EQERROR << "Can't initialization client node" << std::endl;
-        eq::exit();
+        exit();
         return false;
     }
 
-    eq::ServerPtr server = new eq::Server;
-    if( !connectServer( server ))
+    if( !_impl->init( ))
     {
-        EQERROR << "Can't open Equalizer server" << std::endl;
-        return EXIT_FAILURE;
+        exit();
+        return false;
     }
-
-    eq::ConfigParams cp;
-    Config* config = static_cast< Config* >( server->chooseConfig( cp ));
-
-    if( !config )
-    {
-        EQERROR << "No matching configuration on Equalizer server" << std::endl;
-        disconnectServer( server );
-        return EXIT_FAILURE;
-    }
-
-    ObjectMap* objects = new ObjectMap( config );
-    EQCHECK( config->registerObject( objects ));
-
-    if( !config->init( objects->getID( )))
-    {
-        EQWARN << "Error during configuration initialization: "
-               << config->getError() << std::endl;
-        delete objects;
-        config->deregisterObject( objects );
-        server->releaseConfig( config );
-        disconnectServer( server );
-        return EXIT_FAILURE;
-    }
-    if( config->getError( ))
-        EQWARN << "Error during configuration initialization: "
-               << config->getError() << std::endl;
-
-    _objects = objects;
-    _config = config;
+        
     return true;
 }
 
@@ -104,17 +74,7 @@ bool Application::run()
 
 bool Application::exit()
 {
-    if( !_config )
-        return true;
-
-    eq::ServerPtr server = _config->getServer();
-    bool retVal = _config->exit();
-    _config->deregisterObject( _objects );
-    server->releaseConfig( _config );
-
-    if( !disconnectServer( server ))
-        retVal = false;
-
+    bool retVal = _impl->exit();
     if( !exitLocal( ))
         retVal = false;
 
@@ -122,7 +82,6 @@ bool Application::exit()
     if( !eq::exit( ))
         retVal = false;
 
-    _config = 0;
     return retVal;
 }
 

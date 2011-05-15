@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #               2010-2011 Cedric Stalder <cedric.stalder@gmail.com>
 
 include(PurpleForwardHeaders)

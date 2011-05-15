@@ -59,6 +59,39 @@ namespace eq
         virtual void releaseNode( Node* node );
 
         /** 
+         * Create a new pipe.
+         * 
+         * @return the pipe.
+         * @version 1.0
+         */
+        virtual Pipe* createPipe( Node* parent );
+
+        /** Release a pipe. @version 1.0 */
+        virtual void releasePipe( Pipe* pipe );
+
+        /** 
+         * Create a new window.
+         * 
+         * @return the window.
+         * @version 1.0
+         */
+        virtual Window* createWindow( Pipe* parent );
+
+        /** Release a window. @version 1.0 */
+        virtual void releaseWindow( Window* window );
+
+        /** 
+         * Create a new channel.
+         * 
+         * @return the channel.
+         * @version 1.0
+         */
+        virtual Channel* createChannel( Window* parent );
+
+        /** Release a channel. @version 1.0 */
+        virtual void releaseChannel( Channel* channel );
+
+        /** 
          * Create a new observer.
          * 
          * @return the observer.
@@ -112,39 +145,6 @@ namespace eq
 
         /** Release a segment. @version 1.0 */
         virtual void releaseSegment( Segment* segment );
-
-        /** 
-         * Create a new pipe.
-         * 
-         * @return the pipe.
-         * @version 1.0
-         */
-        virtual Pipe* createPipe( Node* parent );
-
-        /** Release a pipe. @version 1.0 */
-        virtual void releasePipe( Pipe* pipe );
-
-        /** 
-         * Create a new window.
-         * 
-         * @return the window.
-         * @version 1.0
-         */
-        virtual Window* createWindow( Pipe* parent );
-
-        /** Release a window. @version 1.0 */
-        virtual void releaseWindow( Window* window );
-
-        /** 
-         * Create a new channel.
-         * 
-         * @return the channel.
-         * @version 1.0
-         */
-        virtual Channel* createChannel( Window* parent );
-
-        /** Release a channel. @version 1.0 */
-        virtual void releaseChannel( Channel* channel );
 
         /** Destruct this node factory. @version 1.0 */
         virtual ~NodeFactory(){}

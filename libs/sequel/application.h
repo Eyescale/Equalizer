@@ -21,12 +21,11 @@
 #include <eq/sequel/types.h>
 
 #include <eq/client.h>      // base class
-#include <eq/nodeFactory.h> // base class
 
 namespace seq
 {
     /** The main application object. */
-    class Application : public eq::NodeFactory, public eq::Client
+    class Application : public eq::Client
     {
     public:
         /** Construct a new application instance. @version 1.0 */
@@ -62,12 +61,7 @@ namespace seq
         SEQ_API virtual bool exit();
 
     private:
-        Config* _config;
-        ObjectMap* _objects;
+        detail::Application* _impl;
     };
-
-    /** A shared pointer to an application instance. */
-    typedef co::base::RefPtr< Application > ApplicationPtr;
-
 }
 #endif // EQSEQUEL_APPLICATION_H
