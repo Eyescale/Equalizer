@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
 #ifndef EQPLY_ERROR_H
 #define EQPLY_ERROR_H
 
-#include <eq/error.h>
+#include <eq/eq.h>
 
 namespace eqPly
 {

@@ -28,9 +28,6 @@
 
 #include "error.h"
 
-#include <co/base/errorRegistry.h>
-#include <co/base/global.h>
-
 namespace eqPly
 {
 
