@@ -32,7 +32,7 @@
    for all application developers creating parallel,
    interactive OpenGL applications. Equalizer 1.0 can be
    retrieved by downloading the source code, updating the
-   subversion trunk to revision XXX (svn up -r XX) or by
+   subversion trunk to revision 5809 (svn up -r 5809) or by
    using:
    svn co
    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0
@@ -226,7 +226,9 @@
    The following documentation has been added or substantially
    improved since the last release:
 
-   1.0: No significant documentation changes.
+   1.0:
+
+     * Full API documentation for the public Equalizer API.
 
    1.0-beta (0.9.3):
 
@@ -346,8 +348,6 @@
    The following bugs were known at release time. Please file
    a Bug Report if you find any other issue with this release.
 
-     * 3159879 compressor YUV - Pixel decomposition broken
-     * 3136383 Windows 7 non-affinity PBuffers broken
      * 2796444: Race during simultaneous node connect
      * 2609161: zoom: depth readback does not work
      * 2556940: zoom: FBO usage

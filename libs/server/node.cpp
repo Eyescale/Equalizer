@@ -424,7 +424,7 @@ std::string Node::_createRemoteCommand()
     stringStream
         << quote << program << quote << " -- --eq-client " << quote
         << remoteData << workDir << CO_SEPARATOR << ownData << quote 
-        << " --co-globals " << collageGlobals << quote;
+        << " --co-globals " << quote << collageGlobals << quote;
 
     return stringStream.str();
 }

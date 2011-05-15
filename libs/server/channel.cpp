@@ -226,7 +226,8 @@ void Channel::activate()
     ++_active;
     window->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    EQLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
+                      << std::endl;
 }
 
 void Channel::deactivate()
@@ -238,7 +239,8 @@ void Channel::deactivate()
     --_active; 
     window->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    EQLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
+                      << std::endl;
 }
 
 void Channel::setOutput( View* view, Segment* segment )

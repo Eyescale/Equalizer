@@ -31,6 +31,7 @@ namespace co
             EXCEPTION_WRITE_TIMEOUT,   //!< A write timeout operation 
             EXCEPTION_READ_TIMEOUT,    //!< A read timeout operation
             EXCEPTION_BARRIER_TIMEOUT, //!< A barrier timeout operation
+            EXCEPTION_COMMANDQUEUE_TIMEOUT, //!< A command queue timeout
             EXCEPTION_CUSTOM      = 20 // leave some room
         };
 
@@ -60,13 +61,16 @@ namespace co
         switch( e.getType() )
         {
         case Exception::EXCEPTION_WRITE_TIMEOUT :
-            os << " EXCEPTION: Timeout on write operation";
+            os << " Timeout on write operation";
             break;
         case Exception::EXCEPTION_READ_TIMEOUT :
-            os << " EXCEPTION: Timeout on read operation";
+            os << " Timeout on read operation";
             break;
         case Exception::EXCEPTION_BARRIER_TIMEOUT :
-            os << " EXCEPTION: Timeout on barrier ";
+            os << " Timeout on barrier ";
+            break;
+        case Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT :
+            os << " Timeout on command queue ";
             break;
         default:
             {

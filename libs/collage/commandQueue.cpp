@@ -18,6 +18,7 @@
 #include "commandQueue.h"
 
 #include "command.h"
+#include "exception.h"
 #include "node.h"
 
 namespace co
@@ -59,10 +60,17 @@ void CommandQueue::pushFront( Command& command )
     _commands.pushFront( &command );
 }
 
-Command* CommandQueue::pop()
+Command* CommandQueue::pop( const uint32_t timeout )
 {
     EQ_TS_THREAD( _thread );
-    return _commands.pop();
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+        return _commands.pop();
+
+    Command* command;
+    if( !_commands.timedPop( timeout, command ))
+        throw Exception( Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT );
+
+    return command;
 }
 
 Command* CommandQueue::tryPop()

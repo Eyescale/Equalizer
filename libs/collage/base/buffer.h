@@ -21,6 +21,8 @@
 #include <co/base/debug.h>       // EQASSERT macro
 #include <co/base/types.h>
 
+#include <cstdlib>      // for malloc
+
 namespace co
 {
 namespace base

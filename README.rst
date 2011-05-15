@@ -37,8 +37,8 @@ experience into a feature-rich, high-performance and mature parallel
 rendering framework and an object-oriented high-level network library. It is
 intended for all application developers creating parallel, interactive OpenGL
 applications. Equalizer 1.0 can be retrieved by downloading the `source
-code`_, updating the subversion trunk to revision XXX (``svn up -r XX``) or
-by using:
+code`_, updating the subversion trunk to revision 5809 (``svn up -r 5809``)
+or by using:
 ``svn co
 https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0``
 
@@ -230,7 +230,9 @@ were made:
 The following documentation has been added or substantially improved since
 the last release:
 
-1.0: No significant documentation changes.
+1.0:
+
+-   Full `API documentation`_ for the public Equalizer API.
 
 1.0-beta (0.9.3):
 
@@ -340,8 +342,6 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `3159879`_ compressor YUV - Pixel decomposition broken
--   `3136383`_ Windows 7 non-affinity PBuffers broken
 -   `2796444`_: Race during simultaneous node connect
 -   `2609161`_: zoom: depth readback does not work
 -   `2556940`_: zoom: FBO usage
@@ -485,10 +485,12 @@ information.
     s/OpenSceneGraphClustering.pdf
 .. _CHANGES.txt: https://equalizer.svn.sourceforge.net/svnroot/equalizer/
     tags/release-1.0/CHANGES.txt
+.. _API       documentation:
+    http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _API       documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-0/9/3/index.html
+    http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html
 .. _API       documentation:
     http://www.equalizergraphics.com/documents/Developer/API-0.9.2/index.html
 .. _Error       handling:
@@ -612,10 +614,6 @@ information.
     up_id=170962&atid=856209
 .. _Bug   Report:
     http://sourceforge.net/tracker/?atid=856209&group_id=170962&func=browse
-.. _3159879: https://sourceforge.net/tracker/?func=detail&aid=3159879&gro
-    up_id=170962&atid=856209
-.. _3136383: https://sourceforge.net/tracker/?func=detail&aid=3136383&gro
-    up_id=170962&atid=856209
 .. _2796444: http://sourceforge.net/tracker/index.php?func=detail&aid=279
     6444&group_id=170962&atid=856209
 .. _2609161: http://sourceforge.net/tracker/index.php?func=detail&aid=260

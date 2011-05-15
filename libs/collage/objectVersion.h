@@ -28,6 +28,14 @@ namespace co
 {
     class Object;
 
+    /** Special object version values */
+    extern CO_API const uint128_t VERSION_NONE;
+    extern CO_API const uint128_t VERSION_FIRST;
+    extern CO_API const uint128_t VERSION_NEXT;
+    extern CO_API const uint128_t VERSION_INVALID;
+    extern CO_API const uint128_t VERSION_OLDEST;
+    extern CO_API const uint128_t VERSION_HEAD;
+
     /**
      * A helper struct bundling an object identifier and version.
      *

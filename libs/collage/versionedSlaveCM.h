@@ -21,7 +21,6 @@
 #include "objectCM.h"            // base class
 #include "objectDataIStream.h"      // member
 #include "objectSlaveDataOStream.h" // member
-#include "version.h"             // enum
 
 #include <co/base/mtQueue.h>     // member
 #include <co/base/pool.h>        // member

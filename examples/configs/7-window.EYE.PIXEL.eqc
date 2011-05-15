@@ -71,7 +71,7 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 }}
+        layout{ view { observer 0 mode STEREO }}
         canvas
         {
             layout 0
@@ -80,9 +80,7 @@ server
         }
         compound
         {
-            channel  ( segment 0 view 0 )
-            attributes{ stereo_mode ANAGLYPH }
-            eye [ LEFT RIGHT ]
+            channel ( segment 0 view 0 )
 
             wall
             {
@@ -94,7 +92,7 @@ server
             compound
             {
                 channel "channel-left"
-                eye     [ LEFT ]
+                eye     [ LEFT CYCLOP ]
 
                 compound
                 {
@@ -137,7 +135,7 @@ server
             compound
             {
                 task      [ ASSEMBLE ]
-                eye       [ LEFT ]
+                eye       [ LEFT CYCLOP ]
                 inputframe{ name "frame.channel-left-1" }
                 inputframe{ name "frame.channel-left-2" }
             }

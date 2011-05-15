@@ -474,7 +474,8 @@ namespace co
 
         /** The command functions. */
         bool _cmdAckRequest( Command& packet );
-        bool _cmdStop( Command& command );
+        bool _cmdStopRcv( Command& command );
+        bool _cmdStopCmd( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );
@@ -490,7 +491,7 @@ namespace co
         //@}
 
         EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _recvThread );
+        EQ_TS_VAR( _rcvThread );
     };
     inline std::ostream& operator << ( std::ostream& os, const LocalNode& node )
     {

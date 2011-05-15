@@ -41,8 +41,8 @@
   application developers creating parallel, interactive OpenGL
   applications. Equalizer 1.0 can be retrieved by downloading the
   <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.0.tar.gz">source
-    code</a>, updating the subversion trunk to revision XXX (<code>svn up -r
-    XX</code>) or by using:<br>
+    code</a>, updating the subversion trunk to revision 5809 (<code>svn up -r
+    5809</code>) or by using:<br>
   <code>svn co
     https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0</code>
 </p>
@@ -246,12 +246,16 @@
   The following documentation has been added or substantially improved since the
   last release:
 </p>
-<p>1.0: No significant documentation changes.</p>
+<p>1.0:</p>
+<ul>
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html">API
+      documentation</a> for the public Equalizer API.</li>
+</ul>
 <p>1.0-beta (0.9.3):</p>
 <ul>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
       User Guide</a> has been extended to 102 pages and 56 figures.</li>
-  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-0/9/3/index.html">API
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html">API
       documentation</a> for the public Equalizer API.</li>
 </ul>
 <p>1.0-alpha (0.9.2):</p>
@@ -369,8 +373,6 @@
   Report</a> if you find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3159879&group_id=170962&atid=856209">3159879</a> compressor YUV - Pixel decomposition broken</li>
-  <li><a href="https://sourceforge.net/tracker/?func=detail&aid=3136383&group_id=170962&atid=856209">3136383</a> Windows 7 non-affinity PBuffers broken</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2796444&group_id=170962&atid=856209">2796444</a>: Race during simultaneous node connect</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2609161&group_id=170962&atid=856209">2609161</a>: zoom: depth readback does not work</li>
   <li><a href="http://sourceforge.net/tracker/index.php?func=detail&aid=2556940&group_id=170962&atid=856209">2556940</a>: zoom: FBO usage</li>

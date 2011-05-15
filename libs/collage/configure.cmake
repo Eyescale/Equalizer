@@ -5,6 +5,12 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
+if(NOT EQ_REVISION)
+  set(EQ_REVISION 0)
+endif()
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${EQ_INCLUDE_DIR}/co/version.h)
+install(FILES ${EQ_INCLUDE_DIR}/co/version.h DESTINATION include/co/ COMPONENT codev)
+
 set(COLLAGE_DEFINES)
 
 if(NOT EQ_BIG_ENDIAN)

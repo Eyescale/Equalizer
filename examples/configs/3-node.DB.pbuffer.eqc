@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+!#Equalizer 1.1 ascii
 
 # three nodes with one FBO RGBA32F and one pbuffer RGBA32F
 global

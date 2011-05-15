@@ -158,28 +158,14 @@ server
                 type         HMD
             }
 
-            segment { channel "HMD-left" }
-            segment { channel "HMD-right" }
+            segment { channel "HMD-left" eye [ LEFT CYCLOP ] }
+            segment { channel "HMD-right" eye [ RIGHT CYCLOP ] }
         }
         canvas
         {
             name "Untracked"
             layout "Untracked"
             segment { channel "untracked" }
-        }
-
-        compound
-        {
-            compound
-            {
-                channel ( canvas "HMD" segment 0 layout "HMD" view 0 )
-                eye     [ LEFT CYCLOP]
-            }
-            compound
-            { 
-                channel ( canvas "HMD" segment 1 layout "HMD" view 0 )
-                eye     [ RIGHT CYCLOP]
-            }
         }
     }    
 }

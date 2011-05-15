@@ -8,6 +8,11 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/files.cmake)
 source_group( "plugin" FILES ${PLUGIN_HEADERS} )
 source_group( "base" FILES ${COBASE_FORWARD_HEADERS} ${COBASE_HEADERS} ${COBASE_SOURCES})
 
+set(COBASE_LINK_LIBS)
+if(LINUX)
+  list(APPEND COBASE_LINK_LIBS dl rt)
+endif()
+
 purple_add_library(co_base ${CO_LIB_VARIANT}
   HEADERS_PREFIX "co/base/"
   FORWARD HEADERS
@@ -20,4 +25,5 @@ purple_add_library(co_base ${CO_LIB_VARIANT}
     ${COBASE_HEADERS}
   LINK_LIBRARIES
     ${PTHREAD_LIBRARIES}
+    ${COBASE_LINK_LIBS}
   )

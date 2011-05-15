@@ -367,6 +367,14 @@ const std::string& Config< S, C, O, L, CV, N, V >::getIAttributeString(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
+{
+    if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
+        return EQ_TIMEOUT_INDEFINITE;
+    return EQ_TIMEOUT_DEFAULT;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 L* Config< S, C, O, L, CV, N, V >::getLayout( const LayoutPath& path )
 {
     EQASSERTINFO( _layouts.size() > path.layoutIndex,

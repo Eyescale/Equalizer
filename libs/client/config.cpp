@@ -39,6 +39,7 @@
 
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
+#include <co/exception.h>
 #include <co/object.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
@@ -361,9 +362,19 @@ uint32_t Config::finishAllFrames()
     send( getServer(), packet );
 
     ClientPtr client = getClient();
+    const uint32_t timeout = getTimeout();
     while( _finishedFrame < _currentFrame )
-        client->processCommand();
-
+    {
+        try
+        {
+            client->processCommand( timeout );
+        }
+        catch( co::Exception& e )
+        {
+            EQWARN << "Timeout in finishAllFrames " << e << std::endl;
+            break;
+        } 
+    }
     handleEvents();
     _updateStatistics( _currentFrame );
     _releaseObjects();

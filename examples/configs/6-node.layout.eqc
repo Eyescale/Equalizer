@@ -9,12 +9,12 @@ global
 
 server
 {
-    connection { hostname "hactar1" }
+    connection { hostname "node1" }
     config
     {
         appNode
         {
-            connection { hostname "hactar1" }
+            connection { hostname "node1" }
             pipe 
             {
                 window
@@ -26,27 +26,27 @@ server
         }
         node
         {
-            connection { hostname "hactar2" }
+            connection { hostname "node2" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "hactar3" }
+            connection { hostname "node3" }
             pipe { window { channel { name "channel3" }}}
         }
         node
         {
-            connection { hostname "hactar4" }
+            connection { hostname "node4" }
             pipe { window { channel { name "channel4" }}}
         }
         node
         {
-            connection { hostname "hactar5" }
+            connection { hostname "node5" }
             pipe { window { channel { name "channel5" }}}
         }
         node
         {
-            connection { hostname "hactar6" }
+            connection { hostname "node6" }
             pipe { window { channel { name "channel6" }}}
         }
         observer{}
