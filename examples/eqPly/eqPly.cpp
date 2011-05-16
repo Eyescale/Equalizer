@@ -129,7 +129,7 @@ int EqPly::run()
                    << std::endl;
         config->finishFrame();
 
-        while( !config->needsRedraw( )) // wait for an event requiring redraw
+        while( !config->needRedraw( )) // wait for an event requiring redraw
         {
             if( hasCommands( )) // execute non-critical pending commands
             {
