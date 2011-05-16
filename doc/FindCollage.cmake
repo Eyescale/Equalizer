@@ -68,20 +68,19 @@
 
 #
 # find and parse co/version.h
-find_path(COLLAGE_INCLUDE_DIR co/version.h
+find_path(_co_INCLUDE_DIR co/version.h
   HINTS $ENV{CO_ROOT} $ENV{EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
 
+
 # Try to ascertain the version...
-if(CO_INCLUDE_DIR)
-  message("Found Collage in ${COLLAGE_INCLUDE_DIR}")
-    
-  set(_co_Version_file "${CO_INCLUDE_DIR}/co/version.h")
-  if("${CO_INCLUDE_DIR}" MATCHES "\\.framework$" AND
+if(_co_INCLUDE_DIR)
+  set(_co_Version_file "${_co_INCLUDE_DIR}/co/version.h")
+  if("${_co_INCLUDE_DIR}" MATCHES "\\.framework$" AND
       NOT EXISTS "${_co_Version_file}")
-    set(_co_Version_file "${CO_INCLUDE_DIR}/Headers/version.h")
+    set(_co_Version_file "${_co_INCLUDE_DIR}/Headers/version.h")
   endif()
     
   if(EXISTS "${_co_Version_file}")
@@ -90,16 +89,19 @@ if(CO_INCLUDE_DIR)
     set(_co_Version_contents "unknown")
   endif()
 
-  string(REGEX REPLACE ".*define CO_VERSION_MAJOR[ \t]+([0-9]+).*"
-    "\\1" _co_VERSION_MAJOR ${_co_Version_contents})
-  string(REGEX REPLACE ".*define CO_VERSION_MINOR[ \t]+([0-9]+).*"
-    "\\1" _co_VERSION_MINOR ${_co_Version_contents})
-  string(REGEX REPLACE ".*define CO_VERSION_PATCH[ \t]+([0-9]+).*"
-    "\\1" _co_VERSION_PATCH ${_co_Version_contents})
-
-  set(COLLAGE_VERSION "${_co_VERSION_MAJOR}.${_co_VERSION_MINOR}.${_co_VERSION_PATCH}"
-    CACHE INTERNAL "The version of Collage which was detected")
-  message("Found Collage ${COLLAGE_VERSION}")
+  if(_co_Version_contents MATCHES ".*define CO_VERSION_MAJOR[ \t]+([0-9]+).*")
+    string(REGEX REPLACE ".*define CO_VERSION_MAJOR[ \t]+([0-9]+).*"
+      "\\1" _co_VERSION_MAJOR ${_co_Version_contents})
+    string(REGEX REPLACE ".*define CO_VERSION_MINOR[ \t]+([0-9]+).*"
+      "\\1" _co_VERSION_MINOR ${_co_Version_contents})
+    string(REGEX REPLACE ".*define CO_VERSION_PATCH[ \t]+([0-9]+).*"
+      "\\1" _co_VERSION_PATCH ${_co_Version_contents})
+    set(COLLAGE_VERSION "${_co_VERSION_MAJOR}.${_co_VERSION_MINOR}.${_co_VERSION_PATCH}"
+      CACHE INTERNAL "The version of Collage which was detected")
+  else()
+    set(COLLAGE_VERSION "0.3.0"
+      CACHE INTERNAL "The version of Collage which was detected")
+  endif()
 endif()
 
 #
@@ -119,7 +121,11 @@ if(Collage_FIND_VERSION AND COLLAGE_VERSION)
   endif()
 endif()
 
-find_package(Collage)
+find_library(_co_LIBRARY Collage
+  HINTS $ENV{CO_ROOT} $ENV{EQ_ROOT}
+  PATH_SUFFIXES lib
+  PATHS /usr /usr/local /opt/local /opt
+)
         
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
@@ -141,24 +147,29 @@ elseif(_co_version_not_exact)
     "Version ${COLLAGE_VERSION} was found.")
 else()
   if(Collage_FIND_REQUIRED)
-    set(_co_missing_message)
-    if(NOT COLLAGE_FOUND)
+    if(_co_LIBRARY MATCHES "_co_LIBRARY-NOTFOUND")
       message(FATAL_ERROR "ERROR: Missing the Collage library.\n"
-        "Consider using CMAKE_PREFIX_PATH or the CO_DIR environment variable. "
+        "Consider using CMAKE_PREFIX_PATH or the CO_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+  include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(Collage DEFAULT_MSG
-    COLLAGE_LIBRARIES COLLAGE_INCLUDE_DIR)
+                                    _co_LIBRARY _co_INCLUDE_DIR)
 endif()
 
 if(_co_EPIC_FAIL)
     # Zero out everything, we didn't meet version requirements
     set(COLLAGE_FOUND FALSE)
-    set(COLLAGE_LIBRARIES)
-    set(COLLAGE_INCLUDE_DIR)
+    set(_co_LIBRARY)
+    set(_co_INCLUDE_DIR)
 endif()
 
-set(COLLAGE_INCLUDE_DIRS ${COLLAGE_INCLUDE_DIR})
+set(COLLAGE_INCLUDE_DIRS ${_co_INCLUDE_DIR})
+set(COLLAGE_LIBRARIES ${_co_LIBRARY})
+
+if(COLLAGE_FOUND)
+  message("-- Found Collage ${COLLAGE_VERSION} in ${COLLAGE_INCLUDE_DIRS};"
+    "${COLLAGE_LIBRARIES}")
+endif()
 

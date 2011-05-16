@@ -82,20 +82,18 @@ endif()
 
 #
 # find and parse eq/version.h
-find_path(EQUALIZER_INCLUDE_DIR eq/version.h
+find_path(_eq_INCLUDE_DIR eq/version.h
   HINTS $ENV{EQ_ROOT} $ENV{EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
 
 # Try to ascertain the version...
-if(EQ_INCLUDE_DIR)
-  message("Found Equalizer in ${EQUALIZER_INCLUDE_DIR}")
-    
-  set(_eq_Version_file "${EQ_INCLUDE_DIR}/eq/version.h")
-  if("${EQ_INCLUDE_DIR}" MATCHES "\\.framework$" AND
+if(_eq_INCLUDE_DIR)
+  set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
+  if("${_eq_INCLUDE_DIR}" MATCHES "\\.framework$" AND
       NOT EXISTS "${_eq_Version_file}")
-    set(_eq_Version_file "${EQ_INCLUDE_DIR}/Headers/version.h")
+    set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")
   endif()
     
   if(EXISTS "${_eq_Version_file}")
@@ -113,7 +111,6 @@ if(EQ_INCLUDE_DIR)
 
   set(EQUALIZER_VERSION "${_eq_VERSION_MAJOR}.${_eq_VERSION_MINOR}.${_eq_VERSION_PATCH}"
     CACHE INTERNAL "The version of Equalizer which was detected")
-  message("Found Equalizer ${EQUALIZER_VERSION}")
 endif()
 
 #
@@ -133,8 +130,12 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
   endif()
 endif()
 
-find_package(Equalizer)
-        
+find_library(_eq_LIBRARY Equalizer
+  HINTS $ENV{EQ_ROOT}
+  PATH_SUFFIXES lib
+  PATHS /usr /usr/local /opt/local /opt
+)
+
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
 if(Equalizer_FIND_REQUIRED)
@@ -155,24 +156,27 @@ elseif(_eq_version_not_exact)
     "Version ${EQUALIZER_VERSION} was found.")
 else()
   if(Equalizer_FIND_REQUIRED)
-    set(_eq_missing_message)
-    if(NOT EQUALIZER_FOUND)
+    if(_eq_LIBRARY MATCHES "_eq_LIBRARY-NOTFOUND")
       message(FATAL_ERROR "ERROR: Missing the Equalizer library.\n"
-        "Consider using CMAKE_PREFIX_PATH or the EQ_DIR environment variable. "
+        "Consider using CMAKE_PREFIX_PATH or the EQ_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  include(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(Equalizer DEFAULT_MSG
-    EQUALIZER_LIBRARIES EQUALIZER_INCLUDE_DIR)
+                                    _eq_LIBRARY _eq_INCLUDE_DIR)
 endif()
 
 if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     # Zero out everything, we didn't meet version requirements
     set(EQUALIZER_FOUND FALSE)
-    set(EQUALIZER_LIBRARIES)
-    set(EQUALIZER_INCLUDE_DIR)
+    set(_eq_LIBRARY)
+    set(_eq_INCLUDE_DIR)
 endif()
 
-set(EQUALIZER_INCLUDE_DIRS ${EQUALIZER_INCLUDE_DIR})
+set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY})
 
+if(EQUALIZER_FOUND)
+  message("-- Found Equalizer ${EQUALIZER_VERSION} in ${EQUALIZER_INCLUDE_DIRS}"
+    ";${EQUALIZER_LIBRARIES}")
+endif()
