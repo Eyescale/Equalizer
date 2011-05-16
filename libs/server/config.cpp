@@ -108,7 +108,7 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
     registerCommand( fabric::CMD_CONFIG_START_FRAME, 
                      ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
     registerCommand( fabric::CMD_CONFIG_STOP_FRAMES, 
-                     ConfigFunc( this, &Config::_cmdStopFrames ), cmdQ );
+                     ConfigFunc( this, &Config::_cmdStopFrames ), mainQ );
     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
 }
