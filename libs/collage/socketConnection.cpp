@@ -437,7 +437,8 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
     while( true )
     {
-        if( WSAGetOverlappedResult(_readFD, &_overlappedRead, &got, block, &flags ))
+        if( WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, block, 
+                                    &flags ))
             return got;
 
         const int err = WSAGetLastError();
@@ -489,44 +490,62 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
             EQ_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
-    const uint32_t timeOut = _getTimeOut();
 
-    while( true )
+    ResetEvent( _overlappedWrite.hEvent );
+    if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, &_overlappedWrite, 
+                 0 ) ==  0 ) // ok
     {
-        ResetEvent( _overlappedWrite.hEvent );
-        if( WSASend( _writeFD, &wsaBuffer, 1, &wrote, 0, &_overlappedWrite, 0 ) ==  0 ) // ok
-            return wrote;
+        return wrote;
+    }
 
-        switch( WSAGetLastError() )
-        {
-        case WSA_IO_PENDING:
-            break;
-        case WSAEWOULDBLOCK:
+    switch( WSAGetLastError() )
+    {
+      case WSA_IO_PENDING:
+          break;
+      case WSAEWOULDBLOCK:
           {
               // Buffer full - try again, wait for writable socket
               EQUNREACHABLE;
-              continue;
+              break;
           }
-        default:
+      default:
+          return -1;
+    }
+
+    const uint32_t timeOut = _getTimeOut();
+    const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, 
+                                           timeOut );
+    switch( err )
+    {
+      case WAIT_FAILED:
+      case WAIT_ABANDONED:
+        {
+            EQWARN << "Write error" << base::sysError << std::endl;
             return -1;
         }
-        DWORD got = 0;
-        DWORD flags = 0;
-        if( WSAGetOverlappedResult(_writeFD, &_overlappedWrite, &got, false, &flags ))
-            return got;
+      default:;
+    }
 
-        if( WSA_IO_INCOMPLETE == WSAGetLastError() )
+    DWORD got = 0;
+    DWORD flags = 0;
+    if( WSAGetOverlappedResult( _writeFD, &_overlappedWrite, &got, false, 
+                                &flags ))
+    {
+        return got;
+    }
+
+    switch( WSAGetLastError() )
+    {
+      case WSA_IO_INCOMPLETE:
         {
-            if( WAIT_OBJECT_0 != 
-                WaitForSingleObject( _overlappedWrite.hEvent, timeOut ))
-            {
-                EQWARN << "Write timeout" << std::endl;
-                throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
-            }
+            EQWARN << "Write timeout" << std::endl;
+            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
         }
-
-        if( WSAGetOverlappedResult(_writeFD, &_overlappedWrite, &got, false, &flags ))
-            return got;
+      default:
+        {
+            EQWARN << "Write error : " << base::sysError << std::endl;
+            return -1;
+        }
     }
 
     EQUNREACHABLE;

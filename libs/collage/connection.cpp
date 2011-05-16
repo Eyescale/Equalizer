@@ -158,7 +158,7 @@ uint32_t Connection::_getTimeOut() const
 {
     return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
            base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
-           INFINITE;
+           0xFFFFFFFF;
 }
 
 //----------------------------------------------------------------------
@@ -331,8 +331,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         }
         catch( co::Exception )
         {
-            EQERROR << "Error timout write after " << bytes - bytesLeft 
-                    << " bytes" << std::endl;
+            EQERROR << "Error timout after " << bytes - bytesLeft 
+                    << " bytes, closing connection" << std::endl;
             close();
             return false;
         }
