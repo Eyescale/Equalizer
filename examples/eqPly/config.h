@@ -51,7 +51,7 @@ namespace eqPly
     class Config : public eq::Config
     {
     public:
-        Config( co::base::RefPtr< eq::Server > parent );
+        Config( eq::ServerPtr parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();

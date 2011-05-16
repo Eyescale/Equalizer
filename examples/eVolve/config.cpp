@@ -32,7 +32,7 @@
 namespace eVolve
 {
 
-Config::Config( co::base::RefPtr< eq::Server > parent )
+Config::Config( eq::ServerPtr parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
