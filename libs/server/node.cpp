@@ -388,9 +388,10 @@ std::string Node::_createRemoteCommand()
     if( env )
         stringStream << libPath << "=" << env << " ";
 
+    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     for( int i=0; environ[i] != 0; i++ )
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
-            stringStream << environ[i] << " ";
+            stringStream << quote << environ[i] << quote << " ";
 
     stringStream << "EQ_LOG_LEVEL=" <<co::base::Log::getLogLevelString() << " ";
     if( co::base::Log::topics != 0 )
@@ -415,7 +416,6 @@ std::string Node::_createRemoteCommand()
         program = workDir + '/' + program;
 #endif
 
-    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     const std::string ownData = getServer()->serialize();
     const std::string remoteData = _node->serialize();
     std::string collageGlobals;
