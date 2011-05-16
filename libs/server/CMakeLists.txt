@@ -16,39 +16,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DEQSERVER_EXPORTS -DYY_NEVER_INTERACTIVE)
 
-purple_add_library(EqualizerServer SHARED
-  HEADERS_PREFIX "eq/server/"
-  SOURCES
-    ${BISON_PARSER_OUTPUTS}
-    ${FLEX_LEXER_OUTPUTS}
+set(SERVER_HEADERS
     api.h
     canvas.h
-    changeLatencyVisitor.h
     channel.h
-    channelListener.h
-    channelStopFrameVisitor.h
-    channelUpdateVisitor.h
-    colorMask.h
     compound.h
-    compoundActivateVisitor.h
-    compoundExitVisitor.h
-    compoundInitVisitor.h
-    compoundListener.h
-    compoundUpdateDataVisitor.h
-    compoundUpdateInputVisitor.h
-    compoundUpdateOutputVisitor.h
-    compoundVisitor.h
     config.h
-    configBackupVisitor.h
-    configDeregistrator.h
-    configDestCompoundVisitor.h
-    configRegistrator.h
-    configRestoreVisitor.h
-    configUnmapVisitor.h
-    configUpdateDataVisitor.h
-    configUpdateSyncVisitor.h
-    configUpdateVisitor.h
-    configVisitor.h
     connectionDescription.h
     frame.h
     frameData.h
@@ -58,37 +31,60 @@ purple_add_library(EqualizerServer SHARED
     init.h
     layout.h
     loader.h
-    loader.l
-    loader.y
     log.h
     node.h
-    nodeFactory.h
-    nodeFailedVisitor.h
     observer.h
     pipe.h
     segment.h
     server.h
-    serverVisitor.h
     state.h
     swapBarrier.h
     types.h
     view.h
     visitorResult.h
     window.h
+)
+
+set(SERVER_SOURCES
+    ${BISON_PARSER_OUTPUTS}
+    ${FLEX_LEXER_OUTPUTS}
     canvas.cpp
+    changeLatencyVisitor.h
     channel.cpp
+    channelListener.h
+    channelStopFrameVisitor.h
     channelUpdateVisitor.cpp
+    channelUpdateVisitor.h
+    colorMask.h
     compound.cpp
+    compoundActivateVisitor.h
+    compoundExitVisitor.h
     compoundInitVisitor.cpp
+    compoundInitVisitor.h
+    compoundListener.h
     compoundUpdateDataVisitor.cpp
+    compoundUpdateDataVisitor.h
     compoundUpdateInputVisitor.cpp
+    compoundUpdateInputVisitor.h
     compoundUpdateOutputVisitor.cpp
+    compoundUpdateOutputVisitor.h
+    compoundVisitor.h
     config.cpp
+    configBackupVisitor.h
+    configDeregistrator.h
+    configDestCompoundVisitor.h
+    configRegistrator.h
+    configRestoreVisitor.h
+    configUnmapVisitor.h
     configUpdateDataVisitor.cpp
+    configUpdateDataVisitor.h
+    configUpdateSyncVisitor.h
+    configUpdateVisitor.h
+    configVisitor.h
     connectionDescription.cpp
     equalizers/dfrEqualizer.cpp
-    equalizers/framerateEqualizer.cpp
     equalizers/equalizer.cpp
+    equalizers/framerateEqualizer.cpp
     equalizers/loadEqualizer.cpp
     equalizers/monitorEqualizer.cpp
     equalizers/treeEqualizer.cpp
@@ -101,20 +97,39 @@ purple_add_library(EqualizerServer SHARED
     init.cpp
     layout.cpp
     loader.cpp
+    loader.l
+    loader.y
     node.cpp
     nodeFactory.cpp
+    nodeFactory.h
+    nodeFailedVisitor.h
     observer.cpp
     parser.cpp
     pipe.cpp
     segment.cpp
     server.cpp
+    serverVisitor.h
     startLocalServer.cpp
     swapBarrier.cpp
     view.cpp
     window.cpp
-  LINK_LIBRARIES
-    Equalizer
-  )
+)
+
+if(EQUALIZER_INSTALL_SERVER_HEADERS)
+  purple_add_library(EqualizerServer SHARED
+    HEADERS_PREFIX "eq/server/"
+    FORWARD HEADERS ${SERVER_HEADERS}
+    SOURCES ${SERVER_SOURCES}
+    LINK_LIBRARIES Equalizer
+    )
+else()
+  purple_add_library(EqualizerServer SHARED
+    HEADERS_PREFIX "eq/server/"
+    SOURCES ${SERVER_HEADERS} ${SERVER_SOURCES}
+    LINK_LIBRARIES Equalizer
+    )
+endif()
+
 set_target_properties(lib_EqualizerServer_shared PROPERTIES
   FOLDER "Libraries" PROJECT_LABEL "Server")
 source_group(\\ REGULAR_EXPRESSION .*)

@@ -51,7 +51,7 @@ namespace eqPly
     class Config : public eq::Config
     {
     public:
-        Config( co::base::RefPtr< eq::Server > parent );
+        Config( eq::ServerPtr parent );
 
         /** @sa eq::Config::init. */
         virtual bool init();
@@ -80,10 +80,7 @@ namespace eqPly
         bool isIdleAA();
 
         /** @return true if an event required a redraw. */
-        bool needsRedraw();
-
-        /** @return true if an user event required a redraw. */
-        bool isUserEvent();
+        bool needRedraw();
 
     protected:
         virtual ~Config();
@@ -121,6 +118,8 @@ namespace eqPly
         void _registerModels();
         void _loadPath();
         void _deregisterData();
+
+        bool _needNewFrame();
         bool _handleKeyEvent( const eq::KeyEvent& event );
 
         void _switchCanvas();

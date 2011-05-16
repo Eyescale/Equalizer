@@ -14,10 +14,13 @@ option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
+option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
+
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
+mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
