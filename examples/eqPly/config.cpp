@@ -357,15 +357,15 @@ void Config::_updateData()
 
 bool Config::isIdleAA()
 {
-    return ( !isUserEvent() && _numFramesAA > 0 );
+    return ( !_needNewFrame() && _numFramesAA > 0 );
 }
 
-bool Config::needsRedraw()
+bool Config::needRedraw()
 {
-    return( isUserEvent() || _numFramesAA > 0 );
+    return( _needNewFrame() || _numFramesAA > 0 );
 }
 
-bool Config::isUserEvent()
+bool Config::_needNewFrame()
 {
     if( _messageTime > 0 )
     {
