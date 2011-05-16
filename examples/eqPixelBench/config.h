@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ namespace eqPixelBench
 class Config : public eq::Config
 {
 public:
-    Config( co::base::RefPtr< eq::Server > parent );
+    Config( eq::ServerPtr parent );
 
     /** @sa eq::Config::startFrame */
     virtual uint32_t startFrame( const eq::uint128_t& frameID );
