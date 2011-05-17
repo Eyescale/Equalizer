@@ -45,6 +45,7 @@
 #include <eq/fabric/commands.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
+#include <co/exception.h>
 #include <co/base/rng.h>
 #include <co/base/scopedMutex.h>
 
@@ -360,9 +361,14 @@ void Channel::frameAssemble( const uint128_t& )
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
-
-    Compositor::assembleFrames( getInputFrames(), this, 0 );
-
+    try
+    {
+        Compositor::assembleFrames( getInputFrames(), this, 0 );
+    }
+    catch( co::Exception e )
+    {
+        EQWARN << "assemble frames timeout : " << e << std::endl;
+    }
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
