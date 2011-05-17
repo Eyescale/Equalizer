@@ -32,7 +32,7 @@ namespace co
 #   define CO_VERSION_MINOR ${CO_VERSION_MINOR}
 
     /** The current patch level. @version 1.0 */
-#   define CO_VERSION_PATCH ${CO_VERSION_SUB}
+#   define CO_VERSION_PATCH ${CO_VERSION_PATCH}
 
     /** The git wc hash revision, may be 0. @version 1.0 */
 #   define CO_VERSION_REVISION ${EQ_REVISION}
