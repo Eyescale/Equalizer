@@ -97,7 +97,7 @@ protected:
             }
             catch( co::Exception& e )
             {
-                TEST( e.getType() == co::Exception::EXCEPTION_BARRIER_TIMEOUT );
+                TEST( e.getType() == co::Exception::TIMEOUT_BARRIER );
                 _countException++;
             }
         }
@@ -153,7 +153,7 @@ protected:
             }
             catch( co::Exception& e )
             {
-                TEST( e.getType() == co::Exception::EXCEPTION_BARRIER_TIMEOUT);
+                TEST( e.getType() == co::Exception::TIMEOUT_BARRIER );
                 _countException++;
             }
         }

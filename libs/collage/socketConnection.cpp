@@ -527,15 +527,13 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
     switch( WSAGetLastError() )
     {
       case WSA_IO_INCOMPLETE:
-        {
-            EQWARN << "Write timeout" << std::endl;
-            throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
-        }
+          throw Exception( Exception::TIMEOUT_WRITE );
+
       default:
-        {
-            EQWARN << "Write error : " << base::sysError << std::endl;
-            return -1;
-        }
+      {
+          EQWARN << "Write error : " << base::sysError << std::endl;
+          return -1;
+      }
     }
 
     EQUNREACHABLE;

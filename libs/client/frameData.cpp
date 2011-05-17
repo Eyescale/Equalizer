@@ -20,6 +20,7 @@
 
 #include "nodeStatistics.h"
 #include "channelStatistics.h"
+#include "exception.h"
 #include "image.h"
 #include "log.h"
 #include "nodePackets.h"
@@ -31,7 +32,6 @@
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/exception.h>
 #include <co/base/global.h>
 #include <co/base/monitor.h>
 
@@ -240,16 +240,16 @@ void FrameData::setVersion( const uint64_t version )
     EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
-/** Wait for the frame data to become available. @version 1.0 */
 void FrameData::waitReady() const 
 {
+    // TODO: Use Config::getTimeout() cf. compositor.cpp
     if( co::base::Global::getIAttribute( co::base::Global::IATTR_ROBUSTNESS ) )
     { 
         if( !_readyVersion.timedWaitGE( 
                        _version, co::base::Global::getIAttribute( 
                                     co::base::Global::IATTR_TIMEOUT_DEFAULT )))
         {
-            throw co::Exception( co::Exception::EXCEPTION_MONITOR_TIMEOUT );
+            throw Exception( Exception::TIMEOUT_INPUTFRAME );
         }
     }
     else

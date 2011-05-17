@@ -107,8 +107,8 @@ bool Condition::timedWait( const unsigned timeout )
     timespec ts = { 0, 0 };
 
     const uint32_t time = timeout == EQ_TIMEOUT_DEFAULT ?
-                   Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
-                          
+        Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
+
     if( time > 0 )
     {
         ts.tv_sec  = static_cast<int>( time / 1000 );

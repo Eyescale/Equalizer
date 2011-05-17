@@ -37,8 +37,6 @@
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
-#include <co/exception.h>
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -237,7 +235,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     catch( co::Exception e )
     {
-        EQWARN << "assemble frames timeout : " << e << std::endl;
+        EQWARN << e << std::endl;
     }
 
     resetAssemblyState();

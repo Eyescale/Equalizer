@@ -59,7 +59,8 @@ namespace co
          * @return the next command in the queue.
          * @throws Exception on timeout.
          */
-        CO_API virtual Command* pop( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        CO_API virtual Command* pop( const uint32_t timeout =
+                                     EQ_TIMEOUT_INDEFINITE );
 
         /** 
          * Try to pop a command from the queue.

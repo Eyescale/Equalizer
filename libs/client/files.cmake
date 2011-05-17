@@ -29,6 +29,7 @@ set(CLIENT_HEADERS
   error.h
   event.h
   eventHandler.h
+  exception.h
   eye.h
   frame.h
   frameData.h
