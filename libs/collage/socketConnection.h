@@ -106,7 +106,7 @@ namespace co
         void*      _overlappedAcceptData;
         Socket     _overlappedSocket;
         DWORD      _overlappedDone;
-        uint32_t   _timeout;
+
         EQ_TS_VAR( _recvThread );
 #endif
     };
