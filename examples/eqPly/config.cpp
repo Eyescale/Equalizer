@@ -39,7 +39,7 @@
 namespace eqPly
 {
 
-Config::Config( co::base::RefPtr< eq::Server > parent )
+Config::Config( eq::ServerPtr parent )
         : eq::Config( parent )
         , _spinX( 5 )
         , _spinY( 5 )
@@ -357,15 +357,15 @@ void Config::_updateData()
 
 bool Config::isIdleAA()
 {
-    return ( !isUserEvent() && _numFramesAA > 0 );
+    return ( !_needNewFrame() && _numFramesAA > 0 );
 }
 
-bool Config::needsRedraw()
+bool Config::needRedraw()
 {
-    return( isUserEvent() || _numFramesAA > 0 );
+    return( _needNewFrame() || _numFramesAA > 0 );
 }
 
-bool Config::isUserEvent()
+bool Config::_needNewFrame()
 {
     if( _messageTime > 0 )
     {
