@@ -324,31 +324,30 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
-        int64_t wrote = 0;
         try
         {
-            wrote = this->write( ptr, bytesLeft );
+            const int64_t wrote = this->write( ptr, bytesLeft );
+            if( wrote == -1 ) // error
+            {
+                EQERROR << "Error during write after " << bytes - bytesLeft 
+                        << " bytes, closing connection" << std::endl;
+                close();
+                return false;
+            }
+            else if( wrote == 0 )
+                EQWARN << "Zero bytes write" << std::endl;
+
+            bytesLeft -= wrote;
+            ptr += wrote;
         }
         catch( co::Exception )
         {
-            EQERROR << "Error timout after " << bytes - bytesLeft 
+            EQERROR << "write timout after " << bytes - bytesLeft 
                     << " bytes, closing connection" << std::endl;
             close();
             return false;
         }
 
-        if( wrote == -1 ) // error
-        {
-            EQERROR << "Error during write after " << bytes - bytesLeft 
-                    << " bytes" << std::endl;
-            close();
-            return false;
-        }
-        else if( wrote == 0 )
-            EQWARN << "Zero bytes write" << std::endl;
-
-        bytesLeft -= wrote;
-        ptr += wrote;
     }
     return true;
 }
@@ -400,8 +399,7 @@ bool Connection::send( const Connections& connections,
          i<connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
-        if( !connection->send( &packet, packet.size, isLocked ) &&
-             !base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ))
+        if( !connection->send( &packet, packet.size, isLocked ))
             return false;
     }
     return true;
@@ -440,7 +438,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
                              connection->send( data, dataSize, true ));
             if( !isLocked )
                 connection->unlockSend();
-            if( !ok && !base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ))
+            if( !ok )
                 return false;
         }
         return true;
@@ -456,8 +454,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
          i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
-        if( !connection->send( buffer, size, isLocked ) && 
-            !base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ))
+        if( !connection->send( buffer, size, isLocked ))
             return false;
     }
 
@@ -492,8 +489,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
                     && connection->send( items[j], sizes[j], true );
 
         connection->unlockSend();
-        if( !ok && 
-            !base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ))
+        if( !ok )
             return false;
     }
     return true;
