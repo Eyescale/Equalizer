@@ -221,7 +221,7 @@ namespace server
         bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady() const { _readyVersion.waitGE( _version ); }
+        void waitReady() const;
         
         /** @internal */
         void setVersion( const uint64_t version );

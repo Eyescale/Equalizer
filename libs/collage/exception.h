@@ -32,6 +32,7 @@ namespace co
             EXCEPTION_READ_TIMEOUT,    //!< A read timeout operation
             EXCEPTION_BARRIER_TIMEOUT, //!< A barrier timeout operation
             EXCEPTION_COMMANDQUEUE_TIMEOUT, //!< A command queue timeout
+            EXCEPTION_MONITOR_TIMEOUT,      //!< A moitor timeout
             EXCEPTION_CUSTOM      = 20 // leave some room
         };
 
@@ -71,6 +72,9 @@ namespace co
             break;
         case Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT :
             os << " Timeout on command queue ";
+            break;
+        case Exception::EXCEPTION_MONITOR_TIMEOUT :
+            os << " Timeout on monitor ";
             break;
         default:
             {

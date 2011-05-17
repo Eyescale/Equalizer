@@ -24,7 +24,6 @@
 #include "nameFinder.h"
 
 #include <co/command.h>
-#include <co/base/global.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 
@@ -667,8 +666,6 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
     {
         is.read( _fAttributes, C::FATTR_ALL * sizeof( float ));
         is.read( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
-        co::base::Global::setIAttribute( co::base::Global::IATTR_ROBUSTNESS, 
-            getIAttribute( IATTR_ROBUSTNESS ) );
     }
     if( isMaster( ))
     {

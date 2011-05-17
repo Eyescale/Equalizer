@@ -36,6 +36,9 @@
 #include "window.h"
 #include "hlp.h"
 #include "framesOrderer.h"
+#include "framesOrderer.h"
+
+#include <co/exception.h>
 
 namespace eVolve
 {
@@ -313,7 +316,16 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // blend DB frames in order
-    eq::Compositor::assembleFramesSorted( dbFrames, this, 0, true /*blendAlpha*/ );
+    try
+    {
+        eq::Compositor::assembleFramesSorted( dbFrames, this, 0, 
+                                              true /*blendAlpha*/ );
+    }
+    catch( co::Exception e )
+    {
+        EQWARN << "assemble frames timeout : " << e << std::endl;
+    }
+
     resetAssemblyState();
 
     // Update range
@@ -468,6 +480,4 @@ void Channel::_drawHelp()
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
-
-
 }

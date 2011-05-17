@@ -387,7 +387,6 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return 0;
       case ERROR_IO_PENDING:
       {
-            
           const uint32_t timeOut = _getTimeOut();
 
           if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeOut ))

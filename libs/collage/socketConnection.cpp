@@ -498,19 +498,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
         return wrote;
     }
 
-    switch( WSAGetLastError() )
-    {
-      case WSA_IO_PENDING:
-          break;
-      case WSAEWOULDBLOCK:
-          {
-              // Buffer full - try again, wait for writable socket
-              EQUNREACHABLE;
-              break;
-          }
-      default:
+    if( WSAGetLastError() != WSA_IO_PENDING )
           return -1;
-    }
 
     const uint32_t timeOut = _getTimeOut();
     const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, 
@@ -523,7 +512,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
             EQWARN << "Write error" << base::sysError << std::endl;
             return -1;
         }
-      default:;
+      default:
+          break;
     }
 
     DWORD got = 0;

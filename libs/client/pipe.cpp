@@ -454,12 +454,32 @@ void Pipe::notifyMapped()
 
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
-    _finishedFrame.waitGE( frameNumber );
+    const uint32_t timeout = getConfig()->getTimeout();
+
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    {
+        _finishedFrame.waitGE( frameNumber );
+    }
+    else
+    {
+        if( !_finishedFrame.timedWaitGE( frameNumber, timeout ))
+            EQWARN << "wait Frame timeout " << std::endl;
+    }
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
-    _unlockedFrame.waitGE( frameNumber );
+    const uint32_t timeout = getConfig()->getTimeout();
+
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    {
+        _unlockedFrame.waitGE( frameNumber );
+    }
+    else
+    {
+        if( !_unlockedFrame.timedWaitGE( frameNumber, timeout ))
+            EQWARN << "wait local Frame timeout " << std::endl;
+    }
 }
 
 uint32_t Pipe::getFinishedFrame() const

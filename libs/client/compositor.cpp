@@ -34,6 +34,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 
+#include <co/exception.h>
 #include <co/base/debug.h>
 #include <co/base/global.h>
 #include <co/base/executionListener.h>
@@ -115,13 +116,13 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            frame->waitReady();
+            frame->waitReady( );
         }
 
         if( frame->getData()->getZoom() != Zoom::NONE )
             return false;
 
-        const Images& images = frame->getImages();        
+        const Images& images = frame->getImages();
         for( Images::const_iterator j = images.begin(); 
              j != images.end(); ++j )
         {
@@ -418,7 +419,20 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            monitor.waitGE( ++nUsedFrames );
+            if( co::base::Global::getIAttribute( 
+                          co::base::Global::IATTR_ROBUSTNESS ))
+            { 
+                if( !monitor.timedWaitGE( ++nUsedFrames, 
+                              co::base::Global::getIAttribute( 
+                                    co::base::Global::IATTR_TIMEOUT_DEFAULT )))
+                {
+                    throw co::Exception( co::Exception::EXCEPTION_MONITOR_TIMEOUT );
+                }
+            }
+            else
+            {
+                monitor.waitGE( ++nUsedFrames );
+            }
         }
 
         for( Frames::iterator i = unusedFrames.begin();
@@ -1122,8 +1136,8 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         {
             glVertex3f( x-step, startY, 0.0f );
             glVertex3f( x-1.0f, startY, 0.0f );
-            glVertex3f( x-1.0f, endY, 0.0f );        
-            glVertex3f( x-step, endY, 0.0f );        
+            glVertex3f( x-1.0f, endY, 0.0f );
+            glVertex3f( x-step, endY, 0.0f );
         }
         glEnd();
     }
@@ -1145,8 +1159,8 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         for( float y = startY + op.pixel.y; y < endY; y += step)
         {
             glVertex3f( startX, y-step, 0.0f );
-            glVertex3f( endX,   y-step, 0.0f );        
-            glVertex3f( endX,   y-1.0f, 0.0f );        
+            glVertex3f( endX,   y-step, 0.0f );
+            glVertex3f( endX,   y-1.0f, 0.0f );
             glVertex3f( startX, y-1.0f, 0.0f );
         }
         glEnd();
@@ -1413,7 +1427,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     textureDepth->bind();
-    textureDepth->applyZoomFilter( op.zoomFilter );    
+    textureDepth->applyZoomFilter( op.zoomFilter );
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );

@@ -37,6 +37,7 @@
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
+#include <co/exception.h>
 #include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 // light parameters
@@ -230,7 +231,14 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     applyViewport();
     setupAssemblyState();
 
-    eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
+    try
+    {
+        eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
+    }
+    catch( co::Exception e )
+    {
+        EQWARN << "assemble frames timeout : " << e << std::endl;
+    }
 
     resetAssemblyState();
 }

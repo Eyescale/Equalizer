@@ -130,10 +130,14 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
   endif()
 endif()
 
-find_library(_eq_LIBRARY Equalizer
-  HINTS $ENV{EQ_ROOT}
-  PATH_SUFFIXES lib
-  PATHS /usr /usr/local /opt/local /opt
+find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
+   HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
+)
+find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
+  HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
+)
+find_library(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin PATH_SUFFIXES lib
+  HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
 )
 
 # Inform the users with an error message based on what version they
@@ -174,7 +178,7 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
 
 if(EQUALIZER_FOUND)
   message("-- Found Equalizer ${EQUALIZER_VERSION} in ${EQUALIZER_INCLUDE_DIRS}"
