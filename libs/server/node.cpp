@@ -374,7 +374,7 @@ std::string Node::_createLaunchCommand(
 std::string Node::_createRemoteCommand()
 {
     std::ostringstream stringStream;
-
+    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     //----- environment
 #ifndef WIN32
 #  ifdef Darwin
@@ -387,8 +387,6 @@ std::string Node::_createRemoteCommand()
     char* env = getenv( libPath );
     if( env )
         stringStream << libPath << "=" << env << " ";
-
-    const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
     for( int i=0; environ[i] != 0; i++ )
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
             stringStream << quote << environ[i] << quote << " ";
