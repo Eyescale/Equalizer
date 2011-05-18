@@ -192,15 +192,15 @@ void _initPlugins()
         return;
 
     // Hard-coded compile locations as backup:
-    std::string absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/" + 
+    std::string absDSO = std::string( EQ_BUILD_DIR ) + "lib/" + 
                          EQ_DSO_NAME;
     if( plugins.addPlugin( absDSO ))
         return;
 
 #  ifdef NDEBUG
-    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Release/" + EQ_DSO_NAME;
+    absDSO = std::string( EQ_BUILD_DIR ) + "lib/Release/" + EQ_DSO_NAME;
 #  else
-    absDSO = std::string( EQ_BUILD_DIR ) + "libs/client/Debug/" + EQ_DSO_NAME;
+    absDSO = std::string( EQ_BUILD_DIR ) + "lib/Debug/" + EQ_DSO_NAME;
 #  endif
 
     if( plugins.addPlugin( absDSO ))

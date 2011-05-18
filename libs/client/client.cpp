@@ -107,11 +107,11 @@ co::ConnectionPtr _startLocalServer()
 
 #ifdef EQ_BUILD_DIR
 #ifdef NDEBUG
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/Release/" );
+    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Release/" );
 #else
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/Debug/" );
+    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Debug/" );
 #endif
-    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "libs/server/" );
+    dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/" );
 #endif
 
 #ifdef _MSC_VER
