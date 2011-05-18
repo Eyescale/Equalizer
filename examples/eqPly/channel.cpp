@@ -37,7 +37,6 @@
 #include "view.h"
 #include "window.h"
 #include "vertexBufferState.h"
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -230,7 +229,14 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     applyViewport();
     setupAssemblyState();
 
-    eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
+    try
+    {
+        eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
+    }
+    catch( co::Exception e )
+    {
+        EQWARN << e << std::endl;
+    }
 
     resetAssemblyState();
 }

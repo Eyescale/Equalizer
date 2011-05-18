@@ -55,9 +55,11 @@ docs: ../website/build/documents/Developer/API
 
 .PHONY: ../website/build/documents/Developer/API/internal
 ../website/build/documents/Developer/API/internal:
+	@mkdir -p ../website/build/documents/Developer/API/internal
 	$(DOXYGEN) doc/Doxyfile.int
 
 ../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co
+	@mkdir -p ../website/build/collage/documents/Developer/API
 	$(DOXYGEN) doc/Doxyfile.ext
 	$(DOXYGEN) doc/Doxyfile.co
 

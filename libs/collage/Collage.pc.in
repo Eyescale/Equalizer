@@ -7,7 +7,7 @@ includedir=${prefix}/include
 
 Name: Collage
 Description: Object-Oriented Network Library
-Version: @VERSION@
+Version: @CO_VERSION@
 Requires:
 Conflicts:
 Libs: -L${libdir} -lCollage

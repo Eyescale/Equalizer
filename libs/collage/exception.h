@@ -21,18 +21,17 @@
 
 namespace co 
 {
-    /** A base Exception for collage operations. */
+    /** A base Exception for Collage operations. */
     class Exception : public std::exception
     {
     public:
-        
         enum Type
         {
-            EXCEPTION_WRITE_TIMEOUT,   //!< A write timeout operation 
-            EXCEPTION_READ_TIMEOUT,    //!< A read timeout operation
-            EXCEPTION_BARRIER_TIMEOUT, //!< A barrier timeout operation
-            EXCEPTION_COMMANDQUEUE_TIMEOUT, //!< A command queue timeout
-            EXCEPTION_CUSTOM      = 20 // leave some room
+            TIMEOUT_WRITE,   //!< A write timeout operation 
+            TIMEOUT_READ,    //!< A read timeout operation
+            TIMEOUT_BARRIER, //!< A barrier timeout operation
+            TIMEOUT_COMMANDQUEUE, //!< A timeout on a cmd queue operation
+            CUSTOM      = 20 // leave some room
         };
 
         /** Construct a new Exception. */
@@ -60,17 +59,17 @@ namespace co
     {
         switch( e.getType() )
         {
-        case Exception::EXCEPTION_WRITE_TIMEOUT :
+        case Exception::TIMEOUT_WRITE:
             os << " Timeout on write operation";
             break;
-        case Exception::EXCEPTION_READ_TIMEOUT :
+        case Exception::TIMEOUT_READ:
             os << " Timeout on read operation";
             break;
-        case Exception::EXCEPTION_BARRIER_TIMEOUT :
-            os << " Timeout on barrier ";
+        case Exception::TIMEOUT_BARRIER:
+            os << " Timeout on barrier";
             break;
-        case Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT :
-            os << " Timeout on command queue ";
+        case Exception::TIMEOUT_COMMANDQUEUE:
+            os << " Timeout on command queue";
             break;
         default:
             {

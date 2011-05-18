@@ -14,10 +14,13 @@ option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
+option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
+
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
+mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
@@ -51,6 +54,10 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT MSVC)
   set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Equalizer install prefix" FORCE)
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/lib)
+
 if(EQUALIZER_USE_SOLUTION_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 else()
@@ -61,7 +68,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/bin)
 set(EQ_FEATURES)
 
 set(EQ_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
@@ -110,7 +116,6 @@ if(OPENMP_FOUND)
     set(EQ_FEATURES "${EQ_FEATURES} OpenMP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
   endif()
 endif(OPENMP_FOUND)
 

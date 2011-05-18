@@ -60,7 +60,7 @@ namespace co
 
 #ifdef WIN32
         /** @sa Connection::getNotifier */
-        virtual Notifier getNotifier() const { return _overlapped.hEvent; }
+        virtual Notifier getNotifier() const { return _overlappedRead.hEvent; }
 #endif
 
     protected:
@@ -101,7 +101,8 @@ namespace co
         };
 
         // overlapped data structures
-        OVERLAPPED _overlapped;
+        OVERLAPPED _overlappedRead;
+        OVERLAPPED _overlappedWrite;
         void*      _overlappedAcceptData;
         Socket     _overlappedSocket;
         DWORD      _overlappedDone;

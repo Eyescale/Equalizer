@@ -391,6 +391,8 @@ namespace co
 
         void _fireStateChanged();
 
+        uint32_t _getTimeOut() const;
+
         State                    _state; //!< The connection state
         ConnectionDescriptionPtr _description; //!< The connection parameters
 

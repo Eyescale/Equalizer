@@ -43,6 +43,7 @@ namespace base
         /** Global integer attributes. */
         enum IAttribute
         {
+            IATTR_ROBUSTNESS,            //!< @internal use robustness
             IATTR_TIMEOUT_DEFAULT,       //!< @internal timeout for reliabilty
             IATTR_ALL
         };

@@ -20,6 +20,7 @@
 
 #include "client.h"
 #include "config.h"
+#include "exception.h"
 #include "frame.h"
 #include "frameData.h"
 #include "global.h"
@@ -454,12 +455,24 @@ void Pipe::notifyMapped()
 
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
-    _finishedFrame.waitGE( frameNumber );
+    const uint32_t timeout = getConfig()->getTimeout();
+
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+        _finishedFrame.waitGE( frameNumber );
+    else if( !_finishedFrame.timedWaitGE( frameNumber, timeout ))
+        // TODO catch somewhere
+        throw Exception( Exception::TIMEOUT_FRAMESYNC );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
-    _unlockedFrame.waitGE( frameNumber );
+    const uint32_t timeout = getConfig()->getTimeout();
+
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+        _unlockedFrame.waitGE( frameNumber );
+    else if( !_unlockedFrame.timedWaitGE( frameNumber, timeout ))
+        // TODO catch somewhere
+        throw Exception( Exception::TIMEOUT_FRAMESYNC );
 }
 
 uint32_t Pipe::getFinishedFrame() const

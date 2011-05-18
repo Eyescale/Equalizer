@@ -313,7 +313,16 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // blend DB frames in order
-    eq::Compositor::assembleFramesSorted( dbFrames, this, 0, true /*blendAlpha*/ );
+    try
+    {
+        eq::Compositor::assembleFramesSorted( dbFrames, this, 0, 
+                                              true /*blendAlpha*/ );
+    }
+    catch( co::Exception e )
+    {
+        EQWARN << e << std::endl;
+    }
+
     resetAssemblyState();
 
     // Update range
@@ -468,6 +477,4 @@ void Channel::_drawHelp()
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
-
-
 }

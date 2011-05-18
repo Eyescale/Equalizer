@@ -23,6 +23,8 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
+#include "config.h"
+#include "exception.h"
 #include "frameData.h"
 #include "image.h"
 #include "log.h"
@@ -121,7 +123,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
         if( frame->getData()->getZoom() != Zoom::NONE )
             return false;
 
-        const Images& images = frame->getImages();        
+        const Images& images = frame->getImages();
         for( Images::const_iterator j = images.begin(); 
              j != images.end(); ++j )
         {
@@ -418,7 +420,12 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            monitor.waitGE( ++nUsedFrames );
+            const uint32_t timeout = channel->getConfig()->getTimeout();
+
+            if( timeout == EQ_TIMEOUT_INDEFINITE )
+                monitor.waitGE( ++nUsedFrames );
+            else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
+                throw Exception( Exception::TIMEOUT_INPUTFRAME );
         }
 
         for( Frames::iterator i = unusedFrames.begin();
@@ -1122,8 +1129,8 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         {
             glVertex3f( x-step, startY, 0.0f );
             glVertex3f( x-1.0f, startY, 0.0f );
-            glVertex3f( x-1.0f, endY, 0.0f );        
-            glVertex3f( x-step, endY, 0.0f );        
+            glVertex3f( x-1.0f, endY, 0.0f );
+            glVertex3f( x-step, endY, 0.0f );
         }
         glEnd();
     }
@@ -1145,8 +1152,8 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         for( float y = startY + op.pixel.y; y < endY; y += step)
         {
             glVertex3f( startX, y-step, 0.0f );
-            glVertex3f( endX,   y-step, 0.0f );        
-            glVertex3f( endX,   y-1.0f, 0.0f );        
+            glVertex3f( endX,   y-step, 0.0f );
+            glVertex3f( endX,   y-1.0f, 0.0f );
             glVertex3f( startX, y-1.0f, 0.0f );
         }
         glEnd();
@@ -1413,7 +1420,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     textureDepth->bind();
-    textureDepth->applyZoomFilter( op.zoomFilter );    
+    textureDepth->applyZoomFilter( op.zoomFilter );
 
     // Draw a quad using shader & textures in the right place
     glEnable( GL_DEPTH_TEST );

@@ -28,6 +28,10 @@
 #ifdef _WIN32
 #  include "namedPipeConnection.h"
 #endif
+
+#include <co/exception.h>
+#include <co/base/global.h>
+
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
 #endif
@@ -150,6 +154,12 @@ void Connection::_fireStateChanged()
         (*i)->notifyStateChanged( this );
 }
 
+uint32_t Connection::_getTimeOut() const
+{
+    return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
+           base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
+           0xFFFFFFFF;
+}
 
 //----------------------------------------------------------------------
 // read
@@ -314,20 +324,30 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     uint64_t bytesLeft = bytes;
     while( bytesLeft )
     {
-        const int64_t wrote = this->write( ptr, bytesLeft );
-
-        if( wrote == -1 ) // error
+        try
         {
-            EQERROR << "Error during write after " << bytes - bytesLeft 
-                    << " bytes" << std::endl;
+            const int64_t wrote = this->write( ptr, bytesLeft );
+            if( wrote == -1 ) // error
+            {
+                EQERROR << "Error during write after " << bytes - bytesLeft 
+                        << " bytes, closing connection" << std::endl;
+                close();
+                return false;
+            }
+            else if( wrote == 0 )
+                EQWARN << "Zero bytes write" << std::endl;
+
+            bytesLeft -= wrote;
+            ptr += wrote;
+        }
+        catch( co::Exception )
+        {
+            EQERROR << "write timout after " << bytes - bytesLeft 
+                    << " bytes, closing connection" << std::endl;
             close();
             return false;
         }
-        else if( wrote == 0 )
-            EQWARN << "Zero bytes write" << std::endl;
 
-        bytesLeft -= wrote;
-        ptr += wrote;
     }
     return true;
 }
