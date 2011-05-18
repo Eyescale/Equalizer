@@ -15,7 +15,7 @@ function(EQ_ADD_EXAMPLE NAME)
   eq_stringify_shaders(SHADERS ${THIS_SHADERS})
 
   set(THIS_TARGET ${NAME})
-  set(THIS_INPUT )
+  set(THIS_INPUT)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS} ${SHADERS})
 
