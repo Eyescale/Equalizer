@@ -21,6 +21,7 @@
 #include "masterConfig.h"
 #include "slaveConfig.h"
 #include "node.h"
+#include "pipe.h"
 
 #include <eq/config.h>
 #include <eq/configParams.h>

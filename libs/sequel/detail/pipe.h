@@ -15,51 +15,41 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "node.h"
+#ifndef EQSEQUEL_DETAIL_PIPE_H
+#define EQSEQUEL_DETAIL_PIPE_H
 
-#include "application.h"
-#include "config.h"
+#include <eq/sequel/types.h>
 
-#include <eq/sequel/error.h>
+#include <eq/pipe.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-
-Node::Node( eq::Config* parent )
-        : eq::Node( parent ) 
-{}
-
-Config* Node::getConfig()
-{
-    return static_cast< Config* >( eq::Node::getConfig( ));
-}
-
-bool Node::configInit( const uint128_t& initID )
-{
-    if( !eq::Node::configInit( initID ))
-        return false;
-
-    if( !getConfig()->mapData( initID ))
+    class Pipe : public eq::Pipe
     {
-        setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
-        return false;
-    }
-    return true;
+    public:
+        Pipe( eq::Node* parent );
+
+        Config* getConfig();
+        Node* getNode();
+
+    protected:
+        virtual ~Pipe();
+
+        virtual bool configInit( const uint128_t& initID );
+        virtual bool configExit();
+
+        virtual void frameStart( const uint128_t& frameID, 
+                                 const uint32_t frameNumber );
+    private:
+        bool _mapData( const uint128_t& initID );
+        void _syncData( const uint128_t& version );
+        void _unmapData();
+
+        ObjectMap* _objects;
+    };
+}
 }
 
-bool Node::configExit()
-{
-    getConfig()->unmapData();
-    return eq::Node::configExit();
-}
-
-void Node::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
-{
-    getConfig()->syncData( frameID );
-    return eq::Node::frameStart( frameID, frameNumber );
-}
-
-}
-}
+#endif // EQSEQUEL_DETAIL_PIPE_H

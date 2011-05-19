@@ -21,6 +21,8 @@ purple_add_library(Sequel SHARED
     detail/node.cpp
     detail/objectMap.h
     detail/objectMap.cpp
+    detail/pipe.h
+    detail/pipe.cpp
     detail/slaveConfig.h
     detail/slaveConfig.cpp
   LINK_LIBRARIES Equalizer
