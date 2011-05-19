@@ -426,6 +426,13 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
                               co::base::Global::getIAttribute( 
                                     co::base::Global::IATTR_TIMEOUT_DEFAULT )))
                 {
+                        // de-register the monitor
+                    for( Frames::const_iterator i = frames.begin(); 
+                         i != frames.end(); ++i )
+                    {
+                        Frame* frame = *i;
+                        frame->removeListener( monitor );
+                    }
                     throw co::Exception( co::Exception::EXCEPTION_MONITOR_TIMEOUT );
                 }
             }
