@@ -16,13 +16,14 @@
  */
 
 #include "application.h"
-#include "../application.h"
 
+#include "channel.h"
 #include "masterConfig.h"
-#include "slaveConfig.h"
 #include "node.h"
 #include "pipe.h"
+#include "slaveConfig.h"
 
+#include <eq/sequel/application.h>
 #include <eq/config.h>
 #include <eq/configParams.h>
 #include <eq/init.h>
@@ -139,6 +140,11 @@ eq::Node* Application::createNode( eq::Config* parent )
 eq::Pipe* Application::createPipe( eq::Node* parent )
 {
     return new Pipe( parent );
+}
+
+eq::Channel* createChannel( eq::Window* parent )
+{
+    return new Channel( parent );
 }
 
 }

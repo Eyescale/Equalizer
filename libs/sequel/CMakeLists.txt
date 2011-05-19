@@ -14,6 +14,8 @@ purple_add_library(Sequel SHARED
     application.cpp
     error.cpp
     detail/application.cpp
+    detail/channel.h
+    detail/channel.cpp
     detail/config.h
     detail/masterConfig.h
     detail/masterConfig.cpp
