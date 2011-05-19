@@ -15,40 +15,40 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_APPLICATION_H
-#define EQSEQUEL_DETAIL_APPLICATION_H
+
+#ifndef EQSEQUEL_DETAIL_CONFIG_H
+#define EQSEQUEL_DETAIL_CONFIG_H
 
 #include <eq/sequel/types.h>
-#include <eq/nodeFactory.h> // base class
+#include <eq/config.h> // base class
+#include <eq/server.h> // RefPtr usage
 
 namespace seq
 {
 namespace detail
 {
-    /** The internal implementation for the main application object. */
-    class Application : public eq::NodeFactory
+    class Config : public eq::Config
     {
     public:
-        Application( ApplicationPtr app );
-        ~Application();
-        
-        bool isInitialized() const { return _config != 0; }
-        bool isMaster() const { return _isMaster; }
+        Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
 
-        bool init();
-        bool exit();
-        bool run();
+        virtual bool init() { /* EQDONTCALL */ return false; }
+        virtual bool exit() { /* EQDONTCALL */ return false; }
+
+        virtual bool needRedraw() { /* EQDONTCALL */ return false; }
+        virtual uint32_t startFrame() { /* EQDONTCALL */ return 0; }
+
+        virtual bool mapData( const uint128_t& initID ) { return true; }
+        virtual void syncData( const uint128_t& version ) { /* nop */ }
+        virtual void unmapData() { /* nop */ }
+
+    protected:
+        virtual ~Config() {}
+        ObjectMap* _objects;
 
     private:
-        ApplicationPtr _app;
-        Config* _config;
-        bool _isMaster;
-
-        virtual eq::Config* createConfig( eq::ServerPtr parent );
-        virtual eq::Node* createNode( eq::Config* parent );
-        virtual eq::Pipe* createPipe( eq::Node* parent );
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_APPLICATION_H
+#endif // EQSEQUEL_DETAIL_CONFIG_H

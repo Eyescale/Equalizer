@@ -15,50 +15,54 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "node.h"
+#include "masterConfig.h"
 
-#include "application.h"
-#include "config.h"
-
-#include <eq/sequel/error.h>
+#include "objectMap.h"
 
 namespace seq
 {
 namespace detail
 {
-
-Node::Node( eq::Config* parent )
-        : eq::Node( parent ) 
+MasterConfig::MasterConfig( eq::ServerPtr parent )
+        : Config( parent )
 {}
 
-Config* Node::getConfig()
-{
-    return EQSAFECAST( Config*, eq::Node::getConfig( ));
-}
+MasterConfig::~MasterConfig()
+{}
 
-bool Node::configInit( const uint128_t& initID )
+bool MasterConfig::init()
 {
-    if( !eq::Node::configInit( initID ))
-        return false;
+    EQASSERT( !_objects );
+    _objects = new ObjectMap( this );
+    EQCHECK( registerObject( _objects ));
 
-    if( !getConfig()->mapData( initID ))
+    if( !eq::Config::init( _objects->getID( )))
     {
-        setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+        EQWARN << "Error during initialization: " << getError() << std::endl;
+        exit();
         return false;
     }
+    if( getError( ))
+        EQWARN << "Error during initialization: " << getError() << std::endl;
+
     return true;
 }
 
-bool Node::configExit()
+bool MasterConfig::exit()
 {
-    getConfig()->unmapData();
-    return eq::Node::configExit();
+    const bool retVal = Config::exit();;
+
+    if( _objects )
+        deregisterObject( _objects );
+    delete _objects;
+    _objects = 0;
+    
+    return retVal;
 }
 
-void Node::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+uint32_t MasterConfig::startFrame()
 {
-    getConfig()->syncData( frameID );
-    return eq::Node::frameStart( frameID, frameNumber );
+    return eq::Config::startFrame( _objects->commit( ));
 }
 
 }

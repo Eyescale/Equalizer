@@ -17,7 +17,8 @@
 
 #include "objectMap.h"
 
-#include <eq/config.h>
+#include "config.h"
+
 #include <co/base/scopedMutex.h>
 
 namespace seq

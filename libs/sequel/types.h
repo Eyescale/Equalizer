@@ -31,10 +31,10 @@ typedef co::base::RefPtr< Application > ApplicationPtr;
 /** @cond IGNORE */
 namespace detail
 {
-using eq::Config;
 using eq::Pipe;
 
 class Application;
+class Config;
 class ObjectMap;
 class Node;
 }

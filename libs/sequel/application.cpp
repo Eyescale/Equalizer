@@ -69,7 +69,7 @@ bool Application::init( const int argc, char** argv )
 
 bool Application::run()
 {
-    return true;
+    return _impl->run();
 }
 
 bool Application::exit()

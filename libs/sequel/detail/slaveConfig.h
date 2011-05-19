@@ -15,36 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_NODE_H
-#define EQSEQUEL_DETAIL_NODE_H
+#ifndef EQSEQUEL_DETAIL_SLAVECONFIG_H
+#define EQSEQUEL_DETAIL_SLAVECONFIG_H
 
-#include <eq/sequel/types.h>
-
-#include <eq/node.h> // base class
+#include "config.h" // base class
 
 namespace seq
 {
 namespace detail
 {
-    class Node : public eq::Node
+    class SlaveConfig : public Config
     {
     public:
-        Node( eq::Config* parent );
+        SlaveConfig( eq::ServerPtr parent ) : Config( parent ) {}
 
-        //Application* getApplication() { return getClient->getImpl; }
-        Config* getConfig();
+        virtual bool mapData( const uint128_t& initID );
+        virtual void syncData( const uint128_t& version );
+        virtual void unmapData();
 
     protected:
-        virtual ~Node(){}
+        virtual ~SlaveConfig() {}
 
-        virtual bool configInit( const uint128_t& initID );
-        virtual bool configExit();
-
-        virtual void frameStart( const uint128_t& frameID, 
-                                 const uint32_t frameNumber );
     private:
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_NODE_H
+#endif // EQSEQUEL_DETAIL_SLAVECONFIG_H

@@ -18,8 +18,9 @@
 #include "application.h"
 #include "../application.h"
 
+#include "masterConfig.h"
+#include "slaveConfig.h"
 #include "node.h"
-#include "objectMap.h"
 
 #include <eq/config.h>
 #include <eq/configParams.h>
@@ -36,7 +37,7 @@ namespace detail
 Application::Application( ApplicationPtr app )
         : _app( app )
         , _config( 0 )
-        , _objects( 0 )
+        , _isMaster( false )
 {}
 
 Application::~Application()
@@ -47,6 +48,7 @@ Application::~Application()
 
 bool Application::init()
 {
+    _isMaster = true;
     eq::ServerPtr server = new eq::Server;
     if( !_app->connectServer( server ))
     {
@@ -66,19 +68,8 @@ bool Application::init()
         return false;
     }
 
-    _objects = new ObjectMap( _config );
-    EQCHECK( _config->registerObject( _objects ));
-
-    if( !_config->init( _objects->getID( )))
-    {
-        EQWARN << "Error during configuration initialization: "
-               << _config->getError() << std::endl;
-        exit();
+    if( !_config->init( ))
         return false;
-    }
-    if( _config->getError( ))
-        EQWARN << "Error during configuration initialization: "
-               << _config->getError() << std::endl;
     return true;
 }
 
@@ -88,61 +79,60 @@ bool Application::exit()
     if( _config )
     {
         eq::ServerPtr server = _config->getServer();
-
+        
         if( !_config->exit( ))
             retVal = false;
-        if( _objects )
-            _config->deregisterObject( _objects );
+
         server->releaseConfig( _config );
         if( !_app->disconnectServer( server ))
             retVal = false;
     }
 
-    delete _objects;
-    _objects = 0;
     _config = 0;
+    _isMaster = false;
     return retVal;
 }
 
-bool Application::mapData( const uint128_t& initID )
+bool Application::run()
 {
-    EQASSERT( _config );
-    if( !_config )
-        return false;
-
-    if( _objects )
+    while( _config->isRunning( ))
     {
-        // appNode, _initData is registered already
-        EQASSERT( _objects->isMaster( ));
-        EQASSERT( _objects->getID() == initID );
-        return true;
-    }
+        _config->startFrame();
+        if( _config->getError( ))
+            EQWARN << "Error during frame start: " << _config->getError()
+                   << std::endl;
+        _config->finishFrame();
 
-    _objects = new ObjectMap( _config );
-    EQCHECK( _config->registerObject( _objects ));
-    const uint32_t request =
-        _config->mapObjectNB( _objects, initID, co::VERSION_OLDEST,
-                              _config->getApplicationNode( ));
-    if( !_config->mapObjectSync( request ))
-        return false;
+        while( !_config->needRedraw( )) // wait for an event requiring redraw
+        {
+            if( _app->hasCommands( )) // execute non-critical pending commands
+            {
+                _app->processCommand();
+                _config->handleEvents(); // non-blocking
+            }
+            else  // no pending commands, block on user event
+            {
+                const eq::ConfigEvent* event = _config->nextEvent();
+                if( !_config->handleEvent( event ))
+                    EQVERB << "Unhandled " << event << std::endl;
+            }
+        }
+        _config->handleEvents(); // process all pending events
+    }
+    _config->finishAllFrames();
     return true;
 }
 
-void Application::unmapData()
+eq::Config* Application::createConfig( eq::ServerPtr parent )
 {
-    EQASSERT( _config && _objects );
-
-    if( !_config || !_objects || _objects->isMaster( ))
-        return;
-
-    _config->unmapObject( _objects );
-    delete _objects;
-    _objects = 0;
+    if( isMaster( ))
+        return new MasterConfig( parent );
+    return new SlaveConfig( parent );
 }
 
 eq::Node* Application::createNode( eq::Config* parent )
 {
-    return new Node( this, parent );
+    return new Node( parent );
 }
 
 eq::Pipe* Application::createPipe( eq::Node* parent )
