@@ -31,6 +31,7 @@
 int main( const int argc, char** argv )
 {
     seq::ApplicationPtr app = new seqPly::Application();
+
     if( app->init( argc, argv ) && app->run() && app->exit( ))
         return EXIT_SUCCESS;
     

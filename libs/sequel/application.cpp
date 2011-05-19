@@ -28,23 +28,23 @@ namespace seq
 
 Application::Application()
 {
-    _impl = new detail::Application( this );
 }
 
 Application::~Application()
 {
-    delete _impl;
-    _impl = 0;
+    EQASSERT( !_impl );
 }
 
 bool Application::init( const int argc, char** argv )
 {
-    if( _impl->isInitialized( ))
+    EQASSERT( !_impl );
+    if( _impl )
     {
         EQERROR << "Already initialized" << std::endl;
         return false;
     }
 
+    _impl = new detail::Application( this );
     if( !eq::init( argc, argv, _impl ))
     {
         EQERROR << "Equalizer initialization failed" << std::endl;
@@ -74,14 +74,20 @@ bool Application::run()
 
 bool Application::exit()
 {
-    bool retVal = _impl->exit();
+    bool retVal = true;
+    if( _impl )
+        retVal = _impl->exit();
+
     if( !exitLocal( ))
         retVal = false;
 
-    EQASSERTINFO( getRefCount() == 1, *this );
     if( !eq::exit( ))
         retVal = false;
 
+    delete _impl;
+    _impl = 0;
+
+    EQASSERTINFO( getRefCount() == 1, this->getRefCount( ));
     return retVal;
 }
 
