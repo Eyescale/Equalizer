@@ -425,7 +425,15 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
             if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
             else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
+            {
+                // de-register the monitor
+                for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+                {
+                    Frame* frame = *i;
+                    frame->removeListener( monitor );
+                }
                 throw Exception( Exception::TIMEOUT_INPUTFRAME );
+            }
         }
 
         for( Frames::iterator i = unusedFrames.begin();
