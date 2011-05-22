@@ -395,15 +395,15 @@ bool Connection::send( const Connections& connections,
     if( connections.empty( ))
         return true;
 
-    bool ok = true;
+    bool success = true;
     for( Connections::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
         if( !connection->send( &packet, packet.size, isLocked ))
-            ok = false;
+            success = false;
     }
-    return ok;
+    return success;
 }
 
 bool Connection::send( const Connections& connections, Packet& packet,
@@ -423,7 +423,6 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize  = packet.size - 8;
     const uint64_t size        = headerSize + dataSize;
 
-    
     if( size > EQ_ASSEMBLE_THRESHOLD )
     {
         // OPT: lock the connection and use two send() to avoid big memcpy
@@ -438,9 +437,11 @@ bool Connection::send( const Connections& connections, Packet& packet,
             if( !isLocked )
                 connection->lockSend();
 
-            success = connection->send( &packet, headerSize, true ) &&
-                      connection->send( data, dataSize, true ) && success;
-            
+            if( !connection->send( &packet, headerSize, true ) ||
+                !connection->send( data, dataSize, true ))
+            {
+                success = false;
+            }
             if( !isLocked )
                 connection->unlockSend();    
         }
@@ -453,14 +454,13 @@ bool Connection::send( const Connections& connections, Packet& packet,
 
     ((Packet*)buffer)->size = size;
 
-    
     bool success = true;
     for( Connections::const_iterator i = connections.begin(); 
          i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
-        
-        success = connection->send( buffer, size, isLocked ) && success;
+        if( !connection->send( buffer, size, isLocked ))
+            success = false;
     }
 
     return success;
@@ -488,14 +488,17 @@ bool Connection::send( const Connections& connections, Packet& packet,
         ConnectionPtr connection = *i;
         connection->lockSend();
             
-        bool ok = connection->send( &packet, headerSize, true );
+        if( !connection->send( &packet, headerSize, true ))
+            success = false;
 
         for( size_t j = 0; j < nItems; ++j )
-            ok = ok && connection->send( &sizes[j], sizeof(uint64_t), true )
-                    && connection->send( items[j], sizes[j], true );
+            if( !connection->send( &sizes[j], sizeof(uint64_t), true ) ||
+                !connection->send( items[j], sizes[j], true ))
+            {
+                success = false;
+            }
 
         connection->unlockSend();
-        success = success && ok;
     }
     return success;
 }
