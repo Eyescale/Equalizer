@@ -32,6 +32,7 @@ set(CO_FORWARD_HEADERS
     object.h
     objectVersion.h
     packets.h
+    serializable.h
     types.h
   )
 

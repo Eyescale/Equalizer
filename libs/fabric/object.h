@@ -20,8 +20,9 @@
 
 #include <eq/fabric/api.h>
 #include <eq/fabric/error.h>        // enum
-#include <eq/fabric/serializable.h> // base class
+#include <eq/fabric/types.h>
 #include <co/objectVersion.h>       // member
+#include <co/serializable.h>        // base class
 
 namespace eq
 {
@@ -33,7 +34,7 @@ namespace fabric
      * This class provides common data storage used by all Equalizer resource
      * entities. Do not subclass directly.
      */
-    class Object : public Serializable
+    class Object : public co::Serializable
     {
     public:
         /** @name Data Access. */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ FrameData::FrameData()
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::serialize( os, dirtyBits );
+    co::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         os << _position << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
@@ -67,7 +67,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 
 void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::deserialize( is, dirtyBits );
+    co::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         is >> _position >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )

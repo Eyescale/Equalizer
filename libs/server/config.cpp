@@ -509,8 +509,7 @@ bool Config::_updateRunning()
     if( _state == STATE_STOPPED )
         return true;
 
-    const bool canFail =
-        (getIAttribute( IATTR_ROBUSTNESS ) == OFF) ? false : true;
+    const bool canFail = (getIAttribute( IATTR_ROBUSTNESS ) != OFF);
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
@@ -852,13 +851,9 @@ void Config::_startFrame( const uint128_t& frameID )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRunning( ))
-        {
-            EQASSERT( node->isActive( ));
-            node->update( frameID, _currentFrame );
-            if( node->isApplicationNode( ))
-                appNode = 0; // release sent (see below)
-        }
+        node->update( frameID, _currentFrame );
+        if( node->isRunning() && node->isApplicationNode( ))
+            appNode = 0; // release sent (see below)
     }
 
     if( appNode.isValid( )) // release appNode local sync
@@ -961,7 +956,6 @@ bool Config::_cmdInit( co::Command& command )
 
     ConfigInitReplyPacket reply( packet );
     reply.result = _init( packet->initID );
-
     if( !reply.result )
         exit();
 
