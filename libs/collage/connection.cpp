@@ -395,14 +395,15 @@ bool Connection::send( const Connections& connections,
     if( connections.empty( ))
         return true;
 
+    bool success = true;
     for( Connections::const_iterator i= connections.begin(); 
          i<connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
         if( !connection->send( &packet, packet.size, isLocked ))
-            return false;
+            success = false;
     }
-    return true;
+    return success;
 }
 
 bool Connection::send( const Connections& connections, Packet& packet,
@@ -426,6 +427,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     {
         // OPT: lock the connection and use two send() to avoid big memcpy
         packet.size = size;
+        bool success = true;
 
         for( Connections::const_iterator i= connections.begin(); 
              i<connections.end(); ++i )
@@ -434,14 +436,16 @@ bool Connection::send( const Connections& connections, Packet& packet,
 
             if( !isLocked )
                 connection->lockSend();
-            const bool ok = (connection->send( &packet, headerSize, true ) &&
-                             connection->send( data, dataSize, true ));
+
+            if( !connection->send( &packet, headerSize, true ) ||
+                !connection->send( data, dataSize, true ))
+            {
+                success = false;
+            }
             if( !isLocked )
-                connection->unlockSend();
-            if( !ok )
-                return false;
+                connection->unlockSend();    
         }
-        return true;
+        return success;
     }
 
     char*          buffer = (char*)alloca( size );
@@ -450,15 +454,16 @@ bool Connection::send( const Connections& connections, Packet& packet,
 
     ((Packet*)buffer)->size = size;
 
+    bool success = true;
     for( Connections::const_iterator i = connections.begin(); 
          i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
         if( !connection->send( buffer, size, isLocked ))
-            return false;
+            success = false;
     }
 
-    return true;
+    return success;
 }
 
 bool Connection::send( const Connections& connections, Packet& packet,
@@ -476,23 +481,26 @@ bool Connection::send( const Connections& connections, Packet& packet,
         packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 
+    bool success = true;
     for( Connections::const_iterator i = connections.begin(); 
          i < connections.end(); ++i )
     {        
         ConnectionPtr connection = *i;
         connection->lockSend();
             
-        bool ok = connection->send( &packet, headerSize, true );
+        if( !connection->send( &packet, headerSize, true ))
+            success = false;
 
         for( size_t j = 0; j < nItems; ++j )
-            ok = ok && connection->send( &sizes[j], sizeof(uint64_t), true )
-                    && connection->send( items[j], sizes[j], true );
+            if( !connection->send( &sizes[j], sizeof(uint64_t), true ) ||
+                !connection->send( items[j], sizes[j], true ))
+            {
+                success = false;
+            }
 
         connection->unlockSend();
-        if( !ok )
-            return false;
     }
-    return true;
+    return success;
 }
 
 ConnectionDescriptionPtr Connection::getDescription() const
