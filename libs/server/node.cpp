@@ -509,9 +509,11 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
+    if( !isRunning( ))
+        return;
+
     EQVERB << "Start frame " << frameNumber << std::endl;
-    EQASSERT( _state == STATE_RUNNING );
-    EQASSERT( _active > 0 );
+    EQASSERT( isActive( ));
 
     _frameIDs[ frameNumber ] = frameID;
     
@@ -527,11 +529,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
-    {
-        Pipe* pipe = *i;
-        if( pipe->isActive() && pipe->isRunning( ))
-            pipe->update( frameID, frameNumber );
-    }
+        (*i)->update( frameID, frameNumber );
 
     NodeFrameTasksFinishPacket finishPacket;
     finishPacket.frameID     = frameID;

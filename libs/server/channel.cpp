@@ -369,8 +369,10 @@ void Channel::_setupRenderContext( const uint128_t& frameID,
 
 bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
-    EQASSERT( isActive( ));
-    EQASSERT( isRunning( ));
+    if( !isRunning( ))
+        return false; // not updated
+
+    EQASSERT( isActive( ))
     EQASSERT( getWindow()->isActive( ));
 
     ChannelFrameStartPacket startPacket;
