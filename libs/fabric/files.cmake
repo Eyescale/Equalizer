@@ -41,7 +41,6 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/range.h
     ../fabric/renderContext.h
     ../fabric/segment.h
-    ../fabric/serializable.h
     ../fabric/server.h
     ../fabric/serverPackets.h
     ../fabric/subPixel.h

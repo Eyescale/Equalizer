@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *               2007-2009, Maxim Makhinya
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ void FrameData::adjustQuality( const float delta )
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::serialize( os, dirtyBits );
+    co::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
 
@@ -147,7 +147,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 
 void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
 {
-    eq::fabric::Serializable::deserialize( is, dirtyBits );
+    co::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
 

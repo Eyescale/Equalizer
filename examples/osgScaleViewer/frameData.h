@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *   2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@
 
 namespace osgScaleViewer
 {
-    class FrameData : public eq::fabric::Serializable
+    class FrameData : public co::Serializable
     {
     public:
         FrameData();
@@ -101,8 +101,8 @@ namespace osgScaleViewer
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1
+            DIRTY_CAMERA  = co::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = co::Serializable::DIRTY_CUSTOM << 1
         };
 
         /** Reimplemented */

@@ -15,27 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQFABRIC_SERIALIZABLE_H
-#define EQFABRIC_SERIALIZABLE_H
+#ifndef CO_SERIALIZABLE_H
+#define CO_SERIALIZABLE_H
 
 #include <co/object.h>        // base class
-#include <eq/fabric/types.h>
 #include <co/dataOStream.h>   // used inline
 #include <co/dataIStream.h>   // used inline
 
-namespace eq
-{
-namespace fabric
+namespace co
 {
     /**
-     * Base class for all distributed, inheritable objects.
+     * Base class for distributed, inheritable objects.
      *
      * This class implements one usage pattern of co::Object, which allows
-     * subclassing and serialization of distributed Objects used by
-     * Equalizer. The inheritance Serializable -> Object -> Frustum -> View
+     * subclassing and serialization of distributed Objects. The implementation
+     * hierarchy co::Serializable -> eq::fabric::Object -> eq::fabric::Frustum
      * illustrates the usage of this class.
      */
-    class Serializable : public co::Object
+    class Serializable : public Object
     {
     public:
         /** @return the current dirty bit mask. @version 1.0 */
@@ -166,5 +163,4 @@ namespace fabric
         Private* _private; // placeholder for binary-compatible changes
     };
 }
-}
-#endif // EQFABRIC_SERIALIZABLE_H
+#endif // CO_SERIALIZABLE_H

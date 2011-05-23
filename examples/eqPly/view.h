@@ -50,7 +50,7 @@ namespace eqPly
         uint32_t getIdleSteps() const { return _idleSteps; }
 
     private:
-        class Proxy : public eq::fabric::Serializable
+        class Proxy : public co::Serializable
         {
         public:
             Proxy( View* view ) : _view( view ) {}
@@ -59,8 +59,8 @@ namespace eqPly
             /** The changed parts of the view. */
             enum DirtyBits
             {
-                DIRTY_MODEL = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-                DIRTY_IDLE  = eq::fabric::Serializable::DIRTY_CUSTOM << 1
+                DIRTY_MODEL = co::Serializable::DIRTY_CUSTOM << 0,
+                DIRTY_IDLE  = co::Serializable::DIRTY_CUSTOM << 1
             };
 
             virtual void serialize( co::DataOStream& os,

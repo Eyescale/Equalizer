@@ -20,6 +20,7 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
+#include <co/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uint128_t.h>
 
@@ -66,7 +67,7 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
-typedef co::base::uint128_t uint128_t;
+using co::base::uint128_t;
 
 class Client;
 template< class, class > class Channel;
@@ -92,6 +93,11 @@ struct NodePath;
 struct ObserverPath;
 struct PipePath;
 struct ViewPath;
+
+#ifndef EQ_2_0_API
+using co::Serializable;
+#endif
+
 }
 }
 #endif // EQFABRIC_TYPES_H
