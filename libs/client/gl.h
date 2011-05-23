@@ -21,7 +21,7 @@
 /**
  * @file eq/gl.h
  * 
- * Includes OpenGL headers (GLEW).
+ * Includes OpenGL and GLEW headers.
  *
  * Define EQ_IGNORE_GLEW before including any Equalizer header if you have
  * trouble with your system-installed OpenGL header and do not need GLEW.
@@ -45,7 +45,11 @@
 #  endif
 #endif
 
-#include <GL/gl.h>
+#ifdef AGL
+#  include <OpenGL/gl.h>
+#else
+#  include <GL/gl.h>
+#endif
 
 #ifndef GL_TEXTURE_RECTANGLE_ARB
 #  define GL_TEXTURE_RECTANGLE_ARB 0x84F5
