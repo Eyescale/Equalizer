@@ -22,6 +22,9 @@
 
 namespace eq
 {
+    class Exception;
+    std::ostream& operator << ( std::ostream& os, const Exception& e );
+
     /** Exception class for Equalizer operations. */
     class Exception : public co::Exception
     {
@@ -35,6 +38,13 @@ namespace eq
 
         /** Construct a new Exception. */
         Exception( const uint32_t type ) : co::Exception( type ) {}
+
+        virtual const char* what() const throw() 
+        { 
+            std::stringstream os;
+            os << *this;
+            return os.str().c_str(); 
+        }
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Exception& e )

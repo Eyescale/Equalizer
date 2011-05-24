@@ -214,17 +214,17 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
             // Translate wheel events
             switch( event.pointerButtonPress.button )
             {
+              case PTR_BUTTON4: event.pointerWheel.xAxis = 1; break;
+              case PTR_BUTTON5: event.pointerWheel.xAxis = -1; break;
+              case PTR_BUTTON6: event.pointerWheel.yAxis = 1; break;
+              case PTR_BUTTON7: event.pointerWheel.yAxis = -1; break;
+            }
+            switch( event.pointerButtonPress.button )
+            {
               case PTR_BUTTON4:
               case PTR_BUTTON5:
               case PTR_BUTTON6:
               case PTR_BUTTON7:
-                switch( event.pointerButtonPress.button )
-                {
-                  case PTR_BUTTON4: event.pointerWheel.xAxis = 1; break;
-                  case PTR_BUTTON5: event.pointerWheel.xAxis = -1; break;
-                  case PTR_BUTTON6: event.pointerWheel.yAxis = 1; break;
-                  case PTR_BUTTON7: event.pointerWheel.yAxis = -1; break;
-                }
                 event.type = Event::WINDOW_POINTER_WHEEL;
                 event.pointerWheel.button = PTR_BUTTON_NONE;
             }
