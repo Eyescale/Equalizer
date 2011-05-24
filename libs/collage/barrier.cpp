@@ -123,16 +123,10 @@ void Barrier::enter( const uint32_t timeout )
     packet.timeout = timeout;
     send( _master, packet );
 
-    if( timeout != EQ_TIMEOUT_INDEFINITE )
-    {
-        if( !_leaveNotify.timedWaitEQ( leaveVal, timeout ))
-        {
-            EQWARN << "Barrier Timeout " << *this << std::endl;
-            throw Exception( Exception::EXCEPTION_BARRIER_TIMEOUT );
-        }
-    }
-    else
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
         _leaveNotify.waitEQ( leaveVal );
+    else if( !_leaveNotify.timedWaitEQ( leaveVal, timeout ))
+        throw Exception( Exception::TIMEOUT_BARRIER );
 
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << std::endl;

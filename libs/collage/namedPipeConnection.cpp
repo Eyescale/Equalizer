@@ -390,10 +390,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
           const uint32_t timeOut = _getTimeOut();
 
           if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeOut ))
-          {
-              EQWARN << "Write timeout" << std::endl;
-              throw Exception( Exception::EXCEPTION_WRITE_TIMEOUT );
-          }
+              throw Exception( Exception::TIMEOUT_WRITE );
       }
 
       default:

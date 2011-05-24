@@ -375,6 +375,7 @@ std::string Node::_createRemoteCommand()
 {
     std::ostringstream stringStream;
     const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+
     //----- environment
 #ifndef WIN32
 #  ifdef Darwin

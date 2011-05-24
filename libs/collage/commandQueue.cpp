@@ -68,7 +68,7 @@ Command* CommandQueue::pop( const uint32_t timeout )
 
     Command* command;
     if( !_commands.timedPop( timeout, command ))
-        throw Exception( Exception::EXCEPTION_COMMANDQUEUE_TIMEOUT );
+        throw Exception( Exception::TIMEOUT_COMMANDQUEUE );
 
     return command;
 }

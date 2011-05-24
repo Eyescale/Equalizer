@@ -367,7 +367,7 @@ void Channel::frameAssemble( const uint128_t& )
     }
     catch( co::Exception e )
     {
-        EQWARN << "assemble frames timeout : " << e << std::endl;
+        EQWARN << e << std::endl;
     }
     EQ_GL_CALL( resetAssemblyState( ));
 }

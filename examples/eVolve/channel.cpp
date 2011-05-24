@@ -36,9 +36,6 @@
 #include "window.h"
 #include "hlp.h"
 #include "framesOrderer.h"
-#include "framesOrderer.h"
-
-#include <co/exception.h>
 
 namespace eVolve
 {
@@ -323,7 +320,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     catch( co::Exception e )
     {
-        EQWARN << "assemble frames timeout : " << e << std::endl;
+        EQWARN << e << std::endl;
     }
 
     resetAssemblyState();

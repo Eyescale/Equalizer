@@ -23,6 +23,8 @@
 #include "channelStatistics.h"
 #include "client.h"
 #include "compositor.h"
+#include "config.h"
+#include "exception.h"
 #include "frameData.h"
 #include "image.h"
 #include "log.h"
@@ -34,7 +36,6 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 
-#include <co/exception.h>
 #include <co/base/debug.h>
 #include <co/base/global.h>
 #include <co/base/executionListener.h>
@@ -116,7 +117,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            frame->waitReady( );
+            frame->waitReady();
         }
 
         if( frame->getData()->getZoom() != Zoom::NONE )
@@ -419,26 +420,19 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            if( co::base::Global::getIAttribute( 
-                          co::base::Global::IATTR_ROBUSTNESS ))
-            { 
-                if( !monitor.timedWaitGE( ++nUsedFrames, 
-                              co::base::Global::getIAttribute( 
-                                    co::base::Global::IATTR_TIMEOUT_DEFAULT )))
-                {
-                        // de-register the monitor
-                    for( Frames::const_iterator i = frames.begin(); 
-                         i != frames.end(); ++i )
-                    {
-                        Frame* frame = *i;
-                        frame->removeListener( monitor );
-                    }
-                    throw co::Exception( co::Exception::EXCEPTION_MONITOR_TIMEOUT );
-                }
-            }
-            else
-            {
+            const uint32_t timeout = channel->getConfig()->getTimeout();
+
+            if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
+            else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
+            {
+                // de-register the monitor
+                for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+                {
+                    Frame* frame = *i;
+                    frame->removeListener( monitor );
+                }
+                throw Exception( Exception::TIMEOUT_INPUTFRAME );
             }
         }
 
