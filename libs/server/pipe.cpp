@@ -256,9 +256,10 @@ bool Pipe::syncConfigExit()
 //---------------------------------------------------------------------------
 void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_RUNNING );
-    EQASSERT( _active > 0 );
+    if( !isRunning( ))
+        return;
 
+    EQASSERT( isActive( ))
     PipeFrameStartClockPacket startClockPacket;
     send( startClockPacket );
 
@@ -271,18 +272,10 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( window->isActive() && window->isRunning( ))
-            window->updateDraw( frameID, frameNumber );
-    }
+        (*i)->updateDraw( frameID, frameNumber );
  
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
-    {
-        Window* window = *i;
-        if( window->isActive() && window->isRunning( ))
-            window->updatePost( frameID, frameNumber );
-    }
+        (*i)->updatePost( frameID, frameNumber );
 
     PipeFrameFinishPacket finishPacket;
     finishPacket.frameID      = frameID;

@@ -467,7 +467,7 @@ void WGLWindow::_initSwapSync()
         wglSwapIntervalEXT( vsync );
     }
     else
-        EQWARN << "WGLEW_EXT_swap_control not supported, ignoring window "
+        EQWARN << "WGL_EXT_swap_control not supported, ignoring window "
                << "swapsync hint" << std::endl;
 }   
 
