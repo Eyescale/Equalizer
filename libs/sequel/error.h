@@ -25,7 +25,8 @@ namespace seq
     /** Defines errors produced by Sequel. */
     enum Error
     {
-        ERROR_SEQUEL_MAPOBJECT_FAILED = eq::ERROR_CUSTOM
+        ERROR_SEQUEL_MAPOBJECT_FAILED = eq::ERROR_CUSTOM,
+        ERROR_SEQUEL_CREATERENDERER_FAILED
     };
 
     /** Set up eqPly-specific error codes. */

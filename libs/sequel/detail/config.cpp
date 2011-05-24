@@ -15,15 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_SEQUEL_H
-#define EQ_SEQUEL_H
 
-#pragma warning(push)
-#pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
+#include "config.h"
 
 #include <eq/sequel/application.h>
-#include <eq/sequel/renderer.h>
-#include <eq/eq.h>
 
-#pragma warning(pop)
-#endif // EQ_SEQUEL_H
+namespace seq
+{
+namespace detail
+{
+seq::Application* Config::getApplication()
+{
+    return static_cast< seq::Application* >( getClient().get( ));
+
+}
+
+}
+}

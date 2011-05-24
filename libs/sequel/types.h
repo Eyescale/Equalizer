@@ -26,6 +26,9 @@ namespace seq
 using eq::uint128_t;
 
 class Application;
+class ObjectFactory;
+class Renderer;
+
 typedef co::base::RefPtr< Application > ApplicationPtr;
 
 /** @cond IGNORE */
@@ -37,6 +40,7 @@ class Config;
 class Node;
 class ObjectMap;
 class Pipe;
+
 }
 /** @endcond */
 }

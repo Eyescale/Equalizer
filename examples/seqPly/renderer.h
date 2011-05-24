@@ -26,36 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "seqPly.h"
+#ifndef SEQ_PLY_RENDERER_H
+#define SEQ_PLY_RENDERER_H
 
-#include "renderer.h"
+#include <eq/sequel/sequel.h>
 
 namespace seqPly
 {
-
-bool Application::init( const int argc, char** argv )
-{
-    if( !seq::Application::init( argc, argv ))
-        return false;
-
-    //_parseArguments( argc, argv );
-    return true;
-}
-
-co::Object* Application::createObject( const uint32_t type )
-{
-    switch( type )
+    class Renderer : public seq::Renderer
     {
-      default:
-          EQUNIMPLEMENTED;
-          return 0;
-    }
-}
-
-seq::Renderer* Application::createRenderer()
-{
-    return new Renderer( *this );
-}
+    public:
+        Renderer( seq::Application& app ) : seq::Renderer( app ) {}
+        virtual ~Renderer() {}
+    };
 
 }
+
+#endif // SEQ_PLY_RENDERER_H
 

@@ -34,6 +34,8 @@ struct ErrorData
 ErrorData _errors[] = {
     { ERROR_SEQUEL_MAPOBJECT_FAILED, 
       "Mapping of data from application process failed" },
+    { ERROR_SEQUEL_CREATERENDERER_FAILED,
+      "Application::newRenderer returned 0" },
 
     { 0, "" } // last!
 };

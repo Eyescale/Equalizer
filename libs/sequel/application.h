@@ -18,14 +18,14 @@
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
+#include <eq/sequel/objectFactory.h> // interface
 #include <eq/sequel/types.h>
-
-#include <eq/client.h>      // base class
+#include <eq/client.h>               // base class
 
 namespace seq
 {
     /** The main application object. */
-    class Application : public eq::Client
+    class Application : public eq::Client, public seq::ObjectFactory
     {
     public:
         /** Construct a new application instance. @version 1.0 */
@@ -34,6 +34,26 @@ namespace seq
         /** Destruct this application instance. @version 1.0 */
         SEQ_API virtual ~Application();
 
+        /** @name Data Access. */
+        //@{
+        virtual eq::Config* getConfig(); //!< @internal
+
+        /**
+         * Create a new renderer instance.
+         *
+         * Called once per rendering thread, potentially in parallel, during
+         * initialization.
+         * @return the new renderer
+         * @version 1.0
+         */
+        virtual Renderer* createRenderer() = 0;
+
+        /** Delete the given renderer. @version 1.0 */
+        virtual void destroyRenderer( Renderer* renderer );
+        //@}
+
+        /** @name Operations */
+        //@{
         /** 
          * Initialize the application instance.
          *
@@ -59,6 +79,7 @@ namespace seq
          * @version 1.0
          */
         SEQ_API virtual bool exit();
+        //@}
 
     private:
         detail::Application* _impl;

@@ -18,22 +18,23 @@
 #ifndef EQSEQUEL_DETAIL_OBJECTMAP_H
 #define EQSEQUEL_DETAIL_OBJECTMAP_H
 
+#include <eq/sequel/objectType.h> // used inline
 #include <eq/sequel/types.h>
-#include <eq/fabric/serializable.h> // base class
+#include <co/serializable.h>      // base class
 
 namespace seq
 {
 namespace detail
 {
     /** Central distributed object registry. */
-    class ObjectMap : public eq::fabric::Serializable
+    class ObjectMap : public co::Serializable
     {
     public:
-        ObjectMap( Config* config );
+        ObjectMap( ObjectFactory& factory );
         ~ObjectMap();
 
-        bool register_( co::Object* object );
-        bool map( co::Object* object, const uint128_t& identifier );
+        bool register_( co::Object* object, const uint32_t type );
+        co::Object* get( const uint128_t& identifier, co::Object* instance=0 );
 
     protected:
         virtual bool isDirty() const;
@@ -46,22 +47,24 @@ namespace detail
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
     private:
-        Config* const _config; //!< The parent config
+        ObjectFactory& _factory; //!< The 'parent' user
         
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
         {
-            DIRTY_ADDED       = Serializable::DIRTY_CUSTOM << 0, // 1
-            DIRTY_CHANGED     = Serializable::DIRTY_CUSTOM << 1, // 2
+            DIRTY_ADDED       = co::Serializable::DIRTY_CUSTOM << 0, // 1
+            DIRTY_CHANGED     = co::Serializable::DIRTY_CUSTOM << 1, // 2
             DIRTY_OBJECT_BITS = DIRTY_ADDED
         };
 
         struct Entry //!< One object map item
         {
-            Entry() : instance( 0 ) {}
+            Entry() : instance( 0 ), type( OBJECTTYPE_NONE ) {}
+            Entry( const uint128_t& v, co::Object* i, const uint32_t t );
 
             uint128_t version;    //!< The current version of the object
             co::Object* instance; //!< The object instance, if attached
+            uint32_t type;        //!< The object class id
         };
 
         typedef stde::hash_map< uint128_t, Entry > Map;

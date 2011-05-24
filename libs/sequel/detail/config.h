@@ -32,6 +32,8 @@ namespace detail
     public:
         Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
 
+        seq::Application* getApplication();
+
         virtual bool init() { /* EQDONTCALL */ return false; }
         virtual bool exit() { /* EQDONTCALL */ return false; }
 

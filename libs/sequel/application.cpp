@@ -16,7 +16,12 @@
  */
 
 #include "application.h"
+
+#include "error.h"
+#include "objectType.h"
+#include "renderer.h"
 #include "detail/application.h"
+#include "detail/config.h"
 
 #include <eq/config.h>
 #include <eq/configParams.h>
@@ -35,6 +40,19 @@ Application::~Application()
     EQASSERT( !_impl );
 }
 
+eq::Config* Application::getConfig()
+{
+    EQASSERT( _impl );
+    if( !_impl )
+        return 0;
+    return _impl->getConfig();
+}
+
+void Application::destroyRenderer( Renderer* renderer )
+{
+    delete renderer;
+}
+
 bool Application::init( const int argc, char** argv )
 {
     EQASSERT( !_impl );
@@ -45,6 +63,7 @@ bool Application::init( const int argc, char** argv )
     }
 
     _impl = new detail::Application( this );
+    initErrors();
     if( !eq::init( argc, argv, _impl ))
     {
         EQERROR << "Equalizer initialization failed" << std::endl;
@@ -84,6 +103,7 @@ bool Application::exit()
     if( !eq::exit( ))
         retVal = false;
 
+    exitErrors();
     delete _impl;
     _impl = 0;
 

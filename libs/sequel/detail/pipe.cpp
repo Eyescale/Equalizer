@@ -20,7 +20,10 @@
 #include "config.h"
 #include "node.h"
 #include "objectMap.h"
+
+#include <eq/sequel/application.h>
 #include <eq/sequel/error.h>
+#include <eq/sequel/renderer.h>
 
 namespace seq
 {
@@ -30,6 +33,7 @@ namespace detail
 Pipe::Pipe( eq::Node* parent )
         : eq::Pipe( parent ) 
         , _objects( 0 )
+        , _renderer( 0 )
 {}
 
 Pipe::~Pipe()
@@ -37,9 +41,9 @@ Pipe::~Pipe()
     EQASSERT( !_objects );
 }
 
-Node* Pipe::getNode()
+seq::Application* Pipe::getApplication()
 {
-    return static_cast< Node* >( eq::Pipe::getNode( ));
+    return getConfig()->getApplication();
 }
 
 Config* Pipe::getConfig()
@@ -47,22 +51,40 @@ Config* Pipe::getConfig()
     return getNode()->getConfig();
 }
 
+Node* Pipe::getNode()
+{
+    return static_cast< Node* >( eq::Pipe::getNode( ));
+}
+
 bool Pipe::configInit( const uint128_t& initID )
 {
     if( !eq::Pipe::configInit( initID ))
         return false;
 
-    if( !_mapData( initID ))
+    EQASSERT( !_renderer );
+    _renderer = getApplication()->createRenderer();
+    if( !_renderer )
     {
-        setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+        EQASSERT( _renderer );
+        setError( ERROR_SEQUEL_CREATERENDERER_FAILED );
         return false;
     }
-    return true;
+
+    if( _mapData( initID ))
+        return true;
+
+    setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
+    return false;
 }
 
 bool Pipe::configExit()
 {
     _unmapData();
+
+    if( _renderer )
+        getApplication()->destroyRenderer( _renderer );
+    _renderer = 0;
+
     return eq::Pipe::configExit();
 }
 
@@ -75,8 +97,9 @@ void Pipe::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
 bool Pipe::_mapData( const uint128_t& initID )
 {
     EQASSERT( !_objects );
+    EQASSERT( _renderer );
 
-    _objects = new ObjectMap( getConfig( ));
+    _objects = new ObjectMap( *_renderer );
     Config* config = getConfig();
     const uint32_t request = config->mapObjectNB( _objects, initID,
                                                   co::VERSION_OLDEST,

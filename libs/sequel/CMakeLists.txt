@@ -8,15 +8,20 @@ purple_add_library(Sequel SHARED
     api.h
     application.h
     error.h
+    objectFactory.h
+    objectType.h
+    renderer.h
     sequel.h
     types.h
   SOURCES
     application.cpp
     error.cpp
+    renderer.cpp
     detail/application.cpp
     detail/channel.h
     detail/channel.cpp
     detail/config.h
+    detail/config.cpp
     detail/masterConfig.h
     detail/masterConfig.cpp
     detail/node.h

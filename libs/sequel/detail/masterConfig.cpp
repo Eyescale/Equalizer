@@ -18,6 +18,7 @@
 #include "masterConfig.h"
 
 #include "objectMap.h"
+#include <eq/sequel/application.h>
 
 namespace seq
 {
@@ -33,7 +34,7 @@ MasterConfig::~MasterConfig()
 bool MasterConfig::init()
 {
     EQASSERT( !_objects );
-    _objects = new ObjectMap( this );
+    _objects = new ObjectMap( *getApplication( ));
     EQCHECK( registerObject( _objects ));
 
     if( !eq::Config::init( _objects->getID( )))

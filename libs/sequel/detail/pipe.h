@@ -31,6 +31,7 @@ namespace detail
     public:
         Pipe( eq::Node* parent );
 
+        seq::Application* getApplication();
         Config* getConfig();
         Node* getNode();
 
@@ -48,6 +49,7 @@ namespace detail
         void _unmapData();
 
         ObjectMap* _objects;
+        Renderer* _renderer;
     };
 }
 }

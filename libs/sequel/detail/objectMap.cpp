@@ -19,6 +19,7 @@
 
 #include "config.h"
 
+#include <eq/sequel/objectFactory.h>
 #include <co/base/scopedMutex.h>
 
 namespace seq
@@ -27,11 +28,17 @@ namespace detail
 {
 typedef co::base::ScopedMutex< co::base::SpinLock> ScopedMutex;
 
-ObjectMap::ObjectMap( Config* config )
-        : _config( config )
+ObjectMap::ObjectMap( ObjectFactory& factory )
+        : _factory( factory )
 {}
 
 ObjectMap::~ObjectMap()
+{}
+
+ObjectMap::Entry::Entry(const uint128_t& v, co::Object* i, const uint32_t t)
+        : version( v )
+        , instance( i )
+        , type( t )
 {}
 
 uint32_t ObjectMap::commitNB( const uint32_t incarnation )
@@ -166,10 +173,10 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
 }
 
-bool ObjectMap::register_( co::Object* object )
+bool ObjectMap::register_( co::Object* object, const uint32_t type )
 {
     EQASSERT( object );
-    if( !object || !_config->registerObject( object ))
+    if( !object || !_factory.getConfig()->registerObject( object ))
         return false;
 
     co::ObjectVersion ov( object );
@@ -177,9 +184,8 @@ bool ObjectMap::register_( co::Object* object )
         ScopedMutex mutex( _map );
         EQASSERT( _map->find( object->getID( )) == _map->end( ));
 
-        Entry& entry = _map.data[ object->getID() ];
-        entry.version = ov.version;
-        entry.instance = object;
+        const Entry entry( ov.version, object, type );
+        _map.data[ object->getID() ] = entry;
     }
     {
         ScopedMutex mutex( _masters );
@@ -193,30 +199,40 @@ bool ObjectMap::register_( co::Object* object )
     return true;
 }
 
-bool ObjectMap::map( co::Object* object, const uint128_t& identifier )
+co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
 {
-    EQASSERT( object && !object->isAttached( ));
-    if( !object || object->isAttached( ))
-        return false;
-
     ScopedMutex mutex( _map );
     MapIter i = _map->find( identifier );
     EQASSERT( i != _map->end( ));
     if( i == _map->end( ))
     {
         EQWARN << "Object mapping failed, no master registered" << std::endl;
-        return false;
+        return 0;
     }
 
     Entry& entry = i->second;
-    EQASSERT( !entry.instance );
+    if( entry.instance )
+    {
+        if( entry.instance == instance )
+            return instance;
 
-    if( !_config->mapObject( object, identifier, entry.version ))
-        return false;
+        EQWARN << "Object mapping failed, different instance registered"
+               << std::endl;
+        return 0;
+    }
+
+    co::Object* object = instance ? 
+                         instance : _factory.createObject( entry.type );
+    if( !_factory.getConfig()->mapObject( object, identifier, entry.version ))
+    {
+        if( !instance )
+            _factory.destroyObject( object, entry.type );
+        return 0;
+    }
 
     EQASSERT( object->getVersion() == entry.version );
     entry.instance = object;
-    return true;
+    return object;
 }
 
 }

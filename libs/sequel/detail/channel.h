@@ -31,7 +31,7 @@ namespace detail
     public:
         Channel( eq::Window* parent );
 
-        Config* getConfig();
+        //Config* getConfig();
 
     protected:
         virtual ~Channel();

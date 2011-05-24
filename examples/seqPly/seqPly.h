@@ -58,6 +58,8 @@ namespace seqPly
 
         virtual bool init( const int argc, char** argv );
 
+        virtual co::Object* createObject( const uint32_t type );
+        virtual seq::Renderer* createRenderer();
     };
 
 }

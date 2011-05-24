@@ -15,15 +15,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_SEQUEL_H
-#define EQ_SEQUEL_H
+#include "renderer.h"
 
-#pragma warning(push)
-#pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
+#include "application.h"
 
-#include <eq/sequel/application.h>
-#include <eq/sequel/renderer.h>
-#include <eq/eq.h>
+namespace seq
+{
+Renderer::Renderer( Application& application )
+        : _app( application )
+{}
 
-#pragma warning(pop)
-#endif // EQ_SEQUEL_H
+Renderer::~Renderer()
+{}
+
+eq::Config* Renderer::getConfig()
+{
+    return _app.getConfig();
+}
+
+co::Object* Renderer::createObject( const uint32_t type )
+{
+    return _app.createObject( type );
+}
+
+void Renderer::destroyObject( co::Object* object, const uint32_t type )
+{
+    _app.destroyObject( object, type );
+}
+
+}

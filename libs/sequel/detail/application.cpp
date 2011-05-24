@@ -48,6 +48,16 @@ Application::~Application()
     _app = 0;
 }
 
+Config* Application::getConfig()
+{
+    return _config;
+}
+
+const Config* Application::getConfig() const
+{
+    return _config;
+}
+
 bool Application::init()
 {
     _isMaster = true;
@@ -59,7 +69,7 @@ bool Application::init()
         return false;
     }
 
-    eq::ConfigParams cp;
+    const eq::ConfigParams cp;
     _config = static_cast< Config* >( server->chooseConfig( cp ));
 
     if( !_config )
@@ -142,7 +152,7 @@ eq::Pipe* Application::createPipe( eq::Node* parent )
     return new Pipe( parent );
 }
 
-eq::Channel* createChannel( eq::Window* parent )
+eq::Channel* Application::createChannel( eq::Window* parent )
 {
     return new Channel( parent );
 }

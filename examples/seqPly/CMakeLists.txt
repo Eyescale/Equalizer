@@ -32,6 +32,7 @@ eq_add_example(seqPly
     ${KD_HEADERS}
   SOURCES
     main.cpp
+    renderer.h
     seqPly.cpp
     seqPly.h
     ${KD_SOURCES}

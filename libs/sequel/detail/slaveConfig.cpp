@@ -19,6 +19,8 @@
 
 #include "objectMap.h"
 
+#include <eq/sequel/application.h>
+
 namespace seq
 {
 namespace detail
@@ -26,9 +28,9 @@ namespace detail
 
 bool SlaveConfig::mapData( const uint128_t& initID )
 {
-    EQASSERT( !_objects )
+    EQASSERT( !_objects );
 
-    _objects = new ObjectMap( this );
+    _objects = new ObjectMap( *getApplication( ));
     const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
                                           getApplicationNode( ));
     if( !mapObjectSync( request ))
