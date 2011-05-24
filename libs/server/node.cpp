@@ -531,6 +531,17 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
         (*i)->update( frameID, frameNumber );
 
+    if( !_lastDrawPipe ) // no FrameDrawFinish sent
+    {
+        NodeFrameDrawFinishPacket drawFinishPacket;
+        drawFinishPacket.frameNumber = frameNumber;
+        drawFinishPacket.frameID     = frameID;
+        _send( drawFinishPacket );
+        EQLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
+                           << &drawFinishPacket << std::endl;
+    }
+    _lastDrawPipe = 0;
+
     NodeFrameTasksFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
@@ -539,9 +550,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
                            << std::endl;
 
     _finish( frameNumber );
-
     flushSendBuffer();
-    _lastDrawPipe = 0;
 }
 
 uint32_t Node::_getFinishLatency() const

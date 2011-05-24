@@ -277,14 +277,24 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
         (*i)->updatePost( frameID, frameNumber );
 
+    if( !_lastDrawWindow ) // no FrameDrawFinish sent
+    {
+        PipeFrameDrawFinishPacket drawFinishPacket;
+        drawFinishPacket.frameNumber = frameNumber;
+        drawFinishPacket.frameID     = frameID;
+        send( drawFinishPacket );
+        EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
+                           << &drawFinishPacket << std::endl;
+    }
+    _lastDrawWindow = 0;
+
     PipeFrameFinishPacket finishPacket;
     finishPacket.frameID      = frameID;
     finishPacket.frameNumber  = frameNumber;
-
     send( finishPacket );
+
     EQLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                            << std::endl;
-    _lastDrawWindow = 0;
 }
 
 

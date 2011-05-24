@@ -218,6 +218,9 @@ namespace eq
 
         /** Create an unmapped X11 window. */
         XID _createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp );
+
+        /** Init sync-to-vertical-retrace setting. */
+        void _initSwapSync();
     };
 }
 
