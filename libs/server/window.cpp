@@ -391,6 +391,17 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
             _swap = true;
     }
 
+    if( !_lastDrawChannel ) // no FrameDrawFinish sent
+    {
+        WindowFrameDrawFinishPacket drawFinishPacket;
+        drawFinishPacket.frameNumber = frameNumber;
+        drawFinishPacket.frameID     = frameID;
+        send( drawFinishPacket );
+        EQLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
+                           << &drawFinishPacket << std::endl;
+    }
+    _lastDrawChannel = 0;
+
     if( _swapFinish )
     {
         WindowFinishPacket packet;
@@ -415,7 +426,6 @@ void Window::updatePost( const uint128_t& frameID,
     send( finishPacket );
     EQLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << std::endl;
-    _lastDrawChannel = 0;
 }
 
 void Window::_updateSwap( const uint32_t frameNumber )
