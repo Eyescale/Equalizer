@@ -16,13 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "objectManager.h"
+#include <eq/util/objectManager.h>
 
-#include "accum.h"
-#include "bitmapFont.h"
-#include "frameBufferObject.h"
-#include "gpuCompressor.h"
-#include "texture.h"
+#include <eq/util/accum.h>
+#include <eq/util/bitmapFont.h>
+#include <eq/util/frameBufferObject.h>
+#include <eq/util/gpuCompressor.h>
+#include <eq/util/texture.h>
 
 #include <string.h>
 

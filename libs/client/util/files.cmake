@@ -15,10 +15,10 @@ set(EQ_UTIL_FORWARD_HEADERS
   util/objectManager.ipp
   util/texture.h
   util/types.h
+  util/gpuCompressor.h
   )
 
 set(EQ_UTIL_HEADERS
-  util/gpuCompressor.h
   )
 
 set(EQ_UTIL_SOURCES
