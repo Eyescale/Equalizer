@@ -31,6 +31,7 @@
 
 namespace eq
 {
+class AGLWindowEvent;
 class Canvas;
 class Channel;
 class Client;

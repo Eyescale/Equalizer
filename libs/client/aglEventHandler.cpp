@@ -176,46 +176,61 @@ OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
     return noErr;
 }
 
-bool AGLEventHandler::handleEvent( EventRef event )
+bool AGLEventHandler::handleEvent( EventRef eventRef )
 {
-    switch( GetEventClass( event ))
+    AGLWindowEvent event;
+    event.carbonEventRef = eventRef;
+    event.time = _window->getConfig()->getTime();
+
+    Window* const window = _window->getWindow();
+    event.originator = window->getID();
+    event.serial = window->getSerial();
+
+    switch( GetEventClass( eventRef ))
     {
         case kEventClassWindow:
-            return _handleWindowEvent( event );
+            _processWindowEvent( event );
+            break;
+
         case kEventClassMouse:
-            return _handleMouseEvent( event );
+            if( !_processMouseEvent( event ))
+                return false;
+            break;
+
         case kEventClassKeyboard:
-            return _handleKeyEvent( event );
+             _processKeyEvent( event );
+             break;
+
         default:
-            EQINFO << "Unknown event class " << GetEventClass( event )
+            EQINFO << "Unknown event class " << GetEventClass( eventRef )
                    << std::endl;
             return false;
     }
+
+    return _window->processEvent( event );
 }
 
-bool AGLEventHandler::_handleWindowEvent( EventRef event )
+void AGLEventHandler::_processWindowEvent( AGLWindowEvent& event )
 {
-    AGLWindowEvent windowEvent;
-    windowEvent.carbonEventRef = event;
-    Window* const window       = _window->getWindow();
-
-    Rect      rect;
     WindowRef carbonWindow = _window->getCarbonWindow();
-
+    Rect rect;
     GetWindowBounds( carbonWindow, kWindowContentRgn, &rect );
-    windowEvent.resize.x = rect.top;
-    windowEvent.resize.y = rect.left;
-    windowEvent.resize.h = rect.bottom - rect.top;
-    windowEvent.resize.w = rect.right  - rect.left;
 
+    event.resize.x = rect.top;
+    event.resize.y = rect.left;
+    event.resize.h = rect.bottom - rect.top;
+    event.resize.w = rect.right  - rect.left;
+
+    Window* const window = _window->getWindow();
     if( window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF )
-        windowEvent.resize.y -= EQ_AGL_MENUBARHEIGHT;
+        event.resize.y -= EQ_AGL_MENUBARHEIGHT;
 
-    switch( GetEventKind( event ))
+    EventRef eventRef = event.carbonEventRef;
+    switch( GetEventKind( eventRef ))
     {
         case kEventWindowBoundsChanged:
         case kEventWindowZoomed:
-            windowEvent.type = Event::WINDOW_RESIZE;
+            event.type = Event::WINDOW_RESIZE;
             break;
 
         case kEventWindowUpdate:
@@ -223,237 +238,209 @@ bool AGLEventHandler::_handleWindowEvent( EventRef event )
             EndUpdate( carbonWindow );
             // no break;
         case kEventWindowDrawContent:
-            windowEvent.type = Event::WINDOW_EXPOSE;
+            event.type = Event::WINDOW_EXPOSE;
             break;
 
         case kEventWindowClosed:
-            windowEvent.type = Event::WINDOW_CLOSE;
+            event.type = Event::WINDOW_CLOSE;
             break;
 
         case kEventWindowHidden:
         case kEventWindowCollapsed:
-            windowEvent.type = Event::WINDOW_HIDE;
+            event.type = Event::WINDOW_HIDE;
             break;
             
         case kEventWindowShown:
         case kEventWindowExpanded:
-            windowEvent.type = Event::WINDOW_SHOW;
+            event.type = Event::WINDOW_SHOW;
             if( carbonWindow == FrontNonFloatingWindow( ))
                 SetUserFocusWindow( carbonWindow );
             break;
 
         default:
-            EQINFO << "Unhandled window event " << GetEventKind( event )
+            EQINFO << "Unhandled window event " << GetEventKind( eventRef )
                    << std::endl;
-            windowEvent.type = Event::UNKNOWN;
+            event.type = Event::UNKNOWN;
             break;
     }
-
-    windowEvent.originator = window->getID();
-    windowEvent.serial = window->getSerial();
-    return _window->processEvent( windowEvent );
 }
 
-bool AGLEventHandler::_handleMouseEvent( EventRef event )
+bool AGLEventHandler::_processMouseEvent( AGLWindowEvent& event )
 {
-    HIPoint        pos;
-    AGLWindowEvent windowEvent;
-
-    windowEvent.carbonEventRef = event;
-    Window* const window       = _window->getWindow();
-    
-    const bool    decoration =
+    Window* const window = _window->getWindow();
+    const bool decoration =
         window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
+    HIPoint pos;
 
-    switch( GetEventKind( event ))
+    EventRef eventRef = event.carbonEventRef;
+    switch( GetEventKind( eventRef ))
     {
         case kEventMouseMoved:
         case kEventMouseDragged:
-            windowEvent.type                  = Event::WINDOW_POINTER_MOTION;
-            windowEvent.pointerMotion.button  = PTR_BUTTON_NONE;
+            event.type                  = Event::WINDOW_POINTER_MOTION;
+            event.pointerMotion.button  = PTR_BUTTON_NONE;
             // Note: Luckily GetCurrentEventButtonState returns the same bits as
             // our button definitions.
-            windowEvent.pointerMotion.buttons = _getButtonState();
+            event.pointerMotion.buttons = _getButtonState();
 
-            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            if( event.pointerMotion.buttons == PTR_BUTTON1 )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( event, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers, 
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                    event.pointerMotion.buttons = PTR_BUTTON3;
                 else if( keys & optionKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+                    event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( event, kEventParamWindowMouseLocation, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
 
-            windowEvent.pointerMotion.x = static_cast< int32_t >( pos.x );
-            windowEvent.pointerMotion.y = static_cast< int32_t >( pos.y ) -
-                                               menuHeight;
+            event.pointerMotion.x = static_cast< int32_t >( pos.x );
+            event.pointerMotion.y = static_cast< int32_t >( pos.y ) -menuHeight;
 
-            GetEventParameter( event, kEventParamMouseDelta, 
+            GetEventParameter( eventRef, kEventParamMouseDelta, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
-            windowEvent.pointerMotion.dx = static_cast< int32_t >( pos.x );
-            windowEvent.pointerMotion.dy = static_cast< int32_t >( pos.y );
+            event.pointerMotion.dx = static_cast< int32_t >( pos.x );
+            event.pointerMotion.dy = static_cast< int32_t >( pos.y );
 
-            _lastDX = windowEvent.pointerMotion.dx;
-            _lastDY = windowEvent.pointerMotion.dy;
+            _lastDX = event.pointerMotion.dx;
+            _lastDY = event.pointerMotion.dy;
 
-            _getRenderContext( window, windowEvent );
-            break;
+            _getRenderContext( window, event );
+            return true;
 
         case kEventMouseDown:
-            windowEvent.type = Event::WINDOW_POINTER_BUTTON_PRESS;
-            windowEvent.pointerMotion.buttons = _getButtonState();
-            windowEvent.pointerButtonPress.button  =
-                _getButtonAction( event );
+            event.type = Event::WINDOW_POINTER_BUTTON_PRESS;
+            event.pointerMotion.buttons = _getButtonState();
+            event.pointerButtonPress.button = _getButtonAction( eventRef );
 
-            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            if( event.pointerMotion.buttons == PTR_BUTTON1 )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( event, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers, 
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                    event.pointerMotion.buttons = PTR_BUTTON3;
                 else if( keys & optionKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+                    event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( event, kEventParamWindowMouseLocation, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
 
-            windowEvent.pointerButtonPress.x = 
-                static_cast< int32_t >( pos.x );
-            windowEvent.pointerButtonPress.y = 
-                static_cast< int32_t >( pos.y ) - menuHeight;
-
-            windowEvent.pointerButtonPress.dx = _lastDX;
-            windowEvent.pointerButtonPress.dy = _lastDY;
+            event.pointerButtonPress.x = int32_t( pos.x );
+            event.pointerButtonPress.y = int32_t( pos.y ) - menuHeight;
+            event.pointerButtonPress.dx = _lastDX;
+            event.pointerButtonPress.dy = _lastDY;
             _lastDX = 0;
             _lastDY = 0;
 
-            _getRenderContext( window, windowEvent );
-            break;
+            _getRenderContext( window, event );
+            return true;
 
         case kEventMouseUp:
-            windowEvent.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
-            windowEvent.pointerMotion.buttons = _getButtonState();
-            windowEvent.pointerButtonRelease.button = 
-                _getButtonAction( event );
+            event.type = Event::WINDOW_POINTER_BUTTON_RELEASE;
+            event.pointerMotion.buttons = _getButtonState();
+            event.pointerButtonRelease.button = _getButtonAction( eventRef );
 
-            if( windowEvent.pointerMotion.buttons == PTR_BUTTON1 )
+            if( event.pointerMotion.buttons == PTR_BUTTON1 )
             {   // Only left button pressed: implement apple-style middle/right
                 // button if modifier keys are used.
                 uint32_t keys = 0;
-                GetEventParameter( event, kEventParamKeyModifiers, 
+                GetEventParameter( eventRef, kEventParamKeyModifiers, 
                                    typeUInt32, 0, sizeof( keys ), 0, &keys );
                 if( keys & controlKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON3;
+                    event.pointerMotion.buttons = PTR_BUTTON3;
                 else if( keys & optionKey )
-                    windowEvent.pointerMotion.buttons = PTR_BUTTON2;
+                    event.pointerMotion.buttons = PTR_BUTTON2;
             }
 
-            GetEventParameter( event, kEventParamWindowMouseLocation, 
+            GetEventParameter( eventRef, kEventParamWindowMouseLocation, 
                                typeHIPoint, 0, sizeof( pos ), 0, 
                                &pos );
             if( pos.y < menuHeight )
                 return false; // ignore pointer events on the menu bar
 
-            windowEvent.pointerButtonRelease.x = 
-                static_cast< int32_t>( pos.x );
-            windowEvent.pointerButtonRelease.y = 
-                static_cast< int32_t>( pos.y ) - menuHeight;
-
-            windowEvent.pointerButtonRelease.dx = _lastDX;
-            windowEvent.pointerButtonRelease.dy = _lastDY;
+            event.pointerButtonRelease.x = int32_t( pos.x );
+            event.pointerButtonRelease.y = int32_t( pos.y ) - menuHeight;
+            event.pointerButtonRelease.dx = _lastDX;
+            event.pointerButtonRelease.dy = _lastDY;
             _lastDX = 0;
             _lastDY = 0;
 
-            _getRenderContext( window, windowEvent );
-            break;
+            _getRenderContext( window, event );
+            return true;
 
         case kEventMouseWheelMoved:
         {
-            windowEvent.type = Event::WINDOW_POINTER_WHEEL;
-            windowEvent.pointerWheel.button  = PTR_BUTTON_NONE;
-            windowEvent.pointerWheel.buttons = _getButtonState();
-            windowEvent.pointerWheel.dx = _lastDX;
-            windowEvent.pointerWheel.dy = _lastDY;
+            event.type = Event::WINDOW_POINTER_WHEEL;
+            event.pointerWheel.button  = PTR_BUTTON_NONE;
+            event.pointerWheel.buttons = _getButtonState();
+            event.pointerWheel.dx = _lastDX;
+            event.pointerWheel.dy = _lastDY;
 
             EventMouseWheelAxis axis;
             SInt32 delta;
-            GetEventParameter( event, kEventParamMouseWheelAxis,
+            GetEventParameter( eventRef, kEventParamMouseWheelAxis,
                                typeMouseWheelAxis, 0, sizeof( axis ), 0, &axis);
-            GetEventParameter( event, kEventParamMouseWheelDelta,
+            GetEventParameter( eventRef, kEventParamMouseWheelDelta,
                                typeLongInteger, 0, sizeof( delta ), 0, &delta );
             
             switch( axis )
             {
                 case kEventMouseWheelAxisY: // NO typo - y is the primary axis
-                    windowEvent.pointerWheel.xAxis = delta;
-                    break;
+                    event.pointerWheel.xAxis = delta;
+                    return true;
                 case kEventMouseWheelAxisX:
-                    windowEvent.pointerWheel.yAxis = delta;
-                    break;
+                    event.pointerWheel.yAxis = delta;
+                    return true;
                 default:
                     EQUNIMPLEMENTED;
             }
-            break;
+            return true;
         }
         default:
-            EQINFO << "Unhandled mouse event " << GetEventKind( event )
+            EQINFO << "Unhandled mouse event " << GetEventKind( eventRef )
                    << std::endl;
-            windowEvent.type = Event::UNKNOWN;
-            break;
+            event.type = Event::UNKNOWN;
+            return true;
     }
-
-    windowEvent.originator = window->getID();
-    windowEvent.serial = window->getSerial();
-    return _window->processEvent( windowEvent );
 }
 
-bool AGLEventHandler::_handleKeyEvent( EventRef event )
+void AGLEventHandler::_processKeyEvent( AGLWindowEvent& event )
 {
-    AGLWindowEvent windowEvent;
-
-    windowEvent.carbonEventRef = event;
-    Window* const window       = _window->getWindow();
-
-    switch( GetEventKind( event ))
+    EventRef eventRef = event.carbonEventRef;
+    switch( GetEventKind( eventRef ))
     {
         case kEventRawKeyDown:
         case kEventRawKeyRepeat:
-            windowEvent.type         = Event::KEY_PRESS;
-            windowEvent.keyPress.key = _getKey( event );
+            event.type         = Event::KEY_PRESS;
+            event.keyPress.key = _getKey( eventRef );
             break;
 
         case kEventRawKeyUp:
-            windowEvent.type         = Event::KEY_RELEASE;
-            windowEvent.keyPress.key = _getKey( event );
+            event.type         = Event::KEY_RELEASE;
+            event.keyPress.key = _getKey( eventRef );
             break;
 
         default:
-            EQINFO << "Unhandled keyboard event " << GetEventKind( event )
+            EQINFO << "Unhandled keyboard event " << GetEventKind( eventRef )
                    << std::endl;
-            windowEvent.type = Event::UNKNOWN;
+            event.type = Event::UNKNOWN;
             break;
     }
-
-    windowEvent.originator = window->getID();
-    windowEvent.serial = window->getSerial();
-    return _window->processEvent( windowEvent );
 }
 
 uint32_t AGLEventHandler::_getButtonState()
@@ -470,9 +457,8 @@ uint32_t AGLEventHandler::_getButtonState()
 uint32_t AGLEventHandler::_getButtonAction( EventRef event )
 {
     EventMouseButton button;
-    GetEventParameter( event, kEventParamMouseButton, 
-                               typeMouseButton, 0, sizeof( button ), 0, 
-                               &button );
+    GetEventParameter( event, kEventParamMouseButton, typeMouseButton, 0,
+                       sizeof( button ), 0, &button );
 
     switch( button )
     {    
@@ -483,10 +469,10 @@ uint32_t AGLEventHandler::_getButtonAction( EventRef event )
     }
 }
 
-uint32_t AGLEventHandler::_getKey( EventRef event )
+uint32_t AGLEventHandler::_getKey( EventRef eventRef )
 {
     unsigned char key;
-    GetEventParameter( event, kEventParamKeyMacCharCodes, typeChar, 0,
+    GetEventParameter( eventRef, kEventParamKeyMacCharCodes, typeChar, 0,
                        sizeof( char ), 0, &key );
     switch( key )
     {
@@ -505,7 +491,7 @@ uint32_t AGLEventHandler::_getKey( EventRef event )
         case kFunctionKeyCharCode:
         {
             uint32_t keyCode;
-            GetEventParameter( event, kEventParamKeyCode, typeUInt32, 0,
+            GetEventParameter( eventRef, kEventParamKeyCode, typeUInt32, 0,
                        sizeof( keyCode ), 0, &keyCode );
 
             switch( keyCode )

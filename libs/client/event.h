@@ -234,6 +234,9 @@ namespace eq
         // keep before 'uint128_t originator' for alignment
         uint32_t serial;       //!< server-unique originator serial number
 
+        /** The config time when the event was created. @version 1.1.1 */
+        int64_t time;
+
         /** The identifier of the entity emitting the event. */
         uint128_t originator;
 

@@ -294,7 +294,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     send( finishPacket );
 
     EQLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
-                           << std::endl;
+                       << std::endl;
 }
 
 
