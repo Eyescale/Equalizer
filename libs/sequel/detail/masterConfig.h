@@ -30,7 +30,7 @@ namespace detail
     public:
         MasterConfig( eq::ServerPtr parent );
 
-        virtual bool init();
+        virtual bool init( co::Object* initData );
         virtual bool exit();
 
         virtual bool needRedraw() { return true; }

@@ -35,7 +35,7 @@ namespace seqPly
 
 bool Application::init( const int argc, char** argv )
 {
-    if( !seq::Application::init( argc, argv ))
+    if( !seq::Application::init( argc, argv, 0 ))
         return false;
 
     //_parseArguments( argc, argv );

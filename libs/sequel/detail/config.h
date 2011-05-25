@@ -34,7 +34,7 @@ namespace detail
 
         seq::Application* getApplication();
 
-        virtual bool init() { /* EQDONTCALL */ return false; }
+        virtual bool init( co::Object* ) { /* EQDONTCALL */ return false; }
         virtual bool exit() { /* EQDONTCALL */ return false; }
 
         virtual bool needRedraw() { /* EQDONTCALL */ return false; }

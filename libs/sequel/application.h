@@ -57,12 +57,19 @@ namespace seq
         /** 
          * Initialize the application instance.
          *
+         * The initData object is registered and can be later accessed from any
+         * context using getObject( OBJECTTYPE_INITDATA ). The object may be 0,
+         * if the application does not want to use an object during
+         * initialization.
+         *
          * @param argc the command line argument count.
          * @param argv the command line arguments.
+         * @param initData a distributable object for initialization data.
          * @return true on success, false otherwise.
          * @version 1.0
          */
-        SEQ_API virtual bool init( const int argc, char** argv );
+        SEQ_API virtual bool init( const int argc, char** argv,
+                                   co::Object* initData );
         
         /**
          * Run the application main loop.

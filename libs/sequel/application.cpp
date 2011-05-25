@@ -53,7 +53,7 @@ void Application::destroyRenderer( Renderer* renderer )
     delete renderer;
 }
 
-bool Application::init( const int argc, char** argv )
+bool Application::init( const int argc, char** argv, co::Object* initData )
 {
     EQASSERT( !_impl );
     if( _impl )
@@ -77,7 +77,7 @@ bool Application::init( const int argc, char** argv )
         return false;
     }
 
-    if( !_impl->init( ))
+    if( !_impl->init( initData ))
     {
         exit();
         return false;

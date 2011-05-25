@@ -31,10 +31,12 @@ MasterConfig::MasterConfig( eq::ServerPtr parent )
 MasterConfig::~MasterConfig()
 {}
 
-bool MasterConfig::init()
+bool MasterConfig::init( co::Object* initData )
 {
     EQASSERT( !_objects );
     _objects = new ObjectMap( *getApplication( ));
+    if( initData )
+        EQCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
     EQCHECK( registerObject( _objects ));
 
     if( !eq::Config::init( _objects->getID( )))

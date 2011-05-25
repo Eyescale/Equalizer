@@ -58,7 +58,7 @@ const Config* Application::getConfig() const
     return _config;
 }
 
-bool Application::init()
+bool Application::init( co::Object* initData )
 {
     _isMaster = true;
     eq::ServerPtr server = new eq::Server;
@@ -80,7 +80,7 @@ bool Application::init()
         return false;
     }
 
-    if( !_config->init( ))
+    if( !_config->init( initData ))
         return false;
     return true;
 }

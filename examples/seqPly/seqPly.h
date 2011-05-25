@@ -62,6 +62,7 @@ namespace seqPly
         virtual seq::Renderer* createRenderer();
     };
 
+    typedef co::base::RefPtr< Application > ApplicationPtr;
 }
 
 #endif // SEQ_PLY_H

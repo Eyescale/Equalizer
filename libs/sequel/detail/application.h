@@ -38,7 +38,7 @@ namespace detail
         bool isInitialized() const { return _config != 0; }
         bool isMaster() const { return _isMaster; }
 
-        bool init();
+        bool init( co::Object* initData );
         bool exit();
         bool run();
 
