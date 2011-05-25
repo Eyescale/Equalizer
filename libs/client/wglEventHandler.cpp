@@ -192,6 +192,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
+    event.time = _window->getConfig()->getTime();
 
     Window* const window = _window->getWindow();
 

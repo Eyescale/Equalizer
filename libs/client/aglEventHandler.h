@@ -73,9 +73,10 @@ namespace eq
         EventHandlerRef _eventHandler;
         EventHandlerRef _eventDispatcher;
 
-        bool   _handleWindowEvent( EventRef event );
-        bool   _handleMouseEvent( EventRef event );
-        bool   _handleKeyEvent( EventRef event );
+        void _processWindowEvent( EventRef event );
+        /** @return true if the event is valid for the window. */
+        bool _processMouseEvent( EventRef event );
+        void _processKeyEvent( EventRef event );
 
         uint32_t _getButtonState();
         uint32_t _getButtonAction( EventRef event );

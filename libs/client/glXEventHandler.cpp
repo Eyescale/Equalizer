@@ -112,8 +112,10 @@ void GLXEventHandler::_dispatch()
     while( XPending( display ))
     {
         GLXWindowEvent event;
-        XEvent&        xEvent = event.xEvent;
+        XEvent& xEvent = event.xEvent;
+
         XNextEvent( display, &xEvent );
+        event.time = _window->getConfig()->getTime();
 
         for( GLXEventHandlers::const_iterator i = _eventHandlers->begin();
              i != _eventHandlers->end(); ++i )
