@@ -27,7 +27,6 @@ namespace seq
     {
         OBJECTTYPE_NONE,      //!< Unused object type
         OBJECTTYPE_INITDATA,  //!< The object passed to Config::init()
-        OBJECTTYPE_FRAMEDATA, //!< The object passed to Config::startFrame()
         OBJECTTYPE_CUSTOM = 100 //!< Application-specific objects
     };
 }
