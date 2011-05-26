@@ -52,7 +52,7 @@ static void _exitPlugins();
 extern void _initErrors();
 extern void _exitErrors();
 
-bool init( const int argc, char** argv, NodeFactory* nodeFactory )
+bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     co::base::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );

@@ -41,7 +41,7 @@ namespace
     static bool _initialized = false;
 }
 
-bool init( const int argc, char** argv )
+bool _init( const int argc, char** argv )
 {
     EQASSERT( !_initialized );
     if( _initialized )
