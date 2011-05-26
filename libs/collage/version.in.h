@@ -25,37 +25,40 @@
 namespace co
 {
     // Collage version macros and functions
-    /** The current major version. @version 1.0 */
+    /** The current major version. @version 0.4 */
 #   define CO_VERSION_MAJOR ${CO_VERSION_MAJOR}
 
-    /** The current minor version. @version 1.0 */
+    /** The current minor version. @version 0.4 */
 #   define CO_VERSION_MINOR ${CO_VERSION_MINOR}
 
-    /** The current patch level. @version 1.0 */
+    /** The current patch level. @version 0.4 */
 #   define CO_VERSION_PATCH ${CO_VERSION_PATCH}
 
-    /** The git wc hash revision, may be 0. @version 1.0 */
+    /** The git wc hash revision, may be 0. @version 0.4 */
 #   define CO_VERSION_REVISION ${EQ_REVISION}
 
-/** True if the current version is newer than the given one. @version 1.0 */
+    /** The current DSO binary revision. @version 0.4 */
+#   define CO_VERSION_ABI ${VERSION_ABI}
+
+/** True if the current version is newer than the given one. @version 0.4 */
 #   define CO_VERSION_GT( MAJOR, MINOR, PATCH )                         \
     ( (CO_VERSION_MAJOR>MAJOR) ||                                       \
       (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR>MINOR ||            \
                           (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH>PATCH))))
 
-/** True if the current version is equal or newer to the given. @version 1.0 */
+/** True if the current version is equal or newer to the given. @version 0.4 */
 #   define CO_VERSION_GE( MAJOR, MINOR, PATCH )                         \
     ( (CO_VERSION_MAJOR>MAJOR) ||                                       \
       (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR>MINOR ||            \
                          (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH>=PATCH))))
 
-/** True if the current version is older than the given one. @version 1.0 */
+/** True if the current version is older than the given one. @version 0.4 */
 #   define CO_VERSION_LT( MAJOR, MINOR, PATCH )                         \
     ( (CO_VERSION_MAJOR<MAJOR) ||                                       \
       (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR<MINOR ||            \
                           (CO_VERSION_MINOR==MINOR && CO_VERSION_PATCH<PATCH))))
 
-/** True if the current version is older or equal to the given. @version 1.0 */
+/** True if the current version is older or equal to the given. @version 0.4 */
 #   define CO_VERSION_LE( MAJOR, MINOR, PATCH )                         \
     ( (CO_VERSION_MAJOR<MAJOR) ||                                       \
       (CO_VERSION_MAJOR==MAJOR && (CO_VERSION_MINOR<MINOR ||            \
@@ -65,22 +68,25 @@ namespace co
     class CO_API Version
     {
     public:
-        /** @return the current major version of Collage. @version 1.0 */
+        /** @return the current major version of Collage. @version 0.4 */
         static uint32_t getMajor();
 
-        /** @return the current minor version of Collage. @version 1.0 */
+        /** @return the current minor version of Collage. @version 0.4 */
         static uint32_t getMinor();
 
-        /** @return the current patch level of Collage. @version 1.0 */
+        /** @return the current patch level of Collage. @version 0.4 */
         static uint32_t getPatch();
 
-        /** @return the current revision of Collage. @version 1.0 */
+        /** @return the current revision of Collage. @version 0.4 */
         static std::string getRevision();
 
-        /** @return the current Collage version (MMmmpp). @version 1.0 */
+        /** @return the current DSO binary revision. @version 0.4 */
+        static uint32_t getABI();
+
+        /** @return the current Collage version (MMmmpp). @version 0.4 */
         static uint32_t getInt();
 
-        /** @return the current Collage version (MM.mmpp). @version 1.0 */
+        /** @return the current Collage version (MM.mmpp). @version 0.4 */
         static float    getFloat();
 
         /**

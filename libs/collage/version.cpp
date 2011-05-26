@@ -40,6 +40,10 @@ std::string Version::getRevision()
 {
     return std::string( QUOTE( CO_VERSION_REVISION ));
 }
+uint32_t Version::getABI() 
+{
+    return CO_VERSION_ABI; 
+}
 
 uint32_t Version::getInt()
 {

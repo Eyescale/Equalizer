@@ -87,8 +87,8 @@ namespace eq
         static void leaveCarbon();
 
     private:
-        EQ_API friend bool eq::init( const int argc, char** argv,
-                                     NodeFactory* nodeFactory );
+        EQ_API friend bool eq::_init( const int argc, char** argv,
+                                      NodeFactory* nodeFactory );
         EQ_API friend bool eq::exit();
 
         static NodeFactory* _nodeFactory;

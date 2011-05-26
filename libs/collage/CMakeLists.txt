@@ -69,7 +69,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_ADD_LINKLIB}
   )
 
-purple_add_amalgamation(Collage co ${CO_VERSION} ${ABI_VERSION}
+purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
     shared co_base
     shared co
   )
