@@ -34,6 +34,7 @@ namespace detail
         seq::Application* getApplication();
         Config* getConfig();
         Node* getNode();
+        Renderer* getRenderer() { return _renderer; }
 
     protected:
         virtual ~Pipe();

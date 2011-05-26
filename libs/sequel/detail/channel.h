@@ -32,9 +32,13 @@ namespace detail
         Channel( eq::Window* parent );
 
         //Config* getConfig();
+        Pipe* getPipe();
+        seq::Renderer* getRenderer();
 
     protected:
         virtual ~Channel();
+
+        virtual void frameDraw( const uint128_t& frameID );
 
     private:
     };

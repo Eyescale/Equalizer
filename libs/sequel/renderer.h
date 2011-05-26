@@ -40,6 +40,8 @@ namespace seq
 
         /** @name Operations */
         //@{
+        /** Render the scene. @version 1.0 */
+        virtual void draw() = 0;
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */

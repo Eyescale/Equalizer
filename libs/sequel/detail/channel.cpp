@@ -17,6 +17,9 @@
 
 #include "channel.h"
 
+#include "pipe.h"
+#include <eq/sequel/renderer.h>
+
 namespace seq
 {
 namespace detail
@@ -28,6 +31,21 @@ Channel::Channel( eq::Window* parent )
 
 Channel::~Channel()
 {
+}
+
+Pipe* Channel::getPipe()
+{
+    return static_cast< Pipe* >( eq::Channel::getPipe( ));
+}
+
+seq::Renderer* Channel::getRenderer()
+{
+    return getPipe()->getRenderer();
+}
+
+void Channel::frameDraw( const uint128_t& frameID )
+{
+    getRenderer()->draw();
 }
 
 }

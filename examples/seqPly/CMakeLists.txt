@@ -33,8 +33,9 @@ eq_add_example(seqPly
   SOURCES
     main.cpp
     renderer.h
-    seqPly.cpp
+    renderer.cpp
     seqPly.h
+    seqPly.cpp
     ${KD_SOURCES}
   LINK_LIBRARIES
     shared Sequel

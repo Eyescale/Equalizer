@@ -26,24 +26,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef SEQ_PLY_RENDERER_H
-#define SEQ_PLY_RENDERER_H
-
-#include <eq/sequel/sequel.h>
+#include "renderer.h"
 
 namespace seqPly
 {
-    class Renderer : public seq::Renderer
-    {
-    public:
-        Renderer( seq::Application& app ) : seq::Renderer( app ) {}
-        virtual ~Renderer() {}
 
-    protected:
-        virtual void draw();
-    };
-
+void Renderer::draw()
+{
+    EQUNIMPLEMENTED;
 }
 
-#endif // SEQ_PLY_RENDERER_H
+}
 
