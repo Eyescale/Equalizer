@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,9 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQS_EQUALIZER_H
-#define EQS_EQUALIZER_H
+#ifndef EQSERVER_EQUALIZER_H
+#define EQSERVER_EQUALIZER_H
 
+#include "../api.h"
 #include "../compoundListener.h" // base class
 #include "../types.h"
 
@@ -79,4 +80,4 @@ namespace server
 }
 }
 
-#endif // EQS_EQUALIZER_H
+#endif // EQSERVER_EQUALIZER_H

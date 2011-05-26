@@ -111,8 +111,13 @@ bool Window::configExitGL()
 namespace
 {
 #ifdef EQ_RELEASE
+#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
+static const std::string _logoTextureName =
+                              std::string( "../share/Equalizer/data/logo.rgb" );
+#  else
 static const std::string _logoTextureName = std::string( EQ_INSTALL_DIR ) +
                                  std::string( "share/Equalizer/data/logo.rgb" );
+#  endif
 #else
 static const std::string _logoTextureName = std::string( EQ_SOURCE_DIR ) +
                                        std::string( "examples/eqPly/logo.rgb" );

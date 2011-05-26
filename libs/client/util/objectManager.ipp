@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,13 +16,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "objectManager.h"
+#include <eq/util/objectManager.h>
 
-#include "accum.h"
-#include "bitmapFont.h"
-#include "frameBufferObject.h"
-#include "gpuCompressor.h"
-#include "texture.h"
+#include <eq/util/accum.h>
+#include <eq/util/bitmapFont.h>
+#include <eq/util/frameBufferObject.h>
+#include <eq/util/texture.h>
+
+#ifdef EQ_CLIENT_SHARED
+#  include "gpuCompressor.h"
+#endif
 
 #include <string.h>
 
@@ -202,6 +205,7 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqFrameBufferObjects.clear();
 
+#ifdef EQ_CLIENT_SHARED
     for( typename UploaderHash::const_iterator i =
              _data->eqUploaders.begin();
          i != _data->eqUploaders.end(); ++i )
@@ -212,6 +216,7 @@ void ObjectManager<T>::deleteAll()
         delete uploader;
     }
     _data->eqUploaders.clear();
+#endif
 }
 
 // display list functions
@@ -578,6 +583,7 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
     delete accum;
 }
 
+#ifdef EQ_CLIENT_SHARED
 // eq::CompressorData object functions
 template< class T >
 GPUCompressor* ObjectManager<T>::getEqUploader( const T& key ) const
@@ -624,6 +630,7 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
 
     delete compressorData;
 }
+#endif
 
 // eq::Texture object functions
 template< class T >
