@@ -1,0 +1,90 @@
+/* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ * - Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ * - Neither the name of Eyescale Software GmbH nor the names of its
+ *   contributors may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+#ifndef EQ_EXAMPLE_ASYNC_FETCHER_H
+#define EQ_EXAMPLE_ASYNC_FETCHER_H
+
+#include <co/base/thread.h>
+#include <co/base/mtQueue.h>
+#include <eq/util/objectManager.h>
+
+
+namespace eq
+{
+    class SystemWindow;
+};
+
+
+namespace eqAsync
+{
+
+/**
+ *  Stucture to associate OpenGl texture ids with external key.
+ */
+struct TextureId
+{
+    TextureId( const GLuint id_ = 0, const int key_ = 0 ) : id( id_ ), key( key_ ){};
+
+    GLuint  id;  // OpenGL texture id
+    int     key; // Object manager key, used to delete textures
+};
+
+class Window;
+
+/**
+ *  
+ */
+class AsyncFetcher : public co::base::Thread
+{
+public:
+    typedef eq::util::ObjectManager< int > ObjectManager;
+
+    AsyncFetcher();
+    ~AsyncFetcher();
+
+    virtual void run();
+    void setup( Window* wnd ) { _wnd = wnd; }
+
+    TextureId getTextureId()               { return _outQueue.pop().id;      }
+    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
+    void deleteTexture( const int key )    { _inQueue.push( key );           }
+
+    const GLEWContext* glewGetContext() const;
+
+private:
+    Window*                      _wnd;
+    co::base::MTQueue<int>       _inQueue;
+    co::base::MTQueue<TextureId> _outQueue;
+    ObjectManager*               _objectManager;
+    eq::SystemWindow*            _systemWindow;
+    GLbyte*                      _tmpTexture;
+};
+
+} 
+
+#endif //EQ_EXAMPLE_ASYNC_FETCHER_H
