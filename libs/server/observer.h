@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #ifndef EQSERVER_OBSERVER_H
 #define EQSERVER_OBSERVER_H
 
+#include "api.h"
 #include "types.h"
 
 #include <eq/fabric/observer.h>   // base class

@@ -19,6 +19,7 @@
 #ifndef EQSERVER_VIEW_H
 #define EQSERVER_VIEW_H
 
+#include "api.h"
 #include "types.h"
 
 #include <eq/fabric/view.h>     // base class
@@ -28,12 +29,6 @@ namespace eq
 {
 namespace server
 {
-    class Config;
-    class Layout;
-
-    /** 
-     * Extends the eq::View to implement server-side logic.
-     */
     class View : public fabric::View< Layout, View, Observer >
     {
     public:

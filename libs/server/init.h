@@ -18,7 +18,7 @@
 #ifndef EQSERVER_INIT_H
 #define EQSERVER_INIT_H
 
-#include <co/base/api.h>
+#include "api.h"
 
 /** @file server/init.h */
 namespace eq
