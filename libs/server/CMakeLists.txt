@@ -14,7 +14,7 @@ add_flex_bison_dependency(LEXER PARSER)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DEQSERVER_EXPORTS -DYY_NEVER_INTERACTIVE)
+add_definitions(-DYY_NEVER_INTERACTIVE)
 
 set(SERVER_HEADERS
     api.h

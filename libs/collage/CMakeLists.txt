@@ -25,7 +25,7 @@ endif(NOT COLLAGE_BUILD_MODULARIZED)
 
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
 
-add_definitions(-DCO_EXPORTS -DEQ_PLUGIN_BUILD )
+add_definitions(-DEQ_PLUGIN_BUILD)
 add_subdirectory( base )
 
 set(CO_ADD_LINKLIB)

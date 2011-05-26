@@ -43,7 +43,7 @@
 
 // Need to predefine server library exports for forward declaration of 
 // eqsStartLocalServer
-#ifdef EQSERVER_EXPORTS
+#ifdef EQUALIZERSERVER_SHARED
 #  define EQSERVER_API EQ_DLLEXPORT
 #else
 #  define EQSERVER_API EQ_DLLIMPORT
