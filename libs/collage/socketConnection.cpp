@@ -143,15 +143,41 @@ bool SocketConnection::connect()
     const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
                                        sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
-    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
+	
+	struct timeval tv;
+	fd_set fds;
+	
+	tv.tv_sec = _getTimeOut() / 1000;
+	tv.tv_usec = 0;
+	
+	FD_ZERO(&fds);
+	FD_SET(_readFD, &fds);
+	
+    bool connected = (::connect( _readFD, (sockaddr*)&address, 
                                        sizeof( address )) == 0);
+	
+	const int res = select(_readFD + 1, NULL, &fds, NULL, &tv);
+	
+	if (res < 0)
+	{
+		EQWARN << "Error during read : " << strerror( errno ) << std::endl;
+		return -1;
+	}
+	
+	if( res == 0)
+	{
+		EQWARN << "Timeout during connection : " << connected << std::endl;
+		throw Exception( Exception::TIMEOUT_WRITE );
+	}
+	connected = true;
+	EQINFO << "COOOOONNNNNNNEEEEECTED"  << std::endl;
 #endif
 
     if( !connected )
     {
         EQINFO << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError 
-               << std::endl;
+		<< _description->port << "': " << base::sysError 
+		<< std::endl;
         close();
         return false;
     }
@@ -553,11 +579,14 @@ bool SocketConnection::_createSocket()
     if( _description->type == CONNECTIONTYPE_SDP )
         EQINFO << "Created SDP socket" << std::endl;
 #else
-    Socket fd;
+    
+	Socket fd;
     if( _description->type == CONNECTIONTYPE_SDP )
         fd = ::socket( AF_INET_SDP, SOCK_STREAM, IPPROTO_TCP );
     else
         fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
+	
+	fcntl( fd, F_SETFL, O_NONBLOCK );
 #endif
 
     if( fd == INVALID_SOCKET )
