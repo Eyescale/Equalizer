@@ -25,7 +25,7 @@ endif(NOT COLLAGE_BUILD_MODULARIZED)
 
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
 
-add_definitions(-DCO_EXPORTS -DEQ_PLUGIN_BUILD )
+add_definitions(-DEQ_PLUGIN_BUILD)
 add_subdirectory( base )
 
 set(CO_ADD_LINKLIB)
@@ -69,7 +69,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_ADD_LINKLIB}
   )
 
-purple_add_amalgamation(Collage co ${CO_VERSION} ${CO_VERSION}
+purple_add_amalgamation(Collage co ${CO_VERSION} ${ABI_VERSION}
     shared co_base
     shared co
   )

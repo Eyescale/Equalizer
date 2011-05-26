@@ -22,7 +22,7 @@ if(NOT EQUALIZER_BUILD_MODULARIZED)
   list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
-add_definitions(-DEQ_EXPORTS -DEQ_PLUGIN_BUILD)
+add_definitions(-DEQ_PLUGIN_BUILD)
 
 if(APPLE)
   if(EQ_AGL_USED)
@@ -82,7 +82,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
-purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${API_VERSION}
+purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${ABI_VERSION}
   shared eq_fabric
   shared eq_client
   )

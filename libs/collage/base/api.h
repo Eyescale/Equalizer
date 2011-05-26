@@ -41,12 +41,4 @@
 #  define COBASE_API EQ_DLLIMPORT
 #endif
 
-// Need to predefine server library exports for forward declaration of 
-// eqsStartLocalServer
-#ifdef EQSERVER_EXPORTS
-#  define EQSERVER_API EQ_DLLEXPORT
-#else
-#  define EQSERVER_API EQ_DLLIMPORT
-#endif
-
 #endif //COBASE_API_H

@@ -67,7 +67,7 @@ private:
 static ServerThread _serverThread;
 }
 
-EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
+EQSERVER_API extern "C" co::ConnectionPtr eqsStartLocalServer( 
     const std::string& file )
 {
     if( _serverThread.isRunning( ))
@@ -94,21 +94,19 @@ EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
 
-    if( !server->listen( ))
-    {
-        EQERROR << "Failed to setup server listener" << std::endl;
-        return 0;
-    }
-
     co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))
     {
-        EQERROR << "Failed to connect server connection" << std::endl;
+        EQERROR << "Failed to set up server connection" << std::endl;
         return 0;
     }
 
     co::ConnectionPtr sibling = connection->acceptSync();
-    server->_addConnection( sibling );
+    if( !server->listen( sibling ))
+    {
+        EQERROR << "Failed to setup server listener" << std::endl;
+        return 0;
+    }
 
     if( !_serverThread.start( server ))
     {
@@ -119,7 +117,7 @@ EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     return connection;
 }
 
-EQSERVER_API void eqsJoinLocalServer()
+EQSERVER_API extern "C" void eqsJoinLocalServer()
 {
     _serverThread.join();
 }
