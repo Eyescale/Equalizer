@@ -64,12 +64,11 @@ public:
 
     const std::string &operator[](Event::Type type) const
     {
-        /** Add an assert that verifies that the type exists */
-        return _names.find(type)->second;
+        return _names[ type ];
     }
 
-public:
-    std::map<Event::Type, std::string> _names;
+private:
+    std::string _names[ Event::ALL ];
 };
 static EventTypeNames _eventTypeNames;
 }
@@ -132,9 +131,8 @@ std::ostream& operator << ( std::ostream& os, const Event::Type& type)
 {
     if( type >= Event::ALL )
         os << "unknown (" << static_cast<unsigned>( type ) << ')';
-    else {
+    else 
         os << _eventTypeNames[ type ];
-    }
 
     return os;
 }
