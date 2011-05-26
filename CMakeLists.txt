@@ -220,7 +220,6 @@ include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
 set(PTHREAD_LIBRARIES pthread)
-set(CPACK_STRIP_FILES TRUE)
 
 set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 if(EQUALIZER_RELEASE)
