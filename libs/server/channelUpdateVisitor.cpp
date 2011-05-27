@@ -266,7 +266,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     Window* window = _channel->getWindow();
     const Channel* lastDrawChannel = window->getLastDrawChannel();
 
-    if( lastDrawChannel && lastDrawChannel != _channel )
+    if( lastDrawChannel != _channel )
         return;
 
     WindowFrameDrawFinishPacket windowPacket;
@@ -277,13 +277,11 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     node->send( windowPacket );
     EQLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
                            <<  " " << &windowPacket << std::endl;
-    if( !lastDrawChannel )
-        window->setLastDrawChannel( _channel );
 
     // Pipe::frameDrawFinish
     Pipe* pipe = _channel->getPipe();
     const Window* lastDrawWindow = pipe->getLastDrawWindow();
-    if( lastDrawWindow && lastDrawWindow != window )
+    if( lastDrawWindow != window )
         return;            
 
     PipeFrameDrawFinishPacket pipePacket;
@@ -292,14 +290,12 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     pipePacket.frameID     = _frameID;
 
     node->send( pipePacket );
-    EQLOG( LOG_TASKS ) << "TASK pipe draw finish " 
-                           << pipe->getName() <<  " " << &pipePacket << std::endl;
-    if( !lastDrawWindow )
-        pipe->setLastDrawWindow( window );
+    EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << pipe->getName() <<  " "
+                       << &pipePacket << std::endl;
 
     // Node::frameDrawFinish
     const Pipe* lastDrawPipe = node->getLastDrawPipe();
-    if( lastDrawPipe && lastDrawPipe != pipe )
+    if( lastDrawPipe != pipe )
         return;
 
     NodeFrameDrawFinishPacket nodePacket;
@@ -308,10 +304,8 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     nodePacket.frameID     = _frameID;
 
     node->send( nodePacket );
-    EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() 
-                           <<  " " << &nodePacket << std::endl;
-    if( !lastDrawPipe )
-        node->setLastDrawPipe( pipe );
+    EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
+                       << &nodePacket << std::endl;
 }
 
 void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const

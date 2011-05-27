@@ -34,9 +34,6 @@ namespace co
 #define EQ_INSTANCE_INVALID 0xfffffffeu   //!< Invalid/unset instance identifier
 #define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
 
-class Node;
-class LocalNode;
-class Object;
 class Barrier;
 class Command;
 class CommandQueue;
@@ -44,7 +41,11 @@ class Connection;
 class ConnectionDescription;
 class DataIStream;
 class DataOStream;
+class LocalNode;
+class Node;
+class Object;
 class ObjectDataIStream;
+class Serializable;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */

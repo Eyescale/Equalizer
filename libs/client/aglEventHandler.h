@@ -20,6 +20,7 @@
 
 #include <eq/aglTypes.h>
 #include <eq/eventHandler.h> // base class
+#include <eq/types.h>
 
 namespace eq
 {
@@ -73,9 +74,10 @@ namespace eq
         EventHandlerRef _eventHandler;
         EventHandlerRef _eventDispatcher;
 
-        bool   _handleWindowEvent( EventRef event );
-        bool   _handleMouseEvent( EventRef event );
-        bool   _handleKeyEvent( EventRef event );
+        void _processWindowEvent( AGLWindowEvent& event );
+        /** @return true if the event is valid for the window. */
+        bool _processMouseEvent( AGLWindowEvent& event );
+        void _processKeyEvent( AGLWindowEvent& event );
 
         uint32_t _getButtonState();
         uint32_t _getButtonAction( EventRef event );

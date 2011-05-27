@@ -2,7 +2,7 @@
 /*
  * Copyright (c)
  *   2008-2009, Thomas McGuire <thomas.mcguire@student.uni-siegen.de>
- *   2010, Stefan Eilemann <eile@eyescale.ch>
+ *   2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *   2010, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ FrameData::FrameData()
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::serialize( os, dirtyBits );
+    co::Serializable::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         os << _cameraPosition << _cameraLookAtPoint << _cameraUpVector;
     if( dirtyBits & DIRTY_FLAGS )
@@ -54,7 +54,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::deserialize( is, dirtyBits );
+    co::Serializable::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_CAMERA )
         is >> _cameraPosition >> _cameraLookAtPoint >> _cameraUpVector;
     if( dirtyBits & DIRTY_FLAGS )

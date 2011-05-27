@@ -41,7 +41,7 @@ namespace eqPly
      * keeps its own instance synchronized with the frame currently being
      * rendered. The data is managed by the Config, which modifies it directly.
      */
-    class FrameData : public eq::fabric::Serializable
+    class FrameData : public co::Serializable
     {
     public:
         FrameData();
@@ -122,10 +122,10 @@ namespace eqPly
         /** The changed parts of the data since the last pack(). */
         enum DirtyBits
         {
-            DIRTY_CAMERA  = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_FLAGS   = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_VIEW    = eq::fabric::Serializable::DIRTY_CUSTOM << 2,
-            DIRTY_MESSAGE = eq::fabric::Serializable::DIRTY_CUSTOM << 3,
+            DIRTY_CAMERA  = co::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_FLAGS   = co::Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_VIEW    = co::Serializable::DIRTY_CUSTOM << 2,
+            DIRTY_MESSAGE = co::Serializable::DIRTY_CUSTOM << 3,
         };
 
     private:

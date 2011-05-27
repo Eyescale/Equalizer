@@ -93,6 +93,7 @@ if(LINUX)
   set(CPACK_GENERATOR "TGZ;DEB;RPM")
 endif(LINUX)
 
+set(CPACK_STRIP_FILES TRUE)
 set(UBUNTU_LP_BUG 300472)
 include(InstallRequiredSystemLibraries)
 include(CPack)

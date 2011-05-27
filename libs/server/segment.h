@@ -18,6 +18,7 @@
 #ifndef EQSERVER_SEGMENT_H
 #define EQSERVER_SEGMENT_H
 
+#include "api.h"
 #include "types.h"
 #include "visitorResult.h"  // enum
 
@@ -27,11 +28,7 @@ namespace eq
 {
 namespace server
 {
-    class Canvas;
-    
-    /**
-     * The segment. @sa eq::Segment
-     */
+    /** The segment. @sa eq::Segment */
     class Segment : public fabric::Segment< Canvas, Segment, Channel >
     {
     public:

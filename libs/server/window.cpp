@@ -368,10 +368,10 @@ bool Window::syncConfigExit()
 //---------------------------------------------------------------------------
 void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
 {
-    EQASSERT( isRunning( ));
-    EQASSERT( isActive( ));
+    if( !isRunning( ))
+        return;
 
-    _swap = false;
+    EQASSERT( isActive( ))
 
     WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
@@ -382,13 +382,25 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
                            << std::endl;
 
     const Channels& channels = getChannels(); 
-    for( Channels::const_iterator i = channels.begin(); 
-         i != channels.end(); ++i )
+    _swap = false;
+
+    for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
     {
         Channel* channel = *i;
-        if( channel->isActive() && channel->isRunning( ))
-            _swap |= channel->update( frameID, frameNumber );
+        if( channel->update( frameID, frameNumber ))
+            _swap = true;
     }
+
+    if( !_lastDrawChannel ) // no FrameDrawFinish sent
+    {
+        WindowFrameDrawFinishPacket drawFinishPacket;
+        drawFinishPacket.frameNumber = frameNumber;
+        drawFinishPacket.frameID     = frameID;
+        send( drawFinishPacket );
+        EQLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
+                           << &drawFinishPacket << std::endl;
+    }
+    _lastDrawChannel = 0;
 
     if( _swapFinish )
     {
@@ -402,6 +414,10 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
 void Window::updatePost( const uint128_t& frameID, 
                          const uint32_t frameNumber )
 {
+    if( !isRunning( ))
+        return;
+
+    EQASSERT( isActive( ))
     _updateSwap( frameNumber );
 
     WindowFrameFinishPacket finishPacket;
@@ -410,7 +426,6 @@ void Window::updatePost( const uint128_t& frameID,
     send( finishPacket );
     EQLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << std::endl;
-    _lastDrawChannel = 0;
 }
 
 void Window::_updateSwap( const uint32_t frameNumber )

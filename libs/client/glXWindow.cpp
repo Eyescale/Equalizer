@@ -94,6 +94,8 @@ bool GLXWindow::configInit()
     makeCurrent();
     initGLEW();
 
+    if( getIAttribute( Window::IATTR_HINT_SWAPSYNC ) != AUTO )
+        _initSwapSync();
     if( getIAttribute( Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
@@ -626,6 +628,21 @@ void GLXWindow::setGLXContext( GLXContext context )
 {
     _glXContext = context;
 }
+
+void GLXWindow::_initSwapSync()
+{
+    if( GLXEW_SGI_swap_control )
+    {
+        // set vsync on/off
+        const GLint vsync =
+            ( getIAttribute( Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
+        glXSwapIntervalSGI( vsync );
+    }
+    else
+        EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
+               << "swapsync hint" << std::endl;
+}   
+
 
 void GLXWindow::configExit( )
 {

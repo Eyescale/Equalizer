@@ -36,11 +36,11 @@ static uint32_t _getTimeout()
 {
     const char* env = getenv( "CO_TIMEOUT" );
     if( !env )
-        return 2000; // ms
+        return 10000; // ms
 
     const int64_t size = atoi( env );
     if( size == 0 )
-        return 2000; // ms
+        return 10000; // ms
 
     return size;
 }
