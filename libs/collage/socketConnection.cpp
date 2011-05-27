@@ -144,33 +144,34 @@ bool SocketConnection::connect()
                                        sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
 	
-	struct timeval tv;
-	fd_set fds;
+    struct timeval tv;
+    fd_set fds;
 	
-	tv.tv_sec = _getTimeOut() / 1000;
-	tv.tv_usec = 0;
+    tv.tv_sec = _getTimeOut() / 1000;
+    tv.tv_usec = 0;
 	
-	FD_ZERO(&fds);
-	FD_SET(_readFD, &fds);
+    FD_ZERO(&fds);
+    FD_SET(_readFD, &fds);
 	
     bool connected = (::connect( _readFD, (sockaddr*)&address, 
                                        sizeof( address )) == 0);
 	
-	const int res = select(_readFD + 1, NULL, &fds, NULL, &tv);
+    const int res = select(_readFD + 1, NULL, &fds, NULL, &tv);
 	
-	if (res < 0)
-	{
-		EQWARN << "Error during read : " << strerror( errno ) << std::endl;
-		return -1;
-	}
+    if (res < 0)
+    {
+        EQWARN << "Error during read : " << strerror( errno ) << std::endl;
+        return -1;
+    }
 	
-	if( res == 0)
-	{
-		EQWARN << "Timeout during connection : " << connected << std::endl;
-		throw Exception( Exception::TIMEOUT_WRITE );
-	}
-	connected = true;
-	EQINFO << "COOOOONNNNNNNEEEEECTED"  << std::endl;
+    if( res == 0)
+    {
+        EQWARN << "Timeout during connection : " << connected << std::endl;
+        throw Exception( Exception::TIMEOUT_WRITE );
+    }
+    
+    connected = true;
+   
 #endif
 
     if( !connected )
