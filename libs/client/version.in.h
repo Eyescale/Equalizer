@@ -37,6 +37,9 @@ namespace eq
     /** The git wc hash revision, may be 0. @version 1.0 */
 #   define EQ_VERSION_REVISION ${EQ_REVISION}
 
+    /** The current DSO binary revision. @version 1.0 */
+#   define EQ_VERSION_ABI ${VERSION_ABI}
+
 /** True if the current version is newer than the given one. @version 1.0 */
 #   define EQ_VERSION_GT( MAJOR, MINOR, PATCH )                         \
     ( (EQ_VERSION_MAJOR>MAJOR) ||                                       \
@@ -76,6 +79,9 @@ namespace eq
 
         /** @return the current revision of Equalizer. @version 1.0 */
         static std::string getRevision();
+
+        /** @return the current DSO binary revision. @version 1.1.1 */
+        static uint32_t getABI();
 
         /** @return the current Equalizer version (MMmmpp). @version 1.0 */
         static uint32_t getInt();

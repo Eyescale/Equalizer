@@ -19,12 +19,15 @@
 #define EQ_INIT_H
 
 #include <eq/api.h>
+#include <eq/types.h>
+#include <eq/version.h>    // used inline
+#include <co/base/log.h>   // used inline
 
 namespace eq
 {
-    class Config;
-    class NodeFactory;
-
+    /** @internal */
+    EQ_API bool _init( const int argc, char** argv, NodeFactory* nodeFactory );
+    
     /**
      * Initialize the Equalizer client library.
      *
@@ -52,8 +55,16 @@ namespace eq
      * @return true if the library was successfully initialized, 
      *         false otherwise.
      */
-    EQ_API bool init( const int argc, char** argv, NodeFactory* nodeFactory );
-    
+    inline bool init( const int argc, char** argv, NodeFactory* nodeFactory )
+    {
+        if( EQ_VERSION_ABI == Version::getABI( ))
+            return eq::_init( argc, argv, nodeFactory );
+        EQWARN << "Equalizer shared library v" << Version::getABI()
+               << " not binary-compatible with application v" << EQ_VERSION_ABI
+               << std::endl;
+        return false;
+    }
+
     /**
      * De-initialize the Equalizer client library.
      *

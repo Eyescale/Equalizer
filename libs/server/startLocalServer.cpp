@@ -66,10 +66,12 @@ private:
 
 static ServerThread _serverThread;
 }
-
-EQSERVER_API extern "C" co::ConnectionPtr eqsStartLocalServer( 
+#pragma warning(push)
+#pragma warning(disable: 4190)
+extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
     const std::string& file )
 {
+#pragma warning(pop)
     if( _serverThread.isRunning( ))
     {
         EQWARN << "Only one app-local per process server allowed" << std::endl;
@@ -117,7 +119,7 @@ EQSERVER_API extern "C" co::ConnectionPtr eqsStartLocalServer(
     return connection;
 }
 
-EQSERVER_API extern "C" void eqsJoinLocalServer()
+extern "C" EQSERVER_API void eqsJoinLocalServer()
 {
     _serverThread.join();
 }

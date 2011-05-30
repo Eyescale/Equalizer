@@ -29,26 +29,48 @@ namespace eq
 namespace
 {
 /** String representation of event types. */
-static std::string _eventTypeNames[ Event::ALL ] =
+class EventTypeNames
 {
-    "window expose",
-    "window resize",
-    "window close",
-    "window show",
-    "window hide",
-    "pointer motion",
-    "pointer button press",
-    "pointer button release",
-    "pointer wheel",
-    "key press",
-    "key release",
-    "channel resize",
-    "statistic",
-    "view resize",
-    "magellan axis",
-    "unknown",
-    "user-specific"
+public:
+    EventTypeNames()
+    {
+        _names[Event::WINDOW_EXPOSE] = "window expose";
+        _names[Event::WINDOW_RESIZE] = "window resize";
+        _names[Event::WINDOW_CLOSE] = "window close";
+        _names[Event::WINDOW_HIDE] = "window show";
+        _names[Event::WINDOW_SHOW] = "window hide";
+        _names[Event::WINDOW_SCREENSAVER] = "window screensaver";
+        _names[Event::CHANNEL_POINTER_MOTION] = "pointer motion";
+        _names[Event::CHANNEL_POINTER_BUTTON_PRESS] = "pointer button press";
+        _names[Event::CHANNEL_POINTER_BUTTON_RELEASE] =
+            "pointer button release";
+        _names[Event::WINDOW_POINTER_WHEEL] = "pointer wheel";
+        _names[Event::WINDOW_POINTER_MOTION] = "window pointer motion";
+        _names[Event::WINDOW_POINTER_BUTTON_PRESS] = 
+            "window pointer button press";
+        _names[Event::WINDOW_POINTER_BUTTON_RELEASE] = 
+            "window pointer button release";
+        _names[Event::KEY_PRESS] = "key press";
+        _names[Event::KEY_RELEASE] = "key release";
+        _names[Event::CHANNEL_RESIZE] = "channel resize";
+        _names[Event::STATISTIC] = "statistic";
+        _names[Event::VIEW_RESIZE] = "view resize";
+        _names[Event::EXIT] = "exit";
+        _names[Event::MAGELLAN_AXIS] = "magellan axis";
+        _names[Event::MAGELLAN_BUTTON] = "magellan button";
+        _names[Event::UNKNOWN] = "unknown";
+        _names[Event::USER] = "user-specific";
+    }
+
+    const std::string &operator[](Event::Type type) const
+    {
+        return _names[ type ];
+    }
+
+private:
+    std::string _names[ Event::ALL ];
 };
+static EventTypeNames _eventTypeNames;
 }
 
 Event::Event()
