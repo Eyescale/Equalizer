@@ -36,10 +36,12 @@ namespace detail
 {
 
 class Application;
+class Channel;
 class Config;
 class Node;
 class ObjectMap;
 class Pipe;
+class Renderer;
 
 }
 /** @endcond */

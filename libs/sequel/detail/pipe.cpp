@@ -56,6 +56,14 @@ Node* Pipe::getNode()
     return static_cast< Node* >( eq::Pipe::getNode( ));
 }
 
+detail::Renderer* Pipe::getRendererImpl()
+{
+    EQASSERT( _renderer );
+    if( !_renderer )
+        return 0;
+    return _renderer->getImpl();
+}
+
 bool Pipe::configInit( const uint128_t& initID )
 {
     if( !eq::Pipe::configInit( initID ))

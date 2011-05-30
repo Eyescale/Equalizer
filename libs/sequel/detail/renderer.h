@@ -15,39 +15,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_CHANNEL_H
-#define EQSEQUEL_DETAIL_CHANNEL_H
+#ifndef EQSEQUEL_DETAIL_RENDERER_H
+#define EQSEQUEL_DETAIL_RENDERER_H
 
 #include <eq/sequel/types.h>
-
-#include <eq/channel.h> // base class
+#include <eq/nodeFactory.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-    class Channel : public eq::Channel
+    /** The internal implementation for the renderer. */
+    class Renderer
     {
     public:
-        Channel( eq::Window* parent );
+        Renderer( seq::Renderer* parent );
+        ~Renderer();
 
-        //Config* getConfig();
-        Pipe* getPipe();
-        seq::Renderer* getRenderer();
-        detail::Renderer* getRendererImpl();
-
-    protected:
-        virtual ~Channel();
-
-        virtual void frameStart( const uint128_t& frameID,
-                                 const uint32_t frameNumber );
-        virtual void frameFinish( const uint128_t& frameID,
-                                  const uint32_t frameNumber );
-        virtual void frameDraw( const uint128_t& frameID );
+        /** @name Current context. */
+        //@{
+        void setChannel( Channel* channel ) { _channel = channel; }
+        //@}
 
     private:
+        seq::Renderer* const _renderer;
+        Channel* _channel;
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_CHANNEL_H
+#endif // EQSEQUEL_DETAIL_RENDERER_H

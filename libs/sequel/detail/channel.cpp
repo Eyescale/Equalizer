@@ -18,6 +18,7 @@
 #include "channel.h"
 
 #include "pipe.h"
+#include "renderer.h"
 #include <eq/sequel/renderer.h>
 
 namespace seq
@@ -41,6 +42,23 @@ Pipe* Channel::getPipe()
 seq::Renderer* Channel::getRenderer()
 {
     return getPipe()->getRenderer();
+}
+
+detail::Renderer* Channel::getRendererImpl()
+{
+    return getPipe()->getRendererImpl();
+}
+
+void Channel::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+{
+    getRendererImpl()->setChannel( this );
+    eq::Channel::frameStart( frameID, frameNumber );
+}
+
+void Channel::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
+{
+    getRendererImpl()->setChannel( 0 );
+    eq::Channel::frameFinish( frameID, frameNumber );
 }
 
 void Channel::frameDraw( const uint128_t& frameID )

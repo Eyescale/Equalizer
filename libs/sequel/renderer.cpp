@@ -18,15 +18,21 @@
 #include "renderer.h"
 
 #include "application.h"
+#include "detail/renderer.h"
 
 namespace seq
 {
 Renderer::Renderer( Application& application )
         : _app( application )
-{}
+{
+    _impl = new detail::Renderer( this );
+}
 
 Renderer::~Renderer()
-{}
+{
+    delete _impl;
+    _impl = 0;
+}
 
 eq::Config* Renderer::getConfig()
 {

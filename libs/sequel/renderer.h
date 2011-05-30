@@ -38,6 +38,11 @@ namespace seq
         /** Destruct this renderer. @version 1.0 */
         SEQ_API virtual ~Renderer();
 
+        /** @name Data Access. */
+        //@{
+        detail::Renderer* getImpl() { return _impl; } //!< @internal
+        //@}
+
         /** @name Operations */
         //@{
         /** Render the scene. @version 1.0 */
@@ -52,7 +57,7 @@ namespace seq
         //@}
 
     private:
-        //detail::Renderer* _impl;
+        detail::Renderer* _impl;
         Application& _app;
     };
 }

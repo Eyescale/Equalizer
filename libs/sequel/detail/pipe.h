@@ -34,7 +34,8 @@ namespace detail
         seq::Application* getApplication();
         Config* getConfig();
         Node* getNode();
-        Renderer* getRenderer() { return _renderer; }
+        seq::Renderer* getRenderer() { return _renderer; }
+        detail::Renderer* getRendererImpl();
 
     protected:
         virtual ~Pipe();
@@ -50,7 +51,7 @@ namespace detail
         void _unmapData();
 
         ObjectMap* _objects;
-        Renderer* _renderer;
+        seq::Renderer* _renderer;
     };
 }
 }
