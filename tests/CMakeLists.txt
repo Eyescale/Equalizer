@@ -5,6 +5,8 @@ if(NOT EQUALIZER_BUILD_TESTS)
   return()
 endif(NOT EQUALIZER_BUILD_TESTS)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
+
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(GLOB TEST_CONFIGS reliability/*.eqc)
 file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
