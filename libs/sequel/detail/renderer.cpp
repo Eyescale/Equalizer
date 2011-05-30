@@ -17,6 +17,8 @@
 
 #include "renderer.h"
 
+#include "channel.h"
+
 #include <eq/sequel/renderer.h>
 
 namespace seq
@@ -32,6 +34,13 @@ Renderer::Renderer( seq::Renderer* parent )
 Renderer::~Renderer()
 {
     EQASSERT( !_channel );
+}
+
+void Renderer::applyRenderContext()
+{
+    EQASSERT( _channel );
+    if( _channel )
+        _channel->applyRenderContext();
 }
 
 }

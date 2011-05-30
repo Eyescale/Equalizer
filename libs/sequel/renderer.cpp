@@ -39,6 +39,11 @@ eq::Config* Renderer::getConfig()
     return _app.getConfig();
 }
 
+void Renderer::applyRenderContext()
+{
+    _impl->applyRenderContext();
+}
+
 co::Object* Renderer::createObject( const uint32_t type )
 {
     return _app.createObject( type );

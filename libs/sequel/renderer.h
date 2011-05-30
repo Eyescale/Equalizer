@@ -47,6 +47,14 @@ namespace seq
         //@{
         /** Render the scene. @version 1.0 */
         virtual void draw() = 0;
+
+        /**
+         * Apply the current rendering parameters to OpenGL.
+         *
+         * This method is only to be called from one of the operations above.
+         * @version 1.0
+         */
+        virtual void applyRenderContext();
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */

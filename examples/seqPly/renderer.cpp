@@ -33,7 +33,7 @@ namespace seqPly
 
 void Renderer::draw()
 {
-//    EQUNIMPLEMENTED;
+    applyRenderContext();
 }
 
 }

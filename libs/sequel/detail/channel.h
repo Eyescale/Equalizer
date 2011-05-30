@@ -36,6 +36,11 @@ namespace detail
         seq::Renderer* getRenderer();
         detail::Renderer* getRendererImpl();
 
+        /** @name Operations. */
+        //@{
+        void applyRenderContext() { eq::Channel::frameDraw( eq::UUID::ZERO ); }
+        //@}
+
     protected:
         virtual ~Channel();
 

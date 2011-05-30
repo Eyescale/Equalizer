@@ -37,6 +37,11 @@ namespace detail
         void setChannel( Channel* channel ) { _channel = channel; }
         //@}
 
+        /** @name Operations. */
+        //@{
+        void applyRenderContext();
+        //@}
+
     private:
         seq::Renderer* const _renderer;
         Channel* _channel;
