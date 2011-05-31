@@ -81,16 +81,20 @@ endif()
 
 if(MSVC)
   set(CPACK_GENERATOR "NSIS")
-else(MSVC)
-  set(CPACK_SET_DESTDIR ON)
 endif(MSVC)
 
 if(APPLE)
   set(CPACK_GENERATOR "PackageMaker")
+  set(CPACK_SET_DESTDIR ON)
 endif(APPLE)
 
 if(LINUX)
-  set(CPACK_GENERATOR "TGZ;DEB;RPM")
+  find_program(RPM_EXE rpmbuild)
+  if(${RPM_EXE} MATCHES RPM_EXE-NOTFOUND)
+    set(CPACK_GENERATOR "TGZ;DEB")
+  else()
+    set(CPACK_GENERATOR "TGZ;DEB;RPM")
+  endif()
 endif(LINUX)
 
 set(CPACK_STRIP_FILES TRUE)
