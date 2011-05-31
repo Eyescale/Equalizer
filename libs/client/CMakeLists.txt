@@ -82,7 +82,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${CUDA_LIBRARIES}
   )
 
-purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${API_VERSION}
+purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${VERSION_ABI}
   shared eq_fabric
   shared eq_client
   )
