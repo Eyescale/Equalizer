@@ -42,7 +42,6 @@
 #  include <netinet/tcp.h>
 #  include <sys/errno.h>
 #  include <sys/socket.h>
-
 #  ifndef AF_INET_SDP
 #    define AF_INET_SDP 27
 #  endif
@@ -143,35 +142,10 @@ bool SocketConnection::connect()
     const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
                                        sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
-	
-    struct timeval tv;
-    fd_set fds;
-	
-    tv.tv_sec = _getTimeOut() / 1000;
-    tv.tv_usec = 0;
-	
-    FD_ZERO(&fds);
-    FD_SET(_readFD, &fds);
-	
-    bool connected = (::connect( _readFD, (sockaddr*)&address, 
+
+    const bool connected =  (::connect( _readFD, (sockaddr*)&address, 
                                        sizeof( address )) == 0);
-	
-    const int res = select(_readFD + 1, NULL, &fds, NULL, &tv);
-	
-    if (res < 0)
-    {
-        EQWARN << "Error during read : " << strerror( errno ) << std::endl;
-        return -1;
-    }
-	
-    if( res == 0)
-    {
-        EQWARN << "Timeout during connection : " << connected << std::endl;
-        throw Exception( Exception::TIMEOUT_WRITE );
-    }
-    
-    connected = true;
-   
+    fcntl( _readFD, F_SETFL, O_NONBLOCK );
 #endif
 
     if( !connected )
@@ -352,6 +326,11 @@ ConnectionPtr SocketConnection::acceptSync()
 
     newConnection->_readFD  = _overlappedSocket;
     newConnection->_writeFD = _overlappedSocket;
+
+#ifndef _WIN32
+	fcntl( _overlappedSocket, F_SETFL, O_NONBLOCK );
+#endif
+
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
@@ -587,7 +566,6 @@ bool SocketConnection::_createSocket()
     else
         fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
 	
-	fcntl( fd, F_SETFL, O_NONBLOCK );
 #endif
 
     if( fd == INVALID_SOCKET )
@@ -672,13 +650,13 @@ bool SocketConnection::listen()
         close();
         return false;
     }
-
+    
     // get socket parameters
     socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
-
+#ifndef _WIN32
     _description->port = ntohs( address.sin_port );
-
+#endif
     const std::string& hostname = _description->getHostname();
     if( hostname.empty( ))
     {
@@ -691,7 +669,7 @@ bool SocketConnection::listen()
         else
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
-
+	fcntl( _readFD, F_SETFL, O_NONBLOCK );
     _initAIOAccept();
     _state = STATE_LISTENING;
     _fireStateChanged();

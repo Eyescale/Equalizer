@@ -279,7 +279,7 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
         // poll for a result
 #ifdef _WIN32
-        const DWORD waitTime = timeout < 0 ? INFINITE : timeout;
+        const DWORD waitTime = timeout < 0 ? EQ_INDEFINITE_TIME : timeout;
         const DWORD ret = WaitForMultipleObjectsEx( _fdSet.getSize(),
                                                     _fdSet.getData(),
                                                     FALSE, waitTime, TRUE );

@@ -40,29 +40,26 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
     if( _readFD < 1 )
         return -1;
 
-    struct timeval tv;
-    fd_set fds;
-
-    tv.tv_sec = _getTimeOut() / 1000;
-    tv.tv_usec = 0;
-	
-    FD_ZERO(&fds);
-    FD_SET(_readFD, &fds);
-
-    const ssize_t bytesRead = ::read( _readFD, buffer, bytes );
-
-    const int res = select(_readFD+1, &fds, NULL, NULL, &tv);
-    if (res < 0)
+    const ssize_t bytesRead = ::read( _readFD, buffer, bytes );	
+    if( errno == EWOULDBLOCK || errno == EAGAIN )
     {
-        EQWARN << "Error during read : " << strerror( errno ) << std::endl;
-        return -1;
-    }
+        struct pollfd fds[1];
+        fds[0].fd = _readFD;
+        fds[0].events = POLLOUT;
 
-    if( res == 0)
-    {
-        EQWARN << "Timeout during read"  << std::endl;
-        throw Exception( Exception::TIMEOUT_WRITE );
-    }
+        const int res = poll( fds, 1, _getTimeOut());
+        if (res < 0)
+        {
+            EQWARN << "Error during read : " << strerror( errno ) << std::endl;
+            return -1;
+        }
+		
+        if( res == 0)
+        {
+            EQWARN << "Timeout during read"  << std::endl;
+            throw Exception( Exception::TIMEOUT_WRITE );
+        }
+	}
 
     if( bytesRead == 0 ) // EOF
     {
@@ -73,16 +70,13 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 
     if( bytesRead == -1 ) // error
     {
-        if( errno == EINTR ) // if interrupted, try again
+        if( errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN ) // if interrupted, try again
             return 0;
 
         EQWARN << "Error during read: " << strerror( errno ) << ", " 
                << bytes << "b on fd " << _readFD << std::endl;
         return -1;
     }
-	
-	
-	
     return bytesRead;
 }
 
@@ -91,43 +85,39 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 //----------------------------------------------------------------------
 int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
 {
-    if( _state != STATE_CONNECTED || _writeFD < 1 )
+	if( _state != STATE_CONNECTED || _writeFD < 1 )
         return -1;
 	
-    struct timeval tv;
-    fd_set fds;
-
-    tv.tv_sec = _getTimeOut() / 1000;
-    tv.tv_usec = 0;
-
-    FD_ZERO(&fds);
-    FD_SET(_writeFD, &fds);
     const ssize_t bytesWritten = ::write( _writeFD, buffer, bytes );
-    
+	
+	if( errno == EWOULDBLOCK || errno == EAGAIN )
+    {	
+        struct pollfd fds[1];
+        fds[0].fd = _writeFD;
+        fds[0].events = POLLOUT;
+        const int res = poll( fds, 1, _getTimeOut() );
+        if (res < 0)
+        {
+            EQWARN << "Write error : " << strerror( errno ) << std::endl;
+            return -1;
+        }
+
+        if( res == 0)
+		{
+            EQWARN << "Timeout during write"  << std::endl;
+            throw Exception( Exception::TIMEOUT_WRITE );
+        }
+    }
+
     if( bytesWritten == -1 ) // error
     {
-        if( errno == EINTR ) // if interrupted, try again
+        if( errno == EAGAIN ) // if interrupted, try again
             return 0;
 		
         EQWARN << "Error during write: " << strerror( errno ) << std::endl;
         return -1;
     }
-		
-    const int res = select(_writeFD+1, NULL, &fds, NULL, &tv);
-	
-    if (res < 0)
-    {
-        EQWARN << "Write error : " << strerror( errno ) << std::endl;
-        return -1;
-    }
-	
-    if( res == 0)
-    {
-        EQWARN << "Timeout during write"  << std::endl;
-        throw Exception( Exception::TIMEOUT_WRITE );
-    }
-
-    return bytesWritten;	
+	return bytesWritten;	
 }
 }
 #endif
