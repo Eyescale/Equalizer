@@ -24,6 +24,9 @@ namespace co
 {
 namespace base
 {
+/** Special identifier values */
+const uint128_t uint128_t::ZERO;
+
 uint128_t& uint128_t::operator = ( const std::string& from )
 {
     char* next = 0;
