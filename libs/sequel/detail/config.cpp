@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include "objectMap.h"
+
 #include <eq/sequel/application.h>
 
 namespace seq
@@ -27,7 +29,15 @@ namespace detail
 seq::Application* Config::getApplication()
 {
     return static_cast< seq::Application* >( getClient().get( ));
+}
 
+co::Object* Config::getInitData()
+{
+    EQASSERT( _objects );
+    if( !_objects )
+        return 0;
+
+    return _objects->getInitData();
 }
 
 }

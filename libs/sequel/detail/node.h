@@ -31,8 +31,8 @@ namespace detail
     public:
         Node( eq::Config* parent );
 
-        //Application* getApplication() { return getClient->getImpl; }
         Config* getConfig();
+        seq::Application* getApplication();
 
     protected:
         virtual ~Node(){}

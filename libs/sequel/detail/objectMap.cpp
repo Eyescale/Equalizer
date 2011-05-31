@@ -118,6 +118,11 @@ void ObjectMap::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _changed;
         _changed->clear();
     }
+
+    if( dirtyBits & DIRTY_INITDATA )
+        os << _initData;
+    if( dirtyBits & DIRTY_FRAMEDATA )
+        os << _frameData;
 }
 
 void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
@@ -171,6 +176,11 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
                 entry.instance->sync( ov.version );
         }
     }
+
+    if( dirtyBits & DIRTY_INITDATA )
+        is >> _initData;
+    if( dirtyBits & DIRTY_FRAMEDATA )
+        is >> _frameData;
 }
 
 bool ObjectMap::register_( co::Object* object, const uint32_t type )
@@ -201,6 +211,9 @@ bool ObjectMap::register_( co::Object* object, const uint32_t type )
 
 co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
 {
+    if( identifier == uint128_t::ZERO )
+        return 0;
+
     ScopedMutex mutex( _map );
     MapIter i = _map->find( identifier );
     EQASSERT( i != _map->end( ));
@@ -233,6 +246,26 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
     EQASSERT( object->getVersion() == entry.version );
     entry.instance = object;
     return object;
+}
+
+void ObjectMap::setInitData( co::Object* object )
+{
+    const uint128_t identifier = object ? object->getID() : uint128_t::ZERO;
+    if( _initData == identifier )
+        return;
+    
+    _initData = identifier;
+    setDirty( DIRTY_INITDATA );
+}
+
+void ObjectMap::setFrameData( co::Object* object )
+{
+    const uint128_t identifier = object ? object->getID() : uint128_t::ZERO;
+    if( _frameData == identifier )
+        return;
+    
+    _frameData = identifier;
+    setDirty( DIRTY_FRAMEDATA );
 }
 
 }

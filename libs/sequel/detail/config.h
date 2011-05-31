@@ -44,6 +44,8 @@ namespace detail
         virtual void syncData( const uint128_t& version ) { /* nop */ }
         virtual void unmapData() { /* nop */ }
 
+        co::Object* getInitData();
+
     protected:
         virtual ~Config() {}
         ObjectMap* _objects;

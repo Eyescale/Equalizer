@@ -88,6 +88,24 @@ namespace seq
         SEQ_API virtual bool exit();
         //@}
 
+        /** @name Callbacks */
+        //@{
+        /** 
+         * Initialize a render client.
+         *
+         * Also called on the master application node if it contributes to the
+         * rendering.
+         *
+         * @param initData A slave instance of the object passed to init().
+         * @return true on success, false on error.
+         * @version 1.0
+         */
+        virtual bool clientInit( co::Object* initData ) { return true; }
+
+        /** Exit a render client. @version 1.0 */
+        virtual bool clientExit() { return true; }
+        //@}
+
     private:
         detail::Application* _impl;
     };

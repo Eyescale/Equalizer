@@ -20,6 +20,7 @@
 #include "application.h"
 #include "config.h"
 
+#include <eq/sequel/application.h>
 #include <eq/sequel/error.h>
 
 namespace seq
@@ -36,21 +37,31 @@ Config* Node::getConfig()
     return static_cast< Config* >( eq::Node::getConfig( ));
 }
 
+seq::Application* Node::getApplication()
+{
+    return getConfig()->getApplication();
+}
+
 bool Node::configInit( const uint128_t& initID )
 {
     if( !eq::Node::configInit( initID ))
         return false;
 
-    if( !getConfig()->mapData( initID ))
+    Config* config = getConfig();
+    if( !config->mapData( initID ))
     {
         setError( ERROR_SEQUEL_MAPOBJECT_FAILED );
         return false;
     }
+
+    co::Object* initData = config->getInitData();
+    getApplication()->clientInit( initData );
     return true;
 }
 
 bool Node::configExit()
 {
+    getApplication()->clientExit();
     getConfig()->unmapData();
     return eq::Node::configExit();
 }

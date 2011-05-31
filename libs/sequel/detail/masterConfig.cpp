@@ -35,8 +35,11 @@ bool MasterConfig::init( co::Object* initData )
 {
     EQASSERT( !_objects );
     _objects = new ObjectMap( *getApplication( ));
+
     if( initData )
         EQCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
+    _objects->setInitData( initData );
+
     EQCHECK( registerObject( _objects ));
 
     if( !eq::Config::init( _objects->getID( )))

@@ -36,6 +36,12 @@ namespace detail
         bool register_( co::Object* object, const uint32_t type );
         co::Object* get( const uint128_t& identifier, co::Object* instance=0 );
 
+        void setInitData( co::Object* object );
+        void setFrameData( co::Object* object );
+
+        co::Object* getInitData() { return get( _initData ); }
+        co::Object* getFrameData() { return get( _frameData ); }
+
     protected:
         virtual bool isDirty() const;
         virtual uint32_t commitNB( const uint32_t incarnation );
@@ -48,13 +54,16 @@ namespace detail
 
     private:
         ObjectFactory& _factory; //!< The 'parent' user
-        
+        uint128_t _initData;
+        uint128_t _frameData;
+
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
         {
             DIRTY_ADDED       = co::Serializable::DIRTY_CUSTOM << 0, // 1
             DIRTY_CHANGED     = co::Serializable::DIRTY_CUSTOM << 1, // 2
-            DIRTY_OBJECT_BITS = DIRTY_ADDED
+            DIRTY_INITDATA    = co::Serializable::DIRTY_CUSTOM << 2, // 4
+            DIRTY_FRAMEDATA   = co::Serializable::DIRTY_CUSTOM << 3  // 8
         };
 
         struct Entry //!< One object map item
