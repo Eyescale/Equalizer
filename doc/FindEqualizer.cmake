@@ -45,6 +45,8 @@
 #
 #    EQUALIZER_VERSION - The version of Equalizer which was found
 #
+#    EQUALIZER_VERSION_ABI - The DSO version of Equalizer which was found
+#
 #    EQUALIZER_INCLUDE_DIRS - Where to find the headers
 #
 #    EQUALIZER_LIBRARIES - The Equalizer libraries
@@ -108,6 +110,8 @@ if(_eq_INCLUDE_DIR)
     "\\1" _eq_VERSION_MINOR ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_PATCH[ \t]+([0-9]+).*"
     "\\1" _eq_VERSION_PATCH ${_eq_Version_contents})
+  string(REGEX REPLACE ".*define EQ_VERSION_ABI[ \t]+([0-9]+).*"
+    "\\1" EQUALIZER_VERSION_ABI ${_eq_Version_contents})
 
   set(EQUALIZER_VERSION "${_eq_VERSION_MAJOR}.${_eq_VERSION_MINOR}.${_eq_VERSION_PATCH}"
     CACHE INTERNAL "The version of Equalizer which was detected")
@@ -181,6 +185,6 @@ set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
 set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
 
 if(EQUALIZER_FOUND)
-  message("-- Found Equalizer ${EQUALIZER_VERSION} in ${EQUALIZER_INCLUDE_DIRS}"
+  message("-- Found Equalizer ${EQUALIZER_VERSION}/${EQUALIZER_VERSION_ABI} in ${EQUALIZER_INCLUDE_DIRS}"
     ";${EQUALIZER_LIBRARIES}")
 endif()
