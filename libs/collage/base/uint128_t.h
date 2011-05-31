@@ -50,7 +50,7 @@ namespace base
          * Construct a new 128 bit integer with default values.
          * @version 1.0
          **/
-        uint128_t( const uint64_t high_, const uint64_t low_ ) 
+        explicit uint128_t( const uint64_t high_, const uint64_t low_ ) 
             : _high( high_ ), _low( low_ ) {}
 
         /** Assign another 128 bit value. @version 1.0 */
@@ -58,6 +58,14 @@ namespace base
             {
                 _high = rhs._high;
                 _low = rhs._low;
+                return *this;
+            }
+
+        /** Assign another 64 bit value. @version 1.1.1 */
+        uint128_t& operator = ( const uint64_t rhs )
+            {
+                _high = 0;
+                _low = rhs;
                 return *this;
             }
 
@@ -170,6 +178,10 @@ namespace base
                 return str.substr( 0, 3 ) + ".." +
                     str.substr( str.length() - 3, std::string::npos );
             }
+
+        /** The NULL value. @version 1.1.1 */
+        static COBASE_API const uint128_t ZERO;
+
     private:
         uint64_t _high;
         uint64_t _low;
