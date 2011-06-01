@@ -57,10 +57,9 @@ namespace seq
         /** 
          * Initialize the application instance.
          *
-         * The initData object is registered and can be later accessed from any
-         * context using getObject( OBJECTTYPE_INITDATA ). The object may be 0,
-         * if the application does not want to use an object during
-         * initialization.
+         * The initData object is registered and is passed to all initialization
+         * callbacks on all processes. The object may be 0, if the application
+         * does not want to use an object during initialization.
          *
          * @param argc the command line argument count.
          * @param argv the command line arguments.
@@ -74,10 +73,18 @@ namespace seq
         /**
          * Run the application main loop.
          *
+         * The frameData object is registered and is passed to all rendering
+         * callbacks on all processes. It is automatically committed at the
+         * beginning of each frame. The instance passed to the render callbacks
+         * is automatically synchronized to the version belonging to the frame
+         * rendered. The object may be 0, if the application does not want to
+         * use a per-frame object.
+         *
          * @return true on success, false otherwise.
+         * @param frameData a distributed object holding frame-specific data.
          * @version 1.0
          */
-        SEQ_API virtual bool run();
+        SEQ_API virtual bool run( co::Object* frameData );
 
         /**
          * Exit this application instance.

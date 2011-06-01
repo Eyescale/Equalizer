@@ -32,8 +32,14 @@ namespace detail
         Renderer( seq::Renderer* parent );
         ~Renderer();
 
+        /** @name Data Access. */
+        //@{
+        co::Object* getFrameData();
+        //@}
+
         /** @name Current context. */
         //@{
+        void setPipe( Pipe* pipe ) { _pipe = pipe; }
         void setChannel( Channel* channel ) { _channel = channel; }
         //@}
 
@@ -44,6 +50,7 @@ namespace detail
 
     private:
         seq::Renderer* const _renderer;
+        Pipe* _pipe;
         Channel* _channel;
     };
 }

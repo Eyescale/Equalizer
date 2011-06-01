@@ -34,11 +34,12 @@ namespace detail
 
         seq::Application* getApplication();
 
-        virtual bool init( co::Object* ) { /* EQDONTCALL */ return false; }
-        virtual bool exit() { /* EQDONTCALL */ return false; }
+        virtual bool init( co::Object* ) { EQDONTCALL; return false; }
+        virtual bool run( co::Object* ) { EQDONTCALL; return false; }
+        virtual bool exit() { EQDONTCALL; return false; }
 
-        virtual bool needRedraw() { /* EQDONTCALL */ return false; }
-        virtual uint32_t startFrame() { /* EQDONTCALL */ return 0; }
+        virtual bool needRedraw() { EQDONTCALL; return false; }
+        virtual uint32_t startFrame() { EQDONTCALL; return 0; }
 
         virtual bool mapData( const uint128_t& initID ) { return true; }
         virtual void syncData( const uint128_t& version ) { /* nop */ }

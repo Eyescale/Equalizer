@@ -26,7 +26,8 @@ namespace seq
     enum ObjectType
     {
         OBJECTTYPE_NONE,      //!< Unused object type
-        OBJECTTYPE_INITDATA,  //!< The object passed to Config::init()
+        OBJECTTYPE_INITDATA,  //!< The object passed to Application::init()
+        OBJECTTYPE_FRAMEDATA, //!< The object passed to Application::run()
         OBJECTTYPE_CUSTOM = 100 //!< Application-specific objects
     };
 }

@@ -31,7 +31,7 @@
 namespace seqPly
 {
 
-void Renderer::draw()
+void Renderer::draw( co::Object* frameData )
 {
     applyRenderContext();
 }

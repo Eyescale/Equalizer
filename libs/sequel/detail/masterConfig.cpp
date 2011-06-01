@@ -56,7 +56,7 @@ bool MasterConfig::init( co::Object* initData )
 
 bool MasterConfig::exit()
 {
-    const bool retVal = Config::exit();;
+    const bool retVal = eq::Config::exit();;
 
     if( _objects )
         deregisterObject( _objects );
@@ -64,6 +64,41 @@ bool MasterConfig::exit()
     _objects = 0;
     
     return retVal;
+}
+
+bool MasterConfig::run( co::Object* frameData )
+{
+    EQASSERT( _objects );
+    if( frameData )
+        EQCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
+    _objects->setFrameData( frameData );
+
+    seq::Application* const app = getApplication();
+    while( isRunning( ))
+    {
+        startFrame();
+        if( getError( ))
+            EQWARN << "Error during frame start: " << getError() << std::endl;
+        finishFrame();
+
+        while( !needRedraw( )) // wait for an event requiring redraw
+        {
+            if( app->hasCommands( )) // execute non-critical pending commands
+            {
+                app->processCommand();
+                handleEvents(); // non-blocking
+            }
+            else  // no pending commands, block on user event
+            {
+                const eq::ConfigEvent* event = nextEvent();
+                if( !handleEvent( event ))
+                    EQVERB << "Unhandled " << event << std::endl;
+            }
+        }
+        handleEvents(); // process all pending events
+    }
+    finishAllFrames();
+    return true;
 }
 
 uint32_t MasterConfig::startFrame()

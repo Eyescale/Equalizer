@@ -18,6 +18,7 @@
 #include "renderer.h"
 
 #include "channel.h"
+#include "pipe.h"
 
 #include <eq/sequel/renderer.h>
 
@@ -28,12 +29,19 @@ namespace detail
 
 Renderer::Renderer( seq::Renderer* parent )
         : _renderer( parent )
+        , _pipe( 0 )
         , _channel( 0 )
 {}
 
 Renderer::~Renderer()
 {
+    EQASSERT( !_pipe );
     EQASSERT( !_channel );
+}
+
+co::Object* Renderer::getFrameData()
+{
+    return _pipe->getFrameData();
 }
 
 void Renderer::applyRenderContext()

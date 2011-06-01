@@ -86,9 +86,9 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
     return true;
 }
 
-bool Application::run()
+bool Application::run( co::Object* frameData )
 {
-    return _impl->run();
+    return _impl->run( frameData );
 }
 
 bool Application::exit()

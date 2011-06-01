@@ -105,34 +105,9 @@ bool Application::exit()
     return retVal;
 }
 
-bool Application::run()
+bool Application::run( co::Object* frameData )
 {
-    while( _config->isRunning( ))
-    {
-        _config->startFrame();
-        if( _config->getError( ))
-            EQWARN << "Error during frame start: " << _config->getError()
-                   << std::endl;
-        _config->finishFrame();
-
-        while( !_config->needRedraw( )) // wait for an event requiring redraw
-        {
-            if( _app->hasCommands( )) // execute non-critical pending commands
-            {
-                _app->processCommand();
-                _config->handleEvents(); // non-blocking
-            }
-            else  // no pending commands, block on user event
-            {
-                const eq::ConfigEvent* event = _config->nextEvent();
-                if( !_config->handleEvent( event ))
-                    EQVERB << "Unhandled " << event << std::endl;
-            }
-        }
-        _config->handleEvents(); // process all pending events
-    }
-    _config->finishAllFrames();
-    return true;
+    return _config->run( frameData );
 }
 
 eq::Config* Application::createConfig( eq::ServerPtr parent )

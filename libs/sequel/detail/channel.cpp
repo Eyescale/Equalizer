@@ -63,7 +63,9 @@ void Channel::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
 
 void Channel::frameDraw( const uint128_t& frameID )
 {
-    getRenderer()->draw();
+    seq::Renderer* const renderer = getRenderer();
+    co::Object* const frameData = renderer->getFrameData();
+    renderer->draw( frameData );
 }
 
 }

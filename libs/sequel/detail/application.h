@@ -40,7 +40,7 @@ namespace detail
 
         bool init( co::Object* initData );
         bool exit();
-        bool run();
+        bool run( co::Object* frameData );
 
     private:
         ApplicationPtr _app;

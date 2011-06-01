@@ -31,11 +31,15 @@ namespace detail
     public:
         Pipe( eq::Node* parent );
 
+        /** @name Data Access. */
+        //@{
         seq::Application* getApplication();
         Config* getConfig();
         Node* getNode();
         seq::Renderer* getRenderer() { return _renderer; }
         detail::Renderer* getRendererImpl();
+        co::Object* getFrameData();
+        //@}
 
     protected:
         virtual ~Pipe();

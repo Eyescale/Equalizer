@@ -39,6 +39,11 @@ eq::Config* Renderer::getConfig()
     return _app.getConfig();
 }
 
+co::Object* Renderer::getFrameData()
+{
+    return _impl->getFrameData();
+}
+
 void Renderer::applyRenderContext()
 {
     _impl->applyRenderContext();

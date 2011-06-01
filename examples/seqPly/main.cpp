@@ -32,7 +32,7 @@ int main( const int argc, char** argv )
 {
     seqPly::ApplicationPtr app = new seqPly::Application();
 
-    if( app->init( argc, argv ) && app->run() && app->exit( ))
+    if( app->init( argc, argv ) && app->run( 0 ) && app->exit( ))
         return EXIT_SUCCESS;
     
     return EXIT_FAILURE;

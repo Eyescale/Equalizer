@@ -20,6 +20,7 @@
 #include "config.h"
 #include "node.h"
 #include "objectMap.h"
+#include "renderer.h"
 
 #include <eq/sequel/application.h>
 #include <eq/sequel/error.h>
@@ -64,6 +65,14 @@ detail::Renderer* Pipe::getRendererImpl()
     return _renderer->getImpl();
 }
 
+co::Object* Pipe::getFrameData()
+{
+    EQASSERT( _objects );
+    if( _objects )
+        return _objects->getFrameData();
+    return 0;
+}
+
 bool Pipe::configInit( const uint128_t& initID )
 {
     if( !eq::Pipe::configInit( initID ))
@@ -77,6 +86,7 @@ bool Pipe::configInit( const uint128_t& initID )
         setError( ERROR_SEQUEL_CREATERENDERER_FAILED );
         return false;
     }
+    getRendererImpl()->setPipe( this );
 
     if( _mapData( initID ))
         return true;
@@ -90,7 +100,10 @@ bool Pipe::configExit()
     _unmapData();
 
     if( _renderer )
+    {
+        getRendererImpl()->setPipe( 0 );
         getApplication()->destroyRenderer( _renderer );
+    }
     _renderer = 0;
 
     return eq::Pipe::configExit();

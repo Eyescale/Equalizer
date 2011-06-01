@@ -41,12 +41,19 @@ namespace seq
         /** @name Data Access. */
         //@{
         detail::Renderer* getImpl() { return _impl; } //!< @internal
+        co::Object* getFrameData(); // @warning experimental
         //@}
 
         /** @name Operations */
         //@{
-        /** Render the scene. @version 1.0 */
-        virtual void draw() = 0;
+        /**
+         * Render the scene.
+         *
+         * @param frameData the renderer instance of the object passed to
+         *                  Config::run.
+         * @version 1.0
+         */
+        virtual void draw( co::Object* frameData ) = 0;
 
         /**
          * Apply the current rendering parameters to OpenGL.

@@ -40,7 +40,7 @@ namespace seqPly
         virtual ~Renderer() {}
 
     protected:
-        virtual void draw();
+        virtual void draw( co::Object* frameData );
     };
 
 }
