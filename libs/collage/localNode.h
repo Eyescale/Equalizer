@@ -394,6 +394,9 @@ namespace co
 
         /** The process-global clock. */
         base::Clock _clock;
+
+        Nodes _timeoutNodes;
+        int64_t _lastTokenTime;
     
         friend EQSERVER_API 
         co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
