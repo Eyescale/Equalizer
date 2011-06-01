@@ -9,12 +9,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 eq_add_example(eqAsync
   HEADERS
-    eqAsync.h
+    aglWindowShared.h
     asyncFetcher.h
+    eqAsync.h
   SOURCES
     main.cpp
-    eqAsync.cpp
     asyncFetcher.cpp
+    eqAsync.cpp
+    aglWindowShared.cpp
   LINK_LIBRARIES
     Equalizer
     shared EqualizerAdmin

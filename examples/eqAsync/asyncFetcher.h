@@ -51,7 +51,7 @@ struct TextureId
     TextureId( const GLuint id_ = 0, const int key_ = 0 ) : id( id_ ), key( key_ ){};
 
     GLuint  id;  // OpenGL texture id
-    int     key; // Object manager key, used to delete textures
+    int     key; // Object manager key; used to delete textures
 };
 
 class Window;
@@ -78,11 +78,11 @@ public:
 
 private:
     Window*                      _wnd;
-    co::base::MTQueue<int>       _inQueue;
-    co::base::MTQueue<TextureId> _outQueue;
+    co::base::MTQueue<int>       _inQueue;       // textures to delete
+    co::base::MTQueue<TextureId> _outQueue;      // generated textures
     ObjectManager*               _objectManager;
-    eq::SystemWindow*            _systemWindow;
-    GLbyte*                      _tmpTexture;
+    eq::SystemWindow*            _sharedContextWindow;
+    GLbyte*                      _tmpTexture;    // temporal texture storage array
 };
 
 } 

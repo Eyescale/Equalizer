@@ -1,4 +1,4 @@
-/* Copyright (c) 2009-2011, Maxim Makhinya  <maxmah@gmail.com>
+/* Copyright (c)  2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,62 +26,34 @@
  *
  */
 
-#ifndef EQ_EXAMPLE_ASYNC_H
-#define EQ_EXAMPLE_ASYNC_H
+#ifndef EQ_EXAMPLE_AGL_WINDOW_SHARED_H
+#define EQ_EXAMPLE_AGL_WINDOW_SHARED_H
 
-#include "asyncFetcher.h"
+#include <eq/os.h>
 
-#include <eq/eq.h>
+#ifdef AGL
+
+#include <eq/aglWindow.h>
 
 namespace eqAsync
 {
 
-/* Simple Channel class */
-class Channel : public eq::Channel
+/**
+ *  Replacing chooseAGLPixelFormat function in eq, since full screen has to be 
+ *  set for shared context windows even when it is FBO. 
+ */
+class AGLWindowShared : public eq::AGLWindow
 {
 public:
-    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+    AGLWindowShared( eq::Window* parent, CGDirectDisplayID displayID = 0 );
 
-protected:
-    virtual void frameDraw( const eq::uint128_t& spin );
-};
-
-
-/* Simple Window class that will call init of the pipe 
-   to create a shared context */
-class Window : public eq::Window
-{
-public:
-    Window( eq::Pipe* parent ) : eq::Window( parent ) {}
-    bool configInitGL( const eq::uint128_t& initID );
-};
-
-
-/* Simple Pipe class that creates a shared 
-   window for async fetching */
-class Pipe : public eq::Pipe
-{
-public:
-    Pipe( eq::Node* parent ) : eq::Pipe( parent ), _initialized( false ), _txId( 0 ) {}
-
-    void startAsyncFetcher( Window* wnd );
-
-    AsyncFetcher& getAsyncFetcher() { return _asyncFetcher; }
-
-    GLuint getTextureId() const { return _txId.id; }
-
-protected:
-        /* checks if new textures are avaliable */
-        virtual void frameStart( const eq::uint128_t& frameID, 
-                                 const uint32_t frameNumber );
-
-        virtual bool configExit();
+    virtual AGLPixelFormat chooseAGLPixelFormat();
 private:
-    bool         _initialized;
-    AsyncFetcher _asyncFetcher;
-    TextureId    _txId;
+    CGDirectDisplayID _cgDisplayID;
 };
 
-}
+} // namespace eqAsync
 
-#endif // EQ_EXAMPLE_ASYNC_H
+#endif //AGL
+
+#endif //EQ_EXAMPLE_AGL_WINDOW_SHARED_H

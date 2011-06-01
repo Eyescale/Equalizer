@@ -66,7 +66,7 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber 
         if( oldKey != 0 )
             _asyncFetcher.deleteTexture( oldKey );
 
-        EQWARN << "new texture generated " << _txId.id << std::endl;
+        EQWARN << "new texture generated " << _txId.key << std::endl;
     }
 }
 
@@ -132,6 +132,7 @@ void Channel::frameDraw( const eq::uint128_t& spin )
         else
             glRotatef( 180.0f, 1.0f, 0.0f, 0.0f );
     }
+
     if( txId )
     {
         glDisable( GL_TEXTURE_2D );

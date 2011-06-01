@@ -42,7 +42,7 @@
     #include <eq/glxWindow.h>
 #endif
 #ifdef AGL
-    #include <eq/aglWindow.h>
+    #include "aglWindowShared.h"
 #endif
 #ifdef WGL
     #include <eq/wglWindow.h>
@@ -70,27 +70,27 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     const eq::Pipe* pipe = wnd->getPipe();
     EQASSERT( pipe );
 
-    eq::SystemWindow* systemWindow = 0;
+    eq::SystemWindow* sharedContextWindow = 0;
     switch( pipe->getWindowSystem( ))
     {
     #ifdef GLX
         case eq::WINDOW_SYSTEM_GLX:
             EQINFO << "Using GLXWindow" << std::endl;
-            systemWindow = new eq::GLXWindow( wnd );
+            sharedContextWindow = new eq::GLXWindow( wnd );
             break;
     #endif
 
     #ifdef AGL
         case eq::WINDOW_SYSTEM_AGL:
             EQINFO << "Using AGLWindow" << std::endl;
-            systemWindow = new eq::AGLWindow( wnd );
+            sharedContextWindow = new AGLWindowShared( wnd );
             break;
     #endif
 
     #ifdef WGL
         case eq::WINDOW_SYSTEM_WGL:
             EQINFO << "Using WGLWindow" << std::endl;
-            systemWindow = new eq::WGLWindow( wnd );
+            sharedContextWindow = new eq::WGLWindow( wnd );
             break;
     #endif
 
@@ -99,12 +99,12 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
                     << " not implemented or supported" << std::endl;
             return 0;
     }
-    EQASSERT( systemWindow );
+    EQASSERT( sharedContextWindow );
 
-    if( !systemWindow->configInit( ))
+    if( !sharedContextWindow->configInit( ))
     {
         EQWARN << "OS Window initialization failed: " << std::endl;
-        delete systemWindow;
+        delete sharedContextWindow;
         return 0;
     }
 
@@ -114,19 +114,19 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     if( stencil != 0 )
         wnd->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, stencil );
 
-    systemWindow->makeCurrent();
+    sharedContextWindow->makeCurrent();
 
     EQWARN << "Async fetcher initialization finished" << std::endl;
-    return systemWindow;
+    return sharedContextWindow;
 }
 
 
 static void deleteScharedContextWindow( eq::Window*                   wnd,
-                                        eq::SystemWindow**            systemWindow,
+                                        eq::SystemWindow**            sharedContextWindow,
                                         AsyncFetcher::ObjectManager** objectManager )
 {
     EQWARN << "Deleting shared context" << std::endl;
-    if( !systemWindow || !*systemWindow )
+    if( !sharedContextWindow || !*sharedContextWindow )
         return;
 
     if( *objectManager )
@@ -140,10 +140,10 @@ static void deleteScharedContextWindow( eq::Window*                   wnd,
     if( drawable != eq::FBO )
         wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::FBO );
 
-    (*systemWindow)->configExit( ); // mb set window to 0 before that?
+    (*sharedContextWindow)->configExit( ); // mb set window to 0 before that?
 
-    delete *systemWindow;
-    *systemWindow = 0;
+    delete *sharedContextWindow;
+    *sharedContextWindow = 0;
 
     if( drawable != eq::FBO )
         wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
@@ -154,7 +154,7 @@ AsyncFetcher::AsyncFetcher()
     : co::base::Thread()
     , _wnd( 0 )
     , _objectManager( 0 )
-    , _systemWindow( 0 )
+    , _sharedContextWindow( 0 )
 {
     _tmpTexture = new GLbyte[ 64*64*4 ];
 }
@@ -162,8 +162,8 @@ AsyncFetcher::AsyncFetcher()
 
 AsyncFetcher::~AsyncFetcher()
 {
-    if( _wnd && _systemWindow )
-        DeleteScharedContextWindow( _wnd, &_systemWindow, &_objectManager );
+    if( _wnd && _sharedContextWindow )
+        deleteScharedContextWindow( _wnd, &_sharedContextWindow, &_objectManager );
 
     delete []_tmpTexture;
 }
@@ -171,21 +171,21 @@ AsyncFetcher::~AsyncFetcher()
 
 const GLEWContext* AsyncFetcher::glewGetContext() const
 {
-    return _systemWindow->glewGetContext();
+    return _sharedContextWindow->glewGetContext();
 }
 
 
 /**
  *  Funciton for creating and holding of shared context.
- *  Generation and uploading of new textured over some 
+ *  Generation and uploading of new textures over some 
  *  period of sleep time.
  */
 void AsyncFetcher::run()
 {
-    EQASSERT( !_systemWindow );
-    _systemWindow = InitSharedContextWindow( _wnd );
+    EQASSERT( !_sharedContextWindow );
+    _sharedContextWindow = initSharedContextWindow( _wnd );
     _outQueue.push( TextureId()); // unlock pipe thread
-    if( !_systemWindow )
+    if( !_sharedContextWindow )
         return;
 
     _objectManager = new ObjectManager( glewGetContext( ));
@@ -193,7 +193,7 @@ void AsyncFetcher::run()
 
     int i = 0;
     bool exitLoop = false;
-    sleep( 2 ); // imitate loading of the first texture
+    sleep( 1 ); // imitate loading of the first texture
     while( !exitLoop )
     {
         // generate new texture
@@ -226,13 +226,13 @@ void AsyncFetcher::run()
         {
             if( keyToDelete )
             {
-                EQWARN << "Deleting eq texture" << keyToDelete << std::endl;
+                EQWARN << "Deleting eq texture " << keyToDelete << std::endl;
                 _objectManager->deleteEqTexture( keyToDelete );
             }else
                 exitLoop = true;
         }
     }
-    DeleteScharedContextWindow( _wnd, &_systemWindow, &_objectManager );
+    deleteScharedContextWindow( _wnd, &_sharedContextWindow, &_objectManager );
 }
 
 } //namespace eqAsync
