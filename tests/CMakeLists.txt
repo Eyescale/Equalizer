@@ -5,7 +5,9 @@ if(NOT EQUALIZER_BUILD_TESTS)
   return()
 endif(NOT EQUALIZER_BUILD_TESTS)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
+if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
+endif()
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(GLOB TEST_CONFIGS reliability/*.eqc)

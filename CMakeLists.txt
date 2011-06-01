@@ -244,7 +244,12 @@ IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/
 ENDIF()
 
 install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
-install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)
+install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
+  DESTINATION share/Equalizer/doc COMPONENT doc)
+install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
+  COMPONENT codev)
+install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
+  COMPONENT eqdev)
 IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
   install(DIRECTORY man/man3 DESTINATION man COMPONENT man PATTERN "*_docs_*" EXCLUDE)
 ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
