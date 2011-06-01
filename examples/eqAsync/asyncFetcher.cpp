@@ -39,7 +39,7 @@
 #include <eq/systemWindow.h>
 
 #ifdef GLX
-    #include <eq/glxWindow.h>
+    #include <eq/glXWindow.h>
 #endif
 #ifdef AGL
     #include "aglWindowShared.h"
