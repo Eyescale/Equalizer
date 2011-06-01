@@ -105,18 +105,18 @@ if(_eq_INCLUDE_DIR)
   endif()
 
   string(REGEX REPLACE ".*define EQ_VERSION_MAJOR[ \t]+([0-9]+).*"
-    "\\1" _eq_VERSION_MAJOR ${_eq_Version_contents})
+    "\\1" EQUALIZER_VERSION_MAJOR ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_MINOR[ \t]+([0-9]+).*"
-    "\\1" _eq_VERSION_MINOR ${_eq_Version_contents})
+    "\\1" EQUALIZER_VERSION_MINOR ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_PATCH[ \t]+([0-9]+).*"
-    "\\1" _eq_VERSION_PATCH ${_eq_Version_contents})
+    "\\1" EQUALIZER_VERSION_PATCH ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_ABI[ \t]+([0-9]+).*"
     "\\1" EQUALIZER_VERSION_ABI ${_eq_Version_contents})
   if(NOT EQUALIZER_VERSION_ABI GREATER 1)
     set(EQUALIZER_VERSION_ABI)
   endif()
 
-  set(EQUALIZER_VERSION "${_eq_VERSION_MAJOR}.${_eq_VERSION_MINOR}.${_eq_VERSION_PATCH}"
+  set(EQUALIZER_VERSION "${EQUALIZER_VERSION_MAJOR}.${EQUALIZER_VERSION_MINOR}.${EQUALIZER_VERSION_PATCH}"
     CACHE INTERNAL "The version of Equalizer which was detected")
 endif()
 
