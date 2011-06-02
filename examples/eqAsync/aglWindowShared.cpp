@@ -38,8 +38,6 @@
 #include <eq/pipe.h>
 #include <eq/os.h>
 
-using namespace eq;
-
 namespace eqAsync
 {
 
@@ -51,7 +49,7 @@ AGLWindowShared::AGLWindowShared( eq::Window* parent,
 
 AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
 {
-    Global::enterCarbon();
+    eq::Global::enterCarbon();
 
     CGOpenGLDisplayMask glDisplayMask =
         CGDisplayIDToOpenGLDisplayMask( getCGDisplayID( ));
@@ -67,7 +65,7 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
     //
     //  This condition is the only difference from the original function
     //
-    if( getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == eq::ON )
     {
         attributes.push_back( AGL_FULLSCREEN );
     }
@@ -75,20 +73,20 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
     attributes.push_back( AGL_DISPLAY_MASK );
     attributes.push_back( glDisplayMask );
 
-    GLint colorSize = getIAttribute( Window::IATTR_PLANES_COLOR );
-    if( colorSize != OFF )
+    GLint colorSize = getIAttribute( eq::Window::IATTR_PLANES_COLOR );
+    if( colorSize != eq::OFF )
     {
         switch( colorSize )
         {
-          case RGBA16F:
+          case eq::RGBA16F:
             attributes.push_back( AGL_COLOR_FLOAT );
             colorSize = 16;
             break;
-          case RGBA32F:
+          case eq::RGBA32F:
             attributes.push_back( AGL_COLOR_FLOAT );
             colorSize = 32;
             break;
-          case AUTO:
+          case eq::AUTO:
             colorSize = 8;
             break;
           default:
@@ -102,28 +100,28 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
         attributes.push_back( AGL_BLUE_SIZE );
         attributes.push_back( colorSize );
 
-        const int alphaSize = getIAttribute( Window::IATTR_PLANES_ALPHA );
-        if( alphaSize > 0 || alphaSize == AUTO )
+        const int alphaSize = getIAttribute( eq::Window::IATTR_PLANES_ALPHA );
+        if( alphaSize > 0 || alphaSize == eq::AUTO )
         {
             attributes.push_back( AGL_ALPHA_SIZE );
             attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
         }
     }
 
-    const int depthSize = getIAttribute( Window::IATTR_PLANES_DEPTH );
-    if( depthSize > 0 || depthSize == AUTO )
+    const int depthSize = getIAttribute( eq::Window::IATTR_PLANES_DEPTH );
+    if( depthSize > 0 || depthSize == eq::AUTO )
     { 
         attributes.push_back( AGL_DEPTH_SIZE );
         attributes.push_back( depthSize>0 ? depthSize : 24 );
     }
-    const int stencilSize = getIAttribute( Window::IATTR_PLANES_STENCIL );
-    if( stencilSize > 0 || stencilSize == AUTO )
+    const int stencilSize = getIAttribute( eq::Window::IATTR_PLANES_STENCIL );
+    if( stencilSize > 0 || stencilSize == eq::AUTO )
     {
         attributes.push_back( AGL_STENCIL_SIZE );
         attributes.push_back( stencilSize>0 ? stencilSize : 1 );
     }
-    const int accumSize  = getIAttribute( Window::IATTR_PLANES_ACCUM );
-    const int accumAlpha = getIAttribute( Window::IATTR_PLANES_ACCUM_ALPHA );
+    const int accumSize  = getIAttribute( eq::Window::IATTR_PLANES_ACCUM );
+    const int accumAlpha = getIAttribute( eq::Window::IATTR_PLANES_ACCUM_ALPHA);
     if( accumSize >= 0 )
     {
         attributes.push_back( AGL_ACCUM_RED_SIZE );
@@ -141,7 +139,7 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
         attributes.push_back( accumAlpha );
     }
 
-    const int samplesSize  = getIAttribute( Window::IATTR_PLANES_SAMPLES );
+    const int samplesSize  = getIAttribute( eq::Window::IATTR_PLANES_SAMPLES );
     if( samplesSize >= 0 )
     {
         attributes.push_back( AGL_SAMPLE_BUFFERS_ARB );
@@ -150,14 +148,14 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
         attributes.push_back( samplesSize );
     }
 
-    if( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
-        ( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
-          getIAttribute( Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
+    if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == eq::ON ||
+        ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == eq::AUTO && 
+          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == eq::WINDOW ))
     {
         attributes.push_back( AGL_DOUBLEBUFFER );
         attributes.push_back( GL_TRUE );
     }
-    if( getIAttribute( Window::IATTR_HINT_STEREO ) == ON )
+    if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == eq::ON )
     {
         attributes.push_back( AGL_STEREO );
         attributes.push_back( GL_TRUE );
@@ -167,12 +165,12 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
 
     // build backoff list, least important attribute last
     std::vector<int> backoffAttributes;
-    if( getIAttribute( Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO &&
-        getIAttribute( Window::IATTR_HINT_DRAWABLE )     == WINDOW  )
+    if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == eq::AUTO &&
+        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == eq::WINDOW  )
 
         backoffAttributes.push_back( AGL_DOUBLEBUFFER );
 
-    if( stencilSize == AUTO )
+    if( stencilSize == eq::AUTO )
         backoffAttributes.push_back( AGL_STENCIL_SIZE );
 
     // choose pixel format
@@ -198,9 +196,9 @@ AGLPixelFormat AGLWindowShared::chooseAGLPixelFormat()
     }
 
     if( !pixelFormat )
-        setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
+        setError( eq::ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
 
-    Global::leaveCarbon();
+    eq::Global::leaveCarbon();
     return pixelFormat;
 }
 
