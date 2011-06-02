@@ -61,6 +61,7 @@ set(CLIENT_HEADERS
   serverPackets.h
   statistic.h
   statisticSampler.h
+  system.h
   systemPipe.h
   systemWindow.h
   types.h
