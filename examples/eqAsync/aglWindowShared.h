@@ -1,3 +1,4 @@
+
 /* Copyright (c)  2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,21 +27,18 @@
  *
  */
 
-#ifndef EQ_EXAMPLE_AGL_WINDOW_SHARED_H
-#define EQ_EXAMPLE_AGL_WINDOW_SHARED_H
+#ifndef EQASYNC_AGL_WINDOW_SHARED_H
+#define EQASYNC_AGL_WINDOW_SHARED_H
 
-#include <eq/os.h>
-
-#ifdef AGL
-
-#include <eq/aglWindow.h>
+#include <eq/eq.h>
+#include <eq/system.h>
 
 namespace eqAsync
 {
 
 /**
- *  Replacing chooseAGLPixelFormat function in eq, since full screen has to be 
- *  set for shared context windows even when it is FBO. 
+ *  Replaces chooseAGLPixelFormat from eq::AGLWindow, since full screen has to
+ *  be set for shared context windows even when it is an FBO.
  */
 class AGLWindowShared : public eq::AGLWindow
 {
@@ -48,12 +46,8 @@ public:
     AGLWindowShared( eq::Window* parent, CGDirectDisplayID displayID = 0 );
 
     virtual AGLPixelFormat chooseAGLPixelFormat();
-private:
-    CGDirectDisplayID _cgDisplayID;
 };
 
 } // namespace eqAsync
 
-#endif //AGL
-
-#endif //EQ_EXAMPLE_AGL_WINDOW_SHARED_H
+#endif //EQASYNC_AGL_WINDOW_SHARED_H

@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +27,21 @@
  *
  */
 
-#ifndef EQ_EXAMPLE_ASYNC_FETCHER_H
-#define EQ_EXAMPLE_ASYNC_FETCHER_H
+#ifndef EQASYNC_ASYNC_FETCHER_H
+#define EQASYNC_ASYNC_FETCHER_H
 
-#include <co/base/thread.h>
-#include <co/base/mtQueue.h>
-#include <eq/util/objectManager.h>
-
-
-namespace eq
-{
-    class SystemWindow;
-};
-
+#include <eq/eq.h>
 
 namespace eqAsync
 {
 
 /**
- *  Stucture to associate OpenGl texture ids with external key.
+ *  Structure to associate OpenGL texture ids with an external key.
  */
 struct TextureId
 {
-    TextureId( const GLuint id_ = 0, const int key_ = 0 ) : id( id_ ), key( key_ ){};
+    TextureId( const GLuint id_ = 0, const int key_ = 0 )
+            : id( id_ ), key( key_ ){};
 
     GLuint  id;  // OpenGL texture id
     int     key; // Object manager key; used to delete textures
@@ -82,9 +75,9 @@ private:
     co::base::MTQueue<TextureId> _outQueue;      // generated textures
     ObjectManager*               _objectManager;
     eq::SystemWindow*            _sharedContextWindow;
-    GLbyte*                      _tmpTexture;    // temporal texture storage array
+    GLbyte*                      _tmpTexture;    // temporal texture storage
 };
 
 } 
 
-#endif //EQ_EXAMPLE_ASYNC_FETCHER_H
+#endif //EQASYNC_ASYNC_FETCHER_H

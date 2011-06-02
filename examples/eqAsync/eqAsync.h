@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,8 +27,8 @@
  *
  */
 
-#ifndef EQ_EXAMPLE_ASYNC_H
-#define EQ_EXAMPLE_ASYNC_H
+#ifndef EQASYNC_ASYNC_H
+#define EQASYNC_ASYNC_H
 
 #include "asyncFetcher.h"
 
@@ -47,8 +48,8 @@ protected:
 };
 
 
-/* Simple Window class that will call init of the pipe 
-   to create a shared context */
+/* Simple Window class that will call init of the pipe to create a shared
+   context */
 class Window : public eq::Window
 {
 public:
@@ -57,25 +58,23 @@ public:
 };
 
 
-/* Simple Pipe class that creates a shared 
-   window for async fetching */
+/* Simple Pipe class that creates a shared window for async fetching */
 class Pipe : public eq::Pipe
 {
 public:
-    Pipe( eq::Node* parent ) : eq::Pipe( parent ), _initialized( false ), _txId( 0 ) {}
+    Pipe( eq::Node* parent )
+            : eq::Pipe( parent ), _initialized( false ), _txId( 0 ) {}
 
     void startAsyncFetcher( Window* wnd );
-
     AsyncFetcher& getAsyncFetcher() { return _asyncFetcher; }
-
     GLuint getTextureId() const { return _txId.id; }
 
 protected:
-        /* checks if new textures are avaliable */
-        virtual void frameStart( const eq::uint128_t& frameID, 
-                                 const uint32_t frameNumber );
+    /* checks if new textures are avaliable */
+    virtual void frameStart( const eq::uint128_t& frameID, 
+                             const uint32_t frameNumber );
+    virtual bool configExit();
 
-        virtual bool configExit();
 private:
     bool         _initialized;
     AsyncFetcher _asyncFetcher;
@@ -84,4 +83,4 @@ private:
 
 }
 
-#endif // EQ_EXAMPLE_ASYNC_H
+#endif // EQASYNC_ASYNC_H

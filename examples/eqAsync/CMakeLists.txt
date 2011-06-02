@@ -7,17 +7,24 @@ endif(MSVC)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(EQASYNC_SYSTEM_SOURCES)
+set(EQASYNC_SYSTEM_HEADERS)
+if(EQ_AGL_USED)
+  set(EQASYNC_SYSTEM_HEADERS aglWindowShared.h)
+  set(EQASYNC_SYSTEM_SOURCES aglWindowShared.cpp)
+endif()
+
 eq_add_example(eqAsync
   HEADERS
-    aglWindowShared.h
     asyncFetcher.h
     eqAsync.h
+    ${EQASYNC_SYSTEM_HEADERS}
   SOURCES
-    main.cpp
+    aglWindowShared.cpp
     asyncFetcher.cpp
     eqAsync.cpp
-    aglWindowShared.cpp
+    main.cpp
+    ${EQASYNC_SYSTEM_SOURCES}
   LINK_LIBRARIES
     Equalizer
-    shared EqualizerAdmin
   )

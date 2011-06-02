@@ -1,4 +1,5 @@
-/* Copyright (c)      2007, Stefan Eilemann <eile@equalizergraphics.com>
+
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,9 +32,6 @@
 
 #include <stdlib.h>
 
-using namespace co::base;
-using namespace std;
-
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -54,7 +52,7 @@ int main( const int argc, char** argv )
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << endl;
+        EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -89,7 +87,7 @@ int main( const int argc, char** argv )
     }
     else
     {
-        EQERROR << "Cannot get config" << endl;
+        EQERROR << "Cannot get config" << std::endl;
         error = true;
     }    
 

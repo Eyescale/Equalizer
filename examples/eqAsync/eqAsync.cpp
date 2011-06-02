@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +32,6 @@
 namespace eqAsync
 {
 
-
 bool Window::configInitGL( const eq::uint128_t& initID )
 {
     if( !eq::Window::configInitGL( initID ))
@@ -43,20 +43,19 @@ bool Window::configInitGL( const eq::uint128_t& initID )
     return true;
 }
 
-
 void Pipe::startAsyncFetcher( Window* wnd )
 {
     if( _initialized )
         return;
     _initialized = true;
-    EQWARN << "initializing async fetcher: " << this << " : " << wnd << std::endl;
+    EQINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
     _asyncFetcher.setup( wnd );
     _asyncFetcher.start();
     _asyncFetcher.getTextureId(); // wait for initialization to finish
 }
 
 
-void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
 {
     eq::Pipe::frameStart( frameID, frameNumber );
 
@@ -66,14 +65,14 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber 
         if( oldKey != 0 )
             _asyncFetcher.deleteTexture( oldKey );
 
-        EQWARN << "new texture generated " << _txId.key << std::endl;
+        EQINFO << "new texture generated " << _txId.key << std::endl;
     }
 }
 
 
 bool Pipe::configExit()
 {
-    EQWARN << "exiting async fetcher: " << this << std::endl;
+    EQINFO << "exit async fetcher: " << this << std::endl;
     _asyncFetcher.deleteTexture( 0 ); //exit async fetcher
     _asyncFetcher.join();
 

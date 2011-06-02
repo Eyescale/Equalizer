@@ -1,7 +1,7 @@
 
                     Equalizer asynchronous fetcher Example
 
-The example shows how to create shared per-GPU context and use 
-it in parallel thread to load textures.
+The example shows how to create a shared per-GPU context and use it to
+asynchronours textures loads in a parallel thread.
 
-Main idea is to create shared FBO window from a given window.
+The main idea is to create a shared FBO window for each eq::Window.
