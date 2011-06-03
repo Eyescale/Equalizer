@@ -17,6 +17,8 @@
 
 #include "global.h"
 
+#include <co/base/global.h>
+
 #include <limits>
 #include <stdlib.h>
 
@@ -163,6 +165,13 @@ void Global::setIAttribute( const IAttribute attr, const int32_t value )
 int32_t Global::getIAttribute( const IAttribute attr )
 {
     return _iAttributes[ attr ];
+}
+
+uint32_t Global::getTimeOut()
+{
+    return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
+           base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
+           EQ_INDEFINITE_TIME;
 }
 
 }

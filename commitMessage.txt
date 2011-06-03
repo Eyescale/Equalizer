@@ -1,9 +1,9 @@
-Fix Win32 build
+Add timeout on posix Socket
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation
