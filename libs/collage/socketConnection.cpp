@@ -143,21 +143,21 @@ bool SocketConnection::connect()
     const bool connected = WSAConnect( _readFD, (sockaddr*)&address, 
                                        sizeof( address ), 0, 0, 0, 0 ) == 0;
 #else
-
-    const bool connected =  (::connect( _readFD, (sockaddr*)&address, 
+    const bool connected = (::connect( _readFD, (sockaddr*)&address, 
                                        sizeof( address )) == 0);
-    fcntl( _readFD, F_SETFL, O_NONBLOCK );
 #endif
 
     if( !connected )
     {
         EQINFO << "Could not connect to '" << _description->getHostname() << ":"
-		<< _description->port << "': " << base::sysError 
-		<< std::endl;
+               << _description->port << "': " << base::sysError << std::endl;
         close();
         return false;
     }
 
+#ifndef _WIN32
+    //fcntl( _readFD, F_SETFL, O_NONBLOCK );
+#endif
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
@@ -329,7 +329,7 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_writeFD = _overlappedSocket;
 
 #ifndef _WIN32
-	fcntl( _overlappedSocket, F_SETFL, O_NONBLOCK );
+    //fcntl( _overlappedSocket, F_SETFL, O_NONBLOCK );
 #endif
 
     newConnection->_initAIORead();
@@ -509,8 +509,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
           return -1;
 
     const uint32_t timeOut = Global::getTimeOut();
-    const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, 
-                                           timeOut );
+    const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, timeOut );
     switch( err )
     {
       case WAIT_FAILED:
@@ -560,13 +559,11 @@ bool SocketConnection::_createSocket()
     if( _description->type == CONNECTIONTYPE_SDP )
         EQINFO << "Created SDP socket" << std::endl;
 #else
-    
-	Socket fd;
+    Socket fd;
     if( _description->type == CONNECTIONTYPE_SDP )
         fd = ::socket( AF_INET_SDP, SOCK_STREAM, IPPROTO_TCP );
     else
         fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
-	
 #endif
 
     if( fd == INVALID_SOCKET )
@@ -651,11 +648,13 @@ bool SocketConnection::listen()
         close();
         return false;
     }
-    
+
     // get socket parameters
     socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
+
     _description->port = ntohs( address.sin_port );
+
     const std::string& hostname = _description->getHostname();
     if( hostname.empty( ))
     {
@@ -669,7 +668,7 @@ bool SocketConnection::listen()
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
 #ifndef _WIN32
-    fcntl( _readFD, F_SETFL, O_NONBLOCK );
+    //fcntl( _readFD, F_SETFL, O_NONBLOCK );
 #endif
     _initAIOAccept();
     _state = STATE_LISTENING;

@@ -338,7 +338,8 @@ uint32_t Config::finishFrame()
         }
 
         // global sync
-        if( !_finishedFrame.timedWaitGE( frameToFinish, EQ_TIMEOUT_DEFAULT ))
+        const uint32_t timeout = getTimeout();
+        if( !_finishedFrame.timedWaitGE( frameToFinish, timeout ))
             EQWARN << "Timeout waiting for at least one node to finish frame " 
                    << frameToFinish << std::endl;
     }
@@ -369,9 +370,9 @@ uint32_t Config::finishAllFrames()
         {
             client->processCommand( timeout );
         }
-        catch( co::Exception& e )
+        catch( const co::Exception& e )
         {
-            EQWARN << "Timeout in finishAllFrames " << e << std::endl;
+            EQWARN << e.what() << std::endl;
             break;
         } 
     }

@@ -210,7 +210,7 @@ bool VertexData::readPlyFile( const std::string& filename )
             MESHASSERT( triangles.size() == static_cast< size_t >( nElems ) );
             result = true;
         }
-        catch( exception& e )
+        catch( const exception& e )
         {
             MESHERROR << "Unable to read PLY file, an exception occured:  " 
                       << e.what() << endl;

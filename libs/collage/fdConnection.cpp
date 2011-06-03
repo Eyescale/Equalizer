@@ -18,8 +18,11 @@
 #ifndef _WIN32
 
 #include "fdConnection.h"
-#include "log.h"
+
 #include "exception.h"
+#include "global.h"
+#include "log.h"
+
 #include <co/base/os.h>
 
 #include <errno.h>
@@ -32,6 +35,12 @@ FDConnection::FDConnection()
           _writeFD( 0 )
 {}
 
+int FDConnection::_getTimeOut()
+{
+    const uint32_t timeout = Global::getTimeout();
+    return timeout == EQ_TIMEOUT_INDEFINITE ? -1 : int( timeout );
+}
+
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
@@ -40,26 +49,27 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
     if( _readFD < 1 )
         return -1;
 
-    const ssize_t bytesRead = ::read( _readFD, buffer, bytes );	
-    if( errno == EWOULDBLOCK || errno == EAGAIN )
+    ssize_t bytesRead = ::read( _readFD, buffer, bytes );
+    //EQINFO << "1st " << bytesRead << " " << strerror( errno ) << std::endl;
+    if( bytesRead == 0 || errno == EWOULDBLOCK || errno == EAGAIN )
     {
         struct pollfd fds[1];
         fds[0].fd = _readFD;
-        fds[0].events = POLLOUT;
+        fds[0].events = POLLIN;
 
-        const int res = poll( fds, 1, _getTimeOut());
-        if (res < 0)
+        const int res = poll( fds, 1, _getTimeOut( ));
+        if( res < 0 )
         {
             EQWARN << "Error during read : " << strerror( errno ) << std::endl;
             return -1;
         }
-		
-        if( res == 0)
-        {
-            EQWARN << "Timeout during read"  << std::endl;
-            throw Exception( Exception::TIMEOUT_WRITE );
-        }
-	}
+        
+        if( res == 0 )
+            throw Exception( Exception::TIMEOUT_READ );
+
+        bytesRead = ::read( _readFD, buffer, bytes );
+        //EQINFO << "2nd " << bytesRead << " " << strerror(errno) << std::endl;
+    }
 
     if( bytesRead == 0 ) // EOF
     {
@@ -70,13 +80,14 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 
     if( bytesRead == -1 ) // error
     {
-        if( errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN ) // if interrupted, try again
+        if( errno == EINTR ) // if interrupted, try again
             return 0;
 
         EQWARN << "Error during read: " << strerror( errno ) << ", " 
                << bytes << "b on fd " << _readFD << std::endl;
         return -1;
     }
+
     return bytesRead;
 }
 
@@ -85,17 +96,16 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 //----------------------------------------------------------------------
 int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
 {
-	if( _state != STATE_CONNECTED || _writeFD < 1 )
+    if( _state != STATE_CONNECTED || _writeFD < 1 )
         return -1;
-	
-    const ssize_t bytesWritten = ::write( _writeFD, buffer, bytes );
-	
-	if( errno == EWOULDBLOCK || errno == EAGAIN )
-    {	
+
+    ssize_t bytesWritten = ::write( _writeFD, buffer, bytes );
+    if( bytesWritten == 0 || errno == EWOULDBLOCK || errno == EAGAIN )
+    {
         struct pollfd fds[1];
         fds[0].fd = _writeFD;
         fds[0].events = POLLOUT;
-        const int res = poll( fds, 1, _getTimeOut() );
+        const int res = poll( fds, 1, _getTimeOut( ));
         if (res < 0)
         {
             EQWARN << "Write error : " << strerror( errno ) << std::endl;
@@ -103,21 +113,21 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
         }
 
         if( res == 0)
-		{
-            EQWARN << "Timeout during write"  << std::endl;
             throw Exception( Exception::TIMEOUT_WRITE );
-        }
+
+        bytesWritten = ::write( _writeFD, buffer, bytes );
     }
 
     if( bytesWritten == -1 ) // error
     {
-        if( errno == EAGAIN ) // if interrupted, try again
+        if( errno == EINTR ) // if interrupted, try again
             return 0;
-		
+
         EQWARN << "Error during write: " << strerror( errno ) << std::endl;
         return -1;
     }
-	return bytesWritten;	
+
+    return bytesWritten;
 }
 }
 #endif

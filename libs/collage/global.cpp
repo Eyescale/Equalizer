@@ -167,11 +167,11 @@ int32_t Global::getIAttribute( const IAttribute attr )
     return _iAttributes[ attr ];
 }
 
-uint32_t Global::getTimeOut()
+uint32_t Global::getTimeout()
 {
     return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
            base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
-           EQ_INDEFINITE_TIME;
+           EQ_TIMEOUT_INDEFINITE;
 }
 
 }

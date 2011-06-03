@@ -143,7 +143,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         if( orthoArg.isSet( ))
             _ortho = true;
     }
-    catch( TCLAP::ArgException& exception )
+    catch( const TCLAP::ArgException& exception )
     {
         EQERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;

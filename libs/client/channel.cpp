@@ -365,9 +365,9 @@ void Channel::frameAssemble( const uint128_t& )
     {
         Compositor::assembleFrames( getInputFrames(), this, 0 );
     }
-    catch( co::Exception e )
+    catch( const co::Exception& e )
     {
-        EQWARN << e << std::endl;
+        EQWARN << e.what() << std::endl;
     }
     EQ_GL_CALL( resetAssemblyState( ));
 }
