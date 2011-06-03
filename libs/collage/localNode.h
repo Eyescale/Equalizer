@@ -49,6 +49,8 @@ namespace co
         CO_API LocalNode( );
         CO_API virtual ~LocalNode( );
 
+        typedef NodePtr SendToken; //!< An acquired send token
+
         /**
          * @name State Changes
          *
@@ -285,12 +287,10 @@ namespace co
 
         /**
          * Acquire a singular send token from the given node.
-         *
-         * Do not release the token when this method returns false.
-         * @return true if the send token was acquired, false on timeout.
+         * @return The send token to release.
          */
-        CO_API bool acquireSendToken( NodePtr toNode );
-        CO_API void releaseSendToken( NodePtr toNode );
+        CO_API SendToken acquireSendToken( NodePtr toNode );
+        CO_API void releaseSendToken( SendToken& token );
 
         /** Return the command queue to the command thread. */
         virtual CommandQueue* getCommandThreadQueue() 
@@ -372,7 +372,8 @@ namespace co
 
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
-        std::deque< Command* > _sendTokenQueue;
+        uint64_t _lastTokenTime; //!< last used time for timeout detection
+        std::deque< Command* > _sendTokenQueue; //!< pending requests
 
         /** Manager of distributed object */
         ObjectStore* _objectStore;
