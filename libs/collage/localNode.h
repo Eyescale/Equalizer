@@ -388,6 +388,9 @@ namespace co
 
         /** The process-global clock. */
         base::Clock _clock;
+
+        Nodes _timeoutNodes;
+        int64_t _lastTokenTime;
     
         /** @name Receiver management */
         //@{

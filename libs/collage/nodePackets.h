@@ -164,7 +164,9 @@ namespace co
             {
                 command = CMD_NODE_RELEASE_SEND_TOKEN;
                 size    = sizeof( NodeReleaseSendTokenPacket );
+                timeout = false;
             }
+        bool timeout;
     };
 
     struct NodeAddListenerPacket : public NodePacket
