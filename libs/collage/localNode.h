@@ -283,7 +283,13 @@ namespace co
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
-        CO_API void acquireSendToken( NodePtr toNode );
+        /**
+         * Acquire a singular send token from the given node.
+         *
+         * Do not release the token when this method returns false.
+         * @return true if the send token was acquired, false on timeout.
+         */
+        CO_API bool acquireSendToken( NodePtr toNode );
         CO_API void releaseSendToken( NodePtr toNode );
 
         /** Return the command queue to the command thread. */
@@ -388,9 +394,6 @@ namespace co
 
         /** The process-global clock. */
         base::Clock _clock;
-
-        Nodes _timeoutNodes;
-        int64_t _lastTokenTime;
     
         /** @name Receiver management */
         //@{

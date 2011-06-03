@@ -1188,7 +1188,6 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
-    const bool useSendToken = getIAttribute( IATTR_HINT_SENDTOKEN ) == ON;
 
     NodeFrameDataTransmitPacket packet;
     const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
@@ -1282,13 +1281,14 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
             continue;
 
         // send image pixel data packet
+        bool useSendToken = getIAttribute( IATTR_HINT_SENDTOKEN ) == ON;
         if( useSendToken )
         {
             ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
                                         this );
             waitEvent.statisticsIndex = command->statisticsIndex;
             waitEvent.event.data.statistic.task = command->context.taskID;
-            getLocalNode()->acquireSendToken( toNode );
+            useSendToken = getLocalNode()->acquireSendToken( toNode );
         }
 
         connection->lockSend();

@@ -29,7 +29,6 @@
 #include <co/base/log.h>
 #include <co/base/requestHandler.h>
 #include <co/base/scopedMutex.h>
-#include <co/base/global.h>
 
 namespace co
 {
@@ -39,14 +38,12 @@ typedef CommandFunc<LocalNode> CmdFunc;
 LocalNode::LocalNode( )
         : _hasSendToken( true )
         , _objectStore( 0 )
-        , _lastTokenTime( 0 )
-        , _timeoutNodes()
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
     _objectStore = new ObjectStore( this );
-    
+
     CommandQueue* queue = &_commandThreadQueue;
     _registerCommand( CMD_NODE_ACK_REQUEST, 
                       CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
@@ -561,7 +558,7 @@ void LocalNode::releaseObject( Object* object )
 }
 
 
-void LocalNode::acquireSendToken( NodePtr node )
+bool LocalNode::acquireSendToken( NodePtr node )
 {
     EQASSERT( !inCommandThread( ));
     EQASSERT( !_inReceiverThread( ));
@@ -570,35 +567,19 @@ void LocalNode::acquireSendToken( NodePtr node )
     packet.requestID = registerRequest();
     node->send( packet );
     
-    const bool robustness = base::Global::getIAttribute( 
-        base::Global::IATTR_ROBUSTNESS ) != 0;
-    const uint32_t timeout = base::Global::getIAttribute( 
-        base::Global::IATTR_TIMEOUT_DEFAULT );
-
     bool ret = false;
-    if ( !waitRequest( packet.requestID, ret,
-             robustness ? timeout : EQ_TIMEOUT_INDEFINITE ))
-    {
-        EQERROR << "Timeout while acquiring token " 
-                << packet.requestID << std::endl;
-        _timeoutNodes.push_back(node);
-    }
+    if( waitRequest( packet.requestID, ret, Global::getTimeout( )))
+        return true;
+
+    EQERROR << "Timeout while acquiring send token " << packet.requestID
+            << std::endl;
+    return false;
 }
 
 void LocalNode::releaseSendToken( NodePtr node )
 {
     EQASSERT( !_inReceiverThread( ));
     NodeReleaseSendTokenPacket packet;
-    
-    Nodes::iterator it;
-    it = std::find( _timeoutNodes.begin(),  _timeoutNodes.end(), node );
-    if( it != _timeoutNodes.end())
-    {
-        EQERROR << "sending timeout packet to server" << std::endl;
-        packet.timeout = true;
-        _timeoutNodes.erase( it );
-    }
-
     node->send( packet );
 }
 
@@ -1527,7 +1508,6 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
         command.get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
-    _lastTokenTime = getTime64();
     return true;
 }
 
@@ -1540,31 +1520,10 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdReleaseSendToken( Command& command )
+bool LocalNode::_cmdReleaseSendToken( Command& )
 {
     EQASSERT( inCommandThread( ));
-
-    NodeReleaseSendTokenPacket* packet = 
-        command.get<NodeReleaseSendTokenPacket>();
-
-    const bool robustness = base::Global::getIAttribute( 
-        base::Global::IATTR_ROBUSTNESS ) != 0;
-
-    if( packet->timeout && robustness )
-    {
-        // prevent timeout replies to generate additional tokens
-        EQERROR << "Received timeout token " << packet << ". ";
-        const uint32_t timeout = base::Global::getIAttribute( 
-            base::Global::IATTR_TIMEOUT_DEFAULT );
-
-        if( _hasSendToken || ( getTime64() - _lastTokenTime < timeout ))
-        {
-            EQERROR << " Ignoring..." << std::endl;
-            return true;
-        }
-        
-        EQERROR << "Generating new token..." << std::endl;
-    }
+    EQASSERT( !_hasSendToken );
 
     if( _sendTokenQueue.empty( ))
     {
@@ -1575,12 +1534,11 @@ bool LocalNode::_cmdReleaseSendToken( Command& command )
     Command* request = _sendTokenQueue.front();
     _sendTokenQueue.pop_front();
 
-    NodeAcquireSendTokenPacket* acquirePacket = 
+    NodeAcquireSendTokenPacket* packet = 
         request->get<NodeAcquireSendTokenPacket>();
-    NodeAcquireSendTokenReplyPacket reply( acquirePacket );
+    NodeAcquireSendTokenReplyPacket reply( packet );
 
     request->getNode()->send( reply );
-    _lastTokenTime = getTime64();
     request->release();
     return true;
 }
