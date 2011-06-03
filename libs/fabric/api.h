@@ -29,8 +29,8 @@
 #  define EQFABRIC_API EQ_DLLIMPORT
 #endif
 
-#if defined(EQ_EXPORTS) || defined(EQSERVER_EXPORTS) || \
-     defined(EQ_FABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
+#if defined(EQ_CLIENT_SHARED) || defined(EQUALIZERSERVER_SHARED) || \
+    defined(EQ_FABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
 #  define EQFABRIC_INL EQ_DLLEXPORT
 #elif !defined(EQFABRIC_INL)
 #  define EQFABRIC_INL EQ_DLLIMPORT

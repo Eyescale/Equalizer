@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,9 @@
 #ifndef EQSERVER_WINDOW_H
 #define EQSERVER_WINDOW_H
 
-#include "types.h"
-
+#include "api.h"
 #include "state.h"          // enum
+#include "types.h"
 #include "visitorResult.h"  // enum
 
 #include <eq/fabric/window.h> // base class
@@ -34,11 +34,7 @@ namespace eq
 {
 namespace server
 {
-    class SwapBarrier;
-
-    /**
-     * The window.
-     */
+    /** The window. */
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
@@ -120,7 +116,7 @@ namespace server
          * @return the net::Barrier for protecting the swap group entry.
          */
         co::Barrier* joinNVSwapBarrier( const SwapBarrier* swapBarrier,
-                                         co::Barrier* netBarrier );
+                                        co::Barrier* netBarrier );
 
         /** @return true if this window has entered a NV_swap_group. */
         bool hasNVSwapBarrier() const { return (_nvSwapBarrier != 0); }

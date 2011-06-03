@@ -52,7 +52,7 @@ static void _exitPlugins();
 extern void _initErrors();
 extern void _exitErrors();
 
-bool init( const int argc, char** argv, NodeFactory* nodeFactory )
+bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     co::base::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
@@ -180,7 +180,15 @@ void _initPlugins()
 {
     co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
 
+    plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
+#ifdef _WIN32 // final INSTALL_DIR is not known at compile time
+    plugins.addDirectory( "../share/Equalizer/plugins" );
+#else
+    plugins.addDirectory( std::string( EQ_INSTALL_DIR ) + 
+                          std::string( "share/Equalizer/plugins" ));
+#endif
+
     plugins.addDirectory( ".eqPlugins" );
 
     const char* home = getenv( "HOME" );
@@ -219,6 +227,12 @@ void _exitPlugins()
 {
     co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
 
+#ifdef _WIN32 // final INSTALL_DIR is not known at compile time
+    plugins.removeDirectory( "../share/Equalizer/plugins" );
+#else
+    plugins.removeDirectory( std::string( EQ_INSTALL_DIR ) + 
+                             std::string( "share/Equalizer/plugins" ));
+#endif
     plugins.removeDirectory( "/usr/local/share/Equalizer/plugins" );
     plugins.removeDirectory( ".eqPlugins" );
 

@@ -33,13 +33,6 @@
 #include <co/base/spinLock.h>       // member
 #include <co/base/types.h>          // member
 
-#pragma warning(push)
-#pragma warning(disable: 4190)
-extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( const
-                                                               std::string& );
-extern "C" EQSERVER_API void eqsJoinLocalServer();
-#pragma warning(pop)
-
 namespace co
 {
     class ObjectStore;
@@ -101,6 +94,7 @@ namespace co
          * @sa connect
          */
         CO_API virtual bool listen();
+        CO_API virtual bool listen( ConnectionPtr connection ); //!< @internal
 
         /**
          * Close a listening node.
@@ -398,9 +392,6 @@ namespace co
         Nodes _timeoutNodes;
         int64_t _lastTokenTime;
     
-        friend EQSERVER_API 
-        co::ConnectionPtr (::eqsStartLocalServer( const std::string& ));
-
         /** @name Receiver management */
         //@{
         /** The receiver thread. */

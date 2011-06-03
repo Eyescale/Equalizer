@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,13 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "uuid.h"
-namespace co
-{
-namespace base 
-{
+#ifndef EQSYSTEM_H
+#define EQSYSTEM_H
 
-/** Special identifier values */
-const UUID UUID::ZERO;
-}
-}
+#include <eq/os.h>
+#ifdef AGL
+#  include <eq/aglEventHandler.h>
+#  include <eq/aglPipe.h>
+#  include <eq/aglWindow.h>
+#endif
+#ifdef GLX
+#  include <eq/glXEventHandler.h>
+#  include <eq/glXPipe.h>
+#  include <eq/glXWindow.h>
+#endif
+#ifdef WGL
+#  include <eq/wglEventHandler.h>
+#  include <eq/wglPipe.h>
+#  include <eq/wglWindow.h>
+#endif
+
+#endif // EQSYSTEM_H

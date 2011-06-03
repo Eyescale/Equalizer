@@ -63,6 +63,7 @@ class Observer;
 class Pipe;
 class Segment;
 class Server;
+class SwapBarrier;
 class View;
 class Window;
 

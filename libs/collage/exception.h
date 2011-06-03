@@ -21,6 +21,9 @@
 
 namespace co 
 {
+    class Exception;
+    std::ostream& operator << ( std::ostream& os, const Exception& e );
+
     /** A base Exception for Collage operations. */
     class Exception : public std::exception
     {
@@ -46,7 +49,7 @@ namespace co
         virtual const char* what() const throw() 
         { 
             std::stringstream os;
-            os << this;
+            os << *this;
             return os.str().c_str(); 
         }
 

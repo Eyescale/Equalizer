@@ -46,6 +46,8 @@
 #
 #    COLLAGE_VERSION - The version of Collage which was found
 #
+#    COLLAGE_VERSION_ABI - The DSO version of Collage which was found
+#
 #    COLLAGE_INCLUDE_DIRS - Where to find the headers
 #
 #    COLLAGE_LIBRARIES - The Collage libraries
@@ -91,12 +93,14 @@ if(_co_INCLUDE_DIR)
 
   if(_co_Version_contents MATCHES ".*define CO_VERSION_MAJOR[ \t]+([0-9]+).*")
     string(REGEX REPLACE ".*define CO_VERSION_MAJOR[ \t]+([0-9]+).*"
-      "\\1" _co_VERSION_MAJOR ${_co_Version_contents})
+      "\\1" COLLAGE_VERSION_MAJOR ${_co_Version_contents})
     string(REGEX REPLACE ".*define CO_VERSION_MINOR[ \t]+([0-9]+).*"
-      "\\1" _co_VERSION_MINOR ${_co_Version_contents})
+      "\\1" COLLAGE_VERSION_MINOR ${_co_Version_contents})
     string(REGEX REPLACE ".*define CO_VERSION_PATCH[ \t]+([0-9]+).*"
-      "\\1" _co_VERSION_PATCH ${_co_Version_contents})
-    set(COLLAGE_VERSION "${_co_VERSION_MAJOR}.${_co_VERSION_MINOR}.${_co_VERSION_PATCH}"
+      "\\1" COLLAGE_VERSION_PATCH ${_co_Version_contents})
+    string(REGEX REPLACE ".*define CO_VERSION_ABI[ \t]+([0-9]+).*"
+      "\\1" COLLAGE_VERSION_ABI ${_co_Version_contents})
+    set(COLLAGE_VERSION "${COLLAGE_VERSION_MAJOR}.${COLLAGE_VERSION_MINOR}.${COLLAGE_VERSION_PATCH}"
       CACHE INTERNAL "The version of Collage which was detected")
   else()
     set(COLLAGE_VERSION "0.3.0"
@@ -169,7 +173,7 @@ set(COLLAGE_INCLUDE_DIRS ${_co_INCLUDE_DIR})
 set(COLLAGE_LIBRARIES ${_co_LIBRARY})
 
 if(COLLAGE_FOUND)
-  message("-- Found Collage ${COLLAGE_VERSION} in ${COLLAGE_INCLUDE_DIRS};"
+  message("-- Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in ${COLLAGE_INCLUDE_DIRS};"
     "${COLLAGE_LIBRARIES}")
 endif()
 

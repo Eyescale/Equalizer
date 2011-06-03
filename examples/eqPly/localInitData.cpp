@@ -46,8 +46,12 @@ LocalInitData::LocalInitData()
         , _isResident( false )
 {
 #ifdef EQ_RELEASE
+#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
+    _filenames.push_back( "../share/Equalizer/data" );
+#  else
     _filenames.push_back( std::string( EQ_INSTALL_DIR ) +
                           std::string( "share/Equalizer/data" ));
+#  endif
 #else
     _filenames.push_back( std::string( EQ_SOURCE_DIR ) + 
                           std::string( "examples/eqPly" ));

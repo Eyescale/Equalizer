@@ -107,10 +107,16 @@ namespace util
         EQ_API Accum* obtainEqAccum( const T& key );
         EQ_API void   deleteEqAccum( const T& key );
 
+#ifdef EQ_CLIENT_SHARED
+        /** @internal */
         EQ_API GPUCompressor* getEqUploader( const T& key ) const;
+        /** @internal */
         EQ_API GPUCompressor* newEqUploader( const T& key );
+        /** @internal */
         EQ_API GPUCompressor* obtainEqUploader( const T& key );
+        /** @internal */
         EQ_API void   deleteEqUploader( const T& key );
+#endif
 
         EQ_API bool     supportsEqTexture() const;
         EQ_API Texture* getEqTexture( const T& key ) const;

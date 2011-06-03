@@ -19,6 +19,7 @@
 #ifndef EQSERVER_CANVAS_H
 #define EQSERVER_CANVAS_H
 
+#include "api.h"
 #include "types.h"
 #include "visitorResult.h"  // enum
 

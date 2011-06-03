@@ -1,6 +1,5 @@
 
-/*
- * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,55 +24,63 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- 
  *
- * The init data manages static, per-instance application data. In this example,
- * it holds the model file name, and manages the instantiation of the frame
- * data. The frame data is instantiated seperately for each (pipe) thread, so
- * that multiple pipe threads on a node can render different frames
- * concurrently.
  */
 
-#include "initData.h"
+#ifndef EQASYNC_ASYNC_H
+#define EQASYNC_ASYNC_H
 
-namespace eVolve
+#include "asyncFetcher.h"
+
+#include <eq/eq.h>
+
+namespace eqAsync
 {
 
-InitData::InitData()
-        : _frameDataID(  co::base::UUID::ZERO )
-        , _windowSystem( eq::WINDOW_SYSTEM_NONE )
-        , _precision( 2 )
-        , _brightness( 1.0f )
-        , _alpha( 1.0f )
-#ifdef EQ_RELEASE
-#  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
-        , _filename( "../share/Equalizer/data/Bucky32x32x32_d.raw" )
-#  else
-        , _filename( std::string( EQ_INSTALL_DIR ) +
-                     std::string( "share/Equalizer/data/Bucky32x32x32_d.raw" ))
-#  endif
-#else
-        , _filename( std::string( EQ_SOURCE_DIR ) + 
-                     std::string( "examples/eVolve/Bucky32x32x32_d.raw" ))
-#endif
-{}
-
-InitData::~InitData()
+/* Simple Channel class */
+class Channel : public eq::Channel
 {
-    setFrameDataID( co::base::UUID::ZERO );
-}
+public:
+    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
 
-void InitData::getInstanceData( co::DataOStream& os )
+protected:
+    virtual void frameDraw( const eq::uint128_t& spin );
+};
+
+
+/* Simple Window class that will call init of the pipe to create a shared
+   context */
+class Window : public eq::Window
 {
-    os << _frameDataID << _windowSystem << _precision << _brightness << _alpha
-       << _filename;
-}
+public:
+    Window( eq::Pipe* parent ) : eq::Window( parent ) {}
+    bool configInitGL( const eq::uint128_t& initID );
+};
 
-void InitData::applyInstanceData( co::DataIStream& is )
+
+/* Simple Pipe class that creates a shared window for async fetching */
+class Pipe : public eq::Pipe
 {
-    is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
-       >> _filename;
+public:
+    Pipe( eq::Node* parent )
+            : eq::Pipe( parent ), _initialized( false ), _txId( 0 ) {}
 
-    EQASSERT( _frameDataID != co::base::UUID::ZERO );
+    void startAsyncFetcher( Window* wnd );
+    AsyncFetcher& getAsyncFetcher() { return _asyncFetcher; }
+    GLuint getTextureId() const { return _txId.id; }
+
+protected:
+    /* checks if new textures are avaliable */
+    virtual void frameStart( const eq::uint128_t& frameID, 
+                             const uint32_t frameNumber );
+    virtual bool configExit();
+
+private:
+    bool         _initialized;
+    AsyncFetcher _asyncFetcher;
+    TextureId    _txId;
+};
+
 }
-}
+
+#endif // EQASYNC_ASYNC_H

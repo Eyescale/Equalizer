@@ -44,9 +44,10 @@ install(DIRECTORY include
   PATTERN ".svn" EXCLUDE
   )
 
+add_subdirectory(eVolve)
+add_subdirectory(eqAsync)
 add_subdirectory(eqHello)
 add_subdirectory(eqNBody)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
-add_subdirectory(eVolve)
 add_subdirectory(osgScaleViewer)

@@ -18,6 +18,15 @@
 #ifndef EQSERVER_API_H
 #define EQSERVER_API_H
 
-#include <co/base/api.h> // Export definitions are predeclared there
+#include <eq/defines.h>
+#include <eq/fabric/api.h>
 
-#endif // EQSERVER_BASE_H
+#if defined(EQUALIZERSERVER_STATIC)
+#  define EQSERVER_API
+#elif defined(EQUALIZERSERVER_SHARED)
+#  define EQSERVER_API EQ_DLLEXPORT
+#else
+#  define EQSERVER_API EQ_DLLIMPORT
+#endif
+
+#endif // EQSERVER_API_H

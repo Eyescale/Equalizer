@@ -71,9 +71,6 @@ namespace base
 
         /** @return true if the UUID was generated. */
         bool isGenerated() const { return high() != 0; }
-
-        /** The NULL UUID. @version 1.0 */
-        static COBASE_API const UUID ZERO;
     };
 }
 }
