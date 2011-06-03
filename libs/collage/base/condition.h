@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 
 #include <co/base/api.h>
 #include <co/base/debug.h>
+#include <co/base/types.h>
 
 namespace co
 {

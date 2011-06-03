@@ -20,7 +20,6 @@ eq_add_example(eqAsync
     eqAsync.h
     ${EQASYNC_SYSTEM_HEADERS}
   SOURCES
-    aglWindowShared.cpp
     asyncFetcher.cpp
     eqAsync.cpp
     main.cpp
