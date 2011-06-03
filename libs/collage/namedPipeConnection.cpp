@@ -21,6 +21,7 @@
 
 #include "connectionDescription.h"
 #include "exception.h"
+#include "global.h"
 #include "node.h"
 
 #include <co/base/os.h>
@@ -387,7 +388,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return 0;
       case ERROR_IO_PENDING:
       {
-          const uint32_t timeOut = _getTimeOut();
+          const uint32_t timeOut = Global::getTimeOut();
 
           if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeOut ))
               throw Exception( Exception::TIMEOUT_WRITE );

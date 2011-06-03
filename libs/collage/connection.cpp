@@ -154,12 +154,6 @@ void Connection::_fireStateChanged()
         (*i)->notifyStateChanged( this );
 }
 
-uint32_t Connection::_getTimeOut() const
-{
-    return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
-           base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
-           0xFFFFFFFF;
-}
 
 //----------------------------------------------------------------------
 // read
