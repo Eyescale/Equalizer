@@ -74,8 +74,8 @@ namespace co
          * Enter the barrier, blocks until the barrier has been reached.
          *
          * The implementation currently assumes that the master node instance
-         * also enters the barrier.
-         * If a timeout happens a timeout execption is thrown.
+         * also enters the barrier. If a timeout happens a timeout exception is
+         * thrown.
          */
         CO_API void enter( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
         //@}

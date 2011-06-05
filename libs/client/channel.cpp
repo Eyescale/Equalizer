@@ -365,9 +365,9 @@ void Channel::frameAssemble( const uint128_t& )
     {
         Compositor::assembleFrames( getInputFrames(), this, 0 );
     }
-    catch( co::Exception e )
+    catch( const co::Exception& e )
     {
-        EQWARN << e << std::endl;
+        EQWARN << e.what() << std::endl;
     }
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -1282,13 +1282,14 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
             continue;
 
         // send image pixel data packet
+        co::LocalNode::SendToken token;
         if( useSendToken )
         {
             ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
                                         this );
             waitEvent.statisticsIndex = command->statisticsIndex;
             waitEvent.event.data.statistic.task = command->context.taskID;
-            getLocalNode()->acquireSendToken( toNode );
+            token = getLocalNode()->acquireSendToken( toNode );
         }
 
         connection->lockSend();
@@ -1344,8 +1345,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 #endif
 
         connection->unlockSend();
-        if( useSendToken )
-            getLocalNode()->releaseSendToken( toNode );
+        getLocalNode()->releaseSendToken( token );
     }
 
     // all data transmitted -> ready

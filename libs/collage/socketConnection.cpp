@@ -19,6 +19,7 @@
 
 #include "connectionDescription.h"
 #include "exception.h"
+#include "global.h"
 
 #include <co/base/os.h>
 #include <co/base/log.h>
@@ -42,7 +43,6 @@
 #  include <netinet/tcp.h>
 #  include <sys/errno.h>
 #  include <sys/socket.h>
-
 #  ifndef AF_INET_SDP
 #    define AF_INET_SDP 27
 #  endif
@@ -150,12 +150,14 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQINFO << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError 
-               << std::endl;
+               << _description->port << "': " << base::sysError << std::endl;
         close();
         return false;
     }
 
+#ifndef _WIN32
+    //fcntl( _readFD, F_SETFL, O_NONBLOCK );
+#endif
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
@@ -325,6 +327,11 @@ ConnectionPtr SocketConnection::acceptSync()
 
     newConnection->_readFD  = _overlappedSocket;
     newConnection->_writeFD = _overlappedSocket;
+
+#ifndef _WIN32
+    //fcntl( _overlappedSocket, F_SETFL, O_NONBLOCK );
+#endif
+
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
@@ -501,9 +508,8 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
     if( WSAGetLastError() != WSA_IO_PENDING )
           return -1;
 
-    const uint32_t timeOut = _getTimeOut();
-    const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, 
-                                           timeOut );
+    const uint32_t timeOut = Global::getTimeOut();
+    const DWORD err = WaitForSingleObject( _overlappedWrite.hEvent, timeOut );
     switch( err )
     {
       case WAIT_FAILED:
@@ -661,7 +667,9 @@ bool SocketConnection::listen()
         else
             _description->setHostname( inet_ntoa( address.sin_addr ));
     }
-
+#ifndef _WIN32
+    //fcntl( _readFD, F_SETFL, O_NONBLOCK );
+#endif
     _initAIOAccept();
     _state = STATE_LISTENING;
     _fireStateChanged();

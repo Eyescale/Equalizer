@@ -59,7 +59,10 @@ namespace fabric
         /** @return the vector of canvases, app-node only. @version 1.0 */
         const Canvases& getCanvases() const { return _canvases; }
 
-        /** @internal @return the timeout in ms for resource failures. */
+        /**
+         * @internal
+         * @return the timeout in ms or EQ_TIMEOUT_INDEFINITE for failures.
+         */
         uint32_t getTimeout() const;
 
         /**

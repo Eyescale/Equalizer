@@ -460,7 +460,6 @@ void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
     if( timeout == EQ_TIMEOUT_INDEFINITE )
         _finishedFrame.waitGE( frameNumber );
     else if( !_finishedFrame.timedWaitGE( frameNumber, timeout ))
-        // TODO catch somewhere
         throw Exception( Exception::TIMEOUT_FRAMESYNC );
 }
 
@@ -471,7 +470,6 @@ void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
     if( timeout == EQ_TIMEOUT_INDEFINITE )
         _unlockedFrame.waitGE( frameNumber );
     else if( !_unlockedFrame.timedWaitGE( frameNumber, timeout ))
-        // TODO catch somewhere
         throw Exception( Exception::TIMEOUT_FRAMESYNC );
 }
 

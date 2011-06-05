@@ -227,7 +227,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
             fromMemory( addr );
             result = true;
         }
-        catch( exception& e )
+        catch( const exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << endl;
@@ -265,7 +265,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
             fromMemory( addr );
             result = true;
         }
-        catch( exception& e )
+        catch( const exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << endl;
@@ -316,7 +316,7 @@ bool VertexBufferRoot::writeToFile( const std::string& filename )
             toStream( output );
             result = true;
         }
-        catch( exception& e )
+        catch( const exception& e )
         {
             MESHERROR << "Unable to write binary file, an exception "
                       << "occured:  " << e.what() << endl;

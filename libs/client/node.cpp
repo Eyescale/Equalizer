@@ -22,6 +22,7 @@
 #include "config.h"
 #include "configPackets.h"
 #include "error.h"
+#include "exception.h"
 #include "frameData.h"
 #include "global.h"
 #include "log.h"
@@ -213,8 +214,16 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
         EQASSERT( pipe->isThreaded() || 
                   pipe->getFinishedFrame() >= frameNumber );
 
-        pipe->waitFrameLocal( frameNumber );
-        pipe->waitFrameFinished( frameNumber );
+        try
+        {
+            pipe->waitFrameLocal( frameNumber );
+            pipe->waitFrameFinished( frameNumber );
+        }
+        catch( const co::Exception& e )
+        {
+            EQASSERT( e.getType() == Exception::TIMEOUT_FRAMESYNC );
+            EQWARN << e.what() << std::endl;
+        }
     }
 }
 

@@ -108,6 +108,9 @@ namespace eq
 
         /** @return the AGL PBuffer object. @version 1.0 */
         virtual AGLPbuffer getAGLPBuffer() const { return _aglPBuffer; }
+
+        /** @return the CG display id used by this window. @version 1.1.1 */
+        CGDirectDisplayID getCGDisplayID() const { return _cgDisplayID; }
         //@}
 
         /** @name AGL/Carbon initialization */

@@ -72,11 +72,11 @@ namespace co
          * Depending on the event, the error number and connection are set.
          * 
          * @param timeout the timeout to wait for an event in milliseconds,
-         *                or <code>-1</code> if the call should block
-         *                indefinitly.
+         *                or EQ_TIMEOUT_INDEFINITE if the call should block
+         *                forever.
          * @return The event occured during selection.
          */
-        CO_API Event select( const int timeout = -1 );
+        CO_API Event select( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
 
         /**
          * Interrupt the current or next select call.

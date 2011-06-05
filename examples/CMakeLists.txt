@@ -38,10 +38,11 @@ install(DIRECTORY configs DESTINATION share/Equalizer
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples PATTERN ".svn" EXCLUDE)
 
+add_subdirectory(eVolve)
+add_subdirectory(eqAsync)
 add_subdirectory(eqHello)
 add_subdirectory(eqNBody)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
-add_subdirectory(eVolve)
 add_subdirectory(osgScaleViewer)
 add_subdirectory(seqPly)

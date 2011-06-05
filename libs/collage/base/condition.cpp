@@ -102,10 +102,15 @@ void Condition::wait()
     pthread_cond_wait( &_data->cond, &_data->mutex );
 }
 
-bool Condition::timedWait( const unsigned timeout )
+bool Condition::timedWait( const uint32_t timeout )
 {
-    timespec ts = { 0, 0 };
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    {
+        wait();
+        return true;
+    }
 
+    timespec ts = { 0, 0 };
     const uint32_t time = timeout == EQ_TIMEOUT_DEFAULT ?
         Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
 

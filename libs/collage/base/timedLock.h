@@ -41,8 +41,7 @@ namespace base
          * Set the lock. 
          * 
          * @param timeout the timeout in milliseconds to wait for the lock,
-         *                or <code>EQ_TIMEOUT_INDEFINITE</code> to wait
-         *                indefinitely.
+         *                or EQ_TIMEOUT_INDEFINITE to wait indefinitely.
          * @return true if the lock was acquired, false if not.
          * @version 1.0
          */

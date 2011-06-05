@@ -154,12 +154,6 @@ void Connection::_fireStateChanged()
         (*i)->notifyStateChanged( this );
 }
 
-uint32_t Connection::_getTimeOut() const
-{
-    return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
-           base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
-           0xFFFFFFFF;
-}
 
 //----------------------------------------------------------------------
 // read
@@ -340,9 +334,9 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             bytesLeft -= wrote;
             ptr += wrote;
         }
-        catch( co::Exception )
+        catch( const co::Exception& e )
         {
-            EQERROR << "write timout after " << bytes - bytesLeft 
+            EQERROR << e.what() << " after " << bytes - bytesLeft 
                     << " bytes, closing connection" << std::endl;
             close();
             return false;

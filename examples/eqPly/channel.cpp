@@ -233,9 +233,9 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     {
         eq::Compositor::assembleFrames( getInputFrames(), this, accum.buffer );
     }
-    catch( co::Exception e )
+    catch( const co::Exception& e )
     {
-        EQWARN << e << std::endl;
+        EQWARN << e.what() << std::endl;
     }
 
     resetAssemblyState();

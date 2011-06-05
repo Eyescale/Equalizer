@@ -266,9 +266,9 @@ bool RSPConnection::listen()
         _read->set_option( ip::multicast::enable_loopback( false ));
         _write->set_option( ip::multicast::enable_loopback( false ));
     }
-    catch( boost::system::system_error& error )
+    catch( const boost::system::system_error& e )
     {
-        EQWARN << "can't setup underlying UDP connection: " << error.what()
+        EQWARN << "can't setup underlying UDP connection: " << e.what()
                << std::endl;
         delete _read;
         delete _write;

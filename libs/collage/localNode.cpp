@@ -37,6 +37,7 @@ typedef CommandFunc<LocalNode> CmdFunc;
 
 LocalNode::LocalNode( )
         : _hasSendToken( true )
+        , _lastTokenTime( 0 )
         , _objectStore( 0 )
 {
     _receiverThread = new ReceiverThread( this );
@@ -558,7 +559,7 @@ void LocalNode::releaseObject( Object* object )
 }
 
 
-void LocalNode::acquireSendToken( NodePtr node )
+LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
 {
     EQASSERT( !inCommandThread( ));
     EQASSERT( !_inReceiverThread( ));
@@ -566,14 +567,25 @@ void LocalNode::acquireSendToken( NodePtr node )
     NodeAcquireSendTokenPacket packet;
     packet.requestID = registerRequest();
     node->send( packet );
-    waitRequest( packet.requestID );
+    
+    bool ret = false;
+    if( waitRequest( packet.requestID, ret, Global::getTimeout( )))
+        return node;
+
+    EQERROR << "Timeout while acquiring send token " << packet.requestID
+            << std::endl;
+    return 0;
 }
 
-void LocalNode::releaseSendToken( NodePtr node )
+void LocalNode::releaseSendToken( SendToken& node )
 {
     EQASSERT( !_inReceiverThread( ));
+    if( !node )
+        return;
+
     NodeReleaseSendTokenPacket packet;
     node->send( packet );
+    node = 0; // In case app stores token in member variable
 }
 
 //----------------------------------------------------------------------
@@ -1490,9 +1502,16 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
     EQASSERT( inCommandThread( ));
     if( !_hasSendToken ) // no token available
     {
-        command.retain();
-        _sendTokenQueue.push_back( &command );
-        return true;
+        const uint32_t timeout = Global::getTimeout();
+        if( timeout == EQ_TIMEOUT_INDEFINITE ||
+            ( getTime64() - _lastTokenTime <= timeout ))
+        {
+            command.retain();
+            _sendTokenQueue.push_back( &command );
+            return true;
+        }
+
+        // 'generate' new token - release is robust
     }
 
     _hasSendToken = false;
@@ -1516,8 +1535,11 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 bool LocalNode::_cmdReleaseSendToken( Command& )
 {
     EQASSERT( inCommandThread( ));
-    EQASSERT( !_hasSendToken );
 
+    _lastTokenTime = getTime64();
+
+    if( _hasSendToken )
+        return true; // double release due to timeout
     if( _sendTokenQueue.empty( ))
     {
         _hasSendToken = true;

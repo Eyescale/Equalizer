@@ -111,22 +111,7 @@
 #include <eq/windowSystem.h>
 
 #ifdef EQ_SYSTEM_INCLUDES
-#  include <eq/os.h>
-#  ifdef AGL
-#    include <eq/aglEventHandler.h>
-#    include <eq/aglPipe.h>
-#    include <eq/aglWindow.h>
-#  endif
-#  ifdef GLX
-#    include <eq/glXEventHandler.h>
-#    include <eq/glXPipe.h>
-#    include <eq/glXWindow.h>
-#  endif
-#  ifdef WGL
-#    include <eq/wglEventHandler.h>
-#    include <eq/wglPipe.h>
-#    include <eq/wglWindow.h>
-#  endif
+#  include <eq/system.h>
 #endif
 
 #endif // EQCLIENT_H
