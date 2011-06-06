@@ -318,9 +318,9 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         eq::Compositor::assembleFramesSorted( dbFrames, this, 0, 
                                               true /*blendAlpha*/ );
     }
-    catch( eq::Exception e )
+    catch( const co::Exception& e )
     {
-        EQWARN << e << std::endl;
+        EQWARN << e.what() << std::endl;
     }
 
     resetAssemblyState();

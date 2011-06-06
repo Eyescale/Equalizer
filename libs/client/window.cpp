@@ -534,10 +534,9 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     {
         netBarrier->enter( timeout );
     }
-    catch( co::Exception& e )
+    catch( const co::Exception& e )
     {
-        EQWARN << "swap barrier timeout " << e << " for " << *netBarrier
-               << std::endl;
+        EQWARN << e.what() << " for " << *netBarrier << std::endl;
     } 
 }
 

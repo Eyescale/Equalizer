@@ -97,7 +97,7 @@ protected:
         {
             while ( !set->isEmpty( ))
             {
-                event = set->select( INFINITE );
+                event = set->select();
                 if( event != ConnectionSet::EVENT_INTERRUPT &&
                     event != ConnectionSet::EVENT_NONE )
                 {
@@ -259,7 +259,7 @@ void ConnectionSet::clear()
     _fdSetResult.clear();
 }
 
-ConnectionSet::Event ConnectionSet::select( const int timeout )
+ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
 {
     EQ_TS_SCOPED( _selectThread );
     while( true )
@@ -279,12 +279,14 @@ ConnectionSet::Event ConnectionSet::select( const int timeout )
 
         // poll for a result
 #ifdef _WIN32
-        const DWORD waitTime = timeout < 0 ? EQ_INDEFINITE_TIME : timeout;
+        EQASSERT( EQ_TIMEOUT_INDEFINITE == INFINITE );
         const DWORD ret = WaitForMultipleObjectsEx( _fdSet.getSize(),
                                                     _fdSet.getData(),
-                                                    FALSE, waitTime, TRUE );
+                                                    FALSE, timeout, TRUE );
 #else
-        const int ret = poll( _fdSet.getData(), _fdSet.getSize(), timeout );
+        const int pollTimeout = timeout == EQ_TIMEOUT_INDEFINITE ?
+                                -1 : int( timeout );
+        const int ret = poll( _fdSet.getData(), _fdSet.getSize(), pollTimeout );
 #endif
         switch( ret )
         {
@@ -534,8 +536,7 @@ std::ostream& operator << ( std::ostream& os,
     return os;
 }
 
-std::ostream& operator << ( std::ostream& os, 
-                                      const ConnectionSet::Event event )
+std::ostream& operator << ( std::ostream& os, const ConnectionSet::Event event )
 {
     if( event >= ConnectionSet::EVENT_ALL )
         os << "unknown (" << static_cast<unsigned>( event ) << ')';

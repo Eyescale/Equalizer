@@ -219,10 +219,10 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
             pipe->waitFrameLocal( frameNumber );
             pipe->waitFrameFinished( frameNumber );
         }
-        catch( Exception e )
+        catch( const co::Exception& e )
         {
             EQASSERT( e.getType() == Exception::TIMEOUT_FRAMESYNC );
-            EQWARN << e << std::endl;
+            EQWARN << e.what() << std::endl;
         }
     }
 }

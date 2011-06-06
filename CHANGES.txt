@@ -1,6 +1,10 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+03/Jun/2011
+  Added a return value and timeout to co::LocalNode::acquireSendToken(),
+  see method documentation.
+
 29/Mar/2011
   Changed
     uint32_t eq::Version::getRevision();

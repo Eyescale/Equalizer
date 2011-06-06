@@ -46,6 +46,10 @@ namespace co
 
         friend inline std::ostream& operator << ( std::ostream& os, 
                                                const FDConnection* connection );
+
+    private:
+        int _getTimeOut();
+
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

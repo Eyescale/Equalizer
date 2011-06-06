@@ -63,8 +63,6 @@ void CommandQueue::pushFront( Command& command )
 Command* CommandQueue::pop( const uint32_t timeout )
 {
     EQ_TS_THREAD( _thread );
-    if( timeout == EQ_TIMEOUT_INDEFINITE )
-        return _commands.pop();
 
     Command* command;
     if( !_commands.timedPop( timeout, command ))

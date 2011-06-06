@@ -334,9 +334,9 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             bytesLeft -= wrote;
             ptr += wrote;
         }
-        catch( co::Exception )
+        catch( const co::Exception& e )
         {
-            EQERROR << "write timout after " << bytes - bytesLeft 
+            EQERROR << e.what() << " after " << bytes - bytesLeft 
                     << " bytes, closing connection" << std::endl;
             close();
             return false;

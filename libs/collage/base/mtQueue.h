@@ -104,11 +104,12 @@ namespace base
 
         /** 
          * Retrieve and pop the front element from the queue.
+         *
          * @param timeout the timeout
          * @param element the element returned
          * @return true if an element was popped
-         * throws Exception on timeout.
-         * @version 1.0
+         * @throws Exception on timeout.
+         * @version 1.1
          */
         bool timedPop( const unsigned timeout, T& element )
             {

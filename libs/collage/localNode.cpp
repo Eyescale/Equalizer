@@ -29,7 +29,6 @@
 #include <co/base/log.h>
 #include <co/base/requestHandler.h>
 #include <co/base/scopedMutex.h>
-#include <co/base/global.h>
 
 namespace co
 {
@@ -38,15 +37,14 @@ typedef CommandFunc<LocalNode> CmdFunc;
 
 LocalNode::LocalNode( )
         : _hasSendToken( true )
-        , _objectStore( 0 )
         , _lastTokenTime( 0 )
-        , _timeoutNodes()
+        , _objectStore( 0 )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
     _objectStore = new ObjectStore( this );
-    
+
     CommandQueue* queue = &_commandThreadQueue;
     _registerCommand( CMD_NODE_ACK_REQUEST, 
                       CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
@@ -561,7 +559,7 @@ void LocalNode::releaseObject( Object* object )
 }
 
 
-void LocalNode::acquireSendToken( NodePtr node )
+LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
 {
     EQASSERT( !inCommandThread( ));
     EQASSERT( !_inReceiverThread( ));
@@ -570,36 +568,24 @@ void LocalNode::acquireSendToken( NodePtr node )
     packet.requestID = registerRequest();
     node->send( packet );
     
-    const bool robustness = base::Global::getIAttribute( 
-        base::Global::IATTR_ROBUSTNESS ) != 0;
-    const uint32_t timeout = base::Global::getIAttribute( 
-        base::Global::IATTR_TIMEOUT_DEFAULT );
-
     bool ret = false;
-    if ( !waitRequest( packet.requestID, ret,
-             robustness ? timeout : EQ_TIMEOUT_INDEFINITE ))
-    {
-        EQERROR << "Timeout while acquiring token " 
-                << packet.requestID << std::endl;
-        _timeoutNodes.push_back(node);
-    }
+    if( waitRequest( packet.requestID, ret, Global::getTimeout( )))
+        return node;
+
+    EQERROR << "Timeout while acquiring send token " << packet.requestID
+            << std::endl;
+    return 0;
 }
 
-void LocalNode::releaseSendToken( NodePtr node )
+void LocalNode::releaseSendToken( SendToken& node )
 {
     EQASSERT( !_inReceiverThread( ));
-    NodeReleaseSendTokenPacket packet;
-    
-    Nodes::iterator it;
-    it = std::find( _timeoutNodes.begin(),  _timeoutNodes.end(), node );
-    if( it != _timeoutNodes.end())
-    {
-        EQERROR << "sending timeout packet to server" << std::endl;
-        packet.timeout = true;
-        _timeoutNodes.erase( it );
-    }
+    if( !node )
+        return;
 
+    NodeReleaseSendTokenPacket packet;
     node->send( packet );
+    node = 0; // In case app stores token in member variable
 }
 
 //----------------------------------------------------------------------
@@ -1516,9 +1502,16 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
     EQASSERT( inCommandThread( ));
     if( !_hasSendToken ) // no token available
     {
-        command.retain();
-        _sendTokenQueue.push_back( &command );
-        return true;
+        const uint32_t timeout = Global::getTimeout();
+        if( timeout == EQ_TIMEOUT_INDEFINITE ||
+            ( getTime64() - _lastTokenTime <= timeout ))
+        {
+            command.retain();
+            _sendTokenQueue.push_back( &command );
+            return true;
+        }
+
+        // 'generate' new token - release is robust
     }
 
     _hasSendToken = false;
@@ -1527,7 +1520,6 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
         command.get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
-    _lastTokenTime = getTime64();
     return true;
 }
 
@@ -1540,32 +1532,14 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdReleaseSendToken( Command& command )
+bool LocalNode::_cmdReleaseSendToken( Command& )
 {
     EQASSERT( inCommandThread( ));
 
-    NodeReleaseSendTokenPacket* packet = 
-        command.get<NodeReleaseSendTokenPacket>();
+    _lastTokenTime = getTime64();
 
-    const bool robustness = base::Global::getIAttribute( 
-        base::Global::IATTR_ROBUSTNESS ) != 0;
-
-    if( packet->timeout && robustness )
-    {
-        // prevent timeout replies to generate additional tokens
-        EQERROR << "Received timeout token " << packet << ". ";
-        const uint32_t timeout = base::Global::getIAttribute( 
-            base::Global::IATTR_TIMEOUT_DEFAULT );
-
-        if( _hasSendToken || ( getTime64() - _lastTokenTime < timeout ))
-        {
-            EQERROR << " Ignoring..." << std::endl;
-            return true;
-        }
-        
-        EQERROR << "Generating new token..." << std::endl;
-    }
-
+    if( _hasSendToken )
+        return true; // double release due to timeout
     if( _sendTokenQueue.empty( ))
     {
         _hasSendToken = true;
@@ -1575,12 +1549,11 @@ bool LocalNode::_cmdReleaseSendToken( Command& command )
     Command* request = _sendTokenQueue.front();
     _sendTokenQueue.pop_front();
 
-    NodeAcquireSendTokenPacket* acquirePacket = 
+    NodeAcquireSendTokenPacket* packet = 
         request->get<NodeAcquireSendTokenPacket>();
-    NodeAcquireSendTokenReplyPacket reply( acquirePacket );
+    NodeAcquireSendTokenReplyPacket reply( packet );
 
     request->getNode()->send( reply );
-    _lastTokenTime = getTime64();
     request->release();
     return true;
 }

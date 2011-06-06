@@ -49,6 +49,8 @@ namespace co
         CO_API LocalNode( );
         CO_API virtual ~LocalNode( );
 
+        typedef NodePtr SendToken; //!< An acquired send token
+
         /**
          * @name State Changes
          *
@@ -283,8 +285,12 @@ namespace co
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
-        CO_API void acquireSendToken( NodePtr toNode );
-        CO_API void releaseSendToken( NodePtr toNode );
+        /**
+         * Acquire a singular send token from the given node.
+         * @return The send token to release.
+         */
+        CO_API SendToken acquireSendToken( NodePtr toNode );
+        CO_API void releaseSendToken( SendToken& token );
 
         /** Return the command queue to the command thread. */
         virtual CommandQueue* getCommandThreadQueue() 
@@ -366,7 +372,8 @@ namespace co
 
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
-        std::deque< Command* > _sendTokenQueue;
+        uint64_t _lastTokenTime; //!< last used time for timeout detection
+        std::deque< Command* > _sendTokenQueue; //!< pending requests
 
         /** Manager of distributed object */
         ObjectStore* _objectStore;
@@ -388,9 +395,6 @@ namespace co
 
         /** The process-global clock. */
         base::Clock _clock;
-
-        Nodes _timeoutNodes;
-        int64_t _lastTokenTime;
     
         /** @name Receiver management */
         //@{
