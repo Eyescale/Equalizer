@@ -50,6 +50,9 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
         return -1;
 
     ssize_t bytesRead = ::read( _readFD, buffer, bytes );
+    if( bytesRead > 0 )
+        return bytesRead;
+
     //EQINFO << "1st " << bytesRead << " " << strerror( errno ) << std::endl;
     if( bytesRead == 0 || errno == EWOULDBLOCK || errno == EAGAIN )
     {
@@ -71,6 +74,9 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
         //EQINFO << "2nd " << bytesRead << " " << strerror(errno) << std::endl;
     }
 
+    if( bytesRead > 0 )
+        return bytesRead;
+
     if( bytesRead == 0 ) // EOF
     {
         EQINFO << "Got EOF, closing connection" << std::endl;
@@ -78,17 +84,14 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
         return -1;
     }
 
-    if( bytesRead == -1 ) // error
-    {
-        if( errno == EINTR ) // if interrupted, try again
-            return 0;
+    EQASSERT( bytesRead == -1 ); // error
 
-        EQWARN << "Error during read: " << strerror( errno ) << ", " 
-               << bytes << "b on fd " << _readFD << std::endl;
-        return -1;
-    }
+    if( errno == EINTR ) // if interrupted, try again
+        return 0;
 
-    return bytesRead;
+    EQWARN << "Error during read: " << strerror( errno ) << ", " << bytes
+           << "b on fd " << _readFD << std::endl;
+    return -1;
 }
 
 //----------------------------------------------------------------------
@@ -100,6 +103,9 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     ssize_t bytesWritten = ::write( _writeFD, buffer, bytes );
+    if( bytesWritten > 0 )
+        return bytesWritten;
+
     if( bytesWritten == 0 || errno == EWOULDBLOCK || errno == EAGAIN )
     {
         struct pollfd fds[1];
@@ -117,6 +123,9 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
 
         bytesWritten = ::write( _writeFD, buffer, bytes );
     }
+
+    if( bytesWritten > 0 )
+        return bytesWritten;
 
     if( bytesWritten == -1 ) // error
     {

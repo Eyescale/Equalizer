@@ -39,8 +39,6 @@
 
 namespace co
 {
-#define MIN_ID_RANGE 1024
-
 typedef CommandFunc<ObjectStore> CmdFunc;
 
 ObjectStore::ObjectStore( LocalNode* localNode )
@@ -64,8 +62,6 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         CmdFunc( this, &ObjectStore::_cmdRegisterObject ), queue );
     localNode->_registerCommand( CMD_NODE_DEREGISTER_OBJECT,
         CmdFunc( this, &ObjectStore::_cmdDeregisterObject ), queue );
-    localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
-        CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
     localNode->_registerCommand( CMD_NODE_MAP_OBJECT,
         CmdFunc( this, &ObjectStore::_cmdMapObject ), queue );
     localNode->_registerCommand( CMD_NODE_MAP_OBJECT_SUCCESS,
