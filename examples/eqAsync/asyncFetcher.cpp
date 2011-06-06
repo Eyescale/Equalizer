@@ -33,8 +33,6 @@
 
 #include <eq/eq.h>
 #include <eq/system.h>
-#include <eq/util/objectManager.ipp>
-#include <eq/util/bitmapFont.ipp>
 #ifdef AGL
 #  include "aglWindowShared.h"
 #endif

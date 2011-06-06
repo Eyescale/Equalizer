@@ -23,6 +23,7 @@ eq_add_example(eqAsync
     asyncFetcher.cpp
     eqAsync.cpp
     main.cpp
+    objectManager.cpp
     ${EQASYNC_SYSTEM_SOURCES}
   LINK_LIBRARIES
     Equalizer
