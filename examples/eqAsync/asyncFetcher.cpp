@@ -27,6 +27,12 @@
  *
  */
 
+#define EQ_CLIENT_STATIC
+#include <eq/util/objectManager.h>
+#include <eq/util/objectManager.ipp>
+#include <eq/util/bitmapFont.ipp>
+#undef EQ_CLIENT_STATIC
+
 #include "asyncFetcher.h"
 
 #include "eqAsync.h"
