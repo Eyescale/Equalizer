@@ -138,6 +138,8 @@ namespace co
         {
             uint64_t nElems = 0;
             read( &nElems, sizeof( nElems ));
+            EQASSERTINFO( nElems < EQ_BIT48,
+                  "Out-of-sync co::DataIStream: " << nElems << " elements?" );
             value.resize( nElems );
             if( nElems > 0 )
                 read( &value.front(), nElems * sizeof( T ));
