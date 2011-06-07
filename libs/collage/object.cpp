@@ -55,7 +55,7 @@ Object::Object( const Object& object )
 Object::~Object()
 {
     EQASSERTINFO( !_localNode,
-                  "Object " << _id << " is still registered in localNode " <<
+                  "Object " << _id << " is still registered with node " <<
                   _localNode->getNodeID() << " in destructor" );
     
     if( _localNode.isValid() )
