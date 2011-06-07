@@ -42,6 +42,11 @@ bool Application::init( const int argc, char** argv )
     return true;
 }
 
+bool Application::run()
+{
+    return seq::Application::run( &_frameData );
+}
+
 co::Object* Application::createObject( const uint32_t type )
 {
     switch( type )

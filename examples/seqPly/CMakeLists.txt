@@ -36,6 +36,8 @@ eq_add_example(seqPly
     renderer.cpp
     seqPly.h
     seqPly.cpp
+    ../eqPly/frameData.h
+    ../eqPly/frameData.cpp
     ${KD_SOURCES}
   LINK_LIBRARIES
     shared Sequel

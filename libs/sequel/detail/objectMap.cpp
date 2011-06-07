@@ -33,7 +33,28 @@ ObjectMap::ObjectMap( ObjectFactory& factory )
 {}
 
 ObjectMap::~ObjectMap()
-{}
+{
+    eq::Config* config = _factory.getConfig();
+
+    for( co::ObjectsCIter i = _masters.begin(); i != _masters.end(); ++i )
+    {
+        Object* object = *i;
+        _map.erase( object->getID( ));
+        config->deregisterObject( object );
+    }
+    _masters.clear();
+
+    for( MapCIter i = _map.begin(); i != _map.end(); ++i )
+    {
+        const Entry& entry = i->second;
+        if( !entry.instance )
+            continue;
+
+        config->unmapObject( entry.instance );
+        _factory.destroyObject( entry.instance, entry.type );
+    }
+    _map.clear();
+}
 
 ObjectMap::Entry::Entry(const uint128_t& v, co::Object* i, const uint32_t t)
         : version( v )
@@ -52,8 +73,8 @@ bool ObjectMap::isDirty() const
     if( Serializable::isDirty( ))
         return true;
 
-    ScopedMutex mutex( _masters );
-    for( co::ObjectsCIter i = _masters->begin(); i != _masters->end(); ++i )
+    ScopedMutex mutex( _mutex );
+    for( co::ObjectsCIter i = _masters.begin(); i != _masters.end(); ++i )
         if( (*i)->isDirty( ))
             return true;
     return false;
@@ -61,11 +82,11 @@ bool ObjectMap::isDirty() const
 
 void ObjectMap::_commitMasters( const uint32_t incarnation )
 {
-    ScopedMutex mutex( _masters );
+    ScopedMutex mutex( _mutex );
     std::vector< uint32_t > requests;
     std::vector< co::Object* > objects;
 
-    for( co::ObjectsCIter i = _masters->begin(); i != _masters->end(); ++i )
+    for( co::ObjectsCIter i = _masters.begin(); i != _masters.end(); ++i )
     {
         co::Object* object = *i;
         if( !object->isDirty( ))
@@ -75,48 +96,49 @@ void ObjectMap::_commitMasters( const uint32_t incarnation )
         objects.push_back( object );
     }
 
-    ScopedMutex mutex2( _map );
-    ScopedMutex mutex3( _changed );
     const size_t size = requests.size();
     for( size_t i = 0; i < size; ++i )
     {
         const co::ObjectVersion ov( objects[i]->getID(),
                                     objects[i]->commitSync( requests[i] ));
-        Entry& entry = _map.data[ ov.identifier ];
+        Entry& entry = _map[ ov.identifier ];
         if( entry.version == ov.version )
             continue;
 
         entry.version = ov.version;
-        _changed->push_back( ov );
+        _changed.push_back( ov );
     }
-    if( !_changed->empty( ))
+    if( !_changed.empty( ))
         setDirty( DIRTY_CHANGED );
 }
-
 
 void ObjectMap::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Serializable::serialize( os, dirtyBits );
+    ScopedMutex mutex( _mutex );
     if( dirtyBits == DIRTY_ALL )
     {
-        ScopedMutex mutex( _map );
-        for( MapCIter i = _map->begin(); i != _map->end(); ++i )
-            os << i->first << i->second.version;
+        for( MapCIter i = _map.begin(); i != _map.end(); ++i )
+            os << i->first << i->second.version << i->second.type;
         os << co::ObjectVersion::NONE;
         return;
     }
-    
+
     if( dirtyBits & DIRTY_ADDED )
     {
-        ScopedMutex mutex( _added );
         os << _added;
-        _added->clear();
+        for( std::vector< uint128_t >::const_iterator i = _added.begin();
+             i != _added.end(); ++i )
+        {
+            const Entry& entry = _map[ *i ];
+            os << entry.version << entry.type;
+        }
+        _added.clear();
     }
     if( dirtyBits & DIRTY_CHANGED )
     {
-        ScopedMutex mutex( _changed );
         os << _changed;
-        _changed->clear();
+        _changed.clear();
     }
 
     if( dirtyBits & DIRTY_INITDATA )
@@ -128,33 +150,34 @@ void ObjectMap::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Serializable::deserialize( is, dirtyBits );
+    ScopedMutex mutex( _mutex );
     if( dirtyBits == DIRTY_ALL )
     {
-        ScopedMutex mutex( _map );
-        EQASSERT( _map->empty( ));
+        EQASSERT( _map.empty( ));
         
         co::ObjectVersion ov;
         is >> ov;
         while( ov != co::ObjectVersion::NONE )
         {
-            EQASSERT( _map->find( ov.identifier ) == _map->end( ));
-            _map.data[ ov.identifier ].version = ov.version;
-            is >> ov;
+            EQASSERT( _map.find( ov.identifier ) == _map.end( ));
+            Entry& entry = _map[ ov.identifier ];
+            entry.version = ov.version;
+            is >> entry.type >> ov;
         }
         return;
     }
 
     if( dirtyBits & DIRTY_ADDED )
     {
-        co::ObjectVersions added;
+        std::vector< uint128_t > added;
         is >> added;
 
-        ScopedMutex mutex( _map );
-        for( co::ObjectVersionsCIter i = added.begin(); i != added.end(); ++i)
+        for( std::vector< uint128_t >::const_iterator i = added.begin();
+             i != added.end(); ++i )
         {
-            const co::ObjectVersion& ov = *i;
-            EQASSERT( _map->find( ov.identifier ) == _map->end( ));
-            _map.data[ ov.identifier ].version = ov.version;
+            EQASSERT( _map.find( *i ) == _map.end( ));
+            Entry& entry = _map[ *i ];
+            is >> entry.version >> entry.type;
         }
     }
     if( dirtyBits & DIRTY_CHANGED )
@@ -162,13 +185,12 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         co::ObjectVersions changed;
         is >> changed;
 
-        ScopedMutex mutex( _map );
         for( co::ObjectVersionsCIter i = changed.begin(); i!=changed.end(); ++i)
         {
             const co::ObjectVersion& ov = *i;
-            EQASSERT( _map->find( ov.identifier ) != _map->end( ));
+            EQASSERT( _map.find( ov.identifier ) != _map.end( ));
 
-            Entry& entry = _map.data[ ov.identifier ];
+            Entry& entry = _map[ ov.identifier ];
             entry.version = ov.version;
             EQASSERT( !entry.instance || entry.instance->isAttached( ));
 
@@ -189,23 +211,14 @@ bool ObjectMap::register_( co::Object* object, const uint32_t type )
     if( !object || !_factory.getConfig()->registerObject( object ))
         return false;
 
-    co::ObjectVersion ov( object );
-    {
-        ScopedMutex mutex( _map );
-        EQASSERT( _map->find( object->getID( )) == _map->end( ));
+    const Entry entry( object->getVersion(), object, type );
+    ScopedMutex mutex( _mutex );
+    EQASSERT( _map.find( object->getID( )) == _map.end( ));
 
-        const Entry entry( ov.version, object, type );
-        _map.data[ object->getID() ] = entry;
-    }
-    {
-        ScopedMutex mutex( _masters );
-        _masters->push_back( object );
-    }    
-    {
-        ScopedMutex mutex( _added );
-        _added->push_back( ov );
-        setDirty( DIRTY_ADDED );
-    }
+    _map[ object->getID() ] = entry;
+    _masters.push_back( object );
+    _added.push_back( object->getID( ));
+    setDirty( DIRTY_ADDED );
     return true;
 }
 
@@ -214,10 +227,10 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
     if( identifier == uint128_t::ZERO )
         return 0;
 
-    ScopedMutex mutex( _map );
-    MapIter i = _map->find( identifier );
-    EQASSERT( i != _map->end( ));
-    if( i == _map->end( ))
+    ScopedMutex mutex( _mutex );
+    MapIter i = _map.find( identifier );
+    EQASSERT( i != _map.end( ));
+    if( i == _map.end( ))
     {
         EQWARN << "Object mapping failed, no master registered" << std::endl;
         return 0;
@@ -226,13 +239,16 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
     Entry& entry = i->second;
     if( entry.instance )
     {
-        if( entry.instance == instance )
-            return instance;
+        EQASSERTINFO( !instance || entry.instance == instance,
+                      entry.instance << " != " << instance )
+        if( !instance || entry.instance == instance )
+            return entry.instance;
 
         EQWARN << "Object mapping failed, different instance registered"
                << std::endl;
         return 0;
     }
+    EQASSERT( entry.type != OBJECTTYPE_NONE );
 
     co::Object* object = instance ? 
                          instance : _factory.createObject( entry.type );

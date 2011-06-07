@@ -31,11 +31,12 @@ MasterConfig::MasterConfig( eq::ServerPtr parent )
 MasterConfig::~MasterConfig()
 {}
 
-bool MasterConfig::init( co::Object* initData )
+bool MasterConfig::init()
 {
     EQASSERT( !_objects );
     _objects = new ObjectMap( *getApplication( ));
 
+    co::Object* initData = getInitData();
     if( initData )
         EQCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
     _objects->setInitData( initData );
@@ -56,7 +57,7 @@ bool MasterConfig::init( co::Object* initData )
 
 bool MasterConfig::exit()
 {
-    const bool retVal = eq::Config::exit();;
+    const bool retVal = eq::Config::exit();
 
     if( _objects )
         deregisterObject( _objects );

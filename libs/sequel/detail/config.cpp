@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+#include "application.h"
 #include "objectMap.h"
 
 #include <eq/sequel/application.h>
@@ -31,13 +32,19 @@ seq::Application* Config::getApplication()
     return static_cast< seq::Application* >( getClient().get( ));
 }
 
+detail::Application* Config::getApplicationImpl()
+{
+    return getApplication()->getImpl();
+}
+
 co::Object* Config::getInitData()
 {
     EQASSERT( _objects );
     if( !_objects )
         return 0;
 
-    return _objects->getInitData();
+    co::Object* initData = getApplicationImpl()->getInitData();
+    return _objects->getInitData( initData );
 }
 
 }

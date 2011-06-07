@@ -39,7 +39,8 @@ namespace detail
         void setInitData( co::Object* object );
         void setFrameData( co::Object* object );
 
-        co::Object* getInitData() { return get( _initData ); }
+        co::Object* getInitData( co::Object* object )
+            { return get( _initData, object ); }
         co::Object* getFrameData() { return get( _frameData ); }
 
     protected:
@@ -79,18 +80,17 @@ namespace detail
         typedef stde::hash_map< uint128_t, Entry > Map;
         typedef Map::iterator MapIter;
         typedef Map::const_iterator MapCIter;
-        //typedef std::vector< Entry > Entries;
 
-        co::base::Lockable< Map, co::base::SpinLock > _map; //!< the actual map
+        mutable co::base::SpinLock _mutex;
 
-        /** Master objects registered with this instance. */
-        co::base::Lockable< co::Objects, co::base::SpinLock > _masters;
+        Map _map; //!< the actual map
+        co::Objects _masters; //!< Master objects registered with this instance
 
         /** Added master objects since the last commit. */
-        co::base::Lockable< co::ObjectVersions, co::base::SpinLock > _added;
+        std::vector< uint128_t > _added;
 
         /** Changed master objects since the last commit. */
-        co::base::Lockable< co::ObjectVersions, co::base::SpinLock > _changed;
+        co::ObjectVersions _changed;
 
         /** Commit and note new master versions. */
         void _commitMasters( const uint32_t incarnation );

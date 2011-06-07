@@ -32,6 +32,7 @@ namespace seq
 {
 
 Application::Application()
+        : _impl( 0 )
 {
 }
 
@@ -62,7 +63,7 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
         return false;
     }
 
-    _impl = new detail::Application( this );
+    _impl = new detail::Application( this, initData );
     initErrors();
     if( !eq::init( argc, argv, _impl ))
     {
@@ -77,7 +78,7 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
         return false;
     }
 
-    if( !_impl->init( initData ))
+    if( !_impl->init( ))
     {
         exit();
         return false;

@@ -36,9 +36,10 @@ namespace seq
 namespace detail
 {
 
-Application::Application( ApplicationPtr app )
+Application::Application( ApplicationPtr app, co::Object* initData )
         : _app( app )
         , _config( 0 )
+        , _initData( initData )
         , _isMaster( false )
 {}
 
@@ -58,7 +59,7 @@ const Config* Application::getConfig() const
     return _config;
 }
 
-bool Application::init( co::Object* initData )
+bool Application::init()
 {
     _isMaster = true;
     eq::ServerPtr server = new eq::Server;
@@ -80,7 +81,7 @@ bool Application::init( co::Object* initData )
         return false;
     }
 
-    if( !_config->init( initData ))
+    if( !_config->init( ))
         return false;
     return true;
 }

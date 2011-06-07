@@ -36,5 +36,32 @@ void Renderer::draw( co::Object* frameData )
     applyRenderContext();
 }
 
+co::Object* Renderer::createObject( const uint32_t type )
+{
+    switch( type )
+    {
+      case seq::OBJECTTYPE_FRAMEDATA:
+          return &_frameData;
+
+      default:
+          EQASSERTINFO( false, "Object type " << type << " unknown" );
+          return 0;
+    }
+}
+
+void Renderer::destroyObject( co::Object* object, const uint32_t type )
+{
+    switch( type )
+    {
+      case seq::OBJECTTYPE_FRAMEDATA:
+          EQASSERT( object == &_frameData );
+          return; // Don't delete, we did not new it in createObject.
+
+      default:
+          EQASSERTINFO( false, "Object type " << type << " unknown" );
+          delete object;
+    }
+}
+
 }
 

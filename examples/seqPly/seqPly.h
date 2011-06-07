@@ -31,6 +31,7 @@
 
 #include <eq/sequel/sequel.h>
 
+#include <frameData.h>
 #include <vertexBufferDist.h>
 #include <vertexBufferRoot.h>
 
@@ -56,10 +57,17 @@ namespace seqPly
         Application() {}
         virtual ~Application() {}
 
-        virtual bool init( const int argc, char** argv );
+        bool init( const int argc, char** argv );
+        bool run();
 
         virtual co::Object* createObject( const uint32_t type );
+        virtual void destroyObject( co::Object* object, const uint32_t type )
+            { delete object; }
+
         virtual seq::Renderer* createRenderer();
+
+    private:
+        eqPly::FrameData _frameData;
     };
 
     typedef co::base::RefPtr< Application > ApplicationPtr;

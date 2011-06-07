@@ -43,8 +43,7 @@ namespace seq
         virtual co::Object* createObject( const uint32_t type ) = 0;
 
         /** Delete the given object of the given type. @version 1.0 */
-        virtual void destroyObject( co::Object* object,
-                                    const uint32_t type ) { delete object; }
+        virtual void destroyObject( co::Object* object, const uint32_t type )=0;
     };
 }
 #endif // EQSEQUEL_OBJECTFACTORY_H

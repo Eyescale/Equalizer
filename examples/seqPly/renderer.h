@@ -29,6 +29,7 @@
 #ifndef SEQ_PLY_RENDERER_H
 #define SEQ_PLY_RENDERER_H
 
+#include <frameData.h>
 #include <eq/sequel/sequel.h>
 
 namespace seqPly
@@ -39,8 +40,14 @@ namespace seqPly
         Renderer( seq::Application& app ) : seq::Renderer( app ) {}
         virtual ~Renderer() {}
 
+        virtual co::Object* createObject( const uint32_t type );
+        virtual void destroyObject( co::Object* object, const uint32_t type );
+
     protected:
         virtual void draw( co::Object* frameData );
+
+    private:
+        eqPly::FrameData _frameData;
     };
 
 }

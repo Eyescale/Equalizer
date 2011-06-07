@@ -33,8 +33,9 @@ namespace detail
         Config( eq::ServerPtr parent ) : eq::Config( parent ), _objects(0) {}
 
         seq::Application* getApplication();
+        detail::Application* getApplicationImpl();
 
-        virtual bool init( co::Object* ) { EQDONTCALL; return false; }
+        virtual bool init() { EQDONTCALL; return false; }
         virtual bool run( co::Object* ) { EQDONTCALL; return false; }
         virtual bool exit() { EQDONTCALL; return false; }
 

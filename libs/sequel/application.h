@@ -36,7 +36,8 @@ namespace seq
 
         /** @name Data Access. */
         //@{
-        virtual eq::Config* getConfig(); //!< @internal
+        eq::Config* getConfig(); //!< @internal
+        detail::Application* getImpl() { return _impl; } //!< @internal
 
         /**
          * Create a new renderer instance.

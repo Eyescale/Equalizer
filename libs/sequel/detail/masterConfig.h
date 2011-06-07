@@ -30,7 +30,7 @@ namespace detail
     public:
         MasterConfig( eq::ServerPtr parent );
 
-        virtual bool init( co::Object* initData );
+        virtual bool init();
         virtual bool run( co::Object* frameData );
         virtual bool exit();
 

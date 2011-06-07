@@ -22,6 +22,7 @@
 #pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
 
 #include <eq/sequel/application.h>
+#include <eq/sequel/objectType.h>
 #include <eq/sequel/renderer.h>
 #include <eq/eq.h>
 

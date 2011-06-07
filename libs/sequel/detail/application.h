@@ -29,22 +29,24 @@ namespace detail
     class Application : public eq::NodeFactory
     {
     public:
-        Application( ApplicationPtr app );
+        Application( ApplicationPtr app, co::Object* initData );
         ~Application();
 
         Config* getConfig();
         const Config* getConfig() const;
+        co::Object* getInitData() { return _initData; }
 
         bool isInitialized() const { return _config != 0; }
         bool isMaster() const { return _isMaster; }
 
-        bool init( co::Object* initData );
+        bool init();
         bool exit();
         bool run( co::Object* frameData );
 
     private:
         ApplicationPtr _app;
         Config* _config;
+        co::Object* const _initData;
         bool _isMaster;
 
         virtual eq::Config* createConfig( eq::ServerPtr parent );
