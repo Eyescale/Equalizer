@@ -71,7 +71,7 @@ namespace fabric
 
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = CMD_OBJECT_CUSTOM, // 11
+        CMD_CONFIG_NEW_LAYOUT = CMD_OBJECT_CUSTOM, // 10
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -100,7 +100,7 @@ namespace fabric
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 11
+        CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 10
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
@@ -118,7 +118,7 @@ namespace fabric
 
     enum PipeCommand
     {
-        CMD_PIPE_NEW_WINDOW = CMD_OBJECT_CUSTOM, // 11
+        CMD_PIPE_NEW_WINDOW = CMD_OBJECT_CUSTOM, // 10
         CMD_PIPE_NEW_WINDOW_REPLY,
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
@@ -137,7 +137,7 @@ namespace fabric
 
     enum WindowCommand
     {
-        CMD_WINDOW_NEW_CHANNEL = CMD_OBJECT_CUSTOM, // 11
+        CMD_WINDOW_NEW_CHANNEL = CMD_OBJECT_CUSTOM, // 10
         CMD_WINDOW_NEW_CHANNEL_REPLY,
         CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
@@ -158,7 +158,7 @@ namespace fabric
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 11
+        CMD_CHANNEL_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 10
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,

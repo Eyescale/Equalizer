@@ -96,8 +96,8 @@ namespace co
     {
         NodeDisconnectPacket() 
             {
-                command                  = CMD_NODE_DISCONNECT;
-                size                     = sizeof( NodeDisconnectPacket ); 
+                command = CMD_NODE_DISCONNECT;
+                size = sizeof( NodeDisconnectPacket ); 
             }
 
         uint32_t requestID;
