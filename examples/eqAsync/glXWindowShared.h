@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+/* Copyright (c)  2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,57 +27,30 @@
  *
  */
 
-#ifndef EQASYNC_ASYNC_FETCHER_H
-#define EQASYNC_ASYNC_FETCHER_H
+#ifndef EQASYNC_GLX_WINDOW_SHARED_H
+#define EQASYNC_GLX_WINDOW_SHARED_H
 
 #include <eq/eq.h>
+#include <eq/system.h>
 
 namespace eqAsync
 {
 
 /**
- *  Structure to associate OpenGL texture ids with an external key.
+ * Used to disable additional message pump creation.
  */
-struct TextureId
-{
-    TextureId( const GLuint id_ = 0, const int key_ = 0 )
-            : id( id_ ), key( key_ ){};
-
-    GLuint  id;  // OpenGL texture id
-    int     key; // Object manager key; used to delete textures
-};
-
-class Window;
-
-/**
- *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
- */
-class AsyncFetcher : public co::base::Thread
+class GLXWindowShared : public eq::GLXWindow
 {
 public:
-    typedef eq::util::ObjectManager< int > ObjectManager;
+    GLXWindowShared( eq::Window* parent, Display* xDisplay = 0,
+                     GLXEWContext* glxewContext = 0 )
+                 : eq::GLXWindow( parent, xDisplay, glxewContext ){}
 
-    AsyncFetcher();
-    ~AsyncFetcher();
-
-    virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
-
-    TextureId getTextureId()               { return _outQueue.pop().id;      }
-    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const int key )    { _inQueue.push( key );           }
-
-    const GLEWContext* glewGetContext() const;
-
-private:
-    Window*                      _wnd;
-    co::base::MTQueue<int>       _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId> _outQueue;      // generated textures
-    ObjectManager*               _objectManager;
-    eq::SystemWindow*            _sharedContextWindow;
-    GLbyte*                      _tmpTexture;    // temporal texture storage
+// Disabling event handling to avoid message pump conflicts
+    virtual void initEventHandler() {}
+    virtual void exitEventHandler() {}
 };
 
-} 
+} // namespace eqAsync
 
-#endif //EQASYNC_ASYNC_FETCHER_H
+#endif //EQASYNC_GLX_WINDOW_SHARED_H

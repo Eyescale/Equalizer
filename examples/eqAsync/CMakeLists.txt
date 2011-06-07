@@ -9,9 +9,14 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(EQASYNC_SYSTEM_SOURCES)
 set(EQASYNC_SYSTEM_HEADERS)
+
 if(EQ_AGL_USED)
   set(EQASYNC_SYSTEM_HEADERS aglWindowShared.h)
   set(EQASYNC_SYSTEM_SOURCES aglWindowShared.cpp)
+endif()
+
+if(EQ_GLX_USED)
+  set(EQASYNC_SYSTEM_HEADERS glXWindowShared.h)
 endif()
 
 eq_add_example(eqAsync

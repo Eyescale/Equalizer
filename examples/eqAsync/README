@@ -4,4 +4,4 @@
 The example shows how to create a shared per-GPU context and use it to
 asynchronours textures loads in a parallel thread.
 
-The main idea is to create a shared FBO window for each eq::Window.
+The main idea is to create a shared FBO window for each eq::Pipe.
