@@ -1511,6 +1511,8 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
             return true;
         }
 
+        // timeout! - clear old requests
+        _sendTokenQueue.clear();
         // 'generate' new token - release is robust
     }
 
