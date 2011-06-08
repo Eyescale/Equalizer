@@ -42,6 +42,9 @@
 #ifdef AGL
 #  include "aglWindowShared.h"
 #endif
+#ifdef GLX
+#  include "glXWindowShared.h"
+#endif
 
 #include <ctime>
 
@@ -71,7 +74,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 #ifdef GLX
         case eq::WINDOW_SYSTEM_GLX:
             EQINFO << "Using GLXWindow" << std::endl;
-            sharedContextWindow = new eq::GLXWindow( wnd );
+            sharedContextWindow = new GLXWindowShared( wnd );
             break;
 #endif
 #ifdef AGL
