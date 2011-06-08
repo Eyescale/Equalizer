@@ -412,8 +412,7 @@ void Channel::frameViewFinish( const uint128_t& ) { /* nop */ }
 
 void Channel::setupAssemblyState()
 {
-    // copy to be thread-safe when pvp changes
-    const PixelViewport pvp( getPixelViewport( ));
+    const PixelViewport& pvp = getPixelViewport();
     Compositor::setupAssemblyState( pvp, glewGetContext( ));
 }
 

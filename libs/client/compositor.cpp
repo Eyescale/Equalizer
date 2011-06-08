@@ -1512,7 +1512,7 @@ void Compositor::setupAssemblyState( const PixelViewport& pvp,
     glPushMatrix();
     glLoadIdentity();
     if( pvp.hasArea( ))
-        glOrtho( pvp.x, pvp.x + pvp.w, pvp.y, pvp.y + pvp.h, -1.0f, 1.0f );
+        glOrtho( pvp.x, pvp.getXEnd(), pvp.y, pvp.getYEnd(), -1.0f, 1.0f );
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
