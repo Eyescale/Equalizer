@@ -15,21 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_OBJECTTYPE_H
-#define EQSEQUEL_OBJECTTYPE_H
-
-#include <eq/sequel/types.h>
+#include "modelMatrix.h"
 
 namespace seq
 {
-    /** Built-in object types. @version 1.0 */
-    enum ObjectType
-    {
-        OBJECTTYPE_NONE,      //!< Unused object type
-        OBJECTTYPE_INITDATA,  //!< The object passed to Application::init()
-        OBJECTTYPE_FRAMEDATA, //!< The object passed to Application::run()
-        OBJECTTYPE_MODELMATRIX, //!< Per-view global model transformation
-        OBJECTTYPE_CUSTOM = 100 //!< Application-specific objects
-    };
+ModelMatrix::ModelMatrix()
+        : _matrix( eq::Matrix4f::IDENTITY )
+{}
+
+ModelMatrix::~ModelMatrix()
+{}
+
+void ModelMatrix::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+{
+    co::Serializable::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_MATRIX )
+        os << _matrix;
 }
-#endif // EQSEQUEL_OBJECTTYPE_H
+
+void ModelMatrix::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+{
+    co::Serializable::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_MATRIX )
+        is >> _matrix;
+}
+
+}
+

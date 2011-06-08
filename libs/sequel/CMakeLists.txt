@@ -8,6 +8,7 @@ purple_add_library(Sequel SHARED
     api.h
     application.h
     error.h
+    modelMatrix.h
     objectFactory.h
     objectType.h
     renderer.h
@@ -16,6 +17,7 @@ purple_add_library(Sequel SHARED
   SOURCES
     application.cpp
     error.cpp
+    modelMatrix.cpp
     renderer.cpp
     detail/application.cpp
     detail/channel.h
