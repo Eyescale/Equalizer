@@ -41,13 +41,9 @@ namespace seqPly
         virtual ~Renderer() {}
 
         virtual co::Object* createObject( const uint32_t type );
-        virtual void destroyObject( co::Object* object, const uint32_t type );
 
     protected:
         virtual void draw( co::Object* frameData );
-
-    private:
-        eqPly::FrameData _frameData;
     };
 
 }

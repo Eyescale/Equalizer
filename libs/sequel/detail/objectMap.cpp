@@ -252,6 +252,10 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
 
     co::Object* object = instance ? 
                          instance : _factory.createObject( entry.type );
+    EQASSERT( object );
+    if( !object )
+        return 0;
+
     if( !_factory.getConfig()->mapObject( object, identifier, entry.version ))
     {
         if( !instance )

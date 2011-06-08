@@ -61,8 +61,6 @@ namespace seqPly
         bool run();
 
         virtual co::Object* createObject( const uint32_t type );
-        virtual void destroyObject( co::Object* object, const uint32_t type )
-            { delete object; }
 
         virtual seq::Renderer* createRenderer();
 
