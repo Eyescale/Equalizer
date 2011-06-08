@@ -46,7 +46,7 @@ public:
                      GLXEWContext* glxewContext = 0 )
                  : eq::GLXWindow( parent, xDisplay, glxewContext ){}
 
-// Disabling event handling to avoid message pump conflicts
+    // Disabling event handling to avoid message pump conflicts
     virtual void initEventHandler() {}
     virtual void exitEventHandler() {}
 };
