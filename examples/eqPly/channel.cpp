@@ -799,11 +799,44 @@ void Channel::_drawHelp()
 
     glColor3f( 1.f, 1.f, 1.f );
 
+    const eq::PixelViewport& pvp = getPixelViewport();
+    const eq::Viewport& vp = getViewport();
+    const float height = pvp.h / vp.h;
+
+    if( !message.empty( ))
+    {
+        const eq::Window::Font* font = getWindow()->getMediumFont();
+
+        const float width = pvp.w / vp.w;
+        const float xOffset = vp.x * width;
+
+        const float yOffset = vp.y * height;
+        const float yPos = 0.618f * height;
+        float y = yPos - yOffset;
+
+        for( size_t pos = message.find( '\n' ); pos != std::string::npos;
+             pos = message.find( '\n' ))
+        {
+            glRasterPos3f( 10.f - xOffset, y, 0.99f );
+            font->draw( message.substr( 0, pos ));
+            message = message.substr( pos + 1 );
+            y -= 22.f;
+        }
+        // last line
+        glRasterPos3f( 10.f - xOffset, y, 0.99f );
+        font->draw( message );
+    }
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    applyScreenFrustum();
+    glMatrixMode( GL_MODELVIEW );
+
     if( frameData.showHelp( ))
     {
         const eq::Window::Font* font = getWindow()->getSmallFont();
         std::string help = EqPly::getHelp();
-        float y = 340.f;
+        float y = height - 16.f;
 
         for( size_t pos = help.find( '\n' ); pos != std::string::npos;
              pos = help.find( '\n' ))
@@ -817,35 +850,6 @@ void Channel::_drawHelp()
         // last line
         glRasterPos3f( 10.f, y, 0.99f );
         font->draw( help );
-    }
-
-    if( !message.empty( ))
-    {
-        const eq::Window::Font* font = getWindow()->getMediumFont();
-
-        const eq::Viewport& vp = getViewport();
-        const eq::PixelViewport& pvp = getPixelViewport();
-
-        const float width = pvp.w / vp.w;
-        const float xOffset = vp.x * width;
-
-        const float height = pvp.h / vp.h;
-        const float yOffset = vp.y * height;
-        const float yMiddle = 0.5f * height;
-        float y = yMiddle - yOffset;
-
-        for( size_t pos = message.find( '\n' ); pos != std::string::npos;
-             pos = message.find( '\n' ))
-        {
-            glRasterPos3f( 10.f - xOffset, y, 0.99f );
-            
-            font->draw( message.substr( 0, pos ));
-            message = message.substr( pos + 1 );
-            y -= 22.f;
-        }
-        // last line
-        glRasterPos3f( 10.f - xOffset, y, 0.99f );
-        font->draw( message );
     }
 
     resetAssemblyState();
