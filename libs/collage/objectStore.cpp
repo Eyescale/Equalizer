@@ -353,6 +353,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
     EQASSERT( !_localNode->inCommandThread( ));
     EQASSERTINFO( id.isGenerated(), id );
 
+    object->notifyAttach();
     if( !id.isGenerated( ))
         return EQ_UNDEFINED_UINT32;
 
@@ -460,6 +461,7 @@ void ObjectStore::unmapObject( Object* object )
     // no unsubscribe sent: Detach directly
     detachObject( object );
     object->setupChangeManager( Object::NONE, false, 0, EQ_INSTANCE_INVALID );
+    object->notifyDetached();
 }
 
 bool ObjectStore::registerObject( Object* object )
@@ -470,6 +472,7 @@ bool ObjectStore::registerObject( Object* object )
     const base::UUID& id = object->getID( );
     EQASSERTINFO( id.isGenerated(), id );
 
+    object->notifyAttach();
     object->setupChangeManager( object->getChangeType(), true, _localNode,
                                 EQ_INSTANCE_INVALID );
     attachObject( object, id, EQ_INSTANCE_INVALID );
@@ -512,6 +515,7 @@ void ObjectStore::deregisterObject( Object* object )
     object->setupChangeManager( Object::NONE, true, 0, EQ_INSTANCE_INVALID );
     if( _instanceCache )
         _instanceCache->erase( id );
+    object->notifyDetached();
 }
 
 NodePtr ObjectStore::_connectMaster( const base::UUID& id )
