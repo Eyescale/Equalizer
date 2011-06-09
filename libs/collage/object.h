@@ -295,6 +295,14 @@ namespace co
 
         /** @name Notifications */
         /**
+         * Notify that this object will be registered or mapped.
+         *
+         * The method is called from the thread initiating the registration or
+         * mapping, before the operation is executed.
+         */
+        virtual void notifyAttach() {};
+
+        /**
          * Notify that this object has been registered or mapped.
          *
          * The method is called from the thread initiating the registration or
@@ -311,6 +319,14 @@ namespace co
          * @sa isMaster()
          */
         CO_API virtual void notifyDetach();
+
+        /**
+         * Notify that this object has been deregistered or unmapped.
+         *
+         * The method is called from the thread initiating the deregistration or
+         * unmapping, after the operation has been executed.
+         */
+        CO_API virtual void notifyDetached(){}
         //@}
 
         /** @internal */
