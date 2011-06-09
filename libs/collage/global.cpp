@@ -72,6 +72,8 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
     1470,  // UDP_MTU
 #endif
     524288, // UDP_BUFFER_SIZE
+    3,      // QUEUE_MIN_SIZE
+    6,      // QUEUE_MAX_SIZE
 };
 }
 

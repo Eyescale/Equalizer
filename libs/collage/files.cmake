@@ -58,6 +58,8 @@ set(CO_HEADERS
     staticSlaveCM.h
     unbufferedMasterCM.h
     versionedSlaveCM.h
+	queueMaster.h
+	queueSlave.h
   )
 
 set(CO_SOURCES
@@ -99,7 +101,9 @@ set(CO_SOURCES
     unbufferedMasterCM.cpp
     version.cpp
     versionedSlaveCM.cpp
-    pgmConnection.h
+    pgmConnection.cpp
+	queueMaster.cpp
+	queueSlave.cpp
 )
   
 set(CO_COMPRESSOR_HEADERS
