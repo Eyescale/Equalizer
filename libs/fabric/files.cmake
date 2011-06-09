@@ -53,6 +53,7 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/window.h
     ../fabric/windowPackets.h
     ../fabric/zoom.h
+	../fabric/queuePackets.h
   )
 
 set(EQ_FABRIC_HEADERS
