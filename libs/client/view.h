@@ -50,6 +50,18 @@ namespace eq
 
         /** @name Data Access. */
         //@{
+        /**
+         * @return the parent pipe of this view, 0 for non-render client views.
+         * @version 1.1.2
+         */
+        Pipe* getPipe() { return _pipe; }
+
+        /**
+         * @return the parent pipe of this view, 0 for non-render client views.
+         * @version 1.1.2
+         */
+        EQ_API const Pipe* getPipe() const { return _pipe; }
+
         /** @return the config of this view. @version 1.0 */
         EQ_API Config* getConfig();
 
