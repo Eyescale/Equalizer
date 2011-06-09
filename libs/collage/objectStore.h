@@ -124,9 +124,6 @@ namespace co
          */
         void detachObject( Object* object );
 
-        /** Convenience method to deregister or unmap an object. */
-        void releaseObject( Object* object );
-
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
         void swapObject( Object* oldObject, Object* newObject );

@@ -54,9 +54,9 @@ Object::Object( const Object& object )
 
 Object::~Object()
 {
-    EQASSERTINFO( !_localNode,
-                  "Object " << _id << " is still registered with node " <<
-                  _localNode->getNodeID() << " in destructor" );
+    EQASSERTINFO( !isAttached(),
+                  "Object " << _id << " is still attached to node " <<
+                  _localNode->getNodeID());
     
     if( _localNode.isValid() )
         _localNode->releaseObject( this );

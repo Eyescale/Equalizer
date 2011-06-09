@@ -37,8 +37,9 @@ Object::Object()
 
 Object::~Object()
 {
+    EQASSERTINFO( !isAttached(), "Object " << getID() << " is still attached" );
     EQASSERTINFO( !_userData,
-                  "Unset user data before destructor to allow clean release" )
+                  "Unset user data before destruction to allow clean release" )
     co::LocalNodePtr node = getLocalNode();
     if( node.isValid() )
         node->releaseObject( this );

@@ -452,6 +452,7 @@ void ObjectStore::unmapObject( Object* object )
             master->send( packet );
 
             _localNode->waitRequest( packet.requestID );
+            object->notifyDetached();
             return;
         }
         EQERROR << "Master node for object id " << id << " not connected"
