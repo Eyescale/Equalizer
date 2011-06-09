@@ -395,13 +395,12 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const eq::uint128_t& viewID = 
-                           event->data.context.view.identifier;
+            const eq::uint128_t& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == eq::UUID::ZERO )
             {
                 _currentCanvas = 0;
-                return true;
+                return false;
             }
             
             const eq::View* view = find< eq::View > ( viewID );
@@ -445,37 +444,36 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
         }
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON_NONE )
-                return true;
-
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
+            switch( event->data.pointerMotion.buttons )
             {
-                _spinX = 0;
-                _spinY = 0;
+              case eq::PTR_BUTTON1:
+                  _spinX = 0;
+                  _spinY = 0;
 
-                if( _frameData.usePilotMode())
-                    _frameData.spinCamera(-0.005f*event->data.pointerMotion.dy,
-                                          -0.005f*event->data.pointerMotion.dx);
-                else
-                    _frameData.spinModel( -0.005f*event->data.pointerMotion.dy,
-                                          -0.005f*event->data.pointerMotion.dx);
+                  if( _frameData.usePilotMode())
+                      _frameData.spinCamera(
+                          -0.005f * event->data.pointerMotion.dy,
+                          -0.005f * event->data.pointerMotion.dx );
+                  else
+                      _frameData.spinModel(
+                          -0.005f * event->data.pointerMotion.dy,
+                          -0.005f * event->data.pointerMotion.dx );
+                  _redraw = true;
+                  return true;
 
-                _redraw = true;
+              case eq::PTR_BUTTON2:
+                  _advance = -event->data.pointerMotion.dy;
+                  _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
+                  _redraw = true;
+                  return true;
+
+              case eq::PTR_BUTTON3:
+                  _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
+                                         -.0005f * event->data.pointerMotion.dy,
+                                          0.f );
+                  _redraw = true;
+                  return true;
             }
-            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 )
-            {
-                _advance = -event->data.pointerMotion.dy;
-                _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
-                _redraw = true;
-            }
-            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
-            {
-                _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
-                                       -.0005f * event->data.pointerMotion.dy,
-                                       0.f );
-                _redraw = true;
-            }
-            return true;
 
         case eq::Event::WINDOW_POINTER_WHEEL:
             _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
@@ -520,7 +518,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             else
                 _numFramesAA = 0;
-            return true;
+            return false;
 
         default:
             break;

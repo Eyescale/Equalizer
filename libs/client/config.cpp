@@ -468,12 +468,8 @@ const ConfigEvent* Config::tryNextEvent()
 
 void Config::handleEvents()
 {
-    for( const ConfigEvent* event = tryNextEvent(); event; 
-         event = tryNextEvent( ))
-    {
-        if( !handleEvent( event ))
-            EQVERB << "Unhandled " << event << std::endl;
-    }
+    for( const ConfigEvent* event = tryNextEvent(); event; event=tryNextEvent())
+        handleEvent( event );
 }
 
 bool Config::handleEvent( const ConfigEvent* event )
