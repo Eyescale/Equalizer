@@ -50,6 +50,7 @@ namespace detail
         bool _isMaster;
 
         virtual eq::Config* createConfig( eq::ServerPtr parent );
+        virtual eq::View* createView( eq::Layout* parent );
         virtual eq::Node* createNode( eq::Config* parent );
         virtual eq::Pipe* createPipe( eq::Node* parent );
         virtual eq::Channel* createChannel( eq::Window* parent );

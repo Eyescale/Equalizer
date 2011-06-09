@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_MODELMATRIX_H
-#define EQSEQUEL_MODELMATRIX_H
+#ifndef EQSEQUEL_VIEWDATA_H
+#define EQSEQUEL_VIEWDATA_H
 
 #include <eq/sequel/api.h>
 #include <eq/types.h>
@@ -24,15 +24,15 @@
 
 namespace seq
 {
-    /** The main modelMatrix object. */
-    class ModelMatrix : public co::Serializable
+    /** The main viewData object. */
+    class ViewData : public co::Serializable
     {
     public:
-        /** Construct a new model matrix. @version 1.0 */
-        SEQ_API ModelMatrix();
+        /** Construct a new view data. @version 1.0 */
+        SEQ_API ViewData();
 
-        /** Destruct this model matrix. @version 1.0 */
-        SEQ_API virtual ~ModelMatrix();
+        /** Destruct this view data. @version 1.0 */
+        SEQ_API virtual ~ViewData();
 
         /** @name Data Access. */
         //@{
@@ -51,10 +51,10 @@ namespace seq
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
         {
-            DIRTY_MATRIX = co::Serializable::DIRTY_CUSTOM << 1, // 1
+            DIRTY_MODELMATRIX = co::Serializable::DIRTY_CUSTOM << 1, // 1
         };
 
-        eq::Matrix4f _matrix;
+        eq::Matrix4f _modelMatrix;
     };
 }
-#endif // EQSEQUEL_MODELMATRIX_H
+#endif // EQSEQUEL_VIEWDATA_H

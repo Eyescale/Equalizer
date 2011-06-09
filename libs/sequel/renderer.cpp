@@ -18,6 +18,7 @@
 #include "renderer.h"
 
 #include "application.h"
+#include "viewData.h"
 #include "detail/renderer.h"
 
 namespace seq
@@ -42,6 +43,16 @@ eq::Config* Renderer::getConfig()
 co::Object* Renderer::getFrameData()
 {
     return _impl->getFrameData();
+}
+
+ViewData* Renderer::createViewData()
+{
+    return new ViewData;
+}
+
+void Renderer::destroyViewData( ViewData* viewData )
+{
+    delete viewData;
 }
 
 void Renderer::applyRenderContext()

@@ -15,30 +15,36 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "modelMatrix.h"
+#ifndef EQSEQUEL_DETAIL_VIEW_H
+#define EQSEQUEL_DETAIL_VIEW_H
+
+#include <eq/view.h> // base class
+#include <eq/sequel/types.h>
 
 namespace seq
 {
-ModelMatrix::ModelMatrix()
-        : _matrix( eq::Matrix4f::IDENTITY )
-{}
-
-ModelMatrix::~ModelMatrix()
-{}
-
-void ModelMatrix::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+namespace detail
 {
-    co::Serializable::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_MATRIX )
-        os << _matrix;
+    class View : public eq::View
+    {
+    public:
+        View( eq::Layout* parent );
+
+        /** @name Data Access. */
+        //@{
+        Config* getConfig();
+        Pipe* getPipe();
+        ViewData* getViewData();
+        //@}
+
+    protected:
+        virtual ~View();
+        virtual void notifyAttach();
+        virtual void notifyDetached();
+
+    private:
+    };
+}
 }
 
-void ModelMatrix::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
-{
-    co::Serializable::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_MATRIX )
-        is >> _matrix;
-}
-
-}
-
+#endif // EQSEQUEL_DETAIL_VIEW_H

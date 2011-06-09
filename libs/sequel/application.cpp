@@ -20,6 +20,7 @@
 #include "error.h"
 #include "objectType.h"
 #include "renderer.h"
+#include "viewData.h"
 #include "detail/application.h"
 #include "detail/config.h"
 
@@ -52,6 +53,16 @@ eq::Config* Application::getConfig()
 void Application::destroyRenderer( Renderer* renderer )
 {
     delete renderer;
+}
+
+ViewData* Application::createViewData()
+{
+    return new ViewData;
+}
+
+void Application::destroyViewData( ViewData* viewData )
+{
+    delete viewData;
 }
 
 bool Application::init( const int argc, char** argv, co::Object* initData )

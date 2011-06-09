@@ -8,17 +8,17 @@ purple_add_library(Sequel SHARED
     api.h
     application.h
     error.h
-    modelMatrix.h
     objectFactory.h
     objectType.h
     renderer.h
     sequel.h
     types.h
+    viewData.h
   SOURCES
     application.cpp
     error.cpp
-    modelMatrix.cpp
     renderer.cpp
+    viewData.cpp
     detail/application.cpp
     detail/channel.h
     detail/channel.cpp
@@ -36,6 +36,8 @@ purple_add_library(Sequel SHARED
     detail/renderer.cpp
     detail/slaveConfig.h
     detail/slaveConfig.cpp
+    detail/view.h
+    detail/view.cpp
   LINK_LIBRARIES Equalizer
   )
 set_target_properties(lib_Sequel_shared PROPERTIES

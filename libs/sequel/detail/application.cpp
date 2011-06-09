@@ -22,6 +22,7 @@
 #include "node.h"
 #include "pipe.h"
 #include "slaveConfig.h"
+#include "view.h"
 
 #include <eq/sequel/application.h>
 #include <eq/config.h>
@@ -116,6 +117,11 @@ eq::Config* Application::createConfig( eq::ServerPtr parent )
     if( isMaster( ))
         return new MasterConfig( parent );
     return new SlaveConfig( parent );
+}
+
+eq::View* Application::createView( eq::Layout* parent )
+{
+    return new View( parent );
 }
 
 eq::Node* Application::createNode( eq::Config* parent )

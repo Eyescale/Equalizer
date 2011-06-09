@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,38 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_TYPES_H
-#define EQSEQUEL_TYPES_H
-
-#include <eq/sequel/api.h>
-#include <eq/types.h>
+#include "viewData.h"
 
 namespace seq
 {
-using eq::uint128_t;
+ViewData::ViewData()
+        : _modelMatrix( eq::Matrix4f::IDENTITY )
+{}
 
-class Application;
-class ObjectFactory;
-class Renderer;
-class ViewData;
+ViewData::~ViewData()
+{}
 
-typedef co::base::RefPtr< Application > ApplicationPtr;
-
-/** @cond IGNORE */
-namespace detail
+void ViewData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-
-class Application;
-class Channel;
-class Config;
-class Node;
-class ObjectMap;
-class Pipe;
-class Renderer;
-class View;
-
-}
-/** @endcond */
+    co::Serializable::serialize( os, dirtyBits );
+    if( dirtyBits & DIRTY_MODELMATRIX )
+        os << _modelMatrix;
 }
 
-#endif // EQSEQUEL_TYPES_H
+void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+{
+    co::Serializable::deserialize( is, dirtyBits );
+    if( dirtyBits & DIRTY_MODELMATRIX )
+        is >> _modelMatrix;
+}
+
+}
+

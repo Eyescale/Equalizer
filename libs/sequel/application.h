@@ -51,6 +51,18 @@ namespace seq
 
         /** Delete the given renderer. @version 1.0 */
         virtual void destroyRenderer( Renderer* renderer );
+
+        /**
+         * Create a new per-view data instance.
+         *
+         * Called once for each view in the current configuration.
+         * @return the new view data
+         * @version 1.0
+         */
+        virtual ViewData* createViewData();
+
+        /** Delete the given view data. @version 1.0 */
+        virtual void destroyViewData( ViewData* viewData );
         //@}
 
         /** @name Operations */

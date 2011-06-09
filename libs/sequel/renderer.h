@@ -42,6 +42,18 @@ namespace seq
         //@{
         detail::Renderer* getImpl() { return _impl; } //!< @internal
         co::Object* getFrameData(); // @warning experimental
+
+        /**
+         * Create a new per-view data instance.
+         *
+         * Called once for each view used by this renderer.
+         * @return the new view data
+         * @version 1.0
+         */
+        virtual ViewData* createViewData();
+
+        /** Delete the given view data. @version 1.0 */
+        virtual void destroyViewData( ViewData* viewData );
         //@}
 
         /** @name Operations */
