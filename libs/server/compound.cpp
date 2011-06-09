@@ -30,6 +30,7 @@
 #include "equalizers/equalizer.h"
 #include "frame.h"
 #include "frameData.h"
+#include "tileQueue.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"
@@ -380,6 +381,23 @@ void Compound::addOutputFrame( Frame* frame )
     frame->setCompound( this );
 }
 
+void Compound::addInputTileQueue( TileQueue* tileQueue )
+{ 
+    EQASSERT( tileQueue );
+    if( tileQueue->getName().empty() )
+        _setDefaultTileQueueName( tileQueue );
+    _inputTileQueues.push_back( tileQueue ); 
+    tileQueue->setCompound( this );
+}
+
+void Compound::addOutputTileQueue( TileQueue* tileQueue )
+{ 
+    if( tileQueue->getName().empty() )
+        _setDefaultTileQueueName( tileQueue );
+    _outputTileQueues.push_back( tileQueue ); 
+    tileQueue->setCompound( this );
+}
+
 void Compound::_setDefaultFrameName( Frame* frame )
 {
     for( Compound* compound = this; compound; compound = compound->getParent())
@@ -398,6 +416,26 @@ void Compound::_setDefaultFrameName( Frame* frame )
         }
     }
     frame->setName( "frame" );
+}
+
+void Compound::_setDefaultTileQueueName( TileQueue* tileQueue )
+{
+    for( Compound* compound = this; compound; compound = compound->getParent())
+    {
+        if( !compound->getName().empty( ))
+        {
+            tileQueue->setName( "queue." + compound->getName( ));
+            return;
+        }
+
+        const Channel* channel = compound->getChannel();
+        if( channel && !channel->getName().empty( ))
+        {
+            tileQueue->setName( "queue." + channel->getName( ));
+            return;
+        }
+    }
+    tileQueue->setName( "queue" );
 }
 
 void Compound::adopt( Compound* child )

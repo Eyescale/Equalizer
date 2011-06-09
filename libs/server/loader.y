@@ -29,6 +29,7 @@
 #include "equalizers/monitorEqualizer.h"
 #include "equalizers/viewEqualizer.h"
 #include "frame.h"
+#include "tileQueue.h"
 #include "global.h"
 #include "layout.h"
 #include "node.h"
@@ -70,6 +71,7 @@
         static eq::server::TreeEqualizer* treeEqualizer = 0;
         static eq::server::SwapBarrier* swapBarrier = 0;
         static eq::server::Frame*       frame = 0;
+        static eq::server::TileQueue*   tileQueue = 0;
         static co::ConnectionDescriptionPtr connectionDescription;
         static eq::fabric::Wall         wall;
         static eq::fabric::Projection   projection;
@@ -256,6 +258,8 @@
 %token EQTOKEN_NVBARRIER
 %token EQTOKEN_OUTPUTFRAME
 %token EQTOKEN_INPUTFRAME
+%token EQTOKEN_OUTPUTTILES
+%token EQTOKEN_INPUTTILES
 %token EQTOKEN_STEREO_MODE
 %token EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK
 %token EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK
@@ -277,6 +281,7 @@
 %token EQTOKEN_FLOAT
 %token EQTOKEN_INTEGER
 %token EQTOKEN_UNSIGNED
+%token EQTOKEN_SIZE
 
 %union{
     const char*             _string;
@@ -1195,7 +1200,7 @@ swapBarrierField: EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
     
 
 
-outputFrame : EQTOKEN_OUTPUTFRAME '{' { frame = new eq::server::Frame; }
+outputFrame: EQTOKEN_OUTPUTFRAME '{' { frame = new eq::server::Frame; }
     frameFields '}'
         { 
             eqCompound->addOutputFrame( frame );
@@ -1221,6 +1226,24 @@ frameField:
 frameType: 
     EQTOKEN_TEXTURE { frame->setType( eq::Frame::TYPE_TEXTURE ); }
     | EQTOKEN_MEMORY { frame->setType( eq::Frame::TYPE_MEMORY ); }
+    
+inputFrame: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+    tileQueueFields '}'
+        { 
+            eqCompound->addOutputTileQueue( tileQueue );
+            tileQueue = 0;
+        } 
+inputFrame: EQTOKEN_INPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
+    tileQueueFields '}'
+        { 
+            eqCompound->addInputTileQueue( tileQueue );
+            tileQueue = 0;
+        } 
+tileQueueFields: /*null*/ | tileQueueFields tileQueueField
+tileQueueField: 
+    EQTOKEN_NAME STRING { tileQueue->setName( $2 ); }
+    | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']' 
+		{ tileQueue->setSize( eq::Vector2i( $3, $4 )) }
 
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:
