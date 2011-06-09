@@ -47,10 +47,16 @@ namespace fabric
         /** @return the viewport of the view wrt its layout. @version 1.0 */
         EQFABRIC_INL const Viewport& getViewport() const;
 
-        /** @return the parent layout of this view, can be 0. @version 1.0 */
+        /**
+         * @return the parent layout of this view, 0 for render client views.
+         * @version 1.0
+         */
         L* getLayout() { return _layout; }
 
-        /** @return the parent layout of this view, can be 0. @version 1.0 */
+        /**
+         * @return the parent layout of this view, 0 for render client views.
+         * @version 1.0
+         */
         const L* getLayout() const { return _layout; }
 
         /** Set the entity tracking this view. @version 1.0 */
