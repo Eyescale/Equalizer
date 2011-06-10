@@ -44,7 +44,7 @@ private:
     CommandQueue _queue;
 
     uint32_t _prefetchLow;
-    uint32_t _prefetchSize;
+    uint32_t _prefetchHigh;
 };
 
 } // co

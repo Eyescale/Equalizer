@@ -29,8 +29,7 @@ QueueSlave::QueueSlave()
 : Object()
 {
     _prefetchLow = Global::getIAttribute(Global::IATTR_QUEUE_MIN_SIZE);
-    _prefetchSize = 
-            Global::getIAttribute(Global::IATTR_QUEUE_MAX_SIZE) - _prefetchLow;
+    _prefetchHigh = Global::getIAttribute(Global::IATTR_QUEUE_MAX_SIZE);
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
@@ -42,10 +41,10 @@ void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
 
 Command* QueueSlave::pop()
 {
-    if ( _queue.getSize() < _prefetchLow )
+    if ( _queue.getSize() <= _prefetchLow )
     {
         GetQueueItemPacket packet;
-        packet.itemsRequested = _prefetchSize;
+        packet.itemsRequested = _prefetchHigh - _queue.getSize();
         send( getMasterNode(), packet );
     }
     

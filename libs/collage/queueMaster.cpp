@@ -24,8 +24,8 @@ namespace co
 
 QueueMaster::QueueMaster()
 : Object()
-, _cache()
 , _queue()
+, _cache()
 {
 
 }
@@ -62,11 +62,11 @@ bool QueueMaster::_cmdGetItem( Command& command )
     GetQueueItemPacket* packet = command.get<GetQueueItemPacket>();
     uint32_t itemsRequested = packet->itemsRequested;
 
-    while (!_queue.empty() || (--itemsRequested > 0) )
+    while (!_queue.empty() || (itemsRequested-- > 0) )
     {
         Command* queueItem = _queue.front();
-        send( command.getNode(), *(queueItem->get<ObjectPacket>()) );
         _queue.pop_front();
+        send( command.getNode(), *(queueItem->get<ObjectPacket>()) );
     }
 
     if ( itemsRequested > 0 )
