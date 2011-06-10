@@ -29,8 +29,8 @@ namespace co
 class QueueMaster : public Object
 {
 public:
-    QueueMaster();
-    ~QueueMaster() {};
+    CO_API QueueMaster();
+    ~QueueMaster() {}
 
     Command& pop();
     CO_API void push( const QueueItemPacket& packet );

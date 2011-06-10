@@ -28,7 +28,8 @@ class QueueSlave : public Object
 {
 public:
 
-    QueueSlave::QueueSlave();
+    CO_API QueueSlave();
+    ~QueueSlave() {}
 
     CO_API virtual void attach( const base::UUID& id, 
         const uint32_t instanceID );
@@ -44,7 +45,7 @@ private:
     CommandQueue _queue;
 
     uint32_t _prefetchLow;
-    uint32_t _prefetchSize;
+    uint32_t _prefetchHigh;
 };
 
 } // co
