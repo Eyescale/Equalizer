@@ -71,7 +71,8 @@ bool PipeConnection::connect()
 
 Connection::Notifier PipeConnection::getNotifier() const 
 { 
-    EQASSERT( _namedPipe );
+    if( !_namedPipe )
+        return 0;
     return _namedPipe->getNotifier(); 
 }
 
