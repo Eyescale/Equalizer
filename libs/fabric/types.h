@@ -46,6 +46,7 @@ class Projection;
 class Range;
 class RenderContext;
 class SubPixel;
+struct TileTaskPacket;
 class Viewport;
 class Wall;
 class Zoom;

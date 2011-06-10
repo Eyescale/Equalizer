@@ -26,6 +26,8 @@
 /** @cond IGNORE */
 namespace eq
 {
+namespace fabric
+{
 
 // @bug eile: name QueueFooPacket for all packets
 
@@ -53,6 +55,7 @@ struct TileTaskPacket : public co::QueueItemPacket
     Frustum frustum;
 };
 
+} // fabric
 } // eq
 
 #endif // EQ_QUEUEPACKETS_H
