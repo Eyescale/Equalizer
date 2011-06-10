@@ -56,7 +56,6 @@ class Compound;
 class Config;
 class Equalizer;
 class Frame;
-class TileQueue;
 class Layout;
 class Node;
 class NodeFactory;
@@ -65,6 +64,7 @@ class Pipe;
 class Segment;
 class Server;
 class SwapBarrier;
+class TileQueue;
 class View;
 class Window;
 

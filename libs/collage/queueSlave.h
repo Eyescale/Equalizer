@@ -1,5 +1,6 @@
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Carsten Rohn <carsten.rohn@rtt.ag> 
+
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+ *               2011, Carsten Rohn <carsten.rohn@rtt.ag> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,11 +38,9 @@ public:
     CO_API Command* pop();
 
 protected:
-
     virtual ChangeType getChangeType() const { return STATIC; }
 
 private:
-
     CommandQueue _queue;
 
     uint32_t _prefetchLow;

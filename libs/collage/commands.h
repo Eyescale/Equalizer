@@ -76,10 +76,10 @@ namespace co
 
     enum QueueCommand
     {
-        CMD_GET_QUEUE_ITEM = CMD_BARRIER_CUSTOM,
+        CMD_QUEUE_GET_ITEM = CMD_OBJECT_CUSTOM,
         CMD_QUEUE_EMPTY,
         CMD_QUEUE_ITEM,
-        CMD_QUEUE_CUSTOM = 30 // some buffer for binary-compatible patches
+        CMD_QUEUE_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 }
 

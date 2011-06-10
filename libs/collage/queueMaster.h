@@ -1,5 +1,6 @@
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Carsten Rohn <carsten.rohn@rtt.ag> 
+
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+ *               2011, Carsten Rohn <carsten.rohn@rtt.ag> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,13 +27,14 @@
 namespace co
 {
 
+// @bug eile: missing doxygen
 class QueueMaster : public Object
 {
 public:
     CO_API QueueMaster();
     ~QueueMaster() {}
 
-    Command& pop();
+    Command& pop(); // note eile: why is this needed?
     CO_API void push( const QueueItemPacket& packet );
 
     CO_API virtual void attach( const base::UUID& id, 
@@ -49,6 +51,8 @@ private:
 
     /** The command handler functions. */
     bool _cmdGetItem( Command& command );
+
+    EQ_TS_VAR( _thread );
 };
 
 } // co

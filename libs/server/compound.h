@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,9 +43,6 @@ namespace server
 {
     class CompoundListener;
     class CompoundVisitor;
-    class Frame;
-    class TileQueue;
-    class SwapBarrier;
     
     /**
      * The compound.
@@ -285,7 +282,7 @@ namespace server
         EQSERVER_API void addInputTileQueue( TileQueue* tileQueue );
 
         /** @return the vector of input tile queues. */
-        const TileQueues& getInputTileQueue() const { return _inputTileQueues; }
+        const TileQueues& getInputTileQueues() const { return _inputTileQueues; }
 
         /** 
          * Add a new output tile queue for this compound.
@@ -295,7 +292,7 @@ namespace server
         EQSERVER_API void addOutputTileQueue( TileQueue* tileQueue );
 
         /** @return the vector of output tile queues. */
-        const TileQueues& getOutputQueues() const { return _outputTileQueues; }
+        const TileQueues& getOutputTileQueues() const { return _outputTileQueues; }
         //@}
 
         /** 

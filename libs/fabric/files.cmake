@@ -38,6 +38,7 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/pixel.h
     ../fabric/pixelViewport.h
     ../fabric/projection.h
+    ../fabric/queuePackets.h
     ../fabric/range.h
     ../fabric/renderContext.h
     ../fabric/segment.h
@@ -53,7 +54,6 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/window.h
     ../fabric/windowPackets.h
     ../fabric/zoom.h
-	../fabric/queuePackets.h
   )
 
 set(EQ_FABRIC_HEADERS

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2011, Daniel Nachbaur<danielnachbaur@googlemail.com>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011, Daniel Nachbaur<danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 #define EQSERVER_TILEQUEUE_H
 
 #include "compound.h"
+#include "types.h"
 
 #include <co/base/bitOperation.h> // function getIndexOfLastBit
 
@@ -27,10 +28,6 @@ namespace eq
 {
 namespace server
 {
-    class Compound;
-    class FrameData;
-    class Node;
-
     /** A holder for frame data and parameters. */
     class TileQueue : public co::Object
     {

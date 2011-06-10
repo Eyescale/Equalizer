@@ -1,5 +1,6 @@
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Carsten Rohn <carsten.rohn@rtt.ag> 
+
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,10 +27,10 @@ namespace co
 {
 
 QueueSlave::QueueSlave()
-: Object()
+        : Object()
+        , _prefetchLow( Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
+        , _prefetchHigh( Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE ))
 {
-    _prefetchLow = Global::getIAttribute(Global::IATTR_QUEUE_MIN_SIZE);
-    _prefetchHigh = Global::getIAttribute(Global::IATTR_QUEUE_MAX_SIZE);
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
@@ -43,7 +44,7 @@ Command* QueueSlave::pop()
 {
     if ( _queue.getSize() <= _prefetchLow )
     {
-        GetQueueItemPacket packet;
+        QueueGetItemPacket packet;
         uint32_t queueSize = static_cast<uint32_t>(_queue.getSize());
         packet.itemsRequested = _prefetchHigh - queueSize;
         send( getMasterNode(), packet );

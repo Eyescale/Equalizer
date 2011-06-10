@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,6 +26,8 @@
 /** @cond IGNORE */
 namespace eq
 {
+
+// @bug eile: name QueueFooPacket for all packets
 
 struct ChunkTaskPacket : public co::QueueItemPacket
 {

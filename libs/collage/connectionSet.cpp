@@ -441,9 +441,6 @@ bool ConnectionSet::_setupFDSet()
          i != _connections.end(); ++i )
     {
         ConnectionPtr connection = *i;
-        if ( connection->isClosed() )
-            continue;
-
         readHandle = connection->getNotifier();
 
         if( !readHandle )

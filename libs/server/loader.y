@@ -1226,7 +1226,7 @@ frameField:
 frameType: 
     EQTOKEN_TEXTURE { frame->setType( eq::Frame::TYPE_TEXTURE ); }
     | EQTOKEN_MEMORY { frame->setType( eq::Frame::TYPE_MEMORY ); }
-    
+
 inputFrame: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'
         { 

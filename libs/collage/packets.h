@@ -82,20 +82,17 @@ namespace co
     struct QueueItemPacket : public ObjectPacket
     {
         QueueItemPacket()
-            : frameID( 0 )
         {
             command = CMD_QUEUE_ITEM;
         }
-
-        uint32_t frameID;
     };
 
-    struct GetQueueItemPacket : public ObjectPacket
+    struct QueueGetItemPacket : public ObjectPacket
     {
-        GetQueueItemPacket()
+        QueueGetItemPacket()
             : itemsRequested( 0u )
         {
-            command = CMD_GET_QUEUE_ITEM;
+            command = CMD_QUEUE_GET_ITEM;
         }
         uint32_t itemsRequested;
     };

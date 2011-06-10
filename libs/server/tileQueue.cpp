@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2011, Daniel Nachbaur<danielnachbaur@googlemail.com>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011, Daniel Nachbaur<danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
