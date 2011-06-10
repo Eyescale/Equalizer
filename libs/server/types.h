@@ -112,6 +112,7 @@ typedef fabric::Matrix4f Matrix4f;   //!< A 4x4 float matrix
 typedef fabric::Frustumf Frustumf;   //!< A frustum definition
 typedef fabric::Projection Projection;
 typedef fabric::RenderContext RenderContext;
+typedef fabric::TileTaskPacket TileTaskPacket;
 typedef fabric::Wall Wall;
 
 typedef fabric::NodePath NodePath;
