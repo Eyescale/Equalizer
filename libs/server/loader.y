@@ -559,7 +559,7 @@ renderNode: EQTOKEN_NODE '{' {
 appNode: EQTOKEN_APPNODE '{' 
             {
                 node = config->findApplicationNode();
-                EQASSERT( node )
+                EQASSERT( node );
             }
             nodeFields
             '}' { node = 0; }
@@ -1070,11 +1070,11 @@ loadBalancerField:
         else if( dfrEqualizer )
             dfrEqualizer->setDamping( $2 );
     }
-    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ) }
-    | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ) }
+    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ); }
+    | EQTOKEN_FRAMERATE FLOAT     { dfrEqualizer->setFrameRate( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
-                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
-    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
+        { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ); }
 
 loadBalancerMode:
     EQTOKEN_2D
@@ -1155,16 +1155,17 @@ viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
 dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField
 dfrEqualizerField:
     EQTOKEN_DAMPING FLOAT      { dfrEqualizer->setDamping( $2 ); }
-    | EQTOKEN_FRAMERATE FLOAT  { dfrEqualizer->setFrameRate( $2 ) }
+    | EQTOKEN_FRAMERATE FLOAT  { dfrEqualizer->setFrameRate( $2 ); }
 
 loadEqualizerFields: /* null */ | loadEqualizerFields loadEqualizerField
 loadEqualizerField:
     EQTOKEN_DAMPING FLOAT            { loadEqualizer->setDamping( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
-                  { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
-    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT  { loadEqualizer->setAssembleOnlyLimit( $2 ) }
-    | EQTOKEN_BOUNDARY FLOAT  { loadEqualizer->setBoundary( $2 ) }
-    | EQTOKEN_MODE loadEqualizerMode { loadEqualizer->setMode( $2 ); }
+                 { loadEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+    | EQTOKEN_ASSEMBLE_ONLY_LIMIT FLOAT
+                           { loadEqualizer->setAssembleOnlyLimit( $2 ); }
+    | EQTOKEN_BOUNDARY FLOAT        { loadEqualizer->setBoundary( $2 ); }
+    | EQTOKEN_MODE loadEqualizerMode    { loadEqualizer->setMode( $2 ); }
 
 loadEqualizerMode: 
     EQTOKEN_2D           { $$ = eq::server::LoadEqualizer::MODE_2D; }
@@ -1176,9 +1177,9 @@ treeEqualizerFields: /* null */ | treeEqualizerFields treeEqualizerField
 treeEqualizerField:
     EQTOKEN_DAMPING FLOAT            { treeEqualizer->setDamping( $2 ); }
     | EQTOKEN_BOUNDARY '[' UNSIGNED UNSIGNED ']' 
-                  { treeEqualizer->setBoundary( eq::Vector2i( $3, $4 )) }
-    | EQTOKEN_BOUNDARY FLOAT  { treeEqualizer->setBoundary( $2 ) }
-    | EQTOKEN_MODE treeEqualizerMode { treeEqualizer->setMode( $2 ); }
+                 { treeEqualizer->setBoundary( eq::Vector2i( $3, $4 )); }
+    | EQTOKEN_BOUNDARY FLOAT        { treeEqualizer->setBoundary( $2 ); }
+    | EQTOKEN_MODE treeEqualizerMode    { treeEqualizer->setMode( $2 ); }
 
 treeEqualizerMode: 
     EQTOKEN_2D           { $$ = eq::server::TreeEqualizer::MODE_2D; }
@@ -1243,7 +1244,7 @@ tileQueueFields: /*null*/ | tileQueueFields tileQueueField
 tileQueueField: 
     EQTOKEN_NAME STRING { tileQueue->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']' 
-		{ tileQueue->setSize( eq::Vector2i( $3, $4 )) }
+        { tileQueue->setSize( eq::Vector2i( $3, $4 )); }
 
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:
