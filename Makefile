@@ -25,7 +25,7 @@ cdash: cdash/Makefile
 
 cdash/Makefile:
 	@mkdir -p cdash
-	@cd cdash; cmake ..
+	@cd cdash; env CXXFLAGS="-fprofile-arcs -ftest-coverage" CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" cmake ..
 
 release: release/Makefile
 	@$(MAKE) -C release
