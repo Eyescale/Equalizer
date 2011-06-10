@@ -78,6 +78,36 @@ namespace co
         uint32_t pad; // pad to multiple-of-eight
     };
 
+
+    struct QueueItemPacket : public ObjectPacket
+    {
+        QueueItemPacket()
+            : frameID( 0 )
+        {
+            command = CMD_QUEUE_ITEM;
+        }
+
+        uint32_t frameID;
+    };
+
+    struct GetQueueItemPacket : public ObjectPacket
+    {
+        GetQueueItemPacket()
+            : itemsRequested( 0u )
+        {
+            command = CMD_GET_QUEUE_ITEM;
+        }
+        uint32_t itemsRequested;
+    };
+    
+    struct QueueEmptyPacket : public ObjectPacket
+    {
+        QueueEmptyPacket()
+        {
+            command = CMD_QUEUE_EMPTY;
+        }
+    };
+
     //------------------------------------------------------------
     // ostream operators
     //------------------------------------------------------------
