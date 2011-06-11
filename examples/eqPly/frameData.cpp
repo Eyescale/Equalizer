@@ -173,16 +173,6 @@ void FrameData::spinCamera( const float x, const float y )
     setDirty( DIRTY_CAMERA );
 }
 
-void FrameData::spinModel( const float x, const float y )
-{
-    if( x == 0.f && y == 0.f )
-        return;
-
-    _modelRotation.pre_rotate_x( x );
-    _modelRotation.pre_rotate_y( y );
-    setDirty( DIRTY_CAMERA );
-}
-
 void FrameData::spinModel( const float x, const float y, const float z )
 {
     if( x == 0.f && y == 0.f && z == 0.f )

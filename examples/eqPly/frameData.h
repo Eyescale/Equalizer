@@ -85,7 +85,6 @@ namespace eqPly
         void setRotation( const eq::Vector3f& rotation);
         void setModelRotation( const eq::Vector3f& rotation    );
         void spinCamera( const float x, const float y );
-        void spinModel(  const float x, const float y );
         void spinModel(  const float x, const float y, const float z );
         void moveCamera( const float x, const float y, const float z );
 

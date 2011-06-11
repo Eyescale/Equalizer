@@ -338,7 +338,7 @@ void Config::_updateData()
         if( _frameData.usePilotMode())
             _frameData.spinCamera( -0.001f * _spinX, -0.001f * _spinY );
         else
-            _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY );
+            _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY, 0.f );
 
         _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
     }
@@ -457,7 +457,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                   else
                       _frameData.spinModel(
                           -0.005f * event->data.pointerMotion.dy,
-                          -0.005f * event->data.pointerMotion.dx );
+                          -0.005f * event->data.pointerMotion.dx, 0.f );
                   _redraw = true;
                   return true;
 
