@@ -32,6 +32,8 @@ set(CO_FORWARD_HEADERS
     object.h
     objectVersion.h
     packets.h
+    queueMaster.h
+    queueSlave.h
     serializable.h
     types.h
   )
@@ -52,6 +54,7 @@ set(CO_HEADERS
     objectInstanceDataOStream.h
     objectSlaveDataOStream.h
     pipeConnection.h
+    pgmConnection.h
     rspConnection.h
     socketConnection.h
     staticMasterCM.h
@@ -92,14 +95,16 @@ set(CO_SOURCES
     objectStore.cpp
     objectVersion.cpp
     packets.cpp
+    pgmConnection.cpp
     pipeConnection.cpp
+    queueMaster.cpp
+    queueSlave.cpp
     socketConnection.cpp
     staticMasterCM.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
     version.cpp
     versionedSlaveCM.cpp
-    pgmConnection.h
 )
   
 set(CO_COMPRESSOR_HEADERS

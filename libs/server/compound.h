@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -43,8 +43,6 @@ namespace server
 {
     class CompoundListener;
     class CompoundVisitor;
-    class Frame;
-    class SwapBarrier;
     
     /**
      * The compound.
@@ -275,6 +273,26 @@ namespace server
 
         /** @return the vector of output frames. */
         const Frames& getOutputFrames() const { return _outputFrames; }
+
+        /** 
+         * Add a new input tile queue for this compound.
+         *
+         * @param tileQueue the input tile queue.
+         */
+        EQSERVER_API void addInputTileQueue( TileQueue* tileQueue );
+
+        /** @return the vector of input tile queues. */
+        const TileQueues& getInputTileQueues() const { return _inputTileQueues; }
+
+        /** 
+         * Add a new output tile queue for this compound.
+         *
+         * @param tilequeue the output tile queue.
+         */
+        EQSERVER_API void addOutputTileQueue( TileQueue* tileQueue );
+
+        /** @return the vector of output tile queues. */
+        const TileQueues& getOutputTileQueues() const { return _outputTileQueues; }
         //@}
 
         /** 
@@ -539,6 +557,9 @@ namespace server
         Frames _inputFrames;
         Frames _outputFrames;
 
+        TileQueues _inputTileQueues;
+        TileQueues _outputTileQueues;
+
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
@@ -557,6 +578,7 @@ namespace server
         void _updateInheritActive( const uint32_t frameNumber );
 
         void _setDefaultFrameName( Frame* frame );
+        void _setDefaultTileQueueName( TileQueue* tileQueue );
 
         void _fireChildAdded( Compound* child );
         void _fireChildRemove( Compound* child );

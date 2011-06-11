@@ -64,6 +64,7 @@ class Pipe;
 class Segment;
 class Server;
 class SwapBarrier;
+class TileQueue;
 class View;
 class Window;
 
@@ -76,6 +77,7 @@ typedef std::vector< Channel* >  Channels;
 typedef std::vector< Canvas* >       Canvases;
 typedef std::vector< Compound* >     Compounds;
 typedef std::vector< Frame* >        Frames;
+typedef std::vector< TileQueue* >    TileQueues;
 typedef std::vector< Layout* >       Layouts;
 typedef std::vector< Equalizer* >    Equalizers;
 typedef std::vector< Observer* >     Observers;
@@ -91,6 +93,8 @@ typedef Compounds::const_iterator CompoundsCIter;
 typedef Compounds::iterator CompoundsIter;
 typedef Frames::const_iterator FramesCIter;
 typedef Frames::iterator FramesIter;
+typedef TileQueues::const_iterator TileQueuesCIter;
+typedef TileQueues::iterator TileQueuesIter;
 typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
 typedef Views::const_iterator ViewsCIter;
@@ -101,24 +105,24 @@ typedef Channels::iterator ChannelsIter;
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
 
-typedef fabric::Vector4i Vector4i;   //!< A four-component integer vector
-typedef fabric::Vector3f Vector3f;   //!< A three-component float vector
-typedef fabric::Vector3ub Vector3ub; //!< A three-component byte vector
-typedef fabric::Matrix4f Matrix4f;   //!< A 4x4 float matrix
-typedef fabric::Frustumf Frustumf;   //!< A frustum definition
-typedef fabric::Projection Projection;
-typedef fabric::RenderContext RenderContext;
-typedef fabric::Wall Wall;
+using fabric::Vector4i;   //!< A four-component integer vector
+using fabric::Vector3f;   //!< A three-component float vector
+using fabric::Vector3ub; //!< A three-component byte vector
+using fabric::Matrix4f;   //!< A 4x4 float matrix
+using fabric::Frustumf;   //!< A frustum definition
+using fabric::Projection;
+using fabric::RenderContext;
+using fabric::Wall;
 
-typedef fabric::NodePath NodePath;
-typedef fabric::PipePath PipePath;
-typedef fabric::WindowPath WindowPath;
-typedef fabric::ChannelPath ChannelPath;
-typedef fabric::CanvasPath CanvasPath;
-typedef fabric::SegmentPath SegmentPath;
-typedef fabric::ObserverPath ObserverPath;
-typedef fabric::LayoutPath LayoutPath;
-typedef fabric::ViewPath ViewPath;
+using fabric::NodePath;
+using fabric::PipePath;
+using fabric::WindowPath;
+using fabric::ChannelPath;
+using fabric::CanvasPath;
+using fabric::SegmentPath;
+using fabric::ObserverPath;
+using fabric::LayoutPath;
+using fabric::ViewPath;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;

@@ -250,6 +250,8 @@ NV_group                        { return EQTOKEN_NVGROUP;}
 NV_barrier                      { return EQTOKEN_NVBARRIER;}
 outputframe                     { return EQTOKEN_OUTPUTFRAME; }
 inputframe                      { return EQTOKEN_INPUTFRAME; }
+outputtiles                     { return EQTOKEN_OUTPUTTILES; }
+inputtiles                      { return EQTOKEN_INPUTTILES; }
 stereo_mode                     { return EQTOKEN_STEREO_MODE; }
 stereo_anaglyph_left_mask       { return EQTOKEN_STEREO_ANAGLYPH_LEFT_MASK; }
 stereo_anaglyph_right_mask      { return EQTOKEN_STEREO_ANAGLYPH_RIGHT_MASK; }
@@ -273,6 +275,7 @@ DB                              { return EQTOKEN_DB; }
 zoom                            { return EQTOKEN_ZOOM; }
 MONO                            { return EQTOKEN_MONO; }
 STEREO                          { return EQTOKEN_STEREO; }
+size                            { return EQTOKEN_SIZE; }
 
 [+-]?[0-9]+[\.][0-9]*           { return EQTOKEN_FLOAT; }
 [+-]?[0-9]*[\.][0-9]+           { return EQTOKEN_FLOAT; }

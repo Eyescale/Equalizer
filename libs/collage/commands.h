@@ -73,6 +73,14 @@ namespace co
         CMD_BARRIER_ENTER_REPLY,
         CMD_BARRIER_CUSTOM = 20 // some buffer for binary-compatible patches
     };
+
+    enum QueueCommand
+    {
+        CMD_QUEUE_GET_ITEM = CMD_OBJECT_CUSTOM,
+        CMD_QUEUE_EMPTY,
+        CMD_QUEUE_ITEM,
+        CMD_QUEUE_CUSTOM = 20 // some buffer for binary-compatible patches
+    };
 }
 
 #endif // CO_COMMANDS_H

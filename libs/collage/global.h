@@ -112,6 +112,8 @@ namespace co
             IATTR_RSP_ACK_FREQUENCY,     //!< @internal reader ack interval
             IATTR_UDP_MTU,               //!< @internal max send size on UDP
             IATTR_UDP_BUFFER_SIZE,       //!< @internal send/receiver buffer
+            IATTR_QUEUE_MIN_SIZE,        //!< @internal (tile) queue min size
+            IATTR_QUEUE_MAX_SIZE,        //!< @internal (tile) queue max size
             IATTR_ALL
         };
 

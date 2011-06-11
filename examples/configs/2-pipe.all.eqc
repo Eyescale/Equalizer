@@ -1,11 +1,11 @@
 #Equalizer 1.1 ascii
 # two-pipe demo configuration for dual-GPU machines
-#  canvas tuned for 24" straight + 19" up-right LCD
+#  canvas tuned for two 24" portrait displays, tweak wall descriptions for your
+#  monitor size, orientation and bezel width.
 
 global
 {
     EQ_WINDOW_IATTR_PLANES_STENCIL ON
-    EQ_CHANNEL_IATTR_HINT_STATISTICS NICEST
     EQ_WINDOW_IATTR_PLANES_SAMPLES 4
     EQ_CONFIG_FATTR_EYE_BASE .01
 }
@@ -24,7 +24,7 @@ server
 
                 window
                 {
-                    name "window 24 inch"
+                    name "window GPU 0"
                     viewport [ .25 .25 .5 .5 ]
                     attributes { hint_fullscreen ON hint_decoration OFF }
                     channel { name "channel" }
@@ -37,15 +37,9 @@ server
 
                 window
                 {
-                    name "window 19 inch"
+                    name "window GPU 0"
                     attributes { hint_decoration OFF }
-                    channel
-                    {
-                        name "FBO"
-                        drawable [ FBO_COLOR FBO_DEPTH ]
-                        viewport [ 0 0 1920 1200 ]
-                    }
-                    channel { name "buffer" viewport [ 0 .0625 1 .9375 ] }
+                    channel { name "buffer" }
                 }
             }
             pipe 
@@ -67,12 +61,12 @@ server
             name "2D"
             view
             {
-                viewport [ 0 0 .58 1 ]
+                viewport [ 0 0 .5 1 ]
                 wall
                 {
-                    bottom_left  [ -.32 -.20 -.75 ]
-                    bottom_right [  .32 -.20 -.75 ]
-                    top_left     [ -.32  .20 -.75 ]
+                    bottom_left  [ -.5 -.8 -1 ]
+                    bottom_right [  .5 -.8 -1 ]
+                    top_left     [ -.5  .8 -1 ]
                 }
             }
         }
@@ -81,12 +75,12 @@ server
             name "DB"
             view
             {
-                viewport [ 0 0 .58 1 ]
+                viewport [ 0 0 .5 1 ]
                 wall
                 {
-                    bottom_left  [ -.32 -.20 -.75 ]
-                    bottom_right [  .32 -.20 -.75 ]
-                    top_left     [ -.32  .20 -.75 ]
+                    bottom_left  [ -.5 -.8 -1 ]
+                    bottom_right [  .5 -.8 -1 ]
+                    top_left     [ -.5  .8 -1 ]
                 }
             }
         }
@@ -95,12 +89,13 @@ server
             name "Stereo"
             view
             {
-                viewport [ 0 0 .58 1 ]
+                viewport [ 0 0 .5 1 ]
+                mode STEREO
                 wall
                 {
-                    bottom_left  [ -.32 -.20 -.75 ]
-                    bottom_right [  .32 -.20 -.75 ]
-                    top_left     [ -.32  .20 -.75 ]
+                    bottom_left  [ -.5 -.8 -1 ]
+                    bottom_right [  .5 -.8 -1 ]
+                    top_left     [ -.5  .8 -1 ]
                 }
             }
         }
@@ -109,12 +104,12 @@ server
             name "DPlex"
             view
             {
-                viewport [ 0 0 .58 1 ]
+                viewport [ 0 0 .5 1 ]
                 wall
                 {
-                    bottom_left  [ -.32 -.20 -.75 ]
-                    bottom_right [  .32 -.20 -.75 ]
-                    top_left     [ -.32  .20 -.75 ]
+                    bottom_left  [ -.5 -.8 -1 ]
+                    bottom_right [  .5 -.8 -1 ]
+                    top_left     [ -.5  .8 -1 ]
                 }
             }
         }
@@ -124,21 +119,34 @@ server
         {
             layout "Wall"
             layout "2D" 
-            layout "Wall Cross-Segment Load-Balancing"
             layout "DB"
+            layout "Wall Cross-Segment Load-Balancing"
             layout "Stereo"
             layout "DPlex" 
 
             wall
             {
-                bottom_left  [ -.48 -.20 -.75 ]
-                bottom_right [  .48 -.20 -.75 ]
-                top_left     [ -.48  .20 -.75 ]
-
+                bottom_left  [ -1.02 -.8 -1 ]
+                bottom_right [  1.02 -.8 -1 ]
+                top_left     [ -1.02  .8 -1 ]
             }
 
-            segment { channel "channel" viewport [ 0 .08 .58 .92 ] }
-            segment { channel "buffer" viewport [ .62 0 .38 1 ] }
+            segment { channel "channel" viewport [ 0 0 .49 1 ] }
+            segment { channel "buffer" viewport [ .51 0 .49 1 ] }
+        }
+
+        compound
+        {
+            compound
+            {
+                channel ( layout "Wall" segment 0 view 0 ) 
+                swapbarrier {}
+            }
+            compound
+            {
+                channel ( layout "Wall" segment 1 view 0 ) 
+                swapbarrier {}
+            }
         }
 
         compound
@@ -148,19 +156,13 @@ server
             {
                 load_equalizer { mode HORIZONTAL }
                 
-                compound { }
-                compound {
-                    channel "FBO"
+                compound {}
+                compound
+                {
+                    channel ( layout "Wall" segment 1 view 0 ) 
                     outputframe {}
-                    outputframe
-                    {
-                        name "mon"
-                        type texture
-                        buffer [ COLOR ]
-                        zoom [ .53 .53 ]
-                    }
                 }
-                inputframe { name "frame.FBO" }
+                inputframe { name "frame.buffer" }
             }
             compound
             {
@@ -179,20 +181,13 @@ server
                 load_equalizer { mode DB }
                 buffer [ COLOR DEPTH ]
 
+                compound {}
                 compound
                 {
-                    channel "FBO"
+                    channel ( layout "Wall" segment 1 view 0 ) 
                     outputframe {}
-                    outputframe
-                    {
-                        name "mon"
-                        type texture
-                        buffer [ COLOR ]
-                        zoom [ .53 .53 ]
-                    }
                 }
-                compound { }
-                inputframe { name "frame.FBO" }
+                inputframe { name "frame.buffer" }
             }
             compound
             {
@@ -204,48 +199,6 @@ server
 
         compound
         {
-            channel ( layout "Stereo" segment 0 view 0 ) 
-            eye [ CYCLOP LEFT RIGHT ]
-            
-
-            compound { eye [ LEFT CYCLOP ] }
-            compound
-            {
-                channel "FBO"
-                eye [ RIGHT CYCLOP ]
-                outputframe {}
-                outputframe { type texture name "FBO2" zoom [ .53 .53 ] }
-            }
-            compound
-            {
-                task [ ASSEMBLE ]
-                eye [ RIGHT CYCLOP ]
-                inputframe { name "frame.FBO" }
-            }
-            compound { channel "buffer" eye [ LEFT ] task [ CLEAR ] }
-            compound
-            {
-                channel "buffer"
-                eye [ RIGHT CYCLOP ]
-                task [ CLEAR ASSEMBLE ]
-                inputframe { name "FBO2" }
-            }
-        }
-        compound
-        {
-            compound
-            {
-                channel ( layout "Wall" segment 0 view 0 ) 
-                swapbarrier {}
-            }
-            compound
-            {
-                channel ( layout "Wall" segment 1 view 0 ) 
-                swapbarrier {}
-            }
-        }
-        compound
-        {
             view_equalizer {}
             compound
             {
@@ -253,8 +206,8 @@ server
                 load_equalizer{ mode HORIZONTAL }
 
                 compound { }
-                compound { channel "FBO" outputframe { }}
-                inputframe { name "frame.FBO" }
+                compound { channel "buffer" outputframe { }}
+                inputframe { name "frame.buffer" }
                 swapbarrier {}
             }
             compound
@@ -271,38 +224,42 @@ server
 
         compound
         {
-            channel ( layout "DPlex" segment 0 view 0 ) 
-            compound
-            {
-                framerate_equalizer {}
+            channel ( layout "Stereo" segment 0 view 0 ) 
+            
 
-                compound
-                {
-                    channel "FBO"
-                    period 2 phase 0
-                    outputframe { name "DPlex" }
-                    outputframe
-                    {
-                        name "mon"
-                        type texture
-                        buffer [ COLOR ]
-                        zoom [ .53 .53 ]
-                    }
-                }
-                compound
-                {
-                    channel "FBO0"
-                    period 2 phase 1
-                    outputframe { name "DPlex" }
-                }
-                inputframe { name "DPlex" }
-            }
+            compound { eye [ LEFT CYCLOP ] }
             compound
             {
                 channel "buffer"
-                task [ ASSEMBLE ]
-                inputframe { name "mon" }
+                eye [ RIGHT ]
+                outputframe {}
             }
+            compound
+            {
+                task [ ASSEMBLE ]
+                eye [ RIGHT ]
+                inputframe { name "frame.buffer" }
+            }
+            compound { channel "buffer" eye [ LEFT CYCLOP ] task [ CLEAR ] }
+        }
+        compound
+        {
+            channel ( layout "DPlex" segment 0 view 0 ) 
+            framerate_equalizer {}
+
+            compound
+            {
+                channel "buffer"
+                period 2 phase 0
+                outputframe { name "DPlex" }
+            }
+            compound
+            {
+                channel "FBO0"
+                period 2 phase 1
+                outputframe { name "DPlex" }
+            }
+            inputframe { name "DPlex" }
         }
     }
 }

@@ -1,0 +1,74 @@
+#Equalizer 1.1 ascii
+
+# two-to-one sort-first config, for cluster change hostnames
+global
+{
+    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+}
+
+server
+{
+    connection { hostname "127.0.0.1" }
+    config
+    {
+        appNode
+        {
+            connection { hostname "127.0.0.1" }
+            pipe 
+            {
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
+                    channel { name "channel1" }
+                }
+            }
+        }
+        node
+        {
+            connection { hostname "127.0.0.1" }
+            pipe { window { channel { name "channel2" }}}
+        }
+
+        observer {}
+        layout { name "tile based" view{ observer "" }}
+        layout { name "2D load-balanced" view{ observer "" }}
+        canvas
+        {
+            layout   "tile based"
+            layout   "2D load-balanced"
+            wall {}
+
+            segment { channel  "channel1" }
+        }
+
+        compound
+        {
+            channel ( layout "tile based" )
+            outputtiles { name "queue" size [ 64 64 ] }
+            compound
+            {
+                inputtiles { name "queue" }
+            }
+            compound
+            {
+                channel "channel2"
+                inputtiles { name "queue" }
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel ( layout "2D load-balanced" )
+            load_equalizer{}
+            compound {}
+            compound
+            {
+                channel "channel2"
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
+        }
+    }    
+}

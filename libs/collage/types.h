@@ -46,6 +46,7 @@ class Node;
 class Object;
 class ObjectDataIStream;
 class Serializable;
+class QueueMaster;
 struct ObjectVersion;
 
 /** A unique identifier for nodes. */
