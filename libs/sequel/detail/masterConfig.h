@@ -34,13 +34,16 @@ namespace detail
         virtual bool run( co::Object* frameData );
         virtual bool exit();
 
-        virtual bool needRedraw() { return true; }
+        virtual bool needRedraw() { return _redraw; }
         virtual uint32_t startFrame();
 
     protected:
         virtual ~MasterConfig();
+        virtual bool handleEvent( const eq::ConfigEvent* event );
 
     private:
+        uint128_t _currentViewID;
+        bool _redraw;
     };
 }
 }

@@ -37,12 +37,20 @@ namespace detail
         ViewData* getViewData();
         //@}
 
+        /** @name Operations. */
+        //@{
+        bool handleEvent( const eq::ConfigEvent* event );
+        void updateData();
+        //@}
+
     protected:
         virtual ~View();
         virtual void notifyAttach();
         virtual void notifyDetached();
 
     private:
+        int _spinX, _spinY;
+        int _advance;
     };
 }
 }

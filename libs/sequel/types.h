@@ -23,6 +23,8 @@
 
 namespace seq
 {
+using eq::Matrix4f;
+using eq::Vector3f;
 using eq::uint128_t;
 
 class Application;

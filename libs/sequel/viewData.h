@@ -19,7 +19,7 @@
 #define EQSEQUEL_VIEWDATA_H
 
 #include <eq/sequel/api.h>
-#include <eq/types.h>
+#include <eq/sequel/types.h>
 #include <co/serializable.h>               // base class
 
 namespace seq
@@ -40,6 +40,8 @@ namespace seq
 
         /** @name Operations */
         //@{
+        void spinModel( const float x, const float y, const float z );
+        void moveModel( const float x, const float y, const float z );
         //@}
 
     protected:
@@ -54,7 +56,7 @@ namespace seq
             DIRTY_MODELMATRIX = co::Serializable::DIRTY_CUSTOM << 1, // 1
         };
 
-        eq::Matrix4f _modelMatrix;
+        Matrix4f _modelMatrix;
     };
 }
 #endif // EQSEQUEL_VIEWDATA_H

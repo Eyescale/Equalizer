@@ -40,5 +40,25 @@ void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _modelMatrix;
 }
 
+void ViewData::spinModel( const float x, const float y, const float z )
+{
+    if( x == 0.f && y == 0.f && z == 0.f )
+        return;
+
+    _modelMatrix.pre_rotate_x( x );
+    _modelMatrix.pre_rotate_y( y );
+    _modelMatrix.pre_rotate_z( z );
+    setDirty( DIRTY_MODELMATRIX );
+}
+
+void ViewData::moveModel( const float x, const float y, const float z )
+{
+    if( x == 0.f && y == 0.f && z == 0.f )
+        return;
+
+    _modelMatrix.scale_translation( Vector3f( 1.f + x, 1.f + y, 1.f + z ));
+    setDirty( DIRTY_MODELMATRIX );
+}
+
 }
 

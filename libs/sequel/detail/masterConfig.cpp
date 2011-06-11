@@ -18,7 +18,10 @@
 #include "masterConfig.h"
 
 #include "objectMap.h"
+#include "view.h"
+
 #include <eq/sequel/application.h>
+#include <eq/configEvent.h>
 
 namespace seq
 {
@@ -26,6 +29,8 @@ namespace detail
 {
 MasterConfig::MasterConfig( eq::ServerPtr parent )
         : Config( parent )
+        , _currentViewID( uint128_t::ZERO )
+        , _redraw( false )
 {}
 
 MasterConfig::~MasterConfig()
@@ -77,6 +82,7 @@ bool MasterConfig::run( co::Object* frameData )
     seq::Application* const app = getApplication();
     while( isRunning( ))
     {
+        _redraw = false;
         startFrame();
         if( getError( ))
             EQWARN << "Error during frame start: " << getError() << std::endl;
@@ -105,6 +111,43 @@ bool MasterConfig::run( co::Object* frameData )
 uint32_t MasterConfig::startFrame()
 {
     return eq::Config::startFrame( _objects->commit( ));
+}
+
+bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
+{
+    switch( event->data.type )
+    {
+        case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
+            _currentViewID = event->data.context.view.identifier;
+            return true;
+
+        case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
+        case eq::Event::CHANNEL_POINTER_MOTION:
+        case eq::Event::WINDOW_POINTER_WHEEL:
+        case eq::Event::MAGELLAN_AXIS:
+        {
+            if( _currentViewID == uint128_t::ZERO )
+                return true;
+
+            View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
+            _redraw = view->handleEvent( event );
+            return true;
+        }
+
+        case eq::Event::WINDOW_EXPOSE:
+        case eq::Event::WINDOW_RESIZE:
+        case eq::Event::WINDOW_CLOSE:
+        case eq::Event::VIEW_RESIZE:
+            _redraw = true;
+            break;
+
+        default:
+            break;
+    }
+
+    if( eq::Config::handleEvent( event ))
+        _redraw = true;
+    return _redraw;
 }
 
 }
