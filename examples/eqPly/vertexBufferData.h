@@ -38,8 +38,7 @@
 
 namespace mesh 
 {    
-    
-    /*  Holds the final kd-tree data, sorted and reindexed.  */
+    /** Holds the final kd-tree data, sorted and reindexed.  */
     class VertexBufferData
     {
     public:

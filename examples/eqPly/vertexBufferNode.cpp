@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,10 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Implementation of the VertexBufferNode class.
-*/
+ */
 
 
 #include "vertexBufferNode.h"
@@ -37,11 +34,17 @@
 #include "vertexData.h"
 #include <set>
 
-
-using namespace std;
-
 namespace mesh
 {
+
+/*  Destructor, clears up children as well.  */
+VertexBufferNode::~VertexBufferNode()
+{
+    delete _left;
+    delete _right;
+    _left = 0;
+    _right = 0;
+}
 
 inline static bool _subdivide( const Index length, const size_t depth )
 {
@@ -57,7 +60,7 @@ void VertexBufferNode::setupTree( VertexData& data, const Index start,
 #ifndef NDEBUG
     MESHINFO << "setupTree"
              << "( " << start << ", " << length << ", " << axis << ", " 
-             << depth << " )." << endl;
+             << depth << " )." << std::endl;
 #endif
 
     data.sort( start, length, axis );
@@ -122,7 +125,7 @@ const BoundingSphere& VertexBufferNode::updateBoundingSphere()
     
 #ifndef NDEBUG
     MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )." 
-             << endl;
+             << std::endl;
 #endif
     
     return _boundingSphere;
@@ -137,13 +140,13 @@ void VertexBufferNode::updateRange()
     static_cast< VertexBufferNode* >( _right )->updateRange();
     
     // set node range to min/max of the children's ranges
-    _range[0] = min( _left->getRange()[0], _right->getRange()[0] );
-    _range[1] = max( _left->getRange()[1], _right->getRange()[1] );
+    _range[0] = std::min( _left->getRange()[0], _right->getRange()[0] );
+    _range[1] = std::max( _left->getRange()[1], _right->getRange()[1] );
     
-    #ifndef NDEBUG
+#ifndef NDEBUG
     MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
-             << " )." << endl;
-    #endif
+             << " )." << std::endl;
+#endif
 }
 
 
@@ -205,11 +208,4 @@ void VertexBufferNode::toStream( std::ostream& os )
     static_cast< VertexBufferNode* >( _right )->toStream( os );
 }
 
-
-/*  Destructor, clears up children as well.  */
-VertexBufferNode::~VertexBufferNode()
-{
-    delete static_cast< VertexBufferNode* >( _left );
-    delete static_cast< VertexBufferNode* >( _right );
-}
 }
