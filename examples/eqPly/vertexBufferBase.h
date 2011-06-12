@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,8 @@ namespace mesh
     class VertexBufferBase
     {
     public:
+        virtual ~VertexBufferBase() {};
+
         virtual void render( VertexBufferState& state ) const = 0;
         void renderBoundingSphere( VertexBufferState& state ) const;
         virtual Index getNumberOfVertices() const = 0;
@@ -79,8 +81,6 @@ namespace mesh
             _range[0] = 0.0f;
             _range[1] = 1.0f;
         }
-        
-        virtual ~VertexBufferBase() {};
         
         virtual void toStream( std::ostream& os )
         {
@@ -112,6 +112,5 @@ namespace mesh
     private:
     };
 }
-
 
 #endif // MESH_VERTEXBUFFERBASE_H

@@ -65,7 +65,6 @@ namespace mesh
         virtual void updateRange();
 
     private:
-
         VertexBufferBase*   _left;
         VertexBufferBase*   _right;
         friend class eqPly::VertexBufferDist;

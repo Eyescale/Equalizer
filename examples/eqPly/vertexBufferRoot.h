@@ -38,8 +38,6 @@
 
 namespace mesh 
 {
-    
-    
     /*  The class for kd-tree root nodes.  */
     class VertexBufferRoot : public VertexBufferNode
     {
