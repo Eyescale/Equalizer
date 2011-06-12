@@ -45,20 +45,15 @@ namespace seqPly
     typedef mesh::VertexBufferRoot  Model;
     typedef eqPly::VertexBufferDist ModelDist;
 
-    typedef std::vector< Model* >     Models;
-    typedef std::vector< ModelDist* > ModelDists;
-
-    typedef Models::const_iterator ModelsCIter;
-    typedef ModelDists::const_iterator ModelDistsCIter;
-
     class Application : public seq::Application
     {
     public:
-        Application() {}
+        Application() : _modelDist( 0 ) {}
         virtual ~Application() {}
 
         bool init( const int argc, char** argv );
         bool run();
+        virtual bool exit();
 
         virtual co::Object* createObject( const uint32_t type );
 
@@ -66,6 +61,11 @@ namespace seqPly
 
     private:
         eqPly::FrameData _frameData;
+        Model _model;
+        ModelDist* _modelDist;
+
+        void _loadModel( const int argc, char** argv );
+        void _unloadModel();
     };
 
     typedef co::base::RefPtr< Application > ApplicationPtr;
