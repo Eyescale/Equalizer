@@ -50,6 +50,7 @@ set(EQ_FABRIC_FORWARD_HEADERS
     ../fabric/view.h
     ../fabric/viewport.h
     ../fabric/visitorResult.h
+    ../fabric/vmmlib.h
     ../fabric/wall.h
     ../fabric/window.h
     ../fabric/windowPackets.h

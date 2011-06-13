@@ -20,20 +20,11 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/vmmlib.h>
 #include <co/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uint128_t.h>
 
-#define VMMLIB_CUSTOM_CONFIG
-#ifndef NDEBUG
-#  define VMMLIB_SAFE_ACCESSORS
-#endif
-#define VMMLIB_ALIGN( var ) var
-
-#pragma warning(push)
-#pragma warning(disable : 4996)
-#  include <vmmlib/vmmlib.hpp>
-#pragma warning(pop)
 namespace eq
 {
 namespace fabric
