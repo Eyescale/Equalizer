@@ -1,3 +1,4 @@
+
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  * Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
  *
@@ -24,10 +25,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Implementation of the VertexBufferLeaf class.
-*/
+ */
 
 
 #include "vertexBufferLeaf.h"
@@ -267,9 +265,8 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
     }
 }
 
-
-/*  Render the leaf.  */
-void VertexBufferLeaf::render( VertexBufferState& state ) const
+/*  Draw the leaf.  */
+void VertexBufferLeaf::draw( VertexBufferState& state ) const
 {
     if ( state.stopRendering( ))
         return;

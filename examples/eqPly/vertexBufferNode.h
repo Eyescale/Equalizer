@@ -46,7 +46,7 @@ namespace mesh
         VertexBufferNode() : _left( 0 ), _right( 0 ) {}
         virtual ~VertexBufferNode();
 
-        virtual void render( VertexBufferState& state ) const;
+        virtual void draw( VertexBufferState& state ) const;
         virtual Index getNumberOfVertices() const
             {return _left->getNumberOfVertices()+_right->getNumberOfVertices();}
 

@@ -600,7 +600,6 @@ void Channel::_drawModel( const Model* model )
     Window*            window    = static_cast< Window* >( getWindow( ));
     VertexBufferState& state     = window->getState();
     const FrameData&   frameData = _getFrameData();
-    const eq::Range&   range     = getRange();
     eq::FrustumCullerf culler;
 
     if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
@@ -609,105 +608,31 @@ void Channel::_drawModel( const Model* model )
         state.setColors( false );
     state.setChannel( this );
 
-    _initFrustum( culler, model->getBoundingSphere( ));
+    // Compute cull matrix
+    const eq::Matrix4f& rotation = frameData.getCameraRotation();
+    const eq::Matrix4f& modelRotation = frameData.getModelRotation();
+    eq::Matrix4f position = eq::Matrix4f::IDENTITY;
+    position.set_translation( frameData.getCameraPosition());
+
+    const eq::Matrix4f& xfm = getHeadTransform();
+    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
+
+    const eq::Frustumf& frustum = getFrustum();
+    const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
+                                                 frustum.compute_matrix();
+    state.setProjectionModelViewMatrix( projection * modelView );
+    state.setRange( &getRange().start);
 
     const eq::Pipe* pipe = getPipe();
     const GLuint program = state.getProgram( pipe );
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
-    model->beginRendering( state );
-    
-#ifndef NDEBUG
-    size_t verticesRendered = 0;
-    size_t verticesOverlap  = 0;
-#endif
-
-    // start with root node
-    std::vector< const mesh::VertexBufferBase* > candidates;
-    candidates.push_back( model );
-
-    while( !candidates.empty() )
-    {
-        if( stopRendering( ))
-            return;
-
-        const mesh::VertexBufferBase* treeNode = candidates.back();
-        candidates.pop_back();
-            
-        // completely out of range check
-        if( treeNode->getRange()[0] >= range.end || 
-            treeNode->getRange()[1] < range.start )
-            continue;
-            
-        // bounding sphere view frustum culling
-        const vmml::Visibility visibility =
-            culler.test_sphere( treeNode->getBoundingSphere( ));
-
-        switch( visibility )
-        {
-            case vmml::VISIBILITY_FULL:
-                // if fully visible and fully in range, render it
-                if( range == eq::Range::ALL || 
-                    ( treeNode->getRange()[0] >= range.start && 
-                      treeNode->getRange()[1] < range.end ))
-                {
-                    treeNode->render( state );
-                    //treeNode->renderBoundingSphere( state );
-#ifndef NDEBUG
-                    verticesRendered += treeNode->getNumberOfVertices();
-#endif
-                    break;
-                }
-                // partial range, fall through to partial visibility
-
-            case vmml::VISIBILITY_PARTIAL:
-            {
-                const mesh::VertexBufferBase* left  = treeNode->getLeft();
-                const mesh::VertexBufferBase* right = treeNode->getRight();
-            
-                if( !left && !right )
-                {
-                    if( treeNode->getRange()[0] >= range.start )
-                    {
-                        treeNode->render( state );
-                        //treeNode->renderBoundingSphere( state );
-#ifndef NDEBUG
-                        verticesRendered += treeNode->getNumberOfVertices();
-                        if( visibility == vmml::VISIBILITY_PARTIAL )
-                            verticesOverlap  += treeNode->getNumberOfVertices();
-#endif
-                    }
-                    // else drop, to be drawn by 'previous' channel
-                }
-                else
-                {
-                    if( left )
-                        candidates.push_back( left );
-                    if( right )
-                        candidates.push_back( right );
-                }
-                break;
-            }
-            case vmml::VISIBILITY_NONE:
-                // do nothing
-                break;
-        }
-    }
-    
-    model->endRendering( state );
+    model->cullDraw( state );
     state.setChannel( 0 );
 
     if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
-
-#ifndef NDEBUG
-    const size_t verticesTotal = model->getNumberOfVertices();
-    EQLOG( LOG_CULL ) 
-        << getName() << " rendered " << verticesRendered * 100 / verticesTotal
-        << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
-        << "%" << std::endl;
-#endif    
 }
 
 void Channel::_drawOverlay()
@@ -902,22 +827,4 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     }
 }
 
-void Channel::_initFrustum( eq::FrustumCullerf& culler,
-                            const mesh::BoundingSphere& boundingSphere )
-{
-    // setup frustum cull helper
-    const FrameData& frameData = _getFrameData();
-    const eq::Matrix4f& rotation = frameData.getCameraRotation();
-    const eq::Matrix4f& modelRotation = frameData.getModelRotation();
-    eq::Matrix4f position = eq::Matrix4f::IDENTITY;
-    position.set_translation( frameData.getCameraPosition());
-
-    const eq::Matrix4f& xfm = getHeadTransform();
-    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
-
-    const eq::Frustumf& frustum = getFrustum();
-    const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
-                                                 frustum.compute_matrix();
-    culler.setup( projection * modelView );
-}
 }

@@ -44,10 +44,8 @@ namespace mesh
     public:
         VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
 
-        virtual void render( VertexBufferState& state ) const;
-        
-        void beginRendering( VertexBufferState& state ) const;
-        void endRendering( VertexBufferState& state ) const;
+        virtual void cullDraw( VertexBufferState& state ) const;
+        virtual void draw( VertexBufferState& state ) const;
         
         void setupTree( VertexData& data );
         bool writeToFile( const std::string& filename );
@@ -65,7 +63,10 @@ namespace mesh
     private:
         bool _constructFromPly( const std::string& filename );
         bool _readBinary( std::string filename );
-        
+
+        void _beginRendering( VertexBufferState& state ) const;
+        void _endRendering( VertexBufferState& state ) const;
+
         VertexBufferData _data;
         bool             _invertFaces;
         std::string      _name;
