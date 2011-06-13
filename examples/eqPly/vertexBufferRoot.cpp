@@ -25,9 +25,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Implementation of the VertexBufferRoot class.
 */
 
 
@@ -43,18 +40,17 @@
 #   include <sys/mman.h>
 #endif
 
-using namespace std;
-
 namespace mesh
 {
 
+typedef vmml::frustum_culler< float >  FrustumCuller;
 
 /*  Determine number of bits used by the current architecture.  */
 size_t getArchitectureBits();
 /*  Determine whether the current architecture is little endian or not.  */
 bool isArchitectureLittleEndian();
 /*  Construct architecture dependent file name.  */
-string getArchitectureFilename( const std::string& filename );
+std::string getArchitectureFilename( const std::string& filename );
 
 /*  Begin kd-tree setup, go through full range starting with x axis.  */
 void VertexBufferRoot::setupTree( VertexData& data )
@@ -86,9 +82,106 @@ void VertexBufferRoot::setupTree( VertexData& data )
 #endif
 }
 
+// #define LOGCULL
+void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
+{
+    _beginRendering( state );
+    
+#ifdef LOGCULL
+    size_t verticesRendered = 0;
+    size_t verticesOverlap  = 0;
+#endif
+
+    FrustumCuller culler;
+    culler.setup( state.getProjectionModelViewMatrix( ));
+
+    const Range& range = state.getRange();
+
+    // start with root node
+    std::vector< const mesh::VertexBufferBase* > candidates;
+    candidates.push_back( this );
+
+    while( !candidates.empty() )
+    {
+        if( state.stopRendering( ))
+            return;
+
+        const mesh::VertexBufferBase* treeNode = candidates.back();
+        candidates.pop_back();
+            
+        // completely out of range check
+        if( treeNode->getRange()[0] >= range[1] ||
+            treeNode->getRange()[1] < range[0] )
+            continue;
+            
+        // bounding sphere view frustum culling
+        const vmml::Visibility visibility =
+            culler.test_sphere( treeNode->getBoundingSphere( ));
+
+        switch( visibility )
+        {
+            case vmml::VISIBILITY_FULL:
+                // if fully visible and fully in range, render it
+                if( treeNode->getRange()[0] >= range[0] && 
+                    treeNode->getRange()[1] <  range[1] )
+                {
+                    treeNode->draw( state );
+                    //treeNode->drawBoundingSphere( state );
+#ifdef LOGCULL
+                    verticesRendered += treeNode->getNumberOfVertices();
+#endif
+                    break;
+                }
+                // partial range, fall through to partial visibility
+
+            case vmml::VISIBILITY_PARTIAL:
+            {
+                const mesh::VertexBufferBase* left  = treeNode->getLeft();
+                const mesh::VertexBufferBase* right = treeNode->getRight();
+            
+                if( !left && !right )
+                {
+                    if( treeNode->getRange()[0] >= range[0] )
+                    {
+                        treeNode->draw( state );
+                        //treeNode->drawBoundingSphere( state );
+#ifdef LOGCULL
+                        verticesRendered += treeNode->getNumberOfVertices();
+                        if( visibility == vmml::VISIBILITY_PARTIAL )
+                            verticesOverlap  += treeNode->getNumberOfVertices();
+#endif
+                    }
+                    // else drop, to be drawn by 'previous' channel
+                }
+                else
+                {
+                    if( left )
+                        candidates.push_back( left );
+                    if( right )
+                        candidates.push_back( right );
+                }
+                break;
+            }
+            case vmml::VISIBILITY_NONE:
+                // do nothing
+                break;
+        }
+    }
+    
+    _endRendering( state );
+
+#ifdef LOGCULL
+    const size_t verticesTotal = model->getNumberOfVertices();
+    MESHINFO
+        << getName() << " rendered " << verticesRendered * 100 / verticesTotal
+        << "% of model, overlap <= " << verticesOverlap * 100 / verticesTotal
+        << "%" << std::endl;
+#endif    
+}
+
 
 /*  Set up the common OpenGL state for rendering of all nodes.  */
-void VertexBufferRoot::beginRendering( VertexBufferState& state ) const
+void VertexBufferRoot::_beginRendering( VertexBufferState& state ) const
 {
     switch( state.getRenderMode() )
     {
@@ -109,14 +202,14 @@ void VertexBufferRoot::beginRendering( VertexBufferState& state ) const
 
 
 /*  Delegate rendering to node routine.  */
-void VertexBufferRoot::render( VertexBufferState& state ) const
+void VertexBufferRoot::draw( VertexBufferState& state ) const
 {
-    VertexBufferNode::render( state );
+    VertexBufferNode::draw( state );
 }
 
 
 /*  Tear down the common OpenGL state for rendering of all nodes.  */
-void VertexBufferRoot::endRendering( VertexBufferState& state ) const
+void VertexBufferRoot::_endRendering( VertexBufferState& state ) const
 {
     switch( state.getRenderMode() )
     {
@@ -155,9 +248,9 @@ bool isArchitectureLittleEndian()
 
 
 /*  Construct architecture dependent file name.  */
-string getArchitectureFilename( const std::string& filename )
+std::string getArchitectureFilename( const std::string& filename )
 {
-    ostringstream oss;
+    std::ostringstream oss;
     oss << filename << ( isArchitectureLittleEndian() ? ".le" : ".be" );
     oss << getArchitectureBits() << ".bin";
     return oss.str();    
@@ -167,14 +260,14 @@ string getArchitectureFilename( const std::string& filename )
 /*  Functions extracted out of readFromFile to enhance readability.  */
 bool VertexBufferRoot::_constructFromPly( const std::string& filename )
 {
-    MESHINFO << "Constructing new from PLY file." << endl;
+    MESHINFO << "Constructing new from PLY file." << std::endl;
     
     VertexData data;
     if( _invertFaces )
         data.useInvertedFaces();
     if( !data.readPlyFile( filename ) )
     {
-        MESHERROR << "Unable to load PLY file." << endl;
+        MESHERROR << "Unable to load PLY file." << std::endl;
         return false;
     }
 
@@ -182,7 +275,7 @@ bool VertexBufferRoot::_constructFromPly( const std::string& filename )
     data.scale( 2.0f );
     setupTree( data );
     if( !writeToFile( filename ))
-        MESHWARN << "Unable to write binary representation." << endl;
+        MESHWARN << "Unable to write binary representation." << std::endl;
     
     return true;
 }
@@ -202,7 +295,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     if( file == INVALID_HANDLE_VALUE )
         return false;
     
-    MESHINFO << "Reading cached binary representation." << endl;
+    MESHINFO << "Reading cached binary representation." << std::endl;
     
     // create a file mapping
     HANDLE map = CreateFileMapping( file, 0, PAGE_READONLY, 0, 0, 
@@ -211,7 +304,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     if( !map )
     {
         MESHERROR << "Unable to read binary file, file mapping failed." 
-                  << endl;
+                  << std::endl;
         return false;
     }
     
@@ -230,14 +323,14 @@ bool VertexBufferRoot::_readBinary( std::string filename )
         catch( const exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
-                      << e.what() << endl;
+                      << e.what() << std::endl;
         }
         UnmapViewOfFile( addr );
     }
     else
     {
         MESHERROR << "Unable to read binary file, memory mapping failed."
-                  << endl;
+                  << std::endl;
         return false;
     }
 
@@ -265,17 +358,17 @@ bool VertexBufferRoot::_readBinary( std::string filename )
             fromMemory( addr );
             result = true;
         }
-        catch( const exception& e )
+        catch( const std::exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
-                      << e.what() << endl;
+                      << e.what() << std::endl;
         }
         munmap( addr, status.st_size );
     }
     else
     {
         MESHERROR << "Unable to read binary file, memory mapping failed."
-                  << endl;
+                  << std::endl;
     }
     
     close( fd );
@@ -305,27 +398,27 @@ bool VertexBufferRoot::writeToFile( const std::string& filename )
 {
     bool result = false;
     
-    ofstream output( getArchitectureFilename( filename ).c_str(), 
-                     ios::out | ios::binary );
+    std::ofstream output( getArchitectureFilename( filename ).c_str(), 
+                          std::ios::out | std::ios::binary );
     if( output )
     {
         // enable exceptions on stream errors
-        output.exceptions( ofstream::failbit | ofstream::badbit );
+        output.exceptions( std::ofstream::failbit | std::ofstream::badbit );
         try
         {
             toStream( output );
             result = true;
         }
-        catch( const exception& e )
+        catch( const std::exception& e )
         {
             MESHERROR << "Unable to write binary file, an exception "
-                      << "occured:  " << e.what() << endl;
+                      << "occured:  " << e.what() << std::endl;
         }
         output.close();
     }
     else
     {
-        MESHERROR << "Unable to create binary file." << endl;
+        MESHERROR << "Unable to create binary file." << std::endl;
     }
     
     return result;

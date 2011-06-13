@@ -150,14 +150,14 @@ void VertexBufferNode::updateRange()
 }
 
 
-/*  Render the node by rendering the children.  */
-void VertexBufferNode::render( VertexBufferState& state ) const
+/*  Draw the node by rendering the children.  */
+void VertexBufferNode::draw( VertexBufferState& state ) const
 {
     if ( state.stopRendering( ))
         return;
 
-    _left->render( state );
-    _right->render( state );
+    _left->draw( state );
+    _right->draw( state );
 }
 
 

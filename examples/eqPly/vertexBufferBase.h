@@ -56,8 +56,8 @@ namespace mesh
     public:
         virtual ~VertexBufferBase() {};
 
-        virtual void render( VertexBufferState& state ) const = 0;
-        void renderBoundingSphere( VertexBufferState& state ) const;
+        virtual void draw( VertexBufferState& state ) const = 0;
+        void drawBoundingSphere( VertexBufferState& state ) const;
         virtual Index getNumberOfVertices() const = 0;
 
         const BoundingSphere& getBoundingSphere() const 

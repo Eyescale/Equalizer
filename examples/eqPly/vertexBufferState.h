@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,24 +25,19 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Header file of the VertexBufferState class.
-*/
+ */
 
 
 #ifndef MESH_VERTEXBUFFERSTATE_H
 #define MESH_VERTEXBUFFERSTATE_H
 
-
 #include "typedefs.h"
 #include <map>
 
 #ifdef EQUALIZER
-#   include <eq/eq.h>
-#   include "channel.h"
+#  include <eq/eq.h>
+#  include "channel.h"
 #endif // EQUALIZER
-
 
 namespace mesh 
 {
@@ -75,28 +70,41 @@ namespace mesh
             }
         }
 
+        void setProjectionModelViewMatrix( const Matrix4f& pmv )
+            { _pmvMatrix = pmv; }
+        const Matrix4f& getProjectionModelViewMatrix() const
+            { return _pmvMatrix; }
+
+        void setRange( const Range& range ) { _range = range; }
+        const Range& getRange() const { return _range; }
+
         virtual GLuint getDisplayList( const void* key ) = 0;
         virtual GLuint newDisplayList( const void* key ) = 0;
         virtual GLuint getBufferObject( const void* key ) = 0;
         virtual GLuint newBufferObject( const void* key ) = 0;
-        
         virtual void deleteAll() = 0;
 
         const GLEWContext* glewGetContext() const { return _glewContext; }
         
     protected:
         VertexBufferState( const GLEWContext* glewContext ) 
-            : _glewContext( glewContext ), _useColors( false ), 
-              _renderMode( RENDER_MODE_DISPLAY_LIST ) 
+                : _pmvMatrix( Matrix4f::IDENTITY )
+                , _glewContext( glewContext )
+                , _renderMode( RENDER_MODE_DISPLAY_LIST )
+                , _useColors( false )
         {
+            _range[0] = 0.f;
+            _range[1] = 1.f;
             MESHASSERT( glewContext );
         } 
         
         virtual ~VertexBufferState() {}
         
+        Matrix4f      _pmvMatrix; //!< projection * modelView matrix
+        Range         _range; //!< normalized [0,1] part of the model to draw
         const GLEWContext* const _glewContext;
-        bool          _useColors;
         RenderMode    _renderMode;
+        bool          _useColors;
         
     private:
     };

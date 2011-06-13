@@ -61,7 +61,6 @@
 #  define MESHINFO    std::cout
 #endif
 
-
 #include <exception>
 #include <iostream>
 #include <string>
@@ -72,6 +71,7 @@ namespace mesh
     typedef vmml::vector< 3, GLfloat >    Vertex;
     typedef vmml::vector< 4, GLubyte >    Color;
     typedef vmml::vector< 3, GLfloat >    Normal;
+    typedef vmml::matrix< 4, 4, float >   Matrix4f;
     typedef size_t                        Index;
     typedef GLushort                      ShortIndex;
     
@@ -101,6 +101,8 @@ namespace mesh
     template< class T, size_t d >
     struct ArrayWrapper
     {
+        ArrayWrapper() {}
+        ArrayWrapper( const T* from ) { memcpy( data, from, sizeof( data )); }
         T& operator[]( const size_t i )
         {
             MESHASSERT( i < d );
@@ -119,7 +121,7 @@ namespace mesh
     
     
     // compound type definitions
-    typedef vmml::vector< 3, Index >      Triangle;
+    typedef vmml::vector< 3, Index >    Triangle;
     typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
     typedef vmml::vector< 4, float >    BoundingSphere;
     typedef ArrayWrapper< float, 2 >    Range;
@@ -183,8 +185,7 @@ namespace mesh
     
     
     // helper function for MMF (memory mapped file) reading
-    inline
-    void memRead( char* destination, char** source, size_t length )
+    inline void memRead( char* destination, char** source, size_t length )
     {
         memcpy( destination, *source, length );
         *source += length;

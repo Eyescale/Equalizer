@@ -31,7 +31,7 @@
 
 namespace mesh
 {
-void VertexBufferBase::renderBoundingSphere(VertexBufferState& state ) const
+void VertexBufferBase::drawBoundingSphere(VertexBufferState& state ) const
 {
     GLuint displayList = state.getDisplayList( &_boundingSphere );
 

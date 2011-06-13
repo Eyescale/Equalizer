@@ -49,7 +49,7 @@ namespace mesh
               _indexStart( 0 ), _indexLength( 0 ) {}
         virtual ~VertexBufferLeaf() {}
         
-        virtual void render( VertexBufferState& state ) const;
+        virtual void draw( VertexBufferState& state ) const;
         virtual Index getNumberOfVertices() const { return _indexLength; }
         
     protected:
