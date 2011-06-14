@@ -29,8 +29,10 @@
  */
 
 #include "window.h"
-#include "pipe.h"
+
 #include "config.h"
+#include "pipe.h"
+#include "vertexBufferState.h"
 
 #include "fragmentShader.glsl.h"
 #include "vertexShader.glsl.h"
@@ -48,14 +50,13 @@ bool Window::configInitSystemWindow( const eq::uint128_t& initID )
         return false;
 
     // OpenGL version is less than 2.0.
-    if( !GLEW_EXT_framebuffer_object)
+    if( !GLEW_EXT_framebuffer_object )
     {
         if( getDrawableConfig().accumBits )
             return true;
 
         configExitSystemWindow();
 #endif
-
         // try with 64 bit accum buffer
         setIAttribute( IATTR_PLANES_ACCUM, 16 );
         if( eq::Window::configInitSystemWindow( initID ))

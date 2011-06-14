@@ -113,6 +113,10 @@ namespace mesh
     /*  Simple state for stand-alone single-pipe usage.  */
     class VertexBufferStateSimple : public VertexBufferState 
     {
+    private:
+        typedef std::map< const void*, GLuint > GLMap;
+        typedef GLMap::const_iterator GLMapCIter;
+
     public:
         VertexBufferStateSimple( const GLEWContext* glewContext )
             : VertexBufferState( glewContext ) {}
@@ -145,11 +149,25 @@ namespace mesh
             return _bufferObjects[key];
         }
         
-        virtual void deleteAll() { /* NOP, TBD */ }
+        virtual void deleteAll()
+            {
+                for( GLMapCIter i = _displayLists.begin();
+                     i != _displayLists.end(); ++i )
+                {
+                    glDeleteLists( i->second, 1 );
+                }
+                for( GLMapCIter i = _bufferObjects.begin();
+                     i != _bufferObjects.end(); ++i )
+                {
+                    glDeleteBuffers( 1, &(i->second) );
+                }
+                _displayLists.clear();
+                _bufferObjects.clear();
+            }
 
     private:
-        std::map< const void*, GLuint >  _displayLists;
-        std::map< const void*, GLuint >  _bufferObjects;
+        GLMap  _displayLists;
+        GLMap  _bufferObjects;
     };
 } // namespace mesh
 
@@ -210,7 +228,6 @@ namespace eqPly
     };
 } // namespace eqPly
 #endif // EQUALIZER
-    
     
 
 #endif // MESH_VERTEXBUFFERSTATE_H
