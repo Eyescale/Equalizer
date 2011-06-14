@@ -29,7 +29,7 @@
 #ifndef SEQ_PLY_RENDERER_H
 #define SEQ_PLY_RENDERER_H
 
-#include <frameData.h>
+#include "seqPly.h"
 #include <eq/sequel/sequel.h>
 
 namespace seqPly
@@ -37,13 +37,20 @@ namespace seqPly
     class Renderer : public seq::Renderer
     {
     public:
-        Renderer( seq::Application& app ) : seq::Renderer( app ) {}
+        Renderer( seq::Application& app ) : seq::Renderer( app ), _state( 0 ) {}
         virtual ~Renderer() {}
 
         virtual co::Object* createObject( const uint32_t type );
 
+        State& getState() { return *_state; }
+
     protected:
+        virtual bool initGL( co::Object* initData );
+        virtual bool exitGL();
         virtual void draw( co::Object* frameData );
+
+    private:
+        State* _state;
     };
 
 }

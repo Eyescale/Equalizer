@@ -46,6 +46,7 @@ class ObjectMap;
 class Pipe;
 class Renderer;
 class View;
+class Window;
 
 }
 /** @endcond */

@@ -50,14 +50,49 @@ namespace seq
          * @return the new view data
          * @version 1.0
          */
-        virtual ViewData* createViewData();
+        SEQ_API virtual ViewData* createViewData();
 
         /** Delete the given view data. @version 1.0 */
-        virtual void destroyViewData( ViewData* viewData );
+        SEQ_API virtual void destroyViewData( ViewData* viewData );
+
+        /** 
+         * Get the GLEW context for this renderer.
+         * 
+         * The glew context provides access to OpenGL extensions. This function
+         * does not follow the Sequel naming conventions, since GLEW uses a
+         * function of this name to automatically resolve OpenGL function entry
+         * points. Therefore, any OpenGL function support by the driver can be
+         * directly called from any method of an initialized renderer.
+         * 
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
+         * @version 1.0
+         */
+        SEQ_API const GLEWContext* glewGetContext() const;
         //@}
 
         /** @name Operations */
         //@{
+        /** 
+         * Initialize the OpenGL context.
+         *
+         * Called after a context has been created and made current.
+         * @param initData a per-renderer instance of the object passed to
+         *                 Config::init().
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool initGL( co::Object* initData );
+
+        /** 
+         * Deinitialize the OpenGL context.
+         *
+         * Called just before the context will be destroyed.
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool exitGL();
+
         /**
          * Render the scene.
          *
@@ -73,14 +108,15 @@ namespace seq
          * This method is only to be called from one of the operations above.
          * @version 1.0
          */
-        virtual void applyRenderContext();
+        SEQ_API virtual void applyRenderContext();
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */
         //@{
         virtual eq::Config* getConfig();
-        virtual co::Object* createObject( const uint32_t type );
-        virtual void destroyObject( co::Object* object, const uint32_t type );
+        SEQ_API virtual co::Object* createObject( const uint32_t type );
+        SEQ_API virtual void destroyObject( co::Object* object,
+                                            const uint32_t type );
         //@}
 
     private:

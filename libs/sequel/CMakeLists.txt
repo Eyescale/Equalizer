@@ -38,6 +38,8 @@ purple_add_library(Sequel SHARED
     detail/slaveConfig.cpp
     detail/view.h
     detail/view.cpp
+    detail/window.h
+    detail/window.cpp
   LINK_LIBRARIES Equalizer
   )
 set_target_properties(lib_Sequel_shared PROPERTIES

@@ -15,49 +15,42 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_RENDERER_H
-#define EQSEQUEL_DETAIL_RENDERER_H
+#ifndef EQSEQUEL_DETAIL_WINDOW_H
+#define EQSEQUEL_DETAIL_WINDOW_H
 
 #include <eq/sequel/types.h>
-#include <eq/nodeFactory.h> // base class
+
+#include <eq/window.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-    /** The internal implementation for the renderer. */
-    class Renderer
+    class Window : public eq::Window
     {
     public:
-        Renderer( seq::Renderer* parent );
-        ~Renderer();
+        Window( eq::Pipe* parent );
 
-        /** @name Data Access. */
-        //@{
-        co::Object* getFrameData();
-        Window* getWindow();
-        const GLEWContext* glewGetContext() const;
-        //@}
-
-        /** @name Current context. */
-        //@{
-        void setPipe( Pipe* pipe ) { _pipe = pipe; }
-        void setChannel( Channel* channel ) { _channel = channel; }
-        //@}
+        Config* getConfig();
+        Pipe* getPipe();
+        seq::Renderer* getRenderer();
+        detail::Renderer* getRendererImpl();
 
         /** @name Operations. */
         //@{
-        bool initGL();
-        bool exitGL();
-        void applyRenderContext();
+        virtual bool configInitGL( const uint128_t& initID );
+        virtual bool configExitGL();
+
+        bool initGL() { return eq::Window::configInitGL( 0 ); }
+        bool exitGL() { return eq::Window::configExitGL(); }
         //@}
 
+    protected:
+        virtual ~Window();
+
     private:
-        seq::Renderer* const _renderer;
-        Pipe* _pipe;
-        Channel* _channel;
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_RENDERER_H
+#endif // EQSEQUEL_DETAIL_WINDOW_H

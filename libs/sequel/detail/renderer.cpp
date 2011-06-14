@@ -19,6 +19,7 @@
 
 #include "channel.h"
 #include "pipe.h"
+#include "window.h"
 
 #include <eq/sequel/renderer.h>
 
@@ -42,6 +43,33 @@ Renderer::~Renderer()
 co::Object* Renderer::getFrameData()
 {
     return _pipe->getFrameData();
+}
+
+Window* Renderer::getWindow()
+{
+    EQASSERT( _channel );
+    if( !_channel )
+        return 0;
+
+    return static_cast< Window* >( _channel->getWindow( ));
+}
+
+const GLEWContext* Renderer::glewGetContext() const
+{
+    EQASSERT( _channel );
+    return _channel ? _channel->glewGetContext() : 0 ;
+}
+
+bool Renderer::initGL()
+{
+    Window* window = getWindow();
+    return window ? window->initGL() : false;
+}
+
+bool Renderer::exitGL()
+{
+    Window* window = getWindow();
+    return window ? window->exitGL() : false;
 }
 
 void Renderer::applyRenderContext()

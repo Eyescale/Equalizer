@@ -31,6 +31,23 @@
 namespace seqPly
 {
 
+bool Renderer::initGL( co::Object* initData )
+{
+    EQASSERT( !_state );
+    _state = new State( glewGetContext( ));
+    return seq::Renderer::initGL( initData );
+}
+
+bool Renderer::exitGL()
+{
+    if( _state )
+        _state->deleteAll();
+
+    delete _state;
+    _state = 0;
+    return seq::Renderer::exitGL();
+}
+
 void Renderer::draw( co::Object* frameData )
 {
     applyRenderContext();

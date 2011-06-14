@@ -45,6 +45,11 @@ co::Object* Renderer::getFrameData()
     return _impl->getFrameData();
 }
 
+const GLEWContext* Renderer::glewGetContext() const
+{
+    return _impl->glewGetContext();
+}
+
 ViewData* Renderer::createViewData()
 {
     return new ViewData;
@@ -53,6 +58,16 @@ ViewData* Renderer::createViewData()
 void Renderer::destroyViewData( ViewData* viewData )
 {
     delete viewData;
+}
+
+bool Renderer::initGL( co::Object* initData )
+{
+    return _impl->initGL();
+}
+
+bool Renderer::exitGL()
+{
+    return _impl->exitGL();
 }
 
 void Renderer::applyRenderContext()
