@@ -19,9 +19,11 @@
 #include "tileQueue.h"
 
 #include "compound.h"
+#include <eq/fabric/queuePackets.h>
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+
 
 namespace eq
 {
@@ -31,6 +33,7 @@ namespace server
 TileQueue::TileQueue()
         : _compound( 0 )
         , _size( 0, 0 )
+        , _queueMaster()
         //, _masterFrameData( 0 )
 {
 //    for( unsigned i = 0; i < NUM_EYES; ++i )
@@ -52,6 +55,11 @@ TileQueue::TileQueue( const TileQueue& from )
 TileQueue::~TileQueue()
 {
     _compound = 0;
+}
+
+void TileQueue::addTile( const TileTaskPacket& tile )
+{
+    _queueMaster.push( tile );
 }
 
 void TileQueue::getInstanceData( co::DataOStream& os )
@@ -182,10 +190,10 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     os << "{" << std::endl << co::base::indent;
       
     const std::string& name = tileQueue->getName();
-    os << "name     \"" << name << "\"" << std::endl;
+    os << "name      \"" << name << "\"" << std::endl;
 
-    const eq::Vector2i& size = tileQueue->getSize();
-    os << "size     \"" << size << "\"" << std::endl;
+    const eq::Vector2i& size = tileQueue->getTileSize();
+    os << "tile size \"" << size << "\"" << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

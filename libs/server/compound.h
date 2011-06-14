@@ -485,7 +485,8 @@ namespace server
         //@}
 
         typedef stde::hash_map<std::string, co::Barrier*> BarrierMap;
-        typedef stde::hash_map<std::string, Frame*>        FrameMap;
+        typedef stde::hash_map<std::string, Frame*>       FrameMap;
+        typedef stde::hash_map<std::string, TileQueue*>   TileQueueMap;
 
     private:
         //-------------------- Members --------------------

@@ -19,6 +19,7 @@
 #define EQSERVER_TYPES_H
 
 #include <eq/fabric/focusMode.h>
+#include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
@@ -112,6 +113,7 @@ using fabric::Matrix4f;   //!< A 4x4 float matrix
 using fabric::Frustumf;   //!< A frustum definition
 using fabric::Projection;
 using fabric::RenderContext;
+using fabric::TileTaskPacket;
 using fabric::Wall;
 
 using fabric::NodePath;

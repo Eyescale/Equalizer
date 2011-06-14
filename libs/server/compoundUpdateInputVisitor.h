@@ -19,14 +19,12 @@
 #define EQSERVER_COMPOUNDUPDATEINPUTVISITOR_H
 
 #include "compoundVisitor.h" // base class
-
-#include <co/base/hash.h>
+#include "compound.h"        // nested type
 
 namespace eq
 {
 namespace server
 {
-    class Channel;
     class Frame;
 
     /**
@@ -35,15 +33,16 @@ namespace server
     class CompoundUpdateInputVisitor : public CompoundVisitor
     {
     public:
-        CompoundUpdateInputVisitor( 
-            const stde::hash_map<std::string, Frame*>& outputFrames );
+        CompoundUpdateInputVisitor( const Compound::FrameMap& outputFrames,
+                                   const Compound::TileQueueMap& outputQueues );
         virtual ~CompoundUpdateInputVisitor() {}
 
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound );
 
     private:
-        const stde::hash_map<std::string, Frame*>& _outputFrames;
+        const Compound::FrameMap& _outputFrames;
+        const Compound::TileQueueMap& _outputQueues;
 
         void _updateZoom( const Compound* compound, Frame* frame, 
                           const Frame* outputFrame );

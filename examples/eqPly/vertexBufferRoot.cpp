@@ -320,7 +320,7 @@ bool VertexBufferRoot::_readBinary( std::string filename )
             fromMemory( addr );
             result = true;
         }
-        catch( const exception& e )
+        catch( const std::exception& e )
         {
             MESHERROR << "Unable to read binary file, an exception occured:  "
                       << e.what() << std::endl;

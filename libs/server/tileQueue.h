@@ -23,12 +23,13 @@
 #include "types.h"
 
 #include <co/base/bitOperation.h> // function getIndexOfLastBit
+#include <co/queueMaster.h>
 
 namespace eq
 {
 namespace server
 {
-    /** A holder for frame data and parameters. */
+    /** A holder for tile data and parameters. */
     class TileQueue : public co::Object
     {
     public:
@@ -60,10 +61,12 @@ namespace server
         co::ObjectVersion getDataVersion( const Eye eye ) const;
 
         /** Set the size of the tiles. */
-        void setSize( const Vector2i& size ) { _size = size; }
+        void setTileSize( const Vector2i& size ) { _size = size; }
 
-        /** @return the frame offset. */
-        const Vector2i& getSize() const { return _size; }
+        /** @return the tile size. */
+        const Vector2i& getTileSize() const { return _size; }
+
+        void addTile( const TileTaskPacket& tile );
 
         /**
          * @name Operations
@@ -98,10 +101,10 @@ namespace server
         //const Frames& getInputFrames( const eq::Eye eye ) const
         //    { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }
 
-        /** Unset the frame data. */
+        /** Unset the tile data. */
         void unsetData();
 
-        /** Reset the frame and delete all frame datas. */
+        /** Reset the frame and delete all tile datas. */
         void flush();
         //@}
 
@@ -119,6 +122,8 @@ namespace server
         std::string _name;
 
         Vector2i _size;
+
+        co::QueueMaster _queueMaster;
 
         /** Frame-specific data. */
         //eq::Frame::Data _data;

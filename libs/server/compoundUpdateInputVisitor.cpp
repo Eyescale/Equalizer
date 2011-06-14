@@ -19,6 +19,8 @@
 
 #include "frame.h"
 #include "frameData.h"
+#include "tileQueue.h"
+#include "server.h"
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
@@ -28,36 +30,56 @@ namespace eq
 namespace server
 {
 CompoundUpdateInputVisitor::CompoundUpdateInputVisitor(
-    const stde::hash_map<std::string, Frame*>& outputFrames )
+    const Compound::FrameMap& outputFrames,
+    const Compound::TileQueueMap& outputQueues )
         : _outputFrames( outputFrames )
+        , _outputQueues( outputQueues )
 {}
 
 VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
     if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
-
-    const Frames& inputFrames = compound->getInputFrames();
+    
+    const TileQueues& inputQueues = compound->getInputTileQueues();
     const Channel* channel = compound->getChannel();
 
     if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
         return TRAVERSE_CONTINUE;
 
+    for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
+    {
+        //----- Find corresponding output queue
+        TileQueue* queue  = *i;
+        const std::string& name = queue->getName();
+
+        Compound::TileQueueMap::const_iterator j = _outputQueues.find( name );
+
+        if( j == _outputQueues.end( ))
+        {
+            EQVERB << "Can't find matching output queue, ignoring input queue "
+                << name << std::endl;
+            queue->unsetData();
+            continue;
+        }
+
+        EQASSERT( queue->isAttached( ));
+    }
+
+    const Frames& inputFrames = compound->getInputFrames();
     if( inputFrames.empty( ))
     {
         compound->unsetInheritTask( fabric::TASK_ASSEMBLE );
         return TRAVERSE_CONTINUE;
     }
 
-    for( Frames::const_iterator i = inputFrames.begin();
-         i != inputFrames.end(); ++i )
+    for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
     {
         //----- Find corresponding output frame
         Frame* frame = *i;
         const std::string& name = frame->getName();
 
-        stde::hash_map<std::string, Frame*>::const_iterator j =
-            _outputFrames.find( name );
+        Compound::FrameMap::const_iterator j = _outputFrames.find( name );
 
         if( j == _outputFrames.end( ))
         {

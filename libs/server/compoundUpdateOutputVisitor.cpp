@@ -21,9 +21,13 @@
 #include "frameData.h"
 #include "swapBarrier.h"
 #include "window.h"
+#include "tileQueue.h"
+#include "server.h"
+#include "config.h"
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/queuePackets.h>
 
 namespace eq
 {
@@ -47,12 +51,34 @@ VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
 
 void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 {
-    const Frames& outputFrames = compound->getOutputFrames();
     const Channel* channel = compound->getChannel();
 
     if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
         return;
 
+    const TileQueues& outputQueues = compound->getOutputTileQueues();
+    for( TileQueuesCIter i = outputQueues.begin(); 
+        i != outputQueues.end(); ++i )
+    {
+        //----- Check uniqueness of output queue name
+        TileQueue* queue  = *i;
+        const std::string& name   = queue->getName();
+
+        if( _outputTileQueues.find( name ) != _outputTileQueues.end())
+        {
+            EQWARN << "Multiple output queues of the same name are unsupported"
+                << ", ignoring output queue " << name << std::endl;
+            queue->unsetData();
+            continue;
+        }
+
+        //----- Generate tile task packets
+        _generateTiles( queue, compound );
+
+        _outputTileQueues[name] = queue;
+    }
+
+    const Frames& outputFrames = compound->getOutputFrames();
     if( outputFrames.empty( ))
     {
         compound->unsetInheritTask( fabric::TASK_READBACK );
@@ -152,6 +178,25 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
     }
 }
 
+void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
+                                                  Compound* compound )
+{
+    const PixelViewport& inheritPVP = compound->getInheritPixelViewport();
+    const Vector2i& tileSize = queue->getTileSize();
+    const size_t tiles( ceilf( float(inheritPVP.w) / tileSize.x() ) *
+                        ceilf( float(inheritPVP.h) / tileSize.y() ) );
+
+    for( size_t i = 0; i < tiles; ++i )
+    {
+        TileTaskPacket tile;
+        tile.tasks = compound->getTasks();
+        tile.pvp = compound->getInheritPixelViewport();
+        tile.vp = compound->getInheritViewport();
+        tile.frustum = compound->getFrustum();
+        queue->addTile( tile );
+    }    
+}
+
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
 {
@@ -223,6 +268,22 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
     {
         const std::string& name = swapBarrier->getName();
         _swapBarriers[name] = window->joinSwapBarrier( _swapBarriers[name] );
+    }
+
+    for( Compound::BarrierMap::const_iterator i = 
+        _swapBarriers.begin(); i != _swapBarriers.end(); ++i )
+    {
+        co::Barrier* barrier = i->second;
+        if( barrier->isAttached( ))
+        {
+            if( barrier->getHeight() > 1 )
+                barrier->commit();
+        }
+        else
+        {
+            compound->getServer()->registerObject( barrier );
+            barrier->setAutoObsolete( compound->getConfig()->getLatency() + 1 );
+        }
     }
 }
 

@@ -1244,7 +1244,7 @@ tileQueueFields: /*null*/ | tileQueueFields tileQueueField
 tileQueueField: 
     EQTOKEN_NAME STRING { tileQueue->setName( $2 ); }
     | EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']' 
-        { tileQueue->setSize( eq::Vector2i( $3, $4 )); }
+        { tileQueue->setTileSize( eq::Vector2i( $3, $4 )); }
 
 compoundAttributes: /*null*/ | compoundAttributes compoundAttribute
 compoundAttribute:

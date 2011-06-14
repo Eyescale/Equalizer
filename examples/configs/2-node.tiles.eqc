@@ -4,6 +4,7 @@
 global
 {
     EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+    EQ_NODE_SATTR_LAUNCH_COMMAND "%c"
 }
 
 server
