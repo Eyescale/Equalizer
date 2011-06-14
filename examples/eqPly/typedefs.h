@@ -73,8 +73,7 @@ namespace mesh
     typedef vmml::vector< 3, GLfloat >    Normal;
     typedef vmml::matrix< 4, 4, float >   Matrix4f;
     typedef size_t                        Index;
-    typedef GLushort                      ShortIndex;
-    
+    typedef GLushort                      ShortIndex;    
     
     // mesh exception
     struct MeshException : public std::exception
@@ -124,8 +123,7 @@ namespace mesh
     typedef vmml::vector< 3, Index >    Triangle;
     typedef ArrayWrapper< Vertex, 2 >   BoundingBox;
     typedef vmml::vector< 4, float >    BoundingSphere;
-    typedef ArrayWrapper< float, 2 >    Range;
-    
+    typedef ArrayWrapper< float, 2 >    Range;    
     
     // maximum triangle count per leaf node (keep in mind that the number of
     // different vertices per leaf must stay below ShortIndex range; usually
