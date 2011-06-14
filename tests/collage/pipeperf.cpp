@@ -19,6 +19,7 @@
 // Usage: ./pipeperf
 
 
+#define EQ_TEST_RUNTIME 600 // seconds, needed for NighlyMemoryCheck
 #include <test.h>
 #include <co/base/clock.h>
 #include <co/base/monitor.h>
