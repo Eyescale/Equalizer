@@ -140,6 +140,13 @@ namespace eq
 
         /** @internal @return the view for the given identifier and version. */
         View* getView( const co::ObjectVersion& viewVersion );
+
+        /** @internal @return the queue for the given identifier and version. */
+        const co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion )
+                                                                          const;
+
+        /** @internal @return the queue for the given identifier and version. */
+        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
         //@}
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
@@ -412,6 +419,10 @@ namespace eq
         /** All views used by the pipe's channels during rendering. */
         ViewHash _views;
 
+        typedef stde::hash_map< uint128_t, co::QueueSlave* > QueueHash;
+        /** All queues used by the pipe's channels during rendering. */
+        QueueHash _queues;
+
         /** The pipe thread. */
         class PipeThread : public co::base::Thread
         {
@@ -451,6 +462,9 @@ namespace eq
 
         /** @internal Clear the view cache and release all views. */
         void _flushViews();
+
+        /** @internal Clear the queue cache and release all queues. */
+        void _flushQueues();
 
         /* The command functions. */
         bool _cmdCreateWindow( co::Command& command );

@@ -22,6 +22,7 @@
 #include <eq/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/focusMode.h>
+#include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
@@ -73,6 +74,7 @@ using fabric::Projection;
 using fabric::Range;
 using fabric::RenderContext;
 using fabric::SubPixel;
+using fabric::TileTaskPacket;
 using fabric::Viewport;
 using fabric::Wall;
 using fabric::Zoom;

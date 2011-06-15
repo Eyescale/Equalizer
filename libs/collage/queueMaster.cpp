@@ -39,6 +39,11 @@ void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
         CommandFunc<QueueMaster>( this, &QueueMaster::_cmdGetItem ), queue );
 }
 
+void QueueMaster::clear()
+{
+    _queue.clear();
+}
+
 void QueueMaster::push( const QueueItemPacket& packet )
 {
     EQ_TS_SCOPED( _thread );

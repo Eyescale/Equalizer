@@ -28,8 +28,8 @@ namespace server
     class Channel;
     
     /**
-     * The compound visitor updating the output data (frames, swapbarriers) of a
-     * compound tree.
+     * The compound visitor updating the output data (frames, tiles,
+     * swapbarriers) of a compound tree.
      */
     class CompoundUpdateOutputVisitor : public CompoundVisitor
     {

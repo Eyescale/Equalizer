@@ -175,6 +175,7 @@ namespace fabric
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
         CMD_CHANNEL_STOP_FRAME,
+        CMD_CHANNEL_FRAME_TILES,
         CMD_CHANNEL_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 

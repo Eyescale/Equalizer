@@ -43,9 +43,11 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
+#include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/exception.h>
+#include <co/queueSlave.h>
 #include <co/base/rng.h>
 #include <co/base/scopedMutex.h>
 
@@ -112,6 +114,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameViewFinish ), queue );
     registerCommand( fabric::CMD_CHANNEL_STOP_FRAME, 
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TILES,
+                     CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -462,6 +466,13 @@ const View* Channel::getView() const
     EQ_TS_THREAD( _pipeThread );
     const Pipe* pipe = getPipe();
     return pipe->getView( getContext().view );
+}
+
+co::QueueSlave* Channel::getQueue( const co::ObjectVersion& queueVersion )
+{
+    EQ_TS_THREAD( _pipeThread );
+    Pipe* pipe = getPipe();
+    return pipe->getQueue( queueVersion );
 }
 
 View* Channel::getNativeView()
@@ -1656,6 +1667,38 @@ bool Channel::_cmdStopFrame( co::Command& command )
     notifyStopFrame( packet->lastFrameNumber );
     return true;
 }
+
+bool Channel::_cmdFrameTiles( co::Command& command )
+{
+    ChannelFrameTilesPacket* packet = command.get<ChannelFrameTilesPacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel frame tiles "
+                                      << getName() <<  " " << packet
+                                      << std::endl;
+
+    co::QueueSlave* queue = getQueue( packet->queueVersion );
+    EQASSERT( queue );
+    while( co::Command* queuePacket = queue->pop( ))
+    {
+        TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
+        RenderContext context = packet->context;
+        //context.frustum = tilePacket->frustum;
+        context.pvp = tilePacket->pvp;
+        context.vp = tilePacket->vp;
+        _setRenderContext( context );
+
+        if ( tilePacket->tasks & fabric::TASK_CLEAR )
+            frameClear( packet->context.frameID );
+
+        if ( tilePacket->tasks & fabric::TASK_DRAW )
+            frameDraw( packet->context.frameID );
+
+        if ( tilePacket->tasks & fabric::TASK_READBACK )
+            frameReadback( packet->context.frameID );
+    }
+
+    return true;
+}
+
 }
 
 #include "../fabric/channel.ipp"

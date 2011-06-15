@@ -48,6 +48,7 @@
 #include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/command.h>
+#include <co/queueSlave.h>
 #include <sstream>
 
 namespace eq
@@ -331,7 +332,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier ==co::base::UUID::ZERO )
+    if( viewVersion.identifier == co::base::UUID::ZERO )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];
@@ -339,8 +340,8 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
-        view->_pipe = this;
         EQASSERT( view );
+        view->_pipe = this;        
         ClientPtr client = getClient();
         EQCHECK( client->mapObject( view, viewVersion ));
 
@@ -349,6 +350,34 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     
     view->sync( viewVersion.version );
     return view;
+}
+
+const co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+                                                                           const
+{
+    // Yie-ha: we want to have a const-interface to get a queue on the render
+    //         clients, but queue mapping is by definition non-const.
+    return const_cast< Pipe* >( this )->getQueue( queueVersion );
+}
+
+co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+{
+    EQ_TS_THREAD( _pipeThread );
+    if( queueVersion.identifier == co::base::UUID::ZERO )
+        return 0;
+
+    co::QueueSlave* queue = _queues[ queueVersion.identifier ];
+    if( !queue )
+    {
+        queue = new co::QueueSlave;
+        ClientPtr client = getClient();
+        EQCHECK( client->mapObject( queue, queueVersion ));
+
+        _queues[ queueVersion.identifier ] = queue;
+    }
+
+    queue->sync( queueVersion.version );
+    return queue;
 }
 
 void Pipe::_releaseViews()
@@ -395,6 +424,21 @@ void Pipe::_flushViews()
         nodeFactory->releaseView( view );
     }
     _views.clear();
+}
+
+void Pipe::_flushQueues()
+{
+    EQ_TS_THREAD( _pipeThread );
+    NodeFactory*  nodeFactory = Global::getNodeFactory();
+    ClientPtr client = getClient();
+
+    for( QueueHash::const_iterator i = _queues.begin(); i != _queues.end(); ++i)
+    {
+        co::QueueSlave* queue = i->second;
+        client->unmapObject( queue );
+        delete queue;
+    }
+    _queues.clear();
 }
 
 bool Pipe::isCurrent( const Window* window ) const
@@ -761,6 +805,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     _flushViews();
+    _flushQueues();
     return true;
 }
 

@@ -934,6 +934,7 @@ void Compound::deregister()
         i != _outputTileQueues.end(); ++i )
     {
         TileQueue* queue = *i;
+        queue->flush();
         server->deregisterObject( queue );
     }
 }

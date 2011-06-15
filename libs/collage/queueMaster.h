@@ -40,6 +40,8 @@ public:
     CO_API virtual void attach( const base::UUID& id, 
         const uint32_t instanceID );
 
+    CO_API void clear();
+
 protected:
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& ) {}

@@ -27,7 +27,6 @@
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
-#include <eq/fabric/queuePackets.h>
 
 namespace eq
 {
@@ -189,12 +188,13 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     for( size_t i = 0; i < tiles; ++i )
     {
         TileTaskPacket tile;
-        tile.tasks = compound->getTasks();
+        tile.tasks = fabric::TASK_CLEAR | fabric::TASK_DRAW
+                                        | fabric::TASK_READBACK;
         tile.pvp = compound->getInheritPixelViewport();
         tile.vp = compound->getInheritViewport();
         tile.frustum = compound->getFrustum();
         queue->addTile( tile );
-    }    
+    }
 }
 
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
