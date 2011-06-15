@@ -125,13 +125,16 @@ void Application::_loadModel( const int argc, char** argv )
      
         if( _isPlyfile( filename ))
         {
-            if( _model.readFromFile( filename.c_str( )))
+            _model = new Model;
+            if( _model->readFromFile( filename.c_str( )))
             {
-                _modelDist = new ModelDist( &_model );
+                _modelDist = new ModelDist( _model );
                 _modelDist->registerTree( this );
                 _frameData.setModelID( _modelDist->getID( ));
                 return;
             }
+            delete _model;
+            _model = 0;
         }
         else
         {
@@ -157,7 +160,31 @@ void Application::_unloadModel()
     _modelDist->deregisterTree();
     delete _modelDist;
     _modelDist = 0;
+
+    delete _model;
+    _model = 0;
 }
+
+const Model* Application::getModel( const eq::uint128_t& modelID )
+{
+    if( modelID == eq::UUID::ZERO )
+        return 0;
+    if( _model )
+        return _model;
+    co::base::memoryBarrier();
+
+    // Accessed concurrently from render threads
+    co::base::ScopedMutex<> mutex( _modelLock );
+
+    EQASSERT( !_modelDist );
+    _modelDist = new ModelDist;
+    Model* model = _modelDist->mapModel( this, modelID );
+    EQASSERT( model );
+    _model = model;
+
+    return model;
+}
+
 
 }
 

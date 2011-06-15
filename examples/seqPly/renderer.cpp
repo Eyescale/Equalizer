@@ -28,6 +28,18 @@
 
 #include "renderer.h"
 
+// light parameters
+static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
+static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
+static GLfloat lightDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat lightSpecular[] = {0.8f, 0.8f, 0.8f, 1.0f};
+
+// material properties
+static GLfloat materialAmbient[]  = {0.2f, 0.2f, 0.2f, 1.0f};
+static GLfloat materialDiffuse[]  = {0.8f, 0.8f, 0.8f, 1.0f};
+static GLfloat materialSpecular[] = {0.5f, 0.5f, 0.5f, 1.0f};
+static GLint  materialShininess   = 64;
+
 namespace seqPly
 {
 
@@ -48,9 +60,45 @@ bool Renderer::exitGL()
     return seq::Renderer::exitGL();
 }
 
-void Renderer::draw( co::Object* frameData )
+void Renderer::draw( co::Object* frameDataObj )
 {
+    EQASSERT( _state );
+
+    const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
+    Application& application = static_cast< Application& >( getApplication( ));
+    const eq::uint128_t id = frameData->getModelID();
+    const Model* model = application.getModel( id );
+    if( !model )
+        return;
+
     applyRenderContext();
+
+    glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
+    glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
+    glLightfv( GL_LIGHT0, GL_DIFFUSE,  lightDiffuse  );
+    glLightfv( GL_LIGHT0, GL_SPECULAR, lightSpecular );
+
+    glMaterialfv( GL_FRONT, GL_AMBIENT,   materialAmbient );
+    glMaterialfv( GL_FRONT, GL_DIFFUSE,   materialDiffuse );
+    glMaterialfv( GL_FRONT, GL_SPECULAR,  materialSpecular );
+    glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
+
+    applyModelMatrix();
+
+    glColor3f( .75f, .75f, .75f );
+
+    // Compute cull matrix
+    const eq::Matrix4f& modelM = getModelMatrix();
+    const eq::Matrix4f& view = getViewMatrix();
+    const eq::Frustumf& frustum = getFrustum();
+    const eq::Matrix4f projection = frustum.compute_matrix();
+    const eq::Matrix4f pmv = view * modelM * projection;
+
+    _state->setProjectionModelViewMatrix( pmv );
+    //_state->setRange( &getRange().start);
+    _state->setColors( model->hasColors( ));
+    
+    model->cullDraw( *_state );
 }
 
 co::Object* Renderer::createObject( const uint32_t type )

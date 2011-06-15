@@ -19,7 +19,10 @@
 
 #include "pipe.h"
 #include "renderer.h"
+#include "view.h"
+
 #include <eq/sequel/renderer.h>
+#include <eq/sequel/viewData.h>
 
 namespace seq
 {
@@ -39,6 +42,17 @@ Pipe* Channel::getPipe()
     return static_cast< Pipe* >( eq::Channel::getPipe( ));
 }
 
+const View* Channel::getView() const
+{
+    return static_cast< const View* >( eq::Channel::getView( ));
+}
+
+const ViewData* Channel::getViewData() const
+{
+    const View* view = getView();
+    return view ? view->getViewData() : 0;
+}
+
 seq::Renderer* Channel::getRenderer()
 {
     return getPipe()->getRenderer();
@@ -47,6 +61,16 @@ seq::Renderer* Channel::getRenderer()
 detail::Renderer* Channel::getRendererImpl()
 {
     return getPipe()->getRendererImpl();
+}
+
+const Matrix4f& Channel::getModelMatrix() const
+{
+    const ViewData* data = getViewData();
+    EQASSERT( data );
+    if( !data )
+        return Matrix4f::IDENTITY;
+
+    return data->getModelMatrix();
 }
 
 void Channel::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
@@ -66,6 +90,11 @@ void Channel::frameDraw( const uint128_t& frameID )
     seq::Renderer* const renderer = getRenderer();
     co::Object* const frameData = renderer->getFrameData();
     renderer->draw( frameData );
+}
+
+void Channel::applyModelMatrix()
+{
+    glMultMatrixf( getModelMatrix().array );
 }
 
 }

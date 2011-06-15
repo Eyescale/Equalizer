@@ -31,14 +31,22 @@ namespace detail
     public:
         Channel( eq::Window* parent );
 
-        //Config* getConfig();
+        /** @name Data Access. */
+        //@{
         Pipe* getPipe();
+        const View* getView() const;
+        const ViewData* getViewData() const;
         seq::Renderer* getRenderer();
         detail::Renderer* getRendererImpl();
+
+        const Matrix4f& getViewMatrix() const { return getHeadTransform(); }
+        const Matrix4f& getModelMatrix() const;
+        //@}
 
         /** @name Operations. */
         //@{
         void applyRenderContext() { eq::Channel::frameDraw( eq::UUID::ZERO ); }
+        void applyModelMatrix();
         //@}
 
     protected:

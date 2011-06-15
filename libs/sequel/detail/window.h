@@ -38,11 +38,15 @@ namespace detail
 
         /** @name Operations. */
         //@{
+        virtual void frameStart( const uint128_t& frameID,
+                                 const uint32_t frameNumber );
+        virtual void frameFinish( const uint128_t& frameID,
+                                  const uint32_t frameNumber );
         virtual bool configInitGL( const uint128_t& initID );
         virtual bool configExitGL();
 
-        bool initGL() { return eq::Window::configInitGL( 0 ); }
-        bool exitGL() { return eq::Window::configExitGL(); }
+        virtual bool initGL() { return eq::Window::configInitGL( 0 ); }
+        virtual bool exitGL() { return eq::Window::configExitGL(); }
         //@}
 
     protected:

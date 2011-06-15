@@ -43,6 +43,12 @@ namespace seq
         detail::Renderer* getImpl() { return _impl; } //!< @internal
         co::Object* getFrameData(); // @warning experimental
 
+        /** @return the application instance for this renderer. @version 1.0 */
+        Application& getApplication() { return _app; }
+
+        /** @return the application instance for this renderer. @version 1.0 */
+        const Application& getApplication() const { return _app; }
+
         /**
          * Create a new per-view data instance.
          *
@@ -69,6 +75,15 @@ namespace seq
          * @version 1.0
          */
         SEQ_API const GLEWContext* glewGetContext() const;
+
+        /** @return the current view frustum. @version 1.0 */
+        const Frustumf& getFrustum() const;
+
+        /** @return the current view (frustum) transformation. @version 1.0 */
+        const Matrix4f& getViewMatrix() const;
+
+        /** @return the current model (scene) transformation. @version 1.0 */
+        const Matrix4f& getModelMatrix() const;
         //@}
 
         /** @name Operations */
@@ -105,10 +120,24 @@ namespace seq
         /**
          * Apply the current rendering parameters to OpenGL.
          *
-         * This method is only to be called from one of the operations above.
+         * This method sets the draw buffer, color mask, viewport as well as the
+         * projection and view matrix.
+         *
+         * This method is only to be called from clear(), draw() and TBD.
          * @version 1.0
          */
         SEQ_API virtual void applyRenderContext();
+
+        /**
+         * Apply the current model matrix to OpenGL.
+         *
+         * This method is not included in applyRenderContext() since ligthing
+         * parameters are often applied before positioning the model.
+         *
+         * This method is only to be called from clear(), draw() and TBD.
+         * @version 1.0
+         */
+        SEQ_API virtual void applyModelMatrix();
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */

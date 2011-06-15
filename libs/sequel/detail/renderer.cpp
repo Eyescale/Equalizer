@@ -30,7 +30,9 @@ namespace detail
 
 Renderer::Renderer( seq::Renderer* parent )
         : _renderer( parent )
+        , _glewContext( 0 )
         , _pipe( 0 )
+        , _window( 0 )
         , _channel( 0 )
 {}
 
@@ -45,31 +47,32 @@ co::Object* Renderer::getFrameData()
     return _pipe->getFrameData();
 }
 
-Window* Renderer::getWindow()
+const Frustumf& Renderer::getFrustum() const
 {
     EQASSERT( _channel );
-    if( !_channel )
-        return 0;
-
-    return static_cast< Window* >( _channel->getWindow( ));
+    return _channel ? _channel->getFrustum() : Frustumf::DEFAULT;
 }
 
-const GLEWContext* Renderer::glewGetContext() const
+const Matrix4f& Renderer::getViewMatrix() const
 {
     EQASSERT( _channel );
-    return _channel ? _channel->glewGetContext() : 0 ;
+    return _channel ? _channel->getViewMatrix() : Matrix4f::IDENTITY;
+}
+
+const Matrix4f& Renderer::getModelMatrix() const
+{
+    EQASSERT( _channel );
+    return _channel ? _channel->getModelMatrix() : Matrix4f::IDENTITY;
 }
 
 bool Renderer::initGL()
 {
-    Window* window = getWindow();
-    return window ? window->initGL() : false;
+    return _window ? _window->initGL() : false;
 }
 
 bool Renderer::exitGL()
 {
-    Window* window = getWindow();
-    return window ? window->exitGL() : false;
+    return _window ? _window->exitGL() : false;
 }
 
 void Renderer::applyRenderContext()
@@ -77,6 +80,13 @@ void Renderer::applyRenderContext()
     EQASSERT( _channel );
     if( _channel )
         _channel->applyRenderContext();
+}
+
+void Renderer::applyModelMatrix()
+{
+    EQASSERT( _channel );
+    if( _channel )
+        _channel->applyModelMatrix();
 }
 
 }

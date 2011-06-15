@@ -35,13 +35,18 @@ namespace detail
         /** @name Data Access. */
         //@{
         co::Object* getFrameData();
-        Window* getWindow();
-        const GLEWContext* glewGetContext() const;
+        void setGLEWContext( const GLEWContext* ctx ) { _glewContext = ctx; }
+        const GLEWContext* glewGetContext() const { return _glewContext; }
+
+        const Frustumf& getFrustum() const;
+        const Matrix4f& getViewMatrix() const;
+        const Matrix4f& getModelMatrix() const;
         //@}
 
         /** @name Current context. */
         //@{
         void setPipe( Pipe* pipe ) { _pipe = pipe; }
+        void setWindow( Window* window ) { _window = window; }
         void setChannel( Channel* channel ) { _channel = channel; }
         //@}
 
@@ -50,11 +55,14 @@ namespace detail
         bool initGL();
         bool exitGL();
         void applyRenderContext();
+        void applyModelMatrix();
         //@}
 
     private:
         seq::Renderer* const _renderer;
+        const GLEWContext* _glewContext;
         Pipe* _pipe;
+        Window* _window;
         Channel* _channel;
     };
 }

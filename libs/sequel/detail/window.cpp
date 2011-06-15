@@ -56,17 +56,38 @@ detail::Renderer* Window::getRendererImpl()
     return getPipe()->getRendererImpl();
 }
 
+void Window::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
+{
+    getRendererImpl()->setWindow( this );
+    eq::Window::frameStart( frameID, frameNumber );
+}
+
+void Window::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
+{
+    getRendererImpl()->setWindow( 0 );
+    eq::Window::frameFinish( frameID, frameNumber );
+}
+
 bool Window::configInitGL( const uint128_t& initID )
 {
+    getRendererImpl()->setWindow( this );
+    getRendererImpl()->setGLEWContext( glewGetContext( ));
+
     co::Object* initData = getConfig()->getInitData();
     seq::Renderer* const renderer = getRenderer();
-    return renderer->initGL( initData );
+    const bool ret = renderer->initGL( initData );
+    getRendererImpl()->setWindow( 0 );
+    return ret;
 }
 
 bool Window::configExitGL()
 {
+    getRendererImpl()->setWindow( this );
     seq::Renderer* const renderer = getRenderer();
-    return renderer->exitGL();
+    const bool ret = renderer->exitGL();
+    getRendererImpl()->setGLEWContext( 0 );
+    getRendererImpl()->setWindow( 0 );
+    return ret;
 }
 
 }

@@ -36,6 +36,7 @@ namespace seq
 
         /** @name Data Access. */
         //@{
+        const Matrix4f& getModelMatrix() const { return _modelMatrix; }
         //@}
 
         /** @name Operations */

@@ -35,6 +35,7 @@ namespace detail
         Config* getConfig();
         Pipe* getPipe();
         ViewData* getViewData();
+        const ViewData* getViewData() const;
         //@}
 
         /** @name Operations. */

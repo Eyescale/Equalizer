@@ -43,14 +43,15 @@
 /** The Sequel polygonal rendering example. */
 namespace seqPly
 {
-    typedef mesh::VertexBufferRoot         Model;
-    typedef eqPly::VertexBufferDist        ModelDist;
+    typedef mesh::VertexBufferRoot        Model;
+    typedef eqPly::VertexBufferDist       ModelDist;
     typedef mesh::VertexBufferStateSimple State;
+    using eqPly::FrameData;
 
     class Application : public seq::Application
     {
     public:
-        Application() : _modelDist( 0 ) {}
+        Application() : _model( 0 ), _modelDist( 0 ) {}
         virtual ~Application() {}
 
         bool init( const int argc, char** argv );
@@ -58,13 +59,15 @@ namespace seqPly
         virtual bool exit();
 
         virtual co::Object* createObject( const uint32_t type );
-
         virtual seq::Renderer* createRenderer();
 
+        const Model* getModel( const eq::uint128_t& modelID );
+
     private:
-        eqPly::FrameData _frameData;
-        Model _model;
+        FrameData _frameData;
+        Model* _model;
         ModelDist* _modelDist;
+        co::base::Lock _modelLock;
 
         void _loadModel( const int argc, char** argv );
         void _unloadModel();

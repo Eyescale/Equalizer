@@ -53,6 +53,7 @@ namespace detail
         virtual eq::View* createView( eq::Layout* parent );
         virtual eq::Node* createNode( eq::Config* parent );
         virtual eq::Pipe* createPipe( eq::Node* parent );
+        virtual eq::Window* createWindow( eq::Pipe* parent );
         virtual eq::Channel* createChannel( eq::Window* parent );
     };
 }

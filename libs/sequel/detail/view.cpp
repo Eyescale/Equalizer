@@ -57,6 +57,11 @@ ViewData* View::getViewData()
     return static_cast< ViewData* >( eq::View::getUserData( ));
 }
 
+const ViewData* View::getViewData() const
+{
+    return static_cast< const ViewData* >( eq::View::getUserData( ));
+}
+
 void View::notifyAttach()
 {
     eq::View::notifyAttach();

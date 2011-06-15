@@ -60,6 +60,21 @@ void Renderer::destroyViewData( ViewData* viewData )
     delete viewData;
 }
 
+const Frustumf& Renderer::getFrustum() const
+{
+    return _impl->getFrustum();
+}
+
+const Matrix4f& Renderer::getViewMatrix() const
+{
+    return _impl->getViewMatrix();
+}
+
+const Matrix4f& Renderer::getModelMatrix() const
+{
+    return _impl->getModelMatrix();
+}
+
 bool Renderer::initGL( co::Object* initData )
 {
     return _impl->initGL();
@@ -73,6 +88,11 @@ bool Renderer::exitGL()
 void Renderer::applyRenderContext()
 {
     _impl->applyRenderContext();
+}
+
+void Renderer::applyModelMatrix()
+{
+    _impl->applyModelMatrix();
 }
 
 co::Object* Renderer::createObject( const uint32_t type )

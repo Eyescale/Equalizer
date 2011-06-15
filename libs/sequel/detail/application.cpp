@@ -23,6 +23,7 @@
 #include "pipe.h"
 #include "slaveConfig.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/sequel/application.h>
 #include <eq/config.h>
@@ -132,6 +133,11 @@ eq::Node* Application::createNode( eq::Config* parent )
 eq::Pipe* Application::createPipe( eq::Node* parent )
 {
     return new Pipe( parent );
+}
+
+eq::Window* Application::createWindow( eq::Pipe* parent )
+{
+    return new Window( parent );
 }
 
 eq::Channel* Application::createChannel( eq::Window* parent )
