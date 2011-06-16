@@ -82,26 +82,34 @@ namespace co
     struct QueueItemPacket : public ObjectPacket
     {
         QueueItemPacket()
+            : ObjectPacket()
         {
             command = CMD_QUEUE_ITEM;
+            size = sizeof(QueueItemPacket);
         }
     };
 
     struct QueueGetItemPacket : public ObjectPacket
     {
         QueueGetItemPacket()
-            : itemsRequested( 0u )
+            : ObjectPacket()
+            , itemsRequested( 0u )
+            , slaveInstanceID( EQ_INSTANCE_ALL )
         {
             command = CMD_QUEUE_GET_ITEM;
+            size = sizeof(QueueGetItemPacket);
         }
         uint32_t itemsRequested;
+        uint32_t slaveInstanceID;
     };
     
     struct QueueEmptyPacket : public ObjectPacket
     {
         QueueEmptyPacket()
+            : ObjectPacket()
         {
             command = CMD_QUEUE_EMPTY;
+            size = sizeof(QueueEmptyPacket);
         }
     };
 

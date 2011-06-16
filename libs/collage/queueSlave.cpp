@@ -30,7 +30,18 @@ QueueSlave::QueueSlave()
         : Object()
         , _prefetchLow( Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
         , _prefetchHigh( Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE ))
+        , _masterInstanceID( EQ_INSTANCE_ALL )
+        , _master( NodePtr() )
 {
+}
+
+QueueSlave::~QueueSlave()
+{
+    while (!_queue.isEmpty())
+    {
+        Command* cmd = _queue.pop();
+        cmd->release();
+    }
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
@@ -40,6 +51,20 @@ void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
     registerCommand( CMD_QUEUE_EMPTY, CommandFunc<Object>(0, 0), &_queue);
 }
 
+void QueueSlave::applyInstanceData( co::DataIStream& is )
+{
+    uint128_t masterNodeID;
+    is >> _masterInstanceID >> masterNodeID;
+
+    EQASSERT( masterNodeID != NodeID::ZERO );
+
+    if( !_master )
+    {
+        LocalNodePtr localNode = getLocalNode();
+        _master = localNode->connect( masterNodeID );
+    }
+}
+
 Command* QueueSlave::pop()
 {
     if ( _queue.getSize() <= _prefetchLow )
@@ -47,7 +72,9 @@ Command* QueueSlave::pop()
         QueueGetItemPacket packet;
         uint32_t queueSize = static_cast<uint32_t>(_queue.getSize());
         packet.itemsRequested = _prefetchHigh - queueSize;
-        send( getMasterNode(), packet );
+        packet.instanceID = _masterInstanceID;
+        packet.slaveInstanceID = getInstanceID();
+        send( _master, packet );
     }
     
     Command* cmd = _queue.pop();
