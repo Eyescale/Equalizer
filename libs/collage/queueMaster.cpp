@@ -17,8 +17,8 @@
  */
 
 #include "packets.h"
-
 #include "queueMaster.h"
+#include "dataOStream.h"
 
 namespace co
 {
@@ -30,6 +30,18 @@ QueueMaster::QueueMaster()
 {
 }
 
+QueueMaster::~QueueMaster()
+{
+    while (!_queue.empty())
+    {
+        Command* cmd = _queue.front();
+        _queue.pop_front();
+        cmd->release();
+    }
+
+    _cache.flush();
+}
+
 void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
@@ -37,6 +49,11 @@ void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
     CommandQueue* queue = getLocalNode()->getCommandThreadQueue();
     registerCommand( CMD_QUEUE_GET_ITEM, 
         CommandFunc<QueueMaster>( this, &QueueMaster::_cmdGetItem ), queue );
+}
+
+void QueueMaster::getInstanceData( co::DataOStream& os )
+{
+    os << getInstanceID() << getLocalNode()->getNodeID();
 }
 
 void QueueMaster::push( const QueueItemPacket& packet )
@@ -51,6 +68,7 @@ void QueueMaster::push( const QueueItemPacket& packet )
 
     memcpy( queuePacket, &packet, packet.size );
     queuePacket->objectID = getID();
+    queueCommand.retain();
     _queue.push_back( &queueCommand );
 }
 
@@ -68,16 +86,22 @@ bool QueueMaster::_cmdGetItem( Command& command )
     QueueGetItemPacket* packet = command.get<QueueGetItemPacket>();
     uint32_t itemsRequested = packet->itemsRequested;
 
-    while( !_queue.empty() && itemsRequested-- )
+    while( !_queue.empty() && itemsRequested )
     {
         Command* queueItem = _queue.front();
         _queue.pop_front();
-        send( command.getNode(), *(queueItem->get<ObjectPacket>()) );
+        ObjectPacket* queuePacket = queueItem->get<ObjectPacket>();
+        queuePacket->instanceID = packet->slaveInstanceID;
+        send( command.getNode(), *queuePacket );
+        --itemsRequested;
+        queueItem->release();
     }
 
     if( itemsRequested > 0 )
     {
         QueueEmptyPacket queueEmpty;
+        queueEmpty.instanceID = packet->slaveInstanceID;
+        queueEmpty.objectID = getID();
         send( command.getNode(), queueEmpty );
     }
 
