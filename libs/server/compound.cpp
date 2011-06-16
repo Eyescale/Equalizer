@@ -396,7 +396,7 @@ void Compound::addOutputFrame( Frame* frame )
 }
 
 void Compound::addInputTileQueue( TileQueue* tileQueue )
-{ 
+{
     EQASSERT( tileQueue );
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
@@ -405,7 +405,7 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
 }
 
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
-{ 
+{
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _outputTileQueues.push_back( tileQueue ); 

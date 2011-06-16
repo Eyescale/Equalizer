@@ -32,14 +32,7 @@ QueueMaster::QueueMaster()
 
 QueueMaster::~QueueMaster()
 {
-    while (!_queue.empty())
-    {
-        Command* cmd = _queue.front();
-        _queue.pop_front();
-        cmd->release();
-    }
-
-    _cache.flush();
+    clear();
 }
 
 void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
@@ -49,6 +42,18 @@ void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
     CommandQueue* queue = getLocalNode()->getCommandThreadQueue();
     registerCommand( CMD_QUEUE_GET_ITEM, 
         CommandFunc<QueueMaster>( this, &QueueMaster::_cmdGetItem ), queue );
+}
+
+void QueueMaster::clear()
+{
+    while( !_queue.empty( ))
+    {
+        Command* cmd = _queue.front();
+        _queue.pop_front();
+        cmd->release();
+    }
+
+    _cache.flush();
 }
 
 void QueueMaster::getInstanceData( co::DataOStream& os )

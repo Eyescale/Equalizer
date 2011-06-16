@@ -32,7 +32,7 @@ class QueueMaster : public Object
 {
 public:
     CO_API QueueMaster();
-    ~QueueMaster();
+    CO_API ~QueueMaster();
 
     Command& pop(); // note eile: why is this needed?
     CO_API void push( const QueueItemPacket& packet );
