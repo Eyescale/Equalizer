@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,11 +31,10 @@
 
 #include <eq/eq.h>
 
-#include "vertexBufferState.h"
-#include <string>
-
 namespace eqPly
 {
+    class VertexBufferState;
+
     /**
      * A window represent an OpenGL drawable and context
      *

@@ -418,9 +418,9 @@ void Pipe::_flushViews()
     for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
     {
         View* view = i->second;
-        view->_pipe = 0;
 
         client->unmapObject( view );
+        view->_pipe = 0;
         nodeFactory->releaseView( view );
     }
     _views.clear();
@@ -803,9 +803,12 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     NodeDestroyPipePacket destroyPacket( getID( ));
     getNode()->send( getLocalNode(), destroyPacket );
 
-    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
+    // Flush views before exit since they are created after init
+    // - application may need initialized pipe to exit
+    // - configExit can't access views since all channels are gone already
     _flushViews();
     _flushQueues();
+    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     return true;
 }
 
