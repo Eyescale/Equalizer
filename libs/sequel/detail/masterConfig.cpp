@@ -57,6 +57,7 @@ bool MasterConfig::init()
     if( getError( ))
         EQWARN << "Error during initialization: " << getError() << std::endl;
 
+    _redraw = true;
     return true;
 }
 
@@ -82,7 +83,6 @@ bool MasterConfig::run( co::Object* frameData )
     seq::Application* const app = getApplication();
     while( isRunning( ))
     {
-        _redraw = false;
         startFrame();
         if( getError( ))
             EQWARN << "Error during frame start: " << getError() << std::endl;
@@ -110,6 +110,7 @@ bool MasterConfig::run( co::Object* frameData )
 
 uint32_t MasterConfig::startFrame()
 {
+    _redraw = false;
     return eq::Config::startFrame( _objects->commit( ));
 }
 
