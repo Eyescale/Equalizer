@@ -19,8 +19,6 @@
 #ifndef CO_QUEUESLAVE_H
 #define CO_QUEUESLAVE_H
 
-#include "dataIStream.h"
-#include "dataOStream.h"
 #include "types.h"
 #include "object.h"
 #include "api.h"

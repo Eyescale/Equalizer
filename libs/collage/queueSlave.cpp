@@ -16,12 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "commands.h"
-#include "packets.h"
-#include "global.h"
-#include "command.h"
-
 #include "queueSlave.h"
+
+#include "command.h"
+#include "commands.h"
+#include "dataIStream.h"
+#include "global.h"
+#include "packets.h"
 
 namespace co
 {
@@ -31,12 +32,12 @@ QueueSlave::QueueSlave()
         , _prefetchLow( Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
         , _prefetchHigh( Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE ))
         , _masterInstanceID( EQ_INSTANCE_ALL )
-        , _master( NodePtr() )
 {
 }
 
 QueueSlave::~QueueSlave()
 {
+    EQASSERT( _queue.isEmpty( ));
     while (!_queue.isEmpty())
     {
         Command* cmd = _queue.pop();
@@ -57,12 +58,9 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
     is >> _masterInstanceID >> masterNodeID;
 
     EQASSERT( masterNodeID != NodeID::ZERO );
-
-    if( !_master )
-    {
-        LocalNodePtr localNode = getLocalNode();
-        _master = localNode->connect( masterNodeID );
-    }
+    EQASSERT( !_master );
+    LocalNodePtr localNode = getLocalNode();
+    _master = localNode->connect( masterNodeID );
 }
 
 Command* QueueSlave::pop()

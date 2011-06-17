@@ -269,22 +269,6 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         const std::string& name = swapBarrier->getName();
         _swapBarriers[name] = window->joinSwapBarrier( _swapBarriers[name] );
     }
-
-    for( Compound::BarrierMap::const_iterator i = 
-        _swapBarriers.begin(); i != _swapBarriers.end(); ++i )
-    {
-        co::Barrier* barrier = i->second;
-        if( barrier->isAttached( ))
-        {
-            if( barrier->getHeight() > 1 )
-                barrier->commit();
-        }
-        else
-        {
-            compound->getServer()->registerObject( barrier );
-            barrier->setAutoObsolete( compound->getConfig()->getLatency() + 1 );
-        }
-    }
 }
 
 }

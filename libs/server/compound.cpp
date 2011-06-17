@@ -888,7 +888,6 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
-        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -898,7 +897,6 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
-        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -954,6 +952,24 @@ void Compound::update( const uint32_t frameNumber )
     const TileQueueMap& outputQueues = updateOutputVisitor.getOutputQueues();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames, outputQueues );
     accept( updateInputVisitor );
+
+    const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
+
+    for( stde::hash_map< std::string, co::Barrier* >::const_iterator i = 
+             swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    {
+        co::Barrier* barrier = i->second;
+        if( barrier->isAttached( ))
+        {
+            if( barrier->getHeight() > 1 )
+                barrier->commit();
+        }
+        else
+        {
+            getServer()->registerObject( barrier );
+            barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
+        }
+    }
 }
 
 void Compound::updateInheritData( const uint32_t frameNumber )

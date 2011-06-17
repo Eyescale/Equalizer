@@ -47,6 +47,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
     if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
         return TRAVERSE_CONTINUE;
 
+    // TODO refactor in separate methods for queues and frames
     for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
     {
         //----- Find corresponding output queue

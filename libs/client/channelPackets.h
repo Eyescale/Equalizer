@@ -219,7 +219,7 @@ namespace eq
 
         co::ObjectVersion queueVersion;
     };
-    
+
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelConfigInitReplyPacket* packet )
     {

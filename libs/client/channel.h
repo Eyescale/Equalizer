@@ -173,9 +173,6 @@ namespace eq
         /** Const version of getView(). @version 1.0 */
         EQ_API const View* getView() const;
 
-        /** Get the channel's current queue. */
-        EQ_API co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
-
         /** 
          * Returns an orthographic frustum for 2D operations on the view.
          *
@@ -574,6 +571,9 @@ namespace eq
 
         /** Transmit the frame data to the nodeID. */
         void _transmit( const ChannelFrameTransmitPacket* packet );
+
+        /** Get the channel's current input queue. */
+        co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );

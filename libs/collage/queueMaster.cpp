@@ -16,9 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "packets.h"
 #include "queueMaster.h"
+
 #include "dataOStream.h"
+#include "packets.h"
 
 namespace co
 {
@@ -65,8 +66,6 @@ void QueueMaster::push( const QueueItemPacket& packet )
 {
     EQ_TS_SCOPED( _thread );
 
-    // @bug eile: if _queue is not a commandQueue, the commands are not ref'd
-    // and alloc won't work properly
     Command& queueCommand = 
             _cache.alloc( getLocalNode(), getLocalNode(), packet.size );
     QueueItemPacket* queuePacket = queueCommand.get< QueueItemPacket >();
