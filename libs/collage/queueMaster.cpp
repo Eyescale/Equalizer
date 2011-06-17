@@ -16,9 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "packets.h"
-
 #include "queueMaster.h"
+
+#include "dataOStream.h"
+#include "packets.h"
 
 namespace co
 {
@@ -30,6 +31,11 @@ QueueMaster::QueueMaster()
 {
 }
 
+QueueMaster::~QueueMaster()
+{
+    clear();
+}
+
 void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
@@ -39,18 +45,34 @@ void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
         CommandFunc<QueueMaster>( this, &QueueMaster::_cmdGetItem ), queue );
 }
 
+void QueueMaster::clear()
+{
+    while( !_queue.empty( ))
+    {
+        Command* cmd = _queue.front();
+        _queue.pop_front();
+        cmd->release();
+    }
+
+    _cache.flush();
+}
+
+void QueueMaster::getInstanceData( co::DataOStream& os )
+{
+    os << getInstanceID() << getLocalNode()->getNodeID();
+}
+
 void QueueMaster::push( const QueueItemPacket& packet )
 {
     EQ_TS_SCOPED( _thread );
 
-    // @bug eile: if _queue is not a commandQueue, the commands are not ref'd
-    // and alloc won't work properly
     Command& queueCommand = 
             _cache.alloc( getLocalNode(), getLocalNode(), packet.size );
     QueueItemPacket* queuePacket = queueCommand.get< QueueItemPacket >();
 
     memcpy( queuePacket, &packet, packet.size );
     queuePacket->objectID = getID();
+    queueCommand.retain();
     _queue.push_back( &queueCommand );
 }
 
@@ -68,16 +90,22 @@ bool QueueMaster::_cmdGetItem( Command& command )
     QueueGetItemPacket* packet = command.get<QueueGetItemPacket>();
     uint32_t itemsRequested = packet->itemsRequested;
 
-    while( !_queue.empty() && itemsRequested-- )
+    while( !_queue.empty() && itemsRequested )
     {
         Command* queueItem = _queue.front();
         _queue.pop_front();
-        send( command.getNode(), *(queueItem->get<ObjectPacket>()) );
+        ObjectPacket* queuePacket = queueItem->get<ObjectPacket>();
+        queuePacket->instanceID = packet->slaveInstanceID;
+        send( command.getNode(), *queuePacket );
+        --itemsRequested;
+        queueItem->release();
     }
 
     if( itemsRequested > 0 )
     {
         QueueEmptyPacket queueEmpty;
+        queueEmpty.instanceID = packet->slaveInstanceID;
+        queueEmpty.objectID = getID();
         send( command.getNode(), queueEmpty );
     }
 

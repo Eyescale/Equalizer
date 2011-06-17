@@ -208,7 +208,18 @@ namespace eq
                 size          = sizeof( ChannelFrameViewFinishPacket );
             }
     };
-    
+
+    struct ChannelFrameTilesPacket : public ChannelTaskPacket
+    {
+        ChannelFrameTilesPacket()
+        {
+            command           = fabric::CMD_CHANNEL_FRAME_TILES;
+            size              = sizeof( ChannelFrameTilesPacket );
+        }
+
+        co::ObjectVersion queueVersion;
+    };
+
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelConfigInitReplyPacket* packet )
     {

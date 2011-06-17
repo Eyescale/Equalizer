@@ -122,6 +122,9 @@ namespace eq
         Frame* getFrame( const co::ObjectVersion& frameVersion, 
                          const Eye eye, const bool output );
 
+        /** @internal @return the queue for the given identifier and version. */
+        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
+
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
@@ -412,6 +415,10 @@ namespace eq
         /** All views used by the pipe's channels during rendering. */
         ViewHash _views;
 
+        typedef stde::hash_map< uint128_t, co::QueueSlave* > QueueHash;
+        /** All queues used by the pipe's channels during rendering. */
+        QueueHash _queues;
+
         /** The pipe thread. */
         class PipeThread : public co::base::Thread
         {
@@ -451,6 +458,9 @@ namespace eq
 
         /** @internal Clear the view cache and release all views. */
         void _flushViews();
+
+        /** @internal Clear the queue cache and release all queues. */
+        void _flushQueues();
 
         /* The command functions. */
         bool _cmdCreateWindow( co::Command& command );

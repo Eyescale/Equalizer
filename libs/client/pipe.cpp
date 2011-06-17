@@ -48,6 +48,7 @@
 #include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/command.h>
+#include <co/queueSlave.h>
 #include <sstream>
 
 namespace eq
@@ -321,6 +322,40 @@ void Pipe::flushFrames()
     _outputFrameDatas.clear();
 }
 
+co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+{
+    EQ_TS_THREAD( _pipeThread );
+    if( queueVersion.identifier == co::base::UUID::ZERO )
+        return 0;
+
+    co::QueueSlave* queue = _queues[ queueVersion.identifier ];
+    if( !queue )
+    {
+        queue = new co::QueueSlave;
+        ClientPtr client = getClient();
+        EQCHECK( client->mapObject( queue, queueVersion ));
+
+        _queues[ queueVersion.identifier ] = queue;
+    }
+
+    queue->sync( queueVersion.version );
+    return queue;
+}
+
+void Pipe::_flushQueues()
+{
+    EQ_TS_THREAD( _pipeThread );
+    ClientPtr client = getClient();
+
+    for( QueueHash::const_iterator i = _queues.begin(); i != _queues.end(); ++i)
+    {
+        co::QueueSlave* queue = i->second;
+        client->unmapObject( queue );
+        delete queue;
+    }
+    _queues.clear();
+}
+
 const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 {
     // Yie-ha: we want to have a const-interface to get a view on the render
@@ -331,7 +366,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier ==co::base::UUID::ZERO )
+    if( viewVersion.identifier == co::base::UUID::ZERO )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];
@@ -339,8 +374,8 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
-        view->_pipe = this;
         EQASSERT( view );
+        view->_pipe = this;        
         ClientPtr client = getClient();
         EQCHECK( client->mapObject( view, viewVersion ));
 
@@ -389,9 +424,9 @@ void Pipe::_flushViews()
     for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
     {
         View* view = i->second;
-        view->_pipe = 0;
 
         client->unmapObject( view );
+        view->_pipe = 0;
         nodeFactory->releaseView( view );
     }
     _views.clear();
@@ -759,8 +794,12 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     NodeDestroyPipePacket destroyPacket( getID( ));
     getNode()->send( getLocalNode(), destroyPacket );
 
-    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
+    // Flush views before exit since they are created after init
+    // - application may need initialized pipe to exit
+    // - configExit can't access views since all channels are gone already
     _flushViews();
+    _flushQueues();
+    _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     return true;
 }
 

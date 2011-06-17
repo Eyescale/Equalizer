@@ -213,7 +213,7 @@ void FrameData::readback( const Frame& frame,
     {
         PixelViewport pvp = pvps[ i ];
         pvp.intersect( absPVP );
-                
+
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );

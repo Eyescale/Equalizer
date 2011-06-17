@@ -572,6 +572,9 @@ namespace eq
         /** Transmit the frame data to the nodeID. */
         void _transmit( const ChannelFrameTransmitPacket* packet );
 
+        /** Get the channel's current input queue. */
+        co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
+
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
         bool _cmdConfigExit( co::Command& command );
@@ -587,6 +590,7 @@ namespace eq
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
+        bool _cmdFrameTiles( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

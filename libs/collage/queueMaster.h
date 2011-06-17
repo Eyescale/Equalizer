@@ -32,7 +32,7 @@ class QueueMaster : public Object
 {
 public:
     CO_API QueueMaster();
-    ~QueueMaster() {}
+    CO_API ~QueueMaster();
 
     Command& pop(); // note eile: why is this needed?
     CO_API void push( const QueueItemPacket& packet );
@@ -40,9 +40,11 @@ public:
     CO_API virtual void attach( const base::UUID& id, 
         const uint32_t instanceID );
 
+    CO_API void clear();
+
 protected:
     virtual ChangeType getChangeType() const { return STATIC; }
-    virtual void getInstanceData( co::DataOStream& ) {}
+    virtual void getInstanceData( co::DataOStream& os );
     virtual void applyInstanceData( co::DataIStream& ) {}
 
 private:

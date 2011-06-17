@@ -28,8 +28,8 @@ namespace server
     class Channel;
     
     /**
-     * The compound visitor updating the output data (frames, swapbarriers) of a
-     * compound tree.
+     * The compound visitor updating the output data (frames, tiles,
+     * swapbarriers) of a compound tree.
      */
     class CompoundUpdateOutputVisitor : public CompoundVisitor
     {
@@ -44,16 +44,21 @@ namespace server
             const { return _swapBarriers; }
         const Compound::FrameMap& getOutputFrames() const
             { return _outputFrames; }
+        const Compound::TileQueueMap& getOutputQueues() const
+            { return _outputTileQueues; }
 
     private:
         const uint32_t _frameNumber;
  
-        Compound::BarrierMap _swapBarriers;
-        Compound::FrameMap   _outputFrames;
+        Compound::BarrierMap   _swapBarriers;
+        Compound::FrameMap     _outputFrames;
+        Compound::TileQueueMap _outputTileQueues;
 
         void _updateOutput( Compound* compound );
         void _updateZoom( const Compound* compound, Frame* frame );
         void _updateSwapBarriers( Compound* compound );
+
+        void _generateTiles( TileQueue* queue, Compound* compound );
     };
 }
 }

@@ -219,8 +219,8 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 
 #ifndef NDEBUG
     if( requested != VERSION_OLDEST && requested < start )
-        EQINFO << "Mapping version " << start << " instead of requested version"
-               << requested << std::endl;
+        EQINFO << "Mapping version " << start
+               << " instead of requested version " << requested << std::endl;
 #endif
 
     reply.version = start;

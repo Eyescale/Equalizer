@@ -129,6 +129,20 @@ Compound::~Compound()
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
         delete *i;
     _outputFrames.clear();
+
+    for( TileQueuesCIter i = _inputTileQueues.begin();
+         i != _inputTileQueues.end(); ++i )
+    {
+        delete *i;
+    }
+    _inputTileQueues.clear();
+
+    for( TileQueuesCIter i = _outputTileQueues.begin();
+         i != _outputTileQueues.end(); ++i )
+    {
+        delete *i;
+    }
+    _outputTileQueues.clear();
 }
 
 Compound::InheritData::InheritData()
@@ -382,7 +396,7 @@ void Compound::addOutputFrame( Frame* frame )
 }
 
 void Compound::addInputTileQueue( TileQueue* tileQueue )
-{ 
+{
     EQASSERT( tileQueue );
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
@@ -391,7 +405,7 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
 }
 
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
-{ 
+{
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _outputTileQueues.push_back( tileQueue ); 
@@ -868,6 +882,24 @@ void Compound::register_()
         EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
     }
+
+    for( TileQueuesCIter i = _inputTileQueues.begin();
+         i != _inputTileQueues.end(); ++i )
+    {
+        TileQueue* queue = *i;
+        server->registerObject( queue );
+        EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
+                                  << "\" id " << queue->getID() << std::endl;
+    }
+
+    for( TileQueuesCIter i = _outputTileQueues.begin();
+         i != _outputTileQueues.end(); ++i )
+    {
+        TileQueue* queue = *i;
+        server->registerObject( queue );
+        EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
+                                  << "\" id " << queue->getID() << std::endl;
+    }
 }
 
 void Compound::deregister()
@@ -888,6 +920,21 @@ void Compound::deregister()
         Frame* frame = *i;
         server->deregisterObject( frame );
     }
+
+    for( TileQueuesCIter i = _inputTileQueues.begin();
+        i != _inputTileQueues.end(); ++i )
+    {
+        TileQueue* queue = *i;
+        server->deregisterObject( queue );
+    }
+
+    for( TileQueuesCIter i = _outputTileQueues.begin();
+        i != _outputTileQueues.end(); ++i )
+    {
+        TileQueue* queue = *i;
+        queue->flush();
+        server->deregisterObject( queue );
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -901,9 +948,9 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateOutputVisitor updateOutputVisitor( frameNumber );
     accept( updateOutputVisitor );
 
-    const stde::hash_map<std::string, Frame*>& outputFrames =
-        updateOutputVisitor.getOutputFrames();
-    CompoundUpdateInputVisitor updateInputVisitor( outputFrames );
+    const FrameMap& outputFrames = updateOutputVisitor.getOutputFrames();
+    const TileQueueMap& outputQueues = updateOutputVisitor.getOutputQueues();
+    CompoundUpdateInputVisitor updateInputVisitor( outputFrames, outputQueues );
     accept( updateInputVisitor );
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();

@@ -19,6 +19,7 @@
 #ifndef CO_QUEUESLAVE_H
 #define CO_QUEUESLAVE_H
 
+#include "types.h"
 #include "object.h"
 #include "api.h"
 
@@ -30,7 +31,7 @@ class QueueSlave : public Object
 public:
 
     CO_API QueueSlave();
-    ~QueueSlave() {}
+    ~QueueSlave();
 
     CO_API virtual void attach( const base::UUID& id, 
         const uint32_t instanceID );
@@ -40,13 +41,16 @@ public:
 protected:
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& ) {}
-    virtual void applyInstanceData( co::DataIStream& ) {}
+    virtual void applyInstanceData( co::DataIStream& is );
 
 private:
     CommandQueue _queue;
 
     uint32_t _prefetchLow;
     uint32_t _prefetchHigh;
+    uint32_t _masterInstanceID;
+
+    NodePtr _master;
 };
 
 } // co
