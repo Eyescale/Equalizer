@@ -29,10 +29,10 @@ namespace seq
         ERROR_SEQUEL_CREATERENDERER_FAILED
     };
 
-    /** Set up eqPly-specific error codes. */
+    /** Set up Sequel-specific error codes. */
     void initErrors();
 
-    /** Clear eqPly-specific error codes. */
+    /** Clear Sequel-specific error codes. */
     void exitErrors();
 }
 

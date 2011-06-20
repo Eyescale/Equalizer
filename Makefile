@@ -58,10 +58,11 @@ docs: ../website/build/documents/Developer/API
 	@mkdir -p ../website/build/documents/Developer/API/internal
 	$(DOXYGEN) doc/Doxyfile.int
 
-../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co
+../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co doc/Doxyfile.seq
 	@mkdir -p ../website/build/collage/documents/Developer/API
 	$(DOXYGEN) doc/Doxyfile.ext
 	$(DOXYGEN) doc/Doxyfile.co
+	$(DOXYGEN) doc/Doxyfile.seq
 
 docs/install: docs/Makefile
 	@rm -rf $@

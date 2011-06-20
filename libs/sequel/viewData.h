@@ -24,7 +24,7 @@
 
 namespace seq
 {
-    /** The main viewData object. */
+    /** Stores per-view data. */
     class ViewData : public co::Serializable
     {
     public:

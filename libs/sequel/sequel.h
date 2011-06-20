@@ -21,6 +21,22 @@
 #pragma warning(push)
 #pragma warning(disable: 4244) //conversion from .. to ..,possible loss of data
 
+/** 
+ * @namespace seq
+ * @brief Sequel - A simple API to the Equalizer parallel rendering framework.
+ *
+ * This namespace provides a simple programming interface to the Equalizer
+ * parallel rendering framework. Sequel allows rapid development of clustered
+ * multi-GPU application while not sacrificing the flexibility and power of the
+ * underlying Equalizer framework.
+ */
+
+/** \mainpage Sequel API Documentation
+ *
+ * Sequel provides a simple programming interface to the Equalizer parallel
+ * rendering framework. Please refer to the \link seq Sequel namespace \endlink
+ * documentation for more information.
+ */
 #include <eq/sequel/application.h>
 #include <eq/sequel/objectType.h>
 #include <eq/sequel/renderer.h>

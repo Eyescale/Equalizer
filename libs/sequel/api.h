@@ -16,7 +16,7 @@
  */
 
 /**
- * @file /api.h
+ * @file eq/sequel/api.h
  *
  * Defines sequel API export macros.
  */
