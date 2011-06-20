@@ -60,9 +60,9 @@ bool Application::exit()
 
 co::Object* Application::createObject( const uint32_t type )
 {
-    switch( type )
+//    switch( type )
     {
-      default:
+//      default:
           EQUNIMPLEMENTED;
           return 0;
     }

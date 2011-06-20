@@ -77,13 +77,13 @@ namespace seq
         SEQ_API const GLEWContext* glewGetContext() const;
 
         /** @return the current view frustum. @version 1.0 */
-        const Frustumf& getFrustum() const;
+        SEQ_API const Frustumf& getFrustum() const;
 
         /** @return the current view (frustum) transformation. @version 1.0 */
-        const Matrix4f& getViewMatrix() const;
+        SEQ_API const Matrix4f& getViewMatrix() const;
 
         /** @return the current model (scene) transformation. @version 1.0 */
-        const Matrix4f& getModelMatrix() const;
+        SEQ_API const Matrix4f& getModelMatrix() const;
         //@}
 
         /** @name Operations */
@@ -142,7 +142,7 @@ namespace seq
 
         /** @name ObjectFactory interface, forwards to Application instance. */
         //@{
-        virtual eq::Config* getConfig();
+        SEQ_API virtual eq::Config* getConfig();
         SEQ_API virtual co::Object* createObject( const uint32_t type );
         SEQ_API virtual void destroyObject( co::Object* object,
                                             const uint32_t type );

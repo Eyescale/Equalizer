@@ -79,7 +79,7 @@ namespace co
         uint128_t version;
 
         /** An unset object version. */
-        static ObjectVersion NONE;
+        static CO_API ObjectVersion NONE;
     };
 
     inline std::ostream& operator << (std::ostream& os, const ObjectVersion& ov)

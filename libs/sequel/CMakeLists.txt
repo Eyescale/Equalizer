@@ -2,23 +2,7 @@
 
 include(PurpleAddLibrary)
 
-purple_add_library(Sequel SHARED
-  HEADERS_PREFIX "eq/sequel/"
-  FORWARD HEADERS
-    api.h
-    application.h
-    error.h
-    objectFactory.h
-    objectType.h
-    renderer.h
-    sequel.h
-    types.h
-    viewData.h
-  SOURCES
-    application.cpp
-    error.cpp
-    renderer.cpp
-    viewData.cpp
+set(DETAIL_FILES
     detail/application.cpp
     detail/channel.h
     detail/channel.cpp
@@ -40,8 +24,37 @@ purple_add_library(Sequel SHARED
     detail/view.cpp
     detail/window.h
     detail/window.cpp
+  )
+
+set(SEQUEL_HEADERS
+    api.h
+    application.h
+    error.h
+    objectFactory.h
+    objectType.h
+    renderer.h
+    sequel.h
+    types.h
+    viewData.h
+  )
+set(SEQUEL_SOURCES
+    application.cpp
+    error.cpp
+    renderer.cpp
+    viewData.cpp
+  )
+  
+purple_add_library(Sequel SHARED
+  HEADERS_PREFIX "eq/sequel/"
+  FORWARD HEADERS ${SEQUEL_HEADERS}
+  SOURCES ${SEQUEL_SOURCES} ${DETAIL_FILES}
   LINK_LIBRARIES Equalizer
   )
+
 set_target_properties(lib_Sequel_shared PROPERTIES
   FOLDER "Libraries" PROJECT_LABEL "Sequel")
+
 source_group(\\ REGULAR_EXPRESSION .*)
+source_group(\\ FILES CMakeLists.txt)
+source_group(detail FILES ${DETAIL_FILES})
+source_group(sequel FILES ${SEQUEL_HEADER} ${SEQUEL_SOURCES})

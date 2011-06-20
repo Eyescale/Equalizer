@@ -36,7 +36,7 @@ namespace seq
 
         /** @name Data Access. */
         //@{
-        eq::Config* getConfig(); //!< @internal
+        SEQ_API eq::Config* getConfig(); //!< @internal
         detail::Application* getImpl() { return _impl; } //!< @internal
 
         /**
@@ -50,7 +50,7 @@ namespace seq
         virtual Renderer* createRenderer() = 0;
 
         /** Delete the given renderer. @version 1.0 */
-        virtual void destroyRenderer( Renderer* renderer );
+        SEQ_API virtual void destroyRenderer( Renderer* renderer );
 
         /**
          * Create a new per-view data instance.
@@ -59,10 +59,10 @@ namespace seq
          * @return the new view data
          * @version 1.0
          */
-        virtual ViewData* createViewData();
+        SEQ_API virtual ViewData* createViewData();
 
         /** Delete the given view data. @version 1.0 */
-        virtual void destroyViewData( ViewData* viewData );
+        SEQ_API virtual void destroyViewData( ViewData* viewData );
         //@}
 
         /** @name Operations */
