@@ -92,7 +92,7 @@ void Renderer::draw( co::Object* frameDataObj )
     const eq::Matrix4f& view = getViewMatrix();
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = frustum.compute_matrix();
-    const eq::Matrix4f pmv = view * modelM * projection;
+    const eq::Matrix4f pmv = projection * view * modelM;
 
     _state->setProjectionModelViewMatrix( pmv );
     //_state->setRange( &getRange().start);

@@ -22,7 +22,7 @@ namespace seq
 ViewData::ViewData()
         : _modelMatrix( eq::Matrix4f::IDENTITY )
 {
-    moveModel( 0.f, 0.f, -1.f );
+    moveModel( 0.f, 0.f, -2.f );
 }
 
 ViewData::~ViewData()
