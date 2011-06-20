@@ -41,7 +41,7 @@ namespace detail
         /** @name Operations. */
         //@{
         bool handleEvent( const eq::ConfigEvent* event );
-        void updateData();
+        bool updateData();
         //@}
 
     protected:

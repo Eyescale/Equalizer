@@ -22,6 +22,7 @@
 
 #include <eq/sequel/application.h>
 #include <eq/configEvent.h>
+#include <eq/fabric/configVisitor.h>
 
 namespace seq
 {
@@ -114,36 +115,67 @@ uint32_t MasterConfig::startFrame()
     return eq::Config::startFrame( _objects->commit( ));
 }
 
+namespace
+{
+class ViewUpdateVisitor : public eq::ConfigVisitor
+{
+public:
+    ViewUpdateVisitor( bool &redraw ) : _redraw( redraw ) {}
+    virtual~ ViewUpdateVisitor() {}
+
+    virtual eq::VisitorResult visit( eq::View* v )
+        {
+            View* view = static_cast< View* >( v );
+            if( view->updateData( ))
+                _redraw = true;
+            return eq::TRAVERSE_CONTINUE;
+        }
+
+private:
+    bool& _redraw;
+};
+}
+
 bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
-            _currentViewID = event->data.context.view.identifier;
-            return true;
+      case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
+          _currentViewID = event->data.context.view.identifier;
+          return true;
 
-        case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-        case eq::Event::CHANNEL_POINTER_MOTION:
-        case eq::Event::WINDOW_POINTER_WHEEL:
-        case eq::Event::MAGELLAN_AXIS:
-        {
-            if( _currentViewID == uint128_t::ZERO )
-                return true;
+      case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
+      case eq::Event::CHANNEL_POINTER_MOTION:
+      case eq::Event::WINDOW_POINTER_WHEEL:
+      case eq::Event::MAGELLAN_AXIS:
+      {
+          if( _currentViewID == uint128_t::ZERO )
+              return true;
 
-            View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
-            _redraw = view->handleEvent( event );
-            return true;
-        }
+          View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
+          _redraw = view->handleEvent( event );
+          return true;
+      }
 
-        case eq::Event::WINDOW_EXPOSE:
-        case eq::Event::WINDOW_RESIZE:
-        case eq::Event::WINDOW_CLOSE:
-        case eq::Event::VIEW_RESIZE:
-            _redraw = true;
-            break;
+      case eq::Event::STATISTIC:
+      {
+          if( event->data.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
+              return false;
 
-        default:
-            break;
+          ViewUpdateVisitor viewUpdate( _redraw );
+          accept( viewUpdate );
+          return _redraw;
+      }
+
+      case eq::Event::WINDOW_EXPOSE:
+      case eq::Event::WINDOW_RESIZE:
+      case eq::Event::WINDOW_CLOSE:
+      case eq::Event::VIEW_RESIZE:
+          _redraw = true;
+          break;
+
+      default:
+          break;
     }
 
     if( eq::Config::handleEvent( event ))

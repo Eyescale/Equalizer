@@ -91,15 +91,16 @@ void View::notifyDetached()
     eq::View::notifyDetached();
 }
 
-void View::updateData()
+bool View::updateData()
 {
     ViewData* data = getViewData();
     EQASSERT( data );
-    if( !data )
-        return;
+    if( !data || (_spinX == 0 && _spinY == 0 && _advance == 0 ))
+        return false;
 
     data->spinModel( -0.001f * _spinX, -0.001f * _spinY, 0.f );
     data->moveModel( 0.0f, 0.0f, 0.001f * _advance );
+    return true;
 }
 
 bool View::handleEvent( const eq::ConfigEvent* event )
