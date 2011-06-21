@@ -60,6 +60,9 @@ namespace server
         void setFrozen( const bool onOff ) { _frozen = onOff; }
         bool isFrozen() const { return _frozen; }
 
+        virtual void setActivated( bool flag ) { _activated = flag; }
+        virtual bool isActivated() const { return _activated; }
+
     private:
         // override in sub-classes to handle dynamic compounds.
         virtual void notifyChildAdded( Compound* compound, Compound* child )
@@ -69,6 +72,7 @@ namespace server
 
         Compound* _compound;       //!< The attached compound
         bool      _frozen;
+        bool      _activated;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Equalizer* eq )

@@ -1684,7 +1684,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     while( co::Command* queuePacket = queue->pop( ))
     {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
-        //context.frustum = tilePacket->frustum;
+        context.frustum = tilePacket->frustum;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 

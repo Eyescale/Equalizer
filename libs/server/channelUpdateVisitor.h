@@ -73,22 +73,6 @@ namespace server
         void _setupRenderContext( const Compound* compound,
                                   RenderContext& context );
 
-        void _computeFrustum( const Compound* compound, RenderContext& context);
-        Vector3f _getEyePosition( const Compound* compound,
-                                  const fabric::Eye eye ) const;
-        const Matrix4f& _getInverseHeadMatrix( const Compound* compound )
-            const;
-
-        void _computePerspective( const Compound* compound,
-                                  RenderContext& context,
-                                  const Vector3f& eyeWall );
-        void _computeOrtho( const Compound* compound, RenderContext& context,
-                            const Vector3f& eyeWall );
-        void _computeFrustumCorners( const Compound* compound,
-                                     Frustumf& frustum,
-                                     const FrustumData& frustumData,
-                                     const Vector3f& eye, const bool ortho );
-
         void _updatePostDraw( const Compound* compound, 
                               const fabric::RenderContext& context );
         void _updateAssemble( const Compound* compound,

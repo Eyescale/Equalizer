@@ -373,6 +373,14 @@ namespace server
         /** Update the frustum from the view or segment. */
         void updateFrustum( const Vector3f& eye, const float ratio );
 
+        /** compute the frustum of the given context */
+        void computeFrustum( RenderContext& context, 
+                             const fabric::Eye eye ) const;
+        
+        /** compute the frustum for a given viewport */
+        void computeTileFrustum( Frustumf& frustum, const fabric::Eye eye,
+                                 Viewport vp, bool ortho ) const;
+
         /** @return the bitwise OR of the eye values. */
         uint32_t getEyes() const { return _data.eyes; }
 
@@ -584,6 +592,15 @@ namespace server
 
         void _fireChildAdded( Compound* child );
         void _fireChildRemove( Compound* child );
+
+        void _computePerspective( RenderContext& context, 
+                                  const Vector3f& eye ) const;
+        void _computeOrtho( RenderContext& context, const Vector3f& eye ) const;
+        Vector3f _getEyePosition( const fabric::Eye eye ) const;
+        const Matrix4f& _getInverseHeadMatrix() const;
+        void _computeFrustumCorners( Frustumf& frustum, 
+            const FrustumData& frustumData, const Vector3f& eye, 
+            const bool ortho, Viewport* invp = 0 ) const;
     };
 
     std::ostream& operator << ( std::ostream& os, const Compound& compound );

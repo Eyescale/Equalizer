@@ -66,7 +66,7 @@ TreeEqualizer::~TreeEqualizer()
 void TreeEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
-    if( isFrozen() || !compound->isRunning( ))
+    if( isFrozen() || !compound->isRunning( ) || !isActivated() )
         return;
 
     if( !_tree )
