@@ -1681,7 +1681,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         RenderContext context = packet->context;
-        //context.frustum = tilePacket->frustum;
+        context.frustum = tilePacket->frustum;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
         _setRenderContext( context );
