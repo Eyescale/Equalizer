@@ -8,7 +8,6 @@ set(COBASE_FORWARD_HEADERS
     api.h
     atomic.h
     base.h
-    bitOperation.h
     buffer.h
     clock.h
     compareAndSwap.h

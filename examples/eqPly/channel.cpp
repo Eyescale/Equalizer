@@ -94,7 +94,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     _initJitter();
     const FrameData& frameData = _getFrameData();
-    const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
+    const int32_t eyeIndex = ::fls( getEye( )) - 1;
     if( _isDone() && !_accum[ eyeIndex ].transfer )
         return;
 
@@ -176,7 +176,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
@@ -190,7 +190,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
 
     if( getPixelViewport() != _currentPVP )
     {
@@ -317,7 +317,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     applyBuffer();
 
     const FrameData& frameData = _getFrameData();
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
 
     if( accum.buffer )
     {
@@ -396,7 +396,7 @@ bool Channel::_isDone() const
         return false;
 
     const eq::SubPixel& subpixel = getSubPixel();
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
     return static_cast< int32_t >( subpixel.index ) >= accum.step;
 }
 
@@ -419,7 +419,7 @@ void Channel::_initJitter()
         return;
 
     // ready for the next FSAA
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
 
     if( accum.buffer )
         accum.buffer->clear();
@@ -433,7 +433,7 @@ bool Channel::_initAccum()
         return true;
 
     const eq::Eye eye = getEye();
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( eye ) ];
+    Accum& accum = _accum[ ::fls( eye ) - 1 ];
 
     if( accum.buffer ) // already done
         return true;
@@ -498,7 +498,7 @@ bool Channel::stopRendering() const
 eq::Vector2f Channel::getJitter() const
 {
     const FrameData& frameData = _getFrameData();
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
 
     if( !frameData.isIdle() || accum.step <= 0 )
         return eq::Channel::getJitter();
@@ -564,7 +564,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ ::fls( getEye( )) - 1 ];
     const uint32_t subset = totalSteps / getSubPixel().size;
     const uint32_t idx = 
         ( accum.step * _primes[ channelID ] ) % subset + ( channelID * subset );

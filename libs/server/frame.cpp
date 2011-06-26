@@ -177,7 +177,7 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
 
 co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye ) ] );
+    return co::ObjectVersion( _frameData[ ::fls( eye ) - 1 ] );
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )
