@@ -17,12 +17,15 @@
 
 #define EQ_TEST_RUNTIME 600 // seconds, needed for NighlyMemoryCheck
 #include "test.h"
+
 #include <co/base/atomic.h>
 #include <co/base/clock.h>
 #include <co/base/debug.h>
+#include <co/base/init.h>
 #include <co/base/lock.h>
 #include <co/base/spinLock.h>
 #include <co/base/timedLock.h>
+
 #include <iostream>
 
 #ifdef _MSC_VER
@@ -87,8 +90,10 @@ template< class T > void _test()
 
 int main( int argc, char **argv )
 {
+    TEST( co::base::init( argc, argv ));
     _test< co::base::Lock >();
     _test< co::base::SpinLock >();
     _test< co::base::TimedLock >();
+    TEST( co::base::exit( ));
     return EXIT_SUCCESS;
 }
