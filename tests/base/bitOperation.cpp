@@ -22,11 +22,13 @@
 
 int main( int argc, char **argv )
 {
-    TESTINFO( co::base::getIndexOfLastBit( 0 ) == -1,
-              co::base::getIndexOfLastBit( 0 ));
-    TESTINFO( co::base::getIndexOfLastBit( 42 ) == 5,
-              co::base::getIndexOfLastBit( 42 ));
+    TESTINFO( co::base::getIndexOfLastBit( 0u ) == -1,
+              co::base::getIndexOfLastBit( 0u ));
+    TESTINFO( co::base::getIndexOfLastBit( 42u ) == 5,
+              co::base::getIndexOfLastBit( 42u ));
     TESTINFO( co::base::getIndexOfLastBit( EQ_BIT12 ) == 11,
               co::base::getIndexOfLastBit( EQ_BIT12 ));
+    TESTINFO( co::base::getIndexOfLastBit( uint64_t( EQ_BIT48 )) == 47,
+              co::base::getIndexOfLastBit( uint64_t( EQ_BIT48 )));
     return EXIT_SUCCESS;
 }

@@ -18,6 +18,7 @@
 
 #include "eye.h"
 
+#include <co/base/bitOperation.h>
 #include <co/base/debug.h>   // for EQABORT
 
 namespace eq
@@ -43,6 +44,19 @@ std::ostream& operator << ( std::ostream& os, const Eye& eye )
     }
     
     return os;
+}
+
+}
+}
+
+namespace co
+{
+namespace base
+{
+EQFABRIC_API template<>
+int32_t getIndexOfLastBit< eq::fabric::Eye >( eq::fabric::Eye eye )
+{
+    return getIndexOfLastBit( uint32_t( eye ));
 }
 
 }
