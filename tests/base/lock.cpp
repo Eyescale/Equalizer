@@ -84,7 +84,7 @@ template< class T > void _test()
         _clock.reset();
         lock->unset();
 
-        for( size_t i=0; i<nThreads; i++ )
+        for( size_t i=0; i<nThreads; ++i )
             TEST( threads[i].join( ));
         const float time = _clock.getTimef();
 
@@ -92,7 +92,7 @@ template< class T > void _test()
         lock->set();
 
         size_t nLoops = 0;
-        for( size_t i=0; i<nThreads; i++ )
+        for( size_t i=0; i<nThreads; ++i )
             nLoops += threads[i].nLoops;
 
         std::cout << co::base::className( lock ) << ": "
