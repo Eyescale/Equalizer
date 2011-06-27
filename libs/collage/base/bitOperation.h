@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,6 +28,14 @@ namespace base
     /** @return the position of the last set bit, or -1. */
     inline int32_t getIndexOfLastBit( uint32_t value )
     {
+#ifdef Darwin
+        return ::fls( value ) - 1;
+#elif defined __GNUC__
+        return value ? (31 - __builtin_clz( value )) : -1;
+#elif defined _MSC_VER
+        unsigned long i = 0;
+        return _BitScanReverse( &i, value ) ? i : -1;
+#else
         int32_t count = -1;
         while( value ) 
         {
@@ -34,6 +43,7 @@ namespace base
           value >>= 1;
         }
         return count;
+#endif
     }
 }
 }
