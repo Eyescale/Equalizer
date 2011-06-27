@@ -22,6 +22,7 @@
 #include "compound.h"
 
 #include <eq/frame.h>
+#include <co/base/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {
@@ -58,7 +59,7 @@ namespace server
 
         FrameData* getMasterData() const { return _masterFrameData; }
         bool hasData( const eq::Eye eye ) const
-            { return ( _frameData[ ::fls(eye) - 1 ] != 0 ); }
+            { return ( _frameData[ co::base::getIndexOfLastBit(eye) ] != 0 ); }
 
         co::ObjectVersion getDataVersion( const Eye eye ) const;
 
@@ -145,7 +146,7 @@ namespace server
 
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
-            { return _inputFrames[ ::fls( eye ) - 1 ]; }
+            { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }
 
         /** Unset the frame data. */
         void unsetData();

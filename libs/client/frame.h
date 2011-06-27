@@ -29,6 +29,7 @@
 #include <co/object.h>
 #include <co/objectVersion.h>
 #include <co/types.h>
+#include <co/base/bitOperation.h> // function getIndexOfLastBit
 #include <co/base/monitor.h>
 
 namespace eq
@@ -191,7 +192,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameData[ ::fls( eye ) - 1 ]; }
+            { return _data.frameData[co::base::getIndexOfLastBit( eye ) ]; }
         //@}
 
         /** @name Operations */
