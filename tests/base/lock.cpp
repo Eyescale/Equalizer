@@ -35,23 +35,31 @@
 #endif
 
 #define NOPS       1000
+#define TIME       100
 
-volatile size_t nThreads;
+co::base::Clock _clock;
 
 template< class T > class Thread : public co::base::Thread
 {
 public:
+    Thread() : nLoops( 0 ) {}
+
     T* lock;
+    size_t nLoops;
 
     virtual void run()
         {
-            for( unsigned i = 0; i < NOPS; ++i )
+            while( _clock.getTime64() < TIME )
             {
-                lock->set();
+                for( unsigned i = 0; i < NOPS; ++i )
+                {
+                    lock->set();
 #ifndef _MSC_VER
-                TEST( lock->isSet( ));
+                    TEST( lock->isSet( ));
 #endif
-                lock->unset();
+                    lock->unset();
+                }
+                ++nLoops;
             }
         }
 };
@@ -62,26 +70,33 @@ template< class T > void _test()
     lock->set();
 
     Thread< T > threads[MAXTHREADS];
-    for( nThreads = MAXTHREADS; nThreads > 0; nThreads = nThreads>>1 )
+    for( size_t nThreads = MAXTHREADS; nThreads > 0; nThreads = nThreads>>1 )
     {
+        _clock.reset();
         for( size_t i = 0; i < nThreads; ++i )
         {
             threads[i].lock = lock;
+            threads[i].nLoops = 0;
             TEST( threads[i].start( ));
         }
+        co::base::sleep( 100 ); // let threads initialize
 
-        co::base::Clock clock;
+        _clock.reset();
         lock->unset();
 
         for( size_t i=0; i<nThreads; i++ )
             TEST( threads[i].join( ));
+        const float time = _clock.getTimef();
 
         TEST( !lock->isSet( ));
         lock->set();
 
-        const float time = clock.getTimef();
+        size_t nLoops = 0;
+        for( size_t i=0; i<nThreads; i++ )
+            nLoops += threads[i].nLoops;
+
         std::cout << co::base::className( lock ) << ": "
-                  << /*set, test, unset*/ 3 * NOPS * nThreads / time
+                  << /*set, test, unset*/ 3 * NOPS * nLoops * nThreads / time
                   << " lock ops/ms (" << nThreads << " threads)" << std::endl;
     }
 
