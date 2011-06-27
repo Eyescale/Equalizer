@@ -107,7 +107,11 @@ int main( int argc, char **argv )
 {
     TEST( co::base::init( argc, argv ));
     _test< co::base::Lock >();
+    std::cout << std::endl;
+
     _test< co::base::SpinLock >();
+    std::cout << std::endl;
+
     _test< co::base::TimedLock >();
     TEST( co::base::exit( ));
     return EXIT_SUCCESS;
