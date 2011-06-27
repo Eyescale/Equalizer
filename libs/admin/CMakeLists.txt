@@ -45,7 +45,7 @@ purple_add_library(EqualizerAdmin SHARED
   HEADERS_PREFIX "eq/admin/"
   FORWARD HEADERS ${ADMIN_HEADERS}
   SOURCES ${ADMIN_SOURCES}
-  LINK_LIBRARIES Equalizer
+  LINK_LIBRARIES Collage lib_EqualizerFabric_static
   )
 set_target_properties(lib_EqualizerAdmin_shared PROPERTIES
   FOLDER "Libraries" PROJECT_LABEL "Admin")

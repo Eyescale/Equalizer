@@ -22,8 +22,6 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-using namespace std;
-
 namespace eq
 {
 
@@ -31,13 +29,13 @@ Frame::Frame()
         : _frameData( 0 )
         , _zoomFilter( FILTER_LINEAR )
 {
-    EQINFO << "New Frame @" << (void*)this << endl;
+    EQINFO << "New Frame @" << (void*)this << std::endl;
 }
 
 Frame::~Frame()
 {
     if( _frameData )
-        EQINFO << "FrameData attached to frame during deletion" << endl;
+        EQINFO << "FrameData attached to frame during deletion" << std::endl;
 }
 
 void Frame::getInstanceData( co::DataOStream& os )
@@ -170,9 +168,9 @@ std::ostream& operator << ( std::ostream& os,
 {
     os << "type     ";
     if ( type == eq::Frame::TYPE_TEXTURE ) 
-        os << " texture" << endl;
+        os << " texture" << std::endl;
     else if ( type == eq::Frame::TYPE_MEMORY ) 
-        os << " memory" << endl;
+        os << " memory" << std::endl;
         
     return os;
 }

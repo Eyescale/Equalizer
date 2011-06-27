@@ -49,13 +49,6 @@ endif()
 
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
-purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
-  HEADERS_PREFIX "eq/fabric/"
-  FORWARD HEADERS ${EQ_FABRIC_FORWARD_HEADERS}
-  SOURCES ${EQ_FABRIC_SOURCES}
-  LINK_LIBRARIES Collage
-  )
-
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
@@ -75,7 +68,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     Collage
-    shared eq_fabric
+    lib_EqualizerFabric_static
     ${GLEW_LIBRARY}
     ${WINDOWING_LIBRARIES}
     ${GL_LIBRARIES}
@@ -83,7 +76,6 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   )
 
 purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${VERSION_ABI}
-  shared eq_fabric
   shared eq_client
   )
 

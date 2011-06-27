@@ -7,6 +7,7 @@ include(PurpleAddLibrary)
 include(PurpleAddAmalgamation)
 
 add_subdirectory(collage)
+add_subdirectory(fabric)
 add_subdirectory(client)
 add_subdirectory(admin)
 add_subdirectory(server)
