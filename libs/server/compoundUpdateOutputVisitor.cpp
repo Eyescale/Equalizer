@@ -24,6 +24,7 @@
 #include "tileQueue.h"
 #include "server.h"
 #include "config.h"
+#include "node.h"
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
@@ -156,6 +157,24 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setPeriod( compound->getInheritPeriod( ));
         frameData->setPhase( compound->getInheritPhase( ));
 
+        fabric::Eye eye = fabric::EYE_CYCLOP;
+        for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
+        {
+            const Frames& inputFrames = frame->getInputFrames( eye );
+            std::vector< uint128_t > nodeIDs;
+
+            for( FramesCIter j = inputFrames.begin();
+                 j != inputFrames.end(); ++j )
+            {
+                const Frame* inputFrame   = *j;
+                const Node*  inputNode    = inputFrame->getNode();
+                co::NodePtr inputNetNode = inputNode->getNode();
+                nodeIDs.push_back( inputNetNode->getNodeID() );                
+            }
+
+            frameData->setInputNodes( eye, nodeIDs );
+        }
+
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
         if( compound->getInheritChannel() == channel )
@@ -187,18 +206,20 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
 {
     const Vector2i& tileSize = queue->getTileSize();
     PixelViewport pvp = compound->getInheritPixelViewport();
+    if( !pvp.hasArea( ))
+        return;
 
-    double xFraction = 1.0 / pvp.x;
-    double yFraction = 1.0 / pvp.y;
+    double xFraction = 1.0 / pvp.w;
+    double yFraction = 1.0 / pvp.h;
     float vpWidth = tileSize.x() * xFraction;
     float vpHeight = tileSize.y() * yFraction;
 
     uint32_t tasks = compound->getInheritTasks();
     tasks &= ( fabric::TASK_CLEAR | fabric::TASK_DRAW | fabric::TASK_READBACK );
 
-    for (int32_t x = 0; x < pvp.x-1; x += tileSize.x())
+    for (int32_t x = 0; x < pvp.w-1; x += tileSize.x())
     {
-        for (int32_t y = 0; y < pvp.y-1; y += tileSize.y())
+        for (int32_t y = 0; y < pvp.h-1; y += tileSize.y())
         {
             PixelViewport tilepvp;
             Viewport tilevp;
@@ -208,7 +229,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             tilevp.x = x * xFraction;
             tilevp.y = y * yFraction;
 
-            if ( x + tileSize.x() < pvp.x-1 )
+            if ( x + tileSize.x() < pvp.w-1 )
             {
                 tilepvp.w = tileSize.x();
                 tilevp.w = vpWidth;
@@ -216,11 +237,11 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             else
             {
                 // no full tile
-                tilepvp.w = pvp.x - 1 - x;
+                tilepvp.w = pvp.w - 1 - x;
                 tilevp.w = tilepvp.w * xFraction;
             }
 
-            if ( y + tileSize.y() < pvp.y-1 )
+            if ( y + tileSize.y() < pvp.h-1 )
             {
                 tilepvp.h = tileSize.y();
                 tilevp.h = vpHeight;
@@ -228,7 +249,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             else
             {
                 // no full tile
-                tilepvp.h = pvp.y - 1 - y;
+                tilepvp.h = pvp.h - 1 - y;
                 tilevp.h = tilepvp.h * yFraction;
             }
 

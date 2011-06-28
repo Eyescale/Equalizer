@@ -45,7 +45,7 @@ public:
 protected:
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& os );
-    virtual void applyInstanceData( co::DataIStream& ) {}
+    virtual void applyInstanceData( co::DataIStream& ) { EQDONTCALL }
 
 private:
     typedef std::deque< Command* > PacketQueue;
