@@ -180,6 +180,10 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
             {
                 ChannelFrameTilesPacket tilesPacket;
                 tilesPacket.context = context;
+                tilesPacket.tasks = compound->getInheritTasks();
+                tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
+                            eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
+
                 const UUID& id = (*j)->getQueueMasterID( context.eye );
                 EQASSERT( id != co::base::UUID::ZERO );
                 tilesPacket.queueVersion.identifier = id;

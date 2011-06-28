@@ -195,9 +195,6 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     float vpWidth = tileSize.x() * xFraction;
     float vpHeight = tileSize.y() * yFraction;
 
-    uint32_t tasks = compound->getInheritTasks();
-    tasks &= ( fabric::TASK_CLEAR | fabric::TASK_DRAW | fabric::TASK_READBACK );
-
     for (int32_t x = 0; x < pvp.w-1; x += tileSize.x())
     {
         for (int32_t y = 0; y < pvp.h-1; y += tileSize.y())
@@ -237,12 +234,11 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             fabric::Eye eye = fabric::EYE_CYCLOP;
             for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
             {
-                if ( !(compound->getEyes() & eye))
+                if ( !(compound->getInheritEyes() & eye) ||
+                     !compound->isInheritActive( eye ))
                     continue;
 
                 TileTaskPacket packet;
-
-                packet.tasks = tasks;
                 packet.pvp = tilepvp;
                 packet.vp = tilevp;
 

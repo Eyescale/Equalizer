@@ -50,7 +50,6 @@ struct TileTaskPacket : public co::QueueItemPacket
         size = sizeof(TileTaskPacket);
     }
 
-    uint32_t tasks;
     PixelViewport pvp;
     Viewport vp;
     Frustumf frustum;

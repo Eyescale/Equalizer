@@ -26,17 +26,27 @@ namespace eq
 namespace server
 {
 
+class TileEqualizer;
+std::ostream& operator << ( std::ostream& os, const TileEqualizer* );
+
 class TileEqualizer : public Equalizer
 {
 public:
     TileEqualizer::TileEqualizer() {};
+    TileEqualizer::TileEqualizer( const TileEqualizer& from );
     TileEqualizer::~TileEqualizer() {};
 
     /** @sa CompoundListener::notifyUpdatePre */
     virtual void notifyUpdatePre( Compound* compound, 
         const uint32_t frameNumber );
 
+    virtual Equalizer* clone() const { return new TileEqualizer( *this ); }
+    virtual void toStream( std::ostream& os ) const { os << this; }
+
 protected:
+
+    virtual void notifyChildAdded( Compound* compound, Compound* child ) {}
+    virtual void notifyChildRemove( Compound* compound, Compound* child ) {}
 
 private:
 
