@@ -3,6 +3,4 @@
 eq_add_example(eqHello
   SOURCES
     hello.cpp
-  LINK_LIBRARIES
-    Equalizer
   )

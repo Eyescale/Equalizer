@@ -31,7 +31,7 @@
 #include "initData.h"
 #include "nbody.h"
 
-#include <GL/glew.h>
+#include <eq/gl.h>
 
 #include <cuda.h>
 #include <cuda_gl_interop.h>

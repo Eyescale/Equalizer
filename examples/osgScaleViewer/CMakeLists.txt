@@ -1,19 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
-
-if( NOT EQUALIZER_USE_OSG )
-  return()
-endif()
-find_package(OpenSceneGraph 2.9.8 COMPONENTS osgDB osgUtil)
-if(OSG_LIBRARY MATCHES "OSG_LIBRARY-NOTFOUND")
-  message(STATUS "Skipping 'osgScaleViewer' example (OSG not found)")	 
-  return()
-endif()
-if(${OPENSCENEGRAPH_VERSION} VERSION_LESS "2.9.8")
-  message(STATUS "Skipping 'osgScaleViewer' example (OSG ${OPENSCENEGRAPH_VERSION} found, need >= 2.9.8)")
-  return()
-endif()
-
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 include_directories(SYSTEM ${OPENSCENEGRAPH_INCLUDE_DIRS})
 
@@ -48,6 +34,5 @@ eq_add_example(osgScaleViewer
     window.cpp
     quad.cpp
   LINK_LIBRARIES
-    Equalizer
     ${OPENSCENEGRAPH_LIBRARIES}
   )

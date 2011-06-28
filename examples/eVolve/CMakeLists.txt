@@ -41,8 +41,6 @@ eq_add_example(eVolve
   SHADERS
     vertexShader.glsl
     fragmentShader.glsl
-  LINK_LIBRARIES
-    Equalizer
   )
 
 install(FILES Bucky32x32x32_d.raw Bucky32x32x32_d.raw.vhf

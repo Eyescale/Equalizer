@@ -13,6 +13,4 @@ eq_add_example(eqPixelBench
     configEvent.cpp
     main.cpp
     window.cpp
-  LINK_LIBRARIES
-    Equalizer
   )

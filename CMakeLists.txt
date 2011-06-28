@@ -8,14 +8,11 @@ project(Equalizer)
 option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
-option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
-option(EQUALIZER_USE_OSG "Test for OpenSceneGraph support" ON)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
-option(EQUALIZER_INSTALL_SERVER_HEADERS
-  "Install Equalizer server includes." OFF)
+option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.0 API)" OFF)
 
@@ -24,6 +21,9 @@ set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
 
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
+mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
+mark_as_advanced(EQUALIZER_FORCE_OPENMP)
+mark_as_advanced(EQUALIZER_PREFER_AGL)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
@@ -67,11 +67,8 @@ else()
   set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set(LINUX TRUE)
-endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
-
 set(EQ_FEATURES)
+include(configure)
 
 set(EQ_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
@@ -172,10 +169,6 @@ if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL")
 endif(EQ_AGL_USED)
 
-if(EQUALIZER_USE_CUDA)
-  find_package(CUDA)
-endif()
-
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
@@ -209,12 +202,6 @@ if(APPLE)
   endif(EQ_AGL_USED)
 endif(APPLE)
 
-if(CUDA_FOUND)
-  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
-  set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
-endif(CUDA_FOUND)
-
 include(${Equalizer_SOURCE_DIR}/externals/UseGLEW.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
 include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
@@ -235,13 +222,20 @@ else()
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
-add_subdirectory(examples)
-add_subdirectory(libs)
-add_subdirectory(tests)
 add_subdirectory(tools)
+if(EQUALIZER_BUILD_EXAMPLES)
+  configure_file(examples/CMakeLists.in.txt
+                 ${CMAKE_SOURCE_DIR}/examples/CMakeLists.txt @ONLY)
+  install(FILES CMake/ParseArguments.cmake CMake/PurpleExpandLibraries.cmake
+                CMake/EqStringifyShaders.cmake CMake/configure.cmake
+          DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
+  add_subdirectory(examples)
+endif()
 IF(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
   add_subdirectory(auxiliary)
 ENDIF()
+add_subdirectory(tests)
+add_subdirectory(libs)
 
 install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
