@@ -141,5 +141,16 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     return os;
 }
 
+const co::base::UUID TileQueue::getQueueMasterID( fabric::Eye eye )
+{
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    latencyQueue* queue = _queueMaster[ index ];
+    if ( queue )
+        return queue->_queue.getID();
+    else
+        return co::base::UUID::ZERO;
+}
+
+
 }
 }

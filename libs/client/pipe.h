@@ -122,9 +122,6 @@ namespace eq
         Frame* getFrame( const co::ObjectVersion& frameVersion, 
                          const Eye eye, const bool output );
 
-        /** @internal @return the queue for the given identifier and version. */
-        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
-
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
@@ -143,6 +140,13 @@ namespace eq
 
         /** @internal @return the view for the given identifier and version. */
         View* getView( const co::ObjectVersion& viewVersion );
+
+        /** @internal @return the queue for the given identifier and version. */
+        const co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion )
+                                                                          const;
+
+        /** @internal @return the queue for the given identifier and version. */
+        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
         //@}
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited

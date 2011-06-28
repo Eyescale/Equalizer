@@ -282,18 +282,17 @@ namespace server
         EQSERVER_API void addInputTileQueue( TileQueue* tileQueue );
 
         /** @return the vector of input tile queues. */
-        const TileQueues& getInputTileQueues() const { return _inputTileQueues;}
+        const TileQueues& getInputTileQueues() const { return _inputTileQueues; }
 
         /** 
          * Add a new output tile queue for this compound.
          *
-         * @param queue the output tile queue.
+         * @param tilequeue the output tile queue.
          */
-        EQSERVER_API void addOutputTileQueue( TileQueue* queue );
+        EQSERVER_API void addOutputTileQueue( TileQueue* tileQueue );
 
         /** @return the vector of output tile queues. */
-        const TileQueues& getOutputTileQueues() const
-            { return _outputTileQueues; }
+        const TileQueues& getOutputTileQueues() const { return _outputTileQueues; }
         //@}
 
         /** 

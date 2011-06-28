@@ -340,7 +340,7 @@ void Config::_updateData()
         else
             _frameData.spinModel( -0.001f * _spinX, -0.001f * _spinY, 0.f );
 
-        _frameData.moveCamera( 0.0f, 0.0f, 0.001f * _advance );
+        _frameData.moveCamera( 0.0f, 0.0f, 0.001f*_advance );
     }
 
     // idle mode

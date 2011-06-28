@@ -148,9 +148,9 @@ namespace fabric
         EQFABRIC_API virtual void notifyDetach();
 
         EQFABRIC_API virtual void serialize( co::DataOStream& os,
-                                             const uint64_t dirtyBits );
+                                          const uint64_t dirtyBits );
         EQFABRIC_API virtual void deserialize( co::DataIStream& is,
-                                               const uint64_t dirtyBits );
+                                            const uint64_t dirtyBits );
 
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const

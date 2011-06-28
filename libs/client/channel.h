@@ -173,6 +173,9 @@ namespace eq
         /** Const version of getView(). @version 1.0 */
         EQ_API const View* getView() const;
 
+        /** Get the channel's current queue. */
+        EQ_API co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
+
         /** 
          * Returns an orthographic frustum for 2D operations on the view.
          *

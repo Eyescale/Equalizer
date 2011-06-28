@@ -60,6 +60,4 @@ struct TileTaskPacket : public co::QueueItemPacket
 } // fabric
 } // eq
 
-/** @endcond */
-
 #endif // EQ_QUEUEPACKETS_H

@@ -836,7 +836,8 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
     if( nodeID != _localNode->getNodeID( ))
         return true;
 
-    EQLOG( LOG_OBJECTS ) << "Cmd map object success " << packet << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd map object success " << packet
+                         << std::endl;
 
     // set up change manager and attach object to dispatch table
     Object* object = static_cast<Object*>( _localNode->getRequestData( 

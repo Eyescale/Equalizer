@@ -223,7 +223,7 @@ namespace eq
         uint32_t         nFrames;
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
-
+    
     inline std::ostream& operator << ( std::ostream& os, 
                                     const ChannelConfigInitReplyPacket* packet )
     {

@@ -32,11 +32,17 @@ endfunction(EQ_ADD_EXAMPLE NAME)
 
 include_directories(include)
 
-install(DIRECTORY configs DESTINATION share/Equalizer
-        COMPONENT data PATTERN ".svn" EXCLUDE)
+install(DIRECTORY configs
+  DESTINATION share/Equalizer
+  COMPONENT data
+  PATTERN ".svn" EXCLUDE
+  )
 
-install(DIRECTORY include DESTINATION share/Equalizer/examples
-        COMPONENT examples PATTERN ".svn" EXCLUDE)
+install(DIRECTORY include
+  DESTINATION share/Equalizer/examples
+  COMPONENT examples
+  PATTERN ".svn" EXCLUDE
+  )
 
 add_subdirectory(eVolve)
 add_subdirectory(eqAsync)
@@ -45,4 +51,3 @@ add_subdirectory(eqNBody)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
 add_subdirectory(osgScaleViewer)
-add_subdirectory(seqPly)

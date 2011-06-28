@@ -322,40 +322,6 @@ void Pipe::flushFrames()
     _outputFrameDatas.clear();
 }
 
-co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
-{
-    EQ_TS_THREAD( _pipeThread );
-    if( queueVersion.identifier == co::base::UUID::ZERO )
-        return 0;
-
-    co::QueueSlave* queue = _queues[ queueVersion.identifier ];
-    if( !queue )
-    {
-        queue = new co::QueueSlave;
-        ClientPtr client = getClient();
-        EQCHECK( client->mapObject( queue, queueVersion ));
-
-        _queues[ queueVersion.identifier ] = queue;
-    }
-
-    queue->sync( queueVersion.version );
-    return queue;
-}
-
-void Pipe::_flushQueues()
-{
-    EQ_TS_THREAD( _pipeThread );
-    ClientPtr client = getClient();
-
-    for( QueueHash::const_iterator i = _queues.begin(); i != _queues.end(); ++i)
-    {
-        co::QueueSlave* queue = i->second;
-        client->unmapObject( queue );
-        delete queue;
-    }
-    _queues.clear();
-}
-
 const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 {
     // Yie-ha: we want to have a const-interface to get a view on the render
@@ -384,6 +350,34 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     
     view->sync( viewVersion.version );
     return view;
+}
+
+const co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+                                                                           const
+{
+    // Yie-ha: we want to have a const-interface to get a queue on the render
+    //         clients, but queue mapping is by definition non-const.
+    return const_cast< Pipe* >( this )->getQueue( queueVersion );
+}
+
+co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+{
+    EQ_TS_THREAD( _pipeThread );
+    if( queueVersion.identifier == co::base::UUID::ZERO )
+        return 0;
+
+    co::QueueSlave* queue = _queues[ queueVersion.identifier ];
+    if( !queue )
+    {
+        queue = new co::QueueSlave;
+        ClientPtr client = getClient();
+        EQCHECK( client->mapObject( queue, queueVersion ));
+
+        _queues[ queueVersion.identifier ] = queue;
+    }
+
+    queue->sync( queueVersion.version );
+    return queue;
 }
 
 void Pipe::_releaseViews()
@@ -430,6 +424,21 @@ void Pipe::_flushViews()
         nodeFactory->releaseView( view );
     }
     _views.clear();
+}
+
+void Pipe::_flushQueues()
+{
+    EQ_TS_THREAD( _pipeThread );
+    NodeFactory*  nodeFactory = Global::getNodeFactory();
+    ClientPtr client = getClient();
+
+    for( QueueHash::const_iterator i = _queues.begin(); i != _queues.end(); ++i)
+    {
+        co::QueueSlave* queue = i->second;
+        client->unmapObject( queue );
+        delete queue;
+    }
+    _queues.clear();
 }
 
 bool Pipe::isCurrent( const Window* window ) const
