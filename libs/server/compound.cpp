@@ -1149,6 +1149,24 @@ void Compound::update( const uint32_t frameNumber )
     const TileQueueMap& outputQueues = updateOutputVisitor.getOutputQueues();
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames, outputQueues );
     accept( updateInputVisitor );
+
+    const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
+
+    for( Compound::BarrierMap::const_iterator i = 
+         swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    {
+        co::Barrier* barrier = i->second;
+        if( barrier->isAttached( ))
+        {
+            if( barrier->getHeight() > 1 )
+                barrier->commit();
+        }
+        else
+        {
+            getServer()->registerObject( barrier );
+            barrier->setAutoObsolete( getConfig()->getLatency() + 1 );
+        }
+    }
 }
 
 void Compound::updateInheritData( const uint32_t frameNumber )
