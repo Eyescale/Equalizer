@@ -20,6 +20,9 @@
 #define COBASE_BITOPERATION_H
 
 #include <co/base/types.h>
+#ifdef _MSC_VER
+#  include <intrin.h>
+#endif
 
 namespace co
 {
@@ -48,6 +51,7 @@ namespace base
 #endif
     }
 
+#if 0
     template<> inline int32_t getIndexOfLastBit< uint64_t >( uint64_t value )
     {
 #ifdef Darwin
@@ -68,10 +72,11 @@ namespace base
 #endif
     }
 
-#ifndef Darwin
+#ifdef Linux
     template<> inline int32_t 
     getIndexOfLastBit< unsigned long long >( unsigned long long value )
         { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+#endif
 #endif
 }
 }

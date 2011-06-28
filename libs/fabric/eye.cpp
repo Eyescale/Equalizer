@@ -53,7 +53,7 @@ namespace co
 {
 namespace base
 {
-EQFABRIC_API template<>
+template<> EQFABRIC_API
 int32_t getIndexOfLastBit< eq::fabric::Eye >( eq::fabric::Eye eye )
 {
     return getIndexOfLastBit( uint32_t( eye ));

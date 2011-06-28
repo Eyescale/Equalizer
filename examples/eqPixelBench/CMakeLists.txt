@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 eq_add_example(eqPixelBench
   HEADERS
@@ -15,5 +15,4 @@ eq_add_example(eqPixelBench
     window.cpp
   LINK_LIBRARIES
     Equalizer
-    shared EqualizerAdmin
   )

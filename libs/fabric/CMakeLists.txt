@@ -3,9 +3,12 @@
 include(PurpleAddLibrary)
 include(files.cmake)
 
-purple_add_library(EqualizerFabric STATIC EXCLUDE_FROM_ALL
+purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/fabric/"
   FORWARD HEADERS ${EQ_FABRIC_FORWARD_HEADERS}
   SOURCES ${EQ_FABRIC_SOURCES} ${EQ_FABRIC_HEADERS}
   )
-add_dependencies(lib_EqualizerFabric_static Collage) # need forwards, static lib
+source_group(\\ REGULAR_EXPRESSION .*)
+source_group(\\ FILES CMakeLists.txt)
+source_group(fabric FILES ${EQ_FABRIC_FORWARD_HEADERS} ${EQ_FABRIC_HEADERS}
+             ${EQ_FABRIC_SOURCES})

@@ -10,17 +10,6 @@ include(configure.cmake)
 include(files.cmake)
 include(util/files.cmake)
 include(compressor/files.cmake)
-include(../fabric/files.cmake)
-
-option(EQUALIZER_BUILD_STATIC_LIBS "Build static Equalizer libraries" OFF)
-if(NOT EQUALIZER_BUILD_STATIC_LIBS)
-  set(EQ_LIB_VARIANT SHARED)
-endif()
-
-option(EQUALIZER_BUILD_MODULARIZED "Build intermediate Equalizer libraries" OFF)
-if(NOT EQUALIZER_BUILD_MODULARIZED)
-  list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
-endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
 add_definitions(-DEQ_PLUGIN_BUILD)
 
@@ -68,7 +57,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
     Collage
-    lib_EqualizerFabric_static
+    shared eq_fabric
     ${GLEW_LIBRARY}
     ${WINDOWING_LIBRARIES}
     ${GL_LIBRARIES}
@@ -77,6 +66,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
 
 purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${VERSION_ABI}
   shared eq_client
+  shared eq_fabric
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

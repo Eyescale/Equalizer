@@ -25,9 +25,9 @@
 
 #include <co/base/api.h>
 
-#if defined(EQUALIZERADMIN_STATIC)
+#if defined(EQ_ADMIN_STATIC)
 #  define EQADMIN_API
-#elif defined(EQUALIZERADMIN_SHARED)
+#elif defined(EQ_ADMIN_SHARED)
 #  define EQADMIN_API EQ_DLLEXPORT
 #else
 #  define EQADMIN_API EQ_DLLIMPORT
