@@ -602,9 +602,6 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
 void Compound::computeFrustum( RenderContext& context, 
                                const fabric::Eye eye ) const
 {
-    if ( (eye & getEyes()) == 0 ) //opt
-        return;
-    
     // compute eye position in screen space
     const Vector3f eyeWorld = _getEyePosition( eye );
     const FrustumData& frustumData = getInheritFrustumData();
