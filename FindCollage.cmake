@@ -71,7 +71,7 @@
 #
 # find and parse co/version.h
 find_path(_co_INCLUDE_DIR co/version.h
-  HINTS $ENV{CO_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
@@ -84,7 +84,7 @@ if(_co_INCLUDE_DIR)
       NOT EXISTS "${_co_Version_file}")
     set(_co_Version_file "${_co_INCLUDE_DIR}/Headers/version.h")
   endif()
-    
+
   if(EXISTS "${_co_Version_file}")
     file(READ "${_co_Version_file}" _co_Version_contents)
   else()
@@ -126,7 +126,7 @@ if(Collage_FIND_VERSION AND COLLAGE_VERSION)
 endif()
 
 find_library(_co_LIBRARY Collage
-  HINTS $ENV{CO_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT}
   PATH_SUFFIXES lib
   PATHS /usr /usr/local /opt/local /opt
 )
@@ -143,7 +143,7 @@ if(_co_version_not_high_enough)
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}
     "ERROR: Version ${Collage_FIND_VERSION} or higher of Collage is required. "
-    "Version ${COLLAGE_VERSION} was found.")
+    "Version ${COLLAGE_VERSION} was found in ${_co_INCLUDE_DIR}.")
 elseif(_co_version_not_exact)
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}
