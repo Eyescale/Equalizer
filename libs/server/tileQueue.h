@@ -92,6 +92,8 @@ namespace server
         /** get activated flag */
         bool isActivated() const { return _activated; }
 
+        const co::base::UUID TileQueue::getQueueMasterID( fabric::Eye eye );
+
     protected:
         EQSERVER_API virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
