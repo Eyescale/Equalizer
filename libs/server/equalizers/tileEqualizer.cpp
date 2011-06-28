@@ -27,6 +27,11 @@ namespace eq
 namespace server
 {
 
+TileEqualizer::TileEqualizer( const TileEqualizer& from )
+    : Equalizer( from )
+{
+}
+
 void TileEqualizer::notifyUpdatePre( Compound* compound, 
                                      const uint32_t frameNumber )
 {
@@ -34,6 +39,14 @@ void TileEqualizer::notifyUpdatePre( Compound* compound,
     TileQueuesCIter it = queues.begin();
     for ( ; it != queues.end(); ++it )
         (*it)->setActivated( Equalizer::isActivated() );
+}
+
+std::ostream& operator << ( std::ostream& os, const TileEqualizer* lb )
+{
+    if( lb )
+        os << "tile_equalizer {}" << std::endl;
+
+    return os;
 }
 
 

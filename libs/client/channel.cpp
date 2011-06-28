@@ -1702,13 +1702,13 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
-        if ( tilePacket->tasks & fabric::TASK_CLEAR )
+        if ( packet->tasks & fabric::TASK_CLEAR )
             frameClear( packet->context.frameID );
 
-        if ( tilePacket->tasks & fabric::TASK_DRAW )
+        if ( packet->tasks & fabric::TASK_DRAW )
             frameDraw( packet->context.frameID );
 
-        if ( tilePacket->tasks & fabric::TASK_READBACK )
+        if ( packet->tasks & fabric::TASK_READBACK )
         {
             EQ_GL_CALL( applyBuffer( ));
             EQ_GL_CALL( applyViewport( ));
