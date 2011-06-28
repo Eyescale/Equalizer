@@ -13,8 +13,11 @@ TAGS
 GPATH
 GRTAGS
 GTAGS
-auxilary
+auxiliary
+cdash
 debug
+docs
+man
 release
 XCode
 externals/vmmlib/

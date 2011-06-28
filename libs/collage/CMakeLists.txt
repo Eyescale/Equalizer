@@ -70,8 +70,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
   )
 
 purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
-    shared co_base
-    shared co
+    shared co_base shared co
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

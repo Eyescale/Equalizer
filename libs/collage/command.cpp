@@ -59,7 +59,8 @@ void Command::release()
     if( _refCountMaster ) // do it before self - otherwise race!
     {
         EQASSERT( *_refCountMaster != 0 );
-        EQASSERT( *_refCountMaster >= _refCount );
+        EQASSERTINFO( *_refCountMaster >= _refCount,
+                      *_refCountMaster << " < " << _refCount );
         if( --( *_refCountMaster ) == 0 ) // last reference
             ++_freeCount;
     }

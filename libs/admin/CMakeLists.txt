@@ -41,11 +41,18 @@ set(ADMIN_SOURCES
     window.cpp
 )
 
-purple_add_library(EqualizerAdmin SHARED
+source_group(fabric REGULAR_EXPRESSION .*)
+source_group(\\ FILES CMakeLists.txt)
+source_group(admin FILES eq.h ${ADMIN_HEADERS} ${ADMIN_SOURCES})
+
+purple_add_library(eq_admin ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/admin/"
   FORWARD HEADERS ${ADMIN_HEADERS}
   SOURCES ${ADMIN_SOURCES}
-  LINK_LIBRARIES Equalizer
+  LINK_LIBRARIES Collage shared eq_fabric
   )
-set_target_properties(lib_EqualizerAdmin_shared PROPERTIES
-  FOLDER "Libraries" PROJECT_LABEL "Admin")
+
+purple_add_amalgamation(EqualizerAdmin eq ${SHORT_VERSION} ${VERSION_ABI}
+  shared eq_admin
+  shared eq_fabric
+  )

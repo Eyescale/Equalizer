@@ -10,17 +10,6 @@ include(configure.cmake)
 include(files.cmake)
 include(util/files.cmake)
 include(compressor/files.cmake)
-include(../fabric/files.cmake)
-
-option(EQUALIZER_BUILD_STATIC_LIBS "Build static Equalizer libraries" OFF)
-if(NOT EQUALIZER_BUILD_STATIC_LIBS)
-  set(EQ_LIB_VARIANT SHARED)
-endif()
-
-option(EQUALIZER_BUILD_MODULARIZED "Build intermediate Equalizer libraries" OFF)
-if(NOT EQUALIZER_BUILD_MODULARIZED)
-  list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
-endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
 add_definitions(-DEQ_PLUGIN_BUILD)
 
@@ -49,13 +38,6 @@ endif()
 
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
-purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
-  HEADERS_PREFIX "eq/fabric/"
-  FORWARD HEADERS ${EQ_FABRIC_FORWARD_HEADERS}
-  SOURCES ${EQ_FABRIC_SOURCES}
-  LINK_LIBRARIES Collage
-  )
-
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
@@ -83,8 +65,8 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
   )
 
 purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${VERSION_ABI}
-  shared eq_fabric
   shared eq_client
+  shared eq_fabric
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
