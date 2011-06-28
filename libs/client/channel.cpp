@@ -44,6 +44,7 @@
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
+
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/exception.h>
@@ -468,7 +469,7 @@ const View* Channel::getView() const
     return pipe->getView( getContext().view );
 }
 
-co::QueueSlave* Channel::getQueue( const co::ObjectVersion& queueVersion )
+co::QueueSlave* Channel::_getQueue( const co::ObjectVersion& queueVersion )
 {
     EQ_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
@@ -1675,16 +1676,17 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                                       << getName() <<  " " << packet
                                       << std::endl;
 
-    co::QueueSlave* queue = getQueue( packet->queueVersion );
+    RenderContext context = packet->context;
+    _setRenderContext( context );
+
+    co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
     while( co::Command* queuePacket = queue->pop( ))
     {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
-        RenderContext context = packet->context;
         context.frustum = tilePacket->frustum;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
-        _setRenderContext( context );
 
         if ( tilePacket->tasks & fabric::TASK_CLEAR )
             frameClear( packet->context.frameID );
@@ -1696,6 +1698,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             frameReadback( packet->context.frameID );
     }
 
+    resetContext();
     return true;
 }
 
