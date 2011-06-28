@@ -393,7 +393,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     _channel->send<co::ObjectVersion>( packet, frameIDs );
     _updated = true;
 }
-    
+
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const RenderContext& context )
 {
@@ -405,8 +405,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     Frames frames;
     std::vector< co::ObjectVersion > frameIDs;
-    for( Frames::const_iterator i = outputFrames.begin(); 
-         i != outputFrames.end(); ++i )
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
     {
         Frame* frame = *i;
 
@@ -435,14 +434,13 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     Node* node = _channel->getNode();
     co::NodePtr netNode = node->getNode();
     const co::NodeID&  outputNodeID = netNode->getNodeID();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* outputFrame = *i;
         const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
         std::set< uint128_t > nodeIDs;
 
-        for( Frames::const_iterator j = inputFrames.begin();
-             j != inputFrames.end(); ++j )
+        for( FramesCIter j = inputFrames.begin(); j != inputFrames.end(); ++j )
         {
             const Frame* inputFrame   = *j;
             const Node*  inputNode    = inputFrame->getNode();

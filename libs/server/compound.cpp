@@ -1150,8 +1150,8 @@ void Compound::update( const uint32_t frameNumber )
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
-    for( stde::hash_map< std::string, co::Barrier* >::const_iterator i = 
-             swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    for( Compound::BarrierMap::const_iterator i = 
+         swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
         co::Barrier* barrier = i->second;
         if( barrier->isAttached( ))
