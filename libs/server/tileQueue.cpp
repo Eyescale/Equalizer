@@ -64,6 +64,8 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
+        _outputQueues[i].clear();
+
         if( !compound->isInheritActive( (eq::Eye)(1<<i) ))// eye pass not used
         {
             _queueMaster[i] = 0;
@@ -90,6 +92,16 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
 
         _queues.push_front( queue );
         _queueMaster[i] = queue;
+    }
+}
+
+void TileQueue::addOutputQueue( TileQueue* queue, const Compound* compound )
+{
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
+        // eye pass not used && no output frame for eye pass
+        if( compound->isInheritActive( (eq::Eye)(1<<i) ) )
+            _outputQueues[i].push_back( queue );
     }
 }
 
@@ -120,6 +132,7 @@ void TileQueue::unsetData()
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         _queueMaster[i] = 0;
+        _outputQueues[i].clear();
     }
 }
 
@@ -139,6 +152,16 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;
+}
+
+const UUID TileQueue::getQueueMasterID( fabric::Eye eye )
+{
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    latencyQueue* queue = _queueMaster[ index ];
+    if ( queue )
+        return queue->_queue.getID();
+    else
+        return co::base::UUID::ZERO;
 }
 
 }

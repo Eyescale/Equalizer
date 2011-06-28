@@ -386,6 +386,33 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     return view;
 }
 
+const co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+                                                                           const
+{
+    // Yie-ha: we want to have a const-interface to get a queue on the render
+    //         clients, but queue mapping is by definition non-const.
+    return const_cast< Pipe* >( this )->getQueue( queueVersion );
+}
+
+co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+{
+    EQ_TS_THREAD( _pipeThread );
+    if( queueVersion.identifier == co::base::UUID::ZERO )
+        return 0;
+
+    co::QueueSlave* queue = _queues[ queueVersion.identifier ];
+    if( !queue )
+    {
+        queue = new co::QueueSlave;
+        ClientPtr client = getClient();
+        EQCHECK( client->mapObject( queue, queueVersion ));
+
+        _queues[ queueVersion.identifier ] = queue;
+    }
+
+    return queue;
+}
+
 void Pipe::_releaseViews()
 {
     EQ_TS_THREAD( _pipeThread );

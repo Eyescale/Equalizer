@@ -24,7 +24,6 @@
 #include "tileQueue.h"
 #include "server.h"
 #include "config.h"
-#include "node.h"
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
@@ -156,24 +155,6 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frameData->setSubPixel( compound->getInheritSubPixel( ));
         frameData->setPeriod( compound->getInheritPeriod( ));
         frameData->setPhase( compound->getInheritPhase( ));
-
-        fabric::Eye eye = fabric::EYE_CYCLOP;
-        for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
-        {
-            const Frames& inputFrames = frame->getInputFrames( eye );
-            std::vector< uint128_t > nodeIDs;
-
-            for( FramesCIter j = inputFrames.begin();
-                 j != inputFrames.end(); ++j )
-            {
-                const Frame* inputFrame   = *j;
-                const Node*  inputNode    = inputFrame->getNode();
-                co::NodePtr inputNetNode = inputNode->getNode();
-                nodeIDs.push_back( inputNetNode->getNodeID() );                
-            }
-
-            frameData->setInputNodes( eye, nodeIDs );
-        }
 
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
