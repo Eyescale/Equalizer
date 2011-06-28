@@ -30,7 +30,7 @@
 #endif
 
 #if defined(EQ_CLIENT_SHARED) || defined(EQUALIZERSERVER_SHARED) || \
-    defined(EQ_FABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
+    defined(EQ_FABRIC_SHARED) || defined(EQ_ADMIN_SHARED)
 #  define EQFABRIC_INL EQ_DLLEXPORT
 #elif !defined(EQFABRIC_INL)
 #  define EQFABRIC_INL EQ_DLLIMPORT

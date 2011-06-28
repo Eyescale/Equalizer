@@ -30,63 +30,131 @@ namespace base
     /** 
      * A fast lock for uncontended memory access.
      *
-     * Be aware of possible priority inversion.
+     * If Thread::yield does not work like expected, priority inversion is
+     * possible. If used as a read-write lock, readers or writers will starve on
+     * high contention.
      *
      * @sa ScopedMutex
      */
     class SpinLock : public NonCopyable
     {
+        static const long _writelocked = -1;
+        static const long _unlocked = 0;
+
     public:
         /** Construct a new lock. @version 1.0 */
-        SpinLock() : _set( 0 ) {}
+        SpinLock() : _state( 0 ) {}
 
         /** Destruct the lock. @version 1.0 */
-        ~SpinLock() { _set = 0; }
+        ~SpinLock() { _state = 0; }
 
-        /** Acquire the lock. @version 1.0 */
+        /** Acquire the lock exclusively. @version 1.0 */
         void set()
             {
                 while( true )
                 {
-                    for( unsigned i=0; i < 100; ++i )
-                    {
-                        if( compareAndSwap( &_set, 0, 1 ))
-                            return;
-                        Thread::yield();
-                    }
+                    if( trySet( ))
+                        return;
+                    Thread::yield();
                 }
             }
 
-        /** Release the lock. @version 1.0 */
-        void unset() { _set = 0; memoryBarrier(); }
+        /** Release an exclusive lock. @version 1.0 */
+        void unset()
+            {
+                EQASSERT( _state == _writelocked );
+                _state = _unlocked;
+                memoryBarrier();
+            }
 
         /** 
-         * Attempt to acquire the lock.
+         * Attempt to acquire the lock exclusively.
          *
-         * This method implements an atomic test-and-set operation.
-         *
-         * @return <code>true</code> if the lock was set, <code>false</code> if
+         * @return true if the lock was set, false if
          *         it was not set.
          * @version 1.0
          */
         bool trySet()
             {
-                if( compareAndSwap( &_set, 0, 1 ))
-                    return true;
-                return false;
+                if( !compareAndSwap( &_state, _unlocked, _writelocked ))
+                    return false;
+                EQASSERTINFO( isSetWrite(), _state );
+                return true;
+            }
+
+        /** Acquire the lock shared with other readers. @version 1.1.2 */
+        void setRead()
+            {
+                while( true )
+                {
+                    if( trySetRead( ))
+                        return;
+                    Thread::yield();
+                }
+            }
+
+        /** Release a shared read lock. @version 1.1.2 */
+        void unsetRead()
+            {
+                while( true )
+                {
+                    EQASSERT( _state > _unlocked );
+                    memoryBarrier();
+                    const long expected = _state;
+                    if( compareAndSwap( &_state, expected, expected-1 ))
+                        return;
+                }
             }
 
         /** 
+         * Attempt to acquire the lock shared with other readers.
+         *
+         * @return true if the lock was set, false if
+         *         it was not set.
+         * @version 1.1.2
+         */
+        bool trySetRead()
+            {
+                memoryBarrier();
+                const long state = _state;
+                // Note: 0 used here since using _unlocked unexplicably gives
+                //       'undefined reference to co::base::SpinLock::_unlocked'
+                const long expected = (state==_writelocked) ? 0 : state;
+
+                if( !compareAndSwap( &_state, expected, expected+1 ))
+                    return false;
+
+                EQASSERTINFO( isSetRead(), _state << ", " << expected );
+                return true;
+            }
+
+        /**
          * Test if the lock is set.
          * 
-         * @return <code>true</code> if the lock is set, <code>false</code> if
+         * @return true if the lock is set, false if
          *         it is not set.
          * @version 1.0
          */
-        bool isSet() { memoryBarrier(); return ( _set == 1 ); }
+        bool isSet() { memoryBarrier(); return ( _state != _unlocked ); }
+
+        /**
+         * Test if the lock is set exclusively.
+         * 
+         * @return true if the lock is set, false if it is not set.
+         * @version 1.1.2
+         */
+        bool isSetWrite() { memoryBarrier(); return ( _state == _writelocked ); }
+
+        /**
+         * Test if the lock is set shared.
+         * 
+         * @return true if the lock is set, false if it is not set.
+         * @version 1.1.2
+         */
+        bool isSetRead() { memoryBarrier(); return ( _state > _unlocked ); }
 
     private:
-        long _set;
+        long _state;
     };
 }
 

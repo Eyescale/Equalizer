@@ -35,13 +35,14 @@ namespace fabric
         EYE_CYCLOP     = 1, //!<  monoscopic 'middle' eye
         EYE_LEFT       = 2, //!< left eye
         EYE_RIGHT      = 4, //!< right eye
+        EYE_LAST       = EYE_RIGHT, //!< the last eye
+        NUM_EYES       = 3,  //!< @internal increase with each new enum 
         EYES_STEREO    = EYE_LEFT | EYE_RIGHT, //!< left and right eye
-        EYE_LAST       = EYE_RIGHT, //!< the last Eye
-        EYES_ALL       = 7, //!< all eye
-        NUM_EYES       = 3  //!< @internal increase with each new enum 
+        EYES_ALL       = 7 //!< all eyes
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Eye& eye );
 }
 }
+
 #endif // EQFABRIC_EYE_H

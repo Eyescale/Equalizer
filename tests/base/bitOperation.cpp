@@ -1,5 +1,5 @@
- 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,22 +15,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**
- * @file eq/admin/api.h
- *
- * Defines admin API export macros.
- */
-#ifndef EQADMIN_API_H
-#define EQADMIN_API_H
+// Tests the functionality of the random number generator
 
-#include <co/base/api.h>
+#include <test.h>
+#include <co/base/bitOperation.h>
 
-#if defined(EQ_ADMIN_STATIC)
-#  define EQADMIN_API
-#elif defined(EQ_ADMIN_SHARED)
-#  define EQADMIN_API EQ_DLLEXPORT
-#else
-#  define EQADMIN_API EQ_DLLIMPORT
+int main( int argc, char **argv )
+{
+    TESTINFO( co::base::getIndexOfLastBit( 0u ) == -1,
+              co::base::getIndexOfLastBit( 0u ));
+    TESTINFO( co::base::getIndexOfLastBit( 42u ) == 5,
+              co::base::getIndexOfLastBit( 42u ));
+    TESTINFO( co::base::getIndexOfLastBit( EQ_BIT12 ) == 11,
+              co::base::getIndexOfLastBit( EQ_BIT12 ));
+#if 0
+    TESTINFO( co::base::getIndexOfLastBit( EQ_BIT48 ) == 47,
+              co::base::getIndexOfLastBit( EQ_BIT48 ));
 #endif
-
-#endif //EQADMIN_API_H
+    return EXIT_SUCCESS;
+}

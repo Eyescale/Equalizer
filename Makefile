@@ -1,9 +1,17 @@
 #!gmake
-.PHONY: debug tests cdash release xcode debug_glx docs docs/install clean
+.PHONY: debug tests cdash release xcode debug_glx docs docs/install clean clobber
 
 all: debug RELNOTES.txt README.rst
-clean:
+clobber:
 	rm -rf debug release docs XCode debug_glx man cdash
+clean:
+	@-$(MAKE) -C debug clean
+	@-$(MAKE) -C release clean
+	@-$(MAKE) -C docs clean
+	@-$(MAKE) -C XCode clean
+	@-$(MAKE) -C debug_glx clean
+	@-$(MAKE) -C cdash clean
+	@rm -rf man
 
 DOXYGEN ?= doxygen
 PYTHON ?= python
