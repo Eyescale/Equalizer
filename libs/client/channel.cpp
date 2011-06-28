@@ -1729,15 +1729,19 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                 for( std::vector< uint128_t >::const_iterator j =
                         inputNodes.begin(); j != inputNodes.end(); ++j )
                 {
-                    ChannelFrameTransmitPacket transmitPacket;
-                    transmitPacket.context   = context;
-                    transmitPacket.frameData = frame;
-                    transmitPacket.clientNodeID = *j;
-                    transmitPacket.command =
+                    co::LocalNodePtr localNode = getLocalNode();
+                    co::Command& command =
+                        localNode->allocCommand( sizeof( ChannelFrameTransmitPacket ));
+
+                    ChannelFrameTransmitPacket* transmitPacket = command.get< ChannelFrameTransmitPacket >();
+                    transmitPacket->context   = context;
+                    transmitPacket->frameData = frame;
+                    transmitPacket->clientNodeID = *j;
+                    transmitPacket->command =
                         fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
-                    transmitPacket.statisticsIndex = _statisticsIndex;
-                    transmitPacket.frameNumber = getPipe()->getCurrentFrame();
-                    transmitPacket.lastImageOnly = true;
+                    transmitPacket->statisticsIndex = _statisticsIndex;
+                    transmitPacket->frameNumber = getPipe()->getCurrentFrame();
+                    transmitPacket->lastImageOnly = true;
                     dispatchCommand( command );
                 }                
             }

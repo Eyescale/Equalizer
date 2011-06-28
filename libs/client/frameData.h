@@ -255,7 +255,7 @@ namespace server
             { _data.buffers &= ~buffer; }
 
         void setInputNodes( const eq::Eye eye,
-            const std::vector< uint128_t >& nodes )
+                            const std::vector< uint128_t >& nodes )
             { _data.inputNodes[ co::base::getIndexOfLastBit( eye ) ] = nodes; }
         const std::vector< uint128_t >& getInputNodes( const eq::Eye eye )
             { return _data.inputNodes[ co::base::getIndexOfLastBit( eye ) ]; }

@@ -151,21 +151,46 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 
     if ( _getTilesEnabled( compound ) )
     {
-        const TileQueues& queues = compound->getInputTileQueues();
-        TileQueuesCIter i = queues.begin();
-        for( ; i < queues.end(); ++i )
+        Frames frames;
+        std::vector< co::ObjectVersion > frameIDs;
+        const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
+        for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         {
-            ChannelFrameTilesPacket tilesPacket;
+            Frame* frame = *i;
 
-            tilesPacket.context = context;
-            const UUID& id = (*i)->getQueueMasterID( context.eye );
-            EQASSERT( id != co::base::UUID::ZERO );
-            tilesPacket.queueVersion.identifier = id;
-            tilesPacket.queueVersion.version = co::VERSION_FIRST;
-            _channel->send( tilesPacket );
-            _updated = true;
-            EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
-                <<  " " << &tilesPacket << std::endl;
+            if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
+                continue;
+
+            frames.push_back( frame );
+            frameIDs.push_back( co::ObjectVersion( frame ));
+        }
+
+        if( frames.empty() )
+            return TRAVERSE_CONTINUE;
+
+        const TileQueues& inputQueues = compound->getInputTileQueues();
+        for( TileQueuesCIter i = inputQueues.begin();
+             i != inputQueues.end(); ++i )
+        {
+            const TileQueue* inputQueue = *i;
+            const TileQueues& outputQueues =
+                inputQueue->getOutputQueues( context.eye );
+            for( TileQueuesCIter j = outputQueues.begin();
+                 j != outputQueues.end(); ++j )
+            {
+                ChannelFrameTilesPacket tilesPacket;
+                tilesPacket.context = context;
+                const UUID& id = (*j)->getQueueMasterID( context.eye );
+                EQASSERT( id != co::base::UUID::ZERO );
+                tilesPacket.queueVersion.identifier = id;
+                tilesPacket.queueVersion.version = co::VERSION_FIRST;
+                tilesPacket.nFrames   = uint32_t( frames.size( ));
+                _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
+
+                _updated = true;
+                EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
+                                   <<  " " << &tilesPacket << std::endl;
+            }            
         }
     }
     else
