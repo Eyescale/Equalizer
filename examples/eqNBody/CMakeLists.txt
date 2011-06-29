@@ -1,11 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
-if(NOT CUDA_FOUND)
-  message(STATUS "Skipping 'eqNBody' example (CUDA not found or enabled)")
-  return()
-endif()
-
 # WAR bug in FindCUDA.cmake:
 remove_definitions(${EQ_DEFINITIONS})
 
@@ -49,6 +44,8 @@ eq_add_example(eqNBody
     sharedDataProxy.cpp
     window.cpp
   LINK_LIBRARIES
-    Equalizer
     ${CUDA_LIBRARIES}
   )
+
+install(FILES nbody_kernel.cu DESTINATION share/Equalizer/examples/eqNBody
+        COMPONENT examples)

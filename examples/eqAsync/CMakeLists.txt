@@ -29,6 +29,4 @@ eq_add_example(eqAsync
     eqAsync.cpp
     main.cpp
     ${EQASYNC_SYSTEM_SOURCES}
-  LINK_LIBRARIES
-    Equalizer
   )

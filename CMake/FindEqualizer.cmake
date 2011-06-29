@@ -74,6 +74,8 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.1.2 "0.4.0")
+  set(_eq_coVersion_1.1.1 "0.4.0")
   set(_eq_coVersion_1.1.0 "0.4.0")
   set(_eq_coVersion_1.0.0 "0.3.0")
   find_package(Collage "${_eq_coVersion_${Equalizer_FIND_VERSION}}"
@@ -85,7 +87,7 @@ endif()
 #
 # find and parse eq/version.h
 find_path(_eq_INCLUDE_DIR eq/version.h
-  HINTS $ENV{EQ_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
@@ -138,13 +140,20 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
 endif()
 
 find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
-   HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
+   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
-  HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin PATH_SUFFIXES lib
-  HINTS $ENV{EQ_ROOT} PATHS /usr /usr/local /opt/local /opt
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
+)
+find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
 )
 
 # Inform the users with an error message based on what version they

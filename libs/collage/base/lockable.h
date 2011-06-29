@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,9 @@
 #ifndef COBASE_LOCKABLE_H
 #define COBASE_LOCKABLE_H
 
-#include <co/base/nonCopyable.h>
+#include <co/base/log.h> // used inline
+#include <co/base/nonCopyable.h> // base class
+#include <iostream>
 
 namespace co
 {

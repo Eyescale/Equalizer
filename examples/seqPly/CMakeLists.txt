@@ -40,7 +40,7 @@ eq_add_example(seqPly
     ../eqPly/frameData.cpp
     ${KD_SOURCES}
   LINK_LIBRARIES
-    shared Sequel
+    ${EQUALIZER_SEQUEL_LIBRARY}
   )
 
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})

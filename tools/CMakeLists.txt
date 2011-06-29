@@ -54,7 +54,7 @@ eq_add_tool(netproxy
 
 eq_add_tool(windowAdmin
   SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES Equalizer shared EqualizerAdmin
+  LINK_LIBRARIES Equalizer EqualizerAdmin
   )
 
 eq_add_tool(eqServer

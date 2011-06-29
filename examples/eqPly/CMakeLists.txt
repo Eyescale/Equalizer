@@ -69,8 +69,7 @@ eq_add_example(eqPly
     vertexShader.glsl
     fragmentShader.glsl
   LINK_LIBRARIES
-    Equalizer
-    shared EqualizerAdmin
+    ${EQUALIZER_ADMIN_LIBRARY}
   )
 
 source_group(kdTree FILES ${KD_HEADERS} ${KD_SOURCES})
