@@ -49,7 +49,10 @@ void FrameData::Data::serialize( co::DataOStream& os ) const
     {
         os << static_cast<uint64_t>(inputNodes[i].size());
         for ( size_t j = 0; j < inputNodes[i].size(); ++j )
+        {
             os << inputNodes[i][j];
+            os << inputNetNodes[i][j];
+        }
     }
 }
 
@@ -62,8 +65,12 @@ void FrameData::Data::deserialize( co::DataIStream& is )
         uint64_t size;
         is >> size;
         inputNodes[i].resize( static_cast< size_t >( size ) );
+        inputNetNodes[i].resize( static_cast< size_t >( size ) );
         for ( size_t j = 0; j < static_cast<size_t>(size); ++j )
+        {
             is >> inputNodes[i][j];
+            is >> inputNetNodes[i][j];
+        }
     }
 }
 
@@ -243,7 +250,7 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x, pvp.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))

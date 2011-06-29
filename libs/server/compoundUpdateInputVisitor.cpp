@@ -157,6 +157,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         {
             const Frames& inputFrames = frame->getInputFrames( eye );
             std::vector< uint128_t > nodeIDs;
+            std::vector< uint128_t > netNodeIDs;
 
             for( FramesCIter j = inputFrames.begin();
                 j != inputFrames.end(); ++j )
@@ -164,12 +165,13 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                 const Frame* inputFrame   = *j;
                 const Node*  inputNode    = inputFrame->getNode();
                 co::NodePtr inputNetNode = inputNode->getNode();
-                nodeIDs.push_back( inputNetNode->getNodeID() );                
+                netNodeIDs.push_back( inputNetNode->getNodeID() );   
+                nodeIDs.push_back( inputNode->getID() );
             }
 
             FrameData* frameData = frame->getMasterData();
             EQASSERT( frameData );
-            frameData->setInputNodes( eye, nodeIDs );
+            frameData->setInputNodes( eye, nodeIDs, netNodeIDs );
         }
     }
 

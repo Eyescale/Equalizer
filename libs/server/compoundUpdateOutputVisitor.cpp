@@ -195,9 +195,9 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
     float vpWidth = tileSize.x() * xFraction;
     float vpHeight = tileSize.y() * yFraction;
 
-    for (int32_t x = 0; x < pvp.w-1; x += tileSize.x())
+    for (int32_t x = 0; x < pvp.w; x += tileSize.x())
     {
-        for (int32_t y = 0; y < pvp.h-1; y += tileSize.y())
+        for (int32_t y = 0; y < pvp.h; y += tileSize.y())
         {
             PixelViewport tilepvp;
             Viewport tilevp;
@@ -207,7 +207,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             tilevp.x = x * xFraction;
             tilevp.y = y * yFraction;
 
-            if ( x + tileSize.x() < pvp.w-1 )
+            if ( x + tileSize.x() <= pvp.w )
             {
                 tilepvp.w = tileSize.x();
                 tilevp.w = vpWidth;
@@ -215,11 +215,11 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             else
             {
                 // no full tile
-                tilepvp.w = pvp.w - 1 - x;
+                tilepvp.w = pvp.w  - x;
                 tilevp.w = tilepvp.w * xFraction;
             }
 
-            if ( y + tileSize.y() < pvp.h-1 )
+            if ( y + tileSize.y() <= pvp.h )
             {
                 tilepvp.h = tileSize.y();
                 tilevp.h = vpHeight;
@@ -227,7 +227,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
             else
             {
                 // no full tile
-                tilepvp.h = pvp.h - 1 - y;
+                tilepvp.h = pvp.h - y;
                 tilevp.h = tilepvp.h * yFraction;
             }
 

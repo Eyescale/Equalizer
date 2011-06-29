@@ -1360,10 +1360,13 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
         getLocalNode()->releaseSendToken( token );
     }
 
-    // all data transmitted -> ready
-    NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID = command->clientNodeID;
-    toNode->send( readyPacket );
+    if ( !command->lastImageOnly )
+    {
+        // all data transmitted -> ready
+        NodeFrameDataReadyPacket readyPacket( frameData );
+        readyPacket.objectID = command->clientNodeID;
+        toNode->send( readyPacket );
+    }
 }
 
 void Channel::_collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
@@ -1693,6 +1696,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
     _collectOutputFrames( packet->nFrames, packet->frames );
 
+    bool transmit = false;
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
     while( co::Command* queuePacket = queue->pop( ))
@@ -1725,35 +1729,65 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                 frame->readback( glObjects, drawableConfig );
 
                 const std::vector< uint128_t >& inputNodes =
-                    frame->getData()->getInputNodes( packet->context.eye );
-                for( std::vector< uint128_t >::const_iterator j =
-                        inputNodes.begin(); j != inputNodes.end(); ++j )
+                    frame->getData()->getInputNodes( context.eye );
+                const std::vector< uint128_t >& inputNetNodes =
+                    frame->getData()->getInputNetNodes( context.eye );
+                std::vector< uint128_t >::const_iterator j = inputNodes.begin();
+                std::vector< uint128_t >::const_iterator k = inputNetNodes.begin();
+                for( ; j != inputNodes.end(); ++j, ++k )
                 {
-                    co::LocalNodePtr localNode = getLocalNode();
-                    co::Command& command =
-                        localNode->allocCommand( sizeof( ChannelFrameTransmitPacket ));
-
-                    ChannelFrameTransmitPacket* transmitPacket = command.get< ChannelFrameTransmitPacket >();
-                    transmitPacket->context   = context;
-                    transmitPacket->frameData = frame;
-                    transmitPacket->clientNodeID = *j;
-                    transmitPacket->command =
-                        fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
-                    transmitPacket->statisticsIndex = _statisticsIndex;
-                    transmitPacket->frameNumber = getPipe()->getCurrentFrame();
-                    transmitPacket->lastImageOnly = true;
-                    dispatchCommand( command );
-                }                
+                    ++_statistics.data[ _statisticsIndex ].used;
+                    ChannelFrameTransmitPacket transmitPacket;
+                    transmitPacket.context   = context;
+                    transmitPacket.frameData = frame->getDataVersion( context.eye );
+                    transmitPacket.clientNodeID = *j;
+                    transmitPacket.netNodeID = *k;
+                    transmitPacket.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
+                    transmitPacket.statisticsIndex = _statisticsIndex;
+                    transmitPacket.frameNumber = getPipe()->getCurrentFrame();
+                    transmitPacket.lastImageOnly = true;
+                    send( getNode()->getLocalNode(), transmitPacket );
+                    transmit = true;
+                }
             }
 
             EQ_GL_CALL( resetAssemblyState( ));            
         }
+
+        queuePacket->release();
     }
 
-    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+    if ( transmit )
     {
-        Frame* frame = *i;
-        frame->setReady();
+        for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+        {
+            Frame* frame = *i;
+            //frame->setReady();
+
+            const std::vector< uint128_t >& inputNodes =
+                frame->getData()->getInputNodes( context.eye );
+            const std::vector< uint128_t >& inputNetNodes =
+                frame->getData()->getInputNetNodes( context.eye );
+            std::vector< uint128_t >::const_iterator j = inputNodes.begin();
+            std::vector< uint128_t >::const_iterator k = inputNetNodes.begin();
+            for( ; j != inputNodes.end(); ++j, ++k )
+            {
+                // all data transmitted -> ready
+                FrameData* frameData = getNode()->getFrameData( frame->getDataVersion( context.eye ) ); 
+                NodeFrameDataReadyPacket readyPacket( frameData );
+                readyPacket.objectID = *j;
+
+                co::LocalNodePtr localNode = getLocalNode();
+                co::NodePtr toNode = localNode->connect( *k );
+                if( !toNode || !toNode->isConnected( ))
+                {
+                    EQWARN << "Can't connect node " << *k
+                        << " to send input frame" << std::endl;
+                    continue;
+                }
+                toNode->send( readyPacket );
+            }
+        }
     }
     _outputFrames.clear();
 

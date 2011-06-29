@@ -42,6 +42,14 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     _data.deserialize( is );
 }
 
+void FrameData::setInputNodes( const eq::Eye eye,
+                               const std::vector< uint128_t >& nodes,
+                               const std::vector< uint128_t >& netNodes )
+{
+    _data.inputNodes[ co::base::getIndexOfLastBit( eye ) ] = nodes;
+    _data.inputNetNodes[ co::base::getIndexOfLastBit( eye ) ] = netNodes;
+}
+
 
 }
 }
