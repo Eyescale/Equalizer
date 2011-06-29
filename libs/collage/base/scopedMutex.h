@@ -27,6 +27,23 @@ namespace co
 {
 namespace base
 {
+    class WriteOp;
+    class ReadOp;
+
+    /** @cond IGNORE */
+    template< class L, class T > struct ScopedMutexLocker {};
+    template< class L > struct ScopedMutexLocker< L, WriteOp >
+    {
+        static inline void set( L& lock ) { lock.set(); }
+        static inline void unset( L& lock ) { lock.unset(); }
+    };
+    template< class L > struct ScopedMutexLocker< L, ReadOp >
+    {
+        static inline void set( L& lock ) { lock.setRead(); }
+        static inline void unset( L& lock ) { lock.unsetRead(); }
+    };
+    /** @endcond */
+
     /**
      * A scoped mutex.
      * 
@@ -34,8 +51,11 @@ namespace base
      * scoped mutex is destroyed, e.g., when the scope is left. The scoped mutex
      * does nothing if a 0 pointer for the lock is passed.
      */
-    template< class L = Lock > class ScopedMutex : public NonCopyable
+    template< class L = Lock, class T = WriteOp >
+    class ScopedMutex : public NonCopyable
     {
+        typedef ScopedMutexLocker< L, T > LockTraits;
+
     public:
         /** 
          * Construct a new scoped mutex and set the given lock.
@@ -47,24 +67,24 @@ namespace base
          * @version 1.0
          */
         explicit ScopedMutex( L* lock ) : _lock( lock )
-            { if( lock ) lock->set(); }
+            { if( lock ) LockTraits::set( *lock ); }
 
         /** Construct a new scoped mutex and set the given lock. @version 1.0 */
         explicit ScopedMutex( L& lock ) : _lock( &lock )
-            { lock.set(); }
+            { LockTraits::set( lock ); }
 
         /**
          * Construct a new scoped mutex for the given Lockable data structure.
          * @version 1.0
          */
         template< typename LB > ScopedMutex( LB& lockable )
-                : _lock( &lockable.lock ) { _lock->set(); }
+                : _lock( &lockable.lock ) { LockTraits::set( lockable.lock ); }
 
         /** Destruct the scoped mutex and unset the mutex. @version 1.0 */
         ~ScopedMutex() { leave(); }
 
         /** Leave and unlock the mutex immediately. @version 1.0 */
-        void leave() { if( _lock ) _lock->unset(); _lock = 0; }
+        void leave() { if( _lock ) LockTraits::unset( *_lock ); _lock = 0; }
 
     private:
         ScopedMutex() : _lock( 0 ) {}
