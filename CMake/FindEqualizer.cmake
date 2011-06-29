@@ -140,19 +140,19 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
 endif()
 
 find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
-   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
    PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 

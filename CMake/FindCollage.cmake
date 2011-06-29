@@ -126,7 +126,7 @@ if(Collage_FIND_VERSION AND COLLAGE_VERSION)
 endif()
 
 find_library(_co_LIBRARY Collage
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES lib
   PATHS /usr /usr/local /opt/local /opt
 )
