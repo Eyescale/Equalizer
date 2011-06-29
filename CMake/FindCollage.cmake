@@ -71,7 +71,7 @@
 #
 # find and parse co/version.h
 find_path(_co_INCLUDE_DIR co/version.h
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
