@@ -42,8 +42,7 @@ set(ADMIN_SOURCES
 )
 
 source_group(fabric REGULAR_EXPRESSION .*)
-source_group(\\ FILES CMakeLists.txt)
-source_group(admin FILES eq.h ${ADMIN_HEADERS} ${ADMIN_SOURCES})
+source_group(\\ FILES CMakeLists.txt ${ADMIN_HEADERS} ${ADMIN_SOURCES})
 
 purple_add_library(eq_admin ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/admin/"

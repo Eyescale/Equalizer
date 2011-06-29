@@ -55,6 +55,5 @@ set_target_properties(lib_Sequel_shared PROPERTIES
   FOLDER "Libraries" PROJECT_LABEL "Sequel")
 
 source_group(\\ REGULAR_EXPRESSION .*)
-source_group(\\ FILES CMakeLists.txt)
+source_group(\\ FILES CMakeLists.txt ${SEQUEL_HEADERS} ${SEQUEL_SOURCES})
 source_group(detail FILES ${DETAIL_FILES})
-source_group(sequel FILES ${SEQUEL_HEADER} ${SEQUEL_SOURCES})
