@@ -59,3 +59,4 @@ install(TARGETS pthread
   LIBRARY DESTINATION lib COMPONENT codev
   RUNTIME DESTINATION bin COMPONENT colib
   )
+install(FILES ${PTHREADS_DIR}/pthread.h DESTINATION include/ COMPONENT codev)
