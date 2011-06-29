@@ -87,7 +87,7 @@ endif()
 #
 # find and parse eq/version.h
 find_path(_eq_INCLUDE_DIR eq/version.h
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} $ENV{EQ_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
