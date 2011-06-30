@@ -156,12 +156,12 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         fabric::Eye eye = fabric::EYE_CYCLOP;
         for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
         {
-            const Frames& inputFrames = frame->getInputFrames( eye );
+            const Frames& localInputFrames = frame->getInputFrames( eye );
             std::vector< uint128_t > nodeIDs;
             std::vector< uint128_t > netNodeIDs;
 
-            for( FramesCIter j = inputFrames.begin();
-                j != inputFrames.end(); ++j )
+            for( FramesCIter j = localInputFrames.begin();
+                j != localInputFrames.end(); ++j )
             {
                 const Frame* inputFrame   = *j;
                 const Node*  inputNode    = inputFrame->getNode();
