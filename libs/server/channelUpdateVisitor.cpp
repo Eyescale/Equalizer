@@ -173,28 +173,25 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
              i != inputQueues.end(); ++i )
         {
             const TileQueue* inputQueue = *i;
-            const TileQueues& outputQueues =
-                inputQueue->getOutputQueues( context.eye );
-            for( TileQueuesCIter j = outputQueues.begin();
-                 j != outputQueues.end(); ++j )
-            {
-                ChannelFrameTilesPacket tilesPacket;
-                tilesPacket.context = context;
-                tilesPacket.tasks = compound->getInheritTasks();
-                tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
-                            eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
+            const TileQueue* outputQueue =
+                    inputQueue->getOutputQueue( context.eye );
 
-                const UUID& id = (*j)->getQueueMasterID( context.eye );
-                EQASSERT( id != co::base::UUID::ZERO );
-                tilesPacket.queueVersion.identifier = id;
-                tilesPacket.queueVersion.version = co::VERSION_FIRST;
-                tilesPacket.nFrames   = uint32_t( frames.size( ));
-                _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
+            ChannelFrameTilesPacket tilesPacket;
+            tilesPacket.context = context;
+            tilesPacket.tasks = compound->getInheritTasks();
+            tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
+                        eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
 
-                _updated = true;
-                EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
-                                   <<  " " << &tilesPacket << std::endl;
-            }            
+            const UUID& id = outputQueue->getQueueMasterID( context.eye );
+            EQASSERT( id != co::base::UUID::ZERO );
+            tilesPacket.queueVersion.identifier = id;
+            tilesPacket.queueVersion.version = co::VERSION_FIRST;
+            tilesPacket.nFrames   = uint32_t( frames.size( ));
+            _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
+
+            _updated = true;
+            EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
+                               <<  " " << &tilesPacket << std::endl;
         }
     }
     else

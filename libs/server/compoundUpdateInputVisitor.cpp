@@ -68,7 +68,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         EQASSERT( queue->isAttached( ));
 
         TileQueue* outputQueue = j->second;
-        queue->addOutputQueue( outputQueue, compound );
+        queue->setOutputQueue( outputQueue, compound );
     }
 
     const Frames& inputFrames = compound->getInputFrames();
