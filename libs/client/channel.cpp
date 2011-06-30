@@ -1210,6 +1210,8 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     const Images& images = frameData->getImages();
     // send all images
+    // @bug: last image is not correct. Readback may produce >1 image.
+    //       Tracking of new images in _cmdFrameTiles?
     ImagesCIter i = command->lastImageOnly ? images.end()-1 : images.begin();
     for( ; i != images.end(); ++i )
     {
@@ -1717,6 +1719,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             Window::ObjectManager* glObjects = getObjectManager();
             const DrawableConfig& drawableConfig = getDrawableConfig();
 
+             // @bug frameReadback has to be used!
             for( FramesCIter i = _outputFrames.begin();
                 i != _outputFrames.end(); ++i )
             {
@@ -1730,6 +1733,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                         inputNodes.begin(); j != inputNodes.end(); ++j )
                 {
                     co::LocalNodePtr localNode = getLocalNode();
+                    // @bug not thread-safe. Only call from rcvThread. Should trigger assert!
                     co::Command& command =
                         localNode->allocCommand( sizeof( ChannelFrameTransmitPacket ));
 

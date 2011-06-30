@@ -41,33 +41,6 @@
 namespace eq
 {
 
-void FrameData::Data::serialize( co::DataOStream& os ) const
-{
-    os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-    {
-        os << static_cast<uint64_t>(inputNodes[i].size());
-        for ( size_t j = 0; j < inputNodes[i].size(); ++j )
-            os << inputNodes[i][j];
-    }
-}
-
-void FrameData::Data::deserialize( co::DataIStream& is )
-{
-    is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-    {
-        uint64_t size;
-        is >> size;
-        inputNodes[i].resize( static_cast< size_t >( size ) );
-        for ( size_t j = 0; j < static_cast<size_t>(size); ++j )
-            is >> inputNodes[i][j];
-    }
-}
-
-
 typedef co::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
@@ -120,6 +93,22 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     clear();
     _data.deserialize( is );
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+}
+
+void FrameData::Data::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+        os << inputNodes[i];
+}
+
+void FrameData::Data::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+        is >> inputNodes[i];
 }
 
 void FrameData::clear()
@@ -257,6 +246,8 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
+    // @bug? Why did it move to channel?
+    //setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
