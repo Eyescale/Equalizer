@@ -41,6 +41,40 @@
 namespace eq
 {
 
+void FrameData::Data::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+    {
+        os << static_cast<uint64_t>(inputNodes[i].size());
+        for ( size_t j = 0; j < inputNodes[i].size(); ++j )
+        {
+            os << inputNodes[i][j];
+            os << inputNetNodes[i][j];
+        }
+    }
+}
+
+void FrameData::Data::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
+    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+    {
+        uint64_t size;
+        is >> size;
+        inputNodes[i].resize( static_cast< size_t >( size ) );
+        inputNetNodes[i].resize( static_cast< size_t >( size ) );
+        for ( size_t j = 0; j < static_cast<size_t>(size); ++j )
+        {
+            is >> inputNodes[i][j];
+            is >> inputNetNodes[i][j];
+        }
+    }
+}
+
+
 typedef co::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
@@ -85,13 +119,13 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
 void FrameData::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
-    os << _data;
+    _data.serialize( os );
 }
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
-    is >> _data;
+    _data.deserialize( is );
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
@@ -216,7 +250,7 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x, pvp.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
@@ -230,7 +264,6 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
-    setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )

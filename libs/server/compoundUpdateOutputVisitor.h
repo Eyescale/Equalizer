@@ -40,8 +40,8 @@ namespace server
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound );
 
-        const Compound::BarrierMap& getSwapBarriers()
-            const { return _swapBarriers; }
+        const Compound::BarrierMap& getSwapBarriers() const
+            { return _swapBarriers; }
         const Compound::FrameMap& getOutputFrames() const
             { return _outputFrames; }
         const Compound::TileQueueMap& getOutputQueues() const

@@ -63,7 +63,23 @@ namespace server
         const Vector2i& getTileSize() const { return _size; }
 
         /** Add a tile to the queue. */
-        void addTile( const TileTaskPacket& tile );
+        void addTile( const TileTaskPacket& tile, fabric::Eye eye );
+
+        /** 
+         * Cycle the current tile queue.
+         * 
+         * Used for output tile queues to allocate/recycle queuemasters.
+         *
+         * @param frameNumber the current frame number.
+         * @param compound the compound holding the output frame.
+         */
+        void cycleData( const uint32_t frameNumber, const Compound* compound );
+
+        void addOutputQueue( TileQueue* queue, const Compound* compound );
+
+        /** @return the vector of current input frames. */
+        const TileQueues& getOutputQueues( const eq::Eye eye ) const
+            { return _outputQueues[ co::base::getIndexOfLastBit( eye ) ]; }
 
         /**
          * @name Operations
@@ -76,6 +92,14 @@ namespace server
         void flush();
         //@}
 
+        /** activate or deactivate tile queue */
+        void setActivated( bool flag ) { _activated = flag; }
+
+        /** get activated flag */
+        bool isActivated() const { return _activated; }
+
+        const UUID getQueueMasterID( fabric::Eye eye );
+
     protected:
         EQSERVER_API virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
@@ -83,6 +107,13 @@ namespace server
         EQSERVER_API virtual void applyInstanceData( co::DataIStream& is );
 
     private:
+
+        struct latencyQueue
+        {
+            uint32_t _frameNumber;
+            co::QueueMaster _queue;
+        };
+        
         /** The parent compound. */
         Compound* _compound;
 
@@ -92,8 +123,16 @@ namespace server
         /** The size of each tile in the queue. */
         Vector2i _size;
 
-        /** The collage tile queue holding the tiles. */
-        co::QueueMaster _queueMaster;
+        /** The collage queue pool. */
+        std::deque<latencyQueue*> _queues;
+
+        /** the currently used tile queues */
+        latencyQueue* _queueMaster[ eq::NUM_EYES ];
+
+        /** Vector of current output queues. */
+        TileQueues _outputQueues[ eq::NUM_EYES ];
+
+        bool _activated;
     };
 
     std::ostream& operator << ( std::ostream& os, const TileQueue* frame );

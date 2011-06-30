@@ -179,6 +179,7 @@ load_equalizer                  { return EQTOKEN_LOADEQUALIZER; }
 tree_equalizer                  { return EQTOKEN_TREEEQUALIZER; }
 monitor_equalizer               { return EQTOKEN_MONITOREQUALIZER; }
 view_equalizer                  { return EQTOKEN_VIEWEQUALIZER; }
+tile_equalizer                  { return EQTOKEN_TILEEQUALIZER; }
 damping                         { return EQTOKEN_DAMPING; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
