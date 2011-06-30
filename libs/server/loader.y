@@ -28,6 +28,7 @@
 #include "equalizers/treeEqualizer.h"
 #include "equalizers/monitorEqualizer.h"
 #include "equalizers/viewEqualizer.h"
+#include "equalizers/tileEqualizer.h"
 #include "frame.h"
 #include "tileQueue.h"
 #include "global.h"
@@ -188,6 +189,7 @@
 %token EQTOKEN_TREEEQUALIZER
 %token EQTOKEN_MONITOREQUALIZER
 %token EQTOKEN_VIEWEQUALIZER
+%token EQTOKEN_TILEEQUALIZER
 %token EQTOKEN_DAMPING
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
@@ -1116,7 +1118,7 @@ loadBalancerMode:
     }
 
 equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | treeEqualizer |
-           monitorEqualizer | viewEqualizer
+           monitorEqualizer | viewEqualizer | tileEqualizer
         
 dfrEqualizer: EQTOKEN_DFREQUALIZER '{' 
     { dfrEqualizer = new eq::server::DFREqualizer; }
@@ -1150,6 +1152,10 @@ monitorEqualizer: EQTOKEN_MONITOREQUALIZER '{' '}'
 viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
     {
         eqCompound->addEqualizer( new eq::server::ViewEqualizer );
+    }
+tileEqualizer: EQTOKEN_TILEEQUALIZER '{' '}'
+    {
+        eqCompound->addEqualizer( new eq::server::TileEqualizer );
     }
 
 dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField

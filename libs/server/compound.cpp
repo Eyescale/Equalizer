@@ -37,6 +37,7 @@
 #include "segment.h"
 #include "swapBarrier.h"
 #include "view.h"
+#include "observer.h"
 
 #include <eq/packets.h>
 #include <eq/fabric/paths.h>
@@ -598,6 +599,197 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
     }
 }
 
+void Compound::computeFrustum( RenderContext& context, 
+                               const fabric::Eye eye ) const
+{
+    // compute eye position in screen space
+    const Vector3f eyeWorld = _getEyePosition( eye );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f eyeWall = xfm * eyeWorld;
+
+    EQVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
+        << std::endl;
+    _computePerspective( context, eyeWall );
+    _computeOrtho( context, eyeWall );
+}
+
+void Compound::computeTileFrustum( Frustumf& frustum, const fabric::Eye eye,
+                                   Viewport vp, bool ortho ) const
+{
+    const Vector3f eyeWorld = _getEyePosition( eye );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f eyeWall = xfm * eyeWorld;
+
+    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, &vp);
+}
+
+namespace
+{
+    static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
+                                       const Vector3f& eye )
+    {
+        // headTransform = -trans(eye) * view matrix (frustum position)
+        for( int i=0; i<16; i += 4 )
+        {
+            result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
+            result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
+            result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
+            result.array[i+3] = xfm.array[i+3];
+        }
+    }
+}
+
+void Compound::_computePerspective( RenderContext& context, 
+                                    const Vector3f& eye ) const
+{
+    const FrustumData& frustumData = getInheritFrustumData();
+
+    _computeFrustumCorners( context.frustum, frustumData, eye, false);
+    _computeHeadTransform( context.headTransform, frustumData.getTransform(),
+        eye );
+
+    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+    if( isHMD )
+        context.headTransform *= _getInverseHeadMatrix();
+}
+
+void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
+{
+    // Compute corners for cyclop eye without perspective correction:
+    const Vector3f cyclopWorld = _getEyePosition( EYE_CYCLOP );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f cyclopWall = xfm * cyclopWorld;
+
+    _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true );
+    _computeHeadTransform( context.orthoTransform, xfm, eye );
+
+    // Apply stereo shearing
+    context.orthoTransform.array[8] += (cyclopWall[0] - eye[0]) / eye[2];
+    context.orthoTransform.array[9] += (cyclopWall[1] - eye[1]) / eye[2];
+
+    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+    if( isHMD )
+        context.orthoTransform *= _getInverseHeadMatrix();
+}
+
+Vector3f Compound::_getEyePosition( const fabric::Eye eye ) const
+{
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = view ? view->getObserver() : 0;
+
+    if( observer && frustumData.getType() == Wall::TYPE_FIXED )
+        return observer->getEyePosition( eye );
+
+    const Config* config = getConfig();
+    const float eyeBase_2 = 0.5f * ( observer ? 
+        observer->getEyeBase() : 
+        config->getFAttribute( Config::FATTR_EYE_BASE ));
+
+    switch( eye )
+    {
+    case EYE_LEFT:
+        return Vector3f(-eyeBase_2, 0.f, 0.f );
+
+    case EYE_RIGHT:
+        return Vector3f( eyeBase_2, 0.f, 0.f );
+
+    default:
+        EQUNIMPLEMENTED;
+    case EYE_CYCLOP:
+        return Vector3f::ZERO;
+    }
+}
+
+const Matrix4f& Compound::_getInverseHeadMatrix() const
+{
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = static_cast< const Observer* >(
+        view ? view->getObserver() : 0);
+
+    if( observer )
+        return observer->getInverseHeadMatrix();
+
+    return Matrix4f::IDENTITY;
+}
+
+void Compound::_computeFrustumCorners( Frustumf& frustum,
+                                       const FrustumData& frustumData,
+                                       const Vector3f& eye,
+                                       const bool ortho,
+                                       Viewport* invp /* = 0*/) const
+{
+    const Channel* destination = getInheritChannel();
+    frustum = destination->getFrustum();
+
+    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
+    const float width_2  = frustumData.getWidth()  * .5f;
+    const float height_2 = frustumData.getHeight() * .5f;
+
+    if( eye.z() > 0 || ortho )
+    {
+        frustum.left()   =  ( -width_2  - eye.x() ) * ratio;
+        frustum.right()  =  (  width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  ( -height_2 - eye.y() ) * ratio;
+        frustum.top()    =  (  height_2 - eye.y() ) * ratio;
+    }
+    else // eye behind near plane - 'mirror' x
+    {
+        frustum.left()   =  (  width_2  - eye.x() ) * ratio;
+        frustum.right()  =  ( -width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  (  height_2 + eye.y() ) * ratio;
+        frustum.top()    =  ( -height_2 + eye.y() ) * ratio;
+    }
+
+    // move frustum according to pixel decomposition
+    const Pixel& pixel = getInheritPixel();
+    if( pixel != Pixel::ALL && pixel.isValid( ))
+    {
+        const Channel* inheritChannel = getInheritChannel();
+        const PixelViewport& destPVP = inheritChannel->getPixelViewport();
+
+        if( pixel.w > 1 )
+        {
+            const float         frustumWidth = frustum.right() - frustum.left();
+            const float           pixelWidth = frustumWidth / 
+                static_cast<float>( destPVP.w );
+            const float               jitter = pixelWidth * pixel.x - 
+                pixelWidth * .5f;
+
+            frustum.left()  += jitter;
+            frustum.right() += jitter;
+        }
+        if( pixel.h > 1 )
+        {
+            const float frustumHeight = frustum.bottom() - frustum.top();
+            const float pixelHeight = frustumHeight / float( destPVP.h );
+            const float jitter = pixelHeight * pixel.y + pixelHeight * .5f;
+
+            frustum.top()    -= jitter;
+            frustum.bottom() -= jitter;
+        }
+    }
+
+    // adjust to viewport (screen-space decomposition)
+    // Note: vp is computed pixel-correct by Compound::updateInheritData()
+    const Viewport vp = invp ? *invp : getInheritViewport();
+    if( vp != Viewport::FULL && vp.isValid( ))
+    {
+        const float frustumWidth = frustum.right() - frustum.left();
+        frustum.left()  += frustumWidth * vp.x;
+        frustum.right()  = frustum.left() + frustumWidth * vp.w;
+
+        const float frustumHeight = frustum.top() - frustum.bottom();
+        frustum.bottom() += frustumHeight * vp.y;
+        frustum.top()     = frustum.bottom() + frustumHeight * vp.h;
+    }
+}
+
 void Compound::_updateOverdraw( Wall& wall )
 {
     Channel* channel = getChannel();
@@ -955,8 +1147,8 @@ void Compound::update( const uint32_t frameNumber )
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
-    for( stde::hash_map< std::string, co::Barrier* >::const_iterator i = 
-             swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    for( Compound::BarrierMap::const_iterator i = 
+         swapBarriers.begin(); i != swapBarriers.end(); ++i )
     {
         co::Barrier* barrier = i->second;
         if( barrier->isAttached( ))
