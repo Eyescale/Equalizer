@@ -83,6 +83,9 @@ namespace server
                                const fabric::RenderContext& context );
         void _updateViewFinish( const Compound* compound,
                                 const fabric::RenderContext& context );
+
+        bool _getTilesEnabled( const Compound* compound );
+
     };
 }
 }
