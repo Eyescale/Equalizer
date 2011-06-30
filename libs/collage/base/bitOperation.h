@@ -21,7 +21,10 @@
 
 #include <co/base/types.h>
 #ifdef _MSC_VER
-#  include <intrin.h>
+#  pragma warning (push)
+#  pragma warning (disable: 4985) // inconsistent decl of ceil
+#    include <intrin.h>
+#  pragma warning (pop)
 #endif
 
 namespace co

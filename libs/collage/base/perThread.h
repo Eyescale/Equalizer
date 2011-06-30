@@ -30,18 +30,27 @@ namespace base
 {
     class PerThreadPrivate;
 
+    /** Default PerThread destructor deleting the object. @version 1.1.2 */
+    template< class T > void perThreadDelete( T* object ) { delete object; }
+
+    /** Empty PerThread destructor. @version 1.1.2 */
+    template< class T > void perThreadNoDelete( T* object ) {}
+
     /**
      * Implements thread-specific storage for C++ objects.
      * 
-     * The object is deleted on thread exit.
+     * The default destructor function deletes the object on thread exit.
      *
      * To instantiate the template code for this class, applications have to
-     * include pthread.h before this file. pthread.h is not automatically
-     * included to avoid hard to resolve type conflicts with other header files
-     * on Windows.
+     * include pthread.h before this file. The pthread.h header is not
+     * automatically included to avoid hard to resolve type conflicts with other
+     * header files on Windows.
+     *
+     * @param T the type of data to store in thread-local storage
+     * @param D the destructor callback function.
      */
-    template<typename T> class PerThread : public ExecutionListener, 
-                                           public NonCopyable
+    template< class T, void (*D)( T* ) = perThreadDelete< T > >
+    class PerThread : public NonCopyable
     {
     public:
         /** Construct a new per-thread variable. @version 1.0 */
@@ -50,9 +59,9 @@ namespace base
         ~PerThread();
 
         /** Assign an object to the thread-local storage. @version 1.0 */ 
-        PerThread<T>& operator = ( const T* data );
+        PerThread<T, D>& operator = ( const T* data );
         /** Assign an object from another thread-local storage. @version 1.0 */
-        PerThread<T>& operator = ( const PerThread<T>& rhs );
+        PerThread<T, D>& operator = ( const PerThread<T, D>& rhs );
 
         /** @return the held object pointer. @version 1.0 */
         T* get();
@@ -101,9 +110,6 @@ namespace base
          */
         bool isValid() const;
 
-    protected:
-        virtual void notifyExecutionStopping();
-
     private:
         PerThreadPrivate* _data;
     };
@@ -137,87 +143,76 @@ public:
     pthread_key_t key;
 };
 
-template< typename T >
-PerThread<T>::PerThread() 
+template< class T, void (*D)( T* ) >
+PerThread<T, D>::PerThread() 
         : _data( new PerThreadPrivate )
 {
-    const int error = pthread_key_create( &_data->key, 0 );
+    typedef void (*PThreadDtor_t)(void*);
+    const int error = pthread_key_create( &_data->key, (PThreadDtor_t)( D ));
     if( error )
     {
         EQERROR << "Can't create thread-specific key: " 
                 << strerror( error ) << std::endl;
         EQASSERT( !error );
     }
-
-    Thread::addListener( this );
 }
 
-template< typename T >
-PerThread<T>::~PerThread()
+template< class T, void (*D)( T* ) >
+PerThread<T, D>::~PerThread()
 {
-    Thread::removeListener( this );
-
     T* object = get();
-    delete object;
+    if( object )
+        D( object );
 
     pthread_key_delete( _data->key );
     delete _data;
     _data = 0;
 }
 
-template< typename T >
-void PerThread<T>::notifyExecutionStopping()
-{
-    T* object = get();
-    pthread_setspecific( _data->key, 0 );
-
-    delete object;
-}
-
-template< typename T >
-PerThread<T>& PerThread<T>::operator = ( const T* data )
+template< class T, void (*D)( T* ) >
+PerThread<T, D>& PerThread<T, D>::operator = ( const T* data )
 { 
     pthread_setspecific( _data->key, static_cast<const void*>( data ));
     return *this; 
 }
 
-template< typename T >
-PerThread<T>& PerThread<T>::operator = ( const PerThread<T>& rhs )
+template< class T, void (*D)( T* ) >
+PerThread<T, D>& PerThread<T, D>::operator = ( const PerThread<T, D>& rhs )
 { 
     pthread_setspecific( _data->key, pthread_getspecific( rhs._data->key ));
     return *this;
 }
 
-template< typename T >
-T* PerThread<T>::get()
+template< class T, void (*D)( T* ) >
+T* PerThread<T, D>::get()
 {
     return static_cast< T* >( pthread_getspecific( _data->key )); 
 }
-template< typename T >
-const T* PerThread<T>::get() const
+template< class T, void (*D)( T* ) >
+const T* PerThread<T, D>::get() const
 {
     return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
 
-template< typename T >
-T* PerThread<T>::operator->() 
+template< class T, void (*D)( T* ) >
+T* PerThread<T, D>::operator->() 
 {
     return static_cast< T* >( pthread_getspecific( _data->key )); 
 }
-template< typename T >
-const T* PerThread<T>::operator->() const 
+template< class T, void (*D)( T* ) >
+const T* PerThread<T, D>::operator->() const 
 { 
     return static_cast< const T* >( pthread_getspecific( _data->key )); 
 }
 
-template< typename T >
-bool PerThread<T>::operator ! () const
+template< class T, void (*D)( T* ) >
+bool PerThread<T, D>::operator ! () const
 {
     return pthread_getspecific( _data->key ) == 0;
 }
 
-template< typename T >
-bool PerThread<T>::isValid() const
+template< class T, void (*D)( T* ) >
+bool PerThread<T, D>::isValid() const
 {
     return pthread_getspecific( _data->key ) != 0;
 }
