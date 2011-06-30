@@ -37,11 +37,7 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
-    while (!_queue.isEmpty())
-    {
-        Command* cmd = _queue.pop();
-        cmd->release();
-    }
+    clear();
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
@@ -83,6 +79,15 @@ Command* QueueSlave::pop()
     
     cmd->release();
     return 0;
+}
+
+void QueueSlave::clear()
+{
+    while( !_queue.isEmpty( ))
+    {
+        Command* cmd = _queue.pop();
+        cmd->release();
+    }
 }
 
 }

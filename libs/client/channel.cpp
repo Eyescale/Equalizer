@@ -1360,13 +1360,10 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
         getLocalNode()->releaseSendToken( token );
     }
 
-    if ( !command->lastImageOnly )
-    {
-        // all data transmitted -> ready
-        NodeFrameDataReadyPacket readyPacket( frameData );
-        readyPacket.objectID = command->clientNodeID;
-        toNode->send( readyPacket );
-    }
+    // all data transmitted -> ready
+    NodeFrameDataReadyPacket readyPacket( frameData );
+    readyPacket.objectID = command->clientNodeID;
+    toNode->send( readyPacket );
 }
 
 void Channel::_collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
@@ -1696,7 +1693,6 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
     _collectOutputFrames( packet->nFrames, packet->frames );
 
-    bool transmit = false;
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
     while( co::Command* queuePacket = queue->pop( ))
@@ -1707,13 +1703,21 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         context.vp = tilePacket->vp;
 
         if ( packet->tasks & fabric::TASK_CLEAR )
+        {
+            ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
             frameClear( packet->context.frameID );
+        }
 
         if ( packet->tasks & fabric::TASK_DRAW )
+        {
+            ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
+        }
 
         if ( packet->tasks & fabric::TASK_READBACK )
         {
+            ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
             EQ_GL_CALL( applyBuffer( ));
             EQ_GL_CALL( applyViewport( ));
             EQ_GL_CALL( setupAssemblyState( ));
@@ -1747,7 +1751,6 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                     transmitPacket.frameNumber = getPipe()->getCurrentFrame();
                     transmitPacket.lastImageOnly = true;
                     send( getNode()->getLocalNode(), transmitPacket );
-                    transmit = true;
                 }
             }
 
@@ -1757,38 +1760,6 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         queuePacket->release();
     }
 
-    if ( transmit )
-    {
-        for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
-        {
-            Frame* frame = *i;
-            //frame->setReady();
-
-            const std::vector< uint128_t >& inputNodes =
-                frame->getData()->getInputNodes( context.eye );
-            const std::vector< uint128_t >& inputNetNodes =
-                frame->getData()->getInputNetNodes( context.eye );
-            std::vector< uint128_t >::const_iterator j = inputNodes.begin();
-            std::vector< uint128_t >::const_iterator k = inputNetNodes.begin();
-            for( ; j != inputNodes.end(); ++j, ++k )
-            {
-                // all data transmitted -> ready
-                FrameData* frameData = getNode()->getFrameData( frame->getDataVersion( context.eye ) ); 
-                NodeFrameDataReadyPacket readyPacket( frameData );
-                readyPacket.objectID = *j;
-
-                co::LocalNodePtr localNode = getLocalNode();
-                co::NodePtr toNode = localNode->connect( *k );
-                if( !toNode || !toNode->isConnected( ))
-                {
-                    EQWARN << "Can't connect node " << *k
-                        << " to send input frame" << std::endl;
-                    continue;
-                }
-                toNode->send( readyPacket );
-            }
-        }
-    }
     _outputFrames.clear();
 
     resetContext();

@@ -131,7 +131,6 @@ void FrameData::applyInstanceData( co::DataIStream& is )
 
 void FrameData::clear()
 {
-
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
     _imageCacheLock.unset();

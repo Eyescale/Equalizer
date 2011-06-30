@@ -40,6 +40,8 @@ public:
 
     CO_API Command* pop();
 
+    CO_API void clear();
+
 protected:
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& ) { EQDONTCALL }

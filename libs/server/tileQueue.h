@@ -75,11 +75,9 @@ namespace server
          */
         void cycleData( const uint32_t frameNumber, const Compound* compound );
 
-        void addOutputQueue( TileQueue* queue, const Compound* compound );
-
-        /** @return the vector of current input frames. */
-        const TileQueues& getOutputQueues( const eq::Eye eye ) const
-            { return _outputQueues[ co::base::getIndexOfLastBit( eye ) ]; }
+        void setOutputQueue( TileQueue* queue, const Compound* compound );
+        const TileQueue* getOutputQueue( const eq::Eye eye ) const
+            { return _outputQueue[ co::base::getIndexOfLastBit( eye ) ]; }
 
         /**
          * @name Operations
@@ -98,7 +96,7 @@ namespace server
         /** get activated flag */
         bool isActivated() const { return _activated; }
 
-        const UUID getQueueMasterID( fabric::Eye eye );
+        const UUID getQueueMasterID( fabric::Eye eye ) const;
 
     protected:
         EQSERVER_API virtual ChangeType getChangeType() const 
@@ -129,8 +127,8 @@ namespace server
         /** the currently used tile queues */
         latencyQueue* _queueMaster[ eq::NUM_EYES ];
 
-        /** Vector of current output queues. */
-        TileQueues _outputQueues[ eq::NUM_EYES ];
+        /** The current output queue. */
+        TileQueue* _outputQueue[ eq::NUM_EYES ];
 
         bool _activated;
     };
