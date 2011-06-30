@@ -18,9 +18,7 @@
 #include <pthread.h>
 #include <test.h>
 
-#include <co/base/atomic.h>
-#include <co/base/perThread.h>
-#include <co/base/rng.h>
+#include <co/base/base.h>
 
 #define NTHREADS 1024
 

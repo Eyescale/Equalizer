@@ -28,10 +28,13 @@
  */
 
 #include <co/base/api.h>
+#include <co/base/atomic.h>
 #include <co/base/errorRegistry.h>
 #include <co/base/file.h>
 #include <co/base/global.h>
+#include <co/base/perThread.h>
 #include <co/base/sleep.h>
+#include <co/base/rng.h>
 
 #ifdef EQ_SYSTEM_INCLUDES
 #  include <co/base/os.h>
