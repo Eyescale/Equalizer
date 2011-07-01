@@ -39,6 +39,9 @@ namespace base
         /** Construct a new thread. @version 1.0 */
         COBASE_API Thread();
 
+        /** Copy constructor. @version 1.1.2 */
+        COBASE_API Thread( const Thread& from );
+
         /** Destruct the thread. @version 1.0 */
         COBASE_API virtual ~Thread();
 

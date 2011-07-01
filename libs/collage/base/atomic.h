@@ -251,7 +251,7 @@ private:
 };
 
 #else
-#  warning ("Atomic emulation")
+#  error No Atomic Support
 #  include <co/base/lock.h>       // used in inline methods
 
 template <typename T>
