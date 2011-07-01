@@ -149,6 +149,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
 
+    // TODO refactor!
     if ( _getTilesEnabled( compound ) )
     {
         Frames frames;

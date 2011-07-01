@@ -75,9 +75,8 @@ namespace server
         void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
         const eq::Zoom& getZoom() const      { return _zoom; }
 
-        void setInputNodes( const eq::Eye eye,
-                            const std::vector< uint128_t >& nodes,
-                            const std::vector< uint128_t >& netNodes );
+        void addInputNode( const uint128_t& node, const uint128_t& netNode );
+        void clearInputNodes();
 
         /** return the frame storage type. */    
         eq::Frame::Type getType()const{ return _data.frameType; }

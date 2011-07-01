@@ -21,7 +21,6 @@
 #include "frameData.h"
 #include "tileQueue.h"
 #include "server.h"
-#include "node.h"
 
 #include <eq/log.h>
 #include <eq/fabric/iAttribute.h>
@@ -132,6 +131,10 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound );
 
+        //----- Commit
+        outputFrame->commitData();
+        outputFrame->commit();
+
         for( unsigned k = 0; k < NUM_EYES; ++k )
         {
             const eq::Eye eye = eq::Eye( 1<<k );
@@ -147,32 +150,6 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                     << frame->getInheritZoom() << std::endl;
                 break;
             }
-        }
-    }
-
-    for( Compound::FrameMap::const_iterator i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
-    {
-        Frame* frame  = i->second;
-        fabric::Eye eye = fabric::EYE_CYCLOP;
-        for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
-        {
-            const Frames& inputFrames = frame->getInputFrames( eye );
-            std::vector< uint128_t > nodeIDs;
-            std::vector< uint128_t > netNodeIDs;
-
-            for( FramesCIter j = inputFrames.begin();
-                j != inputFrames.end(); ++j )
-            {
-                const Frame* inputFrame   = *j;
-                const Node*  inputNode    = inputFrame->getNode();
-                co::NodePtr inputNetNode = inputNode->getNode();
-                netNodeIDs.push_back( inputNetNode->getNodeID() );   
-                nodeIDs.push_back( inputNode->getID() );
-            }
-
-            FrameData* frameData = frame->getMasterData();
-            EQASSERT( frameData );
-            frameData->setInputNodes( eye, nodeIDs, netNodeIDs );
         }
     }
 

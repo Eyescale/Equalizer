@@ -575,7 +575,7 @@ namespace eq
         void _collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
-        
+
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 

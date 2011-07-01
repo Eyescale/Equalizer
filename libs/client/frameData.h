@@ -254,10 +254,10 @@ namespace server
         void disableBuffer( const Frame::Buffer buffer )
             { _data.buffers &= ~buffer; }
 
-        const std::vector< uint128_t >& getInputNodes( const eq::Eye eye )
-            { return _data.inputNodes[ co::base::getIndexOfLastBit( eye ) ]; }
-        const std::vector< uint128_t >& getInputNetNodes( const eq::Eye eye )
-        { return _data.inputNetNodes[ co::base::getIndexOfLastBit( eye ) ]; }
+        const std::vector<uint128_t>& getInputNodes() const
+            { return _data.inputNodes; }
+        const std::vector<uint128_t>& getInputNetNodes() const
+            { return _data.inputNetNodes; }
 
          //@}
 
@@ -286,8 +286,8 @@ namespace server
             Pixel         pixel;     //<! pixel decomposition of source
             SubPixel      subpixel;  //<! subpixel decomposition of source
             Zoom          zoom;
-            std::vector< uint128_t > inputNodes[ eq::NUM_EYES ];
-            std::vector< uint128_t > inputNetNodes[ eq::NUM_EYES ];
+            std::vector<uint128_t> inputNodes;
+            std::vector<uint128_t> inputNetNodes;
 
             EQ_API void serialize( co::DataOStream& os ) const;
             EQ_API void deserialize( co::DataIStream& is );
