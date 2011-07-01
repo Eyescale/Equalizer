@@ -196,6 +196,7 @@ namespace fabric
     enum ViewCommand
     {
         CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 11
+        CMD_VIEW_TILE_SIZE,
         CMD_VIEW_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */

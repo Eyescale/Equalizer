@@ -277,6 +277,8 @@ namespace server
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
                    , phase( 0 ) {}
 
+            EQ_API Data& operator=( const Data& rhs );
+
             PixelViewport pvp;
             Frame::Type   frameType;
             uint32_t      buffers;

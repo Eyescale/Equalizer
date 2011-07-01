@@ -116,6 +116,7 @@ namespace server
 
         /** The command functions. */
         bool _cmdFreezeLoadBalancing( co::Command& command );
+        bool _cmdTileSize( co::Command& command );
     };
 }
 }

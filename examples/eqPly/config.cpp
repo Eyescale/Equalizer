@@ -532,6 +532,12 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 't':
+            _adjustTileSize( -1 );
+            return true;
+        case 'T':
+            _adjustTileSize( 1 );
+             return true;
         case 'n':
         case 'N':
             _frameData.togglePilotMode();
@@ -899,6 +905,18 @@ void Config::_freezeLoadBalancing( const bool onOff )
     eq::View* view = find< eq::View >( viewID );
     if ( view )
         view->freezeLoadBalancing( onOff );
+}
+
+void Config::_adjustTileSize( const int delta )
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    eq::View* view = find< eq::View >( viewID );
+    if ( view )
+    {
+        static int tileSize = 128;
+        tileSize += delta;
+        view->setTileSize( tileSize );
+    }
 }
 
 void Config::_switchLayout( int32_t increment )

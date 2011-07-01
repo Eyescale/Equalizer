@@ -89,6 +89,9 @@ namespace eq
 
         /** @warning Experimental - may not be supported in the future */
         EQ_API void freezeLoadBalancing( const bool onOff );
+
+        /** Set the tile size to use for tile-based rendering */
+        EQ_API void setTileSize( const Vector2i& size );
         //@}
 
     protected:

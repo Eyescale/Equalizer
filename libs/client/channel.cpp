@@ -1690,7 +1690,8 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     RenderContext context = packet->context;
     _setRenderContext( context );
 
-    _collectOutputFrames( packet->nFrames, packet->frames );
+    if( packet->tasks & fabric::TASK_READBACK )
+        _collectOutputFrames( packet->nFrames, packet->frames );
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
@@ -1711,6 +1712,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
+            outlineViewport();
         }
 
         if ( packet->tasks & fabric::TASK_READBACK )

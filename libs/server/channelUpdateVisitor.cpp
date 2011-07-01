@@ -166,9 +166,6 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
             frameIDs.push_back( co::ObjectVersion( frame ));
         }
 
-        if( frames.empty() )
-            return TRAVERSE_CONTINUE;
-
         const TileQueues& inputQueues = compound->getInputTileQueues();
         for( TileQueuesCIter i = inputQueues.begin();
              i != inputQueues.end(); ++i )

@@ -95,6 +95,23 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
+FrameData::Data& FrameData::Data::operator=( const Data& rhs )
+{
+    if( this != &rhs )
+    {
+        pvp = rhs.pvp;
+        frameType = rhs.frameType;
+        buffers = rhs.buffers;
+        period = rhs.period;
+        phase = rhs.phase;
+        range = rhs.range;
+        pixel = rhs.pixel;
+        subpixel = rhs.subpixel;
+        zoom = rhs.zoom;
+    }
+    return *this;
+}
+
 void FrameData::Data::serialize( co::DataOStream& os ) const
 {
     os << pvp << frameType << buffers << period << phase << range
