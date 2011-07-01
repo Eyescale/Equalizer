@@ -98,6 +98,11 @@ Thread::Thread()
 {
 }
 
+Thread::Thread( const Thread& from )
+        : _state( STATE_STOPPED )
+{
+}
+
 Thread::~Thread()
 {
 }

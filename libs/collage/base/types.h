@@ -134,6 +134,7 @@ class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
 class ErrorRegistry;
 class PluginRegistry;
+class SpinLock;
 struct CompressorInfo; //!< @internal
 
 /** @internal A vector of compressor information structures. */
