@@ -26,39 +26,18 @@ namespace eq
 {
 namespace
 {
-class DisplayPtr
-{
-public:
-    DisplayPtr() : display( 0 ) {}
-    Display* display;
-};
-
-static co::base::PerThread< DisplayPtr > _currentDisplay;
+static co::base::PerThread< Display,
+                            co::base::perThreadNoDelete > _currentDisplay;
 }
 
 void XSetCurrentDisplay( Display* display )
 {
-    if( !display )
-    {
-        DisplayPtr* ptr = _currentDisplay.get();
-        _currentDisplay = 0;
-        delete ptr;
-
-        return;
-    }
-
-    if( !_currentDisplay )
-        _currentDisplay = new DisplayPtr;
-
-    _currentDisplay->display = display;
+    _currentDisplay = display;
 }
 
 Display* XGetCurrentDisplay()
 {
-    if( !_currentDisplay )
-        return 0;
-
-    return _currentDisplay->display;
+    return _currentDisplay.get();
 }
 
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,7 @@
 #include <co/base/lock.h>        // used in inline method
 #include <co/base/lockable.h>    // used in inline method
 #include <co/base/nonCopyable.h> // base class
-
+#include <co/base/types.h>
 
 namespace co
 {
@@ -90,6 +90,12 @@ namespace base
         ScopedMutex() : _lock( 0 ) {}
         L* _lock;
     };
+
+    /** A scoped mutex for a fast uncontended read operation. @version 1.1.2 */
+    typedef ScopedMutex< SpinLock, ReadOp > ScopedFastRead;
+
+    /** A scoped mutex for a fast uncontended write operation. @version 1.1.2 */
+    typedef ScopedMutex< SpinLock, WriteOp > ScopedFastWrite;
 }
 }
 #endif //COBASE_SCOPEDMUTEX_H

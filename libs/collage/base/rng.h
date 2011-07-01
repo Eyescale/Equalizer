@@ -23,6 +23,9 @@
 #include <co/base/nonCopyable.h>
 #include <co/base/types.h>
 
+#pragma warning (push)
+#pragma warning (disable: 4985) // inconsistent decl of ceil
+
 #ifdef _WIN32
 #  ifndef NOMINMAX
 #    define NOMINMAX
@@ -35,6 +38,7 @@
 #include <fcntl.h>
 #include <limits>
 #include <stdio.h>
+#pragma warning (pop)
 
 namespace co
 {
