@@ -32,9 +32,9 @@ std::ostream& operator << ( std::ostream& os, const TileEqualizer* );
 class TileEqualizer : public Equalizer
 {
 public:
-    TileEqualizer::TileEqualizer() {};
-    TileEqualizer::TileEqualizer( const TileEqualizer& from );
-    TileEqualizer::~TileEqualizer() {};
+    TileEqualizer() {};
+    TileEqualizer( const TileEqualizer& from );
+    ~TileEqualizer() {};
 
     /** @sa CompoundListener::notifyUpdatePre */
     virtual void notifyUpdatePre( Compound* compound, 
