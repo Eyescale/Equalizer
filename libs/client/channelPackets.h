@@ -181,7 +181,6 @@ namespace eq
             {
                 command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT;
                 size          = sizeof( ChannelFrameTransmitPacket );
-                lastImageOnly = false;
             }
 
         
@@ -190,7 +189,6 @@ namespace eq
         uint128_t          clientNodeID;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
-        bool               lastImageOnly;
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket

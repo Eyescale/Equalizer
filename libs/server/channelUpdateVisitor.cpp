@@ -149,6 +149,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
 
+    // TODO refactor!
     if ( _getTilesEnabled( compound ) )
     {
         Frames frames;
@@ -164,9 +165,6 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
             frames.push_back( frame );
             frameIDs.push_back( co::ObjectVersion( frame ));
         }
-
-        if( frames.empty() )
-            return TRAVERSE_CONTINUE;
 
         const TileQueues& inputQueues = compound->getInputTileQueues();
         for( TileQueuesCIter i = inputQueues.begin();

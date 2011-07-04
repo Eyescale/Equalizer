@@ -28,6 +28,7 @@
 #include "observer.h"
 #include "segment.h"
 #include "equalizers/equalizer.h"
+#include "tileQueue.h"
 
 #include <eq/viewPackets.h>
 #include <eq/fabric/paths.h>
@@ -68,6 +69,8 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
                      ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
+    registerCommand( fabric::CMD_VIEW_TILE_SIZE, 
+                     ViewFunc( this, &View::_cmdTileSize ), mainQ );
 }
 
 namespace
@@ -169,6 +172,41 @@ public:
 private:
     const View* const _view;
     const bool _freeze;
+};
+
+
+class TileSizeVisitor : public ConfigVisitor
+{
+public:
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    TileSizeVisitor( const View* view, const Vector2i tileSize )
+        : _view( view ), _tileSize( tileSize )
+    {}
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        const TileQueues& queues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
+        {
+            TileQueue* queue = *i;
+            queue->setTileSize( _tileSize );
+        }
+
+        return TRAVERSE_CONTINUE; 
+    }
+
+private:
+    const View* const _view;
+    const Vector2i _tileSize;
 };
 
 }
@@ -433,6 +471,16 @@ bool View::_cmdFreezeLoadBalancing( co::Command& command )
         command.get<ViewFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( this, packet->freeze );
+    getConfig()->accept( visitor );
+
+    return true;
+}
+
+bool View::_cmdTileSize( co::Command& command )
+{
+    const ViewTileSizePacket* packet = command.get<ViewTileSizePacket>();
+
+    TileSizeVisitor visitor( this, packet->tileSize );
     getConfig()->accept( visitor );
 
     return true;

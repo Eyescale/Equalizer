@@ -41,40 +41,6 @@
 namespace eq
 {
 
-void FrameData::Data::serialize( co::DataOStream& os ) const
-{
-    os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-    {
-        os << static_cast<uint64_t>(inputNodes[i].size());
-        for ( size_t j = 0; j < inputNodes[i].size(); ++j )
-        {
-            os << inputNodes[i][j];
-            os << inputNetNodes[i][j];
-        }
-    }
-}
-
-void FrameData::Data::deserialize( co::DataIStream& is )
-{
-    is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-    {
-        uint64_t size;
-        is >> size;
-        inputNodes[i].resize( static_cast< size_t >( size ) );
-        inputNetNodes[i].resize( static_cast< size_t >( size ) );
-        for ( size_t j = 0; j < static_cast<size_t>(size); ++j )
-        {
-            is >> inputNodes[i][j];
-            is >> inputNetNodes[i][j];
-        }
-    }
-}
-
-
 typedef co::CommandFunc<FrameData> CmdFunc;
 
 FrameData::FrameData() 
@@ -127,6 +93,50 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     clear();
     _data.deserialize( is );
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+}
+
+FrameData::Data& FrameData::Data::operator=( const Data& rhs )
+{
+    if( this != &rhs )
+    {
+        pvp = rhs.pvp;
+        frameType = rhs.frameType;
+        buffers = rhs.buffers;
+        period = rhs.period;
+        phase = rhs.phase;
+        range = rhs.range;
+        pixel = rhs.pixel;
+        subpixel = rhs.subpixel;
+        zoom = rhs.zoom;
+    }
+    return *this;
+}
+
+void FrameData::Data::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+    os << static_cast<uint64_t>(inputNodes.size( ));
+    for ( size_t i = 0; i < inputNodes.size(); ++i )
+    {
+        os << inputNodes[i];
+        os << inputNetNodes[i];
+    }
+}
+
+void FrameData::Data::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
+    uint64_t size;
+    is >> size;
+    inputNodes.resize( static_cast< size_t >( size ) );
+    inputNetNodes.resize( static_cast< size_t >( size ) );
+    for ( size_t i = 0; i < inputNodes.size(); ++i )
+    {
+        is >> inputNodes[i];
+        is >> inputNetNodes[i];
+    }
 }
 
 void FrameData::clear()
@@ -263,6 +273,8 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
+    // @bug? Why did it move to channel?
+    //setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
@@ -418,7 +430,8 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     }
 
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _pendingImages.empty());
+    // @todo: does this makes sense for frames having multiple images?
+    //EQASSERT( _pendingImages.empty());
     _pendingImages.push_back( image );
     return true;
 }

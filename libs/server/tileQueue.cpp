@@ -72,7 +72,7 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
 
         // reuse unused frame data
         latencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
-        const uint32_t latency = getAutoObsolete();
+        const uint32_t latency = getAutoObsolete()+1;
         const uint32_t dataAge = queue ? queue->_frameNumber : 0;
 
         if( queue && dataAge < frameNumber-latency && frameNumber > latency )

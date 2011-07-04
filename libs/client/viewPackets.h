@@ -32,6 +32,16 @@ namespace eq
                 size    = sizeof( ViewFreezeLoadBalancingPacket );
             }
         bool freeze;
+    };
+
+    struct ViewTileSizePacket : public co::ObjectPacket
+    {
+        ViewTileSizePacket()
+        {
+            command = fabric::CMD_VIEW_TILE_SIZE;
+            size    = sizeof( ViewTileSizePacket );
+        }
+        Vector2i tileSize;
     }; 
 }
 /** @endcond */
