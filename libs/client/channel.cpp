@@ -1712,7 +1712,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
-            outlineViewport();
+            //outlineViewport();
         }
 
         if ( packet->tasks & fabric::TASK_READBACK )

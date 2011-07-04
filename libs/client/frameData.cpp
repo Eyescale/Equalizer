@@ -115,28 +115,13 @@ FrameData::Data& FrameData::Data::operator=( const Data& rhs )
 void FrameData::Data::serialize( co::DataOStream& os ) const
 {
     os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom;
-    os << static_cast<uint64_t>(inputNodes.size( ));
-    for ( size_t i = 0; i < inputNodes.size(); ++i )
-    {
-        os << inputNodes[i];
-        os << inputNetNodes[i];
-    }
+       << pixel << subpixel << zoom << inputNodes << inputNetNodes;
 }
 
 void FrameData::Data::deserialize( co::DataIStream& is )
 {
     is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom;
-    uint64_t size;
-    is >> size;
-    inputNodes.resize( static_cast< size_t >( size ) );
-    inputNetNodes.resize( static_cast< size_t >( size ) );
-    for ( size_t i = 0; i < inputNodes.size(); ++i )
-    {
-        is >> inputNodes[i];
-        is >> inputNetNodes[i];
-    }
+       >> pixel >> subpixel >> zoom >> inputNodes[i] >> inputNetNodes[i];
 }
 
 void FrameData::clear()
@@ -259,7 +244,8 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x, pvp.y );
+        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        // eile why? image->setOffset( pvp.x, pvp.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
@@ -430,8 +416,6 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     }
 
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    // @todo: does this makes sense for frames having multiple images?
-    //EQASSERT( _pendingImages.empty());
     _pendingImages.push_back( image );
     return true;
 }

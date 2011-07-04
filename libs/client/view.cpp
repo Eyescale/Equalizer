@@ -158,6 +158,7 @@ void View::freezeLoadBalancing( const bool onOff )
 
 void View::setTileSize( const Vector2i& size )
 {
+    // TODO use serialization instead?
     ViewTileSizePacket packet;
     packet.tileSize = size;
     send( getServer(), packet );

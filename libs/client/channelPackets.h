@@ -218,8 +218,8 @@ namespace eq
         }
 
         co::ObjectVersion queueVersion;
-        uint32_t          nFrames;
         uint32_t          tasks;
+        uint32_t          nFrames;
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
 

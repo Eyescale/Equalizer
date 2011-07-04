@@ -913,7 +913,7 @@ void Config::_adjustTileSize( const int delta )
     eq::View* view = find< eq::View >( viewID );
     if ( view )
     {
-        static int tileSize = 128;
+        static int tileSize = 128; // eile: not shift on view->getTileSize()!?
         tileSize += delta;
         view->setTileSize( tileSize );
     }

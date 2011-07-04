@@ -30,6 +30,7 @@ namespace server
 TileEqualizer::TileEqualizer( const TileEqualizer& from )
     : Equalizer( from )
 {
+    // TODO should add queues and IO frames!?
 }
 
 void TileEqualizer::notifyUpdatePre( Compound* compound, 

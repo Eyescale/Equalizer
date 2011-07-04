@@ -37,6 +37,7 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
+    EQASSERT( _queue.isEmpty( ));
     clear();
 }
 

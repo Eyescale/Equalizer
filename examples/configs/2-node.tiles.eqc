@@ -45,7 +45,7 @@ server
         compound
         {
             channel ( layout "tile based" )
-            tile_equalizer{}
+            # eile: either tile_equalizer{} or explicit config as below:
             outputtiles { name "queue" size [ 64 64 ] }
             compound
             {
