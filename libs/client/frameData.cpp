@@ -121,7 +121,7 @@ void FrameData::Data::serialize( co::DataOStream& os ) const
 void FrameData::Data::deserialize( co::DataIStream& is )
 {
     is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom >> inputNodes[i] >> inputNetNodes[i];
+       >> pixel >> subpixel >> zoom >> inputNodes >> inputNetNodes;
 }
 
 void FrameData::clear()
