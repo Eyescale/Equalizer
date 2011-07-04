@@ -171,6 +171,7 @@ endif()
 
 set(COLLAGE_INCLUDE_DIRS ${_co_INCLUDE_DIR})
 set(COLLAGE_LIBRARIES ${_co_LIBRARY})
+get_filename_component(COLLAGE_LIBRARY_DIR ${_co_LIBRARY} PATH)
 
 if(COLLAGE_FOUND)
   message("-- Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in ${COLLAGE_INCLUDE_DIRS};"
