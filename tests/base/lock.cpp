@@ -70,7 +70,7 @@ template< class T > void _test()
     lock->set();
 
     Thread< T > threads[MAXTHREADS];
-    for( size_t nThreads = MAXTHREADS; nThreads > 0; nThreads = nThreads>>1 )
+    for( size_t nThreads = 1; nThreads <= MAXTHREADS; nThreads = nThreads<<1 )
     {
         _clock.reset();
         for( size_t i = 0; i < nThreads; ++i )

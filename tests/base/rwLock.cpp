@@ -93,7 +93,7 @@ template< class T > void _test()
     WriteThread< T > writers[MAXTHREADS];
     ReadThread< T > readers[MAXTHREADS];
 
-    for( size_t nThreads = MAXTHREADS; nThreads > 0; nThreads = nThreads>>1 )
+    for( size_t nThreads = 1; nThreads <= MAXTHREADS; nThreads = nThreads<<1 )
     {
         for( size_t nWrite = nThreads; nWrite > 0; nWrite = nWrite>>1 )
         {
