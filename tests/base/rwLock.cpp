@@ -133,11 +133,11 @@ template< class T > void _test()
             for( size_t i=0; i<nRead; ++i )
                 nReadOps += readers[i].nLoops;
 
-            std::cout << co::base::className( lock ) << ": "
+            std::cout << co::base::className( lock ) << ", "
                       << 3 * NOPS * nWriteOps * nWrite / time
                       << "w + " << 3 * NOPS * nReadOps * nRead / time
-                      << "r lock ops/ms (" << nWrite << "w+" << nRead
-                      << "r threads)" << std::endl;
+                      << "r lock ops/ms, " << nWrite << "w+" << nRead
+                      << "r threads" << std::endl;
         }
         std::cout << std::endl;
     }

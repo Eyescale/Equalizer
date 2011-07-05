@@ -95,9 +95,9 @@ template< class T > void _test()
         for( size_t i=0; i<nThreads; ++i )
             nLoops += threads[i].nLoops;
 
-        std::cout << co::base::className( lock ) << ": "
+        std::cout << co::base::className( lock ) << ", "
                   << /*set, test, unset*/ 3 * NOPS * nLoops * nThreads / time
-                  << " lock ops/ms (" << nThreads << " threads)" << std::endl;
+                  << " lock ops/ms, " << nThreads << " threads" << std::endl;
     }
 
     delete lock;
