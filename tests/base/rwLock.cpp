@@ -27,6 +27,7 @@
 #include <co/base/timedLock.h>
 
 #include <iostream>
+#include <limits>
 
 #ifdef _MSC_VER
 #  define MAXTHREADS 128
