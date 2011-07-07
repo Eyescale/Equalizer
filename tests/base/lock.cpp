@@ -34,32 +34,30 @@
 #  define MAXTHREADS 256
 #endif
 
-#define NOPS       1000
-#define TIME       100
+#define TIME       500  // ms
 
 co::base::Clock _clock;
+bool _running = false;
 
 template< class T > class Thread : public co::base::Thread
 {
 public:
-    Thread() : nLoops( 0 ) {}
+    Thread() : ops( 0 ) {}
 
     T* lock;
-    size_t nLoops;
+    size_t ops;
 
     virtual void run()
         {
-            while( _clock.getTime64() < TIME )
+            ops = 0;
+            while( CO_LIKELY( _running ))
             {
-                for( unsigned i = 0; i < NOPS; ++i )
-                {
-                    lock->set();
+                lock->set();
 #ifndef _MSC_VER
-                    TEST( lock->isSet( ));
+                TEST( lock->isSet( ));
 #endif
-                    lock->unset();
-                }
-                ++nLoops;
+                lock->unset();
+                ++ops;
             }
         }
 };
@@ -72,17 +70,18 @@ template< class T > void _test()
     Thread< T > threads[MAXTHREADS];
     for( size_t nThreads = 1; nThreads <= MAXTHREADS; nThreads = nThreads<<1 )
     {
-        _clock.reset();
+        _running = true;
         for( size_t i = 0; i < nThreads; ++i )
         {
             threads[i].lock = lock;
-            threads[i].nLoops = 0;
             TEST( threads[i].start( ));
         }
-        co::base::sleep( 100 ); // let threads initialize
+        co::base::sleep( 10 ); // let threads initialize
 
         _clock.reset();
         lock->unset();
+        co::base::sleep( TIME ); // let threads run
+        _running = false;
 
         for( size_t i=0; i<nThreads; ++i )
             TEST( threads[i].join( ));
@@ -91,13 +90,13 @@ template< class T > void _test()
         TEST( !lock->isSet( ));
         lock->set();
 
-        size_t nLoops = 0;
+        size_t ops = 0;
         for( size_t i=0; i<nThreads; ++i )
-            nLoops += threads[i].nLoops;
+            ops += threads[i].ops;
 
-        std::cout << co::base::className( lock ) << ", "
-                  << /*set, test, unset*/ 3 * NOPS * nLoops * nThreads / time
-                  << " lock ops/ms, " << nThreads << " threads" << std::endl;
+        std::cout << std::setw(20) << co::base::className( lock ) << ", "
+                  << std::setw(12) << /*set, test, unset*/ 3 * ops / time
+                  << ", " << std::setw(3) << nThreads << std::endl;
     }
 
     delete lock;
@@ -106,13 +105,16 @@ template< class T > void _test()
 int main( int argc, char **argv )
 {
     TEST( co::base::init( argc, argv ));
-    _test< co::base::Lock >();
+
+    std::cout << "               Class,       ops/ms, threads" << std::endl;
+    _test< co::base::SpinLock >();
     std::cout << std::endl;
 
-    _test< co::base::SpinLock >();
+    _test< co::base::Lock >();
     std::cout << std::endl;
 
     _test< co::base::TimedLock >();
     TEST( co::base::exit( ));
+
     return EXIT_SUCCESS;
 }
