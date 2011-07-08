@@ -49,7 +49,6 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
 
     GPUInfos _discoverGPUs() const
     {
-        EQUNIMPLEMENTED;
         GPUInfos result;
         return result;
     }
