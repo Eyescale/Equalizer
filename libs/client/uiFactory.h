@@ -36,7 +36,7 @@ public:
 
     static MessagePump* createMessagePump( WindowSystem type );
 
-    static GPUInfos discoverGPUs();
+    EQ_API static GPUInfos discoverGPUs();
 
     static void configInit( Node* node );
     static void configExit( Node* node );
