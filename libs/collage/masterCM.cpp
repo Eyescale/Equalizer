@@ -34,13 +34,12 @@ MasterCM::MasterCM( Object* object )
 {
     EQASSERT( object );
     EQASSERT( object->getLocalNode( ));
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     // sync commands are send to all instances, even the master gets it
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &MasterCM::_cmdDiscard ), q );
+                             CmdFunc( this, &MasterCM::_cmdDiscard ), 0 );
     object->registerCommand( CMD_OBJECT_SLAVE_DELTA,
-                             CmdFunc( this, &MasterCM::_cmdSlaveDelta ), q );
+                             CmdFunc( this, &MasterCM::_cmdSlaveDelta ), 0 );
 }
 
 MasterCM::~MasterCM()
@@ -167,7 +166,7 @@ void MasterCM::removeSlaves( NodePtr node )
 //---------------------------------------------------------------------------
 bool MasterCM::_cmdSlaveDelta( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
+    EQ_TS_THREAD( _rcvThread );
     const ObjectSlaveDeltaPacket* packet = 
         command.get< ObjectSlaveDeltaPacket >();
 

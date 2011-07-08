@@ -45,9 +45,9 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
     CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), 0 );
     object->registerCommand( CMD_OBJECT_DELTA,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdData ), 0 );
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), q);
 }
@@ -228,7 +228,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                          const uint128_t& startVersion )
 {
-    EQ_TS_THREAD( _cmdThread );
+    EQ_TS_THREAD( _rcvThread );
 #if 0
     EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
 #endif
@@ -314,7 +314,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 bool VersionedSlaveCM::_cmdData( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
+    EQ_TS_THREAD( _rcvThread );
     EQASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )

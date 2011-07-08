@@ -225,11 +225,13 @@ namespace co
         /** 
          * Notification that a new head version was received by a slave object.
          *
-         * The notification is send from the command thread, which is different
+         * The notification is send from the receiver thread, which is different
          * from the node main thread. The object should not be sync()'ed from
-         * this notification, as this might lead to synchronization issues with
-         * the application thread changing the object. Its purpose is to send a
-         * message to the application, which then takes the appropriate action.
+         * this notification, as this might lead to deadlocks and
+         * synchronization issues with the application thread changing the
+         * object. Its purpose is to send a message to the application, which
+         * then takes the appropriate action. In particular do not perform any
+         * potentially blocking operations from this method.
          * 
          * @param version The new head version.
          */

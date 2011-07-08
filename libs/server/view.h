@@ -95,7 +95,6 @@ namespace server
         virtual void setDirty( const uint64_t bits ); //!< @internal
         //@}
 
-
     protected:
         /** @internal */
         virtual void attach( const UUID& id, const uint32_t instanceID );

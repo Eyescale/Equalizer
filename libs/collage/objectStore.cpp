@@ -67,7 +67,7 @@ ObjectStore::ObjectStore( LocalNode* localNode )
     localNode->_registerCommand( CMD_NODE_MAP_OBJECT_SUCCESS,
         CmdFunc( this, &ObjectStore::_cmdMapObjectSuccess ), 0 );
     localNode->_registerCommand( CMD_NODE_MAP_OBJECT_REPLY,
-        CmdFunc( this, &ObjectStore::_cmdMapObjectReply ), queue );
+        CmdFunc( this, &ObjectStore::_cmdMapObjectReply ), 0 );
     localNode->_registerCommand( CMD_NODE_UNMAP_OBJECT,
         CmdFunc( this, &ObjectStore::_cmdUnmapObject ), 0 );
     localNode->_registerCommand( CMD_NODE_UNSUBSCRIBE_OBJECT,
@@ -832,8 +832,7 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
 
     // Map success packets are potentially multicasted (see above)
     // verify that we are the intended receiver
-    const NodeID& nodeID = packet->nodeID;
-    if( nodeID != _localNode->getNodeID( ))
+    if( packet->nodeID != _localNode->getNodeID( ))
         return true;
 
     EQLOG( LOG_OBJECTS ) << "Cmd map object success " << packet << std::endl;
@@ -852,16 +851,14 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
 
 bool ObjectStore::_cmdMapObjectReply( Command& command )
 {
-    EQ_TS_THREAD( _commandThread );
+    EQ_TS_THREAD( _receiverThread );
     const NodeMapObjectReplyPacket* packet = 
         command.get<NodeMapObjectReplyPacket>();
-    EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet
-                         << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet << std::endl;
 
     // Map reply packets are potentially multicasted (see above)
     // verify that we are the intended receiver
-    const NodeID& nodeID = packet->nodeID;
-    if( nodeID != _localNode->getNodeID( ))
+    if( packet->nodeID != _localNode->getNodeID( ))
         return true;
 
     EQASSERT( _localNode->getRequestData( packet->requestID ));
