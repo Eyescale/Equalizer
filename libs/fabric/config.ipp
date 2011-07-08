@@ -591,6 +591,19 @@ bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
+N* Config< S, C, O, L, CV, N, V >::findAppNode()
+{
+    for( typename Nodes::const_iterator i = _nodes.begin(); 
+         i != _nodes.end(); ++i )
+    {
+        N* node = *i;
+        if( node->isApplicationNode( ))
+            return node;
+    }
+    return 0;
+}
+
+template< class S, class C, class O, class L, class CV, class N, class V >
 N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 {
     for( typename Nodes::const_iterator i = _nodes.begin(); 

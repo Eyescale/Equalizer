@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
+/* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,6 +17,8 @@
  */
 
 #include "uiFactory.h"
+
+#include <eq/fabric/gpuInfo.h>
 
 namespace eq
 {
@@ -43,7 +46,7 @@ eq::SystemWindow* UIFactory::createSystemWindow( eq::WindowSystem type,
     }
 
     //EQUNREACHABLE;
-    assert(!"unreachable");
+    EQASSERT(!"unreachable");
     return 0;
 }
 
@@ -57,7 +60,7 @@ eq::SystemPipe* UIFactory::createSystemPipe( eq::WindowSystem type,
     }
 
     //EQUNREACHABLE;
-    assert(!"unreachable");
+    EQASSERT(!"unreachable");
     return 0;
 }
 
@@ -70,9 +73,20 @@ eq::MessagePump* UIFactory::createMessagePump( eq::WindowSystem type )
     }
 
     //EQUNREACHABLE;
-    assert(!"unreachable");
+    EQASSERT(!"unreachable");
     return 0;
 }
+
+GPUInfos UIFactory::discoverGPUs()
+{
+    if( _stack )
+        return _stack->_discoverGPUs();
+
+    EQASSERT(!"unreachable");
+    GPUInfos result;
+    return result;
+}
+
 
 void UIFactory::configInit( eq::Node* node )
 {

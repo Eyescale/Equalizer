@@ -86,10 +86,10 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
     if( id )
     {
         const CGRect displayRect = CGDisplayBounds( id );
-        pvp.x = (int32_t)displayRect.origin.x;
-        pvp.y = (int32_t)displayRect.origin.y;
-        pvp.w = (int32_t)displayRect.size.width;
-        pvp.h = (int32_t)displayRect.size.height;
+        pvp.x = int32_t(displayRect.origin.x);
+        pvp.y = int32_t(displayRect.origin.y);
+        pvp.w = int32_t(displayRect.size.width);
+        pvp.h = int32_t(displayRect.size.height);
     }
     else
         pvp.invalidate();

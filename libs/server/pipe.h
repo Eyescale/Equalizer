@@ -139,9 +139,6 @@ namespace server
         /** The current state for state change synchronization. */
         co::base::Monitor< State > _state;
 
-        /* The display (AGL) or output channel (X11?, Win32). */
-        //uint32_t _monitor;
-
         /** The last draw window for this entity. */
         const Window* _lastDrawWindow;
 

@@ -82,6 +82,12 @@ set(SERVER_SOURCES
     configUpdateSyncVisitor.h
     configUpdateVisitor.h
     configVisitor.h
+    config/display.h
+    config/display.cpp
+    config/resources.h
+    config/resources.cpp
+    config/server.h
+    config/server.cpp
     connectionDescription.cpp
     equalizers/dfrEqualizer.cpp
     equalizers/equalizer.cpp

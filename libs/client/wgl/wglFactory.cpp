@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
+/* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +23,8 @@
 #include "../wglPipe.h"
 #include "../wglWindow.h"
 
+#include <eq/fabric/gpuInfo.h>
+
 namespace eq
 {
 
@@ -42,6 +45,13 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
     eq::MessagePump* _createMessagePump() const
     {
         return new WGLMessagePump;
+    }
+
+    GPUInfos _discoverGPUs() const
+    {
+        EQUNIMPLEMENTED;
+        GPUInfos result;
+        return result;
     }
 
     void _configInit(eq::Node* node) const
