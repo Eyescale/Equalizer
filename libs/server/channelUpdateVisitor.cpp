@@ -120,15 +120,7 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
     _updateViewStart( compound, context );
 
     if( compound->testInheritTask( fabric::TASK_CLEAR ))
-    {
-        ChannelFrameClearPacket clearPacket;
-        clearPacket.context = context;
-
-        _channel->send( clearPacket );
-        _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
-                               << &clearPacket << std::endl;
-    }
+        _sendClear( context );
     return TRAVERSE_CONTINUE;
 }
 
@@ -374,6 +366,16 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     node->send( nodePacket );
     EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
                        << &nodePacket << std::endl;
+}
+
+void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
+{
+    ChannelFrameClearPacket clearPacket;
+    clearPacket.context = context;
+    _channel->send( clearPacket );
+    _updated = true;
+    EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
+                       << &clearPacket << std::endl;
 }
 
 void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const

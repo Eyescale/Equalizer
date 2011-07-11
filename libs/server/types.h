@@ -106,14 +106,18 @@ typedef Channels::iterator ChannelsIter;
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
 
-using fabric::Vector4i;   //!< A four-component integer vector
-using fabric::Vector3f;   //!< A three-component float vector
-using fabric::Vector3ub; //!< A three-component byte vector
-using fabric::Matrix4f;   //!< A 4x4 float matrix
-using fabric::Frustumf;   //!< A frustum definition
+using fabric::Frustumf;
+using fabric::GPUInfo;
+using fabric::GPUInfos;
+using fabric::GPUInfosCIter;
+using fabric::Matrix4f;
 using fabric::Projection;
 using fabric::RenderContext;
 using fabric::TileTaskPacket;
+using fabric::Vector3f;
+using fabric::Vector3ub;
+using fabric::Vector4i;
+using fabric::Viewport;
 using fabric::Wall;
 
 using fabric::NodePath;

@@ -20,6 +20,7 @@ set(EQ_FABRIC_FORWARD_HEADERS
     focusMode.h
     frustum.h
     global.h
+    gpuInfo.h
     iAttribute.h
     init.h
     layout.h

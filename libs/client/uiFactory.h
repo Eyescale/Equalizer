@@ -36,6 +36,8 @@ public:
 
     static MessagePump* createMessagePump( WindowSystem type );
 
+    EQ_API static GPUInfos discoverGPUs();
+
     static void configInit( Node* node );
     static void configExit( Node* node );
 
@@ -47,6 +49,7 @@ private:
     virtual SystemWindow* _createSystemWindow( Window* window ) const = 0;
     virtual SystemPipe* _createSystemPipe( Pipe* pipe ) const = 0;
     virtual MessagePump* _createMessagePump() const = 0;
+    virtual GPUInfos _discoverGPUs() const = 0;
 
     virtual void _configInit( Node* node ) const {}
     virtual void _configExit( Node* node ) const {}

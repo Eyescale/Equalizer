@@ -60,39 +60,39 @@ bool Object::isDirty() const
 
 uint32_t Object::commitNB( const uint32_t incarnation )
 {
-    if( _userData )
+    if( !_userData )
+        return Serializable::commitNB( incarnation );
+
+    if( !_userData->isAttached() && hasMasterUserData( ))
     {
-        if( !_userData->isAttached() && hasMasterUserData( ))
+        getLocalNode()->registerObject( _userData );
+        _userData->setAutoObsolete( getUserDataLatency() + 1 );
+        _data.userData = _userData;
+        setDirty( DIRTY_USERDATA );
+    }
+
+    if( _userData->isDirty() && _userData->isAttached( ))
+    {
+        const uint128_t& version = _userData->commit( incarnation );
+        EQASSERT( version != co::VERSION_NONE );
+//        EQINFO << "Committed " << _userData->getID() << " v" << version
+//               << " of " << co::base::className( _userData ) << " @"
+//               << (void*)_userData << co::base::backtrace << std::endl;
+
+        EQASSERT( !_userData->isDirty( ));
+        EQASSERT( _data.userData.identifier != _userData->getID() ||
+                  _data.userData.version <= version );
+
+        if( _userData->isMaster() && _data.userData != _userData )
         {
-            getLocalNode()->registerObject( _userData );
-            _userData->setAutoObsolete( getUserDataLatency() + 1 );
-            _data.userData = _userData;
+            EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+                          _data.userData.version < _userData->getVersion(),
+                          _data.userData << " >= " <<
+                          co::ObjectVersion( _userData ));
+
+            _data.userData.identifier = _userData->getID();
+            _data.userData.version = version;
             setDirty( DIRTY_USERDATA );
-        }
-
-        if( _userData->isDirty() && _userData->isAttached( ))
-        {
-            const uint128_t& version = _userData->commit( incarnation );
-            EQASSERT( version != co::VERSION_NONE );
-//            EQINFO << "Committed " << _userData->getID() << " v" << version
-//                   << " of " << co::base::className( _userData ) << " @"
-//                   << (void*)_userData << co::base::backtrace << std::endl;
-
-            EQASSERT( !_userData->isDirty( ));
-            EQASSERT( _data.userData.identifier != _userData->getID() ||
-                      _data.userData.version <= version );
-
-            if( _userData->isMaster() && _data.userData != _userData )
-            {
-                EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
-                              _data.userData.version < _userData->getVersion(),
-                              _data.userData << " >= " <<
-                              co::ObjectVersion( _userData ));
-
-                _data.userData.identifier = _userData->getID();
-                _data.userData.version = version;
-                setDirty( DIRTY_USERDATA );
-            }
         }
     }
 

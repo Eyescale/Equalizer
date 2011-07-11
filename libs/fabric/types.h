@@ -41,6 +41,10 @@ class Viewport;
 class Wall;
 class Zoom;
 struct DrawableConfig;
+struct GPUInfo;
+
+typedef std::vector< GPUInfo > GPUInfos; //!< A vector of GPUInfo structs
+typedef GPUInfos::const_iterator GPUInfosCIter; //!< A const GPUInfos iterator
 
 typedef vmml::matrix< 3, 3, double > Matrix3d; //!< A 3x3 double matrix
 typedef vmml::matrix< 4, 4, double > Matrix4d; //!< A 4x4 double matrix

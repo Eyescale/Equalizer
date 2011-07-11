@@ -20,6 +20,7 @@
 
 #include "objectCM.h"     // base class
 #include <co/objectVersion.h> // VERSION_FOO values
+#include <co/base/thread.h>  // thread-safety check
 
 namespace co
 {
@@ -73,6 +74,7 @@ namespace co
     private:
         /* The command handlers. */
         bool _cmdInstance( Command& command );
+        EQ_TS_VAR( _rcvThread );
     };
 }
 

@@ -93,6 +93,7 @@ namespace co
         bool _cmdDiscard( Command& ) { return true; }
 
         EQ_TS_VAR( _cmdThread );
+        EQ_TS_VAR( _rcvThread );
     };
 }
 

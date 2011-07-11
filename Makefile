@@ -25,7 +25,7 @@ tests: debug/Makefile
 
 debug/Makefile:
 	@mkdir -p debug
-	@cd debug; cmake ..
+	@cd debug; cmake .. -DCMAKE_BUILD_TYPE=Debug
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean

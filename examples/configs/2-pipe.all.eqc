@@ -117,12 +117,12 @@ server
         layout { name "Wall Cross-Segment Load-Balancing" view {} }
         canvas
         {
-            layout "Wall"
+            layout "DPlex" 
+            layout "Stereo"
             layout "2D" 
+            layout "Wall"
             layout "DB"
             layout "Wall Cross-Segment Load-Balancing"
-            layout "Stereo"
-            layout "DPlex" 
 
             wall
             {
@@ -154,7 +154,7 @@ server
             channel ( layout "2D" segment 0 view 0 ) 
             compound
             {
-                load_equalizer { mode HORIZONTAL }
+                load_equalizer { mode HORIZONTAL damping 1 }
                 
                 compound {}
                 compound

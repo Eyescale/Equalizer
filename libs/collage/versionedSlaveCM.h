@@ -105,6 +105,7 @@ namespace co
         bool _cmdCommit( Command& command );
 
         EQ_TS_VAR( _cmdThread );
+        EQ_TS_VAR( _rcvThread );
     };
 }
 

@@ -63,6 +63,7 @@ namespace server
         bool            _updated;
 
         bool _skipCompound( const Compound* compound );
+        void _sendClear( const RenderContext& context );
 
         void _updateDrawFinish( const Compound* compound ) const;
         void _updateFrameRate( const Compound* compound ) const;
