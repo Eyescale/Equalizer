@@ -28,7 +28,7 @@ namespace base
 #ifdef EQ_GCC_4_1_OR_LATER
 
 /**
- * An variable with atomic operations.
+ * A variable with atomic operations.
  *
  * Atomic variables can be modified safely from multiple threads
  * concurrently. They are useful to implement lock-free algorithms.
@@ -45,7 +45,7 @@ public:
     {}
 
     /** Construct a copy of an atomic variable. Not thread-safe! @version 1.0 */
-    explicit Atomic( const Atomic< T >& v )
+    Atomic( const Atomic< T >& v )
             : _value( v._value )
     {}
 
@@ -115,7 +115,7 @@ template <typename T> class Atomic
 {
 public:
     explicit Atomic( T v = 0 ) : _value(v) {}
-    explicit Atomic( const Atomic< T >& v ) : _value( v._value ) {}
+    Atomic( const Atomic< T >& v ) : _value( v._value ) {}
 
     operator T(void) const
     {
@@ -168,9 +168,9 @@ private:
 template <typename T> class Atomic
 {
 public:
+    explicit Atomic ) { *this = 0; }
     explicit Atomic( const T v ) { *this = v; }
-    explicit Atomic( const Atomic< T >& v ) { *this = v; }
-    explicit Atomic( ) { *this = 0; }
+    Atomic( const Atomic< T >& v ) { *this = v; }
     
     operator T(void) const
     {
