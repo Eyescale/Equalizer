@@ -27,7 +27,13 @@
 #include <co/base/timedLock.h>
 
 #include <iostream>
+
+#pragma warning(push)
+// attributes not present on previous declaration.
+// for details: http://www.softwareverify.com/software-verify-blog/?p=671
+#pragma warning(disable: 4985)                     
 #include <limits>
+#pragma warning(pop)
 
 #ifdef _MSC_VER
 #  define MAXTHREADS 128
