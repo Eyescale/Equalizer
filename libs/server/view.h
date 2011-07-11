@@ -89,6 +89,8 @@ namespace server
 
         virtual void updateCapabilities();
 
+        virtual void updateTileSize();
+
         /** Update all segment frusta based on the current settings. */
         void updateFrusta();
 
@@ -115,7 +117,6 @@ namespace server
 
         /** The command functions. */
         bool _cmdFreezeLoadBalancing( co::Command& command );
-        bool _cmdTileSize( co::Command& command );
     };
 }
 }

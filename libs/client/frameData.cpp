@@ -244,8 +244,10 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x, pvp.y );
         // eile why? image->setOffset( pvp.x, pvp.y );
+        // tribal-tec because it works; below code does not set any offset
+        // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))

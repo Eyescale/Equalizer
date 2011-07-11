@@ -69,8 +69,6 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
                      ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
-    registerCommand( fabric::CMD_VIEW_TILE_SIZE, 
-                     ViewFunc( this, &View::_cmdTileSize ), mainQ );
 }
 
 namespace
@@ -370,6 +368,12 @@ void View::updateCapabilities()
     setCapabilities( visitor.getCapabilities( ));
 }
 
+void View::updateTileSize()
+{
+    TileSizeVisitor visitor( this, getTileSize() );
+    getConfig()->accept( visitor );
+}
+
 void View::updateFrusta()
 {
     const Channels& channels = getChannels();
@@ -471,16 +475,6 @@ bool View::_cmdFreezeLoadBalancing( co::Command& command )
         command.get<ViewFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( this, packet->freeze );
-    getConfig()->accept( visitor );
-
-    return true;
-}
-
-bool View::_cmdTileSize( co::Command& command )
-{
-    const ViewTileSizePacket* packet = command.get<ViewTileSizePacket>();
-
-    TileSizeVisitor visitor( this, packet->tileSize );
     getConfig()->accept( visitor );
 
     return true;

@@ -25,6 +25,7 @@
 #include "view.h"
 #include "window.h"
 #include "swapBarrier.h"
+#include "tileQueue.h"
 #include <eq/log.h>
 
 using namespace std;
@@ -44,7 +45,16 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 
     compound->setTaskID( ++_taskID );
     if( channel && channel->getView( ))
+    {
         channel->getView()->updateFrusta();
+        const TileQueues& outputQueues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = outputQueues.begin(); 
+             i != outputQueues.end(); ++i )
+        {
+            TileQueue* queue  = *i;
+            channel->getView()->setTileSize( queue->getTileSize() );
+        }
+    }
     else
         compound->updateFrustum( Vector3f::ZERO, 1.f );
 
