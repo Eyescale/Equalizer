@@ -60,7 +60,7 @@ namespace base
         return ::flsl( value ) - 1;
 #elif defined __GNUC__
         return value ? (63 - __builtin_clzl( value )) : -1;
-#elif defined _MSC_VER
+#elif defined _WIN64
         unsigned long i = 0;
         return _BitScanReverse64( &i, value ) ? i : -1;
 #else
