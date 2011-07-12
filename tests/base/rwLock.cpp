@@ -29,12 +29,7 @@
 #include <iostream>
 #include <limits>
 
-#ifdef _MSC_VER
-#  define MAXTHREADS 128
-#else
-#  define MAXTHREADS 256
-#endif
-
+#define MAXTHREADS 128
 #define TIME       500  // ms
 
 co::base::Clock _clock;
