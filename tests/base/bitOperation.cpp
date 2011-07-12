@@ -28,9 +28,7 @@ int main( int argc, char **argv )
               co::base::getIndexOfLastBit( 42u ));
     TESTINFO( co::base::getIndexOfLastBit( EQ_BIT12 ) == 11,
               co::base::getIndexOfLastBit( EQ_BIT12 ));
-#if 0
     TESTINFO( co::base::getIndexOfLastBit( EQ_BIT48 ) == 47,
               co::base::getIndexOfLastBit( EQ_BIT48 ));
-#endif
     return EXIT_SUCCESS;
 }
