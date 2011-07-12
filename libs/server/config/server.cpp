@@ -19,7 +19,9 @@
 
 #include "display.h"
 #include "resources.h"
+
 #include "../config.h"
+#include "../loader.h"
 #include "../server.h"
 
 namespace eq
@@ -32,11 +34,15 @@ namespace config
 ServerPtr Server::configureLocal()
 {
     ServerPtr server = new server::Server;
+
     Config* config = new Config( server );
     config->setName( "Local Auto-Config" );
+    config->setFAttribute( Config::FATTR_VERSION, 1.1f );
 
     Resources::discoverLocal( config );
     Display::discoverLocal( config );
+    Compounds compounds = Loader::addOutputCompounds( server );
+    Resources::configure( compounds );
     return server;
 }
 

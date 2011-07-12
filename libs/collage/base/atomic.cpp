@@ -1,0 +1,89 @@
+ 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License version 2.1 as published
+ * by the Free Software Foundation.
+ *  
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "atomic.h"
+#include "os.h"
+
+namespace co
+{
+namespace base
+{
+
+#ifdef _MSC_VER
+template<> bool Atomic< int32_t >::compareAndSwap( const int32_t expected,
+                                                   const int32_t newValue )
+{
+    return InterlockedCompareExchange( (long*)( &_value ), newValue,
+		                               expected ) == expected;
+}
+
+template<> int32_t Atomic< int32_t >::getAndAdd( int32_t& value, const int32_t increment )
+{
+    return InterlockedExchangeAdd( (long*)( &value ), increment );
+}
+
+template<> int32_t Atomic< int32_t >::getAndSub( int32_t& value, const int32_t increment )
+{
+    return InterlockedExchangeAdd( (long*)( &value ), -increment );
+}
+
+template<> int32_t Atomic< int32_t >::incAndGet( int32_t& value )
+{
+    return InterlockedIncrement( (long*)( &value ));
+}
+
+template<> int32_t Atomic< int32_t >::decAndGet( int32_t& value )
+{
+    return InterlockedDecrement( (long*)( &value ));
+}
+
+#  ifdef _WIN64
+
+template<> ssize_t
+Atomic< ssize_t >::getAndAdd( ssize_t& value, const ssize_t increment )
+{
+    return InterlockedExchangeAdd64( &value, increment );
+}
+
+template<>
+bool Atomic< ssize_t >::compareAndSwap( const ssize_t expected,
+                                        const ssize_t newValue )
+{
+    return
+        InterlockedCompareExchange64( &_value, newValue, expected ) == expected;
+}
+
+template<> ssize_t 
+Atomic< ssize_t >::getAndSub( ssize_t& value, const ssize_t increment )
+{
+    return InterlockedExchangeAdd64( &value, -increment );
+}
+
+template<> ssize_t Atomic< ssize_t >::incAndGet( ssize_t& value )
+{
+    return InterlockedIncrement64( &value );
+}
+
+template<> ssize_t Atomic< ssize_t >::decAndGet( ssize_t& value )
+{
+    return InterlockedDecrement64( &value );
+}
+#  endif // WIN64
+#endif // _MSC_VER
+
+}
+}

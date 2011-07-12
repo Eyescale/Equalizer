@@ -19,7 +19,6 @@
 #define COBASE_SPINLOCK_H
 
 #include <co/base/atomic.h>         // member
-#include <co/base/compareAndSwap.h> // used in inline method
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/thread.h>         // used in inline method
 
@@ -43,10 +42,10 @@ namespace base
 
     public:
         /** Construct a new lock. @version 1.0 */
-        SpinLock() : _state( 0 ) {}
+        SpinLock() : _state( _unlocked ) {}
 
         /** Destruct the lock. @version 1.0 */
-        ~SpinLock() { _state = 0; }
+        ~SpinLock() { _state = _unlocked; }
 
         /** Acquire the lock exclusively. @version 1.0 */
         void set()
@@ -64,7 +63,6 @@ namespace base
             {
                 EQASSERT( _state == _writelocked );
                 _state = _unlocked;
-                memoryBarrier();
             }
 
         /** 
@@ -76,7 +74,7 @@ namespace base
          */
         bool trySet()
             {
-                if( !compareAndSwap( &_state, _unlocked, _writelocked ))
+                if( !_state.compareAndSwap( _unlocked, _writelocked ))
                     return false;
                 EQASSERTINFO( isSetWrite(), _state );
                 return true;
@@ -100,8 +98,8 @@ namespace base
                 {
                     EQASSERT( _state > _unlocked );
                     memoryBarrier();
-                    const long expected = _state;
-                    if( compareAndSwap( &_state, expected, expected-1 ))
+                    const int32_t expected = _state;
+                    if( _state.compareAndSwap( expected, expected-1 ))
                         return;
                 }
             }
@@ -116,12 +114,12 @@ namespace base
         bool trySetRead()
             {
                 memoryBarrier();
-                const long state = _state;
+                const int32_t state = _state;
                 // Note: 0 used here since using _unlocked unexplicably gives
                 //       'undefined reference to co::base::SpinLock::_unlocked'
-                const long expected = (state==_writelocked) ? 0 : state;
+                const int32_t expected = (state==_writelocked) ? 0 : state;
 
-                if( !compareAndSwap( &_state, expected, expected+1 ))
+                if( !_state.compareAndSwap( expected, expected+1 ))
                     return false;
 
                 EQASSERTINFO( isSetRead(), _state << ", " << expected );
@@ -135,7 +133,7 @@ namespace base
          *         it is not set.
          * @version 1.0
          */
-        bool isSet() { memoryBarrier(); return ( _state != _unlocked ); }
+        bool isSet() { return ( _state != _unlocked ); }
 
         /**
          * Test if the lock is set exclusively.
@@ -143,7 +141,7 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.1.2
          */
-        bool isSetWrite() { memoryBarrier(); return ( _state == _writelocked ); }
+        bool isSetWrite() { return ( _state == _writelocked ); }
 
         /**
          * Test if the lock is set shared.
@@ -151,10 +149,10 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.1.2
          */
-        bool isSetRead() { memoryBarrier(); return ( _state > _unlocked ); }
+        bool isSetRead() { return ( _state > _unlocked ); }
 
     private:
-        long _state;
+        a_int32_t _state;
     };
 }
 

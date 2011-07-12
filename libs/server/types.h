@@ -90,18 +90,20 @@ typedef co::base::UUID UUID;
 
 typedef Canvases::const_iterator CanvasesCIter;
 typedef Canvases::iterator CanvasesIter;
+typedef Channels::const_iterator ChannelsCIter;
+typedef Channels::iterator ChannelsIter;
 typedef Compounds::const_iterator CompoundsCIter;
 typedef Compounds::iterator CompoundsIter;
 typedef Frames::const_iterator FramesCIter;
 typedef Frames::iterator FramesIter;
-typedef TileQueues::const_iterator TileQueuesCIter;
-typedef TileQueues::iterator TileQueuesIter;
 typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
+typedef Pipes::const_iterator PipesCIter;
+typedef Pipes::iterator PipesIter;
+typedef TileQueues::const_iterator TileQueuesCIter;
+typedef TileQueues::iterator TileQueuesIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
-typedef Channels::const_iterator ChannelsCIter;
-typedef Channels::iterator ChannelsIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
