@@ -139,14 +139,16 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     if( !tileQueue )
         return os;
     
-    os << co::base::disableFlush << "tileQueue" << std::endl;
+    os << co::base::disableFlush << "tiles" << std::endl;
     os << "{" << std::endl << co::base::indent;
-      
+
     const std::string& name = tileQueue->getName();
     os << "name      \"" << name << "\"" << std::endl;
 
     const eq::Vector2i& size = tileQueue->getTileSize();
-    os << "tile size \"" << size << "\"" << std::endl;
+    if( size.x() > 0 || size.y() > 0 )
+        os << "size      [ " << size.x() << " " 
+                             << size.y() << " ]" << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

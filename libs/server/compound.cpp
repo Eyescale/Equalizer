@@ -1644,6 +1644,20 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         os << *i;
     }
 
+    const TileQueues& outputQueues = compound.getOutputTileQueues();
+    for( TileQueuesCIter i = outputQueues.begin();
+         i != outputQueues.end(); ++i )
+    {
+        os << "output" <<  *i;
+    }
+
+    const TileQueues& inputQueues = compound.getInputTileQueues();
+    for( TileQueuesCIter i = inputQueues.begin();
+        i != inputQueues.end(); ++i )
+    {
+        os << "input" << *i;
+    }
+
     const Compounds& children = compound.getChildren();
     if( !children.empty( ))
     {
@@ -1658,14 +1672,16 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     const Frames& inputFrames = compound.getInputFrames();
     for( Frames::const_iterator i = inputFrames.begin();
          i != inputFrames.end(); ++i )
-        
+    {
         os << "input" << *i;
+    }
 
     const Frames& outputFrames = compound.getOutputFrames();
     for( Frames::const_iterator i = outputFrames.begin();
          i != outputFrames.end(); ++i )
-        
+    {
         os << "output"  << *i;
+    }
 
     os << compound.getSwapBarrier();
 
