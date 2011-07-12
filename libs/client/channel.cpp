@@ -390,6 +390,7 @@ void Channel::frameReadback( const uint128_t& )
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
+        frame->getData()->setPixelViewport( getPixelViewport() );
         frame->readback( glObjects, drawableConfig );
     }
 
@@ -1712,30 +1713,12 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
-            //outlineViewport();
         }
 
         if ( packet->tasks & fabric::TASK_READBACK )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-
-            EQ_GL_CALL( applyBuffer( ));
-            EQ_GL_CALL( applyViewport( ));
-            EQ_GL_CALL( setupAssemblyState( ));
-
-            Window::ObjectManager* glObjects = getObjectManager();
-            const DrawableConfig& drawableConfig = getDrawableConfig();
-
-            // @bug frameReadback has to be used!
-            for( FramesCIter i = _outputFrames.begin();
-                 i != _outputFrames.end(); ++i )
-            {
-                Frame* frame = *i;
-                frame->getData()->setPixelViewport( tilePacket->pvp );
-                frame->readback( glObjects, drawableConfig );
-            }
-
-            EQ_GL_CALL( resetAssemblyState( ));            
+            frameReadback( packet->context.frameID );
         }
 
         queuePacket->release();
