@@ -24,61 +24,66 @@ namespace base
 {
 
 #ifdef _MSC_VER
-template<> bool Atomic< long >::compareAndSwap( const long expected,
-                                                const long newValue )
+template<> bool Atomic< int32_t >::compareAndSwap( const int32_t expected,
+                                                   const int32_t newValue )
 {
-    return InterlockedCompareExchange( &_value, newValue, expected ) == expected;
+    return InterlockedCompareExchange( (long*)( &_value ), newValue,
+		                               expected ) == expected;
+}
+
+template<> int32_t Atomic< int32_t >::getAndAdd( int32_t& value, const int32_t increment )
+{
+    return InterlockedExchangeAdd( (long*)( &value ), increment );
+}
+
+template<> int32_t Atomic< int32_t >::getAndSub( int32_t& value, const int32_t increment )
+{
+    return InterlockedExchangeAdd( (long*)( &value ), -increment );
+}
+
+template<> int32_t Atomic< int32_t >::incAndGet( int32_t& value )
+{
+    return InterlockedIncrement( (long*)( &value ));
+}
+
+template<> int32_t Atomic< int32_t >::decAndGet( int32_t& value )
+{
+    return InterlockedDecrement( (long*)( &value ));
+}
+
+#  ifdef _WIN64
+
+template<> ssize_t
+Atomic< ssize_t >::getAndAdd( ssize_t& value, const ssize_t increment )
+{
+    return InterlockedExchangeAdd64( &value, increment );
 }
 
 template<>
-bool Atomic< long long >::compareAndSwap( const long long expected,
-                                          const long long newValue )
+bool Atomic< ssize_t >::compareAndSwap( const ssize_t expected,
+                                        const ssize_t newValue )
 {
     return
         InterlockedCompareExchange64( &_value, newValue, expected ) == expected;
 }
 
-template<> long Atomic< long >::getAndAdd( long& value, const long increment )
+template<> ssize_t 
+Atomic< ssize_t >::getAndSub( ssize_t& value, const ssize_t increment )
 {
-    return InterLockedExchangeAdd( &value, increment );
+    return InterlockedExchangeAdd64( &value, -increment );
 }
 
-template<> long long 
-Atomic< long long >::getAndAdd( long long& value, const long long increment )
-{
-    return InterLockedExchangeAdd64( &value, increment );
-}
-
-template<> long Atomic< long >::getAndSub( long& value, const long increment )
-{
-    return InterLockedExchangeAdd( &value, -increment );
-}
-
-template<> long long 
-Atomic< long long >::getAndSub( long long& value, const long long increment )
-{
-    return InterLockedExchangeAdd64( &value, -increment );
-}
-
-template<> T Atomic< long >::incAndGet( long& value )
-{
-    return InterlockedIncrement( &value );
-}
-template<> T Atomic< long long >::incAndGet( long long& value )
+template<> ssize_t Atomic< ssize_t >::incAndGet( ssize_t& value )
 {
     return InterlockedIncrement64( &value );
 }
 
-template<> T Atomic< long >::decAndGet( long& value )
-{
-    return InterlockedDecrement( &value );
-}
-
-template<> T Atomic< long long >::decAndGet( long long& value )
+template<> ssize_t Atomic< ssize_t >::decAndGet( ssize_t& value )
 {
     return InterlockedDecrement64( &value );
 }
-#endif
+#  endif // WIN64
+#endif // _MSC_VER
 
 }
 }

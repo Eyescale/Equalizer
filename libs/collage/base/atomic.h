@@ -15,6 +15,7 @@
 #ifndef COBASE_ATOMIC_H
 #define COBASE_ATOMIC_H
 
+#include <co/base/api.h>
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/compiler.h>       // GCC version
 #include <co/base/types.h>
@@ -58,10 +59,10 @@ template< class T > class Atomic
 {
 public:
     /** @return the old value, then add the given increment. */
-    static T getAndAdd( T& value, const T increment );
+    COBASE_API static T getAndAdd( T& value, const T increment );
 
     /** @return the old value, then substract the increment. */
-    static T getAndSub( T& value, const T increment );
+    COBASE_API static T getAndSub( T& value, const T increment );
 
     /** @return the new value after adding the given increment. */
     static T addAndGet( T& value, const T increment );
@@ -70,10 +71,10 @@ public:
     static T subAndGet( T& value, const T increment );
 
     /** @return the new value after incrementing the value. */
-    static T incAndGet( T& value );
+    COBASE_API static T incAndGet( T& value );
 
     /** @return the new value after decrementing the value. */
-    static T decAndGet( T& value );
+    COBASE_API static T decAndGet( T& value );
 
     /** Construct a new atomic variable with an initial value. @version 1.0 */
     explicit Atomic( const T v = 0 );
@@ -122,14 +123,14 @@ public:
      * @return true if the new value was set, false otherwise
      * @version 1.1.2
      */
-    bool compareAndSwap( const T expected, const T newValue );
+    COBASE_API bool compareAndSwap( const T expected, const T newValue );
 
 private:
     mutable T _value;
 };
 
 typedef Atomic< int32_t > a_int32_t; //!< An atomic 32 bit integer variable
-typedef Atomic< int64_t > a_int64_t; //!< An atomic 64 bit integer variable
+typedef Atomic< ssize_t > a_ssize_t; //!< An atomic signed size variable
 
 // Implementation
 #ifdef EQ_GCC_4_1_OR_LATER
@@ -174,12 +175,12 @@ bool Atomic< T >::compareAndSwap( const T expected, const T newValue )
 // see also atomic.cpp
 template< class T > T Atomic< T >::addAndGet( T& value, const T increment )
 {
-    return getAndAdd( &value, increment ) + increment;
+    return getAndAdd( value, increment ) + increment;
 }
 
 template< class T > T Atomic< T >::subAndGet( T& value, const T increment )
 {
-    return getAndSub( &value, increment ) - increment;
+    return getAndSub( value, increment ) - increment;
 }
 
 #else
