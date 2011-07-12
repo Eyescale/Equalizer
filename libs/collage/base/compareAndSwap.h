@@ -15,9 +15,15 @@
 #ifndef COBASE_COMPAREANDSWAP_H
 #define COBASE_COMPAREANDSWAP_H
 
+#include <co/base/types.h>
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
-#  include <intrin.h>
-#  pragma intrinsic(_ReadWriteBarrier)
+#  pragma warning (push)
+#  pragma warning (disable: 4985) // inconsistent decl of ceil
+#    include <math.h> // include math.h early to avoid warning later
+#    include <intrin.h>
+#    pragma intrinsic(_ReadWriteBarrier)
+#  pragma warning (pop)
 #endif
 
 #ifdef Darwin

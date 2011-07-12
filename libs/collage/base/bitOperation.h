@@ -54,7 +54,6 @@ namespace base
 #endif
     }
 
-#if 0
     template<> inline int32_t getIndexOfLastBit< uint64_t >( uint64_t value )
     {
 #ifdef Darwin
@@ -79,7 +78,6 @@ namespace base
     template<> inline int32_t 
     getIndexOfLastBit< unsigned long long >( unsigned long long value )
         { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
-#endif
 #endif
 }
 }
