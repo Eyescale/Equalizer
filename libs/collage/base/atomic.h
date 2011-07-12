@@ -168,7 +168,7 @@ private:
 template <typename T> class Atomic
 {
 public:
-    explicit Atomic ) { *this = 0; }
+    explicit Atomic () { *this = 0; }
     explicit Atomic( const T v ) { *this = v; }
     Atomic( const Atomic< T >& v ) { *this = v; }
     
