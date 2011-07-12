@@ -20,13 +20,8 @@
 #define EQ_PLUGIN_COMPRESSOR 
 
 #include <co/plugins/compressor.h>
-#include <co/api.h>
-#include <co/base/os.h>
 #include <co/base/buffer.h>
 #include <vector>
-#ifdef _WIN32
-#  include <malloc.h>
-#endif
 
 /**
  * @file client/compressor/compressor.h
@@ -79,10 +74,10 @@ namespace plugin
                                const bool useAlpha ) { EQDONTCALL; };
 
         typedef co::base::Bufferb Result;
-        typedef std::vector< Result* > ResultVector;
+        typedef std::vector< Result* > Results;
 
         /** @return the vector containing the result data. */
-        const ResultVector& getResults() const { return _results; }
+        const Results& getResults() const { return _results; }
 
         /** @return the number of result items produced. */
         unsigned getNResults() const { return _nResults; }
@@ -127,8 +122,8 @@ namespace plugin
         static void registerEngine( const Functions& functions );
 
     protected:
-        ResultVector _results;  //!< The compressed data
-        unsigned _nResults;     //!< Number of elements used in _results
+        Results _results;   //!< The compressed data
+        unsigned _nResults; //!< Number of elements used in _results
     };
 }
 }
