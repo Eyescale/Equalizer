@@ -45,7 +45,7 @@ template<> int32_t Atomic< int32_t >::decAndGet( int32_t& value )
 }
 
 template<> 
-bool Atomic< int32_t >compareAndSwap( int32_t* value, const int32_t expected,
+bool Atomic< int32_t >::compareAndSwap( int32_t* value, const int32_t expected,
                                       const int32_t newValue )
 {
     return InterlockedCompareExchange( (long*)( value ), newValue, expected ) ==
@@ -53,8 +53,8 @@ bool Atomic< int32_t >compareAndSwap( int32_t* value, const int32_t expected,
 }
 
 template<> 
-bool Atomic< void* >compareAndSwap( void** value, const void* expected,
-                                    const void* newValue )
+bool Atomic< void* >::compareAndSwap( void* *value, const void* expected,
+                                      const void* newValue )
 {
     return InterlockedCompareExchangePointer( value, newValue, expected ) ==
         expected;
@@ -85,7 +85,7 @@ template<> ssize_t Atomic< ssize_t >::decAndGet( ssize_t& value )
 }
 
 template<> 
-bool Atomic< ssize_t >compareAndSwap( ssize_t* value, const ssize_t expected,
+bool Atomic< ssize_t >::compareAndSwap( ssize_t* value, const ssize_t expected,
                                       const ssize_t newValue )
 {
     return InterlockedCompareExchange64( value, newValue, expected ) ==
