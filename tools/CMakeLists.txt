@@ -28,7 +28,7 @@ endif(WIN32)
 eq_add_tool(configTool
   HEADERS configTool/configTool.h configTool/frame.h
   SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
-  LINK_LIBRARIES Equalizer shared EqualizerServer
+  LINK_LIBRARIES shared Equalizer shared EqualizerServer
   )
 
 eq_add_tool(eVolveConverter
@@ -44,17 +44,17 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(netperf
   SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES Equalizer
+  LINK_LIBRARIES shared Equalizer
   )
 
 eq_add_tool(netproxy
   SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES Equalizer
+  LINK_LIBRARIES shared Equalizer
   )
 
 eq_add_tool(windowAdmin
   SOURCES windowAdmin/main.cpp
-  LINK_LIBRARIES Equalizer EqualizerAdmin
+  LINK_LIBRARIES shared EqualizerAdmin
   )
 
 eq_add_tool(eqServer

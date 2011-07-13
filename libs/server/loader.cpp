@@ -89,8 +89,10 @@ private:
 
 }
 
-void Loader::addOutputCompounds( ServerPtr server )
+Compounds Loader::addOutputCompounds( ServerPtr server )
 {
+    Compounds result;
+
     const Configs& configs = server->getConfigs();
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
@@ -110,7 +112,9 @@ void Loader::addOutputCompounds( ServerPtr server )
             Channel* channel = *j;
             compound->setChannel( channel );
         }
+        result.push_back( group );
     }
+    return result;
 }
 
 namespace

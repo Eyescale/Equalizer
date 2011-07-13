@@ -11,7 +11,6 @@ set(COBASE_FORWARD_HEADERS
     bitOperation.h
     buffer.h
     clock.h
-    compareAndSwap.h
     compiler.h
     condition.h
     debug.h
@@ -64,6 +63,7 @@ set(COBASE_HEADERS
   )
 
  set(COBASE_SOURCES
+    atomic.cpp
     clock.cpp
     compressor.cpp
     condition.cpp

@@ -72,6 +72,7 @@ namespace fabric
         const Nodes& getNodes() const { return _nodes; }
 
         EQFABRIC_INL N* findAppNode(); //!< @internal
+        EQFABRIC_INL const N* findAppNode() const; //!< @internal
 
         /** 
          * Traverse this config and all children using a config visitor.
