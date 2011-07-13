@@ -53,29 +53,29 @@ bool init( const int argc, char** argv )
 
     // init all available plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
-#ifdef CO_DSO_NAME
-    if( !plugins.addPlugin( CO_DSO_NAME ) && // Found by LDD
+#ifdef COLLAGE_DSO_NAME
+    if( !plugins.addPlugin( COLLAGE_DSO_NAME ) && // Found by LDD
         // Hard-coded compile locations as backup:
         !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/" + 
-                            CO_DSO_NAME ) &&
+                            COLLAGE_DSO_NAME ) &&
 #  ifdef NDEBUG
         !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Release/" +
-                            CO_DSO_NAME )
+                            COLLAGE_DSO_NAME )
 #  else
         !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Debug/"
-                            + CO_DSO_NAME )
+                            + COLLAGE_DSO_NAME )
 #  endif
         )
     {
-        EQWARN << "Built-in Collage plugins not loaded: " << CO_DSO_NAME
+        EQWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
                << " not in library search path and hardcoded locations not "
                << "found" << std::endl;
     }
 #else
 #  ifndef NDEBUG
-#    error "CO_DSO_NAME not defined"
+#    error "COLLAGE_DSO_NAME not defined"
 #  endif
-    EQWARN << "Built-in Collage plugins not loaded: CO_DSO_NAME not defined"
+    EQWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
            << std::endl;
 #endif
     plugins.init();
