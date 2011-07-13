@@ -189,6 +189,7 @@ namespace eq
         uint128_t          clientNodeID;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
+        uint64_t           imageIndex;
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
