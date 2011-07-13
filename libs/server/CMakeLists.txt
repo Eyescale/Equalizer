@@ -138,7 +138,5 @@ else()
     )
 endif()
 
-set_target_properties(lib_EqualizerServer_shared PROPERTIES
-  FOLDER "Libraries" PROJECT_LABEL "Server")
 source_group(equalizers REGULAR_EXPRESSION equalizers.*)
 source_group(\\ FILES CMakeLists.txt ${SERVER_HEADERS} ${SERVER_SOURCES})
