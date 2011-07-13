@@ -418,10 +418,10 @@ void Pipe::_releaseViews()
 void Pipe::_flushViews()
 {
     EQ_TS_THREAD( _pipeThread );
-    NodeFactory*  nodeFactory = Global::getNodeFactory();
+    NodeFactory* nodeFactory = Global::getNodeFactory();
     ClientPtr client = getClient();
 
-    for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
+    for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i )
     {
         View* view = i->second;
 
@@ -789,6 +789,8 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     const PipeConfigExitPacket* packet = 
         command.get<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
+
+    _state = STATE_STOPPING; // needed in View::detach (from _flushViews)
 
     // send before node gets a chance to send its destroy packet
     NodeDestroyPipePacket destroyPacket( getID( ));
