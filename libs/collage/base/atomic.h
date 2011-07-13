@@ -76,6 +76,10 @@ public:
     /** @return the new value after decrementing the value. */
     COBASE_API static T decAndGet( T& value );
 
+    /** Perform a compare-and-swap atomic operation. */
+    COBASE_API static bool compareAndSwap( T* value, const T expected,
+                                           const T newValue );
+
     /** Construct a new atomic variable with an initial value. @version 1.0 */
     explicit Atomic( const T v = 0 );
 
@@ -165,9 +169,9 @@ template< class T > T Atomic< T >::decAndGet( T& value )
 }
 
 template< class T > 
-bool Atomic< T >::compareAndSwap( const T expected, const T newValue )
+bool Atomic< T >::compareAndSwap( T* value, const T expected, const T newValue )
 {
-    return __sync_bool_compare_and_swap( &_value, expected, newValue );
+    return __sync_bool_compare_and_swap( value, expected, newValue );
 }
 
 #elif defined (_MSC_VER)
@@ -250,6 +254,12 @@ template< class T > bool Atomic< T >::operator != ( const Atomic<T>& rhs ) const
 {
     memoryBarrier();
     return _value != rhs._value;
+}
+
+template< class T >
+bool Atomic< T >::compareAndSwap( const T expected, const T newValue )
+{
+    return compareAndSwap( &_value, expected, newValue );
 }
 
 }

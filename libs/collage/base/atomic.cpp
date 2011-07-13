@@ -24,13 +24,6 @@ namespace base
 {
 
 #ifdef _MSC_VER
-template<> bool Atomic< int32_t >::compareAndSwap( const int32_t expected,
-                                                   const int32_t newValue )
-{
-    return InterlockedCompareExchange( (long*)( &_value ), newValue,
-		                               expected ) == expected;
-}
-
 template<> int32_t Atomic< int32_t >::getAndAdd( int32_t& value, const int32_t increment )
 {
     return InterlockedExchangeAdd( (long*)( &value ), increment );
@@ -51,20 +44,28 @@ template<> int32_t Atomic< int32_t >::decAndGet( int32_t& value )
     return InterlockedDecrement( (long*)( &value ));
 }
 
+template<> 
+bool Atomic< int32_t >::compareAndSwap( int32_t* value, const int32_t expected,
+                                        const int32_t newValue )
+{
+    return InterlockedCompareExchange( (long*)( value ), newValue, expected ) ==
+           expected;
+}
+
+template<> 
+bool Atomic< void* >::compareAndSwap( void** value, void* const expected,
+                                      void* const newValue )
+{
+    return InterlockedCompareExchangePointer( value, newValue, expected ) ==
+        expected;
+}
+
 #  ifdef _WIN64
 
 template<> ssize_t
 Atomic< ssize_t >::getAndAdd( ssize_t& value, const ssize_t increment )
 {
     return InterlockedExchangeAdd64( &value, increment );
-}
-
-template<>
-bool Atomic< ssize_t >::compareAndSwap( const ssize_t expected,
-                                        const ssize_t newValue )
-{
-    return
-        InterlockedCompareExchange64( &_value, newValue, expected ) == expected;
 }
 
 template<> ssize_t 
@@ -82,6 +83,15 @@ template<> ssize_t Atomic< ssize_t >::decAndGet( ssize_t& value )
 {
     return InterlockedDecrement64( &value );
 }
+
+template<> 
+bool Atomic< ssize_t >::compareAndSwap( ssize_t* value, const ssize_t expected,
+                                        const ssize_t newValue )
+{
+    return InterlockedCompareExchange64( value, newValue, expected ) ==
+           expected;
+}
+
 #  endif // WIN64
 #endif // _MSC_VER
 

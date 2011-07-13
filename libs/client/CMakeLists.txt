@@ -45,7 +45,7 @@ source_group(util FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_
 source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
 source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 
-purple_add_library(eq_client ${EQ_LIB_VARIANT}
+purple_add_library(Equalizer SHARED
   HEADERS_PREFIX "eq/"
   FORWARD HEADERS
     eq.h
@@ -56,17 +56,11 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     ${EQ_UTIL_SOURCES}
     ${EQ_COMPRESSOR_SOURCES}
   LINK_LIBRARIES
-    Collage
-    shared eq_fabric
+    shared EqualizerFabric
     ${GLEW_LIBRARY}
     ${WINDOWING_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
-  )
-
-purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${VERSION_ABI}
-  shared eq_client
-  shared eq_fabric
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

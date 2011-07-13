@@ -21,9 +21,9 @@
 #include <eq/defines.h>
 #include <eq/fabric/api.h>
 
-#if defined(EQ_CLIENT_STATIC)
+#if defined(EQUALIZER_STATIC)
 #  define EQ_API
-#elif defined(EQ_CLIENT_SHARED)
+#elif defined(EQUALIZER_SHARED)
 #  define EQ_API EQ_DLLEXPORT
 #else
 #  define EQ_API EQ_DLLIMPORT

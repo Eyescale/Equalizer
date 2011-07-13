@@ -20,17 +20,17 @@
 
 #include <co/api.h>
 
-#if defined(EQ_FABRIC_STATIC)
+#if defined(EQUALIZERFABRIC_STATIC)
 #  define EQFABRIC_API
 #  define EQFABRIC_INL
-#elif defined(EQ_FABRIC_SHARED)
+#elif defined(EQUALIZERFABRIC_SHARED)
 #  define EQFABRIC_API EQ_DLLEXPORT
 #else
 #  define EQFABRIC_API EQ_DLLIMPORT
 #endif
 
-#if defined(EQ_CLIENT_SHARED) || defined(EQUALIZERSERVER_SHARED) || \
-    defined(EQ_FABRIC_SHARED) || defined(EQ_ADMIN_SHARED)
+#if defined(EQUALIZER_SHARED) || defined(EQUALIZERSERVER_SHARED) || \
+    defined(EQUALIZERFABRIC_SHARED) || defined(EQUALIZERADMIN_SHARED)
 #  define EQFABRIC_INL EQ_DLLEXPORT
 #elif !defined(EQFABRIC_INL)
 #  define EQFABRIC_INL EQ_DLLIMPORT
