@@ -3,8 +3,8 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(Equalizer_BINARY_DIR) # in-source build
-  set(EQUALIZER_LIBRARIES Equalizer)
-  set(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin)
+  set(EQUALIZER_LIBRARIES lib_Equalizer_shared)
+  set(EQUALIZER_ADMIN_LIBRARY lib_EqualizerAdmin_shared)
   set(EQUALIZER_SERVER_LIBRARY lib_EqualizerServer_shared)
   set(EQUALIZER_SEQUEL_LIBRARY lib_Sequel_shared)
 else()

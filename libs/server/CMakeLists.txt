@@ -134,7 +134,7 @@ else()
   purple_add_library(EqualizerServer SHARED
     HEADERS_PREFIX "eq/server/"
     SOURCES ${SERVER_HEADERS} ${SERVER_SOURCES}
-    LINK_LIBRARIES Equalizer
+    LINK_LIBRARIES shared Equalizer
     )
 endif()
 

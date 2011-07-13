@@ -35,7 +35,8 @@ foreach(FILE ${TEST_FILES})
     string(REGEX REPLACE "[./]" "_" NAME ${FILE})
     source_group(\\ FILES ${FILE})
     add_executable(test_${NAME} ${FILE})
-    target_link_libraries(test_${NAME} Equalizer lib_EqualizerServer_shared)
+    target_link_libraries(test_${NAME}
+                          lib_Equalizer_shared lib_EqualizerServer_shared)
     get_target_property(EXECUTABLE test_${NAME} LOCATION)
     STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
       EXECUTABLE "${EXECUTABLE}")
