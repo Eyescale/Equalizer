@@ -79,6 +79,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
     shared co_base
     ${CO_ADD_LINKLIB}
   )
+set_target_properties(lib_co_shared PROPERTIES FOLDER "Transitional")
 
 purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
     shared co_base shared co

@@ -52,13 +52,17 @@ void Display::discoverLocal( Config* config )
 
     Channel* channel = new Channel( window );
     new Observer( config );
+
     Layout* layout = new Layout( config );
     new View( layout );
+    layout->setName( "2D" );
+
     Canvas* canvas = new Canvas( config );
     Segment* segment = new Segment( canvas );
-
     canvas->addLayout( layout );
     segment->setChannel( channel );
+
+    config->activateCanvas( canvas );
 }
 
 }

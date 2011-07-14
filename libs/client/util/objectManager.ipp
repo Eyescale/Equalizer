@@ -23,7 +23,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/texture.h>
 
-#ifdef EQ_CLIENT_SHARED
+#ifdef EQUALIZER_SHARED
 #  include "gpuCompressor.h"
 #endif
 
@@ -583,7 +583,7 @@ void ObjectManager<T>::deleteEqAccum( const T& key )
     delete accum;
 }
 
-#ifdef EQ_CLIENT_SHARED
+#ifdef EQUALIZER_SHARED
 // eq::CompressorData object functions
 template< class T >
 GPUCompressor* ObjectManager<T>::getEqUploader( const T& key ) const

@@ -31,6 +31,11 @@ class Resources
 {
 public:
     static void discoverLocal( Config* config );
+    static void configure( const Compounds& compounds );
+
+private:
+    static Compound* _add2DCompound( Compound* root, const Channels& channels );
+    static Compound* _addEyeCompound( Compound* root, const Channels& channels);
 };
 
 }
