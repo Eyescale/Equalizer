@@ -79,6 +79,17 @@ namespace base
     getIndexOfLastBit< unsigned long long >( unsigned long long value )
         { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
 #endif
+#ifdef Darwin
+#  ifdef _LP64
+    template<> inline
+    int32_t getIndexOfLastBit< unsigned long >( unsigned long value )
+        { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+#  else
+    template<> inline
+    int32_t getIndexOfLastBit< unsigned long >( unsigned long value )
+        { return getIndexOfLastBit( static_cast< uint32_t >( value )); }
+#  endif
+#endif
 }
 }
 #endif //COBASE_BITOPERATION_H
