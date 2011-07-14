@@ -87,7 +87,7 @@ namespace base
         void leave() { if( _lock ) LockTraits::unset( *_lock ); _lock = 0; }
 
     private:
-        ScopedMutex() : _lock( 0 ) {}
+        ScopedMutex();
         L* _lock;
     };
 
