@@ -107,7 +107,7 @@ namespace util
         EQ_API Accum* obtainEqAccum( const T& key );
         EQ_API void   deleteEqAccum( const T& key );
 
-#ifdef EQ_CLIENT_SHARED
+#ifdef EQUALIZER_SHARED
         /** @internal */
         EQ_API GPUCompressor* getEqUploader( const T& key ) const;
         /** @internal */

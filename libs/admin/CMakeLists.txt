@@ -44,14 +44,9 @@ set(ADMIN_SOURCES
 source_group(fabric REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt ${ADMIN_HEADERS} ${ADMIN_SOURCES})
 
-purple_add_library(eq_admin ${EQ_LIB_VARIANT}
+purple_add_library(EqualizerAdmin SHARED
   HEADERS_PREFIX "eq/admin/"
   FORWARD HEADERS ${ADMIN_HEADERS}
   SOURCES ${ADMIN_SOURCES}
-  LINK_LIBRARIES Collage shared eq_fabric
-  )
-
-purple_add_amalgamation(EqualizerAdmin eq ${SHORT_VERSION} ${VERSION_ABI}
-  shared eq_admin
-  shared eq_fabric
+  LINK_LIBRARIES shared EqualizerFabric
   )

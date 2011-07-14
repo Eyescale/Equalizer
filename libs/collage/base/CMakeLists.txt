@@ -27,3 +27,4 @@ purple_add_library(co_base ${CO_LIB_VARIANT}
     ${PTHREAD_LIBRARIES}
     ${COBASE_LINK_LIBS}
   )
+set_target_properties(lib_co_base_shared PROPERTIES FOLDER "Transitional")

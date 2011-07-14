@@ -29,9 +29,9 @@
 #ifdef _WIN32
 #  ifndef _MSC_VER
 #    define USE_SYS_TYPES_FD_SET
-#    ifndef _WIN32_WINNT // Hopefully to higher than 0x500...
-#       define _WIN32_WINNT 0x500 // => 2000, for WM_XBUTTONDOWN and others
-#    endif
+#  endif
+#  ifndef _WIN32_WINNT // Hopefully to higher than 0x500...
+#     define _WIN32_WINNT 0x501 // => XP, for WM_XBUTTONDOWN and others
 #  endif
 #  define _USE_MATH_DEFINES
 #  define WIN32_LEAN_AND_MEAN

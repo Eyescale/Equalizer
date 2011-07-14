@@ -75,7 +75,7 @@ namespace server
          *
          * @param server the server.
          */
-        EQSERVER_API static void addOutputCompounds( ServerPtr server );
+        EQSERVER_API static Compounds addOutputCompounds( ServerPtr server );
 
         /**
          * Add segments and layouts for dest channels in non-view configs.

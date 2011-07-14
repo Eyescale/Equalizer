@@ -31,7 +31,7 @@ namespace co
 {
 namespace base
 {
-    /** @return the position of the last set bit, or -1. */
+    /** @return the position of the last (most significant) set bit, or -1. */
     template< class T > int32_t getIndexOfLastBit( T value );
 
     template<> inline int32_t getIndexOfLastBit< uint32_t >( uint32_t value )
@@ -78,6 +78,17 @@ namespace base
     template<> inline int32_t 
     getIndexOfLastBit< unsigned long long >( unsigned long long value )
         { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+#endif
+#ifdef Darwin
+#  ifdef _LP64
+    template<> inline
+    int32_t getIndexOfLastBit< unsigned long >( unsigned long value )
+        { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+#  else
+    template<> inline
+    int32_t getIndexOfLastBit< unsigned long >( unsigned long value )
+        { return getIndexOfLastBit( static_cast< uint32_t >( value )); }
+#  endif
 #endif
 }
 }
