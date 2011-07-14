@@ -377,6 +377,7 @@ namespace eq
             STATE_MAPPED,
             STATE_INITIALIZING,
             STATE_RUNNING,
+            STATE_STOPPING, // must come after running
             STATE_STOPPED, // must come after running
             STATE_FAILED
         };
