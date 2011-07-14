@@ -127,7 +127,7 @@ public:
      * @return true if the new value was set, false otherwise
      * @version 1.1.2
      */
-    COBASE_API bool compareAndSwap( const T expected, const T newValue );
+    bool compareAndSwap( const T expected, const T newValue );
 
 private:
     mutable T _value;
