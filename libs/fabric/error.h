@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -29,7 +29,7 @@ namespace fabric
     enum Error
     {
         // ERROR_ = co::base::ERROR_CUSTOM,
-        ERROR_CUSTOM = EQ_64KB,
+        ERROR_CUSTOM = EQ_64KB, // 0x10000
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
