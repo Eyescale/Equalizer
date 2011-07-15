@@ -408,7 +408,7 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
 void Compound::removeInputTileQueue( TileQueue* tileQueue )
 {
     EQASSERT( tileQueue );
-    TileQueuesCIter i = _inputTileQueues.begin();
+    TileQueuesIter i = _inputTileQueues.begin();
     for ( ; i != _inputTileQueues.end(); ++i )
     {
         if ( *i == tileQueue )
@@ -430,7 +430,7 @@ void Compound::addOutputTileQueue( TileQueue* tileQueue )
 void Compound::removeOutputTileQueue( TileQueue* tileQueue )
 {
     EQASSERT( tileQueue );
-    TileQueuesCIter i = _outputTileQueues.begin();
+    TileQueuesIter i = _outputTileQueues.begin();
     for ( ; i != _outputTileQueues.end(); ++i )
     {
         if ( *i == tileQueue )
