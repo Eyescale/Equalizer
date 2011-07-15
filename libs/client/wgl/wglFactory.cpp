@@ -18,6 +18,10 @@
 
 #include "../uiFactory.h"
 
+#include "../config.h"
+#include "../node.h"
+#include "../pipe.h"
+#include "../server.h"
 #include "../wglEventHandler.h"
 #include "../wglMessagePump.h"
 #include "../wglPipe.h"
@@ -47,9 +51,58 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
         return new WGLMessagePump;
     }
 
+#define wglewGetContext wglPipe->wglewGetContext
+
     GPUInfos _discoverGPUs() const
     {
+        // Create fake config to use WGLPipe affinity code for queries
+        ServerPtr server = new Server;
+        Config* config = new Config( server );
+        Node* node = new Node( config );
+        Pipe* pipe = new Pipe( node );
+        WGLPipe* wglPipe = new WGLPipe( pipe );
+
         GPUInfos result;
+        if( !wglPipe->configInit( ))
+        {
+            wglPipe->configExit();
+            return result;
+        }
+
+        if( !WGLEW_NV_gpu_affinity )
+        {
+            GPUInfo info;
+            info.pvp = pipe->getPixelViewport();
+            result.push_back( info );
+
+            wglPipe->configExit();
+            return result;
+        }
+
+        for( uint32_t i = 0; i < EQ_UNDEFINED_UINT32; ++i )
+        {
+            pipe->setDevice( i );
+            pipe->setPixelViewport( PixelViewport( ));
+
+            HDC dc;
+            if( wglPipe->createWGLAffinityDC( dc ))
+            {
+                GPUInfo info;
+                info.device = i;
+                info.pvp = pipe->getPixelViewport();
+                result.push_back( info );
+
+                wglDeleteDCNV( dc );
+            }
+            else
+            {
+                wglPipe->configExit();
+                return result;
+            }
+        }
+
+        EQASSERTINFO( 0, "Unreachable" );
+        wglPipe->configExit();
         return result;
     }
 
