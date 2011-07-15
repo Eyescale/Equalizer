@@ -23,19 +23,7 @@
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-
-
-#ifdef _WIN32
-#  ifdef EQ_RELEASE // final INSTALL_DIR is not known at compile time
-std::string Global::_configFile =
-                   std::string( "../share/Equalizer/configs/4-window.all.eqc" );
-#  else
-std::string Global::_configFile = std::string( EQ_SOURCE_DIR ) + 
-                             std::string( "examples/configs/4-window.all.eqc" );
-#  endif
-#else
 std::string Global::_configFile;
-#endif
 
 #ifdef AGL
 static co::base::Lock _carbonLock;
