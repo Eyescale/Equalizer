@@ -28,8 +28,17 @@ namespace fabric
     /** A structure containing GPU-specific information. */
     struct GPUInfo
     {
+        /** Default constructor pointing to default display. */
         GPUInfo() : port( EQ_UNDEFINED_UINT32 ), device( EQ_UNDEFINED_UINT32 )
             {}
+
+        /** @return true if both infos are identical. @version 1.0 */
+        bool operator == ( const GPUInfo& rhs ) const 
+            { return port==rhs.port && device==rhs.device && pvp==rhs.pvp; }
+
+        /** @return true if both infos are not identical. @version 1.0 */
+        bool operator != ( const GPUInfo& rhs ) const 
+            { return port!=rhs.port || device!=rhs.device || pvp!=rhs.pvp; }
 
         /** The display (GLX) or ignored (Win32, AGL). */
         uint32_t port;
@@ -40,6 +49,18 @@ namespace fabric
         /** The size and location of the GPU. */
         PixelViewport pvp;
     };
+
+    inline std::ostream& operator << ( std::ostream& os, const GPUInfo& info )
+    {
+        if( info.port != EQ_UNDEFINED_UINT32 )
+            os << "port     " << info.port << std::endl;
+        if( info.device != EQ_UNDEFINED_UINT32 )
+            os << "device   " << info.device << std::endl;
+        if( info.pvp.isValid( ))
+            os << "viewport " << info.pvp << std::endl;
+        return os;
+    }
+
 }
 }
 #endif // EQFABRIC_GPUINFO_H

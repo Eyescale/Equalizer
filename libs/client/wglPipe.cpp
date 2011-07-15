@@ -272,15 +272,15 @@ bool WGLPipe::_configInitWGLEW()
 
     const GLenum result = wglewInit();
     bool success = result == GLEW_OK;
-    if( !success )
-    {
-        setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
-        EQWARN << getError() << ": " << result << std::endl;
-    }
-    else
+    if( success )
     {
         EQINFO << "Pipe WGLEW initialization successful" << std::endl;
         success = configInitGL();
+    }
+    else
+    {
+        setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
+        EQWARN << getError() << ": " << result << std::endl;
     }
 
     wglDeleteContext( context );
