@@ -90,12 +90,6 @@ namespace server
         void flush();
         //@}
 
-        /** activate or deactivate tile queue */
-        void setActivated( bool flag ) { _activated = flag; }
-
-        /** get activated flag */
-        bool isActivated() const { return _activated; }
-
         const UUID getQueueMasterID( fabric::Eye eye ) const;
 
     protected:
@@ -129,8 +123,6 @@ namespace server
 
         /** The current output queue. */
         TileQueue* _outputQueue[ eq::NUM_EYES ];
-
-        bool _activated;
     };
 
     std::ostream& operator << ( std::ostream& os, const TileQueue* frame );

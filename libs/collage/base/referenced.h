@@ -147,6 +147,23 @@ namespace base
 #endif
     };
 }
+}
+
+namespace boost
+{
+
+/** Allow creation of boost::intrusive_ptr from RefPtr or Referenced */
+inline void intrusive_ptr_add_ref( co::base::Referenced* referenced )
+{
+    referenced->ref();
+}
+
+/** Allow creation of boost::intrusive_ptr from RefPtr or Referenced */
+inline void intrusive_ptr_release( co::base::Referenced* referenced )
+{
+    referenced->unref();
+}
 
 }
+
 #endif //COBASE_REFERENCED_H

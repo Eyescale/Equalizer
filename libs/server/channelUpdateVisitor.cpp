@@ -229,21 +229,7 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
 bool ChannelUpdateVisitor::_getTilesEnabled( const Compound* compound )
 {
-    const TileQueues& queues = compound->getInputTileQueues();
-    bool tilesEnabled = false;
-    if( !queues.empty() )
-    {
-        TileQueuesCIter i = queues.begin();
-        for( ; i < queues.end(); ++i )
-        {
-            if( (*i)->isActivated() )
-            {
-                tilesEnabled = true;
-                break;
-            }
-        }
-    }
-    return tilesEnabled;
+    return !compound->getInputTileQueues().empty();
 }
 
 

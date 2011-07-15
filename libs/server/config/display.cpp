@@ -22,6 +22,7 @@
 #include "../config.h"
 #include "../layout.h"
 #include "../node.h"
+#include "../pipe.h"
 #include "../observer.h"
 #include "../segment.h"
 #include "../view.h"
@@ -49,15 +50,26 @@ void Display::discoverLocal( Config* config )
     Pipe* pipe = pipes.front();
     Window* window = new Window( pipe );
     window->setViewport( Viewport( .25f, .2f, .5f, .5f ));
+    window->setName( pipe->getName() + " window" );
 
     Channel* channel = new Channel( window );
-    new Observer( config );
+    channel->setName( pipe->getName() + " channel" );
+    Observer* observer = new Observer( config );
 
     Layout* layout = new Layout( config );
-    new View( layout );
     layout->setName( "2D" );
 
+    View* view = new View( layout );
+    view->setObserver( observer );
+
+    const PixelViewport& pvp = pipe->getPixelViewport();
+    Wall wall;
+    if( pvp.isValid( ))
+        wall.resizeHorizontalToAR( float( pvp.w ) / float( pvp.h ));
+
     Canvas* canvas = new Canvas( config );
+    canvas->setWall( wall );
+
     Segment* segment = new Segment( canvas );
     canvas->addLayout( layout );
     segment->setChannel( channel );

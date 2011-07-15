@@ -319,7 +319,8 @@ void Thread::untrack()
 void Thread::yield()
 {
 #ifdef _MSC_VER
-    ::Sleep( 0 );
+    ::Sleep( 0 ); // sleeps thread
+    // or ::SwitchToThread() ? // switches to another waiting thread, if exists
 #elif defined (Darwin)
     ::pthread_yield_np();
 #else

@@ -1540,8 +1540,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     _statisticsIndex = ( _statisticsIndex + 1 ) % uint32_t(_statistics->size());
     FrameStatistics& statistic = _statistics.data[ _statisticsIndex ];
-    //EQASSERT( statistic.data.empty( ));
-    //EQASSERT( statistic.used == 0 );
+    EQASSERT( statistic.data.empty( ));
+    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
     resetContext();
     return true;

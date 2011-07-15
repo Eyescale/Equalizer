@@ -94,6 +94,14 @@ namespace fabric
         EQFABRIC_API void resizeBottom( const float ratio );
 
         /** 
+         * Resize the wall horizontally to match the given aspect ratio.
+         * 
+         * @param ratio the amount by which the wall is grown or shrunk.
+         * @version 1.1.2
+         */
+        EQFABRIC_API void resizeHorizontalToAR( const float aspectRatio );
+
+        /** 
          * Resize the wall by the given ratio as observed from the eye position.
          *
          * Each wall corner is moved by ratio along the vector eye -> wall
