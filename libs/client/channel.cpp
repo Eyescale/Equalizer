@@ -1753,7 +1753,8 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
         for( ; j != toNodes.end(); ++j, ++k )
         {
-            ++_statistics.data[ _statisticsIndex ].used;
+            if (ready)
+                ++_statistics.data[ _statisticsIndex ].used;
 
             ChannelFrameTransmitPacket transmitPacket;
             transmitPacket.context   = context;
