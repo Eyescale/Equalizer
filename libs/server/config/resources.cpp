@@ -167,10 +167,10 @@ Compound* Resources::_addEyeCompound( Compound* root, const Channels& channels )
     const size_t nChannels = channels.size();
     const ChannelsCIter split = channels.begin() + (nChannels >> 1);
 
-    Channels leftChannels;
+    Channels leftChannels( split - channels.begin( ));
     std::copy( channels.begin(), split, leftChannels.begin( ));
 
-    Channels rightChannels;
+    Channels rightChannels( channels.end() - (split+1));
     std::copy( split+1, channels.end(), rightChannels.begin( ));
     
     const Channel* rootChannel = compound->getChannel();

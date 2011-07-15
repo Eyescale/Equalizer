@@ -98,13 +98,13 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_GLX >
                 GPUInfo info;
                 if( _queryDisplay( stream.str(), info ))
                 {
-                    EQASSERT( j == info.port );
-                    EQASSERT( i == info.device );
+                    EQASSERTINFO( i == info.port, i << ", " << info );
+                    EQASSERT( j == info.device );
 
                     if( info != defaultInfo )
                         result.push_back( info );
                 }
-                if( j == 0 ) // X Server does not exist, stop query
+                else if( j == 0 ) // X Server does not exist, stop query
                     return result;
                 else // X Screen does not exist, try next server
                     break;

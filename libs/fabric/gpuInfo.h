@@ -49,6 +49,18 @@ namespace fabric
         /** The size and location of the GPU. */
         PixelViewport pvp;
     };
+
+    inline std::ostream& operator << ( std::ostream& os, const GPUInfo& info )
+    {
+        if( info.port != EQ_UNDEFINED_UINT32 )
+            os << "port     " << info.port << std::endl;
+        if( info.device != EQ_UNDEFINED_UINT32 )
+            os << "device   " << info.device << std::endl;
+        if( info.pvp.isValid( ))
+            os << "viewport " << info.pvp << std::endl;
+        return os;
+    }
+
 }
 }
 #endif // EQFABRIC_GPUINFO_H
