@@ -61,9 +61,6 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
     {
         //----- Check uniqueness of output queue name
         TileQueue* queue  = *i;
-        if (!queue->isActivated())
-            continue;
-
         const std::string& name   = queue->getName();
 
         if( _outputTileQueues.find( name ) != _outputTileQueues.end())

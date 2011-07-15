@@ -405,12 +405,40 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
     tileQueue->setCompound( this );
 }
 
+void Compound::removeInputTileQueue( TileQueue* tileQueue )
+{
+    EQASSERT( tileQueue );
+    TileQueuesCIter i = _inputTileQueues.begin();
+    for ( ; i != _inputTileQueues.end(); ++i )
+    {
+        if ( *i == tileQueue )
+        {
+            _inputTileQueues.erase( i );
+            return;
+        }
+    }
+}
+
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
 {
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _outputTileQueues.push_back( tileQueue ); 
     tileQueue->setCompound( this );
+}
+
+void Compound::removeOutputTileQueue( TileQueue* tileQueue )
+{
+    EQASSERT( tileQueue );
+    TileQueuesCIter i = _outputTileQueues.begin();
+    for ( ; i != _outputTileQueues.end(); ++i )
+    {
+        if ( *i == tileQueue )
+        {
+            _outputTileQueues.erase( i );
+            return;
+        }
+    }
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )
