@@ -79,7 +79,7 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
             return result;
         }
 
-        for( size_t i = 0; i < EQ_UNDEFINED_UINT32; ++i )
+        for( uint32_t i = 0; i < EQ_UNDEFINED_UINT32; ++i )
         {
             pipe->setDevice( i );
             pipe->setPixelViewport( PixelViewport( ));
