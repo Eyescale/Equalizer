@@ -45,16 +45,11 @@ server
         compound
         {
             channel ( layout "tile based" )
-            # eile: either tile_equalizer{} or explicit config as below:
-            outputtiles { name "queue" size [ 64 64 ] }
-            compound
-            {
-                inputtiles { name "queue" }
-            }
+            tile_equalizer {}
+            compound {}
             compound
             {
                 channel "channel2"
-                inputtiles { name "queue" }
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

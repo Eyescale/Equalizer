@@ -22,6 +22,8 @@
 #include "log.h"
 #include "pipe.h"
 
+#include <eq/fabric/gpuInfo.h>
+
 #include <sstream>
 #include <string>
 
@@ -46,10 +48,10 @@ GLXPipe::~GLXPipe( )
 //---------------------------------------------------------------------------
 // GLX init
 //---------------------------------------------------------------------------
-bool GLXPipe::configInit( )
+bool GLXPipe::configInit()
 {
     const std::string displayName  = getXDisplayString();
-    const char*       cDisplayName = ( displayName.length() == 0 ? 
+    const char*       cDisplayName = ( displayName.empty() ? 
                                        0 : displayName.c_str( ));
     Display*          xDisplay     = XOpenDisplay( cDisplayName );
             
@@ -119,55 +121,52 @@ void GLXPipe::setXDisplay( Display* display )
     _xDisplay = display; 
     XSetCurrentDisplay( display );
 
-    if( display )
+    GPUInfo info;
+    if( getGPUInfo( display, info ))
     {
 #ifndef NDEBUG
         // somewhat reduntant since it is a global handler
         XSetErrorHandler( XErrorHandler );
 #endif
+        const uint32_t port = getPipe()->getPort();
+        const uint32_t device = getPipe()->getDevice();
 
-        std::string displayString = DisplayString( display );
-        const size_t colonPos = displayString.find( ':' );
-        if( colonPos != std::string::npos )
-        {
-            const std::string displayNumberString = 
-                displayString.substr( colonPos+1 );
-            const uint32_t displayNumber = atoi( displayNumberString.c_str( ));
-            const uint32_t port          = getPipe()->getPort();
-            const uint32_t device        = getPipe()->getDevice();
-            
-            if( port != EQ_UNDEFINED_UINT32 && displayNumber != port )
-                EQWARN << "Display mismatch: provided display connection uses"
-                       << " display " << displayNumber
-                       << ", but pipe has port " << port << std::endl;
+        if( port != EQ_UNDEFINED_UINT32 && info.port != port )
+            EQWARN << "Display mismatch: provided display connection uses"
+                   << " display " << info.port << ", but pipe has port " << port
+                   << std::endl;
 
-            if( device != EQ_UNDEFINED_UINT32 &&
-                DefaultScreen( display ) != (int)device )
-            {
-                EQWARN << "Screen mismatch: provided display connection uses"
-                       << " default screen " << DefaultScreen( display ) 
-                       << ", but pipe has screen " << device << std::endl;
-            }
-            //port = displayNumber;
-            //device  = DefaultScreen( display );
-        }
+        if( device != EQ_UNDEFINED_UINT32 && info.device != device )
+            EQWARN << "Screen mismatch: provided display connection uses "
+                   << "default screen " << info.device
+                   << ", but pipe has screen " << device << std::endl;
     }
 
-    PixelViewport pvp = getPipe()->getPixelViewport();
-    if( pvp.isValid( ))
-        return;
+    const PixelViewport& pvp = getPipe()->getPixelViewport();
+    if( !pvp.isValid( ))
+        getPipe()->setPixelViewport( info.pvp );
+}
 
-    if( display )
+bool GLXPipe::getGPUInfo( Display* display, GPUInfo& info )
+{
+    if( !display )
+        return false;
+
+    std::string displayString = DisplayString( display );
+    const size_t colonPos = displayString.find( ':' );
+    if( colonPos != std::string::npos )
     {
-        pvp.x    = 0;
-        pvp.y    = 0;
-        pvp.w = DisplayWidth(  display, DefaultScreen( display ));
-        pvp.h = DisplayHeight( display, DefaultScreen( display ));
+        const std::string displayNumber = displayString.substr( colonPos+1 );
+        info.port = atoi( displayNumber.c_str( ));
+        info.device = DefaultScreen( display );
     }
-    else
-        pvp.invalidate();
 
-    getPipe()->setPixelViewport( pvp );
+    info.pvp.x = 0;
+    info.pvp.y = 0;
+    info.pvp.w = DisplayWidth(  display, DefaultScreen( display ));
+    info.pvp.h = DisplayHeight( display, DefaultScreen( display ));
+    
+    return true;
 }
 
 bool GLXPipe::_configInitGLXEW()

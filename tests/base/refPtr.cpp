@@ -22,6 +22,10 @@
 #include <co/base/thread.h>
 #include <iostream>
 
+#ifdef CO_USE_BOOST
+#  include <boost/intrusive_ptr.hpp>
+#endif
+
 using namespace co::base;
 using namespace std;
 
@@ -57,9 +61,9 @@ public:
 int main( int argc, char **argv )
 {
     TestThread threads[NTHREADS];
+    foo = new Foo;
 
     Clock clock;
-    foo = new Foo;
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( threads[i].start( ));
 
@@ -73,6 +77,15 @@ int main( int argc, char **argv )
          << endl;
 
     TEST( foo->getRefCount() == 1 );
+
+#ifdef CO_USE_BOOST
+    boost::intrusive_ptr< Foo > boostFoo( foo.get( ));
+    TEST( foo->getRefCount() == 2 );
+    
+    boostFoo = 0;
+    TEST( foo->getRefCount() == 1 );
+#endif
+
     foo = 0;
 
     return EXIT_SUCCESS;

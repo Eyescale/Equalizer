@@ -47,7 +47,6 @@ Wall::Wall( const Vector3f& bl, const Vector3f& br, const Vector3f& tl )
 {
 }
 
-
 void Wall::resizeHorizontal( const float ratio )
 {
     if( ratio == 1.f || ratio < 0.f )
@@ -112,6 +111,21 @@ void Wall::resizeBottom( const float ratio )
     const Vector3f delta = v * (ratio - 1.f);
     bottomLeft  -= delta;
     bottomRight -= delta;
+}
+
+void Wall::resizeHorizontalToAR( const float aspectRatio )
+{
+    const Vector3f u_2   = (bottomRight - bottomLeft) * .5f;
+    const Vector3f v_2   = (topLeft - bottomLeft) * .5f;
+
+    const float currentAR = u_2.length() / v_2.length();
+    const float ratio = aspectRatio / currentAR;
+
+    // Same as resizeHorizontal, but C&P since we have u_2 already
+    const Vector3f delta = u_2 * (ratio - 1.f);
+    bottomLeft  -= delta;
+    bottomRight += delta;
+    topLeft     -= delta;
 }
 
 void Wall::moveFocus( const Vector3f& eye, const float ratio )

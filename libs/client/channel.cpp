@@ -1540,8 +1540,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     _statisticsIndex = ( _statisticsIndex + 1 ) % uint32_t(_statistics->size());
     FrameStatistics& statistic = _statistics.data[ _statisticsIndex ];
-    //EQASSERT( statistic.data.empty( ));
-    //EQASSERT( statistic.used == 0 );
+    EQASSERT( statistic.data.empty( ));
+    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
     resetContext();
     return true;
@@ -1753,7 +1753,8 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
         for( ; j != toNodes.end(); ++j, ++k )
         {
-            ++_statistics.data[ _statisticsIndex ].used;
+            if (ready)
+                ++_statistics.data[ _statisticsIndex ].used;
 
             ChannelFrameTransmitPacket transmitPacket;
             transmitPacket.context   = context;
