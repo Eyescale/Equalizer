@@ -43,6 +43,7 @@ void Resources::discoverLocal( Config* config )
     Node* node = new Node( config );
     node->setApplicationNode( true );
 
+    size_t gpuCounter = 0;
     for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
         const GPUInfo& info = *i;
@@ -51,6 +52,14 @@ void Resources::discoverLocal( Config* config )
         pipe->setPort( info.port );
         pipe->setDevice( info.device );
         pipe->setPixelViewport( info.pvp );
+
+        std::stringstream name;
+        if( info.device == EQ_UNDEFINED_UINT32 )
+            name << "display";
+        else
+            name << "GPU" << ++gpuCounter;
+
+        pipe->setName( name.str( ));
     }
 }
 
@@ -93,29 +102,17 @@ void Resources::configure( const Compounds& compounds )
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-#if 0
-    const Windows& windows = displayPipe->getWindows();
-    EQASSERT( !windows.empty( ));
-    if( windows.empty( ))
-        return;
-
-    const Window* displayWindow = windows.front();
-    const Channels& channels = displayPipe->getChannels();
-    EQASSERT( !channels.empty( ));
-    if( channels.empty( ))
-        return; 
-
-    const Channel* displayChannel = channels.front();
-#endif
-
     Channels channels;
     for( ++i; i != pipes.end(); ++i )
     {
-        Window* window = new Window( *i );
+        Pipe* pipe = *i;
+        Window* window = new Window( pipe );
         window->setPixelViewport( pvp );
         window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+        window->setName( pipe->getName() + " source window" );
 
         channels.push_back( new Channel( window ));
+        channels.back()->setName( pipe->getName() + " source channel" );
     }
     if( channels.empty( )) // No additional resources
         return;

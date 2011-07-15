@@ -27,27 +27,6 @@
 
 namespace eq
 {
-namespace fabric
-{
-class Projection;
-class RenderContext;
-class Wall;
-
-struct NodePath;
-struct PipePath;
-struct WindowPath;
-struct ChannelPath;
-struct CanvasPath;
-struct SegmentPath;
-struct ObserverPath;
-struct LayoutPath;
-struct ViewPath;
-
-template< typename T, typename L > class ElementVisitor;
-template< typename T > class LeafVisitor;
-template< typename T, typename C  > class ElementVisitor;
-}
-
 namespace server
 {
 
@@ -85,8 +64,8 @@ typedef std::vector< Observer* >     Observers;
 typedef std::vector< Segment* >      Segments;
 typedef std::vector< View* >         Views;
 
-typedef co::base::uint128_t uint128_t;
-typedef co::base::UUID UUID;
+using co::base::uint128_t;
+using co::base::UUID;
 
 typedef Canvases::const_iterator CanvasesCIter;
 typedef Canvases::iterator CanvasesIter;
@@ -113,6 +92,7 @@ using fabric::GPUInfo;
 using fabric::GPUInfos;
 using fabric::GPUInfosCIter;
 using fabric::Matrix4f;
+using fabric::PixelViewport;
 using fabric::Projection;
 using fabric::RenderContext;
 using fabric::TileTaskPacket;

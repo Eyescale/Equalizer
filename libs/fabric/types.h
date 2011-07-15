@@ -83,11 +83,15 @@ template< class, class, class, class, class> class ConfigVisitor;
 typedef co::base::RefPtr< Client > ClientPtr;
 typedef co::base::RefPtr< const Client > ConstClientPtr;
 
+struct CanvasPath;
+struct ChannelPath;
 struct LayoutPath;
 struct NodePath;
 struct ObserverPath;
 struct PipePath;
+struct SegmentPath;
 struct ViewPath;
+struct WindowPath;
 
 #ifndef EQ_2_0_API
 using co::Serializable;
