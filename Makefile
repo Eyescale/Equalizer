@@ -56,7 +56,7 @@ debug_glx: debug_glx/Makefile
 
 debug_glx/Makefile:
 	@mkdir -p debug_glx
-	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=0
+	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=OFF
 
 
 docs: ../website/build/documents/Developer/API

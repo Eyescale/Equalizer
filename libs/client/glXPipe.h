@@ -22,6 +22,7 @@
 #include <eq/gl.h>         // GLXEWContext
 #include <eq/glXTypes.h>
 #include <eq/systemPipe.h> // base class
+#include <eq/types.h>
 
 namespace eq
 {
@@ -59,6 +60,9 @@ namespace eq
 
         /** @return the generic GLX function table for the pipe. */
         GLXEWContext* glxewGetContext() { return _glxewContext; }
+
+        /** @internal @return the GPU info queried from an open Display. */
+        static bool getGPUInfo( Display* display, GPUInfo& info );
 
     protected:
         /** 

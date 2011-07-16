@@ -21,6 +21,7 @@
 #include "resources.h"
 
 #include "../config.h"
+#include "../global.h"
 #include "../loader.h"
 #include "../server.h"
 
@@ -33,11 +34,11 @@ namespace config
 
 ServerPtr Server::configureLocal()
 {
+    Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.1f );
     ServerPtr server = new server::Server;
 
     Config* config = new Config( server );
     config->setName( "Local Auto-Config" );
-    config->setFAttribute( Config::FATTR_VERSION, 1.1f );
 
     Resources::discoverLocal( config );
     Display::discoverLocal( config );

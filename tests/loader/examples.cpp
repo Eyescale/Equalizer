@@ -25,7 +25,7 @@
 #include <co/base/init.h>
 
 #if defined(_MSC_VER)
-static const std::string CONFIG_DIR = "../../examples/configs/";
+static const std::string CONFIG_DIR = "../../../examples/configs/";
 #else
 static const std::string CONFIG_DIR = "../../examples/configs/";
 #endif

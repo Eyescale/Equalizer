@@ -30,8 +30,8 @@ namespace server
 TileQueue::TileQueue()
         : co::Object()
         , _compound( 0 )
+        , _name()
         , _size( 0, 0 )
-        , _activated( true )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _queueMaster[i] = 0;
@@ -42,7 +42,6 @@ TileQueue::TileQueue( const TileQueue& from )
         , _compound( 0 )
         , _name( from._name )
         , _size( from._size )
-        , _activated( true )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _queueMaster[i] = 0;

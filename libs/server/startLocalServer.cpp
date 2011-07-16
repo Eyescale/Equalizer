@@ -83,9 +83,11 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader    loader;
     eq::server::ServerPtr server;
 
-    if( !file.empty( ))
+    if( file.empty( ))
+        server = eq::server::config::Server::configureLocal();
+    else
         server = loader.loadFile( file );
-    //EQINFO << eq::server::config::Server::configureLocal() << std::endl;
+
     if( !server )
         server = loader.parseServer( CONFIG );
     if( !server )

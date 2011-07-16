@@ -37,7 +37,7 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
-    EQASSERT( _queue.isEmpty( ));
+    // clear left over QUEUE_EMPTY packet here
     clear();
 }
 
