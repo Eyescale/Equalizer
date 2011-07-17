@@ -59,6 +59,7 @@ class SystemPipe;
 class SystemWindow;
 class View;
 class Window;
+class WGLWindowIF;
 class X11Connection;
 struct ConfigEvent;
 struct PixelData;

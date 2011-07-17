@@ -17,11 +17,11 @@ if(NOT EQUALIZER_BUILD_MODULARIZED)
   list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
-add_subdirectory(pthreads)
+include(pthreads/CMakeLists.txt)
 add_subdirectory(co)
 
+include(GLEW/CMakeLists.txt)
 add_subdirectory(vmmlib)
-add_subdirectory(GLEW)
 add_subdirectory(eq)
 add_subdirectory(sequel)
 

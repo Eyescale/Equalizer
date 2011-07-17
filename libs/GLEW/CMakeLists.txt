@@ -53,10 +53,8 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
     file(WRITE ${_glxew_h} "${_glxew_h_new}")
   endif(NOT EXISTS ${GLEW_DIR})
 
-  set(GLEW_INCLUDE_DIRS "${GLEW_DIR}/include" 
-      CACHE FILEPATH "GLEW-MX includes" FORCE)
-  set(GLEW_LIBRARY "${GLEW_NAME}-MX-Equalizer"
-      CACHE FILEPATH "GLEW-MX library" FORCE)
+  set(GLEW_INCLUDE_DIRS "${GLEW_DIR}/include")
+  set(GLEW_LIBRARY "${GLEW_NAME}-MX-Equalizer")
 
   set(GLEW_INCLUDES GL/glew.h GL/glxew.h GL/wglew.h)
 
