@@ -28,7 +28,7 @@
 #endif
 
 /**
- * @file collage/compressor/compressor.h
+ * @file co/compressor/compressor.h
  * 
  * Compression plugin provided with Equalizer.
  */
