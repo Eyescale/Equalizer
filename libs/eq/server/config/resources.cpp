@@ -35,10 +35,11 @@ namespace config
 {
 static co::base::a_int32_t _frameCounter;
 
-void Resources::discoverLocal( Config* config )
+bool Resources::discoverLocal( Config* config )
 {
     const GPUInfos infos = UIFactory::discoverGPUs();
-    EQASSERT( !infos.empty( ));
+    if( infos.empty( ))
+        return false;
 
     Node* node = new Node( config );
     node->setApplicationNode( true );
@@ -61,6 +62,7 @@ void Resources::discoverLocal( Config* config )
 
         pipe->setName( name.str( ));
     }
+    return true;
 }
 
 void Resources::configure( const Compounds& compounds )

@@ -40,7 +40,9 @@ ServerPtr Server::configureLocal()
     Config* config = new Config( server );
     config->setName( "Local Auto-Config" );
 
-    Resources::discoverLocal( config );
+    if( !Resources::discoverLocal( config ))
+        return 0;
+
     Display::discoverLocal( config );
     Compounds compounds = Loader::addOutputCompounds( server );
     Resources::configure( compounds );

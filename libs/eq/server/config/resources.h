@@ -30,7 +30,7 @@ namespace config
 class Resources
 {
 public:
-    static void discoverLocal( Config* config );
+    static bool discoverLocal( Config* config );
     static void configure( const Compounds& compounds );
 
 private:
