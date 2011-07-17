@@ -20,11 +20,11 @@
 #include "config.h"
 #include "pipe.h"
 
-#include <eq/sequel/application.h>
-#include <eq/sequel/renderer.h>
-#include <eq/sequel/viewData.h>
-#include <eq/config.h>
-#include <eq/configEvent.h>
+#include <sequel/application.h>
+#include <sequel/renderer.h>
+#include <sequel/viewData.h>
+#include <eq/client/config.h>
+#include <eq/client/configEvent.h>
 
 namespace seq
 {

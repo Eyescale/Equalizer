@@ -24,10 +24,10 @@
 #include "detail/application.h"
 #include "detail/config.h"
 
-#include <eq/config.h>
-#include <eq/configParams.h>
-#include <eq/init.h>
-#include <eq/server.h>
+#include <eq/client/config.h>
+#include <eq/client/configParams.h>
+#include <eq/client/init.h>
+#include <eq/client/server.h>
 
 namespace seq
 {

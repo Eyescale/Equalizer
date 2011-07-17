@@ -70,15 +70,16 @@ endif()
 set(EQ_FEATURES)
 include(configure)
 
-set(EQ_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
-file(MAKE_DIRECTORY ${EQ_INCLUDE_DIR})
-include_directories(BEFORE ${EQ_INCLUDE_DIR})
+set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
+file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
+  include(UseGnuWin32)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
     /wd4244 # conversion from X to Y, possible loss of data
@@ -87,6 +88,7 @@ if(MSVC)
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
   set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
 endif(MSVC)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   include(EqCompilerVersion)
   EQ_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
@@ -211,12 +213,6 @@ if(APPLE)
     endif()
   endif(EQ_AGL_USED)
 endif(APPLE)
-
-include(${Equalizer_SOURCE_DIR}/externals/UseGLEW.cmake)
-include(${Equalizer_SOURCE_DIR}/externals/UseVMMLib.cmake)
-include(${Equalizer_SOURCE_DIR}/externals/UseGnuWin32.cmake)
-include(${Equalizer_SOURCE_DIR}/externals/UsePthreads.cmake)
-set(PTHREAD_LIBRARIES pthread)
 
 set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 if(EQUALIZER_RELEASE)

@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_VIEWDATA_H
 #define EQSEQUEL_VIEWDATA_H
 
-#include <eq/sequel/api.h>
-#include <eq/sequel/types.h>
+#include <sequel/api.h>
+#include <sequel/types.h>
 #include <co/serializable.h>               // base class
 
 namespace seq

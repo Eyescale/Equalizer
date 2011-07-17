@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_RENDERER_H
 #define EQSEQUEL_RENDERER_H
 
-#include <eq/sequel/objectFactory.h> // interface
-#include <eq/sequel/types.h>
+#include <sequel/objectFactory.h> // interface
+#include <sequel/types.h>
 
 namespace seq
 {

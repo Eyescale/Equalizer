@@ -19,9 +19,9 @@
 #ifndef EQSEQUEL_DETAIL_CONFIG_H
 #define EQSEQUEL_DETAIL_CONFIG_H
 
-#include <eq/sequel/types.h>
-#include <eq/config.h> // base class
-#include <eq/server.h> // RefPtr usage
+#include <sequel/types.h>
+#include <eq/client/config.h> // base class
+#include <eq/client/server.h> // RefPtr usage
 
 namespace seq
 {

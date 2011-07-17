@@ -21,7 +21,7 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <eq/sequel/renderer.h>
+#include <sequel/renderer.h>
 
 namespace seq
 {

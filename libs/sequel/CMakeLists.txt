@@ -45,8 +45,8 @@ set(SEQUEL_SOURCES
   )
   
 purple_add_library(Sequel SHARED
-  HEADERS_PREFIX "eq/sequel/"
-  FORWARD HEADERS ${SEQUEL_HEADERS}
+  HEADERS_PREFIX "sequel/"
+  HEADERS ${SEQUEL_HEADERS}
   SOURCES ${SEQUEL_SOURCES} ${DETAIL_FILES}
   LINK_LIBRARIES shared Equalizer
   )

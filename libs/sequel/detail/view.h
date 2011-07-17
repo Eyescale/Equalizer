@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_VIEW_H
 #define EQSEQUEL_DETAIL_VIEW_H
 
-#include <eq/view.h> // base class
-#include <eq/sequel/types.h>
+#include <sequel/types.h>
+#include <eq/client/view.h> // base class
 
 namespace seq
 {

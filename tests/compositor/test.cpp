@@ -17,12 +17,12 @@
 
 #include <test.h>
 
-#include <eq/compositor.h>
-#include <eq/frame.h>
-#include <eq/frameData.h>
-#include <eq/image.h>
-#include <eq/init.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/compositor.h>
+#include <eq/client/frame.h>
+#include <eq/client/frameData.h>
+#include <eq/client/image.h>
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
 #include <eq/fabric/drawableConfig.h>
 #include <co/base/clock.h>
 

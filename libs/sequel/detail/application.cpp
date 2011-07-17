@@ -25,13 +25,12 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/sequel/application.h>
-#include <eq/config.h>
-#include <eq/configParams.h>
-#include <eq/init.h>
-#include <eq/server.h>
-
-#include <eq/pipe.h>
+#include <sequel/application.h>
+#include <eq/client/config.h>
+#include <eq/client/configParams.h>
+#include <eq/client/init.h>
+#include <eq/client/pipe.h>
+#include <eq/client/server.h>
 
 namespace seq
 {

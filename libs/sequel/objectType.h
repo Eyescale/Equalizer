@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_OBJECTTYPE_H
 #define EQSEQUEL_OBJECTTYPE_H
 
-#include <eq/sequel/types.h>
+#include <sequel/types.h>
 
 namespace seq
 {

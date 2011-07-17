@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009, Maxim Makhinya
- *               2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c)      2009, Maxim Makhinya
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,12 +19,11 @@
 #ifndef EQ_CONFIGTOOL_FRAME_H
 #define EQ_CONFIGTOOL_FRAME_H
 
-#include <libs/server/frame.h>
+#include <eq/server/frame.h>
 
 #include <string>
 #include <iostream>
 #include <fstream>
-
 
 class Frame
 {

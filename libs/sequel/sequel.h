@@ -37,9 +37,9 @@
  * rendering framework. Please refer to the \link seq Sequel namespace \endlink
  * documentation for more information.
  */
-#include <eq/sequel/application.h>
-#include <eq/sequel/objectType.h>
-#include <eq/sequel/renderer.h>
+#include <sequel/application.h>
+#include <sequel/objectType.h>
+#include <sequel/renderer.h>
 #include <eq/eq.h>
 
 #pragma warning(pop)

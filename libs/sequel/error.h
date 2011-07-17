@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_ERROR_H
 #define EQSEQUEL_ERROR_H
 
-#include <eq/error.h>
+#include <eq/client/error.h>
 
 namespace seq
 {

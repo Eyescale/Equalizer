@@ -34,7 +34,6 @@
 #include "frameData.h"
 
 #include <eq/eq.h>
-#include <eq/types.h>
 
 namespace eVolve
 {

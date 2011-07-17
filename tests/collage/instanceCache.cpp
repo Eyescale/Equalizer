@@ -30,7 +30,7 @@
 #include <co/base/rng.h>
 #include <co/base/thread.h>
 
-#include "libs/collage/objectPackets.h" // private header
+#include <co/objectPackets.h> // private header
 
 // Tests the functionality of the instance cache
 

@@ -29,7 +29,7 @@
 #ifndef SEQ_PLY_H
 #define SEQ_PLY_H
 
-#include <eq/sequel/sequel.h>
+#include <sequel/sequel.h>
 
 #include <frameData.h>
 #include <vertexBufferDist.h>

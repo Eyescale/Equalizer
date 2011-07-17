@@ -19,7 +19,7 @@
 
 #include "objectMap.h"
 
-#include <eq/sequel/application.h>
+#include <sequel/application.h>
 
 namespace seq
 {

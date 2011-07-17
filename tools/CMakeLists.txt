@@ -16,7 +16,7 @@ macro(EQ_ADD_TOOL NAME)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
 endmacro(EQ_ADD_TOOL NAME)
 
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/examples/include)
+include_directories(${CMAKE_SOURCE_DIR}/examples/include)
 
 if(WIN32)
   eq_add_tool(affinityCheck

@@ -18,9 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_CHANNEL_H
 #define EQSEQUEL_DETAIL_CHANNEL_H
 
-#include <eq/sequel/types.h>
-
-#include <eq/channel.h> // base class
+#include <sequel/types.h>
+#include <eq/client/channel.h> // base class
 
 namespace seq
 {

@@ -18,9 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_PIPE_H
 #define EQSEQUEL_DETAIL_PIPE_H
 
-#include <eq/sequel/types.h>
-
-#include <eq/pipe.h> // base class
+#include <sequel/types.h>
+#include <eq/client/pipe.h> // base class
 
 namespace seq
 {

@@ -38,7 +38,7 @@
 #include "eqAsync.h"
 
 #include <eq/eq.h>
-#include <eq/system.h>
+#include <eq/client/system.h>
 #ifdef AGL
 #  include "aglWindowShared.h"
 #endif

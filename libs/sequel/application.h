@@ -18,9 +18,9 @@
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
-#include <eq/sequel/objectFactory.h> // interface
-#include <eq/sequel/types.h>
-#include <eq/client.h>               // base class
+#include <sequel/objectFactory.h> // interface
+#include <sequel/types.h>
+#include <eq/client/client.h>               // base class
 
 namespace seq
 {

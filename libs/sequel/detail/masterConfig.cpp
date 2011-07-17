@@ -20,8 +20,8 @@
 #include "objectMap.h"
 #include "view.h"
 
-#include <eq/sequel/application.h>
-#include <eq/configEvent.h>
+#include <sequel/application.h>
+#include <eq/client/configEvent.h>
 #include <eq/fabric/configVisitor.h>
 
 namespace seq

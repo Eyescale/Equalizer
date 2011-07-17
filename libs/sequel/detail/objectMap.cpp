@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include <eq/sequel/objectFactory.h>
+#include <sequel/objectFactory.h>
 #include <co/base/scopedMutex.h>
 
 namespace seq
