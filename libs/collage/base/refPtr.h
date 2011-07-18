@@ -42,7 +42,7 @@ namespace base
      *
      * Relies on the held object to implement ref and unref correctly.
      */
-    template<class T> class RefPtr 
+    template< class T > class RefPtr 
     {
     public:
         /** Construct a new, empty reference pointer. @version 1.0 */
