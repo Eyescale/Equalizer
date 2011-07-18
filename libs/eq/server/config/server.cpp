@@ -44,8 +44,13 @@ ServerPtr Server::configureLocal()
         return 0;
 
     Display::discoverLocal( config );
-    Compounds compounds = Loader::addOutputCompounds( server );
-    Resources::configure( compounds );
+    const Compounds compounds = Loader::addOutputCompounds( server );
+    if( compounds.empty( ))
+        return 0;
+
+    const Channels channels = Resources::configureSourceChannels( config );
+    EQINFO << *config << std::endl;
+    Resources::configure( compounds, channels );
     return server;
 }
 

@@ -67,6 +67,8 @@ typedef std::vector< View* >         Views;
 
 using co::base::uint128_t;
 using co::base::UUID;
+using co::base::Strings;
+using co::base::StringsCIter;
 
 typedef Canvases::const_iterator CanvasesCIter;
 typedef Canvases::iterator CanvasesIter;

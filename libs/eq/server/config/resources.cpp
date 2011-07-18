@@ -19,6 +19,7 @@
 
 #include "../compound.h"
 #include "../frame.h"
+#include "../layout.h"
 #include "../node.h"
 #include "../pipe.h"
 #include "../window.h"
@@ -65,37 +66,22 @@ bool Resources::discoverLocal( Config* config )
     return true;
 }
 
-void Resources::configure( const Compounds& compounds )
+Channels Resources::configureSourceChannels( Config* config )
 {
-    EQASSERT( compounds.size() == 1 );
-    if( compounds.empty( ))
-        return;
+    Channels channels;
 
-    const Compounds& segmentCompounds = compounds.front()->getChildren();
-    EQASSERT( segmentCompounds.size() == 1 );
-    if( segmentCompounds.empty( ))
-        return;
-
-    Compound* segmentCompound = segmentCompounds.front();
-    const Config* config = segmentCompound->getConfig();
     const Node* node = config->findAppNode();
     EQASSERT( node );
     if( !node )
-        return;
+        return channels;
 
     const Pipes& pipes = node->getPipes();
     EQASSERT( !pipes.empty( ));
     if( pipes.empty( ))
-        return;
+        return channels;
 
-    Channel* segmentChannel = segmentCompound->getChannel();
-    EQASSERT( segmentChannel );
-    if( !segmentChannel )
-        return;
-
-    PipesCIter i = pipes.begin();
-    const Pipe* displayPipe = *i;
-    PixelViewport pvp = displayPipe->getPixelViewport();
+    Pipe* pipe = pipes.front();
+    PixelViewport pvp = pipe->getPixelViewport();
     if( pvp.isValid( ))
     {
         pvp.x = 0;
@@ -104,10 +90,12 @@ void Resources::configure( const Compounds& compounds )
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-    Channels channels;
-    for( ++i; i != pipes.end(); ++i )
+    if( pipe->getName() != "display" ) // add as resource
+        channels.push_back( pipe->getChannel( ChannelPath( 0 )));
+
+    for( PipesCIter i = ++pipes.begin(); i != pipes.end(); ++i )
     {
-        Pipe* pipe = *i;
+        pipe = *i;
         Window* window = new Window( pipe );
         window->setPixelViewport( pvp );
         window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
@@ -116,17 +104,46 @@ void Resources::configure( const Compounds& compounds )
         channels.push_back( new Channel( window ));
         channels.back()->setName( pipe->getName() + " source channel" );
     }
-    if( channels.empty( )) // No additional resources
+
+    return channels;
+}
+
+void Resources::configure( const Compounds& compounds, const Channels& channels)
+{
+    EQASSERT( compounds.size() == 1 );
+    if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
-    if( displayPipe->getName() != "display" )
-        channels.push_back( segmentChannel );
+    const Canvas* canvas = 0;
+    const Compounds& children = compounds.front()->getChildren();
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    {
+        Compound* segmentCompound = *i;
+        const Channel* channel = segmentCompound->getChannel();
+        EQASSERT( channel );
 
-    Compound* monoCompound = _add2DCompound( segmentCompound, channels );
-    monoCompound->setEyes( EYE_CYCLOP );
+        EQASSERT( !canvas || channel->getCanvas() == canvas );
+        canvas = channel->getCanvas();
 
-    Compound* stereoCompound = _addEyeCompound(segmentCompound, channels);
-    stereoCompound->setEyes( EYE_LEFT | EYE_RIGHT );
+        const Layout* layout = channel->getLayout();
+        EQASSERT( layout );
+        
+        const std::string& name = layout->getName();
+        if( name == "2D" )
+        {
+            Compound* mono = _add2DCompound( segmentCompound, channels );
+            mono->setEyes( EYE_CYCLOP );
+
+            Compound* stereo =_addEyeCompound( segmentCompound, channels );
+            stereo->setEyes( EYE_LEFT | EYE_RIGHT );
+        }
+        else if( name == "Simple" )
+            /* nop */ ;
+        else
+        {
+            EQASSERTINFO( 0, "Unimplemented" );
+        }
+    }
 }
 
 Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )

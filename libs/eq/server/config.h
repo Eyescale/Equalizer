@@ -98,7 +98,7 @@ namespace server
          * @return the channel for updating the view/segment intersection.
          */
         EQSERVER_API Channel* findChannel( const Segment* segment,
-                                              const View* view );
+                                           const View* view );
 
         /** @return the application node, or 0. */
         EQSERVER_API Node* findApplicationNode();

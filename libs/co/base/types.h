@@ -129,6 +129,7 @@ namespace base
 {
 /** A vector of std::strings @version 1.0 */
 typedef std::vector< std::string >   Strings;
+typedef Strings::const_iterator StringsCIter;
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal

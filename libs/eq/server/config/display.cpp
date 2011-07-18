@@ -56,12 +56,6 @@ void Display::discoverLocal( Config* config )
     channel->setName( pipe->getName() + " channel" );
     Observer* observer = new Observer( config );
 
-    Layout* layout = new Layout( config );
-    layout->setName( "2D" );
-
-    View* view = new View( layout );
-    view->setObserver( observer );
-
     const PixelViewport& pvp = pipe->getPixelViewport();
     Wall wall;
     if( pvp.isValid( ))
@@ -71,8 +65,22 @@ void Display::discoverLocal( Config* config )
     canvas->setWall( wall );
 
     Segment* segment = new Segment( canvas );
-    canvas->addLayout( layout );
     segment->setChannel( channel );
+
+    Strings names;
+    names.push_back( "2D" );
+    names.push_back( "Simple" );
+
+    for( StringsCIter i = names.begin(); i != names.end(); ++i )
+    {
+        Layout* layout = new Layout( config );
+        layout->setName( *i );
+
+        View* view = new View( layout );
+        view->setObserver( observer );
+
+        canvas->addLayout( layout );
+    }
 
     config->activateCanvas( canvas );
 }

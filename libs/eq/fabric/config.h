@@ -28,10 +28,6 @@ namespace eq
 {
 namespace fabric
 {
-    struct CanvasPath;
-    struct LayoutPath;
-    struct ObserverPath;
-
     /** Base data class for a configuration. @sa eq::Config */
     template< class S, class C, class O, class L, class CV, class N, class V >
     class Config : public Object
