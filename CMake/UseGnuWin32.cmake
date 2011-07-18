@@ -10,9 +10,7 @@ if(NOT EXISTS ${GNUWIN32_DIR})
     ${GNUWIN32_TGZ} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endif(NOT EXISTS ${GNUWIN32_DIR})
 
-file(WRITE ${CMAKE_BINARY_DIR}/unistd.h.in "\n")
-configure_file(${CMAKE_BINARY_DIR}/unistd.h.in
-  ${CMAKE_BINARY_DIR}/include/unistd.h COPYONLY)
+file(WRITE ${OUTPUT_INCLUDE_DIR}/unistd.h "\n")
 
 set(BISON_EXECUTABLE ${GNUWIN32_DIR}/bin/bison.bat)
 set(FLEX_EXECUTABLE ${GNUWIN32_DIR}/bin/flex.exe)
