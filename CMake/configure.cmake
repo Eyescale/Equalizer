@@ -16,7 +16,6 @@ endif()
 if(CUDA_FOUND)
   include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif(CUDA_FOUND)
 
 # OpenSceneGraph

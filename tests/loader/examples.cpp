@@ -17,9 +17,9 @@
 
 #include <test.h>
 
-#include "libs/server/global.h"
-#include "libs/server/loader.h"
-#include "libs/server/server.h"
+#include <eq/server/global.h>
+#include <eq/server/loader.h>
+#include <eq/server/server.h>
 
 #include <co/base/file.h>
 #include <co/base/init.h>

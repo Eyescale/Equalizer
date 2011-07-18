@@ -31,7 +31,7 @@
 #define EQASYNC_AGL_WINDOW_SHARED_H
 
 #include <eq/eq.h>
-#include <eq/system.h>
+#include <eq/client/system.h>
 
 namespace eqAsync
 {

@@ -16,9 +16,9 @@
  */
 
 #include <test.h>
-#include "libs/server/init.h"
-#include "libs/server/loader.h"
-#include "libs/server/server.h"
+#include <eq/server/init.h>
+#include <eq/server/loader.h>
+#include <eq/server/server.h>
 
 // Tests restarting the loader after a parse error
 

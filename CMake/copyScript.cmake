@@ -84,8 +84,8 @@ if(WIN32)
   endif(COPY_TARGET_RELEASE_TYPE MATCHES "RelWithDebInfo")
 
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/copyScript.bat
-        "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\server\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\"\n"
-        "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\server\\equalizers\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\\equalizers\"\n"
+        "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\eq\\server\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\"\n"
+        "xcopy /s /y \"${WIN_SOURCE_DIR}\\libs\\eq\\server\\equalizers\\\"*.h \"${COPY_TARGET}\\include\\eq\\server\\equalizers\"\n"
         
         "\"%ProgramFiles(x86)%\\Git\\bin\\git.exe\" --no-pager log --max-count=1 \"${WIN_SOURCE_DIR}\" > \"${COPY_TARGET}\\include\\eq\\Version.txt\"\n"
         "pause\n"

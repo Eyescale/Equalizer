@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,16 +20,16 @@
 #define EQ_IGNORE_GLEW // just to test that somewhere...
 #include <test.h>
 
-#include <eq/channel.h>
-#include <eq/channel.h>
-#include <eq/client.h>
-#include <eq/config.h>
-#include <eq/init.h>
-#include <eq/node.h>
-#include <eq/nodeFactory.h>
-#include <eq/pipe.h>
-#include <eq/server.h>
-#include <eq/window.h>
+#include <eq/client/channel.h>
+#include <eq/client/channel.h>
+#include <eq/client/client.h>
+#include <eq/client/config.h>
+#include <eq/client/init.h>
+#include <eq/client/node.h>
+#include <eq/client/nodeFactory.h>
+#include <eq/client/pipe.h>
+#include <eq/client/server.h>
+#include <eq/client/window.h>
 #include <eq/fabric/configVisitor.h>
 
 using namespace eq;
