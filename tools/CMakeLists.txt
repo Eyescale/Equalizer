@@ -18,6 +18,13 @@ endmacro(EQ_ADD_TOOL NAME)
 
 include_directories(${CMAKE_SOURCE_DIR}/examples/include)
 
+if(GLEW_MX_FOUND)
+  include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIR})
+  set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
+else()
+  set(GLEW_LIBRARY "GLEW_MX-Equalizer")
+endif()
+
 if(WIN32)
   eq_add_tool(affinityCheck
     SOURCES affinityCheck/affinityCheck.cpp

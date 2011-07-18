@@ -125,6 +125,7 @@ if(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 find_package(OpenGL REQUIRED)
+find_package(GLEW_MX)
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 
 if(APPLE)
