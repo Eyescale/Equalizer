@@ -30,7 +30,7 @@
 #define SEQ_PLY_RENDERER_H
 
 #include "seqPly.h"
-#include <sequel/sequel.h>
+#include <seq/sequel.h>
 
 namespace seqPly
 {

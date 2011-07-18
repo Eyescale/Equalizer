@@ -22,9 +22,9 @@
 #include "objectMap.h"
 #include "renderer.h"
 
-#include <sequel/application.h>
-#include <sequel/error.h>
-#include <sequel/renderer.h>
+#include <seq/application.h>
+#include <seq/error.h>
+#include <seq/renderer.h>
 
 namespace seq
 {

@@ -15,45 +15,42 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_VIEW_H
-#define EQSEQUEL_DETAIL_VIEW_H
+#include "slaveConfig.h"
 
-#include <sequel/types.h>
-#include <eq/client/view.h> // base class
+#include "objectMap.h"
+
+#include <seq/application.h>
 
 namespace seq
 {
 namespace detail
 {
-    class View : public eq::View
-    {
-    public:
-        View( eq::Layout* parent );
 
-        /** @name Data Access. */
-        //@{
-        Config* getConfig();
-        Pipe* getPipe();
-        ViewData* getViewData();
-        const ViewData* getViewData() const;
-        //@}
+bool SlaveConfig::mapData( const uint128_t& initID )
+{
+    EQASSERT( !_objects );
 
-        /** @name Operations. */
-        //@{
-        bool handleEvent( const eq::ConfigEvent* event );
-        bool updateData();
-        //@}
-
-    protected:
-        virtual ~View();
-        virtual void notifyAttach();
-        virtual void notifyDetached();
-
-    private:
-        int _spinX, _spinY;
-        int _advance;
-    };
-}
+    _objects = new ObjectMap( *getApplication( ));
+    const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
+                                          getApplicationNode( ));
+    if( !mapObjectSync( request ))
+        return false;
+    return true;
 }
 
-#endif // EQSEQUEL_DETAIL_VIEW_H
+void SlaveConfig::syncData( const uint128_t& version )
+{
+    EQASSERT( _objects )
+    _objects->sync( version );
+}
+
+void SlaveConfig::unmapData()
+{
+    EQASSERT( _objects )
+    unmapObject( _objects );
+    delete _objects;
+    _objects = 0;
+}
+
+}
+}

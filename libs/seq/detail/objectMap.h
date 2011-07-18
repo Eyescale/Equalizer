@@ -18,8 +18,8 @@
 #ifndef EQSEQUEL_DETAIL_OBJECTMAP_H
 #define EQSEQUEL_DETAIL_OBJECTMAP_H
 
-#include <sequel/objectType.h> // used inline
-#include <sequel/types.h>
+#include <seq/objectType.h> // used inline
+#include <seq/types.h>
 #include <co/serializable.h>      // base class
 
 namespace seq

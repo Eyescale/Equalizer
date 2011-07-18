@@ -15,45 +15,51 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_WINDOW_H
-#define EQSEQUEL_DETAIL_WINDOW_H
+#ifndef EQSEQUEL_DETAIL_CHANNEL_H
+#define EQSEQUEL_DETAIL_CHANNEL_H
 
-#include <sequel/types.h>
-#include <eq/client/window.h> // base class
+#include <seq/types.h>
+#include <eq/client/channel.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-    class Window : public eq::Window
+    class Channel : public eq::Channel
     {
     public:
-        Window( eq::Pipe* parent );
+        Channel( eq::Window* parent );
 
-        Config* getConfig();
+        /** @name Data Access. */
+        //@{
         Pipe* getPipe();
+        const View* getView() const;
+        const ViewData* getViewData() const;
         seq::Renderer* getRenderer();
         detail::Renderer* getRendererImpl();
 
+        const Matrix4f& getViewMatrix() const { return getHeadTransform(); }
+        const Matrix4f& getModelMatrix() const;
+        //@}
+
         /** @name Operations. */
         //@{
+        void applyRenderContext() { eq::Channel::frameDraw( eq::UUID::ZERO ); }
+        void applyModelMatrix();
+        //@}
+
+    protected:
+        virtual ~Channel();
+
         virtual void frameStart( const uint128_t& frameID,
                                  const uint32_t frameNumber );
         virtual void frameFinish( const uint128_t& frameID,
                                   const uint32_t frameNumber );
-        virtual bool configInitGL( const uint128_t& initID );
-        virtual bool configExitGL();
-
-        virtual bool initGL() { return eq::Window::configInitGL( 0 ); }
-        virtual bool exitGL() { return eq::Window::configExitGL(); }
-        //@}
-
-    protected:
-        virtual ~Window();
+        virtual void frameDraw( const uint128_t& frameID );
 
     private:
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_WINDOW_H
+#endif // EQSEQUEL_DETAIL_CHANNEL_H

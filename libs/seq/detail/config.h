@@ -19,7 +19,7 @@
 #ifndef EQSEQUEL_DETAIL_CONFIG_H
 #define EQSEQUEL_DETAIL_CONFIG_H
 
-#include <sequel/types.h>
+#include <seq/types.h>
 #include <eq/client/config.h> // base class
 #include <eq/client/server.h> // RefPtr usage
 

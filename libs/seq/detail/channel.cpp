@@ -21,8 +21,8 @@
 #include "renderer.h"
 #include "view.h"
 
-#include <sequel/renderer.h>
-#include <sequel/viewData.h>
+#include <seq/renderer.h>
+#include <seq/viewData.h>
 
 namespace seq
 {

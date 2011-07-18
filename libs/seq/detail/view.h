@@ -15,37 +15,45 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef EQSEQUEL_DETAIL_VIEW_H
+#define EQSEQUEL_DETAIL_VIEW_H
 
-#include "config.h"
-
-#include "application.h"
-#include "objectMap.h"
-
-#include <sequel/application.h>
+#include <seq/types.h>
+#include <eq/client/view.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-seq::Application* Config::getApplication()
-{
-    return static_cast< seq::Application* >( getClient().get( ));
+    class View : public eq::View
+    {
+    public:
+        View( eq::Layout* parent );
+
+        /** @name Data Access. */
+        //@{
+        Config* getConfig();
+        Pipe* getPipe();
+        ViewData* getViewData();
+        const ViewData* getViewData() const;
+        //@}
+
+        /** @name Operations. */
+        //@{
+        bool handleEvent( const eq::ConfigEvent* event );
+        bool updateData();
+        //@}
+
+    protected:
+        virtual ~View();
+        virtual void notifyAttach();
+        virtual void notifyDetached();
+
+    private:
+        int _spinX, _spinY;
+        int _advance;
+    };
+}
 }
 
-detail::Application* Config::getApplicationImpl()
-{
-    return getApplication()->getImpl();
-}
-
-co::Object* Config::getInitData()
-{
-    EQASSERT( _objects );
-    if( !_objects )
-        return 0;
-
-    co::Object* initData = getApplicationImpl()->getInitData();
-    return _objects->getInitData( initData );
-}
-
-}
-}
+#endif // EQSEQUEL_DETAIL_VIEW_H

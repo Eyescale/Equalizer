@@ -15,21 +15,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_OBJECTTYPE_H
-#define EQSEQUEL_OBJECTTYPE_H
 
-#include <sequel/types.h>
+#include "config.h"
+
+#include "application.h"
+#include "objectMap.h"
+
+#include <seq/application.h>
 
 namespace seq
 {
-    /** Built-in object types. @version 1.0 */
-    enum ObjectType
-    {
-        OBJECTTYPE_NONE,      //!< Unused object type
-        OBJECTTYPE_INITDATA,  //!< The object passed to Application::init()
-        OBJECTTYPE_FRAMEDATA, //!< The object passed to Application::run()
-        OBJECTTYPE_MODELMATRIX, //!< Per-view global model transformation
-        OBJECTTYPE_CUSTOM = 100 //!< Application-specific objects
-    };
+namespace detail
+{
+seq::Application* Config::getApplication()
+{
+    return static_cast< seq::Application* >( getClient().get( ));
 }
-#endif // EQSEQUEL_OBJECTTYPE_H
+
+detail::Application* Config::getApplicationImpl()
+{
+    return getApplication()->getImpl();
+}
+
+co::Object* Config::getInitData()
+{
+    EQASSERT( _objects );
+    if( !_objects )
+        return 0;
+
+    co::Object* initData = getApplicationImpl()->getInitData();
+    return _objects->getInitData( initData );
+}
+
+}
+}

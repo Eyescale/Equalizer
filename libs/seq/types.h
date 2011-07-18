@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_TYPES_H
 #define EQSEQUEL_TYPES_H
 
-#include <sequel/api.h>
+#include <seq/api.h>
 #include <eq/client/types.h>
 
 namespace seq

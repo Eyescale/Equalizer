@@ -15,26 +15,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_DETAIL_NODE_H
-#define EQSEQUEL_DETAIL_NODE_H
+#ifndef EQSEQUEL_DETAIL_PIPE_H
+#define EQSEQUEL_DETAIL_PIPE_H
 
-#include <sequel/types.h>
-#include <eq/client/node.h> // base class
+#include <seq/types.h>
+#include <eq/client/pipe.h> // base class
 
 namespace seq
 {
 namespace detail
 {
-    class Node : public eq::Node
+    class Pipe : public eq::Pipe
     {
     public:
-        Node( eq::Config* parent );
+        Pipe( eq::Node* parent );
 
-        Config* getConfig();
+        /** @name Data Access. */
+        //@{
         seq::Application* getApplication();
+        Config* getConfig();
+        Node* getNode();
+        seq::Renderer* getRenderer() { return _renderer; }
+        detail::Renderer* getRendererImpl();
+        co::Object* getFrameData();
+        //@}
 
     protected:
-        virtual ~Node(){}
+        virtual ~Pipe();
 
         virtual bool configInit( const uint128_t& initID );
         virtual bool configExit();
@@ -42,8 +49,14 @@ namespace detail
         virtual void frameStart( const uint128_t& frameID, 
                                  const uint32_t frameNumber );
     private:
+        bool _mapData( const uint128_t& initID );
+        void _syncData( const uint128_t& version );
+        void _unmapData();
+
+        ObjectMap* _objects;
+        seq::Renderer* _renderer;
     };
 }
 }
 
-#endif // EQSEQUEL_DETAIL_NODE_H
+#endif // EQSEQUEL_DETAIL_PIPE_H

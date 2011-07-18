@@ -20,9 +20,9 @@
 #include "config.h"
 #include "pipe.h"
 
-#include <sequel/application.h>
-#include <sequel/renderer.h>
-#include <sequel/viewData.h>
+#include <seq/application.h>
+#include <seq/renderer.h>
+#include <seq/viewData.h>
 #include <eq/client/config.h>
 #include <eq/client/configEvent.h>
 

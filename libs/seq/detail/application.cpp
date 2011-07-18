@@ -25,7 +25,7 @@
 #include "view.h"
 #include "window.h"
 
-#include <sequel/application.h>
+#include <seq/application.h>
 #include <eq/client/config.h>
 #include <eq/client/configParams.h>
 #include <eq/client/init.h>

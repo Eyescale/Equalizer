@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_OBJECTFACTORY_H
 #define EQSEQUEL_OBJECTFACTORY_H
 
-#include <sequel/types.h>
+#include <seq/types.h>
 #include <co/object.h>       // deleted inline
 
 namespace seq

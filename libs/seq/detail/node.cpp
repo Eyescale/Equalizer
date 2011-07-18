@@ -20,8 +20,8 @@
 #include "application.h"
 #include "config.h"
 
-#include <sequel/application.h>
-#include <sequel/error.h>
+#include <seq/application.h>
+#include <seq/error.h>
 
 namespace seq
 {

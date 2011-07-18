@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_DETAIL_RENDERER_H
 #define EQSEQUEL_DETAIL_RENDERER_H
 
-#include <sequel/types.h>
+#include <seq/types.h>
 
 namespace seq
 {
