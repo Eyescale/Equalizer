@@ -11,7 +11,7 @@ if(NOT EQ_REVISION)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
-install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq/ COMPONENT eqdev)
+install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq/client COMPONENT eqdev)
 
 # compile-time definitions
 set(EQUALIZER_DEFINES)
