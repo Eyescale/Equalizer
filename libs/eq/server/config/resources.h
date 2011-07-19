@@ -37,6 +37,8 @@ public:
 private:
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addEyeCompound( Compound* root, const Channels& channels);
+    static Compound* _addDBCompound( Compound* root, const Channels& channels );
+    static void _addSources( Compound* compound, const Channels& channels );
 };
 
 }

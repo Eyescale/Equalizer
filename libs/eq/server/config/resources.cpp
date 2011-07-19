@@ -22,9 +22,11 @@
 #include "../layout.h"
 #include "../node.h"
 #include "../pipe.h"
+#include "../segment.h"
 #include "../window.h"
 #include "../equalizers/loadEqualizer.h"
 
+#include <eq/client/frame.h>
 #include <eq/client/uiFactory.h>
 #include <eq/fabric/gpuInfo.h>
 
@@ -137,6 +139,8 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
         }
+        else if( name == "DB" )
+            _addDBCompound( segmentCompound, channels );
         else if( name == "Simple" )
             /* nop */ ;
         else
@@ -151,20 +155,39 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     Compound* compound = new Compound( root );
     compound->setName( "2D" );
     compound->addEqualizer( new LoadEqualizer );
+    _addSources( compound, channels );
+    return compound;
+}
 
+Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
+{
+    Compound* compound = new Compound( root );
+    compound->setName( "DB" );
+    compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
+    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+    _addSources( compound, channels );
+    return compound;
+}
+
+void Resources::_addSources( Compound* compound, const Channels& channels )
+{
     const Channel* rootChannel = compound->getChannel();
+    const Segment* segment = rootChannel->getSegment();
+    const Channel* outputChannel = segment ? segment->getChannel() : 0;
+    EQASSERT( outputChannel );
+
     for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
     {
         Channel* channel = *i;
         Compound* child = new Compound( compound );
-        child->setChannel( channel );
 
-        if( channel == rootChannel )
+        if( channel == outputChannel )
             continue;
+        child->setChannel( channel );
 
         Frame* outFrame = new Frame;
         std::stringstream frameName;
-        frameName << "Frame.2D." << ++_frameCounter;
+        frameName << "Frame." << compound->getName() << '.' << ++_frameCounter;
         outFrame->setName( frameName.str( ));
         child->addOutputFrame( outFrame );
 
@@ -172,7 +195,6 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
         inFrame->setName( frameName.str( ));
         compound->addInputFrame( inFrame );
     }
-    return compound;
 }
 
 Compound* Resources::_addEyeCompound( Compound* root, const Channels& channels )

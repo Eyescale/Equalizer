@@ -40,12 +40,6 @@ namespace server
     class LoadEqualizer : public Equalizer, protected ChannelListener
     {
     public:
-        EQSERVER_API LoadEqualizer();
-        LoadEqualizer( const LoadEqualizer& from );
-        virtual ~LoadEqualizer();
-        virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
-        virtual void toStream( std::ostream& os ) const { os << this; }
-
         enum Mode
         {
             MODE_DB = 0,     //!< Adapt for a sort-last decomposition
@@ -53,6 +47,12 @@ namespace server
             MODE_VERTICAL,   //!< Adapt for sort-first using vertical stripes
             MODE_2D          //!< Adapt for a sort-first decomposition
         };
+
+        EQSERVER_API LoadEqualizer( const Mode mode = MODE_2D );
+        LoadEqualizer( const LoadEqualizer& from );
+        virtual ~LoadEqualizer();
+        virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
+        virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the load balancer adaptation mode. */
         void setMode( const Mode mode ) { _mode = mode; }

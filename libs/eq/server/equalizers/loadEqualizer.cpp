@@ -35,8 +35,8 @@ std::ostream& operator << ( std::ostream& os, const LoadEqualizer::Node* );
 // level, a relative split position is determined by balancing the left subtree
 // against the right subtree.
 
-LoadEqualizer::LoadEqualizer()
-        : _mode( MODE_2D )
+LoadEqualizer::LoadEqualizer( const Mode mode )
+        : _mode( mode )
         , _damping( .5f )
         , _tree( 0 )
         , _boundary2i( 1, 1 )

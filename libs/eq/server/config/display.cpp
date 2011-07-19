@@ -51,6 +51,7 @@ void Display::discoverLocal( Config* config )
     Window* window = new Window( pipe );
     window->setViewport( Viewport( .25f, .2f, .5f, .5f ));
     window->setName( pipe->getName() + " window" );
+    window->setIAttribute( Window::IATTR_PLANES_STENCIL, 1 );
 
     Channel* channel = new Channel( window );
     channel->setName( pipe->getName() + " channel" );
@@ -70,6 +71,7 @@ void Display::discoverLocal( Config* config )
     Strings names;
     names.push_back( "2D" );
     names.push_back( "Simple" );
+    names.push_back( "DB" );
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )
     {
