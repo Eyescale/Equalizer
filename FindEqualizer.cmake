@@ -92,7 +92,7 @@ find_path(_eq_INCLUDE_DIR eq/client/version.h
   PATHS /usr /usr/local /opt/local /opt
   )
 
-if(_eq_INCLUDE_DIR)
+if(_eq_INCLUDE_DIR AND EXISTS "${_eq_INCLUDE_DIR}/eq/client/version.h")
   set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/client/version.h")
 else() # find old one
   find_path(_eq_INCLUDE_DIR eq/version.h
@@ -100,7 +100,7 @@ else() # find old one
     PATH_SUFFIXES include
     PATHS /usr /usr/local /opt/local /opt
     )
-  if(_eq_INCLUDE_DIR)
+  if(_eq_INCLUDE_DIR AND EXISTS "${_eq_INCLUDE_DIR}/eq/version.h")
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
   endif()
 endif()
@@ -112,12 +112,7 @@ if(_eq_Version_file)
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")
   endif()
     
-  if(EXISTS "${_eq_Version_file}")
-    file(READ "${_eq_Version_file}" _eq_Version_contents)
-  else()
-    set(_eq_Version_contents "unknown")
-  endif()
-
+  file(READ "${_eq_Version_file}" _eq_Version_contents)
   string(REGEX REPLACE ".*define EQ_VERSION_MAJOR[ \t]+([0-9]+).*"
     "\\1" EQUALIZER_VERSION_MAJOR ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_MINOR[ \t]+([0-9]+).*"
@@ -180,7 +175,7 @@ if(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
     "ERROR: Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
-    "Version ${EQUALIZER_VERSION} was found.")
+    "Version ${EQUALIZER_VERSION} was found in ${_eq_Version_file}.")
 elseif(_eq_version_not_exact)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
