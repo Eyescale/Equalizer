@@ -74,6 +74,7 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.1.3 "0.4.0")
   set(_eq_coVersion_1.1.2 "0.4.0")
   set(_eq_coVersion_1.1.1 "0.4.0")
   set(_eq_coVersion_1.1.0 "0.4.0")
@@ -84,17 +85,28 @@ else()
   find_package(Collage ${_eq_required})
 endif()
 
-#
-# find and parse eq/version.h
-find_path(_eq_INCLUDE_DIR eq/version.h
+# find and parse eq/client/version.h [new location]
+find_path(_eq_INCLUDE_DIR eq/client/version.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
 
-# Try to ascertain the version...
 if(_eq_INCLUDE_DIR)
-  set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
+  set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/client/version.h")
+else() # find old one
+  find_path(_eq_INCLUDE_DIR eq/version.h
+    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+    PATH_SUFFIXES include
+    PATHS /usr /usr/local /opt/local /opt
+    )
+  if(_eq_INCLUDE_DIR)
+    set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
+  endif()
+endif()
+
+if(_eq_Version_file)
+# Try to ascertain the version...
   if("${_eq_INCLUDE_DIR}" MATCHES "\\.framework$" AND
       NOT EXISTS "${_eq_Version_file}")
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")

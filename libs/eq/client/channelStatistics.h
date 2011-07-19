@@ -33,7 +33,7 @@ namespace eq
          * @version 1.0
          */
         EQ_API ChannelStatistics( const Statistic::Type type, Channel* channel,
-                                  const int32_t hint = AUTO );
+                                  const int32_t hint = fabric::AUTO );
 
         /**
          * Destruct the sampler, sample the end time and send the event.

@@ -12,6 +12,8 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${OUTPUT_INCLUDE_DIR}/eq/client/version.h)
 install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq/client COMPONENT eqdev)
+# also install in old location for compatibility with old FindEqualizer scripts
+install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq COMPONENT eqdev)
 
 # compile-time definitions
 set(EQUALIZER_DEFINES)
