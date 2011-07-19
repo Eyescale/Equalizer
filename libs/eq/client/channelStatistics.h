@@ -20,11 +20,10 @@
 
 #include <eq/client/statisticSampler.h> // base class
 #include <eq/client/types.h>
+#include <eq/fabric/iAttribute.h>
 
 namespace eq
 {
-    class Channel;
-
     /** Samples one channel statistics event. */
     class ChannelStatistics : public StatisticSampler< Channel >
     {

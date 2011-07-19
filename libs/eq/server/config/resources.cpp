@@ -139,8 +139,13 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
         }
-        else if( name == "DB" )
-            _addDBCompound( segmentCompound, channels );
+        else if( name == "static DB" || name == "dynamic DB" )
+        {
+            Compound* db = _addDBCompound( segmentCompound, channels );
+            db->setName( name );
+            if( name == "dynamic DB" )
+                db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
+        }
         else if( name == "Simple" )
             /* nop */ ;
         else
@@ -163,9 +168,23 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
 {
     Compound* compound = new Compound( root );
     compound->setName( "DB" );
-    compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
-    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
+    if( channels.size() > 1 )
+        compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
     _addSources( compound, channels );
+
+    const Compounds& children = compound->getChildren();\
+    const size_t step = size_t( 100000.0f / float( children.size( )));
+    size_t start = 0;
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    {
+        Compound* child = *i;
+        if( i+1 == children.end( )) // last - correct rounding 'error'
+            child->setRange( Range( float( start ) / 100000.f, 1.f ));
+        else
+            child->setRange( Range( float( start ) / 100000.f,
+                                    float( start + step ) / 100000.f ));
+        start += step;
+    }
     return compound;
 }
 

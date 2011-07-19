@@ -76,7 +76,7 @@ static ExecutionListenerVector& _listeners()
 }
 
 static pthread_key_t _createCleanupKey();
-void                 _notifyStopping( void* arg );
+void _notifyStopping( void* arg );
 
 static pthread_key_t _cleanupKey = _createCleanupKey();
 

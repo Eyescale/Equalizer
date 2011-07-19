@@ -71,7 +71,8 @@ void Display::discoverLocal( Config* config )
     Strings names;
     names.push_back( "2D" );
     names.push_back( "Simple" );
-    names.push_back( "DB" );
+    names.push_back( "static DB" );
+    names.push_back( "dynamic DB" );
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )
     {

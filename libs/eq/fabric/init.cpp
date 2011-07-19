@@ -31,10 +31,9 @@ static co::base::a_int32_t _initialized;
 
 bool init( const int argc, char** argv )
 {
-    if( ++_initialized != 1 ) // not first
-        return true;
-
-    return co::init( argc, argv );
+    if( ++_initialized == 1 ) // first
+        return co::init( argc, argv );
+    return true;
 }
     
 bool exit()
@@ -42,10 +41,10 @@ bool exit()
     if( _initialized <= 0 )
         return false;
 
-    if( --_initialized != 0 ) // not last
-        return true;
+    if( --_initialized == 0 ) // last
+        return co::exit();
 
-    return co::exit();
+    return true;
 }
 
 }
