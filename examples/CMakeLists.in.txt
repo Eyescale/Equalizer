@@ -23,7 +23,6 @@ endif()
 if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
-  add_definitions(-DDarwin)
 endif(APPLE)
 
 include(EqStringifyShaders)
