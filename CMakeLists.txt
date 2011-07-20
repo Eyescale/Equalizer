@@ -202,7 +202,7 @@ if(APPLE)
     endif()
   else(EQ_AGL_USED)
     if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-      set(EQUALIZER_OSX_ARCHITECTURES "ppc;pp64" CACHE STRING
+      set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
           "Equalizer build architectures")
     else()
       set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
