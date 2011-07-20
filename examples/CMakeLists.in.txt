@@ -1,5 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#                    2011 Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(Equalizer_BINARY_DIR) # in-source build
@@ -20,11 +21,44 @@ else()
   include(PurpleExpandLibraries)
 endif()
 
+# hardcoded for now:
+set(CMAKE_OSX_ARCHITECTURES "i386")
+
+# hardcoded for now:
+if(APPLE)
+    set(EQ_AGL_USED 1)
+else(APPLE)
+    set(EQ_GLX_USED 1)
+endif(APPLE)
+
+find_package(OpenGL REQUIRED)
+#find_package(GLEW_MX) #ignored for now
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+
 if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
-  add_definitions(-DDarwin)
 endif(APPLE)
+
+if(APPLE)
+  if(EQ_AGL_USED)
+    find_library(CARBON_LIBRARY Carbon)
+    set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
+  endif(EQ_AGL_USED)
+  if(EQ_GLX_USED)
+    set(GL_LIBRARIES ${GL_LIBRARIES} GL)
+  endif(EQ_GLX_USED)
+else(APPLE)
+  set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
+endif(APPLE)
+
+set(WINDOWING_LIBRARIES)
+if(EQ_AGL_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${CARBON_LIBRARY}) 
+endif()
+if(EQ_GLX_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${X11_LIBRARIES}) 
+endif()
 
 include(EqStringifyShaders)
 
@@ -40,7 +74,8 @@ function(EQ_ADD_EXAMPLE NAME)
 
   purple_expand_libraries(LINK_LIBRARIES
                           ${EQUALIZER_LIBRARIES} ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
+  target_link_libraries(${THIS_TARGET} 
+                          ${LINK_LIBRARIES} ${GL_LIBRARIES} ${WINDOWING_LIBRARIES})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed
@@ -73,3 +108,8 @@ add_subdirectory(eqHello)
 add_subdirectory(eqPixelBench)
 add_subdirectory(eqPly)
 add_subdirectory(seqPly)
+
+if(APPLE)
+  message(STATUS "dynamic library path export command: `export DYLD_LIBRARY_PATH=\"${EQUALIZER_LIBRARY_DIR}\"`")
+endif(APPLE)
+
