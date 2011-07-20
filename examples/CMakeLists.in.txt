@@ -9,6 +9,7 @@ if(Equalizer_BINARY_DIR) # in-source build
   set(EQUALIZER_SEQUEL_LIBRARY lib_Sequel_shared)
 else()
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
   find_package(Equalizer @SHORT_VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
   set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
@@ -18,6 +19,12 @@ else()
   include(ParseArguments)
   include(PurpleExpandLibraries)
 endif()
+
+if(APPLE)
+  link_directories(/usr/X11R6/lib)
+  include_directories(SYSTEM /usr/X11R6/include)
+  add_definitions(-DDarwin)
+endif(APPLE)
 
 include(EqStringifyShaders)
 
@@ -53,10 +60,10 @@ install(FILES CMakeLists.txt DESTINATION share/Equalizer/examples
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples PATTERN ".svn" EXCLUDE)
 
-if(CUDA_FOUND)
+if(CUDA_FOUND AND EXISTS eqNBody)
   add_subdirectory(eqNBody)
 endif()
-if(OSG_FOUND)
+if(OSG_FOUND AND EXISTS osgScaleViewer)
   add_subdirectory(osgScaleViewer)
 endif()
 
