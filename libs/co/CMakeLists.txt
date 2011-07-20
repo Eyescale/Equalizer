@@ -19,7 +19,7 @@ option(COLLAGE_BUILD_MODULARIZED "Build intermediate Collage libraries" OFF)
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(COLLAGE_OSX_ARCHITECTURES "ppc;pp64" CACHE STRING
+    set(COLLAGE_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
         "Collage build architectures")
   else()
     set(COLLAGE_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
