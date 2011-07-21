@@ -150,6 +150,10 @@ find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
    PATHS /usr /usr/local /opt/local /opt
 )
+find_library(_eq_fabric_LIBRARY EqualizerFabric PATH_SUFFIXES lib
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
+)
 find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
@@ -197,11 +201,13 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     # Zero out everything, we didn't meet version requirements
     set(EQUALIZER_FOUND FALSE)
     set(_eq_LIBRARY)
+    set(_eq_fabric_LIBRARY)
     set(_eq_INCLUDE_DIR)
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${_eq_fabric_LIBRARY}
+                        ${COLLAGE_LIBRARIES})
 get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)
