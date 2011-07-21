@@ -1030,7 +1030,7 @@ void Channel::drawStatistics()
             downloaders << " 0x" << std::hex << *j << std::dec;
         }
         if( !downloaders.str().empty( ))
-            font->draw( std::string( ", down" ) + downloaders.str( ));
+            font->draw( std::string( ", r" ) + downloaders.str( ));
 
         std::stringstream compressors;
         for( std::set<uint32_t>::const_iterator j = data.compressors.begin();
