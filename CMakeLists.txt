@@ -67,12 +67,12 @@ else()
   set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
 endif()
 
-set(EQ_FEATURES)
-include(configure)
-
 set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
+
+set(EQ_FEATURES)
+include(configure)
 
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
@@ -124,9 +124,7 @@ if(OPENMP_FOUND)
   endif()
 endif(OPENMP_FOUND)
 
-find_package(OpenGL REQUIRED)
 find_package(GLEW_MX)
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
 
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred

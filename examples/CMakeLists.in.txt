@@ -19,26 +19,18 @@ else()
   include(configure)
   include(ParseArguments)
   include(PurpleExpandLibraries)
+  set(EQ_AGL_USED @EQ_AGL_USED@)
+  set(EQ_GLX_USED @EQ_GLX_USED@)
+
+  if(APPLE)
+    link_directories(/usr/X11R6/lib)
+    include_directories(SYSTEM /usr/X11R6/include)
+    set(CMAKE_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
+  endif(APPLE)
+  if(EQ_AGL_USED)
+    find_library(CARBON_LIBRARY Carbon)
+  endif()
 endif()
-
-# hardcoded for now:
-set(CMAKE_OSX_ARCHITECTURES "i386")
-
-# hardcoded for now:
-if(APPLE)
-    set(EQ_AGL_USED 1)
-else(APPLE)
-    set(EQ_GLX_USED 1)
-endif(APPLE)
-
-find_package(OpenGL REQUIRED)
-#find_package(GLEW_MX) #ignored for now
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-
-if(APPLE)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
-endif(APPLE)
 
 if(APPLE)
   if(EQ_AGL_USED)
@@ -74,8 +66,7 @@ function(EQ_ADD_EXAMPLE NAME)
 
   purple_expand_libraries(LINK_LIBRARIES
                           ${EQUALIZER_LIBRARIES} ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} 
-                          ${LINK_LIBRARIES} ${GL_LIBRARIES} ${WINDOWING_LIBRARIES})
+  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_LIBRARIES})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed
