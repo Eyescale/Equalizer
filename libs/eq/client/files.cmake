@@ -65,7 +65,6 @@ set(CLIENT_HEADERS
   systemPipe.h
   systemWindow.h
   types.h
-  uiFactory.h
   view.h
   viewPackets.h
   visitorResult.h
@@ -121,7 +120,6 @@ set(CLIENT_SOURCES
   statistic.cpp
   systemPipe.cpp
   systemWindow.cpp
-  uiFactory.cpp
   version.cpp
   view.cpp
   window.cpp

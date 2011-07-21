@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "../uiFactory.h"
+#include "../windowSystem.h"
 
 #include "../aglWindow.h"
 #include "../aglPipe.h"
@@ -30,26 +30,26 @@
 namespace eq
 {
 
-static class : UIFactoryImpl< WINDOW_SYSTEM_AGL >
+static class : WindowSystemImpl< 'A', 'G', 'L' >
 {
-    eq::SystemWindow* _createSystemWindow(eq::Window* window) const
+    eq::SystemWindow* createSystemWindow(eq::Window* window) const
     {
         EQINFO << "Using AGLWindow" << std::endl;
         return new AGLWindow(window);
     }
 
-    eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createSystemPipe(eq::Pipe* pipe) const
     {
         EQINFO << "Using AGLPipe" << std::endl;
         return new AGLPipe(pipe);
     }
 
-    eq::MessagePump* _createMessagePump() const
+    eq::MessagePump* createMessagePump() const
     {
         return new AGLMessagePump;
     }
 
-    GPUInfos _discoverGPUs() const
+    GPUInfos discoverGPUs() const
     {
         const CGDirectDisplayID mainDisplayID = CGMainDisplayID();
 
@@ -86,14 +86,14 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_AGL >
         return result;
     }
 
-    void _configInit(eq::Node* node) const
+    void configInit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
         AGLEventHandler::initMagellan(node);
 #endif
     }
 
-    void _configExit(eq::Node* node) const
+    void configExit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
         AGLEventHandler::exitMagellan(node);

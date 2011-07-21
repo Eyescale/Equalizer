@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "../uiFactory.h"
+#include "../windowSystem.h"
 
 #include "../config.h"
 #include "../node.h"
@@ -32,28 +32,28 @@
 namespace eq
 {
 
-static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
+static class : WindowSystemImpl< 'W', 'G', 'L' >
 {
-    eq::SystemWindow* _createSystemWindow(eq::Window* window) const
+    eq::SystemWindow* createSystemWindow(eq::Window* window) const
     {
         EQINFO << "Using WGLWindow" << std::endl;
         return new WGLWindow(window);
     }
 
-    eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createSystemPipe(eq::Pipe* pipe) const
     {
         EQINFO << "Using WGLPipe" << std::endl;
         return new WGLPipe(pipe);
     }
 
-    eq::MessagePump* _createMessagePump() const
+    eq::MessagePump* createMessagePump() const
     {
         return new WGLMessagePump;
     }
 
 #define wglewGetContext wglPipe->wglewGetContext
 
-    GPUInfos _discoverGPUs() const
+    GPUInfos discoverGPUs() const
     {
         // Create fake config to use WGLPipe affinity code for queries
         ServerPtr server = new Server;
@@ -106,14 +106,14 @@ static class : UIFactoryImpl< WINDOW_SYSTEM_WGL >
         return result;
     }
 
-    void _configInit(eq::Node* node) const
+    void configInit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
         WGLEventHandler::initMagellan(node);
 #endif
     }
 
-    void _configExit(eq::Node* node) const
+    void configExit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
         WGLEventHandler::exitMagellan(node);
