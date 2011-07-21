@@ -74,6 +74,11 @@ namespace base
 #endif
     }
 
+#if defined(Linux) && defined(_LP64)
+    template<> inline int32_t 
+    getIndexOfLastBit< unsigned long long >( unsigned long long value )
+        { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+#endif
 #ifdef Darwin
 #  ifdef _LP64
     template<> inline
