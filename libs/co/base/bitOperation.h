@@ -74,11 +74,16 @@ namespace base
 #endif
     }
 
-#ifdef Linux
-    template<> inline int32_t 
-    getIndexOfLastBit< unsigned long long >( unsigned long long value )
-        { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
-#endif
+// TODO: in gcc44, 'uint64_t' is the same type as 'unsigned long long', leading
+// to multiple declarations of getIndexOfLastBit. If this is not the case for
+// newer versions of gcc, introduce a version check, otherwise remove this
+// comment.
+//#ifdef Linux
+//    template<> inline int32_t
+//    getIndexOfLastBit< unsigned long long >( unsigned long long value )
+//        { return getIndexOfLastBit( static_cast< uint64_t >( value )); }
+//#endif
+
 #ifdef Darwin
 #  ifdef _LP64
     template<> inline
