@@ -250,6 +250,12 @@ namespace server
          * @version 1.0
          */
         void removeListener( co::base::Monitor<uint32_t>& listener );
+
+
+        /** 
+         * returns the number of read back images in the last readback call.
+         */
+        size_t getNewImages() const { return _newImages; }
         //@}
 
     protected:
@@ -277,6 +283,8 @@ namespace server
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
+
+        size_t _newImages;
     };
 
     /** Print the frame type to the given output stream. @version 1.0 */
