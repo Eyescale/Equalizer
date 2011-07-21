@@ -92,7 +92,39 @@ bool Atomic< ssize_t >::compareAndSwap( ssize_t* value, const ssize_t expected,
            expected;
 }
 
-#  endif // WIN64
+#  else // _WIN64
+
+template<> ssize_t
+Atomic< ssize_t >::getAndAdd( ssize_t& value, const ssize_t increment )
+{
+    return InterlockedExchangeAdd( &value, increment );
+}
+
+template<> ssize_t 
+Atomic< ssize_t >::getAndSub( ssize_t& value, const ssize_t increment )
+{
+    return InterlockedExchangeAdd( &value, -increment );
+}
+
+template<> ssize_t Atomic< ssize_t >::incAndGet( ssize_t& value )
+{
+    return InterlockedIncrement( &value );
+}
+
+template<> ssize_t Atomic< ssize_t >::decAndGet( ssize_t& value )
+{
+    return InterlockedDecrement( &value );
+}
+
+template<> 
+bool Atomic< ssize_t >::compareAndSwap( ssize_t* value, const ssize_t expected,
+                                        const ssize_t newValue )
+{
+    return InterlockedCompareExchange( value, newValue, expected ) ==
+           expected;
+}
+
+#  endif // else _WIN64
 #endif // _MSC_VER
 
 }
