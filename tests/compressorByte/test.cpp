@@ -19,9 +19,7 @@
 #define EQ_TEST_RUNTIME 200 // seconds
 #include <test.h>
 
-#include <eq/init.h>
-#include <eq/nodeFactory.h>
-
+#include <co/init.h>
 #include <co/base/buffer.h>
 #include <co/base/clock.h>
 #include <co/base/file.h>
@@ -36,9 +34,9 @@
 #include <sstream>
 #include <string>
 
-#include "libs/collage/base/compressorInfo.h" // private header
-#include "libs/collage/base/cpuCompressor.h" // private header
-#include "libs/collage/base/plugin.h" // private header
+#include <co/base/compressorInfo.h> // private header
+#include <co/base/cpuCompressor.h> // private header
+#include <co/base/plugin.h> // private header
 
 void testCompressByte( const uint32_t nameCompressor,
                        const uint8_t* data, const uint64_t size,
@@ -56,10 +54,9 @@ std::vector< std::string > getFiles( const std::string path,
 
 int main( int argc, char **argv )
 {
-    eq::NodeFactory nodeFactory;
-    eq::init( argc, argv, &nodeFactory );
+    co::init( argc, argv );
     testCompressorFile();
-    eq::exit();
+    co::exit();
 
     return EXIT_SUCCESS;
 }

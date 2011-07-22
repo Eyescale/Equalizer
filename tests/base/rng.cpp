@@ -18,15 +18,16 @@
 // Tests the functionality of the random number generator
 
 #include <test.h>
+
+#include <co/base/clock.h>
 #include <co/base/init.h>
 #include <co/base/rng.h>
-
-using namespace co::base;
 
 #define MAXLOOPS 100000
 
 #define TESTLOOP( type, min, max )                                      \
-    i = MAXLOOPS;                                                       \
+{                                                                       \
+    size_t i = MAXLOOPS;                                                \
     while( --i )                                                        \
         if( rng.get< type >() <= ( min ))                               \
             break;                                                      \
@@ -44,15 +45,15 @@ using namespace co::base;
                 break;                                                  \
         TESTINFO( i, "Always get the same value " << value << " for "   \
                   << #type );                                           \
-    }
+    }                                                                   \
+}
 
 int main( int argc, char **argv )
 {
     TEST( co::base::init( argc, argv ));
 
-    RNG rng;
+    co::base::RNG rng;
 
-    unsigned i;
     TESTLOOP( uint8_t,  0,        255 );
     TESTLOOP( uint16_t, 50,       65000 );
     TESTLOOP( uint32_t, 1<<20,    1u<<12 );
@@ -65,6 +66,12 @@ int main( int argc, char **argv )
 
     TESTLOOP( float,  0.1f, 0.9f );
     TESTLOOP( double, 0.1,  0.9 );
+
+    co::base::Clock clock;
+    for( size_t i = 0; i < MAXLOOPS; ++i )
+        rng.get< uint64_t >();
+    std::cout << float( MAXLOOPS ) / clock.getTimef() << " rng/ms"
+              << std::endl;
 
     TEST( co::base::exit( ));
     return EXIT_SUCCESS;

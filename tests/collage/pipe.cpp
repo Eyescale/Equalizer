@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include "libs/collage/pipeConnection.h" // private header
+#include <co/pipeConnection.h> // private header
 
 class Server : public co::base::Thread
 {
