@@ -16,8 +16,12 @@ address 192.168.1.2
 netmask 255.255.255.0
 
 blue:~/Software/Equalizer# cat /etc/udev/rules.d/99-infiniband.rules
-KERNEL=="umad*", NAME="infiniband/%k", MODE="0666"
-KERNEL=="issm*", NAME="infiniband/%k", MODE="0666"
+KERNEL=="umad*", NAME="infiniband/%k"
+KERNEL=="issm*", NAME="infiniband/%k"
+KERNEL=="ucm*", NAME="infiniband/%k", MODE="0666"
+KERNEL=="uverbs*", NAME="infiniband/%k", MODE="0666"
+KERNEL=="ucma", NAME="infiniband/%k", MODE="0666"
+KERNEL=="rdma_cm", NAME="infiniband/%k", MODE="0666"
 
 blue:~/Software/Equalizer# cat /etc/modules 
 # /etc/modules: kernel modules to load at boot time.
@@ -27,6 +31,8 @@ blue:~/Software/Equalizer# cat /etc/modules
 
 lp
 rtc
+rdma_ucm
+rdma_cm
 ib_sa
 ib_cm
 ib_umad
