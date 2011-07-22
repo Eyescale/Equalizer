@@ -51,12 +51,12 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(netperf
   SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Collage
   )
 
 eq_add_tool(netproxy
   SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Collage
   )
 
 eq_add_tool(windowAdmin

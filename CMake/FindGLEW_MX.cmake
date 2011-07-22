@@ -18,15 +18,15 @@ if(_glew_mx_INCLUDE_DIR AND _glew_mx_LIBRARY)
 
   try_compile(_glew_mx_SUPPORTED ${CMAKE_BINARY_DIR}/glew_test ${TEST_SRC}
     CMAKE_FLAGS
-      "-DINCLUDE_DIRECTORIES:STRING=${GLEW_INCLUDE_DIRS}"
-      "-DLINK_LIBRARIES:STRING=${GLEW_LIBRARY}"
+      "-DINCLUDE_DIRECTORIES:STRING=${_glew_mx_INCLUDE_DIR}"
+      "-DLINK_LIBRARIES:STRING=${_glew_mx_LIBRARY}"
     COMPILE_DEFINITIONS -DGLEW_MX=1
     )
 
   if(NOT _glew_mx_SUPPORTED)
-    message(STATUS "  ${GLEW_LIBRARY} does not support GLEW_MX.")
-    set(_glew_mx_INCLUDE_DIR)
-    set(_glew_mx_LIBRARY)
+    message(STATUS "  ${_glew_mx_LIBRARY} does not support GLEW_MX.")
+    set(_glew_mx_INCLUDE_DIR 0)
+    set(_glew_mx_LIBRARY 0)
   endif(NOT _glew_mx_SUPPORTED)
 endif()
 

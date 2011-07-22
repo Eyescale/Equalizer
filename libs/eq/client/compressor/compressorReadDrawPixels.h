@@ -20,8 +20,7 @@
 #define EQ_PLUGIN_COMPRESSORREADDRAWPIXELS
 
 #include "compressor.h"
-
-#include <eq/GL/glew.h>
+#include <eq/client/gl.h>
 
 namespace eq
 {

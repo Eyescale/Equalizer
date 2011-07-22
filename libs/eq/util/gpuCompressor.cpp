@@ -18,13 +18,13 @@
 
 #include "gpuCompressor.h"
 
+#include <eq/client/gl.h>
 #include <eq/fabric/pixelViewport.h>
-#include <eq/GL/glew.h>
 
+#include <co/base/compressorInfo.h>
 #include <co/base/global.h>
+#include <co/base/plugin.h>
 #include <co/base/pluginRegistry.h>
-#include "../../co/base/compressorInfo.h"
-#include "../../co/base/plugin.h"
 
 namespace eq
 {
