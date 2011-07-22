@@ -623,7 +623,7 @@ void Config::setupMessagePump( Pipe* pipe )
     const bool isThreaded = pipe->isThreaded();
     const WindowSystem windowSystem = pipe->getWindowSystem();
 
-    if( isThreaded && windowSystem != WINDOW_SYSTEM_AGL )
+    if( isThreaded && windowSystem.name() != "AGL" )
         return;
 
     // called from pipe threads - but only during init

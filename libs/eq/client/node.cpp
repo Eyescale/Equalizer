@@ -32,7 +32,6 @@
 #include "pipe.h"
 #include "pipePackets.h"
 #include "server.h"
-#include "uiFactory.h"
 
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/packets.h>
@@ -180,13 +179,13 @@ bool Node::isStopped() const
 
 bool Node::configInit( const uint128_t& )
 {
-    UIFactory::configInit( this );
+	WindowSystem::configInit( this );
     return true;
 }
 
 bool Node::configExit()
 {
-    UIFactory::configExit( this );
+	WindowSystem::configExit( this );
     return true;
 }
 

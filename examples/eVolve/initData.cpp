@@ -41,7 +41,6 @@ namespace eVolve
 
 InitData::InitData()
         : _frameDataID(  co::base::UUID::ZERO )
-        , _windowSystem( eq::WINDOW_SYSTEM_NONE )
         , _precision( 2 )
         , _brightness( 1.0f )
         , _alpha( 1.0f )

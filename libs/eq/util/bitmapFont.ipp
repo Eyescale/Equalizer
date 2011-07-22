@@ -64,20 +64,20 @@ template< class OMT >
 bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                               const uint32_t size )
 {
-    switch( ws )
-    {
-        case WINDOW_SYSTEM_GLX:
-            return _initGLX( name, size );
-        case WINDOW_SYSTEM_WGL:
-            return _initWGL( name, size );
-        case WINDOW_SYSTEM_AGL:
-            return _initAGL( name, size );
-        default:
-            return false;
-    }
+    // TODO: initBitmapFont could be a member function of WindowSystem
+
+	if ( ws.name() == "AGL" )
+        return _initAGL( name, size );
+
+	if ( ws.name() == "GLX" )
+        return _initGLX( name, size );
+
+	if ( ws.name() == "WGL" )
+        return _initWGL( name, size );
 
     EQASSERTINFO( _gl.getList( _key ) != ObjectManager< OMT >::INVALID, 
                   "Font initialization failed" );
+    return false;
 }
 
 template< class OMT >

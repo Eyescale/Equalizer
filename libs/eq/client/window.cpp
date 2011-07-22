@@ -35,7 +35,6 @@
 #include "systemWindow.h"
 #include "windowPackets.h"
 #include "windowStatistics.h"
-#include "uiFactory.h"
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/elementVisitor.h>
@@ -370,7 +369,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
     SystemWindow* systemWindow =
-        UIFactory::createSystemWindow( pipe->getWindowSystem(), this );
+         pipe->getWindowSystem().createSystemWindow( this );
 
     EQASSERT( systemWindow );
     if( !systemWindow->configInit( ))
