@@ -20,10 +20,9 @@
 #include "compressorYUV.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <eq/client/gl.h>
 #include <eq/client/zoomFilter.h>
-#include <eq/GL/glew.h>
 #include <eq/fabric/pixelViewport.h>
-
 
 #include "yuv420readback_glsl.h"
 #include "yuv420unpack_glsl.h"
