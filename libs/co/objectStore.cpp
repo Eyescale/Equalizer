@@ -121,7 +121,7 @@ void ObjectStore::clear( )
 {
     EQASSERT( _objects->empty( ));
     expireInstanceData( 0 );
-    EQASSERT( !_instanceCache || _instanceCache->empty( ));
+    EQASSERT( !_instanceCache || _instanceCache->isEmpty( ));
 
     _objects->clear();
     _sendQueue.clear();
@@ -887,13 +887,13 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
         }
         else if( packet->releaseCache )
         {
-            EQCHECK( _instanceCache->release( packet->objectID ));
+            EQCHECK( _instanceCache->release( packet->objectID, 1 ));
         }
     }
     else
     {
-        if( packet->useCache )
-            _instanceCache->release( packet->objectID );
+        if( packet->releaseCache )
+            _instanceCache->release( packet->objectID, 1 );
 
         EQWARN << "Could not map object " << packet->objectID << std::endl;
     }

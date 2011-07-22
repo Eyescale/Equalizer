@@ -27,7 +27,7 @@
 #include "../equalizers/loadEqualizer.h"
 
 #include <eq/client/frame.h>
-#include <eq/client/uiFactory.h>
+#include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
 
 namespace eq
@@ -40,7 +40,7 @@ static co::base::a_int32_t _frameCounter;
 
 bool Resources::discoverLocal( Config* config )
 {
-    const GPUInfos infos = UIFactory::discoverGPUs();
+    const GPUInfos infos = WindowSystem().discoverGPUs();
     if( infos.empty( ))
         return false;
 

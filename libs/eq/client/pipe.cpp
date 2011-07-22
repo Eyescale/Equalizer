@@ -35,7 +35,6 @@
 #include "window.h"
 #include "windowPackets.h"
 
-#include "uiFactory.h"
 #include "messagePump.h"
 #include "systemPipe.h"
 
@@ -67,7 +66,6 @@ typedef co::CommandFunc<Pipe> PipeFunc;
 Pipe::Pipe( Node* parent )
         : Super( parent )
         , _systemPipe( 0 )
-        , _windowSystem( WINDOW_SYSTEM_NONE )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
@@ -149,26 +147,13 @@ void Pipe::setDirty( const uint64_t bits )
     Object::setDirty( bits );
 }
 
-bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
-{
-    return UIFactory::supports( windowSystem );
-}
-
 WindowSystem Pipe::selectWindowSystem() const
 {
-    for( WindowSystem i = WINDOW_SYSTEM_NONE; i < WINDOW_SYSTEM_ALL; 
-         i = (WindowSystem)((int)i+1) )
-    {
-        if( supportsWindowSystem( i ))
-            return i;
-    }
-    EQABORT( "No supported window system found" );
-    return WINDOW_SYSTEM_NONE;
+    return WindowSystem();
 }
 
 void Pipe::_setupCommandQueue()
 {
-    EQASSERT( _windowSystem != WINDOW_SYSTEM_NONE );
     EQINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
 
     Config* config = getConfig();
@@ -202,7 +187,7 @@ void Pipe::_exitCommandQueue()
 
 MessagePump* Pipe::createMessagePump()
 {
-    return UIFactory::createMessagePump( _windowSystem );
+    return _windowSystem.createMessagePump();
 }
 
 MessagePump* Pipe::getMessagePump()
@@ -548,9 +533,9 @@ bool Pipe::configInit( const uint128_t& initID )
 
 bool Pipe::configInitSystemPipe( const uint128_t& )
 {
-    SystemPipe* systemPipe = UIFactory::createSystemPipe( _windowSystem, this );
-
+    SystemPipe* systemPipe = _windowSystem.createPipe( this );
     EQASSERT( systemPipe );
+
     if( !systemPipe->configInit( ))
     {
         EQASSERT( getError() != ERROR_NONE );

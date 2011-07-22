@@ -90,7 +90,7 @@ namespace co
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        CO_API bool release( const base::UUID& id, const uint32_t count = 1 );
+        CO_API bool release( const base::UUID& id, const uint32_t count );
 
         /** 
          * Erase all the data for the given object.
@@ -111,7 +111,7 @@ namespace co
         /** Remove all items which are older than the given time. */
         void expire( const int64_t age );
 
-        bool empty( ){ return _items->empty(); }
+        bool isEmpty() { return _items->empty(); }
 
     private:
         struct Item
@@ -127,6 +127,7 @@ namespace co
         };
 
         typedef stde::hash_map< base::uint128_t, Item > ItemHash;
+        typedef ItemHash::iterator ItemHashIter;
         base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands

@@ -42,5 +42,6 @@ else()
   endif(EQ_GLX_USED)
   
   install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT eqdev)
+  message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built by Equalizer.")
 endif()
 

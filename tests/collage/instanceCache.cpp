@@ -64,7 +64,7 @@ protected:
                 if( _cache[ key ] != co::InstanceCache::Data::NONE )
                 {
                     ++hits;
-                    _cache.release( key );
+                    _cache.release( key, 1 );
                 }
                 ++ops;
             }
@@ -119,7 +119,7 @@ int main( int argc, char **argv )
         const co::ObjectVersion key( id, 1 );
         if( cache[ key.identifier ] != co::InstanceCache::Data::NONE )
         {
-            TEST( cache.release( key.identifier ));
+            TEST( cache.release( key.identifier, 1 ));
             ++ops;
             if( cache.erase( key.identifier ))
             {
@@ -149,7 +149,7 @@ int main( int argc, char **argv )
     {
         if( cache[ key ] != co::InstanceCache::Data::NONE )
         {
-            TEST( cache.release( key ));
+            TEST( cache.release( key, 1 ));
             TEST( cache.erase( key ));
         }
     }

@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "../uiFactory.h"
+#include "../windowSystem.h"
 
 #include "../glXWindow.h"
 #include "../glXPipe.h"
@@ -48,28 +48,31 @@ static bool _queryDisplay( const std::string display, GPUInfo& info )
     XCloseDisplay( xDisplay );
     return true;
 }
+
 }
 
-static class : UIFactoryImpl< WINDOW_SYSTEM_GLX >
+static class : WindowSystemIF
 {
-    eq::SystemWindow* _createSystemWindow(eq::Window* window) const
+    std::string getName() const { return "GLX"; }
+
+    eq::SystemWindow* createWindow(eq::Window* window) const
     {
         EQINFO << "Using GLXWindow" << std::endl;
         return new GLXWindow(window);
     }
 
-    eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
         EQINFO << "Using GLXPipe" << std::endl;
         return new GLXPipe(pipe);
     }
 
-    eq::MessagePump* _createMessagePump() const
+    eq::MessagePump* createMessagePump() const
     {
         return new GLXMessagePump;
     }
 
-    GPUInfos _discoverGPUs() const
+    GPUInfos discoverGPUs() const
     {
         GPUInfos result;
         GPUInfo defaultInfo;
