@@ -121,7 +121,7 @@ void ObjectStore::clear( )
 {
     EQASSERT( _objects->empty( ));
     expireInstanceData( 0 );
-    EQASSERT( !_instanceCache || _instanceCache->empty( ));
+    EQASSERT( !_instanceCache || _instanceCache->isEmpty( ));
 
     _objects->clear();
     _sendQueue.clear();

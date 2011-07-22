@@ -111,7 +111,7 @@ namespace co
         /** Remove all items which are older than the given time. */
         void expire( const int64_t age );
 
-        bool empty( ){ return _items->empty(); }
+        bool isEmpty() { return _items->empty(); }
 
     private:
         struct Item

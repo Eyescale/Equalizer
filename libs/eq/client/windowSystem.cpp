@@ -21,31 +21,7 @@
 
 namespace eq
 {
-namespace
-{
 static WindowSystemIF* _stack = 0;
-
-#ifndef EQ_2_0_API
-std::string _getName( const WindowSystemEnum type )
-{
-    switch( type )
-    {
-      case WINDOW_SYSTEM_AGL:
-          return "AGL";
-
-      case WINDOW_SYSTEM_GLX:
-          return "GLX";
-         
-      case WINDOW_SYSTEM_WGL:
-          return "WGL";
-
-      default:
-          return "";
-    }
-}
-#endif
-
-}
 
 WindowSystemIF::WindowSystemIF()
         : _next( _stack )
@@ -65,6 +41,24 @@ WindowSystem::WindowSystem( std::string const& type )
 }
 
 #ifndef EQ_2_0_API
+static std::string _getName( const WindowSystemEnum type )
+{
+    switch( type )
+    {
+      case WINDOW_SYSTEM_AGL:
+          return "AGL";
+
+      case WINDOW_SYSTEM_GLX:
+          return "GLX";
+         
+      case WINDOW_SYSTEM_WGL:
+          return "WGL";
+
+      default:
+          return "";
+    }
+}
+
 WindowSystem::WindowSystem( const WindowSystemEnum type )
 {
     _chooseImpl( _getName( type ));
@@ -72,11 +66,13 @@ WindowSystem::WindowSystem( const WindowSystemEnum type )
 
 bool WindowSystem::operator == ( const WindowSystemEnum other) const
 {
+    EQASSERT( _impl );
     return _impl->getName() == _getName( other );
 }
 
 bool WindowSystem::operator != ( const WindowSystemEnum other ) const
 {
+    EQASSERT( _impl );
     return _impl->getName() != _getName( other );
 }
 

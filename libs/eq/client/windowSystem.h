@@ -68,8 +68,8 @@ public:
 #ifndef EQ_2_0_API
     WindowSystem( const WindowSystemEnum type );
 
-    bool operator==( const WindowSystemEnum other ) const;
-    bool operator!=( const WindowSystemEnum other ) const;
+    bool operator == ( const WindowSystemEnum other ) const;
+    bool operator != ( const WindowSystemEnum other ) const;
     operator WindowSystemEnum() const;
 #endif
 
@@ -85,8 +85,8 @@ public:
     MessagePump* createMessagePump() const;
     GPUInfos discoverGPUs() const;
 
-    bool operator==( const WindowSystem& other ) const;
-    bool operator!=( const WindowSystem& other ) const;
+    bool operator == ( const WindowSystem& other ) const;
+    bool operator != ( const WindowSystem& other ) const;
 
     friend std::ostream& operator << ( std::ostream& os, const WindowSystem& );
 
