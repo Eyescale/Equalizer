@@ -39,6 +39,7 @@ Command::~Command()
 
 void Command::retain()
 {
+    //EQ_TS_THREAD( _writeThread );
     if( ++_refCount == 1 ) // first reference
     {
         EQASSERT( _refCount == 1 ); // ought to be single-threaded in recv
