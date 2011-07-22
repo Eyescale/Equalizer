@@ -176,12 +176,12 @@ private:
 class TileSizeVisitor : public ConfigVisitor
 {
 public:
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
     TileSizeVisitor( const View* view, const Vector2i tileSize )
         : _view( view ), _tileSize( tileSize )
     {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -204,7 +204,7 @@ public:
 
 private:
     const View* const _view;
-    const Vector2i _tileSize;
+    const Vector2i& _tileSize;
 };
 
 }
@@ -370,7 +370,7 @@ void View::updateCapabilities()
 
 void View::updateTileSize()
 {
-    TileSizeVisitor visitor( this, getTileSize() );
+    TileSizeVisitor visitor( this, getTileSize( ));
     getConfig()->accept( visitor );
 }
 

@@ -70,7 +70,7 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
         }
 
         // reuse unused frame data
-        latencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
+        LatencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
         const uint32_t latency = getAutoObsolete()+1;
         const uint32_t dataAge = queue ? queue->_frameNumber : 0;
 
@@ -79,7 +79,7 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
             _queues.pop_back();
         else // still used - allocate new data
         {
-            queue = new latencyQueue;
+            queue = new LatencyQueue;
 
             getLocalNode()->registerObject( &queue->_queue );
             queue->_queue.setAutoObsolete( 1 ); // current + in use by render nodes
@@ -116,7 +116,7 @@ void TileQueue::flush()
 
     while( !_queues.empty( ))
     {
-        latencyQueue* queue = _queues.front();
+        LatencyQueue* queue = _queues.front();
         _queues.pop_front();
         getLocalNode()->deregisterObject( &queue->_queue );
         delete queue;
@@ -133,6 +133,15 @@ void TileQueue::unsetData()
     }
 }
 
+const UUID TileQueue::getQueueMasterID( fabric::Eye eye ) const
+{
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    LatencyQueue* queue = _queueMaster[ index ];
+    if ( queue )
+        return queue->_queue.getID();
+    return co::base::UUID::ZERO;
+}
+
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
 {
     if( !tileQueue )
@@ -146,20 +155,10 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
 
     const eq::Vector2i& size = tileQueue->getTileSize();
     if( size.x() > 0 || size.y() > 0 )
-        os << "size      [ " << size.x() << " " 
-                             << size.y() << " ]" << std::endl;
+        os << "size      [ " << size.x() << " " << size.y() << " ]" <<std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;
-}
-
-const UUID TileQueue::getQueueMasterID( fabric::Eye eye ) const
-{
-    uint32_t index = co::base::getIndexOfLastBit(eye);
-    latencyQueue* queue = _queueMaster[ index ];
-    if ( queue )
-        return queue->_queue.getID();
-    return co::base::UUID::ZERO;
 }
 
 }

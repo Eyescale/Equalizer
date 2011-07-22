@@ -29,9 +29,7 @@
 #include <iostream>
 
 #pragma warning(push)
-// ceil: attributes not present on previous declaration.
-// for details: http://www.softwareverify.com/software-verify-blog/?p=671
-#pragma warning(disable: 4985)                     
+#pragma warning(disable: 4985) // ceil: attributes not present on previous...
 #include <limits>
 #pragma warning(pop)
 

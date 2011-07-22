@@ -68,7 +68,7 @@ namespace server
         /** 
          * Cycle the current tile queue.
          * 
-         * Used for output tile queues to allocate/recycle queuemasters.
+         * Used for output tile queues to allocate/recycle queue masters.
          *
          * @param frameNumber the current frame number.
          * @param compound the compound holding the output frame.
@@ -100,12 +100,12 @@ namespace server
 
     private:
 
-        struct latencyQueue
+        struct LatencyQueue
         {
             uint32_t _frameNumber;
             co::QueueMaster _queue;
         };
-        
+
         /** The parent compound. */
         Compound* _compound;
 
@@ -116,10 +116,10 @@ namespace server
         Vector2i _size;
 
         /** The collage queue pool. */
-        std::deque<latencyQueue*> _queues;
+        std::deque< LatencyQueue* > _queues;
 
         /** the currently used tile queues */
-        latencyQueue* _queueMaster[ eq::NUM_EYES ];
+        LatencyQueue* _queueMaster[ eq::NUM_EYES ];
 
         /** The current output queue. */
         TileQueue* _outputQueue[ eq::NUM_EYES ];
