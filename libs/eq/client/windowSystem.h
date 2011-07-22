@@ -29,7 +29,7 @@ namespace eq
 class WindowSystemIF
 {
 protected:
-    WindowSystemIF();
+    EQ_API WindowSystemIF();
     virtual ~WindowSystemIF() {}
 
 private:
@@ -63,14 +63,14 @@ enum WindowSystemEnum
 class WindowSystem
 {
 public:
-    WindowSystem();
-    WindowSystem( std::string const& type );
+    EQ_API WindowSystem();
+    EQ_API WindowSystem( std::string const& type );
 #ifndef EQ_2_0_API
-    WindowSystem( const WindowSystemEnum type );
+    EQ_API WindowSystem( const WindowSystemEnum type );
 
-    bool operator == ( const WindowSystemEnum other ) const;
-    bool operator != ( const WindowSystemEnum other ) const;
-    operator WindowSystemEnum() const;
+    EQ_API bool operator == ( const WindowSystemEnum other ) const;
+    EQ_API bool operator != ( const WindowSystemEnum other ) const;
+    EQ_API operator WindowSystemEnum() const;
 #endif
 
     static bool supports( std::string const& type );
@@ -78,17 +78,15 @@ public:
     static void configInit( Node* node );
     static void configExit( Node* node );
 
-    std::string getName() const;
+    EQ_API std::string getName() const;
 
-    SystemWindow* createWindow( Window* window ) const;
-    SystemPipe* createPipe( Pipe* pipe ) const;
-    MessagePump* createMessagePump() const;
-    GPUInfos discoverGPUs() const;
+    EQ_API SystemWindow* createWindow( Window* window ) const;
+    EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
+    EQ_API MessagePump* createMessagePump() const;
+    EQ_API GPUInfos discoverGPUs() const;
 
-    bool operator == ( const WindowSystem& other ) const;
-    bool operator != ( const WindowSystem& other ) const;
-
-    friend std::ostream& operator << ( std::ostream& os, const WindowSystem& );
+    EQ_API bool operator == ( const WindowSystem& other ) const;
+    EQ_API bool operator != ( const WindowSystem& other ) const;
 
 private:
     const WindowSystemIF* _impl;
