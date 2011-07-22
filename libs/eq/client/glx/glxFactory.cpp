@@ -48,17 +48,20 @@ static bool _queryDisplay( const std::string display, GPUInfo& info )
     XCloseDisplay( xDisplay );
     return true;
 }
+
 }
 
-static class : WindowSystemImpl< 'G', 'L', 'X' >
+static class : WindowSystemIF
 {
-    eq::SystemWindow* createSystemWindow(eq::Window* window) const
+    std::string name() const { return "GLX"; }
+
+    eq::SystemWindow* createWindow(eq::Window* window) const
     {
         EQINFO << "Using GLXWindow" << std::endl;
         return new GLXWindow(window);
     }
 
-    eq::SystemPipe* createSystemPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
         EQINFO << "Using GLXPipe" << std::endl;
         return new GLXPipe(pipe);

@@ -147,16 +147,9 @@ void Pipe::setDirty( const uint64_t bits )
     Object::setDirty( bits );
 }
 
-bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
-{
-	// Of course it is supported!
-	// Otherwise it would have been impossible to instanciate the object!
-	return true;
-}
-
 WindowSystem Pipe::selectWindowSystem() const
 {
-	return WindowSystem();
+    return WindowSystem();
 }
 
 void Pipe::_setupCommandQueue()
@@ -194,7 +187,7 @@ void Pipe::_exitCommandQueue()
 
 MessagePump* Pipe::createMessagePump()
 {
-	return _windowSystem.createMessagePump();
+    return _windowSystem.createMessagePump();
 }
 
 MessagePump* Pipe::getMessagePump()
@@ -539,9 +532,9 @@ bool Pipe::configInit( const uint128_t& initID )
 
 bool Pipe::configInitSystemPipe( const uint128_t& )
 {
-    SystemPipe* systemPipe = _windowSystem.createSystemPipe( this );
-
+    SystemPipe* systemPipe = _windowSystem.createPipe( this );
     EQASSERT( systemPipe );
+
     if( !systemPipe->configInit( ))
     {
         EQASSERT( getError() != ERROR_NONE );

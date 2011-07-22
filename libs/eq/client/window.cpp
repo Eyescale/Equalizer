@@ -368,8 +368,7 @@ bool Window::configInit( const uint128_t& initID )
 bool Window::configInitSystemWindow( const uint128_t& )
 {
     const Pipe* pipe = getPipe();
-    SystemWindow* systemWindow =
-         pipe->getWindowSystem().createSystemWindow( this );
+    SystemWindow* systemWindow = pipe->getWindowSystem().createWindow( this );
 
     EQASSERT( systemWindow );
     if( !systemWindow->configInit( ))

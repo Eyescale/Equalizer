@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
- * Copyright (c)      2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,112 +22,106 @@
 namespace eq
 {
 
-static WindowSystemAbstract* _stack = 0;
+static WindowSystemIF* _stack = 0;
 
-WindowSystemAbstract::WindowSystemAbstract() :
-		_next(_stack)
+WindowSystemIF::WindowSystemIF()
+        : _next( _stack )
 {
-	_stack = this;
+    _stack = this;
 }
 
-WindowSystem::WindowSystem() :
-		_impl(_stack)
+WindowSystem::WindowSystem()
+        : _impl( _stack )
 {
-	EQASSERTINFO(_stack, "no window system available");
+    EQASSERTINFO( _stack, "no window system available" );
 }
 
-WindowSystem::WindowSystem(std::string const& type)
+WindowSystem::WindowSystem( std::string const& type )
 {
-	EQASSERTINFO(_stack, "no window system available");
+    EQASSERTINFO( _stack, "no window system available" );
 
-	for (WindowSystemAbstract* ws = _stack; ws; ws = ws->_next)
-	{
-		// TODO: maybe we should do case insesitive comparision?
-		if (ws->name() == type)
-		{
-			this->_impl = ws;
-			return;
-		}
-	}
+    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    {
+        // TODO: maybe we should do case insesitive comparision?
+        if( ws->name() == type )
+        {
+            _impl = ws;
+            return;
+        }
+    }
 
-	_impl = _stack;
-
-    EQWARN << "Window system " << type << " not supported, "
-           << "using " << _impl->name() << " instead."
-           << std::endl;
+    _impl = _stack;
+    EQWARN << "Window system " << type << " not supported, " << "using "
+           << _impl->name() << " instead." << std::endl;
 }
 
-bool WindowSystem::supports(std::string const& type)
+bool WindowSystem::supports( std::string const& type )
 {
-	for (WindowSystemAbstract* ws = _stack; ws; ws = ws->_next)
-	{
-		// TODO: maybe we should do case insesitive comparision?
-		if (ws->name() == type)
-			return true;
-	}
+    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+    {
+        // TODO: maybe we should do case insensitive comparison?
+        if( ws->name() == type )
+            return true;
+    }
 
-	return false;
+    return false;
 }
 
-void WindowSystem::configInit(Node* node)
+void WindowSystem::configInit( Node* node )
 {
-	for (WindowSystemAbstract* ws = _stack; ws; ws = ws->_next)
-	{
-		ws->configInit(node);
-	}
+    if( _stack )
+        _stack->configInit(node );
 }
 
-void WindowSystem::configExit(Node* node)
+void WindowSystem::configExit( Node* node )
 {
-	for (WindowSystemAbstract* ws = _stack; ws; ws = ws->_next)
-	{
-		ws->configExit(node);
-	}
+    if( _stack )
+        _stack->configExit(node );
 }
 
 std::string WindowSystem::name() const
 {
-	EQASSERT( _impl);
-	return _impl->name();
+    EQASSERT( _impl );
+    return _impl->name();
 }
 
-SystemWindow* WindowSystem::createSystemWindow(Window* window) const
+SystemWindow* WindowSystem::createWindow( Window* window ) const
 {
-	EQASSERT( _impl);
-	return _impl->createSystemWindow(window);
+    EQASSERT( _impl );
+    return _impl->createWindow(window );
 }
 
-SystemPipe* WindowSystem::createSystemPipe(Pipe* pipe) const
+SystemPipe* WindowSystem::createPipe( Pipe* pipe ) const
 {
-	EQASSERT( _impl);
-	return _impl->createSystemPipe(pipe);
+    EQASSERT( _impl );
+    return _impl->createPipe(pipe );
 }
 
 MessagePump* WindowSystem::createMessagePump() const
 {
-	EQASSERT( _impl);
-	return _impl->createMessagePump();
+    EQASSERT( _impl );
+    return _impl->createMessagePump();
 }
 
 GPUInfos WindowSystem::discoverGPUs() const
 {
-	EQASSERT( _impl);
-	return _impl->discoverGPUs();
+    EQASSERT( _impl );
+    return _impl->discoverGPUs();
 }
 
-bool WindowSystem::operator==(const WindowSystem& other) const
+bool WindowSystem::operator == ( const WindowSystem& other) const
 {
-	return _impl == other._impl;
+    return _impl == other._impl;
 }
 
-bool WindowSystem::operator!=(const WindowSystem& other) const
+bool WindowSystem::operator != ( const WindowSystem& other ) const
 {
-	return _impl != other._impl;
+    return _impl != other._impl;
 }
 
-std::ostream& operator <<(std::ostream& os, const WindowSystem& ws)
+std::ostream& operator << ( std::ostream& os, const WindowSystem& ws )
 {
-	return os << ws.name();
+    return os << ws.name();
 }
 
 } // namespace eq

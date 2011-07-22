@@ -32,15 +32,17 @@
 namespace eq
 {
 
-static class : WindowSystemImpl< 'W', 'G', 'L' >
+static class : WindowSystemIF
 {
-    eq::SystemWindow* createSystemWindow(eq::Window* window) const
+    std::string name() const { return "WGL"; }
+
+    eq::SystemWindow* createWindow(eq::Window* window) const
     {
         EQINFO << "Using WGLWindow" << std::endl;
         return new WGLWindow(window);
     }
 
-    eq::SystemPipe* createSystemPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
         EQINFO << "Using WGLPipe" << std::endl;
         return new WGLPipe(pipe);

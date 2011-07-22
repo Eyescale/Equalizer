@@ -179,13 +179,13 @@ bool Node::isStopped() const
 
 bool Node::configInit( const uint128_t& )
 {
-	WindowSystem::configInit( this );
+    WindowSystem::configInit( this );
     return true;
 }
 
 bool Node::configExit()
 {
-	WindowSystem::configExit( this );
+    WindowSystem::configExit( this );
     return true;
 }
 

@@ -70,38 +70,35 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 
     eq::SystemWindow* sharedContextWindow = 0;
 
-    std::string ws = pipe->getWindowSystem().name();
+    const std::string& ws = pipe->getWindowSystem().name();
 
-    if (0) {}
 #ifdef GLX
-    else if(ws == "GLX")
+    if( ws == "GLX" )
     {
         EQINFO << "Using GLXWindow" << std::endl;
         sharedContextWindow = new GLXWindowShared( wnd );
     }
 #endif
 #ifdef AGL
-    else if(ws == "AGL")
+    if( ws == "AGL" )
     {
         EQINFO << "Using AGLWindow" << std::endl;
         sharedContextWindow = new AGLWindowShared( wnd );
     }
 #endif
 #ifdef WGL
-    else if(ws == "WGL")
+    if( ws == "WGL" )
     {
         EQINFO << "Using WGLWindow" << std::endl;
         sharedContextWindow = new eq::WGLWindow( wnd );
     }
 #endif
-    else
+    if( !sharedContextWindow )
     {
         EQERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
         return 0;
     }
-
-    EQASSERT( sharedContextWindow );
 
     if( !sharedContextWindow->configInit( ))
     {

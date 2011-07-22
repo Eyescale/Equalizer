@@ -65,18 +65,13 @@ bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                               const uint32_t size )
 {
     // TODO: initBitmapFont could be a member function of WindowSystem
-
-	if ( ws.name() == "AGL" )
+    if( ws.name() == "AGL" )
         return _initAGL( name, size );
-
-	if ( ws.name() == "GLX" )
+    if( ws.name() == "GLX" )
         return _initGLX( name, size );
-
-	if ( ws.name() == "WGL" )
+    if( ws.name() == "WGL" )
         return _initWGL( name, size );
 
-    EQASSERTINFO( _gl.getList( _key ) != ObjectManager< OMT >::INVALID, 
-                  "Font initialization failed" );
     return false;
 }
 

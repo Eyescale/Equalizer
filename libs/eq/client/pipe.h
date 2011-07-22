@@ -266,17 +266,21 @@ namespace eq
          * various actions.
          */
         //@{
+#ifndef EQ_2_0_API
         /** 
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
-         * 
+         *
+         * Since version 1.1.3 returns always true since the WindowSystem is an
+         * object.
+         *
          * @param system the window system to test.
          * @return true if the window system is supported, false if not.
          * @version 1.0
          */
-        EQ_API virtual bool supportsWindowSystem( const WindowSystem system )
-                                   const;
-
+        virtual bool supportsWindowSystem( const WindowSystem system ) const
+            { return true; }
+#endif
         /** 
          * Choose the window system to be used by this pipe.
          * 
