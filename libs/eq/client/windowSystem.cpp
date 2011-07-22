@@ -79,6 +79,18 @@ bool WindowSystem::operator != ( const WindowSystemEnum other ) const
 {
     return _impl->getName() != _getName( other );
 }
+
+WindowSystem::operator WindowSystemEnum() const
+{
+    EQASSERT( _impl );
+    if( _impl->getName() == "AGL" )
+        return WINDOW_SYSTEM_AGL;
+    if( _impl->getName() == "GLX" )
+        return WINDOW_SYSTEM_GLX;
+    if( _impl->getName() == "WGL" )
+        return WINDOW_SYSTEM_WGL;
+    return WINDOW_SYSTEM_NONE;
+}
 #endif
 
 void WindowSystem::_chooseImpl( const std::string& name )

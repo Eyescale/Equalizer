@@ -70,6 +70,7 @@ public:
 
     bool operator==( const WindowSystemEnum other ) const;
     bool operator!=( const WindowSystemEnum other ) const;
+    operator WindowSystemEnum() const;
 #endif
 
     static bool supports( std::string const& type );
