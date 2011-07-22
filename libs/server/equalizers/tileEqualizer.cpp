@@ -104,17 +104,17 @@ namespace server
 
 TileEqualizer::TileEqualizer()
     : Equalizer()
-    , _name( "tileEQ" )
-    , _size( 64, 64 )
     , _created( false )
+    , _size( 64, 64 )
+    , _name( "tileEQ" )
 {
 }
 
 TileEqualizer::TileEqualizer( const TileEqualizer& from )
     : Equalizer( from )
-    , _name( from._name )
-    , _size( from._size )
     , _created( from._created )
+    , _size( from._size )
+    , _name( from._name )
 {
 }
 

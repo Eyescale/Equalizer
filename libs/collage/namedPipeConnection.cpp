@@ -387,11 +387,13 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
       case ERROR_PIPE_CONNECTED:
         return 0;
       case ERROR_IO_PENDING:
+      case ERROR_IO_INCOMPLETE:
       {
           const uint32_t timeout = Global::getTimeout();
 
           if( WAIT_OBJECT_0 != WaitForSingleObject( _write.hEvent, timeout ))
               throw Exception( Exception::TIMEOUT_WRITE );
+          break;
       }
 
       default:
@@ -402,8 +404,8 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return got;
 
     if( GetLastError() == ERROR_PIPE_CONNECTED ) 
-        return 0; 
-             
+        return 0;
+
     EQWARN << "Write complete failed: " << base::sysError << std::endl;
     return -1;
 }

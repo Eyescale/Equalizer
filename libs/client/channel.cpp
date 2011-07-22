@@ -1753,20 +1753,27 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
         for( ; j != toNodes.end(); ++j, ++k )
         {
-            ++_statistics.data[ _statisticsIndex ].used;
+            if (ready)
+                ++_statistics.data[ _statisticsIndex ].used;
 
-            ChannelFrameTransmitPacket transmitPacket;
-            transmitPacket.context   = context;
-            transmitPacket.frameData = frame->getDataVersion( context.eye );
-            transmitPacket.clientNodeID = *j;
-            transmitPacket.netNodeID = *k;
-            transmitPacket.statisticsIndex = _statisticsIndex;
-            transmitPacket.frameNumber = getPipe()->getCurrentFrame();
-            transmitPacket.imageIndex = data->getImages().size() - 1;
-            transmitPacket.command = ready ? fabric::CMD_CHANNEL_FRAME_READY :
-                                 fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+            size_t index = frame->getImages().size();
+            // make sure a packet is sent for ready packets
+            index -= ready ? 1 : frame->getNewImages();
+            for ( ; index != frame->getImages().size(); ++index )
+            {
+                ChannelFrameTransmitPacket transmitPacket;
+                transmitPacket.context   = context;
+                transmitPacket.frameData = frame->getDataVersion( context.eye );
+                transmitPacket.clientNodeID = *j;
+                transmitPacket.netNodeID = *k;
+                transmitPacket.statisticsIndex = _statisticsIndex;
+                transmitPacket.frameNumber = getPipe()->getCurrentFrame();
+                transmitPacket.imageIndex = index;
+                transmitPacket.command = ready ? fabric::CMD_CHANNEL_FRAME_READY :
+                                     fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
 
-            send( getNode()->getLocalNode(), transmitPacket );
+                send( getNode()->getLocalNode(), transmitPacket );
+            }
         }
         if( toNodes.empty() )
             EQWARN << "unable to transmit frame " 
