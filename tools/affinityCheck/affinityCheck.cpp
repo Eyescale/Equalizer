@@ -19,8 +19,8 @@
 # define GLEW_MX
 #endif
 
-#include <GL/glew.h>
-#include <GL/wglew.h>
+#include <eq/GL/glew.h>
+#include <eq/GL/wglew.h>
 #include <iostream>
 #include <sstream>
 #include <cassert>
