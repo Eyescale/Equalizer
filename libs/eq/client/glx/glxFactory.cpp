@@ -53,7 +53,7 @@ static bool _queryDisplay( const std::string display, GPUInfo& info )
 
 static class : WindowSystemIF
 {
-    std::string name() const { return "GLX"; }
+    std::string getName() const { return "GLX"; }
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {

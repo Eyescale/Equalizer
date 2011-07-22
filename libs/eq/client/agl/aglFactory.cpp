@@ -32,7 +32,7 @@ namespace eq
 
 static class : WindowSystemIF
 {
-    std::string name() const { return "AGL"; }
+    std::string getName() const { return "AGL"; }
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {

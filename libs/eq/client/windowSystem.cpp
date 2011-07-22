@@ -21,8 +21,31 @@
 
 namespace eq
 {
-
+namespace
+{
 static WindowSystemIF* _stack = 0;
+
+#ifndef EQ_2_0_API
+std::string _getName( const WindowSystemEnum type )
+{
+    switch( type )
+    {
+      case WINDOW_SYSTEM_AGL:
+          return "AGL";
+
+      case WINDOW_SYSTEM_GLX:
+          return "GLX";
+         
+      case WINDOW_SYSTEM_WGL:
+          return "WGL";
+
+      default:
+          return "";
+    }
+}
+#endif
+
+}
 
 WindowSystemIF::WindowSystemIF()
         : _next( _stack )
@@ -38,12 +61,34 @@ WindowSystem::WindowSystem()
 
 WindowSystem::WindowSystem( std::string const& type )
 {
+    _chooseImpl( type );
+}
+
+#ifndef EQ_2_0_API
+WindowSystem::WindowSystem( const WindowSystemEnum type )
+{
+    _chooseImpl( _getName( type ));
+}
+
+bool WindowSystem::operator == ( const WindowSystemEnum other) const
+{
+    return _impl->getName() == _getName( other );
+}
+
+bool WindowSystem::operator != ( const WindowSystemEnum other ) const
+{
+    return _impl->getName() != _getName( other );
+}
+#endif
+
+void WindowSystem::_chooseImpl( const std::string& name )
+{
     EQASSERTINFO( _stack, "no window system available" );
 
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
     {
         // TODO: maybe we should do case insesitive comparision?
-        if( ws->name() == type )
+        if( ws->getName() == name )
         {
             _impl = ws;
             return;
@@ -51,8 +96,8 @@ WindowSystem::WindowSystem( std::string const& type )
     }
 
     _impl = _stack;
-    EQWARN << "Window system " << type << " not supported, " << "using "
-           << _impl->name() << " instead." << std::endl;
+    EQWARN << "Window system " << name << " not supported, " << "using "
+           << _impl->getName() << " instead." << std::endl;
 }
 
 bool WindowSystem::supports( std::string const& type )
@@ -60,7 +105,7 @@ bool WindowSystem::supports( std::string const& type )
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
     {
         // TODO: maybe we should do case insensitive comparison?
-        if( ws->name() == type )
+        if( ws->getName() == type )
             return true;
     }
 
@@ -79,10 +124,10 @@ void WindowSystem::configExit( Node* node )
         _stack->configExit(node );
 }
 
-std::string WindowSystem::name() const
+std::string WindowSystem::getName() const
 {
     EQASSERT( _impl );
-    return _impl->name();
+    return _impl->getName();
 }
 
 SystemWindow* WindowSystem::createWindow( Window* window ) const
@@ -121,7 +166,7 @@ bool WindowSystem::operator != ( const WindowSystem& other ) const
 
 std::ostream& operator << ( std::ostream& os, const WindowSystem& ws )
 {
-    return os << ws.name();
+    return os << ws.getName();
 }
 
 } // namespace eq

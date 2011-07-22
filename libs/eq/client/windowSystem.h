@@ -33,7 +33,7 @@ protected:
     virtual ~WindowSystemIF() {}
 
 private:
-    virtual std::string name() const = 0;
+    virtual std::string getName() const = 0;
 
     virtual SystemWindow* createWindow(Window* window) const = 0;
     virtual SystemPipe* createPipe(Pipe* pipe) const = 0;
@@ -48,19 +48,36 @@ private:
     friend class WindowSystem;
 };
 
+#ifndef EQ_2_0_API
+enum WindowSystemEnum
+{                                                                            
+    WINDOW_SYSTEM_NONE = 0, // must be first                                 
+    WINDOW_SYSTEM_AGL,      //!< AGL/Carbon                                  
+    WINDOW_SYSTEM_GLX,      //!< GLX/X11                                     
+    WINDOW_SYSTEM_WGL,      //!< WGL/Win32                                   
+    WINDOW_SYSTEM_ALL       // must be last                                  
+};
+#endif
+
 /** The list of possible window systems. @sa Pipe::getWindowSystem() */
 class WindowSystem
 {
 public:
     WindowSystem();
     WindowSystem( std::string const& type );
+#ifndef EQ_2_0_API
+    WindowSystem( const WindowSystemEnum type );
+
+    bool operator==( const WindowSystemEnum other ) const;
+    bool operator!=( const WindowSystemEnum other ) const;
+#endif
 
     static bool supports( std::string const& type );
 
     static void configInit( Node* node );
     static void configExit( Node* node );
 
-    std::string name() const;
+    std::string getName() const;
 
     SystemWindow* createWindow( Window* window ) const;
     SystemPipe* createPipe( Pipe* pipe ) const;
@@ -74,6 +91,7 @@ public:
 
 private:
     const WindowSystemIF* _impl;
+    void _chooseImpl( const std::string& name );
 };
 
 /** Print the window system name to the given output stream. @version 1.0 */

@@ -65,11 +65,11 @@ bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                               const uint32_t size )
 {
     // TODO: initBitmapFont could be a member function of WindowSystem
-    if( ws.name() == "AGL" )
+    if( ws.getName() == "AGL" )
         return _initAGL( name, size );
-    if( ws.name() == "GLX" )
+    if( ws.getName() == "GLX" )
         return _initGLX( name, size );
-    if( ws.name() == "WGL" )
+    if( ws.getName() == "WGL" )
         return _initWGL( name, size );
 
     return false;
