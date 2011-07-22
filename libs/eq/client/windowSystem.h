@@ -96,6 +96,12 @@ private:
 /** Print the window system name to the given output stream. @version 1.0 */
 EQ_API std::ostream& operator << ( std::ostream& os, const WindowSystem& );
 
+/** co::Object serializer. @version 1.1.3 */
+EQ_API co::DataOStream& operator << ( co::DataOStream& os, const WindowSystem& );
+
+/** co::Object deserializer. @version 1.1.3 */
+EQ_API co::DataIStream& operator >> ( co::DataIStream& is, WindowSystem& ws );
+
 } // namespace eq
 
 #endif // EQ_WINDOWSYSTEM_H

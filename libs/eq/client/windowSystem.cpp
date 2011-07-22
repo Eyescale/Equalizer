@@ -19,6 +19,9 @@
 #include "windowSystem.h"
 #include <eq/fabric/gpuInfo.h>
 
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
+
 namespace eq
 {
 static WindowSystemIF* _stack = 0;
@@ -175,6 +178,19 @@ bool WindowSystem::operator != ( const WindowSystem& other ) const
 std::ostream& operator << ( std::ostream& os, const WindowSystem& ws )
 {
     return os << ws.getName();
+}
+
+co::DataOStream& operator << ( co::DataOStream& os, const WindowSystem& ws )
+{
+    return os << ws.getName();
+}
+
+co::DataIStream& operator >> ( co::DataIStream& is, WindowSystem& ws )
+{
+    std::string name;
+    is >> name;
+    ws = WindowSystem( name );
+    return is;
 }
 
 } // namespace eq
