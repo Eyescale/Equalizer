@@ -5,11 +5,6 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
-set(CO_VERSION_MAJOR "0")
-set(CO_VERSION_MINOR "4")
-set(CO_VERSION_PATCH "0")
-set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
-
 include(files.cmake)
 include(configure.cmake)
 
