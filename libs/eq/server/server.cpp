@@ -237,13 +237,13 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::Command* command = _mainThreadQueue.pop();
-        if( !command->invoke( ))
+        co::Command& command = *(_mainThreadQueue.pop( ));
+        if( !command( ))
         {
             EQABORT( "Error handling command " << command );
         }
 
-        command->release();
+        command.release();
     }
     _mainThreadQueue.flush();
 }

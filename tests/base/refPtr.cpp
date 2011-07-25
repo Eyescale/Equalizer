@@ -24,9 +24,10 @@
 
 #ifdef CO_USE_BOOST
 #  include <boost/intrusive_ptr.hpp>
+#  include <boost/shared_ptr.hpp>
 #endif
 
-#define NTHREADS 16
+#define NTHREADS 24
 #define NREFS    300000
 
 class Foo : public co::base::Referenced
@@ -74,6 +75,30 @@ public:
         }
 };
 
+class Bar : public co::base::Referenced
+{
+public:
+    Bar() {}
+    virtual ~Bar() {}
+};
+
+typedef boost::shared_ptr<Bar> BarPtr;
+BarPtr bBar;
+
+class BarThread : public co::base::Thread
+{
+public:
+    virtual void run()
+        {
+            BarPtr myBar;
+            for( size_t i = 0; i<NREFS; ++i )
+            {
+                myBar = bBar;
+                bBar  = myBar;
+                myBar.reset();
+            }
+        }
+};
 #endif
 
 int main( int argc, char **argv )
@@ -106,9 +131,9 @@ int main( int argc, char **argv )
         TEST( bThreads[i].join( ));
 
     const float bTime = clock.getTimef();
-    std::cout << bTime << " ms for " << 3*NREFS << " boost operations in "
-              << NTHREADS << " threads (" << bTime/(3*NREFS*NTHREADS)*1000000
-              << "ns/op)" << std::endl;
+    std::cout << bTime << " ms for " << 3*NREFS << " boost::intrusive_ptr ops "
+              << "in " << NTHREADS << " threads ("
+              << bTime/(3*NREFS*NTHREADS)*1000000 << "ns/op)" << std::endl;
 
     TEST( bFoo->getRefCount() == 1 );
 
@@ -117,6 +142,20 @@ int main( int argc, char **argv )
     
     boostFoo = 0;
     TEST( foo->getRefCount() == 1 );
+
+    bBar = BarPtr( new Bar );
+    BarThread barThreads[NTHREADS];
+    clock.reset();
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( barThreads[i].start( ));
+
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( barThreads[i].join( ));
+
+    const float barTime = clock.getTimef();
+    std::cout << barTime << " ms for " << 3*NREFS <<" boost::shared_ptr ops in "
+              << NTHREADS << " threads (" << barTime/(3*NREFS*NTHREADS)*1000000
+              << "ns/op)" << std::endl;
 #endif
 
     foo = 0;

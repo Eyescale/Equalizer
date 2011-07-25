@@ -64,9 +64,9 @@ protected:
             _running = true;
             while( _running )
             {
-                co::Command* command = _queue.pop();
-                TEST( command->invoke( ));
-                command->release();
+                co::Command& command = *_queue.pop();
+                TEST( command( ));
+                command.release();
                 yield(); // let writer run ahead a bit
             }
         }
