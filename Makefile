@@ -41,7 +41,7 @@ release/Makefile:
 	@mkdir -p release
 	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
 
-package: release/Makefile ../website/build/documents/Developer/API
+package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
@@ -58,16 +58,16 @@ debug_glx/Makefile:
 	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=OFF
 
 
-docs: ../website/build/documents/Developer/API
+docs: ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C debug doxygen
 
-.PHONY: ../website/build/documents/Developer/API/internal
-../website/build/documents/Developer/API/internal:
-	@mkdir -p ../website/build/documents/Developer/API/internal
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API/internal
+../equalizergraphics.com/build/documents/Developer/API/internal:
+	@mkdir -p ../equalizergraphics.com/build/documents/Developer/API/internal
 
-.PHONY: ../website/build/documents/Developer/API
-../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal debug/Makefile
-	@mkdir -p ../website/build/collage/documents/Developer/API
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API
+../equalizergraphics.com/build/documents/Developer/API: ../equalizergraphics.com/build/documents/Developer/API/internal debug/Makefile
+	@mkdir -p ../equalizergraphics.com/build/collage/documents/Developer/API
 
 RELNOTES.txt: libs/RelNotes.dox
 	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@
