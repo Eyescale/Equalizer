@@ -154,6 +154,9 @@ namespace server
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;
 
+        /** returns the number of read back images in the last readback call. */
+        EQ_API size_t getNewImages() const;
+
         /** Set the data for this frame. @version 1.0 */
         void setData( FrameData* data ) { _frameData = data; }
 
@@ -241,12 +244,6 @@ namespace server
          * @version 1.0
          */
         void removeListener( co::base::Monitor<uint32_t>& listener );
-
-
-        /** 
-         * returns the number of read back images in the last readback call.
-         */
-        size_t getNewImages() const { return _newImages; }
         //@}
 
     protected:
@@ -274,8 +271,6 @@ namespace server
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
-
-        size_t _newImages;
     };
 
     /** Print the frame type to the given output stream. @version 1.0 */

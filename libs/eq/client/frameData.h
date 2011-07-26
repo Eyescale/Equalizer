@@ -133,6 +133,9 @@ namespace server
         /** The images of this frame data holder. @version 1.0 */
         const Images& getImages() const { return _images; }
 
+        /** returns the number of read back images in the last readback call. */
+        size_t getNewImages() const { return _newImages; }
+
         /**
          * Set the covered area for readbacks.
          *
@@ -319,6 +322,8 @@ namespace server
         bool _useAlpha;
         float _colorQuality;
         float _depthQuality;
+
+        size_t _newImages;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

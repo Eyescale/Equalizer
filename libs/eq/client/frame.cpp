@@ -28,7 +28,6 @@ namespace eq
 Frame::Frame()
         : _frameData( 0 )
         , _zoomFilter( FILTER_LINEAR )
-        , _newImages( 0u )
 {
     EQINFO << "New Frame @" << (void*)this << std::endl;
 }
@@ -97,6 +96,12 @@ const Images& Frame::getImages() const
     return _frameData->getImages();
 }
 
+size_t Frame::getNewImages() const
+{
+    EQASSERT( _frameData );
+    return _frameData->getNewImages();
+}
+
 void Frame::clear()
 {
     EQASSERT( _frameData );
@@ -125,9 +130,7 @@ void Frame::readback( util::ObjectManager< const void* >* glObjects,
                       const DrawableConfig& config ) 
 {
     EQASSERT( _frameData );
-    size_t before = getImages().size();
     _frameData->readback( *this, glObjects, config );
-    _newImages = getImages().size() - before;
 }
 
 void Frame::setReady()

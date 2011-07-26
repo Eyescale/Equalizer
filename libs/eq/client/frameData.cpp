@@ -49,6 +49,7 @@ FrameData::FrameData()
         , _useAlpha( true )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
+        , _newImages( 0 )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << std::endl;
@@ -132,6 +133,7 @@ void FrameData::clear()
     _imageCacheLock.unset();
 
     _images.clear();
+    _newImages = 0;
 }
 
 void FrameData::flush()
@@ -147,6 +149,7 @@ void FrameData::flush()
     }
 
     _imageCache.clear();
+    _newImages = 0;
 }
 
 Image* FrameData::newImage( const eq::Frame::Type type,
@@ -154,6 +157,7 @@ Image* FrameData::newImage( const eq::Frame::Type type,
 {
     Image* image = _allocImage( type, config, true /* set quality */ );
     _images.push_back( image );
+    ++_newImages;
     return image;
 }
 
