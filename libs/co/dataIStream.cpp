@@ -46,11 +46,11 @@ DataIStream::DataIStream( const DataIStream& )
 
 DataIStream::~DataIStream()
 {
-    reset();
+    _reset();
     delete _decompressor;
 }
 
-void DataIStream::reset()
+void DataIStream::_reset()
 {
     _input     = 0;
     _inputSize = 0;

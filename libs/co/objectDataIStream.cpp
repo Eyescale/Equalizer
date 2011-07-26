@@ -28,12 +28,12 @@ namespace co
 ObjectDataIStream::ObjectDataIStream()
         : _version( VERSION_INVALID )
 {
-    reset();
+    _reset();
 }
 
 ObjectDataIStream::~ObjectDataIStream()
 {
-    reset();
+    _reset();
 }
 
 ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
@@ -52,7 +52,11 @@ ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
 void ObjectDataIStream::reset()
 {
     DataIStream::reset();
+    _reset();
+}
 
+void ObjectDataIStream::_reset()
+{
     while( !_commands.empty( ))
     {
         Command* command = _commands.front();

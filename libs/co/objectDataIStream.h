@@ -65,6 +65,7 @@ namespace co
         base::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
+        void _reset();
 
         EQ_TS_VAR( _thread );
     };
