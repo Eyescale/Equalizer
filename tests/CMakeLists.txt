@@ -11,7 +11,7 @@ endif()
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(GLOB TEST_CONFIGS reliability/*.eqc)
-file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
+file(COPY compressor/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
@@ -26,7 +26,7 @@ set(ALL_TESTS)
 foreach(FILE ${TEST_FILES})
   set(THIS_BUILD ON)
   if(EQ_BIG_ENDIAN)
-    if(${FILE} MATCHES "image/test.cpp" OR ${FILE} MATCHES "compositor/test.cpp")
+    if(${FILE} MATCHES "compressor/image.cpp" OR ${FILE} MATCHES "compositor/test.cpp")
       set(THIS_BUILD OFF)
     endif()
   endif()
