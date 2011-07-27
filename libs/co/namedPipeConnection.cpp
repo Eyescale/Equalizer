@@ -50,6 +50,7 @@ NamedPipeConnection::NamedPipeConnection()
 
 NamedPipeConnection::~NamedPipeConnection()
 {
+    _close();
 }
 
 std::string NamedPipeConnection::_getFilename() const
@@ -92,7 +93,7 @@ bool NamedPipeConnection::connect()
     return true;
 }
 
-void NamedPipeConnection::close()
+void NamedPipeConnection::_close()
 {
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;

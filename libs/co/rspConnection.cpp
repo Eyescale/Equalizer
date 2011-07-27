@@ -110,7 +110,7 @@ RSPConnection::RSPConnection()
 
 RSPConnection::~RSPConnection()
 {
-    close();
+    _close();
     while( !_buffers.empty( ))
     {
         delete _buffers.back();
@@ -118,7 +118,7 @@ RSPConnection::~RSPConnection()
     }
 }
 
-void RSPConnection::close()
+void RSPConnection::_close()
 {
     if( _parent.isValid() && _parent->_id == _id )
         _parent->close();
@@ -127,12 +127,7 @@ void RSPConnection::close()
     {
         base::sleep( 10 );
     }
-    _close();
-    _event->set();
-}
 
-void RSPConnection::_close()
-{
     base::ScopedMutex<> mutex( _mutexEvent );
 
     if( _state == STATE_CLOSED )
@@ -179,6 +174,9 @@ void RSPConnection::_close()
 
     _state = STATE_CLOSED;
     _fireStateChanged();
+
+    mutex.leave();
+    _event->set();
 }
 
 //----------------------------------------------------------------------

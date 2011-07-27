@@ -63,6 +63,7 @@ PGMConnection::PGMConnection()
 
 PGMConnection::~PGMConnection()
 {
+    _close()
 }
 
 //----------------------------------------------------------------------
@@ -179,7 +180,7 @@ bool PGMConnection::listen()
     return true;
 }
 
-void PGMConnection::close()
+void PGMConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;

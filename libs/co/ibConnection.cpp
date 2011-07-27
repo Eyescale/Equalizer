@@ -50,8 +50,7 @@ IBConnection::IBConnection( )
 
 IBConnection::~IBConnection()
 {
-    
-    close();
+    _close();
 
     for ( int i = 0; i < EQ_NUMCONN_IB; i++ )
     {
@@ -105,7 +104,7 @@ bool IBConnection::connect()
     return true;
 }
 
-void IBConnection::close()
+void IBConnection::_close()
 {
     if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
         return;

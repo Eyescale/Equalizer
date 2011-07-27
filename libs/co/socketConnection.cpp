@@ -72,6 +72,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
 
 SocketConnection::~SocketConnection()
 {
+    _close();
 }
 
 namespace
@@ -165,7 +166,7 @@ bool SocketConnection::connect()
     return true;
 }
 
-void SocketConnection::close()
+void SocketConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;
@@ -305,7 +306,8 @@ ConnectionPtr SocketConnection::acceptSync()
     DWORD got   = 0;
     DWORD flags = 0;
 
-    if( !WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, TRUE, &flags ))
+    if( !WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, TRUE,
+                                 &flags ))
     {
         EQWARN << "Accept completion failed: " << base::sysError 
                << ", closing socket" << std::endl;

@@ -63,7 +63,6 @@ ConnectionSet::~ConnectionSet()
     clear();
 
     _connection = 0;
-
     _selfConnection->close();
     _selfConnection = 0;
 }

@@ -35,6 +35,7 @@ MCIPConnection::MCIPConnection()
 
 MCIPConnection::~MCIPConnection()
 {
+    _close();
 }
 
 bool MCIPConnection::connect()
@@ -100,7 +101,7 @@ bool MCIPConnection::listen()
     return false;
 }
 
-void MCIPConnection::close()
+void MCIPConnection::_close()
 {
     if( !_impl )
         return;

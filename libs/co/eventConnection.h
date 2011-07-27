@@ -37,7 +37,7 @@ namespace co
         CO_API virtual ~EventConnection();
 
         CO_API virtual bool connect();
-        CO_API virtual void close();
+        CO_API virtual void close() { _close(); }
 
         CO_API void set();
         CO_API void reset();
@@ -60,6 +60,8 @@ namespace co
         base::Lock _lock;
         bool _set;
 #endif
+
+        void _close();
     };
 }
 
