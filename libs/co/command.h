@@ -67,7 +67,7 @@ namespace co
         //@}
 
         /** Invoke and clear the command function of a dispatched command. */
-        CO_API bool invoke();
+        CO_API bool operator()();
 
     private:
         friend class CommandCache;

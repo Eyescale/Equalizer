@@ -46,7 +46,7 @@ namespace co
 
         virtual uint128_t getVersion() const = 0;
 
-        virtual CO_API void reset();
+        virtual void reset() { _reset(); }
         //@}
 
         /** @name Data input */
@@ -127,6 +127,7 @@ namespace co
          * necessary, return false if no data is left. 
          */
         bool _checkBuffer();
+        CO_API void _reset();
         
         const uint8_t* _decompress( const void* data, const uint32_t name,
                                     const uint32_t nChunks,

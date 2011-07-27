@@ -39,7 +39,7 @@ namespace co
 
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
-        virtual void close();              
+        virtual void close() { _close(); }
 
         /** @sa Connection::getNotifier */
         virtual Notifier getNotifier() const { return _overlapped.hEvent; }
@@ -53,6 +53,8 @@ namespace co
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
     private:
+        void _close();
+
         void _initAIOAccept();
         void _exitAIOAccept();
         void _initAIORead();

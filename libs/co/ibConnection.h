@@ -28,16 +28,14 @@
 #include "ibInterface.h"
 
 namespace co
-
+{
 class IBConnection : public Connection
-
 {
 public:
-
     IBConnection();
     virtual ~IBConnection();
     virtual bool connect();
-    virtual void close();
+    virtual void close() { _close(); }
     virtual Notifier getNotifier() const;
 
     virtual bool listen();
@@ -95,6 +93,7 @@ private:
     // init my connection IB
     bool _preRegister();
 
+    void _close();
     EQ_TS_VAR( _recvThread );
 };
 }

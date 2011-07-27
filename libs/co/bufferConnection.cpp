@@ -31,6 +31,7 @@ BufferConnection::~BufferConnection()
 {
     if( !_buffer.isEmpty( ))
         EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
+    _state = STATE_CLOSED;
 }
 
 int64_t BufferConnection::write( const void* buffer, const uint64_t bytes )

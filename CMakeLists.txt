@@ -40,6 +40,11 @@ else()
   set(VERSION_PATCH ${VERSION_SUB})
 endif()
 
+set(CO_VERSION_MAJOR "0")
+set(CO_VERSION_MINOR "4")
+set(CO_VERSION_PATCH "0")
+set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
+
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(SHORT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_SUB})
 
@@ -72,8 +77,17 @@ file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
 set(EQ_FEATURES)
-include(configure)
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+  set (ALL_TARGETS "")
+  macro(add_executable _target)
+    _add_executable (${_target} ${ARGN})
+    set_property (GLOBAL APPEND PROPERTY ALL_TARGETS ${_target})
+  endmacro()
+endif()
+
+include(configure)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 
@@ -256,9 +270,6 @@ install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
   COMPONENT codev)
 install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
   COMPONENT eqdev)
-IF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
-  install(DIRECTORY man/man3 DESTINATION man COMPONENT man PATTERN "*_docs_*" EXCLUDE)
-ENDIF(EXISTS "${CMAKE_SOURCE_DIR}/man/man3")
 
 if(EQUALIZER_NIGHTLY)
   set(VERSION_PATCH ${VERSION_PATCH}-${EQUALIZER_BUILD_ARCH})
@@ -273,6 +284,7 @@ endif()
 
 message(STATUS "Supported Features:${EQ_FEATURES}")
 
+include(doxygen) # must be after all targets
 include(CPackConfig)
 include(copyScript)
 

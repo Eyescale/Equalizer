@@ -55,7 +55,7 @@ namespace co
         virtual bool listen();             
         virtual void acceptNB();           
         virtual ConnectionPtr acceptSync();
-        virtual void close();              
+        virtual void close() { _close(); }
 
 
 #ifdef WIN32
@@ -109,6 +109,8 @@ namespace co
 
         EQ_TS_VAR( _recvThread );
 #endif
+
+        void _close();
     };
 }
 

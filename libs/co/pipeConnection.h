@@ -54,7 +54,7 @@ namespace co
         CO_API virtual ~PipeConnection();
 
         virtual bool connect();
-        virtual void close();
+        virtual void close() { _close(); }
 
 #ifdef _WIN32
         virtual Notifier getNotifier() const;
@@ -85,6 +85,7 @@ namespace co
         Private* _private; // placeholder for binary-compatible changes
 
         bool _createPipes();
+        void _close();
     };
 }
 

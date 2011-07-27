@@ -55,7 +55,7 @@ namespace co
         RSPConnection();
         
         virtual bool listen();
-        void close();
+        virtual void close() { _close(); }
 
         /** Identical to listen() for multicast connections. */
         bool connect(){ return listen(); }

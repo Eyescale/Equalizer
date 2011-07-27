@@ -133,7 +133,7 @@ void Command::_free()
     _refCountMaster = 0;
 }        
 
-bool Command::invoke()
+bool Command::operator()()
 {
     EQASSERT( _func.isValid( ));
     Dispatcher::Func func = _func;

@@ -78,7 +78,7 @@ namespace co
         bool isEmpty() const { return _commands.isEmpty(); }
 
         /** Flush all cached commands. */
-        CO_API virtual void flush();
+        CO_API void flush();
 
         /** @return the size of the queue. */
         size_t getSize() const { return _commands.getSize(); }

@@ -57,8 +57,7 @@ Connection::Connection()
 
 Connection::~Connection()
 {
-    if( !isClosed( ))
-        close();
+    EQASSERT( isClosed( ));
     _state = STATE_CLOSED;
     _description = 0;
 

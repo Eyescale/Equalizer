@@ -37,7 +37,7 @@ PipeConnection::PipeConnection()
 
 PipeConnection::~PipeConnection()
 {
-    close();
+    _close();
 }
 
 //----------------------------------------------------------------------
@@ -101,7 +101,7 @@ bool PipeConnection::_createPipes()
     return true;
 }
 
-void PipeConnection::close()
+void PipeConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;
@@ -170,7 +170,7 @@ bool PipeConnection::_createPipes()
     return true;
 }
 
-void PipeConnection::close()
+void PipeConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;
