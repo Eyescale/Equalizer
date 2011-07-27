@@ -127,7 +127,7 @@ namespace co
          * necessary, return false if no data is left. 
          */
         bool _checkBuffer();
-        void _reset();
+        CO_API void _reset();
         
         const uint8_t* _decompress( const void* data, const uint32_t name,
                                     const uint32_t nChunks,
