@@ -29,7 +29,7 @@ debug/Makefile:
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean
-	@cd cdash; $(CTEST) -D Continuous
+	@$(MAKE) -C cdash Continuous
 
 cdash/Makefile:
 	@mkdir -p cdash

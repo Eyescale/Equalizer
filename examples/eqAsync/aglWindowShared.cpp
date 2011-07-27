@@ -33,11 +33,6 @@
 
 #ifdef AGL
 
-#include <eq/aglPipe.h>
-#include <eq/global.h>
-#include <eq/pipe.h>
-#include <eq/os.h>
-
 namespace eqAsync
 {
 

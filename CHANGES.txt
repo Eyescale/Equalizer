@@ -1,6 +1,12 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+17/Jul/2011
+  Moved installed client headers to eq/client. Applications should
+  always use <eq/eq.h> instead of individual headers, but the cmake
+  option EQUALIZER_OLD_CLIENT_LAYOUT may be used to also install the eq/
+  headers as before.
+
 03/Jun/2011
   Added a return value and timeout to co::LocalNode::acquireSendToken(),
   see method documentation.

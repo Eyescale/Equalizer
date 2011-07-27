@@ -16,7 +16,14 @@ macro(EQ_ADD_TOOL NAME)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
 endmacro(EQ_ADD_TOOL NAME)
 
-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/examples/include)
+include_directories(${CMAKE_SOURCE_DIR}/examples/include)
+
+if(GLEW_MX_FOUND)
+  set(GLEW_LIBRARY ${GLEW_MX_LIBRARIES})
+else()
+  set(GLEW_LIBRARY "GLEW_MX-Equalizer")
+  add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
+endif()
 
 if(WIN32)
   eq_add_tool(affinityCheck
@@ -44,12 +51,12 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(netperf
   SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Collage
   )
 
 eq_add_tool(netproxy
   SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES Collage
   )
 
 eq_add_tool(windowAdmin

@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#include "libs/collage/pipeConnection.h" // private header
+#include <co/pipeConnection.h> // private header
 
 #define MAXPACKETSIZE EQ_64MB
 

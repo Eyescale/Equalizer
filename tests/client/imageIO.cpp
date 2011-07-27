@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,9 @@
 
 #include <test.h>
 
-#include <eq/nodeFactory.h>
-#include <eq/image.h>
-#include <eq/init.h>
+#include <eq/client/nodeFactory.h>
+#include <eq/client/image.h>
+#include <eq/client/init.h>
 #include <co/base/file.h>
 #include <co/base/memoryMap.h>
 

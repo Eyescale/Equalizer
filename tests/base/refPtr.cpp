@@ -26,13 +26,10 @@
 #  include <boost/intrusive_ptr.hpp>
 #endif
 
-using namespace co::base;
-using namespace std;
-
 #define NTHREADS 16
 #define NREFS    300000
 
-class Foo : public Referenced
+class Foo : public co::base::Referenced
 {
 public:
     Foo() {}
@@ -40,10 +37,10 @@ private:
     virtual ~Foo() {}
 };
 
-typedef RefPtr<Foo> FooPtr;
+typedef co::base::RefPtr<Foo> FooPtr;
 FooPtr foo;
 
-class TestThread : public Thread
+class TestThread : public co::base::Thread
 {
 public:
     virtual void run()
@@ -58,12 +55,33 @@ public:
         }
 };
 
+#ifdef CO_USE_BOOST
+typedef boost::intrusive_ptr<Foo> BoostPtr;
+BoostPtr bFoo;
+
+class BThread : public co::base::Thread
+{
+public:
+    virtual void run()
+        {
+            BoostPtr myBoost;
+            for( size_t i = 0; i<NREFS; ++i )
+            {
+                myBoost = bFoo;
+                bFoo    = myBoost;
+                myBoost = 0;
+            }
+        }
+};
+
+#endif
+
 int main( int argc, char **argv )
 {
-    TestThread threads[NTHREADS];
     foo = new Foo;
 
-    Clock clock;
+    TestThread threads[NTHREADS];
+    co::base::Clock clock;
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( threads[i].start( ));
 
@@ -71,14 +89,29 @@ int main( int argc, char **argv )
         TEST( threads[i].join( ));
 
     const float time = clock.getTimef();
-    cout << time << " ms for " << 3*NREFS << " reference operations in " 
-         << NTHREADS << " threads (" << time/(3*NREFS*NTHREADS)*1000000
-         << "ns/op)" 
-         << endl;
+    std::cout << time << " ms for " << 3*NREFS << " reference operations in " 
+              << NTHREADS << " threads (" << time/(3*NREFS*NTHREADS)*1000000
+              << "ns/op)" << std::endl;
 
     TEST( foo->getRefCount() == 1 );
 
 #ifdef CO_USE_BOOST
+    bFoo = new Foo;
+    BThread bThreads[NTHREADS];
+    clock.reset();
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( bThreads[i].start( ));
+
+    for( size_t i=0; i<NTHREADS; ++i )
+        TEST( bThreads[i].join( ));
+
+    const float bTime = clock.getTimef();
+    std::cout << bTime << " ms for " << 3*NREFS << " boost operations in "
+              << NTHREADS << " threads (" << bTime/(3*NREFS*NTHREADS)*1000000
+              << "ns/op)" << std::endl;
+
+    TEST( bFoo->getRefCount() == 1 );
+
     boost::intrusive_ptr< Foo > boostFoo( foo.get( ));
     TEST( foo->getRefCount() == 2 );
     

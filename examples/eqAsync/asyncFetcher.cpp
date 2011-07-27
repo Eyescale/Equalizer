@@ -38,7 +38,7 @@
 #include "eqAsync.h"
 
 #include <eq/eq.h>
-#include <eq/system.h>
+#include <eq/client/system.h>
 #ifdef AGL
 #  include "aglWindowShared.h"
 #endif
@@ -69,33 +69,36 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     EQASSERT( pipe );
 
     eq::SystemWindow* sharedContextWindow = 0;
-    switch( pipe->getWindowSystem( ))
-    {
+
+    const std::string& ws = pipe->getWindowSystem().getName();
+
 #ifdef GLX
-        case eq::WINDOW_SYSTEM_GLX:
-            EQINFO << "Using GLXWindow" << std::endl;
-            sharedContextWindow = new GLXWindowShared( wnd );
-            break;
+    if( ws == "GLX" )
+    {
+        EQINFO << "Using GLXWindow" << std::endl;
+        sharedContextWindow = new GLXWindowShared( wnd );
+    }
 #endif
 #ifdef AGL
-        case eq::WINDOW_SYSTEM_AGL:
-            EQINFO << "Using AGLWindow" << std::endl;
-            sharedContextWindow = new AGLWindowShared( wnd );
-            break;
+    if( ws == "AGL" )
+    {
+        EQINFO << "Using AGLWindow" << std::endl;
+        sharedContextWindow = new AGLWindowShared( wnd );
+    }
 #endif
 #ifdef WGL
-        case eq::WINDOW_SYSTEM_WGL:
-            EQINFO << "Using WGLWindow" << std::endl;
-            sharedContextWindow = new eq::WGLWindow( wnd );
-            break;
-#endif
-
-        default:
-            EQERROR << "Window system " << pipe->getWindowSystem() 
-                    << " not implemented or supported" << std::endl;
-            return 0;
+    if( ws == "WGL" )
+    {
+        EQINFO << "Using WGLWindow" << std::endl;
+        sharedContextWindow = new eq::WGLWindow( wnd );
     }
-    EQASSERT( sharedContextWindow );
+#endif
+    if( !sharedContextWindow )
+    {
+        EQERROR << "Window system " << pipe->getWindowSystem()
+                << " not implemented or supported" << std::endl;
+        return 0;
+    }
 
     if( !sharedContextWindow->configInit( ))
     {
