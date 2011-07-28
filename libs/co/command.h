@@ -69,26 +69,24 @@ namespace co
         /** Invoke and clear the command function of a dispatched command. */
         CO_API bool operator()();
 
-    private:
-        friend class CommandCache;
+        explicit Command( base::a_int32_t& freeCounter ); //!< @internal
+        ~Command(); //!< @internal
 
-        explicit Command( base::a_int32_t& freeCounter );
-        ~Command();
-
-        /** @return the number of newly allocated bytes. */
-        size_t _alloc( NodePtr node, LocalNodePtr localNode,
+        /** @internal @return the number of newly allocated bytes. */
+        size_t alloc_( NodePtr node, LocalNodePtr localNode,
                        const uint64_t size );
 
         /** 
-         * Clone the from command into this command.
+         * @internal Clone the from command into this command.
          * 
          * The command will share all data but the dispatch function. The
          * command's allocation size will be 0 and it will never delete the
          * shared data. The command will (de)reference the from command on each
          * retain/release.
          */
-        void _clone( Command& from );
+        void clone_( Command& from );
 
+    private:
         Command& operator = ( Command& rhs ); // disable assignment
         Command( const Command& from );       // disable copy
         Command();                            // disable default ctor

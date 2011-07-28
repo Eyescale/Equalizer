@@ -67,6 +67,7 @@ public:
     EQ_API WindowSystem( std::string const& type );
 #ifndef EQ_2_0_API
     EQ_API WindowSystem( const WindowSystemEnum type );
+    ~WindowSystem() {}
 
     EQ_API bool operator == ( const WindowSystemEnum other ) const;
     EQ_API bool operator != ( const WindowSystemEnum other ) const;
