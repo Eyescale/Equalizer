@@ -277,15 +277,15 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     //    << " ---------->>>>>>>>>>" << std::endl;
 
     // TODO : fill but post later?
-    if( !_canSend( 1U ))
-        return 0LL;
+    while( !_canSend( 1U ))
+        co::base::Thread::yield();
 
-    const uint32_t put = _fill( buffer, std::min( static_cast< uint32_t >( bytes ),
-        _rptr.negAvailable( _rptr.HEAD, _rptr.MIDDLE )));
+    const uint32_t put = _fill( buffer, std::min( uint32_t( bytes ),
+                                _rptr.negAvailable( _rptr.HEAD, _rptr.MIDDLE )));
 
     if(( 0UL < put ) && ( !_postRDMAWrite( )))
     {
-        close( );
+        close();
         return -1LL;
     }
 
