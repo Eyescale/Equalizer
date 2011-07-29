@@ -33,6 +33,7 @@ namespace co
         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
         CONNECTIONTYPE_UDP,       //!< Unreliable UDP connection
+        CONNECTIONTYPE_RDMA,      //!< Infiniband RDMA CM
         CONNECTIONTYPE_MULTICAST = 0x100,
         CONNECTIONTYPE_MCIP = CONNECTIONTYPE_MULTICAST, //!< IP-based multicast
         CONNECTIONTYPE_PGM,       //!< IP-based multicast connection (PGM)
@@ -44,50 +45,21 @@ namespace co
     {
         switch( type )
         {
-            case CONNECTIONTYPE_TCPIP:
-                os << "TCPIP";
-                break;
-
-            case CONNECTIONTYPE_SDP:
-                os << "SDP";
-                break;
-
-            case CONNECTIONTYPE_PIPE:
-                os << "ANON_PIPE";
-                break;
-
-            case CONNECTIONTYPE_NAMEDPIPE:
-                os << "PIPE";
-                break;
-
-            case CONNECTIONTYPE_IB:
-                os << "IB";
-                break;
-
-            case CONNECTIONTYPE_UDP:
-                os << "UDP";
-                break;
-
-            case CONNECTIONTYPE_MCIP:
-                os << "MCIP";
-                break;
-
-            case CONNECTIONTYPE_PGM:
-                os << "PGM";
-                break;
-
-            case CONNECTIONTYPE_RSP:
-                os << "RSP";
-                break;
+            case CONNECTIONTYPE_TCPIP: return os << "TCPIP";
+            case CONNECTIONTYPE_SDP: return os << "SDP";
+            case CONNECTIONTYPE_PIPE: return os << "ANON_PIPE";
+            case CONNECTIONTYPE_NAMEDPIPE: return os << "PIPE";
+            case CONNECTIONTYPE_IB: return os << "IB";
+            case CONNECTIONTYPE_UDP: return os << "UDP";
+            case CONNECTIONTYPE_MCIP: return os << "MCIP";
+            case CONNECTIONTYPE_PGM: return os << "PGM";
+            case CONNECTIONTYPE_RSP: return os << "RSP";
+            case CONNECTIONTYPE_NONE: return os << "NONE";
+            case CONNECTIONTYPE_RDMA: return os << "RDMA";
                 
-            case CONNECTIONTYPE_NONE:
-                os << "NONE";
-                break;
-
             default:
                 EQASSERTINFO( false, "Not implemented" );
-                os << "ERROR";
-                break;
+                return os << "ERROR";
         }
         return os;
     }

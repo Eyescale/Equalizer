@@ -139,6 +139,11 @@ if(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 find_package(GLEW_MX)
+find_package(OFED)
+if(OFED_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} RDMA")
+  include_directories(SYSTEM ${OFED_INCLUDE_DIR})
+endif()
 
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred

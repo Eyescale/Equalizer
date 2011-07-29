@@ -137,9 +137,9 @@ set(PLUGIN_HEADERS
 )
 
 if(WIN32)
-  set(CO_HEADERS ${CO_HEADERS} namedPipeConnection.h)
-  set(CO_SOURCES ${CO_SOURCES} namedPipeConnection.cpp)
+  list(APPEND CO_HEADERS namedPipeConnection.h)
+  list(APPEND CO_SOURCES namedPipeConnection.cpp)
 else()
-  set(CO_HEADERS ${CO_HEADERS} fdConnection.h)
-  set(CO_SOURCES ${CO_SOURCES} fdConnection.cpp)
+  list(APPEND CO_HEADERS fdConnection.h)
+  list(APPEND CO_SOURCES fdConnection.cpp)
 endif()
