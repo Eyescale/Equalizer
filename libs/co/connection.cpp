@@ -338,7 +338,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
                 return false;
             }
             else if( wrote == 0 )
-                EQWARN << "Zero bytes write" << std::endl;
+                EQINFO << "Zero bytes write" << std::endl;
 
             bytesLeft -= wrote;
             ptr += wrote;
