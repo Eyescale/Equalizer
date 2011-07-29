@@ -56,6 +56,12 @@ if(Boost_FOUND)
   endif()
 endif(Boost_FOUND)
 
+if(OFED_FOUND)
+  list(APPEND CO_HEADERS rdmaConnection.h)
+  list(APPEND CO_SOURCES rdmaConnection.cpp)
+  list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
+endif()
+
 
 source_group(base REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)

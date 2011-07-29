@@ -38,6 +38,9 @@
 #ifdef EQ_PGM
 #  include "pgmConnection.h"
 #endif
+#ifdef CO_USE_OFED
+#  include "rdmaConnection.h"
+#endif
 
 #include <co/base/scopedMutex.h>
 #include <co/base/stdExt.h>
@@ -119,8 +122,15 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             connection = new RSPConnection;
             break;
 #endif
+#ifdef CO_USE_OFED
+        case CONNECTIONTYPE_RDMA:
+            connection = new RDMAConnection;
+            break;
+#endif
+
         default:
-            EQWARN << "Connection type not implemented" << std::endl;
+            EQWARN << "Connection type " << description->type
+                   << " not supported" << std::endl;
             return 0;
     }
 
@@ -328,7 +338,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
                 return false;
             }
             else if( wrote == 0 )
-                EQWARN << "Zero bytes write" << std::endl;
+                EQINFO << "Zero bytes write" << std::endl;
 
             bytesLeft -= wrote;
             ptr += wrote;

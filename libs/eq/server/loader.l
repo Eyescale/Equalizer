@@ -191,6 +191,7 @@ PIPE                            { return EQTOKEN_PIPE; }
 MCIP                            { return EQTOKEN_MCIP; }
 PGM                             { return EQTOKEN_PGM; }
 RSP                             { return EQTOKEN_RSP; }
+RDMA                            { return EQTOKEN_RDMA; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }

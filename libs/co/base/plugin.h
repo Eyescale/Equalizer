@@ -31,7 +31,7 @@ namespace base
      * @internal
      * A class holding all functions and information for one compressor plugin.
      */
-    class Plugin
+    class Plugin : public NonCopyable
     {
     public:
         typedef size_t ( *GetNumCompressors_t ) ();

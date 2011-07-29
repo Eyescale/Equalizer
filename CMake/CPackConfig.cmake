@@ -71,7 +71,10 @@ if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(DPUT_HOST "ppa:eilemann/equalizer")
 endif()
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev")
+
+set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}")
+
 SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "/sbin/ldconfig")
 
 set(CPACK_OSX_PACKAGE_VERSION "10.5")
