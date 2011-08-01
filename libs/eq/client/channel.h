@@ -577,7 +577,7 @@ namespace eq
         void _sendFrameDataReady( const ChannelFrameTransmitPacket* command );
         
         /** transmits only a single image without setting the frame ready */
-        void _transmitSingleImage( const ChannelFrameTransmitPacket* command );
+        void _transmitImage( const ChannelFrameTransmitPacket* command );
 
 
         /** Transmit the frame data to the nodeID and sets the frame ready. */

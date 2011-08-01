@@ -37,8 +37,7 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
-    // clear left over QUEUE_EMPTY packet here
-    clear();
+    clear(); // clear leftover QUEUE_EMPTY packets here
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )

@@ -100,6 +100,12 @@ struct RDMAMessage;
  * 4) Shared memory must be sufficient for all RDMA connections,
  *    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB for each one
  *    (i.e. /dev/shm, kernel.shm[min|max|all])
+ * 5) The user must be able to lock the memory registered with verbs, such that
+ *    the locked memory limit needs to be sufficient ("ulimit -l" for bash, "limit
+ *    memorylocked" for csh).  Updating /etc/security/limits.conf with entries
+ *    like this is usually adequate (e.g. to raise the limit to 2GB for all users):
+ *    * soft memlock 2048000
+ *    * hard memlock 2048000
  */
 class RDMAConnection : public Connection
 {

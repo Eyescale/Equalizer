@@ -37,7 +37,6 @@ public:
         const uint32_t instanceID );
 
     CO_API Command* pop();
-
     CO_API void clear();
 
 protected:

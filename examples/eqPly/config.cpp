@@ -911,12 +911,12 @@ void Config::_adjustTileSize( const int delta )
 {
     const eq::uint128_t& viewID = _frameData.getCurrentViewID();
     eq::View* view = find< eq::View >( viewID );
-    if ( view )
-    {
-        eq::Vector2i tileSize = view->getTileSize();
-        tileSize += delta;
-        view->setTileSize( tileSize );
-    }
+    if( !view )
+        return;
+
+    eq::Vector2i tileSize = view->getTileSize();
+    tileSize += delta;
+    view->setTileSize( tileSize );
 }
 
 void Config::_switchLayout( int32_t increment )
