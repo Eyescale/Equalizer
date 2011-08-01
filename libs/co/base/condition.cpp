@@ -21,12 +21,12 @@
 
 #include <cstring>
 #include <errno.h>
-#include <pthread.h>
-#include <sys/timeb.h>
 
-#ifdef WIN32_API
-#  define timeb _timeb
-#  define ftime _ftime
+#ifdef _WIN32
+#  include "condition_w32.ipp"
+#else
+#  include <pthread.h>
+#  include <sys/timeb.h>
 #endif
 
 namespace co
@@ -52,6 +52,7 @@ Condition::Condition()
                 << std::endl;
         return;
     }
+
     // condvar init
     error = pthread_cond_init( &_data->cond, 0 );
     if( error )
@@ -110,15 +111,16 @@ bool Condition::timedWait( const uint32_t timeout )
         return true;
     }
 
-    timespec ts = { 0, 0 };
     const uint32_t time = timeout == EQ_TIMEOUT_DEFAULT ?
         Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
 
-    if( time > 0 )
-    {
-        ts.tv_sec  = static_cast<int>( time / 1000 );
-        ts.tv_nsec = ( time - ts.tv_sec * 1000 ) * 1000000;
-    }
+#ifdef _WIN32
+    int error = pthread_cond_timedwait_w32_np( &_data->cond, &_data->mutex,
+                                               time );
+#else
+    timespec ts = { 0, 0 };
+    ts.tv_sec  = static_cast<int>( time / 1000 );
+    ts.tv_nsec = ( time - ts.tv_sec * 1000 ) * 1000000;
 
     timeb tb;
     ftime( &tb );
@@ -126,6 +128,7 @@ bool Condition::timedWait( const uint32_t timeout )
     ts.tv_nsec += tb.millitm * 1000000;
 
     int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+#endif
     if( error == ETIMEDOUT )
         return false;
 
