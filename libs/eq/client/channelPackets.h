@@ -186,9 +186,9 @@ namespace eq
         co::ObjectVersion frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
+        uint64_t           imageIndex;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
-        uint64_t           imageIndex;
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket

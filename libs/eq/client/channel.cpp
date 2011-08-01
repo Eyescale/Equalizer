@@ -397,6 +397,7 @@ void Channel::frameReadback( const uint128_t& )
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         Frame* frame = *i;
+        // @bug? Not here, should be set by server or calling _cmdFunc
         frame->getData()->setPixelViewport( getPixelViewport() );
         frame->readback( glObjects, drawableConfig );
     }
@@ -1360,12 +1361,8 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitPacket* command )
     toNode->send( pkt );
 }
 
-void Channel::_transmitSingleImage( const ChannelFrameTransmitPacket* command )
+void Channel::_transmitImage( const ChannelFrameTransmitPacket* command )
 {
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
-    transmitEvent.statisticsIndex = command->statisticsIndex;
-    transmitEvent.event.data.statistic.task = command->context.taskID;
-
     FrameData* frameData = getNode()->getFrameData( command->frameData ); 
     EQASSERT( frameData );
 
@@ -1374,6 +1371,10 @@ void Channel::_transmitSingleImage( const ChannelFrameTransmitPacket* command )
         EQWARN << "No buffers for frame data" << std::endl;
         return;
     }
+
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    transmitEvent.statisticsIndex = command->statisticsIndex;
+    transmitEvent.event.data.statistic.task = command->context.taskID;
 
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > command->imageIndex );
@@ -1382,10 +1383,6 @@ void Channel::_transmitSingleImage( const ChannelFrameTransmitPacket* command )
 
 void Channel::_transmitFrame( const ChannelFrameTransmitPacket* command )
 {
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
-    transmitEvent.statisticsIndex = command->statisticsIndex;
-    transmitEvent.event.data.statistic.task = command->context.taskID;
-
     FrameData* frameData = getNode()->getFrameData( command->frameData ); 
     EQASSERT( frameData );
 
@@ -1395,18 +1392,67 @@ void Channel::_transmitFrame( const ChannelFrameTransmitPacket* command )
         return;
     }
 
-    const Images& images = frameData->getImages();
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    transmitEvent.statisticsIndex = command->statisticsIndex;
+    transmitEvent.event.data.statistic.task = command->context.taskID;
+
     // send all images
+    const Images& images = frameData->getImages();
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-    {
         _transmitImage( *i, command );
-    }
 
     // all data transmitted -> ready
     _sendFrameDataReady( command );
 }
 
-void Channel::_collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
+// TODO Separate send and ready packets? If ready==true this method has
+// different semantics and does not send tile to input nodes!
+void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
+{
+    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;    
+        if ( ready )
+            frame->setReady();
+
+        const FrameData* data = frame->getData();
+        const std::vector<uint128_t>& toNodes = data->getInputNodes();
+        const std::vector<uint128_t>& toNetNodes = data->getInputNetNodes();
+        std::vector<uint128_t>::const_iterator j = toNodes.begin();
+        std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
+        for( ; j != toNodes.end(); ++j, ++k )
+        {
+            if (ready)
+                ++_statistics.data[ _statisticsIndex ].used;
+
+            size_t index = frame->getImages().size();
+            // make sure a packet is sent for ready packets
+            index -= ready ? 1 : frame->getNewImages();
+            for ( ; index != frame->getImages().size(); ++index )
+            {
+                ChannelFrameTransmitPacket transmitPacket;
+                transmitPacket.command =
+                    ready ? fabric::CMD_CHANNEL_FRAME_READY :
+                            fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+                transmitPacket.context   = context;
+                transmitPacket.frameData = frame->getDataVersion( context.eye );
+                transmitPacket.clientNodeID = *j;
+                transmitPacket.netNodeID = *k;
+                transmitPacket.statisticsIndex = _statisticsIndex;
+                transmitPacket.frameNumber = getPipe()->getCurrentFrame();
+                transmitPacket.imageIndex = index;
+
+                send( getNode()->getLocalNode(), transmitPacket );
+            }
+        }
+        if( toNodes.empty() )
+            EQWARN << "unable to transmit frame " << context.frameID
+                   << std::endl;
+    }
+}
+
+void Channel::_collectOutputFrames( uint32_t nFrames,
+                                    co::ObjectVersion* frames )
 {
     for( uint32_t i=0; i<nFrames; ++i )
     {
@@ -1422,7 +1468,6 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
     _collectOutputFrames( nFrames, frames );
-
     frameReadback( frameID );
 
     size_t in = 0;
@@ -1686,7 +1731,7 @@ bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
     const ChannelFrameTransmitPacket* packet = 
         command.get<ChannelFrameTransmitPacket>();
 
-    _transmitSingleImage( packet );
+    _transmitImage( packet );
     return true;
 }
 
@@ -1740,49 +1785,6 @@ bool Channel::_cmdStopFrame( co::Command& command )
     return true;
 }
 
-void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
-{
-    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;    
-        if ( ready )
-            frame->setReady();
-
-        const FrameData* data = frame->getData();
-        const std::vector<uint128_t>& toNodes = data->getInputNodes();
-        const std::vector<uint128_t>& toNetNodes = data->getInputNetNodes();
-        std::vector<uint128_t>::const_iterator j = toNodes.begin();
-        std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
-        for( ; j != toNodes.end(); ++j, ++k )
-        {
-            if (ready)
-                ++_statistics.data[ _statisticsIndex ].used;
-
-            size_t index = frame->getImages().size();
-            // make sure a packet is sent for ready packets
-            index -= ready ? 1 : frame->getNewImages();
-            for ( ; index != frame->getImages().size(); ++index )
-            {
-                ChannelFrameTransmitPacket transmitPacket;
-                transmitPacket.context   = context;
-                transmitPacket.frameData = frame->getDataVersion( context.eye );
-                transmitPacket.clientNodeID = *j;
-                transmitPacket.netNodeID = *k;
-                transmitPacket.statisticsIndex = _statisticsIndex;
-                transmitPacket.frameNumber = getPipe()->getCurrentFrame();
-                transmitPacket.imageIndex = index;
-                transmitPacket.command = ready ? fabric::CMD_CHANNEL_FRAME_READY :
-                                     fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
-
-                send( getNode()->getLocalNode(), transmitPacket );
-            }
-        }
-        if( toNodes.empty() )
-            EQWARN << "unable to transmit frame " 
-            << context.frameID << std::endl;
-    }
-}
-
 bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet = command.get<ChannelFrameTilesPacket>();
@@ -1833,7 +1835,6 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     {
         // set frame ready
         _sendTileToInputNodes( context, true );
-
         _outputFrames.clear();
     }
 
