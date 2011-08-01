@@ -1091,14 +1091,14 @@ void LocalNode::_runCommandThread()
     EQ_TS_THREAD( _cmdThread );
     while( _state != STATE_CLOSED )
     {
-        Command* command = _commandThreadQueue.pop();
-        EQASSERT( command->isValid( ));
+        Command& command = *(_commandThreadQueue.pop( ));
+        EQASSERT( command.isValid( ));
 
-        if( !command->invoke( ))
+        if( !command( ))
         {
-            EQABORT( "Error handling " << *command );
+            EQABORT( "Error handling " << command );
         }
-        command->release();
+        command.release();
 
         while( _commandThreadQueue.isEmpty( ))
         {

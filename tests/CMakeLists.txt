@@ -11,7 +11,7 @@ endif()
 
 file(GLOB COMPOSITOR_IMAGES compositor/*.rgb)
 file(GLOB TEST_CONFIGS reliability/*.eqc)
-file(COPY image/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
+file(COPY compressor/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
@@ -26,7 +26,7 @@ set(ALL_TESTS)
 foreach(FILE ${TEST_FILES})
   set(THIS_BUILD ON)
   if(EQ_BIG_ENDIAN)
-    if(${FILE} MATCHES "image/test.cpp" OR ${FILE} MATCHES "compositor/test.cpp")
+    if(${FILE} MATCHES "compressor/image.cpp" OR ${FILE} MATCHES "compositor/test.cpp")
       set(THIS_BUILD OFF)
     endif()
   endif()
@@ -34,15 +34,15 @@ foreach(FILE ${TEST_FILES})
   if(THIS_BUILD)
     string(REGEX REPLACE "[./]" "_" NAME ${FILE})
     source_group(\\ FILES ${FILE})
-    add_executable(test_${NAME} ${FILE})
-    target_link_libraries(test_${NAME}
+    add_executable(${NAME} ${FILE})
+    target_link_libraries(${NAME}
                           lib_Equalizer_shared lib_EqualizerServer_shared)
-    get_target_property(EXECUTABLE test_${NAME} LOCATION)
+    get_target_property(EXECUTABLE ${NAME} LOCATION)
     STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
       EXECUTABLE "${EXECUTABLE}")
     add_test(${NAME} ${EXECUTABLE})
-    set_target_properties(test_${NAME} PROPERTIES FOLDER "Tests")
-    list(APPEND ALL_TESTS test_${NAME})
+    set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
+    list(APPEND ALL_TESTS ${NAME})
   endif()
 endforeach(FILE ${TEST_FILES})
 

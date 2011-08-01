@@ -41,7 +41,7 @@ namespace co
         virtual void acceptNB();
         virtual ConnectionPtr acceptSync();
         
-        virtual void close();
+        virtual void close() { _close(); }
 
         virtual Notifier getNotifier() const { return _read.hEvent; }
 
@@ -73,6 +73,7 @@ namespace co
         std::string _getFilename() const;
         bool _createNamedPipe();
         bool _connectNamedPipe();
+        void _close();
     };
 }
 

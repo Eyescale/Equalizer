@@ -5,11 +5,6 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
-set(CO_VERSION_MAJOR "0")
-set(CO_VERSION_MINOR "4")
-set(CO_VERSION_PATCH "0")
-set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
-
 include(files.cmake)
 include(configure.cmake)
 
@@ -60,6 +55,12 @@ if(Boost_FOUND)
     list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
   endif()
 endif(Boost_FOUND)
+
+if(OFED_FOUND)
+  list(APPEND CO_HEADERS rdmaConnection.h)
+  list(APPEND CO_SOURCES rdmaConnection.cpp)
+  list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
+endif()
 
 
 source_group(base REGULAR_EXPRESSION .*)

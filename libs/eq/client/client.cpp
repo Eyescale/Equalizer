@@ -63,6 +63,7 @@ Client::Client()
 Client::~Client()
 {
     EQINFO << "Delete client at " << (void*)this << std::endl;
+    EQASSERT( isClosed( ));
     close();
 }
 

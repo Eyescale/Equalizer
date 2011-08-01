@@ -108,6 +108,10 @@ function(PURPLE_ADD_LIBRARY NAME)
     purple_pch_use(${NAME} ${THIS_TARGETS})
   endif(THIS_PRECOMPILE_HEADERS)
 
+  if(NOT THIS_EXCLUDE_FROM_ALL)
+    set_property (GLOBAL APPEND PROPERTY ALL_TARGETS ${THIS_TARGETS})
+  endif()
+
   foreach(HEADER ${THIS_HEADERS})
     string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
     install(FILES ${HEADER}

@@ -1,4 +1,25 @@
 
+To use RDMA InfiniBand connections the following is needed:
+
+ 1) The rdma_ucm kernel module must be loaded
+ 2) The application must have read/write access to the IB device nodes
+    (typically /dev/infiniband/[rdma_cm|uverbs*])
+ 3) The IP address used for the connection must be an address assigned to an
+    RDMA-capable device (e.g. IPoIB)
+ 4) Shared memory must be sufficient for all RDMA connections,
+    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB are needed for each connection
+    set /dev/shm, kernel.shm[min|max|all] accordingly
+ 5) The user must be able to lock the memory registered with verbs, such
+    that the locked memory limit needs to be sufficient ("ulimit -l" for
+    bash, "limit memorylocked" for csh).  Updating /etc/security/limits.conf
+    with entries like this is usually adequate (e.g. to raise the limit
+    to 2GB for all users):
+    * soft memlock 2048000
+    * hard memlock 2048000
+
+
+                    Ubuntu 11.04 Setup Notes
+
 http://davidhunt.ie/wp/?p=375
 
 Ubuntu 11.04:

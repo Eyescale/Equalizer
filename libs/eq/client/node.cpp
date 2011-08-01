@@ -389,7 +389,7 @@ void Node::TransmitThread::run()
         if( !command )
             return; // exit thread
 
-        EQCHECK( command->invoke( ));
+        EQCHECK( (*command)( ));
         command->release();
     }
 }

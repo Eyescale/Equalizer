@@ -57,7 +57,7 @@ namespace co
         /** The bandwidth in kilobyte per second for this connection. */
         int32_t bandwidth;
 
-        /** The listening port (TCPIP, SDP, IB, MCIP). */
+        /** The listening port (TCPIP, SDP, IB, MCIP, RDMA). */
         uint16_t port;
 
         /** @return this description as a string. */

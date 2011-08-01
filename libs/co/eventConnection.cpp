@@ -33,7 +33,7 @@ EventConnection::EventConnection()
 
 EventConnection::~EventConnection()
 {
-    close();
+    _close();
 }
 
 bool EventConnection::connect()
@@ -56,7 +56,7 @@ bool EventConnection::connect()
     return true;    
 }
 
-void EventConnection::close()
+void EventConnection::_close()
 {
 #ifdef _WIN32
     if( _event )

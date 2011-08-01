@@ -71,7 +71,7 @@ void Command::release()
         ++_freeCount;
 }
 
-size_t Command::_alloc( NodePtr node, LocalNodePtr localNode,
+size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
                         const uint64_t size )
 {
     EQ_TS_THREAD( _writeThread );
@@ -103,7 +103,7 @@ size_t Command::_alloc( NodePtr node, LocalNodePtr localNode,
     return allocated;
 }
 
-void Command::_clone( Command& from )
+void Command::clone_( Command& from )
 {
     EQ_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
@@ -133,7 +133,7 @@ void Command::_free()
     _refCountMaster = 0;
 }        
 
-bool Command::invoke()
+bool Command::operator()()
 {
     EQASSERT( _func.isValid( ));
     Dispatcher::Func func = _func;

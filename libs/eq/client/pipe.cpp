@@ -214,12 +214,12 @@ void Pipe::_runThread()
     while( _pipeThreadQueue )
     {
         const int64_t startWait = config->getTime();
-        co::Command* command = _pipeThreadQueue->pop();
+        co::Command& command = *(_pipeThreadQueue->pop( ));
         _waitTime += ( config->getTime() - startWait );
 
-        EQASSERT( command );
-        EQCHECK( command->invoke( ));
-        command->release();
+        EQASSERT( command.isValid( ));
+        EQCHECK( command( ));
+        command.release();
     }
 
     EQINFO << "Leaving pipe thread" << std::endl;

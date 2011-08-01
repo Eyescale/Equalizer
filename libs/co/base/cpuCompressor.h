@@ -31,6 +31,7 @@ namespace base
     public:
         /** Construct a new CPU-based compressor */
         CPUCompressor( ){}
+        virtual ~CPUCompressor() {}
 
         /**
          * Compress two-dimensional data.

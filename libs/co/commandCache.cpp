@@ -210,7 +210,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
 
     _compact( which );
     Command& command = _newCommand( which );
-    command._alloc( node, localNode, size );
+    command.alloc_( node, localNode, size );
     return command;
 }
 
@@ -221,7 +221,7 @@ Command& CommandCache::clone( Command& from )
     const Cache which = (from->size>Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
     Command& command = _newCommand( which );
     
-    command._clone( from );
+    command.clone_( from );
     return command;
 }
 

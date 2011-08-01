@@ -97,7 +97,7 @@ void Client::processCommand( const uint32_t timeout )
     if( !command ) // just a wakeup()
         return;
 
-    EQCHECK( command->invoke( ));
+    EQCHECK( (*command)( ));
     command->release();
 }
 
