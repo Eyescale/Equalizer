@@ -678,8 +678,8 @@ void RDMAConnection::_handleImm( const uint32_t imm )
 
     x.val = ::ntohl( imm );
 
-    _notify( x.fc.ringHeadIncr );
     _sinkptr.incrHead( x.fc.ringHeadIncr );
+    _notify( x.fc.ringHeadIncr );
 }
 
 // caller: event thread
