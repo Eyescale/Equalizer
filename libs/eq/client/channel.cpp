@@ -1445,7 +1445,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
     EQASSERT( statistic.data.empty( ));
     EQASSERT( statistic.used == 0 );
     statistic.used = 1;
-    resetContext();
+    resetRenderContext();
     return true;
 }
 
@@ -1458,7 +1458,7 @@ bool Channel::_cmdFrameFinish( co::Command& command )
 
     overrideContext( packet->context );
     frameFinish( packet->context.frameID, packet->frameNumber );
-    resetContext();
+    resetRenderContext();
 
     _unrefFrame( packet->frameNumber, _statisticsIndex );
     return true;
@@ -1475,7 +1475,7 @@ bool Channel::_cmdFrameClear( co::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( packet->context.frameID );
-    resetContext();
+    resetRenderContext();
 
     return true;
 }
@@ -1491,7 +1491,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this,
                              packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
-    resetContext();
+    resetRenderContext();
 
     return true;
 }
@@ -1536,7 +1536,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
         (*i)->setData( 0 );
     }
     _inputFrames.clear();
-    resetContext();
+    resetRenderContext();
 
     return true;
 }
@@ -1601,7 +1601,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
         event.event.data.statistic.ratio = 1.0f;
 
     _outputFrames.clear();
-    resetContext();
+    resetRenderContext();
     return true;
 }
 
@@ -1640,7 +1640,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 
     _setRenderContext( packet->context );
     frameViewStart( packet->context.frameID );
-    resetContext();
+    resetRenderContext();
 
     return true;
 }
@@ -1655,7 +1655,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
     frameViewFinish( packet->context.frameID );
-    resetContext();
+    resetRenderContext();
 
     return true;
 }
@@ -1700,7 +1700,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             frameReadback( packet->context.frameID );
     }
 
-    resetContext();
+    resetRenderContext();
     return true;
 }
 
