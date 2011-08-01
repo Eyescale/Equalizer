@@ -914,6 +914,7 @@ void Config::_adjustTileSize( const int delta )
     if( !view )
         return;
 
+    eq::Vector2i tileSize = view->getTileSize();
     tileSize += delta;
     view->setTileSize( tileSize );
 }
