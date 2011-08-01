@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -354,7 +354,7 @@ namespace fabric
         void overrideContext( RenderContext& context ) { _context = &context; }
 
         /** @internal Re-set the channel's native render context. */
-        void resetContext() { _context = &_data.nativeContext; }
+        void resetRenderContext() { _context = &_data.nativeContext; }
 
         /** @internal @return the current render context. */
         const RenderContext& getContext() const { return *_context; }
