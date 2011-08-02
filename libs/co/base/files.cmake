@@ -67,6 +67,7 @@ set(COBASE_HEADERS
     clock.cpp
     compressor.cpp
     condition.cpp
+    condition_w32.ipp
     cpuCompressor.cpp
     debug.cpp
     dso.cpp
