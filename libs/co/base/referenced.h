@@ -57,12 +57,15 @@ namespace base
             ++_refCount;
 
 #ifdef EQ_REFERENCED_DEBUG
-            std::stringstream cs;
-            cs << backtrace;
-            ScopedMutex<> referencedMutex( _holders );
-            HolderHash::iterator i = _holders->find( holder );
-            EQASSERTINFO( i == _holders->end(), i->second );
-            _holders.data[ holder ] = cs.str();
+            if( holder )
+            {
+                std::stringstream cs;
+                cs << backtrace;
+                ScopedMutex<> referencedMutex( _holders );
+                HolderHash::iterator i = _holders->find( holder );
+                EQASSERTINFO( i == _holders->end(), i->second );
+                _holders.data[ holder ] = cs.str();
+            }
 #endif
         }
 
@@ -82,7 +85,7 @@ namespace base
                 if( deleteMe )
                     deleteReferenced( this );
 #ifdef EQ_REFERENCED_DEBUG
-                else
+                else if( holder )
                 {
                     ScopedMutex<> referencedMutex( _holders );
                     HolderHash::iterator i = _holders->find( holder );
@@ -151,16 +154,24 @@ namespace base
 
 namespace boost
 {
+#ifdef EQ_REFERENCED_DEBUG
+#  define EQ_BOOSTREF_ARGS 0
+#  define EQ_BOOSTREF_PARAM 0
+#else
+#  define EQ_BOOSTREF_ARGS
+#  define EQ_BOOSTREF_PARAM
+#endif
+
     /** Allow creation of boost::intrusive_ptr from RefPtr or Referenced. */
     inline void intrusive_ptr_add_ref( co::base::Referenced* referenced )
     {
-        referenced->ref();
+        referenced->ref( EQ_BOOSTREF_PARAM );
     }
 
     /** Allow creation of boost::intrusive_ptr from RefPtr or Referenced. */
     inline void intrusive_ptr_release( co::base::Referenced* referenced )
     {
-        referenced->unref();
+        referenced->unref( EQ_BOOSTREF_PARAM );
     }
 }
 
