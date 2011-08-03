@@ -16,17 +16,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "aglEventHandler.h"
+#include "eventHandler.h"
 
-#include "aglWindow.h"
-#include "aglWindowEvent.h"
-#include "config.h"
-#include "configEvent.h"
-#include "global.h"
-#include "log.h"
-#include "os.h"
-#include "pipe.h"
 #include "window.h"
+#include "windowEvent.h"
+
+#include <eq/client/config.h>
+#include <eq/client/configEvent.h>
+#include <eq/client/global.h>
+#include <eq/client/log.h>
+#include <eq/client/os.h>
+#include <eq/client/pipe.h>
+#include <eq/client/window.h>
 
 #include <co/global.h>
 #include <co/base/file.h>
@@ -37,13 +38,15 @@
 
 namespace eq
 {
+namespace agl
+{
 static OSStatus _dispatchEventUPP( EventHandlerCallRef nextHandler,
                                    EventRef event, void* userData );
 
 static OSStatus _handleEventUPP( EventHandlerCallRef nextHandler,
                                  EventRef event, void* userData );
 
-AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
+EventHandler::EventHandler( agl::WindowIF* window )
         : _window( window )
         , _eventHandler( 0 )
         , _eventDispatcher( 0 )
@@ -51,7 +54,7 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         , _lastDY( 0 )
 {
     const bool fullscreen = 
-        window->getIAttribute( Window::IATTR_HINT_FULLSCREEN ) == ON;
+        window->getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON;
     const WindowRef carbonWindow = window->getCarbonWindow();
 
     if( !carbonWindow && !fullscreen )
@@ -122,7 +125,7 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
                << std::endl;
 }
 
-AGLEventHandler::~AGLEventHandler()
+EventHandler::~EventHandler()
 {
     Global::enterCarbon();
     if( _eventDispatcher )
@@ -159,8 +162,8 @@ OSStatus _dispatchEventUPP(EventHandlerCallRef nextHandler, EventRef event,
 OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
                           void* userData )
 {
-    AGLEventHandler* handler = static_cast< AGLEventHandler* >( userData );
-    AGLWindowIF* window = handler->getWindow();
+    EventHandler* handler = static_cast< EventHandler* >( userData );
+    agl::WindowIF* window = handler->getWindow();
 
     if( GetCurrentEventQueue() == GetMainEventQueue( )) // main thread
     {
@@ -176,13 +179,13 @@ OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
     return noErr;
 }
 
-bool AGLEventHandler::handleEvent( EventRef eventRef )
+bool EventHandler::handleEvent( EventRef eventRef )
 {
-    AGLWindowEvent event;
+    WindowEvent event;
     event.carbonEventRef = eventRef;
     event.time = _window->getConfig()->getTime();
 
-    Window* const window = _window->getWindow();
+    const eq::Window* window = _window->getWindow();
     event.originator = window->getID();
     event.serial = window->getSerial();
 
@@ -210,7 +213,7 @@ bool AGLEventHandler::handleEvent( EventRef eventRef )
     return _window->processEvent( event );
 }
 
-void AGLEventHandler::_processWindowEvent( AGLWindowEvent& event )
+void EventHandler::_processWindowEvent( WindowEvent& event )
 {
     WindowRef carbonWindow = _window->getCarbonWindow();
     Rect rect;
@@ -221,8 +224,8 @@ void AGLEventHandler::_processWindowEvent( AGLWindowEvent& event )
     event.resize.h = rect.bottom - rect.top;
     event.resize.w = rect.right  - rect.left;
 
-    Window* const window = _window->getWindow();
-    if( window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF )
+    const eq::Window* window = _window->getWindow();
+    if( window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF )
         event.resize.y -= EQ_AGL_MENUBARHEIGHT;
 
     EventRef eventRef = event.carbonEventRef;
@@ -265,11 +268,11 @@ void AGLEventHandler::_processWindowEvent( AGLWindowEvent& event )
     }
 }
 
-bool AGLEventHandler::_processMouseEvent( AGLWindowEvent& event )
+bool EventHandler::_processMouseEvent( WindowEvent& event )
 {
-    Window* const window = _window->getWindow();
+    const eq::Window* window = _window->getWindow();
     const bool decoration =
-        window->getIAttribute( Window::IATTR_HINT_DECORATION ) != OFF;
+        window->getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF;
     const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
     HIPoint pos;
 
@@ -419,7 +422,7 @@ bool AGLEventHandler::_processMouseEvent( AGLWindowEvent& event )
     }
 }
 
-void AGLEventHandler::_processKeyEvent( AGLWindowEvent& event )
+void EventHandler::_processKeyEvent( WindowEvent& event )
 {
     EventRef eventRef = event.carbonEventRef;
     switch( GetEventKind( eventRef ))
@@ -443,7 +446,7 @@ void AGLEventHandler::_processKeyEvent( AGLWindowEvent& event )
     }
 }
 
-uint32_t AGLEventHandler::_getButtonState()
+uint32_t EventHandler::_getButtonState()
 {
     const uint32 buttons = GetCurrentEventButtonState();
     
@@ -454,7 +457,7 @@ uint32_t AGLEventHandler::_getButtonState()
 }
 
 
-uint32_t AGLEventHandler::_getButtonAction( EventRef event )
+uint32_t EventHandler::_getButtonAction( EventRef event )
 {
     EventMouseButton button;
     GetEventParameter( event, kEventParamMouseButton, typeMouseButton, 0,
@@ -469,7 +472,7 @@ uint32_t AGLEventHandler::_getButtonAction( EventRef event )
     }
 }
 
-uint32_t AGLEventHandler::_getKey( EventRef eventRef )
+uint32_t EventHandler::_getKey( EventRef eventRef )
 {
     unsigned char key;
     GetEventParameter( eventRef, kEventParamKeyMacCharCodes, typeChar, 0,
@@ -604,7 +607,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
 }
 #endif
 
-void AGLEventHandler::initMagellan( Node* node )
+void EventHandler::initMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
     if( _magellanNode )
@@ -627,7 +630,7 @@ void AGLEventHandler::initMagellan( Node* node )
 #endif
 }
 
-void AGLEventHandler::exitMagellan( Node* node )
+void EventHandler::exitMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
     if( _magellanID && _magellanNode == node )
@@ -640,4 +643,5 @@ void AGLEventHandler::exitMagellan( Node* node )
 #endif
 }
 
+}
 }

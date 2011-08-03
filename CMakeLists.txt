@@ -287,7 +287,7 @@ if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
-message(STATUS "Supported Features:${EQ_FEATURES}")
+message(STATUS "Configured features: ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 
 include(doxygen) # must be after all targets
 include(CPackConfig)

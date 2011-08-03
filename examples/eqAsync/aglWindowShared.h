@@ -40,7 +40,7 @@ namespace eqAsync
  *  Replaces chooseAGLPixelFormat from eq::AGLWindow, since full screen has to
  *  be set for shared context windows even when it is an FBO.
  */
-class AGLWindowShared : public eq::AGLWindow
+class AGLWindowShared : public eq::agl::Window
 {
 public:
     AGLWindowShared( eq::Window* parent, CGDirectDisplayID displayID = 0 );

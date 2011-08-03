@@ -15,17 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "aglMessagePump.h"
+#include "messagePump.h"
 
-#include "global.h"
-#include "os.h"
-
+#include <eq/client/global.h>
+#include <eq/client/os.h>
 #include <co/base/debug.h>
 #include <co/base/log.h>
 
 namespace eq
 {
-AGLMessagePump::AGLMessagePump()
+namespace agl
+{
+
+MessagePump::MessagePump()
         : _receiverQueue( 0 )
         , _needGlobalLock( true )
 {
@@ -38,18 +40,18 @@ AGLMessagePump::AGLMessagePump()
     }
 }
 
-AGLMessagePump::~AGLMessagePump()
+MessagePump::~MessagePump()
 {
     ReleaseEvent( _wakeupEvent );
 }
 
-void AGLMessagePump::postWakeup()
+void MessagePump::postWakeup()
 {
     if( _receiverQueue )
         PostEventToQueue( _receiverQueue, _wakeupEvent, kEventPriorityStandard);
 }
 
-void AGLMessagePump::_initReceiverQueue()
+void MessagePump::_initReceiverQueue()
 {
     if( !_receiverQueue )
     {
@@ -62,7 +64,7 @@ void AGLMessagePump::_initReceiverQueue()
                   "MessagePump::dispatch() called from two different threads" );
 }
 
-void AGLMessagePump::dispatchOne()
+void MessagePump::dispatchOne()
 {
     _initReceiverQueue();
 
@@ -100,7 +102,7 @@ void AGLMessagePump::dispatchOne()
     }
 }
 
-void AGLMessagePump::dispatchAll()
+void MessagePump::dispatchAll()
 {
     _initReceiverQueue();
 
@@ -135,4 +137,7 @@ void AGLMessagePump::dispatchAll()
     if( _needGlobalLock )
         Global::leaveCarbon();
 }
+
 }
+}
+

@@ -16,31 +16,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "aglPipe.h"
-
-#include "global.h"
-#include "os.h"
 #include "pipe.h"
+
+#include <eq/client/global.h>
+#include <eq/client/os.h>
+#include <eq/client/pipe.h>
 
 #include <sstream>
 
 namespace eq
 {
+namespace agl
+{
 
-AGLPipe::AGLPipe( Pipe* parent )
+Pipe::Pipe( eq::Pipe* parent )
     : SystemPipe( parent )
     , _cgDisplayID( kCGNullDirectDisplay )
 {
 }
 
-AGLPipe::~AGLPipe( )
+Pipe::~Pipe( )
 {
 }
 
 //---------------------------------------------------------------------------
 // AGL init
 //---------------------------------------------------------------------------
-bool AGLPipe::configInit()
+bool Pipe::configInit()
 {
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
@@ -72,7 +74,7 @@ bool AGLPipe::configInit()
 }
 
 
-void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
+void Pipe::_setCGDisplayID( CGDirectDisplayID id )
 {
     if( _cgDisplayID == id )
         return;
@@ -98,11 +100,11 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
 }
 
 
-void AGLPipe::configExit()
+void Pipe::configExit()
 {
     _setCGDisplayID( kCGNullDirectDisplay );
     EQINFO << "Reset CG displayID " << std::endl;
 }
 
-} //namespace eq
-
+}
+}

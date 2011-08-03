@@ -20,9 +20,10 @@
 
 #include <eq/client/os.h>
 #ifdef AGL
-#  include <eq/client/aglEventHandler.h>
-#  include <eq/client/aglPipe.h>
-#  include <eq/client/aglWindow.h>
+#  include <eq/client/agl/eventHandler.h>
+#  include <eq/client/agl/pipe.h>
+#  include <eq/client/agl/window.h>
+#  include <eq/client/aglTypes.h>
 #endif
 #ifdef GLX
 #  include <eq/client/glXEventHandler.h>
