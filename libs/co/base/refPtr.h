@@ -24,13 +24,13 @@
 #include <typeinfo>
 #include <stdlib.h>
 
-//#define EQ_REFERENCED_DEBUG
-#ifdef EQ_REFERENCED_DEBUG
-#  define EQ_REFERENCED_ARGS const void* holder
-#  define EQ_REFERENCED_PARAM (const void*)(this)
+//#define CO_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
+#  define CO_REFERENCED_ARGS const void* holder
+#  define CO_REFERENCED_PARAM (const void*)(this)
 #else
-#  define EQ_REFERENCED_ARGS
-#  define EQ_REFERENCED_PARAM
+#  define CO_REFERENCED_ARGS
+#  define CO_REFERENCED_PARAM
 #endif
 
 namespace co
@@ -73,7 +73,7 @@ namespace base
                 T* tmp = _ptr;
                 _ptr = rhs._ptr;
                 _ref();
-                if( tmp ) tmp->unref( EQ_REFERENCED_PARAM );
+                if( tmp ) tmp->unref( CO_REFERENCED_PARAM );
                 return *this;
             }
 
@@ -86,7 +86,7 @@ namespace base
                 T* tmp = _ptr;
                 _ptr = ptr;
                 _ref();
-                if( tmp ) tmp->unref( EQ_REFERENCED_PARAM );
+                if( tmp ) tmp->unref( CO_REFERENCED_PARAM );
                 return *this;
             }
 
@@ -158,7 +158,7 @@ namespace base
         T* _ptr;
 
         /** Artificially reference the held object. */
-        void _ref()   { if(_ptr) _ptr->ref( EQ_REFERENCED_PARAM ); }
+        void _ref()   { if(_ptr) _ptr->ref( CO_REFERENCED_PARAM ); }
 
         /** Artificially dereference the held object. */
         void _unref() 
@@ -167,11 +167,11 @@ namespace base
             {
 #ifndef NDEBUG
                 const bool abondon = (_ptr->getRefCount() == 1);
-                _ptr->unref( EQ_REFERENCED_PARAM );
+                _ptr->unref( CO_REFERENCED_PARAM );
                 if( abondon ) 
                     _ptr = 0;
 #else
-                _ptr->unref( EQ_REFERENCED_PARAM );
+                _ptr->unref( CO_REFERENCED_PARAM );
 #endif
             }
         }
@@ -185,7 +185,7 @@ namespace base
         if( p )
         {
             os << disableFlush << "RP<" << *p << ">";
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
             os << std::endl;
             p->printHolders( os );
 #endif

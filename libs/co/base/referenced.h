@@ -21,9 +21,9 @@
 #include <co/base/api.h>      // for COBASE_API
 #include <co/base/atomic.h>   // member
 #include <co/base/debug.h>    // for EQERROR
-#include <co/base/refPtr.h>   // EQ_REFERENCED_ARGS
+#include <co/base/refPtr.h>   // CO_REFERENCED_ARGS
 
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
 #  include <co/base/hash.h>
 #  include <co/base/lock.h>
 #  include <co/base/lockable.h>
@@ -49,14 +49,14 @@ namespace base
     {
     public:
         /** Increase the reference count. @version 1.0 .*/
-        void ref( EQ_REFERENCED_ARGS ) const
+        void ref( CO_REFERENCED_ARGS ) const
         {
 #ifndef NDEBUG
-            EQASSERTINFO( !_hasBeenDeleted, className( this ));
+            EQASSERT( !_hasBeenDeleted );
 #endif
             ++_refCount;
 
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
             if( holder )
             {
                 std::stringstream cs;
@@ -75,7 +75,7 @@ namespace base
          * The object is deleted when the reference count reaches 0.
          * @version 1.0
          */
-        void unref( EQ_REFERENCED_ARGS ) const
+        void unref( CO_REFERENCED_ARGS ) const
             { 
 #ifndef NDEBUG
                 EQASSERT( !_hasBeenDeleted );
@@ -84,7 +84,7 @@ namespace base
                 const bool deleteMe = (--_refCount==0);
                 if( deleteMe )
                     deleteReferenced( this );
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
                 else if( holder )
                 {
                     ScopedMutex<> referencedMutex( _holders );
@@ -101,7 +101,7 @@ namespace base
         /** @internal print holders of this if debugging is enabled. */
         void printHolders( std::ostream& os ) const
             {
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
                 os << disableFlush << disableHeader;
                 ScopedMutex<> referencedMutex( _holders );
                 for( HolderHash::const_iterator i = _holders->begin();
@@ -144,7 +144,7 @@ namespace base
         mutable a_int32_t _refCount;
         bool _hasBeenDeleted;
 
-#ifdef EQ_REFERENCED_DEBUG
+#ifdef CO_REFERENCED_DEBUG
         typedef PtrHash< const void*, std::string > HolderHash;
         mutable Lockable< HolderHash, Lock > _holders;
 #endif
@@ -154,24 +154,24 @@ namespace base
 
 namespace boost
 {
-#ifdef EQ_REFERENCED_DEBUG
-#  define EQ_BOOSTREF_ARGS 0
-#  define EQ_BOOSTREF_PARAM 0
+#ifdef CO_REFERENCED_DEBUG
+#  define CO_BOOSTREF_ARGS 0
+#  define CO_BOOSTREF_PARAM 0
 #else
-#  define EQ_BOOSTREF_ARGS
-#  define EQ_BOOSTREF_PARAM
+#  define CO_BOOSTREF_ARGS
+#  define CO_BOOSTREF_PARAM
 #endif
 
     /** Allow creation of boost::intrusive_ptr from RefPtr or Referenced. */
     inline void intrusive_ptr_add_ref( co::base::Referenced* referenced )
     {
-        referenced->ref( EQ_BOOSTREF_PARAM );
+        referenced->ref( CO_BOOSTREF_PARAM );
     }
 
     /** Allow creation of boost::intrusive_ptr from RefPtr or Referenced. */
     inline void intrusive_ptr_release( co::base::Referenced* referenced )
     {
-        referenced->unref( EQ_BOOSTREF_PARAM );
+        referenced->unref( CO_BOOSTREF_PARAM );
     }
 }
 

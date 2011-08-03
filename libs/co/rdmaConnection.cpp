@@ -67,9 +67,7 @@ struct RDMAFCPayload {
 /**
  * "IMM" data sent with RDMA write, tells sink about send progress
  */
-struct RDMAFCImm {
-    uint32_t ringHeadIncr;
-};
+typedef uint32_t RDMAFCImm;
 
 /**
  * Initial setup message used to exchange sink MR parameters
@@ -670,16 +668,10 @@ bool RDMAConnection::_postReceives( const unsigned int count )
 // caller: event thread
 void RDMAConnection::_handleImm( const uint32_t imm )
 {
-    union
-    { 
-        uint32_t val;
-        RDMAFCImm fc;
-    } x;
+    RDMAFCImm fc = ntohl( imm );
 
-    x.val = ::ntohl( imm );
-
-    _sinkptr.incrHead( x.fc.ringHeadIncr );
-    _notify( x.fc.ringHeadIncr );
+    _sinkptr.incrHead( fc );
+    _notify( fc );
 }
 
 // caller: event thread
@@ -716,16 +708,10 @@ void RDMAConnection::_handleMsg( RDMAMessage &message )
 // caller: application
 uint32_t RDMAConnection::_makeImm( )
 {
-    union
-    {
-        uint32_t val;
-        RDMAFCImm fc;
-    } x;
+    RDMAFCImm fc = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
+    _sourceptr.incr( _sourceptr.MIDDLE, fc );
 
-    x.fc.ringHeadIncr = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
-    _sourceptr.incr( _sourceptr.MIDDLE, x.fc.ringHeadIncr );
-
-    return ::htonl( x.val );
+    return htonl( fc );
 }
 
 // caller: application
@@ -977,7 +963,8 @@ void RDMAConnection::_notify( const uint64_t val )
 {
     EQASSERT( 0 < _notifier );
 
-    ::write( _notifier, (const void *)&val, sizeof(uint64_t));
+    if( ::write( _notifier, (const void *)&val, sizeof( val )) != sizeof( val ))
+        EQWARN << "Write failed" << std::endl;
 }
 
 // caller: application
