@@ -15,23 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_AGLMESSAGEPUMP_H
-#define EQ_AGLMESSAGEPUMP_H
+#ifndef EQ_AGL_MESSAGEPUMP_H
+#define EQ_AGL_MESSAGEPUMP_H
 
-#include <eq/client/aglTypes.h>
+#include <eq/client/agl/types.h>
 #include <eq/client/messagePump.h>  // base class
 
 namespace eq
 {
+namespace agl
+{
     /** A message pump receiving and dispatching Carbon events. */
-    class AGLMessagePump : public MessagePump
+class MessagePump : public eq::MessagePump
     {
     public:
         /** Construct a new AGL message pump. @version 1.0 */
-        AGLMessagePump();
+        MessagePump();
 
         /** Destruct this message pump. @version 1.0 */
-        virtual ~AGLMessagePump();
+        virtual ~MessagePump();
 
         virtual void postWakeup();
         virtual void dispatchAll();
@@ -48,5 +50,5 @@ namespace eq
         void _initReceiverQueue();
     };
 }
-
-#endif //EQ_AGLMESSAGEPUMP_H
+}
+#endif //EQ_AGL_MESSAGEPUMP_H
