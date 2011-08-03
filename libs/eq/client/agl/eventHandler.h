@@ -15,36 +15,35 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_AGLEVENTHANDLER_H
-#define EQ_AGLEVENTHANDLER_H
+#ifndef EQ_AGL_EVENTHANDLER_H
+#define EQ_AGL_EVENTHANDLER_H
 
-#include <eq/client/aglTypes.h>
+#include <eq/client/agl/types.h>
 #include <eq/client/eventHandler.h> // base class
-#include <eq/client/types.h>
 
 namespace eq
 {
-    class AGLWindowIF;
-    class Node;
-
+namespace agl
+{
     /** 
      * The event handler for AGL windows.
      *
-     * Any implementation of the AGLWindowIF can instantiate this event handler,
-     * which registers for Carbon events, translates each received event to an
-     * AGLWindowEvent and dispatches it to AGLWindowIF::processEvent.
+     * Any implementation of the agl::WindowIF can instantiate this event
+     * handler, which registers for Carbon events, translates each received
+     * event to an AGLWindowEvent and dispatches it to
+     * agl::WindowIF::processEvent.
      */
-    class AGLEventHandler : public EventHandler
+    class EventHandler : public eq::EventHandler
     {
     public:
         /**
          * Construct a new AGL event handler for the given AGL window.
          * @version 1.0
          */
-        AGLEventHandler( AGLWindowIF* window );
+        EventHandler( agl::WindowIF* window );
         
         /** Destruct the AGL event handler. @version 1.0 */
-        virtual ~AGLEventHandler();
+        virtual ~EventHandler();
 
         /**
          * Initialize space mouse event handling for this process.
@@ -63,21 +62,21 @@ namespace eq
         static void exitMagellan( Node* node );
 
         /** @return the handled AGL window. @version 1.0 */
-        AGLWindowIF* getWindow() const { return _window; }
+        agl::WindowIF* getWindow() const { return _window; }
         
         /** @internal */
         bool handleEvent( EventRef event );
 
     private:
-        AGLWindowIF* const _window;
+        agl::WindowIF* const _window;
 
         EventHandlerRef _eventHandler;
         EventHandlerRef _eventDispatcher;
 
-        void _processWindowEvent( AGLWindowEvent& event );
+        void _processWindowEvent( WindowEvent& event );
         /** @return true if the event is valid for the window. */
-        bool _processMouseEvent( AGLWindowEvent& event );
-        void _processKeyEvent( AGLWindowEvent& event );
+        bool _processMouseEvent( WindowEvent& event );
+        void _processKeyEvent( WindowEvent& event );
 
         uint32_t _getButtonState();
         uint32_t _getButtonAction( EventRef event );
@@ -87,6 +86,6 @@ namespace eq
         uint32_t _lastDY;
     };
 }
-
-#endif // EQ_AGLEVENTHANDLER_H
+}
+#endif // EQ_AGL_EVENTHANDLER_H
 

@@ -19,23 +19,22 @@
 #ifndef EQ_AGL_WINDOW_H
 #define EQ_AGL_WINDOW_H
 
-#include <eq/client/aglTypes.h>
+#include <eq/client/agl/types.h>
 #include <eq/client/glWindow.h>       // base class
 
 namespace eq
 {
-    class AGLEventHandler;
-    class AGLWindowEvent;
-
+namespace agl
+{
     /** The interface defining the minimum functionality for an AGL window. */
-    class AGLWindowIF : public GLWindow
+    class WindowIF : public GLWindow
     {
     public:
         /** Construct a new AGL window for the given eq::Window. @version 1.0 */
-        AGLWindowIF( Window* parent ) : GLWindow( parent ) {}
+        WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
 
         /** Destruct the AGL window. @version 1.0 */
-        virtual ~AGLWindowIF() {}
+        virtual ~WindowIF() {}
 
         /** @return the AGL rendering context. @version 1.0 */
         EQ_API virtual AGLContext getAGLContext() const = 0;
@@ -47,7 +46,7 @@ namespace eq
         EQ_API virtual AGLPbuffer getAGLPBuffer() const = 0;
 
         /** Process the given event. @version 1.0 */
-        EQ_API virtual bool processEvent( const AGLWindowEvent& event ) = 0;
+        EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
 
     private:
         struct Private;
@@ -55,7 +54,7 @@ namespace eq
     };
 
     /** Equalizer default implementation of an AGL window interface. */
-    class AGLWindow : public AGLWindowIF
+    class Window : public WindowIF
     {
     public:
         /**
@@ -63,13 +62,13 @@ namespace eq
          *
          * If kCGNullDirectDisplay is specified as the displayID (the default),
          * the constructor will try to query the corresponding data from the
-         * pipe's system pipe (AGLPipe).
+         * pipe's system pipe (agl::Pipe).
          * @version 1.0
          */
-        EQ_API AGLWindow( Window* parent, CGDirectDisplayID displayID = 0 );
+        EQ_API Window( eq::Window* parent, CGDirectDisplayID displayID = 0 );
 
         /** Destruct the AGL window. @version 1.0 */
-        EQ_API virtual ~AGLWindow();
+        EQ_API virtual ~Window();
 
         /** @name Data Access */
         //@{
@@ -244,7 +243,7 @@ namespace eq
                                                const uint32_t barrier );
 
         /** @version 1.0 */
-        EQ_API virtual bool processEvent( const AGLWindowEvent& event );
+        EQ_API virtual bool processEvent( const WindowEvent& event );
         //@}
 
     private:
@@ -258,7 +257,7 @@ namespace eq
         AGLPbuffer _aglPBuffer;
 
         /** The AGL event handler. */
-        AGLEventHandler* _eventHandler;
+        EventHandler* _eventHandler;
 
         /** Carbon display identifier. */
         CGDirectDisplayID _cgDisplayID;
@@ -267,6 +266,6 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
     };
 }
-
+}
 #endif // EQ_AGL_WINDOW_H
 

@@ -19,10 +19,12 @@
 #ifndef EQ_AGL_PIPE_H
 #define EQ_AGL_PIPE_H
 
-#include <eq/client/aglTypes.h>
+#include <eq/client/agl/types.h>
 #include <eq/client/systemPipe.h> // base class
 
 namespace eq
+{
+namespace agl
 {
     /**
      * Equalizer default implementation to handle an AGL GPU.
@@ -30,14 +32,14 @@ namespace eq
      * When using AGLWindow as a system window for any window of a Pipe, the
      * pipe needs to have an AGLPipe as its SystemPipe.
      */
-    class AGLPipe : public SystemPipe
+    class Pipe : public SystemPipe
     {
     public:
         /** Create a new AGL pipe for the given eq::Pipe. @version 1.0 */
-        AGLPipe( Pipe* parent );
+        Pipe( eq::Pipe* parent );
 
         /** Destroy the AGL pipe. @version 1.0 */
-        virtual ~AGLPipe( );
+        virtual ~Pipe( );
 
         /** @name AGL initialization */
         //@{
@@ -83,5 +85,5 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
     };
 }
-
+}
 #endif // EQ_AGL_PIPE_H

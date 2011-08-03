@@ -15,21 +15,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_AGLWINDOWEVENT_H
-#define EQ_AGLWINDOWEVENT_H
+#ifndef EQ_AGL_WINDOWEVENT_H
+#define EQ_AGL_WINDOWEVENT_H
 
 #include <eq/client/event.h> // base class
 
 namespace eq
 {
+namespace agl
+{
     /** A window-system event with the native Carbon event, used for AGL. */
-    class AGLWindowEvent : public Event
+    class WindowEvent : public Event
     {
     public:
         /** The native event. @version 1.0 */
         EventRef carbonEventRef;
     };
 }
-
-#endif // EQ_AGLWINDOWEVENT_H
-
+}
+#endif // EQ_AGL_WINDOWEVENT_H
