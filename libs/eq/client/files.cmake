@@ -2,12 +2,13 @@
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 set(CLIENT_HEADERS
-  aglEventHandler.h
-  aglMessagePump.h
-  aglPipe.h
+  agl/eventHandler.h
+  agl/messagePump.h
+  agl/pipe.h
+  agl/window.h
+  agl/windowEvent.h
+  agl/types.h
   aglTypes.h
-  aglWindow.h
-  aglWindowEvent.h
   api.h
   base.h
   canvas.h
@@ -128,12 +129,12 @@ set(CLIENT_SOURCES
   )
 
 if(EQ_AGL_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    aglEventHandler.cpp
-    aglMessagePump.cpp
-    aglWindow.cpp
-    aglPipe.cpp
-    agl/aglFactory.cpp
+  list(APPEND CLIENT_SOURCES
+    agl/eventHandler.cpp
+    agl/messagePump.cpp
+    agl/window.cpp
+    agl/pipe.cpp
+    agl/windowSystem.cpp
   )
 endif(EQ_AGL_USED)
 

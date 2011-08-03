@@ -18,37 +18,39 @@
 
 #include "../windowSystem.h"
 
-#include "../aglWindow.h"
-#include "../aglPipe.h"
-#include "../aglMessagePump.h"
-#include "../os.h"
+#include "window.h"
+#include "pipe.h"
+#include "messagePump.h"
 
+#include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
 
 #define MAX_GPUS 32
 
 namespace eq
 {
+namespace agl
+{
 
 static class : WindowSystemIF
 {
     std::string getName() const { return "AGL"; }
 
-    eq::SystemWindow* createWindow(eq::Window* window) const
+    eq::SystemWindow* createWindow( eq::Window* window ) const
     {
-        EQINFO << "Using AGLWindow" << std::endl;
-        return new AGLWindow(window);
+        EQINFO << "Using agl::Window" << std::endl;
+        return new Window(window);
     }
 
-    eq::SystemPipe* createPipe(eq::Pipe* pipe) const
+    eq::SystemPipe* createPipe( eq::Pipe* pipe ) const
     {
-        EQINFO << "Using AGLPipe" << std::endl;
-        return new AGLPipe(pipe);
+        EQINFO << "Using agl::Pipe" << std::endl;
+        return new Pipe(pipe);
     }
 
     eq::MessagePump* createMessagePump() const
     {
-        return new AGLMessagePump;
+        return new MessagePump;
     }
 
     GPUInfos discoverGPUs() const
@@ -91,16 +93,17 @@ static class : WindowSystemIF
     void configInit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
-        AGLEventHandler::initMagellan(node);
+        EventHandler::initMagellan(node);
 #endif
     }
 
     void configExit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
-        AGLEventHandler::exitMagellan(node);
+        EventHandler::exitMagellan(node);
 #endif
     }
 } _aglFactory;
 
-} // namespace eq
+}
+}

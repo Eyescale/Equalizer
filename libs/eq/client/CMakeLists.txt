@@ -42,6 +42,7 @@ source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(util FILES ${EQ_UTIL_PUBLIC_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
 source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
 source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
+source_group(agl REGULAR_EXPRESSION agl/.*)
 
 purple_add_library(Equalizer SHARED
   HEADERS_PREFIX "eq/client"

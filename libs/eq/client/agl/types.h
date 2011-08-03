@@ -15,19 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_AGLTYPES_H
-#define EQ_AGLTYPES_H
+#ifndef EQ_AGL_TYPES_H
+#define EQ_AGL_TYPES_H
 
-#include <eq/client/agl/types.h>
+#include <co/base/types.h>
 
-#ifndef EQ_2_0_API
 namespace eq
 {
-    typedef agl::WindowIF AGLWindowIF;
-    typedef agl::Window AGLWindow;
-    typedef agl::EventHandler AGLEventHandler;
-    typedef agl::WindowEvent AGLWindowEvent;
-}
-#endif
+namespace agl
+{
 
-#endif // EQ_AGLTYPES_H
+class EventHandler;
+class WindowIF;
+class WindowEvent;
+
+}
+}
+
+/** @cond INTERNAL */
+typedef uint32_t CGDirectDisplayID;
+typedef struct OpaqueWindowPtr* WindowPtr;
+typedef WindowPtr WindowRef;
+typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
+typedef struct __AGLContextRec* AGLContext;
+typedef struct __AGLPixelFormatRec* AGLPixelFormat;
+typedef struct __AGLPBufferRec* AGLPbuffer;
+typedef struct OpaqueEventRef* EventRef;
+typedef struct OpaqueEventQueueRef* EventQueueRef;
+/** @endcond */
+
+
+#endif // EQ_AGL_TYPES_H
