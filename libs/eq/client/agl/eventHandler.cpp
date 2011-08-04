@@ -96,7 +96,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
                                    this, &_eventHandler );
 
 
-    const Pipe* pipe = window->getPipe();
+    const eq::Pipe* pipe = window->getPipe();
     if( pipe->isThreaded( ))
     {
         EQASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
@@ -167,7 +167,7 @@ OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
 
     if( GetCurrentEventQueue() == GetMainEventQueue( )) // main thread
     {
-        const Pipe* pipe = window->getPipe();
+        const eq::Pipe* pipe = window->getPipe();
         if( !pipe->isThreaded( ))
             // non-threaded window, handle from main thread
             handler->handleEvent( event );
