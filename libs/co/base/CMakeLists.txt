@@ -13,10 +13,17 @@ if(LINUX)
   list(APPEND COBASE_LINK_LIBS dl rt)
 endif()
 
+set(COBASE_PRECOMPILE)
+if(WIN32)
+  list(APPEND COBASE_PRECOMPILE precompile.h)
+else()
+  list(APPEND COBASE_PRECOMPILE <pthread.h> precompile.h)
+endif()
+
 purple_add_library(co_base ${CO_LIB_VARIANT}
   HEADERS_PREFIX "co/base/"
   HEADERS ${COBASE_PUBLIC_HEADERS}
-  PRECOMPILE_HEADERS <pthread.h> precompile.h
+  PRECOMPILE_HEADERS ${COBASE_PRECOMPILE}
   SOURCES ${COBASE_SOURCES} ${COBASE_HEADERS}
   LINK_LIBRARIES ${PTHREAD_LIBRARIES} ${COBASE_LINK_LIBS}
   )
