@@ -70,11 +70,19 @@ std::ostream& backtrace( std::ostream& os )
     for( int i = 1; i < frames; ++i )
     {
         std::string name = names[ i ];
+#  ifdef Linux
+        const size_t symbolPos = name.find( "(_" );
+#  else
         const size_t symbolPos = name.find( " _" );
+#  endif
         if( symbolPos != std::string::npos )
             name = name.substr( symbolPos+1, name.length( ));
 
+#  ifdef Linux
+        const size_t spacePos = name.find( '+' );
+#  else
         const size_t spacePos = name.find( ' ' );
+#  endif
         if( spacePos != std::string::npos )
             name = name.substr( 0, spacePos );
 
