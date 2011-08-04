@@ -22,10 +22,16 @@
 
 namespace eq
 {
+/** 
+ * @namespace eq::agl
+ * @brief The system abstraction layer for Apple OpenGL and Carbon.
+ */
 namespace agl
 {
 
 class EventHandler;
+class Pipe;
+class Window;
 class WindowIF;
 class WindowEvent;
 

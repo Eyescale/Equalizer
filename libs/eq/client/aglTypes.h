@@ -23,10 +23,11 @@
 #ifndef EQ_2_0_API
 namespace eq
 {
-    typedef agl::WindowIF AGLWindowIF;
-    typedef agl::Window AGLWindow;
     typedef agl::EventHandler AGLEventHandler;
+    typedef agl::Pipe AGLPipe;
+    typedef agl::Window AGLWindow;
     typedef agl::WindowEvent AGLWindowEvent;
+    typedef agl::WindowIF AGLWindowIF;
 }
 #endif
 

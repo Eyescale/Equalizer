@@ -14,7 +14,7 @@ option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
-  "Enable for pure 2.0 API (breaks compatibility with 1.0 API)" OFF)
+  "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 set(EQUALIZER_RELEASE OFF)
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")

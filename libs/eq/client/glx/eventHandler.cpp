@@ -16,18 +16,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "glXEventHandler.h"
+#include "eventHandler.h"
 
-#include "config.h"
-#include "event.h"
-#include "glXWindow.h"
-#include "glXWindowEvent.h"
-#include "glXMessagePump.h"
-#include "global.h"
-#include "log.h"
-#include "os.h"
-#include "pipe.h"
 #include "window.h"
+#include "windowEvent.h"
+#include "messagePump.h"
+#include "../config.h"
+#include "../event.h"
+#include "../global.h"
+#include "../log.h"
+#include "../os.h"
+#include "../pipe.h"
+#include "../window.h"
 
 #include <co/base/perThread.h>
 
@@ -35,24 +35,26 @@
 
 namespace eq
 {
+namespace glx
+{
 namespace
 {
-typedef std::vector< GLXEventHandler* > GLXEventHandlers;
-static co::base::PerThread< GLXEventHandlers > _eventHandlers;
+typedef std::vector< EventHandler* > EventHandlers;
+static co::base::PerThread< EventHandlers > _eventHandlers;
 }
 
-GLXEventHandler::GLXEventHandler( GLXWindowIF* window )
+EventHandler::EventHandler( WindowIF* window )
         : _window( window )
 {
     EQASSERT( window );
 
     if( !_eventHandlers )
-        _eventHandlers = new GLXEventHandlers;
+        _eventHandlers = new EventHandlers;
     _eventHandlers->push_back( this );
 
-    Pipe* pipe = window->getPipe();
-    GLXMessagePump* messagePump =
-        dynamic_cast< GLXMessagePump* >( pipe->isThreaded() ?
+    eq::Pipe* pipe = window->getPipe();
+    MessagePump* messagePump =
+        dynamic_cast< MessagePump* >( pipe->isThreaded() ?
                                          pipe->getMessagePump() :
                                          pipe->getConfig()->getMessagePump( ));
     if( messagePump )
@@ -62,17 +64,15 @@ GLXEventHandler::GLXEventHandler( GLXWindowIF* window )
         messagePump->register_( display );
     }
     else
-        EQINFO << "Using GLXEventHandler without GLXMessagePump, external "
-               << "event dispatch needed" << std::endl;
+        EQINFO << "Using glx::EventHandler without glx::MessagePump, external "
+               << "event dispatch assumed" << std::endl;
 }
 
-GLXEventHandler::~GLXEventHandler()
+EventHandler::~EventHandler()
 {
-    Pipe* pipe = _window->getPipe();
-    GLXMessagePump* messagePump =
-        dynamic_cast< GLXMessagePump* >( pipe->isThreaded() ?
-                                         pipe->getMessagePump() :
-                                         pipe->getConfig()->getMessagePump( ));
+    eq::Pipe* pipe = _window->getPipe();
+    MessagePump* messagePump = dynamic_cast<MessagePump*>( pipe->isThreaded() ?
+                 pipe->getMessagePump() : pipe->getConfig()->getMessagePump( ));
     if( messagePump )
     {
         Display* display = _window->getXDisplay();
@@ -80,7 +80,7 @@ GLXEventHandler::~GLXEventHandler()
         messagePump->deregister( display );
     }
 
-    GLXEventHandlers::iterator i = stde::find( *_eventHandlers, this );
+    EventHandlers::iterator i = stde::find( *_eventHandlers, this );
     EQASSERT( i != _eventHandlers->end( ));
     _eventHandlers->erase( i );
     if( _eventHandlers->empty( ))
@@ -90,19 +90,19 @@ GLXEventHandler::~GLXEventHandler()
     }
 }
 
-void GLXEventHandler::dispatch()
+void EventHandler::dispatch()
 {
     if( !_eventHandlers )
         return;
 
-    for( GLXEventHandlers::const_iterator i = _eventHandlers->begin();
+    for( EventHandlers::const_iterator i = _eventHandlers->begin();
          i != _eventHandlers->end(); ++i )
     {
         (*i)->_dispatch();
     }
 }
 
-void GLXEventHandler::_dispatch()
+void EventHandler::_dispatch()
 {
     Display* display = _window->getXDisplay();
     EQASSERT( display );
@@ -111,16 +111,16 @@ void GLXEventHandler::_dispatch()
 
     while( XPending( display ))
     {
-        GLXWindowEvent event;
+        WindowEvent event;
         XEvent& xEvent = event.xEvent;
 
         XNextEvent( display, &xEvent );
         event.time = _window->getConfig()->getTime();
 
-        for( GLXEventHandlers::const_iterator i = _eventHandlers->begin();
+        for( EventHandlers::const_iterator i = _eventHandlers->begin();
              i != _eventHandlers->end(); ++i )
         {
-            GLXEventHandler* handler = *i;
+            EventHandler* handler = *i;
             handler->_processEvent( event );
         }
     }
@@ -146,7 +146,7 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 }
 }
 
-void GLXEventHandler::_processEvent( GLXWindowEvent& event )
+void EventHandler::_processEvent( WindowEvent& event )
 {
     EQ_TS_THREAD( _thread );
 
@@ -156,7 +156,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
     if( _window->getXDrawable() != drawable )
         return;
 
-    Window* window = _window->getWindow();
+    eq::Window* window = _window->getWindow();
 
     switch( xEvent.type )
     {
@@ -273,7 +273,7 @@ void GLXEventHandler::_processEvent( GLXWindowEvent& event )
     _window->processEvent( event );
 }
 
-uint32_t GLXEventHandler::_getButtonState( XEvent& event )
+uint32_t EventHandler::_getButtonState( XEvent& event )
 {
     const int xState = event.xbutton.state;
     uint32_t   state  = 0;
@@ -300,7 +300,7 @@ uint32_t GLXEventHandler::_getButtonState( XEvent& event )
     return state;
 }
 
-uint32_t GLXEventHandler::_getButtonAction( XEvent& event )
+uint32_t EventHandler::_getButtonAction( XEvent& event )
 {
     switch( event.xbutton.button )
     {    
@@ -316,7 +316,7 @@ uint32_t GLXEventHandler::_getButtonAction( XEvent& event )
 }
 
 
-uint32_t GLXEventHandler::_getKey( XEvent& event )
+uint32_t EventHandler::_getKey( XEvent& event )
 {
     int index = 0;
     if( event.xkey.state & ShiftMask )
@@ -376,4 +376,5 @@ uint32_t GLXEventHandler::_getKey( XEvent& event )
     }
 }
 
+}
 }

@@ -16,11 +16,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "glXPipe.h"
-
-#include "global.h"
-#include "log.h"
 #include "pipe.h"
+
+#include "../global.h"
+#include "../glXTypes.h"
+#include "../log.h"
+#include "../pipe.h"
 
 #include <eq/fabric/gpuInfo.h>
 
@@ -29,18 +30,20 @@
 
 namespace eq
 {
+namespace glx
+{
 #ifndef NDEBUG
 static int XErrorHandler( Display* display, XErrorEvent* event );
 #endif
 
-GLXPipe::GLXPipe( Pipe* parent )
+Pipe::Pipe( eq::Pipe* parent )
         : SystemPipe( parent )
         , _xDisplay( 0 )
         , _glxewContext( new GLXEWContext )
 {
 }
 
-GLXPipe::~GLXPipe( )
+Pipe::~Pipe( )
 {
     delete _glxewContext;
 }
@@ -48,7 +51,7 @@ GLXPipe::~GLXPipe( )
 //---------------------------------------------------------------------------
 // GLX init
 //---------------------------------------------------------------------------
-bool GLXPipe::configInit()
+bool Pipe::configInit()
 {
     const std::string displayName  = getXDisplayString();
     const char*       cDisplayName = ( displayName.empty() ? 
@@ -78,7 +81,7 @@ bool GLXPipe::configInit()
     return _configInitGLXEW();
 }
 
-void GLXPipe::configExit()
+void Pipe::configExit()
 {
     Display* xDisplay = getXDisplay();
     if( !xDisplay )
@@ -90,7 +93,7 @@ void GLXPipe::configExit()
 }
 
 
-std::string GLXPipe::getXDisplayString()
+std::string Pipe::getXDisplayString()
 {
     std::ostringstream  stringStream;
     
@@ -113,7 +116,7 @@ std::string GLXPipe::getXDisplayString()
 }
 
 
-void GLXPipe::setXDisplay( Display* display )
+void Pipe::setXDisplay( Display* display )
 {
     if( _xDisplay == display )
         return;
@@ -147,7 +150,7 @@ void GLXPipe::setXDisplay( Display* display )
         getPipe()->setPixelViewport( info.pvp );
 }
 
-bool GLXPipe::getGPUInfo( Display* display, GPUInfo& info )
+bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
 {
     if( !display )
         return false;
@@ -169,7 +172,7 @@ bool GLXPipe::getGPUInfo( Display* display, GPUInfo& info )
     return true;
 }
 
-bool GLXPipe::_configInitGLXEW()
+bool Pipe::_configInitGLXEW()
 {
     EQASSERT( _xDisplay );
 
@@ -286,4 +289,5 @@ int XErrorHandler( Display* display, XErrorEvent* event )
 }
 #endif // !NDEBUG
 
+}
 }

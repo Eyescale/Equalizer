@@ -36,12 +36,13 @@ set(CLIENT_HEADERS
   frameData.h
   gl.h
   glWindow.h
-  glXEventHandler.h
-  glXMessagePump.h
-  glXPipe.h
+  glx/eventHandler.h
+  glx/messagePump.h
+  glx/pipe.h
+  glx/window.h
+  glx/windowEvent.h
+  glx/types.h
   glXTypes.h
-  glXWindow.h
-  glXWindowEvent.h
   global.h
   image.h
   init.h
@@ -150,12 +151,12 @@ endif(WIN32)
 
 if(EQ_GLX_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    glXEventHandler.cpp
+    glx/eventHandler.cpp
+    glx/messagePump.cpp
+    glx/pipe.cpp
+    glx/window.cpp
+    glx/windowSystem.cpp
     glXTypes.cpp
-    glXMessagePump.cpp
-    glXWindow.cpp
-    glXPipe.cpp
-    glx/glxFactory.cpp
   )
 endif(EQ_GLX_USED)
 

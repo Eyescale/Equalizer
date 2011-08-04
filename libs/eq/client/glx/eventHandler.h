@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_GLXEVENTHANDLER_H
-#define EQ_GLXEVENTHANDLER_H
+#ifndef EQ_GLX_EVENTHANDLER_H
+#define EQ_GLX_EVENTHANDLER_H
 
 #include <eq/client/eventHandler.h> // base class
 #include <eq/client/glXTypes.h>     // XEvent type
@@ -26,8 +26,10 @@
 
 namespace eq
 {
+namespace glx
+{
     /** The event handler for glX/X11 windows. */
-    class GLXEventHandler : public EventHandler
+    class EventHandler : public eq::EventHandler
     {
     public:
         /**
@@ -40,17 +42,17 @@ namespace eq
         static void dispatch();
 
         /** Construct a new glX event handler. @version 1.0 */
-        GLXEventHandler( GLXWindowIF* window );
+        EventHandler( WindowIF* window );
 
         /** Destruct the glX event handler. @version 1.0 */
-        virtual ~GLXEventHandler();
+        virtual ~EventHandler();
 
     private:
         /** The corresponding glX pipe. */
-        GLXWindowIF* const _window;
+        WindowIF* const _window;
 
         void _dispatch();
-        void _processEvent( GLXWindowEvent& event );
+        void _processEvent( WindowEvent& event );
         uint32_t _getButtonState( XEvent& event );
         uint32_t _getButtonAction( XEvent& event );
         uint32_t _getKey( XEvent& event );
@@ -58,6 +60,6 @@ namespace eq
         EQ_TS_VAR( _thread );
     };
 }
-
-#endif // EQ_GLXEVENTHANDLER_H
+}
+#endif // EQ_GLX_EVENTHANDLER_H
 
