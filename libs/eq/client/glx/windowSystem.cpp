@@ -18,13 +18,15 @@
 
 #include "../windowSystem.h"
 
-#include "../glXWindow.h"
-#include "../glXPipe.h"
-#include "../glXMessagePump.h"
+#include "window.h"
+#include "pipe.h"
+#include "messagePump.h"
 
 #include <eq/fabric/gpuInfo.h>
 
 namespace eq
+{
+namespace glx
 {
 
 namespace
@@ -44,7 +46,7 @@ static bool _queryDisplay( const std::string display, GPUInfo& info )
         return false;
     }
 
-    EQCHECK( GLXPipe::getGPUInfo( xDisplay, info ));
+    EQCHECK( Pipe::getGPUInfo( xDisplay, info ));
     XCloseDisplay( xDisplay );
     return true;
 }
@@ -57,19 +59,19 @@ static class : WindowSystemIF
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {
-        EQINFO << "Using GLXWindow" << std::endl;
-        return new GLXWindow(window);
+        EQINFO << "Using glx::Window" << std::endl;
+        return new Window(window);
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
-        EQINFO << "Using GLXPipe" << std::endl;
-        return new GLXPipe(pipe);
+        EQINFO << "Using glx::Pipe" << std::endl;
+        return new Pipe(pipe);
     }
 
     eq::MessagePump* createMessagePump() const
     {
-        return new GLXMessagePump;
+        return new MessagePump;
     }
 
     GPUInfos discoverGPUs() const
@@ -119,4 +121,5 @@ static class : WindowSystemIF
 
 } _glXFactory;
 
-} // namespace eq
+}
+}

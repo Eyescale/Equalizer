@@ -16,19 +16,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_WINDOW_GLX_H
-#define EQ_OS_WINDOW_GLX_H
+#ifndef EQ_GLX_WINDOW_H
+#define EQ_GLX_OS_WINDOW_H
 
+#include <eq/client/glx/types.h>
 #include <eq/client/glWindow.h>       // base class
 
 namespace eq
 {
+namespace glx
+{
     /** The interface defining the minimum functionality for a glX window. */
-    class GLXWindowIF : public GLWindow
+    class WindowIF : public GLWindow
     {
     public:
-        GLXWindowIF( Window* parent ) : GLWindow( parent ) {}
-        virtual ~GLXWindowIF() {}
+        WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
+        virtual ~WindowIF() {}
 
         /** @return the glX rendering context. @version 1.0 */
         virtual GLXContext getGLXContext() const = 0;
@@ -41,7 +44,7 @@ namespace eq
     };
 
     /** Equalizer default implementation of a glX window */
-    class GLXWindow : public GLXWindowIF
+    class Window : public WindowIF
     {
     public:
         /**
@@ -52,11 +55,11 @@ namespace eq
          * pipe's system pipe (GLXPipe). The GLXEWContext has to be initialized.
          * @version 1.0
          */
-        GLXWindow( Window* parent, Display* xDisplay = 0,
-                   GLXEWContext* glxewContext = 0 );
+        Window( eq::Window* parent, Display* xDisplay = 0,
+                GLXEWContext* glxewContext = 0 );
 
         /** Destruct this glX window. @version 1.0 */
-        virtual ~GLXWindow();
+        virtual ~Window();
 
         /** @name GLX/X11 initialization */
         //@{
@@ -208,7 +211,7 @@ namespace eq
         uint32_t _glXNVSwapGroup;
 
         /** The event handler. */
-        GLXEventHandler* _glXEventHandler;
+        EventHandler* _glXEventHandler;
 
         /** The glX extension pointer table. */
         GLXEWContext* _glxewContext;
@@ -223,6 +226,6 @@ namespace eq
         void _initSwapSync();
     };
 }
-
-#endif // EQ_OS_WINDOW_GLX_H
+}
+#endif // EQ_GLX_OS_WINDOW_H
 

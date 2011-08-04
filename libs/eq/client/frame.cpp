@@ -114,6 +114,12 @@ void Frame::flush()
         _frameData->flush();
 }
 
+void Frame::resetNewImages()
+{
+    if( _frameData )
+        _frameData->resetNewImages();
+}
+
 void Frame::setAlphaUsage( const bool useAlpha )
 {
     if( _frameData )

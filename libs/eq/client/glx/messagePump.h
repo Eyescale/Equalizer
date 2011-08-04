@@ -15,10 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_GLXMESSAGEPUMP_H
-#define EQ_GLXMESSAGEPUMP_H
+#ifndef EQ_GLX_MESSAGEPUMP_H
+#define EQ_GLX_MESSAGEPUMP_H
 
-#include <eq/client/glXTypes.h>
+#include <eq/client/glx/types.h>
 #include <eq/client/messagePump.h> // base class
 
 #include <co/connectionSet.h>  // member
@@ -26,15 +26,17 @@
 
 namespace eq
 {
+namespace glx
+{
     /** A message pump receiving and dispatching X11 events. */
-    class GLXMessagePump : public MessagePump
+    class MessagePump : public eq::MessagePump
     {
     public:
         /** Construct a new X11 message pump. @version 1.0 */
-        GLXMessagePump();
+        MessagePump();
 
         /** Destruct this message pump. @version 1.0 */
-        virtual ~GLXMessagePump();
+        virtual ~MessagePump();
 
         virtual void postWakeup();
         virtual void dispatchAll();
@@ -48,7 +50,7 @@ namespace eq
          * set, but require the same amount of deregistrations to stop event
          * dispatch on the connection. Not threadsafe.
          *
-         * @sa GLXEventHandler
+         * @sa EventHandler
          * @version 1.0
          */
         void register_( Display* display );
@@ -61,5 +63,5 @@ namespace eq
         stde::hash_map< void*, size_t > _referenced; //!< # of registrations
     };
 }
-
-#endif //EQ_GLXMESSAGEPUMP_H
+}
+#endif //EQ_GLX_MESSAGEPUMP_H

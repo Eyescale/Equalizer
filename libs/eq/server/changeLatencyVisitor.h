@@ -26,6 +26,7 @@
 #include "node.h"
 #include "observer.h"
 #include "segment.h"
+#include "tileQueue.h"
 #include "view.h"
 
 namespace eq
@@ -42,20 +43,36 @@ public:
 
     virtual VisitorResult visit( Compound* compound )
     { 
-        const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-        for( std::vector<Frame*>::const_iterator i = outputFrames.begin(); 
+        const Frames& outputFrames = compound->getOutputFrames();
+        for( FramesCIter i = outputFrames.begin(); 
              i != outputFrames.end(); ++i )
         {
             Frame* frame = *i;
             frame->setAutoObsolete( _latency );
         }
 
-        const std::vector< Frame* >& inputFrames = compound->getInputFrames();
-        for( std::vector<Frame*>::const_iterator i = inputFrames.begin(); 
+        const Frames& inputFrames = compound->getInputFrames();
+        for( FramesCIter i = inputFrames.begin(); 
              i != inputFrames.end(); ++i )
         {
             Frame* frame = *i;
             frame->setAutoObsolete( _latency );
+        }
+
+        const TileQueues& outputTileQueues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = outputTileQueues.begin(); 
+             i != outputTileQueues.end(); ++i )
+        {
+            TileQueue* queue = *i;
+            queue->setAutoObsolete( _latency );
+        }
+
+        const TileQueues& inputTileQueues = compound->getInputTileQueues();
+        for( TileQueuesCIter i = inputTileQueues.begin(); 
+             i != inputTileQueues.end(); ++i )
+        {
+            TileQueue* queue = *i;
+            queue->setAutoObsolete( _latency );
         }
         return TRAVERSE_CONTINUE; 
     }

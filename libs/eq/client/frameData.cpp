@@ -152,6 +152,11 @@ void FrameData::flush()
     _newImages = 0;
 }
 
+void FrameData::resetNewImages()
+{
+    _newImages = 0;
+}
+
 Image* FrameData::newImage( const eq::Frame::Type type,
                             const DrawableConfig& config )
 {

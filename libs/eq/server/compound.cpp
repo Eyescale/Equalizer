@@ -1108,6 +1108,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -1117,6 +1118,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
