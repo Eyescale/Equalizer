@@ -104,12 +104,9 @@ void NamedPipeConnection::_close()
     {
         _exitAIOAccept();
 
-        if ( _fd != INVALID_HANDLE_VALUE )
-        {
-            if( !DisconnectNamedPipe( _fd ))
-                EQERROR << "Could not disconnect named pipe: " << base::sysError
-                        << std::endl;
-        }
+        if( _fd != INVALID_HANDLE_VALUE && !DisconnectNamedPipe( _fd ))
+            EQERROR << "Could not disconnect named pipe: " << base::sysError
+                    << std::endl;
     }
     else
     {
