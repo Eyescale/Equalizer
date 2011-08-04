@@ -38,6 +38,6 @@ set(GLEW_MX_INCLUDE_DIRS ${_glew_mx_INCLUDE_DIR})
 set(GLEW_MX_LIBRARIES ${_glew_mx_LIBRARY})
 
 if(GLEW_MX_FOUND)
-  message("-- Found GLEW_MX in ${GLEW_MX_INCLUDE_DIRS};${GLEW_MX_LIBRARIES}")
+  message(STATUS "Found GLEW_MX in ${GLEW_MX_INCLUDE_DIRS};${GLEW_MX_LIBRARIES}")
 endif()
 
