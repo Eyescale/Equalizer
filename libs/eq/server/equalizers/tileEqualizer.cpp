@@ -18,6 +18,7 @@
 
 #include "types.h"
 #include "compound.h"
+#include "config.h"
 #include "tileQueue.h"
 #include "compoundVisitor.h"
 #include "server.h"
@@ -42,7 +43,8 @@ TileQueue* searchForName( const std::string& name, const TileQueues& queues )
 class InputQueueCreator : public CompoundVisitor
 {
 public:
-    InputQueueCreator( const eq::fabric::Vector2i& size, const std::string& name )
+    InputQueueCreator( const eq::fabric::Vector2i& size,
+                       const std::string& name )
         : CompoundVisitor()
     {
         _tileSize = size;
@@ -60,6 +62,7 @@ public:
         server->registerObject( input );
         input->setTileSize( _tileSize );
         input->setName( _name );
+        input->setAutoObsolete( compound->getConfig()->getLatency( ));
 
         compound->addInputTileQueue( input );
         return TRAVERSE_CONTINUE;
@@ -144,6 +147,7 @@ void TileEqualizer::_createQueues( Compound* compound )
         server->registerObject( output );
         output->setTileSize( _size );
         output->setName( _name );
+        output->setAutoObsolete( compound->getConfig()->getLatency( ));
 
         compound->addOutputTileQueue( output );
     }

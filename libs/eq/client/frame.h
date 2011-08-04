@@ -197,6 +197,9 @@ namespace server
         /** @internal Clear and free all images attached to the frame data. */
         void flush();
 
+        /** @internal Reset newImages counter for next image transmit. */
+        void resetNewImages();
+
         /**
          * Read back a set of images according to the current frame data.
          * 

@@ -194,6 +194,9 @@ namespace server
         /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_API void clear();
 
+        /** @internal Reset newImages counter for next image transmit. */
+        void resetNewImages();
+
         /** 
          * Read back an image for this frame data.
          * 

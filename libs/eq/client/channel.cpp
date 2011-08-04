@@ -1445,6 +1445,7 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
                 send( getNode()->getLocalNode(), transmitPacket );
             }
         }
+        frame->resetNewImages();
         if( toNodes.empty() )
             EQWARN << "unable to transmit frame " << context.frameID
                    << std::endl;
