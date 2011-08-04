@@ -36,14 +36,9 @@ namespace glx
     {
     public:
         X11Connection( Display* display )
-                : _display( display )
-            {
-                _state = STATE_CONNECTED;
-                EQINFO << "New X11 Connection @" << (void*)this << std::endl;
-            }
+                : _display( display ) { _state = STATE_CONNECTED; }
         
-        virtual ~X11Connection() 
-            { EQINFO << "Delete X11 connection @" << (void*)this << std::endl; }
+        virtual ~X11Connection() { _state = STATE_CLOSED; }
 
         virtual Notifier getNotifier() const
             { return ConnectionNumber( _display ); }
