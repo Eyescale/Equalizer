@@ -19,22 +19,24 @@
 #ifndef EQ_GLX_PIPE_H
 #define EQ_GLX_PIPE_H
 
+#include <eq/client/glx/types.h>
+
 #include <eq/client/gl.h>         // GLXEWContext
-#include <eq/client/glXTypes.h>
 #include <eq/client/systemPipe.h> // base class
-#include <eq/client/types.h>
 
 namespace eq
 {
+namespace glx
+{
     /** Default implementation of a glX system pipe. */
-    class GLXPipe : public SystemPipe
+    class Pipe : public SystemPipe
     {
     public:
         /** Construct a new glX system pipe. @version 1.0 */
-        GLXPipe( Pipe* parent );
+        Pipe( eq::Pipe* parent );
 
         /** Destruct this glX pipe. @version 1.0 */
-        virtual ~GLXPipe( );
+        virtual ~Pipe( );
 
         /** @name GLX/X11 initialization */
         //@{
@@ -105,5 +107,5 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
     };
 }
-
+}
 #endif // EQ_GLX_PIPE_H

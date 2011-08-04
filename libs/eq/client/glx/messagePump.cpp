@@ -15,9 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "glXMessagePump.h"
+#include "messagePump.h"
 
-#include "glXEventHandler.h"
+#include "eventHandler.h"
 #include "X11Connection.h"
 
 #include <co/base/debug.h>
@@ -25,20 +25,22 @@
 
 namespace eq
 {
-GLXMessagePump::GLXMessagePump()
+namespace glx
+{
+MessagePump::MessagePump()
 {
 }
 
-GLXMessagePump::~GLXMessagePump()
+MessagePump::~MessagePump()
 {
 }
 
-void GLXMessagePump::postWakeup()
+void MessagePump::postWakeup()
 {
     _connections.interrupt();
 }
 
-void GLXMessagePump::dispatchOne()
+void MessagePump::dispatchOne()
 {
     const co::ConnectionSet::Event event = _connections.select();
     switch( event )
@@ -52,7 +54,7 @@ void GLXMessagePump::dispatchOne()
         }
             
         case co::ConnectionSet::EVENT_DATA:
-            GLXEventHandler::dispatch();
+            EventHandler::dispatch();
             break;
 
         case co::ConnectionSet::EVENT_INTERRUPT:      
@@ -69,18 +71,18 @@ void GLXMessagePump::dispatchOne()
     }
 }
 
-void GLXMessagePump::dispatchAll()
+void MessagePump::dispatchAll()
 {
-    GLXEventHandler::dispatch();
+    EventHandler::dispatch();
 }
 
-void GLXMessagePump::register_( Display* display )
+void MessagePump::register_( Display* display )
 {
     if( ++_referenced[ display ] == 1 )
         _connections.addConnection( new X11Connection( display ));
 }
 
-void GLXMessagePump::deregister( Display* display )
+void MessagePump::deregister( Display* display )
 {
     if( --_referenced[ display ] == 0 )
     {
@@ -101,4 +103,5 @@ void GLXMessagePump::deregister( Display* display )
     }
 }
 
+}
 }

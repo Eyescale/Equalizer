@@ -23,6 +23,8 @@
 
 namespace eq
 {
+namespace glx
+{
     /**
      * @internal
      * An X11 Display connection wrapper.
@@ -58,6 +60,7 @@ namespace eq
     private:
         Display* const _display;
     };
+}
 }
 
 #endif // EQ_X11_CONNECTION_H
