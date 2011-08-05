@@ -18,18 +18,21 @@
 
 #include "../windowSystem.h"
 
+#include "eventHandler.h"
+#include "messagePump.h"
+#include "pipe.h"
+#include "window.h"
+
 #include "../config.h"
 #include "../node.h"
 #include "../pipe.h"
 #include "../server.h"
-#include "../wglEventHandler.h"
-#include "../wglMessagePump.h"
-#include "../wglPipe.h"
-#include "../wglWindow.h"
 
 #include <eq/fabric/gpuInfo.h>
 
 namespace eq
+{
+namespace wgl
 {
 
 static class : WindowSystemIF
@@ -38,31 +41,31 @@ static class : WindowSystemIF
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {
-        EQINFO << "Using WGLWindow" << std::endl;
-        return new WGLWindow(window);
+        EQINFO << "Using wgl::Window" << std::endl;
+        return new Window(window);
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
-        EQINFO << "Using WGLPipe" << std::endl;
-        return new WGLPipe(pipe);
+        EQINFO << "Using wgl::Pipe" << std::endl;
+        return new Pipe(pipe);
     }
 
     eq::MessagePump* createMessagePump() const
     {
-        return new WGLMessagePump;
+        return new MessagePump;
     }
 
 #define wglewGetContext wglPipe->wglewGetContext
 
     GPUInfos discoverGPUs() const
     {
-        // Create fake config to use WGLPipe affinity code for queries
+        // Create fake config to use wgl::Pipe affinity code for queries
         ServerPtr server = new Server;
         Config* config = new Config( server );
         Node* node = new Node( config );
-        Pipe* pipe = new Pipe( node );
-        WGLPipe* wglPipe = new WGLPipe( pipe );
+        eq::Pipe* pipe = new eq::Pipe( node );
+        Pipe* wglPipe = new Pipe( pipe );
 
         GPUInfos result;
         if( !wglPipe->configInit( ))
@@ -111,16 +114,17 @@ static class : WindowSystemIF
     void configInit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
-        WGLEventHandler::initMagellan(node);
+        EventHandler::initMagellan(node);
 #endif
     }
 
     void configExit(eq::Node* node) const
     {
 #ifdef EQ_USE_MAGELLAN
-        WGLEventHandler::exitMagellan(node);
+        EventHandler::exitMagellan(node);
 #endif
     }
 } _wglFactory;
 
-} // namespace eq
+}
+}

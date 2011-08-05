@@ -16,26 +16,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_OS_WINDOW_WGL_H
-#define EQ_OS_WINDOW_WGL_H
+#ifndef EQ_WGL_WINDOW_H
+#define EQ_WGL_WINDOW_H
 
 #include <eq/client/glWindow.h>       // base class
+#include <eq/client/wgl/types.h>
 
 namespace eq
 {
-    class WGLEventHandler;
-    class WGLPipe;
-    class WGLWindowEvent;
-
+namespace wgl
+{
     /** The interface defining the minimum functionality for a WGL window. */
-    class WGLWindowIF : public GLWindow
+    class WindowIF : public GLWindow
     {
     public:
         /** Construct a new WGL window for the given eq::Window. @version 1.0 */
-        WGLWindowIF( Window* parent ) : GLWindow( parent ) {}
+        WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
 
         /** Destruct the WGL window. @version 1.0 */
-        virtual ~WGLWindowIF() {}
+        virtual ~WindowIF() {}
 
         /** @return the WGL rendering context. @version 1.0 */
         EQ_API virtual HGLRC getWGLContext() const = 0;
@@ -56,7 +55,7 @@ namespace eq
         virtual HDC getWGLAffinityDC() { return 0; }
 
         /** Process the given event. @version 1.0 */
-        EQ_API virtual bool processEvent( const WGLWindowEvent& event ) = 0;
+        EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
 
     private:
         struct Private;
@@ -64,14 +63,14 @@ namespace eq
     };
 
     /** Equalizer default implementation of a WGL window */
-    class WGLWindow : public WGLWindowIF
+    class Window : public WindowIF
     {
     public:
         /** Create a new WGL window for the given eq::Window. @version 1.0 */
-        EQ_API WGLWindow( Window* parent );
+        EQ_API Window( eq::Window* parent );
 
         /** Destruct the WGL window. @version 1.0 */
-        EQ_API virtual ~WGLWindow( );
+        EQ_API virtual ~Window( );
 
         /** @name Data Access */
         /** 
@@ -125,7 +124,7 @@ namespace eq
         virtual HGLRC getWGLContext() const { return _wglContext; }
 
         /** @return the WGL event handler. @version 1.0 */
-        const WGLEventHandler* getWGLEventHandler() const 
+        const EventHandler* getWGLEventHandler() const 
             { return _wglEventHandler; }
         //@}
 
@@ -263,7 +262,7 @@ namespace eq
         void leaveNVSwapBarrier();
 
         /** @version 1.0 */
-        EQ_API virtual bool processEvent( const WGLWindowEvent& event );
+        EQ_API virtual bool processEvent( const WindowEvent& event );
         //@}
 
     protected:
@@ -289,7 +288,7 @@ namespace eq
         EQ_API WGLEWContext* wglewGetContext();
 
         /** @return the WGL OS parent pipe. */
-        WGLPipe* getWGLPipe();
+        Pipe* getWGLPipe();
 
     private:
 
@@ -301,8 +300,8 @@ namespace eq
         WGLDCType        _wglDCType;
         HDC              _wglAffinityDC;
 
-        WGLEventHandler* _wglEventHandler;
-        BOOL             _screenSaverActive;
+        EventHandler* _wglEventHandler;
+        BOOL          _screenSaverActive;
 
         uint32_t         _wglNVSwapGroup;
 
@@ -321,6 +320,6 @@ namespace eq
         void _initSwapSync();
     };
 }
-
-#endif // EQ_OS_WINDOW_WGL_H
+}
+#endif // EQ_WGL_WINDOW_H
 

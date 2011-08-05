@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,27 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_SYSTEM_H
-#define EQ_SYSTEM_H
+#ifndef EQ_WGL_TYPES_H
+#define EQ_WGL_TYPES_H
 
-#include <eq/client/os.h>
-#ifdef AGL
-#  include <eq/client/agl/eventHandler.h>
-#  include <eq/client/agl/pipe.h>
-#  include <eq/client/agl/window.h>
-#  include <eq/client/aglTypes.h>
-#endif
-#ifdef GLX
-#  include <eq/client/glx/eventHandler.h>
-#  include <eq/client/glx/pipe.h>
-#  include <eq/client/glx/window.h>
-#  include <eq/client/glXTypes.h>
-#endif
-#ifdef WGL
-#  include <eq/client/wgl/eventHandler.h>
-#  include <eq/client/wgl/pipe.h>
-#  include <eq/client/wgl/window.h>
-#  include <eq/client/wglTypes.h>
-#endif
+#include <co/base/types.h>
 
-#endif // EQ_SYSTEM_H
+namespace eq
+{
+/** 
+ * @namespace eq::wgl
+ * @brief The system abstraction layer for Windows OpenGL.
+ */
+namespace wgl
+{
+
+class EventHandler;
+class Pipe;
+class Window;
+class WindowIF;
+class WindowEvent;
+
+}
+}
+
+#endif // EQ_WGL_TYPES_H

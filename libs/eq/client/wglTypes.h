@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,22 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WGLWINDOWEVENT_H
-#define EQ_WGLWINDOWEVENT_H
+#ifndef EQ_WGLTYPES_H
+#define EQ_WGLTYPES_H
 
-#include <eq/client/event.h>        // base class
+#include <eq/client/wgl/types.h>
 
+#ifndef EQ_2_0_API
 namespace eq
 {
-    /** A window-system event for a WGLWindowIF */
-    class WGLWindowEvent : public Event
-    {
-    public:
-        UINT uMsg;     //!< The windows message @version 1.0
-        WPARAM wParam; //!< Extra message data @version 1.0
-        LPARAM lParam; //!< Extra message data @version 1.0
-    };
+    typedef wgl::EventHandler WGLEventHandler;
+    typedef wgl::Pipe WGLPipe;
+    typedef wgl::Window WGLWindow;
+    typedef wgl::WindowEvent WGLWindowEvent;
+    typedef wgl::WindowIF WGLWindowIF;
 }
+#endif
 
-#endif // EQ_WGLWINDOWEVENT_H
-
+#endif // EQ_WGLTYPES_H
