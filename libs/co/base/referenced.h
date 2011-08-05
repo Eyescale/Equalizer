@@ -138,6 +138,9 @@ namespace base
                               "Deleting object with ref count " << _refCount );
             }
 
+        /** Assign another object to this object. @version 1.1.3 */
+        Referenced& operator = ( const Referenced& rhs ) { return *this; }
+
         COBASE_API void deleteReferenced( const Referenced* object ) const;
 
     private:

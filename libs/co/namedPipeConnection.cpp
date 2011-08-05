@@ -68,7 +68,7 @@ std::string NamedPipeConnection::_getFilename() const
 bool NamedPipeConnection::connect()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
-     
+
     if( _state != STATE_CLOSED )
         return false;
 
@@ -77,9 +77,9 @@ bool NamedPipeConnection::connect()
 
     const std::string filename = _getFilename();
     if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
-    { 
-        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
-        return false; 
+    {
+        EQERROR << "Can't create named pipe: " << base::sysError << std::endl;
+        return false;
     }
 
     if( !_connectNamedPipe( ))
@@ -104,7 +104,7 @@ void NamedPipeConnection::_close()
     {
         _exitAIOAccept();
 
-        if( !DisconnectNamedPipe( _fd ))
+        if( _fd != INVALID_HANDLE_VALUE && !DisconnectNamedPipe( _fd ))
             EQERROR << "Could not disconnect named pipe: " << base::sysError
                     << std::endl;
     }
