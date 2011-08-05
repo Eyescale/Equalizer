@@ -32,9 +32,10 @@
 #  include <eq/client/glXTypes.h>
 #endif
 #ifdef WGL
-#  include <eq/client/wglEventHandler.h>
-#  include <eq/client/wglPipe.h>
-#  include <eq/client/wglWindow.h>
+#  include <eq/client/wgl/eventHandler.h>
+#  include <eq/client/wgl/pipe.h>
+#  include <eq/client/wgl/window.h>
+#  include <eq/client/wglTypes.h>
 #endif
 
 #endif // EQ_SYSTEM_H

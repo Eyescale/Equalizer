@@ -15,22 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WGLMESSAGEPUMP_H
-#define EQ_WGLMESSAGEPUMP_H
+#ifndef EQ_WGL_MESSAGEPUMP_H
+#define EQ_WGL_MESSAGEPUMP_H
 
 #include <eq/client/messagePump.h> // base class
 
 namespace eq
 {
+namespace wgl
+{
     /** Processes OS messages on Win32 systems. */
-    class WGLMessagePump : public MessagePump
+  class MessagePump : public eq::MessagePump
     {
     public:
         /** Construct a new WGL message pump. @version 1.0 */
-        EQ_API WGLMessagePump();
+        EQ_API MessagePump();
 
         /** Destruct this message pump. @version 1.0 */
-        virtual ~WGLMessagePump() {}
+        virtual ~MessagePump() {}
 
         EQ_API virtual void postWakeup();
         EQ_API virtual void dispatchAll();
@@ -46,5 +48,5 @@ namespace eq
         void _initReceiverQueue();
     };
 }
-
-#endif //EQ_WGLMESSAGEPUMP_H
+}
+#endif //EQ_WGL_MESSAGEPUMP_H

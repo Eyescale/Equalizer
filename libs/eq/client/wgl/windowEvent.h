@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,41 +15,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_GLX_TYPES_H
-#define EQ_GLX_TYPES_H
+#ifndef EQ_WGL_WINDOWEVENT_H
+#define EQ_WGL_WINDOWEVENT_H
 
-#include <co/base/types.h>
+#include <eq/client/event.h>        // base class
 
 namespace eq
 {
-/** 
- * @namespace eq::glx
- * @brief The system abstraction layer for X11 and glX.
- */
-namespace glx
+namespace wgl
 {
-
-class EventHandler;
-class Pipe;
-class Window;
-class WindowIF;
-class WindowEvent;
-
-/** @cond INTERNAL */
-class X11Connection
-typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
-/** @endcond */
-
+    /** A window-system event for a WindowIF */
+    class WindowEvent : public Event
+    {
+    public:
+        UINT uMsg;     //!< The windows message @version 1.0
+        WPARAM wParam; //!< Extra message data @version 1.0
+        LPARAM lParam; //!< Extra message data @version 1.0
+    };
 }
 }
+#endif // EQ_WGL_WINDOWEVENT_H
 
-/** @cond INTERNAL */
-typedef struct _XDisplay Display;
-typedef union _XEvent XEvent;
-typedef unsigned long XID;
-typedef struct __GLXcontextRec* GLXContext;
-typedef struct __GLXFBConfigRec* GLXFBConfig;
-
-/** @endcond */
-
-#endif // EQ_AGL_TYPES_H

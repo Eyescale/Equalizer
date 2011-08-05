@@ -15,18 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_GLX_TYPES_H
-#define EQ_GLX_TYPES_H
+#ifndef EQ_WGL_TYPES_H
+#define EQ_WGL_TYPES_H
 
 #include <co/base/types.h>
 
 namespace eq
 {
 /** 
- * @namespace eq::glx
- * @brief The system abstraction layer for X11 and glX.
+ * @namespace eq::wgl
+ * @brief The system abstraction layer for Windows OpenGL.
  */
-namespace glx
+namespace wgl
 {
 
 class EventHandler;
@@ -35,21 +35,7 @@ class Window;
 class WindowIF;
 class WindowEvent;
 
-/** @cond INTERNAL */
-class X11Connection
-typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
-/** @endcond */
-
 }
 }
 
-/** @cond INTERNAL */
-typedef struct _XDisplay Display;
-typedef union _XEvent XEvent;
-typedef unsigned long XID;
-typedef struct __GLXcontextRec* GLXContext;
-typedef struct __GLXFBConfigRec* GLXFBConfig;
-
-/** @endcond */
-
-#endif // EQ_AGL_TYPES_H
+#endif // EQ_WGL_TYPES_H

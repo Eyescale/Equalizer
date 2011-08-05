@@ -271,7 +271,7 @@ namespace eq
          * Tests wether a particular windowing system is supported by this pipe
          * and all its windows.
          *
-         * Since version 1.1.3 returns always true since the WindowSystem is an
+         * Returns always true since version 1.1.3 since the WindowSystem is an
          * object.
          *
          * @param system the window system to test.

@@ -15,23 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQ_WGLEVENTHANDLER_H
-#define EQ_WGLEVENTHANDLER_H
+#ifndef EQ_WGL_EVENTHANDLER_H
+#define EQ_WGL_EVENTHANDLER_H
 
 #include <eq/client/eventHandler.h> // base class
-#include <eq/client/types.h>
+#include <eq/client/wgl/types.h>
 
 namespace eq
 {
+namespace wgl
+{
     /** The event handler for WGL. */
-    class WGLEventHandler : public EventHandler
+    class EventHandler : public eq::EventHandler
     {
     public:
         /** Construct a new WGL event handler for the window. @version 1.0 */
-        EQ_API WGLEventHandler( WGLWindowIF* window );
+        EQ_API EventHandler( WindowIF* window );
 
         /** Destruct the WGL event handler. @version 1.0 */
-        EQ_API virtual ~WGLEventHandler();
+        EQ_API virtual ~EventHandler();
 
         /**
          * Initialize space mouse event handling for this process.
@@ -51,10 +53,10 @@ namespace eq
        static void exitMagellan( Node* node );
 
     private:
-        WGLWindowIF* _window;
-        HWND         _hWnd;
-        WNDPROC      _prevWndProc;
-        uint32_t     _buttonState;
+        WindowIF* _window;
+        HWND      _hWnd;
+        WNDPROC   _prevWndProc;
+        uint32_t  _buttonState;
 
         int32_t      _wheelDeltaPerLine;
 
@@ -72,6 +74,6 @@ namespace eq
         int32_t   _getWheelDelta( WPARAM wParam ) const;
     };
 }
-
-#endif // EQ_WGLEVENTHANDLER_H
+}
+#endif // EQ_WGL_EVENTHANDLER_H
 
