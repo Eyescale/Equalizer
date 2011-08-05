@@ -39,7 +39,8 @@
 namespace co
 {
 NamedPipeConnection::NamedPipeConnection()
-    : _readDone( 0 )
+    : _fd( INVALID_HANDLE_VALUE )
+    , _readDone( 0 )
 {
     memset( &_read, 0, sizeof( _read ));
     memset( &_write, 0, sizeof( _write ));
@@ -95,7 +96,7 @@ bool NamedPipeConnection::connect()
 
 void NamedPipeConnection::_close()
 {
-    if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
+    if( _state == STATE_CLOSED )
         return;
 
     EQASSERT( _fd > 0 ); 
@@ -111,7 +112,7 @@ void NamedPipeConnection::_close()
     else
     {
         _exitAIORead();
-        if( !CloseHandle( _fd ))
+        if( _fd != INVALID_HANDLE_VALUE && !CloseHandle( _fd ))
             EQERROR << "Could not close named pipe: " << base::sysError
                     << std::endl;
     }
