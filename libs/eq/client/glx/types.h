@@ -35,11 +35,6 @@ class Window;
 class WindowIF;
 class WindowEvent;
 
-/** @cond INTERNAL */
-class X11Connection
-typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
-/** @endcond */
-
 }
 }
 
