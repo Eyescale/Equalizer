@@ -20,16 +20,17 @@
 #include <pthread.h>           // then get pthreads
 #include <co/base/perThread.h> // then get perThread to have template code
 
-#include "wglEventHandler.h"
+#include "eventHandler.h"
 
-#include "config.h"
-#include "configEvent.h"
-#include "event.h"
-#include "log.h"
-#include "node.h"
-#include "wglWindow.h"
-#include "wglWindowEvent.h"
 #include "window.h"
+#include "windowEvent.h"
+
+#include "../config.h"
+#include "../configEvent.h"
+#include "../event.h"
+#include "../log.h"
+#include "../node.h"
+#include "../window.h"
 
 #include <co/base/debug.h>
 #include <co/base/executionListener.h>
@@ -38,6 +39,8 @@
 #include <windowsx.h>
 
 namespace eq
+{
+namespace wgl
 {
 
 // Win32 defines to indentify special keys
@@ -63,14 +66,14 @@ namespace eq
 namespace
 {
 #ifdef _MSC_VER
-    typedef stde::hash_map< HWND, WGLEventHandler* > HandlerMap;
+    typedef stde::hash_map< HWND, EventHandler* > HandlerMap;
 #else // Cygwin does not want to instantiate a hash with key=HWND
-    typedef stde::hash_map< void*, WGLEventHandler* > HandlerMap;
+    typedef stde::hash_map< void*, EventHandler* > HandlerMap;
 #endif
 
 static co::base::PerThread< HandlerMap > _handlers;
 
-static void registerHandler( HWND hWnd, WGLEventHandler* handler )
+static void registerHandler( HWND hWnd, EventHandler* handler )
 {
     if( _handlers == 0 )
         _handlers = new HandlerMap;
@@ -90,7 +93,7 @@ static void deregisterHandler( HWND hWnd )
     map->erase( hWnd );
 }
 
-static WGLEventHandler* getEventHandler( HWND hWnd )
+static EventHandler* getEventHandler( HWND hWnd )
 {
     HandlerMap* map = _handlers.get();
     if( !map || map->find( hWnd ) == map->end( ))
@@ -100,7 +103,7 @@ static WGLEventHandler* getEventHandler( HWND hWnd )
 }
 }
 
-WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
+EventHandler::EventHandler( WindowIF* window )
         : _window( window ),
           _buttonState( PTR_BUTTON_NONE )
 {
@@ -128,16 +131,16 @@ WGLEventHandler::WGLEventHandler( WGLWindowIF* window )
     _wheelDeltaPerLine = WHEEL_DELTA / scrollLines;
 }
 
-WGLEventHandler::~WGLEventHandler()
+EventHandler::~EventHandler()
 {
     SetWindowLongPtr( _hWnd, GWLP_WNDPROC, (LONG_PTR)_prevWndProc );
     deregisterHandler( _hWnd );
 }
 
-LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
+LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam, 
                                            LPARAM lParam )
 {
-    WGLEventHandler* handler = getEventHandler( hWnd );
+    EventHandler* handler = getEventHandler( hWnd );
     if( !handler )
     {
         EQERROR << "Message arrived for unregistered window" << std::endl;
@@ -147,7 +150,7 @@ LRESULT CALLBACK WGLEventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     return handler->_wndProc( hWnd, uMsg, wParam, lParam );
 }
 
-void WGLEventHandler::_syncButtonState( WPARAM wParam )
+void EventHandler::_syncButtonState( WPARAM wParam )
 {
     uint32_t buttons = PTR_BUTTON_NONE;
     if( wParam & MK_LBUTTON )  buttons |= PTR_BUTTON1;
@@ -185,16 +188,16 @@ void _getWindowSize( HWND hWnd, ResizeEvent& event )
     event.y = point.y;
 }
 }
-LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
-                                            LPARAM lParam )
+LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
+					 LPARAM lParam )
 {
-    WGLWindowEvent event;
+    WindowEvent event;
     event.uMsg   = uMsg;
     event.wParam = wParam;
     event.lParam = lParam;
     event.time = _window->getConfig()->getTime();
 
-    Window* const window = _window->getWindow();
+    eq::Window* const window = _window->getWindow();
 
     LONG result = 0;
     switch( uMsg )
@@ -435,7 +438,7 @@ LRESULT CALLBACK WGLEventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     return CallWindowProc( _prevWndProc, hWnd, uMsg, wParam, lParam );
 }
 
-uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
+uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
 {
     switch( wParam )
     {
@@ -508,7 +511,7 @@ uint32_t WGLEventHandler::_getKey( LPARAM lParam, WPARAM wParam )
     return KC_VOID;
 }
 
-int32_t WGLEventHandler::_getWheelDelta( WPARAM wParam ) const
+int32_t EventHandler::_getWheelDelta( WPARAM wParam ) const
 {
     const int32_t rawDelta = 
         static_cast< int32_t >( GET_WHEEL_DELTA_WPARAM( wParam ));
@@ -532,7 +535,7 @@ namespace
 }
 #endif
 
-void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
+void EventHandler::_magellanEventHandler( LPARAM lParam )
 {
 #ifdef EQ_USE_MAGELLAN
     RAWINPUTHEADER header;
@@ -638,7 +641,7 @@ void WGLEventHandler::_magellanEventHandler( LPARAM lParam )
 #endif
 }
 
-bool WGLEventHandler::initMagellan(Node* node)
+bool EventHandler::initMagellan(Node* node)
 {
 #ifdef EQ_USE_MAGELLAN
     _magellanGotRotation = false;
@@ -744,7 +747,7 @@ bool WGLEventHandler::initMagellan(Node* node)
     return true;
 }
 
-void WGLEventHandler::exitMagellan(eq::Node *node)
+void EventHandler::exitMagellan(eq::Node *node)
 {
 #ifdef EQ_USE_MAGELLAN
     if( _magellanNode == node )
@@ -755,4 +758,5 @@ void WGLEventHandler::exitMagellan(eq::Node *node)
 #endif
 }
 
+}
 }

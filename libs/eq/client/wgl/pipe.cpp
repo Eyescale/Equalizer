@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -16,22 +16,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "wglPipe.h"
-
-#include "global.h"
 #include "pipe.h"
-#include "wglEventHandler.h"
+
+#include "eventHandler.h"
+
+#include "../global.h"
+#include "../pipe.h"
 
 namespace eq
 {
+namespace wgl
+{
 
-WGLPipe::WGLPipe( Pipe* parent )
+Pipe::Pipe( eq::Pipe* parent )
         : SystemPipe( parent )
         , _wglewContext( new WGLEWContext )
 {
 }
 
-WGLPipe::~WGLPipe( )
+Pipe::~Pipe( )
 {
     delete _wglewContext;
 }
@@ -39,7 +42,7 @@ WGLPipe::~WGLPipe( )
 //---------------------------------------------------------------------------
 // WGL init
 //---------------------------------------------------------------------------
-bool WGLPipe::configInit()
+bool Pipe::configInit()
 {
     if ( !_configInitWGLEW() )
         return false;
@@ -104,13 +107,13 @@ bool WGLPipe::configInit()
 }
 
 
-void WGLPipe::configExit()
+void Pipe::configExit()
 {
     getPipe()->setPixelViewport( eq::PixelViewport( )); // invalidate
 }
 
 
-bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
+bool Pipe::createWGLAffinityDC( HDC& affinityDC )
 {
     affinityDC = 0;
 
@@ -132,7 +135,7 @@ bool WGLPipe::createWGLAffinityDC( HDC& affinityDC )
     return true;
 }
 
-HDC WGLPipe::createWGLDisplayDC()
+HDC Pipe::createWGLDisplayDC()
 {
     uint32_t device = getPipe()->getDevice();
     if( device == EQ_UNDEFINED_UINT32 )
@@ -159,7 +162,7 @@ HDC WGLPipe::createWGLDisplayDC()
     return displayDC;
 }
 
-bool WGLPipe::_getGPUHandle( HGPUNV& handle )
+bool Pipe::_getGPUHandle( HGPUNV& handle )
 {
     handle = 0;
 
@@ -184,7 +187,7 @@ bool WGLPipe::_getGPUHandle( HGPUNV& handle )
     return true;
 }
 
-bool WGLPipe::_configInitWGLEW()
+bool Pipe::_configInitWGLEW()
 {
     //----- Create and make current a temporary GL context to initialize WGLEW
 
@@ -292,5 +295,5 @@ bool WGLPipe::_configInitWGLEW()
     return success;
 }
 
-} //namespace eq
-
+}
+}

@@ -25,9 +25,6 @@ namespace eq
 {
 namespace admin
 {
-    class Config;
-    class Pipe;
-
     class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
