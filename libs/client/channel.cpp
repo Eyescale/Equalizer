@@ -62,6 +62,7 @@ Channel::Channel( Window* parent )
         , _fbo( 0 )
         , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
+		, _frameStopTiles( 0 )
 {
     co::base::RNG rng;
     _color.r() = rng.get< uint8_t >();
@@ -1374,6 +1375,13 @@ void Channel::_transmitSingleImage( const ChannelFrameTransmitPacket* command )
     }
 
     const Images& images = frameData->getImages();
+
+	if( images.size() == 0 )
+	{
+		EQWARN << "No images for frame data" << std::endl;
+		return;
+	}
+
     EQASSERT( images.size() > command->imageIndex );
     _transmitImage( images[command->imageIndex], command );
 }
@@ -1734,6 +1742,8 @@ bool Channel::_cmdStopFrame( co::Command& command )
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
 
+	++_frameStopTiles; // Stop tile rendering
+
     notifyStopFrame( packet->lastFrameNumber );
     return true;
 }
@@ -1755,8 +1765,8 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
         {
             if (ready)
                 ++_statistics.data[ _statisticsIndex ].used;
-
-            size_t index = frame->getImages().size();
+			
+			size_t index = frame->getImages().size();
             // make sure a packet is sent for ready packets
             index -= ready ? 1 : frame->getNewImages();
             for ( ; index != frame->getImages().size(); ++index )
@@ -1771,8 +1781,9 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
                 transmitPacket.imageIndex = index;
                 transmitPacket.command = ready ? fabric::CMD_CHANNEL_FRAME_READY :
                                      fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+	
+				send( getNode()->getLocalNode(), transmitPacket );
 
-                send( getNode()->getLocalNode(), transmitPacket );
             }
         }
         if( toNodes.empty() )
@@ -1796,7 +1807,9 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
-    while( co::Command* queuePacket = queue->pop( ))
+    for(co::Command* queuePacket = queue->pop( );
+		queuePacket && (!_frameStopTiles);
+		queuePacket = queue->pop( ))
     {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         context.frustum = tilePacket->frustum;
@@ -1804,36 +1817,51 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
-        if ( packet->tasks & fabric::TASK_CLEAR )
+
+        if ( (packet->tasks & fabric::TASK_CLEAR) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
             frameClear( packet->context.frameID );
         }
 
-        if ( packet->tasks & fabric::TASK_DRAW )
+        if ( (packet->tasks & fabric::TASK_DRAW) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
         }
 
-        if ( packet->tasks & fabric::TASK_READBACK )
+        if ( (packet->tasks & fabric::TASK_READBACK) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
             frameReadback( packet->context.frameID );
 
             // transmit image
-            _sendTileToInputNodes( context, false );
+			_sendTileToInputNodes( context, false );
         }
-
+		
         queuePacket->release();
-    }
-    if ( packet->tasks & fabric::TASK_READBACK )
+
+		if (_frameStopTiles)
+		{
+			// goes out of loop before another packet is popped from queue.
+			break;	 
+		}
+	}
+	
+	if ( packet->tasks & fabric::TASK_READBACK )
     {
         // set frame ready
-        _sendTileToInputNodes( context, true );
+		_sendTileToInputNodes( context, true );
 
         _outputFrames.clear();
     }
+
+	if(_frameStopTiles)
+	{
+		// disable stop tiles flag
+		_frameStopTiles = 0;
+	
+	}
 
     resetContext();
     return true;
