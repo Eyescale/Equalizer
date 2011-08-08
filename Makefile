@@ -20,7 +20,13 @@ clean:
 .DEFAULT:
 	@$(MAKE) -C $(BUILD) $(MAKECMDGOALS)
 
-%: %/Makefile
+debug: debug/Makefile
+	@$(MAKE) -C $@
+
+release: release/Makefile
+	@$(MAKE) -C $@
+
+debug_glx: debug_glx/Makefile
 	@$(MAKE) -C $@
 
 cdash: cdash/Makefile
