@@ -1,13 +1,12 @@
 #!gmake
-.PHONY: debug tests cdash release xcode debug_glx docs docs/install clean clobber
+.PHONY: debug tests cdash release xcode debug_glx docs clean clobber
 
 all: debug RELNOTES.txt README.rst
 clobber:
-	rm -rf debug release docs XCode debug_glx man cdash
+	rm -rf debug release XCode debug_glx man cdash
 clean:
 	@-$(MAKE) -C debug clean
 	@-$(MAKE) -C release clean
-	@-$(MAKE) -C docs clean
 	@-$(MAKE) -C XCode clean
 	@-$(MAKE) -C debug_glx clean
 	@-$(MAKE) -C cdash clean
@@ -29,7 +28,7 @@ debug/Makefile:
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean
-	@cd cdash; $(CTEST) -D Continuous
+	@$(MAKE) -C cdash Continuous
 
 cdash/Makefile:
 	@mkdir -p cdash
@@ -42,8 +41,8 @@ release/Makefile:
 	@mkdir -p release
 	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
 
-package: release/Makefile
-	@$(MAKE) -C release clean
+package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
+	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
 xcode:
@@ -59,27 +58,16 @@ debug_glx/Makefile:
 	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=OFF
 
 
-docs: ../website/build/documents/Developer/API
+docs: ../equalizergraphics.com/build/documents/Developer/API
+	@$(MAKE) -C debug doxygen
 
-.PHONY: ../website/build/documents/Developer/API/internal
-../website/build/documents/Developer/API/internal:
-	@mkdir -p ../website/build/documents/Developer/API/internal
-	$(DOXYGEN) doc/Doxyfile.int
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API/internal
+../equalizergraphics.com/build/documents/Developer/API/internal:
+	@mkdir -p ../equalizergraphics.com/build/documents/Developer/API/internal
 
-../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co doc/Doxyfile.seq
-	@mkdir -p ../website/build/collage/documents/Developer/API
-	$(DOXYGEN) doc/Doxyfile.ext
-	$(DOXYGEN) doc/Doxyfile.co
-	$(DOXYGEN) doc/Doxyfile.seq
-
-docs/install: docs/Makefile
-	@rm -rf $@
-	@$(MAKE) -C docs install
-
-docs/Makefile:
-	@mkdir -p docs
-	@cd docs; cmake -D CMAKE_INSTALL_PREFIX:STRING=install ..
-
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API
+../equalizergraphics.com/build/documents/Developer/API: ../equalizergraphics.com/build/documents/Developer/API/internal debug/Makefile
+	@mkdir -p ../equalizergraphics.com/build/collage/documents/Developer/API
 
 RELNOTES.txt: libs/RelNotes.dox
 	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@

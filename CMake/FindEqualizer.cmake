@@ -74,6 +74,7 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.1.3 "0.4.0")
   set(_eq_coVersion_1.1.2 "0.4.0")
   set(_eq_coVersion_1.1.1 "0.4.0")
   set(_eq_coVersion_1.1.0 "0.4.0")
@@ -84,28 +85,34 @@ else()
   find_package(Collage ${_eq_required})
 endif()
 
-#
-# find and parse eq/version.h
-find_path(_eq_INCLUDE_DIR eq/version.h
+# find and parse eq/client/version.h [new location]
+find_path(_eq_INCLUDE_DIR eq/client/version.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
 
+if(_eq_INCLUDE_DIR AND EXISTS "${_eq_INCLUDE_DIR}/eq/client/version.h")
+  set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/client/version.h")
+else() # find old one
+  find_path(_eq_INCLUDE_DIR eq/version.h
+    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+    PATH_SUFFIXES include
+    PATHS /usr /usr/local /opt/local /opt
+    )
+  if(_eq_INCLUDE_DIR AND EXISTS "${_eq_INCLUDE_DIR}/eq/version.h")
+    set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
+  endif()
+endif()
+
+if(_eq_Version_file)
 # Try to ascertain the version...
-if(_eq_INCLUDE_DIR)
-  set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/version.h")
   if("${_eq_INCLUDE_DIR}" MATCHES "\\.framework$" AND
       NOT EXISTS "${_eq_Version_file}")
     set(_eq_Version_file "${_eq_INCLUDE_DIR}/Headers/version.h")
   endif()
     
-  if(EXISTS "${_eq_Version_file}")
-    file(READ "${_eq_Version_file}" _eq_Version_contents)
-  else()
-    set(_eq_Version_contents "unknown")
-  endif()
-
+  file(READ "${_eq_Version_file}" _eq_Version_contents)
   string(REGEX REPLACE ".*define EQ_VERSION_MAJOR[ \t]+([0-9]+).*"
     "\\1" EQUALIZER_VERSION_MAJOR ${_eq_Version_contents})
   string(REGEX REPLACE ".*define EQ_VERSION_MINOR[ \t]+([0-9]+).*"
@@ -143,6 +150,10 @@ find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
    PATHS /usr /usr/local /opt/local /opt
 )
+find_library(_eq_fabric_LIBRARY EqualizerFabric PATH_SUFFIXES lib
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
+)
 find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
@@ -168,7 +179,7 @@ if(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
     "ERROR: Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
-    "Version ${EQUALIZER_VERSION} was found.")
+    "Version ${EQUALIZER_VERSION} was found in ${_eq_Version_file}.")
 elseif(_eq_version_not_exact)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
@@ -190,11 +201,13 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     # Zero out everything, we didn't meet version requirements
     set(EQUALIZER_FOUND FALSE)
     set(_eq_LIBRARY)
+    set(_eq_fabric_LIBRARY)
     set(_eq_INCLUDE_DIR)
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${_eq_fabric_LIBRARY}
+                        ${COLLAGE_LIBRARIES})
 get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)

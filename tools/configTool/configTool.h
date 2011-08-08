@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,7 @@
 #ifndef EQ_CONFIGTOOL_H
 #define EQ_CONFIGTOOL_H
 
-#include <libs/server/config.h>
-
+#include <eq/server/config.h>
 #include <string>
 
 class ConfigTool

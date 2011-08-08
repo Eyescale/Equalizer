@@ -5,6 +5,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+find_package(OpenGL REQUIRED)
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+
 # CUDA
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 if(EQUALIZER_USE_CUDA)

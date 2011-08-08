@@ -2,7 +2,6 @@
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #               2010-2011 Cedric Stalder <cedric.stalder@gmail.com>
 
-include(PurpleForwardHeaders)
 include(PurpleAddLibrary)
 include(PurpleAddAmalgamation)
 
@@ -18,10 +17,11 @@ if(NOT EQUALIZER_BUILD_MODULARIZED)
   list(APPEND EQ_LIB_VARIANT EXCLUDE_FROM_ALL)
 endif(NOT EQUALIZER_BUILD_MODULARIZED)
 
-add_subdirectory(collage)
-add_subdirectory(fabric)
-add_subdirectory(client)
-add_subdirectory(admin)
-add_subdirectory(server)
-add_subdirectory(sequel)
+include(pthreads/CMakeLists.txt)
+add_subdirectory(co)
+
+include(GLEW/CMakeLists.txt)
+add_subdirectory(vmmlib)
+add_subdirectory(eq)
+add_subdirectory(seq)
 

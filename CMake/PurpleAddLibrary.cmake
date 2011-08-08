@@ -9,7 +9,6 @@
 
 include(ParseArguments)
 include(PurpleInstallPDB)
-include(PurpleForwardHeaders)
 include(PurpleExpandLibraries)
 include(PurplePrecompileHeaders)
 
@@ -30,7 +29,6 @@ function(PURPLE_ADD_LIBRARY NAME)
     SHARED
     STATIC
     #FRAMEWORK
-    FORWARD
     )
 
   parse_arguments(THIS "${ARG_NAMES}" "${OPTION_NAMES}" ${ARGN})
@@ -45,10 +43,6 @@ function(PURPLE_ADD_LIBRARY NAME)
       set(THIS_DEFINITIONS ${UPPER_NAME}_DSO_NAME=\"${CMAKE_SHARED_LIBRARY_PREFIX}${NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}.${VERSION_ABI}\")
     endif()
   endif()
-
-  if(THIS_FORWARD)
-    purple_forward_headers(${THIS_HEADERS_PREFIX} ${THIS_HEADERS})
-  endif(THIS_FORWARD)
 
   if(THIS_PRECOMPILE_HEADERS)
     purple_pch_prepare(${NAME} THIS_SOURCES ${THIS_PRECOMPILE_HEADERS})
@@ -113,6 +107,10 @@ function(PURPLE_ADD_LIBRARY NAME)
   if(THIS_PRECOMPILE_HEADERS)
     purple_pch_use(${NAME} ${THIS_TARGETS})
   endif(THIS_PRECOMPILE_HEADERS)
+
+  if(NOT THIS_EXCLUDE_FROM_ALL)
+    set_property (GLOBAL APPEND PROPERTY ALL_TARGETS ${THIS_TARGETS})
+  endif()
 
   foreach(HEADER ${THIS_HEADERS})
     string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})

@@ -42,7 +42,6 @@ namespace eqPly
 
 InitData::InitData()
         : _frameDataID( co::base::UUID::ZERO )
-        , _windowSystem( eq::WINDOW_SYSTEM_NONE )
 #ifdef Darwin
         , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
 #else

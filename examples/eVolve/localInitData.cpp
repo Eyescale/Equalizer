@@ -120,14 +120,9 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         {
             std::string windowSystem = wsArg.getValue();
             transform( windowSystem.begin(), windowSystem.end(),
-                       windowSystem.begin(), (int(*)(int))std::tolower );
+                       windowSystem.begin(), (int(*)(int))std::toupper );
 
-            if( windowSystem == "glx" )
-                setWindowSystem( eq::WINDOW_SYSTEM_GLX );
-            else if( windowSystem == "agl" )
-                setWindowSystem( eq::WINDOW_SYSTEM_AGL );
-            else if( windowSystem == "wgl" )
-                setWindowSystem( eq::WINDOW_SYSTEM_WGL );
+            setWindowSystem( windowSystem );
         }
 
         if( framesArg.isSet( ))
