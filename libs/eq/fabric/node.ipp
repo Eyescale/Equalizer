@@ -241,10 +241,9 @@ NodePath Node< C, N, P, V >::getPath() const
     EQASSERT( config );
     
     const typename std::vector< N* >& nodes = config->getNodes();
-    typename std::vector< N* >::const_iterator i = std::find( nodes.begin(),
-                                                              nodes.end(),
-                                                              this );
-    EQASSERT( i != nodes.end( ));
+    typename std::vector< N* >::const_iterator i =
+        std::find( nodes.begin(), nodes.end(), this );
+    EQASSERTINFO( i != nodes.end(), *this );
 
     NodePath path;
     path.nodeIndex = std::distance( nodes.begin(), i );

@@ -707,6 +707,7 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
         T* entity = entities[ i ];
         if( entity->needsDelete( ))
         {
+            EQASSERT( entity->isAttached( ));
             getServer()->deregisterObject( entity );
             delete entity;
         }
