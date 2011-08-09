@@ -182,8 +182,8 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
 {
     const PixelViewport& inheritPVP = compound->getInheritPixelViewport();
     const Vector2i& tileSize = queue->getTileSize();
-    const size_t tiles( ceilf( float(inheritPVP.w) / tileSize.x() ) *
-                        ceilf( float(inheritPVP.h) / tileSize.y() ) );
+    const size_t tiles( size_t( ceilf( float(inheritPVP.w) / tileSize.x( ))) *
+                        size_t( ceilf( float(inheritPVP.h) / tileSize.y( ))));
 
     for( size_t i = 0; i < tiles; ++i )
     {
@@ -273,3 +273,4 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 
 }
 }
+

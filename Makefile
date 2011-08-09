@@ -2,9 +2,8 @@
 .PHONY: debug tests cdash release xcode debug_glx docs clean clobber
 
 BUILD ?= debug
-DOXYGEN ?= doxygen
 PYTHON ?= python
-CTEST ?= ctest
+CMAKE ?= cmake
 
 all: $(BUILD) RELNOTES.txt README.rst
 clobber:
@@ -35,19 +34,19 @@ cdash: cdash/Makefile
 
 debug/Makefile:
 	@mkdir -p debug
-	@cd debug; cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
+	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
 
 release/Makefile:
 	@mkdir -p release
-	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
+	@cd release; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release
 
 cdash/Makefile:
 	@mkdir -p cdash
-	@cd cdash; env CXXFLAGS="-fprofile-arcs -ftest-coverage" CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" cmake ..
+	@cd cdash; env CXXFLAGS="-fprofile-arcs -ftest-coverage" CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" $(CMAKE) ..
 
 debug_glx/Makefile:
 	@mkdir -p debug_glx
-	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=OFF
+	@cd debug_glx; $(CMAKE) .. -DEQUALIZER_PREFER_AGL=OFF
 
 package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C release doxygen
@@ -55,7 +54,7 @@ package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 
 xcode:
 	@mkdir -p XCode
-	@cd XCode; cmake -G Xcode ..
+	@cd XCode; $(CMAKE) -G Xcode ..
 	open XCode/Equalizer.xcodeproj
 
 

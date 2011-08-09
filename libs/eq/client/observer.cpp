@@ -49,3 +49,4 @@ template class eq::fabric::Observer< eq::Config, eq::Observer >;
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                       const eq::fabric::Observer< eq::Config, eq::Observer >& );
 /** @endcond */
+
