@@ -65,14 +65,26 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _channel ? _channel->getModelMatrix() : Matrix4f::IDENTITY;
 }
 
-bool Renderer::initGL()
+void Renderer::setWindow( Window* window )
 {
-    return _window ? _window->initGL() : false;
+    _window = window;
+    _glewContext = window ? window->glewGetContext() : 0;
 }
 
-bool Renderer::exitGL()
+void Renderer::setChannel( Channel* channel )
 {
-    return _window ? _window->exitGL() : false;
+    _channel = channel;
+    _glewContext = channel ? channel->glewGetContext() : 0;
+}
+
+bool Renderer::initContext()
+{
+    return _window ? _window->initContext() : false;
+}
+
+bool Renderer::exitContext()
+{
+    return _window ? _window->exitContext() : false;
 }
 
 void Renderer::clear()

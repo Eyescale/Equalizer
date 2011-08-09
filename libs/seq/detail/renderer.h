@@ -34,7 +34,6 @@ namespace detail
         /** @name Data Access. */
         //@{
         co::Object* getFrameData();
-        void setGLEWContext( const GLEWContext* ctx ) { _glewContext = ctx; }
         const GLEWContext* glewGetContext() const { return _glewContext; }
 
         const Frustumf& getFrustum() const;
@@ -45,14 +44,14 @@ namespace detail
         /** @name Current context. */
         //@{
         void setPipe( Pipe* pipe ) { _pipe = pipe; }
-        void setWindow( Window* window ) { _window = window; }
-        void setChannel( Channel* channel ) { _channel = channel; }
+        void setWindow( Window* window );
+        void setChannel( Channel* channel );
         //@}
 
         /** @name Operations. */
         //@{
-        bool initGL();
-        bool exitGL();
+        bool initContext();
+        bool exitContext();
 
         void clear();
 

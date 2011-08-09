@@ -45,8 +45,8 @@ namespace seqPly
         State& getState() { return *_state; }
 
     protected:
-        virtual bool initGL( co::Object* initData );
-        virtual bool exitGL();
+        virtual bool init( co::Object* initData );
+        virtual bool exit();
         virtual void draw( co::Object* frameData );
 
     private:
