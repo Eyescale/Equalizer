@@ -24,7 +24,7 @@ tests: debug/Makefile
 
 debug/Makefile:
 	@mkdir -p debug
-	@cd debug; cmake .. -DCMAKE_BUILD_TYPE=Debug
+	@cd debug; cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean
