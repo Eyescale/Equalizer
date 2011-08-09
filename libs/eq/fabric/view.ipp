@@ -38,7 +38,7 @@ View< L, V, O >::View( L* layout )
         , _minimumCapabilities( EQ_BIT_NONE )
         , _maximumCapabilities( EQ_BIT_ALL_64 )
         , _capabilities( EQ_BIT_ALL_64 )
-        , _tileSize( 0, 0 )
+        , _tileSize( 32, 32 )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
