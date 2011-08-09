@@ -220,7 +220,7 @@ namespace eqPly
              { _channel = channel; }
 
         virtual bool stopRendering( ) const
-            { EQASSERT( _channel ); return _channel->stopRendering(); }
+            { return _channel ? _channel->stopRendering() : false; }
 
     private:
         eq::Window::ObjectManager* _objectManager;

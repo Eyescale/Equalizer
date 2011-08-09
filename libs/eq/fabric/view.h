@@ -108,7 +108,7 @@ namespace fabric
          */
         virtual void activateMode( const Mode mode ){ _mode = mode; }
 
-        /** @return the tile size used for tile-based rendering */
+        /** @return the tile size used for tile-based rendering. @version 1.1.4 */
         const Vector2i& getTileSize() const { return _tileSize; }
         //@}
 
@@ -129,7 +129,7 @@ namespace fabric
         virtual EQFABRIC_INL void backup(); //!< @internal
         virtual EQFABRIC_INL void restore(); //!< @internal
 
-        /** Set the tile size to use for tile-based rendering */
+        /** Set the tile size to use for tile-based rendering. @version 1.1.4 */
         EQFABRIC_INL void setTileSize( const Vector2i& size );
         //@}
 

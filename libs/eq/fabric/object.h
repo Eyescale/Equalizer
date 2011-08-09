@@ -298,20 +298,23 @@ namespace fabric
     template< class P, class C >
     inline void Object::releaseChildren( const std::vector< C* >& children )
     {
-        while( !children.empty( ))
+        for( size_t i = children.size(); i > 0; --i )
         {
-            C* child = children.back();
-            if( !child->isAttached( ))
+            C* child = children[ i - 1 ];
+
+            if( child->isAttached( ))
+            {
+                getLocalNode()->releaseObject( child );
+                if( !isMaster( ))
+                {
+                    static_cast< P* >( this )->_removeChild( child );
+                    static_cast< P* >( this )->release( child );
+                }
+            }
+            else
             {
                 EQASSERT( isMaster( ));
-                return;
-            }
-
-            getLocalNode()->releaseObject( child );
-            if( !isMaster( ))
-            {
-                static_cast< P* >( this )->_removeChild( child );
-                static_cast< P* >( this )->release( child );
+                EQASSERT( i == children.size( ));
             }
         }
     }

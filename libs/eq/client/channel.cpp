@@ -64,6 +64,7 @@ Channel::Channel( Window* parent )
         , _fbo( 0 )
         , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
+		, _frameStopTiles( 0 )
 {
     co::base::RNG rng;
     _color.r() = rng.get< uint8_t >();
@@ -1781,6 +1782,9 @@ bool Channel::_cmdStopFrame( co::Command& command )
         command.get<ChannelStopFramePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
+	
+	// enable stop tile rendering flag
+	++_frameStopTiles;
 
     notifyStopFrame( packet->lastFrameNumber );
     return true;
@@ -1801,27 +1805,29 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
-    while( co::Command* queuePacket = queue->pop( ))
-    {
+	for(co::Command* queuePacket = queue->pop( );
+		queuePacket && (!_frameStopTiles);
+		queuePacket = queue->pop( ))
+	{
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         context.frustum = tilePacket->frustum;
         context.ortho = tilePacket->ortho;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
-        if ( packet->tasks & fabric::TASK_CLEAR )
+        if ( (packet->tasks & fabric::TASK_CLEAR) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
             frameClear( packet->context.frameID );
         }
 
-        if ( packet->tasks & fabric::TASK_DRAW )
+         if ( (packet->tasks & fabric::TASK_DRAW) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
         }
 
-        if ( packet->tasks & fabric::TASK_READBACK )
+        if ( (packet->tasks & fabric::TASK_READBACK) && !_frameStopTiles )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
             frameReadback( packet->context.frameID );
@@ -1838,6 +1844,9 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         _sendTileToInputNodes( context, true );
         _outputFrames.clear();
     }
+
+	// disable stop tiles flag
+	_frameStopTiles = 0;
 
     resetRenderContext();
     return true;
