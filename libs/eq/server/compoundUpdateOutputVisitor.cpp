@@ -321,3 +321,4 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 
 }
 }
+
