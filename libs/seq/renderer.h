@@ -38,54 +38,6 @@ namespace seq
         /** Destruct this renderer. @version 1.0 */
         SEQ_API virtual ~Renderer();
 
-        /** @name Data Access. */
-        //@{
-        detail::Renderer* getImpl() { return _impl; } //!< @internal
-        co::Object* getFrameData(); // @warning experimental
-
-        /** @return the application instance for this renderer. @version 1.0 */
-        Application& getApplication() { return _app; }
-
-        /** @return the application instance for this renderer. @version 1.0 */
-        const Application& getApplication() const { return _app; }
-
-        /**
-         * Create a new per-view data instance.
-         *
-         * Called once for each view used by this renderer.
-         * @return the new view data
-         * @version 1.0
-         */
-        SEQ_API virtual ViewData* createViewData();
-
-        /** Delete the given view data. @version 1.0 */
-        SEQ_API virtual void destroyViewData( ViewData* viewData );
-
-        /** 
-         * Get the GLEW context for this renderer.
-         * 
-         * The glew context provides access to OpenGL extensions. This function
-         * does not follow the Sequel naming conventions, since GLEW uses a
-         * function of this name to automatically resolve OpenGL function entry
-         * points. Therefore, any OpenGL function support by the driver can be
-         * directly called from any method of an initialized renderer.
-         * 
-         * @return the extended OpenGL function table for the window's OpenGL
-         *         context.
-         * @version 1.0
-         */
-        SEQ_API const GLEWContext* glewGetContext() const;
-
-        /** @return the current view frustum. @version 1.0 */
-        SEQ_API const Frustumf& getFrustum() const;
-
-        /** @return the current view (frustum) transformation. @version 1.0 */
-        SEQ_API const Matrix4f& getViewMatrix() const;
-
-        /** @return the current model (scene) transformation. @version 1.0 */
-        SEQ_API const Matrix4f& getModelMatrix() const;
-        //@}
-
         /** @name Operations */
         //@{
         /**
@@ -173,6 +125,54 @@ namespace seq
          * @version 1.0
          */
         SEQ_API virtual void applyModelMatrix();
+        //@}
+
+        /** @name Data Access */
+        //@{
+        detail::Renderer* getImpl() { return _impl; } //!< @internal
+        co::Object* getFrameData(); // @warning experimental
+
+        /** @return the application instance for this renderer. @version 1.0 */
+        Application& getApplication() { return _app; }
+
+        /** @return the application instance for this renderer. @version 1.0 */
+        const Application& getApplication() const { return _app; }
+
+        /**
+         * Create a new per-view data instance.
+         *
+         * Called once for each view used by this renderer.
+         * @return the new view data
+         * @version 1.0
+         */
+        SEQ_API virtual ViewData* createViewData();
+
+        /** Delete the given view data. @version 1.0 */
+        SEQ_API virtual void destroyViewData( ViewData* viewData );
+
+        /** 
+         * Get the GLEW context for this renderer.
+         * 
+         * The glew context provides access to OpenGL extensions. This function
+         * does not follow the Sequel naming conventions, since GLEW uses a
+         * function of this name to automatically resolve OpenGL function entry
+         * points. Therefore, any OpenGL function support by the driver can be
+         * directly called from any method of an initialized renderer.
+         * 
+         * @return the extended OpenGL function table for the window's OpenGL
+         *         context.
+         * @version 1.0
+         */
+        SEQ_API const GLEWContext* glewGetContext() const;
+
+        /** @return the current view frustum. @version 1.0 */
+        SEQ_API const Frustumf& getFrustum() const;
+
+        /** @return the current view (frustum) transformation. @version 1.0 */
+        SEQ_API const Matrix4f& getViewMatrix() const;
+
+        /** @return the current model (scene) transformation. @version 1.0 */
+        SEQ_API const Matrix4f& getModelMatrix() const;
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */

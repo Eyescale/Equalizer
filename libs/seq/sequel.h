@@ -28,7 +28,7 @@
  *
  * This namespace provides a simple programming interface to the Equalizer
  * parallel rendering framework. Sequel allows rapid development of clustered
- * multi-GPU application while not sacrificing the flexibility and power of the
+ * multi-GPU applications while not sacrificing the flexibility and power of the
  * underlying Equalizer framework.
  */
 
