@@ -141,7 +141,7 @@ namespace seq
          *                  Config::run.
          * @version 1.0
          */
-        virtual void clear( co::Object* frameData );
+        SEQ_API virtual void clear( co::Object* frameData );
 
         /**
          * Render the scene.
