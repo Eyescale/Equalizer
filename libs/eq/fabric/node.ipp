@@ -241,9 +241,8 @@ NodePath Node< C, N, P, V >::getPath() const
     EQASSERT( config );
     
     const typename std::vector< N* >& nodes = config->getNodes();
-    typename std::vector< N* >::const_iterator i = std::find( nodes.begin(),
-                                                              nodes.end(),
-                                                              this );
+    typename std::vector< N* >::const_iterator i =
+        std::find( nodes.begin(), nodes.end(), this );
     EQASSERT( i != nodes.end( ));
 
     NodePath path;

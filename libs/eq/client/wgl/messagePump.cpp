@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "wglMessagePump.h"
+#include "messagePump.h"
 
 #include <co/base/debug.h>
 #include <co/base/log.h>
@@ -23,12 +23,14 @@
 
 namespace eq
 {
-WGLMessagePump::WGLMessagePump()
+namespace wgl
+{
+MessagePump::MessagePump()
         : _win32ThreadID( 0 )
 {
 }
 
-void WGLMessagePump::postWakeup()
+void MessagePump::postWakeup()
 {
     if( !_win32ThreadID )
     {
@@ -39,7 +41,7 @@ void WGLMessagePump::postWakeup()
     PostThreadMessage( _win32ThreadID, WM_APP, 0, 0 ); // Wake up pop()
 }
 
-void WGLMessagePump::_initReceiverQueue()
+void MessagePump::_initReceiverQueue()
 {
     if( !_win32ThreadID )
     {
@@ -49,10 +51,10 @@ void WGLMessagePump::_initReceiverQueue()
         EQASSERT( _win32ThreadID );
     }
     EQASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
-                  "WGLMessagePump::pop() called from two different threads" );
+                  "wgl::MessagePump::pop() called from two different threads" );
 }
 
-void WGLMessagePump::dispatchOne()
+void MessagePump::dispatchOne()
 {
     _initReceiverQueue();
 
@@ -64,7 +66,7 @@ void WGLMessagePump::dispatchOne()
     }
 }
 
-void WGLMessagePump::dispatchAll()
+void MessagePump::dispatchAll()
 {
     _initReceiverQueue();
 
@@ -74,5 +76,7 @@ void WGLMessagePump::dispatchAll()
         TranslateMessage( &msg );
         DispatchMessage( &msg );
     }
+}
+
 }
 }

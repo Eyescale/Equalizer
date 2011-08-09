@@ -21,7 +21,7 @@
 #include "error.h"
 
 #ifdef WIN32_API
-# include "wglPipe.h"
+# include "wgl/pipe.h"
 #endif
 
 #ifdef EQ_USE_CUDA
@@ -48,7 +48,7 @@ namespace eq
 #ifdef WIN32_API
     WGLEWContext* CUDAContext::wglewGetContext() 
     {
-        return static_cast<WGLPipe*>(getPipe()->getSystemPipe())->wglewGetContext(); 
+        return static_cast<wgl::Pipe*>(getPipe()->getSystemPipe())->wglewGetContext(); 
     }
 #endif
     //--------------------------------------------------------------------------

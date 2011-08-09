@@ -73,11 +73,19 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
     {
         EQASSERT( compound == getCompound( ));
         const Compounds& children = compound->getChildren();
-        if( children.empty( )) // leaf compound, can't do anything.
-            return;
-
-        _tree = _buildTree( children );
-        _init( _tree );
+        switch( children.size( ))
+        {
+          case 0: return; // no leaf compound, can't do anything.
+          case 1: // one child, 'balance' it:
+              if( _mode == MODE_DB )
+                  children.front()->setRange( Range( ));
+              else
+                  children.front()->setViewport( Viewport( ));
+              return;
+          default:
+              _tree = _buildTree( children );
+              _init( _tree );
+        }
     }
 
     // compute new data

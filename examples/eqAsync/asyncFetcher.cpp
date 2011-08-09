@@ -90,7 +90,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     if( ws == "WGL" )
     {
         EQINFO << "Using WGLWindow" << std::endl;
-        sharedContextWindow = new eq::WGLWindow( wnd );
+        sharedContextWindow = new eq::wgl::Window( wnd );
     }
 #endif
     if( !sharedContextWindow )

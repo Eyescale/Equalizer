@@ -25,15 +25,17 @@
 
 namespace eq
 {
+namespace wgl
+{
     /** Equalizer default implementation of a WGL GPU. */
-    class WGLPipe : public SystemPipe
+    class Pipe : public SystemPipe
     {
     public:
         /** Construct a new WGL system pipe. @version 1.0 */
-        EQ_API WGLPipe( Pipe* parent );
+        EQ_API Pipe( eq::Pipe* parent );
 
         /** Destruct this WGL system pipe. @version 1.0 */
-        EQ_API virtual ~WGLPipe( );
+        EQ_API virtual ~Pipe( );
 
         /** @name WGL initialization */
         //@{
@@ -104,5 +106,5 @@ namespace eq
         bool _getGPUHandle( HGPUNV& handle );
     };
 }
-
+}
 #endif // EQ_WGL_PIPE_H

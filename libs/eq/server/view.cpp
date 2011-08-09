@@ -356,7 +356,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( channels.empty( ))
         return 1.f;
 
-    Vector4f view4 = Vector3f::FORWARD;
+    Vector4f view4 = Vector4f::FORWARD;
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;
