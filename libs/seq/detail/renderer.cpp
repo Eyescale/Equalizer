@@ -75,6 +75,13 @@ bool Renderer::exitGL()
     return _window ? _window->exitGL() : false;
 }
 
+void Renderer::clear()
+{
+    EQASSERT( _channel );
+    if( _channel )
+        _channel->clear();
+}
+
 void Renderer::applyRenderContext()
 {
     EQASSERT( _channel );

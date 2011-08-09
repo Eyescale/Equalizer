@@ -44,8 +44,8 @@ namespace detail
         virtual bool configInitGL( const uint128_t& initID );
         virtual bool configExitGL();
 
-        virtual bool initGL() { return eq::Window::configInitGL( 0 ); }
-        virtual bool exitGL() { return eq::Window::configExitGL(); }
+        bool initGL() { return eq::Window::configInitGL( uint128_t::ZERO ); }
+        bool exitGL() { return eq::Window::configExitGL(); }
         //@}
 
     protected:

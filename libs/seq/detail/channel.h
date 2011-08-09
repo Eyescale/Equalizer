@@ -44,8 +44,10 @@ namespace detail
 
         /** @name Operations. */
         //@{
-        void applyRenderContext() { eq::Channel::frameDraw( eq::UUID::ZERO ); }
+        void applyRenderContext() { eq::Channel::frameDraw( uint128_t::ZERO ); }
         void applyModelMatrix();
+
+        void clear() { return eq::Channel::frameClear( uint128_t::ZERO ); }
         //@}
 
     protected:
@@ -55,6 +57,7 @@ namespace detail
                                  const uint32_t frameNumber );
         virtual void frameFinish( const uint128_t& frameID,
                                   const uint32_t frameNumber );
+        virtual void frameClear( const uint128_t& frameID );
         virtual void frameDraw( const uint128_t& frameID );
 
     private:

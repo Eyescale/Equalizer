@@ -109,9 +109,18 @@ namespace seq
         SEQ_API virtual bool exitGL();
 
         /**
+         * Clear the frame buffer.
+         *
+         * @param frameData the renderer's instance of the object passed to
+         *                  Config::run.
+         * @version 1.0
+         */
+        virtual void clear( co::Object* frameData );
+
+        /**
          * Render the scene.
          *
-         * @param frameData the renderer instance of the object passed to
+         * @param frameData the renderer's instance of the object passed to
          *                  Config::run.
          * @version 1.0
          */

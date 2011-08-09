@@ -53,6 +53,9 @@ namespace detail
         //@{
         bool initGL();
         bool exitGL();
+
+        void clear();
+
         void applyRenderContext();
         void applyModelMatrix();
         //@}
