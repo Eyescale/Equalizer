@@ -88,30 +88,65 @@ namespace seq
 
         /** @name Operations */
         //@{
-        /** 
-         * Initialize the OpenGL context.
+        /**
+         * Initialize the renderer.
          *
-         * Called after a context has been created and made current.
+         * Called once per renderer with an OpenGL context current before the
+         * first call to initContext().
+         *
          * @param initData a per-renderer instance of the object passed to
          *                 Config::init().
          * @return true on success, false otherwise.
          * @version 1.0
          */
-        SEQ_API virtual bool initGL( co::Object* initData );
+        SEQ_API virtual bool init( co::Object* initData ) { return true; }
 
         /** 
-         * Deinitialize the OpenGL context.
+         * De-initialize the renderer.
+         *
+         * Called just before the last context will be destroyed after the last
+         * call to exitContext().
+         *
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool exit() { return true; }
+
+        /**
+         * Initialize an OpenGL context.
+         *
+         * Called for each window handled by this renderer, after the context
+         * has been created and made current.
+         *
+         * @param initData a per-renderer instance of the object passed to
+         *                 Config::init().
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool initContext( co::Object* initData );
+
+        /** 
+         * De-initialize an OpenGL context.
          *
          * Called just before the context will be destroyed.
          * @return true on success, false otherwise.
          * @version 1.0
          */
-        SEQ_API virtual bool exitGL();
+        SEQ_API virtual bool exitContext();
+
+        /**
+         * Clear the frame buffer.
+         *
+         * @param frameData the renderer's instance of the object passed to
+         *                  Config::run.
+         * @version 1.0
+         */
+        SEQ_API virtual void clear( co::Object* frameData );
 
         /**
          * Render the scene.
          *
-         * @param frameData the renderer instance of the object passed to
+         * @param frameData the renderer's instance of the object passed to
          *                  Config::run.
          * @version 1.0
          */

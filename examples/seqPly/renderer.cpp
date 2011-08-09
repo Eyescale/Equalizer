@@ -43,21 +43,18 @@ static GLint  materialShininess   = 64;
 namespace seqPly
 {
 
-bool Renderer::initGL( co::Object* initData )
+bool Renderer::init( co::Object* initData )
 {
-    EQASSERT( !_state );
     _state = new State( glewGetContext( ));
-    return seq::Renderer::initGL( initData );
+    return seq::Renderer::init( initData );
 }
 
-bool Renderer::exitGL()
+bool Renderer::exit()
 {
-    if( _state )
-        _state->deleteAll();
-
+    _state->deleteAll();
     delete _state;
     _state = 0;
-    return seq::Renderer::exitGL();
+    return seq::Renderer::exit();
 }
 
 void Renderer::draw( co::Object* frameDataObj )
