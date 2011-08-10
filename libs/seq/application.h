@@ -34,37 +34,6 @@ namespace seq
         /** Destruct this application instance. @version 1.0 */
         SEQ_API virtual ~Application();
 
-        /** @name Data Access. */
-        //@{
-        SEQ_API eq::Config* getConfig(); //!< @internal
-        detail::Application* getImpl() { return _impl; } //!< @internal
-
-        /**
-         * Create a new renderer instance.
-         *
-         * Called once per rendering thread, potentially in parallel, during
-         * initialization.
-         * @return the new renderer
-         * @version 1.0
-         */
-        virtual Renderer* createRenderer() = 0;
-
-        /** Delete the given renderer. @version 1.0 */
-        SEQ_API virtual void destroyRenderer( Renderer* renderer );
-
-        /**
-         * Create a new per-view data instance.
-         *
-         * Called once for each view in the current configuration.
-         * @return the new view data
-         * @version 1.0
-         */
-        SEQ_API virtual ViewData* createViewData();
-
-        /** Delete the given view data. @version 1.0 */
-        SEQ_API virtual void destroyViewData( ViewData* viewData );
-        //@}
-
         /** @name Operations */
         //@{
         /** 
@@ -124,6 +93,40 @@ namespace seq
 
         /** Exit a render client. @version 1.0 */
         virtual bool clientExit() { return true; }
+
+        /**
+         * Create a new renderer instance.
+         *
+         * Called once per rendering thread, potentially in parallel, during
+         * initialization.
+         * @return the new renderer
+         * @version 1.0
+         */
+        virtual Renderer* createRenderer() = 0;
+
+        /** Delete the given renderer. @version 1.0 */
+        SEQ_API virtual void destroyRenderer( Renderer* renderer );
+
+        /**
+         * Create a new per-view data instance.
+         *
+         * Called once for each view in the current configuration. Creates the
+         * view data objects used by the application to set parameters for the
+         * renderers.
+         *
+         * @return the new view data
+         * @version 1.0
+         */
+        SEQ_API virtual ViewData* createViewData();
+
+        /** Delete the given view data. @version 1.0 */
+        SEQ_API virtual void destroyViewData( ViewData* viewData );
+        //@}
+
+        /** @name Data Access */
+        //@{
+        SEQ_API eq::Config* getConfig(); //!< @internal
+        detail::Application* getImpl() { return _impl; } //!< @internal
         //@}
 
     private:

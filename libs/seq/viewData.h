@@ -34,15 +34,19 @@ namespace seq
         /** Destruct this view data. @version 1.0 */
         SEQ_API virtual ~ViewData();
 
-        /** @name Data Access. */
-        //@{
-        const Matrix4f& getModelMatrix() const { return _modelMatrix; }
-        //@}
-
         /** @name Operations */
         //@{
+        /** Rotate the model matrix by the given increments. @version 1.0 */
         void spinModel( const float x, const float y, const float z );
+
+        /** Move the model matrix by the given increments. @version 1.0 */
         void moveModel( const float x, const float y, const float z );
+        //@}
+
+        /** @name Data Access. */
+        //@{
+        /** @return the current model matrix (global camera). @version 1.0 */
+        const Matrix4f& getModelMatrix() const { return _modelMatrix; }
         //@}
 
     protected:

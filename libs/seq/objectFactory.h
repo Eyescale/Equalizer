@@ -30,10 +30,10 @@ namespace seq
         /** @internal Construct a new object factory. */
         ObjectFactory(){}
 
-        /** Destruct this object factory. */
+        /** @internal Destruct this object factory. */
         virtual ~ObjectFactory(){}
 
-        /** @return the Equalizer config for object registration and mapping. */
+        /** @internal @return the Equalizer config. */
         virtual eq::Config* getConfig() = 0;
 
         /**

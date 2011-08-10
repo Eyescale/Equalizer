@@ -29,95 +29,54 @@
  * rendering spinning quads around the origin.
  */
 
-#include <eq/eq.h>
+#include <seq/sequel.h>
 #include <stdlib.h>
-
-using namespace co::base;
-using namespace std;
 
 namespace eqHello
 {
-class Channel : public eq::Channel
+class Renderer : public seq::Renderer
 {
 public:
-    Channel( eq::Window* parent ) : eq::Channel( parent ) {}
+    Renderer( seq::Application& application ) : seq::Renderer( application ) {}
+    virtual ~Renderer() {}
 
 protected:
-    virtual void frameDraw( const eq::uint128_t& spin );
+    virtual void draw( co::Object* frameData );
 };
 
-class NodeFactory : public eq::NodeFactory
+class Application : public seq::Application
 {
 public:
-    virtual eq::Channel* createChannel( eq::Window* parent )
-        { return new Channel( parent ); }
+    virtual ~Application() {}
+    virtual seq::Renderer* createRenderer() { return new Renderer( *this ); }
+    virtual co::Object * createObject( const uint32_t type )
+        { EQUNIMPLEMENTED; return 0; }
 };
+typedef co::base::RefPtr< Application > ApplicationPtr;
 }
 
 int main( const int argc, char** argv )
 {
-    // 1. Equalizer initialization
-    eqHello::NodeFactory nodeFactory;
-    if( !eq::init( argc, argv, &nodeFactory ))
-    {
-        EQERROR << "Equalizer init failed" << endl;
-        return EXIT_FAILURE;
-    }
+    eqHello::ApplicationPtr app = new eqHello::Application;
+
+    if( app->init( argc, argv, 0 ) && app->run( 0 ) && app->exit( ))
+        return EXIT_SUCCESS;
     
-    // 2. get a configuration
-    bool        error  = false;
-    eq::Config* config = eq::getConfig( argc, argv );
-    if( config )
-    {
-        // 3. init config
-        if( config->init( 0 ))
-        {
-            if( config->getError( ))
-                EQWARN << "Error during initialization: " << config->getError()
-                       << std::endl;
-
-            // 4. run main loop
-            eq::uint128_t spin = 0;
-            while( config->isRunning( ))
-            {
-                config->startFrame( ++spin );
-                config->finishFrame();
-            }
-        
-            // 5. exit config
-            config->exit();
-        }
-        else
-            error = true;
-
-        // 6. release config
-        eq::releaseConfig( config );
-    }
-    else
-    {
-        EQERROR << "Cannot get config" << endl;
-        error = true;
-    }    
-
-    // 7. exit
-    eq::exit();
-    return error ? EXIT_FAILURE : EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }
 
 /** The rendering routine, a.k.a., glutDisplayFunc() */
-void eqHello::Channel::frameDraw( const eq::uint128_t& spin )
+void eqHello::Renderer::draw( co::Object* frameData )
 {
-    // setup OpenGL State
-    eq::Channel::frameDraw( spin );
-    
+    applyRenderContext(); // set up OpenGL State
+
     const float lightPos[] = { 0.0f, 0.0f, 1.0f, 0.0f };
     glLightfv( GL_LIGHT0, GL_POSITION, lightPos );
 
     const float lightAmbient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
     glLightfv( GL_LIGHT0, GL_AMBIENT, lightAmbient );
 
-    // rotate scene around the origin
-    glRotatef( static_cast< float >( spin.low( )) * 0.1f, 1.0f, 0.5f, 0.25f );
+    applyModelMatrix(); // global camera
 
     // render six axis-aligned colored quads around the origin
     for( int i = 0; i < 6; i++ )

@@ -1381,7 +1381,8 @@ PREDEFINED             = EQ_GCC_4_1_OR_LATER= \
                          EQBASE_API= \
                          EQNET_API= \
                          EQFABRIC_API= \
-                         EQ_API= 
+                         EQ_API= \
+                         SEQ_API= 
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.

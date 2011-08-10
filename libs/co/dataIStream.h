@@ -141,7 +141,7 @@ namespace co
             read( &nElems, sizeof( nElems ));
             EQASSERTINFO( nElems < EQ_BIT48,
                   "Out-of-sync co::DataIStream: " << nElems << " elements?" );
-            value.resize( nElems );
+            value.resize( size_t( nElems ));
             if( nElems > 0 )
                 read( &value.front(), nElems * sizeof( T ));
             return *this; 
@@ -168,7 +168,7 @@ namespace co{
         else
         {
             str.assign( static_cast< const char* >( getRemainingBuffer( )), 
-                        nElems );
+                        size_t( nElems ));
             advanceBuffer( nElems );
         }
         return *this; 
