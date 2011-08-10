@@ -141,7 +141,10 @@ namespace seq
         /**
          * Create a new per-view data instance.
          *
-         * Called once for each view used by this renderer.
+         * Called once for each view used by this renderer. Creates the view
+         * instance used by the renderer to retrieve parameters from the
+         * application for rendering.
+         *
          * @return the new view data
          * @version 1.0
          */
