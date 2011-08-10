@@ -772,9 +772,9 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _setFocusMode( eq::FOCUSMODE_RELATIVE_TO_OBSERVER );
             return true;
 
-		case 'j':
-			stopFrames();
-			return true;
+        case 'j':
+            stopFrames();
+            return true;
 
         default:
             return false;

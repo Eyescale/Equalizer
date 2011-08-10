@@ -556,7 +556,7 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-		co::base::a_int32_t _frameStopTiles; // stop tile rendering flag
+        co::base::a_int32_t _frameStopTiles; // stop tile rendering flag
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */
