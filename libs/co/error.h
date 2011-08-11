@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,41 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "init.h"
+#ifndef CO_ERROR_H
+#define CO_ERROR_H
 
-#include <co/init.h>
-#include <co/base/atomic.h>
+#include <co/base/error.h> // base enum
 
-namespace eq
+namespace co
 {
-namespace fabric
-{
-namespace
-{
-static co::base::a_int32_t _initialized;
+    /** Defines errors produced by Collage classes. */
+    enum Error
+    {
+        // ERROR_FOO = co::base::ERROR_CUSTOM, // 0x8000
+        ERROR_CUSTOM = EQ_32KB, // 0x8000
+    };
 }
-extern void _initErrors();
-extern void _exitErrors();
-
-bool init( const int argc, char** argv )
-{
-    if( ++_initialized > 1 ) // not first
-        return true;
-
-    _initErrors();
-    return co::init( argc, argv );
-}
-    
-bool exit()
-{
-    if( --_initialized > 0 ) // not last
-        return true;
-
-    const bool ret = co::exit();
-
-    _exitErrors();
-    return ret;
-}
-
-}
-}
+#endif // COBASE_ERROR_H

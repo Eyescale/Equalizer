@@ -25,11 +25,11 @@ namespace co
 {
 namespace base
 {
-    /** Defines errors produced by Equalizer classes. */
+    /** Defines errors produced by Collage base classes. */
     enum Error
     {
         ERROR_NONE = 0,
-        ERROR_CUSTOM = EQ_32KB,
+        ERROR_CUSTOM = EQ_16KB,  // 0x4000
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
