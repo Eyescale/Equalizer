@@ -49,8 +49,8 @@ static co::base::a_int32_t _initialized;
 static void _parseArguments( const int argc, char** argv );
 static void _initPlugins();
 static void _exitPlugins();
-extern void _initErrors();
-extern void _exitErrors();
+//extern void _initErrors();
+//extern void _exitErrors();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
@@ -59,13 +59,13 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
-    if( ++_initialized != 1 ) // not first
+    if( ++_initialized > 1 ) // not first
     {
         EQINFO << "Equalizer client library initialized more than once"
                << std::endl;
         return true;
     }
-    _initErrors();
+//    _initErrors();
 
 #ifdef AGL
     GetCurrentEventQueue();
@@ -95,7 +95,7 @@ bool exit()
         EQERROR << "Equalizer client library not initialized" << std::endl;
         return false;
     }
-    if( --_initialized != 0 ) // not last
+    if( --_initialized > 0 ) // not last
         return true;
 
 #ifdef EQ_USE_PARACOMP
@@ -103,7 +103,7 @@ bool exit()
 #endif
 
     Global::_nodeFactory = 0;
-    _exitErrors();
+//    _exitErrors();
     _exitPlugins();
     const bool ret = fabric::exit();
 

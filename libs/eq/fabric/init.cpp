@@ -24,17 +24,31 @@ namespace eq
 {
 namespace fabric
 {
+namespace
+{
+static co::base::a_int32_t _initialized;
+}
+extern void _initErrors();
+extern void _exitErrors();
 
 bool init( const int argc, char** argv )
 {
+    if( ++_initialized > 1 ) // not first
+        return true;
+
+    _initErrors();
     return co::init( argc, argv );
 }
     
 bool exit()
 {
-    return co::exit();
+    if( --_initialized > 0 ) // not last
+        return true;
 
-    return true;
+    const bool ret = co::exit();
+
+    _exitErrors();
+    return ret;
 }
 
 }

@@ -107,7 +107,6 @@ set(CLIENT_SOURCES
   configParams.cpp
   configStatistics.cpp
   cudaContext.cpp
-  error.cpp
   event.cpp
   eventHandler.cpp
   frame.cpp
