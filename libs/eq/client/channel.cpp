@@ -1824,8 +1824,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
             const Frames& frames = getOutputFrames();
-            for( Frames::const_iterator i = frames.begin();
-                 i != frames.end(); ++i )
+            for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
             {
                 Frame* frame = *i;
                 frame->getData()->setPixelViewport( getPixelViewport() );
