@@ -394,11 +394,9 @@ void Channel::frameReadback( const uint128_t& )
     const DrawableConfig& drawableConfig = getDrawableConfig();
 
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
-        Frame* frame = *i;
-        // @bug? Not here, should be set by server or calling _cmdFunc
-        frame->getData()->setPixelViewport( getPixelViewport() );
+        Frame* frame = *i;        
         frame->readback( glObjects, drawableConfig );
     }
 
@@ -1824,6 +1822,14 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         if( packet->tasks & fabric::TASK_READBACK )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+            const Frames& frames = getOutputFrames();
+            for( Frames::const_iterator i = frames.begin();
+                 i != frames.end(); ++i )
+            {
+                Frame* frame = *i;
+                frame->getData()->setPixelViewport( getPixelViewport() );
+            }
             frameReadback( packet->context.frameID );
 
             // transmit image
