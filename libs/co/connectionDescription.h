@@ -157,7 +157,7 @@ namespace co
      * @return true on successful parsing, false otherwise.
      */
     CO_API bool deserialize( std::string& data,
-                                ConnectionDescriptions& descriptions );
+                             ConnectionDescriptions& descriptions );
 }
 
 #endif // CO_CONNECTION_DESCRIPTION_H

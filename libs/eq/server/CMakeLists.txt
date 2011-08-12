@@ -89,6 +89,8 @@ set(SERVER_SOURCES
     config/server.h
     config/server.cpp
     connectionDescription.cpp
+    convert11Visitor.h
+    convert12Visitor.h
     equalizers/dfrEqualizer.cpp
     equalizers/equalizer.cpp
     equalizers/framerateEqualizer.cpp
