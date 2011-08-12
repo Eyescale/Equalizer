@@ -261,8 +261,8 @@ bool Server::_cmdChooseConfig( co::Command& command )
     {
         Config* candidate = *i;
         const float version = candidate->getFAttribute(Config::FATTR_VERSION);
-        EQASSERT( version == 1.1f );
-        if( !candidate->isUsed() && version == 1.1f)
+        EQASSERT( version == 1.2f );
+        if( !candidate->isUsed() && version == 1.2f)
             config = candidate;
     }
     

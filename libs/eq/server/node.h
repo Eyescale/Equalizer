@@ -40,9 +40,7 @@ namespace server
     class Node : public fabric::Node< Config, Node, Pipe, NodeVisitor >
     {
     public:
-        /** 
-         * Constructs a new Node.
-         */
+        /** Construct a new Node. */
         EQSERVER_API Node( Config* parent );
 
         virtual ~Node();
@@ -54,6 +52,9 @@ namespace server
 
         co::NodePtr getNode() const { return _node; }
         void setNode( co::NodePtr node ) { _node = node; }
+
+        void setHost( const std::string host ) { _host = host; }
+        const std::string& getHost() const { return _host; }
 
         Channel* getChannel( const ChannelPath& path );
 
@@ -249,6 +250,8 @@ namespace server
         /** Character attributes. */
         char _cAttributes[CATTR_ALL];
 
+        std::string _host; // The host name to launch this node
+
         /** Number of activations for this node. */
         uint32_t _active;
 
@@ -284,14 +287,14 @@ namespace server
         Private* _private; // placeholder for binary-compatible changes
 
         /** 
-         * Compose the launch command by expanding the variables in the
-         * launch command string.
+         * Compose and execute the launch command by expanding the variables in
+         * the launch command string.
          *
          * @param description the connection description.
-         * @return the expanded launch command.
+         * @return true on success, false otherwise
          */
-        std::string _createLaunchCommand( co::ConnectionDescriptionPtr );
-        std::string   _createRemoteCommand();
+        bool _launch( const std::string& hostname ) const;
+        std::string   _createRemoteCommand() const;
 
         uint32_t _getFinishLatency() const;
         void _finish( const uint32_t currentFrame );

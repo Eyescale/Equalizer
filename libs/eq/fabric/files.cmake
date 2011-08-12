@@ -76,6 +76,7 @@ set(EQ_FABRIC_HEADERS
 set(EQ_FABRIC_SOURCES
   client.cpp
   colorMask.cpp
+  error.cpp
   eye.cpp
   frustum.cpp
   global.cpp

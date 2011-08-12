@@ -198,6 +198,7 @@ fixed                           { return EQTOKEN_FIXED; }
 relative_to_observer            { return EQTOKEN_RELATIVE_TO_OBSERVER; }
 relative_to_origin              { return EQTOKEN_RELATIVE_TO_ORIGIN; }
 HMD                             { return EQTOKEN_HMD; }
+host                            { return EQTOKEN_HOST; }
 hostname                        { return EQTOKEN_HOSTNAME; }
 interface                       { return EQTOKEN_INTERFACE; }
 launch_command                  { return EQTOKEN_LAUNCH_COMMAND; }
