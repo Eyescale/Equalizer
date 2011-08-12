@@ -44,6 +44,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     if( channel && channel->getView( ))
     {
         channel->getView()->updateFrusta();
+	// TODO needed? Should be done per frame in update visitors?
         const TileQueues& outputQueues = compound->getOutputTileQueues();
         for( TileQueuesCIter i = outputQueues.begin(); 
              i != outputQueues.end(); ++i )

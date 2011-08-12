@@ -133,7 +133,7 @@ namespace server
         /** The images of this frame data holder. @version 1.0 */
         const Images& getImages() const { return _images; }
 
-        /** returns the number of read back images in the last readback call. */
+        /** @internal @return the number of newly read back images. */
         size_t getNewImages() const { return _newImages; }
 
         /**
@@ -194,7 +194,7 @@ namespace server
         /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_API void clear();
 
-        /** @internal Reset newImages counter for next image transmit. */
+        /** @internal Reset new images counter. */
         void resetNewImages();
 
         /** 
@@ -263,10 +263,10 @@ namespace server
         bool addImage( const NodeFrameDataTransmitPacket* packet );
         void setReady( const NodeFrameDataReadyPacket* packet ); //!< @internal
 
-        /** @internal list of receiving eq::Node IDs an output frame */
+        /** @internal @return list of receiving eq::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNodes() const
             { return _data.inputNodes; }
-        /** @internal list of receiving co::Node IDs of an output frame */
+        /** @internal @return list of receiving co::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNetNodes() const
             { return _data.inputNetNodes; }
 

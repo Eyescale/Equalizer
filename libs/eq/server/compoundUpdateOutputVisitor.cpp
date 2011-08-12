@@ -166,6 +166,11 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         // 2) zoom
         _updateZoom( compound, frame );
 
+#if 0
+        //@bug? Where did this go? ----- Commit
+        frame->commitData();
+        frame->commit();
+#endif
         _outputFrames[name] = frame;
         EQLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "

@@ -97,7 +97,7 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
-FrameData::Data& FrameData::Data::operator=( const Data& rhs )
+FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
 {
     if( this != &rhs )
     {

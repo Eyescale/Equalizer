@@ -96,12 +96,6 @@ const Images& Frame::getImages() const
     return _frameData->getImages();
 }
 
-size_t Frame::getNewImages() const
-{
-    EQASSERT( _frameData );
-    return _frameData->getNewImages();
-}
-
 void Frame::clear()
 {
     EQASSERT( _frameData );
@@ -112,12 +106,6 @@ void Frame::flush()
 {
     if( _frameData )
         _frameData->flush();
-}
-
-void Frame::resetNewImages()
-{
-    if( _frameData )
-        _frameData->resetNewImages();
 }
 
 void Frame::setAlphaUsage( const bool useAlpha )

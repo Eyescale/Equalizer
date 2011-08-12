@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,11 +34,11 @@ View< L, V, O >::View( L* layout )
         : _layout( layout )
         , _observer( 0 )
         , _overdraw( Vector2i::ZERO )
-        , _mode( MODE_MONO )
+        , _tileSize( 32, 32 )
         , _minimumCapabilities( EQ_BIT_NONE )
         , _maximumCapabilities( EQ_BIT_ALL_64 )
         , _capabilities( EQ_BIT_ALL_64 )
-        , _tileSize( 32, 32 )
+        , _mode( MODE_MONO )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent

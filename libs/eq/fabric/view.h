@@ -253,14 +253,14 @@ namespace fabric
         /** Enlarge size of all dest channels and adjust frustum accordingly. */
         Vector2i _overdraw;
 
-        Mode _mode;
+        /** Tile size used for tile-based rendering. */
+        Vector2i _tileSize;
 
         uint64_t _minimumCapabilities;
         uint64_t _maximumCapabilities;
         uint64_t _capabilities;
 
-        /** Tile size used for tile-based rendering. */
-        Vector2i _tileSize;
+        Mode _mode; //!< Stereo mode
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
