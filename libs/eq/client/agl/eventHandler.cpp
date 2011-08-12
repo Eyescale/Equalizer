@@ -64,9 +64,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
         return;
     }
     
-    Global::enterCarbon();
-    EventHandlerUPP eventHandler = NewEventHandlerUPP( _handleEventUPP );
-    EventTypeSpec   events[]    = {
+    const EventTypeSpec events[] = {
         { kEventClassWindow,   kEventWindowBoundsChanged },
         { kEventClassWindow,   kEventWindowZoomed },
         { kEventClassWindow,   kEventWindowUpdate },
@@ -85,9 +83,10 @@ EventHandler::EventHandler( agl::WindowIF* window )
         { kEventClassKeyboard, kEventRawKeyUp },
         { kEventClassKeyboard, kEventRawKeyRepeat }
     };
-
     const size_t nEvents = sizeof( events ) / sizeof( EventTypeSpec );
 
+    Global::enterCarbon();
+    EventHandlerUPP eventHandler = NewEventHandlerUPP( _handleEventUPP );
     if( fullscreen )
         InstallApplicationEventHandler( eventHandler, nEvents, events, this,
                                         &_eventHandler );
