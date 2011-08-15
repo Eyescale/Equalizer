@@ -59,7 +59,5 @@ foreach(FILE ${TEST_FILES})
 endforeach(FILE ${TEST_FILES})
 
 # workaround bug that tests won't get built
-add_custom_target(tests DEPENDS ${ALL_TESTS})
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS tests)
+add_custom_target(tests COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${ALL_TESTS})
 set_target_properties(tests PROPERTIES FOLDER "Tests")
-set_target_properties(check PROPERTIES FOLDER "Tests")

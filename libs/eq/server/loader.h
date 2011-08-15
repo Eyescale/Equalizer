@@ -28,25 +28,11 @@ namespace eq
 {
 namespace server
 {
-    class Channel; 
-    class Compound;
-    class Config;
-    class Node;    
-    class Pipe;    
-    class Server;
-    class Window;  
-    
-    /**
-     * The config file loader.
-     */
+    /** The config file loader. */
     class Loader
     {
     public:
-        /** 
-         * Constructs a new loader.
-         */
         Loader() {}
-
         virtual ~Loader() {}
 
         /** 
@@ -99,6 +85,17 @@ namespace server
          * @param server the server.
          */
         EQSERVER_API static void convertTo11( ServerPtr server );
+
+        /**
+         * Convert config to version 1.2
+         *
+         * This function converts a 1.1 to a 1.2 configuration.
+         * Most notably, the node's host is derived from the connection
+         * description.
+         *
+         * @param server the server.
+         */
+        EQSERVER_API static void convertTo12( ServerPtr server );
 
         /**
          * Add one observer for observer-less configurations.

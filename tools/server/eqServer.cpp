@@ -57,6 +57,7 @@ int main( const int argc, char** argv )
     eq::server::Loader::addDestinationViews( server );
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
+    eq::server::Loader::convertTo12( server );
 
     if( server->getConnectionDescriptions().empty( )) // add default listener
     {

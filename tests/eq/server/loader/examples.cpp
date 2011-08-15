@@ -44,8 +44,8 @@ int main( int argc, char **argv )
         global->setConfigFAttribute( attr, 0.f );
         eq::server::ServerPtr server = loader.loadFile( filename );
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
-        TESTINFO( global->getConfigFAttribute( attr ) == 1.f ||
-                  global->getConfigFAttribute( attr ) == 1.1f,
+        TESTINFO( global->getConfigFAttribute( attr ) == 1.1f ||
+                  global->getConfigFAttribute( attr ) == 1.2f,
                   global->getConfigFAttribute( attr ) << " file " << filename);
 
         // convert
@@ -53,6 +53,7 @@ int main( int argc, char **argv )
         eq::server::Loader::addDestinationViews( server );
         eq::server::Loader::addDefaultObserver( server );
         eq::server::Loader::convertTo11( server );
+        eq::server::Loader::convertTo12( server );
 
         // output
         std::ofstream logFile( "testOutput.eqc" );
