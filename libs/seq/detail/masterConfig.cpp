@@ -144,13 +144,17 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
           _currentViewID = event->data.context.view.identifier;
           return true;
 
+      case eq::Event::KEY_PRESS:
+      case eq::Event::KEY_RELEASE:
+          Config::handleEvent( event );
+          // no break;
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
       case eq::Event::CHANNEL_POINTER_MOTION:
       case eq::Event::WINDOW_POINTER_WHEEL:
       case eq::Event::MAGELLAN_AXIS:
       {
           if( _currentViewID == uint128_t::ZERO )
-              return true;
+              return false;
 
           View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
           _redraw = view->handleEvent( event );
@@ -159,6 +163,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
 
       case eq::Event::STATISTIC:
       {
+          Config::handleEvent( event );
           if( event->data.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
               return false;
 
