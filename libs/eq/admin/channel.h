@@ -25,8 +25,6 @@ namespace eq
 {
 namespace admin
 {
-    class Window;
-
     class Channel : public fabric::Channel< Window, Channel >
     {
     public:

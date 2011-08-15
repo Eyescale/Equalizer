@@ -54,3 +54,4 @@ template class eq::fabric::Observer< eq::admin::Config, eq::admin::Observer >;
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                  const eq::admin::Super& );
 /** @endcond */
+

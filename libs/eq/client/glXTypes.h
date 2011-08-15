@@ -18,11 +18,7 @@
 #ifndef EQ_GLXTYPES_H
 #define EQ_GLXTYPES_H
 
-typedef struct _XDisplay Display;
-typedef union _XEvent XEvent;
-typedef unsigned long XID;
-typedef struct __GLXcontextRec* GLXContext;
-typedef struct __GLXFBConfigRec* GLXFBConfig;
+#include <eq/client/glx/types.h>
 
 namespace eq
 {
@@ -41,6 +37,14 @@ void XSetCurrentDisplay( Display* display );
 
 /** @return the current display connection for the calling thread. */
 Display* XGetCurrentDisplay();
+
+#ifndef EQ_2_0_API
+    typedef glx::Pipe GLXPipe;
+    typedef glx::WindowIF GLXWindowIF;
+    typedef glx::Window GLXWindow;
+    typedef glx::EventHandler GLXEventHandler;
+    typedef glx::WindowEvent GLXWindowEvent;
+#endif
 }
 
 

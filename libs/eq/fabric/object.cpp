@@ -283,7 +283,7 @@ void Object::setError( const int32_t error )
     setDirty( DIRTY_ERROR );
 }
 
-void Object::postRemove( const Object* child )
+void Object::postRemove( Object* child )
 {
     EQASSERT( child );
     if( !child->isAttached( ))
@@ -294,6 +294,9 @@ void Object::postRemove( const Object* child )
 
     _removedChildren.push_back( child->getID( ));
     setDirty( DIRTY_REMOVED );
+
+    co::LocalNodePtr localNode = child->getLocalNode();
+    localNode->releaseObject( child );
 }
 
 bool Object::_cmdSync( co::Command& command )

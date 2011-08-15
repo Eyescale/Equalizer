@@ -77,3 +77,4 @@ template class eq::fabric::Channel< eq::admin::Window, eq::admin::Channel >;
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                       const eq::admin::Super& );
 /** @endcond */
+

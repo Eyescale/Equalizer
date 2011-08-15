@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,23 +28,27 @@ namespace
 {
 static co::base::a_int32_t _initialized;
 }
+extern void _initErrors();
+extern void _exitErrors();
 
 bool init( const int argc, char** argv )
 {
-    if( ++_initialized == 1 ) // first
-        return co::init( argc, argv );
-    return true;
+    if( ++_initialized > 1 ) // not first
+        return true;
+
+    _initErrors();
+    return co::init( argc, argv );
 }
     
 bool exit()
 {
-    if( _initialized <= 0 )
-        return false;
+    if( --_initialized > 0 ) // not last
+        return true;
 
-    if( --_initialized == 0 ) // last
-        return co::exit();
+    const bool ret = co::exit();
 
-    return true;
+    _exitErrors();
+    return ret;
 }
 
 }

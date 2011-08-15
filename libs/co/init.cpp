@@ -35,19 +35,16 @@
 
 namespace co
 {
-
 namespace
 {
-    static bool _initialized = false;
+    static co::base::a_int32_t _initialized;
 }
 
 bool _init( const int argc, char** argv )
 {
-    EQASSERT( !_initialized );
-    if( _initialized )
-        return false;
+    if( ++_initialized > 1 ) // not first
+        return true;
 
-    _initialized = true;
     if( !base::init( argc, argv ))
         return false;
 
@@ -77,10 +74,10 @@ bool _init( const int argc, char** argv )
 
 bool exit()
 {
-    EQASSERT( _initialized );
-    if( !_initialized )
-        return false;
-    _initialized = false;
+    if( --_initialized > 0 ) // not last
+        return true;
+    EQASSERT( _initialized == 0 );
+
 #ifdef _WIN32
     if( WSACleanup() != 0 )
     {

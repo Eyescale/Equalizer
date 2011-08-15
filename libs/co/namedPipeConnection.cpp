@@ -39,7 +39,8 @@
 namespace co
 {
 NamedPipeConnection::NamedPipeConnection()
-    : _readDone( 0 )
+    : _fd( INVALID_HANDLE_VALUE )
+    , _readDone( 0 )
 {
     memset( &_read, 0, sizeof( _read ));
     memset( &_write, 0, sizeof( _write ));
@@ -68,7 +69,7 @@ std::string NamedPipeConnection::_getFilename() const
 bool NamedPipeConnection::connect()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
-     
+
     if( _state != STATE_CLOSED )
         return false;
 
@@ -77,9 +78,9 @@ bool NamedPipeConnection::connect()
 
     const std::string filename = _getFilename();
     if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
-    { 
-        EQERROR << "Can't create named pipe: " << base::sysError << std::endl; 
-        return false; 
+    {
+        EQERROR << "Can't create named pipe: " << base::sysError << std::endl;
+        return false;
     }
 
     if( !_connectNamedPipe( ))
@@ -95,7 +96,7 @@ bool NamedPipeConnection::connect()
 
 void NamedPipeConnection::_close()
 {
-    if( !(_state == STATE_CONNECTED || _state == STATE_LISTENING ))
+    if( _state == STATE_CLOSED )
         return;
 
     EQASSERT( _fd > 0 ); 
@@ -104,14 +105,14 @@ void NamedPipeConnection::_close()
     {
         _exitAIOAccept();
 
-        if( !DisconnectNamedPipe( _fd ))
+        if( _fd != INVALID_HANDLE_VALUE && !DisconnectNamedPipe( _fd ))
             EQERROR << "Could not disconnect named pipe: " << base::sysError
                     << std::endl;
     }
     else
     {
         _exitAIORead();
-        if( !CloseHandle( _fd ))
+        if( _fd != INVALID_HANDLE_VALUE && !CloseHandle( _fd ))
             EQERROR << "Could not close named pipe: " << base::sysError
                     << std::endl;
     }

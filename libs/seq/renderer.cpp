@@ -75,14 +75,19 @@ const Matrix4f& Renderer::getModelMatrix() const
     return _impl->getModelMatrix();
 }
 
-bool Renderer::initGL( co::Object* initData )
+bool Renderer::initContext( co::Object* initData )
 {
-    return _impl->initGL();
+    return _impl->initContext();
 }
 
-bool Renderer::exitGL()
+bool Renderer::exitContext()
 {
-    return _impl->exitGL();
+    return _impl->exitContext();
+}
+
+void Renderer::clear( co::Object* frameData )
+{
+    _impl->clear();
 }
 
 void Renderer::applyRenderContext()

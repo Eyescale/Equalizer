@@ -1,5 +1,6 @@
 
-/* Copyright (c)  2011, Maxim Makhinya <maxmah@gmail.com>
+/* Copyright (c) 2011, Maxim Makhinya <maxmah@gmail.com>
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,12 +40,12 @@ namespace eqAsync
 /**
  * Used to disable additional message pump creation.
  */
-class GLXWindowShared : public eq::GLXWindow
+class GLXWindowShared : public eq::glx::Window
 {
 public:
     GLXWindowShared( eq::Window* parent, Display* xDisplay = 0,
                      GLXEWContext* glxewContext = 0 )
-                 : eq::GLXWindow( parent, xDisplay, glxewContext ){}
+            : eq::glx::Window( parent, xDisplay, glxewContext ){}
 
     // Disabling event handling to avoid message pump conflicts
     virtual void initEventHandler() {}

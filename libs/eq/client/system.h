@@ -15,24 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSYSTEM_H
-#define EQSYSTEM_H
+#ifndef EQ_SYSTEM_H
+#define EQ_SYSTEM_H
 
 #include <eq/client/os.h>
 #ifdef AGL
-#  include <eq/client/aglEventHandler.h>
-#  include <eq/client/aglPipe.h>
-#  include <eq/client/aglWindow.h>
+#  include <eq/client/agl/eventHandler.h>
+#  include <eq/client/agl/pipe.h>
+#  include <eq/client/agl/window.h>
+#  include <eq/client/aglTypes.h>
 #endif
 #ifdef GLX
-#  include <eq/client/glXEventHandler.h>
-#  include <eq/client/glXPipe.h>
-#  include <eq/client/glXWindow.h>
+#  include <eq/client/glx/eventHandler.h>
+#  include <eq/client/glx/pipe.h>
+#  include <eq/client/glx/window.h>
+#  include <eq/client/glXTypes.h>
 #endif
 #ifdef WGL
-#  include <eq/client/wglEventHandler.h>
-#  include <eq/client/wglPipe.h>
-#  include <eq/client/wglWindow.h>
+#  include <eq/client/wgl/eventHandler.h>
+#  include <eq/client/wgl/pipe.h>
+#  include <eq/client/wgl/window.h>
+#  include <eq/client/wglTypes.h>
 #endif
 
-#endif // EQSYSTEM_H
+#endif // EQ_SYSTEM_H

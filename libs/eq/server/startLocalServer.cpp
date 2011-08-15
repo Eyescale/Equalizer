@@ -100,6 +100,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader::addDestinationViews( server );
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
+    eq::server::Loader::convertTo12( server );
 
     co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))

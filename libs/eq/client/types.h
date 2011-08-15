@@ -32,7 +32,6 @@
 
 namespace eq
 {
-class AGLWindowEvent;
 class Canvas;
 class Channel;
 class Client;
@@ -42,10 +41,6 @@ class Config;
 class ConfigParams;
 class Frame;
 class FrameData;
-class GLXEventHandler;
-class GLXWindow;
-class GLXWindowEvent;
-class GLXWindowIF;
 class Image;
 class Layout;
 class MessagePump;
@@ -59,8 +54,6 @@ class SystemPipe;
 class SystemWindow;
 class View;
 class Window;
-class WGLWindowIF;
-class X11Connection;
 struct ConfigEvent;
 struct PixelData;
 struct Statistic;
@@ -248,8 +241,6 @@ using co::base::uint128_t;
 using co::base::UUID;
 
 /** @cond IGNORE */
-typedef co::base::RefPtr< X11Connection > X11ConnectionPtr;
-    
 // originator serial -> statistics
 typedef std::map< uint32_t, Statistics > SortedStatistics;
 

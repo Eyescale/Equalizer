@@ -22,6 +22,7 @@
 #include "renderer.h"
 
 #include <seq/renderer.h>
+#include <eq/util/objectManager.h>
 
 namespace seq
 {
@@ -70,23 +71,36 @@ void Window::frameFinish( const uint128_t& frameID, const uint32_t frameNumber)
 
 bool Window::configInitGL( const uint128_t& initID )
 {
-    getRendererImpl()->setWindow( this );
-    getRendererImpl()->setGLEWContext( glewGetContext( ));
+    Renderer* rendererImpl = getRendererImpl();
+    rendererImpl->setWindow( this );
 
     co::Object* initData = getConfig()->getInitData();
     seq::Renderer* const renderer = getRenderer();
-    const bool ret = renderer->initGL( initData );
-    getRendererImpl()->setWindow( 0 );
+    const bool first = !getObjectManager()->isShared();
+
+    if( first && !renderer->init( initData ))
+    {
+        rendererImpl->setWindow( 0 );
+        return false;
+    }
+    const bool ret = renderer->initContext( initData );
+
+    rendererImpl->setWindow( 0 );
     return ret;
 }
 
 bool Window::configExitGL()
 {
-    getRendererImpl()->setWindow( this );
+    Renderer* rendererImpl = getRendererImpl();
+    rendererImpl->setWindow( this );
     seq::Renderer* const renderer = getRenderer();
-    const bool ret = renderer->exitGL();
-    getRendererImpl()->setGLEWContext( 0 );
-    getRendererImpl()->setWindow( 0 );
+    const bool last = !getObjectManager()->isShared();
+
+    bool ret = renderer->exitContext();
+    if( last && !renderer->exit( ))
+        ret = false;
+
+    rendererImpl->setWindow( 0 );
     return ret;
 }
 

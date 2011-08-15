@@ -18,6 +18,7 @@
 
 #include "init.h"
 
+#include "atomic.h"
 #include "errorRegistry.h"
 #include "global.h"
 #include "pluginRegistry.h"
@@ -28,19 +29,16 @@ namespace co
 {
 namespace base
 {
-
 namespace
 {
-    static bool _initialized = false;
+    static co::base::a_int32_t _initialized;
 }
 
 bool init( const int argc, char** argv )
 {
-    EQASSERT( !_initialized );
-    if( _initialized )
-        return false;
+    if( ++_initialized > 1 ) // not first
+        return true;
 
-    _initialized = true;
     Log::instance().setThreadName( "Main" );
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
@@ -86,10 +84,9 @@ bool init( const int argc, char** argv )
 
 bool exit()
 {
-    EQASSERT( _initialized );
-    if( !_initialized )
-        return false;
-    _initialized = false;
+    if( --_initialized > 0 ) // not last
+        return true;
+    EQASSERT( _initialized == 0 );
 
     // de-initialize registered plugins
     PluginRegistry& plugins = Global::getPluginRegistry();

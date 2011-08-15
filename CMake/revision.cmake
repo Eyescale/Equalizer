@@ -2,11 +2,12 @@
 
 IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
   FIND_PACKAGE(Git)
-  IF(Git_FOUND)
-    Git_WC_INFO(${CMAKE_CURRENT_SOURCE_DIR} EQ)
-    SET(EQ_REVISION ${EQ_WC_REVISION_HASH})
-    message(STATUS "  Revision ${EQ_REVISION}")
+  IF(GIT_FOUND)
+    EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} rev-list -n 1 HEAD
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE EQ_REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+    MESSAGE(STATUS "Equalizer Revision ${EQ_REVISION}")
   ELSE()
-    message(STATUS "No revision version support, git not found")
+    MESSAGE(STATUS "No revision version support, git not found")
   ENDIF()
 ENDIF()

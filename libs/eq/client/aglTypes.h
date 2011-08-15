@@ -18,18 +18,17 @@
 #ifndef EQ_AGLTYPES_H
 #define EQ_AGLTYPES_H
 
-#include <co/base/types.h>
+#include <eq/client/agl/types.h>
 
-/** @cond IGNORE */
-typedef uint32_t CGDirectDisplayID;
-typedef struct OpaqueWindowPtr* WindowPtr;
-typedef WindowPtr WindowRef;
-typedef struct OpaqueEventHandlerRef*   EventHandlerRef;
-typedef struct __AGLContextRec* AGLContext;
-typedef struct __AGLPixelFormatRec* AGLPixelFormat;
-typedef struct __AGLPBufferRec* AGLPbuffer;
-typedef struct OpaqueEventRef* EventRef;
-typedef struct OpaqueEventQueueRef* EventQueueRef;
-/** @endcond */
+#ifndef EQ_2_0_API
+namespace eq
+{
+    typedef agl::EventHandler AGLEventHandler;
+    typedef agl::Pipe AGLPipe;
+    typedef agl::Window AGLWindow;
+    typedef agl::WindowEvent AGLWindowEvent;
+    typedef agl::WindowIF AGLWindowIF;
+}
+#endif
 
 #endif // EQ_AGLTYPES_H

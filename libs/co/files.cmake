@@ -21,6 +21,7 @@ set(CO_PUBLIC_HEADERS
     dataIStream.h
     dataOStream.h
     dispatcher.h
+    error.h
     exception.h
     global.h
     init.h

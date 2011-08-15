@@ -247,17 +247,16 @@ bool Node::connect()
 
 bool Node::launch()
 {
-    for( co::ConnectionDescriptions::const_iterator i = 
-             _connectionDescriptions.begin();
+    if( _launch( _host ))
+        return true;
+    
+    // Equalizer 1.0 style: try hostnames from connection descriptions
+    for( co::ConnectionDescriptionsCIter i = _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
     {
-        co::ConnectionDescriptionPtr description = *i;
-        const std::string launchCommand = _createLaunchCommand( description );
-        if( co::base::Launcher::run( launchCommand ))
+        const std::string& hostname = (*i)->getHostname();
+        if( hostname != _host && _launch( hostname ))
             return true;
-
-        EQWARN << "Could not launch node using '" << launchCommand << "'" 
-               << std::endl;
     }
 
     setError( ERROR_NODE_LAUNCH );
@@ -313,15 +312,14 @@ bool Node::syncLaunch( const co::base::Clock& clock )
     }
 }
 
-std::string Node::_createLaunchCommand(
-    co::ConnectionDescriptionPtr description )
+bool Node::_launch( const std::string& hostname ) const
 {
     const std::string& command = getSAttribute( SATTR_LAUNCH_COMMAND );
     const size_t commandLen = command.size();
 
     bool commandFound = false;
     size_t lastPos = 0;
-    std::string result;
+    std::string cmd;
 
     for( size_t percentPos = command.find( '%' );
          percentPos != std::string::npos; 
@@ -338,7 +336,6 @@ std::string Node::_createLaunchCommand(
             }
             case 'h':
             {
-                const std::string& hostname = description->getHostname();
                 if( hostname.empty( ))
                     replacement << "127.0.0.1";
                 else
@@ -355,23 +352,27 @@ std::string Node::_createLaunchCommand(
                 replacement << '%' << command[percentPos+1];
         }
 
-        result += command.substr( lastPos, percentPos-lastPos );
+        cmd += command.substr( lastPos, percentPos-lastPos );
         if( !replacement.str().empty( ))
-            result += replacement.str();
+            cmd += replacement.str();
 
         lastPos  = percentPos+2;
     }
 
-    result += command.substr( lastPos, commandLen-lastPos );
+    cmd += command.substr( lastPos, commandLen-lastPos );
 
     if( !commandFound )
-        result += " " + _createRemoteCommand();
+        cmd += " " + _createRemoteCommand();
 
-    EQVERB << "Launch command: " << result << std::endl;
-    return result;
+    EQVERB << "Launch command: " << cmd << std::endl;
+    if( co::base::Launcher::run( cmd ))
+        return true;
+
+    EQWARN << "Could not launch node using '" << cmd << "'" << std::endl;
+    return false;
 }
 
-std::string Node::_createRemoteCommand()
+std::string Node::_createRemoteCommand() const
 {
     std::ostringstream stringStream;
     const char quote = getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
@@ -734,6 +735,9 @@ bool Node::_cmdFrameFinishReply( co::Command& command )
 
 void Node::output( std::ostream& os ) const
 {
+    if( !_host.empty( ))
+        os << "host     \"" << _host << '"' << std::endl;
+
     const co::ConnectionDescriptions& descriptions = _connectionDescriptions;
     for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )

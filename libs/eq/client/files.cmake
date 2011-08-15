@@ -1,13 +1,36 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
+set(AGL_HEADERS
+  agl/eventHandler.h
+  agl/messagePump.h
+  agl/pipe.h
+  agl/window.h
+  agl/windowEvent.h
+  agl/types.h
+)
+
+set(GLX_HEADERS
+  glx/eventHandler.h
+  glx/messagePump.h
+  glx/pipe.h
+  glx/window.h
+  glx/windowEvent.h
+  glx/types.h
+)
+
+set(WGL_HEADERS
+  wgl/eventHandler.h
+  wgl/messagePump.h
+  wgl/pipe.h
+  wgl/window.h
+  wgl/windowEvent.h
+  wgl/types.h
+)
+
 set(CLIENT_HEADERS
-  aglEventHandler.h
-  aglMessagePump.h
-  aglPipe.h
+  ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   aglTypes.h
-  aglWindow.h
-  aglWindowEvent.h
   api.h
   base.h
   canvas.h
@@ -35,12 +58,7 @@ set(CLIENT_HEADERS
   frameData.h
   gl.h
   glWindow.h
-  glXEventHandler.h
-  glXMessagePump.h
-  glXPipe.h
   glXTypes.h
-  glXWindow.h
-  glXWindowEvent.h
   global.h
   image.h
   init.h
@@ -68,11 +86,7 @@ set(CLIENT_HEADERS
   view.h
   viewPackets.h
   visitorResult.h
-  wglEventHandler.h
-  wglMessagePump.h
-  wglPipe.h
-  wglWindow.h
-  wglWindowEvent.h
+  wglTypes.h
   window.h
   windowPackets.h
   windowStatistics.h
@@ -93,7 +107,6 @@ set(CLIENT_SOURCES
   configParams.cpp
   configStatistics.cpp
   cudaContext.cpp
-  error.cpp
   event.cpp
   eventHandler.cpp
   frame.cpp
@@ -128,33 +141,36 @@ set(CLIENT_SOURCES
   )
 
 if(EQ_AGL_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    aglEventHandler.cpp
-    aglMessagePump.cpp
-    aglWindow.cpp
-    aglPipe.cpp
-    agl/aglFactory.cpp
+  set(AGL_SOURCES
+    agl/eventHandler.cpp
+    agl/messagePump.cpp
+    agl/window.cpp
+    agl/pipe.cpp
+    agl/windowSystem.cpp
   )
+  list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
 endif(EQ_AGL_USED)
 
-if(WIN32)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    wglEventHandler.cpp
-    wglMessagePump.cpp
-    wglWindow.cpp
-    wglPipe.cpp
-    wgl/wglFactory.cpp
-  )
-endif(WIN32)
-
 if(EQ_GLX_USED)
-  set(CLIENT_SOURCES ${CLIENT_SOURCES}
-    glXEventHandler.cpp
+  set(GLX_SOURCES
+    glx/eventHandler.cpp
+    glx/messagePump.cpp
+    glx/pipe.cpp
+    glx/window.cpp
+    glx/windowSystem.cpp
     glXTypes.cpp
-    glXMessagePump.cpp
-    glXWindow.cpp
-    glXPipe.cpp
-    glx/glxFactory.cpp
   )
+  list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
 endif(EQ_GLX_USED)
+
+if(WIN32)
+  set(WGL_SOURCES
+    wgl/eventHandler.cpp
+    wgl/messagePump.cpp
+    wgl/window.cpp
+    wgl/pipe.cpp
+    wgl/windowSystem.cpp
+  )
+  list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
+endif(WIN32)
 

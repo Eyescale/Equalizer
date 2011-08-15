@@ -38,7 +38,96 @@ namespace seq
         /** Destruct this renderer. @version 1.0 */
         SEQ_API virtual ~Renderer();
 
-        /** @name Data Access. */
+        /** @name Operations */
+        //@{
+        /**
+         * Initialize the renderer.
+         *
+         * Called once per renderer with an OpenGL context current before the
+         * first call to initContext().
+         *
+         * @param initData a per-renderer instance of the object passed to
+         *                 Config::init().
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool init( co::Object* initData ) { return true; }
+
+        /** 
+         * De-initialize the renderer.
+         *
+         * Called just before the last context will be destroyed after the last
+         * call to exitContext().
+         *
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool exit() { return true; }
+
+        /**
+         * Initialize an OpenGL context.
+         *
+         * Called for each window handled by this renderer, after the context
+         * has been created and made current.
+         *
+         * @param initData a per-renderer instance of the object passed to
+         *                 Config::init().
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool initContext( co::Object* initData );
+
+        /** 
+         * De-initialize an OpenGL context.
+         *
+         * Called just before the context will be destroyed.
+         * @return true on success, false otherwise.
+         * @version 1.0
+         */
+        SEQ_API virtual bool exitContext();
+
+        /**
+         * Clear the frame buffer.
+         *
+         * @param frameData the renderer's instance of the object passed to
+         *                  Config::run.
+         * @version 1.0
+         */
+        SEQ_API virtual void clear( co::Object* frameData );
+
+        /**
+         * Render the scene.
+         *
+         * @param frameData the renderer's instance of the object passed to
+         *                  Config::run.
+         * @version 1.0
+         */
+        virtual void draw( co::Object* frameData ) = 0;
+
+        /**
+         * Apply the current rendering parameters to OpenGL.
+         *
+         * This method sets the draw buffer, color mask, viewport as well as the
+         * projection and view matrix.
+         *
+         * This method is only to be called from clear(), draw() and TBD.
+         * @version 1.0
+         */
+        SEQ_API virtual void applyRenderContext();
+
+        /**
+         * Apply the current model matrix to OpenGL.
+         *
+         * This method is not included in applyRenderContext() since ligthing
+         * parameters are often applied before positioning the model.
+         *
+         * This method is only to be called from clear(), draw() and TBD.
+         * @version 1.0
+         */
+        SEQ_API virtual void applyModelMatrix();
+        //@}
+
+        /** @name Data Access */
         //@{
         detail::Renderer* getImpl() { return _impl; } //!< @internal
         co::Object* getFrameData(); // @warning experimental
@@ -52,7 +141,10 @@ namespace seq
         /**
          * Create a new per-view data instance.
          *
-         * Called once for each view used by this renderer.
+         * Called once for each view used by this renderer. Creates the view
+         * instance used by the renderer to retrieve parameters from the
+         * application for rendering.
+         *
          * @return the new view data
          * @version 1.0
          */
@@ -84,60 +176,6 @@ namespace seq
 
         /** @return the current model (scene) transformation. @version 1.0 */
         SEQ_API const Matrix4f& getModelMatrix() const;
-        //@}
-
-        /** @name Operations */
-        //@{
-        /** 
-         * Initialize the OpenGL context.
-         *
-         * Called after a context has been created and made current.
-         * @param initData a per-renderer instance of the object passed to
-         *                 Config::init().
-         * @return true on success, false otherwise.
-         * @version 1.0
-         */
-        SEQ_API virtual bool initGL( co::Object* initData );
-
-        /** 
-         * Deinitialize the OpenGL context.
-         *
-         * Called just before the context will be destroyed.
-         * @return true on success, false otherwise.
-         * @version 1.0
-         */
-        SEQ_API virtual bool exitGL();
-
-        /**
-         * Render the scene.
-         *
-         * @param frameData the renderer instance of the object passed to
-         *                  Config::run.
-         * @version 1.0
-         */
-        virtual void draw( co::Object* frameData ) = 0;
-
-        /**
-         * Apply the current rendering parameters to OpenGL.
-         *
-         * This method sets the draw buffer, color mask, viewport as well as the
-         * projection and view matrix.
-         *
-         * This method is only to be called from clear(), draw() and TBD.
-         * @version 1.0
-         */
-        SEQ_API virtual void applyRenderContext();
-
-        /**
-         * Apply the current model matrix to OpenGL.
-         *
-         * This method is not included in applyRenderContext() since ligthing
-         * parameters are often applied before positioning the model.
-         *
-         * This method is only to be called from clear(), draw() and TBD.
-         * @version 1.0
-         */
-        SEQ_API virtual void applyModelMatrix();
         //@}
 
         /** @name ObjectFactory interface, forwards to Application instance. */
