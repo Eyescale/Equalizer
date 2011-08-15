@@ -24,24 +24,18 @@
 #include <co/base/file.h>
 #include <co/base/init.h>
 
-#if defined(_MSC_VER)
-static const std::string CONFIG_DIR = "../../examples/configs/";
-#else
-static const std::string CONFIG_DIR = "../../examples/configs/";
-#endif
 // Tests (re)loading of all examples/configs/*.eqc files
-
 int main( int argc, char **argv )
 {
     TEST( co::base::init( argc, argv ));
 
     eq::server::Loader loader;
-    co::base::Strings candidates = co::base::searchDirectory( CONFIG_DIR,
-                                                              "*.eqc" );
+    co::base::Strings candidates = co::base::searchDirectory( "config",
+		                                                      "*.eqc" );
     for( co::base::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
     {
-        const std::string& filename = CONFIG_DIR + *i;
+        const std::string& filename = "config/" + *i;
         eq::server::Global* global = eq::server::Global::instance();
         const eq::server::Config::FAttribute attr = 
             eq::server::Config::FATTR_VERSION;

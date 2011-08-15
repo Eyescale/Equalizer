@@ -11,7 +11,8 @@ endif()
 
 file(GLOB COMPOSITOR_IMAGES eq/compositor/*.rgb)
 file(GLOB TEST_CONFIGS eq/server/reliability/*.eqc)
-file(COPY eq/compressor/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
+file(COPY eq/compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
+	  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
