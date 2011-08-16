@@ -104,5 +104,17 @@ void Channel::applyModelMatrix()
     glMultMatrixf( getModelMatrix().array );
 }
 
+void Channel::frameViewFinish( const uint128_t& frameID )
+{
+    const ViewData* data = getViewData();
+    EQASSERT( data );
+    if( !data || !data->getStatistics( ))
+        return;
+
+    applyBuffer();
+    applyViewport();
+    drawStatistics();
+}
+
 }
 }

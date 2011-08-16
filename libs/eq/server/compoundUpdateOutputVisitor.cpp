@@ -299,7 +299,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
 
 void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 {
-    const SwapBarrier* swapBarrier = compound->getSwapBarrier();
+    ConstSwapBarrierPtr swapBarrier = compound->getSwapBarrier();
     if( !swapBarrier )
         return;
 

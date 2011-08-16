@@ -71,7 +71,7 @@
         static eq::server::LoadEqualizer* loadEqualizer = 0;
         static eq::server::TreeEqualizer* treeEqualizer = 0;
         static eq::server::TileEqualizer* tileEqualizer = 0;
-        static eq::server::SwapBarrier* swapBarrier = 0;
+        static eq::server::SwapBarrierPtr swapBarrier;
         static eq::server::Frame*       frame = 0;
         static eq::server::TileQueue*   tileQueue = 0;
         static co::ConnectionDescriptionPtr connectionDescription;
@@ -1207,7 +1207,8 @@ tileEqualizerField:
 	| EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'  
                    { tileEqualizer->setTileSize( eq::Vector2i( $3, $4 )); }
 
-swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
+swapBarrier:
+    EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );

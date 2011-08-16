@@ -11,7 +11,8 @@ endif()
 
 file(GLOB COMPOSITOR_IMAGES eq/compositor/*.rgb)
 file(GLOB TEST_CONFIGS eq/server/reliability/*.eqc)
-file(COPY eq/compressor/images ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
+file(COPY eq/compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
+	  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 include_directories(
@@ -58,7 +59,5 @@ foreach(FILE ${TEST_FILES})
 endforeach(FILE ${TEST_FILES})
 
 # workaround bug that tests won't get built
-add_custom_target(tests DEPENDS ${ALL_TESTS})
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS tests)
+add_custom_target(tests COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS ${ALL_TESTS})
 set_target_properties(tests PROPERTIES FOLDER "Tests")
-set_target_properties(check PROPERTIES FOLDER "Tests")

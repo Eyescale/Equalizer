@@ -6,7 +6,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 find_package(OpenGL REQUIRED)
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+find_package(GLEW_MX)
 
 # CUDA
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
@@ -17,7 +17,6 @@ if(EQUALIZER_USE_CUDA)
   endif()
 endif()
 if(CUDA_FOUND)
-  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 endif(CUDA_FOUND)
 

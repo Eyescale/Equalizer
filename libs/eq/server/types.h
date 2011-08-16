@@ -91,6 +91,8 @@ typedef Equalizers::iterator EqualizersIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
+typedef co::base::RefPtr< SwapBarrier > SwapBarrierPtr;
+typedef co::base::RefPtr< const SwapBarrier > ConstSwapBarrierPtr;
 
 using fabric::Frustumf;
 using fabric::GPUInfo;

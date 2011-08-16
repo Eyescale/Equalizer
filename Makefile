@@ -57,6 +57,8 @@ xcode:
 	@cd XCode; $(CMAKE) -G Xcode ..
 	open XCode/Equalizer.xcodeproj
 
+tests: debug/Makefile
+	@$(MAKE) -C debug tests
 
 docs: ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C $(BUILD) doxygen
