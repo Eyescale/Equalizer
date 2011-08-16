@@ -23,13 +23,14 @@
 #include <co/base/debug.h>
 #include <co/base/init.h>
 #include <co/base/lock.h>
+#include <co/base/omp.h>
 #include <co/base/spinLock.h>
 #include <co/base/timedLock.h>
 
 #include <iostream>
 #include <limits>
 
-#define MAXTHREADS 128
+#define MAXTHREADS 256
 #define TIME       500  // ms
 
 co::base::Clock _clock;
@@ -100,30 +101,36 @@ template< class T, uint32_t hold > void _test()
     T* lock = new T;
     lock->set();
 
+#ifdef CO_USE_OPENMP
+    const size_t nThreads = EQ_MIN( co::base::OMP::getNThreads()*3, MAXTHREADS );
+#else
+    const size_t nThreads = 16;
+#endif
+
     WriteThread< T, hold > writers[MAXTHREADS];
     ReadThread< T, hold > readers[MAXTHREADS];
 
     std::cout << "               Class, write ops/ms,  read ops/ms, w threads, "
               << "r threads" << std::endl;
-    for( size_t nWrite = 0; nWrite <= MAXTHREADS;
-         nWrite = (nWrite == 0) ? 1 : nWrite<<1 )
+    for( size_t nWrite = 0; nWrite <= nThreads;
+         nWrite = (nWrite == 0) ? 1 : nWrite << 1 )
     {
-        for( size_t nThreads = 1; nThreads <= MAXTHREADS; nThreads=nThreads<<1 )
+        for( size_t i = 1; i <= nThreads; i = i << 1 )
         {
-            if( nThreads < nWrite )
+            if( i < nWrite )
                 continue;
 
-            const size_t nRead = nThreads - nWrite;
+            const size_t nRead = i - nWrite;
             _running = true;
-            for( size_t i = 0; i < nWrite; ++i )
+            for( size_t j = 0; j < nWrite; ++j )
             {
-                writers[i].lock = lock;
-                TEST( writers[i].start( ));
+                writers[j].lock = lock;
+                TEST( writers[j].start( ));
             }
-            for( size_t i = 0; i < nRead; ++i )
+            for( size_t j = 0; j < nRead; ++j )
             {
-                readers[i].lock = lock;
-                TESTINFO( readers[i].start(), i );
+                readers[j].lock = lock;
+                TESTINFO( readers[j].start(), j );
             }
             co::base::sleep( 10 ); // let threads initialize
 
@@ -132,10 +139,10 @@ template< class T, uint32_t hold > void _test()
             co::base::sleep( TIME ); // let threads run
             _running = false;
 
-            for( size_t i=0; i < nWrite; ++i )
-                TEST( writers[i].join( ));
-            for( size_t i=0; i < nRead; ++i )
-                TEST( readers[i].join( ));
+            for( size_t j = 0; j < nWrite; ++j )
+                TEST( writers[j].join( ));
+            for( size_t j = 0; j < nRead; ++j )
+                TEST( readers[j].join( ));
             const double time = _clock.getTimed();
 
             TEST( !lock->isSet( ));
@@ -143,10 +150,10 @@ template< class T, uint32_t hold > void _test()
 
             size_t nWriteOps = 0;
             double wTime = time * double( nWrite );
-            for( size_t i=0; i<nWrite; ++i )
+            for( size_t j = 0; j < nWrite; ++j )
             {
-                nWriteOps += writers[i].ops;
-                wTime -= writers[i].sTime;
+                nWriteOps += writers[j].ops;
+                wTime -= writers[j].sTime;
             }
             if( nWrite > 0 )
                 wTime /= double( nWrite );
@@ -156,10 +163,10 @@ template< class T, uint32_t hold > void _test()
 
             size_t nReadOps = 0;
             double rTime = time * double( nRead );
-            for( size_t i=0; i<nRead; ++i )
+            for( size_t j = 0; j < nRead; ++j )
             {
-                nReadOps += readers[i].ops;
-                rTime -= readers[i].sTime;
+                nReadOps += readers[j].ops;
+                rTime -= readers[j].sTime;
             }
             if( nRead > 0 )
                 rTime /= double( nRead );

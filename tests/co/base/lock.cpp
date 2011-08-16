@@ -23,17 +23,13 @@
 #include <co/base/debug.h>
 #include <co/base/init.h>
 #include <co/base/lock.h>
+#include <co/base/omp.h>
 #include <co/base/spinLock.h>
 #include <co/base/timedLock.h>
 
 #include <iostream>
 
-#ifdef _MSC_VER
-#  define MAXTHREADS 128
-#else
-#  define MAXTHREADS 256
-#endif
-
+#define MAXTHREADS 256
 #define TIME       500  // ms
 
 co::base::Clock _clock;
@@ -67,14 +63,20 @@ template< class T > void _test()
     T* lock = new T;
     lock->set();
 
+#ifdef CO_USE_OPENMP
+    const size_t nThreads = EQ_MIN( co::base::OMP::getNThreads()*3, MAXTHREADS );
+#else
+    const size_t nThreads = 16;
+#endif
+
     Thread< T > threads[MAXTHREADS];
-    for( size_t nThreads = 1; nThreads <= MAXTHREADS; nThreads = nThreads<<1 )
+    for( size_t i = 1; i <= nThreads; i = i << 1 )
     {
         _running = true;
-        for( size_t i = 0; i < nThreads; ++i )
+        for( size_t j = 0; j < i; ++j )
         {
-            threads[i].lock = lock;
-            TEST( threads[i].start( ));
+            threads[j].lock = lock;
+            TEST( threads[j].start( ));
         }
         co::base::sleep( 10 ); // let threads initialize
 
@@ -83,20 +85,20 @@ template< class T > void _test()
         co::base::sleep( TIME ); // let threads run
         _running = false;
 
-        for( size_t i=0; i<nThreads; ++i )
-            TEST( threads[i].join( ));
+        for( size_t j = 0; j < i; ++j )
+            TEST( threads[j].join( ));
         const float time = _clock.getTimef();
 
         TEST( !lock->isSet( ));
         lock->set();
 
         size_t ops = 0;
-        for( size_t i=0; i<nThreads; ++i )
-            ops += threads[i].ops;
+        for( size_t j = 0; j < nThreads; ++j )
+            ops += threads[j].ops;
 
         std::cout << std::setw(20) << co::base::className( lock ) << ", "
                   << std::setw(12) << /*set, test, unset*/ 3 * ops / time
-                  << ", " << std::setw(3) << nThreads << std::endl;
+                  << ", " << std::setw(3) << i << std::endl;
     }
 
     delete lock;
