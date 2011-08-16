@@ -73,7 +73,6 @@ Compound::Compound( Config* parent )
         , _usage( 1.0f )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
-        , _swapBarrier( 0 )
 {
     EQASSERT( parent );
     parent->addCompound( this );
@@ -86,7 +85,6 @@ Compound::Compound( Compound* parent )
         , _usage( 1.0f )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
-        , _swapBarrier( 0 )
 {
     EQASSERT( parent );
     parent->_addChild( this );
@@ -95,7 +93,6 @@ Compound::Compound( Compound* parent )
 
 Compound::~Compound()
 {
-    delete _swapBarrier;
     _swapBarrier = 0;
 
     for( Equalizers::const_iterator i = _equalizers.begin();
@@ -363,9 +360,9 @@ void Compound::_fireChildRemove( Compound* child )
 //---------------------------------------------------------------------------
 // I/O objects access
 //---------------------------------------------------------------------------
-void Compound::setSwapBarrier( SwapBarrier* barrier )
+void Compound::setSwapBarrier( SwapBarrierPtr barrier )
 {
-    if( barrier && barrier->getName().empty( ))
+    if( barrier.isValid() && barrier->getName().empty( ))
     {
         const Compound* root = getRoot();
         const std::string& rootName = root->getName();
@@ -1475,7 +1472,8 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         
         os << "output"  << *i;
 
-    os << compound.getSwapBarrier();
+    if( compound.getSwapBarrier().isValid( ))
+        os << *compound.getSwapBarrier().get();
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

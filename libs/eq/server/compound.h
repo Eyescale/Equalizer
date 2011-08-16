@@ -22,6 +22,7 @@
 #include "channel.h"               // used in inline method
 #include "frustum.h"               // member
 #include "frustumData.h"           // member
+#include "swapBarrier.h"           // RefPtr member
 #include "visitorResult.h"         // enum
 
 #include <eq/client/frame.h>
@@ -240,7 +241,7 @@ namespace server
 
         /** @name IO object access. */
         //@{
-        /** 
+        /**
          * Set a swap barrier.
          *
          * Windows of compounds with the same swap barrier name will enter a
@@ -249,10 +250,10 @@ namespace server
          * 
          * @param barrier the swap barrier.
          */
-        void setSwapBarrier( SwapBarrier* barrier );
+        void setSwapBarrier( SwapBarrierPtr barrier );
         
         /** @return the current swap barrier. */
-        const SwapBarrier* getSwapBarrier() const { return _swapBarrier; }
+        ConstSwapBarrierPtr getSwapBarrier() const { return _swapBarrier; }
 
         /** 
          * Add a new input frame for this compound.
@@ -554,7 +555,7 @@ namespace server
 
         Equalizers _equalizers;
 
-        SwapBarrier* _swapBarrier;
+        SwapBarrierPtr _swapBarrier;
 
         Frames _inputFrames;
         Frames _outputFrames;

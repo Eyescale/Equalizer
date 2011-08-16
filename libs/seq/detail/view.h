@@ -50,8 +50,6 @@ namespace detail
         virtual void notifyDetached();
 
     private:
-        int _spinX, _spinY;
-        int _advance;
     };
 }
 }

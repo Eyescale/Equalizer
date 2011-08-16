@@ -59,6 +59,7 @@ namespace detail
                                   const uint32_t frameNumber );
         virtual void frameClear( const uint128_t& frameID );
         virtual void frameDraw( const uint128_t& frameID );
+        virtual void frameViewFinish( const uint128_t& frameID );
 
     private:
     };

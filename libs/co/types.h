@@ -74,8 +74,8 @@ typedef std::vector< Object* >                   Objects;
 /** A const iterator for a vector of objects. */
 typedef Objects::const_iterator                  ObjectsCIter;
 
-/** A vector of Barriers. */
-typedef std::vector< Barrier* >                  Barriers;
+typedef std::vector< Barrier* > Barriers; //!< A vector of Barriers
+typedef Barriers::const_iterator BarriersCIter; //!< Barriers const iterator
 
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
