@@ -154,9 +154,6 @@ namespace server
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;
 
-        /** returns the number of read back images in the last readback call. */
-        EQ_API size_t getNewImages() const;
-
         /** Set the data for this frame. @version 1.0 */
         void setData( FrameData* data ) { _frameData = data; }
 
@@ -196,9 +193,6 @@ namespace server
 
         /** @internal Clear and free all images attached to the frame data. */
         void flush();
-
-        /** @internal Reset newImages counter for next image transmit. */
-        void resetNewImages();
 
         /**
          * Read back a set of images according to the current frame data.

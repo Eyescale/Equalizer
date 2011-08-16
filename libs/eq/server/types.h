@@ -86,6 +86,8 @@ typedef TileQueues::const_iterator TileQueuesCIter;
 typedef TileQueues::iterator TileQueuesIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
+typedef Equalizers::const_iterator EqualizersCIter;
+typedef Equalizers::iterator EqualizersIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;

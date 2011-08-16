@@ -64,7 +64,6 @@ Channel::Channel( Window* parent )
         , _fbo( 0 )
         , _statisticsIndex( 0 )
         , _initialSize( Vector2i::ZERO )
-        , _frameStopTiles( 0 )
 {
     co::base::RNG rng;
     _color.r() = rng.get< uint8_t >();
@@ -395,11 +394,9 @@ void Channel::frameReadback( const uint128_t& )
     const DrawableConfig& drawableConfig = getDrawableConfig();
 
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
-        Frame* frame = *i;
-        // @bug? Not here, should be set by server or calling _cmdFunc
-        frame->getData()->setPixelViewport( getPixelViewport() );
+        Frame* frame = *i;        
         frame->readback( glObjects, drawableConfig );
     }
 
@@ -1428,7 +1425,7 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
 
             size_t index = frame->getImages().size();
             // make sure a packet is sent for ready packets
-            index -= ready ? 1 : frame->getNewImages();
+            index -= ready ? 1 : frame->getData()->getNewImages();
             for ( ; index != frame->getImages().size(); ++index )
             {
                 ChannelFrameTransmitPacket transmitPacket;
@@ -1446,15 +1443,14 @@ void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
                 send( getNode()->getLocalNode(), transmitPacket );
             }
         }
-        frame->resetNewImages();
+        frame->getData()->resetNewImages();
         if( toNodes.empty() )
             EQWARN << "unable to transmit frame " << context.frameID
                    << std::endl;
     }
 }
 
-void Channel::_collectOutputFrames( uint32_t nFrames,
-                                    co::ObjectVersion* frames )
+void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
 {
     for( uint32_t i=0; i<nFrames; ++i )
     {
@@ -1469,7 +1465,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 {
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
-    _collectOutputFrames( nFrames, frames );
+    _setOutputFrames( nFrames, frames );
     frameReadback( frameID );
 
     size_t in = 0;
@@ -1782,10 +1778,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
         command.get<ChannelStopFramePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
-	
-	// enable stop tile rendering flag
-    ++_frameStopTiles;
-
+    
     notifyStopFrame( packet->lastFrameNumber );
     return true;
 }
@@ -1801,34 +1794,41 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     _setRenderContext( context );
 
     if( packet->tasks & fabric::TASK_READBACK )
-        _collectOutputFrames( packet->nFrames, packet->frames );
+        _setOutputFrames( packet->nFrames, packet->frames );
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
-    for( co::Command* queuePacket = queue->pop();
-         queuePacket && !_frameStopTiles; queuePacket = queue->pop( ))
-	{
+    for( co::Command* queuePacket = queue->pop(); queuePacket;
+         queuePacket = queue->pop( ))
+    {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         context.frustum = tilePacket->frustum;
         context.ortho = tilePacket->ortho;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
-        if ( (packet->tasks & fabric::TASK_CLEAR) && !_frameStopTiles )
+        if( packet->tasks & fabric::TASK_CLEAR )
         {
             ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
             frameClear( packet->context.frameID );
         }
 
-        if ( (packet->tasks & fabric::TASK_DRAW) && !_frameStopTiles )
+        if( packet->tasks & fabric::TASK_DRAW )
         {
             ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
             frameDraw( packet->context.frameID );
         }
 
-        if ( (packet->tasks & fabric::TASK_READBACK) && !_frameStopTiles )
+        if( packet->tasks & fabric::TASK_READBACK )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+            const Frames& frames = getOutputFrames();
+            for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+            {
+                Frame* frame = *i;
+                frame->getData()->setPixelViewport( getPixelViewport() );
+            }
             frameReadback( packet->context.frameID );
 
             // transmit image
@@ -1843,9 +1843,6 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         _sendTileToInputNodes( context, true );
         _outputFrames.clear();
     }
-
-    // disable stop tiles flag
-    _frameStopTiles = 0;
 
     resetRenderContext();
     return true;

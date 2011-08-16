@@ -208,6 +208,7 @@
 %token EQTOKEN_RELATIVE_TO_ORIGIN
 %token EQTOKEN_RELATIVE_TO_OBSERVER
 %token EQTOKEN_HMD
+%token EQTOKEN_HOST
 %token EQTOKEN_HOSTNAME
 %token EQTOKEN_INTERFACE
 %token EQTOKEN_LAUNCH_COMMAND
@@ -571,6 +572,7 @@ appNode: EQTOKEN_APPNODE '{'
 nodeFields: /*null*/ | nodeFields nodeField
 nodeField: 
     EQTOKEN_NAME STRING            { node->setName( $2 ); }
+    | EQTOKEN_HOST STRING          { node->setHost( $2 ); }
     | connection
     | pipe
     | EQTOKEN_ATTRIBUTES '{' nodeAttributes '}'
