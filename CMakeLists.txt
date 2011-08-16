@@ -138,11 +138,6 @@ if(OPENMP_FOUND)
   endif()
 endif(OPENMP_FOUND)
 
-find_package(GLEW_MX)
-if(GLEW_MX_FOUND)
-  include_directories(SYSTEM ${GLEW_MX_INCLUDE_DIRS})
-endif()
-
 find_package(OFED)
 if(OFED_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} RDMA")
