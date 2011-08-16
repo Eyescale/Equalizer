@@ -69,7 +69,7 @@
         static eq::server::DFREqualizer* dfrEqualizer = 0;
         static eq::server::LoadEqualizer* loadEqualizer = 0;
         static eq::server::TreeEqualizer* treeEqualizer = 0;
-        static eq::server::SwapBarrier* swapBarrier = 0;
+        static eq::server::SwapBarrierPtr swapBarrier;
         static eq::server::Frame*       frame = 0;
         static eq::server::TileQueue*   tileQueue = 0;
         static co::ConnectionDescriptionPtr connectionDescription;
@@ -1192,7 +1192,8 @@ treeEqualizerMode:
     | EQTOKEN_VERTICAL   { $$ = eq::server::TreeEqualizer::MODE_VERTICAL; }
     
 
-swapBarrier: EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
+swapBarrier:
+    EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'
         { 
             eqCompound->setSwapBarrier( swapBarrier );

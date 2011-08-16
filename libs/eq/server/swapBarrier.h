@@ -33,7 +33,7 @@ namespace server
      * compounds holding a swap barrier with the same name synchronize their
      * window's swap command.
      */
-    class SwapBarrier
+    class SwapBarrier : public co::base::Referenced
     {
     public:
         /** 
@@ -64,7 +64,7 @@ namespace server
         uint32_t _nvSwapBarrier;
     };
 
-    std::ostream& operator << ( std::ostream& os, const SwapBarrier* barrier );
+    std::ostream& operator << ( std::ostream& os, const SwapBarrier& barrier );
 }
 }
 #endif // EQSERVER_SWAPBARRIER_H

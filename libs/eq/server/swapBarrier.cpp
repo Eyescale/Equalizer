@@ -22,28 +22,20 @@ namespace eq
 namespace server
 {
 
-std::ostream& operator << ( std::ostream& os, const SwapBarrier* swapBarrier )
+std::ostream& operator << ( std::ostream& os, const SwapBarrier& swapBarrier )
 {
-    if( !swapBarrier )
-        return os;
-    
-    if ( swapBarrier->isNvSwapBarrier() )
-    {
-        os << co::base::disableFlush << "swapbarrier" << std::endl 
-           << "{"<< std::endl 
-           << "    name \"" << swapBarrier->getName() << "\"" << std::endl
-           << "    NV_group " << swapBarrier->getNVSwapGroup() << std::endl
-           << "    NV_barrier " << swapBarrier->getNVSwapBarrier()<< std::endl
-           << "}"  << co::base::enableFlush << std::endl; 
-    }
-    else
-    {
-        os << co::base::disableFlush << "swapbarrier { name \"" 
-           << swapBarrier->getName() << "\" }" << co::base::enableFlush
-           << std::endl;
-    }
+    if( swapBarrier.isNvSwapBarrier( ))
+        return os << co::base::disableFlush << "swapbarrier" << std::endl 
+                  << "{"<< std::endl 
+                  << "    name \"" << swapBarrier.getName() << "\"" << std::endl
+                  << "    NV_group " << swapBarrier.getNVSwapGroup() <<std::endl
+                  << "    NV_barrier " << swapBarrier.getNVSwapBarrier()
+                  << std::endl
+                  << "}"  << co::base::enableFlush << std::endl; 
 
-    return os;
+    return os << co::base::disableFlush << "swapbarrier { name \"" 
+              << swapBarrier.getName() << "\" }" << co::base::enableFlush
+              << std::endl;
 }
 
 }

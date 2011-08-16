@@ -260,7 +260,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
     return barrier;
 }
 
-co::Barrier* Window::joinNVSwapBarrier( const SwapBarrier* swapBarrier,
+co::Barrier* Window::joinNVSwapBarrier( ConstSwapBarrierPtr swapBarrier,
                                         co::Barrier* netBarrier )
 { 
     EQASSERTINFO( !_nvSwapBarrier, 
@@ -442,7 +442,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         _maxFPS = std::numeric_limits< float >::max();
     }
     
-    for( std::vector<co::Barrier*>::iterator i = _swapBarriers.begin();
+    for( co::BarriersCIter i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
     {
         const co::Barrier* barrier = *i;
