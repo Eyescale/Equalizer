@@ -18,14 +18,15 @@ install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq C
 # compile-time definitions
 set(EQUALIZER_DEFINES)
 
-list(APPEND EQUALIZER_DEFINES GLEW_MX) # always define GLEW_MX
-
 if(CUDA_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
 endif(CUDA_FOUND)
 
+list(APPEND EQUALIZER_DEFINES GLEW_MX) # always define GLEW_MX
 if(GLEW_MX_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_FOUND_GLEW_MX)
+else()
+  list(APPEND EQUALIZER_DEFINES GLEW_STATIC)
 endif(GLEW_MX_FOUND)
 
 if(WIN32) # maybe use BOOST_WINDOWS instead?
