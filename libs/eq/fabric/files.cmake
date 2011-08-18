@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-set(EQ_FABRIC_FORWARD_HEADERS
+set(EQ_FABRIC_PUBLIC_HEADERS
     api.h
     base.h
     canvas.h
