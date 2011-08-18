@@ -37,7 +37,6 @@
 #include "pipe.h"
 #include "segment.h"
 #include "server.h"
-#include "swapBarrier.h"
 #include "view.h"
 #include "window.h"
 
@@ -792,6 +791,7 @@ canvasField:
           else
               canvas->addLayout( layout ); 
       }
+    | swapBarrier { canvas->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
     | EQTOKEN_LAYOUT UNSIGNED
       {
           const eq::server::LayoutPath path( $2 );
@@ -833,6 +833,7 @@ segmentField:
         segumentEyes  ']'
     | EQTOKEN_VIEWPORT viewport
         { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
+    | swapBarrier { segment->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
 
@@ -915,7 +916,7 @@ compoundField:
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer
     | equalizer
-    | swapBarrier
+    | swapBarrier { eqCompound->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
     | outputFrame
     | inputFrame
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'
@@ -1195,10 +1196,7 @@ treeEqualizerMode:
 swapBarrier:
     EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
     swapBarrierFields '}'
-        { 
-            eqCompound->setSwapBarrier( swapBarrier );
-            swapBarrier = 0;
-        } 
+
 swapBarrierFields: /*null*/ | swapBarrierFields swapBarrierField
 swapBarrierField: EQTOKEN_NAME STRING { swapBarrier->setName( $2 ); }
     | EQTOKEN_NVGROUP IATTR { swapBarrier->setNVSwapGroup( $2 ); }

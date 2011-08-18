@@ -26,7 +26,6 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "swapBarrier.h"
   
 #include <eq/client/pipePackets.h>
 #include <eq/client/windowPackets.h>
@@ -260,7 +259,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
     return barrier;
 }
 
-co::Barrier* Window::joinNVSwapBarrier( ConstSwapBarrierPtr swapBarrier,
+co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
                                         co::Barrier* netBarrier )
 { 
     EQASSERTINFO( !_nvSwapBarrier, 

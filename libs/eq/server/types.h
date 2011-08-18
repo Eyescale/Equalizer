@@ -44,7 +44,6 @@ class Observer;
 class Pipe;
 class Segment;
 class Server;
-class SwapBarrier;
 class TileQueue;
 class View;
 class Window;
@@ -89,8 +88,6 @@ typedef Views::iterator ViewsIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
-typedef co::base::RefPtr< SwapBarrier > SwapBarrierPtr;
-typedef co::base::RefPtr< const SwapBarrier > ConstSwapBarrierPtr;
 
 using fabric::Frustumf;
 using fabric::GPUInfo;
@@ -101,6 +98,9 @@ using fabric::PixelViewport;
 using fabric::Projection;
 using fabric::RenderContext;
 using fabric::TileTaskPacket;
+using fabric::SwapBarrier;
+using fabric::SwapBarrierPtr;
+using fabric::SwapBarrierConstPtr;
 using fabric::Vector3f;
 using fabric::Vector3ub;
 using fabric::Vector4i;

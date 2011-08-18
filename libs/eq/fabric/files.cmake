@@ -46,6 +46,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
     server.h
     serverPackets.h
     subPixel.h
+    swapBarrier.h
     task.h
     types.h
     view.h
@@ -88,6 +89,7 @@ set(EQ_FABRIC_SOURCES
   range.cpp
   renderContext.cpp
   subPixel.cpp
+  swapBarrier.cpp
   viewport.cpp
   wall.cpp
   zoom.cpp

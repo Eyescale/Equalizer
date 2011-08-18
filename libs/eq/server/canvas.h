@@ -52,9 +52,6 @@ namespace server
         /** @return the segment of the given path. */
         Segment* getSegment( const SegmentPath& path );
 
-        /** @return the index path to this canvas. @internal */
-        CanvasPath getPath() const;
-
         /** @return true if this canvas is initialized. */
         bool isStopped() const { return _state == STATE_STOPPED; }
 

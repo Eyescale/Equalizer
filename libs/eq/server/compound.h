@@ -22,13 +22,13 @@
 #include "channel.h"               // used in inline method
 #include "frustum.h"               // member
 #include "frustumData.h"           // member
-#include "swapBarrier.h"           // RefPtr member
 #include "visitorResult.h"         // enum
 
 #include <eq/client/frame.h>
 #include <eq/fabric/projection.h> // used in inline method
 #include <eq/fabric/range.h>      // member
 #include <eq/fabric/subPixel.h>   // member
+#include <eq/fabric/swapBarrier.h> // RefPtr member
 #include <eq/fabric/task.h>       // enum
 #include <eq/fabric/viewport.h>   // member
 #include <eq/fabric/wall.h>       // used in inline method
@@ -253,7 +253,7 @@ namespace server
         void setSwapBarrier( SwapBarrierPtr barrier );
         
         /** @return the current swap barrier. */
-        ConstSwapBarrierPtr getSwapBarrier() const { return _swapBarrier; }
+        SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
 
         /** 
          * Add a new input frame for this compound.

@@ -36,6 +36,7 @@ Segment< C, S, CH >::Segment( C* canvas )
         : _canvas( canvas )
         , _channel( 0 )
         , _eyes( EYES_ALL )
+        , _swapBarrier( canvas->getSwapBarrier( ))
 {
     EQASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
@@ -151,6 +152,28 @@ void Segment< C, S, CH >::setViewport( const Viewport& vp )
 }
 
 template< class C, class S, class CH >
+void Segment< C, S, CH >::setSwapBarrier( SwapBarrierPtr barrier )
+{
+    if( barrier.isValid() && barrier->getName().empty( ))
+    {
+        const std::string& name = getName();
+        std::stringstream out;
+        out << "barrier.segment.";
+        if( name.empty( ))
+            if( getCanvas( ))
+                out << getCanvas()->getPath().canvasIndex;
+            else
+                out << (void*)this;
+        else
+            out << name;
+
+        barrier->setName( out.str( ));
+    }
+
+    _swapBarrier = barrier; 
+}
+
+template< class C, class S, class CH >
 void Segment< C, S, CH >::notifyFrustumChanged()
 {
     if( getCurrentType() != TYPE_NONE )
@@ -250,6 +273,8 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
+    if( segment.getSwapBarrier().isValid( ))
+        os << *segment.getSwapBarrier();
     os << static_cast< const Frustum& >( segment );
 
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader

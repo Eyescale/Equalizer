@@ -69,21 +69,6 @@ ServerPtr Canvas::getServer()
     return ( config ? config->getServer() : 0 );
 }
 
-CanvasPath Canvas::getPath() const
-{
-    const Config* config = getConfig();
-    EQASSERT( config );
-
-    const Canvases& canvases = config->getCanvases();
-    Canvases::const_iterator i = std::find( canvases.begin(), canvases.end(),
-                                            this );
-    EQASSERT( i != canvases.end( ));
-
-    CanvasPath path;
-    path.canvasIndex = std::distance( canvases.begin(), i );
-    return path;
-}
-
 void Canvas::activateLayout( const uint32_t index )
 {
     if( _state == STATE_RUNNING )
