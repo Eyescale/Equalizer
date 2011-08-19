@@ -55,7 +55,7 @@ namespace eVolve
         virtual void getInstanceData(   co::DataOStream& os );
         virtual void applyInstanceData( co::DataIStream& is );
 
-        void setWindowSystem( const eq::WindowSystem windowSystem )
+        void setWindowSystem( const eq::WindowSystem& windowSystem )
             { _windowSystem = windowSystem; }
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setBrightness( const float brightness ) {_brightness = brightness;}

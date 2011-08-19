@@ -1,6 +1,6 @@
 
-/* Copyright (c)  2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                2007-2011, Maxim Makhinya <maxmah@gmail.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2007-2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,17 +33,12 @@
 
 #ifdef AGL
 
-#include <eq/aglPipe.h>
-#include <eq/global.h>
-#include <eq/pipe.h>
-#include <eq/os.h>
-
 namespace eqAsync
 {
 
 AGLWindowShared::AGLWindowShared( eq::Window* parent,
                                   CGDirectDisplayID displayID )
-    : eq::AGLWindow( parent, displayID )
+        : eq::agl::Window( parent, displayID )
 {}
 
 

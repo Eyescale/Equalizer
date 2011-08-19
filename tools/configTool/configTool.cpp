@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,18 +19,18 @@
 #include "configTool.h"
 #include "frame.h"
 
-#include <libs/server/equalizers/framerateEqualizer.h>
-#include <libs/server/equalizers/loadEqualizer.h>
-#include <libs/server/canvas.h>
-#include <libs/server/global.h>
-#include <libs/server/layout.h>
-#include <libs/server/node.h>
-#include <libs/server/segment.h>
-#include <libs/server/view.h>
-#include <libs/server/window.h>
+#include <eq/server/equalizers/framerateEqualizer.h>
+#include <eq/server/equalizers/loadEqualizer.h>
+#include <eq/server/canvas.h>
+#include <eq/server/global.h>
+#include <eq/server/layout.h>
+#include <eq/server/node.h>
+#include <eq/server/segment.h>
+#include <eq/server/view.h>
+#include <eq/server/window.h>
 
-#include <eq/init.h>
-#include <eq/nodeFactory.h>
+#include <eq/client/init.h>
+#include <eq/client/nodeFactory.h>
 
 #ifndef WIN32
 #  include <sys/param.h>
@@ -49,7 +49,6 @@
 
 
 using namespace eq::server;
-using namespace std;
 
 int main( int argc, char** argv )
 {
@@ -62,7 +61,7 @@ int main( int argc, char** argv )
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << endl;
+        EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     configTool.writeConfig();
@@ -90,7 +89,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                                         "Full screen rendering", command, 
                                         false );
 
-        TCLAP::ValueArg<string> modeArg( "m", "mode",
+        TCLAP::ValueArg<std::string> modeArg( "m", "mode",
                                          "Compound mode (default 2D)",
                                          false, "2D",
                                     "2D|DB|DB_ds|DB_stream|DB_ds_ac|DPlex|Wall",
@@ -116,7 +115,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                         "Destination channel does not contribute to rendering", 
                                   command, false );
 
-        TCLAP::ValueArg<string> nodesArg( "n", "nodes", 
+        TCLAP::ValueArg<std::string> nodesArg( "n", "nodes", 
                                           "file with list of node-names",
                                           false, "", "filename", command );
 
@@ -124,7 +123,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                                           "output window resolution", 
                                           false, "unsigned", command );
 
-        TCLAP::ValueArg<string> descrArg( "d", "descr",
+        TCLAP::ValueArg<std::string> descrArg( "d", "descr",
                                       "file with channels per-node description",
                                           false, "", "filename", command );
 
@@ -159,7 +158,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 
         if( modeArg.isSet( ))
         {
-            const string& mode = modeArg.getValue();
+            const std::string& mode = modeArg.getValue();
             if( mode == "2D" )
                 _mode = MODE_2D;
             else if( mode == "DB" )
@@ -175,7 +174,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 
                 if( _nChannels%2 != 0 )
                 {
-                    cerr << "Channels number must be even" << endl;
+                    std::cerr << "Channels number must be even" << std::endl;
                     return false;
                 }
             }
@@ -188,7 +187,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
             }
             else
             {
-                cerr << "Unknown mode " << mode << endl;
+                std::cerr << "Unknown mode " << mode << std::endl;
                 return false;
             }
         }
@@ -200,8 +199,8 @@ bool ConfigTool::parseArguments( int argc, char** argv )
     }
     catch( TCLAP::ArgException& exception )
     {
-        cerr << "Command line parse error: " << exception.error() 
-             << " for argument " << exception.argId() << endl;
+        std::cerr << "Command line parse error: " << exception.error() 
+             << " for argument " << exception.argId() << std::endl;
         return false;
     }
     return true;
@@ -234,9 +233,9 @@ void ConfigTool::writeConfig() const
 
 static void readNodenames
 (
-    const string &filename,
+    const std::string &filename,
     const unsigned maxNodes,
-    vector<string> &nodesNames
+    std::vector< std::string > &nodesNames
 )
 {
     if( filename == "" )
@@ -247,7 +246,7 @@ static void readNodenames
     inStream.open( filename.c_str() );
     if ( inStream.is_open() )
     {
-        string tmp;
+        std::string tmp;
         unsigned pos = 0;
         while( ++pos < maxNodes && inStream >> tmp )
             nodesNames.push_back( tmp );
@@ -260,7 +259,7 @@ void ConfigTool::_writeResources( Config* config ) const
 {
     const unsigned nNodes  = _nChannels/_nPipes + 1;
     unsigned       c = 0;
-    vector<string> nodesNames;
+    std::vector<std::string> nodesNames;
 
     readNodenames( _nodesFile, nNodes, nodesNames );
 
@@ -370,8 +369,7 @@ void ConfigTool::_writeCompound( Config* config ) const
             break;
 
         default:
-            cerr << "Unimplemented mode " << static_cast< unsigned >( _mode )
-                 << endl;
+            std::cerr << "Unimplemented mode " << unsigned(_mode) << std::endl;
             exit( EXIT_FAILURE );
     }
 }
@@ -640,16 +638,16 @@ void ConfigTool::_writeDS( Config* config ) const
 // each node has two GPUs and compositing is performed on second GPU
 void ConfigTool::_writeDSAC( Config* config ) const
 {
-    cout << "        compound" << endl
-         << "        {" << endl
-         << "            channel   \"channel0\"" << endl
-         << "            buffer    [ COLOR DEPTH ]" << endl
-         << "            wall" << endl
-         << "            {" << endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << endl
-         << "                top_left     [ -.32  .20 -.75 ]" << endl
-         << "            }" << endl;
+    std::cout << "        compound" << std::endl
+         << "        {" << std::endl
+         << "            channel   \"channel0\"" << std::endl
+         << "            buffer    [ COLOR DEPTH ]" << std::endl
+         << "            wall" << std::endl
+         << "            {" << std::endl
+         << "                bottom_left  [ -.32 -.20 -.75 ]" << std::endl
+         << "                bottom_right [  .32 -.20 -.75 ]" << std::endl
+         << "                top_left     [ -.32  .20 -.75 ]" << std::endl
+         << "            }" << std::endl;
 
     unsigned nChannels = _nChannels / 2;
     unsigned start      = 0;
@@ -657,76 +655,78 @@ void ConfigTool::_writeDSAC( Config* config ) const
     for( unsigned i = 0; i<nChannels; ++i, start += step )
     {
         // Rendering compund
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i*2+1 << "\"" << endl;
+        std::cout << "            compound" << std::endl
+             << "            {" << std::endl
+             << "                channel   \"channel" << i*2+1 << "\""
+             << std::endl;
 
         // leaf draw + tile readback compound
-        cout << "                compound" << endl
-             << "                {" << endl;
+        std::cout << "                compound" << std::endl
+             << "                {" << std::endl;
         if( i == nChannels - 1 ) // last - correct rounding 'error'
-            cout << "                    range     [ 0." << setw(5) << start 
-                 << " 1 ]" << endl;
+            std::cout << "                    range     [ 0." << std::setw(5) << start 
+                 << " 1 ]" << std::endl;
         else
-            cout << "                    range     [ 0." << setw(5) << start 
-                 << " 0." << setw(5) << start + step << " ]" << endl;
+            std::cout << "                    range     [ 0." << std::setw(5) << start 
+                 << " 0." << std::setw(5) << start + step << " ]" << std::endl;
         
         unsigned y = 0;
         for( unsigned j = 0; j<nChannels; ++j )
         {
-            cout << "                    outputframe{ name \"tile" << j*2+1 
+            std::cout << "                    outputframe{ name \"tile" << j*2+1 
                  << ".channel" << i*2+1 << "\" ";
             if( j == nChannels - 1 ) // last - correct rounding 'error'
-                cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                std::cout << "viewport [ 0 0." << std::setw(5) << y << " 1 0." << std::setw(5)
                      << 100000-y << " ]";
             else
-                cout << "viewport [ 0 0." << setw(5) << y << " 1 0." << setw(5)
+                std::cout << "viewport [ 0 0." << std::setw(5) << y << " 1 0." << std::setw(5)
                      << step << " ]";
-            cout << " }" << endl;
+            std::cout << " }" << std::endl;
 
             y += step;
         }
-        cout << "                }" << endl
-             << "            }" << endl
-             << endl;
+        std::cout << "                }" << std::endl
+             << "            }" << std::endl
+             << std::endl;
 
         // compositing compund
-        cout << "            compound" << endl
-             << "            {" << endl
-             << "                channel   \"channel" << i*2 << "\"" << endl;
+        std::cout << "            compound" << std::endl
+             << "            {" << std::endl
+             << "                channel   \"channel" << i*2 << "\""
+             << std::endl;
 
         // input tiles from other channels
         for( unsigned j = 0; j<nChannels; ++j )
         {
-            cout << "                inputframe{ name \"tile" << i*2+1
-                 << ".channel" << j*2+1 <<"\" }" << endl;
+            std::cout << "                inputframe{ name \"tile" << i*2+1
+                 << ".channel" << j*2+1 <<"\" }" << std::endl;
         }
 
         // assembled color tile output, if not already in place
         if( i!=0 )
         {
-            cout << "                outputframe{ name \"frame.channel" 
+            std::cout << "                outputframe{ name \"frame.channel" 
                  << i*2 <<"\"";
-            cout << " buffer [ COLOR ] ";
+            std::cout << " buffer [ COLOR ] ";
             if( i == nChannels - 1 ) // last - correct rounding 'error'
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0."
-                     << setw(5) << 100000 - start << " ]";
+                std::cout << "viewport [ 0 0." << std::setw(5) << start << " 1 0."
+                     << std::setw(5) << 100000 - start << " ]";
             else
-                cout << "viewport [ 0 0." << setw(5) << start << " 1 0."
-                     << setw(5) << step << " ]";
-            cout << " }" << endl;
+                std::cout << "viewport [ 0 0." << std::setw(5) << start << " 1 0."
+                     << std::setw(5) << step << " ]";
+            std::cout << " }" << std::endl;
         }
 
 
-        cout << "            }" << endl
-             << endl;
+        std::cout << "            }" << std::endl
+             << std::endl;
     }
 
     // gather assembled input tiles
     for( unsigned i = 1; i<nChannels; ++i )
-        cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
-             << endl;
-    cout << "        }" << endl;    
+        std::cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
+             << std::endl;
+    std::cout << "        }" << std::endl;    
 }
 
 void ConfigTool::_writeDPlex( Config* config ) const

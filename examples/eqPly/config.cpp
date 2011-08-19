@@ -915,7 +915,7 @@ void Config::_switchLayout( int32_t increment )
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));
 
-    const eq::Layout* layout = _currentCanvas->getLayouts()[index];
+    const eq::Layout* layout = layouts[index];
     std::ostringstream stream;
     stream << "Layout ";
     if( layout )

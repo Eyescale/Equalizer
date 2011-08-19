@@ -20,7 +20,7 @@
 
 #define EQ_RELEASE_ASSERT
 
-#include <eq/eq.h>
+#include <co/co.h>
 
 #ifndef MIN
 #  define MIN EQ_MIN

@@ -5,6 +5,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+find_package(OpenGL REQUIRED)
+find_package(GLEW_MX)
+
 # CUDA
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)
 if(EQUALIZER_USE_CUDA)
@@ -14,9 +17,7 @@ if(EQUALIZER_USE_CUDA)
   endif()
 endif()
 if(CUDA_FOUND)
-  include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
   set(CUDA_PROPAGATE_HOST_FLAGS OFF)
-  set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif(CUDA_FOUND)
 
 # OpenSceneGraph

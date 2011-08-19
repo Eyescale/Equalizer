@@ -1,85 +1,75 @@
 #!gmake
-.PHONY: debug tests cdash release xcode debug_glx docs docs/install clean clobber
+.PHONY: debug tests cdash release xcode debug_glx docs clean clobber
 
-all: debug RELNOTES.txt README.rst
+BUILD ?= debug
+PYTHON ?= python
+CMAKE ?= cmake
+
+all: $(BUILD) RELNOTES.txt README.rst
 clobber:
-	rm -rf debug release docs XCode debug_glx man cdash
+	rm -rf debug release XCode debug_glx man cdash
 clean:
 	@-$(MAKE) -C debug clean
 	@-$(MAKE) -C release clean
-	@-$(MAKE) -C docs clean
 	@-$(MAKE) -C XCode clean
 	@-$(MAKE) -C debug_glx clean
 	@-$(MAKE) -C cdash clean
 	@rm -rf man
 
-DOXYGEN ?= doxygen
-PYTHON ?= python
-CTEST ?= ctest
+.DEFAULT:
+	@$(MAKE) -C $(BUILD) $(MAKECMDGOALS)
 
 debug: debug/Makefile
-	@$(MAKE) -C debug
+	@$(MAKE) -C $@
 
-tests: debug/Makefile
-	@$(MAKE) -C debug check
+release: release/Makefile
+	@$(MAKE) -C $@
 
-debug/Makefile:
-	@mkdir -p debug
-	@cd debug; cmake ..
+debug_glx: debug_glx/Makefile
+	@$(MAKE) -C $@
 
 cdash: cdash/Makefile
 	@$(MAKE) -C cdash clean
-	@cd cdash; $(CTEST) -D Continuous
+	@$(MAKE) -C cdash Continuous
 
-cdash/Makefile:
-	@mkdir -p cdash
-	@cd cdash; env CXXFLAGS="-fprofile-arcs -ftest-coverage" CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" cmake ..
-
-release: release/Makefile
-	@$(MAKE) -C release
+debug/Makefile:
+	@mkdir -p debug
+	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
 
 release/Makefile:
 	@mkdir -p release
-	@cd release; cmake .. -DCMAKE_BUILD_TYPE=Release
+	@cd release; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release
 
-package: release/Makefile
-	@$(MAKE) -C release clean
+cdash/Makefile:
+	@mkdir -p cdash
+	@cd cdash; env CXXFLAGS="-fprofile-arcs -ftest-coverage" CFLAGS="-fprofile-arcs -ftest-coverage" LDFLAGS="-fprofile-arcs -ftest-coverage" $(CMAKE) ..
+
+debug_glx/Makefile:
+	@mkdir -p debug_glx
+	@cd debug_glx; $(CMAKE) .. -DEQUALIZER_PREFER_AGL=OFF
+
+package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
+	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
 xcode:
 	@mkdir -p XCode
-	@cd XCode; cmake -G Xcode ..
+	@cd XCode; $(CMAKE) -G Xcode ..
 	open XCode/Equalizer.xcodeproj
 
-debug_glx: debug_glx/Makefile
-	@$(MAKE) -C debug_glx
+tests: debug/Makefile
+	@$(MAKE) -C debug tests
 
-debug_glx/Makefile:
-	@mkdir -p debug_glx
-	@cd debug_glx; cmake .. -DEQUALIZER_PREFER_AGL=0
+docs: ../equalizergraphics.com/build/documents/Developer/API
+	@$(MAKE) -C $(BUILD) doxygen
 
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API/internal
+../equalizergraphics.com/build/documents/Developer/API/internal:
+	@mkdir -p ../equalizergraphics.com/build/documents/Developer/API/internal
 
-docs: ../website/build/documents/Developer/API
-
-.PHONY: ../website/build/documents/Developer/API/internal
-../website/build/documents/Developer/API/internal:
-	@mkdir -p ../website/build/documents/Developer/API/internal
-	$(DOXYGEN) doc/Doxyfile.int
-
-../website/build/documents/Developer/API: ../website/build/documents/Developer/API/internal docs/install doc/Doxyfile.ext doc/Doxyfile.co doc/Doxyfile.seq
-	@mkdir -p ../website/build/collage/documents/Developer/API
-	$(DOXYGEN) doc/Doxyfile.ext
-	$(DOXYGEN) doc/Doxyfile.co
-	$(DOXYGEN) doc/Doxyfile.seq
-
-docs/install: docs/Makefile
-	@rm -rf $@
-	@$(MAKE) -C docs install
-
-docs/Makefile:
-	@mkdir -p docs
-	@cd docs; cmake -D CMAKE_INSTALL_PREFIX:STRING=install ..
-
+.PHONY: ../equalizergraphics.com/build/documents/Developer/API
+../equalizergraphics.com/build/documents/Developer/API: ../equalizergraphics.com/build/documents/Developer/API/internal $(BUILD)/Makefile
+	@mkdir -p ../equalizergraphics.com/build/collage/documents/Developer/API
 
 RELNOTES.txt: libs/RelNotes.dox
 	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@

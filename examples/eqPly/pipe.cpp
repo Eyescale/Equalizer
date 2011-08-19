@@ -38,20 +38,8 @@ namespace eqPly
 {
 eq::WindowSystem Pipe::selectWindowSystem() const
 {
-    const Config*          config   = static_cast<const Config*>( getConfig( ));
-    const InitData&        initData = config->getInitData();
-    const eq::WindowSystem ws       = initData.getWindowSystem();
-
-    if( ws == eq::WINDOW_SYSTEM_NONE )
-        return eq::Pipe::selectWindowSystem();
-    if( !supportsWindowSystem( ws ))
-    {
-        EQWARN << "Window system " << ws 
-               << " not supported, using default window system" << std::endl;
-        return eq::Pipe::selectWindowSystem();
-    }
-
-    return ws;
+    const Config* config = static_cast<const Config*>( getConfig( ));
+    return config->getInitData().getWindowSystem();
 }
 
 bool Pipe::configInit( const eq::uint128_t& initID )

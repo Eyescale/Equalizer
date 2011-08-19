@@ -30,7 +30,7 @@
 #define SEQ_PLY_RENDERER_H
 
 #include "seqPly.h"
-#include <eq/sequel/sequel.h>
+#include <seq/sequel.h>
 
 namespace seqPly
 {
@@ -45,8 +45,8 @@ namespace seqPly
         State& getState() { return *_state; }
 
     protected:
-        virtual bool initGL( co::Object* initData );
-        virtual bool exitGL();
+        virtual bool init( co::Object* initData );
+        virtual bool exit();
         virtual void draw( co::Object* frameData );
 
     private:

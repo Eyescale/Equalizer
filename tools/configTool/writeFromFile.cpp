@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,14 +18,14 @@
 #include "configTool.h"
 #include "frame.h"
 
-#include <libs/server/equalizers/framerateEqualizer.h>
-#include <libs/server/canvas.h>
-#include <libs/server/global.h>
-#include <libs/server/layout.h>
-#include <libs/server/node.h>
-#include <libs/server/segment.h>
-#include <libs/server/view.h>
-#include <libs/server/window.h>
+#include <eq/server/equalizers/framerateEqualizer.h>
+#include <eq/server/canvas.h>
+#include <eq/server/global.h>
+#include <eq/server/layout.h>
+#include <eq/server/node.h>
+#include <eq/server/segment.h>
+#include <eq/server/view.h>
+#include <eq/server/window.h>
 
 #include <eq/fabric/viewport.h>
 

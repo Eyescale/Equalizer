@@ -29,7 +29,7 @@
 #ifndef EVOLVE_ERROR_H
 #define EVOLVE_ERROR_H
 
-#include <eq/error.h>
+#include <eq/eq.h>
 
 namespace eVolve
 {
