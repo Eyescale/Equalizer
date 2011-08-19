@@ -18,7 +18,8 @@
 #ifndef EQFABRIC_SWAPBARRIER_H
 #define EQFABRIC_SWAPBARRIER_H
 
-#include <co/node.h>
+#include <eq/fabric/api.h>
+#include <co/base/referenced.h> // base class
 #include <iostream>
 
 namespace eq
@@ -64,7 +65,7 @@ namespace fabric
         uint32_t _nvSwapBarrier;
     };
 
-    std::ostream& operator << ( std::ostream& os, const SwapBarrier& barrier );
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const SwapBarrier& );
 }
 }
 #endif // EQFABRIC_SWAPBARRIER_H
