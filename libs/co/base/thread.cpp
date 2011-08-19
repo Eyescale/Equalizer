@@ -185,9 +185,8 @@ void Thread::_notifyStopping()
 
 bool Thread::start()
 {
-	_listenerLock();
-
-	if( _state != STATE_STOPPED )
+    _listenerLock(); // avoid race during notification
+    if( _state != STATE_STOPPED )
         return false;
 
     _state = STATE_STARTING;
