@@ -1694,11 +1694,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     _setRenderContext( packet->context );
     _frameReadback( packet->context.frameID, packet->nFrames,
                     packet->frames );
-<<<<<<< HEAD
-    resetContext();
-=======
     resetRenderContext();
->>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
     return true;
 }
 
@@ -1827,43 +1823,11 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         {
             ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
-<<<<<<< HEAD
-             // @bug frameReadback has to be used!
-            for( FramesCIter i = _outputFrames.begin();
-                i != _outputFrames.end(); ++i )
-            {
-                Frame* frame = *i;
-                frame->getData()->setPixelViewport( tilePacket->pvp );
-                frame->readback( glObjects, drawableConfig );
-
-                const std::vector< uint128_t >& inputNodes =
-                    frame->getData()->getInputNodes( packet->context.eye );
-                for( std::vector< uint128_t >::const_iterator j =
-                        inputNodes.begin(); j != inputNodes.end(); ++j )
-                {
-                    co::LocalNodePtr localNode = getLocalNode();
-                    // @bug not thread-safe. Only call from rcvThread. Should trigger assert!
-                    co::Command& command =
-                        localNode->allocCommand( sizeof( ChannelFrameTransmitPacket ));
-
-                    ChannelFrameTransmitPacket* transmitPacket = command.get< ChannelFrameTransmitPacket >();
-                    transmitPacket->context   = context;
-                    transmitPacket->frameData = frame;
-                    transmitPacket->clientNodeID = *j;
-                    transmitPacket->command =
-                        fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
-                    transmitPacket->statisticsIndex = _statisticsIndex;
-                    transmitPacket->frameNumber = getPipe()->getCurrentFrame();
-                    transmitPacket->lastImageOnly = true;
-                    dispatchCommand( command );
-                }                
-=======
             const Frames& frames = getOutputFrames();
             for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
             {
                 Frame* frame = *i;
                 frame->getData()->setPixelViewport( getPixelViewport() );
->>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
             }
             frameReadback( packet->context.frameID );
 
@@ -1871,24 +1835,16 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             _sendTileToInputNodes( context, false );
         }
 
-<<<<<<< HEAD
-    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
-=======
         queuePacket->release();
     }
     if ( packet->tasks & fabric::TASK_READBACK )
->>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
     {
         // set frame ready
         _sendTileToInputNodes( context, true );
         _outputFrames.clear();
     }
 
-<<<<<<< HEAD
-    resetContext();
-=======
     resetRenderContext();
->>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
     return true;
 }
 
