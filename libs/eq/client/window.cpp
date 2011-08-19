@@ -819,6 +819,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     
     EQASSERT( _systemWindow );
+    makeCurrent();
     _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
 
     _enterBarrier( packet->netBarrier );
