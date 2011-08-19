@@ -314,7 +314,7 @@ namespace fabric
             else
             {
                 EQASSERT( isMaster( ));
-                EQASSERT( i == children.size( ));
+                EQASSERTINFO( i == children.size(), co::base::className(child));
             }
         }
     }
