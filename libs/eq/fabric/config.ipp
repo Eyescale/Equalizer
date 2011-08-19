@@ -940,7 +940,7 @@ std::ostream& operator << ( std::ostream& os,
         os << **i;
     }
 
-    static_cast< const C& >( config ).output( os );
+    config.output( os );
 
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader
        << co::base::enableFlush;

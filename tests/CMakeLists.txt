@@ -21,6 +21,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR} # some tests need private headers
   )
 
+if(GLEW_MX_FOUND)
+  include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
+endif()
+
 file(GLOB_RECURSE TEST_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cpp)
 
 set(ALL_TESTS)

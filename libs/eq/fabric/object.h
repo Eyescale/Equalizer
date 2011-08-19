@@ -314,7 +314,6 @@ namespace fabric
             else
             {
                 EQASSERT( isMaster( ));
-                EQASSERT( i == children.size( ));
             }
         }
     }

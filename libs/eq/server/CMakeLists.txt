@@ -38,7 +38,6 @@ set(SERVER_HEADERS
     segment.h
     server.h
     state.h
-    swapBarrier.h
     tileQueue.h
     types.h
     view.h
@@ -120,7 +119,6 @@ set(SERVER_SOURCES
     server.cpp
     serverVisitor.h
     startLocalServer.cpp
-    swapBarrier.cpp
     tileQueue.cpp
     view.cpp
     window.cpp

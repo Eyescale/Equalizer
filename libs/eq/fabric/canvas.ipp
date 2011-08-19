@@ -228,6 +228,23 @@ bool Canvas< CFG, C, S, L >::_mapViewObjects()
 }
 
 template< class CFG, class C, class S, class L >
+CanvasPath Canvas< CFG, C, S, L >::getPath() const
+{
+    const CFG* config = getConfig();
+    EQASSERT( config );
+
+    const Canvases& canvases = config->getCanvases();
+    typename Canvases::const_iterator i = std::find( canvases.begin(),
+                                                     canvases.end(),
+                                                     this );
+    EQASSERT( i != canvases.end( ));
+
+    CanvasPath path;
+    path.canvasIndex = std::distance( canvases.begin(), i );
+    return path;
+}
+
+template< class CFG, class C, class S, class L >
 S* Canvas< CFG, C, S, L >::findSegment( const std::string& name )
 {
     NameFinder< S, Visitor > finder( name );
@@ -280,6 +297,28 @@ void Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
 
     _data.activeLayout = index;
     setDirty( DIRTY_LAYOUT );
+}
+
+template< class CFG, class C, class S, class L >
+void Canvas< CFG, C, S, L >::setSwapBarrier( SwapBarrierPtr barrier )
+{
+    if( barrier.isValid() && barrier->getName().empty( ))
+    {
+        const std::string& name = getName();
+        std::stringstream out;
+        out << "barrier.canvas.";
+        if( name.empty( ))
+            if( getConfig( ))
+                out << getPath().canvasIndex;
+            else
+                out << (void*)this;
+        else
+            out << name;
+
+        barrier->setName( out.str( ));
+    }
+
+    _swapBarrier = barrier; 
 }
 
 namespace
@@ -445,6 +484,8 @@ std::ostream& operator << ( std::ostream& os,
             os << "layout   OFF" << std::endl;
     }
 
+    if( canvas.getSwapBarrier().isValid( ))
+        os << *canvas.getSwapBarrier();
     os << static_cast< const Frustum& >( canvas );
 
     const std::vector< S* >& segments = canvas.getSegments();

@@ -22,6 +22,7 @@
 #include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
+#include <eq/fabric/swapBarrier.h>    // RefPtr member
 
 #include <string>
 
@@ -29,13 +30,12 @@ namespace eq
 {
 namespace fabric
 {
-    struct CanvasPath;
-
     /** A canvas represents a logical 2D projection surface. */
     template< class CFG, class C, class S, class L >
     class Canvas : public Object, public Frustum
     {
     public:
+        typedef std::vector< C* > Canvases; //!< A vector of canvases
         typedef std::vector< S* > Segments; //!< A vector of segments
         typedef std::vector< L* > Layouts; //!< A vector of layouts
         /** A Canvas visitor */
@@ -47,6 +47,9 @@ namespace fabric
         CFG*       getConfig()       { return _config; }
         /** @return the parent config. @version 1.0 */
         const CFG* getConfig() const { return _config; }
+
+        /** @internal @return the index path to this canvas. */
+        CanvasPath getPath() const;
 
         /** @return the index of the active layout. @version 1.0 */
         uint32_t getActiveLayoutIndex() const { return _data.activeLayout; }
@@ -68,6 +71,22 @@ namespace fabric
 
         /** @internal Remove a layout from this canvas, can be the 0 layout. */
         EQFABRIC_INL bool removeLayout( L* layout );
+
+        /** @internal
+         * Set a swap barrier.
+         *
+         * This barrier will be set as a barrier on all segments added
+         * afterwards.
+         * 
+         * @param barrier the swap barrier.
+         */
+        void setSwapBarrier( SwapBarrierPtr barrier );
+        
+        /** @internal @return the current swap barrier. */
+        SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
+
+        /** @internal @return the current swap barrier. */
+        SwapBarrierPtr getSwapBarrier() { return _swapBarrier; }
 
         /** @sa Frustum::setWall() */
         EQFABRIC_INL virtual void setWall( const Wall& wall );
@@ -148,6 +167,8 @@ namespace fabric
 
         /** Child segments on this canvas. */
         Segments _segments;
+
+        SwapBarrierPtr _swapBarrier; //!< default segment swap barrier
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

@@ -57,10 +57,12 @@ function(EQ_ADD_EXAMPLE NAME)
 endfunction(EQ_ADD_EXAMPLE NAME)
 
 include_directories(include)
+if(GLEW_MX_FOUND)
+  include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
+endif()
 
 install(DIRECTORY configs DESTINATION share/Equalizer
         COMPONENT data PATTERN ".svn" EXCLUDE)
-
 install(FILES CMakeLists.txt DESTINATION share/Equalizer/examples
         COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
