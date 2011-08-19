@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010 Stefan Eilemann <eile@eyescale.ch>
 
-set(EQ_FABRIC_FORWARD_HEADERS
+set(EQ_FABRIC_PUBLIC_HEADERS
     api.h
     base.h
     canvas.h
@@ -46,6 +46,7 @@ set(EQ_FABRIC_FORWARD_HEADERS
     server.h
     serverPackets.h
     subPixel.h
+    swapBarrier.h
     task.h
     types.h
     view.h
@@ -88,6 +89,7 @@ set(EQ_FABRIC_SOURCES
   range.cpp
   renderContext.cpp
   subPixel.cpp
+  swapBarrier.cpp
   viewport.cpp
   wall.cpp
   zoom.cpp

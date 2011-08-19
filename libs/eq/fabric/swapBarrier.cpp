@@ -19,7 +19,7 @@
 
 namespace eq
 {
-namespace server
+namespace fabric
 {
 
 std::ostream& operator << ( std::ostream& os, const SwapBarrier& swapBarrier )

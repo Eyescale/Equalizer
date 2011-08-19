@@ -35,7 +35,6 @@
 #include "layout.h"
 #include "log.h"
 #include "segment.h"
-#include "swapBarrier.h"
 #include "view.h"
 #include "observer.h"
 
@@ -1695,7 +1694,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         os << "output"  << *i;
 
     if( compound.getSwapBarrier().isValid( ))
-        os << *compound.getSwapBarrier().get();
+        os << *compound.getSwapBarrier();
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

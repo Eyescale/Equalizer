@@ -22,6 +22,7 @@
 #include <eq/fabric/visitorResult.h>  // enum
 #include <eq/fabric/frustum.h>        // base class
 #include <eq/fabric/object.h>         // base class
+#include <eq/fabric/swapBarrier.h>    // RefPtr member
 #include <eq/fabric/viewport.h>       // member
 
 namespace eq
@@ -108,6 +109,19 @@ namespace fabric
          * @param eyes the segument eyes.
          */
         void enableEye( const uint32_t eyes ) { _eyes |= eyes; }
+
+        /** @internal
+         * Set a swap barrier.
+         *
+         * This barrier will be set as a barrier on all segments added
+         * afterwards, unless the segment already has a barrier.
+         * 
+         * @param barrier the swap barrier.
+         */
+        void setSwapBarrier( SwapBarrierPtr barrier );
+        
+        /** @internal @return the current swap barrier. */
+        SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
         //@}
         
         /** @name Operations */
@@ -174,6 +188,8 @@ namespace fabric
         CH* _channel;
 
         uint32_t _eyes;
+
+        SwapBarrierPtr _swapBarrier; //!< default segment swap barrier
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

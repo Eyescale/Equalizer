@@ -37,6 +37,7 @@ class Projection;
 class Range;
 class RenderContext;
 class SubPixel;
+class SwapBarrier;
 class Viewport;
 class Wall;
 class Zoom;
@@ -82,6 +83,8 @@ template< class, class, class, class, class> class ConfigVisitor;
 
 typedef co::base::RefPtr< Client > ClientPtr;
 typedef co::base::RefPtr< const Client > ConstClientPtr;
+typedef co::base::RefPtr< SwapBarrier > SwapBarrierPtr;
+typedef co::base::RefPtr< const SwapBarrier > SwapBarrierConstPtr;
 
 struct CanvasPath;
 struct ChannelPath;

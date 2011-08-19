@@ -115,7 +115,7 @@ namespace server
          *                   entering.
          * @return the net::Barrier for protecting the swap group entry.
          */
-        co::Barrier* joinNVSwapBarrier( ConstSwapBarrierPtr swapBarrier,
+        co::Barrier* joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
                                         co::Barrier* netBarrier );
 
         /** @return true if this window has entered a NV_swap_group. */
@@ -194,7 +194,7 @@ namespace server
         co::Barriers _swapBarriers;
 
         /** The hardware swap barrier to use. */
-        ConstSwapBarrierPtr _nvSwapBarrier;
+        SwapBarrierConstPtr _nvSwapBarrier;
 
         /** The network barrier used to protect hardware barrier entry. */
         co::Barrier* _nvNetBarrier;

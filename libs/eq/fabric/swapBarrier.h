@@ -15,15 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_SWAPBARRIER_H
-#define EQSERVER_SWAPBARRIER_H
+#ifndef EQFABRIC_SWAPBARRIER_H
+#define EQFABRIC_SWAPBARRIER_H
 
-#include <co/node.h>
+#include <eq/fabric/api.h>
+#include <co/base/referenced.h> // base class
 #include <iostream>
 
 namespace eq
 {
-namespace server
+namespace fabric
 {
     /**
      * A swapbarrier is set on a Compound to synchronize the swap buffer between
@@ -64,7 +65,7 @@ namespace server
         uint32_t _nvSwapBarrier;
     };
 
-    std::ostream& operator << ( std::ostream& os, const SwapBarrier& barrier );
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const SwapBarrier& );
 }
 }
-#endif // EQSERVER_SWAPBARRIER_H
+#endif // EQFABRIC_SWAPBARRIER_H

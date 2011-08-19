@@ -17,13 +17,12 @@
 
 #include "compoundUpdateOutputVisitor.h"
 
+#include "config.h"
 #include "frame.h"
 #include "frameData.h"
-#include "swapBarrier.h"
-#include "window.h"
-#include "tileQueue.h"
 #include "server.h"
-#include "config.h"
+#include "tileQueue.h"
+#include "window.h"
 
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
@@ -299,7 +298,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
 
 void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
 {
-    ConstSwapBarrierPtr swapBarrier = compound->getSwapBarrier();
+    SwapBarrierConstPtr swapBarrier = compound->getSwapBarrier();
     if( !swapBarrier )
         return;
 
