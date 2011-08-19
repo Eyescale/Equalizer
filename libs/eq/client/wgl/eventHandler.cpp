@@ -737,7 +737,7 @@ bool EventHandler::initMagellan(Node* node)
     if( RegisterRawInputDevices( _rawInputDevices, _nRawInputDevices,
                                  sizeof(RAWINPUTDEVICE) ) == FALSE )
     {
-        EQINFO << "Error calling RegisterRawInputDevices" << std::endl;
+        EQVERB << "Error calling RegisterRawInputDevices" << std::endl;
         return false;
     }
 

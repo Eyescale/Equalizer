@@ -180,16 +180,15 @@ namespace eq
             {
                 command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT;
                 size          = sizeof( ChannelFrameTransmitPacket );
-                lastImageOnly = false;
             }
 
         
         co::ObjectVersion frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
+        uint64_t           imageIndex;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
-        bool               lastImageOnly;
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
@@ -219,8 +218,8 @@ namespace eq
         }
 
         co::ObjectVersion queueVersion;
-        uint32_t          nFrames;
         uint32_t          tasks;
+        uint32_t          nFrames;
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
 

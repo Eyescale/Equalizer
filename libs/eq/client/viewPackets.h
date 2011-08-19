@@ -32,7 +32,7 @@ namespace eq
                 size    = sizeof( ViewFreezeLoadBalancingPacket );
             }
         bool freeze;
-    }; 
+    };
 }
 /** @endcond */
 

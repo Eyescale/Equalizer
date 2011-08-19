@@ -282,6 +282,13 @@ namespace server
          */
         EQSERVER_API void addInputTileQueue( TileQueue* tileQueue );
 
+        /** 
+         * Remove an input tile queue from this compound.
+         *
+         * @param tileQueue the input tile queue.
+         */
+        EQSERVER_API void removeInputTileQueue( TileQueue* tileQueue );
+
         /** @return the vector of input tile queues. */
         const TileQueues& getInputTileQueues() const { return _inputTileQueues;}
 
@@ -291,6 +298,13 @@ namespace server
          * @param queue the output tile queue.
          */
         EQSERVER_API void addOutputTileQueue( TileQueue* queue );
+
+        /** 
+         * Remove an output tile queue from this compound.
+         *
+         * @param tileQueue the output tile queue.
+         */
+        EQSERVER_API void removeOutputTileQueue( TileQueue* tileQueue );
 
         /** @return the vector of output tile queues. */
         const TileQueues& getOutputTileQueues() const

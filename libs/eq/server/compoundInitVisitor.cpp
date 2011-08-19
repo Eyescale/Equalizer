@@ -24,6 +24,7 @@
 #include "segment.h"
 #include "view.h"
 #include "window.h"
+#include "tileQueue.h"
 #include <eq/client/log.h>
 
 namespace eq
@@ -40,7 +41,17 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 
     compound->setTaskID( ++_taskID );
     if( channel && channel->getView( ))
+    {
         channel->getView()->updateFrusta();
+        // TODO needed? Should be done per frame in update visitors?
+        const TileQueues& outputQueues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = outputQueues.begin(); 
+             i != outputQueues.end(); ++i )
+        {
+            TileQueue* queue  = *i;
+            channel->getView()->setTileSize( queue->getTileSize() );
+        }
+    }
     else
         compound->updateFrustum( Vector3f::ZERO, 1.f );
 

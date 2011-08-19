@@ -4,6 +4,7 @@
 global
 {
     EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+    EQ_NODE_SATTR_LAUNCH_COMMAND "%c"
 }
 
 server
@@ -45,16 +46,11 @@ server
         compound
         {
             channel ( layout "tile based" )
-            tile_equalizer{}
-            outputtiles { name "queue" size [ 64 64 ] }
-            compound
-            {
-                inputtiles { name "queue" }
-            }
+            tile_equalizer {}
+            compound {}
             compound
             {
                 channel "channel2"
-                inputtiles { name "queue" }
                 outputframe {}
             }
             inputframe { name "frame.channel2" }

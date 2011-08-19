@@ -401,12 +401,42 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
     tileQueue->setCompound( this );
 }
 
+void Compound::removeInputTileQueue( TileQueue* tileQueue )
+{
+    EQASSERT( tileQueue );
+    // TODO use std::find
+    TileQueuesIter i = _inputTileQueues.begin();
+    for ( ; i != _inputTileQueues.end(); ++i )
+    {
+        if ( *i == tileQueue )
+        {
+            _inputTileQueues.erase( i );
+            return;
+        }
+    }
+}
+
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
 {
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _outputTileQueues.push_back( tileQueue ); 
     tileQueue->setCompound( this );
+}
+
+void Compound::removeOutputTileQueue( TileQueue* tileQueue )
+{
+    EQASSERT( tileQueue );
+    // TODO use std::find
+    TileQueuesIter i = _outputTileQueues.begin();
+    for ( ; i != _outputTileQueues.end(); ++i )
+    {
+        if ( *i == tileQueue )
+        {
+            _outputTileQueues.erase( i );
+            return;
+        }
+    }
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )
@@ -1076,6 +1106,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -1085,6 +1116,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -1143,8 +1175,8 @@ void Compound::update( const uint32_t frameNumber )
 
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
 
-    for( Compound::BarrierMap::const_iterator i = 
-         swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    for( Compound::BarrierMap::const_iterator i = swapBarriers.begin();
+         i != swapBarriers.end(); ++i )
     {
         co::Barrier* barrier = i->second;
         if( barrier->isAttached( ))
@@ -1581,7 +1613,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     bool attrPrinted = false;
     
     for( Compound::IAttribute i = static_cast< Compound::IAttribute >( 0 );
-         i<Compound::IATTR_ALL; 
+         i < Compound::IATTR_ALL; 
          i = static_cast< Compound::IAttribute >( static_cast<uint32_t>( i )+1))
     {
         const int value = compound.getIAttribute( i );
@@ -1634,33 +1666,31 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     }
 
     const Equalizers& equalizers = compound.getEqualizers();
-    for( Equalizers::const_iterator i = equalizers.begin();
-         i != equalizers.end(); ++i )
-    {
+    for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i )
         os << *i;
-    }
+
+    const TileQueues& outputQueues = compound.getOutputTileQueues();
+    for( TileQueuesCIter i = outputQueues.begin(); i != outputQueues.end(); ++i)
+        os << "output" <<  *i;
+
+    const TileQueues& inputQueues = compound.getInputTileQueues();
+    for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
+        os << "input" << *i;
 
     const Compounds& children = compound.getChildren();
     if( !children.empty( ))
     {
         os << std::endl;
-        for( Compounds::const_iterator i = children.begin();
-             i != children.end(); ++i )
-        {
+        for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
             os << **i;
-        }
     }
 
     const Frames& inputFrames = compound.getInputFrames();
-    for( Frames::const_iterator i = inputFrames.begin();
-         i != inputFrames.end(); ++i )
-        
+    for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
         os << "input" << *i;
 
     const Frames& outputFrames = compound.getOutputFrames();
-    for( Frames::const_iterator i = outputFrames.begin();
-         i != outputFrames.end(); ++i )
-        
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
 
     if( compound.getSwapBarrier().isValid( ))

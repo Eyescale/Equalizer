@@ -569,15 +569,29 @@ namespace eq
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
 
-        /** Transmit the frame data to the nodeID. */
-        void _transmit( const ChannelFrameTransmitPacket* packet );
+        /** helper for transmitting one image */
+        void _transmitImage( Image* image, 
+                             const ChannelFrameTransmitPacket* command );
+        
+        /** sets the frame ready */
+        void _sendFrameDataReady( const ChannelFrameTransmitPacket* command );
+        
+        /** transmits only a single image without setting the frame ready */
+        void _transmitImage( const ChannelFrameTransmitPacket* command );
 
-        void _collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
+
+        /** Transmit the frame data to the nodeID and sets the frame ready. */
+        void _transmitFrame( const ChannelFrameTransmitPacket* packet );
+
+        void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
+
+        /** helper function to transmit the image or set frame ready */
+        void _sendTileToInputNodes( const RenderContext& context, bool ready );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -591,6 +605,8 @@ namespace eq
         bool _cmdFrameReadback( co::Command& command );
         bool _cmdFrameTransmit( co::Command& command );
         bool _cmdFrameTransmitAsync( co::Command& command );
+        bool _cmdFrameTransmitImageAsync( co::Command& command );
+        bool _cmdFrameReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );

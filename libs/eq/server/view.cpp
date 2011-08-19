@@ -28,6 +28,7 @@
 #include "observer.h"
 #include "segment.h"
 #include "equalizers/equalizer.h"
+#include "tileQueue.h"
 
 #include <eq/client/viewPackets.h>
 #include <eq/fabric/paths.h>
@@ -169,6 +170,41 @@ public:
 private:
     const View* const _view;
     const bool _freeze;
+};
+
+
+class TileSizeVisitor : public ConfigVisitor
+{
+public:
+    TileSizeVisitor( const View* view, const Vector2i tileSize )
+        : _view( view ), _tileSize( tileSize )
+    {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        const TileQueues& queues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
+        {
+            TileQueue* queue = *i;
+            queue->setTileSize( _tileSize );
+        }
+
+        return TRAVERSE_CONTINUE; 
+    }
+
+private:
+    const View* const _view;
+    const Vector2i& _tileSize;
 };
 
 }
@@ -330,6 +366,12 @@ void View::updateCapabilities()
     CapabilitiesUpdater visitor( this );
     getConfig()->accept( visitor );
     setCapabilities( visitor.getCapabilities( ));
+}
+
+void View::updateTileSize()
+{
+    TileSizeVisitor visitor( this, getTileSize( ));
+    getConfig()->accept( visitor );
 }
 
 void View::updateFrusta()

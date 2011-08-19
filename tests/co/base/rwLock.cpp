@@ -28,7 +28,11 @@
 #include <co/base/timedLock.h>
 
 #include <iostream>
+
+#pragma warning(push)
+#pragma warning(disable: 4985) // ceil: attributes not present on previous...
 #include <limits>
+#pragma warning(pop)
 
 #define MAXTHREADS 256
 #define TIME       500  // ms

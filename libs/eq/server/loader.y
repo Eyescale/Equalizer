@@ -69,6 +69,7 @@
         static eq::server::DFREqualizer* dfrEqualizer = 0;
         static eq::server::LoadEqualizer* loadEqualizer = 0;
         static eq::server::TreeEqualizer* treeEqualizer = 0;
+        static eq::server::TileEqualizer* tileEqualizer = 0;
         static eq::server::SwapBarrierPtr swapBarrier;
         static eq::server::Frame*       frame = 0;
         static eq::server::TileQueue*   tileQueue = 0;
@@ -1158,9 +1159,12 @@ viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
     {
         eqCompound->addEqualizer( new eq::server::ViewEqualizer );
     }
-tileEqualizer: EQTOKEN_TILEEQUALIZER '{' '}'
+tileEqualizer: EQTOKEN_TILEEQUALIZER '{' 
+    { tileEqualizer = new eq::server::TileEqualizer }
+    tileEqualizerFields '}'
     {
-        eqCompound->addEqualizer( new eq::server::TileEqualizer );
+        eqCompound->addEqualizer( tileEqualizer );
+        tileEqualizer = 0;
     }
 
 dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField
@@ -1198,6 +1202,11 @@ treeEqualizerMode:
     | EQTOKEN_HORIZONTAL { $$ = eq::server::TreeEqualizer::MODE_HORIZONTAL; }
     | EQTOKEN_VERTICAL   { $$ = eq::server::TreeEqualizer::MODE_VERTICAL; }
     
+tileEqualizerFields: /* null */ | tileEqualizerFields tileEqualizerField
+tileEqualizerField:
+	EQTOKEN_NAME STRING                   { tileEqualizer->setName( $2 ); }
+	| EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'  
+                   { tileEqualizer->setTileSize( eq::Vector2i( $3, $4 )); }
 
 swapBarrier:
     EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }

@@ -32,9 +32,9 @@ std::ostream& operator << ( std::ostream& os, const TileEqualizer* );
 class TileEqualizer : public Equalizer
 {
 public:
-    TileEqualizer::TileEqualizer() {};
-    TileEqualizer::TileEqualizer( const TileEqualizer& from );
-    TileEqualizer::~TileEqualizer() {};
+    EQSERVER_API TileEqualizer();
+    TileEqualizer( const TileEqualizer& from );
+    ~TileEqualizer() {};
 
     /** @sa CompoundListener::notifyUpdatePre */
     virtual void notifyUpdatePre( Compound* compound, 
@@ -43,13 +43,28 @@ public:
     virtual Equalizer* clone() const { return new TileEqualizer( *this ); }
     virtual void toStream( std::ostream& os ) const { os << this; }
 
+    void setName( const std::string& name ) { _name = name; }
+
+    void setTileSize( const Vector2i& size ) { _size = size; }
+
+    const std::string& getName() const { return _name; }
+
+    const Vector2i& getTileSize() const { return _size; }
+
 protected:
 
     virtual void notifyChildAdded( Compound* compound, Compound* child ) {}
     virtual void notifyChildRemove( Compound* compound, Compound* child ) {}
 
 private:
+    
+    void _syncViewTileSize( Compound* compound );
+    void _destroyQueues( Compound* compound );
+    void _createQueues( Compound* compound );
 
+    bool _created;
+    Vector2i _size;
+    std::string _name;
 };
 
 } //server

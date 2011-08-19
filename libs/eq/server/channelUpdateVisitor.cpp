@@ -160,36 +160,30 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
             frameIDs.push_back( co::ObjectVersion( frame ));
         }
 
-        if( frames.empty() )
-            return TRAVERSE_CONTINUE;
-
         const TileQueues& inputQueues = compound->getInputTileQueues();
         for( TileQueuesCIter i = inputQueues.begin();
              i != inputQueues.end(); ++i )
         {
             const TileQueue* inputQueue = *i;
-            const TileQueues& outputQueues =
-                inputQueue->getOutputQueues( context.eye );
-            for( TileQueuesCIter j = outputQueues.begin();
-                 j != outputQueues.end(); ++j )
-            {
-                ChannelFrameTilesPacket tilesPacket;
-                tilesPacket.context = context;
-                tilesPacket.tasks = compound->getInheritTasks();
-                tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
-                            eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
+            const TileQueue* outputQueue =
+                    inputQueue->getOutputQueue( context.eye );
 
-                const UUID& id = (*j)->getQueueMasterID( context.eye );
-                EQASSERT( id != co::base::UUID::ZERO );
-                tilesPacket.queueVersion.identifier = id;
-                tilesPacket.queueVersion.version = co::VERSION_FIRST;
-                tilesPacket.nFrames   = uint32_t( frames.size( ));
-                _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
+            ChannelFrameTilesPacket tilesPacket;
+            tilesPacket.context = context;
+            tilesPacket.tasks = compound->getInheritTasks();
+            tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
+                        eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
 
-                _updated = true;
-                EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
-                                   <<  " " << &tilesPacket << std::endl;
-            }            
+            const UUID& id = outputQueue->getQueueMasterID( context.eye );
+            EQASSERT( id != co::base::UUID::ZERO );
+            tilesPacket.queueVersion.identifier = id;
+            tilesPacket.queueVersion.version = co::VERSION_FIRST;
+            tilesPacket.nFrames   = uint32_t( frames.size( ));
+            _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
+
+            _updated = true;
+            EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
+                               <<  " " << &tilesPacket << std::endl;
         }
     }
     else
@@ -237,21 +231,7 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
 bool ChannelUpdateVisitor::_getTilesEnabled( const Compound* compound )
 {
-    const TileQueues& queues = compound->getInputTileQueues();
-    bool tilesEnabled = false;
-    if( !queues.empty() )
-    {
-        TileQueuesCIter i = queues.begin();
-        for( ; i < queues.end(); ++i )
-        {
-            if( (*i)->isActivated() )
-            {
-                tilesEnabled = true;
-                break;
-            }
-        }
-    }
-    return tilesEnabled;
+    return !compound->getInputTileQueues().empty();
 }
 
 

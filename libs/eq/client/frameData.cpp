@@ -49,6 +49,7 @@ FrameData::FrameData()
         , _useAlpha( true )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
+        , _newImages( 0 )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << std::endl;
@@ -96,30 +97,43 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
+FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
+{
+    if( this != &rhs )
+    {
+        pvp = rhs.pvp;
+        frameType = rhs.frameType;
+        buffers = rhs.buffers;
+        period = rhs.period;
+        phase = rhs.phase;
+        range = rhs.range;
+        pixel = rhs.pixel;
+        subpixel = rhs.subpixel;
+        zoom = rhs.zoom;
+    }
+    return *this;
+}
+
 void FrameData::Data::serialize( co::DataOStream& os ) const
 {
     os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-        os << inputNodes[i];
+       << pixel << subpixel << zoom << inputNodes << inputNetNodes;
 }
 
 void FrameData::Data::deserialize( co::DataIStream& is )
 {
     is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom;
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
-        is >> inputNodes[i];
+       >> pixel >> subpixel >> zoom >> inputNodes >> inputNetNodes;
 }
 
 void FrameData::clear()
 {
-
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
     _imageCacheLock.unset();
 
     _images.clear();
+    _newImages = 0;
 }
 
 void FrameData::flush()
@@ -135,6 +149,12 @@ void FrameData::flush()
     }
 
     _imageCache.clear();
+    _newImages = 0;
+}
+
+void FrameData::resetNewImages()
+{
+    _newImages = 0;
 }
 
 Image* FrameData::newImage( const eq::Frame::Type type,
@@ -142,6 +162,7 @@ Image* FrameData::newImage( const eq::Frame::Type type,
 {
     Image* image = _allocImage( type, config, true /* set quality */ );
     _images.push_back( image );
+    ++_newImages;
     return image;
 }
 
@@ -233,7 +254,10 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x, pvp.y );
+        // eile why? image->setOffset( pvp.x, pvp.y );
+        // tribal-tec because it works; below code does not set any offset
+        // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
@@ -404,7 +428,6 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     }
 
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _pendingImages.empty());
     _pendingImages.push_back( image );
     return true;
 }

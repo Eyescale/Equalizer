@@ -106,10 +106,15 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_READY, 
+                     CmdFunc( this, &Channel::_cmdFrameReady ), transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT, 
                      CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC, 
                      CmdFunc( this, &Channel::_cmdFrameTransmitAsync ),
+                     transmitQ );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
+                     CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
                      transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
@@ -389,9 +394,9 @@ void Channel::frameReadback( const uint128_t& )
     const DrawableConfig& drawableConfig = getDrawableConfig();
 
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
-        Frame* frame = *i;
+        Frame* frame = *i;        
         frame->readback( glObjects, drawableConfig );
     }
 
@@ -1172,18 +1177,13 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
     stats.data.clear();
 }
 
-void Channel::_transmit( const ChannelFrameTransmitPacket* command )
+void Channel::_transmitImage( Image* image, 
+                              const ChannelFrameTransmitPacket* command )
 {
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
-    transmitEvent.statisticsIndex = command->statisticsIndex;
-    transmitEvent.event.data.statistic.task = command->context.taskID;
-
-    FrameData* frameData = getNode()->getFrameData( command->frameData ); 
-    EQASSERT( frameData );
-
-    if( frameData->getBuffers() == 0 )
+    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
-        EQWARN << "No buffers for frame data" << std::endl;
+        EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
+        EQUNIMPLEMENTED;
         return;
     }
 
@@ -1192,7 +1192,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
     if( !toNode || !toNode->isConnected( ))
     {
         EQWARN << "Can't connect node " << command->netNodeID
-               << " to send input frame" << std::endl;
+            << " to send input frame" << std::endl;
         return;
     }
 
@@ -1207,170 +1207,250 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
     const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
 
     packet.objectID    = command->clientNodeID;
-    packet.frameData   = frameData;
+    packet.frameData   = getNode()->getFrameData( command->frameData );
     packet.frameNumber = command->frameNumber;
 
-    const Images& images = frameData->getImages();
-    // send all images
-    // @bug: last image is not correct. Readback may produce >1 image.
-    //       Tracking of new images in _cmdFrameTiles?
-    ImagesCIter i = command->lastImageOnly ? images.end()-1 : images.begin();
-    for( ; i != images.end(); ++i )
+    std::vector< const PixelData* > pixelDatas;
+    std::vector< float > qualities;
+
+    packet.size = packetSize;
+    packet.buffers = Frame::BUFFER_NONE;
+    packet.pvp = image->getPixelViewport();
+    packet.useAlpha = image->getAlphaUsage();
+    EQASSERT( packet.pvp.isValid( ));
+
     {
-        Image* image = *i;
-        if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+        uint64_t rawSize( 0 );
+        ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
+            this );
+        compressEvent.statisticsIndex = command->statisticsIndex;
+        compressEvent.event.data.statistic.task = command->context.taskID;
+        compressEvent.event.data.statistic.ratio = 1.0f;
+        compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+        compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+
+        if( !useCompression ) // don't send event
+            compressEvent.event.data.statistic.frameNumber = 0;
+
+        // Prepare image pixel data
+        Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
+
+        // for each image attachment
+        for( unsigned j = 0; j < 2; ++j )
         {
-            EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
-            EQUNIMPLEMENTED;
-            return;
-        }
-
-        std::vector< const PixelData* > pixelDatas;
-        std::vector< float > qualities;
-
-        packet.size = packetSize;
-        packet.buffers = Frame::BUFFER_NONE;
-        packet.pvp = image->getPixelViewport();
-        packet.useAlpha = image->getAlphaUsage();
-        EQASSERT( packet.pvp.isValid( ));
-
-        {
-            uint64_t rawSize( 0 );
-            ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                             this );
-            compressEvent.statisticsIndex = command->statisticsIndex;
-            compressEvent.event.data.statistic.task = command->context.taskID;
-            compressEvent.event.data.statistic.ratio = 1.0f;
-            compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-            compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-            if( !useCompression ) // don't send event
-                compressEvent.event.data.statistic.frameNumber = 0;
-
-            // Prepare image pixel data
-            Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
-
-            // for each image attachment
-            for( unsigned j = 0; j < 2; ++j )
+            Frame::Buffer buffer = buffers[j];
+            if( image->hasPixelData( buffer ))
             {
-                Frame::Buffer buffer = buffers[j];
-                if( image->hasPixelData( buffer ))
+                // format, type, nChunks, compressor name
+                packet.size += sizeof( FrameData::ImageHeader ); 
+
+                const PixelData& data = useCompression ?
+                    image->compressPixelData( buffer ) : 
+                image->getPixelData( buffer );
+                pixelDatas.push_back( &data );
+                qualities.push_back( image->getQuality( buffer ));
+
+                if( data.isCompressed )
                 {
-                    // format, type, nChunks, compressor name
-                    packet.size += sizeof( FrameData::ImageHeader ); 
-
-                    const PixelData& data = useCompression ?
-                        image->compressPixelData( buffer ) : 
-                        image->getPixelData( buffer );
-                    pixelDatas.push_back( &data );
-                    qualities.push_back( image->getQuality( buffer ));
-
-                    if( data.isCompressed )
-                    {
-                        const uint32_t nElements = 
-                            uint32_t( data.compressedSize.size( ));
-                        for( uint32_t k = 0 ; k < nElements; ++k )
-                        {
-                            packet.size += sizeof( uint64_t );
-                            packet.size += data.compressedSize[ k ];
-                        }
-                        compressEvent.event.data.statistic.plugins[j] =
-                            data.compressorName;
-                    }
-                    else
+                    const uint32_t nElements = 
+                        uint32_t( data.compressedSize.size( ));
+                    for( uint32_t k = 0 ; k < nElements; ++k )
                     {
                         packet.size += sizeof( uint64_t );
-                        packet.size += image->getPixelDataSize( buffer );
+                        packet.size += data.compressedSize[ k ];
                     }
-
-                    packet.buffers |= buffer;
-                    rawSize += image->getPixelDataSize( buffer );
+                    compressEvent.event.data.statistic.plugins[j] =
+                        data.compressorName;
                 }
-            }
-
-            if( rawSize > 0 )
-                compressEvent.event.data.statistic.ratio =
-                    static_cast< float >( packet.size ) /
-                    static_cast< float >( rawSize );
-        }
-
-        if( pixelDatas.empty( ))
-            continue;
-
-        // send image pixel data packet
-        co::LocalNode::SendToken token;
-        if( useSendToken )
-        {
-            ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
-                                        this );
-            waitEvent.statisticsIndex = command->statisticsIndex;
-            waitEvent.event.data.statistic.task = command->context.taskID;
-            token = getLocalNode()->acquireSendToken( toNode );
-        }
-
-        connection->lockSend();
-        connection->send( &packet, packetSize, true );
-#ifndef NDEBUG
-        size_t sentBytes = packetSize;
-#endif
-
-        for( uint32_t j=0; j < pixelDatas.size(); ++j )
-        {
-#ifndef NDEBUG
-            sentBytes += sizeof( FrameData::ImageHeader );
-#endif
-            const PixelData* data = pixelDatas[j];
-            const FrameData::ImageHeader header =
-                  { data->internalFormat, data->externalFormat,
-                    data->pixelSize, data->pvp,
-                    data->compressorName, data->compressorFlags,
-                    data->isCompressed ?
-                        uint32_t( data->compressedSize.size( )) : 1,
-                    qualities[ j ] };
-
-            connection->send( &header, sizeof( FrameData::ImageHeader ), true );
-            
-            if( data->isCompressed )
-            {
-                for( uint32_t k = 0 ; k < data->compressedSize.size(); ++k )
+                else
                 {
-                    const uint64_t dataSize = data->compressedSize[k];
-                    connection->send( &dataSize, sizeof( dataSize ), true );
-                    if( dataSize > 0 )
-                        connection->send( data->compressedData[k], 
-                                          dataSize, true );
-#ifndef NDEBUG
-                    sentBytes += sizeof( dataSize ) + dataSize;
-#endif
+                    packet.size += sizeof( uint64_t );
+                    packet.size += image->getPixelDataSize( buffer );
                 }
+
+                packet.buffers |= buffer;
+                rawSize += image->getPixelDataSize( buffer );
             }
-            else
+        }
+
+        if( rawSize > 0 )
+            compressEvent.event.data.statistic.ratio =
+            static_cast< float >( packet.size ) /
+            static_cast< float >( rawSize );
+    }
+
+    if( pixelDatas.empty( ))
+        return;
+
+    // send image pixel data packet
+    co::LocalNode::SendToken token;
+    if( useSendToken )
+    {
+        ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
+            this );
+        waitEvent.statisticsIndex = command->statisticsIndex;
+        waitEvent.event.data.statistic.task = command->context.taskID;
+        token = getLocalNode()->acquireSendToken( toNode );
+    }
+
+    connection->lockSend();
+    connection->send( &packet, packetSize, true );
+#ifndef NDEBUG
+    size_t sentBytes = packetSize;
+#endif
+
+    for( uint32_t j=0; j < pixelDatas.size(); ++j )
+    {
+#ifndef NDEBUG
+        sentBytes += sizeof( FrameData::ImageHeader );
+#endif
+        const PixelData* data = pixelDatas[j];
+        const FrameData::ImageHeader header =
+        { data->internalFormat, data->externalFormat,
+        data->pixelSize, data->pvp,
+        data->compressorName, data->compressorFlags,
+        data->isCompressed ?
+        uint32_t( data->compressedSize.size( )) : 1,
+        qualities[ j ] };
+
+        connection->send( &header, sizeof( FrameData::ImageHeader ), true );
+
+        if( data->isCompressed )
+        {
+            for( uint32_t k = 0 ; k < data->compressedSize.size(); ++k )
             {
-                const uint64_t dataSize = data->pvp.getArea() * 
-                                          data->pixelSize;
+                const uint64_t dataSize = data->compressedSize[k];
                 connection->send( &dataSize, sizeof( dataSize ), true );
-                connection->send( data->pixels, dataSize, true );
+                if( dataSize > 0 )
+                    connection->send( data->compressedData[k], 
+                    dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif
             }
         }
+        else
+        {
+            const uint64_t dataSize = data->pvp.getArea() * 
+                data->pixelSize;
+            connection->send( &dataSize, sizeof( dataSize ), true );
+            connection->send( data->pixels, dataSize, true );
 #ifndef NDEBUG
-        EQASSERTINFO( sentBytes == packet.size,
-                      sentBytes << " != " << packet.size );
+            sentBytes += sizeof( dataSize ) + dataSize;
+#endif
+        }
+    }
+#ifndef NDEBUG
+    EQASSERTINFO( sentBytes == packet.size,
+        sentBytes << " != " << packet.size );
 #endif
 
-        connection->unlockSend();
-        getLocalNode()->releaseSendToken( token );
-    }
-
-    // all data transmitted -> ready
-    NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID = command->clientNodeID;
-    toNode->send( readyPacket );
+    connection->unlockSend();
+    getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_collectOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
+void Channel::_sendFrameDataReady( const ChannelFrameTransmitPacket* command )
+{
+    co::LocalNodePtr localNode = getLocalNode();
+    co::NodePtr toNode = localNode->connect( command->netNodeID );
+
+    NodeFrameDataReadyPacket pkt(getNode()->getFrameData( command->frameData ));
+    pkt.objectID = command->clientNodeID;
+    toNode->send( pkt );
+}
+
+void Channel::_transmitImage( const ChannelFrameTransmitPacket* command )
+{
+    FrameData* frameData = getNode()->getFrameData( command->frameData ); 
+    EQASSERT( frameData );
+
+    if( frameData->getBuffers() == 0 )
+    {
+        EQWARN << "No buffers for frame data" << std::endl;
+        return;
+    }
+
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    transmitEvent.statisticsIndex = command->statisticsIndex;
+    transmitEvent.event.data.statistic.task = command->context.taskID;
+
+    const Images& images = frameData->getImages();
+    EQASSERT( images.size() > command->imageIndex );
+    _transmitImage( images[command->imageIndex], command );
+}
+
+void Channel::_transmitFrame( const ChannelFrameTransmitPacket* command )
+{
+    FrameData* frameData = getNode()->getFrameData( command->frameData ); 
+    EQASSERT( frameData );
+
+    if( frameData->getBuffers() == 0 )
+    {
+        EQWARN << "No buffers for frame data" << std::endl;
+        return;
+    }
+
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    transmitEvent.statisticsIndex = command->statisticsIndex;
+    transmitEvent.event.data.statistic.task = command->context.taskID;
+
+    // send all images
+    const Images& images = frameData->getImages();
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        _transmitImage( *i, command );
+
+    // all data transmitted -> ready
+    _sendFrameDataReady( command );
+}
+
+// TODO Separate send and ready packets? If ready==true this method has
+// different semantics and does not send tile to input nodes!
+void Channel::_sendTileToInputNodes( const RenderContext& context, bool ready )
+{
+    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;    
+        if ( ready )
+            frame->setReady();
+
+        const FrameData* data = frame->getData();
+        const std::vector<uint128_t>& toNodes = data->getInputNodes();
+        const std::vector<uint128_t>& toNetNodes = data->getInputNetNodes();
+        std::vector<uint128_t>::const_iterator j = toNodes.begin();
+        std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
+        for( ; j != toNodes.end(); ++j, ++k )
+        {
+            if (ready)
+                ++_statistics.data[ _statisticsIndex ].used;
+
+            size_t index = frame->getImages().size();
+            // make sure a packet is sent for ready packets
+            index -= ready ? 1 : frame->getData()->getNewImages();
+            for ( ; index != frame->getImages().size(); ++index )
+            {
+                ChannelFrameTransmitPacket transmitPacket;
+                transmitPacket.command =
+                    ready ? fabric::CMD_CHANNEL_FRAME_READY :
+                            fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+                transmitPacket.context   = context;
+                transmitPacket.frameData = frame->getDataVersion( context.eye );
+                transmitPacket.clientNodeID = *j;
+                transmitPacket.netNodeID = *k;
+                transmitPacket.statisticsIndex = _statisticsIndex;
+                transmitPacket.frameNumber = getPipe()->getCurrentFrame();
+                transmitPacket.imageIndex = index;
+
+                send( getNode()->getLocalNode(), transmitPacket );
+            }
+        }
+        frame->getData()->resetNewImages();
+        if( toNodes.empty() )
+            EQWARN << "unable to transmit frame " << context.frameID
+                   << std::endl;
+    }
+}
+
+void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
 {
     for( uint32_t i=0; i<nFrames; ++i )
     {
@@ -1385,8 +1465,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 {
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
-    _collectOutputFrames( nFrames, frames );
-
+    _setOutputFrames( nFrames, frames );
     frameReadback( frameID );
 
     size_t in = 0;
@@ -1615,7 +1694,11 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     _setRenderContext( packet->context );
     _frameReadback( packet->context.frameID, packet->nFrames,
                     packet->frames );
+<<<<<<< HEAD
     resetContext();
+=======
+    resetRenderContext();
+>>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
     return true;
 }
 
@@ -1640,7 +1723,26 @@ bool Channel::_cmdFrameTransmitAsync( co::Command& command )
     const ChannelFrameTransmitPacket* packet = 
         command.get<ChannelFrameTransmitPacket>();
 
-    _transmit( packet );
+    _transmitFrame( packet );
+    _unrefFrame( packet->frameNumber, packet->statisticsIndex );
+    return true;
+}
+
+bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
+{
+    const ChannelFrameTransmitPacket* packet = 
+        command.get<ChannelFrameTransmitPacket>();
+
+    _transmitImage( packet );
+    return true;
+}
+
+bool Channel::_cmdFrameReady( co::Command& command )
+{
+    const ChannelFrameTransmitPacket* packet = 
+        command.get<ChannelFrameTransmitPacket>();
+
+    _sendFrameDataReady( packet );
     _unrefFrame( packet->frameNumber, packet->statisticsIndex );
     return true;
 }
@@ -1680,7 +1782,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
         command.get<ChannelStopFramePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
-
+    
     notifyStopFrame( packet->lastFrameNumber );
     return true;
 }
@@ -1695,32 +1797,37 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     RenderContext context = packet->context;
     _setRenderContext( context );
 
-    _collectOutputFrames( packet->nFrames, packet->frames );
+    if( packet->tasks & fabric::TASK_READBACK )
+        _setOutputFrames( packet->nFrames, packet->frames );
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
-    while( co::Command* queuePacket = queue->pop( ))
+    for( co::Command* queuePacket = queue->pop(); queuePacket;
+         queuePacket = queue->pop( ))
     {
         TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
         context.frustum = tilePacket->frustum;
+        context.ortho = tilePacket->ortho;
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
-        if ( packet->tasks & fabric::TASK_CLEAR )
-            frameClear( packet->context.frameID );
-
-        if ( packet->tasks & fabric::TASK_DRAW )
-            frameDraw( packet->context.frameID );
-
-        if ( packet->tasks & fabric::TASK_READBACK )
+        if( packet->tasks & fabric::TASK_CLEAR )
         {
-            EQ_GL_CALL( applyBuffer( ));
-            EQ_GL_CALL( applyViewport( ));
-            EQ_GL_CALL( setupAssemblyState( ));
+            ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+            frameClear( packet->context.frameID );
+        }
 
-            Window::ObjectManager* glObjects = getObjectManager();
-            const DrawableConfig& drawableConfig = getDrawableConfig();
+        if( packet->tasks & fabric::TASK_DRAW )
+        {
+            ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
+            frameDraw( packet->context.frameID );
+        }
 
+        if( packet->tasks & fabric::TASK_READBACK )
+        {
+            ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+<<<<<<< HEAD
              // @bug frameReadback has to be used!
             for( FramesCIter i = _outputFrames.begin();
                 i != _outputFrames.end(); ++i )
@@ -1750,20 +1857,38 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                     transmitPacket->lastImageOnly = true;
                     dispatchCommand( command );
                 }                
+=======
+            const Frames& frames = getOutputFrames();
+            for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+            {
+                Frame* frame = *i;
+                frame->getData()->setPixelViewport( getPixelViewport() );
+>>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
             }
+            frameReadback( packet->context.frameID );
 
-            EQ_GL_CALL( resetAssemblyState( ));            
+            // transmit image
+            _sendTileToInputNodes( context, false );
         }
-    }
 
+<<<<<<< HEAD
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->setReady();
+=======
+        queuePacket->release();
     }
-    _outputFrames.clear();
+    if ( packet->tasks & fabric::TASK_READBACK )
+>>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
+    {
+        // set frame ready
+        _sendTileToInputNodes( context, true );
+        _outputFrames.clear();
+    }
 
+<<<<<<< HEAD
     resetContext();
+=======
+    resetRenderContext();
+>>>>>>> 042c8c0fb93b680431f05a5712c2292333e368db
     return true;
 }
 

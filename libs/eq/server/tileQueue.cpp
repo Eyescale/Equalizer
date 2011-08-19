@@ -30,8 +30,8 @@ namespace server
 TileQueue::TileQueue()
         : co::Object()
         , _compound( 0 )
+        , _name()
         , _size( 0, 0 )
-        , _activated( true )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _queueMaster[i] = 0;
@@ -42,7 +42,6 @@ TileQueue::TileQueue( const TileQueue& from )
         , _compound( 0 )
         , _name( from._name )
         , _size( from._size )
-        , _activated( true )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _queueMaster[i] = 0;
@@ -64,8 +63,6 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
-        _outputQueues[i].clear();
-
         if( !compound->isInheritActive( (eq::Eye)(1<<i) ))// eye pass not used
         {
             _queueMaster[i] = 0;
@@ -73,7 +70,7 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
         }
 
         // reuse unused frame data
-        latencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
+        LatencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
         const uint32_t latency = getAutoObsolete();
         const uint32_t dataAge = queue ? queue->_frameNumber : 0;
 
@@ -82,12 +79,13 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
             _queues.pop_back();
         else // still used - allocate new data
         {
-            queue = new latencyQueue;
+            queue = new LatencyQueue;
 
             getLocalNode()->registerObject( &queue->_queue );
             queue->_queue.setAutoObsolete( 1 ); // current + in use by render nodes
         }
 
+        queue->_queue.clear();
         queue->_frameNumber = frameNumber;
 
         _queues.push_front( queue );
@@ -95,13 +93,13 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
     }
 }
 
-void TileQueue::addOutputQueue( TileQueue* queue, const Compound* compound )
+void TileQueue::setOutputQueue( TileQueue* queue, const Compound* compound )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         // eye pass not used && no output frame for eye pass
         if( compound->isInheritActive( (eq::Eye)(1<<i) ) )
-            _outputQueues[i].push_back( queue );
+            _outputQueue[i] =queue;
     }
 }
 
@@ -119,7 +117,7 @@ void TileQueue::flush()
 
     while( !_queues.empty( ))
     {
-        latencyQueue* queue = _queues.front();
+        LatencyQueue* queue = _queues.front();
         _queues.pop_front();
         getLocalNode()->deregisterObject( &queue->_queue );
         delete queue;
@@ -132,8 +130,17 @@ void TileQueue::unsetData()
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         _queueMaster[i] = 0;
-        _outputQueues[i].clear();
+        _outputQueue[i] = 0;
     }
+}
+
+const UUID TileQueue::getQueueMasterID( fabric::Eye eye ) const
+{
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    LatencyQueue* queue = _queueMaster[ index ];
+    if ( queue )
+        return queue->_queue.getID();
+    return co::base::UUID::ZERO;
 }
 
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
@@ -141,27 +148,18 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     if( !tileQueue )
         return os;
     
-    os << co::base::disableFlush << "tileQueue" << std::endl;
+    os << co::base::disableFlush << "tiles" << std::endl;
     os << "{" << std::endl << co::base::indent;
-      
+
     const std::string& name = tileQueue->getName();
     os << "name      \"" << name << "\"" << std::endl;
 
     const eq::Vector2i& size = tileQueue->getTileSize();
-    os << "tile size \"" << size << "\"" << std::endl;
+    if( size.x() > 0 || size.y() > 0 )
+        os << "size      [ " << size.x() << " " << size.y() << " ]" <<std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;
-}
-
-const UUID TileQueue::getQueueMasterID( fabric::Eye eye )
-{
-    uint32_t index = co::base::getIndexOfLastBit(eye);
-    latencyQueue* queue = _queueMaster[ index ];
-    if ( queue )
-        return queue->_queue.getID();
-    else
-        return co::base::UUID::ZERO;
 }
 
 }
