@@ -44,6 +44,10 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
     {
         channel->getView()->updateFrusta();
         // TODO needed? Should be done per frame in update visitors?
+        // is necessary for initial setup of tile size for view as tile size
+        // comes from config file from the queue. per frame update does the
+        // update vice versa, i.e. view->queue if size was changed during
+        // runtime via the view.
         const TileQueues& outputQueues = compound->getOutputTileQueues();
         for( TileQueuesCIter i = outputQueues.begin(); 
              i != outputQueues.end(); ++i )

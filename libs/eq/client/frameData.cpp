@@ -255,8 +255,8 @@ void FrameData::readback( const Frame& frame,
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x, pvp.y );
-        // eile why? image->setOffset( pvp.x, pvp.y );
-        // tribal-tec because it works; below code does not set any offset
+        // @bug? eile why? image->setOffset( pvp.x, pvp.y );
+        // tribal-tec because it works; original code does not set any offset
         // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
@@ -272,6 +272,7 @@ void FrameData::readback( const Frame& frame,
 #endif
     }
     // @bug? Why did it move to channel?
+    // was called in frameReadback anyway, obsolete here?
     //setReady();
 }
 

@@ -167,6 +167,10 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
 #if 0
         //@bug? Where did this go? ----- Commit
+        // https://github.com/tribal-tec/Equalizer/commit/0e016a608f403f0234c3aba7ddb4a6906d1b219f
+        // moved to compoundUpdateInputVisitor.cpp:135, commit needs to be done
+        // after setting the input nodes to the outputframe
+        // follow outputFrame->addInputFrame( frame, compound );
         frame->commitData();
         frame->commit();
 #endif
