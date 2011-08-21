@@ -25,6 +25,7 @@
 #include "view.h"
 #include "window.h"
 #include "tileQueue.h"
+#include "equalizers/tileEqualizer.h"
 #include <eq/client/log.h>
 
 namespace eq
@@ -54,6 +55,17 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         {
             TileQueue* queue  = *i;
             channel->getView()->setTileSize( queue->getTileSize() );
+        }
+
+        // equalizer settings override queue settings
+        const Equalizers equalizers = compound->getEqualizers();
+        for ( EqualizersCIter eqIt = equalizers.begin();
+	          eqIt != equalizers.end(); ++eqIt )
+        {
+	        // opt: find tile equalizer without dynamic cast
+	        const TileEqualizer* tileEq = dynamic_cast<TileEqualizer*>( *eqIt );
+	        if ( tileEq )
+		        channel->getView()->setTileSize( tileEq->getTileSize() );
         }
     }
     else

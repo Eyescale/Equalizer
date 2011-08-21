@@ -132,9 +132,6 @@ void TileEqualizer::_syncViewTileSize( Compound* compound )
     if ( !view )
         return;
 
-    if ( view->getTileSize() == Vector2i( 0, 0) )
-        view->setTileSize( _size );
-
     setTileSize( view->getTileSize() );
 }
 
