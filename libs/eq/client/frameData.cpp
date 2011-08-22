@@ -209,6 +209,9 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
         image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
     }
 
+    image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
+    image->useCompressor( Frame::BUFFER_DEPTH, _depthCompressor );
+
     image->setInternalFormat( Frame::BUFFER_DEPTH,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );
     switch( config.colorBits )
@@ -267,8 +270,6 @@ void FrameData::readback( const Frame& frame,
         pvp.intersect( absPVP );
 
         Image* image = newImage( _data.frameType, config );
-        image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
-        image->useCompressor( Frame::BUFFER_DEPTH, _colorCompressor );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x, pvp.y );
         // @bug? eile why? image->setOffset( pvp.x, pvp.y );
