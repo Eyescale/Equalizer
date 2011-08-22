@@ -257,11 +257,6 @@ add_definitions(${EQ_DEFINITIONS})
 
 add_subdirectory(tools)
 if(EQUALIZER_BUILD_EXAMPLES)
-  configure_file(examples/CMakeLists.in.txt
-                 ${CMAKE_SOURCE_DIR}/examples/CMakeLists.txt @ONLY)
-  install(FILES CMake/ParseArguments.cmake CMake/PurpleExpandLibraries.cmake
-                CMake/EqStringifyShaders.cmake CMake/configure.cmake
-          DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
   add_subdirectory(examples)
 endif()
 add_subdirectory(tests)
