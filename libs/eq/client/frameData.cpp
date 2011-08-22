@@ -49,6 +49,8 @@ FrameData::FrameData()
         , _useAlpha( true )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
+        , _colorCompressor( EQ_COMPRESSOR_INVALID )
+        , _depthCompressor( EQ_COMPRESSOR_INVALID )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << std::endl;
@@ -81,6 +83,18 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
     }
 
     _colorQuality = quality;
+}
+
+void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+{
+    if( buffer != Frame::BUFFER_COLOR )
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        _depthCompressor = name;
+        return;
+    }
+
+    _colorCompressor = name;
 }
 
 void FrameData::getInstanceData( co::DataOStream& os )
@@ -216,6 +230,8 @@ void FrameData::readback( const Frame& frame,
         pvp.intersect( absPVP );
 
         Image* image = newImage( _data.frameType, config );
+        image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
+        image->useCompressor( Frame::BUFFER_DEPTH, _colorCompressor );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
