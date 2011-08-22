@@ -265,6 +265,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
   add_subdirectory(auxiliary)
 endif()
+add_subdirectory(doc) # must be after all targets
 
 install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
@@ -287,7 +288,6 @@ endif()
 
 message(STATUS "Configured features: ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 
-include(doxygen) # must be after all targets
 include(CPackConfig)
 include(copyScript)
 
