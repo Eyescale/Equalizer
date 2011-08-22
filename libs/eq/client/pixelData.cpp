@@ -36,7 +36,7 @@ void PixelData::reset()
     externalFormat = EQ_COMPRESSOR_DATATYPE_NONE;
     pixelSize = 0;
     pixels = 0;
-    compressorName = EQ_COMPRESSOR_INVALID;
+    compressorName = EQ_COMPRESSOR_AUTO;
     compressorFlags = 0;
     isCompressed = false;
     compressedSize.clear();
