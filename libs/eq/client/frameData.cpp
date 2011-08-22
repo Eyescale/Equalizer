@@ -49,8 +49,8 @@ FrameData::FrameData()
         , _useAlpha( true )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
-        , _colorCompressor( EQ_COMPRESSOR_INVALID )
-        , _depthCompressor( EQ_COMPRESSOR_INVALID )
+        , _colorCompressor( EQ_COMPRESSOR_AUTO )
+        , _depthCompressor( EQ_COMPRESSOR_AUTO )
         , _newImages( 0 )
 {
     _roiFinder = new ROIFinder();

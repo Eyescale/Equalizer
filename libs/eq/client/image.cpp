@@ -832,11 +832,8 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
     }
     else
     {
-        if( memory.compressorName == EQ_COMPRESSOR_AUTO ||
-            memory.compressorName == EQ_COMPRESSOR_INVALID )
-        {
+        if( memory.compressorName == EQ_COMPRESSOR_AUTO )
             memory.compressorName = _chooseCompressor( buffer );
-        }
 
         if( !allocCompressor( buffer, memory.compressorName ) || 
             memory.compressorName == EQ_COMPRESSOR_NONE )
