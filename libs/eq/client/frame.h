@@ -181,6 +181,10 @@ namespace server
         EQ_API void setQuality( const Frame::Buffer buffer,
                                    const float quality );
 
+        /** Sets a compressor for compression before transmit. */
+        EQ_API void useCompressor( const Frame::Buffer buffer,
+                                   const uint32_t name );
+
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
             { return _data.frameData[co::base::getIndexOfLastBit( eye ) ]; }

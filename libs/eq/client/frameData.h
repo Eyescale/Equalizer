@@ -171,6 +171,18 @@ namespace server
 
         /** @internal @return the additional zoom. */
         const Zoom& getZoom() const { return _data.zoom; }
+
+        /**
+         * Sets a compressor which will be allocated and used during transmit of
+         * the image buffer. The default compressor is EQ_COMPRESSOR_AUTO which
+         * selects the most suitable compressor wrt the current image and buffer
+         * parameters.
+         * @sa _chooseCompressor()
+         * 
+         * @param buffer the frame buffer attachment.
+         * @param name the compressor name
+         */
+        void useCompressor( const Frame::Buffer buffer, const uint32_t name );
         //@}
 
         /** @name Operations */
@@ -325,6 +337,9 @@ namespace server
         bool _useAlpha;
         float _colorQuality;
         float _depthQuality;
+
+        uint32_t _colorCompressor;
+        uint32_t _depthCompressor;
 
         size_t _newImages;
 

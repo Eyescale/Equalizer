@@ -396,7 +396,7 @@ void Channel::frameReadback( const uint128_t& )
     const Frames& frames = getOutputFrames();
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
-        Frame* frame = *i;        
+        Frame* frame = *i;
         frame->readback( glObjects, drawableConfig );
     }
 
@@ -1247,6 +1247,7 @@ void Channel::_transmitImage( Image* image,
                 const PixelData& data = useCompression ?
                     image->compressPixelData( buffer ) : 
                 image->getPixelData( buffer );
+                EQASSERT( data.compressorName != EQ_COMPRESSOR_AUTO );
                 pixelDatas.push_back( &data );
                 qualities.push_back( image->getQuality( buffer ));
 
