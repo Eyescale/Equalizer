@@ -68,7 +68,11 @@ set(CPACK_RPM_PACKAGE_VERSION ${SHORT_VERSION})
 
 if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  set(DPUT_HOST "ppa:eilemann/equalizer")
+  if(EQUALIZER_RELEASE)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
 endif()
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev)
 

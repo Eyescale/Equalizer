@@ -52,8 +52,7 @@ namespace co
         /** @name Data input */
         //@{
         /** Read a plain data item. */
-        template< typename T >
-        DataIStream& operator >> ( T& value )
+        template< typename T > DataIStream& operator >> ( T& value )
             { read( &value, sizeof( value )); return *this; }
 
         /** Read a std::vector of serializable items. */
@@ -98,13 +97,17 @@ namespace co
          * the DataOStream, a symmetric read from the DataIStream has at least n
          * bytes available.
          */
-        CO_API const void*    getRemainingBuffer();
+        CO_API const void* getRemainingBuffer();
 
         /** Get the size of the remaining data in the current buffer. */
-        CO_API uint64_t       getRemainingBufferSize();
+        CO_API uint64_t getRemainingBufferSize();
 
         /** Advance the current buffer by a number of bytes. */
-        CO_API void           advanceBuffer( const uint64_t offset );
+        CO_API void advanceBuffer( const uint64_t offset );
+
+        /** @return true if all data has been read. */
+        bool isEmpty()
+            { return nRemainingBuffers()==0 && getRemainingBufferSize()==0; }
         //@}
  
     protected:

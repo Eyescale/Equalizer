@@ -117,19 +117,19 @@ namespace co
          * Used to push object data from a Node, instead of pulling it during
          * mapping. Does not establish any mapping, that is, the receiving side
          * will typically use LocalNode::mapObject with VERSION_NONE to
-         * establish this slave mapping. On each receiving node,
-         * LocalNode::objectPush() is called.
+         * establish a slave mapping. On each receiving node,
+         * LocalNode::objectPush() is called once per node.
          *
          * Buffered objects do not re-serialize their instance data. Multicast
          * connections are preferred, that is, for a set of nodes sharing one
          * multicast connection the data is only send once.
          *
          * @param groupID An identifier to group a set of push operations.
-         * @param pushID A per-push identifier.
+         * @param typeID A per-push identifier.
          * @param nodes The vector of nodes to push to.
          */
-        void push( const uint128_t& groupID, const uint128_t& pushID,
-                   const Nodes& nodes );
+        CO_API void push( const uint128_t& groupID, const uint128_t& typeID,
+                          const Nodes& nodes );
 
         /** 
          * Commit a new version of this object.

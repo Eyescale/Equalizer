@@ -1,4 +1,5 @@
 
+
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
@@ -264,6 +265,27 @@ namespace co
 
         /** Convenience method to deregister or unmap an object. */
         CO_API void releaseObject( Object* object );
+
+        /** 
+         * Handler for an Object::push operation.
+         *
+         * Called on each node listed in an Object::push upon reception of the
+         * pushed data. The default implementation is empty.
+         *
+         * Typically used to create an Object on a remote node, using the typeID
+         * for instantiation, the istream to initialize it and the objectID to
+         * map it using VERSION_NONE. The groupID may be used to differentiate
+         * multiple concurrent push operations.
+         *
+         * @param groupID The group identifier given to Object::push()
+         * @param typeID The type identifier given to Object::push()
+         * @param objectID The identifier of the pushed object
+         * @param istream the input data stream containing the instance data.
+         */
+        CO_API virtual void objectPush( const uint128_t& groupID,
+                                        const uint128_t& typeID,
+                                        const uint128_t& objectID,
+                                        DataIStream& istream );
 
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */

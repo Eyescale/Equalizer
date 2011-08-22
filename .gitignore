@@ -23,7 +23,6 @@ docs
 man
 release
 XCode
-examples/CMakeLists.txt
 externals/vmmlib/
 tests/client/configVisitor_objc.mm
 build*
