@@ -269,13 +269,15 @@ namespace co
         /** 
          * Handler for an Object::push operation.
          *
-         * Called on each node listed in an Object::push upon reception of the
-         * pushed data. The default implementation is empty.
+         * Called at least on each node listed in an Object::push upon reception
+         * of the pushed data from the command thread. Called on all nodes of a
+         * multicast group, even on nodes not listed in the Object::push.
          *
-         * Typically used to create an Object on a remote node, using the typeID
-         * for instantiation, the istream to initialize it and the objectID to
-         * map it using VERSION_NONE. The groupID may be used to differentiate
-         * multiple concurrent push operations.
+         * The default implementation is empty. Typically used to create an
+         * Object on a remote node, using the typeID for instantiation, the
+         * istream to initialize it and the objectID to map it using
+         * VERSION_NONE. The groupID may be used to differentiate multiple
+         * concurrent push operations.
          *
          * @param groupID The group identifier given to Object::push()
          * @param typeID The type identifier given to Object::push()
