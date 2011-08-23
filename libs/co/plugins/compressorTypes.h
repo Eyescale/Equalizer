@@ -36,8 +36,6 @@
  */
 /*@{*/
 // Equalizer CPU compressors
-/** Automatic selection of compressor */
-#define EQ_COMPRESSOR_AUTO                  0xFFFFFu
 /** Invalid Compressor */
 #define EQ_COMPRESSOR_INVALID               0x0u
 /** No Compressor */
@@ -205,6 +203,9 @@
 
 /* Transfer data from internal DEPTH to external DEPTH_STENCIL */
 #define EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT          0x501u
+
+/** Automatic selection of compressor */
+#define EQ_COMPRESSOR_AUTO  0xFFFFFu
 
 // Third-party plugins
 /** Quasi-lossless CPU jpeg compressor from rtt.ag */
