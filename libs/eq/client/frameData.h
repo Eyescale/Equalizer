@@ -177,7 +177,7 @@ namespace server
          * @sa _chooseCompressor()
          * 
          * @param buffer the frame buffer attachment.
-         * @param name the compressor name
+         * @param name the compressor name.
          */
         void useCompressor( const Frame::Buffer buffer, const uint32_t name );
         //@}
