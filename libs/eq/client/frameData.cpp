@@ -49,6 +49,8 @@ FrameData::FrameData()
         , _useAlpha( true )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
+        , _colorCompressor( EQ_COMPRESSOR_AUTO )
+        , _depthCompressor( EQ_COMPRESSOR_AUTO )
         , _newImages( 0 )
 {
     _roiFinder = new ROIFinder();
@@ -82,6 +84,18 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
     }
 
     _colorQuality = quality;
+}
+
+void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+{
+    if( buffer != Frame::BUFFER_COLOR )
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        _depthCompressor = name;
+        return;
+    }
+
+    _colorCompressor = name;
 }
 
 void FrameData::getInstanceData( co::DataOStream& os )
@@ -195,6 +209,9 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
         image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
     }
 
+    image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
+    image->useCompressor( Frame::BUFFER_DEPTH, _depthCompressor );
+
     image->setInternalFormat( Frame::BUFFER_DEPTH,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );
     switch( config.colorBits )
@@ -255,8 +272,8 @@ void FrameData::readback( const Frame& frame,
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x, pvp.y );
-        // eile why? image->setOffset( pvp.x, pvp.y );
-        // tribal-tec because it works; below code does not set any offset
+        // @bug? eile why? image->setOffset( pvp.x, pvp.y );
+        // tribal-tec because it works; original code does not set any offset
         // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
@@ -272,6 +289,7 @@ void FrameData::readback( const Frame& frame,
 #endif
     }
     // @bug? Why did it move to channel?
+    // was called in frameReadback anyway, obsolete here?
     //setReady();
 }
 

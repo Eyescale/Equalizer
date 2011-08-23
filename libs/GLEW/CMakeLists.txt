@@ -32,7 +32,7 @@ else()
   endforeach()
 
   include_directories(BEFORE SYSTEM ${GLEW_INCLUDE_DIRS})
-  add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
+  add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1 -DGLEW_NO_GLU)
   add_library(${GLEW_LIBRARY} STATIC ${GLEW_DIR}/src/glew.c)
   set_target_properties(${GLEW_LIBRARY} PROPERTIES
                         FOLDER "Libraries" VERSION ${GLEW_VERSION})

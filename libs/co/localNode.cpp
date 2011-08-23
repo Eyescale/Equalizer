@@ -20,6 +20,7 @@
 
 #include "command.h"
 #include "connectionDescription.h"
+#include "dataIStream.h"
 #include "global.h"
 #include "nodePackets.h"
 #include "object.h"
@@ -558,6 +559,13 @@ void LocalNode::releaseObject( Object* object )
         _objectStore->unmapObject( object );
 }
 
+void LocalNode::objectPush( const uint128_t& groupID, const uint128_t& typeID,
+                            const uint128_t& objectID, DataIStream& istream )
+{
+    if( !istream.isEmpty( ))
+        EQWARN << "Incomplete Object::push group " << groupID << " object "
+               << objectID << std::endl;
+}
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
 {

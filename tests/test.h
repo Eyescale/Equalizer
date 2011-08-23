@@ -88,15 +88,6 @@ int main( int argc, char **argv )
     if( result != EXIT_SUCCESS )
         return result;
 
-    const std::string filename( argv[ 0 ] + std::string( ".testOK" ));
-
-    std::ofstream file( filename.c_str(), std::ios::out | std::ios::binary );
-    if( file.is_open( ))
-    {
-        file.write( filename.c_str(), filename.length( ));
-        file.close();
-    }
-
 #ifndef EQ_TEST_NO_WATCHDOG
     watchdog.cancel();
     co::base::sleep( 10 ); // give watchdog time to terminate

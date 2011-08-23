@@ -120,6 +120,12 @@ void Frame::setQuality( const Frame::Buffer buffer, const float quality )
         _frameData->setQuality( buffer, quality );
 }
 
+void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+{
+    if( _frameData )
+        _frameData->useCompressor( buffer, name );
+}
+
 void Frame::readback( util::ObjectManager< const void* >* glObjects,
                       const DrawableConfig& config ) 
 {

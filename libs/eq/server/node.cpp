@@ -437,8 +437,9 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    _flushedFrame  = 0;
-    _finishedFrame = 0;
+    const Config* config = getConfig();
+    _flushedFrame  = config->getFinishedFrame();
+    _finishedFrame = config->getFinishedFrame();
     _frameIDs.clear();
 
     EQLOG( LOG_INIT ) << "Create node" << std::endl;

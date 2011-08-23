@@ -40,7 +40,7 @@ namespace base
     /**
      * A smart reference pointer.
      *
-     * Relies on the held object to implement ref and unref correctly.
+     * Relies on the held object to implement ref() and unref() correctly.
      */
     template< class T > class RefPtr 
     {
