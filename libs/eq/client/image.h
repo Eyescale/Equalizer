@@ -133,10 +133,10 @@ namespace eq
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /**
-         * Sets a compressor which will be allocated and used during transmit of
-         * the image buffer. The default compressor is EQ_COMPRESSOR_AUTO which
-         * selects the most suitable compressor wrt the current image and buffer
-         * parameters.
+         * Set a compressor to be used during transmission of the image.
+         *
+         * The default compressor is EQ_COMPRESSOR_AUTO which selects the most
+         * suitable compressor wrt the current image and buffer parameters.
          * @sa _chooseCompressor()
          * 
          * @param buffer the frame buffer attachment.

@@ -262,7 +262,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         else
             frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
 
-        if( frameData.useCompression() )
+        if( frameData.useCompression( ))
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_AUTO );
         else
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_NONE );

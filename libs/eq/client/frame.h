@@ -181,7 +181,7 @@ namespace server
         EQ_API void setQuality( const Frame::Buffer buffer,
                                    const float quality );
 
-        /** Sets a compressor for compression before transmit. */
+        /** Sets a compressor for compression for following transmissions. */
         EQ_API void useCompressor( const Frame::Buffer buffer,
                                    const uint32_t name );
 

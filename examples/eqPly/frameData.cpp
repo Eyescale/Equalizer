@@ -45,7 +45,7 @@ FrameData::FrameData()
         , _wireframe( false )
         , _pilotMode( false )
         , _idle( false )
-        , _useCompression( true )
+        , _compression( true )
         , _currentViewID( co::base::UUID::ZERO )
 {
     reset();
@@ -60,7 +60,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _quality << _ortho
            << _statistics << _help << _wireframe << _pilotMode << _idle
-           << _useCompression;
+           << _compression;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -75,7 +75,7 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
            >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle
-           >> _useCompression;
+           >> _compression;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -168,7 +168,7 @@ void FrameData::toggleRenderMode()
 
 void FrameData::toggleCompression()
 {
-    _useCompression = !_useCompression;
+    _compression = !_compression;
     setDirty( DIRTY_FLAGS );
 }
 

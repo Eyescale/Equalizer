@@ -78,7 +78,7 @@ namespace eqPly
         bool usePilotMode() const { return _pilotMode; }
         bool isIdle() const { return _idle; }
         mesh::RenderMode getRenderMode() const { return _renderMode; }
-        bool useCompression() const { return _useCompression; }
+        bool useCompression() const { return _compression; }
         //*}
 
         /** @name Camera parameters. */
@@ -144,7 +144,7 @@ namespace eqPly
         bool             _wireframe;
         bool             _pilotMode;
         bool             _idle;
-        bool             _useCompression;
+        bool             _compression;
 
         eq::uint128_t _currentViewID;
         std::string _message;
