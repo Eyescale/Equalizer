@@ -1247,7 +1247,6 @@ void Channel::_transmitImage( Image* image,
                 const PixelData& data = useCompression ?
                     image->compressPixelData( buffer ) : 
                 image->getPixelData( buffer );
-                EQASSERT( data.compressorName != EQ_COMPRESSOR_AUTO );
                 pixelDatas.push_back( &data );
                 qualities.push_back( image->getQuality( buffer ));
 
