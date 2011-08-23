@@ -73,8 +73,7 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
-        typedef std::pair< base::UUID, ObjectDataIStream* > PendingStream;
-        typedef std::vector< PendingStream > PendingStreams;
+        typedef stde::hash_map< uint128_t, ObjectDataIStream* > PendingStreams;
 
         /** Not yet ready streams. */
         PendingStreams _pendingDeltas;

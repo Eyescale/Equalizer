@@ -48,11 +48,12 @@ MasterCM::~MasterCM()
     EQASSERTINFO( _queuedDeltas.isEmpty(), _queuedDeltas.getSize() <<
                   " unapplied slave commits on " << typeid( *_object ).name( ));
 
-    while( !_pendingDeltas.empty( ))
+    for( PendingStreams::const_iterator i = _pendingDeltas.begin();
+         i != _pendingDeltas.end(); ++i )
     {
-        delete _pendingDeltas.back().second;
-        _pendingDeltas.pop_back();
+        delete i->second;
     }
+    _pendingDeltas.clear();
 
     ObjectDataIStream* is = 0;
     while( _queuedDeltas.tryPop( is ))
@@ -170,29 +171,16 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     const ObjectSlaveDeltaPacket* packet = 
         command.get< ObjectSlaveDeltaPacket >();
 
-    EQASSERTINFO( _pendingDeltas.size() < 100,
-                  "More than 100 unfinished slave commits!?" );
+    EQASSERTINFO( _pendingDeltas.size() < 100, "More than 100 pending commits");
 
     ObjectDataIStream* istream = 0;
-    PendingStreams::iterator i = _pendingDeltas.begin();
-    for( ; i != _pendingDeltas.end(); ++i )
-    {
-        PendingStream& pending = *i;
-        if( pending.first == packet->commit )
-        {
-            istream = pending.second;
-            break;
-        }
-    }
-
-    if( !istream )
-    {
-        EQASSERT( i == _pendingDeltas.end( ));
+    PendingStreams::iterator i = _pendingDeltas.find( packet->commit );
+    if( i == _pendingDeltas.end( ))
         istream = _iStreamCache.alloc();
-    }
+    else
+        istream = i->second;
 
     istream->addDataPacket( command );
-
     if( istream->isReady( ))
     {
         if( i != _pendingDeltas.end( ))
@@ -201,7 +189,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
         _queuedDeltas.push( istream );
         _object->notifyNewVersion();
         EQASSERTINFO( _queuedDeltas.getSize() < 100,
-                      "More than 100 queued slave commits!?" );
+                      "More than 100 queued commits" );
 #if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "
@@ -211,7 +199,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     }
     else if( i == _pendingDeltas.end( ))
     {
-        _pendingDeltas.push_back( PendingStream( packet->commit, istream ));
+        _pendingDeltas[ packet->commit ] = istream;
 #if 0
         EQLOG( LOG_OBJECTS )
             << "New incomplete slave commit " << packet->commit << " object "
