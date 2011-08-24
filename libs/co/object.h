@@ -414,6 +414,7 @@ namespace co
         friend class DeltaMasterCM;
         friend class FullMasterCM;
         friend class MasterCM;
+        friend class ObjectCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;
         friend class UnbufferedMasterCM;
