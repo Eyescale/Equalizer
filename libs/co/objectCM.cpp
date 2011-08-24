@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,12 @@
 
 #include "objectCM.h"
 
+#include "command.h"
 #include "nullCM.h"
 #include "node.h"
+#include "object.h"
+#include "objectInstanceDataOStream.h"
+#include "objectPackets.h"
 
 co::ObjectCM* co::ObjectCM::ZERO = new co::NullCM;
 
@@ -26,3 +30,50 @@ co::ObjectCM* co::ObjectCM::ZERO = new co::NullCM;
 co::base::a_int32_t co::ObjectCM::_hit( 0 );
 co::base::a_int32_t co::ObjectCM::_miss( 0 );
 #endif
+
+namespace co
+{
+typedef CommandFunc< ObjectCM > CmdFunc;
+
+ObjectCM::ObjectCM( Object* object )
+        : _object( object )
+{
+    if( !object ) // NullCM
+        return;
+    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
+    object->registerCommand( CMD_OBJECT_PUSH,
+                             CmdFunc( this, &ObjectCM::_cmdPush ), q );
+}
+
+void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
+                     Nodes& nodes )
+{
+    EQASSERT( _object );
+    EQASSERT( !nodes.empty( ));
+    if( nodes.empty( ))
+        return;
+
+    LocalNodePtr localNode = _object->getLocalNode();
+    ObjectPushPacket packet( _object->getInstanceID(),
+                             localNode->registerRequest(),
+                             groupID,  typeID, nodes );
+    
+    _object->send( localNode, packet );
+    localNode->waitRequest( packet.requestID );
+}
+
+bool ObjectCM::_cmdPush( Command& command )
+{
+    LocalNodePtr localNode = _object->getLocalNode();
+    const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
+
+    ObjectInstanceDataOStream os( this );
+    os.enablePush( getVersion(), *(packet->nodes) );
+    _object->getInstanceData( os );
+    os.disable();
+
+    localNode->serveRequest( packet->requestID );
+    return true;
+}
+
+}

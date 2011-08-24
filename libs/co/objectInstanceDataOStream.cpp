@@ -52,6 +52,15 @@ void ObjectInstanceDataOStream::enableCommit( const uint128_t& version,
     ObjectDataOStream::enableCommit( version, receivers );
 }
 
+void ObjectInstanceDataOStream::enablePush( const uint128_t& version,
+                                            const Nodes& receivers )
+{
+    _command = CMD_NODE_OBJECT_INSTANCE_PUSH;
+    _nodeID = NodeID::ZERO;
+    _instanceID = EQ_INSTANCE_NONE;
+    ObjectDataOStream::enableCommit( version, receivers );
+}
+
 void ObjectInstanceDataOStream::sendInstanceData( const Nodes& receivers )
 {
     _command = CMD_NODE_OBJECT_INSTANCE;

@@ -56,7 +56,6 @@ namespace co
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
-        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
         
         virtual void removeSlaves( NodePtr node );
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
