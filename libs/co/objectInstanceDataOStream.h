@@ -36,6 +36,10 @@ namespace co
         virtual void enableCommit( const uint128_t& version,
                                    const Nodes& receivers );
 
+        /** Set up push of the given version to the receivers. */
+        virtual void enablePush( const uint128_t& version,
+                                 const Nodes& receivers );
+
         /** Set up mapping of the given version to the given node. */
         void enableMap( const uint128_t& version, NodePtr node,
                         const uint32_t instanceID );

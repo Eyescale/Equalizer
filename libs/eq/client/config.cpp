@@ -126,7 +126,7 @@ void Config::notifyDetach()
 {
     {
         ClientPtr client = getClient();
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
+        co::base::ScopedFastWrite mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
             LatencyObject* latencyObject = _latencyObjects->back();
@@ -714,6 +714,9 @@ void Config::deregisterObject( co::Object* object )
     EQASSERT( object )
     EQASSERT( object->isMaster( ));
 
+    if( !object->isAttached( )) // not registered
+        return;
+
     const uint32_t latency = getLatency();
     ClientPtr client = getClient();
     if( latency == 0 || !_running || !object->isBuffered( )) // OPT
@@ -722,15 +725,12 @@ void Config::deregisterObject( co::Object* object )
         return;
     }
 
-    if( !object->isAttached( )) // not registered
-        return;
-
     // Keep a distributed object latency frames.
     // Replaces the object with a dummy proxy object using the
     // existing master change manager.
     ConfigSwapObjectPacket packet;
-    packet.requestID         = getLocalNode()->registerRequest();
-    packet.object            = object;
+    packet.requestID = getLocalNode()->registerRequest();
+    packet.object = object;
 
     send( client, packet );
     client->waitRequest( packet.requestID );
@@ -778,7 +778,7 @@ void Config::_releaseObjects()
 {
     ClientPtr client = getClient();
 
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
+    co::base::ScopedFastWrite mutex( _latencyObjects );
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
@@ -917,16 +917,14 @@ bool Config::_cmdSwapObject( co::Command& command )
     EQVERB << "Cmd swap object " << packet << std::endl;
 
     co::Object* object = packet->object;
-
-    LatencyObject* latencyObject =
-        new LatencyObject( object->getChangeType(), object->chooseCompressor(),
-                           _currentFrame + getLatency() + 1 );
-
+    LatencyObject* latencyObject = new LatencyObject( object->getChangeType(),
+                                                     object->chooseCompressor(),
+                                             _currentFrame + getLatency() + 1 );
     getLocalNode()->swapObject( object, latencyObject  );
-    
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _latencyObjects );
-    _latencyObjects->push_back( latencyObject );
-
+    {
+        co::base::ScopedFastWrite mutex( _latencyObjects );
+        _latencyObjects->push_back( latencyObject );
+    }
     EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
     getLocalNode()->serveRequest( packet->requestID );
     return true;

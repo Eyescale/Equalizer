@@ -1003,6 +1003,11 @@ bool ObjectStore::_cmdInstance( Command& command )
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
         return dispatchObjectCommand( command );
 
+      case CMD_NODE_OBJECT_INSTANCE_PUSH:
+        EQASSERT( packet->nodeID == NodeID::ZERO );
+        EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
+        return true;
+
       default:
         EQUNREACHABLE;
         return false;
