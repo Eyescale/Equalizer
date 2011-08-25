@@ -28,6 +28,7 @@
 #include "observer.h"
 #include "segment.h"
 #include "equalizers/equalizer.h"
+#include "equalizers/tileEqualizer.h"
 #include "tileQueue.h"
 
 #include <eq/client/viewPackets.h>
@@ -68,7 +69,11 @@ void View::attach( const UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
-                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
+        ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
+    registerCommand( fabric::CMD_VIEW_USE_EQUALIZER, 
+        ViewFunc( this, &View::_cmdChooseEqualizer ), mainQ );
+    registerCommand( fabric::CMD_VIEW_SET_TILESIZE, 
+        ViewFunc( this, &View::_cmdSetTileSize ), mainQ );
 }
 
 namespace
@@ -172,16 +177,50 @@ private:
     const bool _freeze;
 };
 
-
-class TileSizeVisitor : public ConfigVisitor
+class UseEqualizerVisitor : public ConfigVisitor
 {
 public:
-    TileSizeVisitor( const View* view, const Vector2i tileSize )
-        : _view( view ), _tileSize( tileSize )
-    {}
-
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    UseEqualizerVisitor( const View* view, uint32_t bitmask )
+        : _view( view ), _bitmask( bitmask )
+    {}
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        Equalizers equalizers = compound->getEqualizers();
+        for ( EqualizersCIter i = equalizers.begin();
+              i != equalizers.end(); ++i )
+        {
+            Equalizer* eq = *i;
+            eq->setActivated( ( eq->getType() & _bitmask ) != 0 );
+        }
+        return TRAVERSE_CONTINUE; 
+    }
+
+
+private:
+    const View* const _view;
+    uint32_t _bitmask;
+};
+
+class SetTileSizeVisitor : public ConfigVisitor
+{
+public:
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    SetTileSizeVisitor( const View* view, const Vector2i& tileSize )
+        : _view( view ), _tileSize( tileSize )
+    {}
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -199,7 +238,18 @@ public:
             queue->setTileSize( _tileSize );
         }
 
-        return TRAVERSE_CONTINUE; 
+        const Equalizers equalizers = compound->getEqualizers();
+        for ( EqualizersCIter eqIt = equalizers.begin();
+            eqIt != equalizers.end(); ++eqIt )
+        {
+            if ( (*eqIt)->getType() == fabric::TILE_EQUALIZER )
+            {
+                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *eqIt );
+                tileEq->setTileSize( _tileSize );
+            }
+        }
+
+        return TRAVERSE_CONTINUE;
     }
 
 private:
@@ -327,6 +377,7 @@ void View::trigger( const Canvas* canvas, const bool active )
              j != compounds.end(); ++j )
         {
             Compound* compound = *j;
+
             if( active )
             {
                 compound->activate( eyes );
@@ -366,12 +417,6 @@ void View::updateCapabilities()
     CapabilitiesUpdater visitor( this );
     getConfig()->accept( visitor );
     setCapabilities( visitor.getCapabilities( ));
-}
-
-void View::updateTileSize()
-{
-    TileSizeVisitor visitor( this, getTileSize( ));
-    getConfig()->accept( visitor );
 }
 
 void View::updateFrusta()
@@ -479,6 +524,30 @@ bool View::_cmdFreezeLoadBalancing( co::Command& command )
 
     return true;
 }
+
+bool View::_cmdChooseEqualizer( co::Command& command )
+{
+    const ViewUseEqualizerPacket* packet =
+        command.get<ViewUseEqualizerPacket>();
+
+    UseEqualizerVisitor visitor ( this, packet->mask );
+    getConfig()->accept( visitor );
+    getConfig()->postNeedsFinish();
+
+    return true;
+}
+
+bool View::_cmdSetTileSize( co::Command& command )
+{
+    const ViewSetTileSizePacket* packet =
+        command.get<ViewSetTileSizePacket>();
+
+    SetTileSizeVisitor visitor ( this, packet->tileSize );
+    getConfig()->accept( visitor );
+
+    return true;
+}
+
 
 }
 }

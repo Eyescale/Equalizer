@@ -42,32 +42,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
 
     compound->setTaskID( ++_taskID );
     if( channel && channel->getView( ))
-    {
         channel->getView()->updateFrusta();
-        // TODO needed? Should be done per frame in update visitors?
-        // is necessary for initial setup of tile size for view as tile size
-        // comes from config file from the queue. per frame update does the
-        // update vice versa, i.e. view->queue if size was changed during
-        // runtime via the view.
-        const TileQueues& outputQueues = compound->getOutputTileQueues();
-        for( TileQueuesCIter i = outputQueues.begin(); 
-             i != outputQueues.end(); ++i )
-        {
-            TileQueue* queue  = *i;
-            channel->getView()->setTileSize( queue->getTileSize() );
-        }
-
-        // equalizer settings override queue settings
-        const Equalizers equalizers = compound->getEqualizers();
-        for ( EqualizersCIter eqIt = equalizers.begin();
-	          eqIt != equalizers.end(); ++eqIt )
-        {
-	        // opt: find tile equalizer without dynamic cast
-	        const TileEqualizer* tileEq = dynamic_cast<TileEqualizer*>( *eqIt );
-	        if ( tileEq )
-		        channel->getView()->setTileSize( tileEq->getTileSize() );
-        }
-    }
     else
         compound->updateFrustum( Vector3f::ZERO, 1.f );
 

@@ -21,6 +21,7 @@
 #include "../api.h"
 #include "../compoundListener.h" // base class
 #include "../types.h"
+#include <eq/fabric/equalizerTypes.h>
 
 namespace eq
 {
@@ -62,6 +63,8 @@ namespace server
 
         virtual void setActivated( bool flag ) { _activated = flag; }
         virtual bool isActivated() const { return _activated; }
+
+        virtual uint32_t getType() const = 0;
 
     private:
         // override in sub-classes to handle dynamic compounds.

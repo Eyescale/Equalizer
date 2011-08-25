@@ -37,6 +37,7 @@ typedef fabric::View< Layout, View, Observer > Super;
 View::View( Layout* parent )
         : Super( parent )
         , _pipe( 0 )
+        , _tileSize( -1, -1 )
 {
 }
 
@@ -155,6 +156,24 @@ void View::freezeLoadBalancing( const bool onOff )
 {
     ViewFreezeLoadBalancingPacket packet;
     packet.freeze = onOff;
+    send( getServer(), packet );
+}
+
+void View::useEqualizer( uint32_t bitmask )
+{
+    ViewUseEqualizerPacket packet;
+    packet.mask = bitmask;
+    send( getServer(), packet );
+}
+
+void View::setTileSize( const Vector2i& size )
+{
+    if( _tileSize == size || size.x() < 1 || size.y() < 1 )
+        return;
+    
+    _tileSize = size;
+    ViewSetTileSizePacket packet;
+    packet.tileSize = size;
     send( getServer(), packet );
 }
 

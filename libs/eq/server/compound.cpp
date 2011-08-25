@@ -403,17 +403,10 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
 
 void Compound::removeInputTileQueue( TileQueue* tileQueue )
 {
-    EQASSERT( tileQueue );
-    // TODO use std::find
-    TileQueuesIter i = _inputTileQueues.begin();
-    for ( ; i != _inputTileQueues.end(); ++i )
-    {
-        if ( *i == tileQueue )
-        {
-            _inputTileQueues.erase( i );
-            return;
-        }
-    }
+    TileQueuesIter i;
+    i = find (_inputTileQueues.begin(), _inputTileQueues.end(), tileQueue);
+    if ( i != _inputTileQueues.end() )
+        _inputTileQueues.erase( i );
 }
 
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
@@ -426,17 +419,10 @@ void Compound::addOutputTileQueue( TileQueue* tileQueue )
 
 void Compound::removeOutputTileQueue( TileQueue* tileQueue )
 {
-    EQASSERT( tileQueue );
-    // TODO use std::find
-    TileQueuesIter i = _outputTileQueues.begin();
-    for ( ; i != _outputTileQueues.end(); ++i )
-    {
-        if ( *i == tileQueue )
-        {
-            _outputTileQueues.erase( i );
-            return;
-        }
-    }
+    TileQueuesIter i;
+    i = find (_outputTileQueues.begin(), _outputTileQueues.end(), tileQueue);
+    if ( i != _outputTileQueues.end() )
+        _outputTileQueues.erase( i );
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )

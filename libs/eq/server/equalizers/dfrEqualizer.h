@@ -65,6 +65,8 @@ namespace server
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics  );
 
+        virtual uint32_t getType() const { return fabric::DFR_EQUALIZER; }
+
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child ){}
         virtual void notifyChildRemove( Compound* compound, Compound* child ){}

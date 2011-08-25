@@ -131,7 +131,10 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
-        frameData->setOffset( Vector2i( framePVP.x, framePVP.y ));
+        
+        bool usesTiles = !compound->getInputTileQueues().empty();
+        frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
+                                          Vector2i( framePVP.x, framePVP.y ) );
 
         // 2) pvp is area within channel
         framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );

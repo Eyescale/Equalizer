@@ -99,6 +99,8 @@ namespace server
         void setAssembleOnlyLimit( const float limit )
             { _assembleOnlyLimit = limit; }
 
+        virtual uint32_t getType() const { return fabric::LOAD_EQUALIZER; }
+
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { EQASSERT( !_tree ); }

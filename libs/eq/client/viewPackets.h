@@ -27,11 +27,31 @@ namespace eq
     struct ViewFreezeLoadBalancingPacket : public co::ObjectPacket
     {
         ViewFreezeLoadBalancingPacket()
-            {
-                command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
-                size    = sizeof( ViewFreezeLoadBalancingPacket );
-            }
+        {
+            command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
+            size    = sizeof( ViewFreezeLoadBalancingPacket );
+        }
         bool freeze;
+    };
+
+    struct ViewUseEqualizerPacket : public co::ObjectPacket
+    {
+        ViewUseEqualizerPacket()
+        {
+            command = fabric::CMD_VIEW_USE_EQUALIZER;
+            size    = sizeof( ViewUseEqualizerPacket );
+        }
+        uint32_t mask;
+    };
+
+    struct ViewSetTileSizePacket : public co::ObjectPacket
+    {
+        ViewSetTileSizePacket()
+        {
+            command = fabric::CMD_VIEW_SET_TILESIZE;
+            size    = sizeof( ViewSetTileSizePacket );
+        }
+        Vector2i tileSize;
     };
 }
 /** @endcond */

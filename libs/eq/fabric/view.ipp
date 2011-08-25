@@ -34,7 +34,6 @@ View< L, V, O >::View( L* layout )
         : _layout( layout )
         , _observer( 0 )
         , _overdraw( Vector2i::ZERO )
-        , _tileSize( 32, 32 )
         , _minimumCapabilities( EQ_BIT_NONE )
         , _maximumCapabilities( EQ_BIT_ALL_64 )
         , _capabilities( EQ_BIT_ALL_64 )
@@ -75,8 +74,6 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
         os << _maximumCapabilities;
     if( dirtyBits & DIRTY_CAPABILITIES )
         os << _capabilities;
-    if( dirtyBits & DIRTY_TILESIZE )
-        os << _tileSize;
 }
 
 template< class L, class V, class O > 
@@ -139,11 +136,6 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     }
     if( dirtyBits & DIRTY_CAPABILITIES )
         is >> _capabilities;
-    if( dirtyBits & DIRTY_TILESIZE )
-    {
-        is >> _tileSize;
-        updateTileSize();
-    }
 }
 
 template< class L, class V, class O > 
@@ -262,16 +254,6 @@ template< class L, class V, class O >
 uint32_t View< L, V, O >::getUserDataLatency() const
 {
     return static_cast< const V* >( this )->getConfig()->getLatency();
-}
-
-template< class L, class V, class O > 
-void View< L, V, O >::setTileSize( const Vector2i& size )
-{
-    if( size == _tileSize )
-        return;
-
-    _tileSize = size;
-    setDirty( DIRTY_TILESIZE );
 }
 
 template< class L, class V, class O > 

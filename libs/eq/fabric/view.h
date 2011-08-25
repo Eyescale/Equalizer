@@ -108,10 +108,6 @@ namespace fabric
          */
         virtual void activateMode( const Mode mode ){ _mode = mode; }
 
-        /** @return the tile size used for tile-based rendering. @version 1.1.4 */
-        const Vector2i& getTileSize() const { return _tileSize; }
-        //@}
-
         /** @name Operations */
         //@{
         /** 
@@ -128,10 +124,6 @@ namespace fabric
 
         virtual EQFABRIC_INL void backup(); //!< @internal
         virtual EQFABRIC_INL void restore(); //!< @internal
-
-        /** Set the tile size to use for tile-based rendering. @version 1.1.4 */
-        EQFABRIC_INL void setTileSize( const Vector2i& size );
-        //@}
 
         /**
          * Set the minimum required capabilities for this view.
@@ -184,7 +176,6 @@ namespace fabric
 
         void setCapabilities( const uint64_t bitmask ); //!< @internal
         virtual void updateCapabilities() {} //!< @internal
-        virtual void updateTileSize() {} //!< @internal
 
         /** @internal */
         enum DirtyBits
@@ -197,11 +188,10 @@ namespace fabric
             DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
             DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
-            DIRTY_TILESIZE      = Object::DIRTY_CUSTOM << 8,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-                DIRTY_CAPABILITIES | DIRTY_TILESIZE | DIRTY_OBJECT_BITS
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
         };
 
     protected:
@@ -252,9 +242,6 @@ namespace fabric
 
         /** Enlarge size of all dest channels and adjust frustum accordingly. */
         Vector2i _overdraw;
-
-        /** Tile size used for tile-based rendering. */
-        Vector2i _tileSize;
 
         uint64_t _minimumCapabilities;
         uint64_t _maximumCapabilities;

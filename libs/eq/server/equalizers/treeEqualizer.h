@@ -96,6 +96,8 @@ namespace server
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
 
+        virtual uint32_t getType() const { return fabric::TREE_EQUALIZER; }
+
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { EQASSERT( !_tree ); }
