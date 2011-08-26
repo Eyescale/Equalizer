@@ -981,19 +981,17 @@ bool ObjectStore::_cmdInstance( Command& command )
     packet->command = CMD_OBJECT_INSTANCE;
     const ObjectVersion rev( packet->objectID, packet->version ); 
 
+    if( _instanceCache )
+        _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+
     switch( type )
     {
       case CMD_NODE_OBJECT_INSTANCE:
         EQASSERT( packet->nodeID == NodeID::ZERO );
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
         return true;
 
       case CMD_NODE_OBJECT_INSTANCE_MAP:
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 1 );
-
         if( packet->nodeID != _localNode->getNodeID( )) // not for me
             return true;
 
@@ -1003,11 +1001,12 @@ bool ObjectStore::_cmdInstance( Command& command )
       case CMD_NODE_OBJECT_INSTANCE_COMMIT:
         EQASSERT( packet->nodeID == NodeID::ZERO );
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
-
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
-
         return dispatchObjectCommand( command );
+
+      case CMD_NODE_OBJECT_INSTANCE_PUSH:
+        EQASSERT( packet->nodeID == NodeID::ZERO );
+        EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
+        return true;
 
       default:
         EQUNREACHABLE;

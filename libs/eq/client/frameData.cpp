@@ -50,6 +50,8 @@ FrameData::FrameData()
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
         , _newImages( 0 )
+        , _colorCompressor( EQ_COMPRESSOR_AUTO )
+        , _depthCompressor( EQ_COMPRESSOR_AUTO )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << std::endl;
@@ -82,6 +84,18 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
     }
 
     _colorQuality = quality;
+}
+
+void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+{
+    if( buffer != Frame::BUFFER_COLOR )
+    {
+        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        _depthCompressor = name;
+        return;
+    }
+
+    _colorCompressor = name;
 }
 
 void FrameData::getInstanceData( co::DataOStream& os )
@@ -194,6 +208,9 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
         image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
         image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
     }
+
+    image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
+    image->useCompressor( Frame::BUFFER_DEPTH, _depthCompressor );
 
     image->setInternalFormat( Frame::BUFFER_DEPTH,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );

@@ -538,6 +538,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'T':
             _adjustTileSize( 1 );
              return true;
+        case 'u':
+            _frameData.toggleCompression();
+            return true;
+
         case 'n':
         case 'N':
             _frameData.togglePilotMode();

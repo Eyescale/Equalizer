@@ -10,16 +10,13 @@ option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
-option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 set(EQUALIZER_RELEASE OFF)
-set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional version for packages")
 
-mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
 mark_as_advanced(EQUALIZER_FORCE_OPENMP)
@@ -32,21 +29,21 @@ include(revision)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "1")
-set(VERSION_SUB "3")
-set(VERSION_ABI 12)
-if(EQ_REVISION AND NOT EQUALIZER_RELEASE)
-  set(VERSION_PATCH ${VERSION_SUB}.${EQ_REVISION})
-else()
-  set(VERSION_PATCH ${VERSION_SUB})
-endif()
+set(VERSION_PATCH "3")
+set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "4")
 set(CO_VERSION_PATCH "0")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-set(SHORT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_SUB})
+if(EQUALIZER_RELEASE)
+  set(EQ_DEFINITIONS -DEQ_RELEASE)
+  set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.5.sdk CACHE PATH "" FORCE)
+  set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}0)
+else()
+  set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
+endif()
 
 enable_testing()
 
@@ -238,10 +235,9 @@ if(APPLE)
   endif()
 endif(APPLE)
 
-set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
-if(EQUALIZER_RELEASE)
-  set(EQ_DEFINITIONS ${EQ_DEFINITIONS} -DEQ_RELEASE)
-endif()
+set(EQ_DEFINITIONS ${EQ_DEFINITIONS}
+    -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+
 if(EQUALIZER_BUILD_2_0_API)
   set(EQ_DEFINITIONS ${EQ_DEFINITIONS} -DEQ_2_0_API)
   set(EQ_FEATURES "${EQ_FEATURES} APIv2")
@@ -257,11 +253,6 @@ add_definitions(${EQ_DEFINITIONS})
 
 add_subdirectory(tools)
 if(EQUALIZER_BUILD_EXAMPLES)
-  configure_file(examples/CMakeLists.in.txt
-                 ${CMAKE_SOURCE_DIR}/examples/CMakeLists.txt @ONLY)
-  install(FILES CMake/ParseArguments.cmake CMake/PurpleExpandLibraries.cmake
-                CMake/EqStringifyShaders.cmake CMake/configure.cmake
-          DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
   add_subdirectory(examples)
 endif()
 add_subdirectory(tests)
@@ -270,6 +261,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")
   add_subdirectory(auxiliary)
 endif()
+add_subdirectory(doc) # must be after all targets
 
 install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
@@ -279,20 +271,12 @@ install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
 install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
   COMPONENT eqdev)
 
-if(EQUALIZER_NIGHTLY)
-  set(VERSION_PATCH ${VERSION_PATCH}-${EQUALIZER_BUILD_ARCH})
-endif()
-if(EQUALIZER_PACKAGE_VERSION)
-  set(VERSION_PATCH ${VERSION_PATCH}-${EQUALIZER_PACKAGE_VERSION})
-endif()
-
 if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
 message(STATUS "Configured features: ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 
-include(doxygen) # must be after all targets
 include(CPackConfig)
 include(copyScript)
 

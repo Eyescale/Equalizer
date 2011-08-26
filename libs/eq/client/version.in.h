@@ -32,7 +32,7 @@ namespace eq
 #   define EQ_VERSION_MINOR ${VERSION_MINOR}
 
     /** The current patch level. @version 1.0 */
-#   define EQ_VERSION_PATCH ${VERSION_SUB}
+#   define EQ_VERSION_PATCH ${VERSION_PATCH}
 
     /** The git wc hash revision, may be 0. @version 1.0 */
 #   define EQ_VERSION_REVISION ${EQ_REVISION}

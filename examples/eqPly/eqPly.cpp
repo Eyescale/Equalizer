@@ -58,6 +58,7 @@ static const std::string _help(
     std::string( "\t\tq, Q:                      Adjust non-idle image quality\n" ) +
     std::string( "\t\tn:                         Toggle navigation mode (trackball, walk)\n" ) +
     std::string( "\t\tr:                         Switch rendering mode (display list, VBO, immediate)\n" ) +
+    std::string( "\t\tu:                         Toggle image compression\n" ) +
     std::string( "\t\tc:                         Switch active canvas\n" ) +
     std::string( "\t\tv:                         Switch active view\n" ) +
     std::string( "\t\tm:                         Switch model for active view\n" ) +

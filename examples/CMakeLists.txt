@@ -2,8 +2,11 @@
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
+
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(Equalizer_BINARY_DIR) # in-source build
+  configure_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt @ONLY)
+
   set(EQUALIZER_LIBRARIES lib_Equalizer_shared)
   set(EQUALIZER_ADMIN_LIBRARY lib_EqualizerAdmin_shared)
   set(EQUALIZER_SERVER_LIBRARY lib_EqualizerServer_shared)
@@ -11,7 +14,7 @@ if(Equalizer_BINARY_DIR) # in-source build
 else()
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-  find_package(Equalizer @SHORT_VERSION@ REQUIRED)
+  find_package(Equalizer @VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
   set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
   add_definitions(${EQ_DEFINITIONS})
@@ -63,10 +66,15 @@ endif()
 
 install(DIRECTORY configs DESTINATION share/Equalizer
         COMPONENT data PATTERN ".svn" EXCLUDE)
-install(FILES CMakeLists.txt DESTINATION share/Equalizer/examples
-        COMPONENT examples)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
+        DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples PATTERN ".svn" EXCLUDE)
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/PurpleExpandLibraries.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
+              DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
 if(CUDA_FOUND AND EXISTS eqNBody)
   add_subdirectory(eqNBody)

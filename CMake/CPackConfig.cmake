@@ -3,7 +3,10 @@
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
-set(CPACK_PACKAGE_NAME "Equalizer")
+set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
+mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
+
+set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
 
 if(APPLE)
   set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
@@ -19,6 +22,18 @@ set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE ${Equalizer_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
+
+if(EQ_REVISION AND NOT EQUALIZER_RELEASE)
+  set(CPACK_PACKAGE_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}.${EQ_REVISION})
+endif()
+if(EQUALIZER_NIGHTLY)
+  set(CPACK_PACKAGE_VERSION_PATCH
+      ${CPACK_PACKAGE_VERSION_PATCH}-${EQUALIZER_BUILD_ARCH})
+endif()
+if(EQUALIZER_PACKAGE_VERSION)
+  set(CPACK_PACKAGE_VERSION_PATCH
+      ${CPACK_PACKAGE_VERSION_PATCH}-${EQUALIZER_PACKAGE_VERSION})
+endif()
 
 set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev man doc apps examples tools data vmmlib)
 
@@ -64,11 +79,15 @@ set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
 
 set(CPACK_RPM_PACKAGE_LICENSE "LGPL, BSD")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries/Parallel")
-set(CPACK_RPM_PACKAGE_VERSION ${SHORT_VERSION})
+set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
 
 if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  set(DPUT_HOST "ppa:eilemann/equalizer")
+  if(EQUALIZER_RELEASE)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
 endif()
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev)
 

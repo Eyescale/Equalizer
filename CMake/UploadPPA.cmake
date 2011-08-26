@@ -41,6 +41,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E
   )
 
 file(MAKE_DIRECTORY ${DEBIAN_SOURCE_DIR}/debian)
+file(REMOVE_RECURSE ${DEBIAN_SOURCE_DIR}/.git)
 
 ##############################################################################
 # debian/control
@@ -58,7 +59,7 @@ foreach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
 endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})  
 
 file(APPEND ${DEBIAN_CONTROL} "cmake\n"
-  "Standards-Version: 3.8.4\n"
+  "Standards-Version: 3.9.1\n"
   "Homepage: ${CPACK_PACKAGE_VENDOR}\n"
   "\n"
   "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"

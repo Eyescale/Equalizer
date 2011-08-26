@@ -44,19 +44,6 @@ MasterCM::MasterCM( Object* object )
 
 MasterCM::~MasterCM()
 {
-    EQASSERTINFO( _pendingDeltas.empty(), "Incomplete slave commits pending" );
-    EQASSERTINFO( _queuedDeltas.isEmpty(), _queuedDeltas.getSize() <<
-                  " unapplied slave commits on " << typeid( *_object ).name( ));
-
-    while( !_pendingDeltas.empty( ))
-    {
-        delete _pendingDeltas.back().second;
-        _pendingDeltas.pop_back();
-    }
-
-    ObjectDataIStream* is = 0;
-    while( _queuedDeltas.tryPop( is ))
-        delete is;
     _slaves.clear();
 }
 
@@ -92,33 +79,22 @@ uint128_t MasterCM::sync( const uint128_t& version )
 
     if( version == VERSION_NEXT )
     {
-        ObjectDataIStream* is = _queuedDeltas.pop();
-        _apply( is );
+        _apply( _slaveCommits.pop( ));
         return _version;
     }
     // else
     if( version == VERSION_HEAD )
     {
-        ObjectDataIStream* is = 0;
-        while( _queuedDeltas.tryPop( is ))
+        for( ObjectDataIStream* is = _slaveCommits.tryPop(); is;
+             is = _slaveCommits.tryPop( ))
+        {
             _apply( is );
+        }
         return _version;
     }
     // else apply only concrete slave commit
 
-    ObjectDataIStream* is = 0;
-    ObjectDataIStreams unusedStreams;
-    while( !is )
-    {
-        ObjectDataIStream* candidate = _queuedDeltas.pop();
-        if( candidate->getVersion() == version )
-            is = candidate;
-        else
-            unusedStreams.push_back( candidate );
-    }
-
-    _apply( is );
-    _queuedDeltas.pushFront( unusedStreams );
+    _apply( _slaveCommits.pull( version ));
     return version;
 }
 
@@ -131,7 +107,7 @@ void MasterCM::_apply( ObjectDataIStream* is )
                   "Object " << base::className( _object ) <<
                   " did not unpack all data" );
     is->reset();
-    _iStreamCache.release( is );
+    _slaveCommits.recycle( is );
 }
 
 void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID )
@@ -170,63 +146,8 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     const ObjectSlaveDeltaPacket* packet = 
         command.get< ObjectSlaveDeltaPacket >();
 
-    EQASSERTINFO( _pendingDeltas.size() < 100,
-                  "More than 100 unfinished slave commits!?" );
-
-    ObjectDataIStream* istream = 0;
-    PendingStreams::iterator i = _pendingDeltas.begin();
-    for( ; i != _pendingDeltas.end(); ++i )
-    {
-        PendingStream& pending = *i;
-        if( pending.first == packet->commit )
-        {
-            istream = pending.second;
-            break;
-        }
-    }
-
-    if( !istream )
-    {
-        EQASSERT( i == _pendingDeltas.end( ));
-        istream = _iStreamCache.alloc();
-    }
-
-    istream->addDataPacket( command );
-
-    if( istream->isReady( ))
-    {
-        if( i != _pendingDeltas.end( ))
-            _pendingDeltas.erase( i );
-
-        _queuedDeltas.push( istream );
+    if( _slaveCommits.addDataPacket( packet->commit, command ))
         _object->notifyNewVersion();
-        EQASSERTINFO( _queuedDeltas.getSize() < 100,
-                      "More than 100 queued slave commits!?" );
-#if 0
-        EQLOG( LOG_OBJECTS )
-            << "Queued slave commit " << packet->commit << " object "
-            << _object->getID() << " " << base::className( _object )
-            << std::endl;
-#endif
-    }
-    else if( i == _pendingDeltas.end( ))
-    {
-        _pendingDeltas.push_back( PendingStream( packet->commit, istream ));
-#if 0
-        EQLOG( LOG_OBJECTS )
-            << "New incomplete slave commit " << packet->commit << " object "
-            << _object->getID() << " " << base::className( _object )
-            << std::endl;
-#endif
-    }
-#if 0
-    else
-        EQLOG( LOG_OBJECTS )
-            << "Got data for incomplete slave commit " << packet->commit
-            << " object " << _object->getID() << " "
-            << base::className( _object ) << std::endl;
-#endif
-
     return true;
 }
 

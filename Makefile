@@ -34,7 +34,8 @@ cdash: cdash/Makefile
 
 debug/Makefile:
 	@mkdir -p debug
-	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
+	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug \
+	-DCMAKE_INSTALL_PREFIX:PATH=install -DEQUALIZER_RUN_GPU_TESTS=ON
 
 release/Makefile:
 	@mkdir -p release

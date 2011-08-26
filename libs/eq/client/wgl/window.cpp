@@ -867,11 +867,9 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
 
-    const HDC dc = _wglAffinityDC ? _wglAffinityDC : _wglDC;
-
     uint32_t maxBarrier = 0;
     uint32_t maxGroup = 0;
-    wglQueryMaxSwapGroupsNV( dc, &maxGroup, &maxBarrier );
+    wglQueryMaxSwapGroupsNV( _wglDC, &maxGroup, &maxBarrier );
 
     if( group > maxGroup )
     {
@@ -889,7 +887,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
 
-    if( !wglJoinSwapGroupNV( dc, group ))
+    if( !wglJoinSwapGroupNV( _wglDC, group ))
     {
         EQWARN << "Failed to join swap group " << group << std::endl;
         return;
@@ -911,10 +909,11 @@ void Window::leaveNVSwapBarrier()
     if( _wglNVSwapGroup == 0 )
         return;
 
-    const HDC dc = _wglAffinityDC ? _wglAffinityDC : _wglDC;
+    if( !wglBindSwapBarrierNV( _wglNVSwapGroup, 0 ))
+        EQWARN << "Failed to unbind swap barrier" << std::endl;
 
-    wglBindSwapBarrierNV( _wglNVSwapGroup, 0 );
-    wglJoinSwapGroupNV( dc, 0 );
+    if( !wglJoinSwapGroupNV( _wglDC, 0 ))
+        EQWARN << "Failed to unjoin swap group " << std::endl;
 
     _wglNVSwapGroup = 0;
 }
