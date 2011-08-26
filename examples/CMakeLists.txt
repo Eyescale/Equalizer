@@ -14,7 +14,7 @@ if(Equalizer_BINARY_DIR) # in-source build
 else()
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-  find_package(Equalizer @SHORT_VERSION@ REQUIRED)
+  find_package(Equalizer @VERSION@ REQUIRED)
   include_directories(${EQUALIZER_INCLUDE_DIRS})
   set(EQ_DEFINITIONS -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
   add_definitions(${EQ_DEFINITIONS})

@@ -105,10 +105,7 @@ int main( int argc, char **argv )
             ++nOps;
         }
 
-        const uint64_t time = clock.getTime64();
-        nOps *= N_READER;
-        std::cout << nOps << " operations, " << nOps / time << " ops/ms"
-                  << std::endl;
+        const uint64_t wTime = clock.getTime64();
 
         for( size_t i = 0; i < N_READER; ++i )
         {
@@ -120,6 +117,10 @@ int main( int argc, char **argv )
             readers[i].dispatchCommand( command );
             readers[i].join();
         }
+
+        const uint64_t rTime = clock.getTime64();
+        std::cout << nOps / wTime << " write, " << N_READER * nOps / rTime
+                  << " read ops/ms" << std::endl;
     }
 
     TEST( co::exit( ));
