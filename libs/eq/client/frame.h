@@ -61,7 +61,7 @@ namespace server
             BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
             BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
             BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
-            BUFFER_ALL       = EQ_BIT_ALL
+            BUFFER_ALL       = EQ_BIT_ALL_32
         };
 
         /** The storage type for pixel data. @version 1.0 */

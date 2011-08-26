@@ -49,6 +49,8 @@ namespace eqPly
         void setIdleSteps( const uint32_t steps );
         uint32_t getIdleSteps() const { return _idleSteps; }
 
+        void toggleEqualizer();
+
     private:
         class Proxy : public co::Serializable
         {

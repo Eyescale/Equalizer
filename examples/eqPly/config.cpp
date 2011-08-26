@@ -36,8 +36,6 @@
 #include <admin/addWindow.h>
 #include <admin/removeWindow.h>
 
-#include <eq/fabric/equalizerTypes.h>
-
 namespace eqPly
 {
 
@@ -405,7 +403,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 return false;
             }
             
-            const eq::View* view = find< eq::View > ( viewID );
+            const View* view = _getCurrentView();
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
             for( eq::CanvasesCIter i = canvases.begin();
@@ -783,11 +781,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             return true;
 
         case 'e':
-            _toggleTileEqualizer( true );
-            return true;
-
-        case 'E':
-            _toggleTileEqualizer( false );
+            _toggleEqualizer();
             return true;
 
         default:
@@ -841,17 +835,17 @@ void Config::_switchView()
     if( !layout )
         return;
 
-    const eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
+    const View* view = _getCurrentView();
     const eq::Views& views = layout->getViews();
     EQASSERT( !views.empty( ));
 
-    if( !current )
+    if( !view )
     {
         _frameData.setCurrentViewID( views.front()->getID( ));
         return;
     }
 
-    eq::ViewsCIter i = std::find( views.begin(), views.end(), current );
+    eq::ViewsCIter i = std::find( views.begin(), views.end(), view );
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
@@ -866,11 +860,9 @@ void Config::_switchModel()
         return;
 
     // current model of current view
-    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-    View* view = static_cast< View* >( find< eq::View >( viewID ));
-    const eq::uint128_t& currentID = view ?
-                               view->getModelID() : _frameData.getModelID();
-
+    View* view = _getCurrentView();
+    const eq::uint128_t& currentID = view ? view->getModelID() :
+                                            _frameData.getModelID();
     // next model
     ModelDistsCIter i;
     for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
@@ -900,36 +892,33 @@ void Config::_switchModel()
 
 void Config::_switchViewMode()
 {
-    eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-    if( !current )
+    View* view = _getCurrentView();
+    if( !view )
         return;
 
-    const eq::View::Mode mode = current->getMode( );
-
+    const eq::View::Mode mode = view->getMode();
     if( mode == eq::View::MODE_MONO )
     {
-        current->changeMode( eq::View::MODE_STEREO );
+        view->changeMode( eq::View::MODE_STEREO );
         _setMessage( "Switched to stereoscopic rendering" );
     }
     else
     {
-        current->changeMode( eq::View::MODE_MONO );
+        view->changeMode( eq::View::MODE_MONO );
         _setMessage( "Switched to monoscopic rendering" );
     }
 }
 
 void Config::_freezeLoadBalancing( const bool onOff )
 {
-    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-    eq::View* view = find< eq::View >( viewID );
+    View* view = _getCurrentView();
     if ( view )
         view->freezeLoadBalancing( onOff );
 }
 
 void Config::_adjustTileSize( const int delta )
 {
-    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-    eq::View* view = find< eq::View >( viewID );
+    View* view = _getCurrentView();
     if( !view )
         return;
 
@@ -970,6 +959,13 @@ void Config::_switchLayout( int32_t increment )
 
     stream << " active";
     _setMessage( stream.str( ));
+}
+
+void Config::_toggleEqualizer()
+{
+    View* view = _getCurrentView();
+    if ( view )
+        view->toggleEqualizer();
 }
 
 // Note: real applications would use one tracking device per observer
@@ -1067,17 +1063,18 @@ void Config::_closeAdminServer()
     eq::admin::exit();
 }
 
-
-void Config::_toggleTileEqualizer( bool on )
+View* Config::_getCurrentView()
 {
     const eq::uint128_t& viewID = _frameData.getCurrentViewID();
     eq::View* view = find< eq::View >( viewID );
-    if ( !view )
-        return;
-        
-    view->useEqualizer( on ? 
-        eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER : 
-        eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER );
+    return static_cast< View* >( view );
+}
+
+const View* Config::_getCurrentView() const
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    const eq::View* view = find< eq::View >( viewID );
+    return static_cast< const View* >( view );
 }
 
 }
