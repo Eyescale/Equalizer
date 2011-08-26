@@ -19,7 +19,7 @@
 #ifndef EQS_TILEEQUALIZER_H
 #define EQS_TILEEQUALIZER_H
 
-#include "equalizers/equalizer.h"
+#include "equalizer.h"
 
 namespace eq
 {

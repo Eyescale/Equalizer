@@ -93,4 +93,12 @@ void View::setIdleSteps( const uint32_t steps )
     _proxy.setDirty( Proxy::DIRTY_IDLE );
 }
 
+void View::toggleEqualizer()
+{
+    if( getEqualizers() & eq::fabric::LOAD_EQUALIZER )
+        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER );
+    else
+        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER );
+}
+
 }
