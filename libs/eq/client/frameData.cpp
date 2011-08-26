@@ -52,8 +52,6 @@ FrameData::FrameData()
         , _colorCompressor( EQ_COMPRESSOR_AUTO )
         , _depthCompressor( EQ_COMPRESSOR_AUTO )
         , _newImages( 0 )
-        , _colorCompressor( EQ_COMPRESSOR_AUTO )
-        , _depthCompressor( EQ_COMPRESSOR_AUTO )
 {
     _roiFinder = new ROIFinder();
     EQINFO << "New FrameData @" << (void*)this << std::endl;

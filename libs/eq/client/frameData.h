@@ -343,9 +343,6 @@ namespace server
 
         size_t _newImages;
 
-        uint32_t _colorCompressor;
-        uint32_t _depthCompressor;
-
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
