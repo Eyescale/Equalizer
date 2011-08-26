@@ -106,7 +106,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_BIT47 (0x0000400000000000ull)
 #define EQ_BIT48 (0x0000800000000000ull)
 
-#define EQ_BIT_ALL  (0xffffffffu)
+#define EQ_BIT_ALL_32  (0xffffffffu)
 #define EQ_BIT_ALL_64  (0xffffffffffffffffull)
 #define EQ_BIT_NONE (0)
 

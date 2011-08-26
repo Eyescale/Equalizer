@@ -33,11 +33,6 @@ template< class L, class V, class O >
 View< L, V, O >::View( L* layout )
         : _layout( layout )
         , _observer( 0 )
-        , _overdraw( Vector2i::ZERO )
-        , _minimumCapabilities( EQ_BIT_NONE )
-        , _maximumCapabilities( EQ_BIT_ALL_64 )
-        , _capabilities( EQ_BIT_ALL_64 )
-        , _mode( MODE_MONO )
 {
     // Note: Views are an exception to the strong structuring, since render
     // client views are multi-buffered (once per pipe) and do not have a parent
@@ -55,25 +50,40 @@ View< L, V, O >::~View()
 }
 
 template< class L, class V, class O > 
+View< L, V, O >::BackupData::BackupData()
+        : overdraw( Vector2i::ZERO )
+        , tileSize( Vector2i::ZERO )
+        , minimumCapabilities( EQ_BIT_NONE )
+        , maximumCapabilities( EQ_BIT_ALL_64 )
+        , capabilities( EQ_BIT_ALL_64 )
+        , mode( MODE_MONO )
+        , equalizers( EQ_BIT_ALL_32 )
+{}
+
+template< class L, class V, class O > 
 void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
 {
     Object::serialize( os, dirtyBits );
-    if( dirtyBits & DIRTY_VIEWPORT )
-        os << _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
         os << co::ObjectVersion( _observer );
-    if( dirtyBits & DIRTY_OVERDRAW )
-        os << _overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         os << *static_cast< Frustum* >( this );
-    if( dirtyBits & DIRTY_MODE )
-        os << _mode;
+    if( dirtyBits & DIRTY_VIEWPORT )
+        os << _data.viewport;
+    if( dirtyBits & DIRTY_OVERDRAW )
+        os << _data.overdraw;
+    if( dirtyBits & DIRTY_TILESIZE )
+        os << _data.tileSize;
     if( dirtyBits & DIRTY_MINCAPS )
-        os << _minimumCapabilities;
+        os << _data.minimumCapabilities;
     if( dirtyBits & DIRTY_MAXCAPS )
-        os << _maximumCapabilities;
+        os << _data.maximumCapabilities;
     if( dirtyBits & DIRTY_CAPABILITIES )
-        os << _capabilities;
+        os << _data.capabilities;
+    if( dirtyBits & DIRTY_MODE )
+        os << _data.mode;
+    if( dirtyBits & DIRTY_EQUALIZERS )
+        os << _data.equalizers;
 }
 
 template< class L, class V, class O > 
@@ -81,8 +91,6 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
                                    const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
-    if( dirtyBits & DIRTY_VIEWPORT )
-        is >> _viewport;
     if( dirtyBits & DIRTY_OBSERVER )
     {
         co::ObjectVersion observer;
@@ -116,26 +124,32 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
             }
         }
     }
-    if( dirtyBits & DIRTY_OVERDRAW )
-        is >> _overdraw;
     if( dirtyBits & DIRTY_FRUSTUM )
         is >> *static_cast< Frustum* >( this );
+    if( dirtyBits & DIRTY_VIEWPORT )
+        is >> _data.viewport;
+    if( dirtyBits & DIRTY_OVERDRAW )
+        is >> _data.overdraw;
+    if( dirtyBits & DIRTY_TILESIZE )
+        is >> _data.tileSize;
+    if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
+    {
+        if( dirtyBits & DIRTY_MINCAPS )
+            is >> _data.minimumCapabilities;
+        if( dirtyBits & DIRTY_MAXCAPS )
+            is >> _data.maximumCapabilities;
+        updateCapabilities();
+    }
+    if( dirtyBits & DIRTY_CAPABILITIES )
+        is >> _data.capabilities;
     if( dirtyBits & DIRTY_MODE )
     {
         Mode mode;
         is >> mode;
         activateMode( mode );
     }
-    if( dirtyBits & ( DIRTY_MINCAPS | DIRTY_MAXCAPS ) )
-    {
-        if( dirtyBits & DIRTY_MINCAPS )
-            is >> _minimumCapabilities;
-        if( dirtyBits & DIRTY_MAXCAPS )
-            is >> _maximumCapabilities;
-        updateCapabilities();
-    }
-    if( dirtyBits & DIRTY_CAPABILITIES )
-        is >> _capabilities;
+    if( dirtyBits & DIRTY_EQUALIZERS )
+        is >> _data.equalizers;
 }
 
 template< class L, class V, class O > 
@@ -149,22 +163,24 @@ void View< L, V, O >::setDirty( const uint64_t dirtyBits )
 template< class L, class V, class O > 
 void View< L, V, O >::changeMode( const Mode mode ) 
 {
-    if ( _mode == mode )
+    if ( _data.mode == mode )
         return;
 
-    _mode = mode;
+    _data.mode = mode;
     setDirty( DIRTY_MODE );
 }
 
 template< class L, class V, class O > 
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
-    _viewport = viewport;
+    _data.viewport = viewport;
     setDirty( DIRTY_VIEWPORT );
 }
 
 template< class L, class V, class O > void View< L, V, O >::backup()
 {
+
+    _backup = _data;
     Frustum::backup();
     Object::backup();
 }
@@ -173,9 +189,9 @@ template< class L, class V, class O > void View< L, V, O >::restore()
 {
     Object::restore();
     Frustum::restore();
-    setMinimumCapabilities( EQ_BIT_NONE );
-    setMinimumCapabilities( EQ_BIT_ALL_64 );
-    setCapabilities( EQ_BIT_ALL_64 );
+    _data = _backup;
+    setDirty( DIRTY_VIEWPORT | DIRTY_OVERDRAW | DIRTY_FRUSTUM | DIRTY_MODE |
+              DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES );
 }
 
 template< class L, class V, class O > 
@@ -195,18 +211,39 @@ void View< L, V, O >::setObserver( O* observer )
 template< class L, class V, class O > 
 const Viewport& View< L, V, O >::getViewport() const
 {
-    return _viewport;
+    return _data.viewport;
 }
 
 template< class L, class V, class O > 
 void View< L, V, O >::setOverdraw( const Vector2i& pixels )
 {
-    if( _overdraw == pixels )
+    if( _data.overdraw == pixels )
         return;
 
-    _overdraw = pixels;
+    _data.overdraw = pixels;
     setDirty( DIRTY_OVERDRAW );
 }
+
+
+template< class L, class V, class O > 
+void View< L, V, O >::useEqualizer( uint32_t bitmask )
+{
+    if( _data.equalizers == bitmask )
+        return;
+    _data.equalizers = bitmask;
+    setDirty( DIRTY_EQUALIZERS );
+}
+
+template< class L, class V, class O > 
+void View< L, V, O >::setTileSize( const Vector2i& size )
+{
+    if( _data.tileSize == size || size.x() < 1 || size.y() < 1 )
+        return;
+    
+    _data.tileSize = size;
+    setDirty( DIRTY_TILESIZE );
+}
+
 
 template< class L, class V, class O > 
 VisitorResult View< L, V, O >::accept( LeafVisitor< V >& visitor )
@@ -259,49 +296,49 @@ uint32_t View< L, V, O >::getUserDataLatency() const
 template< class L, class V, class O > 
 void View< L, V, O >::setMinimumCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _minimumCapabilities )
+    if( bitmask == _data.minimumCapabilities )
         return;
 
-    _minimumCapabilities = bitmask;
+    _data.minimumCapabilities = bitmask;
     setDirty( DIRTY_MINCAPS );
 }
 
 template< class L, class V, class O > 
 uint64_t View< L, V, O >::getMinimumCapabilities() const
 {
-    return _minimumCapabilities;
+    return _data.minimumCapabilities;
 }
 
 template< class L, class V, class O > 
 void View< L, V, O >::setMaximumCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _maximumCapabilities )
+    if( bitmask == _data.maximumCapabilities )
         return;
 
-    _maximumCapabilities = bitmask;
+    _data.maximumCapabilities = bitmask;
     setDirty( DIRTY_MAXCAPS );
 }
 
 template< class L, class V, class O > 
 uint64_t View< L, V, O >::getMaximumCapabilities() const
 {
-    return _maximumCapabilities;
+    return _data.maximumCapabilities;
 }
 
 template< class L, class V, class O > 
 void View< L, V, O >::setCapabilities( uint64_t bitmask )
 {
-    if( bitmask == _capabilities )
+    if( bitmask == _data.capabilities )
         return;
 
-    _capabilities = bitmask;
+    _data.capabilities = bitmask;
     setDirty( DIRTY_CAPABILITIES );
 }
 
 template< class L, class V, class O > 
 uint64_t View< L, V, O >::getCapabilities() const
 {
-    return _capabilities;
+    return _data.capabilities;
 }
 
 template< class L, class V, class O >
