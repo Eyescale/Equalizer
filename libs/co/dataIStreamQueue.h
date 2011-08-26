@@ -37,8 +37,7 @@ namespace co
         DataIStreamQueue();
         ~DataIStreamQueue();
 
-        ObjectDataIStream* pop()
-            { EQ_TS_NOT_THREAD( _thread ); return _queued.pop(); }
+        ObjectDataIStream* pop() { return _queued.pop(); }
         ObjectDataIStream* tryPop();
         ObjectDataIStream* pull( const uint128_t& version );
         void recycle( ObjectDataIStream* stream )
