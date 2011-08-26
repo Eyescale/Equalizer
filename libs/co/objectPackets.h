@@ -20,6 +20,7 @@
 #define EQNET_OBJECTPACKETS_H
 
 #include <co/packets.h> // base structs
+#include <co/objectVersion.h> // base structs
 
 /** @cond IGNORE */
 namespace co
@@ -90,7 +91,7 @@ namespace co
     {
         ObjectInstancePacket()
             {
-                // Always goes through session which caches and forwards to obj
+                // Always go through session which caches and forwards to object
                 type    = PACKETTYPE_CO_NODE;
                 command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
