@@ -36,6 +36,8 @@
 #include <admin/addWindow.h>
 #include <admin/removeWindow.h>
 
+#include <eq/fabric/equalizerTypes.h>
+
 namespace eqPly
 {
 
@@ -532,6 +534,9 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'u':
+            _frameData.toggleCompression();
+            return true;
         case 't':
             _adjustTileSize( -1 );
             return true;
@@ -780,6 +785,14 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             stopFrames();
             return true;
 
+        case 'e':
+            _toggleTileEqualizer( true );
+            return true;
+
+        case 'E':
+            _toggleTileEqualizer( false );
+            return true;
+
         default:
             return false;
     }
@@ -924,6 +937,8 @@ void Config::_adjustTileSize( const int delta )
         return;
 
     eq::Vector2i tileSize = view->getTileSize();
+    if ( tileSize == eq::Vector2i( -1, -1 ) )
+        tileSize = eq::Vector2i( 64, 64 );
     tileSize += delta;
     view->setTileSize( tileSize );
 }
@@ -1053,6 +1068,19 @@ void Config::_closeAdminServer()
     
     _admin = 0;
     eq::admin::exit();
+}
+
+
+void Config::_toggleTileEqualizer( bool on )
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    eq::View* view = find< eq::View >( viewID );
+    if ( !view )
+        return;
+        
+    view->useEqualizer( on ? 
+        eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER : 
+        eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER );
 }
 
 }

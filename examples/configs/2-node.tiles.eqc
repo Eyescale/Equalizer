@@ -33,11 +33,9 @@ server
 
         observer {}
         layout { name "tile based" view{ observer "" }}
-        layout { name "2D load-balanced" view{ observer "" }}
         canvas
         {
             layout   "tile based"
-            layout   "2D load-balanced"
             wall {}
 
             segment { channel  "channel1" }
@@ -47,18 +45,7 @@ server
         {
             channel ( layout "tile based" )
             tile_equalizer {}
-            compound {}
-            compound
-            {
-                channel "channel2"
-                outputframe {}
-            }
-            inputframe { name "frame.channel2" }
-        }
-        compound
-        {
-            channel ( layout "2D load-balanced" )
-            load_equalizer{}
+            load_equalizer {}
             compound {}
             compound
             {

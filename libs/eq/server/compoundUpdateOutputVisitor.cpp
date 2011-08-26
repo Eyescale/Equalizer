@@ -131,7 +131,10 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
-        frameData->setOffset( Vector2i( framePVP.x, framePVP.y ));
+        
+        bool usesTiles = !compound->getInputTileQueues().empty();
+        frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
+                                          Vector2i( framePVP.x, framePVP.y ) );
 
         // 2) pvp is area within channel
         framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
@@ -167,6 +170,10 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
 #if 0
         //@bug? Where did this go? ----- Commit
+        // https://github.com/tribal-tec/Equalizer/commit/0e016a608f403f0234c3aba7ddb4a6906d1b219f
+        // moved to compoundUpdateInputVisitor.cpp:135, commit needs to be done
+        // after setting the input nodes to the outputframe
+        // follow outputFrame->addInputFrame( frame, compound );
         frame->commitData();
         frame->commit();
 #endif

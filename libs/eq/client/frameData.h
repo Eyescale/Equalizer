@@ -338,6 +338,9 @@ namespace server
         float _colorQuality;
         float _depthQuality;
 
+        uint32_t _colorCompressor;
+        uint32_t _depthCompressor;
+
         size_t _newImages;
 
         uint32_t _colorCompressor;

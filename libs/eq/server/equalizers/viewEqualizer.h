@@ -54,6 +54,8 @@ namespace server
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
 
+        virtual uint32_t getType() const { return fabric::VIEW_EQUALIZER; }
+
     protected:        
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { EQASSERT( _listeners.empty( )); }

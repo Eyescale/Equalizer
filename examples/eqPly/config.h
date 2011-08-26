@@ -141,6 +141,8 @@ namespace eqPly
 
         void _setMessage( const std::string& message );
         void _updateData();
+
+        void _toggleTileEqualizer( bool on );
     };
 }
 

@@ -89,7 +89,9 @@ public:
         {
             compound->removeInputTileQueue( q );
             ServerPtr server = compound->getServer();
+            q->flush();
             server->deregisterObject( q );
+            delete q;
         }
 
         return TRAVERSE_CONTINUE;
@@ -121,23 +123,6 @@ TileEqualizer::TileEqualizer( const TileEqualizer& from )
 {
 }
 
-
-void TileEqualizer::_syncViewTileSize( Compound* compound )
-{
-    Channel* channel = compound->getChannel();
-    if( !channel )
-        return;
-
-    View* view = channel->getView();
-    if ( !view )
-        return;
-
-    if ( view->getTileSize() == Vector2i( 0, 0) )
-        view->setTileSize( _size );
-
-    setTileSize( view->getTileSize() );
-}
-
 void TileEqualizer::_createQueues( Compound* compound )
 {
     if ( !searchForName( _name, compound->getOutputTileQueues()))
@@ -165,7 +150,9 @@ void TileEqualizer::_destroyQueues( Compound* compound )
     {
         compound->removeOutputTileQueue( q );
         ServerPtr server = compound->getServer();
+        q->flush();
         server->deregisterObject( q );
+        delete q;
     }
 
     InputQueueDestroyer destroyer( _name );
@@ -178,10 +165,7 @@ void TileEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     if ( isActivated() && !_created )
-    {
-        _syncViewTileSize( compound );
         _createQueues( compound );
-    }
     
     if ( !isActivated() && _created )
         _destroyQueues( compound );

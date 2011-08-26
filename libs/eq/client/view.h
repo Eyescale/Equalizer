@@ -68,6 +68,8 @@ namespace eq
 
         /** @return the Server of this view. @version 1.0 */
         EQ_API ServerPtr getServer();
+
+        EQ_API const Vector2i& getTileSize() const { return _tileSize; }
         //@}
 
         /** @name Operations */
@@ -87,6 +89,10 @@ namespace eq
 
         /** @warning Experimental - may not be supported in the future */
         EQ_API void freezeLoadBalancing( const bool onOff );
+
+        EQ_API void useEqualizer( uint32_t bitmask );
+
+        EQ_API void setTileSize( const Vector2i& size );
         //@}
 
     protected:
@@ -106,6 +112,9 @@ namespace eq
 
         /** Unmodified, baseline view frustum data, used when resizing. */
         Frustum _baseFrustum;
+
+        /** Tile size used for tile-based rendering. */
+        Vector2i _tileSize;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

@@ -396,7 +396,7 @@ void Channel::frameReadback( const uint128_t& )
     const Frames& frames = getOutputFrames();
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
-        Frame* frame = *i;        
+        Frame* frame = *i;
         frame->readback( glObjects, drawableConfig );
     }
 

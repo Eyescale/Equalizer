@@ -51,6 +51,8 @@ public:
 
     const Vector2i& getTileSize() const { return _size; }
 
+    virtual uint32_t getType() const { return fabric::TILE_EQUALIZER; }
+
 protected:
 
     virtual void notifyChildAdded( Compound* compound, Compound* child ) {}
@@ -58,7 +60,6 @@ protected:
 
 private:
     
-    void _syncViewTileSize( Compound* compound );
     void _destroyQueues( Compound* compound );
     void _createQueues( Compound* compound );
 

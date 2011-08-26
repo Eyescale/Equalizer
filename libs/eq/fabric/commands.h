@@ -198,6 +198,8 @@ namespace fabric
     enum ViewCommand
     {
         CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 11
+        CMD_VIEW_USE_EQUALIZER,
+        CMD_VIEW_SET_TILESIZE,
         CMD_VIEW_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */
