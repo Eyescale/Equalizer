@@ -52,6 +52,7 @@ namespace co
         CMD_NODE_OBJECT_INSTANCE,
         CMD_NODE_OBJECT_INSTANCE_MAP,
         CMD_NODE_OBJECT_INSTANCE_COMMIT,
+        CMD_NODE_OBJECT_INSTANCE_PUSH,
         CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CMD_NODE_REMOVE_NODE,
         CMD_NODE_CUSTOM = 40  // some buffer for binary-compatible patches
@@ -63,6 +64,7 @@ namespace co
         CMD_OBJECT_DELTA,
         CMD_OBJECT_SLAVE_DELTA,
         CMD_OBJECT_COMMIT,
+        CMD_OBJECT_PUSH,
         CMD_OBJECT_OBSOLETE,
         CMD_OBJECT_CUSTOM = 10 // some buffer for binary-compatible patches
     };

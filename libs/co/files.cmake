@@ -41,6 +41,7 @@ set(CO_PUBLIC_HEADERS
 
 set(CO_HEADERS 
     barrierPackets.h
+    dataIStreamQueue.h
     dataOStream.ipp
     deltaMasterCM.h
     eventConnection.h
@@ -74,6 +75,7 @@ set(CO_SOURCES
     connectionDescription.cpp
     connectionSet.cpp
     dataIStream.cpp
+    dataIStreamQueue.cpp
     dataOStream.cpp
     deltaMasterCM.cpp
     dispatcher.cpp

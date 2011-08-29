@@ -48,9 +48,6 @@ namespace co
         virtual uint32_t commitNB( const uint32_t incarnation );
         virtual uint128_t commitSync( const uint32_t commitID );
 
-        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
-
         virtual uint128_t sync( const uint128_t& version );
 
         virtual uint128_t getHeadVersion() const;
@@ -63,15 +60,11 @@ namespace co
         virtual void setMasterNode( NodePtr node ) { _master = node; }
         virtual NodePtr getMasterNode() { return _master; }
 
-        virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
-            { EQDONTCALL; }
-        virtual void removeSlave( NodePtr ) { EQDONTCALL; }
         virtual void removeSlaves( NodePtr ) {}
 
         virtual void applyMapData( const uint128_t& version );
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&, 
                                        const uint128_t& startVersion );
-
     private:
         /** The current version. */
         uint128_t _version;

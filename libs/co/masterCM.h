@@ -19,6 +19,7 @@
 #define CO_MASTERCM_H
 
 #include "objectCM.h" // base class
+#include "dataIStreamQueue.h" // member
 #include <co/types.h>
 
 #include <co/base/mtQueue.h> // member
@@ -28,11 +29,9 @@
 
 namespace co
 {
-    class ObjectDataIStream;
-
     /** 
-     * The base class for versioned master change managers.
      * @internal
+     * The base class for versioned master change managers.
      */
     class MasterCM : public ObjectCM
     {
@@ -56,7 +55,6 @@ namespace co
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
-        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
         
         virtual void removeSlaves( NodePtr node );
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
@@ -73,16 +71,8 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
-        typedef stde::hash_map< uint128_t, ObjectDataIStream* > PendingStreams;
-
-        /** Not yet ready streams. */
-        PendingStreams _pendingDeltas;
-
-        /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedDeltas;
-
-        /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        /** Slave commit queue. */
+        DataIStreamQueue _slaveCommits;
 
         void _apply( ObjectDataIStream* is );
         void _sendEmptyVersion( NodePtr node, const uint32_t instanceID );

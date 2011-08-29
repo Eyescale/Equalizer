@@ -166,7 +166,7 @@ namespace server
         /** Request a finish of outstanding frames on next frame */
         void postNeedsFinish() { _needsFinish = true; }
 
-        /** @internal Return the last finished frame */
+        /** @internal @return the last finished frame */
         uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
 
         /** @internal */

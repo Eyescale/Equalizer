@@ -20,6 +20,7 @@
 #define EQNET_OBJECTPACKETS_H
 
 #include <co/packets.h> // base structs
+#include <co/objectVersion.h> // base structs
 
 /** @cond IGNORE */
 namespace co
@@ -47,6 +48,27 @@ namespace co
         const uint32_t count;
     };
 
+    struct ObjectPushPacket : public ObjectPacket
+    {
+        ObjectPushPacket( const uint32_t instanceID_, const uint32_t requestID_,
+                          const uint128_t& groupID_, const uint128_t& typeID_,
+                          Nodes& nodes_ )
+                : groupID( groupID_ )
+                , typeID( typeID_ )
+                , requestID( requestID_ )
+                , nodes( &nodes_ )
+            {
+                command = CMD_OBJECT_PUSH;
+                instanceID = instanceID_;
+                size = sizeof( ObjectPushPacket ); 
+            }
+        
+        const uint128_t groupID;
+        const uint128_t typeID;
+        const uint32_t requestID;
+        Nodes* nodes;
+    };
+
     struct ObjectDataPacket : public ObjectPacket
     {
         ObjectDataPacket()
@@ -69,7 +91,7 @@ namespace co
     {
         ObjectInstancePacket()
             {
-                // Always goes through session which caches and forwards to obj
+                // Always go through session which caches and forwards to object
                 type    = PACKETTYPE_CO_NODE;
                 command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );

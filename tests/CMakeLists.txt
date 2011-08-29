@@ -1,6 +1,8 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010-2011, Stefan Eilemann <eile@eyescale.ch>
 
+option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
+option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)
 if(NOT EQUALIZER_BUILD_TESTS)
   return()
 endif(NOT EQUALIZER_BUILD_TESTS)
@@ -56,8 +58,11 @@ foreach(FILE ${TEST_FILES})
     get_target_property(EXECUTABLE ${NAME} LOCATION)
     STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
       EXECUTABLE "${EXECUTABLE}")
-    add_test(${NAME} ${EXECUTABLE})
-    set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
+
+    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu_.*")
+      add_test(${NAME} ${EXECUTABLE})
+      set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
+    endif()
     list(APPEND ALL_TESTS ${NAME})
   endif()
 endforeach(FILE ${TEST_FILES})

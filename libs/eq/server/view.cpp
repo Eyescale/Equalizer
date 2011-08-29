@@ -70,10 +70,6 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
         ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
-    registerCommand( fabric::CMD_VIEW_USE_EQUALIZER, 
-        ViewFunc( this, &View::_cmdChooseEqualizer ), mainQ );
-    registerCommand( fabric::CMD_VIEW_SET_TILESIZE, 
-        ViewFunc( this, &View::_cmdSetTileSize ), mainQ );
 }
 
 namespace
@@ -147,12 +143,12 @@ private:
 class FreezeVisitor : public ConfigVisitor
 {
 public:
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
     FreezeVisitor( const View* view, const bool freeze )
             : _view( view ), _freeze( freeze )
         {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -180,12 +176,10 @@ private:
 class UseEqualizerVisitor : public ConfigVisitor
 {
 public:
+    UseEqualizerVisitor( const View* view ) : _view( view ) {}
+
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    UseEqualizerVisitor( const View* view, uint32_t bitmask )
-        : _view( view ), _bitmask( bitmask )
-    {}
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -197,11 +191,11 @@ public:
             return TRAVERSE_PRUNE;
 
         Equalizers equalizers = compound->getEqualizers();
-        for ( EqualizersCIter i = equalizers.begin();
-              i != equalizers.end(); ++i )
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
         {
             Equalizer* eq = *i;
-            eq->setActivated( ( eq->getType() & _bitmask ) != 0 );
+            const uint32_t bitmask = _view->getEqualizers();
+            eq->setActivated( ( eq->getType() & bitmask ) != 0 );
         }
         return TRAVERSE_CONTINUE; 
     }
@@ -209,18 +203,16 @@ public:
 
 private:
     const View* const _view;
-    uint32_t _bitmask;
 };
 
 class SetTileSizeVisitor : public ConfigVisitor
 {
 public:
+
+    SetTileSizeVisitor( const View* view ) : _view( view ) {}
+
     // No need to go down on nodes.
     virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
-    SetTileSizeVisitor( const View* view, const Vector2i& tileSize )
-        : _view( view ), _tileSize( tileSize )
-    {}
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -235,17 +227,16 @@ public:
         for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
         {
             TileQueue* queue = *i;
-            queue->setTileSize( _tileSize );
+            queue->setTileSize( _view->getTileSize( ));
         }
 
         const Equalizers equalizers = compound->getEqualizers();
-        for ( EqualizersCIter eqIt = equalizers.begin();
-            eqIt != equalizers.end(); ++eqIt )
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
         {
-            if ( (*eqIt)->getType() == fabric::TILE_EQUALIZER )
+            if ( (*i)->getType() == fabric::TILE_EQUALIZER )
             {
-                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *eqIt );
-                tileEq->setTileSize( _tileSize );
+                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *i );
+                tileEq->setTileSize( _view->getTileSize( ));
             }
         }
 
@@ -254,7 +245,6 @@ public:
 
 private:
     const View* const _view;
-    const Vector2i& _tileSize;
 };
 
 }
@@ -290,6 +280,17 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
         updateFrusta();
+    if( dirtyBits & DIRTY_TILESIZE )
+    {
+        SetTileSizeVisitor visitor ( this );
+        getConfig()->accept( visitor );
+    }
+    if( dirtyBits & DIRTY_EQUALIZERS )
+    {
+        UseEqualizerVisitor visitor ( this );
+        getConfig()->accept( visitor );
+        getConfig()->postNeedsFinish(); // @bug? Why?
+    }
 }
 
 Config* View::getConfig()
@@ -524,30 +525,6 @@ bool View::_cmdFreezeLoadBalancing( co::Command& command )
 
     return true;
 }
-
-bool View::_cmdChooseEqualizer( co::Command& command )
-{
-    const ViewUseEqualizerPacket* packet =
-        command.get<ViewUseEqualizerPacket>();
-
-    UseEqualizerVisitor visitor ( this, packet->mask );
-    getConfig()->accept( visitor );
-    getConfig()->postNeedsFinish();
-
-    return true;
-}
-
-bool View::_cmdSetTileSize( co::Command& command )
-{
-    const ViewSetTileSizePacket* packet =
-        command.get<ViewSetTileSizePacket>();
-
-    SetTileSizeVisitor visitor ( this, packet->tileSize );
-    getConfig()->accept( visitor );
-
-    return true;
-}
-
 
 }
 }
