@@ -241,6 +241,9 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );
 
+    bool tilesEnabled = !compound->getOutputTileQueues().empty() || 
+                            !compound->getInputTileQueues().empty();
+
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
     context.overdraw      = compound->getInheritOverdraw();
@@ -258,6 +261,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = destChannel->getViewVersion();
     context.taskID        = compound->getTaskID();
+    context.tilesEnabled  = tilesEnabled;
 
     const View* view = destChannel->getView();
     EQASSERT( context.view == view );

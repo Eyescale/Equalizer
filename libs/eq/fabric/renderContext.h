@@ -57,6 +57,7 @@ namespace fabric
         Range          range;          //!< database-range wrt to dest channel
         SubPixel       subpixel;       //!< subpixel decomposition wrt to dest
         Zoom           zoom;           //!< up/downsampling wrt to dest
+        bool           tilesEnabled;   //!< tile based rendering used
 
         uint32_t       buffer;         //!< buffer as passed to glDrawBuffer() 
         uint32_t       taskID;         //!< @internal per-channel task counter
