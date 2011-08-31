@@ -1246,7 +1246,7 @@ void Channel::_transmitImage( Image* image,
 
                 const PixelData& data = useCompression ?
                     image->compressPixelData( buffer ) : 
-                image->getPixelData( buffer );
+                    image->getPixelData( buffer );
                 pixelDatas.push_back( &data );
                 qualities.push_back( image->getQuality( buffer ));
 
@@ -1306,12 +1306,12 @@ void Channel::_transmitImage( Image* image,
 #endif
         const PixelData* data = pixelDatas[j];
         const FrameData::ImageHeader header =
-        { data->internalFormat, data->externalFormat,
-        data->pixelSize, data->pvp,
-        data->compressorName, data->compressorFlags,
-        data->isCompressed ?
-        uint32_t( data->compressedSize.size( )) : 1,
-        qualities[ j ] };
+        {   data->internalFormat, data->externalFormat,
+            data->pixelSize, data->pvp,
+            data->isCompressed ? data->compressorName : EQ_COMPRESSOR_NONE, 
+            data->compressorFlags,
+            data->isCompressed ? uint32_t( data->compressedSize.size( )) : 1,
+            qualities[ j ] };
 
         connection->send( &header, sizeof( FrameData::ImageHeader ), true );
 
