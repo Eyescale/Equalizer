@@ -182,13 +182,31 @@ namespace eq
                 size          = sizeof( ChannelFrameTransmitPacket );
             }
 
-        
-        co::ObjectVersion frameData;
+        co::ObjectVersion  frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
-        uint64_t           imageIndex;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
+    };
+
+    struct ChannelFrameTransmitImagePacket : public ChannelFrameTransmitPacket
+    {
+        ChannelFrameTransmitImagePacket()
+        {
+            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+            size          = sizeof( ChannelFrameTransmitImagePacket );
+        }
+
+        uint64_t           imageIndex;
+    };
+
+    struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitPacket
+    {
+        ChannelFrameSetReadyPacket()
+        {
+            command       = fabric::CMD_CHANNEL_FRAME_READY;
+            size          = sizeof( ChannelFrameSetReadyPacket );
+        }
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
