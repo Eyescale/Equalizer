@@ -1815,6 +1815,11 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     if( packet->tasks & fabric::TASK_READBACK )
         _setOutputFrames( packet->nFrames, packet->frames );
 
+    int64_t startTime = getConfig()->getTime();
+    int64_t clearTime = 0;
+    int64_t drawTime = 0;
+    int64_t readbackTime = 0;
+
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     EQASSERT( queue );
     for( co::Command* queuePacket = queue->pop(); queuePacket;
@@ -1828,20 +1833,21 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
         if( packet->tasks & fabric::TASK_CLEAR )
         {
-            ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+            const int64_t time = getConfig()->getTime();
             frameClear( packet->context.frameID );
+            clearTime += getConfig()->getTime() - time;
         }
 
         if( packet->tasks & fabric::TASK_DRAW )
         {
-            ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
+            const int64_t time = getConfig()->getTime();
             frameDraw( packet->context.frameID );
+            drawTime += getConfig()->getTime() - time;
         }
 
         if( packet->tasks & fabric::TASK_READBACK )
         {
-            ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-
+            const int64_t time = getConfig()->getTime();
             const Frames& frames = getOutputFrames();
             for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
             {
@@ -1849,6 +1855,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                 frame->getData()->setPixelViewport( getPixelViewport() );
             }
             frameReadback( packet->context.frameID );
+            readbackTime += getConfig()->getTime() - time;
 
             // transmit image
             _sendTileToInputNodes( context );
@@ -1856,8 +1863,30 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 
         queuePacket->release();
     }
-    if ( packet->tasks & fabric::TASK_READBACK )
+
+    if( packet->tasks & fabric::TASK_CLEAR )
     {
+        ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += clearTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_DRAW )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_DRAW, this, AUTO );
+        event.event.data.statistic.startTime = startTime;
+        startTime += drawTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_READBACK )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += readbackTime;
+        event.event.data.statistic.endTime = startTime;
+
         // set frame ready
         _setTileFrameReady( context );
         _outputFrames.clear();
