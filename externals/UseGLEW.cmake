@@ -54,6 +54,14 @@ if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
     message(STATUS "  Extracting GLEW to ${GLEW_DIR}")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
       ${GLEW_TGZ} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+    # 'Fix' glxew.h
+    set(_glxew_h "${GLEW_DIR}/include/GL/glxew.h")
+    file(READ ${_glxew_h} _glxew_h_contents)
+
+    string(REGEX REPLACE "GL/glew.h" "eq/GL/glew.h"
+           _glxew_h_new "${_glxew_h_contents}")
+    file(WRITE ${_glxew_h} "${_glxew_h_new}")
   endif(NOT EXISTS ${GLEW_DIR})
 
   set(GLEW_INCLUDE_DIRS ${GLEW_DIR}/include)

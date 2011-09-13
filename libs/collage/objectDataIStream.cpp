@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,12 +28,12 @@ namespace co
 ObjectDataIStream::ObjectDataIStream()
         : _version( VERSION_INVALID )
 {
-    reset();
+    _reset();
 }
 
 ObjectDataIStream::~ObjectDataIStream()
 {
-    reset();
+    _reset();
 }
 
 ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
@@ -41,8 +41,7 @@ ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
         , _commands( from._commands )
         , _version( from._version.get( ))
 {
-    for( CommandDeque::const_iterator i = _commands.begin();
-         i != _commands.end(); ++i )
+    for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
     {
         Command* command = *i;
         if( command )
@@ -53,7 +52,11 @@ ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
 void ObjectDataIStream::reset()
 {
     DataIStream::reset();
+    _reset();
+}
 
+void ObjectDataIStream::_reset()
+{
     while( !_commands.empty( ))
     {
         Command* command = _commands.front();

@@ -7,7 +7,7 @@
 
 include(files.cmake)
 include(configure.cmake)
-set(CO_VERSION "0.3.0")
+set(CO_VERSION "0.3.1")
 
 option(COLLAGE_BUILD_STATIC_LIBS "Build static Collage libraries" OFF)
 if(NOT COLLAGE_BUILD_STATIC_LIBS)
@@ -62,7 +62,7 @@ purple_add_library(co ${CO_LIB_VARIANT}
     ${CO_ADD_LINKLIB}
   )
 
-purple_add_amalgamation(Collage co ${CO_VERSION} ${CO_VERSION}
+purple_add_amalgamation(Collage co ${CO_VERSION} "0.3.0"
     shared co_base
     shared co
   )

@@ -35,10 +35,9 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
 {
     EQASSERT( _object );
     EQASSERT( object->getLocalNode( ));
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &StaticSlaveCM::_cmdInstance ), q );
+                             CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
 }
 
 StaticSlaveCM::~StaticSlaveCM()
@@ -70,8 +69,8 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
                          << std::endl;
 }
 
-void StaticSlaveCM::addInstanceDatas(
-    const ObjectDataIStreamDeque& cache, const uint128_t& /* start */ )
+void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
+                                      const uint128_t& /* start */ )
 {
     EQASSERT( _currentIStream );
     EQASSERT( _currentIStream->getDataSize() == 0 );

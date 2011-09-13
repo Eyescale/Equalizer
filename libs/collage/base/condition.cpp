@@ -19,12 +19,12 @@
 
 #include <cstring>
 #include <errno.h>
-#include <pthread.h>
-#include <sys/timeb.h>
 
-#ifdef WIN32_API
-#  define timeb _timeb
-#  define ftime _ftime
+#ifdef _WIN32
+#  include "condition_w32.ipp"
+#else
+#  include <pthread.h>
+#  include <sys/timeb.h>
 #endif
 
 namespace co
@@ -50,6 +50,7 @@ Condition::Condition()
                 << std::endl;
         return;
     }
+
     // condvar init
     error = pthread_cond_init( &_data->cond, 0 );
     if( error )
@@ -102,6 +103,10 @@ void Condition::wait()
 
 bool Condition::timedWait( const unsigned timeout )
 {
+#ifdef _WIN32
+    int error = pthread_cond_timedwait_w32_np( &_data->cond, &_data->mutex,
+                                               timeout );
+#else
     timespec ts = { 0, 0 };
     if( timeout > 0 )
     {
@@ -113,8 +118,9 @@ bool Condition::timedWait( const unsigned timeout )
     ftime( &tb );
     ts.tv_sec  += tb.time;
     ts.tv_nsec += tb.millitm * 1000000;
-            
+
     int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+#endif
     if( error == ETIMEDOUT )
         return false;
 

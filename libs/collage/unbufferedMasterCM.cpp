@@ -46,7 +46,7 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
     // sync commands are send to any instance, even the master gets the command
     object->registerCommand( CMD_OBJECT_DELTA,
                              CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ),
-                             q );
+                             0 );
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()

@@ -506,9 +506,11 @@ bool Node::syncConfigExit()
 //---------------------------------------------------------------------------
 void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 {
+    if( !isRunning( ))
+        return;
+
     EQVERB << "Start frame " << frameNumber << std::endl;
-    EQASSERT( _state == STATE_RUNNING );
-    EQASSERT( _active > 0 );
+    EQASSERT( isActive( ));
 
     _frameIDs[ frameNumber ] = frameID;
     
@@ -524,11 +526,18 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+        (*i)->update( frameID, frameNumber );
+
+    if( !_lastDrawPipe ) // no FrameDrawFinish sent
     {
-        Pipe* pipe = *i;
-        if( pipe->isActive() && pipe->isRunning( ))
-            pipe->update( frameID, frameNumber );
+        NodeFrameDrawFinishPacket drawFinishPacket;
+        drawFinishPacket.frameNumber = frameNumber;
+        drawFinishPacket.frameID     = frameID;
+        _send( drawFinishPacket );
+        EQLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
+                           << &drawFinishPacket << std::endl;
     }
+    _lastDrawPipe = 0;
 
     NodeFrameTasksFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
@@ -538,9 +547,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
                            << std::endl;
 
     _finish( frameNumber );
-
     flushSendBuffer();
-    _lastDrawPipe = 0;
 }
 
 uint32_t Node::_getFinishLatency() const

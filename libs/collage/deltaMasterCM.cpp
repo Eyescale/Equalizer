@@ -45,7 +45,7 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &DeltaMasterCM::_cmdCommit ), q );
     object->registerCommand( CMD_OBJECT_DELTA, 
-                             CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), q );
+                             CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
 }
 
 DeltaMasterCM::~DeltaMasterCM()

@@ -45,10 +45,9 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
     CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdInstance ),
-                             q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdInstance ),0);
     object->registerCommand( CMD_OBJECT_DELTA,
-                             CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), q );
+                             CmdFunc( this, &VersionedSlaveCM::_cmdDelta ), 0 );
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), q);
 }
@@ -229,7 +228,6 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                          const uint128_t& startVersion )
 {
-    EQ_TS_THREAD( _cmdThread );
 #if 0
     EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
 #endif
@@ -315,7 +313,6 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 bool VersionedSlaveCM::_cmdInstance( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
     EQASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )
@@ -347,8 +344,6 @@ bool VersionedSlaveCM::_cmdInstance( Command& command )
 
 bool VersionedSlaveCM::_cmdDelta( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
-
     if( !_currentIStream )
         _currentIStream = _iStreamCache.alloc();
 

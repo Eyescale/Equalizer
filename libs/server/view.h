@@ -96,7 +96,6 @@ namespace server
         virtual void setDirty( const uint64_t bits ); //!< @internal
         //@}
 
-
     protected:
         /** @sa eq::View::deserialize() */
         virtual void deserialize( co::DataIStream&, const uint64_t );

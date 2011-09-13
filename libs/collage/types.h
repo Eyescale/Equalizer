@@ -89,6 +89,8 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 /** @cond IGNORE */
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
+typedef CommandDeque::const_iterator CommandDequeCIter;
+
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;

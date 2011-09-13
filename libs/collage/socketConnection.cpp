@@ -69,6 +69,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
 
 SocketConnection::~SocketConnection()
 {
+    _close();
 }
 
 namespace
@@ -160,7 +161,7 @@ bool SocketConnection::connect()
     return true;
 }
 
-void SocketConnection::close()
+void SocketConnection::_close()
 {
     if( _state == STATE_CLOSED )
         return;

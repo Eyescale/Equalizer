@@ -127,6 +127,7 @@ namespace co
         };
 
         typedef stde::hash_map< base::uint128_t, Item > ItemHash;
+        typedef ItemHash::iterator ItemHashIter;
         base::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands

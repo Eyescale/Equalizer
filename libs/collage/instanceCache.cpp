@@ -344,7 +344,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
 
     // Release used items (first stream)
     bool streamsLeft = false;
-    for( ItemHash::iterator i = _items->begin();
+    for( ItemHashIter i = _items->begin();
          i != _items->end() && _size > target; ++i )
     {
         Item& item = i->second;

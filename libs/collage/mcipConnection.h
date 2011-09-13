@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,7 +34,7 @@ namespace co
 
         virtual bool connect();
         virtual bool listen();
-        virtual void close();
+        virtual void close() { _close(); }
 
         virtual void acceptNB();
         virtual ConnectionPtr acceptSync();
@@ -54,6 +54,8 @@ namespace co
 
     private:
         ConnectionPtr _impl;
+
+        void _close();
     };
 }
 #endif //CO_MCIPCONNECTION_H

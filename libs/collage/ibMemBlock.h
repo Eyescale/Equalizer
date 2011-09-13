@@ -27,9 +27,7 @@ namespace co
 {
 class IBMemBlock
 {
-
 public:
-
     IBMemBlock();
     virtual ~IBMemBlock(){ close(); }
     void close();
