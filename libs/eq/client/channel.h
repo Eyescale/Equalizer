@@ -29,6 +29,8 @@
 namespace eq
 {
     struct ChannelFrameTransmitPacket;
+    struct ChannelFrameTransmitImagePacket;
+    struct ChannelFrameSetReadyPacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -571,13 +573,13 @@ namespace eq
 
         /** helper for transmitting one image */
         void _transmitImage( Image* image, 
-                             const ChannelFrameTransmitPacket* command );
+                             const ChannelFrameTransmitPacket* packet );
         
         /** sets the frame ready */
-        void _sendFrameDataReady( const ChannelFrameTransmitPacket* command );
+        void _sendFrameDataReady( const ChannelFrameTransmitPacket* packet );
         
         /** transmits only a single image without setting the frame ready */
-        void _transmitImage( const ChannelFrameTransmitPacket* command );
+        void _transmitImage( const ChannelFrameTransmitImagePacket* packet );
 
 
         /** Transmit the frame data to the nodeID and sets the frame ready. */
@@ -590,8 +592,11 @@ namespace eq
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        /** helper function to transmit the image or set frame ready */
-        void _sendTileToInputNodes( const RenderContext& context, bool ready );
+        /** helper function to transmit the image */
+        void _sendTileToInputNodes( const RenderContext& context );
+
+        /** helper function to set frame ready */
+        void _setTileFrameReady( const RenderContext& context );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );

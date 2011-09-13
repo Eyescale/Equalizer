@@ -53,9 +53,6 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 {
     const Channel* channel = compound->getChannel();
 
-    if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
-        return;
-
     const TileQueues& outputQueues = compound->getOutputTileQueues();
     for( TileQueuesCIter i = outputQueues.begin(); 
         i != outputQueues.end(); ++i )
@@ -80,6 +77,9 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         _outputTileQueues[name] = queue;
     }
+
+    if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
+        return;
 
     const Frames& outputFrames = compound->getOutputFrames();
     if( outputFrames.empty( ))
