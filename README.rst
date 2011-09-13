@@ -36,7 +36,7 @@ experience into a feature-rich, high-performance and mature parallel
 rendering framework and an object-oriented high-level network library. It is
 intended for all application developers creating parallel, interactive OpenGL
 applications. Equalizer 1.0.1 can be retrieved by downloading the `source
-code`_, updating the subversion trunk to revision 5832 (``svn up -r 5832``)
+code`_, updating the subversion trunk to revision 5834 (``svn up -r 5834``)
 or by using:
 ``svn co
 https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.1``
