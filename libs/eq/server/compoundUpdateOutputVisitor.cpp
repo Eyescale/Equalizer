@@ -343,7 +343,7 @@ void CompoundUpdateOutputVisitor::_squareStrategy(
    
     int dimX = dim.x();
     int dimY = dim.y();
-    int dimXY = dim.x() * dim.y();
+    uint32_t dimXY = dim.x() * dim.y();
     int x = ( dim.x() - 1 ) / 2;
     int y = ( dim.y() - 1 ) / 2;
     int walk = 0;
