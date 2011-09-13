@@ -27,6 +27,8 @@
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
 
+#define TILE_STRATEGY STGY_TILE_ZIGZAG
+
 namespace eq
 {
 namespace server
@@ -73,7 +75,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         queue->cycleData( _frameNumber, compound );
 
         //----- Generate tile task packets
-        _generateTiles( queue, compound );
+        TileStrategy strategy = static_cast <TileStrategy> ( TILE_STRATEGY );
+        _generateTiles( queue, compound, strategy );
 
         _outputTileQueues[name] = queue;
     }
@@ -183,78 +186,291 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << std::endl
             << co::base::enableFlush;
-    }
+   } 
 }
 
 void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
-                                                  Compound* compound )
+                                                  Compound* compound,
+                                                  TileStrategy strategy )
 {
     const Vector2i& tileSize = queue->getTileSize();
     PixelViewport pvp = compound->getInheritPixelViewport();
     if( !pvp.hasArea( ))
         return;
 
+    Vector2i dim;
+    dim.x() = ( pvp.w/tileSize.x() + ((pvp.w%tileSize.x())? 1 : 0));
+    dim.y() = ( pvp.h/tileSize.y() + ((pvp.h%tileSize.y())? 1 : 0));
+
+    std::vector< Vector2i > tileOrder;
+    // generate tiles order according with the chosen strategy
+    _applyTileStrategy( tileOrder, dim, strategy );
+   
+    // add tiles packets ordered with strategy
+    _addTilesToQueue( queue, compound, tileOrder );
+
+}
+
+void CompoundUpdateOutputVisitor::_applyTileStrategy(
+                                            std::vector< Vector2i >& tileOrder,
+                                            const Vector2i& dim,
+                                            TileStrategy strategy )
+{
+    tileOrder.reserve( dim.x() * dim.y() );
+
+    switch(strategy)
+    {
+        case STGY_TILE_CWSPIRAL:
+            _spiralStrategy( tileOrder, dim ); 
+            break;
+
+        case STGY_TILE_SQSPIRAL:
+            _squareStrategy( tileOrder, dim ); 
+            break;
+
+        case STGY_TILE_ZIGZAG:
+            _zigzagStrategy( tileOrder, dim );
+            break;
+
+        default:
+        /* FALL BACK */
+        case STGY_TILE_RASTER:
+            _rasterStrategy( tileOrder, dim );
+            break;
+    }
+}
+
+void CompoundUpdateOutputVisitor::_rasterStrategy( 
+                                            std::vector< Vector2i >& tileOrder,
+                                            const Vector2i& dim ) 
+{
+    Vector2i tile;
+
+    for (int y = 0; y < dim.y(); ++y)
+    {
+        for (int x = 0; x < dim.x(); ++x)
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+    }
+}
+
+void CompoundUpdateOutputVisitor::_zigzagStrategy( 
+                                            std::vector< Vector2i >& tileOrder,
+                                            const Vector2i& dim ) 
+{
+    Vector2i tile;
+
+    for (int y = 0; y < dim.y(); ++y)
+    {
+        if( y%2 )
+        {
+            for (int x = dim.x()-1; x >= 0; --x)
+            {
+                tile.x() = x;
+                tile.y() = y;
+                tileOrder.push_back(tile);
+            }
+        }
+        else
+        {
+            for (int x = 0; x < dim.x(); ++x)
+            {
+                tile.x() = x;
+                tile.y() = y;
+                tileOrder.push_back(tile);
+            }
+        }
+    }
+}
+
+
+void CompoundUpdateOutputVisitor::_spiralStrategy( 
+                                            std::vector< Vector2i >& tileOrder,
+                                            const Vector2i& dim ) 
+{
+    Vector2i tile;
+
+    int dimX = dim.x();
+    int dimY = dim.y();
+
+    int level = ( dimY < dimX ? dimY-1 : dimX-1 ) / 2;
+
+    int x(0);
+    int y(0);
+
+    while ( level >= 0 )
+    {
+
+        for(x = level,y = level+1; y < dimY-level; ++y)
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+
+        for(x = level+1, y = dimY-1-level; x < dimX-1-level; ++x)
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+
+        for(x = dimX-1-level, y = dimY-1-level; y > level ; --y )
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+
+        for(x = dimX-1-level, y = level; x > level-1 ; --x )
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+        --level;
+    }
+}
+
+void CompoundUpdateOutputVisitor::_squareStrategy( 
+                                            std::vector< Vector2i >& tileOrder,
+                                            const Vector2i& dim ) 
+{
+    Vector2i tile;
+   
+    int dimX = dim.x();
+    int dimY = dim.y();
+    int dimXY = dim.x() * dim.y();
+    int x = ( dim.x() - 1 ) / 2;
+    int y = ( dim.y() - 1 ) / 2;
+    int walk = 0;
+    int radius = 0;
+    int xStep = 0;
+    int yStep = -1; //down
+
+    while ( tileOrder.size() < dimXY )
+    {
+        EQASSERT ( (yStep == 0 && xStep != 0) || (yStep != 0 && xStep == 0) );
+        if ( x>=0 && x<dimX && y>=0 && y<dimY )
+        {
+            tile.x() = x;
+            tile.y() = y;
+            tileOrder.push_back(tile);
+        }
+
+        ++walk;
+        if ( walk < radius )
+        {
+            // keep direction
+            x += xStep;
+            y += yStep;
+        }
+        else // change direction
+        {
+            if ( xStep == 1 && yStep == 0 )
+            {
+                // right -> up
+                xStep = 0;
+                yStep = 1;
+            }
+            else if ( xStep == 0 && yStep == 1  )
+            {
+                // up -> left
+                xStep = -1;
+                yStep = 0;
+                ++radius; //
+            }
+            else if ( xStep == -1 && yStep == 0 )
+            {
+                // left -> down
+                xStep = 0;
+                yStep = -1;
+            }
+            else // ( xStep == 0 && yStep == -1 )
+            {
+                // down -> right
+                xStep = 1;
+                yStep = 0;
+                ++radius; //
+            }
+            walk = 0;
+            x += xStep;
+            y += yStep;
+        }
+    }
+}
+
+void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue, 
+                                            Compound* compound, 
+                                            std::vector< Vector2i >& tileOrder )
+{
+
+    const Vector2i& tileSize = queue->getTileSize();
+    PixelViewport pvp = compound->getInheritPixelViewport();
+
     double xFraction = 1.0 / pvp.w;
     double yFraction = 1.0 / pvp.h;
     float vpWidth = tileSize.x() * xFraction;
     float vpHeight = tileSize.y() * yFraction;
 
-    for (int32_t x = 0; x < pvp.w; x += tileSize.x())
+    std::vector< Vector2i >::iterator tileItr;
+    for( tileItr = tileOrder.begin(); tileItr != tileOrder.end(); ++tileItr )
     {
-        for (int32_t y = 0; y < pvp.h; y += tileSize.y())
+        PixelViewport tilepvp;
+        Viewport tilevp;
+
+        tilepvp.x = tileItr->x() * tileSize.x();
+        tilepvp.y = tileItr->y() * tileSize.y();
+        tilevp.x = tilepvp.x * xFraction;
+        tilevp.y = tilepvp.y * yFraction;
+
+        if ( tilepvp.x + tileSize.x() <= pvp.w )
         {
-            PixelViewport tilepvp;
-            Viewport tilevp;
+            tilepvp.w = tileSize.x();
+            tilevp.w = vpWidth;
+        }
+        else
+        {
+            // no full tile
+            tilepvp.w = pvp.w  - tilepvp.x;
+            tilevp.w = tilepvp.w * xFraction;
+        }
 
-            tilepvp.x = x;
-            tilepvp.y = y;
-            tilevp.x = x * xFraction;
-            tilevp.y = y * yFraction;
+        if ( tilepvp.y + tileSize.y() <= pvp.h )
+        {
+            tilepvp.h = tileSize.y();
+            tilevp.h = vpHeight;
+        }
+        else
+        {
+            // no full tile
+            tilepvp.h = pvp.h - tilepvp.y;
+            tilevp.h = tilepvp.h * yFraction;
+        }
 
-            if ( x + tileSize.x() <= pvp.w )
-            {
-                tilepvp.w = tileSize.x();
-                tilevp.w = vpWidth;
-            }
-            else
-            {
-                // no full tile
-                tilepvp.w = pvp.w  - x;
-                tilevp.w = tilepvp.w * xFraction;
-            }
+        fabric::Eye eye = fabric::EYE_CYCLOP;
+        for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
+        {
+            if ( !(compound->getInheritEyes() & eye) ||
+                !compound->isInheritActive( eye ))
+                continue;
 
-            if ( y + tileSize.y() <= pvp.h )
-            {
-                tilepvp.h = tileSize.y();
-                tilevp.h = vpHeight;
-            }
-            else
-            {
-                // no full tile
-                tilepvp.h = pvp.h - y;
-                tilevp.h = tilepvp.h * yFraction;
-            }
+            TileTaskPacket packet;
+            packet.pvp = tilepvp;
+            packet.vp = tilevp;
 
-            fabric::Eye eye = fabric::EYE_CYCLOP;
-            for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
-            {
-                if ( !(compound->getInheritEyes() & eye) ||
-                     !compound->isInheritActive( eye ))
-                    continue;
-
-                TileTaskPacket packet;
-                packet.pvp = tilepvp;
-                packet.vp = tilevp;
-
-                compound->computeTileFrustum( packet.frustum, 
-                                              eye, packet.vp, false );
-                compound->computeTileFrustum( packet.ortho, 
-                                              eye, packet.vp, true );
-                queue->addTile( packet, eye );
-            }
+            compound->computeTileFrustum( packet.frustum, 
+                eye, packet.vp, false );
+            compound->computeTileFrustum( packet.ortho, 
+                eye, packet.vp, true );
+            queue->addTile( packet, eye );
         }
     }
 }
+
 
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
