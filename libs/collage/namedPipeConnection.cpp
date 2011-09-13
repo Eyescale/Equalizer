@@ -86,7 +86,7 @@ bool NamedPipeConnection::connect()
     _state = STATE_CONNECTED;
     _fireStateChanged();
 
-    EQINFO << "Connected " << _description << std::endl;
+    EQINFO << "Connected " << _description->toString() << std::endl;
     return true;
 }
 
@@ -186,7 +186,7 @@ bool NamedPipeConnection::listen()
     _state = STATE_LISTENING;
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description << std::endl;
+    EQINFO << "Listening on " << _description->toString() << std::endl;
     return true;
 }
 

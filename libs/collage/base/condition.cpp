@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,15 @@
 
 #include "condition.h"
 
-#include <pthread.h>
 #include <cstring>
+#include <errno.h>
+#include <pthread.h>
+#include <sys/timeb.h>
+
+#ifdef WIN32_API
+#  define timeb _timeb
+#  define ftime _ftime
+#endif
 
 namespace co
 {
@@ -55,8 +62,16 @@ Condition::Condition()
 
 Condition::~Condition()
 {
-    pthread_mutex_destroy( &_data->mutex );
-    pthread_cond_destroy( &_data->cond );
+    int error = pthread_mutex_destroy( &_data->mutex );
+    if( error )
+        EQERROR << "Error destroying pthread mutex: " << strerror( error )
+                << std::endl;
+
+    error = pthread_cond_destroy( &_data->cond );
+    if( error )
+        EQERROR << "Error destroying pthread condition: " << strerror( error )
+                << std::endl;
+
     delete _data;
 }
 
@@ -83,6 +98,30 @@ void Condition::unlock()
 void Condition::wait()
 {
     pthread_cond_wait( &_data->cond, &_data->mutex );
+}
+
+bool Condition::timedWait( const unsigned timeout )
+{
+    timespec ts = { 0, 0 };
+    if( timeout > 0 )
+    {
+        ts.tv_sec  = static_cast<int>( timeout / 1000 );
+        ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
+    }
+
+    timeb tb;
+    ftime( &tb );
+    ts.tv_sec  += tb.time;
+    ts.tv_nsec += tb.millitm * 1000000;
+            
+    int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+    if( error == ETIMEDOUT )
+        return false;
+
+    if( error )
+        EQERROR << "pthread_cond_timedwait failed: " << strerror( error )
+                << std::endl;
+    return true;
 }
 
 }

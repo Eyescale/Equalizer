@@ -66,7 +66,7 @@ void DFREqualizer::attach( Compound* compound )
         EQASSERT( channel );
     
         // Subscribe to channel load notification
-        if ( compound->getParent() && channel )
+        if( compound->getParent() && channel )
             channel->addListener( this );
     }
 }

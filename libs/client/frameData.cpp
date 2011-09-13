@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,15 +18,14 @@
 
 #include "frameData.h"
 
-#include "config.h"
 #include "nodeStatistics.h"
 #include "channelStatistics.h"
 #include "image.h"
 #include "log.h"
-#include "node.h"
 #include "nodePackets.h"
 #include "roiFinder.h"
 
+#include <eq/fabric/drawableConfig.h>
 #include <co/command.h>
 #include <co/commandFunc.h>
 #include <co/connectionDescription.h>
@@ -45,7 +44,6 @@ typedef co::CommandFunc<FrameData> CmdFunc;
 FrameData::FrameData() 
         : _version( co::VERSION_NONE.low( ))
         , _useAlpha( true )
-        , _useSendToken( false )
         , _colorQuality( 1.f )
         , _depthQuality( 1.f )
 {
@@ -320,7 +318,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
     for( unsigned i = 0; i < 2; ++i )
     {
-        Frame::Buffer buffer = buffers[i];
+        const Frame::Buffer buffer = buffers[i];
         
         if( packet->buffers & buffer )
         {

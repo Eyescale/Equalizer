@@ -70,12 +70,13 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //----- Set frame parameters:
         // 1) Frame offset
         Frame* outputFrame = j->second;
+        const Channel* iChannel = compound->getInheritChannel();
         Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
                                frame->getOffset();
 
-        if( !outputFrame->getCompound()->isChildOf( compound ))
+        if( outputFrame->getCompound()->getInheritChannel() != iChannel )
             frameOffset = frame->getOffset();
-        else if( channel != compound->getInheritChannel( ))
+        else if( channel != iChannel )
         {
             // compute delta offset between source and destination, since the
             // channel's native origin (as opposed to destination) is used.
@@ -87,7 +88,6 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             frameOffset.x() -= framePVP.x;
             frameOffset.y() -= framePVP.y;
 
-            const Channel* iChannel = compound->getInheritChannel();
             const PixelViewport& iChannelPVP = iChannel->getPixelViewport();
             frameOffset.x() -= iChannelPVP.x;
             frameOffset.y() -= iChannelPVP.y;
@@ -115,8 +115,9 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
                 EQLOG( LOG_ASSEMBLY )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
-                    << frame->getVersion() << "\" tile pos " << frameOffset
-                    << ' ' << frame->getInheritZoom() << std::endl;
+                    << frame->getVersion() << "\" tile pos "
+                    << frame->getInheritOffset() << ' '
+                    << frame->getInheritZoom() << std::endl;
                 break;
             }
         }

@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EQ_TEST_RUNTIME 120 // seconds
+#define EQ_TEST_RUNTIME 200 // seconds
 #include <test.h>
 
 #include <eq/init.h>
@@ -54,8 +54,6 @@ std::vector< std::string > getFiles( const std::string path,
                                      std::vector< std::string >& files, 
                                      const std::string& ext );
 
-co::base::Bufferb* readDataFile( const std::string& filename );
-
 int main( int argc, char **argv )
 {
     eq::NodeFactory nodeFactory;
@@ -87,11 +85,10 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
     return names;
 }
 
-void testCompressByte( const uint32_t nameCompressor,
-                       uint8_t* data, const uint64_t size,
+void testCompressByte( const uint32_t nameCompressor, 
+                       const uint8_t* data, const uint64_t size,
                        uint64_t& _compressedSize,
-                       float& _timeCompress, 
-                       float& _timeDecompress )
+                       float& _timeCompress, float& _timeDecompress )
 {
     co::base::CPUCompressor compressor;
     co::base::CPUCompressor decompressor;
@@ -105,6 +102,7 @@ void testCompressByte( const uint32_t nameCompressor,
     float timeDecompress = 0;
     uint64_t compressedSize = 0;
 
+    compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
     co::base::Clock clock;
     compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
     timeCompress = clock.getTimef();
@@ -128,6 +126,8 @@ void testCompressByte( const uint32_t nameCompressor,
     result.resize( size );
     uint8_t* outData = result.getData();
         
+    decompressor.decompress( &vectorVoid.front(), &vectorSize.front(),
+                             numResults, outData, inDims );
     clock.reset();
     decompressor.decompress( &vectorVoid.front(), &vectorSize.front(),
                              numResults, outData, inDims );
@@ -152,6 +152,7 @@ void testCompressorFile()
     getFiles( "", files, "*.so" );
     getFiles( "text", files, "*.a" );
     getFiles( "text", files, "*.dylib" );
+    getFiles( "/Users/eile/Library/Models/mediumPly/", files, "*.bin" );
     
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
@@ -169,34 +170,38 @@ void testCompressorFile()
         for ( std::vector< std::string >::const_iterator j = files.begin();
               j != files.end(); ++j )
         {
-            co::base::Bufferb* data = readDataFile( *j );
-            const std::string name = co::base::getFilename( *j );
-            
-            if( data == 0 )
+            co::base::MemoryMap file;
+            const uint8_t* data = static_cast<const uint8_t*>( file.map( *j ));
+
+            if( !data )
+            {
+                EQERROR << "Can't mmap " << *j << std::endl;
                 continue;
+            }
+
+            const size_t size = file.getSize();    
+            const std::string name = co::base::getFilename( *j );
             
             uint64_t compressedSize = 0;
             float compressTime = 0.f;
             float decompressTime = 0.f;
 
-            testCompressByte( *i, data->getData(), data->getSize(),
-                              compressedSize, compressTime, decompressTime );
+            testCompressByte( *i, data, size, compressedSize, compressTime,
+                              decompressTime );
 
-            totalSize += data->getSize();
+            totalSize += size;
             totalResult += compressedSize;
             totalCompressionTime += compressTime;
-            totalDecompressionTime = decompressTime;
+            totalDecompressionTime += decompressTime;
 
-            std::cout  << std::setw(20) << name << ", 0x" 
-                       << std::setw(8) << std::setfill( '0' )
-                       << std::hex << *i << std::dec << std::setfill(' ')
-                       << ", " << std::setw(10) << data->getSize() << ", "
-                       << std::setw(10) << compressedSize << ", " 
-                       << std::setw(10) << compressTime << ", "
-                       << std::setw(10) << decompressTime << std::endl;
-    
+            std::cout  << std::setw(20) << name << ", 0x" << std::setw(8)
+                       << std::setfill( '0' ) << std::hex << *i << std::dec
+                       << std::setfill(' ') << ", " << std::setw(10) << size
+                       << ", " << std::setw(10) << compressedSize << ", "
+                       << std::setw(10) << compressTime << ", " << std::setw(10)
+                       << decompressTime << std::endl;
         }
-        std::cout << std::setw(24) << "Total: 0x" << std::setw(8)
+        std::cout << std::setw(24) << "Total, 0x" << std::setw(8)
                   << std::setfill( '0' ) << std::hex << *i << std::dec
                   << std::setfill(' ') << ", " << std::setw(10) << totalSize
                   << ", " << std::setw(10) << totalResult << ", "
@@ -223,7 +228,10 @@ std::vector< std::string > getFiles( const std::string path,
                                      const std::string& ext )
 {
     const co::base::PluginRegistry& reg = co::base::Global::getPluginRegistry();
-    const co::base::Strings& paths = reg.getDirectories();
+    co::base::Strings paths = reg.getDirectories();
+    if( !path.empty( ))
+        paths.push_back( path );
+
     for ( uint64_t j = 0; j < paths.size(); j++)
     {
         co::base::Strings candidates = 
@@ -238,23 +246,3 @@ std::vector< std::string > getFiles( const std::string path,
     return files;
 }
 
-co::base::Bufferb* readDataFile( const std::string& filename )
-{
-    co::base::MemoryMap file;
-    const uint8_t* addr = static_cast< const uint8_t* >( file.map( filename ));
-
-    if( !addr )
-    {
-        EQERROR << "Can't open " << filename << " for reading" << std::endl;
-        return 0;
-    }
-
-    const size_t size = file.getSize();    
-    co::base::Bufferb* data = new co::base::Bufferb();
-
-    // read the file
-    data->resize( size );
-    memcpy( data->getData(), addr, size);
-
-    return data;
-}

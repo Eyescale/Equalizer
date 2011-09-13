@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -102,25 +102,30 @@
 #include <eq/pipe.h>
 #include <eq/server.h>
 #include <eq/segment.h>
+#include <eq/systemWindow.h>
 #include <eq/types.h>
 #include <eq/version.h>
 #include <eq/view.h>
+#include <eq/window.h>
 #include <eq/windowSystem.h>
 
-#ifdef AGL
-#  include <eq/aglEventHandler.h>
-#  include <eq/aglPipe.h>
-#  include <eq/aglWindow.h>
-#endif
-#ifdef GLX
-#  include <eq/glXEventHandler.h>
-#  include <eq/glXPipe.h>
-#  include <eq/glXWindow.h>
-#endif
-#ifdef WGL
-#  include <eq/wglEventHandler.h>
-#  include <eq/wglPipe.h>
-#  include <eq/wglWindow.h>
+#ifdef EQ_SYSTEM_INCLUDES
+#  include <eq/os.h>
+#  ifdef AGL
+#    include <eq/aglEventHandler.h>
+#    include <eq/aglPipe.h>
+#    include <eq/aglWindow.h>
+#  endif
+#  ifdef GLX
+#    include <eq/glXEventHandler.h>
+#    include <eq/glXPipe.h>
+#    include <eq/glXWindow.h>
+#  endif
+#  ifdef WGL
+#    include <eq/wglEventHandler.h>
+#    include <eq/wglPipe.h>
+#    include <eq/wglWindow.h>
+#  endif
 #endif
 
 #endif // EQCLIENT_H

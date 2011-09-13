@@ -19,7 +19,6 @@
 #include "node.h"
 
 #include "client.h"
-#include "channel.h"
 #include "config.h"
 #include "configPackets.h"
 #include "error.h"
@@ -35,6 +34,7 @@
 #include "uiFactory.h"
 
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
@@ -92,6 +92,13 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
                      NodeFunc( this, &Node::_cmdFrameDataTransmit ), commandQ );
     registerCommand( fabric::CMD_NODE_FRAMEDATA_READY,
                      NodeFunc( this, &Node::_cmdFrameDataReady ), commandQ );
+}
+
+void Node::setDirty( const uint64_t bits )
+{
+    // jump over fabric setDirty to avoid dirty'ing config node list
+    // nodes are individually synced in frame finish
+    Object::setDirty( bits );
 }
 
 ClientPtr Node::getClient()
@@ -385,7 +392,7 @@ void Node::TransmitThread::run()
 bool Node::_cmdCreatePipe( co::Command& command )
 {
     const NodeCreatePipePacket* packet = 
-        command.getPacket<NodeCreatePipePacket>();
+        command.get<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
     EQ_TS_THREAD( _nodeThread );
     EQASSERT( _state >= STATE_INIT_FAILED );
@@ -406,7 +413,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     EQ_TS_THREAD( _nodeThread );
 
     const NodeDestroyPipePacket* packet = 
-        command.getPacket< NodeDestroyPipePacket >();
+        command.get< NodeDestroyPipePacket >();
     EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     Pipe* pipe = findPipe( packet->pipeID );
@@ -428,7 +435,7 @@ bool Node::_cmdConfigInit( co::Command& command )
     EQ_TS_THREAD( _nodeThread );
 
     const NodeConfigInitPacket* packet = 
-        command.getPacket<NodeConfigInitPacket>();
+        command.get<NodeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
@@ -456,7 +463,7 @@ bool Node::_cmdConfigExit( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
     EQLOG( LOG_INIT ) << "Node exit " 
-                      << command.getPacket<NodeConfigExitPacket>() << std::endl;
+                      << command.get<NodeConfigExitPacket>() << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -479,7 +486,7 @@ bool Node::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
-        command.getPacket<NodeFrameStartPacket>();
+        command.get<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -506,7 +513,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
 {
     EQ_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
-        command.getPacket<NodeFrameFinishPacket>();
+        command.get<NodeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
@@ -514,14 +521,20 @@ bool Node::_cmdFrameFinish( co::Command& command )
 
     _finishFrame( frameNumber );
     _frameFinish( packet->frameID, frameNumber );
-    commit();
+
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        fabric::ObjectSyncPacket syncPacket;
+        send( command.getNode(), syncPacket );
+    }
     return true;
 }
 
 bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
     NodeFrameDrawFinishPacket* packet = 
-        command.getPacket< NodeFrameDrawFinishPacket >();
+        command.get< NodeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
@@ -532,7 +545,7 @@ bool Node::_cmdFrameDrawFinish( co::Command& command )
 bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
     NodeFrameTasksFinishPacket* packet = 
-        command.getPacket< NodeFrameTasksFinishPacket >();
+        command.get< NodeFrameTasksFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
                        << std::endl;
 
@@ -543,7 +556,7 @@ bool Node::_cmdFrameTasksFinish( co::Command& command )
 bool Node::_cmdFrameDataTransmit( co::Command& command )
 {
     const NodeFrameDataTransmitPacket* packet =
-        command.getPacket<NodeFrameDataTransmitPacket>();
+        command.get<NodeFrameDataTransmitPacket>();
 
     EQLOG( LOG_ASSEMBLY )
         << "received image data for " << packet->frameData << ", buffers "
@@ -563,7 +576,7 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
 bool Node::_cmdFrameDataReady( co::Command& command )
 {
     const NodeFrameDataReadyPacket* packet =
-        command.getPacket<NodeFrameDataReadyPacket>();
+        command.get<NodeFrameDataReadyPacket>();
 
     EQLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;

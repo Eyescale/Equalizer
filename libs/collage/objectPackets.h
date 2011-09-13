@@ -33,6 +33,7 @@ namespace co
             }
         
         uint32_t requestID;
+        uint32_t incarnation;
     };
 
     struct ObjectObsoletePacket : public ObjectPacket

@@ -18,7 +18,10 @@
 #include "test.h"
 #include <co/base/atomic.h>
 #include <co/base/clock.h>
+#include <co/base/debug.h>
 #include <co/base/lock.h>
+#include <co/base/spinLock.h>
+#include <co/base/timedLock.h>
 #include <iostream>
 
 #ifdef _MSC_VER
@@ -30,11 +33,12 @@
 #define NOPS       1000
 
 volatile size_t nThreads;
-co::base::Lock* lock;
 
-class Thread : public co::base::Thread
+template< class T > class Thread : public co::base::Thread
 {
 public:
+    T* lock;
+
     virtual void run()
         {
             for( unsigned i = 0; i < NOPS; ++i )
@@ -48,16 +52,19 @@ public:
         }
 };
 
-int main( int argc, char **argv )
+template< class T > void _test()
 {
-    lock = new co::base::Lock;
+    T* lock = new T;
     lock->set();
 
-    Thread threads[MAXTHREADS];
+    Thread< T > threads[MAXTHREADS];
     for( nThreads = MAXTHREADS; nThreads > 0; nThreads = nThreads>>1 )
     {
         for( size_t i = 0; i < nThreads; ++i )
+        {
+            threads[i].lock = lock;
             TEST( threads[i].start( ));
+        }
 
         co::base::Clock clock;
         lock->unset();
@@ -69,11 +76,18 @@ int main( int argc, char **argv )
         lock->set();
 
         const float time = clock.getTimef();
-        std::cout << 3 /*set, test, unset*/ * NOPS * nThreads / time
+        std::cout << co::base::className( lock ) << ": "
+                  << /*set, test, unset*/ 3 * NOPS * nThreads / time
                   << " lock ops/ms (" << nThreads << " threads)" << std::endl;
     }
 
     delete lock;
-    return EXIT_SUCCESS;
 }
 
+int main( int argc, char **argv )
+{
+    _test< co::base::Lock >();
+    _test< co::base::SpinLock >();
+    _test< co::base::TimedLock >();
+    return EXIT_SUCCESS;
+}

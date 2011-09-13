@@ -18,8 +18,6 @@
 
 #include "image.h"
 
-#include "frame.h"
-#include "frameData.h"
 #include "log.h"
 #include "windowSystem.h"
 
@@ -27,7 +25,6 @@
 #include <eq/util/objectManager.h>
 
 #include <eq/fabric/colorMask.h>
-#include <co/node.h>
 
 #include <co/base/global.h>
 #include <co/base/memoryMap.h>

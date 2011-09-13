@@ -1,5 +1,5 @@
 /* Copyright (c) 2009 Maxim Makhinya
- *               2010 Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2011 Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,7 +22,6 @@
 #include "roiTracker.h"
 
 #include "image.h"   // member
-#include "window.h"  // Window::ObjectManager
 
 #include <vector>
 #include <string>
@@ -57,11 +56,10 @@ namespace eq
                                     const Zoom&            zoom,
                                     const uint32_t         stage,
                                     const uint128_t&       frameID,
-                                    Window::ObjectManager* glObjects );
+                                    ObjectManager*         glObjects );
 
-        /** @return the GL function table, valid during readback. */
-        const GLEWContext* glewGetContext() const
-            { return _glObjects->glewGetContext(); }
+        /** @return the GL function table, valid during findRegions(). */
+        const GLEWContext* glewGetContext() const;
 
     protected:
 
@@ -157,7 +155,7 @@ namespace eq
         ROITracker _roiTracker; //!< disables ROI when ROI is inefficient
 
         /** The GL object manager, valid during a readback operation. */
-        Window::ObjectManager* _glObjects;
+        ObjectManager* _glObjects;
     };
 }
 

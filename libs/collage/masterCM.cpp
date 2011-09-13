@@ -61,12 +61,13 @@ MasterCM::~MasterCM()
     _slaves.clear();
 }
 
-uint32_t MasterCM::commitNB()
+uint32_t MasterCM::commitNB( const uint32_t incarnation )
 {
     LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID  = localNode->registerRequest();
+    packet.incarnation = incarnation;
 
     _object->send( localNode, packet );
     return packet.requestID;
@@ -153,7 +154,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     const ObjectSlaveDeltaPacket* packet = 
-        command.getPacket< ObjectSlaveDeltaPacket >();
+        command.get< ObjectSlaveDeltaPacket >();
 
     EQASSERTINFO( _pendingDeltas.size() < 100,
                   "More than 100 unfinished slave commits!?" );
@@ -185,6 +186,8 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 
         _queuedDeltas.push( istream );
         _object->notifyNewVersion();
+        EQASSERTINFO( _queuedDeltas.getSize() < 100,
+                      "More than 100 queued slave commits!?" );
 #if 0
         EQLOG( LOG_OBJECTS )
             << "Queued slave commit " << packet->commit << " object "

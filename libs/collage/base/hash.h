@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,9 +18,9 @@
 #ifndef COBASE_HASH_H
 #define COBASE_HASH_H
 
-#include <co/base/os.h>
 #include <co/base/refPtr.h>
 #include <co/base/stdExt.h>
+#include <co/base/uuid.h>
 
 namespace co
 {
@@ -72,6 +72,10 @@ namespace base
         : public stde::hash_map< RefPtr< K >, T, hashRefPtr< K > >
     {};
 #endif
+
+/** A hash for UUID keys. @version 1.0 */
+template<class T> class UUIDHash : public stde::hash_map<co::base::UUID, T> {};
+
 }
 
 }

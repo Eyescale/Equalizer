@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 
 #include "debug.h"
 #include "log.h"
+#include "os.h"
 
 #ifdef _WIN32 //_MSC_VER
 #  define EQ_DL_ERROR sysError
@@ -33,9 +34,30 @@ namespace co
 namespace base
 {
 
+class DSOPrivate
+{
+public:
+    DSOPrivate() : dso( 0 ) {}
+#ifdef _WIN32 //_MSC_VER
+    HMODULE dso;
+#else
+    void* dso;
+#endif
+};
+
+DSO::DSO()
+    : _data( new DSOPrivate )
+{}
+
+DSO::~DSO()
+{
+    delete _data;
+    _data = 0;
+}
+
 bool DSO::open( const std::string& fileName )
 {
-    if( _dso )
+    if( _data->dso )
     {
         EQWARN << "DSO already open, close it first" << std::endl;
         return false;
@@ -44,22 +66,22 @@ bool DSO::open( const std::string& fileName )
     if( fileName.empty( ))
     {
 #ifdef _WIN32 //_MSC_VER
-        _dso = GetModuleHandle( 0 );
-        EQASSERT( _dso );
+        _data->dso = GetModuleHandle( 0 );
+        EQASSERT( _data->dso );
 #else
-        _dso = RTLD_DEFAULT;
+        _data->dso = RTLD_DEFAULT;
 #endif
     }
     else
     {
 #ifdef _WIN32 //_MSC_VER
-        _dso = LoadLibrary( fileName.c_str() );
+        _data->dso = LoadLibrary( fileName.c_str() );
 #elif defined( RTLD_LOCAL )
-        _dso = dlopen( fileName.c_str(), RTLD_LAZY | RTLD_LOCAL );
+        _data->dso = dlopen( fileName.c_str(), RTLD_LAZY | RTLD_LOCAL );
 #else
-        _dso = dlopen( fileName.c_str(), RTLD_LAZY );
+        _data->dso = dlopen( fileName.c_str(), RTLD_LAZY );
 #endif
-        if( !_dso )
+        if( !_data->dso )
         {
             EQINFO << "Can't open library: " << EQ_DL_ERROR << std::endl;
             return false;
@@ -71,27 +93,32 @@ bool DSO::open( const std::string& fileName )
 
 void DSO::close()
 {
-    if( !_dso )
+    if( !_data->dso )
         return;
 
 #ifdef _WIN32 //_MSC_VER
-    if( _dso != GetModuleHandle( 0 ))
-        FreeLibrary( _dso ) ;
+    if( _data->dso != GetModuleHandle( 0 ))
+        FreeLibrary( _data->dso ) ;
 #else
-    if( _dso != RTLD_DEFAULT )
-        dlclose ( _dso );
+    if( _data->dso != RTLD_DEFAULT )
+        dlclose ( _data->dso );
 #endif
 
-    _dso = 0;
+    _data->dso = 0;
 }
 
 void* DSO::getFunctionPointer( const std::string& name )
 {
 #ifdef _WIN32 //_MSC_VER
-    return (void*)GetProcAddress( _dso, name.c_str() );
+    return (void*)GetProcAddress( _data->dso, name.c_str() );
 #else
-    return dlsym( _dso, name.c_str() );
+    return dlsym( _data->dso, name.c_str() );
 #endif
+}
+
+bool DSO::isOpen() const
+{
+    return _data->dso != 0;
 }
 
 }

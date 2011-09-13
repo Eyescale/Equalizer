@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,8 +20,8 @@
 #define EQ_WGL_PIPE_H
 
 #include <eq/api.h>
+#include <eq/gl.h>         // GLEW
 #include <eq/systemPipe.h> // base class
-#include <eq/os.h>     // GLEW
 
 namespace eq
 {

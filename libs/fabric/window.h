@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -99,7 +99,7 @@ namespace fabric
         bool hasFixedViewport( ) const { return _data.fixedVP; }
 
         /** @internal Notify this window that the viewport has changed. */
-        void notifyViewportChanged();
+        virtual void notifyViewportChanged();
 
         /** 
          * Traverse this window and all children using a window visitor.
@@ -256,7 +256,8 @@ namespace fabric
         /** Remove a channel from this window. */
         EQFABRIC_INL bool _removeChannel( C* channel );
 
-        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef co::CommandFunc< Window< P, W, C > > CmdFunc;

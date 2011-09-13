@@ -19,7 +19,7 @@
 #ifndef EQUTIL_TEXTURE_H
 #define EQUTIL_TEXTURE_H
 
-#include <eq/os.h>           // GLEW
+#include <eq/gl.h>           // GLEW
 #include <eq/frame.h>        // Frame::Buffer enum
 
 #include <co/base/thread.h>         // thread debug macro

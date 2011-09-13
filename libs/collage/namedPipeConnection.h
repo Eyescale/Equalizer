@@ -21,7 +21,6 @@
 
 #include <co/connection.h> // base class
 
-//#include <co/base/os.h>
 #include <co/base/buffer.h> // member
 #include <co/base/thread.h> // for EQ_TS_VAR
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -81,7 +81,7 @@ namespace eq
 
     struct PipeConfigExitReplyPacket : public co::ObjectPacket
     {
-        PipeConfigExitReplyPacket( const co::base::UUID& pipeID, const bool res )
+        PipeConfigExitReplyPacket( const UUID& pipeID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_PIPE_CONFIG_EXIT_REPLY;
@@ -144,6 +144,17 @@ namespace eq
                 command = fabric::CMD_PIPE_EXIT_THREAD;
                 size    = sizeof( PipeExitThreadPacket );
             }
+    };
+
+    struct PipeDetachViewPacket : public co::ObjectPacket
+    {
+        PipeDetachViewPacket( const uint128_t& view ) : viewID( view )
+            {
+                command        = fabric::CMD_PIPE_DETACH_VIEW;
+                size           = sizeof( PipeDetachViewPacket );
+            }
+
+        uint128_t viewID;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

@@ -1,79 +1,75 @@
 #Equalizer 1.1 ascii
-# Example configuration serving a planar powerwall from a single draw buffer
-# - resizing is not possible, this is intended for full-screen PW windows
-# - use an offscreen buffer for deployment
-# - underlap/overlap is possible by tweaking output frame viewport
-# - if the source and destination window are on different pipes, remove the 
-#   image texture type
 
+# two-to-one sort-first config, for cluster change hostnames
 global
 {
-    EQ_WINDOW_IATTR_HINT_DECORATION OFF
+#    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
 }
 
 server
 {
     connection { hostname "127.0.0.1" }
+    connection { hostname "roku.local" }
     config
     {
         appNode
         {
-            pipe
+            connection { hostname "127.0.0.1" }
+            connection { hostname "roku.local" }
+            pipe 
             {
                 window
                 {
-#                    attributes{ hint_drawable FBO }
-                    viewport [ 100 450 960 300 ]
-                    channel { name "buffer" }
-                }
-                window
-                {
-                    name "left"
-                    viewport [ 98 100 480 300 ]
+                    viewport [ .25 .25 .5 .5 ]
+                    attributes{ hint_drawable window }
                     channel { name "channel1" }
                 }
-                window
-                {
-                    name "right"
-                    viewport [ 582 100 480 300 ]
-                    channel { name "channel2" }
-                }
             }
+        }
+        node
+        {
+            connection { hostname "eyescale.local" }
+            pipe { window { channel { name "channel2" }}}
         }
 
         observer {}
-        layout { view { observer 0 }}
+        layout { name "2D static" view{ observer "" }}
+        layout { name "2D load-balanced" view{ observer "" }}
         canvas
         {
-            layout 0
-            wall
-            {
-                bottom_left  [ -1.6 -.5 -1 ]
-                bottom_right [  1.6 -.5 -1 ]
-                top_left     [ -1.6  .5 -1 ]
-            }
-            segment { channel "buffer" }
+            layout   "2D static"
+            layout   "2D load-balanced"
+            wall {}
+
+            segment { channel  "channel1" }
         }
+
         compound
         {
+            channel ( layout "2D static" )
             compound
             {
-                channel ( segment 0 view 0 )
-                outputframe { viewport [ 0 0 .5 1 ] name "left" type texture }
-                outputframe { viewport [ .5 0 .5 1 ] name "right" type texture }
-            }
-            compound
-            {
-                channel "channel1"
-                task [ CLEAR ASSEMBLE ]
-                inputframe { name "left" }
+                viewport [ 0 0 1 .5 ]
             }
             compound
             {
                 channel "channel2"
-                task [ CLEAR ASSEMBLE ]
-                inputframe { name "right" }
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
             }
+            inputframe { name "frame.channel2" }
+        }
+        compound
+        {
+            channel ( layout "2D load-balanced" )
+            load_equalizer{}
+            compound {}
+            compound
+            {
+                channel "channel2"
+                outputframe {}
+            }
+            inputframe { name "frame.channel2" }
         }
     }    
 }

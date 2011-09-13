@@ -46,7 +46,7 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB();
+        virtual uint32_t commitNB( const uint32_t incarnation );
         virtual uint128_t commitSync( const uint32_t commitID );
 
         virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
@@ -56,7 +56,6 @@ namespace co
 
         virtual uint128_t getHeadVersion() const;
         virtual uint128_t getVersion() const { return _version; }
-        virtual uint128_t getOldestVersion() const { return _version; }
         //@}
 
         virtual bool isMaster() const { return false; }
@@ -65,8 +64,8 @@ namespace co
         virtual void setMasterNode( NodePtr node ) { _master = node; }
         virtual NodePtr getMasterNode() { return _master; }
 
-        virtual uint128_t addSlave( Command& )
-            { EQDONTCALL; return VERSION_INVALID; }
+        virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
+            { EQDONTCALL; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData( const uint128_t& version );
@@ -96,6 +95,7 @@ namespace co
         NodePtr _master;
 
         void _syncToHead();
+        void _releaseStream( ObjectDataIStream* stream );
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );

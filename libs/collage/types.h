@@ -18,12 +18,10 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
-#include <co/base/hash.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
 
 #include <deque>
-#include <list>
 #include <vector>
 
 namespace co
@@ -75,8 +73,11 @@ typedef Objects::const_iterator                  ObjectsCIter;
 
 /** A vector of Barriers. */
 typedef std::vector< Barrier* >                  Barriers;
+
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
+/** A const iterator for a vector of ConnectionPtr's. */
+typedef Connections::const_iterator   ConnectionsCIter;
 
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;
@@ -88,11 +89,11 @@ typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 /** @cond IGNORE */
 typedef std::vector< Command* > Commands;
 typedef std::deque< Command* > CommandDeque;
-typedef std::list< Command* > CommandList;
-typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
 typedef std::vector< ObjectVersion > ObjectVersions;
 typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
+
+typedef Commands::const_iterator CommandsCIter;
 /** @endcond */
 
 #ifdef EQ_USE_DEPRECATED

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
- *               2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -83,11 +83,11 @@ void Node< C, N, P, V >::restore()
 }
 
 template< class C, class N, class P, class V >
-uint32_t Node< C, N, P, V >::commitNB()
+uint32_t Node< C, N, P, V >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_PIPES ))
-        commitChildren( _pipes );
-    return Object::commitNB();
+        commitChildren( _pipes, incarnation );
+    return Object::commitNB( incarnation );
 }
 
 template< class C, class N, class P, class V > void

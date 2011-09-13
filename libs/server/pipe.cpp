@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -62,13 +62,14 @@ Pipe::~Pipe()
 void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
-    co::CommandQueue* queue = getCommandThreadQueue();
 
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
+    registerCommand( fabric::CMD_OBJECT_SYNC,
+                     PipeFunc( this, &Pipe::_cmdSync ), cmdQ );
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT_REPLY,
-                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_PIPE_CONFIG_EXIT_REPLY, 
-                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), queue );
+                     PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
 }
 
 void Pipe::removeChild( const co::base::UUID& id )
@@ -301,7 +302,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 bool Pipe::_cmdConfigInitReply( co::Command& command ) 
 {
     const PipeConfigInitReplyPacket* packet = 
-        command.getPacket<PipeConfigInitReplyPacket>();
+        command.get<PipeConfigInitReplyPacket>();
     EQVERB << "handle pipe configInit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -311,7 +312,7 @@ bool Pipe::_cmdConfigInitReply( co::Command& command )
 bool Pipe::_cmdConfigExitReply( co::Command& command ) 
 {
     const PipeConfigExitReplyPacket* packet = 
-        command.getPacket<PipeConfigExitReplyPacket>();
+        command.get<PipeConfigExitReplyPacket>();
     EQVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;

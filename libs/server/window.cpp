@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,12 +68,13 @@ void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
-    co::CommandQueue* queue = getCommandThreadQueue();
-
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
+    registerCommand( fabric::CMD_OBJECT_SYNC,
+                     WindowFunc( this, &Window::_cmdSync ), cmdQ );
     registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigInitReply ), queue );
+                     WindowFunc( this, &Window::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY, 
-                     WindowFunc( this, &Window::_cmdConfigExitReply ), queue );
+                     WindowFunc( this, &Window::_cmdConfigExitReply ), cmdQ );
 }
 
 void Window::removeChild( const co::base::UUID& id )
@@ -486,7 +487,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 bool Window::_cmdConfigInitReply( co::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
-        command.getPacket<WindowConfigInitReplyPacket>();
+        command.get<WindowConfigInitReplyPacket>();
     EQVERB << "handle window configInit reply " << packet << std::endl;
 
     EQASSERT( !needsDelete( ));
@@ -497,7 +498,7 @@ bool Window::_cmdConfigInitReply( co::Command& command )
 bool Window::_cmdConfigExitReply( co::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
-        command.getPacket<WindowConfigExitReplyPacket>();
+        command.get<WindowConfigExitReplyPacket>();
     EQVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )

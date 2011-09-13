@@ -71,6 +71,35 @@ SocketConnection::~SocketConnection()
 {
 }
 
+namespace
+{
+static bool _parseAddress( ConnectionDescriptionPtr description,
+                           sockaddr_in& address )
+{
+    address.sin_family      = AF_INET;
+    address.sin_addr.s_addr = htonl( INADDR_ANY );
+    address.sin_port        = htons( description->port );
+    memset( &(address.sin_zero), 0, 8 ); // zero the rest
+
+    const std::string& hostname = description->getHostname();
+    if( !hostname.empty( ))
+    {
+        hostent *hptr = gethostbyname( hostname.c_str( ));
+        if( hptr )
+            memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
+        else
+        {
+            EQWARN << "Can't resolve host " << hostname << std::endl;
+            return false;
+        }
+    }
+
+    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
+           << ntohs( address.sin_port ) << std::endl;
+    return true;
+}
+}
+
 //----------------------------------------------------------------------
 // connect
 //----------------------------------------------------------------------
@@ -91,7 +120,7 @@ bool SocketConnection::connect()
         _description->setHostname( "127.0.0.1" );
 
     sockaddr_in address;
-    if( !_parseAddress( address ))
+    if( !_parseAddress( _description, address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
         return false;
@@ -117,7 +146,7 @@ bool SocketConnection::connect()
 
     if( !connected )
     {
-        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
+        EQINFO << "Could not connect to '" << _description->getHostname() << ":"
                << _description->port << "': " << base::sysError 
                << std::endl;
         close();
@@ -535,30 +564,6 @@ void SocketConnection::_tuneSocket( const Socket fd )
 #endif
 }
 
-bool SocketConnection::_parseAddress( sockaddr_in& address )
-{
-    address.sin_family      = AF_INET;
-    address.sin_addr.s_addr = htonl( INADDR_ANY );
-    address.sin_port        = htons( _description->port );
-    memset( &(address.sin_zero), 0, 8 ); // zero the rest
-
-    const std::string& hostname = _description->getHostname();
-    if( !hostname.empty( ))
-    {
-        hostent *hptr = gethostbyname( hostname.c_str( ));
-        if( hptr )
-            memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
-        else
-        {
-            EQWARN << "Can't resolve host " << hostname << std::endl;
-            return false;
-        }
-    }
-
-    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
-           << ntohs( address.sin_port ) << std::endl;
-    return true;
-}
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
@@ -576,7 +581,7 @@ bool SocketConnection::listen()
     sockaddr_in address;
     const size_t size = sizeof( sockaddr_in ); 
 
-    if( !_parseAddress( address ))
+    if( !_parseAddress( _description, address ))
     {
         EQWARN << "Can't parse connection parameters" << std::endl;
         return false;
@@ -585,7 +590,7 @@ bool SocketConnection::listen()
     if( !_createSocket())
         return false;
 
-    const bool bound = (::bind(_readFD, (sockaddr *)&address, size) == 0);
+    const bool bound = (::bind( _readFD, (sockaddr *)&address, size ) == 0);
 
     if( !bound )
     {

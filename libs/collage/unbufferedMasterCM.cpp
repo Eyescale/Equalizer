@@ -52,7 +52,8 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
 UnbufferedMasterCM::~UnbufferedMasterCM()
 {}
 
-uint128_t UnbufferedMasterCM::addSlave( Command& command )
+void UnbufferedMasterCM::addSlave( Command& command, 
+                                   NodeMapObjectReplyPacket& reply )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
@@ -60,12 +61,9 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
 
     NodePtr node = command.getNode();
     NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+        command.get<NodeMapObjectPacket>();
     const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
-
-    EQASSERT( ( version == VERSION_OLDEST ) || ( version == VERSION_NONE ) ||
-              ( version == _version ) );
 
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
@@ -77,6 +75,22 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
                          << ", instantiate on " << node->getNodeID()
                          << std::endl;
 #endif
+    reply.version = _version;
+
+    if( version == VERSION_NONE )
+    {
+        // no data, send empty packet to set version
+        _sendEmptyVersion( node, instanceID );
+        return;
+    }
+
+
+#ifndef NDEBUG
+    if( version != VERSION_OLDEST && version < _version )
+        EQINFO << "Mapping version " << _version
+               << " instead of requested version" << version << std::endl;
+#endif
+
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
     if( useCache && 
@@ -86,8 +100,8 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_hit;
 #endif
-        return ( version == VERSION_OLDEST ) ? 
-            packet->minCachedVersion : _version;
+        reply.useCache = true;
+        return;
     }
 
 #ifdef EQ_INSTRUMENT_MULTICAST
@@ -102,12 +116,11 @@ uint128_t UnbufferedMasterCM::addSlave( Command& command )
         _object->getInstanceData( os );
         os.disable();
         if( os.hasSentData( ))
-            return VERSION_INVALID; // no data was in cache
+            return;
     }
 
     // no data, send empty packet to set version
     _sendEmptyVersion( node, instanceID );
-    return VERSION_INVALID; // no data was in cache
 }
 
 void UnbufferedMasterCM::removeSlave( NodePtr node )
@@ -134,7 +147,7 @@ bool UnbufferedMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     LocalNodePtr localNode = _object->getLocalNode();
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
                          << std::endl;

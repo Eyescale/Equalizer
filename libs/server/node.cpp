@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,6 +36,7 @@
 #include <co/command.h>
 #include <co/base/clock.h>
 #include <co/base/launcher.h>
+#include <co/base/os.h>
 #include <co/base/sleep.h>
 
 namespace eq
@@ -88,15 +89,16 @@ Node::~Node()
 void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
-    co::CommandQueue* queue = getCommandThreadQueue();
 
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
+    registerCommand( fabric::CMD_OBJECT_SYNC,
+                     NodeFunc( this, &Node::_cmdSync ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigInitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
-                     NodeFunc( this, &Node::_cmdConfigExitReply ), queue );
+                     NodeFunc( this, &Node::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
-                     NodeFunc( this, &Node::_cmdFrameFinishReply ), queue );
+                     NodeFunc( this, &Node::_cmdFrameFinishReply ), cmdQ );
 }
 
 ServerPtr Node::getServer()
@@ -689,7 +691,7 @@ void Node::flushSendBuffer()
 bool Node::_cmdConfigInitReply( co::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
-        command.getPacket<NodeConfigInitReplyPacket>();
+        command.get<NodeConfigInitReplyPacket>();
     EQVERB << "handle configInit reply " << packet << std::endl;
     EQASSERT( _state == STATE_INITIALIZING );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -700,7 +702,7 @@ bool Node::_cmdConfigInitReply( co::Command& command )
 bool Node::_cmdConfigExitReply( co::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
-        command.getPacket<NodeConfigExitReplyPacket>();
+        command.get<NodeConfigExitReplyPacket>();
     EQVERB << "handle configExit reply " << packet << std::endl;
     EQASSERT( _state == STATE_EXITING );
 
@@ -711,7 +713,7 @@ bool Node::_cmdConfigExitReply( co::Command& command )
 bool Node::_cmdFrameFinishReply( co::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
-        command.getPacket<NodeFrameFinishReplyPacket>();
+        command.get<NodeFrameFinishReplyPacket>();
     EQVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;

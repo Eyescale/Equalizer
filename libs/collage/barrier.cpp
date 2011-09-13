@@ -96,8 +96,14 @@ void Barrier::enter()
         _master = localNode->connect( _masterID );
     }
 
-    EQASSERT( _master.isValid( ));
+    EQASSERT( _master );
     EQASSERT( _master->isConnected( ));
+    if( !_master || !_master->isConnected( ))
+    {
+        EQWARN << "Can't connect barrier master node " << _masterID <<std::endl;
+        return;
+    }
+
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << std::endl;
 
@@ -106,7 +112,7 @@ void Barrier::enter()
     BarrierEnterPacket packet;
     packet.version = getVersion();
     send( _master, packet );
-    
+
     _leaveNotify.waitEQ( leaveVal );
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
                          << ", height " << _height << std::endl;
@@ -117,7 +123,7 @@ bool Barrier::_cmdEnter( Command& command )
     EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getLocalNode(), _master );
 
-    BarrierEnterPacket* packet = command.getPacket< BarrierEnterPacket >();
+    BarrierEnterPacket* packet = command.get< BarrierEnterPacket >();
     if( packet->handled )
         return true;
     packet->handled = true;

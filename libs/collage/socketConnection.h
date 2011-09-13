@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -72,7 +72,7 @@ namespace co
                                   const bool block );
         virtual int64_t write( const void* buffer, const uint64_t bytes );
 
-        typedef SOCKET Socket;
+        typedef UINT_PTR Socket;
 #else
         //! @cond IGNORE
         typedef int    Socket;
@@ -91,20 +91,19 @@ namespace co
 
         bool _createSocket();
         void _tuneSocket( const Socket fd );
-        bool _parseAddress( sockaddr_in& address );
         uint16_t _getPort() const;
 
 #ifdef WIN32
         union
         {
-            SOCKET _readFD;
-            SOCKET _writeFD;
+            Socket _readFD;
+            Socket _writeFD;
         };
 
         // overlapped data structures
         OVERLAPPED _overlapped;
         void*      _overlappedAcceptData;
-        SOCKET     _overlappedSocket;
+        Socket     _overlappedSocket;
         DWORD      _overlappedDone;
 
         EQ_TS_VAR( _recvThread );

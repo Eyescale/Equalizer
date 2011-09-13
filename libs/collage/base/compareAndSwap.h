@@ -7,15 +7,13 @@
 
 //  Disclaimer: Not a Boost library.
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
    Modifications to use within co::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
 
 #ifndef COBASE_COMPAREANDSWAP_H
 #define COBASE_COMPAREANDSWAP_H
-
-#include <co/base/os.h>
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1300)
 #  include <intrin.h>

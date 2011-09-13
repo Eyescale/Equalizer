@@ -21,7 +21,6 @@
 
 #include <eq/commandQueue.h>  // member
 #include <eq/types.h>         // typedefs
-#include <eq/visitorResult.h> // enum
 
 #include <eq/fabric/config.h>        // base class
 #include <co/base/clock.h>           // member
@@ -45,7 +44,7 @@ namespace eq
      * The Config in the application process has access to all Canvas, Segment,
      * Layout, View and Observer instances. Only the active Layout of the each
      * Canvas, the Frustum of each View and the Observer parameters are
-     * writable. Views can be subclassed to attach application-specific data.
+     * writable. Views can be sub-classed to attach application-specific data.
      *
      * The render client processes have only access to the current View for each
      * of their channels.
@@ -72,6 +71,12 @@ namespace eq
 
         /** @return the local client node. @version 1.0 */
         EQ_API ConstClientPtr getClient() const;
+
+        /**
+         * @return the application node.
+         * @warning experimental, may not be supported in the future
+         */
+        co::NodePtr getApplicationNode() { return _appNode; }
 
         EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
@@ -219,15 +224,21 @@ namespace eq
          * local client node.
          * @version 1.0
          */
-        EQ_API virtual bool mapObject( co::Object* object,
-                                       const co::base::UUID& id, 
+        EQ_API virtual bool mapObject( co::Object* object, const UUID& id, 
                                 const uint128_t& version = co::VERSION_OLDEST );
 
 
         /** Start mapping a distributed object. @version 1.0 */
-        EQ_API virtual uint32_t mapObjectNB( co::Object* object,
-                                             const co::base::UUID& id, 
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
                                 const uint128_t& version = co::VERSION_OLDEST );
+
+        /**
+         * Start mapping a distributed object from a known master.
+         * @version 1.0
+         */
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id, 
+                                 const uint128_t& version, co::NodePtr master );
+
         /** Finalize the mapping of a distributed object. @version 1.0 */
         EQ_API virtual bool mapObjectSync( const uint32_t requestID );
 
@@ -418,15 +429,15 @@ namespace eq
         co::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
-        std::deque< FrameStatistics > _statistics;
-       co::base::Lock                    _statisticsMutex;
+        co::base::Lockable< std::deque< FrameStatistics >, co::base::SpinLock >
+            _statistics;
         
         /** The last started frame. */
         uint32_t _currentFrame;
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-       co::base::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
         co::base::Clock _clock;
@@ -440,15 +451,22 @@ namespace eq
         class LatencyObject : public co::Object
         {
         public:
-            LatencyObject( const ChangeType type ) : _changeType( type ) {}
-            uint32_t frameNumber;
+            LatencyObject( const ChangeType type, const uint32_t compressor,
+                           const uint32_t frame )
+                    : frameNumber( frame ), _changeType( type ),
+                      _compressor( compressor ) {}
+
+            const uint32_t frameNumber;
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
             virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
             virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
+            virtual uint32_t chooseCompressor() const { return _compressor; }
+
         private:
             const ChangeType _changeType;
+            const uint32_t _compressor;
         };
         
         /** list of the current latency object */

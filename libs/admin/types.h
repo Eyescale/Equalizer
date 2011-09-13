@@ -20,6 +20,7 @@
 
 #include <eq/admin/api.h>
 #include <co/base/refPtr.h>
+#include <co/base/uint128_t.h>
 #include <vector>
 
 namespace eq
@@ -103,6 +104,8 @@ typedef std::vector< Layout* >   Layouts;
 typedef std::vector< Segment* >  Segments;
 /** A vector of pointers to eq::admin::View */
 typedef std::vector< View* >     Views;
+
+typedef co::base::uint128_t uint128_t;
 }
 }
 #endif // EQADMIN_TYPES_H

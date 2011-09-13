@@ -66,7 +66,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
-uint32_t VersionedSlaveCM::commitNB()
+uint32_t VersionedSlaveCM::commitNB( const uint32_t /*incarnation*/ )
 {
     LocalNodePtr localNode = _object->getLocalNode();
     ObjectCommitPacket packet;
@@ -131,6 +131,15 @@ void VersionedSlaveCM::_syncToHead()
         localNode->flushCommands();
 }
 
+void VersionedSlaveCM::_releaseStream( ObjectDataIStream* stream )
+{
+#ifdef CO_AGGRESSIVE_CACHING
+    stream->reset();
+    _iStreamCache.release( stream );
+#else
+    delete stream;
+#endif
+}
 
 uint128_t VersionedSlaveCM::getHeadVersion() const
 {
@@ -168,12 +177,7 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
-#ifdef CO_AGGRESSIVE_CACHING
-    is->reset();
-    _iStreamCache.release( is );
-#else
-    delete is;
-#endif
+    _releaseStream( is );
 }
 
 
@@ -197,12 +201,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
 
-#ifdef CO_AGGRESSIVE_CACHING
-            is->reset();
-            _iStreamCache.release( is );
-#else
-            delete is;
-#endif
+            _releaseStream( is );
 #if 0
             EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
                                  << std::endl;
@@ -222,12 +221,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
             //    ignore it
             EQASSERTINFO( is->getVersion() > version,
                           is->getVersion() << " <= " << version );
-#ifdef CO_AGGRESSIVE_CACHING
-            is->reset();
-            _iStreamCache.release( is );
-#else
-            delete is;
-#endif
+            _releaseStream( is );
         }
     }
 }
@@ -385,7 +379,7 @@ bool VersionedSlaveCM::_cmdDelta( Command& command )
 bool VersionedSlaveCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;

@@ -21,6 +21,9 @@
 
 #include <eq/computeContext.h> // base class
 
+struct WGLEWContextStruct;
+typedef struct WGLEWContextStruct WGLEWContext;
+
 namespace eq
 {
     /**
@@ -45,9 +48,12 @@ namespace eq
         EQ_API virtual void configExit();
         //@}
 
+#ifdef WIN32_API
+        /** @return the generic WGL function table for the pipe. */
+        WGLEWContext* wglewGetContext();
+#endif
     private:
         int _getFastestDeviceID();
-
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
     };

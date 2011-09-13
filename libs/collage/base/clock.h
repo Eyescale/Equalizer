@@ -20,21 +20,14 @@
 #define COBASE_CLOCK_H
 
 #include <co/base/api.h>
-#include <co/base/os.h>
 #include <co/base/types.h>
-
-#ifdef Darwin
-// http://developer.apple.com/qa/qa2004/qa1398.html
-#  include <mach/mach_time.h>
-#endif
-#ifndef _WIN32
-#  include <time.h>
-#endif
 
 namespace co
 {
 namespace base
 {
+    class ClockPrivate;
+
     /** A class for time measurements. */
     class Clock
     {
@@ -43,7 +36,7 @@ namespace base
         COBASE_API Clock();
 
         /** Destroy the clock. @version 1.0 */
-        ~Clock() {}
+        COBASE_API ~Clock();
 
         /**
          * Reset the base time of the clock to the current time.
@@ -91,15 +84,7 @@ namespace base
         COBASE_API float getMilliSecondsf() const;
 
     private:
-#ifdef Darwin
-        uint64_t                  _start;
-        mach_timebase_info_data_t _timebaseInfo;
-#elif defined (_WIN32)
-        LARGE_INTEGER             _start;
-        LARGE_INTEGER             _frequency;
-#else
-        struct timespec _start;
-#endif
+        ClockPrivate* _data;
     };
 }
 }

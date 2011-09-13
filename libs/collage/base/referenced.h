@@ -18,9 +18,11 @@
 #ifndef COBASE_REFERENCED_H
 #define COBASE_REFERENCED_H
 
-#include <co/base/os.h>     // for COBASE_API
-#include <co/base/debug.h>    // for EQERROR
+#include <co/base/api.h>      // for COBASE_API
 #include <co/base/atomic.h>   // member
+#include <co/base/debug.h>    // for EQERROR
+#include <co/base/refPtr.h>   // EQ_REFERENCED_ARGS
+
 #ifdef EQ_REFERENCED_DEBUG
 #  include <co/base/hash.h>
 #  include <co/base/lock.h>
@@ -112,14 +114,14 @@ namespace base
     protected:
         /** Construct a new reference-counted object. @version 1.0 */
         Referenced()
-            : _refCount( 0 )
-            , _hasBeenDeleted( false )
+                : _refCount( 0 )
+                , _hasBeenDeleted( false )
             {}
 
         /** Construct a new copy of a reference-counted object. @version 1.0 */
         Referenced( const Referenced& ) 
-            : _refCount( 0 )
-            , _hasBeenDeleted( false )
+                : _refCount( 0 )
+                , _hasBeenDeleted( false )
             {}
 
         /** Destruct a reference-counted object. @version 1.0 */

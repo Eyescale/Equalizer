@@ -68,7 +68,7 @@ public:
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
     co::base::Error getError() const
-        { EQASSERT( _error != ERROR_NONE ); return _error; }
+        { EQASSERTINFO( _error != ERROR_NONE, _error ); return _error; }
 
 private:
     bool _result; // success or failure

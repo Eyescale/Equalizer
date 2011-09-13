@@ -108,8 +108,10 @@ void Channel< W, C >::restore()
 }
 
 template< class W, class C >
-void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
+void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
+    EQASSERT( dirtyBits == DIRTY_ALL || 
+              getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
         os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));

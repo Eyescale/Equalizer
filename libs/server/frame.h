@@ -74,6 +74,12 @@ namespace server
         /** @return the fractional viewport. */
         const eq::Viewport& getViewport() const { return _vp; }
 
+        /** Set the offset of the frame. */
+        void setOffset( const Vector2i& offset ) { _data.offset = offset; }
+
+        /** @return the frame offset. */
+        const Vector2i& getOffset() const { return _data.offset; }
+
         /** 
          * Set the frame's zoom factor.
          *
@@ -117,7 +123,7 @@ namespace server
         void commitData();
 
         /** Commit the frame */
-        EQSERVER_EXPORT virtual uint32_t commitNB();
+        EQSERVER_EXPORT virtual uint32_t commitNB( const uint32_t incarnation );
 
         /** 
          * Cycle the current FrameData.
@@ -166,12 +172,9 @@ namespace server
          */
         void setInheritOffset( const Vector2i& offset )
             { _inherit.offset = offset; }
-        
-        /** @return the frame offset. */
-        const Vector2i& getOffset() const { return _data.offset; }
 
-        /** Set the offset of the frame. */
-        void setOffset( const Vector2i& offset ) { _data.offset = offset; }
+        /** @return the frame's effective offset. */
+        const Vector2i& getInheritOffset() const { return _inherit.offset; }
         
         /** Set the inherit frame zoom factor. */
         void setInheritZoom( const eq::Zoom& zoom )

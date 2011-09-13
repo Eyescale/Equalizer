@@ -4,7 +4,13 @@
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 set(CPACK_PACKAGE_NAME "Equalizer")
-set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch")
+
+if(APPLE)
+  set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
+else()
+  set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch") # deb lintian insists on URL
+endif()
+
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
@@ -34,8 +40,8 @@ set(CPACK_COMPONENT_EQDEV_DEPENDS vmmlib eqlib codev)
 set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Man Pages")
 set(CPACK_COMPONENT_MAN_DESCRIPTION "Manual Pages")
 
-set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Documentation")
-set(CPACK_COMPONENT_MAN_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
+set(CPACK_COMPONENT_DOC_DISPLAY_NAME "Documentation")
+set(CPACK_COMPONENT_DOC_DESCRIPTION "Auxiliary Documentation: README, License, etc.")
 
 set(CPACK_COMPONENT_APPS_DISPLAY_NAME "Example Applications")
 set(CPACK_COMPONENT_APPS_DESCRIPTION "Example programs build with Equalizer")
@@ -72,17 +78,22 @@ set(CPACK_OSX_PACKAGE_VERSION "10.5")
 if(EQ_REVISION)
   set(CPACK_RPM_PACKAGE_RELEASE ${EQ_REVISION})
 endif()
+
 if(MSVC)
-  set(CPACK_GENERATOR NSIS)
+  set(CPACK_GENERATOR "NSIS")
+else(MSVC)
+  set(CPACK_SET_DESTDIR ON)
 endif(MSVC)
+
 if(APPLE)
-  set(CPACK_GENERATOR PackageMaker)
+  set(CPACK_GENERATOR "PackageMaker")
 endif(APPLE)
+
 if(LINUX)
   set(CPACK_GENERATOR "TGZ;DEB;RPM")
 endif(LINUX)
 
+set(UBUNTU_LP_BUG 300472)
 include(InstallRequiredSystemLibraries)
 include(CPack)
 #include(UploadPPA)
-

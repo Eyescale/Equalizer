@@ -21,8 +21,6 @@
 
 #include <co/plugins/compressor.h>
 
-#include <co/api.h>
-#include <co/base/os.h>
 #include <co/base/buffer.h>
 #include <vector>
 #ifdef _WIN32

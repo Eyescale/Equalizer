@@ -1,1 +1,1 @@
-valgrind --tool=memcheck -v --track-origins=yes --leak-check=full --show-reachable=yes ./debug/bin/eqPly --eq-config examples/configs/config.eqc -n 10 >& valgrind.out
+valgrind --tool=memcheck -v --track-origins=yes --leak-check=full --show-reachable=yes  ./debug/bin/eqPly --eq-config examples/configs/config.eqc -n 10 |& tee valgrind.out

@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+!#Equalizer 1.1 ascii
 
 # three nodes with one FBO RGBA32F and one pbuffer RGBA32F
 global
@@ -8,12 +8,12 @@ global
 
 server
 {
-    connection{ hostname "127.0.0.1" }
+    connection{ hostname "node1" }
     config
     {
         appNode
         {   
-            connection{ hostname "127.0.0.1" }
+            connection{ hostname "node1" }
             pipe 
             { 
                 window

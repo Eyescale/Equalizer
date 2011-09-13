@@ -39,6 +39,14 @@ if(NOT CUDA_FOUND)
   set(CUDA_LIBRARIES)
 endif(NOT CUDA_FOUND)
 
+set(WINDOWING_LIBRARIES)
+if(EQ_AGL_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${CARBON_LIBRARY}) 
+endif()
+if(EQ_GLX_USED) 
+  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${X11_LIBRARIES}) 
+endif()
+
 purple_forward_headers("eq/" ${EQ_UTIL_FORWARD_HEADERS})
 
 purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
@@ -48,9 +56,12 @@ purple_add_library(eq_fabric ${EQ_LIB_VARIANT}
   LINK_LIBRARIES Collage
   )
 
-source_group( "plugin" FILES ${PLUGIN_HEADERS} )
-source_group( "util" FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
-source_group( "compressor" FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
+source_group(fabric REGULAR_EXPRESSION .*)
+source_group(\\ FILES CMakeLists.txt)
+source_group(plugin FILES ${PLUGIN_HEADERS} )
+source_group(util FILES ${EQ_UTIL_FORWARD_HEADERS} ${EQ_UTIL_HEADERS} ${EQ_UTIL_SOURCES} )
+source_group(downloader FILES ${EQ_COMPRESSOR_HEADERS} ${EQ_COMPRESSOR_SOURCES})
+source_group(client FILES eq.h ${CLIENT_HEADERS} ${CLIENT_SOURCES})
 
 purple_add_library(eq_client ${EQ_LIB_VARIANT}
   HEADERS_PREFIX "eq/"
@@ -66,8 +77,7 @@ purple_add_library(eq_client ${EQ_LIB_VARIANT}
     Collage
     shared eq_fabric
     ${GLEW_LIBRARY}
-    ${CARBON_LIBRARY}
-    ${X11_LIBRARIES}
+    ${WINDOWING_LIBRARIES}
     ${GL_LIBRARIES}
     ${CUDA_LIBRARIES}
   )

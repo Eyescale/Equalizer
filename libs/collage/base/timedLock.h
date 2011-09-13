@@ -19,15 +19,14 @@
 #define COBASE_TIMEDLOCK_H
 
 #include <co/base/api.h>
-#include <co/base/nonCopyable.h>
+#include <co/base/condition.h> // member
+#include <co/base/nonCopyable.h> // base class
 #include <co/base/types.h>
 
 namespace co
 {
 namespace base
 {
-    class TimedLockPrivate;
-
     /** A mutex with timeout capabilities. */
     class TimedLock : public NonCopyable
     {
@@ -66,11 +65,11 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.0
          */
-        COBASE_API bool isSet(); 
+        bool isSet() { return _locked; }
 
     private:
-        TimedLockPrivate* _data;
-        bool              _locked;
+        Condition _condition;
+        bool _locked;
     };
 }
 }

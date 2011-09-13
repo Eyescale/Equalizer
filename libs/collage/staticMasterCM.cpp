@@ -35,20 +35,22 @@ StaticMasterCM::StaticMasterCM( Object* object )
 
 StaticMasterCM::~StaticMasterCM(){}
 
-uint128_t StaticMasterCM::addSlave( Command& command )
+void StaticMasterCM::addSlave( Command& command,
+                               NodeMapObjectReplyPacket& reply )
 {
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
     NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+        command.get<NodeMapObjectPacket>();
     const uint32_t instanceID = packet->instanceID;
     const uint128_t version = packet->requestedVersion;
     EQASSERT( version == VERSION_OLDEST || version == VERSION_FIRST ||
               version == VERSION_NONE );
 
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
+    reply.version = VERSION_FIRST;
 
     if( useCache &&
         packet->minCachedVersion == VERSION_FIRST && 
@@ -57,7 +59,8 @@ uint128_t StaticMasterCM::addSlave( Command& command )
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_hit;
 #endif
-        return VERSION_FIRST;
+        reply.useCache = true;
+        return;
     }
 
 #ifdef EQ_INSTRUMENT_MULTICAST
@@ -76,7 +79,7 @@ uint128_t StaticMasterCM::addSlave( Command& command )
                       "Static objects should always serialize data" );
 
         if( os.hasSentData( ))
-            return VERSION_INVALID; // no data was in cache
+            return;
     }
 
     // no data, send empty packet to set version
@@ -88,7 +91,6 @@ uint128_t StaticMasterCM::addSlave( Command& command )
     instancePacket.instanceID = instanceID;
     instancePacket.masterInstanceID = _object->getInstanceID();
     _object->send( node, instancePacket );
-    return VERSION_INVALID; // no data was in cache
 }
 
 }

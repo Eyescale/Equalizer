@@ -60,7 +60,7 @@ namespace eq
 
     struct NodeConfigExitReplyPacket : public NodePacket
     {
-        NodeConfigExitReplyPacket( const co::base::UUID& nodeID, const bool res )
+        NodeConfigExitReplyPacket( const UUID& nodeID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_NODE_CONFIG_EXIT_REPLY;

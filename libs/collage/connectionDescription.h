@@ -22,7 +22,7 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/referenced.h>
 
 namespace co

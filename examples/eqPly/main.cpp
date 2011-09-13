@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 #include "channel.h"
 #include "config.h"
+#include "error.h"
 #include "node.h"
 #include "pipe.h"
 #include "view.h"
@@ -58,6 +59,8 @@ int main( const int argc, char** argv )
 {
     // 1. Equalizer initialization
     NodeFactory nodeFactory;
+    eqPly::initErrors();
+
     if( !eq::init( argc, argv, &nodeFactory ))
     {
         EQERROR << "Equalizer init failed" << std::endl;
@@ -87,5 +90,6 @@ int main( const int argc, char** argv )
     client = 0;
 
     eq::exit();
+    eqPly::exitErrors();
     return ret;
 }

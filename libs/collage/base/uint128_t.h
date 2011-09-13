@@ -20,7 +20,6 @@
 #define COBASE_UINT128_H
 
 #include <co/base/api.h>
-#include <co/base/stdExt.h>
 #include <sstream>
 
 #ifdef _MSC_VER
@@ -196,7 +195,7 @@ namespace base
         return result;
     };
 
-    /** Substract a 64 bit value from a 128 bit value. @version 1.0 */
+    /** Subtract a 64 bit value from a 128 bit value. @version 1.0 */
     inline uint128_t operator- ( const uint128_t& a, const uint64_t& b ) 
     {
         uint128_t result = a;
@@ -209,30 +208,4 @@ namespace base
 }
 }
 
-#ifdef EQ_STDEXT_VC8
-
-template<> inline size_t stde::hash_compare< co::base::uint128_t >::operator() 
-        ( const co::base::uint128_t& key ) const
-{
-    return key.high() ^ key.low();
-}
-
-template<> inline size_t stde::hash_value( const co::base::uint128_t& key )
-{
-    return key.high() ^ key.low();
-}
-
-#else // EQ_STDEXT_VC8
-
-EQ_STDEXT_NAMESPACE_OPEN
-template<> struct hash< co::base::uint128_t >
-{
-    size_t operator()( const co::base::uint128_t& key ) const
-        {
-            return key.high() ^ key.low();
-        }
-};
-EQ_STDEXT_NAMESPACE_CLOSE
-
-#endif // EQ_STDEXT_VC8
 #endif // COBASE_UINT128_H

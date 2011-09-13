@@ -19,7 +19,7 @@
 #ifndef EQUTIL_ACCUM_H
 #define EQUTIL_ACCUM_H
 
-#include <eq/os.h>  // for GLEW
+#include <eq/gl.h>  // for GLEW
 #include <eq/types.h>
 
 namespace eq

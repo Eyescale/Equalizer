@@ -114,3 +114,6 @@ purple_add_library(EqualizerServer SHARED
   LINK_LIBRARIES
     Equalizer
   )
+set_target_properties(lib_EqualizerServer_shared PROPERTIES
+  FOLDER "Libraries" PROJECT_LABEL "Server")
+source_group(\\ REGULAR_EXPRESSION .*)

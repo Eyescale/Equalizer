@@ -205,7 +205,7 @@ void Config::activateCanvas( Canvas* canvas )
                 Viewport viewport = segment->getViewport();
                 viewport.intersect( view->getViewport( ));
 
-                if( !viewport.hasArea())
+                if( !viewport.hasArea( ))
                 {
                     EQLOG( LOG_VIEW )
                         << "View " << view->getName() << view->getViewport()
@@ -216,7 +216,7 @@ void Config::activateCanvas( Canvas* canvas )
                 }
                       
                 Channel* segmentChannel = segment->getChannel();
-                if (!segmentChannel)
+                if( !segmentChannel )
                 {
                     EQWARN << "Segment " << segment->getName()
                            << " has no output channel" << std::endl;
@@ -236,23 +236,38 @@ void Config::activateCanvas( Canvas* canvas )
                 contribution.transform( segment->getViewport( ));
             
                 // segment output area
-                Viewport subViewport = segmentChannel->getViewport();
-                if( !subViewport.isValid( ))
-                    subViewport = eq::fabric::Viewport::FULL;
+                if( segmentChannel->hasFixedViewport( ))
+                {
+                    Viewport subViewport = segmentChannel->getViewport();
+                    EQASSERT( subViewport.isValid( ));
+                    if( !subViewport.isValid( ))
+                        subViewport = eq::fabric::Viewport::FULL;
 
-                // ...our part of it
-                subViewport.apply( contribution );
+                    // ...our part of it
+                    subViewport.apply( contribution );
+                    channel->setViewport( subViewport );
+                    EQLOG( LOG_VIEW ) 
+                        << "View @" << (void*)view << ' ' << view->getViewport()
+                        << " intersects " << segment->getName()
+                        << segment->getViewport() << " at " << subViewport
+                        << " using channel @" << (void*)channel << std::endl;
+                }
+                else
+                {
+                    PixelViewport pvp = segmentChannel->getPixelViewport();
+                    EQASSERT( pvp.isValid( ));
+                    pvp.apply( contribution );
+                    channel->setPixelViewport( pvp );
+                    EQLOG( LOG_VIEW ) 
+                        << "View @" << (void*)view << ' ' << view->getViewport()
+                        << " intersects " << segment->getName()
+                        << segment->getViewport() << " at " << pvp
+                        << " using channel @" << (void*)channel << std::endl;
+                }
 
-                channel->setViewport( subViewport );
                 if( channel->getWindow()->isAttached() )
                     // parent is already registered - register channel as well
                     getServer()->registerObject( channel );
-
-                EQLOG( LOG_VIEW ) 
-                    << "View @" << (void*)view << ' ' << view->getViewport()
-                    << " intersects " << segment->getName()
-                    << segment->getViewport() << " at " << subViewport
-                    << " using channel @" << (void*)channel << std::endl;
             }
         }
     }
@@ -473,6 +488,11 @@ void Config::deregister()
     accept( deregistrator );
 }
 
+uint128_t Config::commit()
+{
+    return Super::commit( _currentFrame + 1 );
+}
+
 void Config::restore()
 {
     _currentFrame = 0;
@@ -491,18 +511,18 @@ bool Config::_updateRunning()
     if( _state == STATE_STOPPED )
         return true;
 
-    const bool failValue =
+    const bool canFail =
         (getIAttribute( IATTR_ROBUSTNESS ) == OFF) ? false : true;
 
     EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
-    if( !_connectNodes() && !failValue )
+    if( !_connectNodes() && !canFail )
         return false;
 
     _startNodes();
     _updateCanvases();
-    const bool result = _updateNodes() ? true : failValue;
+    const bool result = _updateNodes() ? true : canFail;
     _stopNodes();
 
     // Don't use visitor, it would get confused with modified child vectors
@@ -523,15 +543,36 @@ bool Config::_updateRunning()
     return result;
 }
 
-void Config::_updateCanvases()
+bool Config::_connectNodes()
 {
-    const Canvases& canvases = getCanvases();
-    for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
+    bool success = true;
+    co::base::Clock clock;
+    const Nodes& nodes = getNodes();
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
-        Canvas* canvas = *i;
-        if( canvas->needsDelete( ))
-            canvas->exit();
+        Node* node = *i;
+        if( !node->isActive( ))
+            continue;
+
+        if( !node->connect( ))
+        {
+            setError( node->getError( ));
+            success = false;
+            break;
+        }
     }
+
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        Node* node = *i;
+        if( node->isActive() && !node->syncLaunch( clock ))
+        {
+            setError( node->getError( ));
+            success = false;
+        }
+    }
+
+    return success;
 }
 
 void Config::_startNodes()
@@ -563,39 +604,16 @@ void Config::_startNodes()
     }
 }
 
-//----- connect new nodes
-bool Config::_connectNodes()
+void Config::_updateCanvases()
 {
-    bool success = true;
-    co::base::Clock clock;
-    const Nodes& nodes = getNodes();
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    const Canvases& canvases = getCanvases();
+    for( Canvases::const_iterator i = canvases.begin(); i != canvases.end();++i)
     {
-        Node* node = *i;
-        if( node->isActive( ))
-        {
-            if( !node->connect( ))
-            {
-                setError( node->getError( ));
-                success = false;
-                break;
-            }
-        }
+        Canvas* canvas = *i;
+        if( canvas->needsDelete( ))
+            canvas->exit();
     }
-
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        Node* node = *i;
-        if( node->isActive() && !node->syncLaunch( clock ))
-        {
-            setError( node->getError( ));
-            success = false;
-        }
-    }
-
-    return success;
 }
-
 
 void Config::_stopNodes()
 {
@@ -606,14 +624,10 @@ void Config::_stopNodes()
     {
         Node* node = *i;
         const State state = node->getState();
-
-        if( !node->isActive() && state == STATE_FAILED )
-            node->setState( STATE_STOPPED );
-
-        if( state != STATE_STOPPED )
+        if( state != STATE_STOPPED && state != STATE_FAILED )
             continue;
 
-        EQASSERT( !node->isActive( ));
+        EQASSERT( !node->isActive() || state == STATE_FAILED );
         if( node->isApplicationNode( ))
             continue;
 
@@ -623,8 +637,10 @@ void Config::_stopNodes()
 
         EQLOG( LOG_INIT ) << "Exiting node" << std::endl;
 
+        if( state == STATE_FAILED )
+            node->setState( STATE_STOPPED );
+
         stoppingNodes.push_back( node );
-        EQASSERT( !node->isActive( ));
         EQASSERT( netNode.isValid( ));
 
         fabric::ServerDestroyConfigPacket destroyConfigPacket;
@@ -645,12 +661,8 @@ void Config::_stopNodes()
         node->setNode( 0 );
 
         if( nSleeps )
-        {
             while( netNode->isConnected() && --nSleeps )
-            {
                 co::base::sleep( 100 ); // ms
-            }
-        }
 
         if( netNode->isConnected( ))
         {
@@ -927,7 +939,7 @@ bool Config::_cmdInit( co::Command& command )
 {
     EQ_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
-        command.getPacket<ConfigInitPacket>();
+        command.get<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
 
     sync();
@@ -940,7 +952,7 @@ bool Config::_cmdInit( co::Command& command )
     if( !reply.result )
         exit();
 
-    sync( co::VERSION_HEAD );
+    sync();
     EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
 
@@ -953,7 +965,7 @@ bool Config::_cmdInit( co::Command& command )
 bool Config::_cmdExit( co::Command& command ) 
 {
     const ConfigExitPacket* packet = 
-        command.getPacket<ConfigExitPacket>();
+        command.get<ConfigExitPacket>();
     ConfigExitReplyPacket   reply( packet );
     EQVERB << "handle config exit " << packet << std::endl;
     setError( ERROR_NONE );
@@ -971,7 +983,7 @@ bool Config::_cmdExit( co::Command& command )
 bool Config::_cmdUpdate( co::Command& command )
 {
     const ConfigUpdatePacket* packet = 
-        command.getPacket<ConfigUpdatePacket>();
+        command.get<ConfigUpdatePacket>();
 
     EQVERB << "handle config update " << packet << std::endl;
 
@@ -1006,7 +1018,6 @@ bool Config::_cmdUpdate( co::Command& command )
                << std::endl;
         exit();
     }
-    EQINFO << "Updated " << *this << std::endl;
 
     reply.version = commit();
     send( command.getNode(), reply );
@@ -1016,7 +1027,7 @@ bool Config::_cmdUpdate( co::Command& command )
 bool Config::_cmdStartFrame( co::Command& command ) 
 {
     const ConfigStartFramePacket* packet = 
-        command.getPacket<ConfigStartFramePacket>();
+        command.get<ConfigStartFramePacket>();
     EQVERB << "handle config frame start " << packet << std::endl;
 
     _startFrame( packet->frameID );
@@ -1035,7 +1046,7 @@ bool Config::_cmdStartFrame( co::Command& command )
 bool Config::_cmdFinishAllFrames( co::Command& command ) 
 {
     const ConfigFinishAllFramesPacket* packet = 
-        command.getPacket<ConfigFinishAllFramesPacket>();
+        command.get<ConfigFinishAllFramesPacket>();
     EQVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
@@ -1045,7 +1056,7 @@ bool Config::_cmdFinishAllFrames( co::Command& command )
 bool Config::_cmdStopFrames( co::Command& command )
 {
     const ConfigStopFramesPacket* packet = 
-        command.getPacket<ConfigStopFramesPacket>();
+        command.get<ConfigStopFramesPacket>();
     EQVERB << "handle config stop frames " << packet << std::endl;
 
     ChannelStopFrameVisitor visitor( _currentFrame );
@@ -1059,7 +1070,7 @@ bool Config::_cmdCreateReply( co::Command& command )
     EQ_TS_THREAD( _cmdThread );
     EQ_TS_NOT_THREAD( _mainThread );
     const fabric::ConfigCreateReplyPacket* packet = 
-        command.getPacket< fabric::ConfigCreateReplyPacket >();
+        command.get< fabric::ConfigCreateReplyPacket >();
 
     getLocalNode()->serveRequest( packet->requestID );
     return true;
@@ -1094,7 +1105,7 @@ private:
 bool Config::_cmdFreezeLoadBalancing( co::Command& command ) 
 {
     const ConfigFreezeLoadBalancingPacket* packet = 
-        command.getPacket<ConfigFreezeLoadBalancingPacket>();
+        command.get<ConfigFreezeLoadBalancingPacket>();
 
     FreezeVisitor visitor( packet->freeze );
     accept( visitor );

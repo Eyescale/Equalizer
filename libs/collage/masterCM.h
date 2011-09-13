@@ -18,11 +18,12 @@
 #ifndef CO_MASTERCM_H
 #define CO_MASTERCM_H
 
-#include <co/objectCM.h> // base class
+#include "objectCM.h" // base class
 #include <co/types.h>
 
 #include <co/base/mtQueue.h> // member
 #include <co/base/pool.h>    // member
+#include <co/base/stdExt.h>  // member
 #include <co/base/thread.h>  // thread-safety check
 
 namespace co
@@ -41,11 +42,9 @@ namespace co
 
         virtual void init(){}
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
-        virtual uint32_t commitNB();
+        virtual uint32_t commitNB( const uint32_t incarnation );
         virtual uint128_t commitSync( const uint32_t commitID );
 
         virtual uint128_t sync( const uint128_t& version );
@@ -61,7 +60,7 @@ namespace co
         virtual const Nodes* getSlaveNodes() const { return &_slaves; }
 
     protected:
-        /** The list of subsribed slave nodes. */
+        /** The list of subscribed slave nodes. */
         Nodes _slaves;
 
         /** The number of object instances subscribed per slave node. */

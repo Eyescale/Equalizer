@@ -72,11 +72,11 @@ void Layout< C, L, V >::attach( const co::base::UUID& id,
 }
 
 template< class C, class L, class V >
-uint32_t Layout< C, L, V >::commitNB()
+uint32_t Layout< C, L, V >::commitNB( const uint32_t incarnation )
 {
     // Always traverse views: view proxy objects may be dirty
-    commitChildren< V, LayoutNewViewPacket >( _views );
-    return Object::commitNB();
+    commitChildren< V, LayoutNewViewPacket >( _views, incarnation );
+    return Object::commitNB( incarnation );
 }
 
 template< class C, class L, class V >
@@ -274,7 +274,7 @@ template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewView( co::Command& command )
 {
     const LayoutNewViewPacket* packet =
-        command.getPacket< LayoutNewViewPacket >();
+        command.get< LayoutNewViewPacket >();
     
     V* view = 0;
     create( &view );
@@ -295,7 +295,7 @@ template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 {
     const LayoutNewViewReplyPacket* packet =
-        command.getPacket< LayoutNewViewReplyPacket >();
+        command.get< LayoutNewViewReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->viewID );
 
     return true;

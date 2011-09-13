@@ -128,11 +128,11 @@ void Window< P, W, C >::restore()
 }
 
 template< class P, class W, class C >
-uint32_t Window< P, W, C >::commitNB()
+uint32_t Window< P, W, C >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNELS ))
-        commitChildren< C, WindowNewChannelPacket >( _channels );
-    return Object::commitNB();
+        commitChildren< C, WindowNewChannelPacket >( _channels, incarnation );
+    return Object::commitNB( incarnation );
 }
 
 template< class P, class W, class C >
@@ -442,7 +442,7 @@ template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
 {
     const WindowNewChannelPacket* packet =
-        command.getPacket< WindowNewChannelPacket >();
+        command.get< WindowNewChannelPacket >();
     
     C* channel = 0;
     create( &channel );
@@ -463,7 +463,7 @@ template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 {
     const WindowNewChannelReplyPacket* packet =
-        command.getPacket< WindowNewChannelReplyPacket >();
+        command.get< WindowNewChannelReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->channelID );
 
     return true;

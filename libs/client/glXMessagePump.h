@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,10 +18,11 @@
 #ifndef EQ_GLXMESSAGEPUMP_H
 #define EQ_GLXMESSAGEPUMP_H
 
+#include <eq/glXTypes.h>
 #include <eq/messagePump.h> // base class
-#include <eq/os.h>          // X11
 
 #include <co/connectionSet.h>  // member
+#include <co/base/stdExt.h>    // member
 
 namespace eq
 {

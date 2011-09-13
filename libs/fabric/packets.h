@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,13 +35,21 @@ namespace fabric
     };
 
     typedef co::ObjectPacket ConfigPacket;
-
     typedef co::ObjectPacket PipePacket;
     typedef co::ObjectPacket WindowPacket;
     typedef co::ObjectPacket CanvasPacket;
     typedef co::ObjectPacket LayoutPacket;
    
+    struct ObjectSyncPacket : public co::ObjectPacket
+    {
+        ObjectSyncPacket()
+            {
+                command = CMD_OBJECT_SYNC;
+                size = sizeof( ObjectSyncPacket );
+            }
+    };
 /** @endcond */
+
 }
 }
 

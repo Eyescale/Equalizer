@@ -1,6 +1,7 @@
 ##
 # Path : libs/collage/files.cmake
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 ##
 
 set(COBASE_FORWARD_HEADERS 
@@ -71,6 +72,7 @@ set(COBASE_HEADERS
     dso.cpp
     error.cpp
     errorRegistry.cpp
+    file.cpp
     global.cpp
     init.cpp
     launcher.cpp
@@ -83,6 +85,7 @@ set(COBASE_HEADERS
     referenced.cpp
     requestHandler.cpp
     rng.cpp
+    sleep.cpp
     thread.cpp
     threadID.cpp
     timedLock.cpp

@@ -26,6 +26,9 @@
 namespace co
 {
     class ObjectCM;
+    struct NodeMapObjectReplyPacket;
+
+#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
 
     /** 
      * A generic, distributed object.
@@ -84,6 +87,17 @@ namespace co
         /** @return how the changes are to be handled. */
         virtual ChangeType getChangeType() const { return STATIC; }
 
+        /**
+         * Return the compressor to be used for data transmission.
+         *
+         * This default implementation chooses the compressor with the highest
+         * compression ratio with lossless compression for
+         * EQ_COMPRESSOR_DATATYPE_BYTE tokens. The application may override this
+         * method to deactivate compression by returning EQ_COMPRESSOR_NONE or
+         * to select object-specific compressors.
+         */
+        CO_API virtual uint32_t chooseCompressor() const;
+
         /** 
          * Return if this object needs a commit.
          * 
@@ -101,7 +115,7 @@ namespace co
          * Commit a new version of this object.
          *
          * This method is a convenience function for <code>commitSync( commitNB(
-         * ))</code>.
+         * incarnation ))</code>.
          *
          * Objects using the change type STATIC can not be committed.
          *
@@ -117,10 +131,22 @@ namespace co
          * since the last commit. The high value of a successful commit will
          * never be 0.
          *
+         * The incarnation count is meaningful for buffered master objects. The
+         * commit implementation will keep all instance data committed with an
+         * incarnation count newer than <code>current_incarnation -
+         * getAutoObsolete()</code>. By default, each call to commit creates a
+         * new incarnation, retaining the data from last getAutoObsolete()
+         * commit calls. When the application wishes to auto obsolete by another
+         * metric than commit calls, it has to consistently provide an
+         * incarnation counter. Buffers with a higher incarnation count than the
+         * current are discarded. A typical use case is to tie the auto
+         * obsoletion to rendering frames in a visualization application.
+         *
+         * @param incarnation the commit incarnation for auto obsoletion.
          * @return the new head version.
          * @sa commitNB(), commitSync()
          */
-        CO_API uint128_t commit();
+        CO_API uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
 
         /** 
          * Start committing a new version of this object.
@@ -128,10 +154,11 @@ namespace co
          * The commit transaction has to be completed using commitSync, passing
          * the returned identifier.
          *
+         * @param incarnation the commit incarnation for auto obsoletion.
          * @return the commit identifier to be passed to commitSync
-         * @sa commitSync()
+         * @sa commit(), commitSync()
          */
-        CO_API virtual uint32_t commitNB();
+        CO_API virtual uint32_t commitNB( const uint32_t incarnation );
         
         /** 
          * Finalize a commit transaction.
@@ -194,9 +221,6 @@ namespace co
 
         /** @return the currently synchronized version. */
         CO_API uint128_t getVersion() const;
-
-        /** @return the oldest available version. */
-        CO_API uint128_t getOldestVersion() const;
 
         /** 
          * Notification that a new head version was received by a slave object.
@@ -300,7 +324,8 @@ namespace co
         /** @internal @return the master object instance identifier. */
         NodePtr getMasterNode();
 
-        uint128_t addSlave( Command& command ); //!< @internal
+        /** @internal */
+        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
         void removeSlave( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
         /** @internal */

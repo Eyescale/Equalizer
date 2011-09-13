@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,18 +19,17 @@
 #include "aglPipe.h"
 
 #include "global.h"
+#include "os.h"
 #include "pipe.h"
 
 #include <sstream>
-
-using namespace std;
 
 namespace eq
 {
 
 AGLPipe::AGLPipe( Pipe* parent )
     : SystemPipe( parent )
-    , _cgDisplayID( 0 )
+    , _cgDisplayID( kCGNullDirectDisplay )
 {
 }
 
@@ -43,7 +42,6 @@ AGLPipe::~AGLPipe( )
 //---------------------------------------------------------------------------
 bool AGLPipe::configInit()
 {
-#ifdef AGL
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
 
@@ -69,18 +67,13 @@ bool AGLPipe::configInit()
     }
 
     _setCGDisplayID( displayID );
-    EQINFO << "Using CG displayID " << displayID << endl;
+    EQINFO << "Using CG displayID " << displayID << std::endl;
     return true;
-#else
-    setError( ERROR_AGL_MISSING_SUPPORT );
-    return false;
-#endif
 }
 
 
 void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
 {
-#ifdef AGL
     if( _cgDisplayID == id )
         return;
 
@@ -102,16 +95,13 @@ void AGLPipe::_setCGDisplayID( CGDirectDisplayID id )
         pvp.invalidate();
 
     getPipe()->setPixelViewport( pvp );
-#endif
 }
 
 
 void AGLPipe::configExit()
 {
-#ifdef AGL
-    _setCGDisplayID( 0 );
-    EQINFO << "Reset CG displayID " << endl;
-#endif
+    _setCGDisplayID( kCGNullDirectDisplay );
+    EQINFO << "Reset CG displayID " << std::endl;
 }
 
 } //namespace eq

@@ -97,6 +97,10 @@ int main( int argc, char **argv )
         file.close();
     }
 
+#ifndef EQ_TEST_NO_WATCHDOG
+    watchdog.cancel();
+    co::base::sleep( 10 ); // give watchdog time to terminate
+#endif
     return EXIT_SUCCESS;
 }
 

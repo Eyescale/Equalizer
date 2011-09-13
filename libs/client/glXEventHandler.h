@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #define EQ_GLXEVENTHANDLER_H
 
 #include <eq/eventHandler.h> // base class
-#include <eq/os.h>           // XEvent type
+#include <eq/glXTypes.h>     // XEvent type
 #include <eq/types.h>        // basic typedefs
 
 #include <co/base/thread.h> // thread-safety macro

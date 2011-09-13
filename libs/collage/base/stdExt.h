@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,7 @@
 #define COBASE_STDEXT_H
 
 #include <co/base/compiler.h>
+#include <co/base/uint128_t.h>
 
 #include <algorithm>
 #include <string>
@@ -33,62 +34,62 @@
 //----- Common extensions of the STL
 #ifdef __GNUC__
 #  if defined EQ_GCC_4_3_OR_LATER && !defined __INTEL_COMPILER
-#    define EQ_STDEXT_TR1
+#    define CO_STDEXT_TR1
 #  else
-#    define EQ_STDEXT_EXT
+#    define CO_STDEXT_EXT
 #    ifndef EQ_HAVE_LONG_HASH
 #      define EQ_HAVE_LONG_HASH
 #    endif
 #  endif
 #else
-#  ifdef _WIN32
-#    define EQ_STDEXT_VC8
+#  ifdef _MSC_VER
+#    define CO_STDEXT_MSVC
 #  else
-#    define EQ_STDEXT_STD
+#    define CO_STDEXT_STD
 #  endif
 #endif
 
-#ifdef EQ_STDEXT_TR1
+#ifdef CO_STDEXT_TR1
 #  include <tr1/unordered_map>
 #  include <tr1/unordered_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = std::tr1;
-#  define EQ_STDEXT_NAMESPACE_OPEN namespace std { namespace tr1 {
-#  define EQ_STDEXT_NAMESPACE_CLOSE }}
+#  define CO_STDEXT_NAMESPACE_OPEN namespace std { namespace tr1 {
+#  define CO_STDEXT_NAMESPACE_CLOSE }}
 #endif
 
-#ifdef EQ_STDEXT_EXT
+#ifdef CO_STDEXT_EXT
 #  include <ext/hash_map>
 #  include <ext/hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = __gnu_cxx; 
-#  define EQ_STDEXT_NAMESPACE_OPEN namespace __gnu_cxx {
-#  define EQ_STDEXT_NAMESPACE_CLOSE }
+#  define CO_STDEXT_NAMESPACE_OPEN namespace __gnu_cxx {
+#  define CO_STDEXT_NAMESPACE_CLOSE }
 #endif
 
-#ifdef EQ_STDEXT_VC8
+#ifdef CO_STDEXT_MSVC
 #  include <hash_map>
 #  include <hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = stdext;
-#  define EQ_STDEXT_NAMESPACE_OPEN namespace stdext {
-#  define EQ_STDEXT_NAMESPACE_CLOSE }
+#  define CO_STDEXT_NAMESPACE_OPEN namespace stdext {
+#  define CO_STDEXT_NAMESPACE_CLOSE }
 #endif
 
-#ifdef EQ_STDEXT_STD
+#ifdef CO_STDEXT_STD
 #  include <hash_map>
 #  include <hash_set>
 /* Alias stde namespace to uniformly access stl extensions. */
 namespace stde = std;
-#  define EQ_STDEXT_NAMESPACE_OPEN namespace std {
-#  define EQ_STDEXT_NAMESPACE_CLOSE }
+#  define CO_STDEXT_NAMESPACE_OPEN namespace std {
+#  define CO_STDEXT_NAMESPACE_CLOSE }
 #endif
 
 
-EQ_STDEXT_NAMESPACE_OPEN
+CO_STDEXT_NAMESPACE_OPEN
 
 //----- Our extensions of the STL 
-#ifdef EQ_STDEXT_TR1
+#ifdef CO_STDEXT_TR1
 #   ifndef EQ_HAVE_HASH_MAP
     template<class K, class T, class H = hash< K >, 
              class P = std::equal_to< K >, class A = std::allocator< K > >
@@ -98,7 +99,7 @@ EQ_STDEXT_NAMESPACE_OPEN
 #  endif // EQ_HAVE_HASH_MAP
 #endif
 
-#ifdef EQ_STDEXT_EXT
+#ifdef CO_STDEXT_EXT
 #  ifndef EQ_HAVE_STRING_HASH
     /** std::string hash function. @version 1.0 */
     template<> struct hash< std::string >
@@ -145,9 +146,9 @@ EQ_STDEXT_NAMESPACE_OPEN
         }
     };
 #  endif // EQ_HAVE_VOID_PTR_HASH
-#endif // EQ_STDEXT_EXT
+#endif // CO_STDEXT_EXT
 
-#ifdef EQ_STDEXT_VC8
+#ifdef CO_STDEXT_MSVC
 #  ifndef EQ_HAVE_STRING_HASH
 
     /** std::string hash function. @version 1.0 */
@@ -158,7 +159,29 @@ EQ_STDEXT_NAMESPACE_OPEN
     }
 
 #  endif
-#endif
+
+    template<> inline size_t hash_compare< co::base::uint128_t >::operator() 
+        ( const co::base::uint128_t& key ) const
+    {
+        return static_cast< size_t >( key.high() ^ key.low() );
+    }
+
+    template<> inline size_t hash_value( const co::base::uint128_t& key )
+    {
+        return static_cast< size_t >( key.high() ^ key.low() );
+    }
+
+#else // MSVC
+
+    template<> struct hash< co::base::uint128_t >
+    {
+        size_t operator()( const co::base::uint128_t& key ) const
+            {
+                return key.high() ^ key.low();
+            }
+    };
+
+#endif //! MSVC
 
     /**
      * Uniquely sorts and eliminates duplicates in a STL container.
@@ -190,6 +213,6 @@ EQ_STDEXT_NAMESPACE_OPEN
     find_if( std::vector< const T >& container, const P& predicate )
         { return std::find_if( container.begin(), container.end(), predicate );}
 
-EQ_STDEXT_NAMESPACE_CLOSE
+CO_STDEXT_NAMESPACE_CLOSE
 
 #endif // COBASE_STDEXT_H

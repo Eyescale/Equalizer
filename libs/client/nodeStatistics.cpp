@@ -22,7 +22,6 @@
 #include "global.h"
 #include "pipe.h"
 #include "node.h"
-#include "frameData.h"
 
 #ifdef _MSC_VER
 #  define snprintf _snprintf

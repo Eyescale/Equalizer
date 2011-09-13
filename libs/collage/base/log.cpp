@@ -23,8 +23,7 @@
 #include "perThread.h"
 #include "thread.h"
 
-using namespace std;
-
+#include <cstdio>
 #ifdef WIN32_API
 #  include <process.h>
 #endif
@@ -49,14 +48,14 @@ namespace
 class LogTable
 {
 public:
-    LogTable( const LogLevel _level, const string& _name )
+    LogTable( const LogLevel _level, const std::string& _name )
             : level( _level ), name( _name ) {}
 
     LogLevel level;
-    string   name;
+    std::string name;
 };
 
-#define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, string( #name ))
+#define LOG_TABLE_ENTRY( name ) LogTable( LOG_ ## name, std::string( #name ))
 #define LOG_TABLE_SIZE (5)
 
 static LogTable _logTable[ LOG_TABLE_SIZE ] =
@@ -91,7 +90,7 @@ int getLogLevel()
         if( level )
             return level;
 
-        const string envString( env );
+        const std::string envString( env );
         for( uint32_t i=0; i<LOG_TABLE_SIZE; ++i )
             if( _logTable[i].name == envString )
                 return _logTable[i].level;

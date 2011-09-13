@@ -149,6 +149,9 @@ namespace server
         /** Deregister all shared objects and the config. */
         void deregister();
         
+        /** Commit the config for the current frame. */
+        uint128_t commit();
+
         virtual void restore();
 
         /** Return the initID for late initialization  */

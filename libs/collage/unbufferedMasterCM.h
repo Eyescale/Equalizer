@@ -41,10 +41,10 @@ namespace co
         //@{
         virtual void setAutoObsolete( const uint32_t ) {} 
         virtual uint32_t getAutoObsolete() const { return 0; }
-        virtual uint128_t getOldestVersion() const { return _version; }
         //@}
 
-        virtual uint128_t addSlave( Command& command );
+        virtual void addSlave( Command& command, 
+                               NodeMapObjectReplyPacket& reply );
         virtual void removeSlave( NodePtr node );
 
     private:

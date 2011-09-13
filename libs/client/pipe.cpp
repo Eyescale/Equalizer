@@ -44,6 +44,7 @@
 #endif
 
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <sstream>
@@ -89,6 +90,7 @@ Config* Pipe::getConfig()
     EQASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
+
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
@@ -134,6 +136,15 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdFrameStartClock ), 0 );
     registerCommand( fabric::CMD_PIPE_EXIT_THREAD,
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
+    registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
+                     PipeFunc( this, &Pipe::_cmdDetachView ), queue );
+}
+
+void Pipe::setDirty( const uint64_t bits )
+{
+    // jump over fabric setDirty to avoid dirty'ing node pipes list
+    // pipes are individually synced in frame finish for thread-safety
+    Object::setDirty( bits );
 }
 
 bool Pipe::supportsWindowSystem( const WindowSystem windowSystem ) const
@@ -259,8 +270,8 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         EQCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
-    
-    frame->sync( frameVersion.version );
+    else
+        frame->sync( frameVersion.version );
 
     const co::ObjectVersion& data = frame->getDataVersion( eye );
     EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
@@ -353,9 +364,10 @@ void Pipe::_releaseViews()
                 continue;
 
             // release unused view to avoid memory leaks due to deltas piling up
+            view->_pipe = 0;
+
             ClientPtr client = getClient();
-            client->unmapObject( view );
-            
+            client->unmapObject( view );            
             _views.erase( i );
 
             NodeFactory* nodeFactory = Global::getNodeFactory();
@@ -376,6 +388,7 @@ void Pipe::_flushViews()
     for( ViewHash::const_iterator i = _views.begin(); i != _views.end(); ++i)
     {
         View* view = i->second;
+        view->_pipe = 0;
 
         client->unmapObject( view );
         nodeFactory->releaseView( view );
@@ -625,10 +638,10 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Pipe::_cmdCreateWindow(  co::Command& command  )
+bool Pipe::_cmdCreateWindow( co::Command& command )
 {
     const PipeCreateWindowPacket* packet = 
-        command.getPacket<PipeCreateWindowPacket>();
+        command.get<PipeCreateWindowPacket>();
     EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
@@ -643,7 +656,7 @@ bool Pipe::_cmdCreateWindow(  co::Command& command  )
 bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
-        command.getPacket<PipeDestroyWindowPacket>();
+        command.get<PipeDestroyWindowPacket>();
     EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
@@ -687,7 +700,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
-        command.getPacket<PipeConfigInitPacket>();
+        command.get<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     if( !isThreaded( ))
@@ -723,10 +736,10 @@ bool Pipe::_cmdConfigInit( co::Command& command )
 
     EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
-    co::NodePtr nodePtr = command.getNode();
+    co::NodePtr netNode = command.getNode();
 
     commit();
-    send( nodePtr, reply );
+    send( netNode, reply );
     return true;
 }
 
@@ -734,7 +747,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
-        command.getPacket<PipeConfigExitPacket>();
+        command.get<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
     // send before node gets a chance to send its destroy packet
@@ -772,7 +785,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
-        command.getPacket<PipeFrameStartPacket>();
+        command.get<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
     sync( packet->version );
@@ -805,7 +818,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
-        command.getPacket<PipeFrameFinishPacket>();
+        command.get<PipeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -833,19 +846,42 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     }
 
     _releaseViews();
-    commit();
+
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        fabric::ObjectSyncPacket syncPacket;
+        send( command.getNode(), syncPacket );
+    }
     return true;
 }
 
 bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
-    PipeFrameDrawFinishPacket* packet = 
-        command.getPacket< PipeFrameDrawFinishPacket >();
+    PipeFrameDrawFinishPacket* packet =
+        command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
+    return true;
+}
+
+bool Pipe::_cmdDetachView( co::Command& command )
+{
+    EQ_TS_THREAD( _pipeThread );
+    const PipeDetachViewPacket* packet = command.get< PipeDetachViewPacket >();
+
+    ViewHash::iterator i = _views.find( packet->viewID );
+    if( i != _views.end( ))
+    {
+        View* view = i->second;
+        _views.erase( i );
+
+        NodeFactory* nodeFactory = Global::getNodeFactory();
+        nodeFactory->releaseView( view );
+    }
     return true;
 }
 

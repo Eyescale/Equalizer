@@ -227,8 +227,8 @@ namespace base
         mutable Condition _cond;
     };
 
-    typedef Monitor< bool >     Monitorb;
-    typedef Monitor< uint32_t > Monitoru;
+    typedef Monitor< bool >     Monitorb; //!< A boolean monitor variable
+    typedef Monitor< uint32_t > Monitoru; //!< An unsigned 32bit integer monitor
 
     /** Print the monitor to the given output stream. @version 1.0 */
     template< typename T >

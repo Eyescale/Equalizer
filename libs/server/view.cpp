@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,6 +24,7 @@
 #include "config.h"
 #include "configDestCompoundVisitor.h"
 #include "layout.h"
+#include "log.h"
 #include "observer.h"
 #include "segment.h"
 
@@ -223,8 +224,9 @@ void View::trigger( const Canvas* canvas, const bool active )
         Channel* channel = *i;
         const Canvas* channelCanvas = channel->getCanvas();
         const Layout* canvasLayout = channelCanvas->getActiveLayout();
-        if( (canvas && channelCanvas != canvas) ||
-            (!canvas && canvasLayout != getLayout( )) )
+
+        if((  canvas && channelCanvas != canvas ) ||
+           ( !canvas && canvasLayout  != getLayout( )))
         {
             continue;
         }
@@ -245,9 +247,17 @@ void View::trigger( const Canvas* canvas, const bool active )
         {
             Compound* compound = *j;
             if( active )
+            {
                 compound->activate( eyes );
+                EQLOG( LOG_VIEW ) << "Activate " << compound->getName()
+                                  << std::endl;
+            }
             else
+            {
                 compound->deactivate( eyes );
+                EQLOG( LOG_VIEW ) << "Deactivate " << compound->getName()
+                                  << std::endl;
+            }
         }
     }
 }

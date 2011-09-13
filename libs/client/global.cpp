@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,26 +18,18 @@
 
 #include "global.h"
 #include "nodeFactory.h"
-#include <co/base/os.h>
 #include <co/base/lock.h>
 
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
 
-#ifdef _WIN32 
-# ifdef EQ_BUILD_DIR
-   std::string Global::_configFile = "../../../../examples/configs/4-window.all.eqc";
-# else
-   std::string Global::_configFile = "../examples/configs/4-window.all.eqc";
-# endif
-#endif
-
-#ifdef Darwin
-    std::string Global::_configFile = "examples/configs/4-window.all.eqc";
-#endif
-#ifdef Linux
-   std::string Global::_configFile = "examples/configs/4-window.all.eqc";
+#ifdef EQ_RELEASE
+    std::string Global::_configFile = std::string( EQ_INSTALL_DIR ) + 
+                      std::string( "share/Equalizer/configs/4-window.all.eqc" );
+#else
+    std::string Global::_configFile = std::string( EQ_SOURCE_DIR ) + 
+                             std::string( "examples/configs/4-window.all.eqc" );
 #endif
 
 #ifdef AGL

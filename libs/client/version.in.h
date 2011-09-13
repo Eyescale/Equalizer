@@ -37,6 +37,30 @@ namespace eq
     /** The subversion revision, may be 0. @version 1.0 */
 #   define EQ_VERSION_REVISION ${EQ_REVISION}
 
+/** True if the current version is newer than the given one. @version 1.0 */
+#   define EQ_VERSION_GT( MAJOR, MINOR, PATCH )                         \
+    ( (EQ_VERSION_MAJOR>MAJOR) ||                                       \
+      (EQ_VERSION_MAJOR==MAJOR && (EQ_VERSION_MINOR>MINOR ||            \
+                          (EQ_VERSION_MINOR==MINOR && EQ_VERSION_PATCH>PATCH))))
+
+/** True if the current version is equal or newer to the given. @version 1.0 */
+#   define EQ_VERSION_GE( MAJOR, MINOR, PATCH )                         \
+    ( (EQ_VERSION_MAJOR>MAJOR) ||                                       \
+      (EQ_VERSION_MAJOR==MAJOR && (EQ_VERSION_MINOR>MINOR ||            \
+                         (EQ_VERSION_MINOR==MINOR && EQ_VERSION_PATCH>=PATCH))))
+
+/** True if the current version is older than the given one. @version 1.0 */
+#   define EQ_VERSION_LT( MAJOR, MINOR, PATCH )                         \
+    ( (EQ_VERSION_MAJOR<MAJOR) ||                                       \
+      (EQ_VERSION_MAJOR==MAJOR && (EQ_VERSION_MINOR<MINOR ||            \
+                          (EQ_VERSION_MINOR==MINOR && EQ_VERSION_PATCH<PATCH))))
+
+/** True if the current version is older or equal to the given. @version 1.0 */
+#   define EQ_VERSION_LE( MAJOR, MINOR, PATCH )                         \
+    ( (EQ_VERSION_MAJOR<MAJOR) ||                                       \
+      (EQ_VERSION_MAJOR==MAJOR && (EQ_VERSION_MINOR<MINOR ||            \
+                         (EQ_VERSION_MINOR==MINOR && EQ_VERSION_PATCH<=PATCH))))
+
     /** Information about the current Equalizer version. */
     class EQ_API Version
     {

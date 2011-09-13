@@ -132,6 +132,21 @@ class ConvertTo11Visitor : public ServerVisitor
         const float version = config->getFAttribute( Config::FATTR_VERSION );
         if (  version >= 1.1f )
             return TRAVERSE_PRUNE;
+
+        ServerPtr server = config->getServer();
+        if( !server->getConnectionDescriptions().empty( ))
+            return TRAVERSE_CONTINUE;
+
+        const Nodes& nodes = config->getNodes();
+        if( nodes.size() > 1 )
+        {
+            // RFE 3156103: Add default appNode connection for multi-node config
+            EQINFO << "Adding default server connection for multi-node config"
+                   << std::endl;
+            co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+            desc->port = EQ_DEFAULT_PORT;
+            server->addConnectionDescription( desc );
+        }
         return TRAVERSE_CONTINUE;
     }
     virtual VisitorResult visitPost( Config* config )

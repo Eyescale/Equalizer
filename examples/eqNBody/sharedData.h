@@ -53,6 +53,7 @@ namespace eqNbody
         const FrameData& getFrameData() const { return _frameData; }
         
         void registerMemory( const eq::Range& range );
+        void releaseMemory();
         void mapMemory();
         void syncMemory();
         void updateMemory( const eq::Range& range, Controller *controller );
@@ -62,7 +63,7 @@ namespace eqNbody
         float* getVel() { return _frameData.getVel(); }
 
         float  getTimeStep() { return _frameData.getTimeStep(); }
-        unsigned int getNumBytes() { return _frameData.getNumBytes(); }
+        uint32_t getNumBytes() { return _frameData.getNumBytes(); }
         
         bool useStatistics() const { return _frameData.useStatistics(); }
         
@@ -73,8 +74,8 @@ namespace eqNbody
                          const eq::uint128_t& pid, const eq::Range& range);
         
         std::vector< SharedDataProxy* >    _proxies;
-        FrameData                    _frameData;
-        Config*                        _cfg;
+        FrameData _frameData;
+        Config*   _cfg;
     };
 }
 

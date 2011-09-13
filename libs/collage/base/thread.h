@@ -18,15 +18,13 @@
 #ifndef COBASE_THREAD_H
 #define COBASE_THREAD_H
 
-#include <co/base/os.h>     // COBASE_API definition
+#include <co/base/api.h>      // COBASE_API definition
 #include <co/base/debug.h>    // debug macros in thread-safety checks
 #include <co/base/lock.h>     // member
 #include <co/base/monitor.h>  // member
 #include <co/base/threadID.h> // member
 
-#include <vector>
-#include <typeinfo>
-#include <sstream>
+#include <ostream>
 
 namespace co
 {

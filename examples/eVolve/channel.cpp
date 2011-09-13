@@ -369,31 +369,34 @@ void Channel::_drawLogo( )
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     glColor3f( 1.0f, 1.0f, 1.0f );
-    glEnable( GL_TEXTURE_RECTANGLE_ARB );
+    const GLenum target = texture->getTarget();
+    glEnable( target );
     texture->bind();
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER,
-                     GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, 
-                     GL_LINEAR );
+    glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    
+    const float tWidth = float( texture->getWidth( ) );
+    const float tHeight = float( texture->getHeight( ) );
 
-    const float tWidth = float( texture->getWidth( ));
-    const float tHeight = float( texture->getHeight( ));
+    const float width = target == GL_TEXTURE_2D ? 1.0f : tWidth;
+    const float height = target == GL_TEXTURE_2D ? 1.0f : tHeight;
 
-    glBegin( GL_TRIANGLE_STRIP ); {
-        glTexCoord2f( 0.0f, 0.0f );
+    glBegin( GL_QUADS ); {
+        glTexCoord2f( 0, 0 );
         glVertex3f( 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( tWidth, 0.0f );
+        glTexCoord2f( width, 0 );
         glVertex3f( tWidth + 5.0f, 5.0f, 0.0f );
 
-        glTexCoord2f( 0.0f, tHeight );
+        glTexCoord2f( width, height );
+        glVertex3f( tWidth + 5.0f, tHeight + 5.0f, 0.0f );
+
+        glTexCoord2f( 0, height );
         glVertex3f( 5.0f, tHeight + 5.0f, 0.0f );
 
-        glTexCoord2f( tWidth, tHeight );
-        glVertex3f( tWidth + 5.0f, tHeight + 5.0f, 0.0f );
     } glEnd();
 
-    glDisable( GL_TEXTURE_RECTANGLE_ARB );
+    glDisable( target );
     glDisable( GL_BLEND );
 }
 
@@ -405,9 +408,9 @@ void Channel::_drawHelp()
     if( !frameData.showHelp() && message.empty( ))
         return;
 
-    EQ_GL_CALL( applyBuffer( ));
-    EQ_GL_CALL( applyViewport( ));
-    EQ_GL_CALL( setupAssemblyState( ));
+    applyBuffer();
+    applyViewport();
+    setupAssemblyState();
 
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );

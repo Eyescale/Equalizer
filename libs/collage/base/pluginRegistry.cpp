@@ -23,6 +23,7 @@
 #include "dso.h"
 #include "file.h"
 #include "global.h"
+#include "os.h"
 #include "plugin.h"
 #include "stdExt.h"
 

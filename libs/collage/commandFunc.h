@@ -18,7 +18,7 @@
 #ifndef CO_COMMANDFUNC_H
 #define CO_COMMANDFUNC_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/debug.h>
 
 namespace co
@@ -38,7 +38,7 @@ namespace co
                      bool (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
-        template< typename O > CommandFunc( const O& from )
+        template< typename O > CommandFunc( const CommandFunc< O >& from )
                 : _object( from._object ),
                   _func( static_cast<bool (T::*)( Command& )>(from._func))
             {}

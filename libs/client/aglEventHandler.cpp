@@ -24,6 +24,7 @@
 #include "configEvent.h"
 #include "global.h"
 #include "log.h"
+#include "os.h"
 #include "pipe.h"
 #include "window.h"
 
@@ -36,6 +37,12 @@
 
 namespace eq
 {
+static OSStatus _dispatchEventUPP( EventHandlerCallRef nextHandler,
+                                   EventRef event, void* userData );
+
+static OSStatus _handleEventUPP( EventHandlerCallRef nextHandler,
+                                 EventRef event, void* userData );
+
 AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         : _window( window )
         , _eventHandler( 0 )
@@ -55,8 +62,7 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
     }
     
     Global::enterCarbon();
-    EventHandlerUPP eventHandler = NewEventHandlerUPP( 
-        eq::AGLEventHandler::_handleEventUPP );
+    EventHandlerUPP eventHandler = NewEventHandlerUPP( _handleEventUPP );
     EventTypeSpec   events[]    = {
         { kEventClassWindow,   kEventWindowBoundsChanged },
         { kEventClassWindow,   kEventWindowZoomed },
@@ -93,8 +99,7 @@ AGLEventHandler::AGLEventHandler( AGLWindowIF* window )
         EQASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
 
         // dispatches to pipe thread queue
-        EventHandlerUPP eventDispatcher = NewEventHandlerUPP( 
-            eq::AGLEventHandler::_dispatchEventUPP );
+        EventHandlerUPP eventDispatcher = NewEventHandlerUPP(_dispatchEventUPP);
         EventQueueRef target = GetCurrentEventQueue();
 
         if( fullscreen )
@@ -133,8 +138,8 @@ AGLEventHandler::~AGLEventHandler()
     Global::leaveCarbon();
 }
 
-pascal OSStatus AGLEventHandler::_dispatchEventUPP( 
-    EventHandlerCallRef nextHandler, EventRef event, void* userData )
+OSStatus _dispatchEventUPP(EventHandlerCallRef nextHandler, EventRef event,
+                           void* userData )
 {
     EventQueueRef target = static_cast< EventQueueRef >( userData );
     
@@ -151,27 +156,27 @@ pascal OSStatus AGLEventHandler::_dispatchEventUPP(
     return CallNextEventHandler( nextHandler, event );
 }
 
-pascal OSStatus AGLEventHandler::_handleEventUPP( 
-    EventHandlerCallRef nextHandler, EventRef event, void* userData )
+OSStatus _handleEventUPP( EventHandlerCallRef nextHandler, EventRef event,
+                          void* userData )
 {
     AGLEventHandler* handler = static_cast< AGLEventHandler* >( userData );
-    AGLWindowIF*     window  = handler->_window;
+    AGLWindowIF* window = handler->getWindow();
 
     if( GetCurrentEventQueue() == GetMainEventQueue( )) // main thread
     {
         const Pipe* pipe = window->getPipe();
         if( !pipe->isThreaded( ))
             // non-threaded window, handle from main thread
-            handler->_handleEvent( event );
+            handler->handleEvent( event );
 
         return CallNextEventHandler( nextHandler, event );
     }
 
-    handler->_handleEvent( event );
+    handler->handleEvent( event );
     return noErr;
 }
 
-bool AGLEventHandler::_handleEvent( EventRef event )
+bool AGLEventHandler::handleEvent( EventRef event )
 {
     switch( GetEventClass( event ))
     {

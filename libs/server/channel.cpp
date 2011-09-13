@@ -36,7 +36,6 @@
 #include <eq/windowPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
-#include <co/base/os.h>
 #include <co/base/debug.h>
 
 #include "channel.ipp"
@@ -67,7 +66,8 @@ namespace
                 return TRAVERSE_CONTINUE;
 
             channel = compound->getInheritChannel();
-            _viewSet.insert( channel->getView( ));
+            if ( channel->getView( ))
+                _viewSet.insert( channel->getView( ));
             return TRAVERSE_CONTINUE;
         }
 
@@ -110,15 +110,15 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
-    co::CommandQueue* serverQ  = getMainThreadQueue();
-    co::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* mainQ  = getMainThreadQueue();
+    co::CommandQueue* cmdQ = getCommandThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
-                     CmdFunc( this, &Channel::_cmdConfigInitReply ), commandQ );
+                     CmdFunc( this, &Channel::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-                     CmdFunc( this, &Channel::_cmdConfigExitReply ), commandQ );
+                     CmdFunc( this, &Channel::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY,
-                     CmdFunc( this, &Channel::_cmdFrameFinishReply ), serverQ );
+                     CmdFunc( this, &Channel::_cmdFrameFinishReply ), mainQ );
 }
 
 Channel::~Channel()
@@ -226,7 +226,8 @@ void Channel::activate()
     ++_active;
     window->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    EQLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
+                      << std::endl;
 }
 
 void Channel::deactivate()
@@ -238,7 +239,8 @@ void Channel::deactivate()
     --_active; 
     window->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    EQLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
+                      << std::endl;
 }
 
 void Channel::setOutput( View* view, Segment* segment )
@@ -457,7 +459,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 bool Channel::_cmdConfigInitReply( co::Command& command ) 
 {
     const ChannelConfigInitReplyPacket* packet = 
-        command.getPacket<ChannelConfigInitReplyPacket>();
+        command.get<ChannelConfigInitReplyPacket>();
     EQLOG( LOG_INIT ) << "handle channel configInit reply " << packet
                       << std::endl;
 
@@ -468,7 +470,7 @@ bool Channel::_cmdConfigInitReply( co::Command& command )
 bool Channel::_cmdConfigExitReply( co::Command& command ) 
 {
     const ChannelConfigExitReplyPacket* packet = 
-        command.getPacket<ChannelConfigExitReplyPacket>();
+        command.get<ChannelConfigExitReplyPacket>();
     EQLOG( LOG_INIT ) << "handle channel configExit reply " << packet
                       << std::endl;
 
@@ -479,7 +481,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
     const ChannelFrameFinishReplyPacket* packet = 
-        command.getPacket<ChannelFrameFinishReplyPacket>();
+        command.get<ChannelFrameFinishReplyPacket>();
 
     _fireLoadData( packet->frameNumber, packet->nStatistics,
                    packet->statistics );

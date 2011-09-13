@@ -106,7 +106,7 @@ void FullMasterCM::setAutoObsolete( const uint32_t count )
     _object->send( localNode, packet );    
 }
 
-void FullMasterCM::increaseCommitCount()
+void FullMasterCM::increaseCommitCount( const uint32_t incarnation )
 {
     if( _nVersions == 0 )
         return; // OPT: obsoletion not needed
@@ -114,13 +114,53 @@ void FullMasterCM::increaseCommitCount()
     ObjectCommitPacket packet;
     packet.instanceID = _object->_instanceID;
     packet.requestID = EQ_UNDEFINED_UINT32;
+    packet.incarnation = incarnation;
 
     NodePtr localNode = _object->getLocalNode();
     _object->send( localNode, packet );    
 }
 
+void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
+{
+    EQASSERT( !_instanceDatas.empty( ));
+    if( incarnation == CO_COMMIT_NEXT )
+    {
+        ++_commitCount;
+        return;
+    }
+
+    if( incarnation >= _commitCount )
+    {
+        _commitCount = incarnation;
+        return;
+    }
+
+    _commitCount = incarnation;
+
+    // obsolete 'future' old packages
+    while( _instanceDatas.size() > 1 )
+    {
+        InstanceData* data = _instanceDatas.back();
+        if( data->commitCount <= _commitCount )
+            break;
+
+#ifdef EQ_INSTRUMENT
+        _bytesBuffered -= data->os.getSaveBuffer().getSize();
+        EQINFO << _bytesBuffered << " bytes used" << std::endl;
+#endif
+        _releaseInstanceData( data );
+        _instanceDatas.pop_back();
+    }
+
+    InstanceData* data = _instanceDatas.back();
+    if( data->commitCount > _commitCount )
+        // tweak commitCount of minimum retained version for correct obsoletion
+        data->commitCount = 0;
+}
+
 void FullMasterCM::_obsolete()
 {
+    EQASSERT( !_instanceDatas.empty( ));
     while( _instanceDatas.size() > 1 && _commitCount > _nVersions )
     {
         InstanceData* data = _instanceDatas.front();
@@ -144,16 +184,7 @@ void FullMasterCM::_obsolete()
     _checkConsistency();
 }
 
-uint128_t FullMasterCM::getOldestVersion() const
-{
-    EQ_TS_THREAD( _cmdThread );
-    if( _version == VERSION_NONE )
-        return VERSION_NONE;
-
-    return _instanceDatas.front()->os.getVersion();
-}
-
-uint128_t FullMasterCM::addSlave( Command& command )
+void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
     EQ_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
@@ -161,7 +192,7 @@ uint128_t FullMasterCM::addSlave( Command& command )
 
     NodePtr node = command.getNode();
     NodeMapObjectPacket* packet =
-        command.getPacket<NodeMapObjectPacket>();
+        command.get<NodeMapObjectPacket>();
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
@@ -176,16 +207,26 @@ uint128_t FullMasterCM::addSlave( Command& command )
     if( requested == VERSION_NONE ) // no data to send
     {
         _sendEmptyVersion( node, instanceID );
-        return VERSION_INVALID;
+        reply.version = _version;
+        return;
     }
 
-    const uint128_t oldest = getOldestVersion();
-    uint128_t start = (requested == VERSION_OLDEST) ? oldest : requested;
-    uint128_t end   = _version;
+    const uint128_t oldest = _instanceDatas.front()->os.getVersion();
+    uint128_t start = (requested == VERSION_OLDEST || requested < oldest ) ?
+                          oldest : requested;
+    uint128_t end = _version;
     const bool useCache = packet->masterInstanceID == _object->getInstanceID();
-    const uint128_t result = useCache ? start : VERSION_INVALID;
 
-    if( packet->useCache && useCache )
+#ifndef NDEBUG
+    if( requested != VERSION_OLDEST && requested < start )
+        EQINFO << "Mapping version " << start << " instead of requested version"
+               << requested << std::endl;
+#endif
+
+    reply.version = start;
+    reply.useCache = packet->useCache && useCache;
+
+    if( reply.useCache )
     {
         if( packet->minCachedVersion <= start && 
             packet->maxCachedVersion >= start )
@@ -236,7 +277,6 @@ uint128_t FullMasterCM::addSlave( Command& command )
         EQINFO << "Cached " << _hit << "/" << _hit + _miss
                << " instance data transmissions" << std::endl;
 #endif
-    return result;
 }
 
 void FullMasterCM::removeSlave( NodePtr node )
@@ -260,6 +300,7 @@ void FullMasterCM::removeSlave( NodePtr node )
 void FullMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
+    EQASSERT( !_instanceDatas.empty( ));
     EQASSERT( _object->isAttached() );
 
     if( _version == VERSION_NONE )
@@ -300,6 +341,7 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
         _instanceDataCache.pop_back();
     }
 
+    instanceData->commitCount = _commitCount;
     instanceData->os.reset();
     instanceData->os.enableSave();
     return instanceData;
@@ -334,19 +376,18 @@ void FullMasterCM::_releaseInstanceData( InstanceData* data )
 bool FullMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
     EQASSERT( _version != VERSION_NONE );
 
-    ++_commitCount;
+    _updateCommitCount( packet->incarnation );
 
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         InstanceData* instanceData = _newInstanceData();
-        instanceData->commitCount = _commitCount;
 
         instanceData->os.enableCommit( _version + 1, _slaves );
         _object->getInstanceData( instanceData->os );
@@ -376,7 +417,7 @@ bool FullMasterCM::_cmdObsolete( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
     const ObjectObsoletePacket* packet = 
-        command.getPacket<ObjectObsoletePacket>();
+        command.get<ObjectObsoletePacket>();
 
     _nVersions = packet->count;
     _obsolete();

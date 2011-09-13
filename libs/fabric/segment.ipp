@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
- *               2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -51,12 +51,11 @@ Segment< C, S, CH >::~Segment()
 }
 
 template< class C, class S, class CH >
-uint32_t Segment< C, S, CH >::commitNB()
+uint32_t Segment< C, S, CH >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNEL ) && _channel )
-        commitChild< typename CH::Parent, PipeNewWindowPacket, Object >
-            ( _channel->getWindow(), _channel->getPipe( ));
-    return Object::commitNB();
+        commitChild< typename CH::Parent >( _channel->getWindow(), incarnation);
+    return Object::commitNB( incarnation );
 }
 
 template< class C, class S, class CH >

@@ -99,9 +99,6 @@ namespace server
         /** @return true if this is the top-most compound with a channel. */
         bool isDestination() const;
 
-        /** @return true if this compound is 'below' the given compound. */
-        bool isChildOf( const Compound* compound ) const;
-
         /** @return if the compound has the destination channel. */
         bool hasDestinationChannel() const;
         
@@ -324,9 +321,7 @@ namespace server
             { return (_inherit.eyes & eye); }
         //@}
 
-        /**
-         * @name Frustum Operations
-         */
+        /** @name Frustum Operations */
         //@{
         /** 
          * Set the compound's frustum using a wall description.

@@ -20,12 +20,9 @@
 
 #include "errorRegistry.h"
 #include "global.h"
-#include "log.h"
 #include "pluginRegistry.h"
 #include "rng.h"
 #include "thread.h"
-
-#include <fstream>
 
 namespace co
 {
@@ -34,7 +31,6 @@ namespace base
 
 namespace
 {
-    static std::ofstream* _logFile = 0;
     static bool _initialized = false;
 }
 
@@ -48,29 +44,6 @@ bool init( const int argc, char** argv )
     Log::instance().setThreadName( "Main" );
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
-
-    for( int i=1; i<argc; ++i )
-    {
-        if( strcmp( "--eq-logfile", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-            {
-                EQASSERT( !_logFile );
-                _logFile = new std::ofstream( argv[i] );
-                if( _logFile->is_open( ))
-                    Log::setOutput( *_logFile );
-                else
-                {
-                    EQWARN << "Can't open log file " << argv[i] << ": "
-                           << sysError << std::endl;
-                    delete _logFile;
-                    _logFile = 0;
-                    return false;
-                }
-            }
-        }
-    }
 
     if( !RNG::_init( ))
     {
@@ -121,19 +94,7 @@ bool exit()
     Thread::removeAllListeners();
     Log::exit();
 
-    const bool ret = RNG::_exit();
-    if( _logFile )
-    {
-#ifdef NDEBUG
-        Log::setOutput( std::cout );
-#else
-        Log::setOutput( std::cerr );
-#endif
-        _logFile->close();
-        delete _logFile;
-        _logFile = 0;
-    }
-    return ret;
+    return RNG::_exit();
 }
 
 }

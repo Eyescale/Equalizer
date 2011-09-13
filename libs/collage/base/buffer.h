@@ -42,8 +42,8 @@ namespace base
         Buffer() : _data(0), _size(0), _maxSize(0) {}
 
         /** Construct a new buffer of the given size. @version 1.0 */
-        Buffer( const uint64_t size ) : _data(0), _size(0), _maxSize(0) 
-            { resize( size ); }
+        Buffer( const uint64_t size ) : _data(0), _size(0), _maxSize(0)
+            { reset( size ); }
 
         /** Destruct the buffer. @version 1.0 */
         ~Buffer() { clear(); }
@@ -102,10 +102,12 @@ namespace base
                 _size = newSize;
                 if( newSize <= _maxSize )
                     return _data;
-                
-                const uint64_t nBytes = newSize * sizeof( T );
+
+                // avoid excessive reallocs
+                const uint64_t nElems = newSize + (newSize >> 3);
+                const uint64_t nBytes = nElems * sizeof( T );
                 _data = static_cast< T* >( realloc( _data, nBytes ));
-                _maxSize = newSize;
+                _maxSize = nElems;
                 return _data;
             }
 

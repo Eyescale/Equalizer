@@ -58,7 +58,7 @@ DeltaMasterCM::~DeltaMasterCM()
 bool DeltaMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.getPacket<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get< ObjectCommitPacket >();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
@@ -66,7 +66,7 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
 
     EQASSERT( _version != VERSION_NONE );
 
-    ++_commitCount;
+    _updateCommitCount( packet->incarnation );
 
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
@@ -83,7 +83,6 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
         {
             // save instance data
             InstanceData* instanceData = _newInstanceData();
-            instanceData->commitCount = _commitCount;
 
             instanceData->os.enableCommit( _version + 1, Nodes( ));
             _object->getInstanceData( instanceData->os );

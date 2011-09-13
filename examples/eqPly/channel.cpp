@@ -260,7 +260,8 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
     eq::Channel::frameReadback( frameID );
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     if( stopRendering( ))
         return;
@@ -708,7 +709,9 @@ void Channel::_drawOverlay()
     // Draw the overlay logo
     const Window* window = static_cast<Window*>( getWindow( ));
     const eq::util::Texture* texture = window->getLogoTexture();
-        
+    if( !texture )
+        return;
+
     glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
@@ -738,42 +741,37 @@ void Channel::_drawOverlay()
 #endif
 
     // logo
-    if( texture )
-    {
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        const GLenum target = texture->getTarget();
-        glEnable( target );
-        texture->bind();
-        glTexParameteri( target, GL_TEXTURE_MAG_FILTER,
-                         GL_LINEAR );
-        glTexParameteri( target, GL_TEXTURE_MIN_FILTER, 
-                         GL_LINEAR );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    const GLenum target = texture->getTarget();
+    glEnable( target );
+    texture->bind();
+    glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     
-        const float tWidth = float( texture->getWidth( ) );
-        const float tHeight = float( texture->getHeight( ) );
+    const float tWidth = float( texture->getWidth( ) );
+    const float tHeight = float( texture->getHeight( ) );
 
-        const float x = target == GL_TEXTURE_2D ? 1.0f : tWidth;
-        const float y = target == GL_TEXTURE_2D ? 1.0f : tHeight;
+    const float width = target == GL_TEXTURE_2D ? 1.0f : tWidth;
+    const float height = target == GL_TEXTURE_2D ? 1.0f : tHeight;
 
-        glBegin( GL_QUADS ); {
-            glTexCoord2f( 0, 0 );
-            glVertex3f( 5.0f, 5.0f, 0.0f );
+    glBegin( GL_QUADS ); {
+        glTexCoord2f( 0, 0 );
+        glVertex3f( 5.0f, 5.0f, 0.0f );
 
-            glTexCoord2f( x, 0 );
-            glVertex3f( tWidth + 5.0f, 5.0f, 0.0f );
+        glTexCoord2f( width, 0 );
+        glVertex3f( tWidth + 5.0f, 5.0f, 0.0f );
 
-            glTexCoord2f( x, y );
-            glVertex3f( tWidth + 5.0f, tHeight + 5.0f, 0.0f );
+        glTexCoord2f( width, height );
+        glVertex3f( tWidth + 5.0f, tHeight + 5.0f, 0.0f );
 
-            glTexCoord2f( 0, y );
-            glVertex3f( 5.0f, tHeight + 5.0f, 0.0f );
+        glTexCoord2f( 0, height );
+        glVertex3f( 5.0f, tHeight + 5.0f, 0.0f );
 
-        } glEnd();
-    
-        glDisable( target );
-        glDisable( GL_BLEND );
-    }
+    } glEnd();
+
+    glDisable( target );
+    glDisable( GL_BLEND );
     glEnable( GL_LIGHTING );
     glEnable( GL_DEPTH_TEST );
 }
@@ -865,8 +863,9 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     front.normalize();
     front *= boundingSphere.w();
 
-    const eq::Vector3f center = boundingSphere.get_sub_vector< 3 >() + 
-                        frameData.getCameraPosition( ).get_sub_vector< 3 >();
+    const eq::Vector3f center =  
+        frameData.getCameraPosition().get_sub_vector< 3 >() -
+        boundingSphere.get_sub_vector< 3 >();
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
     const eq::Vector3f farPoint   = headTransform * ( center + front );
 

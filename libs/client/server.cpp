@@ -21,7 +21,6 @@
 #include "config.h"
 #include "configParams.h"
 #include "global.h"
-#include "node.h"
 #include "nodeFactory.h"
 #include "serverPackets.h"
 #include "types.h"
@@ -147,7 +146,7 @@ bool Server::shutdown()
 bool Server::_cmdChooseConfigReply( co::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
-        command.getPacket<ServerChooseConfigReplyPacket>();
+        command.get<ServerChooseConfigReplyPacket>();
     EQVERB << "Handle choose config reply " << packet << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();
@@ -177,7 +176,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
 bool Server::_cmdReleaseConfigReply( co::Command& command )
 {
     const ServerReleaseConfigReplyPacket* packet = 
-        command.getPacket<ServerReleaseConfigReplyPacket>();
+        command.get<ServerReleaseConfigReplyPacket>();
 
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID );
@@ -187,7 +186,7 @@ bool Server::_cmdReleaseConfigReply( co::Command& command )
 bool Server::_cmdShutdownReply( co::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
-        command.getPacket<ServerShutdownReplyPacket>();
+        command.get<ServerShutdownReplyPacket>();
     EQINFO << "Handle shutdown reply " << packet << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();

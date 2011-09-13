@@ -363,8 +363,8 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         float& leftOver = leftOvers[i];
         EQLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
-                        << child->getChannel()->getName() << ") using "
-                        << leftOver << " resources" << std::endl;
+                         << child->getChannel()->getName() << ") using "
+                         << leftOver << " resources" << std::endl;
         PreviousAssigner assigner( child->getPipe(), leftOver, pipeUsage );
         
         child->accept( assigner );
@@ -500,9 +500,6 @@ private:
 
 void ViewEqualizer::_updateResources()
 {
-    if( _nPipes > 0 )
-        return;
-
     PipeCounter counter;
     const Compound* compound = getCompound();
     compound->accept( counter );

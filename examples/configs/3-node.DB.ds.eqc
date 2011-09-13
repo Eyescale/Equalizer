@@ -9,12 +9,12 @@ global
 
 server
 {
-    connection{ hostname "127.0.0.1" }
+    connection{ hostname "node1" }
     config
     {
         appNode
         {
-            connection{ hostname "127.0.0.1" }
+            connection{ hostname "node1" }
             pipe 
             {
                 window 

@@ -22,6 +22,7 @@
 #include "aglPipe.h"
 #include "aglWindowEvent.h"
 #include "global.h"
+#include "os.h"
 #include "pipe.h"
 #include "window.h"
 
@@ -30,16 +31,28 @@
 namespace eq
 {
 
-AGLWindow::AGLWindow( Window* parent )
+AGLWindow::AGLWindow( Window* parent, CGDirectDisplayID displayID )
     : AGLWindowIF( parent )
     , _aglContext( 0 )
     , _carbonWindow( 0 )
     , _aglPBuffer( 0 )
     , _eventHandler( 0 )
+    , _cgDisplayID( displayID )
 {
+    if( displayID == kCGNullDirectDisplay )
+    {
+        Pipe* pipe = getPipe();
+        EQASSERT( pipe );
+        EQASSERT( pipe->getSystemPipe( ));
+
+        const AGLPipe* aglPipe =
+            dynamic_cast< const AGLPipe* >( pipe->getSystemPipe( ));
+        if( aglPipe )
+            _cgDisplayID = aglPipe->getCGDisplayID();
+    }
 }
 
-AGLWindow::~AGLWindow( )
+AGLWindow::~AGLWindow()
 {
 }
 
@@ -121,7 +134,7 @@ void AGLWindow::setAGLContext( AGLContext context )
 // AGL init
 //---------------------------------------------------------------------------
 
-bool AGLWindow::configInit( )
+bool AGLWindow::configInit()
 {
     AGLPixelFormat pixelFormat = chooseAGLPixelFormat();
     if( !pixelFormat )
@@ -141,17 +154,10 @@ bool AGLWindow::configInit( )
 
 AGLPixelFormat AGLWindow::chooseAGLPixelFormat()
 {
-    Pipe*    pipe    = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getSystemPipe( ));
-
-    const AGLPipe* aglPipe = EQSAFECAST( const AGLPipe*, pipe->getSystemPipe());
-    CGDirectDisplayID displayID = aglPipe->getCGDisplayID();
-
     Global::enterCarbon();
 
     CGOpenGLDisplayMask glDisplayMask =
-        CGDisplayIDToOpenGLDisplayMask( displayID );
+        CGDisplayIDToOpenGLDisplayMask( _cgDisplayID );
 
     // build attribute list
     std::vector<GLint> attributes;

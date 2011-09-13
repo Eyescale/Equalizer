@@ -85,6 +85,9 @@ namespace DataStreamTest
         //@}
  
     protected:
+        /** Initialize the given compressor. */
+        void _initCompressor( const uint32_t compressor );
+
         /** Enable output. */
         CO_API void _enable();
 
@@ -248,6 +251,16 @@ namespace co
     /** Optimized specialization to write a std::vector of uint8_t. */
     template<> inline DataOStream& 
     DataOStream::operator << ( const std::vector< uint8_t >& value )
+    { return _writeFlatVector( value ); }
+
+    /** Optimized specialization to write a std::vector of uint16_t. */
+    template<> inline DataOStream& 
+    DataOStream::operator << ( const std::vector< uint16_t >& value )
+    { return _writeFlatVector( value ); }
+
+    /** Optimized specialization to write a std::vector of int16_t. */
+    template<> inline DataOStream&
+    DataOStream::operator << ( const std::vector< int16_t >& value )
     { return _writeFlatVector( value ); }
 
     /** Optimized specialization to write a std::vector of uint32_t. */

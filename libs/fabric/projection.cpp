@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,9 @@
 
 #include <co/base/log.h>
 
+#ifndef M_PI
+#  define M_PI 3.14159265358979323846264338327
+#endif
 #define DEG2RAD( angle ) ((angle) * static_cast<float>(M_PI) / 180.f)
 #define RAD2DEG( angle ) ((angle) * 180.f / static_cast<float>(M_PI))
 

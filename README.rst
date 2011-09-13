@@ -32,13 +32,15 @@ scalable OpenGL applications. This release introduces the Collage library,
 support for GPU compression plugins and an administrative API for runtime
 configuration changes.
 
-Equalizer 1.0-beta is a developer release, representing the full feature set
-and API of Equalizer 1.0. It is intended for application developers to
-provide feedback and preview the 1.0 release. Equalizer 1.0-beta can be
-retrieved by downloading the `source code`_, updating the subversion trunk to
-revision 5659 (``svn up -r 5659``) or by using:
-``svn co https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release
--1.0-beta`` The internal version number of this release is 0.9.3.
+Equalizer 1.0 culminates over 6 years of development and decades of
+experience into a feature-rich, high-performance and mature parallel
+rendering framework and an object-oriented high-level network library. It is
+intended for all application developers creating parallel, interactive OpenGL
+applications. Equalizer 1.0 can be retrieved by downloading the `source
+code`_, updating the subversion trunk to revision 5809 (``svn up -r 5809``)
+or by using:
+``svn co
+https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0``
 
 
 1.1. Features
@@ -66,14 +68,14 @@ can be found on the Equalizer website.
 2. New in this release
 ----------------------
 
-Equalizer 1.0-beta contains the following features, enhancements, bug fixes
-and documentation changes:
+Equalizer 1.0 contains the following features, enhancements, bug fixes and
+documentation changes:
 
 
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
-1.0-beta (0.9.3): No new features
+1.0, 1.0-beta (0.9.3): No new features
 
 1.0-alpha (0.9.2):
 
@@ -106,6 +108,12 @@ and documentation changes:
 
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
+
+1.0
+
+-   `RFE 3237701`_: Allow direct mapping of objects with known master
+    node
+-   Make co::Object serialization compressor configurable
 
 1.0-beta (0.9.3):
 
@@ -149,6 +157,11 @@ and documentation changes:
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
+1.0:
+
+-   Optimize Collage command cache performance
+-   Optimize short int data transmission
+
 1.0-beta (0.9.3): No new optimizations
 
 1.0-alpha (0.9.2):
@@ -171,7 +184,7 @@ and documentation changes:
 2.4. Examples
 ~~~~~~~~~~~~~
 
-1.0-beta (0.9.3): No significant example changes
+1.0, 1.0-beta (0.9.3): No significant example changes
 
 1.0-alpha (0.9.2):
 
@@ -217,6 +230,10 @@ were made:
 The following documentation has been added or substantially improved since
 the last release:
 
+1.0:
+
+-   Full `API documentation`_ for the public Equalizer API.
+
 1.0-beta (0.9.3):
 
 -   The `Programming and User Guide`_ has been extended to 102 pages and
@@ -247,8 +264,22 @@ the last release:
 2.8. Bug Fixes
 ~~~~~~~~~~~~~~
 
-Equalizer 1.0-beta includes various bugfixes over the 0.9 release, including
-the following:
+Equalizer 1.0 includes various bugfixes over the 0.9 release, including the
+following:
+
+1.0:
+
+-   `3264449`_: View/segment channel viewport failure when using pvp
+-   `3234693`_: Delete 'channel' views when view is deleted using admin
+    API
+-   Fixed some minor memory leak found with valgrind
+-   `3213628`_: Win32: co::base::Condition leaks memory on destruction
+-   `3206311`_: Node process does not exit after failed Node::configInit
+-   `3203934`_: Channel statistics-related race
+-   `3201871`_: View equalizer: changing capabilities does not update
+    nPipes
+-   `3199651`_: Improve handling of unsupported connections
+-   `3196124`_: View mapping may fail when Config::update is used
 
 1.0-beta (0.9.3):
 
@@ -311,8 +342,6 @@ the following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `3159879`_ compressor YUV - Pixel decomposition broken
--   `3136383`_ Windows 7 non-affinity PBuffers broken
 -   `2796444`_: Race during simultaneous node connect
 -   `2609161`_: zoom: depth readback does not work
 -   `2556940`_: zoom: FBO usage
@@ -327,7 +356,7 @@ operating system, including all Unix variants and the Windows operating
 system. A `compatibility matrix`_ can be found on the Equalizer website.
 
 Equalizer requires at least `OpenGL 1.1`_, but uses newer OpenGL features
-when available. Version 1.0-beta has been tested on:
+when available. Version 1.0 has been tested on:
 
 
 3.1. Operating System Support
@@ -352,9 +381,8 @@ following platforms and build environments are tested:
 3.3. Documentation
 ~~~~~~~~~~~~~~~~~~
 
-The Programming and User Guide is available as a `hard-copy (0.9)`_ and
-`online (1.0 beta)`_. `API documentation`_ can be found on the Equalizer
-website.
+The Programming and User Guide is available as a `hard-copy`_ and `online`_.
+`API documentation`_ can be found on the Equalizer website.
 
 As with any open source project, the available source code, in particular the
 shipped `examples`_ provide a reference for developing or porting
@@ -401,7 +429,7 @@ information.
 .. _3.4. Support: #support
 .. _4. Errata: #errata
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-1.0-beta.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-1.0.tar.gz
 .. _detailed feature list: /features.html
 .. _GPU-CPU       transfer and compression plugins: http://www.equalizerg
     raphics.com/documents/Developer/API/plugins_2compressor_8h.html#_details
@@ -421,6 +449,8 @@ information.
     http://www.equalizergraphics.com/documents/design/subpixelCompound.html
 .. _Data distribution and data updates using reliable UDP multicast:
     http://www.equalizergraphics.com/documents/design/multicast.html
+.. _RFE   3237701: https://sourceforge.net/tracker/index.php?func=detail&
+    aid=3237701&group_id=170962&atid=856212
 .. _RFE 3076532: https://sourceforge.net/tracker/index.php?func=detail&ai
     d=3076532&group_id=170962&atid=856212
 .. _RFE 3175000: https://sourceforge.net/tracker/index.php?func=detail&ai
@@ -454,11 +484,13 @@ information.
 .. _OSGScaleViewer: http://www.equalizergraphics.com/documents/WhitePaper
     s/OpenSceneGraphClustering.pdf
 .. _CHANGES.txt: https://equalizer.svn.sourceforge.net/svnroot/equalizer/
-    tags/release-1.0-beta/CHANGES.txt
+    tags/release-1.0/CHANGES.txt
+.. _API       documentation:
+    http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _API       documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-0/9/3/index.html
+    http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html
 .. _API       documentation:
     http://www.equalizergraphics.com/documents/Developer/API-0.9.2/index.html
 .. _Error       handling:
@@ -476,6 +508,22 @@ information.
 .. _Subpixel Compound: /documents/design/subpixelCompound.html
 .. _Data distribution and data       updates using reliable UDP
     multicast: /documents/design/multicast.html
+.. _3264449: https://sourceforge.net/tracker/?func=detail&aid=3264449&gro
+    up_id=170962&atid=856209
+.. _3234693: https://sourceforge.net/tracker/?func=detail&aid=3234693&gro
+    up_id=170962&atid=856209
+.. _3213628: https://sourceforge.net/tracker/?func=detail&aid=3213628&gro
+    up_id=170962&atid=856209
+.. _3206311: https://sourceforge.net/tracker/?func=detail&aid=3206311&gro
+    up_id=170962&atid=856209
+.. _3203934: https://sourceforge.net/tracker/?func=detail&aid=3203934&gro
+    up_id=170962&atid=856209
+.. _3201871: https://sourceforge.net/tracker/?func=detail&aid=3201871&gro
+    up_id=170962&atid=856209
+.. _3199651: https://sourceforge.net/tracker/?func=detail&aid=3199651&gro
+    up_id=170962&atid=856209
+.. _3196124: https://sourceforge.net/tracker/?func=detail&aid=3196124&gro
+    up_id=170962&atid=856209
 .. _3190280: https://sourceforge.net/tracker/?func=detail&aid=3190280&gro
     up_id=170962&atid=856209
 .. _3185777: https://sourceforge.net/tracker/?func=detail&aid=3185777&gro
@@ -566,10 +614,6 @@ information.
     up_id=170962&atid=856209
 .. _Bug   Report:
     http://sourceforge.net/tracker/?atid=856209&group_id=170962&func=browse
-.. _3159879: https://sourceforge.net/tracker/?func=detail&aid=3159879&gro
-    up_id=170962&atid=856209
-.. _3136383: https://sourceforge.net/tracker/?func=detail&aid=3136383&gro
-    up_id=170962&atid=856209
 .. _2796444: http://sourceforge.net/tracker/index.php?func=detail&aid=279
     6444&group_id=170962&atid=856209
 .. _2609161: http://sourceforge.net/tracker/index.php?func=detail&aid=260
@@ -581,17 +625,17 @@ information.
 .. _compatibility matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
-.. _hard-copy   (0.9): http://www.lulu.com/content/paperback-
-    book/equalizer-09-programming-and-user-guide/7501548
-.. _online   (1.0   beta): http://www.equalizergraphics.com/survey.html
+.. _hard-copy: http://www.lulu.com/product/paperback/equalizer-10
+    -programming-and-user-guide/15165632
+.. _online: http://www.equalizergraphics.com/survey.html
 .. _API   documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-0.9.3/index.html
+    http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
 .. _examples: http://www.equalizergraphics.com/cgi-
-    bin/viewvc.cgi/tags/release-1.0-beta/examples/
+    bin/viewvc.cgi/tags/release-1.0/examples/
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev
-    eloper/API/ch.eyescale.Equalizer.docset.zip
+    eloper/API-1.0/ch.eyescale.Equalizer.docset.zip
 .. _     Developer Mailing List: http://www.equalizergraphics.com/cgi-
     bin/mailman/listinfo/eq-dev
 .. _     info@equalizergraphics.com:

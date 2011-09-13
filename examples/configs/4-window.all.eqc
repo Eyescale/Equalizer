@@ -120,7 +120,7 @@ server
         }
         layout
         {
-            name "DirectSend"
+            name "DB_DirectSend"
             view
             {
                 observer 0
@@ -135,7 +135,7 @@ server
         }
         layout
         {
-            name "BinarySwap"
+            name "DB_BinarySwap"
             view
             {
                 observer 0
@@ -298,8 +298,8 @@ server
 
             layout "WallLB"
             layout "DB_Stream"
-            layout "DirectSend"
-            layout "BinarySwap"
+            layout "DB_DirectSend"
+            layout "DB_BinarySwap"
             layout "MultiLevel"
 
             layout "DFR"
@@ -693,7 +693,7 @@ server
         # Direct-send compound
         compound
         {
-            channel ( segment 0 layout "DirectSend" view 0 )
+            channel ( segment 0 layout "DB_DirectSend" view 0 )
             buffer    [ COLOR DEPTH ]
 
             
@@ -765,7 +765,7 @@ server
         # Binary-swap compound
         compound
         {
-            channel ( segment 0 layout "BinarySwap" view 0 )
+            channel ( segment 0 layout "DB_BinarySwap" view 0 )
             buffer  [ COLOR DEPTH ]
 
             compound

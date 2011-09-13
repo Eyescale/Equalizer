@@ -22,7 +22,6 @@
 #include "config.h"
 #include "configParams.h"
 #include "global.h"
-#include "node.h"
 #include "nodeFactory.h"
 #include "os.h"
 #include "server.h"
@@ -33,6 +32,8 @@
 #include <co/base/global.h>
 #include <co/base/pluginRegistry.h>
 
+#include <fstream>
+
 #ifdef EQ_USE_PARACOMP
 #  include <pcapi.h>
 #endif
@@ -41,9 +42,11 @@ namespace eq
 {
 namespace
 {
+static std::ofstream* _logFile = 0;
 static bool _initialized = false;
 }
 
+static void _parseArguments( const int argc, char** argv );
 static void _initPlugins();
 static void _exitPlugins();
 extern void _initErrors();
@@ -52,6 +55,7 @@ extern void _exitErrors();
 bool init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
     co::base::Log::instance().setThreadName( "Main" );
+    _parseArguments( argc, argv );
     EQINFO << "Equalizer v" << Version::getString()
 #if ( EQ_VERSION_REVISION > 0 )
            << " [" << EQ_VERSION_REVISION << "]"
@@ -80,35 +84,6 @@ bool init( const int argc, char** argv, NodeFactory* nodeFactory )
     }
 #endif
 
-    // We do not use getopt_long because of:
-    // - reordering of arguments
-    // - different behaviour of GNU and BSD implementations
-    // - incomplete man pages
-
-    for( int i=1; i<argc; ++i )
-    {
-        if( strcmp( "--eq-server", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-                Global::setServer( argv[i] );
-        }
-        else if( strcmp( "--eq-config", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-                Global::setConfigFile( argv[i] );
-        }
-        else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
-        {
-            ++i;
-            if( i<argc )
-            {
-                co::Global::setProgramName( argv[i] );
-            }
-        }
-    }
-    
     EQASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
@@ -132,9 +107,71 @@ bool exit()
     Global::_nodeFactory = 0;
     _exitErrors();
     _exitPlugins();
-    return fabric::exit();
+    const bool ret = fabric::exit();
+
+    if( _logFile )
+    {
+#ifdef NDEBUG
+        co::base::Log::setOutput( std::cout );
+#else
+        co::base::Log::setOutput( std::cerr );
+#endif
+        _logFile->close();
+        delete _logFile;
+        _logFile = 0;
+    }
+    return ret;
 }
 
+void _parseArguments( const int argc, char** argv )
+{
+    // We do not use getopt_long baecause of:
+    // - reordering of arguments
+    // - different behaviour of GNU and BSD implementations
+    // - incomplete man pages
+    for( int i=1; i<argc; ++i )
+    {
+        if( strcmp( "--eq-logfile", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+            {
+                EQASSERT( !_logFile );
+                _logFile = new std::ofstream( argv[i] );
+                if( _logFile->is_open( ))
+                    co::base::Log::setOutput( *_logFile );
+                else
+                {
+                    EQWARN << "Can't open log file " << argv[i] << ": "
+                           << co::base::sysError << std::endl;
+                    delete _logFile;
+                    _logFile = 0;
+                }
+            }
+        }
+        if( strcmp( "--eq-server", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+                Global::setServer( argv[i] );
+        }
+        else if( strcmp( "--eq-config", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+                Global::setConfigFile( argv[i] );
+        }
+        else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i<argc )
+            {
+                co::Global::setProgramName( argv[i] );
+            }
+        }
+    }
+}
+    
 void _initPlugins()
 {
     co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();

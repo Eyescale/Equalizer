@@ -1,11 +1,9 @@
-- Add GlewContext for window project in EQNbody   
-- Code CleanUp
-- Remove All tabulator
+Add new GLEW version for 3302768: Including eq/gl.h with GLX fails
 
-[x] May break build
+[ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

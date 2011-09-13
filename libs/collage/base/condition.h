@@ -18,7 +18,7 @@
 #ifndef COBASE_CONDITION_H
 #define COBASE_CONDITION_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/debug.h>
 
 namespace co
@@ -43,20 +43,32 @@ namespace base
         /** Lock the mutex. @version 1.0 */
         COBASE_API void lock();
 
+        /** Unlock the mutex. @version 1.0 */
+        COBASE_API void unlock();
+
         /** Signal the condition. @version 1.0 */
         COBASE_API void signal();
 
         /** Broadcast the condition. @version 1.0 */
         COBASE_API void broadcast();
 
-        /** Unlock the mutex. @version 1.0 */
-        COBASE_API void unlock();
-
         /**
          * Atomically unlock the mutex, wait for a signal and relock the mutex.
          * @version 1.0
          */
         COBASE_API void wait();
+
+        /**
+         * Atomically unlock the mutex, wait for a signal and relock the mutex.
+         *
+         * The operation is aborted after the given timeout and false is
+         * returned.
+         *
+         * @param timeout the timeout in milliseconds to wait for the signal.
+         * @return true on success, false on timeout.
+         * @version 1.0
+         */
+        bool timedWait( const unsigned timeout );
 
     private:
         ConditionPrivate* const _data;

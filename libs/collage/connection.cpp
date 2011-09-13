@@ -21,7 +21,6 @@
 #include "connectionListener.h"
 #include "mcipConnection.h"
 #include "log.h"
-#include "node.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
 #include "rspConnection.h"
@@ -37,8 +36,7 @@
 #endif
 
 #include <co/base/scopedMutex.h>
-
-#include <errno.h>
+#include <co/base/stdExt.h>
 
 namespace co
 {
@@ -120,7 +118,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 #endif
         default:
             EQWARN << "Connection type not implemented" << std::endl;
-            return connection;
+            return 0;
     }
 
     if( description->bandwidth == 0 )

@@ -25,6 +25,7 @@
 #include "rng.h"
 #include "scopedMutex.h"
 #include "executionListener.h"
+#include "sleep.h"
 
 #include <co/base/lock.h>
 
@@ -35,6 +36,9 @@
 // Experimental Win32 thread pinning
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
+#endif
+#ifdef Linux
+#  include <sys/prctl.h>
 #endif
 
 namespace co
@@ -196,14 +200,17 @@ bool Thread::start()
             EQVERB << "Created pthread " << this << std::endl;
             break;
         }
-        if( error != EAGAIN || nTries==0 )
+        if( error != EAGAIN || nTries == 0 )
         {
             EQWARN << "Could not create thread: " << strerror( error )
                    << std::endl;
             return false;
         }
+        sleep( 1 ); // Give EAGAIN some time to recover
     }
 
+    // avoid memleak, we don't use pthread_join
+    pthread_detach( _id._data->pthread );
     _state.waitNE( STATE_STARTING );
     return (_state != STATE_STOPPED);
 }
@@ -212,6 +219,8 @@ void Thread::exit()
 {
     EQASSERTINFO( isCurrent(), "Thread::exit not called from child thread" );
     EQINFO << "Exiting thread " << className( this ) << std::endl;
+    Log::instance().forceFlush();
+    Log::instance().exit();
 
     _state = STATE_STOPPING;
     pthread_exit( 0 );
@@ -222,11 +231,10 @@ void Thread::cancel()
 {
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
-    EQINFO << "Cancelling thread " << className( this ) << std::endl;
+    EQINFO << "Canceling thread " << className( this ) << std::endl;
     _state = STATE_STOPPING;
 
     pthread_cancel( _id._data->pthread );
-    EQUNREACHABLE;
 }
 
 bool Thread::join()
@@ -409,6 +417,8 @@ void Thread::setName( const std::string& name )
 #  endif
 #elif __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     pthread_setname_np( name.c_str( ));
+#elif defined(Linux)
+    prctl( PR_SET_NAME, name.c_str(), 0, 0, 0 );
 #else
     // Not implemented
     EQVERB << "Thread::setName( " << name << " ) not implemented" << std::endl;

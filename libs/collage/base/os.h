@@ -40,11 +40,6 @@
 #  include <windef.h>
 #endif
 
-// Defining our own min/max macros seems to be the only sane way to get this
-// functionality across platforms thanks to some screwup in the MS header files.
-#define EQ_MAX(a,b) ((a)>(b)?(a):(b)) //!< returns the maximum of two values
-#define EQ_MIN(a,b) ((a)<(b)?(a):(b)) //!< returns the minimum of two values
-
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>

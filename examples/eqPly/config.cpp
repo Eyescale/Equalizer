@@ -157,44 +157,44 @@ static bool _isPlyfile( const std::string& filename )
 
 void Config::_loadModels()
 {
-    if( _models.empty( )) // only load on the first config run
-    {
-        eq::Strings filenames = _initData.getFilenames();
-        while( !filenames.empty( ))
-        {
-            const std::string filename = filenames.back();
-            filenames.pop_back();
-     
-            if( _isPlyfile( filename ))
-            {
-                Model* model = new Model;
+    if( !_models.empty( )) // only load on the first config run
+        return;
 
-                if( _initData.useInvertedFaces() )
-                    model->useInvertedFaces();
-        
-                if( !model->readFromFile( filename.c_str() ) )
-                {
-                    EQWARN << "Can't load model: " << filename << std::endl;
-                    delete model;
-                }
-                else
-                    _models.push_back( model );
+    eq::Strings filenames = _initData.getFilenames();
+    while( !filenames.empty( ))
+    {
+        const std::string filename = filenames.back();
+        filenames.pop_back();
+     
+        if( _isPlyfile( filename ))
+        {
+            Model* model = new Model;
+
+            if( _initData.useInvertedFaces() )
+                model->useInvertedFaces();
+
+            if( !model->readFromFile( filename.c_str() ) )
+            {
+                EQWARN << "Can't load model: " << filename << std::endl;
+                delete model;
             }
             else
+                _models.push_back( model );
+        }
+        else
+        {
+            const std::string basename = co::base::getFilename( filename );
+            if( basename == "." || basename == ".." )
+                continue;
+
+            // recursively search directories
+            const eq::Strings subFiles = co::base::searchDirectory( filename,
+                                                                    "*" );
+
+            for( eq::Strings::const_iterator i = subFiles.begin();
+                 i != subFiles.end(); ++i )
             {
-                const std::string basename = co::base::getFilename( filename );
-                if( basename == "." || basename == ".." )
-                    continue;
-
-                // recursively search directories
-                const eq::Strings subFiles =
-                    co::base::searchDirectory( filename, "*" );
-
-                for( eq::Strings::const_iterator i = subFiles.begin();
-                     i != subFiles.end(); ++i )
-                {
-                    filenames.push_back( filename + '/' + *i );
-                }
+                filenames.push_back( filename + '/' + *i );
             }
         }
     }
@@ -254,17 +254,22 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID::ZERO );
 }
 
-void Config::mapData( const eq::uint128_t& initDataID )
+bool Config::mapData( const eq::uint128_t& initDataID )
 {
-    if( !_initData.isAttached() )
+    if( !_initData.isAttached( ))
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        const uint32_t request = mapObjectNB( &_initData, initDataID,
+                                              co::VERSION_OLDEST,
+                                              getApplicationNode( ));
+        if( !mapObjectSync( request ))
+            return false;
         unmapObject( &_initData ); // data was retrieved, unmap immediately
     }
-    else  // appNode, _initData is registered already
+    else // appNode, _initData is registered already
     {
         EQASSERT( _initData.getID() == initDataID );
     }
+    return true;
 }
 
 void Config::unmapData()

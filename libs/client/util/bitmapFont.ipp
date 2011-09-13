@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 // HACK: Get rid of deprecated warning for aglUseFont
 //   -Wno-deprecated-declarations would do as well, but here it is more isolated
 #include <eq/defines.h>
+
 #ifdef AGL
 #  include <AvailabilityMacros.h>
 #  undef DEPRECATED_ATTRIBUTE
@@ -28,6 +29,10 @@
 
 #include "objectManager.h"
 
+#ifdef GLX
+#  include <eq/glXTypes.h>
+#endif
+#include <eq/os.h>
 #include <co/base/debug.h>
 #include <co/base/lock.h>
 #include <co/base/log.h>
@@ -42,7 +47,7 @@ template< class OMT >
 BitmapFont< OMT >::BitmapFont( ObjectManager< OMT >& gl, const OMT& key )
         // We create a new shared object manager. Typically we are exited by
         // the last user, at which point the given OM may have been deleted
-        : _gl( gl.glewGetContext(), &gl )
+        : _gl( &gl )
         , _key( key )
 {
 }
@@ -250,7 +255,7 @@ bool BitmapFont< OMT >::_initAGL( const std::string&, const uint32_t )
 #endif
 
 template< class OMT >
-GLuint BitmapFont< OMT >::_setupLists( const GLsizei num )
+uint32_t BitmapFont< OMT >::_setupLists( const int num )
 {
     GLuint lists = _gl.getList( _key );
     if( lists != ObjectManager< OMT >::INVALID )

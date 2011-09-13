@@ -98,7 +98,8 @@ namespace fabric
         /** @return true if the object has data to commit. @version 1.0 */
         EQFABRIC_API virtual bool isDirty() const;
 
-        EQFABRIC_API virtual uint32_t commitNB(); //!< @internal
+        /** @internal */
+        EQFABRIC_API virtual uint32_t commitNB( const uint32_t incarnation );
 
         /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_API virtual void backup();
@@ -166,20 +167,31 @@ namespace fabric
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >
-        void commitChild( C* child, S* sender );
+        void commitChild( C* child, S* sender, const uint32_t incarnation );
+
+        /** @internal commit slave instance to the server. */
+        template< class C > inline 
+        void commitChild( C* child, const uint32_t incarnation )
+            {
+                EQASSERT( child->isAttached( ));
+                child->commit( incarnation );
+            }
 
         /** @internal commit, register child slave instances with the server. */
         template< class C, class PKG, class S >
-        void commitChildren( const std::vector< C* >& children, S* sender );
+        void commitChildren( const std::vector< C* >& children, S* sender,
+                             const uint32_t incarnation );
 
         /** @internal commit, register child slave instances with the server. */
         template< class C, class PKG >
-        void commitChildren( const std::vector< C* >& children )
-            { commitChildren< C, PKG, Object >( children, this ); }
+        void commitChildren( const std::vector< C* >& children,
+                             const uint32_t incarnation )
+            { commitChildren< C, PKG, Object >( children, this, incarnation ); }
 
         /** @internal commit all children. */
         template< class C >
-        void commitChildren( const std::vector< C* >& children );
+        void commitChildren( const std::vector< C* >& children,
+                             const uint32_t incarnation );
 
         /** @internal sync all children to head version. */
         template< class C >
@@ -188,6 +200,9 @@ namespace fabric
         /** @internal unmap/deregister all children. */
         template< class P, class C >
         inline void releaseChildren( const std::vector< C* >& children );
+
+        /** @internal sync master object to the given slave commit. */
+        EQFABRIC_API bool _cmdSync( co::Command& command );
 
     private:
         struct BackupData
@@ -221,7 +236,7 @@ namespace fabric
 
     // Template Implementation
     template< class C, class PKG, class S > inline void
-    Object::commitChild( C* child, S* sender )
+    Object::commitChild( C* child, S* sender, const uint32_t incarnation )
     {
         if( !child->isAttached( ))
         {
@@ -237,23 +252,25 @@ namespace fabric
             localNode->waitRequest( packet.requestID, identifier );
             EQCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
         }
-        child->commit();
+        child->commit( incarnation );
     }
 
     template< class C, class PKG, class S > inline void
-    Object::commitChildren( const std::vector< C* >& children, S* sender )
+    Object::commitChildren( const std::vector< C* >& children, S* sender,
+                            const uint32_t incarnation )
     {
         // TODO Opt: async register and commit
         for( typename std::vector< C* >::const_iterator i = children.begin();
              i != children.end(); ++i )
         {
             C* child = *i;
-            commitChild< C, PKG, S >( child, sender );
+            commitChild< C, PKG, S >( child, sender, incarnation );
         }
     }
 
     template< class C >
-    inline void Object::commitChildren( const std::vector< C* >& children )
+    inline void Object::commitChildren( const std::vector< C* >& children,
+                                        const uint32_t incarnation )
     {
         // TODO Opt: async commit
         for( typename std::vector< C* >::const_iterator i = children.begin();
@@ -261,7 +278,7 @@ namespace fabric
         {
             C* child = *i;
             EQASSERT( child->isAttached( ));
-            child->commit();
+            child->commit( incarnation );
         }
     }
 

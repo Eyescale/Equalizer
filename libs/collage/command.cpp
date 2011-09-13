@@ -19,15 +19,15 @@
 
 #include "node.h"
 
-
 namespace co
 {
 
-Command::Command() 
+Command::Command( base::a_int32_t& freeCounter ) 
         : _packet( 0 )
         , _data( 0 )
         , _dataSize( 0 )
         , _refCountMaster( 0 )
+        , _freeCount( freeCounter )
         , _func( 0, 0 )
 {}
 
@@ -39,10 +39,17 @@ Command::~Command()
 
 void Command::retain()
 {
-    ++_refCount; 
+    if( ++_refCount == 1 ) // first reference
+    {
+        EQASSERT( _refCount == 1 ); // ought to be single-threaded in recv
+        EQASSERT( _freeCount > 0 );
+        --_freeCount;
+    }
+
     if( _refCountMaster )
     {
-        ++( *_refCountMaster );
+        if( ++( *_refCountMaster ) == 1 )
+            --_freeCount;
         EQASSERT( *_refCountMaster >= _refCount );
     }
 }
@@ -53,11 +60,13 @@ void Command::release()
     {
         EQASSERT( *_refCountMaster != 0 );
         EQASSERT( *_refCountMaster >= _refCount );
-        --( *_refCountMaster );
+        if( --( *_refCountMaster ) == 0 ) // last reference
+            ++_freeCount;
     }
 
     EQASSERT( _refCount != 0 );
-    --_refCount;
+    if( --_refCount == 0 ) // last reference
+        ++_freeCount;
 }
 
 size_t Command::_alloc( NodePtr node, LocalNodePtr localNode,
@@ -135,7 +144,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
     if( command.isValid( ))
     {
         os << base::disableFlush << "command< ";
-        const Packet* packet = command.getPacket() ;
+        const Packet* packet = command.get< Packet >() ;
         switch( packet->type )
         {
             case PACKETTYPE_CO_NODE:

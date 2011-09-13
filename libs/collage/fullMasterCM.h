@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,21 +44,18 @@ namespace co
         /** @name Versioning */
         //@{
         virtual void setAutoObsolete( const uint32_t count );
-        virtual void increaseCommitCount();
+        virtual void increaseCommitCount( const uint32_t incarnation );
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
-        virtual uint128_t getOldestVersion() const;
         //@}
 
-        virtual uint128_t addSlave( Command& command );
+        virtual void addSlave( Command& command,
+                               NodeMapObjectReplyPacket& reply );
         virtual void removeSlave( NodePtr node );
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes );
     
     protected:
-        /** The number of commits, needed for auto-obsoletion. */
-        uint32_t _commitCount;
-
         struct InstanceData
         {
             InstanceData( const MasterCM* cm ) 
@@ -72,12 +69,16 @@ namespace co
         void _addInstanceData( InstanceData* data );
         void _releaseInstanceData( InstanceData* data );
 
+        void _updateCommitCount( const uint32_t incarnation );
         void _obsolete();
         void _checkConsistency() const;
 
         virtual bool isBuffered() const{ return true; }
 
     private:
+        /** The number of commits, needed for auto-obsoletion. */
+        uint32_t _commitCount;
+
         /** The number of old versions to retain. */
         uint32_t _nVersions;
 

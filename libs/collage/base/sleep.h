@@ -18,7 +18,7 @@
 #ifndef COBASE_SLEEP_H
 #define COBASE_SLEEP_H
 
-#include <co/base/os.h>
+#include <co/base/api.h>
 #include <co/base/types.h>
 
 namespace co
@@ -26,14 +26,7 @@ namespace co
 namespace base
 {
     /** Sleep the current thread for a number of milliseconds. @version 1.0 */
-    inline void sleep( const uint32_t milliSeconds )
-    {
-#ifdef _WIN32 //_MSC_VER
-        ::Sleep( milliSeconds );
-#else
-        ::usleep( milliSeconds * 1000 );
-#endif
-    }
+    COBASE_API void sleep( const uint32_t milliSeconds );
 }
 }
 #endif  // COBASE_SLEEP_H

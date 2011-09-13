@@ -1,5 +1,5 @@
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com>
- *                        , Maxim Makhinya
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,12 +19,12 @@
 #define EQ_OS_WINDOW_WGL_H
 
 #include <eq/glWindow.h>       // base class
-#include <eq/wglWindowEvent.h> // used in inline method
 
 namespace eq
 {
     class WGLEventHandler;
     class WGLPipe;
+    class WGLWindowEvent;
 
     /** The interface defining the minimum functionality for a WGL window. */
     class WGLWindowIF : public GLWindow

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,9 +29,7 @@
 #include "node.h"
 
 #include "config.h"
-
-using namespace co::base;
-using namespace std;
+#include "error.h"
 
 namespace eVolve
 {
@@ -45,13 +43,11 @@ bool Node::configInit( const eq::uint128_t& initID )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
 
     Config* config = static_cast< Config* >( getConfig( ));
-    config->mapData( initID );
-
+    if( !config->mapData( initID ))
+    {
+        setError( ERROR_EVOLVE_MAPOBJECT_FAILED );
+        return false;
+    }
     return true;
-}
-
-bool Node::configExit()
-{
-    return eq::Node::configExit();
 }
 }

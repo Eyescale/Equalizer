@@ -29,7 +29,6 @@ set(CO_FORWARD_HEADERS
     node.h
     nodeType.h
     object.h
-    objectCM.h
     objectVersion.h
     packets.h
     types.h
@@ -45,6 +44,7 @@ set(CO_HEADERS
     masterCM.h
     nodePackets.h
     nullCM.h
+    objectCM.h
     objectDataIStream.h
     objectDataOStream.h
     objectDeltaDataOStream.h

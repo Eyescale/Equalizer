@@ -144,22 +144,10 @@ VisitorResult Server::accept( ServerVisitor& visitor ) const
     return _accept( this, visitor );
 }
 
-bool Server::listen()
-{
-    if( getConnectionDescriptions().empty( )) // add default listener
-    {
-        co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
-        connDesc->type = co::CONNECTIONTYPE_TCPIP;
-        connDesc->port = co::Global::getDefaultPort();
-        addConnectionDescription( connDesc );
-    }
-    return Super::listen();
-}
-
 void Server::init()
 {
-    EQASSERT( isListening( ));
     co::base::Thread::setName( co::base::className( this ));
+    EQASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
     if( configs.empty( ))
@@ -263,7 +251,7 @@ void Server::handleCommands()
 bool Server::_cmdChooseConfig( co::Command& command ) 
 {
     const ServerChooseConfigPacket* packet = 
-        command.getPacket<ServerChooseConfigPacket>();
+        command.get<ServerChooseConfigPacket>();
     EQINFO << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
@@ -310,13 +298,22 @@ bool Server::_cmdChooseConfig( co::Command& command )
     const co::ConnectionDescriptions& descs = 
         appNode->getConnectionDescriptions();
 
-    if( descs.empty() && node->getConnectionDescriptions().empty() &&
-        config->getNodes().size() > 1 )
+    if( config->getNodes().size() > 1 )
     {
-        EQWARN << "Likely misconfiguration: Neither the application nor the "
-               << "config file has a connection for this multi-node config. "
-               << "Render clients will be unable to communicate with the app."
-               << std::endl;
+        if( descs.empty() && node->getConnectionDescriptions().empty( ))
+        {
+            EQWARN << "Likely misconfiguration: Neither the application nor the"
+                   << " config file has a connection for this multi-node "
+                   << "config. Render clients will be unable to communicate "
+                   << "with the application process." << std::endl;
+        }
+        if( getConnectionDescriptions().empty( ))
+        {
+            EQWARN << "Likely misconfiguration: The server has no listening "
+                   << "connection for this multi-node config. Render clients "
+                   << "will be unable to communicate with the server."
+                   << std::endl;
+        }
     }
 
     node->send( reply, co::serialize( descs ));
@@ -326,7 +323,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
 bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
-        command.getPacket<ServerReleaseConfigPacket>();
+        command.get<ServerReleaseConfigPacket>();
     EQINFO << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
@@ -363,7 +360,6 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 
     ConfigRestoreVisitor restore;
     config->accept( restore );
-    EQINFO << "Released " << *config << std::endl;
 
     node->send( reply );
     EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;
@@ -373,7 +369,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 bool Server::_cmdDestroyConfigReply( co::Command& command ) 
 {
     const fabric::ServerDestroyConfigReplyPacket* packet = 
-        command.getPacket< fabric::ServerDestroyConfigReplyPacket >();
+        command.get< fabric::ServerDestroyConfigReplyPacket >();
 
     serveRequest( packet->requestID );
     return true;
@@ -382,7 +378,7 @@ bool Server::_cmdDestroyConfigReply( co::Command& command )
 bool Server::_cmdShutdown( co::Command& command )
 {
     const ServerShutdownPacket* packet = 
-        command.getPacket< ServerShutdownPacket >();
+        command.get< ServerShutdownPacket >();
 
     ServerShutdownReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
@@ -439,7 +435,7 @@ bool Server::_cmdMap( co::Command& command )
     }
 
     const admin::ServerMapPacket* packet =
-        command.getPacket< admin::ServerMapPacket >();
+        command.get< admin::ServerMapPacket >();
     admin::ServerMapReplyPacket reply( packet );
     node->send( reply );
     return true;
@@ -466,7 +462,7 @@ bool Server::_cmdUnmap( co::Command& command )
     }
 
     const admin::ServerUnmapPacket* packet = 
-        command.getPacket< admin::ServerUnmapPacket >();
+        command.get< admin::ServerUnmapPacket >();
     admin::ServerUnmapReplyPacket reply( packet );
     node->send( reply );
     return true;

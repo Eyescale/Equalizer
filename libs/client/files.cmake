@@ -1,10 +1,11 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
 set(CLIENT_HEADERS
   aglEventHandler.h
   aglMessagePump.h
   aglPipe.h
+  aglTypes.h
   aglWindow.h
   aglWindowEvent.h
   api.h
@@ -31,10 +32,12 @@ set(CLIENT_HEADERS
   eye.h
   frame.h
   frameData.h
+  gl.h
   glWindow.h
   glXEventHandler.h
   glXMessagePump.h
   glXPipe.h
+  glXTypes.h
   glXWindow.h
   glXWindowEvent.h
   global.h
@@ -93,6 +96,7 @@ set(CLIENT_SOURCES
   eventHandler.cpp
   frame.cpp
   frameData.cpp
+  gl.cpp
   glWindow.cpp
   global.cpp
   image.cpp
@@ -103,7 +107,6 @@ set(CLIENT_SOURCES
   nodeFactory.cpp
   nodeStatistics.cpp
   observer.cpp
-  os.cpp
   pipe.cpp
   pipeStatistics.cpp
   pixelData.cpp
@@ -146,6 +149,7 @@ endif(WIN32)
 if(EQ_GLX_USED)
   set(CLIENT_SOURCES ${CLIENT_SOURCES}
     glXEventHandler.cpp
+    glXTypes.cpp
     glXMessagePump.cpp
     glXWindow.cpp
     glXPipe.cpp

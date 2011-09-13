@@ -20,19 +20,22 @@
 
 /**
  * @namespace co::base
- * @brief Equalizer base abstraction layer.
+ * @brief Base abstraction layer and common utility classes.
  *
  * The co::base namespace provides C++ classes to abstract the underlying
  * operating system and implements common helper functionality. Classes with
  * non-virtual destructors are not intended to be subclassed.
  */
 
-#include <co/base/os.h>
 #include <co/base/api.h>
 #include <co/base/errorRegistry.h>
 #include <co/base/file.h>
 #include <co/base/global.h>
 #include <co/base/sleep.h>
+
+#ifdef EQ_SYSTEM_INCLUDES
+#  include <co/base/os.h>
+#endif
 
 #endif // COBASE_H
 

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,7 @@
 #define EQ_PIPE_H
 
 #include <eq/eye.h>            // Eye enum
-#include <eq/os.h>             // WGLEWContext
+#include <eq/gl.h>             // WGLEWContext
 #include <eq/types.h>
 #include <eq/visitorResult.h>  // enum
 #include <eq/windowSystem.h>   // enum
@@ -226,6 +226,9 @@ namespace eq
         MessagePump* getMessagePump();
         //@}
 
+        /** @internal @sa Serializable::setDirty() */
+        EQ_API virtual void setDirty( const uint64_t bits );
+
     protected:
         /** @name Operations */
         //@{
@@ -388,7 +391,7 @@ namespace eq
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-       co::base::Lock            _frameTimeMutex;
+        co::base::Lock _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -459,6 +462,7 @@ namespace eq
         bool _cmdFrameFinish( co::Command& command );
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
+        bool _cmdDetachView( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

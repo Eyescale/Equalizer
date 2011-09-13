@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                          Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -147,24 +147,24 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
 
     switch( node->mode )
     {
-    default:
+      default:
         EQUNIMPLEMENTED;
 
-    case MODE_VERTICAL:
+      case MODE_VERTICAL:
         leftVP.w = vp.w * .5f;
         rightVP.x = leftVP.getXEnd();
         rightVP.w = vp.getXEnd() - rightVP.x;
         node->split = leftVP.getXEnd();
         break;
 
-    case MODE_HORIZONTAL:
+      case MODE_HORIZONTAL:
         leftVP.h = vp.h * .5f;
         rightVP.y = leftVP.getYEnd();
         rightVP.h = vp.getYEnd() - rightVP.y;
         node->split = leftVP.getYEnd();
         break;
 
-    case MODE_DB:
+      case MODE_DB:
         leftRange.end = range.start + ( range.end - range.start ) * .5f;
         rightRange.start = leftRange.end;
         node->split = leftRange.end;

@@ -221,7 +221,12 @@ bool Client::initLocal( const int argc, char** argv )
         EQVERB << "Client node started from command line with option " 
                << clientOpts << std::endl;
 
-        EQCHECK( _setupClient( clientOpts ));
+        if( !_setupClient( clientOpts ))
+        {
+            exitLocal();
+            return false;
+        }
+
         clientLoop();
         exitClient();
     }
@@ -266,7 +271,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     EQASSERTINFO( description.empty(), description );
     if( !connect( server ))
     {
-        EQERROR << "Can't connect server node" << std::endl;
+        EQERROR << "Can't connect server node using " << *server << std::endl;
         return false;
     }
 

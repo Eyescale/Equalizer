@@ -28,6 +28,7 @@
 #include <co/objectVersion.h>   // used in inline method
 
 
+#include <co/base/hash.h>           // member
 #include <co/base/lockable.h>       // member
 #include <co/base/spinLock.h>       // member
 #include <co/base/types.h>          // member
@@ -213,9 +214,11 @@ namespace co
          * If VERSION_OLDEST is provided, the oldest available version is
          * mapped.
          *
-         * If the requested version does no longer exist, mapObject()
-         * will fail. If the requested version is newer than the head version,
-         * mapObject() will block until the requested version is available.
+         * If a concrete requested version no longer exists, mapObject() will
+         * map the oldest available version.
+         *
+         * If the requested version is newer than the head version, mapObject()
+         * will block until the requested version is available.
          *
          * Mapping an object is a potentially time-consuming operation. Using
          * mapObjectNB() and mapObjectSync() to asynchronously map multiple
@@ -236,9 +239,17 @@ namespace co
         bool mapObject( Object* object, const ObjectVersion& v )
             { return mapObject( object, v.identifier, v.version ); }
 
-        /** Start mapping a distributed object. */
+        /** Start mapping a distributed object. @sa mapObject() */
         CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
                                     const uint128_t& version = VERSION_OLDEST );
+
+        /**
+         * Start mapping a distributed object from a known master.
+         * @sa mapObject()
+         */
+        CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+                                     const uint128_t& version, NodePtr master );
+
         /** Finalize the mapping of a distributed object. */
         CO_API bool mapObjectSync( const uint32_t requestID );
 
@@ -306,6 +317,9 @@ namespace co
         Command& cloneCommand( Command& command )
             { return _commandCache.clone( command ); }
 
+        /** @internal Allocate a local command from the receiver thread. */
+        CO_API Command& allocCommand( const uint64_t size );
+
         /** 
          * Dispatches a packet to the registered command queue.
          * 
@@ -336,6 +350,8 @@ namespace co
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
     private:
+        typedef std::list< Command* > CommandList;
+
         /** Commands re-scheduled for dispatch. */
         CommandList  _pendingCommands;
     
@@ -395,7 +411,7 @@ namespace co
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
-        NodePtr _connect( const NodeID& nodeID, NodePtr server );
+        NodePtr _connect( const NodeID& nodeID, NodePtr peer );
 
         /** 
          * @return <code>true</code> if executed from the command handler

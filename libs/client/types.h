@@ -19,9 +19,12 @@
 #ifndef EQ_TYPES_H
 #define EQ_TYPES_H
 
+#include <eq/defines.h>
+#include <eq/util/types.h>
 #include <eq/fabric/types.h>
 #include <co/base/refPtr.h>
 #include <co/base/uuid.h>
+
 #include <map>
 #include <vector>
 
@@ -143,6 +146,9 @@ typedef co::base::RefPtr< const Client >  ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
 typedef co::base::RefPtr< Server >        ServerPtr;
 
+/** The OpenGL object manager used in the client library. */
+typedef util::ObjectManager< const void* > ObjectManager;
+
 typedef fabric::Matrix3d Matrix3d;   //!< A 3x3 double matrix
 typedef fabric::Matrix4d Matrix4d;   //!< A 4x4 double matrix
 typedef fabric::Matrix3f Matrix3f;   //!< A 3x3 float matrix
@@ -180,24 +186,16 @@ typedef std::map< uint32_t, Statistics > SortedStatistics;
 // frame id, config statistics
 typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 /** @endcond */
-
-#ifdef EQ_USE_DEPRECATED
-typedef Configs ConfigVector;
-typedef Nodes NodeVector;
-typedef Pipes PipeVector;
-typedef Windows WindowVector;
-typedef Channels ChannelVector;
-typedef Frames FrameVector;
-typedef Images ImageVector;
-typedef Observers ObserverVector;
-typedef Canvases CanvasVector;
-typedef Layouts LayoutVector;
-typedef Segments SegmentVector;
-typedef Views ViewVector;
-typedef Viewports ViewportVector;
-typedef PixelViewports PixelViewportVector;
-typedef Statistics StatisticVector;
-typedef Strings StringVector;
-#endif
 }
+
+/** @cond IGNORE */
+// GLEW
+struct GLEWContextStruct;
+struct WGLEWContextStruct;
+struct GLXEWContextStruct;
+typedef struct GLEWContextStruct GLEWContext;
+typedef struct WGLEWContextStruct WGLEWContext;
+typedef struct GLXEWContextStruct GLXEWContext;
+/** @endcond */
+
 #endif // EQ_TYPES_H

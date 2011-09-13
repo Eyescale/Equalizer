@@ -44,6 +44,12 @@ SharedData::~SharedData()
 {
     if( _cfg )
         _cfg = 0;
+
+    for( uint32_t i=0; i< _frameData.getNumDataProxies(); i++ )
+    {
+        delete _proxies[i];
+    }
+    _proxies.clear();
 }
             
 void SharedData::registerMemory( const eq::Range& range )
@@ -54,12 +60,12 @@ void SharedData::registerMemory( const eq::Range& range )
                             _frameData.getNumBytes(); 
     SharedDataProxy *shMem = new SharedDataProxy();
     _proxies.push_back( shMem );
+
+    shMem->init( offset, numBytes, _frameData.getPos(), _frameData.getVel(),
+                 _frameData.getCol() );    
     
     // Register the proxy object
     _cfg->registerObject( shMem );
-
-    shMem->init( offset, numBytes, _frameData.getPos(), _frameData.getVel(),
-         _frameData.getCol() );     
 
     const eq::uint128_t version = shMem->commit(); 
         
@@ -69,21 +75,32 @@ void SharedData::registerMemory( const eq::Range& range )
     
 void SharedData::mapMemory()
 {
-    SharedDataProxy *shMem = _proxies[0];
+    const SharedDataProxy *shMem = _proxies[0];
         
     // Initialise the remote shared memory proxies
-    for(unsigned int i=0; i< _frameData.getNumDataProxies(); i++) {
+    for( uint32_t i=0; i< _frameData.getNumDataProxies(); i++) 
+    {
         const eq::uint128_t& pid = _frameData.getProxyID(i);
             
-        if( (pid != shMem->getID()) ) {
+        if( pid != shMem->getID() ) 
+        {
             SharedDataProxy *readMem = new SharedDataProxy();
                 
-            readMem->init( _frameData.getPos(), _frameData.getVel(), _frameData.getCol() );
+            readMem->init( _frameData.getPos(), _frameData.getVel(), 
+                           _frameData.getCol() );
             _proxies.push_back( readMem );
                 
             EQCHECK( _cfg->mapObject( readMem, pid ));
         }
     }           
+}
+
+void SharedData::releaseMemory()
+{
+    for( uint32_t i=0; i< _frameData.getNumDataProxies(); i++ )
+    {
+        _cfg->releaseObject( _proxies[i] );
+    }
 }
     
 void SharedData::syncMemory()

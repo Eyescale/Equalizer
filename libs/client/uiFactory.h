@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2011 Daniel Pfeifer <daniel@pfeifer-mail.de>
+ *               2011 Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,48 +19,44 @@
 #ifndef EQ_UI_FACTORY_H
 #define EQ_UI_FACTORY_H
 
-#include <eq/window.h>
-#include <eq/pipe.h>
-#include <eq/node.h>
+#include <eq/types.h>
+#include <eq/windowSystem.h>
 
 namespace eq
 {
-
 class UIFactory
 {
 public:
-    static bool supports( eq::WindowSystem type );
+    static bool supports( WindowSystem type );
 
-    static SystemWindow* createSystemWindow( eq::WindowSystem type,
-                                             eq::Window* window );
+    static SystemWindow* createSystemWindow( WindowSystem type,
+                                             Window* window );
 
-    static SystemPipe* createSystemPipe( eq::WindowSystem type, eq::Pipe* pipe);
+    static SystemPipe* createSystemPipe( WindowSystem type, Pipe* pipe);
 
-    static MessagePump* createMessagePump( eq::WindowSystem type );
+    static MessagePump* createMessagePump( WindowSystem type );
 
-    static void configInit( eq::Node* node );
-    static void configExit( eq::Node* node );
+    static void configInit( Node* node );
+    static void configExit( Node* node );
 
 protected:
-    UIFactory( eq::WindowSystem type );
+    UIFactory( WindowSystem type );
     virtual ~UIFactory() {}
 
 private:
-    virtual eq::SystemWindow* _createSystemWindow(eq::Window* window) const = 0;
+    virtual SystemWindow* _createSystemWindow( Window* window ) const = 0;
+    virtual SystemPipe* _createSystemPipe( Pipe* pipe ) const = 0;
+    virtual MessagePump* _createMessagePump() const = 0;
 
-    virtual eq::SystemPipe* _createSystemPipe(eq::Pipe* pipe) const = 0;
-
-    virtual eq::MessagePump* _createMessagePump() const = 0;
-
-    virtual void _configInit(eq::Node* node) const {}
-    virtual void _configExit(eq::Node* node) const {}
+    virtual void _configInit( Node* node ) const {}
+    virtual void _configExit( Node* node ) const {}
 
 private:
-    eq::WindowSystem _type;
+    WindowSystem _type;
     UIFactory* _next;
 };
 
-template<  eq::WindowSystem WindowSystem > struct UIFactoryImpl: UIFactory
+template< WindowSystem WindowSystem > struct UIFactoryImpl : UIFactory
 {
     UIFactoryImpl() : UIFactory( WindowSystem ) {}
 };

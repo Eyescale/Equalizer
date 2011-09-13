@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,8 +18,8 @@
 #ifndef EQ_AGLEVENTHANDLER_H
 #define EQ_AGLEVENTHANDLER_H
 
+#include <eq/aglTypes.h>
 #include <eq/eventHandler.h> // base class
-#include <eq/os.h>           // AGL-specific types
 
 namespace eq
 {
@@ -61,18 +61,18 @@ namespace eq
          */
         static void exitMagellan( Node* node );
 
+        /** @return the handled AGL window. @version 1.0 */
+        AGLWindowIF* getWindow() const { return _window; }
+        
+        /** @internal */
+        bool handleEvent( EventRef event );
+
     private:
         AGLWindowIF* const _window;
 
         EventHandlerRef _eventHandler;
         EventHandlerRef _eventDispatcher;
 
-        static pascal OSStatus _dispatchEventUPP( 
-            EventHandlerCallRef nextHandler, EventRef event, void* userData );
-
-        static pascal OSStatus _handleEventUPP( EventHandlerCallRef nextHandler,
-                                                EventRef event, void* userData);
-        bool _handleEvent( EventRef event );
         bool   _handleWindowEvent( EventRef event );
         bool   _handleMouseEvent( EventRef event );
         bool   _handleKeyEvent( EventRef event );

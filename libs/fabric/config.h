@@ -223,6 +223,9 @@ namespace fabric
         virtual bool mapNodeObjects() const { return false; } //!< @internal
 
         /** @internal */
+        EQFABRIC_INL uint128_t commit( const uint32_t incarnation );
+
+        /** @internal */
         virtual VisitorResult _acceptCompounds( V& )
             { return TRAVERSE_CONTINUE; }
         /** @internal */
@@ -235,16 +238,6 @@ namespace fabric
         //@}
 
     private:
-        enum DirtyBits
-        {
-            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 0,
-            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 1,
-            DIRTY_OBSERVERS  = Object::DIRTY_CUSTOM << 2,
-            DIRTY_LAYOUTS    = Object::DIRTY_CUSTOM << 3,
-            DIRTY_CANVASES   = Object::DIRTY_CUSTOM << 4,
-            DIRTY_LATENCY    = Object::DIRTY_CUSTOM << 5,
-            DIRTY_NODES      = Object::DIRTY_CUSTOM << 6,
-        };
 
         /** The parent server. */
         co::base::RefPtr< S > _server;
@@ -282,7 +275,26 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQFABRIC_INL virtual uint32_t commitNB(); //!< @internal
+        enum DirtyBits
+        {
+            DIRTY_MEMBER     = Object::DIRTY_CUSTOM << 0,
+            DIRTY_LATENCY    = Object::DIRTY_CUSTOM << 1,
+            DIRTY_ATTRIBUTES = Object::DIRTY_CUSTOM << 2,
+            DIRTY_NODES      = Object::DIRTY_CUSTOM << 3,
+            DIRTY_OBSERVERS  = Object::DIRTY_CUSTOM << 4,
+            DIRTY_LAYOUTS    = Object::DIRTY_CUSTOM << 5,
+            DIRTY_CANVASES   = Object::DIRTY_CUSTOM << 6,
+            DIRTY_CONFIG_BITS =
+                DIRTY_MEMBER | DIRTY_ATTRIBUTES | DIRTY_OBSERVERS |
+                DIRTY_LAYOUTS | DIRTY_CANVASES | DIRTY_NODES | DIRTY_LATENCY
+        };
+
+        /** @internal @return the bits to be re-committed by the master. */
+        virtual uint64_t getRedistributableBits() const
+            { return DIRTY_CONFIG_BITS; }
+
+        /** @internal */
+        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
 
         template< class, class > friend class Observer;
         void _addObserver( O* observer );

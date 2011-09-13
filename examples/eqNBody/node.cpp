@@ -58,7 +58,7 @@ namespace eqNbody
     bool Node::configExit()
     {
         Config* config = static_cast< Config* >( getConfig( ));
-        config->unmapData();
+        config->releaseData();
         return eq::Node::configExit();
     }
 }

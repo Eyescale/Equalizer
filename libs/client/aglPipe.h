@@ -19,8 +19,8 @@
 #ifndef EQ_AGL_PIPE_H
 #define EQ_AGL_PIPE_H
 
+#include <eq/aglTypes.h>
 #include <eq/systemPipe.h> // base class
-#include <eq/os.h>     // CG types
 
 namespace eq
 {
@@ -76,7 +76,7 @@ namespace eq
         void _setCGDisplayID( CGDirectDisplayID id );
         //@}
 
-        /** Window-system specific display information. */
+        /** Carbon display identifier. */
         CGDirectDisplayID _cgDisplayID;
 
         struct Private;

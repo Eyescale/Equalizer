@@ -37,15 +37,16 @@
 #include "pipe.h"
 #include "server.h"
 #include "systemWindow.h"
-#include "view.h"
 #include "windowPackets.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/base/rng.h>
+#include <co/base/scopedMutex.h>
 
 namespace eq
 {
@@ -66,7 +67,7 @@ Channel::Channel( Window* parent )
 
 Channel::~Channel()
 {  
-    _statistics.clear();
+    _statistics->clear();
     EQASSERT( !_fbo );
 }
 
@@ -307,11 +308,14 @@ void Channel::notifyViewportChanged()
 
 void Channel::addStatistic( Event& event, const uint32_t index )
 {
-    EQASSERT( index < _statistics.size( ));
-    EQASSERT( _statistics[ index ].used > 0 );
-    Statistics& statistics = _statistics[ index ].data;
+    {
+        co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+        EQASSERT( index < _statistics->size( ));
+        EQASSERT( _statistics.data[ index ].used > 0 );
 
-    statistics.push_back( event.statistic );
+        Statistics& statistics = _statistics.data[ index ].data;
+        statistics.push_back( event.statistic );
+    }
     processEvent( event );
 }
 
@@ -472,13 +476,13 @@ const View* Channel::getNativeView() const
 void Channel::changeLatency( const uint32_t latency )
 {
 #ifndef NDEBUG
-    for(  StatisticsRB::const_iterator i = _statistics.begin();
-         i != _statistics.end(); ++i )
+    for(  StatisticsRB::const_iterator i = _statistics->begin();
+         i != _statistics->end(); ++i )
     {
         EQASSERT( (*i).used == 0 );
     }
 #endif //NDEBUG
-    _statistics.resize( latency + 1 );
+    _statistics->resize( latency + 1 );
     _statisticsIndex = 0;
 }
 
@@ -1137,7 +1141,7 @@ void Channel::outlineViewport()
 
 void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 {
-    Channel::FrameStatistics& stats = _statistics[ index ];
+    Channel::FrameStatistics& stats = _statistics.data[ index ];
     if( --stats.used != 0 ) // Frame still in use
         return;
 
@@ -1149,269 +1153,6 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
     stats.data.clear();
 }
 
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-bool Channel::_cmdConfigInit( co::Command& command )
-{
-    const ChannelConfigInitPacket* packet = 
-        command.getPacket<ChannelConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
-
-    const Config* config = getConfig();
-    changeLatency( config->getLatency( ));
-
-    ChannelConfigInitReplyPacket reply;
-    setError( ERROR_NONE );
-
-    const Window* window = getWindow();
-    if( window->isRunning( ))
-    {
-        _state = STATE_INITIALIZING;
-
-        const PixelViewport& pvp = getPixelViewport();
-        EQASSERT( pvp.hasArea( ));
-        _initialSize.x() = pvp.w;
-        _initialSize.y() = pvp.h;
-
-        reply.result = configInit( packet->initID );
-
-        if( reply.result )
-        {
-            _initDrawableConfig();
-            _state = STATE_RUNNING;
-        }
-    }
-    else
-    {
-        setError( ERROR_CHANNEL_WINDOW_NOTRUNNING );
-        reply.result = false;
-    }
-
-    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
-                      << std::endl;
-    commit();
-    send( command.getNode(), reply );
-    return true;
-}
-
-bool Channel::_cmdConfigExit( co::Command& command )
-{
-    const ChannelConfigExitPacket* packet =
-        command.getPacket<ChannelConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
-
-    if( _state != STATE_STOPPED )
-        _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-
-    WindowDestroyChannelPacket destroyPacket( getID( ));
-    getWindow()->send( getLocalNode(), destroyPacket );
-    return true;
-}
-
-bool Channel::_cmdFrameStart( co::Command& command )
-{
-    ChannelFrameStartPacket* packet = 
-        command.getPacket<ChannelFrameStartPacket>();
-    EQVERB << "handle channel frame start " << packet << std::endl;
-
-    //_grabFrame( packet->frameNumber ); single-threaded
-    sync( packet->version );
-
-    overrideContext( packet->context );
-    bindFrameBuffer();
-    frameStart( packet->context.frameID, packet->frameNumber );
-
-    _statisticsIndex = ( _statisticsIndex + 1 ) % _statistics.size();
-    EQASSERT( _statistics[ _statisticsIndex ].data.empty( ));
-    EQASSERT( _statistics[ _statisticsIndex ].used == 0 );
-    _statistics[ _statisticsIndex ].used = 1;
-    resetContext();
-    return true;
-}
-
-bool Channel::_cmdFrameFinish( co::Command& command )
-{
-    ChannelFrameFinishPacket* packet =
-        command.getPacket<ChannelFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
-                       << std::endl;
-
-    overrideContext( packet->context );
-    frameFinish( packet->context.frameID, packet->frameNumber );
-    resetContext();
-    commit();
-
-    _unrefFrame( packet->frameNumber, _statisticsIndex );
-    return true;
-}
-
-bool Channel::_cmdFrameClear( co::Command& command )
-{
-    EQASSERT( _state == STATE_RUNNING );
-    ChannelFrameClearPacket* packet = 
-        command.getPacket<ChannelFrameClearPacket>();
-    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
-                       << std::endl;
-
-    _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-    frameClear( packet->context.frameID );
-    resetContext();
-
-    return true;
-}
-
-bool Channel::_cmdFrameDraw( co::Command& command )
-{
-    ChannelFrameDrawPacket* packet = 
-        command.getPacket<ChannelFrameDrawPacket>();
-    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
-                       << std::endl;
-
-    _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-    frameDraw( packet->context.frameID );
-    resetContext();
-
-    return true;
-}
-
-bool Channel::_cmdFrameDrawFinish( co::Command& command )
-{
-    ChannelFrameDrawFinishPacket* packet = 
-        command.getPacket< ChannelFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
-                       << std::endl;
-
-    ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
-    frameDrawFinish( packet->frameID, packet->frameNumber );
-
-    return true;
-}
-
-bool Channel::_cmdFrameAssemble( co::Command& command )
-{
-    ChannelFrameAssemblePacket* packet = 
-        command.getPacket<ChannelFrameAssemblePacket>();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
-                                       << packet << std::endl;
-
-    _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
-
-    for( uint32_t i=0; i<packet->nFrames; ++i )
-    {
-        Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), false );
-        _inputFrames.push_back( frame );
-    }
-
-    frameAssemble( packet->context.frameID );
-
-    for( Frames::const_iterator i = _inputFrames.begin();
-         i != _inputFrames.end(); ++i )
-    {
-        // Unset the frame data on input frames, so that they only get flushed
-        // once by the output frames during exit.
-        (*i)->setData( 0 );
-    }
-    _inputFrames.clear();
-    resetContext();
-
-    return true;
-}
-
-bool Channel::_cmdFrameReadback( co::Command& command )
-{
-    ChannelFrameReadbackPacket* packet = 
-        command.getPacket<ChannelFrameReadbackPacket>();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << std::endl;
-
-    _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-
-    for( uint32_t i=0; i<packet->nFrames; ++i )
-    {
-        Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), true );
-        _outputFrames.push_back( frame );
-    }
-
-    frameReadback( packet->context.frameID );
-
-    size_t in = 0;
-    size_t out = 0;
-    const DrawableConfig& dc = getDrawableConfig();
-    const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
-
-    event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-    event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-    for( Frames::const_iterator i = _outputFrames.begin(); 
-         i != _outputFrames.end(); ++i)
-    {
-        Frame* frame = *i;
-        frame->setReady();
-
-        const Images& images = frame->getImages();
-        for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
-        {
-            const Image* image = *j;
-            if( image->hasPixelData( Frame::BUFFER_COLOR ))
-            {
-                in += colorBytes * image->getPixelViewport().getArea();
-                out += image->getPixelDataSize( Frame::BUFFER_COLOR );
-                event.event.data.statistic.plugins[0] =
-                    image->getDownloaderName( Frame::BUFFER_COLOR );
-            }
-            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
-            {
-                in += 4 * image->getPixelViewport().getArea();
-                out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
-                event.event.data.statistic.plugins[1] =
-                    image->getDownloaderName( Frame::BUFFER_DEPTH );
-            }
-        }
-    }
-
-    if( in > 0 && out > 0 )
-        event.event.data.statistic.ratio = float( out ) / float( in );
-    else
-        event.event.data.statistic.ratio = 1.0f;
-
-    _outputFrames.clear();
-    resetContext();
-    return true;
-}
-
-bool Channel::_cmdFrameTransmit( co::Command& command )
-{
-    ChannelFrameTransmitPacket* packet = 
-        command.getPacket<ChannelFrameTransmitPacket>();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
-                                      << packet << std::endl;
-
-    ++_statistics[ _statisticsIndex ].used;
-
-    packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
-    packet->statisticsIndex = _statisticsIndex;
-    packet->frameNumber = getPipe()->getCurrentFrame();
-    dispatchCommand( command );
-    return true;
-}
-
-bool Channel::_cmdFrameTransmitAsync( co::Command& command )
-{
-    const ChannelFrameTransmitPacket* packet = 
-        command.getPacket<ChannelFrameTransmitPacket>();
-
-    _transmit( packet );
-    _unrefFrame( packet->frameNumber, packet->statisticsIndex );
-    return true;
-}
-
 void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 {
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
@@ -1420,7 +1161,6 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     FrameData* frameData = getNode()->getFrameData( command->frameData ); 
     EQASSERT( frameData );
-    frameData->setSendToken( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON );
 
     if( frameData->getBuffers() == 0 )
     {
@@ -1430,11 +1170,19 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( command->netNodeID );
+    if( !toNode || !toNode->isConnected( ))
+    {
+        EQWARN << "Can't connect node " << command->netNodeID
+               << " to send input frame" << std::endl;
+        return;
+    }
+
     co::ConnectionPtr connection = toNode->getConnection();
     co::ConnectionDescriptionPtr description = connection->getDescription();
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
+    const bool useSendToken = getIAttribute( IATTR_HINT_SENDTOKEN ) == ON;
 
     NodeFrameDataTransmitPacket packet;
     const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
@@ -1528,7 +1276,7 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
             continue;
 
         // send image pixel data packet
-        if( frameData->getSendToken() )
+        if( useSendToken )
         {
             ChannelStatistics waitEvent(Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
                                         this );
@@ -1590,20 +1338,284 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
 #endif
 
         connection->unlockSend();
-        if( frameData->getSendToken() )
+        if( useSendToken )
             getLocalNode()->releaseSendToken( toNode );
     }
 
     // all data transmitted -> ready
     NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID  = command->clientNodeID;
+    readyPacket.objectID = command->clientNodeID;
     toNode->send( readyPacket );
+}
+
+//---------------------------------------------------------------------------
+// command handlers
+//---------------------------------------------------------------------------
+bool Channel::_cmdConfigInit( co::Command& command )
+{
+    const ChannelConfigInitPacket* packet = 
+        command.get<ChannelConfigInitPacket>();
+    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
+
+    const Config* config = getConfig();
+    changeLatency( config->getLatency( ));
+
+    ChannelConfigInitReplyPacket reply;
+    setError( ERROR_NONE );
+
+    const Window* window = getWindow();
+    if( window->isRunning( ))
+    {
+        _state = STATE_INITIALIZING;
+
+        const PixelViewport& pvp = getPixelViewport();
+        EQASSERT( pvp.hasArea( ));
+        _initialSize.x() = pvp.w;
+        _initialSize.y() = pvp.h;
+
+        reply.result = configInit( packet->initID );
+
+        if( reply.result )
+        {
+            _initDrawableConfig();
+            _state = STATE_RUNNING;
+        }
+    }
+    else
+    {
+        setError( ERROR_CHANNEL_WINDOW_NOTRUNNING );
+        reply.result = false;
+    }
+
+    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
+                      << std::endl;
+    commit();
+    send( command.getNode(), reply );
+    return true;
+}
+
+bool Channel::_cmdConfigExit( co::Command& command )
+{
+    const ChannelConfigExitPacket* packet =
+        command.get<ChannelConfigExitPacket>();
+    EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
+
+    if( _state != STATE_STOPPED )
+        _state = configExit() ? STATE_STOPPED : STATE_FAILED;
+
+    WindowDestroyChannelPacket destroyPacket( getID( ));
+    getWindow()->send( getLocalNode(), destroyPacket );
+    return true;
+}
+
+bool Channel::_cmdFrameStart( co::Command& command )
+{
+    ChannelFrameStartPacket* packet = 
+        command.get<ChannelFrameStartPacket>();
+    EQVERB << "handle channel frame start " << packet << std::endl;
+
+    //_grabFrame( packet->frameNumber ); single-threaded
+    sync( packet->version );
+
+    overrideContext( packet->context );
+    bindFrameBuffer();
+    frameStart( packet->context.frameID, packet->frameNumber );
+
+    _statisticsIndex = ( _statisticsIndex + 1 ) % uint32_t(_statistics->size());
+    FrameStatistics& statistic = _statistics.data[ _statisticsIndex ];
+    EQASSERT( statistic.data.empty( ));
+    EQASSERT( statistic.used == 0 );
+    statistic.used = 1;
+    resetContext();
+    return true;
+}
+
+bool Channel::_cmdFrameFinish( co::Command& command )
+{
+    ChannelFrameFinishPacket* packet =
+        command.get<ChannelFrameFinishPacket>();
+    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+                       << std::endl;
+
+    overrideContext( packet->context );
+    frameFinish( packet->context.frameID, packet->frameNumber );
+    resetContext();
+
+    _unrefFrame( packet->frameNumber, _statisticsIndex );
+    return true;
+}
+
+bool Channel::_cmdFrameClear( co::Command& command )
+{
+    EQASSERT( _state == STATE_RUNNING );
+    ChannelFrameClearPacket* packet = 
+        command.get<ChannelFrameClearPacket>();
+    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
+                       << std::endl;
+
+    _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+    frameClear( packet->context.frameID );
+    resetContext();
+
+    return true;
+}
+
+bool Channel::_cmdFrameDraw( co::Command& command )
+{
+    ChannelFrameDrawPacket* packet = 
+        command.get<ChannelFrameDrawPacket>();
+    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
+                       << std::endl;
+
+    _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this,
+                             packet->finish ? NICEST : AUTO );
+    frameDraw( packet->context.frameID );
+    resetContext();
+
+    return true;
+}
+
+bool Channel::_cmdFrameDrawFinish( co::Command& command )
+{
+    ChannelFrameDrawFinishPacket* packet = 
+        command.get< ChannelFrameDrawFinishPacket >();
+    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+                       << std::endl;
+
+    ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
+    frameDrawFinish( packet->frameID, packet->frameNumber );
+
+    return true;
+}
+
+bool Channel::_cmdFrameAssemble( co::Command& command )
+{
+    ChannelFrameAssemblePacket* packet = 
+        command.get<ChannelFrameAssemblePacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
+                                       << packet << std::endl;
+
+    _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
+
+    for( uint32_t i=0; i<packet->nFrames; ++i )
+    {
+        Pipe*  pipe  = getPipe();
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), false );
+        _inputFrames.push_back( frame );
+    }
+
+    frameAssemble( packet->context.frameID );
+
+    for( Frames::const_iterator i = _inputFrames.begin();
+         i != _inputFrames.end(); ++i )
+    {
+        // Unset the frame data on input frames, so that they only get flushed
+        // once by the output frames during exit.
+        (*i)->setData( 0 );
+    }
+    _inputFrames.clear();
+    resetContext();
+
+    return true;
+}
+
+bool Channel::_cmdFrameReadback( co::Command& command )
+{
+    ChannelFrameReadbackPacket* packet = 
+        command.get<ChannelFrameReadbackPacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
+                                       << packet << std::endl;
+
+    _setRenderContext( packet->context );
+    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+    for( uint32_t i=0; i<packet->nFrames; ++i )
+    {
+        Pipe*  pipe  = getPipe();
+        Frame* frame = pipe->getFrame( packet->frames[i], getEye(), true );
+        _outputFrames.push_back( frame );
+    }
+
+    frameReadback( packet->context.frameID );
+
+    size_t in = 0;
+    size_t out = 0;
+    const DrawableConfig& dc = getDrawableConfig();
+    const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
+
+    event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+    event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+
+    for( Frames::const_iterator i = _outputFrames.begin(); 
+         i != _outputFrames.end(); ++i)
+    {
+        Frame* frame = *i;
+        frame->setReady();
+
+        const Images& images = frame->getImages();
+        for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
+        {
+            const Image* image = *j;
+            if( image->hasPixelData( Frame::BUFFER_COLOR ))
+            {
+                in += colorBytes * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_COLOR );
+                event.event.data.statistic.plugins[0] =
+                    image->getDownloaderName( Frame::BUFFER_COLOR );
+            }
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            {
+                in += 4 * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
+                event.event.data.statistic.plugins[1] =
+                    image->getDownloaderName( Frame::BUFFER_DEPTH );
+            }
+        }
+    }
+
+    if( in > 0 && out > 0 )
+        event.event.data.statistic.ratio = float( out ) / float( in );
+    else
+        event.event.data.statistic.ratio = 1.0f;
+
+    _outputFrames.clear();
+    resetContext();
+    return true;
+}
+
+bool Channel::_cmdFrameTransmit( co::Command& command )
+{
+    ChannelFrameTransmitPacket* packet = 
+        command.get<ChannelFrameTransmitPacket>();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
+                                      << packet << std::endl;
+
+    ++_statistics.data[ _statisticsIndex ].used;
+
+    packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
+    packet->statisticsIndex = _statisticsIndex;
+    packet->frameNumber = getPipe()->getCurrentFrame();
+    dispatchCommand( command );
+    return true;
+}
+
+bool Channel::_cmdFrameTransmitAsync( co::Command& command )
+{
+    const ChannelFrameTransmitPacket* packet = 
+        command.get<ChannelFrameTransmitPacket>();
+
+    _transmit( packet );
+    _unrefFrame( packet->frameNumber, packet->statisticsIndex );
+    return true;
 }
 
 bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
-        command.getPacket<ChannelFrameViewStartPacket>();
+        command.get<ChannelFrameViewStartPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
                                        << packet << std::endl;
 
@@ -1617,7 +1629,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
-        command.getPacket<ChannelFrameViewFinishPacket>();
+        command.get<ChannelFrameViewFinishPacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName()
                                       <<  " " << packet << std::endl;
 
@@ -1632,7 +1644,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 bool Channel::_cmdStopFrame( co::Command& command )
 {
     ChannelStopFramePacket* packet = 
-        command.getPacket<ChannelStopFramePacket>();
+        command.get<ChannelStopFramePacket>();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
                                       <<  " " << packet << std::endl;
 

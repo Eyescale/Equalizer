@@ -257,7 +257,7 @@ namespace co
          * @sa lockSend(), unlockSend()
          */
         CO_API bool send( const void* buffer, const uint64_t bytes, 
-                             const bool isLocked = false );
+                          const bool isLocked = false );
 
         /** Lock the connection, no other thread can send data. */
         void lockSend() const   { _sendLock.set(); }
@@ -311,7 +311,7 @@ namespace co
          * @return true if all data has been read, false if not.
          */
         CO_API bool send( Packet& packet, const void* data,
-                             const uint64_t size );
+                          const uint64_t size );
 
         /** 
          * Sends a packaged message to multiple connections.

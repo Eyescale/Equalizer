@@ -20,7 +20,7 @@
 
 #include <eq/util/types.h>
 
-#include <eq/os.h>             // OpenGL/GLEW types
+#include <eq/gl.h>                    // OpenGL/GLEW types
 #include <co/base/api.h>              // EQ_API definition
 #include <co/base/debug.h>            // EQASSERT definition
 #include <co/base/hash.h>             // member
@@ -65,8 +65,7 @@ namespace util
         EQ_API ObjectManager( const GLEWContext* const glewContext );
 
         /** Construct a new object manager sharing data with another manager. */
-        EQ_API ObjectManager( const GLEWContext* const glewContext,
-                                 ObjectManager* shared );
+        EQ_API ObjectManager( ObjectManager* shared );
 
         EQ_API virtual ~ObjectManager();
 
@@ -130,11 +129,9 @@ namespace util
         EQ_API util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
         EQ_API void                   deleteEqBitmapFont( const T& key );
 
-        const GLEWContext* glewGetContext() const { return _glewContext; }
+        const GLEWContext* glewGetContext() const { return _data->glewContext; }
 
     private:
-        const GLEWContext* const _glewContext;
-
         struct Object
         {
             GLuint   id;
@@ -150,8 +147,10 @@ namespace util
 
         struct SharedData : public co::base::Referenced
         {
+            SharedData( const GLEWContext* glewContext );
             virtual ~SharedData();
 
+            GLEWContext* const glewContext;
             ObjectHash lists;
             ObjectHash textures;
             ObjectHash buffers;

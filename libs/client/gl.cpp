@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,13 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// We need to instantiate a PerThread< DisplayPtr >
-#include <pthread.h>
-
-#include "os.h"
+#include "gl.h"
 
 #include <co/base/debug.h>
-#include <co/base/perThread.h>
 
 namespace eq
 {
@@ -50,45 +46,4 @@ void debugGLError( const std::string& when, const GLenum error,
     EQWARN << ' ' << when << " in " << file << ':' << line << std::endl
            << co::base::backtrace << std::endl << co::base::enableFlush;
 }                                 
-
-#ifdef GLX
-namespace
-{
-class DisplayPtr
-{
-public:
-    DisplayPtr() : display( 0 ) {}
-    Display* display;
-};
-
-static co::base::PerThread< DisplayPtr > _currentDisplay;
-}
-
-void XSetCurrentDisplay( Display* display )
-{
-    if( !display )
-    {
-        DisplayPtr* ptr = _currentDisplay.get();
-        _currentDisplay = 0;
-        delete ptr;
-
-        return;
-    }
-
-    if( !_currentDisplay )
-        _currentDisplay = new DisplayPtr;
-
-    _currentDisplay->display = display;
-}
-
-Display* XGetCurrentDisplay()
-{
-    if( !_currentDisplay )
-        return 0;
-
-    return _currentDisplay->display;
-}
-
-#endif // GLX
-              
 }

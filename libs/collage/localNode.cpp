@@ -112,7 +112,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
     {
         if( std::string( "--eq-listen" ) == argv[i] )
         {
-            if( i<argc && argv[i+1][0] != '-' )
+            if( (i+1)<argc && argv[i+1][0] != '-' )
             {
                 std::string data = argv[++i];
                 ConnectionDescriptionPtr desc = new ConnectionDescription;
@@ -124,9 +124,10 @@ bool LocalNode::initLocal( const int argc, char** argv )
                     EQASSERTINFO( data.empty(), data );
                 }
                 else
-                    EQWARN << "Ignoring listen option: " << argv[i]
-                           << std::endl;
+                    EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
             }
+            else
+                EQWARN << "No argument given to --eq-listen!" << std::endl;
         }
     }
     
@@ -150,7 +151,10 @@ bool LocalNode::listen()
              descriptions.begin(); i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
-        ConnectionPtr            connection = Connection::create( description );
+        ConnectionPtr connection = Connection::create( description );
+
+        if( !connection )
+            continue;
 
         if( !connection->listen( ))
         {
@@ -173,11 +177,11 @@ bool LocalNode::listen()
 
         EQVERB << "Added node " << _id << " using " << connection << std::endl;
     }
-
+    
     _state = STATE_LISTENING;
-
-    EQVERB << base::className( this ) 
-           << " start command and receiver thread " << std::endl;
+    
+    EQVERB << base::className( this ) << " start command and receiver thread "
+           << std::endl;
     _receiverThread->start();
 
     EQINFO << *this << " listening." << std::endl;
@@ -257,13 +261,10 @@ void LocalNode::_removeConnection( ConnectionPtr connection )
     _incoming.removeConnection( connection );
 
     void* buffer( 0 );
-    if( !connection->isListening( ))
-    {
-        uint64_t bytes( 0 );
-        connection->getRecvData( &buffer, &bytes );
-        EQASSERTINFO( buffer, *connection );
-        EQASSERT( bytes == sizeof( uint64_t ));
-    }
+    uint64_t bytes( 0 );
+    connection->getRecvData( &buffer, &bytes );
+    EQASSERTINFO( !connection->isConnected() || buffer, *connection );
+    EQASSERT( !buffer || bytes == sizeof( uint64_t ));
 
     if( !connection->isClosed( ))
         connection->close(); // cancels pending IO's
@@ -416,15 +417,6 @@ void LocalNode::_connectMulticast( NodePtr node )
     }
 }
 
-NodePtr LocalNode::getNode( const NodeID& id ) const
-{ 
-    base::ScopedMutex< base::SpinLock > mutex( _nodes );
-    NodeHash::const_iterator i = _nodes->find( id );
-    if( i == _nodes->end( ))
-        return 0;
-    return i->second;
-}
-
 bool LocalNode::disconnect( NodePtr node )
 {
     if( !node || _state != STATE_LISTENING )
@@ -502,6 +494,13 @@ uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id,
     return _objectStore->mapObjectNB( object, id, version );
 }
 
+uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
+                                 const uint128_t& version, NodePtr master )
+{
+    return _objectStore->mapObjectNB( object, id, version, master );
+}
+
+
 bool LocalNode::mapObjectSync( const uint32_t requestID )
 {
     return _objectStore->mapObjectSync( requestID );
@@ -551,6 +550,104 @@ void LocalNode::releaseSendToken( NodePtr node )
 //----------------------------------------------------------------------
 // Connecting a node
 //----------------------------------------------------------------------
+NodePtr LocalNode::connect( const NodeID& nodeID )
+{
+    EQASSERT( nodeID != NodeID::ZERO );
+    EQASSERT( _state == STATE_LISTENING );
+
+    Nodes nodes;
+    getNodes( nodes );
+
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr peer = *i;
+        if( peer->getNodeID() == nodeID && peer->isConnected( )) // early out
+            return peer;
+    }
+
+    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr peer = *i;
+        NodePtr node = _connect( nodeID, peer );
+        if( node.isValid( ))
+            return node;
+    }
+        
+    EQWARN << "Node " << nodeID << " connection failed" << std::endl;
+    return 0;
+}
+
+NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
+{
+    EQASSERT( nodeID != NodeID::ZERO );
+
+    NodePtr node;
+
+    // Make sure that only one connection request based on the node identifier
+    // is pending at a given time. Otherwise a node with the same id might be
+    // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
+    // mutex is to register connecting nodes with this local node, and handle
+    // all cases correctly, which is far more complex. Node connections only
+    // happen a lot during initialization, and are therefore not time-critical.
+    base::ScopedMutex<> mutex( _connectMutex );
+    {
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes ); 
+        NodeHash::const_iterator i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
+            node = i->second;
+    }
+
+    if( node.isValid( ))
+    {
+        EQASSERT( node->isConnected( ));
+        if( !node->isConnected( ))
+            connect( node );
+        return node->isConnected() ? node : 0;
+    }
+
+    EQINFO << "Connecting node " << nodeID << std::endl;
+    EQASSERT( _id != nodeID );
+
+    NodeGetNodeDataPacket packet;
+    packet.requestID = registerRequest();
+    packet.nodeID    = nodeID;
+    peer->send( packet );
+
+    void* result = 0;
+    waitRequest( packet.requestID, result );
+
+    if( !result )
+    {
+        EQINFO << "Node " << nodeID << " not found on " << peer->getNodeID() 
+               << std::endl;
+        return 0;
+    }
+
+    EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
+    node = static_cast< Node* >( result );
+    node->unref( EQ_REFERENCED_PARAM ); // ref'd before serveRequest()
+
+    if( node->isConnected( ))
+        return node;
+
+    if( connect( node ))
+        return node;
+
+    {
+        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes );
+        // connect failed - maybe simultaneous connect from peer?
+        NodeHash::const_iterator i = _nodes->find( nodeID );
+        if( i != _nodes->end( ))
+        {
+            node = i->second;
+            if( !node->isConnected( ))
+                connect( node );
+        }
+    }
+
+    return node->isConnected() ? node : 0;
+}
+
 bool LocalNode::connect( NodePtr node )
 {
     EQASSERTINFO( _state == STATE_LISTENING, _state );
@@ -572,7 +669,6 @@ bool LocalNode::connect( NodePtr node )
             continue; // Don't use multicast for primary connections
 
         ConnectionPtr connection = Connection::create( description );
-
         if( !connection || !connection->connect( ))
             continue;
 
@@ -612,117 +708,26 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     return true;
 }
 
+NodePtr LocalNode::getNode( const NodeID& id ) const
+{ 
+    base::ScopedMutex< base::SpinLock > mutex( _nodes );
+    NodeHash::const_iterator i = _nodes->find( id );
+    if( i == _nodes->end( ))
+        return 0;
+    EQASSERT( i->second->isConnected( ));
+    return i->second;
+}
+
 void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 {
     base::ScopedMutex< base::SpinLock > mutex( _nodes );
     for( NodeHash::const_iterator i = _nodes->begin();
          i != _nodes->end(); ++i )
     {
+        EQASSERT( i->second->isConnected( ));
         if( addSelf || i->second != this )
             nodes.push_back( i->second );
     }
-}
-
-NodePtr LocalNode::connect( const NodeID& nodeID )
-{
-    EQASSERT( nodeID != NodeID::ZERO );
-    EQASSERT( _state == STATE_LISTENING );
-
-    // Extract all node pointers, the _nodes hash will be modified later
-    Nodes nodes;
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
-        for( NodeHash::const_iterator i = _nodes->begin();
-             i != _nodes->end(); ++i )
-        {
-            NodePtr node = i->second;
-
-            if( node->getNodeID() == nodeID && node->isConnected( )) //early out
-                return node;
-
-            nodes.push_back( node );
-        }
-    }
-
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        NodePtr node = _connect( nodeID, *i );
-        if( node.isValid( ))
-            return node;
-    }
-        
-    EQWARN << "Node connection failed" << std::endl;
-    return 0;
-}
-
-NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr server )
-{
-    EQASSERT( nodeID != NodeID::ZERO );
-
-    NodePtr node;
-
-    // Make sure that only one connection request based on the node identifier
-    // is pending at a given time. Otherwise a node with the same id might be
-    // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
-    // mutex is to register connecting nodes with this local node, and handle
-    // all cases correctly, which is far more complex. Node connections only
-    // happen a lot during initialization, and are therefore not time-critical.
-    base::ScopedMutex<> mutex( _connectMutex );
-    {
-        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes ); 
-        NodeHash::const_iterator i = _nodes->find( nodeID );
-        if( i != _nodes->end( ))
-            node = i->second;
-    }
-
-    if( node.isValid( ))
-    {
-        if( !node->isConnected( ))
-            connect( node );
-        return node->isConnected() ? node : 0;
-    }
-
-    EQINFO << "Connecting node " << nodeID << std::endl;
-    EQASSERT( _id != nodeID );
-
-    NodeGetNodeDataPacket packet;
-    packet.requestID = registerRequest();
-    packet.nodeID    = nodeID;
-    server->send( packet );
-
-    void* result = 0;
-    waitRequest( packet.requestID, result );
-
-    if( !result )
-    {
-        EQWARN << "Node not found on server" << std::endl;
-        return 0;
-    }
-
-    EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
-    node = static_cast< Node* >( result );
-    node->unref( EQ_REFERENCED_PARAM ); // ref'd before serveRequest()
-
-    if( node->isConnected( ))
-        return node;
-
-    if( connect( node ))
-        return node;
-
-    {
-        base::ScopedMutex< base::SpinLock > mutexNodes( _nodes );
-        // connect failed - maybe simultaneous connect from peer?
-        NodeHash::const_iterator i = _nodes->find( nodeID );
-        if( i != _nodes->end( ))
-        {
-            node = i->second;
-            if( node->isConnected( ))
-                return node;
-        }
-    }
-
-    connect( node );
-    return node->isConnected() ? node : 0;
 }
 
 //----------------------------------------------------------------------
@@ -916,7 +921,7 @@ bool LocalNode::_handleData()
     EQASSERT( size > sizeof( size ));
 
     Command& command = _commandCache.alloc( node, this, size );
-    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.getPacket()) +
+    uint8_t* ptr = reinterpret_cast< uint8_t* >( command.get< Packet >()) +
                                                  sizeof( uint64_t );
 
     connection->recvNB( ptr, size - sizeof( uint64_t ));
@@ -946,6 +951,12 @@ bool LocalNode::_handleData()
 
     _dispatchCommand( command );
     return true;
+}
+
+Command& LocalNode::allocCommand( const uint64_t size )
+{
+    EQASSERT( _inReceiverThread( ));
+    return _commandCache.alloc( this, this, size );
 }
 
 void LocalNode::_dispatchCommand( Command& command )
@@ -1047,7 +1058,7 @@ void LocalNode::_runCommandThread()
 bool LocalNode::_cmdAckRequest( Command& command )
 {
     const NodeAckRequestPacket* packet = 
-        command.getPacket<NodeAckRequestPacket>();
+        command.get<NodeAckRequestPacket>();
     EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
 
     serveRequest( packet->requestID );
@@ -1071,7 +1082,7 @@ bool LocalNode::_cmdConnect( Command& command )
     EQASSERT( !command.getNode().isValid( ));
     EQASSERT( _inReceiverThread( ));
 
-    const NodeConnectPacket* packet = command.getPacket<NodeConnectPacket>();
+    const NodeConnectPacket* packet = command.get<NodeConnectPacket>();
     ConnectionPtr connection = _incoming.getConnection();
     const NodeID& nodeID = packet->nodeID;
 
@@ -1139,7 +1150,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     const NodeConnectReplyPacket* packet = 
-        command.getPacket<NodeConnectReplyPacket>();
+        command.get<NodeConnectReplyPacket>();
     ConnectionPtr connection = _incoming.getConnection();
 
     const NodeID& nodeID = packet->nodeID;
@@ -1224,7 +1235,7 @@ bool LocalNode::_cmdID( Command& command )
 {
     EQASSERT( _inReceiverThread( ));
 
-    const NodeIDPacket* packet = command.getPacket< NodeIDPacket >();
+    const NodeIDPacket* packet = command.get< NodeIDPacket >();
     NodeID nodeID = packet->id;
 
     if( command.getNode().isValid( ))
@@ -1317,7 +1328,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     const NodeDisconnectPacket* packet =
-        command.getPacket<NodeDisconnectPacket>();
+        command.get<NodeDisconnectPacket>();
 
     NodePtr node = static_cast<Node*>( getRequestData( packet->requestID ));
     EQASSERT( node.isValid( ));
@@ -1350,7 +1361,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
 bool LocalNode::_cmdGetNodeData( Command& command)
 {
     const NodeGetNodeDataPacket* packet = 
-        command.getPacket<NodeGetNodeDataPacket>();
+        command.get<NodeGetNodeDataPacket>();
     EQVERB << "cmd get node data: " << packet << std::endl;
 
     const NodeID& nodeID = packet->nodeID;
@@ -1380,7 +1391,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     EQASSERT( _inReceiverThread( ));
 
     NodeGetNodeDataReplyPacket* packet = 
-        command.getPacket<NodeGetNodeDataReplyPacket>();
+        command.get<NodeGetNodeDataReplyPacket>();
     EQVERB << "cmd get node data reply: " << packet << std::endl;
 
     const uint32_t requestID = packet->requestID;
@@ -1413,12 +1424,6 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
         EQWARN << "Failed to initialize node data" << std::endl;
     EQASSERT( data.empty( ));
 
-    {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
-        _nodes.data[ nodeID ] = node;
-    }
-    EQVERB << "Added node " << nodeID << " without connection" << std::endl;
-
     node->ref( EQ_REFERENCED_PARAM );
     serveRequest( requestID, node.get( ));
     return true;
@@ -1437,7 +1442,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
     _hasSendToken = false;
 
     NodeAcquireSendTokenPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenPacket>();
+        command.get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
     return true;
@@ -1446,7 +1451,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
 bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 {
     NodeAcquireSendTokenReplyPacket* packet = 
-        command.getPacket<NodeAcquireSendTokenReplyPacket>();
+        command.get<NodeAcquireSendTokenReplyPacket>();
 
     serveRequest( packet->requestID );
     return true;
@@ -1467,7 +1472,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
     _sendTokenQueue.pop_front();
 
     NodeAcquireSendTokenPacket* packet = 
-        request->getPacket<NodeAcquireSendTokenPacket>();
+        request->get<NodeAcquireSendTokenPacket>();
     NodeAcquireSendTokenReplyPacket reply( packet );
 
     request->getNode()->send( reply );
@@ -1478,7 +1483,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
 bool LocalNode::_cmdAddListener( Command& command )
 {
     NodeAddListenerPacket* packet = 
-        command.getPacket< NodeAddListenerPacket >();
+        command.get< NodeAddListenerPacket >();
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );
@@ -1511,7 +1516,7 @@ bool LocalNode::_cmdAddListener( Command& command )
 bool LocalNode::_cmdRemoveListener( Command& command )
 {
     NodeRemoveListenerPacket* packet = 
-        command.getPacket< NodeRemoveListenerPacket >();
+        command.get< NodeRemoveListenerPacket >();
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );

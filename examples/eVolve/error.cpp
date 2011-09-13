@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,8 @@ ErrorData _errors[] = {
       "GL_ARB_shader_objects extension missing" },
     { ERROR_EVOLVE_LOADSHADERS_FAILED, "Can't load shaders" },
     { ERROR_EVOLVE_LOADMODEL_FAILED, "Can't load model" },
+    { ERROR_EVOLVE_MAPOBJECT_FAILED, 
+      "Mapping data from application process failed" },
 
     { 0, "" } // last!
 };

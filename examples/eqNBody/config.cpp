@@ -67,7 +67,7 @@ bool Config::exit()
         
 void Config::_deregisterData()
 {
-    deregisterObject( &_initData );
+    releaseData();
     deregisterObject( &_frameData );
         
     _initData.setFrameDataID( eq::UUID::ZERO );
@@ -79,7 +79,7 @@ void Config::mapData( const eq::uint128_t& initDataID )
     if( !_initData.isAttached( ))
     {
         EQCHECK( mapObject( &_initData, initDataID ));
-        unmapObject( &_initData ); // data was retrieved, unmap immediately
+        releaseData(); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already
     {
@@ -87,9 +87,9 @@ void Config::mapData( const eq::uint128_t& initDataID )
     }
 }
     
-void Config::unmapData()
+void Config::releaseData()
 {
-    unmapObject( &_initData );
+    releaseObject( &_initData );
 }
     
 uint32_t Config::startFrame()
@@ -103,9 +103,11 @@ uint32_t Config::startFrame()
                                      2.12f, 2.98f, 0.016f );
         isInitialized = true;
     }       
-        
+    
+    const co::base::uint128_t& version = _frameData.commit();    
+    
     _redraw = false;
-    return eq::Config::startFrame( _frameData.getVersion( ));
+    return eq::Config::startFrame( version );
 }
     
 bool Config::needsRedraw()

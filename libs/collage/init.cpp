@@ -22,6 +22,7 @@
 #include "socketConnection.h"
 
 #include <co/base/omp.h>
+#include <co/base/os.h>
 
 #ifdef _MSC_VER
 #  include <direct.h>

@@ -102,6 +102,7 @@ namespace base
                 {
                     const std::string& string = _stringStream.str();
                     _stream.write( string.c_str(), string.length( ));
+                    _stream.rdbuf()->pubsync();
                     _stringStream.str( "" );
                 }
                 _newLine = true;

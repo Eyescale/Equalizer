@@ -18,10 +18,11 @@
 #ifndef CO_COMMAND_H
 #define CO_COMMAND_H
 
+#include <co/api.h>
 #include <co/localNode.h> // NodePtr members
 
-#include <co/base/os.h>
-#include <co/base/refPtr.h>
+#include <co/base/atomic.h> // member
+#include <co/base/refPtr.h> // NodePtr
 
 namespace co
 {    
@@ -39,19 +40,15 @@ namespace co
     public:
         /** @name Data access. */
         //@{
-        Packet*       getPacket()              { return _packet; }
-        const Packet* getPacket() const        { return _packet; }
-
-        template< class P > P* getPacket()
+        template< class P > P* get()
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
-        template< class P > const P* getPacket() const
+        template< class P > const P* get() const
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }
         LocalNodePtr getLocalNode() const { return _localNode; }
 
-        bool     operator ! () const     { return ( _packet==0 ); }
-
+        bool          operator ! () const { return ( _packet==0 ); }
         Packet*       operator->()       { EQASSERT(_packet); return _packet; }
         const Packet* operator->() const { EQASSERT(_packet); return _packet; }
 
@@ -73,7 +70,9 @@ namespace co
         CO_API bool invoke();
 
     private:
-        Command();
+        friend class CommandCache;
+
+        explicit Command( base::a_int32_t& freeCounter );
         ~Command();
 
         /** @return the number of newly allocated bytes. */
@@ -90,10 +89,9 @@ namespace co
          */
         void _clone( Command& from );
 
-        friend class CommandCache;
-
         Command& operator = ( Command& rhs ); // disable assignment
         Command( const Command& from );       // disable copy
+        Command();                            // disable default ctor
 
         void _free();
 
@@ -106,6 +104,7 @@ namespace co
 
         base::a_int32_t* _refCountMaster;
         base::a_int32_t  _refCount;
+        base::a_int32_t& _freeCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);

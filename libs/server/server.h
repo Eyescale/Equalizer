@@ -57,7 +57,9 @@ namespace server
         EQSERVER_EXPORT void handleCommands(); 
 
         /** 
-         * Runs the server. Convenience function for init(), handleCommands() and exit().
+         * Run the server.
+         *
+         * Convenience function for init(), handleCommands() and exit().
          */
         EQSERVER_EXPORT void run();
 
@@ -78,9 +80,6 @@ namespace server
 
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }
-
-        /** @sa co::Node::listen() @internal */
-        virtual bool listen();
 
     protected:
         virtual ~Server();

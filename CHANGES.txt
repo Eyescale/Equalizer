@@ -1,6 +1,29 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+-----------------------------------1.0-------------------------------------
+
+14/Mar/2011
+  Changed object mapping behavior when using a concrete version from:
+    If the requested version does no longer exist, mapObject() will fail.
+  to:
+    If a concrete requested version no longer exists, mapObject() will
+    map the oldest available version.
+
+  Moved include/GL to include/eq/GL. Use '#include <eq/gl.h>' to include
+  OpenGL headers only.
+
+10/Mar/2011
+  Do not include window system headers by default to avoid global
+  namespace pollution. Define EQ_SYSTEM_INCLUDES before including
+  eq/eq.h to get previous definitions.
+
+01/Mar/2011
+  Added new 'incarnation' parameter to co::Object::commit, with a
+  default parameter selecting the previous behavior for commit wrt auto
+  obsoletion. co::Object::commitNB has the same new parameter, with no
+  default value.
+
 --------------------------------1.0 beta-----------------------------------
 
 10/Feb/2011

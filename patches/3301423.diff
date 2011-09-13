@@ -1,0 +1,13 @@
+Index: libs/server/config.cpp
+===================================================================
+--- libs/server/config.cpp	(revision 5809)
++++ libs/server/config.cpp	(revision 5810)
+@@ -107,7 +107,7 @@
+     registerCommand( fabric::CMD_CONFIG_START_FRAME, 
+                      ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
+     registerCommand( fabric::CMD_CONFIG_STOP_FRAMES, 
+-                     ConfigFunc( this, &Config::_cmdStopFrames ), cmdQ );
++                     ConfigFunc( this, &Config::_cmdStopFrames ), mainQ );
+     registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
+                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
+     registerCommand( fabric::CMD_CONFIG_FREEZE_LOAD_BALANCING, 

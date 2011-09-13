@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2006, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,88 +19,35 @@
 
 #include <co/base/debug.h>
 
-#include <pthread.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/timeb.h>
-
-#ifdef WIN32_API
-#  define timeb _timeb
-#  define ftime _ftime
-#endif
-
-using namespace std;
-
 namespace co
 {
 namespace base
 {
-class TimedLockPrivate
-{
-public:
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
-};
 
 TimedLock::TimedLock()
-        : _data( new TimedLockPrivate )
-        , _locked( false )
-{
-    int error = pthread_mutex_init( &_data->mutex, 0 );
-    if( error )
-    {
-        EQERROR << "Error creating pthread mutex: " << strerror(error) << endl;
-        return;
-    }
-    error = pthread_cond_init( &_data->cond, 0 );
-    if( error )
-    {
-        EQERROR << "Error creating pthread condition: " << strerror( error )
-                << endl;
-        pthread_mutex_destroy( &_data->mutex );
-        return;
-    }
-}
+        : _locked( false )
+{}
 
 TimedLock::~TimedLock()
-{
-    pthread_mutex_destroy( &_data->mutex );
-    pthread_cond_destroy( &_data->cond );
-    delete _data;
-    _data = 0;
-}
+{}
 
 bool TimedLock::set( const uint32_t timeout )
 {
-    pthread_mutex_lock( &_data->mutex );
+    _condition.lock();
 
     bool acquired = true;
     while( _locked )
     {
         if( timeout )
         {
-            timespec ts = { 0, 0 };
-            if( timeout > 0 )
-            {
-                ts.tv_sec  = static_cast<int>( timeout / 1000 );
-                ts.tv_nsec = (timeout - ts.tv_sec*1000) * 1000000;
-            }
-
-            timeb tb;
-            ftime( &tb );
-            ts.tv_sec  += tb.time;
-            ts.tv_nsec += tb.millitm * 1000000;
-            
-            int error = pthread_cond_timedwait( &_data->cond,
-                                                &_data->mutex, &ts );
-            if( error == ETIMEDOUT )
+            if( !_condition.timedWait( timeout ))
             {
                 acquired = false;
                 break;
             }
         }
         else
-            pthread_cond_wait( &_data->cond, &_data->mutex );
+            _condition.wait();
     }
 
     if( acquired )
@@ -109,22 +56,22 @@ bool TimedLock::set( const uint32_t timeout )
         _locked = true;
     }
 
-    pthread_mutex_unlock( &_data->mutex );
+    _condition.unlock();
     return acquired;
 }
 
 void TimedLock::unset()
 {
-    pthread_mutex_lock( &_data->mutex );
+    _condition.lock();
     _locked = false;
-    pthread_cond_signal( &_data->cond );
-    pthread_mutex_unlock( &_data->mutex );
+    _condition.signal();
+    _condition.unlock();
 }
 
 
 bool TimedLock::trySet()
 {
-    pthread_mutex_lock( &_data->mutex );
+    _condition.lock();
     
     bool acquired = false;
     if( _locked )
@@ -133,14 +80,9 @@ bool TimedLock::trySet()
         acquired = true;
     }
 
-    pthread_mutex_unlock( &_data->mutex );
+    _condition.unlock();
     return acquired;
 }
 
-
-bool TimedLock::isSet()
-{
-    return _locked;
-}
 }
 }

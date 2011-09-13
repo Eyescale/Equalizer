@@ -94,11 +94,11 @@ void Canvas< CFG, C, S, L >::attach( const co::base::UUID& id,
 }
 
 template< class CFG, class C, class S, class L >
-uint32_t Canvas< CFG, C, S, L >::commitNB()
+uint32_t Canvas< CFG, C, S, L >::commitNB( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_SEGMENTS ))
-        commitChildren< S, CanvasNewSegmentPacket >( _segments );
-    return Object::commitNB();
+        commitChildren< S, CanvasNewSegmentPacket >( _segments, incarnation );
+    return Object::commitNB( incarnation );
 }
 
 template< class CFG, class C, class S, class L >
@@ -386,7 +386,7 @@ template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
 {
     const CanvasNewSegmentPacket* packet =
-        command.getPacket< CanvasNewSegmentPacket >();
+        command.get< CanvasNewSegmentPacket >();
     
     S* segment = 0;
     create( &segment );
@@ -407,7 +407,7 @@ template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
 {
     const CanvasNewSegmentReplyPacket* packet =
-        command.getPacket< CanvasNewSegmentReplyPacket >();
+        command.get< CanvasNewSegmentReplyPacket >();
     getLocalNode()->serveRequest( packet->requestID, packet->segmentID );
 
     return true;

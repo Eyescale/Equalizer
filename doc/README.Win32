@@ -3,7 +3,27 @@
 
  Equalizer is tested with CMake-generated Visual Studio 2008 projects on
  Windows XP and 7. Support for Cygwin is preliminary.
- 
+
+
+                    Boost for RSP Reliable Multicast
+
+ Compile boost statically for 32 and/or 64 bit:
+   cd boost_1_44_0
+   bjam.exe toolset=msvc-9.0 variant=debug link=static address-model=32 --with-system --with-date_time --with-regex stage --stagedir=static_32
+   bjam.exe toolset=msvc-9.0 variant=release link=static address-model=32 --with-system --with-date_time --with-regex stage --stagedir=static_32
+   bjam.exe toolset=msvc-9.0 variant=release link=static address-model=64 --with-system --with-date_time --with-regex stage --stagedir=static_64
+   bjam.exe toolset=msvc-9.0 variant=debug link=static address-model=64 --with-system --with-date_time --with-regex stage --stagedir=static_64
+
+ In CMake, set 
+   BOOST_INCLUDEDIR '.../boost_1_44_0' 
+   BOOST_LIBRARYDIR '.../boost_1_44_0/static_32|64/lib' 
+
+ You should see the following output from CMake:
+   ...
+   Supported Features: WGL RSP OpenMP [32|64]
+   Configuring done
+   Generating done
+
 
                        Multi-Node Configurations
 

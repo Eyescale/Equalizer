@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -358,6 +358,13 @@ int main( int argc, char **argv )
 
     // run
     co::ConnectionPtr connection = co::Connection::create( description );
+    if( !connection )
+    {
+        EQWARN << "Unsupported connection: " << description << std::endl;
+        co::exit();
+        return EXIT_FAILURE;
+    }
+
     Selector* selector = 0;
     if( isClient )
     {

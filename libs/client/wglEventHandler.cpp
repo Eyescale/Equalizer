@@ -21,12 +21,14 @@
 #include <co/base/perThread.h> // then get perThread to have template code
 
 #include "wglEventHandler.h"
+
 #include "config.h"
 #include "configEvent.h"
 #include "event.h"
 #include "log.h"
 #include "node.h"
 #include "wglWindow.h"
+#include "wglWindowEvent.h"
 #include "window.h"
 
 #include <co/base/debug.h>

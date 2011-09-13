@@ -17,8 +17,10 @@
 
 #include "object.h"
 
+#include "packets.h"
 #include "task.h"
 
+#include <co/command.h>
 #include <co/types.h>
 
 namespace eq
@@ -55,7 +57,7 @@ bool Object::isDirty() const
     return Serializable::isDirty();
 }
 
-uint32_t Object::commitNB()
+uint32_t Object::commitNB( const uint32_t incarnation )
 {
     if( _userData )
     {
@@ -69,7 +71,7 @@ uint32_t Object::commitNB()
 
         if( _userData->isDirty() && _userData->isAttached( ))
         {
-            const uint128_t& version = _userData->commit();
+            const uint128_t& version = _userData->commit( incarnation );
             EQASSERT( version != co::VERSION_NONE );
 //            EQINFO << "Committed " << _userData->getID() << " v" << version
 //                   << " of " << co::base::className( _userData ) << " @"
@@ -93,7 +95,7 @@ uint32_t Object::commitNB()
         }
     }
 
-    return Serializable::commitNB();
+    return Serializable::commitNB( incarnation );
 }
 
 void Object::notifyDetach()
@@ -179,7 +181,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         setDirty( dirtyBits & getRedistributableBits( ));
 
     // Update user data state
-    if( !(dirtyBits & DIRTY_USERDATA) ||!_userData )
+    if( !(dirtyBits & DIRTY_USERDATA) || !_userData )
         return;
 
     EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
@@ -291,6 +293,13 @@ void Object::postRemove( const Object* child )
 
     _removedChildren.push_back( child->getID( ));
     setDirty( DIRTY_REMOVED );
+}
+
+bool Object::_cmdSync( co::Command& command )
+{
+    EQASSERT( isMaster( ));
+    sync( co::VERSION_HEAD );
+    return true;
 }
 
 }

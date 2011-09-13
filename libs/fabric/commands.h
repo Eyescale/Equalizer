@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -63,9 +63,15 @@ namespace fabric
         CMD_CLIENT_CUSTOM
     };
 
+    enum ObjectCommand
+    {
+        CMD_OBJECT_SYNC = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_OBJECT_CUSTOM
+    };
+
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_CONFIG_NEW_LAYOUT = CMD_OBJECT_CUSTOM, // 11
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -95,7 +101,7 @@ namespace fabric
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 11
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
@@ -113,7 +119,7 @@ namespace fabric
 
     enum PipeCommand
     {
-        CMD_PIPE_NEW_WINDOW = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_PIPE_NEW_WINDOW = CMD_OBJECT_CUSTOM, // 11
         CMD_PIPE_NEW_WINDOW_REPLY,
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
@@ -126,12 +132,13 @@ namespace fabric
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_START_CLOCK,
         CMD_PIPE_EXIT_THREAD,
+        CMD_PIPE_DETACH_VIEW,
         CMD_PIPE_CUSTOM = 30 // some buffer for binary-compatible patches
     };
 
     enum WindowCommand
     {
-        CMD_WINDOW_NEW_CHANNEL = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_WINDOW_NEW_CHANNEL = CMD_OBJECT_CUSTOM, // 11
         CMD_WINDOW_NEW_CHANNEL_REPLY,
         CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
@@ -152,7 +159,7 @@ namespace fabric
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = co::CMD_OBJECT_CUSTOM, // 10
+        CMD_CHANNEL_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 11
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,
@@ -174,14 +181,14 @@ namespace fabric
 
     enum CanvasCommand
     {
-        CMD_CANVAS_NEW_SEGMENT = co::CMD_OBJECT_CUSTOM, // 10 
+        CMD_CANVAS_NEW_SEGMENT = CMD_OBJECT_CUSTOM, // 11 
         CMD_CANVAS_NEW_SEGMENT_REPLY,
         CMD_CANVAS_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum LayoutCommand
     {
-        CMD_LAYOUT_NEW_VIEW = co::CMD_OBJECT_CUSTOM, // 10 
+        CMD_LAYOUT_NEW_VIEW = CMD_OBJECT_CUSTOM, // 11 
         CMD_LAYOUT_NEW_VIEW_REPLY,
         CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
     };

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
-                          , Maxim Makhinya
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+                      2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 #ifndef EQ_AGL_WINDOW_H
 #define EQ_AGL_WINDOW_H
 
+#include <eq/aglTypes.h>
 #include <eq/glWindow.h>       // base class
 
 namespace eq
@@ -57,8 +58,15 @@ namespace eq
     class AGLWindow : public AGLWindowIF
     {
     public:
-        /** Create a new AGL window for the given eq::Window. @version 1.0 */
-        EQ_API AGLWindow( Window* parent );
+        /**
+         * Create a new AGL window for the given eq::Window.
+         *
+         * If kCGNullDirectDisplay is specified as the displayID (the default),
+         * the constructor will try to query the corresponding data from the
+         * pipe's system pipe (AGLPipe).
+         * @version 1.0
+         */
+        EQ_API AGLWindow( Window* parent, CGDirectDisplayID displayID = 0 );
 
         /** Destruct the AGL window. @version 1.0 */
         EQ_API virtual ~AGLWindow();
@@ -239,12 +247,18 @@ namespace eq
     private:
         /** The AGL context. */
         AGLContext _aglContext;
+
         /** The carbon window reference. */
         WindowRef _carbonWindow;
+
         /** The AGL PBuffer object. */
         AGLPbuffer _aglPBuffer;
+
         /** The AGL event handler. */
         AGLEventHandler* _eventHandler;
+
+        /** Carbon display identifier. */
+        CGDirectDisplayID _cgDisplayID;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

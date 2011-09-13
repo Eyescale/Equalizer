@@ -52,7 +52,7 @@ namespace eqNbody
         const InitData& getInitData() const { return _initData; }
         
         void mapData( const eq::uint128_t& initDataID );
-        void unmapData();
+        void releaseData();
         
         virtual bool handleEvent( const eq::ConfigEvent* event );
         bool needsRedraw();

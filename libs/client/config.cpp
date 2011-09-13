@@ -24,8 +24,6 @@
 #include "configEvent.h"
 #include "configStatistics.h"
 #include "configPackets.h"
-#include "frame.h"
-#include "frameData.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"
@@ -37,6 +35,7 @@
 #include "pipe.h"
 #include "server.h"
 #include "view.h"
+#include "window.h"
 
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/task.h>
@@ -79,7 +78,7 @@ Config::~Config()
     co::base::Log::setClock( 0 );
 }
 
-void Config::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -240,7 +239,7 @@ bool Config::exit()
 
 bool Config::update()
 {
-    commit();
+    commit( CO_COMMIT_NEXT );
 
     // send update req to server
     ClientPtr client = getClient();
@@ -292,7 +291,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     EQLOG( co::base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
-                           << std::endl;
+                               << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
 }
@@ -346,7 +345,7 @@ uint32_t Config::finishFrame()
     _releaseObjects();
 
     EQLOG( co::base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
-                           << " (" << _currentFrame << ')' << std::endl;
+                               << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
 
@@ -415,7 +414,7 @@ void Config::setLatency( const uint32_t latency )
 void Config::changeLatency( const uint32_t latency )
 {
     finishAllFrames();
-    commit();
+    commit( CO_COMMIT_NEXT );
 
     // update views
     ChangeLatencyVisitor changeLatencyVisitor( latency );
@@ -429,7 +428,8 @@ void Config::sendEvent( ConfigEvent& event )
     EQASSERT( getAppNodeID() != co::NodeID::ZERO );
     EQASSERT( _appNode.isValid( ));
 
-    send( _appNode, event );
+    if( _appNode.isValid( ))
+        send( _appNode, event );
 }
 
 const ConfigEvent* Config::nextEvent()
@@ -437,7 +437,7 @@ const ConfigEvent* Config::nextEvent()
     if( _lastEvent )
         _lastEvent->release();
     _lastEvent = _eventQueue.pop();
-    return _lastEvent->getPacket<ConfigEvent>();
+    return _lastEvent->get<ConfigEvent>();
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -449,7 +449,7 @@ const ConfigEvent* Config::tryNextEvent()
     if( _lastEvent )
         _lastEvent->release();
     _lastEvent = command;
-    return command->getPacket<ConfigEvent>();
+    return command->get<ConfigEvent>();
 }
 
 void Config::handleEvents()
@@ -508,10 +508,10 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            co::base::ScopedMutex<> mutex( _statisticsMutex );
+            co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
 
-            for( std::deque< FrameStatistics >::iterator i =_statistics.begin();
-                 i != _statistics.end(); ++i )
+            for( std::deque<FrameStatistics>::iterator i =_statistics->begin();
+                 i != _statistics->end(); ++i )
             {
                 FrameStatistics& frameStats = *i;
                 if( frameStats.first == frame )
@@ -523,8 +523,8 @@ bool Config::handleEvent( const ConfigEvent* event )
                 }
             }
             
-            _statistics.push_back( FrameStatistics( ));
-            FrameStatistics& frameStats = _statistics.back();
+            _statistics->push_back( FrameStatistics( ));
+            FrameStatistics& frameStats = _statistics->back();
             frameStats.first = frame;
 
             SortedStatistics& sortedStats = frameStats.second;
@@ -536,7 +536,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            EQASSERT( event->data.originator != co::base::UUID::ZERO );
+            EQASSERT( event->data.originator != UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -581,27 +581,24 @@ bool Config::_needsLocalSync() const
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
     // keep statistics for three frames
-    _statisticsMutex.set();
-    while( !_statistics.empty() &&
-           finishedFrame - _statistics.front().first > 2 )
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    while( !_statistics->empty() &&
+           finishedFrame - _statistics->front().first > 2 )
     {
-        _statistics.pop_front();
+        _statistics->pop_front();
     }
-    _statisticsMutex.unset();
 }
 
 void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 {
-    _statisticsMutex.set();
+    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
 
-    for( std::deque< FrameStatistics >::const_iterator i = _statistics.begin();
-         i != _statistics.end(); ++i )
+    for( std::deque<FrameStatistics>::const_iterator i = _statistics->begin();
+         i != _statistics->end(); ++i )
     {
         if( (*i).first <= _finishedFrame.get( ))
             statistics.push_back( *i );
     }
-
-    _statisticsMutex.unset();
 }
 
 bool Config::mapViewObjects() const
@@ -674,6 +671,12 @@ void Config::setupServerConnections( const char* connectionData )
          i != descriptions.end(); ++i )
     {
         co::ConnectionPtr connection = co::Connection::create( *i );
+        if( !connection )
+        {
+            EQWARN << "Unsupported connection: " << *i << std::endl;
+            continue;
+        }
+
         if( connection->listen( ))
         {
             _connections.push_back( connection );
@@ -715,7 +718,7 @@ void Config::deregisterObject( co::Object* object )
         return;
     }
 
-    if( !object->isAttached() ) // not registered
+    if( !object->isAttached( )) // not registered
         return;
 
     // Keep a distributed object latency frames.
@@ -735,10 +738,16 @@ bool Config::mapObject( co::Object* object, const UUID& id,
     return mapObjectSync( mapObjectNB( object, id, version ));
 }
 
-uint32_t Config::mapObjectNB( co::Object* object, const co::base::UUID& id, 
+uint32_t Config::mapObjectNB( co::Object* object, const UUID& id, 
                               const uint128_t& version )
 {
     return getClient()->mapObjectNB( object, id, version );
+}
+
+uint32_t Config::mapObjectNB( co::Object* object, const UUID& id, 
+                              const uint128_t& version, co::NodePtr master )
+{
+    return getClient()->mapObjectNB( object, id, version, master );
 }
 
 bool Config::mapObjectSync( const uint32_t requestID )
@@ -769,7 +778,7 @@ void Config::_releaseObjects()
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
-        if ( latencyObject->frameNumber > _currentFrame )
+        if( latencyObject->frameNumber > _currentFrame )
             break;
 
         client->deregisterObject( latencyObject );
@@ -785,7 +794,7 @@ void Config::_releaseObjects()
 bool Config::_cmdCreateNode( co::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
-        command.getPacket<ConfigCreateNodePacket>();
+        command.get<ConfigCreateNodePacket>();
     EQVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
@@ -796,7 +805,7 @@ bool Config::_cmdCreateNode( co::Command& command )
 bool Config::_cmdDestroyNode( co::Command& command ) 
 {
     const ConfigDestroyNodePacket* packet =
-        command.getPacket<ConfigDestroyNodePacket>();
+        command.get<ConfigDestroyNodePacket>();
     EQVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
@@ -817,7 +826,7 @@ bool Config::_cmdDestroyNode( co::Command& command )
 bool Config::_cmdInitReply( co::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
-        command.getPacket<ConfigInitReplyPacket>();
+        command.get<ConfigInitReplyPacket>();
     EQVERB << "handle init reply " << packet << std::endl;
 
     sync( packet->version );
@@ -828,7 +837,7 @@ bool Config::_cmdInitReply( co::Command& command )
 bool Config::_cmdExitReply( co::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
-        command.getPacket<ConfigExitReplyPacket>();
+        command.get<ConfigExitReplyPacket>();
     EQVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
@@ -839,7 +848,7 @@ bool Config::_cmdExitReply( co::Command& command )
 bool Config::_cmdUpdateVersion( co::Command& command )
 {
     const ConfigUpdateVersionPacket* packet = 
-        command.getPacket<ConfigUpdateVersionPacket>();
+        command.get<ConfigUpdateVersionPacket>();
 
     getClient()->serveRequest( packet->versionID, packet->version );
     getClient()->serveRequest( packet->finishID, packet->requestID );
@@ -849,7 +858,7 @@ bool Config::_cmdUpdateVersion( co::Command& command )
 bool Config::_cmdUpdateReply( co::Command& command )
 {
     const ConfigUpdateReplyPacket* packet = 
-        command.getPacket<ConfigUpdateReplyPacket>();
+        command.get<ConfigUpdateReplyPacket>();
 
     sync( packet->version );
     getClient()->serveRequest( packet->requestID, packet->result );
@@ -859,7 +868,7 @@ bool Config::_cmdUpdateReply( co::Command& command )
 bool Config::_cmdReleaseFrameLocal( co::Command& command )
 {
     const ConfigReleaseFrameLocalPacket* packet =
-        command.getPacket< ConfigReleaseFrameLocalPacket >();
+        command.get< ConfigReleaseFrameLocalPacket >();
 
     _frameStart(); // never happened from node
     releaseFrameLocal( packet->frameNumber );
@@ -869,7 +878,7 @@ bool Config::_cmdReleaseFrameLocal( co::Command& command )
 bool Config::_cmdFrameFinish( co::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
-        command.getPacket<ConfigFrameFinishPacket>();
+        command.get<ConfigFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
 
     _finishedFrame = packet->frameNumber;
@@ -888,7 +897,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
 bool Config::_cmdSyncClock( co::Command& command )
 {
     const ConfigSyncClockPacket* packet = 
-        command.getPacket< ConfigSyncClockPacket >();
+        command.get< ConfigSyncClockPacket >();
 
     EQVERB << "sync global clock to " << packet->time << ", drift " 
            << packet->time - _clock.getTime64() << std::endl;
@@ -900,13 +909,14 @@ bool Config::_cmdSyncClock( co::Command& command )
 bool Config::_cmdSwapObject( co::Command& command )
 {
     const ConfigSwapObjectPacket* packet = 
-        command.getPacket<ConfigSwapObjectPacket>();
+        command.get<ConfigSwapObjectPacket>();
     EQVERB << "Cmd swap object " << packet << std::endl;
 
     co::Object* object = packet->object;
 
-    LatencyObject* latencyObject = new LatencyObject( object->getChangeType( ));
-    latencyObject->frameNumber   = _currentFrame + getLatency() + 1;
+    LatencyObject* latencyObject =
+        new LatencyObject( object->getChangeType(), object->chooseCompressor(),
+                           _currentFrame + getLatency() + 1 );
 
     getLocalNode()->swapObject( object, latencyObject  );
     

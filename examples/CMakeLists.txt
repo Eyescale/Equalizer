@@ -11,12 +11,14 @@ function(EQ_ADD_EXAMPLE NAME)
   eq_stringify_shaders(SHADERS ${THIS_SHADERS})
 
   set(THIS_TARGET ${NAME})
+  set(THIS_INPUT )
+  source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
   add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS} ${SHADERS})
 
   purple_expand_libraries(LINK_LIBRARIES ${THIS_LINK_LIBRARIES})
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES})
 
-  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME})
+  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
 
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)
   install(FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS}

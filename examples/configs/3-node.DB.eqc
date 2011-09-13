@@ -8,12 +8,12 @@ global
 
 server
 {
-    connection{ hostname "127.0.0.1" }
+    connection{ hostname "node1" }
     config
     {
         appNode
         {
-            connection{ hostname "127.0.0.1" }
+            connection{ hostname "node1" }
             pipe 
             {
                 window
@@ -27,12 +27,12 @@ server
         }
         node
         {
-            connection { hostname "hactar2" }
+            connection { hostname "node2" }
             pipe { window { channel { name "channel2" }}}
         }
         node
         {
-            connection { hostname "hactar3" }
+            connection { hostname "node3" }
             pipe { window { channel { name "channel3" }}}
         }
         observer{}

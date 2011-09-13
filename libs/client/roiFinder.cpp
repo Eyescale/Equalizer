@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Maxim Makhinya
- *               2010, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,6 +33,7 @@
 #include "log.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/objectManager.h>
 #include <co/base/os.h>
 #include <co/plugins/compressor.h>
 
@@ -356,59 +357,55 @@ uint8_t ROIFinder::_splitArea( Area& a )
     {
         EQASSERT( a.pvp.w != a.hole.w );
         type = 8;
-    }else
-    if( a.pvp.w == a.hole.w ) // hole through the whole block
+    }
+    else if( a.pvp.w == a.hole.w ) // hole through the whole block
     {
         type = 9;
-    }else
-    if( a.pvp.x == a.hole.x ) // left side
+    }
+    else if( a.pvp.x == a.hole.x ) // left side
     {
         if( a.pvp.y == a.hole.y )
-        {// in the lower left corner
+            // in the lower left corner
             type = 0;
-        }else
-        if( a.pvp.y + a.pvp.h == a.hole.y + a.hole.h )
-        {// in the upper left corner
+        else if( a.pvp.y + a.pvp.h == a.hole.y + a.hole.h )
+            // in the upper left corner
             type = 1;
-        }else
-        {// in the left middle
+        else
+            // in the left middle
             type = 2;
-        }
-    }else
-    if( a.pvp.y == a.hole.y ) // bottom side
+    }
+    else if( a.pvp.y == a.hole.y ) // bottom side
     {
         if( a.pvp.x + a.pvp.w == a.hole.x + a.hole.w )
-        {// in the bottom right corner
+            // in the bottom right corner
             type = 3;
-        }else
-        {// in the bottom middle
+        else
+            // in the bottom middle
             type = 4;
-        }
-    }else
-    if( a.pvp.x + a.pvp.w == a.hole.x + a.hole.w ) // right side
+    }
+    else if( a.pvp.x + a.pvp.w == a.hole.x + a.hole.w ) // right side
     {
         if( a.pvp.y + a.pvp.h == a.hole.y + a.hole.h )
-        {// in the upper right corner
+            // in the upper right corner
             type = 5;
-        }else
-        {// in the right middle
+        else
+            // in the right middle
             type = 6;
-        }
-    }else
-    if( a.pvp.y + a.pvp.h == a.hole.y + a.hole.h ) // top side
-    {// in the upper middle corner
-            type = 7;
-    }else
-    {// must be in the center
-            type = 10;
     }
+    else if( a.pvp.y + a.pvp.h == a.hole.y + a.hole.h ) // top side
+        // in the upper middle corner
+        type = 7;
+    else
+        // must be in the center
+        type = 10;
 
     // Calculate areas of interest
     if( type == 10 ) // center hole position
     {
         for( uint8_t i = 1; i <= 16; i++ )
             _updateSubArea( i );
-    }else
+    }
+    else
     {
         for( uint8_t i = 0; i < 8; i++ )
             _updateSubArea( _interests[ type ][ i ] );
@@ -588,13 +585,13 @@ void ROIFinder::_readbackInfo( )
     //
     GLuint program = _glObjects->getProgram( shaderRBInfo );
 
-    if( program == Window::ObjectManager::INVALID )
+    if( program == ObjectManager::INVALID )
     {
         // Create fragment shader which reads depth values from 
         // rectangular textures
         const GLuint shader = _glObjects->newShader( shaderRBInfo,
                                                         GL_FRAGMENT_SHADER );
-        EQASSERT( shader != Window::ObjectManager::INVALID );
+        EQASSERT( shader != ObjectManager::INVALID );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
         const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
@@ -681,7 +678,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
                                        const Zoom&            zoom,
                                        const uint32_t         stage,
                                        const uint128_t&       frameID,
-                                       Window::ObjectManager* glObjects )
+                                       ObjectManager*         glObjects )
 {
     PixelViewports result;
     result.push_back( pvp );
@@ -763,6 +760,12 @@ for( int i = 0; i < 100; i++ ) {
 
 //    EQWARN << "Areas found: " << result.size() << std::endl;
     return result;
+}
+
+const GLEWContext* ROIFinder::glewGetContext() const
+{
+    EQASSERT( _glObjects );
+    return _glObjects->glewGetContext();
 }
 
 }

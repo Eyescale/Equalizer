@@ -32,6 +32,7 @@
 #include "types.h"
 #include "unbufferedMasterCM.h"
 
+#include "base/cpuCompressor.h"
 #include <co/base/scopedMutex.h>
 #include <iostream>
 
@@ -129,9 +130,8 @@ void Object::_setChangeManager( ObjectCM* cm )
     {
         EQVERB
             << "Overriding existing object change manager, obj "
-            << base::className( this ) << ", old cm " 
-            << base::className( _cm ) << ", new cm " 
-            << base::className( cm ) << std::endl;
+            << base::className( this ) << ", old cm " << base::className( _cm )
+            << ", new cm " << base::className( cm ) << std::endl;
         delete _cm;
     }
 
@@ -172,18 +172,17 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
-uint128_t Object::commit()
+uint128_t Object::commit( const uint32_t incarnation )
 {
-    const uint32_t requestID = commitNB();
-    return commitSync( requestID );
+    return commitSync( commitNB( incarnation ));
 }
 
-uint32_t Object::commitNB()
+uint32_t Object::commitNB( const uint32_t incarnation )
 {
     if( isDirty( ))
-        return _cm->commitNB();
+        return _cm->commitNB( incarnation );
 
-    _cm->increaseCommitCount();
+    _cm->increaseCommitCount( incarnation );
     return EQ_UNDEFINED_UINT32;
 }
 
@@ -271,9 +270,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-uint128_t Object::addSlave( Command& command )
+void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
-    return _cm->addSlave( command );
+    _cm->addSlave( command, reply );
 }
 
 void Object::removeSlave( NodePtr node )
@@ -319,16 +318,16 @@ uint128_t Object::getVersion() const
     return _cm->getVersion();
 }
 
-uint128_t Object::getOldestVersion() const
-{
-    return _cm->getOldestVersion();
-}
-
 void Object::notifyNewHeadVersion( const uint128_t& version )
 { 
     EQASSERTINFO( getVersion() == VERSION_NONE || 
                   version < getVersion() + 100, 
                   base::className( this ));
+}
+
+uint32_t Object::chooseCompressor() const
+{
+    return base::CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
 }
 
 uint32_t Object::getMasterInstanceID() const

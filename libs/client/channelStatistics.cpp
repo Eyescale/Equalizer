@@ -31,13 +31,15 @@ namespace eq
 {
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
-                                      Channel* channel )
+                                      Channel* channel, const int32_t hint )
         : StatisticSampler< Channel >( type, channel, 
                                        channel->getPipe()->getCurrentFrame( ))
         , statisticsIndex( channel->_statisticsIndex )
+        , _hint( hint )
 {
-    const int32_t hint = channel->getIAttribute(Channel::IATTR_HINT_STATISTICS);
-    if( hint == OFF )
+    if( _hint == AUTO )
+        _hint = channel->getIAttribute( Channel::IATTR_HINT_STATISTICS );
+    if( _hint == OFF )
         return;
 
     event.data.statistic.task = channel->getTaskID();
@@ -50,7 +52,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
         snprintf( event.data.statistic.resourceName, 32, "%s", name.c_str( ));
     event.data.statistic.resourceName[31] = 0;
 
-    if( hint == NICEST &&
+    if( _hint == NICEST &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
         type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
@@ -64,12 +66,11 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
 
 ChannelStatistics::~ChannelStatistics()
 {
-    const int32_t hint = _owner->getIAttribute( Channel::IATTR_HINT_STATISTICS);
-    if( hint == OFF )
+    if( _hint == OFF )
         return;
 
     const Statistic::Type type = event.data.statistic.type;
-    if( hint == NICEST &&
+    if( _hint == NICEST &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
         type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )

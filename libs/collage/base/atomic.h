@@ -7,7 +7,7 @@
 
 //  Disclaimer: Not a Boost library.
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
    Modifications to use within co::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
@@ -17,6 +17,7 @@
 
 #include <co/base/nonCopyable.h>    // base class
 #include <co/base/compareAndSwap.h> // used in inline methods
+#include <co/base/compiler.h>       // GCC version
 
 #include <string> // _Atomic_word
 
@@ -333,10 +334,8 @@ private:
     Lock _lock;
 };
 #endif
-typedef Atomic< long long > a_int64_t;
-typedef Atomic< long > a_int32_t;
-typedef Atomic< bool > a_bool_t;
-}
+typedef Atomic< long > a_int32_t; //!< An atomic 32 bit integer variable
 
+}
 }
 #endif  // COBASE_ATOMIC_H

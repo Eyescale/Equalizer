@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,7 +37,9 @@
 #include "windowStatistics.h"
 #include "uiFactory.h"
 
+#include <eq/util/objectManager.h>
 #include <eq/fabric/elementVisitor.h>
+#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
@@ -122,11 +124,26 @@ void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdFrameDrawFinish ), queue );
 }
 
+void Window::notifyViewportChanged()
+{
+    Super::notifyViewportChanged();
+    if( !isRunning( ))
+        return;
+
+    // Commit immediately so that the server has the new data before the app
+    // does send the startFrame() after a resize event.
+    const uint128_t version = commit();
+    if( version != co::VERSION_NONE )
+    {
+        fabric::ObjectSyncPacket syncPacket;
+        send( getServer(), syncPacket );
+    }
+}
+
 void Window::_updateFPS()
 {
-    const float curTime      = static_cast< float >( getConfig()->getTime( ));
-    const float curInterval  = curTime - _lastTime;
-
+    const float curTime = float( getConfig()->getTime( ));
+    const float curInterval = curTime - _lastTime;
     const bool isFirstFrame = _lastTime == 0.0f;
     _lastTime = curTime;
 
@@ -378,7 +395,7 @@ void Window::_setupObjectManager()
     ObjectManager* sharedOM = sharedWindow ? sharedWindow->getObjectManager():0;
 
     if( sharedOM )
-        _objectManager = new ObjectManager( glewGetContext(), sharedOM );
+        _objectManager = new ObjectManager( sharedOM );
     else
         _objectManager = new ObjectManager( glewGetContext( ));
 }
@@ -631,7 +648,7 @@ bool Window::processEvent( const Event& event )
 bool Window::_cmdCreateChannel( co::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
-        command.getPacket<WindowCreateChannelPacket>();
+        command.get<WindowCreateChannelPacket>();
     EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
@@ -647,7 +664,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
 bool Window::_cmdDestroyChannel( co::Command& command ) 
 {
     const WindowDestroyChannelPacket* packet =
-        command.getPacket<WindowDestroyChannelPacket>();
+        command.get<WindowDestroyChannelPacket>();
     EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
     Channel* channel = _findChannel( packet->channelID );
@@ -666,7 +683,7 @@ bool Window::_cmdDestroyChannel( co::Command& command )
 bool Window::_cmdConfigInit( co::Command& command )
 {
     const WindowConfigInitPacket* packet = 
-        command.getPacket<WindowConfigInitPacket>();
+        command.get<WindowConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
     WindowConfigInitReplyPacket reply;
@@ -686,17 +703,14 @@ bool Window::_cmdConfigInit( co::Command& command )
     }
     EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
-    co::NodePtr node = command.getNode();
-
     commit();
-    send( node, reply );
+    send( command.getNode(), reply );
     return true;
 }
 
 bool Window::_cmdConfigExit( co::Command& command )
 {
-    WindowConfigExitPacket* packet =
-        command.getPacket<WindowConfigExitPacket>();
+    WindowConfigExitPacket* packet = command.get<WindowConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
@@ -721,7 +735,7 @@ bool Window::_cmdFrameStart( co::Command& command )
     EQ_TS_THREAD( _pipeThread );
 
     const WindowFrameStartPacket* packet = 
-        command.getPacket<WindowFrameStartPacket>();
+        command.get<WindowFrameStartPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
                        << std::endl;
 
@@ -743,12 +757,11 @@ bool Window::_cmdFrameStart( co::Command& command )
 bool Window::_cmdFrameFinish( co::Command& command )
 {
     const WindowFrameFinishPacket* packet =
-        command.getPacket<WindowFrameFinishPacket>();
+        command.get<WindowFrameFinishPacket>();
     EQVERB << "handle window frame sync " << packet << std::endl;
 
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
-    commit();
     return true;
 }
 
@@ -763,8 +776,7 @@ bool Window::_cmdFinish( co::Command& )
 
 bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
-    WindowThrottleFramerate* packet = 
-        command.getPacket< WindowThrottleFramerate >();
+    WindowThrottleFramerate* packet = command.get< WindowThrottleFramerate >();
     EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << packet << std::endl;
 
@@ -784,8 +796,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
         
 bool Window::_cmdBarrier( co::Command& command )
 {
-    const WindowBarrierPacket* packet = 
-        command.getPacket<WindowBarrierPacket>();
+    const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
     EQVERB << "handle barrier " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
@@ -795,8 +806,7 @@ bool Window::_cmdBarrier( co::Command& command )
 
 bool Window::_cmdNVBarrier( co::Command& command )
 {
-    const WindowNVBarrierPacket* packet = 
-        command.getPacket<WindowNVBarrierPacket>();
+    const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     
     EQASSERT( _systemWindow );
@@ -808,7 +818,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
 
 bool Window::_cmdSwap( co::Command& command ) 
 {
-    WindowSwapPacket* packet = command.getPacket< WindowSwapPacket >();
+    WindowSwapPacket* packet = command.get< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << std::endl;
 
@@ -825,7 +835,7 @@ bool Window::_cmdSwap( co::Command& command )
 bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
     WindowFrameDrawFinishPacket* packet = 
-        command.getPacket< WindowFrameDrawFinishPacket >();
+        command.get< WindowFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 

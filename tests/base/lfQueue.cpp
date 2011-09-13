@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,8 +50,8 @@ public:
                 ++nEmpty;
             }
             const float time = clock.getTimef();
-            EQINFO << 2*nOps/time << " reads/ms, " << nEmpty/time << " empty/ms"
-                   << std::endl;
+            std::cout << 2*nOps/time << " reads/ms, " << nEmpty/time
+                      << " empty/ms" << std::endl;
         }
 };
 
@@ -73,8 +73,8 @@ int main( int argc, char **argv )
     const float time = clock.getTimef();
 
     TEST( reader.join( ));
-    EQINFO << nOps/time << " writes/ms, " << nEmpty/time << " full/ms"
-           << std::endl;
+    std::cout << nOps/time << " writes/ms, " << nEmpty/time << " full/ms"
+              << std::endl;
 
     return EXIT_SUCCESS;
 }

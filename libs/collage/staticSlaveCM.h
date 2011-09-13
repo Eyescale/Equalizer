@@ -18,8 +18,8 @@
 #ifndef CO_STATICSLAVECM_H
 #define CO_STATICSLAVECM_H
 
-#include <co/objectCM.h>     // base class
-#include <co/version.h>      // enum
+#include "objectCM.h"     // base class
+#include <co/version.h>   // enum
 
 namespace co
 {
@@ -39,7 +39,8 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB() { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
+        virtual uint32_t commitNB( const uint32_t )
+            { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
         virtual uint128_t commitSync( const uint32_t )
             { EQDONTCALL; return VERSION_NONE; }
 
@@ -51,15 +52,14 @@ namespace co
 
         virtual uint128_t getHeadVersion() const { return VERSION_FIRST; }
         virtual uint128_t getVersion() const     { return VERSION_FIRST; }
-        virtual uint128_t getOldestVersion() const { return VERSION_FIRST; }
         //@}
 
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const
             { return EQ_INSTANCE_INVALID; }
 
-        virtual uint128_t addSlave( Command& )
-            { EQDONTCALL; return VERSION_INVALID; }
+        virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
+            { EQDONTCALL; }
         virtual void removeSlave( NodePtr ) { EQDONTCALL; }
 
         virtual void applyMapData( const uint128_t& version );
