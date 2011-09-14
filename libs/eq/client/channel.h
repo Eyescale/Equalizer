@@ -489,6 +489,12 @@ namespace eq
         EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
+        /** Signal the start of a frame using tiles. */
+        virtual void frameTileStart( const uint128_t& frameID ) {}
+
+        /** Signal the completion of a frame using tiles. */
+        virtual void frameTileFinish( const uint128_t& frameID ) {}
+
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
 

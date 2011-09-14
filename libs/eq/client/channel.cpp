@@ -1812,6 +1812,8 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     RenderContext context = packet->context;
     _setRenderContext( context );
 
+    frameTileStart( packet->context.frameID );
+
     if( packet->tasks & fabric::TASK_READBACK )
         _setOutputFrames( packet->nFrames, packet->frames );
 
@@ -1891,6 +1893,8 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         _setTileFrameReady( context );
         _outputFrames.clear();
     }
+
+    frameTileFinish( packet->context.frameID );
 
     resetRenderContext();
     return true;
