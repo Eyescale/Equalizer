@@ -25,8 +25,17 @@ namespace eq
 {
 namespace server
 {
-    class Channel;
-    
+
+    enum TileStrategy
+    {
+        STGY_TILE_RASTER,
+        STGY_TILE_ZIGZAG,
+        STGY_TILE_CWSPIRAL,
+        STGY_TILE_SQSPIRAL,
+        STGY_TILE_CUSTOM=10
+    };
+
+   
     /**
      * The compound visitor updating the output data (frames, tiles,
      * swapbarriers) of a compound tree.
@@ -58,7 +67,29 @@ namespace server
         void _updateZoom( const Compound* compound, Frame* frame );
         void _updateSwapBarriers( Compound* compound );
 
-        void _generateTiles( TileQueue* queue, Compound* compound );
+        void _generateTiles( TileQueue* queue, 
+                             Compound* compound,
+                             TileStrategy strategy );
+        
+        void _addTilesToQueue( TileQueue* queue, 
+                               Compound* compound, 
+                               std::vector< Vector2i >& tileOrder );
+
+        void _applyTileStrategy( std::vector< Vector2i >& tileOrder,
+                                 const Vector2i& dim,
+                                 TileStrategy strategy );
+
+        void _rasterStrategy( std::vector< Vector2i >& tileOrder,
+                              const Vector2i& dim );
+
+        void _zigzagStrategy( std::vector< Vector2i >& tileOrder,
+                              const Vector2i& dim );
+
+        void _spiralStrategy( std::vector< Vector2i >& tileOrder,
+                              const Vector2i& dim );
+
+        void _squareStrategy( std::vector< Vector2i >& tileOrder,
+                              const Vector2i& dim );
     };
 }
 }
