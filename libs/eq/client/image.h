@@ -132,6 +132,10 @@ namespace eq
         /** @return the internal pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
+        void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
+
+        const eq::Zoom& getZoom() const      { return _zoom; }
+
         /**
          * Set a compressor to be used during transmission of the image.
          *
@@ -353,6 +357,8 @@ namespace eq
     private:
         /** The rectangle of the current pixel data. */
         PixelViewport _pvp;
+
+        eq::Zoom _zoom;
 
         /** @internal Raw image data. */
         struct Memory : public PixelData

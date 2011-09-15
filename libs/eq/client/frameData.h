@@ -70,6 +70,7 @@ namespace server
             uint32_t                compressorFlags;
             uint32_t                nChunks;
             float                   quality;
+            Zoom                    zoom;
         };
 
         /** Construct a new frame data holder. @version 1.0 */

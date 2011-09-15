@@ -1049,14 +1049,16 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoomFilter = (operation.zoom == Zoom::NONE) ? 
-                               FILTER_NEAREST : frame->getZoomFilter();
     operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {
         const Image* image = *i;
-        assembleImage( image, operation );
+        ImageOp op = operation;
+        op.zoom.apply( image->getZoom() );
+        op.zoomFilter = (operation.zoom == Zoom::NONE) ? 
+                                        FILTER_NEAREST : frame->getZoomFilter();
+        assembleImage( image, op );
     }
 }
 

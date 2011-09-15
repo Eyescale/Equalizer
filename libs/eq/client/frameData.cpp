@@ -412,6 +412,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
             pixelData.compressorFlags = header->compressorFlags;
             pixelData.isCompressed =
                 pixelData.compressorName > EQ_COMPRESSOR_NONE;
+            pixelData.zoom            = header->zoom;
 
             const uint32_t nChunks    = header->nChunks;
             data += sizeof( ImageHeader );
@@ -440,6 +441,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
+            image->setZoom( header->zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }

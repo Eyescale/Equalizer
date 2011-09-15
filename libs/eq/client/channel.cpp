@@ -1311,7 +1311,9 @@ void Channel::_transmitImage( Image* image,
             data->isCompressed ? data->compressorName : EQ_COMPRESSOR_NONE, 
             data->compressorFlags,
             data->isCompressed ? uint32_t( data->compressedSize.size( )) : 1,
-            qualities[ j ] };
+            qualities[ j ],
+            data->zoom
+        };
 
         connection->send( &header, sizeof( FrameData::ImageHeader ), true );
 

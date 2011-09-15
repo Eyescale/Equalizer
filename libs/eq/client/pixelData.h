@@ -94,6 +94,7 @@ namespace eq
         uint32_t compressorName;
         uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
         bool isCompressed; //!< The compressed pixel data is set. @version 1.0
+        Zoom zoom;
     };
 };
 #endif // EQ_PIXELDATA_H
