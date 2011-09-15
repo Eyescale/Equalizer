@@ -39,15 +39,18 @@ namespace base
      * state. The caller is blocked until the condition is fulfilled. The
      * concept is similar to a pthread condition, with more usage convenience.
      */
-    template< typename T > class Monitor : public NonCopyable
+    template< typename T > class Monitor
     {
     public:
-        /** Constructs a new monitor with a default value of 0. @version 1.0 */
+        /** Construct a new monitor with a default value of 0. @version 1.0 */
         Monitor() : _value( T( 0 )) {}
 
-        /** Constructs a new monitor with a given default value. @version 1.0 */
-        Monitor( const T& value ) : _value( value ) {}
-        
+        /** Construct a new monitor with a given default value. @version 1.0 */
+        explicit Monitor( const T& value ) : _value( value ) {}
+
+        /** Ctor initializing with the given monitor value. @version 1.1.5 */
+        Monitor( const Monitor< T >& from ) : _value( from._value ) {}
+
         /** Destructs the monitor. @version 1.0 */
         ~Monitor() {}
 
@@ -77,6 +80,13 @@ namespace base
         Monitor& operator = ( const T& value )
             {
                 set( value );
+                return *this;
+            }
+
+        /** Assign a new value. @version 1.1.5 */
+        const Monitor& operator = ( const Monitor< T >& from )
+            {
+                set( from._value );
                 return *this;
             }
 
