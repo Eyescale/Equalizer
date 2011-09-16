@@ -81,8 +81,6 @@ namespace eq
          */
         PixelViewport pvp;
 
-        Zoom zoom; // TODO doxygen: what does it mean/when&how is it used?
-
         /** uncompressed pixel data, pvp * pixelSize bytes. @version 1.0 */
         void* pixels;
 

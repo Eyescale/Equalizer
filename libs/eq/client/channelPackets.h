@@ -235,6 +235,7 @@ namespace eq
             size              = sizeof( ChannelFrameTilesPacket );
         }
 
+        bool              isLocal;
         co::ObjectVersion queueVersion;
         uint32_t          tasks;
         uint32_t          nFrames;

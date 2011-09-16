@@ -70,7 +70,6 @@ namespace server
             uint32_t                compressorFlags;
             uint32_t                nChunks;
             float                   quality;
-            Zoom                    zoom;
         };
 
         /** Construct a new frame data holder. @version 1.0 */
@@ -136,7 +135,6 @@ namespace server
 
         /** @internal @return the number of newly read back images. */
         size_t getNewImages() const { return _newImages; }
-	// @bug: race between transmit & new tile?! resolvable with issue #32
 
         /**
          * Set the covered area for readbacks.

@@ -600,7 +600,6 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.internalFormat = pixels.internalFormat;
     memory.pixelSize = pixels.pixelSize;
     memory.pvp       = pixels.pvp;
-    memory.zoom      = pixels.zoom;
     memory.state     = Memory::INVALID;
     memory.isCompressed = false;
     memory.hasAlpha = false;

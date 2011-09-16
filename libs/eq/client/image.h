@@ -132,9 +132,10 @@ namespace eq
         /** @return the internal pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
-        // TODO: doxygen
+        /** Sets the zoom factor to be used for compositing. */
         void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
 
+        /** @return zoom factor to be used for compositing. */
         const eq::Zoom& getZoom() const      { return _zoom; }
 
         /**
@@ -359,6 +360,7 @@ namespace eq
         /** The rectangle of the current pixel data. */
         PixelViewport _pvp;
 
+        /** Zoom factor used for compositing. */
         eq::Zoom _zoom;
 
         /** @internal Raw image data. */

@@ -111,7 +111,6 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
-// TODO eile: Why is the default assignment op. insufficient?
 FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
 {
     if( this != &rhs )
@@ -125,6 +124,7 @@ FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
         pixel = rhs.pixel;
         subpixel = rhs.subpixel;
         zoom = rhs.zoom;
+        // don't assign input nodes & -netNodes here
     }
     return *this;
 }
@@ -272,11 +272,7 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x, pvp.y );
-        // @bug? eile why?
-        // tribal-tec because it works; original code does not set any offset
-        // TODO resolve with discussion
-        // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
@@ -290,9 +286,6 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
-    // @bug? Why did it move to channel?
-    // was called in frameReadback anyway, obsolete here?
-    //setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
@@ -414,7 +407,6 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
             pixelData.compressorFlags = header->compressorFlags;
             pixelData.isCompressed =
                 pixelData.compressorName > EQ_COMPRESSOR_NONE;
-            pixelData.zoom            = header->zoom;
 
             const uint32_t nChunks    = header->nChunks;
             data += sizeof( ImageHeader );
@@ -443,7 +435,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
-            image->setZoom( header->zoom );
+            image->setZoom( packet->zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }

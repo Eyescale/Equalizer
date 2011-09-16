@@ -1216,6 +1216,7 @@ void Channel::_transmitImage( Image* image,
     packet.buffers = Frame::BUFFER_NONE;
     packet.pvp = image->getPixelViewport();
     packet.useAlpha = image->getAlphaUsage();
+    packet.zoom = image->getZoom();
     EQASSERT( packet.pvp.isValid( ));
 
     {
@@ -1310,8 +1311,7 @@ void Channel::_transmitImage( Image* image,
             data->isCompressed ? data->compressorName : EQ_COMPRESSOR_NONE, 
             data->compressorFlags,
             data->isCompressed ? uint32_t( data->compressedSize.size( )) : 1,
-            qualities[ j ],
-            data->zoom
+            qualities[ j ]
         };
 
         connection->send( &header, sizeof( FrameData::ImageHeader ), true );
@@ -1421,11 +1421,10 @@ void Channel::_transmitTileFrameReady( const RenderContext& context )
 
             send( getLocalNode(), setReadyPacket );
         }
-#if 0 // TODO eile: Why - valid state if tile is consumed locally?
+
         if( toNodes.empty() )
             EQWARN << "unable to set frame ready " << context.frameID
             << std::endl;
-#endif
     }
 }
 
@@ -1827,6 +1826,12 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         context.pvp = tilePacket->pvp;
         context.vp = tilePacket->vp;
 
+        if ( !packet->isLocal )
+        {
+            context.pvp.x = 0;
+            context.pvp.y = 0;
+        }
+
         if( packet->tasks & fabric::TASK_CLEAR )
         {
             const int64_t time = getConfig()->getTime();
@@ -1852,6 +1857,21 @@ bool Channel::_cmdFrameTiles( co::Command& command )
             }
             frameReadback( packet->context.frameID );
             readbackTime += getConfig()->getTime() - time;
+
+            for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+            {
+                const Frame* frame = *i;
+                const FrameData* data = frame->getData();
+                const Images& images = frame->getImages();
+                size_t index = images.size() - data->getNewImages();
+                for ( ; index != images.size(); ++index )
+                {
+                    Image* image = images[index];
+                    const PixelViewport& pvp = image->getPixelViewport();
+                    image->setOffset( pvp.x + tilePacket->pvp.x,
+                                      pvp.y + tilePacket->pvp.y );
+                }
+            }
 
             // transmit image
             _transmitTileImages( context );
