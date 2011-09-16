@@ -224,8 +224,6 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
     RenderContext context;
     _setupRenderContext( compound, context );
-    
-    
     _updatePostDraw( compound, context );
 
     return TRAVERSE_CONTINUE;
