@@ -160,6 +160,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
             frameIDs.push_back( co::ObjectVersion( frame ));
         }
 
+        const Channel* destChannel = compound->getInheritChannel();
         const TileQueues& inputQueues = compound->getInputTileQueues();
         for( TileQueuesCIter i = inputQueues.begin();
              i != inputQueues.end(); ++i )
@@ -169,6 +170,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
                     inputQueue->getOutputQueue( context.eye );
 
             ChannelFrameTilesPacket tilesPacket;
+            tilesPacket.isLocal = _channel == destChannel;
             tilesPacket.context = context;
             tilesPacket.tasks = compound->getInheritTasks();
             tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
@@ -222,8 +224,6 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
     RenderContext context;
     _setupRenderContext( compound, context );
-    
-    
     _updatePostDraw( compound, context );
 
     return TRAVERSE_CONTINUE;

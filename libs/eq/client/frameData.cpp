@@ -124,6 +124,7 @@ FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
         pixel = rhs.pixel;
         subpixel = rhs.subpixel;
         zoom = rhs.zoom;
+        // don't assign input nodes & -netNodes here
     }
     return *this;
 }
@@ -248,7 +249,6 @@ void FrameData::readback( const Frame& frame,
         return;
 
     const Zoom& zoom = frame.getZoom();
-
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
@@ -256,7 +256,6 @@ void FrameData::readback( const Frame& frame,
     }
 
     PixelViewports pvps;
-
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
 //                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
@@ -271,10 +270,7 @@ void FrameData::readback( const Frame& frame,
 
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x, pvp.y );
-        // @bug? eile why? image->setOffset( pvp.x, pvp.y );
-        // tribal-tec because it works; original code does not set any offset
-        // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
@@ -288,9 +284,6 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
-    // @bug? Why did it move to channel?
-    // was called in frameReadback anyway, obsolete here?
-    //setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
@@ -440,6 +433,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
+            image->setZoom( packet->zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }

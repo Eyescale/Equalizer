@@ -15,7 +15,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
     configVisitor.h
     drawableConfig.h
     elementVisitor.h
-	equalizerTypes.h
+    equalizerTypes.h
     error.h
     eye.h
     focusMode.h

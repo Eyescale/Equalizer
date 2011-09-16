@@ -132,6 +132,12 @@ namespace eq
         /** @return the internal pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
+        /** Sets the zoom factor to be used for compositing. */
+        void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
+
+        /** @return zoom factor to be used for compositing. */
+        const eq::Zoom& getZoom() const      { return _zoom; }
+
         /**
          * Set a compressor to be used during transmission of the image.
          *
@@ -289,8 +295,8 @@ namespace eq
         /**
          * Upload this image to the frame buffer or a texture.
          *
-         * If a texture is given, the upload is performed to the it. Otherwise
-         * the pixel data is uploaded to the frame buffer. The texture will be
+         * If a texture is given, the upload is performed to it. Otherwise the
+         * pixel data is uploaded to the frame buffer. The texture will be
          * initialized using the parameters corresponding to the requested
          * buffer.
          *
@@ -353,6 +359,9 @@ namespace eq
     private:
         /** The rectangle of the current pixel data. */
         PixelViewport _pvp;
+
+        /** Zoom factor used for compositing. */
+        eq::Zoom _zoom;
 
         /** @internal Raw image data. */
         struct Memory : public PixelData

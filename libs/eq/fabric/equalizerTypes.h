@@ -1,4 +1,4 @@
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -31,7 +31,7 @@ static const uint32_t TILE_EQUALIZER        = LOAD_EQUALIZER << 3;
 static const uint32_t MONITOR_EQUALIZER     = LOAD_EQUALIZER << 4;
 static const uint32_t DFR_EQUALIZER         = LOAD_EQUALIZER << 5;
 static const uint32_t FRAMERATE_EQUALIZER   = LOAD_EQUALIZER << 6;
-static const uint32_t EQUALIZER_ALL         = EQ_UNDEFINED_UINT32;
+static const uint32_t EQUALIZER_ALL         = EQ_BIT_ALL_32;
 
 }
 }

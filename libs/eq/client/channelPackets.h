@@ -204,7 +204,7 @@ namespace eq
     {
         ChannelFrameSetReadyPacket()
         {
-            command       = fabric::CMD_CHANNEL_FRAME_READY;
+            command       = fabric::CMD_CHANNEL_FRAME_SET_READY;
             size          = sizeof( ChannelFrameSetReadyPacket );
         }
     };
@@ -235,6 +235,7 @@ namespace eq
             size              = sizeof( ChannelFrameTilesPacket );
         }
 
+        bool              isLocal;
         co::ObjectVersion queueVersion;
         uint32_t          tasks;
         uint32_t          nFrames;

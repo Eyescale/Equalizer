@@ -37,13 +37,14 @@ namespace co
         DataIStreamQueue();
         ~DataIStreamQueue();
 
-        ObjectDataIStream* pop() { return _queued.pop(); }
+        bool addDataPacket( const uint128_t& key, Command& command );
+
+        ObjectDataIStream* pop() { return _queued.pop().second; }
         ObjectDataIStream* tryPop();
-        ObjectDataIStream* pull( const uint128_t& version );
+        ObjectDataIStream* pull( const uint128_t& key );
+
         void recycle( ObjectDataIStream* stream )
             { _iStreamCache.release( stream ); }
-
-        bool addDataPacket( const uint128_t& key, Command& command );
 
     protected:
         typedef stde::hash_map< uint128_t, ObjectDataIStream* > PendingStreams;
@@ -51,9 +52,12 @@ namespace co
 
         /** Not yet ready streams. */
         PendingStreams _pending;
+        
+        typedef std::pair< uint128_t, ObjectDataIStream* > QueuedStream;
+        typedef std::vector< QueuedStream > QueuedStreams;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queued;
+        base::MTQueue< QueuedStream > _queued;
 
         /** Cached input streams (+decompressor) */
         base::Pool< ObjectDataIStream, true > _iStreamCache;

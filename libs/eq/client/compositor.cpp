@@ -1049,14 +1049,16 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoomFilter = (operation.zoom == Zoom::NONE) ? 
-                               FILTER_NEAREST : frame->getZoomFilter();
     operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {
         const Image* image = *i;
-        assembleImage( image, operation );
+        ImageOp op = operation;
+        op.zoom.apply( image->getZoom() );
+        op.zoomFilter = (operation.zoom == Zoom::NONE) ? 
+                                        FILTER_NEAREST : frame->getZoomFilter();
+        assembleImage( image, op );
     }
 }
 
@@ -1204,7 +1206,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
                           << std::endl;
 
     const util::Texture* texture = 0;
-    if ( image->getStorageType() == Frame::TYPE_MEMORY )
+    if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
@@ -1220,7 +1222,8 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
             GL_TEXTURE_RECTANGLE_ARB );
         texture = ncTexture;
 
-        image->upload( which, ncTexture, Vector2i::ZERO, objects );
+        const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
+        image->upload( which, ncTexture, offset, objects );
     }
     else // texture image
     {
@@ -1332,9 +1335,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp 
-                          << std::endl;
+    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
 
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
@@ -1353,11 +1354,10 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                                                      GL_TEXTURE_RECTANGLE_ARB );
         util::Texture* ncTextureDepth = objects->obtainEqTexture( depthDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
+        const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
-        image->upload( Frame::BUFFER_COLOR, ncTextureColor, Vector2i::ZERO,
-                       objects );
-        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, Vector2i::ZERO,
-                       objects );
+        image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, objects );
+        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, objects );
 
         textureColor = ncTextureColor;
         textureDepth = ncTextureDepth;

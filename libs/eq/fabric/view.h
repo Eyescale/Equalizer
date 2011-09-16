@@ -204,7 +204,7 @@ namespace fabric
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS // TODO: add tile size & EQs bit?
         };
 
     protected:
