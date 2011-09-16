@@ -249,7 +249,6 @@ void FrameData::readback( const Frame& frame,
         return;
 
     const Zoom& zoom = frame.getZoom();
-
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
@@ -257,7 +256,6 @@ void FrameData::readback( const Frame& frame,
     }
 
     PixelViewports pvps;
-
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
 //                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );

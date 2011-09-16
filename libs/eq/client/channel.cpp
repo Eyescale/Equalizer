@@ -1192,7 +1192,7 @@ void Channel::_transmitImage( Image* image,
     if( !toNode || !toNode->isConnected( ))
     {
         EQWARN << "Can't connect node " << request->netNodeID
-            << " to send image data" << std::endl;
+               << " to send image data" << std::endl;
         return;
     }
 

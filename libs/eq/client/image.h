@@ -294,8 +294,8 @@ namespace eq
         /**
          * Upload this image to the frame buffer or a texture.
          *
-         * If a texture is given, the upload is performed to the it. Otherwise
-         * the pixel data is uploaded to the frame buffer. The texture will be
+         * If a texture is given, the upload is performed to it. Otherwise the
+         * pixel data is uploaded to the frame buffer. The texture will be
          * initialized using the parameters corresponding to the requested
          * buffer.
          *
