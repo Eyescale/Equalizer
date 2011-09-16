@@ -489,10 +489,10 @@ namespace eq
         EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
-        /** Signal the start of a frame using tiles. */
+        /** Start a batch of tile rendering operations. @version 1.1.5 */
         virtual void frameTileStart( const uint128_t& frameID ) {}
 
-        /** Signal the completion of a frame using tiles. */
+        /** Finish a batch of tile rendering operations. @version 1.1.5 */
         virtual void frameTileFinish( const uint128_t& frameID ) {}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
@@ -577,19 +577,12 @@ namespace eq
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
 
-        /** helper for transmitting one image */
+        /** Transmit one image of a frame to one node. */
         void _transmitImage( Image* image, 
                              const ChannelFrameTransmitPacket* packet );
         
-        /** sets the frame ready */
+        /** Send the ready signal of a frame to one node. */
         void _sendFrameDataReady( const ChannelFrameTransmitPacket* packet );
-        
-        /** transmits only a single image without setting the frame ready */
-        void _transmitImage( const ChannelFrameTransmitImagePacket* packet );
-
-
-        /** Transmit the frame data to the nodeID and sets the frame ready. */
-        void _transmitFrame( const ChannelFrameTransmitPacket* packet );
 
         void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
@@ -598,11 +591,11 @@ namespace eq
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        /** helper function to transmit the image */
-        void _sendTileToInputNodes( const RenderContext& context );
+        /** Transmit all new images after a tile draw. */
+        void _transmitTileImages( const RenderContext& context );
 
-        /** helper function to set frame ready */
-        void _setTileFrameReady( const RenderContext& context );
+        /** Transmit frame ready after all tile draws. */
+        void _transmitTileFrameReady( const RenderContext& context );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -617,7 +610,7 @@ namespace eq
         bool _cmdFrameTransmit( co::Command& command );
         bool _cmdFrameTransmitAsync( co::Command& command );
         bool _cmdFrameTransmitImageAsync( co::Command& command );
-        bool _cmdFrameReady( co::Command& command );
+        bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );

@@ -204,7 +204,7 @@ namespace eq
     {
         ChannelFrameSetReadyPacket()
         {
-            command       = fabric::CMD_CHANNEL_FRAME_READY;
+            command       = fabric::CMD_CHANNEL_FRAME_SET_READY;
             size          = sizeof( ChannelFrameSetReadyPacket );
         }
     };
