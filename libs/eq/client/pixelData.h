@@ -81,6 +81,8 @@ namespace eq
          */
         PixelViewport pvp;
 
+        Zoom zoom; // TODO doxygen: what does it mean/when&how is it used?
+
         /** uncompressed pixel data, pvp * pixelSize bytes. @version 1.0 */
         void* pixels;
 
@@ -94,7 +96,6 @@ namespace eq
         uint32_t compressorName;
         uint32_t compressorFlags; //!< Flags used for compression. @version 1.0
         bool isCompressed; //!< The compressed pixel data is set. @version 1.0
-        Zoom zoom;
     };
 };
 #endif // EQ_PIXELDATA_H

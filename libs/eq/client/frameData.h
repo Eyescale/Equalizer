@@ -136,6 +136,7 @@ namespace server
 
         /** @internal @return the number of newly read back images. */
         size_t getNewImages() const { return _newImages; }
+	// @bug: race between transmit & new tile?! resolvable with issue #32
 
         /**
          * Set the covered area for readbacks.

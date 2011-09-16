@@ -18,6 +18,7 @@
 
 #include "view.h"
 
+#include "equalizerTypes.h"
 #include "leafVisitor.h"
 #include "log.h"
 #include "paths.h"
@@ -57,7 +58,7 @@ View< L, V, O >::BackupData::BackupData()
         , maximumCapabilities( EQ_BIT_ALL_64 )
         , capabilities( EQ_BIT_ALL_64 )
         , mode( MODE_MONO )
-        , equalizers( EQ_BIT_ALL_32 )
+        , equalizers( EQUALIZER_ALL )
 {}
 
 template< class L, class V, class O > 
@@ -191,7 +192,7 @@ template< class L, class V, class O > void View< L, V, O >::restore()
     Frustum::restore();
     _data = _backup;
     setDirty( DIRTY_VIEWPORT | DIRTY_OVERDRAW | DIRTY_FRUSTUM | DIRTY_MODE |
-              DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES );
+              DIRTY_MINCAPS | DIRTY_MAXCAPS | DIRTY_CAPABILITIES ); // TODO: add new bits?
 }
 
 template< class L, class V, class O > 

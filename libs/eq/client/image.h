@@ -132,6 +132,7 @@ namespace eq
         /** @return the internal pixel viewport. @version 1.0 */
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
+        // TODO: doxygen
         void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
 
         const eq::Zoom& getZoom() const      { return _zoom; }

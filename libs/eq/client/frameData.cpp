@@ -111,6 +111,7 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
+// TODO eile: Why is the default assignment op. insufficient?
 FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
 {
     if( this != &rhs )
@@ -272,8 +273,9 @@ void FrameData::readback( const Frame& frame,
         Image* image = newImage( _data.frameType, config );
         image->readback( _data.buffers, pvp, zoom, glObjects );
         image->setOffset( pvp.x, pvp.y );
-        // @bug? eile why? image->setOffset( pvp.x, pvp.y );
+        // @bug? eile why?
         // tribal-tec because it works; original code does not set any offset
+        // TODO resolve with discussion
         // image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
 
 #ifndef NDEBUG
