@@ -41,7 +41,7 @@ DataIStreamQueue::~DataIStreamQueue()
 
 ObjectDataIStream* DataIStreamQueue::tryPop()
 {
-    QueuedStream stream( 0, 0 );
+    QueuedStream stream( 0, (ObjectDataIStream*)0 );
     _queued.tryPop( stream );
     return stream.second;
 }
