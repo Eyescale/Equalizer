@@ -1706,17 +1706,20 @@ bool Channel::_cmdFrameTransmitAsync( co::Command& command )
         return true;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
-    transmitEvent.statisticsIndex = packet->statisticsIndex;
-    transmitEvent.event.data.statistic.task = packet->context.taskID;
+    {
+        ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+        transmitEvent.statisticsIndex = packet->statisticsIndex;
+        transmitEvent.event.data.statistic.task = packet->context.taskID;
 
-    // send all images
-    const Images& images = frameData->getImages();
-    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        _transmitImage( *i, packet );
+        // send all images
+        const Images& images = frameData->getImages();
+        for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+            _transmitImage( *i, packet );
 
-    // all data transmitted -> ready
-    _sendFrameDataReady( packet );
+        // all data transmitted -> ready
+        _sendFrameDataReady( packet );
+    }
+
     _unrefFrame( packet->frameNumber, packet->statisticsIndex );
     return true;
 }
