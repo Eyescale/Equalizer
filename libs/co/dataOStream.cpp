@@ -19,6 +19,7 @@
 #include "dataOStream.h"
 
 #include "connectionDescription.h"
+#include "connections.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -84,30 +85,7 @@ void DataOStream::_enable()
 
 void DataOStream::_setupConnections( const Nodes& receivers )
 {
-    EQASSERT( _connections.empty( ));
-
-    const bool useMulticast = receivers.size() > 1;
-    ConnectionDescriptions mcSet;
-
-    for( Nodes::const_iterator i = receivers.begin(); i != receivers.end(); ++i)
-    {
-        NodePtr       node       = *i;
-        ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
-        
-        if( connection.isValid( ))
-        {
-            ConnectionDescriptionPtr desc = connection->getDescription();
-            if( std::find( mcSet.begin(), mcSet.end(), desc ) != mcSet.end( ))
-                // already added by another node
-                continue;
-            mcSet.push_back( desc );
-        }
-        else
-            connection = node->getConnection();
-
-        if( connection.isValid( ))
-            _connections.push_back( connection );
-    }
+    gatherConnections( receivers, _connections );
 }
 
 void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
