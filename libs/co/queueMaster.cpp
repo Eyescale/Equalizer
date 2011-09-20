@@ -66,9 +66,10 @@ void QueueMaster::push( const QueueItemPacket& packet )
 {
     EQ_TS_SCOPED( _thread );
 
-    Command& queueCommand = 
-            _cache.alloc( getLocalNode(), getLocalNode(), packet.size );
-    QueueItemPacket* queuePacket = queueCommand.get< QueueItemPacket >();
+    Command& queueCommand = _cache.alloc( getLocalNode(), getLocalNode(),
+                                          packet.size );
+    QueueItemPacket* queuePacket =
+        queueCommand.getModifiable< QueueItemPacket >();
 
     memcpy( queuePacket, &packet, packet.size );
     queuePacket->objectID = getID();
@@ -87,14 +88,14 @@ Command& QueueMaster::pop()
 bool QueueMaster::_cmdGetItem( Command& command )
 {
     EQ_TS_SCOPED( _thread );
-    QueueGetItemPacket* packet = command.get<QueueGetItemPacket>();
+    const QueueGetItemPacket* packet = command.get< QueueGetItemPacket >();
     uint32_t itemsRequested = packet->itemsRequested;
 
     while( !_queue.empty() && itemsRequested )
     {
         Command* queueItem = _queue.front();
         _queue.pop_front();
-        ObjectPacket* queuePacket = queueItem->get<ObjectPacket>();
+        ObjectPacket* queuePacket = queueItem->getModifiable< ObjectPacket >();
         queuePacket->instanceID = packet->slaveInstanceID;
         send( command.getNode(), *queuePacket );
         --itemsRequested;

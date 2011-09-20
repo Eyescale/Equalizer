@@ -29,7 +29,6 @@
 namespace co
 {
     class InstanceCache;
-    struct ObjectVersion;
 
     /** An object store manages Object mapping for a LocalNode. */
     class ObjectStore : public Dispatcher
@@ -174,7 +173,7 @@ namespace co
         /** The identifiers for node-local instance identifiers. */
         base::a_int32_t _instanceIDs;
 
-        /** startSendOnRegister() invocations. */
+        /** enableSendOnRegister() invocations. */
         base::a_int32_t _sendOnRegister;
 
         typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;

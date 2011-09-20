@@ -891,7 +891,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
-    PipeFrameDrawFinishPacket* packet =
+    const PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
