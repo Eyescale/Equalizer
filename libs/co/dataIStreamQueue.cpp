@@ -34,27 +34,27 @@ DataIStreamQueue::~DataIStreamQueue()
         delete i->second;
     _pending.clear();
 
-    ObjectDataIStream* is = 0;
-    while( _queued.tryPop( is ))
-        delete is;
+    QueuedStream stream;
+    while( _queued.tryPop( stream ))
+        delete stream.second;
 }
 
 ObjectDataIStream* DataIStreamQueue::tryPop()
 {
-    ObjectDataIStream* stream = 0;
+    QueuedStream stream( 0, 0 );
     _queued.tryPop( stream );
-    return stream;
+    return stream.second;
 }
 
-ObjectDataIStream* DataIStreamQueue::pull( const uint128_t& version )
+ObjectDataIStream* DataIStreamQueue::pull( const uint128_t& key )
 {
     ObjectDataIStream* is = 0;
-    ObjectDataIStreams unusedStreams;
+    QueuedStreams unusedStreams;
     while( !is )
     {
-        ObjectDataIStream* candidate = _queued.pop();
-        if( candidate->getVersion() == version )
-            is = candidate;
+        QueuedStream candidate = _queued.pop();
+        if( candidate.first == key )
+            is = candidate.second;
         else
             unusedStreams.push_back( candidate );
     }
@@ -81,7 +81,7 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
         if( i != _pending.end( ))
             _pending.erase( i );
 
-        _queued.push( istream );
+        _queued.push( QueuedStream( key, istream ));
         EQASSERTINFO( _queued.getSize() < 100, "More than 100 queued commits" );
         //EQLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
         return true;

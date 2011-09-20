@@ -39,7 +39,7 @@ ObjectDataIStream::~ObjectDataIStream()
 ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
         : DataIStream( from )
         , _commands( from._commands )
-        , _version( from._version.get( ))
+        , _version( from._version )
 {
     for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
     {
