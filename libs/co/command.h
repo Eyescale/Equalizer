@@ -38,9 +38,9 @@ namespace co
     class Command 
     {
     public:
-        /** @name Data access. */
+        /** @name Data Access */
         //@{
-        template< class P > P* get()
+        template< class P > P* getModifiable()
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
         template< class P > const P* get() const
             { EQASSERT( _packet ); return static_cast<P*>( _packet ); }

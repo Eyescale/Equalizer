@@ -137,7 +137,7 @@ bool Barrier::_cmdEnter( Command& command )
     EQ_TS_THREAD( _thread );
     EQASSERTINFO( !_master || _master == getLocalNode(), _master );
 
-    BarrierEnterPacket* packet = command.get< BarrierEnterPacket >();
+    BarrierEnterPacket* packet = command.getModifiable< BarrierEnterPacket >();
     if( packet->handled )
         return true;
     packet->handled = true;
@@ -277,7 +277,8 @@ bool Barrier::_cmdEnterReply( Command& command )
 {
     EQ_TS_THREAD( _thread );
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
-    BarrierEnterReplyPacket* reply = command.get< BarrierEnterReplyPacket >();
+    const BarrierEnterReplyPacket* reply =
+        command.get< BarrierEnterReplyPacket >();
     
     if( reply->version == getVersion( ))
         ++_leaveNotify;
