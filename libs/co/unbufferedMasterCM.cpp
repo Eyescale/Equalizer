@@ -43,7 +43,7 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
     object->registerCommand( CMD_OBJECT_COMMIT, 
                              CmdFunc( this, &UnbufferedMasterCM::_cmdCommit ),
                              q );
-    // sync commands are send to any instance, even the master gets the command
+    // sync commands are send to any instance, master discards it
     object->registerCommand( CMD_OBJECT_DELTA,
                              CmdFunc( this, &UnbufferedMasterCM::_cmdDiscard ),
                              0 );
@@ -60,8 +60,7 @@ void UnbufferedMasterCM::addSlave( Command& command,
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    NodeMapObjectPacket* packet =
-        command.get<NodeMapObjectPacket>();
+    const NodeMapObjectPacket* packet = command.get<const NodeMapObjectPacket>();
     const uint128_t version = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 

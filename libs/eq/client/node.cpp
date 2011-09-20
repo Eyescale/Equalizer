@@ -541,7 +541,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
 
 bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
-    NodeFrameDrawFinishPacket* packet = 
+    const NodeFrameDrawFinishPacket* packet = 
         command.get< NodeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
@@ -552,7 +552,7 @@ bool Node::_cmdFrameDrawFinish( co::Command& command )
 
 bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
-    NodeFrameTasksFinishPacket* packet = 
+    const NodeFrameTasksFinishPacket* packet = 
         command.get< NodeFrameTasksFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
                        << std::endl;

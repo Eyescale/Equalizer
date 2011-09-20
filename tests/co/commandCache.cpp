@@ -92,7 +92,7 @@ int main( int argc, char **argv )
         while( clock.getTime64() < RUNTIME )
         {
             co::Command& command = cache.alloc( node, node, sizeof( Packet ));
-            Packet* packet = command.get< Packet >();
+            Packet* packet = command.getModifiable< Packet >();
             *packet = Packet();
 
             readers[0].dispatchCommand( command );
@@ -110,7 +110,7 @@ int main( int argc, char **argv )
         for( size_t i = 0; i < N_READER; ++i )
         {
             co::Command& command = cache.alloc( node, node, sizeof( Packet ));
-            Packet* packet = command.get< Packet >();
+            Packet* packet = command.getModifiable< Packet >();
             *packet = Packet();
             packet->command = 1;
 

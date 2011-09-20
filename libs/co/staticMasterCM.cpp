@@ -42,8 +42,7 @@ void StaticMasterCM::addSlave( Command& command,
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    NodeMapObjectPacket* packet =
-        command.get<NodeMapObjectPacket>();
+    const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
     const uint32_t instanceID = packet->instanceID;
     const uint128_t version = packet->requestedVersion;
     EQASSERT( version == VERSION_OLDEST || version == VERSION_FIRST ||

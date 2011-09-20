@@ -91,8 +91,7 @@ protected:
 
             TESTINFO( (*command)->command == 2, *command );
 
-            DataPacket* packet = command->get<DataPacket>();
-            
+            const DataPacket* packet = command->get< DataPacket >();
             *compressor = packet->compressorName;
             *nChunks = packet->nChunks;
             *size = packet->dataSize;
@@ -173,8 +172,8 @@ int main( int argc, char **argv )
         co::Command& command = commandCache.alloc( 0, 0, size );
         size -= sizeof( size );
 
-        char* ptr = reinterpret_cast< char* >( command.get< co::Packet >( )) +
-                                                        sizeof( size );
+        char* ptr = reinterpret_cast< char* >(
+            command.getModifiable< co::Packet >( )) + sizeof( size );
         connection->recvNB( ptr, size );
         TEST( connection->recvSync( 0, 0 ) );
         TEST( command.isValid( ));
