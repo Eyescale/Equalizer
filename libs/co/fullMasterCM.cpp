@@ -52,6 +52,8 @@ FullMasterCM::FullMasterCM( Object* object )
                              CmdFunc( this, &FullMasterCM::_cmdCommit ), q );
     object->registerCommand( CMD_OBJECT_OBSOLETE, 
                              CmdFunc( this, &FullMasterCM::_cmdObsolete ), q );
+    object->registerCommand( CMD_OBJECT_PUSH,
+                             CmdFunc( this, &FullMasterCM::_cmdPush ), q );
 }
 
 FullMasterCM::~FullMasterCM()
@@ -421,4 +423,20 @@ bool FullMasterCM::_cmdObsolete( Command& command )
     _obsolete();
     return true;
 }
+
+bool FullMasterCM::_cmdPush( Command& command )
+{
+    EQ_TS_THREAD( _cmdThread );
+
+    const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
+    InstanceData* instanceData = _instanceDatas.back();
+
+    instanceData->os.push( *(packet->nodes), _object->getID(),
+                           packet->groupID, packet->typeID );
+
+    LocalNodePtr localNode = _object->getLocalNode();
+    localNode->serveRequest( packet->requestID );
+    return true;
+}
+
 }

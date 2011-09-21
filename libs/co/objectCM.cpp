@@ -65,7 +65,6 @@ void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
 
 bool ObjectCM::_cmdPush( Command& command )
 {
-    LocalNodePtr localNode = _object->getLocalNode();
     const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
 
     ObjectInstanceDataOStream os( this );
@@ -76,6 +75,7 @@ bool ObjectCM::_cmdPush( Command& command )
                                      packet->typeID );
     os.disable( pushPacket );
 
+    LocalNodePtr localNode = _object->getLocalNode();
     localNode->serveRequest( packet->requestID );
     return true;
 }
