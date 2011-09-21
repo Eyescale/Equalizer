@@ -408,6 +408,21 @@ namespace co
         uint32_t    requestID;
     };
 
+    struct NodeObjectPushPacket : public NodePacket
+    {
+        NodeObjectPushPacket( const uint128_t oID, const uint128_t gID,
+                              const uint128_t tID )
+                : objectID( oID ), groupID( gID ), typeID( tID )
+            {
+                command = CMD_NODE_OBJECT_PUSH;
+                size    = sizeof( NodeObjectPushPacket );
+            }
+
+        const uint128_t objectID;
+        const uint128_t groupID;
+        const uint128_t typeID;
+    };
+
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
