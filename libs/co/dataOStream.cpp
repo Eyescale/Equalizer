@@ -98,7 +98,7 @@ void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
     _connections.push_back( connection );
 }
 
-void DataOStream::_resend( )
+void DataOStream::_resend()
 {
     EQASSERT( !_enabled );
     EQASSERT( !_connections.empty( ));
@@ -106,7 +106,6 @@ void DataOStream::_resend( )
     
     _compress( _buffer.getData(), _dataSize, STATE_COMPLETE );
     sendData( _buffer.getData(), _dataSize, true );
-    _connections.clear();
 }
 
 void DataOStream::disable()
@@ -121,8 +120,13 @@ void DataOStream::disable( const Packet& packet )
 {
     if( !_disable( ))
         return;
-    Connection::send( _connections, packet );
+    _send( packet );
     _connections.clear();
+}
+
+void DataOStream::_send( const Packet& packet )
+{
+    Connection::send( _connections, packet );
 }
 
 bool DataOStream::_disable()

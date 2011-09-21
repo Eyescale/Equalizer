@@ -25,7 +25,6 @@
 
 namespace co
 {
-    class Node;
     class ObjectDataIStream;
 
     /** 
@@ -92,6 +91,7 @@ namespace co
         /* The command handlers. */
         bool _cmdCommit( Command& command );
         bool _cmdObsolete( Command& command );
+        bool _cmdPush( Command& command );
     };
 }
 

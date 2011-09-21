@@ -109,6 +109,10 @@ namespace DataStreamTest
         /** Resend the saved buffer to all enabled connections. */
         void _resend();
 
+        void _send( const Packet& packet );
+
+        void _clearConnections() { _connections.clear(); }
+
         /** @name Packet sending, used by the subclasses */
         //@{
         /** Send a data buffer (packet) to the receivers. */

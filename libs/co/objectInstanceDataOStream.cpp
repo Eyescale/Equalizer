@@ -20,6 +20,7 @@
 
 #include "log.h"
 #include "masterCM.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
@@ -61,6 +62,23 @@ void ObjectInstanceDataOStream::enablePush( const uint128_t& version,
     ObjectDataOStream::enableCommit( version, receivers );
 }
 
+void ObjectInstanceDataOStream::push( const Nodes& receivers,
+                                      const uint128_t& objectID,
+                                      const uint128_t& groupID,
+                                      const uint128_t& typeID )
+{
+    _command = CMD_NODE_OBJECT_INSTANCE_PUSH;
+    _nodeID = NodeID::ZERO;
+    _instanceID = EQ_INSTANCE_NONE;
+    _setupConnections( receivers );
+
+    _resend();
+    NodeObjectPushPacket packet( objectID, groupID, typeID );
+    _send( packet );
+
+    _clearConnections();
+}
+
 void ObjectInstanceDataOStream::sendInstanceData( const Nodes& receivers )
 {
     _command = CMD_NODE_OBJECT_INSTANCE;
@@ -68,6 +86,7 @@ void ObjectInstanceDataOStream::sendInstanceData( const Nodes& receivers )
     _instanceID = EQ_INSTANCE_NONE;
     _setupConnections( receivers );
     _resend();
+    _clearConnections();
 }
 
 void ObjectInstanceDataOStream::sendMapData( NodePtr node,
@@ -78,6 +97,7 @@ void ObjectInstanceDataOStream::sendMapData( NodePtr node,
     _instanceID = instanceID;
     _setupConnection( node, true /* useMulticast */ );
     _resend();
+    _clearConnections();
 }
 
 void ObjectInstanceDataOStream::enableMap( const uint128_t& version,
