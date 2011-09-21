@@ -25,6 +25,8 @@
 #include <co/base/stdExt.h>  // member
 #include <co/base/thread.h>  // thread-safety check
 
+#include "objectDataIStream.h" // pooled object
+
 namespace co
 {
     /** 
