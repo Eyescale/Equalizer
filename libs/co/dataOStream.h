@@ -48,8 +48,11 @@ namespace DataStreamTest
         CO_API DataOStream();
         virtual CO_API ~DataOStream();
 
-        /** Disable, flush and unlock the output to the current receivers. */
+        /** Disable and flush the output to the current receivers. */
         CO_API void disable();
+
+        /** Disable, then send the packet to the current receivers. */
+        void disable( const Packet& packet );
 
         /** Enable copying of all data into a saved buffer. */
         void enableSave();
@@ -154,6 +157,8 @@ namespace DataStreamTest
 
         /** Save all sent data */
         bool _save;
+
+        bool _disable();
 
         /** Helper function preparing data for sendData() as needed. */
         void _sendData( const void* data, const uint64_t size );
