@@ -111,8 +111,24 @@ void DataOStream::_resend( )
 
 void DataOStream::disable()
 {
-    if( !_enabled )
+    if( !_disable( ))
         return;
+    _connections.clear();
+}
+
+
+void DataOStream::disable( const Packet& packet )
+{
+    if( !_disable( ))
+        return;
+    Connection::send( _connections, packet );
+    _connections.clear();
+}
+
+bool DataOStream::_disable()
+{
+    if( !_enabled )
+        return false;
 
     if( _dataSent )
     {
@@ -137,7 +153,7 @@ void DataOStream::disable()
                 _compress( ptr, size, STATE_PARTIAL );
             }
 
-            sendData( ptr, size, true ); // send always to finalize istream
+            sendData( ptr, size, true ); // always send to finalize istream
         }
     }
     else if( _buffer.getSize() > 0 )
@@ -154,12 +170,12 @@ void DataOStream::disable()
         }
     }
 
-    _enabled = false;
-    _connections.clear();
 #ifndef CO_AGGRESSIVE_CACHING
     if( !_save )
         _buffer.clear();
 #endif
+    _enabled = false;
+    return true;
 }
 
 void DataOStream::enableSave()

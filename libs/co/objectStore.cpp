@@ -78,10 +78,14 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_COMMIT,
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_PUSH,
+        CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CmdFunc( this, &ObjectStore::_cmdDisableSendOnRegister ), queue );
     localNode->_registerCommand( CMD_NODE_REMOVE_NODE,
         CmdFunc( this, &ObjectStore::_cmdRemoveNode ), queue );
+    localNode->_registerCommand( CMD_NODE_OBJECT_PUSH,
+        CmdFunc( this, &ObjectStore::_cmdObjectPush ), queue );
 }
 
 ObjectStore::~ObjectStore()
@@ -1006,6 +1010,7 @@ bool ObjectStore::_cmdInstance( Command& command )
       case CMD_NODE_OBJECT_INSTANCE_PUSH:
         EQASSERT( packet->nodeID == NodeID::ZERO );
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
+        _pushData.addDataPacket( packet->objectID, command );
         return true;
 
       default:
@@ -1058,6 +1063,18 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
         _localNode->serveRequest( packet->requestID );
 
+    return true;
+}
+
+bool ObjectStore::_cmdObjectPush( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    const NodeObjectPushPacket* packet = command.get< NodeObjectPushPacket >();
+    ObjectDataIStream* is = _pushData.pull( packet->objectID );
+    
+    _localNode->objectPush( packet->groupID, packet->typeID, packet->objectID,
+                            *is );
+    _pushData.recycle( is );
     return true;
 }
 
