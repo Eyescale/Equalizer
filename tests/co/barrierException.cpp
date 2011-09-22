@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2011, Cedric stalder <cedric.stalder@gmail.com>> 
+/* Copyright (c) 2011, Cedric Stalder <cedric.stalder@gmail.com>> 
+ *               2011, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -14,6 +15,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 #include <pthread.h> // must come first!
 #include <test.h>
 
@@ -29,7 +31,7 @@
 
 #include <iostream>
 #define EQ_TEST_RUNTIME 6000
-#define NSLAVE  10
+#define NSLAVES  10
 
 bool testNormal();
 bool testException();
@@ -41,8 +43,8 @@ typedef std::vector< NodeThread* > NodeThreads;
 class BarrierThread : public co::base::Thread
 {
 public:
-    BarrierThread(  const uint32_t countLoop, const uint32_t port ) 
-        : _countLoop( countLoop )
+    BarrierThread(  const uint32_t nOps, const uint32_t port ) 
+        : _nOps( nOps )
         , _countException( 0 )  
         , _node( new co::LocalNode )
     {
@@ -54,8 +56,9 @@ public:
 
         TEST( _node->listen( ));
     }
+
 protected:
-    const uint32_t   _countLoop;
+    const uint32_t   _nOps;
     uint32_t         _countException;
     co::LocalNodePtr _node;
 };
@@ -63,8 +66,8 @@ protected:
 class ServerThread : public BarrierThread
 {
 public:
-    ServerThread( const uint32_t nbNode, const uint32_t countLoop )
-        : BarrierThread( countLoop, 4242 )
+    ServerThread( const uint32_t nbNode, const uint32_t nOps )
+        : BarrierThread( nOps, 4242 )
     {
         _barrier = new co::Barrier( _node, nbNode + 1 );
         _node->registerObject( _barrier );
@@ -87,7 +90,7 @@ public:
 protected:
     virtual void run()
     {
-        for( uint32_t i = 0; i < _countLoop; i++ )
+        for( uint32_t i = 0; i < _nOps; i++ )
         {
             const uint32_t timeout = co::base::Global::getIAttribute( 
                      co::base::Global::IATTR_TIMEOUT_DEFAULT );
@@ -111,9 +114,9 @@ class NodeThread : public BarrierThread
 public:
     NodeThread( const co::base::UUID& barrierID, 
                 const uint32_t port,
-                const uint32_t countLoop,
+                const uint32_t nOps,
                 const uint32_t timeToSleep )
-         : BarrierThread( countLoop, port ) 
+         : BarrierThread( nOps, port ) 
          , _timeToSleep( timeToSleep )
          , _barrierID( barrierID ) 
     {
@@ -141,7 +144,7 @@ public:
 protected:
     virtual void run()
     {
-        for( uint32_t i = 0; i < _countLoop; i++ )
+        for( uint32_t i = 0; i < _nOps; ++i )
         {
             co::base::sleep( _timeToSleep );
             const uint32_t timeout = co::base::Global::getIAttribute( 
@@ -183,20 +186,20 @@ bool testNormal()
     co::base::Global::setIAttribute( 
                 co::base::Global::IATTR_TIMEOUT_DEFAULT, 10000  );
     NodeThreads nodeThreads;
-    nodeThreads.resize(NSLAVE);
+    nodeThreads.resize(NSLAVES);
  
-    ServerThread server( NSLAVE, 1 ); 
+    ServerThread server( NSLAVES, 1 ); 
     server.start();
 
-    for( uint32_t i = 0; i < NSLAVE; i++ )
+    for( uint32_t i = 0; i < NSLAVES; i++ )
     {
-        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243 + i, 1, 0 );
+        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243+i, 1, 0 );
         nodeThreads[i]->start();
     }
     
     server.join();
 
-    for( uint32_t i = 0; i < NSLAVE; i++ )
+    for( uint32_t i = 0; i < NSLAVES; i++ )
     {
         nodeThreads[i]->join();
         TEST( nodeThreads[i]->getNbException() == 0 );    
@@ -212,20 +215,20 @@ bool testException()
     co::base::Global::setIAttribute( 
                            co::base::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
     NodeThreads nodeThreads;
-    nodeThreads.resize( NSLAVE );
+    nodeThreads.resize( NSLAVES );
 
-    ServerThread server( NSLAVE, 1 ); 
+    ServerThread server( NSLAVES, 1 ); 
     server.start();
 
-    for( uint32_t i = 0; i < NSLAVE - 1; i++ )
+    for( uint32_t i = 0; i < NSLAVES - 1; i++ )
     {
-        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243 + i, 1, 0 );
+        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243+i, 1, 0 );
         nodeThreads[i]->start();
     }
     
     TEST( server.join() );
     TEST( server.getNbException() == 1 );
-    for( uint32_t i = 0; i < NSLAVE - 1; i++ )
+    for( uint32_t i = 0; i < NSLAVES - 1; i++ )
     {
         TEST( nodeThreads[i]->join() );
         TEST( nodeThreads[i]->getNbException() == 1 );
@@ -237,8 +240,8 @@ bool testException()
 
 bool testSleep()
 {
-    co::base::Global::setIAttribute( 
-                           co::base::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
+    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
+                                     2000 /*ms*/ );
     NodeThreads nodeThreads( 5 );
     nodeThreads.resize( 5 );
 

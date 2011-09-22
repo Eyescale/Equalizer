@@ -59,7 +59,7 @@ namespace co
     /** Packet sent to and handled by an co::Node. */
     struct NodePacket: public Packet
     {
-        NodePacket(){ type = PACKETTYPE_CO_NODE; }
+        NodePacket() { type = PACKETTYPE_CO_NODE; }
     };
 
     /** Packet sent to and handled by an co::Object. */

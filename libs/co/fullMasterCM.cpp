@@ -52,6 +52,8 @@ FullMasterCM::FullMasterCM( Object* object )
                              CmdFunc( this, &FullMasterCM::_cmdCommit ), q );
     object->registerCommand( CMD_OBJECT_OBSOLETE, 
                              CmdFunc( this, &FullMasterCM::_cmdObsolete ), q );
+    object->registerCommand( CMD_OBJECT_PUSH,
+                             CmdFunc( this, &FullMasterCM::_cmdPush ), q );
 }
 
 FullMasterCM::~FullMasterCM()
@@ -191,8 +193,7 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
-    NodeMapObjectPacket* packet =
-        command.get<NodeMapObjectPacket>();
+    const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
@@ -376,7 +377,7 @@ void FullMasterCM::_releaseInstanceData( InstanceData* data )
 bool FullMasterCM::_cmdCommit( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
+    const ObjectCommitPacket* packet = command.get< ObjectCommitPacket >();
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
@@ -416,11 +417,26 @@ bool FullMasterCM::_cmdCommit( Command& command )
 bool FullMasterCM::_cmdObsolete( Command& command )
 {
     EQ_TS_THREAD( _cmdThread );
-    const ObjectObsoletePacket* packet = 
-        command.get<ObjectObsoletePacket>();
+    const ObjectObsoletePacket* packet = command.get< ObjectObsoletePacket >();
 
     _nVersions = packet->count;
     _obsolete();
     return true;
 }
+
+bool FullMasterCM::_cmdPush( Command& command )
+{
+    EQ_TS_THREAD( _cmdThread );
+
+    const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
+    InstanceData* instanceData = _instanceDatas.back();
+
+    instanceData->os.push( *(packet->nodes), _object->getID(),
+                           packet->groupID, packet->typeID );
+
+    LocalNodePtr localNode = _object->getLocalNode();
+    localNode->serveRequest( packet->requestID );
+    return true;
+}
+
 }

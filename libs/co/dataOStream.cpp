@@ -19,6 +19,7 @@
 #include "dataOStream.h"
 
 #include "connectionDescription.h"
+#include "connections.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -84,30 +85,7 @@ void DataOStream::_enable()
 
 void DataOStream::_setupConnections( const Nodes& receivers )
 {
-    EQASSERT( _connections.empty( ));
-
-    const bool useMulticast = receivers.size() > 1;
-    ConnectionDescriptions mcSet;
-
-    for( Nodes::const_iterator i = receivers.begin(); i != receivers.end(); ++i)
-    {
-        NodePtr       node       = *i;
-        ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
-        
-        if( connection.isValid( ))
-        {
-            ConnectionDescriptionPtr desc = connection->getDescription();
-            if( std::find( mcSet.begin(), mcSet.end(), desc ) != mcSet.end( ))
-                // already added by another node
-                continue;
-            mcSet.push_back( desc );
-        }
-        else
-            connection = node->getConnection();
-
-        if( connection.isValid( ))
-            _connections.push_back( connection );
-    }
+    gatherConnections( receivers, _connections );
 }
 
 void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
@@ -120,7 +98,7 @@ void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
     _connections.push_back( connection );
 }
 
-void DataOStream::_resend( )
+void DataOStream::_resend()
 {
     EQASSERT( !_enabled );
     EQASSERT( !_connections.empty( ));
@@ -128,13 +106,33 @@ void DataOStream::_resend( )
     
     _compress( _buffer.getData(), _dataSize, STATE_COMPLETE );
     sendData( _buffer.getData(), _dataSize, true );
-    _connections.clear();
 }
 
 void DataOStream::disable()
 {
-    if( !_enabled )
+    if( !_disable( ))
         return;
+    _connections.clear();
+}
+
+
+void DataOStream::disable( const Packet& packet )
+{
+    if( !_disable( ))
+        return;
+    _send( packet );
+    _connections.clear();
+}
+
+void DataOStream::_send( const Packet& packet )
+{
+    Connection::send( _connections, packet );
+}
+
+bool DataOStream::_disable()
+{
+    if( !_enabled )
+        return false;
 
     if( _dataSent )
     {
@@ -159,7 +157,7 @@ void DataOStream::disable()
                 _compress( ptr, size, STATE_PARTIAL );
             }
 
-            sendData( ptr, size, true ); // send always to finalize istream
+            sendData( ptr, size, true ); // always send to finalize istream
         }
     }
     else if( _buffer.getSize() > 0 )
@@ -176,12 +174,12 @@ void DataOStream::disable()
         }
     }
 
-    _enabled = false;
-    _connections.clear();
 #ifndef CO_AGGRESSIVE_CACHING
     if( !_save )
         _buffer.clear();
 #endif
+    _enabled = false;
+    return true;
 }
 
 void DataOStream::enableSave()

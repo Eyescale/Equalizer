@@ -58,8 +58,7 @@ namespace base
     {};
 
 #else
-    template< typename T >
-    struct hashRefPtr
+    template< typename T > struct hashRefPtr
     {
         size_t operator()( RefPtr< T > key ) const
         {

@@ -27,9 +27,7 @@
 
 namespace co
 {
-    /**
-     * The DataIStream for object data.
-     */
+    /** The DataIStream for object data. */
     class ObjectDataIStream : public DataIStream
     {
     public:

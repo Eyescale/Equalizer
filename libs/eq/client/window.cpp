@@ -719,7 +719,8 @@ bool Window::_cmdConfigInit( co::Command& command )
 
 bool Window::_cmdConfigExit( co::Command& command )
 {
-    WindowConfigExitPacket* packet = command.get<WindowConfigExitPacket>();
+    const WindowConfigExitPacket* packet =
+        command.get<WindowConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
@@ -785,7 +786,8 @@ bool Window::_cmdFinish( co::Command& )
 
 bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
-    WindowThrottleFramerate* packet = command.get< WindowThrottleFramerate >();
+    const WindowThrottleFramerate* packet =
+        command.get< WindowThrottleFramerate >();
     EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << packet << std::endl;
 
@@ -828,7 +830,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
 
 bool Window::_cmdSwap( co::Command& command ) 
 {
-    WindowSwapPacket* packet = command.get< WindowSwapPacket >();
+    const WindowSwapPacket* packet = command.get< WindowSwapPacket >();
     EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << std::endl;
 
@@ -844,7 +846,7 @@ bool Window::_cmdSwap( co::Command& command )
 
 bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
-    WindowFrameDrawFinishPacket* packet = 
+    const WindowFrameDrawFinishPacket* packet = 
         command.get< WindowFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
