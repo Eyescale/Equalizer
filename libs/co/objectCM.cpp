@@ -20,6 +20,7 @@
 #include "command.h"
 #include "nullCM.h"
 #include "node.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectInstanceDataOStream.h"
 #include "objectPackets.h"
@@ -64,14 +65,17 @@ void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
 
 bool ObjectCM::_cmdPush( Command& command )
 {
-    LocalNodePtr localNode = _object->getLocalNode();
     const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
 
     ObjectInstanceDataOStream os( this );
     os.enablePush( getVersion(), *(packet->nodes) );
     _object->getInstanceData( os );
-    os.disable();
 
+    NodeObjectPushPacket pushPacket( _object->getID(), packet->groupID,
+                                     packet->typeID );
+    os.disable( pushPacket );
+
+    LocalNodePtr localNode = _object->getLocalNode();
     localNode->serveRequest( packet->requestID );
     return true;
 }

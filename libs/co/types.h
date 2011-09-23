@@ -49,6 +49,7 @@ class Serializable;
 class QueueMaster;
 class QueueSlave;
 struct ObjectVersion;
+struct Packet;
 
 /** A unique identifier for nodes. */
 typedef base::UUID NodeID;

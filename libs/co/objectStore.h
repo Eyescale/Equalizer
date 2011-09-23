@@ -26,6 +26,8 @@
 #include <co/base/spinLock.h>  // member
 #include <co/base/stdExt.h>    // member
 
+#include "dataIStreamQueue.h"  // member
+
 namespace co
 {
     class InstanceCache;
@@ -197,7 +199,9 @@ namespace co
 
         InstanceCache* _instanceCache; //!< cached object mapping data
 
-         /** 
+        DataIStreamQueue _pushData; //!< Object::push() queue
+
+        /**
          * Returns the master node id for an identifier.
          * 
          * @param id the identifier.
@@ -227,6 +231,7 @@ namespace co
         bool _cmdDeregisterObject( Command& command );
         bool _cmdDisableSendOnRegister( Command& command );
         bool _cmdRemoveNode( Command& command );
+        bool _cmdObjectPush( Command& command );
 
         EQ_TS_VAR( _receiverThread );
         EQ_TS_VAR( _commandThread );
