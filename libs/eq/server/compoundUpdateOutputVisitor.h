@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,17 +25,6 @@ namespace eq
 {
 namespace server
 {
-
-    enum TileStrategy
-    {
-        STGY_TILE_RASTER,
-        STGY_TILE_ZIGZAG,
-        STGY_TILE_CWSPIRAL,
-        STGY_TILE_SQSPIRAL,
-        STGY_TILE_CUSTOM=10
-    };
-
-   
     /**
      * The compound visitor updating the output data (frames, tiles,
      * swapbarriers) of a compound tree.
@@ -67,29 +56,9 @@ namespace server
         void _updateZoom( const Compound* compound, Frame* frame );
         void _updateSwapBarriers( Compound* compound );
 
-        void _generateTiles( TileQueue* queue, 
-                             Compound* compound,
-                             TileStrategy strategy );
-        
-        void _addTilesToQueue( TileQueue* queue, 
-                               Compound* compound, 
-                               std::vector< Vector2i >& tileOrder );
-
-        void _applyTileStrategy( std::vector< Vector2i >& tileOrder,
-                                 const Vector2i& dim,
-                                 TileStrategy strategy );
-
-        void _rasterStrategy( std::vector< Vector2i >& tileOrder,
-                              const Vector2i& dim );
-
-        void _zigzagStrategy( std::vector< Vector2i >& tileOrder,
-                              const Vector2i& dim );
-
-        void _spiralStrategy( std::vector< Vector2i >& tileOrder,
-                              const Vector2i& dim );
-
-        void _squareStrategy( std::vector< Vector2i >& tileOrder,
-                              const Vector2i& dim );
+        void _generateTiles( TileQueue* queue, Compound* compound );
+        void _addTilesToQueue( TileQueue* queue, Compound* compound, 
+                               std::vector< Vector2i >& tiles );
     };
 }
 }
