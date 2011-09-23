@@ -40,6 +40,8 @@ namespace server
         const Compound::FrameMap& _outputFrames;
         const Compound::TileQueueMap& _outputQueues;
 
+        void _updateQueues( const Compound* compound );
+        void _updateFrames( Compound* compound );
         void _updateZoom( const Compound* compound, Frame* frame, 
                           const Frame* outputFrame );
     };

@@ -40,11 +40,15 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
     if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
-    
-    const TileQueues& inputQueues = compound->getInputTileQueues();
-    const Channel* channel = compound->getChannel();
 
-    // TODO refactor in separate methods for queues and frames
+    _updateQueues( compound );
+    _updateFrames( compound );
+    return TRAVERSE_CONTINUE;
+}
+
+void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
+{
+    const TileQueues& inputQueues = compound->getInputTileQueues();
     for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
     {
         //----- Find corresponding output queue
@@ -56,7 +60,7 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         if( j == _outputQueues.end( ))
         {
             EQVERB << "Can't find matching output queue, ignoring input queue "
-                << name << std::endl;
+                   << name << std::endl;
             queue->unsetData();
             continue;
         }
@@ -66,15 +70,19 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         TileQueue* outputQueue = j->second;
         queue->setOutputQueue( outputQueue, compound );
     }
+}
 
-    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
-        return TRAVERSE_CONTINUE;
+void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
+{
+    const Channel* channel = compound->getChannel();
+    if( compound->testInheritTask( fabric::TASK_ASSEMBLE ) && channel )
+        return;
 
     const Frames& inputFrames = compound->getInputFrames();
     if( inputFrames.empty( ))
     {
         compound->unsetInheritTask( fabric::TASK_ASSEMBLE );
-        return TRAVERSE_CONTINUE;
+        return;
     }
 
     for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
@@ -131,10 +139,6 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound );
 
-        //----- Commit
-        outputFrame->commitData();
-        outputFrame->commit();
-
         for( unsigned k = 0; k < NUM_EYES; ++k )
         {
             const eq::Eye eye = eq::Eye( 1<<k );
@@ -152,8 +156,6 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             }
         }
     }
-
-    return TRAVERSE_CONTINUE;
 }
 
 void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,

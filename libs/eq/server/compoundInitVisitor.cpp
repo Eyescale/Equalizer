@@ -24,8 +24,6 @@
 #include "segment.h"
 #include "view.h"
 #include "window.h"
-#include "tileQueue.h"
-#include "equalizers/tileEqualizer.h"
 #include <eq/client/log.h>
 
 namespace eq

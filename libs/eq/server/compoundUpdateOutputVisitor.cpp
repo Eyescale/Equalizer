@@ -72,9 +72,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         queue->cycleData( _frameNumber, compound );
 
         //----- Generate tile task packets
-        TileStrategy strategy = static_cast <TileStrategy> ( TILE_STRATEGY );
+        TileStrategy strategy = TILE_STRATEGY;
         _generateTiles( queue, compound, strategy );
-
         _outputTileQueues[name] = queue;
     }
 
@@ -135,7 +134,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
         
-        bool usesTiles = !compound->getInputTileQueues().empty();
+        const bool usesTiles = !compound->getInputTileQueues().empty();
         frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
                                           Vector2i( framePVP.x, framePVP.y ) );
 
@@ -171,22 +170,13 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         // 2) zoom
         _updateZoom( compound, frame );
 
-#if 0
-        //@bug? Where did this go? ----- Commit
-        // https://github.com/tribal-tec/Equalizer/commit/0e016a608f403f0234c3aba7ddb4a6906d1b219f
-        // moved to compoundUpdateInputVisitor.cpp:135, commit needs to be done
-        // after setting the input nodes to the outputframe
-        // follow outputFrame->addInputFrame( frame, compound );
-        frame->commitData();
-        frame->commit();
-#endif
         _outputFrames[name] = frame;
         EQLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << std::endl
             << co::base::enableFlush;
-   } 
+    }
 }
 
 void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
