@@ -142,76 +142,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     _setupRenderContext( compound, context );
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
-
-    // TODO refactor!
-    if ( _getTilesEnabled( compound ) )
-    {
-        Frames frames;
-        std::vector< co::ObjectVersion > frameIDs;
-        const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-        for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
-        {
-            Frame* frame = *i;
-
-            if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
-                continue;
-
-            frames.push_back( frame );
-            frameIDs.push_back( co::ObjectVersion( frame ));
-        }
-
-        const Channel* destChannel = compound->getInheritChannel();
-        const TileQueues& inputQueues = compound->getInputTileQueues();
-        for( TileQueuesCIter i = inputQueues.begin();
-             i != inputQueues.end(); ++i )
-        {
-            const TileQueue* inputQueue = *i;
-            const TileQueue* outputQueue =
-                    inputQueue->getOutputQueue( context.eye );
-
-            ChannelFrameTilesPacket tilesPacket;
-            tilesPacket.isLocal = _channel == destChannel;
-            tilesPacket.context = context;
-            tilesPacket.tasks = compound->getInheritTasks();
-            tilesPacket.tasks &= ( eq::fabric::TASK_CLEAR | 
-                        eq::fabric::TASK_DRAW | eq::fabric::TASK_READBACK );
-
-            const UUID& id = outputQueue->getQueueMasterID( context.eye );
-            EQASSERT( id != co::base::UUID::ZERO );
-            tilesPacket.queueVersion.identifier = id;
-            tilesPacket.queueVersion.version = co::VERSION_FIRST;
-            tilesPacket.nFrames   = uint32_t( frames.size( ));
-            _channel->send<co::ObjectVersion>( tilesPacket, frameIDs );
-
-            _updated = true;
-            EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName()
-                               <<  " " << &tilesPacket << std::endl;
-        }
-    }
-    else
-    {
-        if( compound->testInheritTask( fabric::TASK_CLEAR ))
-        {
-            ChannelFrameClearPacket clearPacket;        
-            clearPacket.context = context;
-            _channel->send( clearPacket );
-            _updated = true;
-            EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
-                << &clearPacket << std::endl;
-        }
-        if( compound->testInheritTask( fabric::TASK_DRAW ))
-        {
-            ChannelFrameDrawPacket drawPacket;
-
-            drawPacket.context = context;
-            drawPacket.finish = _channel->hasListeners(); // finish for equalizers
-            _channel->send( drawPacket );
-            _updated = true;
-            EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
-                << &drawPacket << std::endl;
-        }
-    }
-
+    _updateDraw( compound, context );
     _updateDrawFinish( compound );
     _updatePostDraw( compound, context );
     return TRAVERSE_CONTINUE;
@@ -229,20 +160,11 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
     return TRAVERSE_CONTINUE;
 }
 
-bool ChannelUpdateVisitor::_getTilesEnabled( const Compound* compound )
-{
-    return !compound->getInputTileQueues().empty();
-}
-
-
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 RenderContext& context )
 {
     const Channel* destChannel = compound->getInheritChannel();
     EQASSERT( destChannel );
-
-    bool tilesEnabled = !compound->getOutputTileQueues().empty() || 
-                            !compound->getInputTileQueues().empty();
 
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
@@ -261,7 +183,9 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = destChannel->getViewVersion();
     context.taskID        = compound->getTaskID();
-    context.tilesEnabled  = tilesEnabled;
+    context.tilesEnabled  = !compound->getOutputTileQueues().empty() || 
+                            !compound->getInputTileQueues().empty();
+
 
     const View* view = destChannel->getView();
     EQASSERT( context.view == view );
@@ -287,6 +211,74 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     // TODO: pvp size overcommit check?
 
     compound->computeFrustum( context, _eye );
+}
+
+void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
+                                        const RenderContext& context )
+{
+    if( context.tilesEnabled )
+    {
+        _updateDrawTiles( compound, context );
+        return;
+    }
+
+    if( compound->testInheritTask( fabric::TASK_CLEAR ))
+        _sendClear( context );
+
+    if( compound->testInheritTask( fabric::TASK_DRAW ))
+    {
+        ChannelFrameDrawPacket drawPacket;
+        drawPacket.context = context;
+        drawPacket.finish = _channel->hasListeners(); // finish for eq stats
+        _channel->send( drawPacket );
+        _updated = true;
+        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+                           << &drawPacket << std::endl;
+    }
+}
+
+void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
+                                             const RenderContext& context )
+{
+    Frames frames;
+    std::vector< co::ObjectVersion > frameIDs;
+    const Frames& outputFrames = compound->getOutputFrames();
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i)
+    {
+        Frame* frame = *i;
+
+        if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
+            continue;
+
+        frames.push_back( frame );
+        frameIDs.push_back( co::ObjectVersion( frame ));
+    }
+
+    const Channel* destChannel = compound->getInheritChannel();
+    const TileQueues& inputQueues = compound->getInputTileQueues();
+    for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
+    {
+        const TileQueue* inputQueue = *i;
+        const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
+        const UUID& id = outputQueue->getQueueMasterID( context.eye );
+        EQASSERT( id != co::base::UUID::ZERO );
+
+        ChannelFrameTilesPacket tilesPacket;
+        tilesPacket.isLocal = (_channel == destChannel);
+        tilesPacket.context = context;
+        tilesPacket.tasks = compound->getInheritTasks() &
+                            ( eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
+                              eq::fabric::TASK_READBACK );
+
+        tilesPacket.queueVersion.identifier = id;
+        tilesPacket.queueVersion.version = co::VERSION_FIRST; // eile: ???
+        tilesPacket.nFrames = uint32_t( frames.size( ));
+        _channel->send< co::ObjectVersion >( tilesPacket, frameIDs );
+
+        _updated = true;
+        EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
+                           << &tilesPacket << std::endl;
+    }
 }
 
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
@@ -417,10 +409,7 @@ void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound,
                                             const RenderContext& context )
 {
     _updateAssemble( compound, context );
-    
-    if( !_getTilesEnabled( compound ))
-        _updateReadback( compound, context );
-    
+    _updateReadback( compound, context );
     _updateViewFinish( compound, context );
 }
 
@@ -445,7 +434,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         frameIDs.push_back( co::ObjectVersion( frame ));
     }
 
-    if( frameIDs.empty() )
+    if( frameIDs.empty( ))
         return;
 
     // assemble task
@@ -454,16 +443,20 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     packet.nFrames   = uint32_t( frameIDs.size( ));
 
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
-        << "TASK assemble " << _channel->getName() <<  " " << &packet << std::endl;
-    _channel->send<co::ObjectVersion>( packet, frameIDs );
+        << "TASK assemble " << _channel->getName() <<  " " << &packet
+        << std::endl;
+    _channel->send< co::ObjectVersion >( packet, frameIDs );
     _updated = true;
 }
 
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const RenderContext& context )
 {
-    if( !compound->testInheritTask( fabric::TASK_READBACK ))
+    if( !compound->testInheritTask( fabric::TASK_READBACK ) ||
+        ( context.tilesEnabled && compound->isLeaf( )))
+    {
         return;
+    }
 
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     EQASSERT( !outputFrames.empty( ));

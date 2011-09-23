@@ -509,7 +509,11 @@ namespace server
         //@}
 
         typedef stde::hash_map<std::string, co::Barrier*> BarrierMap;
-        typedef stde::hash_map<std::string, Frame*>       FrameMap;
+        typedef BarrierMap::const_iterator BarrierMapCIter;
+
+        typedef stde::hash_map<std::string, Frame*> FrameMap;
+        typedef FrameMap::const_iterator FrameMapCIter;
+
         typedef stde::hash_map<std::string, TileQueue*>   TileQueueMap;
 
     private:

@@ -65,6 +65,10 @@ namespace server
         bool _skipCompound( const Compound* compound );
         void _sendClear( const RenderContext& context );
 
+        void _updateDraw( const Compound* compound,
+                          const RenderContext& context );
+        void _updateDrawTiles( const Compound* compound,
+                               const RenderContext& context );
         void _updateDrawFinish( const Compound* compound ) const;
         void _updateFrameRate( const Compound* compound ) const;
 
@@ -84,9 +88,6 @@ namespace server
                                const fabric::RenderContext& context );
         void _updateViewFinish( const Compound* compound,
                                 const fabric::RenderContext& context );
-
-        bool _getTilesEnabled( const Compound* compound );
-
     };
 }
 }
