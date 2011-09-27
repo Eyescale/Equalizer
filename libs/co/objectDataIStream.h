@@ -59,6 +59,8 @@ namespace co
         /** All data command packets for this istream. */
         CommandDeque _commands;
 
+        Command* _usedCommand; //!< Currently used buffer
+
         /** The object version associated with this input stream. */
         base::Monitor< uint128_t > _version;
 

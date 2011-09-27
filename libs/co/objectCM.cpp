@@ -47,7 +47,7 @@ ObjectCM::ObjectCM( Object* object )
 }
 
 void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
-                     Nodes& nodes )
+                     const Nodes& nodes )
 {
     EQASSERT( _object );
     EQASSERT( !nodes.empty( ));
