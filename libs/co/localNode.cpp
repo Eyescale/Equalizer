@@ -563,8 +563,8 @@ void LocalNode::objectPush( const uint128_t& groupID, const uint128_t& typeID,
                             const uint128_t& objectID, DataIStream& istream )
 {
     if( !istream.isEmpty( ))
-        EQWARN << "Incomplete Object::push group " << groupID << " object "
-               << objectID << std::endl;
+        EQWARN << "Incomplete Object::push for group " << groupID << " type "
+               << typeID << " object " << objectID << std::endl;
 }
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )

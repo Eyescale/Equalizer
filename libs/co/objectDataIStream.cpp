@@ -26,7 +26,8 @@
 namespace co
 {
 ObjectDataIStream::ObjectDataIStream()
-        : _version( VERSION_INVALID )
+        : _usedCommand( 0 )
+        , _version( VERSION_INVALID )
 {
     _reset();
 }
@@ -39,13 +40,13 @@ ObjectDataIStream::~ObjectDataIStream()
 ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
         : DataIStream( from )
         , _commands( from._commands )
+        , _usedCommand( 0 )
         , _version( from._version )
 {
     for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
     {
         Command* command = *i;
-        if( command )
-            command->retain();
+        command->retain();
     }
 }
 
@@ -57,16 +58,19 @@ void ObjectDataIStream::reset()
 
 void ObjectDataIStream::_reset()
 {
+    if( _usedCommand )
+    {
+        _usedCommand->release();
+        _usedCommand = 0;
+    }
     while( !_commands.empty( ))
     {
         Command* command = _commands.front();
-        if( command )
-            command->release();
+        command->release();
         _commands.pop_front();
     }
 
     _version = VERSION_INVALID;
-    _commands.push_back( 0 ); // see getNextCommand()
 }
 
 void ObjectDataIStream::addDataPacket( Command& command )
@@ -75,7 +79,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
     const ObjectDataPacket* packet = command.get< ObjectDataPacket >();
 #ifndef NDEBUG
-    if( _commands.size() < 2 )
+    if( _commands.empty( ))
     {
         EQASSERT( packet->sequence == 0 );
     }
@@ -97,29 +101,22 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
 bool ObjectDataIStream::hasInstanceData() const
 {
-    for( CommandDeque::const_iterator i = _commands.begin(); 
-         i != _commands.end(); ++i )
+    if( _commands.empty( ))
     {
-        const Command* command = *i;
-        if( !command )
-            continue;
-        
-        return( (*command)->command == CMD_OBJECT_INSTANCE );
+        EQUNREACHABLE;
+        return false;
     }
-    EQUNREACHABLE;
-    return false;
+
+    const Command* command = _commands.front();
+    return( (*command)->command == CMD_OBJECT_INSTANCE );
 }
 
 size_t ObjectDataIStream::getDataSize() const
 {
     size_t size = 0;
-    for( CommandDeque::const_iterator i = _commands.begin(); 
-         i != _commands.end(); ++i )
+    for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
     {
         const Command* command = *i;
-        if( !command )
-            continue;
-
         const ObjectDataPacket* packet = 
             command->get< ObjectDataPacket >();
         size += packet->dataSize;
@@ -132,33 +129,24 @@ uint128_t ObjectDataIStream::getPendingVersion() const
     if( _commands.empty( ))
         return VERSION_INVALID;
 
-    Command* command = _commands.back();
-    if( !command )
-        return VERSION_INVALID;
-    
+    const Command* command = _commands.back();
     const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
     return packet->version;
 }
 
 const Command* ObjectDataIStream::getNextCommand()
 {
-    if( _commands.empty( ))
-        return 0;
+    if( _usedCommand )
+        _usedCommand->release();
 
-    // release last command
-    Command* command = _commands.front();
-    if( command )
+    if( _commands.empty( ))
+        _usedCommand = 0;
+    else
     {
-        command->release();
-        EQASSERT( _commands.size() < 2 ||
-                  (*_commands[0])->command == (*_commands[1])->command );
+        _usedCommand = _commands.front();
+        _commands.pop_front();
     }
-    _commands.pop_front();
-
-    if( _commands.empty( ))
-        return 0;
-    
-    return _commands.front();
+    return _usedCommand;
 }
 
 bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,

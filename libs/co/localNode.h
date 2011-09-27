@@ -236,7 +236,7 @@ namespace co
          * @sa registerObject
          */
         CO_API bool mapObject( Object* object, const base::UUID& id, 
-                                  const uint128_t& version = VERSION_OLDEST );
+                               const uint128_t& version = VERSION_OLDEST );
 
         /** Convenience wrapper for mapObject(). */
         bool mapObject( Object* object, const ObjectVersion& v )
@@ -462,10 +462,9 @@ namespace co
         //@}
 
         friend class ObjectStore;
-        template< typename T >
-        void _registerCommand( const uint32_t command,
-                               const CommandFunc< T >& func,
-                               CommandQueue* destinationQueue )
+        template< typename T > void
+        _registerCommand( const uint32_t command, const CommandFunc< T >& func,
+                          CommandQueue* destinationQueue )
         {
             registerCommand( command, func, destinationQueue );
         }
