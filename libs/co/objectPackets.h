@@ -52,7 +52,7 @@ namespace co
     {
         ObjectPushPacket( const uint32_t instanceID_, const uint32_t requestID_,
                           const uint128_t& groupID_, const uint128_t& typeID_,
-                          Nodes& nodes_ )
+                          const Nodes& nodes_ )
                 : groupID( groupID_ )
                 , typeID( typeID_ )
                 , requestID( requestID_ )
@@ -66,7 +66,7 @@ namespace co
         const uint128_t groupID;
         const uint128_t typeID;
         const uint32_t requestID;
-        Nodes* nodes;
+        const Nodes* nodes;
     };
 
     struct ObjectDataPacket : public ObjectPacket

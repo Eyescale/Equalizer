@@ -172,6 +172,12 @@ bool Object::send( NodePtr node, ObjectPacket& packet,
     return node->send( packet, data, size );
 }
 
+void Object::push( const uint128_t& groupID, const uint128_t& typeID,
+                   const Nodes& nodes )
+{
+    _cm->push( groupID, typeID, nodes );
+}
+
 uint128_t Object::commit( const uint32_t incarnation )
 {
     return commitSync( commitNB( incarnation ));

@@ -53,7 +53,7 @@ namespace co
         //@{
         /** @sa Object::push() */
         virtual void push( const uint128_t& groupID, const uint128_t& typeID,
-                           Nodes& nodes );
+                           const Nodes& nodes );
 
         /** 
          * Start committing a new version.
