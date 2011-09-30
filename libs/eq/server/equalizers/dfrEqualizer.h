@@ -37,7 +37,6 @@ namespace server
     public:
         DFREqualizer();
         virtual ~DFREqualizer();
-        virtual Equalizer* clone() const { return new DFREqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the average frame rate for the DFREqualizer  */

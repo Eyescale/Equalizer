@@ -69,7 +69,7 @@ void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
             continue;
         }
 
-        // reuse unused frame data
+        // reuse unused queues
         LatencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
         const uint32_t latency = getAutoObsolete();
         const uint32_t dataAge = queue ? queue->_frameNumber : 0;
@@ -155,8 +155,8 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     os << "name      \"" << name << "\"" << std::endl;
 
     const eq::Vector2i& size = tileQueue->getTileSize();
-    if( size.x() > 0 || size.y() > 0 )
-        os << "size      [ " << size.x() << " " << size.y() << " ]" <<std::endl;
+    if( size != Vector2i::ZERO )
+        os << "size      " << size << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

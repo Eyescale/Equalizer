@@ -43,8 +43,6 @@ namespace server
         EQSERVER_API FramerateEqualizer();
         FramerateEqualizer( const FramerateEqualizer& from );
         virtual ~FramerateEqualizer();
-        virtual Equalizer* clone() const
-            { return new FramerateEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** @sa Equalizer::attach */

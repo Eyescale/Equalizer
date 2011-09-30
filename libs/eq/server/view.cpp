@@ -69,7 +69,7 @@ void View::attach( const UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
     registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
-        ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
+                     ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
 }
 
 namespace
@@ -193,9 +193,9 @@ public:
         Equalizers equalizers = compound->getEqualizers();
         for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
         {
-            Equalizer* eq = *i;
+            Equalizer* equalizer = *i;
             const uint32_t bitmask = _view->getEqualizers();
-            eq->setActivated( ( eq->getType() & bitmask ) != 0 );
+            equalizer->setActive( ( equalizer->getType() & bitmask ) != 0 );
         }
         return TRAVERSE_CONTINUE; 
     }

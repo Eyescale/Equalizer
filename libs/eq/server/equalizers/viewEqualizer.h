@@ -30,7 +30,6 @@ namespace eq
 {
 namespace server
 {
-    class Compound;
     class ViewEqualizer;
     std::ostream& operator << ( std::ostream& os, const ViewEqualizer* );
 
@@ -44,7 +43,6 @@ namespace server
         EQSERVER_API ViewEqualizer();
         ViewEqualizer( const ViewEqualizer& from );
         virtual ~ViewEqualizer();
-        virtual Equalizer* clone() const { return new ViewEqualizer(*this); }
         virtual void toStream( std::ostream& os ) const { os << this; }
             
         /** @sa Equalizer::attach. */

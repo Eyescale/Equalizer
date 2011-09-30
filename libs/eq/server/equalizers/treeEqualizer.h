@@ -43,7 +43,6 @@ namespace server
         EQSERVER_API TreeEqualizer();
         TreeEqualizer( const TreeEqualizer& from );
         virtual ~TreeEqualizer();
-        virtual Equalizer* clone() const { return new TreeEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         enum Mode

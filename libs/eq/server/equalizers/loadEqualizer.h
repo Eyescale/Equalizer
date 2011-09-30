@@ -51,7 +51,6 @@ namespace server
         EQSERVER_API LoadEqualizer( const Mode mode = MODE_2D );
         LoadEqualizer( const LoadEqualizer& from );
         virtual ~LoadEqualizer();
-        virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the load balancer adaptation mode. */

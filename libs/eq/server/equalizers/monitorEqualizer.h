@@ -39,7 +39,6 @@ namespace server
         MonitorEqualizer();
         MonitorEqualizer( const MonitorEqualizer& from );
         virtual ~MonitorEqualizer();
-        virtual Equalizer* clone() const { return new MonitorEqualizer(*this); }
         virtual void toStream( std::ostream& os ) const { os << this; }
             
         /** @sa Equalizer::attach. */

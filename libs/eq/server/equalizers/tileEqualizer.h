@@ -37,12 +37,10 @@ public:
     ~TileEqualizer() {};
 
     /** @sa CompoundListener::notifyUpdatePre */
-    virtual void notifyUpdatePre( Compound* compound, 
-        const uint32_t frameNumber );
+    virtual void notifyUpdatePre( Compound* compound,
+                                  const uint32_t frameNumber );
 
-    virtual Equalizer* clone() const { return new TileEqualizer( *this ); }
     virtual void toStream( std::ostream& os ) const { os << this; }
-
     void setName( const std::string& name ) { _name = name; }
 
     void setTileSize( const Vector2i& size ) { _size = size; }
