@@ -317,8 +317,7 @@ namespace co
         CO_API void releaseSendToken( SendToken& token );
 
         /** Return the command queue to the command thread. */
-        virtual CommandQueue* getCommandThreadQueue() 
-            { return &_commandThreadQueue; }
+        CommandQueue* getCommandThreadQueue() { return &_commandThreadQueue; }
 
         /** 
          * @return true if executed from the command handler thread, false if
