@@ -217,6 +217,24 @@ namespace base
         return result;
     };
 
+    /** Bitwise 'and' operation on two 128 bit values. @version 1.0 */
+    inline uint128_t operator& ( const uint128_t& a, const uint128_t& b )
+    {
+        uint128_t result = a;
+        result.low() &= b.low();
+        result.high() &= b.high();
+        return result;
+    }
+
+    /** Bitwise 'or' operation on two 128 bit values. @version 1.0 */
+    inline uint128_t operator| ( const uint128_t& a, const uint128_t& b )
+    {
+        uint128_t result = a;
+        result.low() |= b.low();
+        result.high() |= b.high();
+        return result;
+    }
+
 }
 }
 
