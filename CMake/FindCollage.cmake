@@ -76,6 +76,11 @@ find_path(_co_INCLUDE_DIR co/version.h
   PATHS /usr /usr/local /opt/local /opt
   )
 
+if(Collage_FIND_REQUIRED)
+    set(_co_version_output_type FATAL_ERROR)
+else()
+    set(_co_version_output_type STATUS)
+endif()
 
 # Try to ascertain the version...
 if(_co_INCLUDE_DIR)
@@ -106,6 +111,10 @@ if(_co_INCLUDE_DIR)
     set(COLLAGE_VERSION "0.3.0"
       CACHE INTERNAL "The version of Collage which was detected")
   endif()
+else()
+  set(_co_EPIC_FAIL TRUE)
+  message(${_co_version_output_type}
+    "ERROR: Can't find Collage header file version.h.")
 endif()
 
 #
@@ -133,12 +142,6 @@ find_library(_co_LIBRARY Collage
         
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(Collage_FIND_REQUIRED)
-    set(_co_version_output_type FATAL_ERROR)
-else()
-    set(_co_version_output_type STATUS)
-endif()
-
 if(_co_version_not_high_enough)
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}

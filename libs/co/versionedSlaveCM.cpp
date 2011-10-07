@@ -189,7 +189,8 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
         {
             EQASSERTINFO( is->hasInstanceData(), *_object );
 
-            _object->applyInstanceData( *is );
+            if( is->nRemainingBuffers() > 0 ) // not VERSION_NONE
+                _object->applyInstanceData( *is );
             _version = is->getVersion();
             EQASSERT( _version != VERSION_INVALID );
 

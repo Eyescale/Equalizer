@@ -67,6 +67,18 @@ namespace co
          */
         LocalNodePtr getLocalNode(){ return _localNode; };
 
+        /**
+         * Set the object's unique identifier.
+         *
+         * Only to be called on unattached objects. The application has to
+         * ensure the uniqueness of the identifier in the peer-to-peer node
+         * network. By default, each object has an identifier guaranteed to be
+         * unique. During mapping, the identifier of the object will be
+         * overwritten with the identifier of the master object.
+         * @version 1.1.5
+         */
+        CO_API void setID( const base::UUID& identifier );
+
         /** @return the object's unique identifier. */
         const base::UUID& getID() const { return _id; }
 
@@ -353,9 +365,6 @@ namespace co
 
         /** @internal */
         //@{
-        /** @internal Set the object's unique identifier */
-        CO_API void setID( const base::UUID& identifier );
-
         /** @internal @return the master object instance identifier. */
         uint32_t getMasterInstanceID() const;
 
