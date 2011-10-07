@@ -189,13 +189,12 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
         {
             EQASSERTINFO( is->hasInstanceData(), *_object );
 
-            if( is->nRemainingBuffers() > 0 ) // not VERSION_NONE
+            if( is->hasData( )) // not VERSION_NONE
                 _object->applyInstanceData( *is );
             _version = is->getVersion();
-            EQASSERT( _version != VERSION_INVALID );
 
-            EQASSERTINFO( is->getRemainingBufferSize()==0 &&
-                          is->nRemainingBuffers()==0,
+            EQASSERT( _version != VERSION_INVALID );
+            EQASSERTINFO( !is->hasData(),
                           base::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<

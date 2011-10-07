@@ -562,7 +562,7 @@ void LocalNode::releaseObject( Object* object )
 void LocalNode::objectPush( const uint128_t& groupID, const uint128_t& typeID,
                             const uint128_t& objectID, DataIStream& istream )
 {
-    if( !istream.isEmpty( ))
+    if( istream.hasData( ))
         EQWARN << "Incomplete Object::push for group " << groupID << " type "
                << typeID << " object " << objectID << std::endl;
 }

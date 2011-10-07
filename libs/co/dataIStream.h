@@ -105,9 +105,8 @@ namespace co
         /** Advance the current buffer by a number of bytes. */
         CO_API void advanceBuffer( const uint64_t offset );
 
-        /** @return true if all data has been read. */
-        bool isEmpty()
-            { return nRemainingBuffers()==0 && getRemainingBufferSize()==0; }
+        /** @return true if not all data has been read. */
+        bool hasData() { return _checkBuffer(); }
         //@}
  
     protected:

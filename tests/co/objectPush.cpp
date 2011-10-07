@@ -69,7 +69,9 @@ private:
 class Server : public co::LocalNode
 {
 public:
-    Server() {}
+    Server() : object( 0 ) {}
+
+    co::Object* object;
 
 protected:
     virtual void objectPush( const uint128_t& groupID, const uint128_t& typeID,
@@ -80,12 +82,9 @@ protected:
                 co::Object::ChangeType( typeID.low( ));
             TESTINFO( istream.nRemainingBuffers() == 1,
                       istream.nRemainingBuffers( ));
-            Object object( type, istream );
-            TESTINFO( istream.isEmpty(), istream.nRemainingBuffers( ));
-#if 0
-            TEST( mapObject( &object, objectID, co::VERSION_NONE ));
-            unmapObject( &object );
-#endif
+            TEST( !object );
+            object = new Object( type, istream );
+            TESTINFO( !istream.hasData(), istream.nRemainingBuffers( ));
             monitor = type;
         }
 
@@ -129,7 +128,14 @@ int main( int argc, char **argv )
         Object object( type );
         TEST( client->registerObject( &object ));
         object.push( 42, i, nodes );
+
         monitor.waitEQ( type );
+        TEST( server->mapObject( server->object, object.getID(),
+                                 co::VERSION_NONE ));
+        server->unmapObject( server->object );
+        delete server->object;
+        server->object = 0;
+
         client->deregisterObject( &object );
     }
     const float time = clock.getTimef();
