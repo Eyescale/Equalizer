@@ -27,6 +27,7 @@
 #include <co/commandQueue.h>    // member
 #include <co/connectionSet.h>   // member
 #include <co/objectVersion.h>   // used in inline method
+#include <co/worker.h>          // member
 
 #include <co/base/clock.h>          // member
 #include <co/base/hash.h>           // member
@@ -317,7 +318,8 @@ namespace co
         CO_API void releaseSendToken( SendToken& token );
 
         /** Return the command queue to the command thread. */
-        CommandQueue* getCommandThreadQueue() { return &_commandThreadQueue; }
+        CommandQueue* getCommandThreadQueue()
+            { return _commandThread->getWorkerQueue(); }
 
         /** 
          * @return true if executed from the command handler thread, false if
@@ -389,9 +391,6 @@ namespace co
 
         /** The command 'allocator' */
         CommandCache _commandCache;
-
-        /** The receiver->command command queue. */
-        CommandQueue _commandThreadQueue;
 
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
@@ -473,23 +472,22 @@ namespace co
          */
         //@{
         /** The command handler thread. */
-        class CommandThread : public base::Thread
+        class CommandThread : public Worker
         {
         public:
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
-            virtual bool init()
-                {
-                    setName( std::string("Cmd ") + base::className(_localNode));
-                    return true;
-                }
-            virtual void run(){ _localNode->_runCommandThread(); }
+
+        protected:
+            virtual bool init();
+            virtual bool stopRunning() { return _localNode->isClosed(); }
+            virtual bool notifyIdle();
+
         private:
             LocalNode* const _localNode;
         };
         CommandThread* _commandThread;
 
         void _dispatchCommand( Command& command );
-        void _runCommandThread();
         void   _redispatchCommands();
 
         /** The command functions. */

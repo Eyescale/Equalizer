@@ -48,6 +48,7 @@ class ObjectDataIStream;
 class Serializable;
 class QueueMaster;
 class QueueSlave;
+template< class Q > class WorkerThread;
 struct ObjectVersion;
 struct Packet;
 

@@ -138,6 +138,7 @@ set(CLIENT_SOURCES
   window.cpp
   windowStatistics.cpp
   windowSystem.cpp
+  worker.cpp
   )
 
 if(EQ_AGL_USED)
