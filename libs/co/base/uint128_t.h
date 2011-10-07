@@ -217,8 +217,8 @@ namespace base
         return result;
     };
 
-    /** Bitwise 'and' operation on two 128 bit values. @version 1.0 */
-    inline uint128_t operator& ( const uint128_t& a, const uint128_t& b )
+    /** Bitwise and operation on two 128 bit values. @version 1.1.5 */
+    inline uint128_t operator & ( const uint128_t& a, const uint128_t& b )
     {
         uint128_t result = a;
         result.low() &= b.low();
@@ -226,8 +226,8 @@ namespace base
         return result;
     }
 
-    /** Bitwise 'or' operation on two 128 bit values. @version 1.0 */
-    inline uint128_t operator| ( const uint128_t& a, const uint128_t& b )
+    /** Bitwise or operation on two 128 bit values. @version 1.1.5 */
+    inline uint128_t operator | ( const uint128_t& a, const uint128_t& b )
     {
         uint128_t result = a;
         result.low() |= b.low();
