@@ -128,7 +128,7 @@ namespace co
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
          */
-        bool _checkBuffer();
+        CO_API bool _checkBuffer();
         CO_API void _reset();
         
         const uint8_t* _decompress( const void* data, const uint32_t name,
