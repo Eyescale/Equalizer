@@ -55,7 +55,10 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
     EQASSERT( _object );
     EQASSERT( _currentIStream->getVersion() == VERSION_FIRST );
     EQASSERT( _currentIStream->hasInstanceData( ));
-    _object->applyInstanceData( *_currentIStream );
+
+    if( _currentIStream->nRemainingBuffers() > 0 ) // not VERSION_NONE
+        _object->applyInstanceData( *_currentIStream );
+
     EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&
                   _currentIStream->nRemainingBuffers() == 0,
                   "Object " << typeid( *_object ).name() <<
