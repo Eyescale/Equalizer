@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -390,7 +390,6 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         }
         TF[4*i+3] = tmp;
     }
-
     return true;
 }
 
@@ -404,13 +403,19 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
     double bInt[256]; bInt[0] = 0.;
     double aInt[256]; aInt[0] = 0.;
 
+    // Creating SAT (Summed Area Tables) from averaged neighbouring RGBA values
     for( int i=1; i<256; i++ )
     {
-        const double tauc = ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2.;
+        // average Alpha from two neighbouring TF values
+        const double tauc =   ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2. / 255.;
 
-        rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc/255.;
-        gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc/255.;
-        bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc/255.;
+        // SAT of average RGBs from two neighbouring TF values 
+        // multiplied with Alpha
+        rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc;
+        gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc;
+        bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc;
+
+        // SAT of average Alpha values
         aInt[i] = aInt[i-1] + tauc;
     }
 
@@ -426,28 +431,27 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
             if( sb<sf ) { smin=sb; smax=sf; }
             else        { smin=sf; smax=sb; }
 
-            int rcol, gcol, bcol, acol;
+            double rcol, gcol, bcol, acol;
             if( smax != smin )
             {
                 const double factor = 1. / (double)(smax-smin);
-                rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
-                gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
-                bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
-                acol = static_cast<int>( 
-                        256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)));
+                rcol =       ( rInt[smax] - rInt[smin] ) * factor;
+                gcol =       ( gInt[smax] - gInt[smin] ) * factor;
+                bcol =       ( bInt[smax] - bInt[smin] ) * factor;
+                acol = exp( -( aInt[smax] - aInt[smin] ) * factor) * 255.;
             } else
             {
                 const int    index  = smin*4;
                 const double factor = 1./255.;
-                rcol = static_cast<int>( Table[index+0]*Table[index+3]*factor );
-                gcol = static_cast<int>( Table[index+1]*Table[index+3]*factor );
-                bcol = static_cast<int>( Table[index+2]*Table[index+3]*factor );
-                acol = static_cast<int>( 256.*(    exp(-Table[index+3]/255.)) );
+                rcol =       Table[index+0] * Table[index+3] * factor;
+                gcol =       Table[index+1] * Table[index+3] * factor;
+                bcol =       Table[index+2] * Table[index+3] * factor;
+                acol = exp(                  -Table[index+3] * factor ) * 256.;
             }
-            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//MIN( rcol, 255 );
-            lookupImg[lookupindex++] = clip( gcol, 0, 255 );//MIN( gcol, 255 );
-            lookupImg[lookupindex++] = clip( bcol, 0, 255 );//MIN( bcol, 255 );
-            lookupImg[lookupindex++] = clip( acol, 0, 255 );//MIN( acol, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(rcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(gcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(bcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(acol), 0, 255 );
         }
     }
 

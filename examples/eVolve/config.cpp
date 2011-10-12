@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -207,6 +208,16 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'b':
+        case 'B':
+            _frameData.toggleBackground();
+            return true;
+
+        case 'd':
+        case 'D':
+            _frameData.toggleColorMode();
+            return true;
+
         case eq::KC_F1:
         case 'h':
         case 'H':
