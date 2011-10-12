@@ -223,16 +223,18 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
         return barrier;
     }
 
+    co::BarriersCIter i = stde::find( _swapBarriers, barrier );
+    if( i != _swapBarriers.end( )) // Issue #39: window already has this barrier
+        return barrier;
+
     EQASSERT( getPipe() );
     const Windows& windows = getPipe()->getWindows();
     bool beforeSelf = true;
 
     // Check if another window in the same thread is using the swap barrier
-    for( Windows::const_iterator i = windows.begin(); 
-         i != windows.end(); ++i )
+    for( WindowsCIter j = windows.begin(); j != windows.end(); ++j )
     {
-        Window* window = *i;
-
+        Window* window = *j;
         if( window == this ) // skip self
         {
             beforeSelf = false;
@@ -240,15 +242,15 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
         }
 
         co::Barriers& barriers = window->_swapBarriers;
-        co::Barriers::iterator j = stde::find( barriers, barrier );
-        if( j == barriers.end( ))
+        co::BarriersIter k = stde::find( barriers, barrier );
+        if( k == barriers.end( ))
             continue;
 
         if( beforeSelf ) // some earlier window will do the barrier for us
             return barrier;
             
         // else we will do the barrier, remove from later window
-        barriers.erase( j );
+        barriers.erase( k );
         _swapBarriers.push_back( barrier );
         return barrier;
     }
@@ -448,7 +450,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
         if( barrier->getHeight() <= 1 )
         {
-            EQINFO << "Ignoring swap barrier of height " << barrier->getHeight()
+            EQVERB << "Ignoring swap barrier of height " << barrier->getHeight()
                    << std::endl;
             continue;
         }

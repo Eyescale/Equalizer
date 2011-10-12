@@ -113,15 +113,18 @@ namespace fabric
         /** @internal
          * Set a swap barrier.
          *
-         * This barrier will be set as a barrier on all segments added
-         * afterwards, unless the segment already has a barrier.
-         * 
+         * This barrier will be set as a barrier on all destination compounds ,
+         * unless the compounds already has a barrier.
+         *
          * @param barrier the swap barrier.
          */
         void setSwapBarrier( SwapBarrierPtr barrier );
-        
+
         /** @internal @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
+
+        /** @internal @return the current swap barrier. */
+        SwapBarrierPtr getSwapBarrier() { return _swapBarrier; }
         //@}
         
         /** @name Operations */

@@ -77,6 +77,8 @@ typedef Compounds::const_iterator CompoundsCIter;
 typedef Compounds::iterator CompoundsIter;
 typedef Frames::const_iterator FramesCIter;
 typedef Frames::iterator FramesIter;
+typedef Layouts::const_iterator LayoutsCIter;
+typedef Layouts::iterator LayoutsIter;
 typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
 typedef Pipes::const_iterator PipesCIter;
@@ -85,6 +87,8 @@ typedef TileQueues::const_iterator TileQueuesCIter;
 typedef TileQueues::iterator TileQueuesIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
+typedef Windows::const_iterator WindowsCIter;
+typedef Windows::iterator WindowsIter;
 
 typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
