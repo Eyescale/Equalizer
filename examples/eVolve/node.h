@@ -41,15 +41,10 @@ namespace eVolve
     public:
         Node( eq::Config* parent ) : eq::Node( parent ) {}
 
-        const InitData& getInitData() const { return _initData; }
-
     protected:
         virtual ~Node(){}
 
         virtual bool configInit( const eq::uint128_t& initID );
-
-    private:
-        InitData _initData;
     };
 }
 

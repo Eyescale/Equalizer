@@ -122,7 +122,8 @@ static void setLights( eq::Matrix4f& invRotationM )
 }
 
 
-eq::Vector4f _getTintColors( const ColorMode colorMode, eq::Vector3f colors )
+static eq::Vector4f _getTintColors( const ColorMode colorMode,
+                                          eq::Vector3f colors )
 {
     eq::Vector4f  taintColors( 0.0, 0.0, 0.0, 0.0 );
 
