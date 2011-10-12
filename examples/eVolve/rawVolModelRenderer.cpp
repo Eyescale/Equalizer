@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,11 @@ static void renderSlices( const SliceClipper& sliceClipper )
 }
 
 
-void RawVolumeModelRenderer::_putVolumeDataToShader( const VolumeInfo& volumeInfo, const float sliceDistance, const eq::Matrix4f& invRotationM )
+void RawVolumeModelRenderer::_putVolumeDataToShader(
+        const VolumeInfo&   volumeInfo,
+        const float         sliceDistance,
+        const eq::Matrix4f& invRotationM,
+        const eq::Vector4f& taintColor       )
 {
     EQASSERT( _glewContext );
 
@@ -115,6 +119,12 @@ void RawVolumeModelRenderer::_putVolumeDataToShader( const VolumeInfo& volumeInf
     tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
     glUniform1fARB( tParamNameGL,  8.0f         ); //f-shader
 
+    tParamNameGL = glGetUniformLocationARB(  shader,  "taint"     );
+    glUniform4fARB( tParamNameGL,   taintColor.r(),
+                                    taintColor.g(),
+                                    taintColor.b(),
+                                    taintColor.a()  ); //f-shader
+
     // rotate viewPosition in the opposite direction of model rotation
     // to keep light position constant but not recalculate normals 
     // in the fragment shader
@@ -128,10 +138,11 @@ void RawVolumeModelRenderer::_putVolumeDataToShader( const VolumeInfo& volumeInf
 
 bool RawVolumeModelRenderer::render
 (
-    const eq::Range&        range,
+    const eq::Range&      range,
     const eq::Matrix4d&   modelviewM,
     const eq::Matrix3d&   modelviewITM,
-    const eq::Matrix4f&   invRotationM
+    const eq::Matrix4f&   invRotationM,
+    const eq::Vector4f&   taintColor
 )
 {
     VolumeInfo volumeInfo;
@@ -154,7 +165,8 @@ bool RawVolumeModelRenderer::render
     const uint32_t resolution    = _rawModel.getResolution();
     const double   sliceDistance = 3.6 / ( resolution * _precision );
 
-    _putVolumeDataToShader( volumeInfo, float( sliceDistance ), invRotationM );
+    _putVolumeDataToShader( volumeInfo, float( sliceDistance ), 
+                            invRotationM, taintColor );
 
     _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
                                       sliceDistance, range );
