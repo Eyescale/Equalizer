@@ -79,7 +79,7 @@ namespace eVolve
         eq::Vector3f _bgColor;   //!< background color
         eq::Frame    _frame;     //!< Readback buffer for DB compositing
         eq::Range    _drawRange; //!< The range from the last draw of this frame
-        bool         _envTaint;  //!< True if EQ_TAINT_CHANNELS is set
+        const bool   _taint;     //!< True if EQ_TAINT_CHANNELS is set
     };
 
 }

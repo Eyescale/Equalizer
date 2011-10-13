@@ -43,7 +43,7 @@ Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _bgColor( eq::Vector3f::ZERO )
         , _drawRange( eq::Range::ALL )
-        , _envTaint( false )
+        , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
     eq::FrameData* frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
@@ -64,9 +64,6 @@ bool Channel::configInit( const eq::uint128_t& initID )
         return false;
 
     setNearFar( 0.001f, 10.0f );
-
-    _envTaint = getenv( "EQ_TAINT_CHANNELS" );
-
     return true;
 }
 
@@ -81,7 +78,7 @@ void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumb
     if( bgMode == BG_WHITE )
         _bgColor = eq::Vector3f( 1.f, 1.f, 1.f, 1.f );
     else
-        if( bgMode == BG_COLOR || _envTaint )
+        if( bgMode == BG_COLOR || _taint )
              _bgColor = eq::Vector3f(getUniqueColor())/255.;
 
     eq::Channel::frameStart( frameID, frameNumber );
@@ -122,24 +119,20 @@ static void setLights( eq::Matrix4f& invRotationM )
 }
 
 
-static eq::Vector4f _getTintColors( const ColorMode colorMode,
-                                          eq::Vector3f colors )
+static eq::Vector4f _getTaintColor( const ColorMode colorMode,
+                                    const eq::Vector3f& color )
 {
-    eq::Vector4f  taintColors( 0.0, 0.0, 0.0, 0.0 );
-
     if( colorMode == COLOR_MODEL )
-        return taintColors;
+        return eq::Vector4f::ZERO;
 
+    eq::Vector4f taintColor = color;
     const float alpha = ( colorMode == COLOR_HALF_DEMO ) ? 0.5 : 1.0;
 
-    colors /= 255.f;
-    taintColors = colors;
-    taintColors      *= alpha;
-    taintColors.a()   = alpha;
-
-    return taintColors;
+    taintColor /= 255.f;
+    taintColor      *= alpha;
+    taintColor.a()   = alpha;
+    return taintColor;
 }
-
 
 void Channel::frameDraw( const eq::uint128_t& frameID )
 {
@@ -178,13 +171,11 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     _calcMVandITMV( modelviewM, modelviewITM );
 
     // set fancy data colors
-    eq::Vector4f  taintColors = _getTintColors(
-                                    frameData.getColorMode( ), getUniqueColor());
-
+    const eq::Vector4f taintColor = _getTaintColor( frameData.getColorMode(),
+                                                    getUniqueColor( ));
     const eq::Range& range = getRange();
-    renderer->render( range, modelviewM, modelviewITM,
-                      invRotationM, taintColors );
-
+    renderer->render( range, modelviewM, modelviewITM, invRotationM,
+                      taintColor );
     checkError( "error during rendering " );
 
     _drawRange = range;
