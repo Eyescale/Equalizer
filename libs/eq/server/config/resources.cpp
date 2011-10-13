@@ -112,15 +112,19 @@ Channels Resources::configureSourceChannels( Config* config )
 
 void Resources::configure( const Compounds& compounds, const Channels& channels)
 {
-    EQASSERT( compounds.size() == 1 );
+    EQASSERT( !compounds.empty( ));
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
     const Canvas* canvas = 0;
-    const Compounds& children = compounds.front()->getChildren();
-    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
-        Compound* segmentCompound = *i;
+        const Compounds& children = (*i)->getChildren();
+        EQASSERT( children.size() == 1 );
+        if( children.size() != 1 )
+            continue;
+
+        Compound* segmentCompound = children.front();
         const Channel* channel = segmentCompound->getChannel();
         EQASSERT( channel );
 
