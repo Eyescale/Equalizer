@@ -19,7 +19,7 @@ server
             }
         }
         observer{}
-        layout{ view { observer 0 }}
+        layout{ view { observer 0 wall{} }}
         canvas
         {
             layout 0
