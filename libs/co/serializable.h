@@ -127,11 +127,9 @@ namespace co
 
         virtual void applyInstanceData( co::DataIStream& is )
             {
-                if( is.getRemainingBufferSize() == 0 && 
-                    is.nRemainingBuffers() == 0 )
-                {
+                EQASSERT( is.hasData( ));
+                if( !is.hasData( ))
                     return;
-                }
                 deserialize( is, DIRTY_ALL );
             }
 
@@ -146,11 +144,10 @@ namespace co
 
         virtual void unpack( co::DataIStream& is )
             {
-                if( is.getRemainingBufferSize() == 0 && 
-                    is.nRemainingBuffers() == 0 )
-                {
+                EQASSERT( is.hasData( ));
+                if( !is.hasData( ))
                     return;
-                }
+
                 uint64_t dirty;
                 is >> dirty;
                 deserialize( is, dirty );

@@ -253,6 +253,14 @@ S* Canvas< CFG, C, S, L >::findSegment( const std::string& name )
 }
 
 template< class CFG, class C, class S, class L >
+const S* Canvas< CFG, C, S, L >::findSegment( const std::string& name ) const
+{
+    NameFinder< const S, Visitor > finder( name );
+    accept( finder );
+    return finder.getResult();
+}
+
+template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::addLayout( L* layout )
 {
     EQASSERT( stde::find( _layouts, layout ) == _layouts.end( ));

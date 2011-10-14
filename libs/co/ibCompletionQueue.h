@@ -15,14 +15,16 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#include <eq/base/base.h>
-#include <eq/base/lock.h>
 #ifdef EQ_INFINIBAND
 
 #ifndef EQNET_IBCOCOMPLETIONQUEUE_H
 #define EQNET_IBCOCOMPLETIONQUEUE_H
 #include <iba/ib_al.h>
+
 #include <eq/base/atomic.h>
+#include <eq/base/base.h>
+#include <eq/base/lock.h>
+
 namespace co
 {
 

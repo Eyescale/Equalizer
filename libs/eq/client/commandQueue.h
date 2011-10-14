@@ -50,11 +50,18 @@ namespace eq
         /** @sa co::CommandQueue::tryPop(). */
         virtual co::Command* tryPop();
 
+        /** @sa reset the time spent in pop() and return the previous value. */
+        int64_t resetWaitTime()
+            { const int64_t time = _waitTime; _waitTime = 0; return time; }
+
         void setMessagePump( MessagePump* pump ) { _messagePump = pump; }
         MessagePump* getMessagePump() { return _messagePump; }
 
     private:
         MessagePump* _messagePump;
+
+        /** The time spent waiting in pop(). */
+        int64_t _waitTime;
     };
 }
 

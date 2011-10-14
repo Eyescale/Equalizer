@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2009, Maxim Makhinya
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@ Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _bgColor( eq::Vector3f::ZERO )
         , _drawRange( eq::Range::ALL )
+        , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
     eq::FrameData* frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
@@ -63,19 +64,23 @@ bool Channel::configInit( const eq::uint128_t& initID )
         return false;
 
     setNearFar( 0.001f, 10.0f );
-
-    if( getenv( "EQ_TAINT_CHANNELS" ))
-    {
-        _bgColor = getUniqueColor();
-        _bgColor /= 255.f;
-    }
-
     return true;
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     _drawRange = eq::Range::ALL;
+    _bgColor = eq::Vector3f( 0.f, 0.f, 0.f );
+
+    const BackgroundMode bgMode = _getFrameData().getBackgroundMode();
+
+    if( bgMode == BG_WHITE )
+        _bgColor = eq::Vector3f( 1.f, 1.f, 1.f );
+    else
+        if( bgMode == BG_COLOR || _taint )
+             _bgColor = eq::Vector3f( getUniqueColor( )) / 255.f;
+
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
@@ -114,6 +119,21 @@ static void setLights( eq::Matrix4f& invRotationM )
 }
 
 
+static eq::Vector4f _getTaintColor( const ColorMode colorMode,
+                                    const eq::Vector3f& color )
+{
+    if( colorMode == COLOR_MODEL )
+        return eq::Vector4f::ZERO;
+
+    eq::Vector4f taintColor = color;
+    const float alpha = ( colorMode == COLOR_HALF_DEMO ) ? 0.5 : 1.0;
+
+    taintColor /= 255.f;
+    taintColor      *= alpha;
+    taintColor.a()   = alpha;
+    return taintColor;
+}
+
 void Channel::frameDraw( const eq::uint128_t& frameID )
 {
     // Setup frustum
@@ -150,9 +170,12 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
+    // set fancy data colors
+    const eq::Vector4f taintColor = _getTaintColor( frameData.getColorMode(),
+                                                    getUniqueColor( ));
     const eq::Range& range = getRange();
-    renderer->render( range, modelviewM, modelviewITM, invRotationM );
-
+    renderer->render( range, modelviewM, modelviewITM, invRotationM,
+                      taintColor );
     checkError( "error during rendering " );
 
     _drawRange = range;

@@ -276,32 +276,37 @@ void Config::updateCanvas( Canvas* canvas )
     postNeedsFinish();
     activateCanvas( canvas );
 
-    // Create compounds for all new output channels
-    const Segments& segments = canvas->getSegments();
-    Compound* group = new Compound( this );
-
-    for( Segments::const_iterator i=segments.begin(); i != segments.end(); ++i )
+    // Create one compound group for all new output channels of each layout
+    const Layouts& layouts = canvas->getLayouts();
+    for( LayoutsCIter i = layouts.begin(); i != layouts.end(); ++i )
     {
-        const Segment* segment = *i;
-        const Channels& channels = segment->getDestinationChannels();
+        Compound* group = new Compound( this );
 
-        if( channels.empty( ))
-            EQWARN << "New segment without destination channels will be ignored"
-                   << std::endl;
-        
-        for( Channels::const_iterator j = channels.begin();
-             j != channels.end(); ++j )
+        const Layout* layout = *i;
+        const Views& views = layout->getViews();
+        for( ViewsCIter j = views.begin(); j != views.end(); ++j )
         {
-            Channel* channel = *j;
-            EQASSERT( !channel->isActive( ));
+            const View* view = *j;
+            const Channels& channels = view->getChannels();
 
-            Compound* compound = new Compound( group );
-            compound->setIAttribute( Compound::IATTR_STEREO_MODE, fabric::AUTO);
-            compound->setChannel( channel );
+            if( channels.empty( ))
+                EQWARN << "New view without destination channels will be ignored"
+                       << std::endl;
+        
+            for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )
+            {
+                Channel* channel = *k;
+                EQASSERT( !channel->isActive( ));
+
+                Compound* compound = new Compound( group );
+                compound->setIAttribute( Compound::IATTR_STEREO_MODE,
+                                         fabric::AUTO );
+                compound->setChannel( channel );
+            }
         }
+        group->init();
     }
 
-    group->init();
     canvas->init();
     EQINFO << *this << std::endl;
 }

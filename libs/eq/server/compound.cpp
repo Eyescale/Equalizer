@@ -209,6 +209,18 @@ ServerPtr Compound::getServer()
 void Compound::setChannel( Channel* channel )
 { 
     _data.channel = channel;
+
+    // Update swap barrier
+    if( !isDestination( ))
+        return;
+
+    Segment* segment = channel ? channel->getSegment() : 0;
+    if( !segment )
+        return;
+
+    SwapBarrierPtr swapBarrier = segment->getSwapBarrier();
+    if( swapBarrier )
+        setSwapBarrier( swapBarrier );
 }
 
 const Channel* Compound::getChannel() const
@@ -1488,43 +1500,44 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
                 {
                     os << "channel  ( ";
 
+                    const Canvas* canvas = segment->getCanvas();
+                    const std::string& canvasName = canvas->getName();
+                    if( !canvasName.empty() && 
+                        config->find< Canvas >( canvasName ) == canvas )
+                    {
+                        os << "canvas \"" << canvasName << "\"  ";
+                    }
+                    else
+                        os << canvas->getPath() << "  ";
+
                     const std::string& segmentName = segment->getName();
                     if( !segmentName.empty() && 
-                        config->find< Segment >( segmentName ) == segment )
+                        canvas->findSegment( segmentName ) == segment )
                     {
-                        const Canvas* canvas = segment->getCanvas();
-                        const std::string& canvasName = canvas->getName();
-                        if( !canvasName.empty() && 
-                            config->find< Canvas >( canvasName ) == canvas )
-                        {
-                            os << "canvas \"" << canvasName << "\"  ";
-                        }
-                        else
-                            os << canvas->getPath() << ' ';
-
                         os << "segment \"" << segmentName << "\"   ";
                     }
                     else
-                        os << segment->getPath() << ' ';
+                        os << "segment " << segment->getPath().segmentIndex
+                           << "   ";
+
+                    const Layout* layout = view->getLayout();
+                    const std::string& layoutName = layout->getName();
+                    if( !layoutName.empty() && 
+                        config->find< Layout >( layoutName ) == layout )
+                    {
+                        os << "layout \"" << layoutName << "\"  ";
+                    }
+                    else
+                        os << layout->getPath() << "  ";
 
                     const std::string& viewName = view->getName();
                     if( !viewName.empty() && 
                         config->find< View >( viewName ) == view )
                     {
-                        const Layout* layout = view->getLayout();
-                        const std::string& layoutName = layout->getName();
-                        if( !layoutName.empty() && 
-                            config->find< Layout >( layoutName ) == layout )
-                        {
-                            os << "layout \"" << layoutName << "\"  ";
-                        }
-                        else
-                            os << layout->getPath() << ' ';
-
                         os << "view \"" << viewName << '\"';
                     }
                     else
-                        os << view->getPath();
+                        os << "view " << view->getPath().viewIndex;
 
                     os << " )" << std::endl; 
                 }
@@ -1605,8 +1618,8 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     bool attrPrinted = false;
     
     for( Compound::IAttribute i = static_cast< Compound::IAttribute >( 0 );
-         i < Compound::IATTR_ALL; 
-         i = static_cast< Compound::IAttribute >( static_cast<uint32_t>( i )+1))
+         i<Compound::IATTR_ALL;
+         i = static_cast< Compound::IAttribute >( uint32_t( i ) + 1 ))
     {
         const int value = compound.getIAttribute( i );
         if( value == Global::instance()->getCompoundIAttribute( i ))
@@ -1669,6 +1682,9 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
         os << "input" << *i;
 
+    if( compound.getSwapBarrier( ))
+        os << *compound.getSwapBarrier();
+
     const Compounds& children = compound.getChildren();
     if( !children.empty( ))
     {
@@ -1684,9 +1700,6 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     const Frames& outputFrames = compound.getOutputFrames();
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
-
-    if( compound.getSwapBarrier().isValid( ))
-        os << *compound.getSwapBarrier();
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

@@ -132,7 +132,9 @@ namespace server
          * Set the channel of this compound.
          *
          * The compound uses the channel for all rendering operations executed
-         * by this compound.
+         * by this compound. The compound's swap barrier will be updated with
+         * the segment's swap barrier if this compound becomes a destination
+         * compound.
          * 
          * @param channel the channel.
          */

@@ -273,7 +273,8 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    if( segment.getSwapBarrier().isValid( ))
+    SwapBarrierConstPtr barrier = segment.getSwapBarrier();
+    if( barrier && barrier != segment.getCanvas()->getSwapBarrier( ))
         os << *segment.getSwapBarrier();
     os << static_cast< const Frustum& >( segment );
 

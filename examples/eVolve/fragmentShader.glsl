@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@ uniform sampler2D preInt; // r,  g,  b, a
 
 uniform float shininess;
 uniform vec3  viewVec;
+uniform vec4  taint; // .rgb should be pre-multiplied with .a
 
 void main (void)
 {
@@ -44,6 +45,11 @@ void main (void)
     lookupSB = texture3D(volume, gl_TexCoord[1].xyz);
 
     vec4 preInt_ =  texture2D(preInt, vec2(lookupSF.a, lookupSB.a));
+
+    if( taint.a != 0.0 )
+        preInt_ = vec4( preInt_.rgb*(1.0-taint.a) + 
+                        taint.rgb*taint.a*(-log(preInt_.a)),
+                        preInt_.a );
 
     // lighting
     vec3 normalSF = lookupSF.rgb-0.5;

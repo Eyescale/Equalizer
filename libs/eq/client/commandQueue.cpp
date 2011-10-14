@@ -18,13 +18,19 @@
 #include "commandQueue.h"
 
 #include "messagePump.h"
+#include <co/base/clock.h>
 
 namespace eq
 {
+namespace
+{
+static co::base::Clock _clock;
+}
+
 CommandQueue::CommandQueue()
         : _messagePump( 0 )
-{
-}
+        , _waitTime( 0 )
+{}
 
 CommandQueue::~CommandQueue()
 {
@@ -56,6 +62,7 @@ void CommandQueue::wakeup()
 
 co::Command* CommandQueue::pop()
 {
+    const int64_t start = _clock.getTime64();
     while( true )
     {
         if( _messagePump )
@@ -63,12 +70,18 @@ co::Command* CommandQueue::pop()
 
         // Poll for a command
         if( !isEmpty( ))
+        {
+            _waitTime += ( _clock.getTime64() - start );
             return co::CommandQueue::pop();
+        }
 
         if( _messagePump )
             _messagePump->dispatchOne(); // blocking - push will send wakeup
         else
+        {
+            _waitTime += ( _clock.getTime64() - start );
             return co::CommandQueue::pop(); // blocking
+        }
     }
 }
 

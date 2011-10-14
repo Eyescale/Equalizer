@@ -130,10 +130,8 @@ namespace base
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
 
         /** 
-         * Returns if this thread object is the current (calling) thread.
-         * 
-         * @return true if the current thread has is the same thread as this
-         *         thread, false if not.
+         * @return true if the calling thread is the same thread as this
+         *         thread, false otherwise.
          * @version 1.0
          */
         COBASE_API bool isCurrent() const;

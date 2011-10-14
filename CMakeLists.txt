@@ -275,7 +275,7 @@ if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
-message(STATUS "Configured features: ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 
 include(CPackConfig)
 include(copyScript)

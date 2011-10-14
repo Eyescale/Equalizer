@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2009, Maxim Makhinya
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,9 +76,10 @@ namespace eVolve
         void _drawLogo();
         void _drawHelp();
 
-        eq::Vector3f _bgColor; //!< background color
-        eq::Frame _frame;     //!< Readback buffer for DB compositing
-        eq::Range _drawRange; //!< The range from the last draw of this frame
+        eq::Vector3f _bgColor;   //!< background color
+        eq::Frame    _frame;     //!< Readback buffer for DB compositing
+        eq::Range    _drawRange; //!< The range from the last draw of this frame
+        const bool   _taint;     //!< True if EQ_TAINT_CHANNELS is set
     };
 
 }

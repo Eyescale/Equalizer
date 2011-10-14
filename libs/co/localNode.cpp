@@ -46,7 +46,7 @@ LocalNode::LocalNode( )
 
     _objectStore = new ObjectStore( this );
 
-    CommandQueue* queue = &_commandThreadQueue;
+    CommandQueue* queue = getCommandThreadQueue();
     _registerCommand( CMD_NODE_ACK_REQUEST, 
                       CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
     registerCommand( CMD_NODE_STOP_RCV,
@@ -1095,30 +1095,15 @@ void LocalNode::_redispatchCommands()
 //----------------------------------------------------------------------
 // command thread functions
 //----------------------------------------------------------------------
-void LocalNode::_runCommandThread()
+bool LocalNode::CommandThread::init()
 {
-    EQ_TS_THREAD( _cmdThread );
-    while( _state != STATE_CLOSED )
-    {
-        Command& command = *(_commandThreadQueue.pop( ));
-        EQASSERT( command.isValid( ));
+    setName( std::string( "Cmd " ) + base::className( _localNode ));
+    return true;
+}
 
-        if( !command( ))
-        {
-            EQABORT( "Error handling " << command );
-        }
-        command.release();
-
-        while( _commandThreadQueue.isEmpty( ))
-        {
-            if( !_objectStore->notifyCommandThreadIdle( )) // nothing to do
-                break;
-        }
-    }
- 
-    _commandThreadQueue.flush();
-    EQINFO << "Leaving command thread of " << base::className( this )
-           << std::endl;
+bool LocalNode::CommandThread::notifyIdle()
+{
+    return _localNode->_objectStore->notifyCommandThreadIdle();
 }
 
 bool LocalNode::_cmdAckRequest( Command& command )
@@ -1542,7 +1527,6 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 bool LocalNode::_cmdReleaseSendToken( Command& )
 {
     EQASSERT( inCommandThread( ));
-
     _lastTokenTime = getTime64();
 
     if( _hasSendToken )

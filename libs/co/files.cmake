@@ -37,6 +37,7 @@ set(CO_PUBLIC_HEADERS
     queueSlave.h
     serializable.h
     types.h
+    worker.h
   )
 
 set(CO_HEADERS 
@@ -108,6 +109,7 @@ set(CO_SOURCES
     unbufferedMasterCM.cpp
     version.cpp
     versionedSlaveCM.cpp
+    worker.cpp
 )
   
 set(CO_COMPRESSOR_HEADERS
