@@ -67,19 +67,19 @@ bool Channel::configInit( const eq::uint128_t& initID )
     return true;
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     _drawRange = eq::Range::ALL;
-
-    _bgColor = eq::Vector3f( 0.f, 0.f, 0.f, 1.f );
+    _bgColor = eq::Vector3f( 0.f, 0.f, 0.f );
 
     const BackgroundMode bgMode = _getFrameData().getBackgroundMode();
 
     if( bgMode == BG_WHITE )
-        _bgColor = eq::Vector3f( 1.f, 1.f, 1.f, 1.f );
+        _bgColor = eq::Vector3f( 1.f, 1.f, 1.f );
     else
         if( bgMode == BG_COLOR || _taint )
-             _bgColor = eq::Vector3f(getUniqueColor())/255.;
+             _bgColor = eq::Vector3f( getUniqueColor( )) / 255.f;
 
     eq::Channel::frameStart( frameID, frameNumber );
 }
