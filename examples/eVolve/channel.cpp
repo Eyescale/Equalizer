@@ -125,7 +125,7 @@ static eq::Vector4f _getTaintColor( const ColorMode colorMode,
     if( colorMode == COLOR_MODEL )
         return eq::Vector4f::ZERO;
 
-    eq::Vector4f taintColor = color;
+    eq::Vector4f taintColor( color.r(), color.g(), color.b(), 1.0 );
     const float alpha = ( colorMode == COLOR_HALF_DEMO ) ? 0.5 : 1.0;
 
     taintColor /= 255.f;
