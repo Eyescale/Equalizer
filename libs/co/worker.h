@@ -46,7 +46,7 @@ namespace co
             }
 
         /** @sa base::Thread::run() */
-        CO_API virtual void run();
+        virtual void run();
 
         /** @return true to stop the worker thread. @version 1.1.5 */
         virtual bool stopRunning() { return false; }
