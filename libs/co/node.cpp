@@ -28,6 +28,7 @@ namespace co
 Node::Node()
         : _id( true )
         , _state( STATE_CLOSED )
+        , _lastReceive ( 0 )
 {
     EQVERB << "New Node @" << (void*)this << " " << _id << std::endl;
 }
