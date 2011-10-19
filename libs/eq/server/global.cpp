@@ -74,11 +74,11 @@ void Global::_setupDefaults()
         _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
+        "ssh -n %h %c --eq-logfile %h.%n.log";
 #ifdef WIN32
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
 #else
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c >& %h.%n.log";
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\'';
 #endif
 

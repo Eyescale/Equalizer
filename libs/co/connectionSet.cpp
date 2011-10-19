@@ -384,7 +384,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
 
         if( pollEvents & POLLERR )
         {
-            EQINFO << "Error during poll()" << std::endl;
+            EQINFO << "Error during poll(): " << base::sysError << std::endl;
             return EVENT_ERROR;
         }
 
