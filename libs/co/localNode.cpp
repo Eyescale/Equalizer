@@ -206,7 +206,7 @@ bool LocalNode::listen()
            << std::endl;
     _receiverThread->start();
 
-    EQINFO << *this << " listening." << std::endl;
+    EQINFO << *this << std::endl;
     return true;
 }
 
