@@ -75,7 +75,7 @@ void Global::_setupDefaults()
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
     _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
-        "ssh -n %h %c --eq-logfile %h.%n.log";
+        "ssh -n %h %c --eq-logfile %q%d/%h.%n.log%q";
 #ifdef WIN32
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
 #else
