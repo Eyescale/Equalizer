@@ -52,7 +52,6 @@ Lock::Lock()
         return;
     }
 #endif
-    EQVERB << "New Lock @" << (void*)this << std::endl;
 }
 
 Lock::~Lock()

@@ -221,7 +221,7 @@ void Pipe::Thread::run()
 
     Pipe* pipe = _pipe; // _pipe gets cleared on exit
     pipe->_state.waitEQ( STATE_MAPPED );
-    pipe->_windowSystem = _pipe->selectWindowSystem();
+    pipe->_windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
 
     Worker::run();
