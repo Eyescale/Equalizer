@@ -90,6 +90,9 @@ void View::notifyDetached()
 
 bool View::updateData()
 {
+    if( !isActive( ))
+        return false;
+
     ViewData* data = getViewData();
     EQASSERT( data );
     if( data )
@@ -101,8 +104,11 @@ bool View::handleEvent( const eq::ConfigEvent* event )
 {
     ViewData* data = getViewData();
     EQASSERT( data );
-    if( data )
+    if( !data )
+        return false;
+    if( isActive( ))
         return data->handleEvent( event );
+    data->handleEvent( event );
     return false;
 }
 
