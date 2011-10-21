@@ -383,6 +383,9 @@ namespace co
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
+        /** @internal Requests keep-alive from remote node. */
+        void _ping( NodePtr remoteNode ); 
+
     private:
         typedef std::list< Command* > CommandList;
 
@@ -506,6 +509,8 @@ namespace co
         bool _cmdReleaseSendToken( Command& command );
         bool _cmdAddListener( Command& command );
         bool _cmdRemoveListener( Command& command );
+        bool _cmdPing( Command& command );
+        bool _cmdDiscard( Command& ) { return true; }
         //@}
 
         EQ_TS_VAR( _cmdThread );

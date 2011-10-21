@@ -226,10 +226,24 @@ template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
         if( view->getObserver() == observer )
         {
             EQINFO << "Removing " << co::base::disableHeader << *observer
-                   << " used by " << *view << std::endl << co::base::enableHeader;
+                   << " used by " << *view << std::endl
+                   << co::base::enableHeader;
             view->setObserver( 0 );
         }
     }
+}
+
+template< class C, class L, class V >
+bool Layout< C, L, V >::isActive() const
+{
+    const typename C::Canvases& canvases = _config->getCanvases();
+    for( typename C::Canvases::const_iterator i = canvases.begin();
+         i != canvases.end(); ++i )
+    {
+        if( (*i)->getActiveLayout() == this )
+            return true;
+    }
+    return false;
 }
 
 template< class C, class L, class V >

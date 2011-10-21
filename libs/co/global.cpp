@@ -178,4 +178,17 @@ uint32_t Global::getTimeout()
            EQ_TIMEOUT_INDEFINITE;
 }
 
+uint32_t Global::getKeepaliveTimeout()
+{
+    const char* env = getenv( "CO_KEEPALIVE_TIMEOUT" );
+    if( !env )
+        return 2000; // ms
+
+    const int64_t size = atoi( env );
+    if( size == 0 )
+        return 2000; // ms
+
+    return size;
+}
+
 }

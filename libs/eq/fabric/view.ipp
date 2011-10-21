@@ -172,6 +172,12 @@ void View< L, V, O >::changeMode( const Mode mode )
 }
 
 template< class L, class V, class O > 
+bool View< L, V, O >::isActive() const
+{
+    return getLayout()->isActive();
+}
+
+template< class L, class V, class O > 
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
     _data.viewport = viewport;

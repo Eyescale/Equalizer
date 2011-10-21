@@ -118,7 +118,10 @@ namespace fabric
          *
          * @param mode the new rendering mode 
          */
-        virtual void activateMode( const Mode mode ){ _data.mode = mode; }
+        virtual void activateMode( const Mode mode ){ _mode = mode; }
+
+        /** @return true if the view's layout is active. @version 1.1.5 */
+        bool isActive() const;
         //@}
 
         /** @name Operations */

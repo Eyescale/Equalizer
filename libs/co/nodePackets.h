@@ -423,6 +423,24 @@ namespace co
         const uint128_t typeID;
     };
 
+    struct NodePingPacket : public NodePacket
+    {
+        NodePingPacket()
+        {
+            command = CMD_NODE_PING;
+            size    = sizeof( NodePingPacket );
+        }
+    };
+
+    struct NodePingReplyPacket : public NodePacket
+    {
+        NodePingReplyPacket()
+        {
+            command = CMD_NODE_PING_REPLY;
+            size    = sizeof( NodePingReplyPacket );
+        }
+     };
+
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
