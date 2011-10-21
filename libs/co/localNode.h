@@ -383,8 +383,8 @@ namespace co
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
-        /** requests keep-alive from remote node */
-        bool _ping( NodePtr remoteNode ); 
+        /** @internal Requests keep-alive from remote node. */
+        void _ping( NodePtr remoteNode ); 
 
     private:
         typedef std::list< Command* > CommandList;

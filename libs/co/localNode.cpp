@@ -989,7 +989,7 @@ bool LocalNode::_handleData()
     EQASSERTINFO( bytes == sizeof( uint64_t ), bytes );
     EQASSERT( size > sizeof( size ));
 
-    if( node.isValid( ) ) // updates node last alive time.
+    if( node )
         node->_lastReceive = getTime64();
 
     Command& command = _commandCache.alloc( node, this, size );
@@ -1631,18 +1631,16 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 //----------------------------------------------------------------------
 // Keep-Alive
 //----------------------------------------------------------------------
-bool LocalNode::_ping( NodePtr remoteNode )
+void LocalNode::_ping( NodePtr remoteNode )
 {
     EQASSERT( !_inReceiverThread( ) );
     NodePingPacket packet;
     remoteNode->send( packet );
-    return true;
 }
 
 bool LocalNode::_cmdPing( Command& command )
 {
     EQASSERT( inCommandThread( ));
-    EQASSERT( !_inReceiverThread( ) );
     NodePingReplyPacket reply;
     command.getNode()->send( reply );
     return true;

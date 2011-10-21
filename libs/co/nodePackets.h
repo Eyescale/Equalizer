@@ -441,8 +441,6 @@ namespace co
         }
      };
 
-
-
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )
