@@ -11,7 +11,7 @@ Protocol
 
 The service type name is "_gpu-sd". The following text fields describe
 the available GPUs:
-```
+<pre>
     GPU Count=<integer>
     GPU<integer> Type=X11 | WGL_NV_gpu_affinity | CG
     GPU<integer> Port=<integer> // X11 display number, 0 otherwise
@@ -19,4 +19,4 @@ the available GPUs:
     GPU<integer> Width=<integer>
     GPU<integer> Height=<integer>
     GPU<integer> X=<integer>
-```
+</pre>
