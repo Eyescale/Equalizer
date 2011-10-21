@@ -26,7 +26,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR})
+set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/libs)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
@@ -89,8 +89,12 @@ if(APPLE)
   message(STATUS "Building for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
+function(install_symlink FROM TO WHERE)
+  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${FROM} ${TO} WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WHERE})" )
+endfunction()
 
 add_subdirectory(daemon)
+add_subdirectory(libs)
 #add_subdirectory(doc) # must be after all targets
 
 include(CTest)
