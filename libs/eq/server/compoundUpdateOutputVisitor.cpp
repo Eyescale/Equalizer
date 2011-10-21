@@ -137,7 +137,6 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
-        
         const bool usesTiles = !compound->getInputTileQueues().empty();
         frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
                                           Vector2i( framePVP.x, framePVP.y ) );
@@ -209,62 +208,40 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
 
     const Vector2i& tileSize = queue->getTileSize();
     PixelViewport pvp = compound->getInheritPixelViewport();
+    const double xFraction = 1.0 / pvp.w;
+    const double yFraction = 1.0 / pvp.h;
 
-    double xFraction = 1.0 / pvp.w;
-    double yFraction = 1.0 / pvp.h;
-    float vpWidth = tileSize.x() * xFraction;
-    float vpHeight = tileSize.y() * yFraction;
-
-    std::vector< Vector2i >::iterator tileItr;
-    for( tileItr = tiles.begin(); tileItr != tiles.end(); ++tileItr )
+    for( std::vector< Vector2i >::const_iterator i; i != tiles.end(); ++i )
     {
-        PixelViewport tilepvp;
-        Viewport tilevp;
+        const Vector2i& tile = *i;
+        PixelViewport tilePVP( tile.x() * tileSize.x(), tile.y() * tileSize.y(),
+                               tileSize.x(), tileSize.y( ));
 
-        tilepvp.x = tileItr->x() * tileSize.x();
-        tilepvp.y = tileItr->y() * tileSize.y();
-        tilevp.x = tilepvp.x * xFraction;
-        tilevp.y = tilepvp.y * yFraction;
+        if ( tilePVP.x + tileSize.x() > pvp.w ) // no full tile
+            tilePVP.w = pvp.w - tilePVP.x;
 
-        if ( tilepvp.x + tileSize.x() <= pvp.w )
-        {
-            tilepvp.w = tileSize.x();
-            tilevp.w = vpWidth;
-        }
-        else
-        {
-            // no full tile
-            tilepvp.w = pvp.w  - tilepvp.x;
-            tilevp.w = tilepvp.w * xFraction;
-        }
+        if ( tilePVP.y + tileSize.y() > pvp.h ) // no full tile
+            tilePVP.h = pvp.h - tilePVP.y;
 
-        if ( tilepvp.y + tileSize.y() <= pvp.h )
-        {
-            tilepvp.h = tileSize.y();
-            tilevp.h = vpHeight;
-        }
-        else
-        {
-            // no full tile
-            tilepvp.h = pvp.h - tilepvp.y;
-            tilevp.h = tilepvp.h * yFraction;
-        }
+        const Viewport tileVP( tilePVP.x * xFraction, tilePVP.y * yFraction,
+                               tilePVP.w * xFraction, tilePVP.h * yFraction );
 
-        fabric::Eye eye = fabric::EYE_CYCLOP;
-        for ( ; eye < fabric::EYES_ALL; eye = fabric::Eye(eye<<1) )
+        for( fabric::Eye eye = fabric::EYE_CYCLOP; eye < fabric::EYES_ALL;
+             eye = fabric::Eye(eye<<1) )
         {
             if ( !(compound->getInheritEyes() & eye) ||
-                !compound->isInheritActive( eye ))
+                 !compound->isInheritActive( eye ))
+            {
                 continue;
+            }
 
             TileTaskPacket packet;
-            packet.pvp = tilepvp;
-            packet.vp = tilevp;
+            packet.pvp = tilePVP;
+            packet.vp = tileVP;
 
-            compound->computeTileFrustum( packet.frustum, 
-                eye, packet.vp, false );
-            compound->computeTileFrustum( packet.ortho, 
-                eye, packet.vp, true );
+            compound->computeTileFrustum( packet.frustum, eye, packet.vp,
+                                          false );
+            compound->computeTileFrustum( packet.ortho, eye, packet.vp, true );
             queue->addTile( packet, eye );
         }
     }

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Carsten Rohn <carsten.rohn@rtt.ag>
+/* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,13 +26,16 @@
 
 #include "tileEqualizer.h"
 
+namespace eq
+{
+namespace server
+{
 namespace
 {
-using namespace eq::server;
 
-TileQueue* searchForName( const std::string& name, const TileQueues& queues )
+TileQueue* _findQueue( const std::string& name, const TileQueues& queues )
 {
-    for (TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
+    for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
     {
         if ((*i)->getName() == name)
             return *i;
@@ -46,15 +49,14 @@ public:
     InputQueueCreator( const eq::fabric::Vector2i& size,
                        const std::string& name )
         : CompoundVisitor()
-    {
-        _tileSize = size;
-        _name = name;
-    }
+        , _tileSize( size )
+        , _name( name )
+    {}
 
     /** Visit a leaf compound. */
     virtual VisitorResult visitLeaf( Compound* compound )
     {
-        if ( searchForName( _name, compound->getInputTileQueues()))
+        if( _findQueue( _name, compound->getInputTileQueues( )))
             return TRAVERSE_CONTINUE;
 
         TileQueue* input = new TileQueue;
@@ -67,9 +69,10 @@ public:
         compound->addInputTileQueue( input );
         return TRAVERSE_CONTINUE;
     }
+
 private:
-    eq::fabric::Vector2i _tileSize;
-    std::string _name;
+    const eq::fabric::Vector2i& _tileSize;
+    const std::string& _name;
 };
 
 class InputQueueDestroyer : public CompoundVisitor
@@ -77,15 +80,15 @@ class InputQueueDestroyer : public CompoundVisitor
 public:
     InputQueueDestroyer( const std::string& name )
         : CompoundVisitor()
+        , _name( name )
     {
-        _name = name;
     }
 
     /** Visit a leaf compound. */
     virtual VisitorResult visitLeaf( Compound* compound )
     {
-        TileQueue* q = searchForName( _name, compound->getInputTileQueues());
-        if ( q )
+        TileQueue* q = _findQueue( _name, compound->getInputTileQueues( ));
+        if( q )
         {
             compound->removeInputTileQueue( q );
             ServerPtr server = compound->getServer();
@@ -97,21 +100,16 @@ public:
         return TRAVERSE_CONTINUE;
     }
 private:
-    std::string _name;
+    const std::string& _name;
 };
 
 }
-
-namespace eq
-{
-namespace server
-{
 
 TileEqualizer::TileEqualizer()
     : Equalizer()
     , _created( false )
     , _size( 64, 64 )
-    , _name( "tileEQ" )
+    , _name( "TileEqualizer" )
 {
 }
 
@@ -125,27 +123,28 @@ TileEqualizer::TileEqualizer( const TileEqualizer& from )
 
 void TileEqualizer::_createQueues( Compound* compound )
 {
-    if ( !searchForName( _name, compound->getOutputTileQueues()))
+    _created = true;
+    const std::string name = std::string( "queue." ) + _name;
+    if( !_findQueue( name, compound->getOutputTileQueues( )))
     {
         TileQueue* output = new TileQueue;
         ServerPtr server = compound->getServer();
         server->registerObject( output );
         output->setTileSize( _size );
-        output->setName( _name );
+        output->setName( name );
         output->setAutoObsolete( compound->getConfig()->getLatency( ));
 
         compound->addOutputTileQueue( output );
     }
 
-    InputQueueCreator creator( _size, _name );
+    InputQueueCreator creator( _size, name );
     compound->accept( creator );
-
-    _created = true;
 }
 
 void TileEqualizer::_destroyQueues( Compound* compound )
 {
-    TileQueue* q = searchForName( _name, compound->getOutputTileQueues() );
+    const std::string name = std::string( "queue." ) + _name;
+    TileQueue* q = _findQueue( name, compound->getOutputTileQueues() );
     if ( q )
     {
         compound->removeOutputTileQueue( q );
@@ -155,19 +154,18 @@ void TileEqualizer::_destroyQueues( Compound* compound )
         delete q;
     }
 
-    InputQueueDestroyer destroyer( _name );
+    InputQueueDestroyer destroyer( name );
     compound->accept( destroyer );
-
     _created = false;
 }
 
 void TileEqualizer::notifyUpdatePre( Compound* compound, 
                                      const uint32_t frameNumber )
 {
-    if ( isActivated() && !_created )
+    if( isActive() && !_created )
         _createQueues( compound );
     
-    if ( !isActivated() && _created )
+    if( !isActive() && _created )
         _destroyQueues( compound );
 }
 
@@ -175,14 +173,13 @@ std::ostream& operator << ( std::ostream& os, const TileEqualizer* lb )
 {
     if( lb )
     {
-        os << co::base::disableFlush;
-        os << "tile_equalizer" << std::endl << "{" << std::endl;
-        os << "    name \"" << lb->getName() << "\"" << std::endl;
-        os << "    size [ " << lb->getTileSize().x() << " ";
-        os << lb->getTileSize().y() << " ]" << std::endl << "}" << std::endl;
-        os << co::base::enableFlush;
+        os << co::base::disableFlush
+           << "tile_equalizer" << std::endl
+           << "{" << std::endl
+           << "    name \"" << lb->getName() << "\"" << std::endl
+           << "    size " << lb->getTileSize() << std::endl
+           << "}" << std::endl << co::base::enableFlush;
     }
-
     return os;
 }
 
