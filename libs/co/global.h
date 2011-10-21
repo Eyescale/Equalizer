@@ -129,6 +129,10 @@ namespace co
         /** @return the timeout, a concrete time or EQ_TIMEOUT_INDEFINITE. */
         static uint32_t getTimeout();
         //@}
+
+        /** @return the keepalive timeout. */
+        static uint32_t getKeepaliveTimeout();
+        //@}
     };
 }
 
