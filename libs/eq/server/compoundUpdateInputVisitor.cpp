@@ -75,7 +75,7 @@ void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
 void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
 {
     const Channel* channel = compound->getChannel();
-    if( compound->testInheritTask( fabric::TASK_ASSEMBLE ) && channel )
+    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
         return;
 
     const Frames& inputFrames = compound->getInputFrames();

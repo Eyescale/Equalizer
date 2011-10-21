@@ -58,7 +58,7 @@ namespace server
 
         void _generateTiles( TileQueue* queue, Compound* compound );
         void _addTilesToQueue( TileQueue* queue, Compound* compound, 
-                               std::vector< Vector2i >& tiles );
+                               const std::vector< Vector2i >& tiles );
     };
 }
 }

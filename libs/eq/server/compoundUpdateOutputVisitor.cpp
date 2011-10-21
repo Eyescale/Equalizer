@@ -203,7 +203,7 @@ void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
 
 void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue, 
                                                     Compound* compound, 
-                                                std::vector< Vector2i >& tiles )
+                                         const std::vector< Vector2i >& tiles )
 {
 
     const Vector2i& tileSize = queue->getTileSize();
@@ -211,7 +211,8 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
     const double xFraction = 1.0 / pvp.w;
     const double yFraction = 1.0 / pvp.h;
 
-    for( std::vector< Vector2i >::const_iterator i; i != tiles.end(); ++i )
+    for( std::vector< Vector2i >::const_iterator i = tiles.begin();
+         i != tiles.end(); ++i )
     {
         const Vector2i& tile = *i;
         PixelViewport tilePVP( tile.x() * tileSize.x(), tile.y() * tileSize.y(),
