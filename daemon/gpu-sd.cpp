@@ -1,5 +1,7 @@
 
 /*
+  Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+
   This file is part of the GPU-SD daemon.
 
   The GPU-SD daemon is free software: you can redistribute it and/or modify it
