@@ -79,10 +79,9 @@ if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
     set(GPUSD_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
         "OS X build architectures")
-    else()
-      set(GPUSD_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-          "OS X build architectures")
-    endif()
+  else()
+    set(GPUSD_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
+        "OS X build architectures")
   endif()
   mark_as_advanced(GPUSD_OSX_ARCHITECTURES)
   
@@ -91,7 +90,7 @@ if(APPLE)
 endif(APPLE)
 
 
-#add_subdirectory(lib)
+add_subdirectory(daemon)
 #add_subdirectory(doc) # must be after all targets
 
 include(CTest)
