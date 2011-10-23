@@ -89,9 +89,12 @@ int RawConverter::parseArguments( int argc, char** argv )
 
         TCLAP::SwitchArg savArg(
             "v", "sav", "sav to vhf transfer function converter",
-                                                      command, false );
+                                                          command, false );
         TCLAP::SwitchArg derArg( 
             "r", "der", "raw -> raw + derivatives"  , command, false );
+
+        TCLAP::SwitchArg rawArg(
+            "w", "raw", "raw + derivatives -> raw"  , command, false );
 
         TCLAP::SwitchArg pvmArg( 
             "p", "pvm", "pvm[+sav] -> raw+derivatives+vhf", command, false );
@@ -104,8 +107,13 @@ int RawConverter::parseArguments( int argc, char** argv )
             "s", "src", "source file",
             true, "Bucky32x32x32.raw"    , "string", command );
 
-                                
+
         command.parse( argc, argv );
+
+
+        if( rawArg.isSet() ) // raw + derivatives -> raw
+            return RawConverter::RawPlusDerivativesToRawConverter(
+                        srcArg.getValue( ), dstArg.getValue( ));
 
         if( derArg.isSet() ) // raw -> raw + derivatives
             return RawConverter::RawToRawPlusDerivativesConverter(
@@ -122,7 +130,7 @@ int RawConverter::parseArguments( int argc, char** argv )
         if( pvmArg.isSet() ) // pvm -> raw
             return RawConverter::PvmSavToRawDerVhfConverter( 
                         srcArg.getValue( ), dstArg.getValue( ));
-        
+
         if( cmpArg.isSet() ) // cmp raw+derivations+vhf
             return RawConverter::CompareTwoRawDerVhf( 
                         srcArg.getValue( ), dstArg.getValue( ));
@@ -386,6 +394,73 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
 }
 
 
+int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
+                                                    const string& dst )
+{
+    unsigned w, h, d;
+//read header
+    {
+        string configFileName = src;
+        hFile info( fopen( configFileName.append( ".vhf" ).c_str(), "rb" ) );
+        FILE* file = info.f;
+
+        if( file==NULL ) return lFailed( "Can't open header file" );
+
+        readDimensionsFromSav( file, w, h, d );
+    }
+    EQWARN << "Dropping derivatives from raw+derivatives model: " 
+           << src << " " << w << " x " << h << " x " << d << endl;
+
+//read model    
+    vector<unsigned char> volume( w*h*d*4, 0 );
+
+    EQWARN << "Reading model" << endl;
+    {
+        ifstream file( src.c_str(),
+                       ifstream::in | ifstream::binary | ifstream::ate );
+
+        if( !file.is_open() )
+            return lFailed( "Can't open volume file" );
+
+        ifstream::pos_type size;
+
+        size = min( (int)file.tellg(), (int)volume.size() );
+
+        file.seekg( 0, ios::beg );
+        file.read( (char*)( &volume[0] ), size );
+
+        file.close();
+    }
+//remove derivatives
+    {
+        unsigned char* sr = &volume[3];
+        unsigned char* ds = &volume[0];
+        for( unsigned i = 3; i < w*h*d*4; i+=4 )
+        {
+            *ds = *sr;
+            sr += 4;
+            ++ds;
+        }
+        volume.resize( w*h*d );
+    }
+
+//save file
+    {
+       ofstream file( dst.c_str(),
+                       ifstream::out | ifstream::binary | ifstream::trunc );
+
+       if( !file.is_open() )
+           return lFailed( "Can't open destination volume file" );
+
+        file.write( (char*)( &volume[0] ), volume.size() );
+
+        file.close();
+    }
+    EQWARN << "done" << endl; 
+    return 0;
+}
+
+
 int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
                                                     const string& dst )
 {
@@ -403,7 +478,7 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
     EQWARN << "Creating derivatives for raw model: " 
            << src << " " << w << " x " << h << " x " << d << endl;
 
-//read model    
+//read model
     vector<unsigned char> volume( w*h*d, 0 );
 
     EQWARN << "Reading model" << endl;

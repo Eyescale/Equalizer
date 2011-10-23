@@ -13,6 +13,9 @@ namespace eVolve
         static int RawToRawPlusDerivativesConverter( const string& src,
                                                      const string& dst  );
 
+        static int RawPlusDerivativesToRawConverter( const string& src,
+                                                     const string& dst  );
+
         static int SavToVhfConverter(                const string& src,
                                                      const string& dst  );
 
