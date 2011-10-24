@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(gpu-sd)
+project(gpusd)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
@@ -36,13 +36,6 @@ if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-else()
-  if(CMAKE_SIZEOF_VOID_P MATCHES "8")
-    set(EQUALIZER_BUILD_ARCH "64" CACHE STRING "Build Architecture")
-  else()
-    set(EQUALIZER_BUILD_ARCH "32" CACHE STRING "Build Architecture")
-  endif()
-  mark_as_advanced(EQUALIZER_BUILD_ARCH)
 endif()
 
 find_package(X11)

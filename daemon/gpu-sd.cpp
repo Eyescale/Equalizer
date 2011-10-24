@@ -20,6 +20,7 @@
 #include <dns_sd.h>
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <cerrno>
 
