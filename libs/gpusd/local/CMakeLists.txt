@@ -3,9 +3,12 @@ configure_file("version.in.h" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 
 set(HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/version.h"
+  api.h
+  gpuInfo.h
 )
 
 set(SOURCES
+  gpuInfo.cpp
   version.cpp
 )
 
@@ -16,7 +19,7 @@ add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR})
 
-install(FILES ${HEADERS} DESTINATION include/${LIB_INCLUDE})
+install(FILES ${HEADERS} DESTINATION include/${LIB_INCLUDE} COMPONENT dev)
 install(TARGETS ${LIBRARY}
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
   COMPONENT lib)
