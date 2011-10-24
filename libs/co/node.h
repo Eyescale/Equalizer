@@ -194,6 +194,9 @@ namespace co
         /** Deserialize the node information, consumes given data. */
         CO_API bool deserialize( std::string& data );
 
+        /** @return last receive time. */
+        int64_t getLastReceiveTime() const { return _lastReceive; }
+
     protected:
         /** Destructs this node. */
         CO_API virtual ~Node();
@@ -267,6 +270,9 @@ namespace co
                 EQUNREACHABLE;
                 return 0;
             }
+
+        /** Last time packets were received */
+        int64_t _lastReceive;
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, const Node& node );

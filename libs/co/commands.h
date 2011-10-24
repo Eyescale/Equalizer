@@ -56,6 +56,8 @@ namespace co
         CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CMD_NODE_REMOVE_NODE,
         CMD_NODE_OBJECT_PUSH,
+        CMD_NODE_PING,
+        CMD_NODE_PING_REPLY,
         CMD_NODE_CUSTOM = 40  // some buffer for binary-compatible patches
     };
 

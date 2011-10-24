@@ -48,6 +48,12 @@ namespace fabric
         /** Get the list of views. @version 1.0 */
         const Views& getViews() const { return _views; }
 
+        /**
+         * @return true if the layout is activated in at least one canvas.
+         * @version 1.1.5
+         */
+        bool isActive() const;
+
         /** @internal @return the view of the given path. */
         V* getView( const ViewPath& path );
 
