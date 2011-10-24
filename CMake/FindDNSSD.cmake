@@ -77,7 +77,10 @@ if(NOT _dnssd_INCLUDE_DIR)
 endif()
 
 if(APPLE)
-  set(_dnssd_LIBRARY)
+  find_library(_dnssd_LIBRARY System
+    HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
+    PATH_SUFFIXES lib PATHS /usr /usr/local /opt/local /opt
+    )
 else()
   find_library(_dnssd_LIBRARY dns_sd
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
