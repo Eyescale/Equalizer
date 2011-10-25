@@ -63,3 +63,6 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man/man3 DESTINATION man
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/Equalizer
         COMPONENT doc)
+install(DIRECTORY . DESTINATION share/Equalizer/doc COMPONENT doc)
+install(FILES ../RELNOTES.txt ../AUTHORS ../CHANGES.txt ../ACKNOWLEDGEMENTS
+        ../LGPL ../LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)

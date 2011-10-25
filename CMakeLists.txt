@@ -263,9 +263,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
-install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
-  DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
   COMPONENT codev)
 install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
