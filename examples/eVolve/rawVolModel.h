@@ -72,7 +72,9 @@ namespace eVolve
         GLuint                  volume;     //!< 3D texture ID
         GLuint                  preint;     //!< preintegration table texture
         VolumeScaling           volScaling; //!< Proportions of volume
+        VolumeScaling           voxelSize;  //!< Relative volume size (0..1]
         DataInTextureDimensions TD; //!< Data dimensions within volume texture
+        bool                    hasDerivatives; //!< true if raw+der used
     };
 
     /** Load model to texture */
@@ -122,11 +124,16 @@ namespace eVolve
         uint32_t     _w;                //!< volume width
         uint32_t     _h;                //!< volume height
         uint32_t     _d;                //!< volume depth
+        uint32_t     _tW;               //!< volume texture width
+        uint32_t     _tH;               //!< volume texture height
+        uint32_t     _tD;               //!< volume texture depth
         uint32_t     _resolution;       //!< max( _w, _h, _d ) of a model
 
         VolumeScaling _volScaling;      //!< Proportions of volume
 
         std::vector< uint8_t >  _TF;    //!< Transfer function
+
+        bool _hasDerivatives;           //!< true if raw+der used
 
         const GLEWContext*   _glewContext;    //!< OpenGL function table
     };

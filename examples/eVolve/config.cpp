@@ -232,6 +232,11 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             _frameData.reset();
             return true;
 
+        case 'n':
+        case 'N':
+            _frameData.toggleNormalsQuality();
+            return true;
+
         case 'o':
         case 'O':
             _frameData.toggleOrtho();

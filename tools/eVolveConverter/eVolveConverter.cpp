@@ -975,7 +975,7 @@ static int calculateAndSaveDerivatives( const string& dst,
         for( unsigned y=1; y<h-1; y++ )
         {
             const int zwh_y = zwh + y*w;
-            const unsigned char * curPy = curPz + y*w ;
+            const unsigned char * curPy = curPz + y*w;
             for( unsigned x=1; x<w-1; x++ )
             {
                 const unsigned char * curP = curPy +  x;
@@ -1007,7 +1007,6 @@ static int calculateAndSaveDerivatives( const string& dst,
                       prvP[  ws+1 ]- 3*prvP[    1 ]-   prvP[ -ws+1 ]-
                     3*prvP[  ws   ]- 6*prvP[    0 ]- 3*prvP[ -ws   ]-
                       prvP[  ws-1 ]- 3*prvP[   -1 ]-   prvP[ -ws-1 ];
-
 
                 int length = static_cast<int>(
                                         sqrt(double((gx*gx+gy*gy+gz*gz))+1));

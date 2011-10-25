@@ -173,9 +173,11 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     // set fancy data colors
     const eq::Vector4f taintColor = _getTaintColor( frameData.getColorMode(),
                                                     getUniqueColor( ));
+    const int normalsQuality = _getFrameData().getNormalsQuality();
+
     const eq::Range& range = getRange();
     renderer->render( range, modelviewM, modelviewITM, invRotationM,
-                      taintColor );
+                      taintColor, normalsQuality );
     checkError( "error during rendering " );
 
     _drawRange = range;
