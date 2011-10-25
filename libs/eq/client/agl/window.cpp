@@ -94,7 +94,7 @@ void Window::configExit( )
         setAGLContext( 0 );
     }
     
-    EQINFO << "Destroyed AGL window and context" << std::endl;
+    EQVERB << "Destroyed AGL window and context" << std::endl;
 }
 
 void Window::makeCurrent() const
@@ -357,7 +357,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
 
     Global::leaveCarbon();
 
-    EQINFO << "Created AGL context " << context << " shared with " << shareCtx
+    EQVERB << "Created AGL context " << context << " shared with " << shareCtx
            << std::endl;
     return context;
 }
@@ -533,7 +533,7 @@ bool Window::configInitAGLWindow()
 
 void Window::setCarbonWindow( WindowRef window )
 {
-    EQINFO << "set Carbon window " << window << std::endl;
+    EQVERB << "set Carbon window " << window << std::endl;
 
     if( _carbonWindow == window )
         return;
@@ -564,7 +564,7 @@ void Window::setCarbonWindow( WindowRef window )
 
 void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 {
-    EQINFO << "set AGL PBuffer " << pbuffer << std::endl;
+    EQVERB << "set AGL PBuffer " << pbuffer << std::endl;
 
     if( _aglPBuffer == pbuffer )
         return;

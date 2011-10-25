@@ -69,7 +69,7 @@ bool Pipe::configInit()
     }
 
     _setCGDisplayID( displayID );
-    EQINFO << "Using CG displayID " << displayID << std::endl;
+    EQVERB << "Using CG displayID " << displayID << std::endl;
     return true;
 }
 
