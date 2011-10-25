@@ -52,7 +52,7 @@ namespace fabric
          * @return true if the layout is activated in at least one canvas.
          * @version 1.1.5
          */
-        bool isActive() const;
+        EQFABRIC_INL bool isActive() const;
 
         /** @internal @return the view of the given path. */
         V* getView( const ViewPath& path );
