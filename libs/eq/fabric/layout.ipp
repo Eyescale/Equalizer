@@ -72,11 +72,11 @@ void Layout< C, L, V >::attach( const co::base::UUID& id,
 }
 
 template< class C, class L, class V >
-uint32_t Layout< C, L, V >::commitNB( const uint32_t incarnation )
+uint128_t Layout< C, L, V >::commit( const uint32_t incarnation )
 {
     // Always traverse views: view proxy objects may be dirty
     commitChildren< V, LayoutNewViewPacket >( _views, incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class C, class L, class V >

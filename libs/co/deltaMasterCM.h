@@ -36,12 +36,13 @@ namespace co
         DeltaMasterCM( Object* object );
         virtual ~DeltaMasterCM();
 
-        typedef ObjectDeltaDataOStream DeltaData;
+        virtual uint128_t commit( const uint32_t incarnation );
 
     private:
         /* The command handlers. */
         bool _cmdCommit( Command& pkg );
 
+        typedef ObjectDeltaDataOStream DeltaData;
         DeltaData _deltaData;
     };
 }

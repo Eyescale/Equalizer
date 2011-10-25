@@ -102,11 +102,11 @@ void Pipe< N, P, W, V >::attach( const co::base::UUID& id,
 }
 
 template< class N, class P, class W, class V >
-uint32_t Pipe< N, P, W, V >::commitNB( const uint32_t incarnation )
+uint128_t Pipe< N, P, W, V >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_WINDOWS ))
         commitChildren< W, PipeNewWindowPacket >( _windows, incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class N, class P, class W, class V >

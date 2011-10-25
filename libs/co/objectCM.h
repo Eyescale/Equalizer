@@ -56,27 +56,13 @@ namespace co
                            const Nodes& nodes );
 
         /** 
-         * Start committing a new version.
+         * Commit a new version.
          * 
          * @param incarnation the commit incarnation for auto obsoletion.
-         * @return the commit identifier to be passed to commitSync
-         * @sa commitSync
-         */
-        virtual uint32_t commitNB( const uint32_t incarnation )
-            { EQUNIMPLEMENTED; return EQ_UNDEFINED_UINT32; }
-
-        /** 
-         * Finalize a commit transaction.
-         * 
-         * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        virtual uint128_t commitSync( const uint32_t commitID )
+        virtual uint128_t commit( const uint32_t incarnation )
             { EQUNIMPLEMENTED; return VERSION_NONE; }
-
-        /** Increase the count of how often commit() was called. */
-        virtual void increaseCommitCount( const uint32_t incarnation )
-            { /* NOP */ }
 
         /** 
          * Automatically obsolete old versions.
@@ -143,7 +129,7 @@ namespace co
         virtual void removeSlaves( NodePtr node ) = 0;
 
         /** @return the vector of current slave nodes. */
-        virtual const Nodes* getSlaveNodes() const { return 0; }
+        virtual const Nodes getSlaveNodes() const { return Nodes(); }
 
         /** Apply the initial data after mapping. */
         virtual void applyMapData( const uint128_t& version )
@@ -175,9 +161,6 @@ namespace co
         static base::a_int32_t _hit;
         static base::a_int32_t _miss;
 #endif
-
-    private:
-        bool _cmdPush( Command& command );
     };
 }
 

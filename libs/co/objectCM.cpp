@@ -34,17 +34,9 @@ co::base::a_int32_t co::ObjectCM::_miss( 0 );
 
 namespace co
 {
-typedef CommandFunc< ObjectCM > CmdFunc;
-
 ObjectCM::ObjectCM( Object* object )
         : _object( object )
-{
-    if( !object ) // NullCM
-        return;
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
-    object->registerCommand( CMD_OBJECT_PUSH,
-                             CmdFunc( this, &ObjectCM::_cmdPush ), q );
-}
+{}
 
 void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
                      const Nodes& nodes )
@@ -54,30 +46,12 @@ void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
     if( nodes.empty( ))
         return;
 
-    LocalNodePtr localNode = _object->getLocalNode();
-    ObjectPushPacket packet( _object->getInstanceID(),
-                             localNode->registerRequest(),
-                             groupID,  typeID, nodes );
-    
-    _object->send( localNode, packet );
-    localNode->waitRequest( packet.requestID );
-}
-
-bool ObjectCM::_cmdPush( Command& command )
-{
-    const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
-
     ObjectInstanceDataOStream os( this );
-    os.enablePush( getVersion(), *(packet->nodes) );
+    os.enablePush( getVersion(), nodes );
     _object->getInstanceData( os );
 
-    NodeObjectPushPacket pushPacket( _object->getID(), packet->groupID,
-                                     packet->typeID );
+    NodeObjectPushPacket pushPacket( _object->getID(), groupID, typeID );
     os.disable( pushPacket );
-
-    LocalNodePtr localNode = _object->getLocalNode();
-    localNode->serveRequest( packet->requestID );
-    return true;
 }
 
 }

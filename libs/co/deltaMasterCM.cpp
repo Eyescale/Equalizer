@@ -37,28 +37,14 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
 #pragma warning(disable : 4355)
         , _deltaData( this )
 #pragma warning(pop)
-{
-    EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
-
-    object->registerCommand( CMD_OBJECT_COMMIT, 
-                             CmdFunc( this, &DeltaMasterCM::_cmdCommit ), q );
-    object->registerCommand( CMD_OBJECT_DELTA, 
-                             CmdFunc( this, &DeltaMasterCM::_cmdDiscard ), 0 );
-}
+{}
 
 DeltaMasterCM::~DeltaMasterCM()
-{
-}
+{}
 
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-bool DeltaMasterCM::_cmdCommit( Command& command )
+uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
 {
-    EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.get< ObjectCommitPacket >();
+    Mutex mutex( _slaves );
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
@@ -66,20 +52,19 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
 
     EQASSERT( _version != VERSION_NONE );
 
-    _updateCommitCount( packet->incarnation );
+    _updateCommitCount( incarnation );
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( _object->isDirty( ))
     {
-        if( !_slaves.empty( ))
+        if( !_slaves->empty( ))
         {
             _deltaData.reset();
-            _deltaData.enableCommit( _version + 1, _slaves );
+            _deltaData.enableCommit( _version + 1, *_slaves );
             _object->pack( _deltaData );
             _deltaData.disable();
         }
 
-        LocalNodePtr localNode = _object->getLocalNode();
-        if( _slaves.empty() || _deltaData.hasSentData( ))
+        if( _slaves->empty() || _deltaData.hasSentData( ))
         {
             // save instance data
             InstanceData* instanceData = _newInstanceData();
@@ -103,11 +88,10 @@ bool DeltaMasterCM::_cmdCommit( Command& command )
                                  << *_object << std::endl;
 #endif
         }
-        localNode->serveRequest( packet->requestID, _version );
     }
 
     _obsolete();
-    return true;
+    return _version;
 }
 
 }

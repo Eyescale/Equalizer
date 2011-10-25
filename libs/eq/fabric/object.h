@@ -100,7 +100,8 @@ namespace fabric
         EQFABRIC_API virtual bool isDirty() const;
 
         /** @internal */
-        EQFABRIC_API virtual uint32_t commitNB( const uint32_t incarnation );
+        EQFABRIC_API virtual uint128_t commit( const uint32_t incarnation =
+                                               CO_COMMIT_NEXT );
 
         /** @internal Back up app-specific data, excluding child data. */
         EQFABRIC_API virtual void backup();

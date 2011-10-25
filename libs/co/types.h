@@ -68,6 +68,8 @@ typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
+/** An iterator for a vector of nodes. */
+typedef Nodes::iterator                          NodesIter;
 /** A const iterator for a vector of nodes. */
 typedef Nodes::const_iterator                    NodesCIter;
 

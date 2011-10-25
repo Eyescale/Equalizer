@@ -133,7 +133,7 @@ namespace fabric
         bool _removeChild( V* view );
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation );
 
         template< class O > void _removeObserver( const O* observer );
         template< class, class, class, class, class, class,

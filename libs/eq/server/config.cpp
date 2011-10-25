@@ -59,6 +59,7 @@ namespace server
 typedef co::CommandFunc<Config> ConfigFunc;
 using fabric::ON;
 using fabric::OFF;
+using fabric::ServerCreateConfigPacket;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -728,9 +729,8 @@ uint32_t Config::_createConfig( Node* node )
 
     // create config on each non-app node
     //   app-node already has config from chooseConfig
-    fabric::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.requestID = getLocalNode()->registerRequest();
-    createConfigPacket.configVersion = this;
+    ServerCreateConfigPacket createConfigPacket( this,
+                                            getLocalNode()->registerRequest( ));
 
     co::NodePtr netNode = node->getNode();
     netNode->send( createConfigPacket );
