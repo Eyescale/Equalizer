@@ -45,9 +45,7 @@ namespace co
          * @name Versioning
          */
         //@{
-        virtual uint32_t commitNB( const uint32_t incarnation );
-        virtual uint128_t commitSync( const uint32_t commitID );
-
+        virtual uint128_t commit( const uint32_t incarnation );
         virtual uint128_t sync( const uint128_t& version );
 
         virtual uint128_t getHeadVersion() const;
@@ -95,7 +93,6 @@ namespace co
 
         /* The command handlers. */
         bool _cmdData( Command& command );
-        bool _cmdCommit( Command& command );
 
         EQ_TS_VAR( _cmdThread );
         EQ_TS_VAR( _rcvThread );

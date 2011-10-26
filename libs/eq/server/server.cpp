@@ -278,19 +278,18 @@ bool Server::_cmdChooseConfig( co::Command& command )
 
     ConfigBackupVisitor backup;
     config->accept( backup );
-    config->setApplicationNetNode( node );
 
     const std::string  rendererInfo = packet->rendererInfo;
     const size_t       colonPos     = rendererInfo.find( '#' );
     const std::string  workDir      = rendererInfo.substr( 0, colonPos );
     const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
 
+    config->setApplicationNetNode( node );
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );
     config->commit();
 
-    fabric::ServerCreateConfigPacket createConfigPacket;
-    createConfigPacket.configVersion = config;
+    fabric::ServerCreateConfigPacket createConfigPacket( config );
     node->send( createConfigPacket );
 
     reply.configID = config->getID();
@@ -429,8 +428,7 @@ bool Server::_cmdMap( co::Command& command )
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         Config* config = *i;
-        fabric::ServerCreateConfigPacket createConfigPacket;
-        createConfigPacket.configVersion = config;
+        fabric::ServerCreateConfigPacket createConfigPacket( config );
         node->send( createConfigPacket );
     }
 

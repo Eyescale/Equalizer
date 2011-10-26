@@ -29,7 +29,7 @@ include(revision)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "1")
-set(VERSION_PATCH "4")
+set(VERSION_PATCH "5")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
@@ -263,9 +263,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(DIRECTORY doc/ DESTINATION share/Equalizer/doc COMPONENT doc)
-install(FILES RELNOTES.txt AUTHORS CHANGES.txt ACKNOWLEDGEMENTS LGPL LICENSE.txt
-  DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
   COMPONENT codev)
 install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake

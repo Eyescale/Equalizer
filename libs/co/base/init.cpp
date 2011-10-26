@@ -100,8 +100,7 @@ bool exit()
     plugins.exit(); 
     Thread::removeAllListeners();
     Log::exit();
-
-    return RNG::_exit();
+    return true;
 }
 
 }

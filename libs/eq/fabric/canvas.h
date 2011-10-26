@@ -196,7 +196,7 @@ namespace fabric
         bool _removeChild( S* segment ); //!< @internal
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation );
         bool _mapViewObjects();
 
         typedef co::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;

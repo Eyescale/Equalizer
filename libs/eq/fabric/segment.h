@@ -148,6 +148,9 @@ namespace fabric
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
+
+        /** @internal */
+        virtual uint128_t commit( const uint32_t incarnation=CO_COMMIT_NEXT );
         //@}
 
     protected:
@@ -196,8 +199,6 @@ namespace fabric
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
-
-        virtual uint32_t commitNB( const uint32_t incarnation ); //!< @internal
     };
 
     template< class C, class S, class CH >

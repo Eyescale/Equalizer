@@ -45,11 +45,11 @@ namespace co
         virtual bool isDirty( const uint64_t dirtyBits ) const
             { return (_dirty & dirtyBits) == dirtyBits; }
 
-        virtual uint128_t commitSync( const uint32_t commitID )
+        virtual uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT )
             {
-                const uint128_t& result = co::Object::commitSync( commitID );
+                const uint128_t& version = co::Object::commit( incarnation );
                 _dirty = DIRTY_NONE;
-                return result;
+                return version;
             }
 
     protected:

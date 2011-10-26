@@ -94,17 +94,17 @@ void Object::notifyDetach()
         return;
 
     // unmap slaves
-    const Nodes* slaves = _cm->getSlaveNodes();
-    if( !slaves || slaves->empty( ))
+    const Nodes slaves = _cm->getSlaveNodes();
+    if( slaves.empty( ))
         return;
 
-    EQWARN << slaves->size() << " slaves subscribed during deregisterObject of "
+    EQWARN << slaves.size() << " slaves subscribed during deregisterObject of "
            << base::className( this ) << " id " << _id << std::endl;
 
     NodeUnmapObjectPacket packet;
     packet.objectID = _id;
 
-    for( Nodes::const_iterator i = slaves->begin(); i != slaves->end(); ++i )
+    for( NodesCIter i = slaves.begin(); i != slaves.end(); ++i )
     {
         NodePtr node = *i;
         node->send( packet );
@@ -180,24 +180,7 @@ void Object::push( const uint128_t& groupID, const uint128_t& typeID,
 
 uint128_t Object::commit( const uint32_t incarnation )
 {
-    return commitSync( commitNB( incarnation ));
-}
-
-uint32_t Object::commitNB( const uint32_t incarnation )
-{
-    if( isDirty( ))
-        return _cm->commitNB( incarnation );
-
-    _cm->increaseCommitCount( incarnation );
-    return EQ_UNDEFINED_UINT32;
-}
-
-uint128_t Object::commitSync( const uint32_t commitID ) 
-{
-    if( commitID == EQ_UNDEFINED_UINT32 )
-        return isMaster() ? getVersion() : VERSION_NONE;
-
-    return _cm->commitSync( commitID );
+    return _cm->commit( incarnation );
 }
 
 

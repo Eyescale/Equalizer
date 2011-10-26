@@ -114,12 +114,12 @@ void Frame::commitData()
     }
 }
 
-uint32_t Frame::commitNB( const uint32_t incarnation )
+uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _inherit.frameData[i] = _frameData[i];
 
-    return co::Object::commitNB( incarnation );
+    return co::Object::commit( incarnation );
 }
 
 void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )

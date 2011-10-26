@@ -128,11 +128,11 @@ void Window< P, W, C >::restore()
 }
 
 template< class P, class W, class C >
-uint32_t Window< P, W, C >::commitNB( const uint32_t incarnation )
+uint128_t Window< P, W, C >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNELS ))
         commitChildren< C, WindowNewChannelPacket >( _channels, incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class P, class W, class C >

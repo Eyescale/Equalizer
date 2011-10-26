@@ -154,7 +154,7 @@ template< class T > inline std::string className( T* object )
 
 #  define EQCHECK(x) { const bool eqOk = x; EQASSERTINFO( eqOk, #x ) }
 #  define EQABORT( info ) {                                             \
-        EQERROR << "Abort: " << info << " ";                            \
+        EQERROR << "Abort: " << info;                                   \
         co::base::abort(); }
 
 #endif // NDEBUG

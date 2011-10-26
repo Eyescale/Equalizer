@@ -19,7 +19,7 @@
 #define COBASE_RNG_H
 
 #include <co/base/debug.h> // for EQASSERT
-#include <co/base/init.h>  // friend functions
+#include <co/base/init.h>  // friend function
 #include <co/base/nonCopyable.h>
 #include <co/base/types.h>
 
@@ -54,7 +54,7 @@ namespace base
     {
     public:
         /** Construct a new random number generator. @version 1.0 */
-        RNG() { reseed(); }
+        RNG() { _init(); }
 
         /** Destruct the random number generator. @version 1.0 */
         ~RNG() {}
@@ -110,10 +110,9 @@ namespace base
 #elif defined (_WIN32)
         static COBASE_API HCRYPTPROV _provider;
 #endif
-        static bool _init();
-        static bool _exit();
+        static COBASE_API bool _init();
+        static void _exit();
         friend COBASE_API bool init( const int argc, char** argv );
-        friend COBASE_API bool exit();
     };
 
     template<> inline float RNG::get()
