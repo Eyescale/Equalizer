@@ -43,18 +43,7 @@ FullMasterCM::FullMasterCM( Object* object )
         : MasterCM( object )
         , _commitCount( 0 )
         , _nVersions( 0 )
-{
-    EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
-
-    object->registerCommand( CMD_OBJECT_COMMIT, 
-                             CmdFunc( this, &FullMasterCM::_cmdCommit ), q );
-    object->registerCommand( CMD_OBJECT_OBSOLETE, 
-                             CmdFunc( this, &FullMasterCM::_cmdObsolete ), q );
-    object->registerCommand( CMD_OBJECT_PUSH,
-                             CmdFunc( this, &FullMasterCM::_cmdPush ), q );
-}
+{}
 
 FullMasterCM::~FullMasterCM()
 {
@@ -76,8 +65,9 @@ FullMasterCM::~FullMasterCM()
 void FullMasterCM::sendInstanceData( Nodes& nodes )
 {
     EQ_TS_THREAD( _cmdThread );
-    if( !_slaves.empty( ))
-       return;
+    Mutex mutex( _slaves );
+    if( !_slaves->empty( ))
+        return;
 
     InstanceData* data = _instanceDatas.back();
     data->os.sendInstanceData( nodes );
@@ -90,7 +80,7 @@ void FullMasterCM::init()
 
     InstanceData* data = _newInstanceData();
 
-    data->os.enableCommit( VERSION_FIRST, _slaves );
+    data->os.enableCommit( VERSION_FIRST, *_slaves );
     _object->getInstanceData( data->os );
     data->os.disable();
         
@@ -101,25 +91,9 @@ void FullMasterCM::init()
 
 void FullMasterCM::setAutoObsolete( const uint32_t count )
 {
-    ObjectObsoletePacket packet( count );
-    packet.instanceID = _object->_instanceID;
-
-    NodePtr localNode = _object->getLocalNode();
-    _object->send( localNode, packet );    
-}
-
-void FullMasterCM::increaseCommitCount( const uint32_t incarnation )
-{
-    if( _nVersions == 0 )
-        return; // OPT: obsoletion not needed
-
-    ObjectCommitPacket packet;
-    packet.instanceID = _object->_instanceID;
-    packet.requestID = EQ_UNDEFINED_UINT32;
-    packet.incarnation = incarnation;
-
-    NodePtr localNode = _object->getLocalNode();
-    _object->send( localNode, packet );    
+    Mutex mutex( _slaves );
+    _nVersions = count;
+    _obsolete();
 }
 
 void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
@@ -197,17 +171,18 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
     const uint128_t requested  = packet->requestedVersion;
     const uint32_t instanceID = packet->instanceID;
 
+    Mutex mutex( _slaves );
     EQASSERT( _version != VERSION_NONE );
     _checkConsistency();
 
     // add to subscribers
     ++_slavesCount[ node->getNodeID() ];
-    _slaves.push_back( node );
-    stde::usort( _slaves );
+    _slaves->push_back( node );
+    stde::usort( *_slaves );
 
     if( requested == VERSION_NONE ) // no data to send
     {
-        _sendEmptyVersion( node, instanceID );
+        _sendEmptyVersion( node, instanceID, _version );
         reply.version = _version;
         return;
     }
@@ -280,24 +255,6 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 #endif
 }
 
-void FullMasterCM::removeSlave( NodePtr node )
-{
-    EQ_TS_THREAD( _cmdThread );
-    _checkConsistency();
-
-    // remove from subscribers
-    const NodeID& nodeID = node->getNodeID();
-    EQASSERT( _slavesCount[ nodeID ] != 0 );
-
-    if( --_slavesCount[ nodeID ] == 0 )
-    {
-        Nodes::iterator i = stde::find( _slaves, node );
-        EQASSERT( i != _slaves.end( ));
-        _slaves.erase( i );
-        _slavesCount.erase( nodeID );
-    }
-}
-
 void FullMasterCM::_checkConsistency() const
 {
 #ifndef NDEBUG
@@ -331,7 +288,6 @@ void FullMasterCM::_checkConsistency() const
 //---------------------------------------------------------------------------
 FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 {
-    EQ_TS_SCOPED( _cmdThread );
     InstanceData* instanceData;
 
     if( _instanceDataCache.empty( ))
@@ -350,7 +306,6 @@ FullMasterCM::InstanceData* FullMasterCM::_newInstanceData()
 
 void FullMasterCM::_addInstanceData( InstanceData* data )
 {
-    EQ_TS_THREAD( _cmdThread );
     EQASSERT( data->os.getVersion() != VERSION_NONE );
     EQASSERT( data->os.getVersion() != VERSION_INVALID );
 
@@ -363,7 +318,6 @@ void FullMasterCM::_addInstanceData( InstanceData* data )
 
 void FullMasterCM::_releaseInstanceData( InstanceData* data )
 {
-    EQ_TS_THREAD( _cmdThread );
 #ifdef CO_AGGRESSIVE_CACHING
     _instanceDataCache.push_back( data );
 #else
@@ -371,26 +325,22 @@ void FullMasterCM::_releaseInstanceData( InstanceData* data )
 #endif
 }
 
-//---------------------------------------------------------------------------
-// command handlers
-//---------------------------------------------------------------------------
-bool FullMasterCM::_cmdCommit( Command& command )
+uint128_t FullMasterCM::commit( const uint32_t incarnation )
 {
-    EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.get< ObjectCommitPacket >();
+    Mutex mutex( _slaves );
 #if 0
     EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
     EQASSERT( _version != VERSION_NONE );
 
-    _updateCommitCount( packet->incarnation );
-
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    _updateCommitCount( incarnation );
+    
+    if( _object->isDirty( ))
     {
         InstanceData* instanceData = _newInstanceData();
 
-        instanceData->os.enableCommit( _version + 1, _slaves );
+        instanceData->os.enableCommit( _version + 1, *_slaves );
         _object->getInstanceData( instanceData->os );
         instanceData->os.disable();
 
@@ -406,37 +356,17 @@ bool FullMasterCM::_cmdCommit( Command& command )
         }
         else
             _instanceDataCache.push_back( instanceData );
-
-        _object->getLocalNode()->serveRequest( packet->requestID, _version );
     }
-
     _obsolete();
-    return true;
+    return _version;
 }
 
-bool FullMasterCM::_cmdObsolete( Command& command )
+void FullMasterCM::push( const uint128_t& groupID, const uint128_t& typeID,
+                         const Nodes& nodes )
 {
-    EQ_TS_THREAD( _cmdThread );
-    const ObjectObsoletePacket* packet = command.get< ObjectObsoletePacket >();
-
-    _nVersions = packet->count;
-    _obsolete();
-    return true;
-}
-
-bool FullMasterCM::_cmdPush( Command& command )
-{
-    EQ_TS_THREAD( _cmdThread );
-
-    const ObjectPushPacket* packet = command.get<ObjectPushPacket>();
+    Mutex mutex( _slaves );
     InstanceData* instanceData = _instanceDatas.back();
-
-    instanceData->os.push( *(packet->nodes), _object->getID(),
-                           packet->groupID, packet->typeID );
-
-    LocalNodePtr localNode = _object->getLocalNode();
-    localNode->serveRequest( packet->requestID );
-    return true;
+    instanceData->os.push( nodes, _object->getID(), groupID, typeID );
 }
 
 }

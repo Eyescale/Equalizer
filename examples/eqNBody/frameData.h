@@ -72,7 +72,7 @@ namespace eqNbody
                             const eq::uint128_t& version,
                             const float *range );
         
-        virtual uint32_t commitNB( const uint32_t incarnation );
+        virtual uint128_t commit( const uint32_t incarnation );
         bool isReady();
 
         const float* getPosData() const { return _hPos; }

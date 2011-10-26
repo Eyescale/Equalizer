@@ -28,15 +28,17 @@ namespace fabric
 {
     struct ServerCreateConfigPacket : public ServerPacket
     {
-        ServerCreateConfigPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+        ServerCreateConfigPacket( const Object* config,
+                                  const uint32_t req = EQ_UNDEFINED_UINT32 )
+                : configVersion( config )
+                , requestID( req )
             {
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
             }
 
-        co::ObjectVersion configVersion;
-        uint32_t requestID;
+        const co::ObjectVersion configVersion;
+        const uint32_t requestID;
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket

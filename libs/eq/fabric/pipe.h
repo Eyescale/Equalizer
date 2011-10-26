@@ -137,11 +137,17 @@ namespace fabric
                                                       const IAttribute attr );
         //@}
 
+        /** @name internal */
+        //@{
         EQFABRIC_INL virtual void backup(); //!< @internal
         EQFABRIC_INL virtual void restore(); //!< @internal
         void create( W** window ); //!< @internal
         void release( W* window ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation =
+                                               CO_COMMIT_NEXT );
+        //@}
 
     protected:
         //-------------------- Members --------------------
@@ -215,7 +221,6 @@ namespace fabric
         template< class, class, class > friend class Window;
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _node->_mapNodeObjects(); }
 
         typedef co::CommandFunc< Pipe< N, P, W, V > > CmdFunc;

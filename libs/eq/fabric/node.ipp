@@ -83,11 +83,11 @@ void Node< C, N, P, V >::restore()
 }
 
 template< class C, class N, class P, class V >
-uint32_t Node< C, N, P, V >::commitNB( const uint32_t incarnation )
+uint128_t Node< C, N, P, V >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_PIPES ))
         commitChildren( _pipes, incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class C, class N, class P, class V > void

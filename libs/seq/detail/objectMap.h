@@ -42,10 +42,10 @@ namespace detail
         co::Object* getInitData( co::Object* object )
             { return get( _initData, object ); }
         co::Object* getFrameData() { return get( _frameData ); }
+        virtual uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
 
     protected:
         virtual bool isDirty() const;
-        virtual uint32_t commitNB( const uint32_t incarnation );
 
         virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
         virtual void deserialize( co::DataIStream& is,

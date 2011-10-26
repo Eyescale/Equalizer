@@ -19,6 +19,7 @@
 #define COBASE_ERRORREGISTRY_H
 
 #include <co/base/api.h>
+#include <co/base/nonCopyable.h> // base class
 #include <co/base/stdExt.h> // hash_map
 #include <co/base/types.h>
 
@@ -37,14 +38,18 @@ namespace base
      *
      * @sa co::base::Error, eq::Error
      */
-    class ErrorRegistry
+    class ErrorRegistry : public NonCopyable
     {
     public:
+        /** @internal Construct an error registry. */
+        ErrorRegistry();
+
         /** @return the error string for the given error code. @version 1.0 */
         COBASE_API const std::string& getString( const uint32_t error ) const;
 
         /** Set an error string for the given error code. @version 1.0 */
-        COBASE_API void setString(const uint32_t error, const std::string& text);
+        COBASE_API void setString( const uint32_t error,
+                                   const std::string& text );
 
         /** Clear a given error code string. @version 1.0 */
         COBASE_API void eraseString( const uint32_t error );

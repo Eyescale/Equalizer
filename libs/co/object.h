@@ -117,7 +117,7 @@ namespace co
          * commit is needed. If it returns true, pack() or getInstanceData()
          * will be executed. The serialization methods can still decide to not
          * write any data, upon which no new version will be created. If it
-         * returns false, commitNB() and commitSync() will exit early.
+         * returns false, commit() will exit early.
          * 
          * @return true if a commit is needed.
          */
@@ -146,9 +146,6 @@ namespace co
         /** 
          * Commit a new version of this object.
          *
-         * This method is a convenience function for <code>commitSync( commitNB(
-         * incarnation ))</code>.
-         *
          * Objects using the change type STATIC can not be committed.
          *
          * Master instances will increment new versions continously, starting at
@@ -176,30 +173,9 @@ namespace co
          *
          * @param incarnation the commit incarnation for auto obsoletion.
          * @return the new head version.
-         * @sa commitNB(), commitSync()
          */
-        CO_API uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
-
-        /** 
-         * Start committing a new version of this object.
-         * 
-         * The commit transaction has to be completed using commitSync, passing
-         * the returned identifier.
-         *
-         * @param incarnation the commit incarnation for auto obsoletion.
-         * @return the commit identifier to be passed to commitSync
-         * @sa commit(), commitSync()
-         */
-        CO_API virtual uint32_t commitNB( const uint32_t incarnation );
-        
-        /** 
-         * Finalize a commit transaction.
-         * 
-         * @param commitID the commit identifier returned from commitNB
-         * @return the new head version.
-         * @sa commit()
-         */
-        CO_API virtual uint128_t commitSync( const uint32_t commitID );
+        CO_API virtual uint128_t commit( const uint32_t incarnation =
+                                         CO_COMMIT_NEXT );
 
         /** 
          * Automatically obsolete old versions.
@@ -442,7 +418,6 @@ namespace co
         ObjectCM* _cm;
 
         void _setChangeManager( ObjectCM* cm );
-        const Nodes* _getSlaveNodes() const;
 
         EQ_TS_VAR( _thread );
     };

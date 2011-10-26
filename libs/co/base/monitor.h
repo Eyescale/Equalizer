@@ -135,17 +135,16 @@ namespace base
          */
         const T waitNE( const T& value ) const
             {
-                {
-                    const T current = _value;
-                    if( current != value )
-                        return current;
-                }
+                const T current = _value;
+                if( current != value )
+                    return current;
+
                 _cond.lock();
                 while( _value == value )
                     _cond.wait();
-                const T current = _value;
+                const T newValue = _value;
                 _cond.unlock();
-                return current;
+                return newValue;
             }
 
         /**
@@ -155,17 +154,16 @@ namespace base
          */
         const T waitNE( const T& v1, const T& v2 ) const
             {
-                {
-                    const T current = _value;
-                    if( current != v1 && current != v2 )
-                        return current;
-                }
+                const T current = _value;
+                if( current != v1 && current != v2 )
+                    return current;
+
                 _cond.lock();
                 while( _value == v1 || _value == v2 )
                     _cond.wait();
-                const T current = _value;
+                const T newValue = _value;
                 _cond.unlock();
-                return current;
+                return newValue;
             }
 
         /**
@@ -176,15 +174,14 @@ namespace base
          */
          const T waitGE( const T& value ) const
             {
-                {
-                    const T current = _value;
-                    if( current >= value )
-                        return current;
-                }
+                const T current = _value;
+                if( current >= value )
+                    return current;
+
                 _cond.lock();
                 while( _value < value )
                     _cond.wait();
-                const T& newValue = _value;
+                const T newValue = _value;
                 _cond.unlock();
                 return newValue;
             }
@@ -196,15 +193,14 @@ namespace base
          */
         const T waitLE( const T& value ) const
             {
-                {
-                    const T current = _value;
-                    if( current <= value )
-                        return current;
-                }
+                const T current = _value;
+                if( current <= value )
+                    return current;
+
                 _cond.lock();
                 while( _value > value )
                     _cond.wait();
-                const T& newValue = _value;
+                const T newValue = _value;
                 _cond.unlock();
                 return newValue;
             }

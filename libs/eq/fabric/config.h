@@ -228,9 +228,6 @@ namespace fabric
         virtual bool mapNodeObjects() const { return false; } //!< @internal
 
         /** @internal */
-        EQFABRIC_INL uint128_t commit( const uint32_t incarnation );
-
-        /** @internal */
         virtual VisitorResult _acceptCompounds( V& )
             { return TRAVERSE_CONTINUE; }
         /** @internal */
@@ -240,6 +237,10 @@ namespace fabric
         friend VisitorResult _acceptImpl( C2*, V2& );
 
         N* _findNode( const uint128_t& id ); //!< @internal
+
+        /** @internal */
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation =
+                                               CO_COMMIT_NEXT );
         //@}
 
     private:
@@ -297,9 +298,6 @@ namespace fabric
         /** @internal @return the bits to be re-committed by the master. */
         virtual uint64_t getRedistributableBits() const
             { return DIRTY_CONFIG_BITS; }
-
-        /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
 
         template< class, class > friend class Observer;
         void _addObserver( O* observer );

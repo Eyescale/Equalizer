@@ -62,10 +62,10 @@ ObjectMap::Entry::Entry(const uint128_t& v, co::Object* i, const uint32_t t)
         , type( t )
 {}
 
-uint32_t ObjectMap::commitNB( const uint32_t incarnation )
+uint128_t ObjectMap::commit( const uint32_t incarnation )
 {
     _commitMasters( incarnation );
-    return Serializable::commitNB( incarnation );
+    return Serializable::commit( incarnation );
 }
 
 bool ObjectMap::isDirty() const
@@ -83,8 +83,6 @@ bool ObjectMap::isDirty() const
 void ObjectMap::_commitMasters( const uint32_t incarnation )
 {
     ScopedMutex mutex( _mutex );
-    std::vector< uint32_t > requests;
-    std::vector< co::Object* > objects;
 
     for( co::ObjectsCIter i = _masters.begin(); i != _masters.end(); ++i )
     {
@@ -92,15 +90,8 @@ void ObjectMap::_commitMasters( const uint32_t incarnation )
         if( !object->isDirty( ))
             continue;
 
-        requests.push_back( object->commitNB( incarnation ));
-        objects.push_back( object );
-    }
-
-    const size_t size = requests.size();
-    for( size_t i = 0; i < size; ++i )
-    {
-        const co::ObjectVersion ov( objects[i]->getID(),
-                                    objects[i]->commitSync( requests[i] ));
+        const co::ObjectVersion ov( object->getID(),
+                                    object->commit( incarnation ));
         Entry& entry = _map[ ov.identifier ];
         if( entry.version == ov.version )
             continue;

@@ -18,6 +18,7 @@
 #include "errorRegistry.h"
 
 #include "debug.h"
+#include "error.h"
 
 namespace co 
 {
@@ -26,6 +27,11 @@ namespace base
 namespace
 {
 static std::string _empty;
+}
+
+ErrorRegistry::ErrorRegistry()
+{
+    _errors[ ERROR_NONE ] = "no error";
 }
 
 const std::string& ErrorRegistry::getString( const uint32_t error ) const
