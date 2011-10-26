@@ -89,7 +89,8 @@ void Channel::frameClear( const eq::uint128_t& frameID )
     applyBuffer();
     applyViewport();
 
-    if( getRange() == eq::Range::ALL )
+    _drawRange = getRange();
+    if( _drawRange == eq::Range::ALL )
         glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -210,13 +211,13 @@ void Channel::_calcMVandITMV(
     if( renderer )
     {
         const VolumeScaling& volScaling = renderer->getVolumeScaling();
-        
+
         eq::Matrix4f scale( eq::Matrix4f::ZERO );
         scale.at(0,0) = volScaling.W;
         scale.at(1,1) = volScaling.H;
         scale.at(2,2) = volScaling.D;
         scale.at(3,3) = 1.f;
-        
+
         modelviewM = scale * frameData.getRotation();
     }
     modelviewM.set_translation( frameData.getTranslation( ));
@@ -245,13 +246,19 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     // clear given area
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
-    glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
+
+    if( _drawRange == eq::Range::ALL )
+        glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
+    else
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+
     glClear( GL_COLOR_BUFFER_BIT );
 
     // restore assembly state
     const eq::PixelViewport& windowPVP = getWindow()->getPixelViewport();
     glScissor( 0, 0, windowPVP.w, windowPVP.h );
 }
+
 
 void Channel::_orderFrames( eq::Frames& frames )
 {
@@ -270,13 +277,12 @@ void Channel::_orderFrames( eq::Frames& frames )
 void Channel::frameAssemble( const eq::uint128_t& frameID )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
-    eq::FrameData* data = _frame.getData();
 
     _startAssemble();
 
     const eq::Frames& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
-    eq::Frames    dbFrames;
+    eq::Frames         dbFrames;
     eq::Zoom           zoom( eq::Zoom::NONE );
 
     // Make sure all frames are ready and gather some information on them
@@ -308,6 +314,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // calculate correct frames sequence
+    eq::FrameData* data = _frame.getData();
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();
@@ -316,6 +323,16 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     _orderFrames( dbFrames );
+
+    // Update range
+    eq::Range newRange( 1.f, 0.f );
+    for( size_t i = 0; i < dbFrames.size(); ++i )
+    {
+        const eq::Range range = dbFrames[i]->getRange();
+        if( newRange.start > range.start ) newRange.start = range.start;
+        if( newRange.end   < range.end   ) newRange.end   = range.end;
+    }
+    _drawRange = newRange;
 
     // check if current frame is in proper position, read back if not
     if( !composeOnly )
@@ -349,9 +366,6 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
-
-    // Update range
-    _drawRange = getRange();
 }
 
 void Channel::_startAssemble()
@@ -372,6 +386,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
         frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
+        frame->getData()->setRange( _drawRange );
     }
 
     eq::Channel::frameReadback( frameID );
