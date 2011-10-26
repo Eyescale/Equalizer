@@ -50,7 +50,12 @@ bool init( const int argc, char** argv )
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
 
-    RNG::_init();
+    if( !RNG::_init( ))
+    {
+        EQERROR << "Failed to initialize random number generator" << std::endl;
+        return false;
+    }
+
     // init all available plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
 #ifdef COLLAGE_DSO_NAME

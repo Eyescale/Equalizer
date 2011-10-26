@@ -110,7 +110,7 @@ namespace base
 #elif defined (_WIN32)
         static COBASE_API HCRYPTPROV _provider;
 #endif
-        static void _init();
+        static COBASE_API bool _init();
         static void _exit();
         friend COBASE_API bool init( const int argc, char** argv );
     };
