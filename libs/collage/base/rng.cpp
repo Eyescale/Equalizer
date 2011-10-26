@@ -27,28 +27,30 @@ int RNG::_fd = -1;
 HCRYPTPROV RNG::_provider = 0;
 #endif
 
-void RNG::_init()
+bool RNG::_init()
 {
 #ifdef Darwin
     srandomdev();
 #elif defined (Linux)
     static int fd = -1; // prevent static initializer fiasco
     if( fd >= 0 )
-        return;
+        return true;
 
     fd = ::open( "/dev/urandom", O_RDONLY );
     if( fd >= 0 )
         ::atexit( RNG::_exit );
     else
+    {
         EQERROR << "Failed to open /dev/urandom: " << sysError << std::endl;
-
+        return false;
+    }
     _fd = fd;
 
 #elif defined (_WIN32)
 
     static HCRYPTPROV provider = 0; // prevent static initializer fiasco
     if( provider )
-        return;
+        return true;
 
     if( CryptAcquireContext( &provider, 0, 0, PROV_RSA_FULL,
                               CRYPT_VERIFYCONTEXT ) || !provider )
@@ -56,10 +58,14 @@ void RNG::_init()
         ::atexit( RNG::_exit );
     }
     else
+    {
         EQERROR << "Failed to acquire crypto context: " << sysError <<std::endl;
+        return false;
+    }
 
     _provider = provider;
 #endif
+    return true;
 }
 
 void RNG::_exit()
