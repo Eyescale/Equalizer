@@ -45,12 +45,7 @@ bool init( const int argc, char** argv )
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
            << Log::topics << std::endl;
 
-    if( !RNG::_init( ))
-    {
-        EQERROR << "Failed to initialize random number generator" << std::endl;
-        return false;
-    }
-
+    RNG::_init();
     // init all available plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
 #ifdef EQ_DSO_NAME
@@ -93,8 +88,7 @@ bool exit()
     plugins.exit(); 
     Thread::removeAllListeners();
     Log::exit();
-
-    return RNG::_exit();
+    return true;
 }
 
 }
