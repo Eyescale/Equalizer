@@ -29,7 +29,8 @@
 namespace co
 {
 /**
- * A registered memory region (MR) broken up into a number of fixed size buffers.
+ * A registered memory region (MR) broken up into a number of fixed size
+ * buffers.
  */
 class BufferPool
 {
@@ -39,8 +40,14 @@ public:
 
     inline ibv_mr *getMR( ) const { return _mr; }
     inline unsigned int getBufferSize( ) const { return _buffer_size; }
-    inline void *getBuffer( ) { return (void *)( (uintptr_t)_buffer + ( _ring.get( ) * _buffer_size )); }
-    inline void freeBuffer( void *buf ) { _ring.put(( (uintptr_t)buf - (uintptr_t)_buffer ) / _buffer_size ); }
+    inline void *getBuffer( )
+    {
+        return (void *)( (uintptr_t)_buffer + ( _ring.get( ) * _buffer_size ));
+    }
+    inline void freeBuffer( void *buf )
+    {
+        _ring.put(( (uintptr_t)buf - (uintptr_t)_buffer ) / _buffer_size );
+    }
 
     void clear( );
     bool resize( ibv_pd *pd, const unsigned int num_bufs );
@@ -83,12 +90,13 @@ struct RDMAMessage;
 /**
  * An RDMA connection implementation.
  *
- * This connection utilizes the OFED RDMA library to send Collage messages by RDMA write
- * operations on the remote MR.  Since there are two "notifiers" when connected via RDMA CM
- * (in the connection manager channel and the completion channel), a thread is launched that
- * monitors both via epoll(7) and dispatches events via an eventfd(2) that the application
- * can monitor.  For listening, however, the connection manager's channel is sufficient and
- * it is simply handed back to the application for monitoring.
+ * This connection utilizes the OFED RDMA library to send Collage messages by
+ * RDMA write operations on the remote MR.  Since there are two "notifiers" when
+ * connected via RDMA CM (in the connection manager channel and the completion
+ * channel), a thread is launched that monitors both via epoll(7) and dispatches
+ * events via an eventfd(2) that the application can monitor.  For listening,
+ * however, the connection manager's channel is sufficient and it is simply
+ * handed back to the application for monitoring.
  *
  * In order to use this connection type, at least:
  *
@@ -101,9 +109,10 @@ struct RDMAMessage;
  *    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB for each one
  *    (i.e. /dev/shm, kernel.shm[min|max|all])
  * 5) The user must be able to lock the memory registered with verbs, such that
- *    the locked memory limit needs to be sufficient ("ulimit -l" for bash, "limit
- *    memorylocked" for csh).  Updating /etc/security/limits.conf with entries
- *    like this is usually adequate (e.g. to raise the limit to 2GB for all users):
+ *    the locked memory limit needs to be sufficient ("ulimit -l" for bash,
+ *    "limit memorylocked" for csh).  Updating /etc/security/limits.conf with
+ *    entries like this is usually adequate (e.g. to raise the limit to 2GB for
+ *    all users):
  *    * soft memlock 2048000
  *    * hard memlock 2048000
  */
@@ -180,7 +189,8 @@ private:
     bool _waitRecvSetup( );
 
 private:
-    bool _doCMEvent( struct rdma_event_channel *channel, rdma_cm_event_type expected );
+    bool _doCMEvent( struct rdma_event_channel *channel,
+        rdma_cm_event_type expected );
     bool _doCQEvents( struct ibv_comp_channel *channel );
 
     typedef base::RefPtr< RDMAConnection > RDMAConnectionPtr;
@@ -201,7 +211,7 @@ private:
     void _notify( const uint64_t val );
 
     ChannelEventThread *_event_thread;
-    int _epoll_fd;
+    int _efd; // epoll fd
 
     bool _startEventThread( );
     bool _initEventThread( );
@@ -236,16 +246,20 @@ private:
     /* MR for setup and FC messages */
     BufferPool _msgbuf;
 
-    /* Send WR tracking */
-    signed int _available; // explicitly signed to assert on underflow
-    BufferQ<unsigned int> _used;
-    inline bool _canSend( const unsigned int entries ) const { return (signed int)entries <= _available; }
+    /* Send WR tracking (TODO: non-GCC specific alternatives?) */
+    signed int _available_wr; // explicitly signed to assert on underflow
+    inline bool _haveAvailableWR( )
+        { return !__sync_bool_compare_and_swap( &_available_wr, 0, 0 ); }
+    inline signed int _incAvailableWR( )
+        { return __sync_add_and_fetch( &_available_wr, 1 ); }
+    inline signed int _decAvailableWR( )
+        { return __sync_sub_and_fetch( &_available_wr, 1 ); }
 
     /* source RDMA MR */
     RingBuffer _sourcebuf;
     Ring<uint32_t, 3> _sourceptr;
         //        : initialized by application during connect/accept
-        // HEAD   : advanced by application after copying buffer in on local write
+        // HEAD   : advanced by application after copying buffer on local write
         // MIDDLE : advanced by application before posting RDMA write
         // TAIL   : advanced by event thread after completing RDMA write
 
@@ -254,7 +268,7 @@ private:
     Ring<uint32_t, 3> _sinkptr;
         //        : initialized by application during connect/accept
         // HEAD   : advanced by event thread on receipt of remote FC
-        // MIDDLE : advanced by application after copying buffer out on local read
+        // MIDDLE : advanced by application after copying buffer on local read
         // TAIL   : advanced by application while posting FC
 
     /* local "view" of remote sink MR */
