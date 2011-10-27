@@ -247,13 +247,7 @@ private:
     BufferPool _msgbuf;
 
     /* Send WR tracking (TODO: non-GCC specific alternatives?) */
-    signed int _available_wr; // explicitly signed to assert on underflow
-    inline bool _haveAvailableWR( )
-        { return !__sync_bool_compare_and_swap( &_available_wr, 0, 0 ); }
-    inline signed int _incAvailableWR( )
-        { return __sync_add_and_fetch( &_available_wr, 1 ); }
-    inline signed int _decAvailableWR( )
-        { return __sync_sub_and_fetch( &_available_wr, 1 ); }
+    base::a_int32_t _available_wr;
 
     /* source RDMA MR */
     RingBuffer _sourcebuf;

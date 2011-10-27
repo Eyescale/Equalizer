@@ -258,7 +258,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     if( available_bytes > bytes_taken )
         _notify( available_bytes - bytes_taken );
 
-    while( !_haveAvailableWR( )) // TODO: timeout?
+    while( _available_wr == 0 ) // TODO: timeout?
         co::base::Thread::yield( );
 
     // TODO : send FC less frequently?
@@ -282,7 +282,7 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     //EQWARN << (void *)this << ".write(" << bytes << ")" <<
     //    " ---------->>>>>>>>>>" << std::endl;
 
-    while( !_haveAvailableWR( )) // TODO: timeout?
+    while( _available_wr == 0 ) // TODO: timeout?
         co::base::Thread::yield( );
 
     const uint32_t bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ));
@@ -754,11 +754,7 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
     EQASSERT( NULL != _qp );
 
     // track available
-#ifndef NDEBUG
-    signed int a =
-#endif
-    _decAvailableWR( );
-    EQASSERT( 0 <= a );
+    EQCHECK( --_available_wr >= 0 );
 
     struct ibv_send_wr *bad_wr;
     if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
@@ -961,11 +957,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
                             ( IBV_WC_RDMA_WRITE == wc.opcode ))
                         {
                             // track available
-#ifndef NDEBUG
-                            signed int a =
-#endif
-                            _incAvailableWR( );
-                            EQASSERTINFO( a <= (int)_qpcap.max_send_wr, a );
+                            EQCHECK( ++_available_wr <= int(_qpcap.max_send_wr));
 
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
