@@ -919,10 +919,10 @@ server
             channel ( segment 0 layout "MultiLevel" view 0 )
             buffer  [ COLOR DEPTH ]
 
-            compound { range[ 0 .1 ] task [ CLEAR ] channel "channel1" }
-            compound { range[ 0 .1 ] task [ CLEAR ] channel "channel2" }
-            compound { range[ 0 .1 ] task [ CLEAR ] channel "channel3" }
-            compound { range[ 0 .1 ] task [ CLEAR ] channel "channel4" }
+            compound { task [ CLEAR ] channel "channel1" }
+            compound { task [ CLEAR ] channel "channel2" }
+            compound { task [ CLEAR ] channel "channel3" }
+            compound { task [ CLEAR ] channel "channel4" }
             compound
             {
                 compound

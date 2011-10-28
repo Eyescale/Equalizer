@@ -259,7 +259,6 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
     glScissor( 0, 0, windowPVP.w, windowPVP.h );
 }
 
-
 void Channel::_orderFrames( eq::Frames& frames )
 {
     eq::Matrix4f        modelviewM;   // modelview matrix
