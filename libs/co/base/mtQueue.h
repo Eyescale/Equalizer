@@ -21,10 +21,10 @@
 #include <co/base/condition.h>
 #include <co/base/debug.h>
 
+#include <algorithm>
+#include <limits.h>
 #include <queue>
 #include <string.h>
-#include <limits>
-#include <algorithm>
 
 namespace co
 {
