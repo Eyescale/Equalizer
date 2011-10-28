@@ -49,6 +49,7 @@ namespace eVolve
         void setOrtho( const bool ortho );
         void adjustQuality( const float delta );
         void toggleBackground();
+        void toggleNormalsQuality();
         void toggleColorMode();
         void toggleOrtho();
         void toggleHelp();
@@ -69,6 +70,7 @@ namespace eVolve
         float getQuality() const { return _quality; }
         ColorMode getColorMode() const { return _colorMode; }
         BackgroundMode getBackgroundMode() const { return _bgMode; }
+        NormalsQuality getNormalsQuality() const { return _normalsQuality; }
         //*}
 
         /** @name View interface. */
@@ -112,6 +114,7 @@ namespace eVolve
         bool            _ortho;
         ColorMode       _colorMode;
         BackgroundMode  _bgMode;
+        NormalsQuality  _normalsQuality;
         bool            _statistics;
         bool            _help;
         float           _quality;

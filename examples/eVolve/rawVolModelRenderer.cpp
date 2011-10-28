@@ -69,7 +69,8 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
         const VolumeInfo&   volumeInfo,
         const float         sliceDistance,
         const eq::Matrix4f& invRotationM,
-        const eq::Vector4f& taintColor       )
+        const eq::Vector4f& taintColor,
+        const int           normalsQuality )
 {
     EQASSERT( _glewContext );
 
@@ -113,17 +114,25 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
     tParamNameGL = glGetUniformLocationARB(  shader,  "sliceDistance" );
     glUniform1fARB( tParamNameGL,  sliceDistance ); //v-shader
 
-    tParamNameGL = glGetUniformLocationARB(  shader,  "perspProj" );
+    tParamNameGL = glGetUniformLocationARB(  shader,  "perspProj"     );
     glUniform1fARB( tParamNameGL,  _ortho ? 0.0f : 1.0f ); //v-shader
 
     tParamNameGL = glGetUniformLocationARB(  shader,  "shininess"     );
     glUniform1fARB( tParamNameGL,  8.0f         ); //f-shader
 
-    tParamNameGL = glGetUniformLocationARB(  shader,  "taint"     );
+    tParamNameGL = glGetUniformLocationARB(  shader,  "taint"         );
     glUniform4fARB( tParamNameGL,   taintColor.r(),
                                     taintColor.g(),
                                     taintColor.b(),
                                     taintColor.a()  ); //f-shader
+
+    tParamNameGL = glGetUniformLocationARB(  shader,  "sizeVec"       );
+    glUniform3fARB( tParamNameGL,   volumeInfo.voxelSize.W,
+                                    volumeInfo.voxelSize.H,
+                                    volumeInfo.voxelSize.D  ); //f-shader
+
+    tParamNameGL = glGetUniformLocationARB(  shader,  "normalsQuality");
+    glUniform1iARB( tParamNameGL, normalsQuality ); //f-shader
 
     // rotate viewPosition in the opposite direction of model rotation
     // to keep light position constant but not recalculate normals 
@@ -142,7 +151,8 @@ bool RawVolumeModelRenderer::render
     const eq::Matrix4d&   modelviewM,
     const eq::Matrix3d&   modelviewITM,
     const eq::Matrix4f&   invRotationM,
-    const eq::Vector4f&   taintColor
+    const eq::Vector4f&   taintColor,
+    const int             normalsQuality
 )
 {
     VolumeInfo volumeInfo;
@@ -165,8 +175,8 @@ bool RawVolumeModelRenderer::render
     const uint32_t resolution    = _rawModel.getResolution();
     const double   sliceDistance = 3.6 / ( resolution * _precision );
 
-    _putVolumeDataToShader( volumeInfo, float( sliceDistance ), 
-                            invRotationM, taintColor );
+    _putVolumeDataToShader( volumeInfo, float( sliceDistance ),
+                            invRotationM, taintColor, normalsQuality );
 
     _sliceClipper.updatePerFrameInfo( modelviewM, modelviewITM,
                                       sliceDistance, range );
