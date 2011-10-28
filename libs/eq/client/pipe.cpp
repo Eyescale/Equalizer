@@ -444,7 +444,7 @@ void Pipe::startThread()
     _thread->start();
 }
 
-void Pipe::joinThread()
+void Pipe::exitThread()
 {
     if( !_thread )
         return;

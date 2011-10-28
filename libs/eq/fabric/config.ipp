@@ -632,12 +632,6 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 template< class S, class C, class O, class L, class CV, class N, class V >
 uint128_t Config< S, C, O, L, CV, N, V >::commit( const uint32_t incarnation )
 {
-    return commitSync( commitNB( incarnation ));
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::commitNB( const uint32_t incarnation )
-{
     if( Serializable::isDirty( Config::DIRTY_NODES ))
         commitChildren< N >( _nodes, incarnation );
     if( Serializable::isDirty( Config::DIRTY_OBSERVERS ))
@@ -649,7 +643,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::commitNB( const uint32_t incarnation )
     if( Serializable::isDirty( Config::DIRTY_CANVASES ))
         commitChildren< CV, ConfigNewCanvasPacket, C >(
             _canvases, static_cast< C* >( this ), incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,6 @@ namespace co
 {
 namespace base
 {
-
 #ifdef Linux
 int RNG::_fd = -1;
 #elif defined (_WIN32)
@@ -30,48 +29,59 @@ HCRYPTPROV RNG::_provider = 0;
 
 bool RNG::_init()
 {
-#ifdef Linux
-    EQASSERT( _fd == -1 );
-    _fd = ::open( "/dev/urandom", O_RDONLY );
-    if( _fd < 0 )
+#ifdef Darwin
+    srandomdev();
+#elif defined (Linux)
+    static int fd = -1; // prevent static initializer fiasco
+    if( fd >= 0 )
+        return true;
+
+    fd = ::open( "/dev/urandom", O_RDONLY );
+    if( fd >= 0 )
+        ::atexit( RNG::_exit );
+    else
     {
         EQERROR << "Failed to open /dev/urandom: " << sysError << std::endl;
         return false;
     }
+    _fd = fd;
+
 #elif defined (_WIN32)
-    EQASSERT( !_provider );
-    if( !CryptAcquireContext( &_provider, 0,
-                              0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) ||
-        !_provider )
+
+    static HCRYPTPROV provider = 0; // prevent static initializer fiasco
+    if( provider )
+        return true;
+
+    if( CryptAcquireContext( &provider, 0, 0, PROV_RSA_FULL,
+                              CRYPT_VERIFYCONTEXT ) || !provider )
+    {
+        ::atexit( RNG::_exit );
+    }
+    else
     {
         EQERROR << "Failed to acquire crypto context: " << sysError <<std::endl;
         return false;
     }
-#endif
 
+    _provider = provider;
+#endif
     return true;
 }
 
-bool RNG::_exit()
+void RNG::_exit()
 {
 #ifdef Linux
-    if( _fd > 0 )
+    if( _fd >= 0 )
     {
         ::close( _fd );
         _fd = -1;
     }
 #elif defined (_WIN32)
     if( _provider && !CryptReleaseContext( _provider, 0 ))
-    {
         EQERROR << "Failed to release crypto context: " << sysError
                 << std::endl;
-        _provider = 0;
-        return false;
-    }
     _provider = 0;
 #endif
-
-    return true;
 }
 
 }

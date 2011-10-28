@@ -1306,13 +1306,12 @@ void Channel::_transmitImage( Image* image,
 #endif
         const PixelData* data = pixelDatas[j];
         const FrameData::ImageHeader header =
-        {   data->internalFormat, data->externalFormat,
-            data->pixelSize, data->pvp,
-            data->isCompressed ? data->compressorName : EQ_COMPRESSOR_NONE, 
-            data->compressorFlags,
-            data->isCompressed ? uint32_t( data->compressedSize.size( )) : 1,
-            qualities[ j ]
-        };
+              { data->internalFormat, data->externalFormat,
+                data->pixelSize, data->pvp,
+                useCompression ? data->compressorName : EQ_COMPRESSOR_NONE,
+                data->compressorFlags, 
+                data->isCompressed ? uint32_t(data->compressedSize.size()):1,
+                qualities[ j ] };
 
         connection->send( &header, sizeof( FrameData::ImageHeader ), true );
 

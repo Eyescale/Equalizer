@@ -628,7 +628,7 @@ void Config::setupMessagePump( Pipe* pipe )
 
     // called from pipe threads - but only during init
     static co::base::Lock _lock;
-    co::base::ScopedMutex<> mutex( _lock );
+    co::base::ScopedWrite mutex( _lock );
 
     if( _eventQueue.getMessagePump( )) // Already done
         return;

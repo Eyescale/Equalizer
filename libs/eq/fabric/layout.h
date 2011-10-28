@@ -52,7 +52,7 @@ namespace fabric
          * @return true if the layout is activated in at least one canvas.
          * @version 1.1.5
          */
-        bool isActive() const;
+        EQFABRIC_INL bool isActive() const;
 
         /** @internal @return the view of the given path. */
         V* getView( const ViewPath& path );
@@ -133,7 +133,7 @@ namespace fabric
         bool _removeChild( V* view );
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation );
 
         template< class O > void _removeObserver( const O* observer );
         template< class, class, class, class, class, class,

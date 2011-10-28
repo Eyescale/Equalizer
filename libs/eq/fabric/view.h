@@ -101,7 +101,7 @@ namespace fabric
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_INL void setViewport( const Viewport& viewport );
 
-        /** @return the stereo mode of this view. @version 1.0 */
+        /** @internal Get the mode of this view. */
         Mode getMode() const { return _data.mode; }
         
         /**

@@ -131,13 +131,13 @@ void FrameData::updateProxyID( const eq::uint128_t& pid,
     setDirty( DIRTY_PROXYDATA );
 }
     
-uint32_t FrameData::commitNB( const uint32_t incarnation )
+uint128_t FrameData::commit( const uint32_t incarnation )
 {
-    const uint32_t ret = eq::fabric::Serializable::commitNB( incarnation );
+    const uint128_t v = eq::fabric::Serializable::commit( incarnation );
     for( unsigned int i=0; i< _numDataProxies; ++i )
         _dataRanges[i] = 0.0f;
         
-    return ret;
+    return v;
 }
     
 bool FrameData::isReady()

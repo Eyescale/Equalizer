@@ -40,6 +40,7 @@ FrameData::FrameData()
     : _ortho(         false )
     , _colorMode(     COLOR_MODEL )
     , _bgMode(        BG_BLACK )
+    , _normalsQuality(NQ_FULL )
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
@@ -62,13 +63,21 @@ void FrameData::reset()
 
 void FrameData::toggleBackground()
 {
-    _bgMode = static_cast< BackgroundMode >(( _bgMode + 1) % BG_ALL );
+    _bgMode = static_cast< BackgroundMode >(( _bgMode + 1 ) % BG_ALL );
     setDirty( DIRTY_FLAGS );
 }
 
+void FrameData::toggleNormalsQuality()
+{
+    _normalsQuality = 
+        static_cast< NormalsQuality >(( _normalsQuality + 1 ) % NQ_ALL );
+    setDirty( DIRTY_FLAGS );
+}
+
+
 void FrameData::toggleColorMode()
 {
-    _colorMode = static_cast< ColorMode >(( _colorMode + 1) % COLOR_ALL );
+    _colorMode = static_cast< ColorMode >(( _colorMode + 1 ) % COLOR_ALL );
     setDirty( DIRTY_FLAGS );
 }
 
@@ -153,8 +162,8 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _rotation << _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        os  << _ortho << _colorMode << _bgMode 
-            << _statistics << _quality  << _help;
+        os  << _ortho << _colorMode << _bgMode << _normalsQuality
+            << _statistics << _quality << _help;
 
     if( dirtyBits & DIRTY_MESSAGE )
         os << _message;
@@ -170,7 +179,7 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
         is >> _rotation >> _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        is  >> _ortho >> _colorMode >> _bgMode
+        is  >> _ortho >> _colorMode >> _bgMode >> _normalsQuality
             >> _statistics  >> _quality >> _help;
 
     if( dirtyBits & DIRTY_MESSAGE )

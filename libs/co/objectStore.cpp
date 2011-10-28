@@ -804,7 +804,6 @@ bool ObjectStore::_cmdMapObject( Command& command )
     if( master )
     {
         // Check requested version
-        const uint128_t version = packet->requestedVersion;
         NodeMapObjectSuccessPacket successPacket( packet );
         successPacket.changeType       = master->getChangeType();
         successPacket.masterInstanceID = master->getInstanceID();
