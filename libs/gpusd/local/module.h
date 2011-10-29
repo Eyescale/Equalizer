@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,16 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd1/local/gpuInfo.h>
+#ifndef GPUSD_LOCAL_MODULE_H
+#define GPUSD_LOCAL_MODULE_H
 
-#include <limits>
+#include <gpusd1/local/api.h>
+#include <gpusd1/local/types.h>
+#include <iostream>
 
 namespace gpusd
 {
 namespace local
 {
+    /** Base class for runtime-attached DSOs containing a query implementation.*/
+    class Module
+    {
+    public:
+        /** Register and construct a new module. */
+        GPUSD_LOCAL_API Module();
 
-unsigned GPUInfo::defaultValue = std::numeric_limits< unsigned >::max();
+        /** Destruct and destruct a module. */
+        GPUSD_LOCAL_API virtual ~Module();
 
+        /** @return information about all locally-found GPUs. */
+        virtual GPUInfos discoverGPUs() const = 0;
+        
+    private:
+        Module* next_;
+    };
 }
 }
+#endif // GPUSD_LOCAL_MODULE_H
+

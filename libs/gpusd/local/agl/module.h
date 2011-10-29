@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,16 +15,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd1/local/gpuInfo.h>
+#ifndef GPUSD_LOCAL_AGL_MODULE_H
+#define GPUSD_LOCAL_AGL_MODULE_H
 
-#include <limits>
+#include <gpusd1/local/module.h> // base class
 
 namespace gpusd
 {
 namespace local
 {
-
-unsigned GPUInfo::defaultValue = std::numeric_limits< unsigned >::max();
-
+namespace agl
+{
+    /** The AGL implementation for local GPU discovery. */
+    class Module : public local::Module
+    {
+    public:
+        Module() : local::Module() {}
+        virtual ~Module() {}
+        virtual GPUInfos discoverGPUs() const;
+    };
 }
 }
+}
+#endif // GPUSD_LOCAL_AGL_MODULE_H
+

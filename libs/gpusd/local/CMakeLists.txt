@@ -1,14 +1,17 @@
 
+find_package(OpenGL REQUIRED)
 configure_file("version.in.h" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 
 set(HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/version.h"
   api.h
   gpuInfo.h
+  module.h
 )
 
 set(SOURCES
   gpuInfo.cpp
+  module.cpp
   version.cpp
 )
 
@@ -24,3 +27,5 @@ install(TARGETS ${LIBRARY}
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
   COMPONENT lib)
 install_symlink(${LIB_INCLUDE} ${LIBRARY} include)
+
+add_subdirectory(agl)

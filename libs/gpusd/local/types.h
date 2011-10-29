@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,16 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd1/local/gpuInfo.h>
+#ifndef GPUSD_LOCAL_TYPES_H
+#define GPUSD_LOCAL_TYPES_H
 
-#include <limits>
+#include <vector>
 
 namespace gpusd
 {
 namespace local
 {
-
-unsigned GPUInfo::defaultValue = std::numeric_limits< unsigned >::max();
-
+struct GPUInfo;
+typedef std::vector< GPUInfo > GPUInfos;
 }
 }
+
+#endif // GPUSD_LOCAL_TYPES_H
+

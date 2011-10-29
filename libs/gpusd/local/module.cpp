@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,16 +15,40 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd1/local/gpuInfo.h>
-
-#include <limits>
+#include "module.h"
 
 namespace gpusd
 {
 namespace local
 {
+namespace
+{
+Module* stack_ = 0;
+}
 
-unsigned GPUInfo::defaultValue = std::numeric_limits< unsigned >::max();
+Module::Module()
+        : next_( stack_ )
+{
+    stack_ = this;
+}
+
+Module::~Module()
+{
+    Module* previous = stack_;
+
+    for( Module* module = stack_; module; module = module->next_ )
+    {
+        if( module == this )
+        {
+            if( previous )
+                previous->next_ = next_;
+            else
+                stack_ = next_;
+            return;
+        }
+        previous = module;
+    }
+}
 
 }
 }
