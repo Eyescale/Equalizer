@@ -17,6 +17,8 @@
   along with GPU-SD. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <gpusd1/local/module.h>
+
 #include <dns_sd.h>
 #include <iostream>
 #include <cstdio>

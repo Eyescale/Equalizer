@@ -37,7 +37,11 @@ namespace local
         GPUSD_LOCAL_API virtual ~Module();
 
         /** @return information about all locally-found GPUs. */
-        virtual GPUInfos discoverGPUs() const = 0;
+        static GPUInfos discoverGPUs();
+
+    protected:
+        /** @return information about all locally-found GPUs. */
+        virtual GPUInfos discoverGPUs_() const = 0;
         
     private:
         Module* next_;

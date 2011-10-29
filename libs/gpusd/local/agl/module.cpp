@@ -32,20 +32,19 @@ namespace local
 {
 namespace agl
 {
-GPUInfos Module::discoverGPUs() const
+GPUInfos Module::discoverGPUs_() const
 {
-    const CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-
+    GPUInfos result;
     CGDirectDisplayID displayIDs[MAX_GPUS];
     CGDisplayCount    nDisplays = 0;
+
     if( CGGetOnlineDisplayList( MAX_GPUS, displayIDs, &nDisplays ) !=
         kCGErrorSuccess )
     {
-        GPUInfos result;
-        result.push_back( GPUInfo() );
         return result;
     }
 
+    const CGDirectDisplayID mainDisplayID = CGMainDisplayID();
     std::deque< GPUInfo > infos;
     for( CGDisplayCount i = 0; i < nDisplays; ++i )
     {
@@ -64,7 +63,7 @@ GPUInfos Module::discoverGPUs() const
             infos.push_back( info );
     }
 
-    GPUInfos result( infos.size( ));
+    result.resize( infos.size( ));
     std::copy( infos.begin(), infos.end(), result.begin( ));
     return result;
 }

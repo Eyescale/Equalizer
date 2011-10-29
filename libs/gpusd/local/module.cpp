@@ -17,6 +17,8 @@
 
 #include "module.h"
 
+#include <gpusd1/local/gpuInfo.h>
+
 namespace gpusd
 {
 namespace local
@@ -48,6 +50,19 @@ Module::~Module()
         }
         previous = module;
     }
+}
+
+GPUInfos Module::discoverGPUs()
+{
+    for( Module* module = stack_; module; module = module->next_ )
+    {
+        const GPUInfos result = module->discoverGPUs_();
+        if( !result.empty( ))
+            return result;
+    }
+
+    GPUInfos result;
+    return result;
 }
 
 }

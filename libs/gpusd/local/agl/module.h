@@ -32,7 +32,9 @@ namespace agl
     public:
         Module() : local::Module() {}
         virtual ~Module() {}
-        virtual GPUInfos discoverGPUs() const;
+
+    protected:
+        virtual GPUInfos discoverGPUs_() const;
     };
 }
 }
