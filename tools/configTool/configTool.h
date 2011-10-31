@@ -35,7 +35,6 @@ private:
         MODE_DB,
         MODE_DB_DS,
         MODE_DB_STREAM,
-        MODE_DB_DS_AC,
         MODE_DPLEX,
         MODE_WALL,
         MODE_ALL
@@ -53,14 +52,13 @@ private:
 
     unsigned _resX, _resY;
 
-
     void _writeResources( eq::server::Config* config )  const;
     void _writeCompound( eq::server::Config* config )   const;
+    eq::server::Compound* _addSingleSegment( eq::server::Config* config ) const;
     void _write2D( eq::server::Config* config )         const;
     void _writeDB( eq::server::Config* config )         const;
     void _writeDBStream( eq::server::Config* config )   const;
     void _writeDS( eq::server::Config* config )         const;
-    void _writeDSAC( eq::server::Config* config )       const;
     void _writeDPlex( eq::server::Config* config )      const;
     void _writeWall( eq::server::Config* config )       const;
     void _writeFromDescription( eq::server::Config* config ) const;

@@ -1,9 +1,14 @@
-RHEL 6.1 porting
+configTool improvements:
+* new default 16:10 resolution
+* remove DB_ds_ac mode using cout, to be readded using server API if needed
+* add config file version
+* use layout API
+* correct aspect ratio for frustum
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

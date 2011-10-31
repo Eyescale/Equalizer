@@ -24,7 +24,9 @@
 #include <eq/server/canvas.h>
 #include <eq/server/global.h>
 #include <eq/server/layout.h>
+#include <eq/server/loader.h>
 #include <eq/server/node.h>
+#include <eq/server/observer.h>
 #include <eq/server/segment.h>
 #include <eq/server/view.h>
 #include <eq/server/window.h>
@@ -75,8 +77,8 @@ ConfigTool::ConfigTool()
         ,_columns( 3 )
         ,_rows( 2 )
         ,_nodesFile( "" )
-        ,_resX( 1024 )
-        ,_resY( 768 )
+        ,_resX( 960 )
+        ,_resY( 600 )
 {}
 
 bool ConfigTool::parseArguments( int argc, char** argv )
@@ -92,7 +94,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
         TCLAP::ValueArg<std::string> modeArg( "m", "mode",
                                          "Compound mode (default 2D)",
                                          false, "2D",
-                                    "2D|DB|DB_ds|DB_stream|DB_ds_ac|DPlex|Wall",
+                                         "2D|DB|DB_ds|DB_stream|DPlex|Wall",
                                          command );
 
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
@@ -167,17 +169,6 @@ bool ConfigTool::parseArguments( int argc, char** argv )
                 _mode = MODE_DB_DS;
             else if( mode == "DB_stream" )
                 _mode = MODE_DB_STREAM;
-            else if( mode == "DB_ds_ac" )
-            {
-                _mode = MODE_DB_DS_AC;
-                _nPipes = 2;
-
-                if( _nChannels%2 != 0 )
-                {
-                    std::cerr << "Channels number must be even" << std::endl;
-                    return false;
-                }
-            }
             else if( mode == "DPlex" )
                 _mode = MODE_DPLEX;
             else if( mode == "Wall" )
@@ -209,6 +200,7 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 void ConfigTool::writeConfig() const
 {
     Global* global = Global::instance();
+    global->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN,
                                  eq::fabric::ON );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
@@ -216,7 +208,7 @@ void ConfigTool::writeConfig() const
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
                                  eq::fabric::PBUFFER );
 
-    if( _mode >= MODE_DB && _mode <= MODE_DB_DS_AC )
+    if( _mode >= MODE_DB && _mode <= MODE_DB_STREAM )
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
                                      eq::fabric::ON );
 
@@ -312,13 +304,16 @@ void ConfigTool::_writeResources( Config* config ) const
                     eq::fabric::ON );
             }
 
-            eq::PixelViewport viewport( 0, 0, _resX, _resY );
-            if( !_fullScreen && c == 0 )
+            if( _mode == MODE_WALL || c == 0 )
             {
-                viewport.x = 100;
-                viewport.y = 100;
+                eq::PixelViewport viewport( 0, 0, _resX, _resY );
+                if( !_fullScreen && c == 0 )
+                {
+                    viewport.x = _resX >> 1;
+                    viewport.y = 100;
+                }
+                window->setPixelViewport( viewport );
             }
-            window->setPixelViewport( viewport );
 
             Channel* channel = new Channel( window );
             std::ostringstream channelName;
@@ -332,7 +327,7 @@ void ConfigTool::_writeResources( Config* config ) const
 
 void ConfigTool::_writeCompound( Config* config ) const
 {
-    if( _descrFile != "" )
+  if( !_descrFile.empty( ))
     {
         _writeFromDescription( config );
         return;
@@ -350,10 +345,6 @@ void ConfigTool::_writeCompound( Config* config ) const
 
         case MODE_DB_DS:
             _writeDS( config );
-            break;
-
-        case MODE_DB_DS_AC:
-            _writeDSAC( config );
             break;
 
         case MODE_DB_STREAM:
@@ -374,17 +365,35 @@ void ConfigTool::_writeCompound( Config* config ) const
     }
 }
 
+eq::server::Compound* ConfigTool::_addSingleSegment( Config* config ) const
+{
+    Channel* channel = config->find< Channel >( "channel0" );
+    Observer* observer = new Observer( config );
+
+    Wall wall;
+    wall.resizeHorizontalToAR( float( _resX ) / float( _resY ));
+
+    Canvas* canvas = new Canvas( config );
+    canvas->setWall( wall );
+    Segment* segment = new Segment( canvas );
+    segment->setChannel( channel );
+
+    Layout* layout = new Layout( config );
+    View* view = new View( layout );
+    view->setObserver( observer );
+    view->setWall( wall );
+
+    canvas->addLayout( layout );
+    config->activateCanvas( canvas );
+
+    const Compounds compounds = Loader::addOutputCompounds(config->getServer());
+    EQASSERT( compounds.size() == 1 );
+    return compounds.empty() ? 0 : compounds.front();
+}
+
 void ConfigTool::_write2D( Config* config ) const
 {
-    Compound* compound = new Compound( config );
-    Channel* channel = config->find< Channel >( "channel0" );
-    compound->setChannel( channel );
-    
-    eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
-    compound->setWall( wall );
+    Compound* compound = _addSingleSegment( config );
     compound->addEqualizer( new LoadEqualizer );
 
     const unsigned step = static_cast< unsigned >
@@ -429,19 +438,11 @@ void ConfigTool::_write2D( Config* config ) const
 
 void ConfigTool::_writeDB( Config* config ) const
 {
-    Compound* compound = new Compound( config );
-    Channel* channel = config->find< Channel >( "channel0" );
-    compound->setChannel( channel );
+    Compound* compound = _addSingleSegment( config );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
         compound->setTasks( eq::fabric::TASK_CLEAR|eq::fabric::TASK_ASSEMBLE );
-
-    eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
-    compound->setWall( wall );
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
@@ -484,20 +485,11 @@ void ConfigTool::_writeDB( Config* config ) const
 
 void ConfigTool::_writeDBStream( Config* config ) const
 {
-    Compound* compound = new Compound( config );
-    Channel* channel = config->find< Channel >( "channel0" );
-
-    compound->setChannel( channel );
+    Compound* compound = _addSingleSegment( config );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
 
     if( !_useDestination )
         compound->setTasks( eq::fabric::TASK_CLEAR|eq::fabric::TASK_ASSEMBLE );
-
-    eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
-    compound->setWall( wall );
 
     const unsigned nDraw = _useDestination ? _nChannels : _nChannels - 1;
     const unsigned step  = static_cast< unsigned >( 100000.0f / ( nDraw ));
@@ -544,17 +536,8 @@ void ConfigTool::_writeDBStream( Config* config ) const
 
 void ConfigTool::_writeDS( Config* config ) const
 {
-    Compound* compound = new Compound( config );
-    Channel* channel = config->find< Channel >( "channel0" );
-    compound->setChannel( channel );
+    Compound* compound = _addSingleSegment( config );
     compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
-
-    eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
-    compound->setWall( wall );
-
 
     const unsigned step = static_cast< unsigned >
         ( 100000.0f / ( _useDestination ? _nChannels : _nChannels - 1 ));
@@ -635,111 +618,9 @@ void ConfigTool::_writeDS( Config* config ) const
     }
 }
 
-// each node has two GPUs and compositing is performed on second GPU
-void ConfigTool::_writeDSAC( Config* config ) const
-{
-    std::cout << "        compound" << std::endl
-         << "        {" << std::endl
-         << "            channel   \"channel0\"" << std::endl
-         << "            buffer    [ COLOR DEPTH ]" << std::endl
-         << "            wall" << std::endl
-         << "            {" << std::endl
-         << "                bottom_left  [ -.32 -.20 -.75 ]" << std::endl
-         << "                bottom_right [  .32 -.20 -.75 ]" << std::endl
-         << "                top_left     [ -.32  .20 -.75 ]" << std::endl
-         << "            }" << std::endl;
-
-    unsigned nChannels = _nChannels / 2;
-    unsigned start      = 0;
-    const unsigned step = static_cast< unsigned >( 100000.0f / nChannels );
-    for( unsigned i = 0; i<nChannels; ++i, start += step )
-    {
-        // Rendering compund
-        std::cout << "            compound" << std::endl
-             << "            {" << std::endl
-             << "                channel   \"channel" << i*2+1 << "\""
-             << std::endl;
-
-        // leaf draw + tile readback compound
-        std::cout << "                compound" << std::endl
-             << "                {" << std::endl;
-        if( i == nChannels - 1 ) // last - correct rounding 'error'
-            std::cout << "                    range     [ 0." << std::setw(5) << start 
-                 << " 1 ]" << std::endl;
-        else
-            std::cout << "                    range     [ 0." << std::setw(5) << start 
-                 << " 0." << std::setw(5) << start + step << " ]" << std::endl;
-        
-        unsigned y = 0;
-        for( unsigned j = 0; j<nChannels; ++j )
-        {
-            std::cout << "                    outputframe{ name \"tile" << j*2+1 
-                 << ".channel" << i*2+1 << "\" ";
-            if( j == nChannels - 1 ) // last - correct rounding 'error'
-                std::cout << "viewport [ 0 0." << std::setw(5) << y << " 1 0." << std::setw(5)
-                     << 100000-y << " ]";
-            else
-                std::cout << "viewport [ 0 0." << std::setw(5) << y << " 1 0." << std::setw(5)
-                     << step << " ]";
-            std::cout << " }" << std::endl;
-
-            y += step;
-        }
-        std::cout << "                }" << std::endl
-             << "            }" << std::endl
-             << std::endl;
-
-        // compositing compund
-        std::cout << "            compound" << std::endl
-             << "            {" << std::endl
-             << "                channel   \"channel" << i*2 << "\""
-             << std::endl;
-
-        // input tiles from other channels
-        for( unsigned j = 0; j<nChannels; ++j )
-        {
-            std::cout << "                inputframe{ name \"tile" << i*2+1
-                 << ".channel" << j*2+1 <<"\" }" << std::endl;
-        }
-
-        // assembled color tile output, if not already in place
-        if( i!=0 )
-        {
-            std::cout << "                outputframe{ name \"frame.channel" 
-                 << i*2 <<"\"";
-            std::cout << " buffer [ COLOR ] ";
-            if( i == nChannels - 1 ) // last - correct rounding 'error'
-                std::cout << "viewport [ 0 0." << std::setw(5) << start << " 1 0."
-                     << std::setw(5) << 100000 - start << " ]";
-            else
-                std::cout << "viewport [ 0 0." << std::setw(5) << start << " 1 0."
-                     << std::setw(5) << step << " ]";
-            std::cout << " }" << std::endl;
-        }
-
-
-        std::cout << "            }" << std::endl
-             << std::endl;
-    }
-
-    // gather assembled input tiles
-    for( unsigned i = 1; i<nChannels; ++i )
-        std::cout << "            inputframe{ name \"frame.channel" << i*2 << "\" }" 
-             << std::endl;
-    std::cout << "        }" << std::endl;    
-}
-
 void ConfigTool::_writeDPlex( Config* config ) const
 {
-    Compound* compound = new Compound( config );
-    Channel* channel = config->find< Channel >( "channel0" );
-    compound->setChannel( channel );
-    
-    eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
-    compound->setWall( wall );
+    Compound* compound = _addSingleSegment( config );
     compound->setTasks( eq::fabric::TASK_CLEAR | eq::fabric::TASK_ASSEMBLE );
     compound->addEqualizer( new FramerateEqualizer );
     
@@ -774,9 +655,6 @@ void ConfigTool::_writeWall( Config* config ) const
     canvas->setName( "wall" );
     
     eq::Wall wall;
-    wall.bottomLeft  = eq::Vector3f( -.32f, -.2f, -.75f );
-    wall.bottomRight = eq::Vector3f(  .32f, -.2f, -.75f );
-    wall.topLeft     = eq::Vector3f( -.32f,  .2f, -.75f );
     canvas->setWall( wall );
 
     const float width  = 1.0f / static_cast< float >( _rows );
