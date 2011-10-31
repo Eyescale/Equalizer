@@ -19,6 +19,7 @@
 #define EQ_CONFIGTOOL_H
 
 #include <eq/server/config.h>
+#include <eq/client/types.h>
 #include <string>
 
 class ConfigTool
@@ -52,7 +53,8 @@ private:
 
     unsigned _resX, _resY;
 
-    void _writeResources( eq::server::Config* config )  const;
+    void _writeResources( eq::server::Config* config,
+                          const eq::Strings& nodeNames ) const;
     void _writeCompound( eq::server::Config* config )   const;
     eq::server::Compound* _addSingleSegment( eq::server::Config* config ) const;
     void _write2D( eq::server::Config* config )         const;

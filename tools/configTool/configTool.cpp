@@ -197,6 +197,25 @@ bool ConfigTool::parseArguments( int argc, char** argv )
     return true;
 }
 
+static Strings readNodenames( const std::string &filename )
+{
+    Strings nodeNames;
+    if( filename.empty( ))
+        return nodeNames;
+
+    std::ifstream inStream;
+    inStream.open( filename.c_str() );
+    if( !inStream.is_open() )
+      return nodeNames;
+
+    std::string name;
+    while( inStream >> name )
+        nodeNames.push_back( name );
+
+    inStream.close();
+    return nodeNames;
+}
+
 void ConfigTool::writeConfig() const
 {
     Global* global = Global::instance();
@@ -213,9 +232,14 @@ void ConfigTool::writeConfig() const
                                      eq::fabric::ON );
 
     ServerPtr server = new eq::server::Server;
-    Config* config = new Config( server );
+    const Strings nodeNames = readNodenames( _nodesFile );
+    co::ConnectionDescriptionPtr desc = new ConnectionDescription;
+    if( !nodeNames.empty( ))
+        desc->setHostname( nodeNames.front( ));
+    server->addConnectionDescription( desc );
 
-    _writeResources( config );
+    Config* config = new Config( server );
+    _writeResources( config, nodeNames );
     _writeCompound( config );
 
     co::base::Log::instance( "", 0 )
@@ -223,51 +247,23 @@ void ConfigTool::writeConfig() const
         << co::base::enableHeader << co::base::disableFlush;
 }
 
-static void readNodenames
-(
-    const std::string &filename,
-    const unsigned maxNodes,
-    std::vector< std::string > &nodesNames
-)
-{
-    if( filename == "" )
-        return;
-
-    std::ifstream inStream;
-
-    inStream.open( filename.c_str() );
-    if ( inStream.is_open() )
-    {
-        std::string tmp;
-        unsigned pos = 0;
-        while( ++pos < maxNodes && inStream >> tmp )
-            nodesNames.push_back( tmp );
-
-        inStream.close();
-    }
-}
-
-void ConfigTool::_writeResources( Config* config ) const
+void ConfigTool::_writeResources( Config* config,
+                                  const Strings& nodeNames ) const
 {
     const unsigned nNodes  = _nChannels/_nPipes + 1;
     unsigned       c = 0;
-    std::vector<std::string> nodesNames;
-
-    readNodenames( _nodesFile, nNodes, nodesNames );
 
     for( unsigned n=0; n < nNodes && c < _nChannels; ++n )
     {
         Node* node = new Node( config );
+        if( n == 0 )
+            node->setApplicationNode( true );
 
         std::ostringstream nodeName;
-        if( n < nodesNames.size() )
-            nodeName << nodesNames[ n ];
+        if( n < nodeNames.size() )
+            nodeName << nodeNames[ n ];
         else
-        {
             nodeName << "node" << n;
-            if( n == 0 )
-                node->setApplicationNode( true );
-        }
 
         node->setName( nodeName.str( ));
 
