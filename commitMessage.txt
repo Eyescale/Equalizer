@@ -1,11 +1,9 @@
-configTool improvements:
-* add missing server connection
-* refactor reading of node names
+configTool/eqc 1.2 compatibility fix
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

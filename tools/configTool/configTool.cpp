@@ -265,6 +265,7 @@ void ConfigTool::_writeResources( Config* config,
         else
             nodeName << "node" << n;
 
+        node->setHost( nodeName.str( ));
         node->setName( nodeName.str( ));
 
         co::ConnectionDescriptionPtr connectionDescription = 
