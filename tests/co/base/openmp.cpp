@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,6 +41,10 @@ void* runChild( void* arg )
     for( int i = 0; i < LOOPSIZE; ++i )
     {
         data[i] = static_cast< unsigned char >( i % 256 );
+    }
+    for( int i = 0; i < LOOPSIZE; ++i )
+    {
+        TEST( data[i] == static_cast< unsigned char >( i % 256 ));
     }
 
     return 0;

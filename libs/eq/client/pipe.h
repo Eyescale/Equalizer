@@ -168,8 +168,8 @@ namespace eq
         /** @internal Start the pipe thread. */
         void startThread();
 
-        /** @internal Wait for the pipe thread to exit. */
-        void joinThread();
+        /** @internal Trigger pipe thread exit and wait for completion. */
+        void exitThread();
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system

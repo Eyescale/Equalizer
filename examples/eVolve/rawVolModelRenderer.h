@@ -64,7 +64,8 @@ namespace eVolve
                      const eq::Matrix4d&  modelviewM,
                      const eq::Matrix3d&  modelviewITM,
                      const eq::Matrix4f&  invRotationM,
-                     const eq::Vector4f&  taintColor  );
+                     const eq::Vector4f&  taintColor,
+                     const int            normalsQuality );
 
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setOrtho( const uint32_t ortho )        { _ortho = ortho; }
@@ -76,7 +77,8 @@ namespace eVolve
         void _putVolumeDataToShader( const VolumeInfo&   volumeInfo,
                                      const float         sliceDistance,
                                      const eq::Matrix4f& invRotationM,
-                                     const eq::Vector4f& taintColor       );
+                                     const eq::Vector4f& taintColor,
+                                     const int           normalsQuality );
 
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm

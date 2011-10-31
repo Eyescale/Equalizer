@@ -917,9 +917,9 @@ server
         compound
         {
             channel ( segment 0 layout "MultiLevel" view 0 )
-            task    [ CLEAR ASSEMBLE ]
             buffer  [ COLOR DEPTH ]
 
+            compound { task [ CLEAR ] channel "channel1" }
             compound { task [ CLEAR ] channel "channel2" }
             compound { task [ CLEAR ] channel "channel3" }
             compound { task [ CLEAR ] channel "channel4" }

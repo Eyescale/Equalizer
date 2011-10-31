@@ -246,7 +246,7 @@ private:
     /* MR for setup and FC messages */
     BufferPool _msgbuf;
 
-    /* Send WR tracking (TODO: non-GCC specific alternatives?) */
+    /* Send WR tracking */
     base::a_int32_t _available_wr;
 
     /* source RDMA MR */

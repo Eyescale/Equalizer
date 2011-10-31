@@ -77,6 +77,14 @@ namespace eVolve
         BG_ALL      //!< @internal, must be last
     };
 
+    enum NormalsQuality
+    {
+        NQ_FULL,    //!< Highest normals quality
+        NQ_MEDIUM,  //!< Average normals quality
+        NQ_MINIMAL, //!< Basic normal approximation
+        NQ_ALL      //!< @internal, must be last
+    };
+
     enum LogTopics
     {
         LOG_STATS = eq::LOG_CUSTOM      // 65536

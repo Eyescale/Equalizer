@@ -426,7 +426,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
     Pipe* pipe = findPipe( packet->pipeID );
     EQASSERT( pipe );
-    pipe->joinThread();
+    pipe->exitThread();
 
     PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
 

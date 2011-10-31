@@ -1320,9 +1320,9 @@ void Channel::_transmit( const ChannelFrameTransmitPacket* command )
             const FrameData::ImageHeader header =
                   { data->internalFormat, data->externalFormat,
                     data->pixelSize, data->pvp,
-                    data->compressorName, data->compressorFlags,
-                    data->isCompressed ?
-                        uint32_t( data->compressedSize.size( )) : 1,
+                    useCompression ? data->compressorName : EQ_COMPRESSOR_NONE,
+                    data->compressorFlags, 
+                    data->isCompressed ? uint32_t(data->compressedSize.size()):1,
                     qualities[ j ] };
 
             connection->send( &header, sizeof( FrameData::ImageHeader ), true );

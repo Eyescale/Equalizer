@@ -21,6 +21,8 @@
 #include <co/base/condition.h>
 #include <co/base/debug.h>
 
+#include <algorithm>
+#include <limits.h>
 #include <queue>
 #include <string.h>
 
@@ -32,21 +34,26 @@ namespace base
      * A thread-safe queue with a blocking read access.
      *
      * Typically used to communicate between two execution threads.
+     *
+     * S defines the maximum capacity of the Queue<T>. When the capacity is
+     * reached, pushing new values blocks until items have been consumed.
      */
-    template< typename T > class MTQueue
+    template< typename T, size_t S = ULONG_MAX > class MTQueue
+    // S = std::numeric_limits< size_t >::max() does not work:
+    //   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=6424
     {
     public:
         /** Construct a new queue. @version 1.0 */
         MTQueue() {}
 
         /** Construct a copy of a queue. @version 1.0 */
-        MTQueue( const MTQueue< T >& from ) : _queue( from._queue ) {}
+        MTQueue( const MTQueue< T, S >& from ) : _queue( from._queue ) {}
 
         /** Destruct this Queue. @version 1.0 */
         ~MTQueue() {}
 
         /** Assign the values of another queue. @version 1.0 */
-        MTQueue< T >& operator = ( const MTQueue< T >& from )
+        MTQueue< T, S >& operator = ( const MTQueue< T, S >& from )
             {
                 _cond.lock();
                 _queue = from._queue;
@@ -69,6 +76,7 @@ namespace base
          */
         size_t waitSize( const size_t minSize ) const
             {
+                EQASSERT( minSize <= S );
                 _cond.lock();
                 while( _queue.size() < minSize )
                     _cond.wait();
@@ -98,6 +106,7 @@ namespace base
                 EQASSERT( !_queue.empty( ));
                 T element = _queue.front();
                 _queue.pop_front();
+                _cond.signal();
                 _cond.unlock();
                 return element;
             }
@@ -125,6 +134,7 @@ namespace base
                 EQASSERT( !_queue.empty( ));
                 element = _queue.front();
                 _queue.pop_front();
+                _cond.signal();
                 _cond.unlock();
                 return true;
             }
@@ -148,6 +158,7 @@ namespace base
 
                 result = _queue.front();
                 _queue.pop_front();
+                _cond.signal();
                 _cond.unlock();
                 return true;
             }   
@@ -196,6 +207,8 @@ namespace base
         void push( const T& element )
             {
                 _cond.lock();
+                while( _queue.size() >= S )
+                    _cond.wait();
                 _queue.push_back( element );
                 _cond.signal();
                 _cond.unlock();
@@ -205,6 +218,9 @@ namespace base
         void push( const std::vector< T >& elements )
             {
                 _cond.lock();
+                EQASSERT( elements.size() <= S );
+                while( (S - _queue.size( )) < elements.size( ))
+                    _cond.wait();
                 _queue.insert( _queue.end(), elements.begin(), elements.end( ));
                 _cond.signal();
                 _cond.unlock();
@@ -214,6 +230,8 @@ namespace base
         void pushFront( const T& element )
             {
                 _cond.lock();
+                while(_queue.size() >= S)
+                    _cond.wait();
                 _queue.push_front( element );
                 _cond.signal();
                 _cond.unlock();
@@ -223,8 +241,10 @@ namespace base
         void pushFront( const std::vector< T >& elements )
             {
                 _cond.lock();
-                _queue.insert( _queue.begin(),
-                               elements.begin(), elements.end( ));
+                EQASSERT( elements.size() <= S );
+                while( (S - _queue.size( )) < elements.size( ))
+                    _cond.wait();
+                _queue.insert(_queue.begin(), elements.begin(), elements.end());
                 _cond.signal();
                 _cond.unlock();
             }
