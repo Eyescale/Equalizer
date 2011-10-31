@@ -2,8 +2,8 @@
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
+cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 if(Equalizer_BINARY_DIR) # in-source build
   configure_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt @ONLY)
 

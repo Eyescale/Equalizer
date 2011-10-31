@@ -754,7 +754,11 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
     EQASSERT( NULL != _qp );
 
     // track available
+#ifdef EQ_RELEASE_ASSERT
     EQCHECK( --_available_wr >= 0 );
+#else
+    --_available_wr;
+#endif
 
     struct ibv_send_wr *bad_wr;
     if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
@@ -957,8 +961,11 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
                             ( IBV_WC_RDMA_WRITE == wc.opcode ))
                         {
                             // track available
-                            EQCHECK( ++_available_wr <= int(_qpcap.max_send_wr));
-
+#ifdef EQ_RELEASE_ASSERT
+                            EQCHECK( ++_available_wr <=int(_qpcap.max_send_wr));
+#else
+			    ++_available_wr;
+#endif
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
                                 _rptr.moveValue( _rptr.MIDDLE,

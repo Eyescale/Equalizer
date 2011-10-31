@@ -2,7 +2,7 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
 
 option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
@@ -24,6 +24,9 @@ mark_as_advanced(EQUALIZER_PREFER_AGL)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
+if(CMAKE_VERSION VERSION_LESS 2.8)
+  list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake/2.8)
+endif()
 
 include(revision)
 
