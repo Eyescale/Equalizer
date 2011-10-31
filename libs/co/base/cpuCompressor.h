@@ -30,7 +30,7 @@ namespace base
     {
     public:
         /** Construct a new CPU-based compressor */
-        CPUCompressor( ){}
+        CPUCompressor() {}
         virtual ~CPUCompressor() {}
 
         /**

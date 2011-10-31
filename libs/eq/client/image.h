@@ -21,7 +21,6 @@
 
 #include <eq/client/frame.h>         // for Frame::Buffer enum
 #include <eq/client/pixelData.h>     // member
-//#include <eq/client/windowSystem.h>  // for OpenGL types
 
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
@@ -137,7 +136,6 @@ namespace eq
          *
          * The default compressor is EQ_COMPRESSOR_AUTO which selects the most
          * suitable compressor wrt the current image and buffer parameters.
-         * @sa _chooseCompressor()
          * 
          * @param buffer the frame buffer attachment.
          * @param name the compressor name
@@ -432,7 +430,7 @@ namespace eq
 
         void _findTransferers( const Frame::Buffer buffer,
                                const GLEWContext* glewContext,
-                              co::base::CompressorInfos& result );
+                               co::base::CompressorInfos& result );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;
