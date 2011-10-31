@@ -17,14 +17,16 @@
   along with GPU-SD. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <gpusd1/local/gpuInfo.h>
 #include <gpusd1/local/module.h>
 
 #include <dns_sd.h>
-#include <iostream>
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <cerrno>
+#include <iostream>
+#include <sstream>
 
 #ifdef _WIN32
 #  include <process.h>
@@ -37,6 +39,65 @@ typedef int pid_t;
 #  include <unistd.h>
 #  include <arpa/inet.h>
 #endif
+
+using gpusd::local::GPUInfo;
+using gpusd::local::GPUInfos;
+
+static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus )
+{
+    std::ostringstream out;
+
+    // GPU Count=<integer>
+    out << gpus.size();
+    TXTRecordSetValue( &record, "GPU Count",
+                       out.str().length(), out.str().c_str( ));
+
+    for( GPUInfos::const_iterator i = gpus.begin(); i != gpus.end(); ++i )
+    {
+        const GPUInfo& info = *i;
+        const size_t index = i - gpus.begin();
+
+        // GPU<integer> Type=GLX | WGL | WGLn | CGL
+        out.str("");
+        out << "GPU" << index << " Type";
+        TXTRecordSetValue( &record, out.str().c_str(),
+                           4, info.getName().c_str( ));
+
+        if( info.port != GPUInfo::defaultValue )
+        {
+            // GPU<integer> Port=<integer> // X11 display number, 0 otherwise
+            out.str("");
+            out << "GPU" << index << " Port";
+            const std::string name = out.str();
+
+            out.str("");
+            out.clear();
+            out << info.port;
+            TXTRecordSetValue( &record, name.c_str(),
+                               out.str().length(), out.str().c_str( ));
+        }
+
+        if( info.device != GPUInfo::defaultValue )
+        {
+            // GPU<integer> Device=<integer> // X11 display number, 0 otherwise
+            out.str("");
+            out << "GPU" << index << " Device";
+            const std::string name = out.str();
+
+            out.str("");
+            out.clear();
+            out << info.device;
+            TXTRecordSetValue( &record, name.c_str(),
+                               out.str().length(), out.str().c_str( ));
+#if 0
+            GPU<integer> Width=<integer>
+            GPU<integer> Height=<integer>
+            GPU<integer> X=<integer>
+            GPU<integer> Y=<integer>
+#endif
+        }
+    }
+}
 
 void handleEvents( DNSServiceRef serviceRef )
 {
@@ -80,7 +141,7 @@ static void registerCB( DNSServiceRef service, DNSServiceFlags flags,
                   << std::endl;
 }
 
-static DNSServiceErrorType registerService()
+static DNSServiceErrorType registerService( const TXTRecordRef& record )
 {
     DNSServiceRef serviceRef = 0;
     const DNSServiceErrorType error =
@@ -88,8 +149,8 @@ static DNSServiceErrorType registerService()
                             0 /* computer name */, "_gpu-sd._tcp",
                             0 /* default domains */, 0 /* default hostname */,
                             htons( 4242 ) /* port */,
-                            0, // text record length
-                            0, // text record
+                            TXTRecordGetLength( &record ),
+                            TXTRecordGetBytesPtr( &record ),
                             registerCB, 0 /* context* */ );
     if( error == kDNSServiceErr_NoError )
     {
@@ -101,7 +162,15 @@ static DNSServiceErrorType registerService()
 
 int main (int argc, const char * argv[])
 {
-    DNSServiceErrorType error = registerService();
+    const GPUInfos gpus = gpusd::local::Module::discoverGPUs();
+
+    TXTRecordRef record;
+    TXTRecordCreate( &record, 0, 0 );
+    createTXTRecord( record, gpus );
+
+    DNSServiceErrorType error = registerService( record );
     std::cout << "DNSServiceDiscovery returned: " << error << std::endl;
+
+    TXTRecordDeallocate( &record );
     return EXIT_SUCCESS;
 }

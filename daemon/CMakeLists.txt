@@ -9,6 +9,14 @@ include_directories(${DNSSD_INCLUDE_DIRS})
 set(GPUSD_LOCAL_LIBRARIES gpusd_local)
 if(APPLE)
   list(APPEND GPUSD_LOCAL_LIBRARIES gpusd_local_agl)
+
+  # No 64 bit support for AGL
+  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
+    set(CMAKE_OSX_ARCHITECTURES "ppc")
+  else()
+    set(CMAKE_OSX_ARCHITECTURES "i386")
+  endif()
+  message(STATUS "Building gpu-sd for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
 source_group(\\ FILES ${SOURCES} ${HEADERS})

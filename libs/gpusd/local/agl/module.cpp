@@ -32,6 +32,11 @@ namespace local
 {
 namespace agl
 {
+namespace
+{
+    Module instance;
+}
+
 GPUInfos Module::discoverGPUs_() const
 {
     GPUInfos result;
@@ -48,7 +53,7 @@ GPUInfos Module::discoverGPUs_() const
     std::deque< GPUInfo > infos;
     for( CGDisplayCount i = 0; i < nDisplays; ++i )
     {
-        GPUInfo info;
+        GPUInfo info( "CGL" );
         const CGRect displayRect = CGDisplayBounds( displayIDs[i] );
 
         info.device = i;

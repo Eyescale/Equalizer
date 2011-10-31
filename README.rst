@@ -12,7 +12,7 @@ The service type name is "_gpu-sd". The following text fields describe
 the available GPUs:
 
 * GPU Count=<integer>
-* GPU<integer> Type=X11 | WGL_NV_gpu_affinity | CG
+* GPU<integer> Type=GLX | WGL | WGLn | CGL
 * GPU<integer> Port=<integer> // X11 display number, 0 otherwise
 * GPU<integer> Device=<integer> // X11 screen number, wglEnumGpusNV index, CGDirectDisplayID
 * GPU<integer> Width=<integer>

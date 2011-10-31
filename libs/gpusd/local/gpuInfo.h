@@ -32,7 +32,30 @@ namespace local
         static GPUSD_LOCAL_API unsigned defaultValue;
 
         /** Default constructor pointing to default display. */
-        GPUInfo() : port( defaultValue ), device( defaultValue )
+        GPUInfo()
+                : port( defaultValue ), device( defaultValue )
+            { invalidatePVP(); }
+
+        /**
+         * Constructor pointing to default display of a specific GPU type.
+         *
+         * The information name is a type code of eight characters. The passed
+         * string is formatted accordingly.
+         *
+         * @param name the type of the GPU
+         */
+        GPUInfo( const std::string& name )
+                : port( defaultValue ), device( defaultValue )
+            {
+                invalidatePVP();
+                std::string fourName = name;
+                while( fourName.length() < sizeof( unsigned))
+                    fourName = std::string( " " ) + fourName;
+                type = *reinterpret_cast< const unsigned* >( fourName.c_str( ));
+            }
+
+        /** Invalidate the pixel viewport. */
+        void invalidatePVP()
             {
                 pvp[0] = 0;
                 pvp[1] = 0;
@@ -56,10 +79,17 @@ namespace local
                          pvp[2] != rhs.pvp[2] || pvp[3] != rhs.pvp[3] );
             }
 
-        /** The display (GLX) or ignored (Win32, AGL). */
+        /** @return the type name string of this information. */
+        std::string getName() const
+            { return std::string( reinterpret_cast<const char*>( &type ), 4 ); }
+
+        /** Four-character code of the GPU type. */
+        unsigned type;
+
+        /** The display (GLX) or ignored (WGL, AGL). */
         unsigned port;
 
-        /** The screen (GLX), GPU (Win32) or virtual screen (AGL). */
+        /** The screen (GLX), GPU (WGL) or virtual screen (AGL). */
         unsigned device;
 
         /** The size and location of the GPU (x,y,w,h). */

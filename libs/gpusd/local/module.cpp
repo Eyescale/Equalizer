@@ -54,14 +54,13 @@ Module::~Module()
 
 GPUInfos Module::discoverGPUs()
 {
+    GPUInfos result;
     for( Module* module = stack_; module; module = module->next_ )
     {
-        const GPUInfos result = module->discoverGPUs_();
-        if( !result.empty( ))
-            return result;
+        const GPUInfos infos = module->discoverGPUs_(); 
+        result.resize( result.size() + infos.size( ));
+        std::copy( infos.begin(), infos.end(), result.begin( ));
     }
-
-    GPUInfos result;
     return result;
 }
 
