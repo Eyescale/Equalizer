@@ -1,5 +1,10 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
+IF(CMAKE_VERSION VERSION_LESS 2.8)
+  MESSAGE(STATUS "No revision version support, git not found")
+  return()
+ENDIF()
+
 IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
   FIND_PACKAGE(Git)
   IF(GIT_FOUND)
