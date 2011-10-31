@@ -15,53 +15,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "module.h"
+#ifndef GPUSD_LOCAL_GLX_MODULE_H
+#define GPUSD_LOCAL_GLX_MODULE_H
 
-#include <gpusd1/local/gpuInfo.h>
+#include <gpusd1/local/module.h> // base class
 
 namespace gpusd
 {
 namespace local
 {
-namespace
+namespace glx
 {
-Module* stack_ = 0;
-}
-
-Module::Module()
-        : next_( stack_ )
-{
-    stack_ = this;
-}
-
-Module::~Module()
-{
-    Module* previous = stack_;
-
-    for( Module* module = stack_; module; module = module->next_ )
+    /** The GLX implementation for local GPU discovery. */
+    class Module : public local::Module
     {
-        if( module == this )
-        {
-            if( previous )
-                previous->next_ = next_;
-            else
-                stack_ = next_;
-            return;
-        }
-        previous = module;
-    }
-}
+    public:
+        Module() : local::Module() {}
+        virtual ~Module() {}
 
-GPUInfos Module::discoverGPUs()
-{
-    GPUInfos result;
-    for( Module* module = stack_; module; module = module->next_ )
-    {
-        const GPUInfos infos = module->discoverGPUs_(); 
-        std::copy( infos.begin(), infos.end(), std::back_inserter( result ));
-    }
-    return result;
+    protected:
+        virtual GPUInfos discoverGPUs_() const;
+    };
 }
+}
+}
+#endif // GPUSD_LOCAL_GLX_MODULE_H
 
-}
-}

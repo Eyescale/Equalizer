@@ -33,6 +33,8 @@ include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 find_package(Doxygen)
 
 if(APPLE)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
+
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
@@ -44,14 +46,6 @@ if(APPLE)
   LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
 endif(APPLE)
-
-if(X11_FOUND)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
-  if(APPLE)
-    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
-  endif(APPLE)
-endif(X11_FOUND)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")

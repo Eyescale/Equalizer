@@ -33,7 +33,7 @@ namespace local
 
         /** Default constructor pointing to default display. */
         GPUInfo()
-                : port( defaultValue ), device( defaultValue )
+                : type( 0 ), port( defaultValue ), device( defaultValue )
             { invalidatePVP(); }
 
         /**
@@ -45,7 +45,7 @@ namespace local
          * @param name the type of the GPU
          */
         GPUInfo( const std::string& name )
-                : port( defaultValue ), device( defaultValue )
+                : type( 0 ), port( defaultValue ), device( defaultValue )
             {
                 invalidatePVP();
                 std::string fourName = name;
