@@ -102,6 +102,7 @@ RDMAConnection::RDMAConnection( )
     , _cm( NULL )
     , _cm_id( NULL )
     , _established( false )
+    , _disconnected( false )
     , _depth( 256UL )
     , _pd( NULL )
     , _cc( NULL )
@@ -247,6 +248,9 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
         return -1LL;
     }
 
+    if( _disconnected )
+        return -1LL;
+
     const uint32_t bytes_taken = _drain( buffer,
         static_cast< uint32_t >( std::min( bytes, available_bytes )));
 
@@ -303,7 +307,7 @@ RDMAConnection::~RDMAConnection( )
 {
     EQVERB << (void *)this << ".delete" << std::endl;
 
-    EQASSERT( STATE_CLOSED == _state );
+    close( );
 }
 
 void RDMAConnection::setState( const State state )
@@ -1086,6 +1090,9 @@ void RDMAConnection::_runEventThread( )
         }
         while( ok );
     }
+
+    _disconnected = true;
+    _notify( 1ULL );
 
     if( 0 != ::close( _efd ))
         EQWARN << "close : " << base::sysError << std::endl;

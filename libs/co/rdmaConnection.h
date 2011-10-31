@@ -233,6 +233,7 @@ private:
     struct rdma_cm_id *_cm_id;
     struct rdma_conn_param _conn_param;
     bool _established;
+    bool _disconnected;
     uint32_t _depth;
 
     struct ibv_device_attr _dev_attr;
