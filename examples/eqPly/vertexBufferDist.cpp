@@ -112,9 +112,8 @@ void VertexBufferDist::deregisterTree()
         _right->deregisterTree();
 }
 
-mesh::VertexBufferRoot* VertexBufferDist::mapModel( 
-                                      co::LocalNodePtr node,
-                                      const eq::uint128_t& modelID )
+mesh::VertexBufferRoot* VertexBufferDist::mapModel( co::LocalNodePtr node,
+                                                  const eq::uint128_t& modelID )
 {
     EQASSERT( !_root && !_node );
 
