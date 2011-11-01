@@ -224,8 +224,9 @@ void ConfigTool::writeConfig() const
                                  eq::fabric::ON );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
                                  eq::fabric::OFF );
-    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
-                                 eq::fabric::PBUFFER );
+    if( _mode != MODE_WALL )
+        global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
+                                     eq::fabric::PBUFFER );
 
     if( _mode >= MODE_DB && _mode <= MODE_DB_STREAM )
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
