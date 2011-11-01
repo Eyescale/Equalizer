@@ -224,8 +224,9 @@ void ConfigTool::writeConfig() const
                                  eq::fabric::ON );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
                                  eq::fabric::OFF );
-    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
-                                 eq::fabric::PBUFFER );
+    if( _mode != MODE_WALL )
+        global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
+                                     eq::fabric::PBUFFER );
 
     if( _mode >= MODE_DB && _mode <= MODE_DB_STREAM )
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
@@ -650,9 +651,13 @@ void ConfigTool::_writeWall( Config* config ) const
 
     Canvas* canvas = new Canvas( config );
     canvas->setName( "wall" );
-    
+    canvas->setSwapBarrier( new SwapBarrier );
+
     eq::Wall wall;
     canvas->setWall( wall );
+
+    canvas->addLayout( layout );
+    config->activateCanvas( canvas );
 
     const float width  = 1.0f / static_cast< float >( _rows );
     const float height = 1.0f / static_cast< float >( _columns );
