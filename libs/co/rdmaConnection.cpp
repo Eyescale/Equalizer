@@ -290,9 +290,12 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     while( _available_wr == 0 ) // TODO: timeout?
         co::base::Thread::yield( );
 
-    const uint32_t bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ));
+    uint32_t bytes_put;
+    while( 0UL == // TODO: timeout?
+        ( bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ))))
+        co::base::Thread::yield( );
 
-    if(( 0UL < bytes_put ) && ( !_postRDMAWrite( )))
+    if( !_postRDMAWrite( ))
     {
         close( );
         return -1LL;
