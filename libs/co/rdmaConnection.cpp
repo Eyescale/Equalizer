@@ -746,9 +746,7 @@ void RDMAConnection::_handleMsg( RDMAMessage &message )
 // caller: application
 void RDMAConnection::_fillFC( RDMAFCPayload &fc )
 {
-    const uint32_t rt = _sinkptr.value( _sinkptr.MIDDLE );
-    fc.ringTail = htonl( rt );
-    _sinkptr.moveValue( _sinkptr.TAIL, rt );
+    fc.ringTail = htonl( _sinkptr.value( _sinkptr.TAIL ));
 }
 
 // caller: application
@@ -1116,11 +1114,10 @@ void RDMAConnection::_joinEventThread( )
 
 uint32_t RDMAConnection::_drain( void *buffer, const uint32_t bytes )
 {
-    const uint32_t b = std::min( bytes,
-        _sinkptr.available( _sinkptr.HEAD, _sinkptr.MIDDLE ));
+    const uint32_t b = std::min( bytes, _sinkptr.available( ));
     ::memcpy( buffer, (const void *)((uintptr_t)_sinkbuf.getBase( ) +
-        _sinkptr.ptr( _sinkptr.MIDDLE )), b );
-    _sinkptr.incr( _sinkptr.MIDDLE, b );
+        _sinkptr.tail( )), b );
+    _sinkptr.incrTail( b );
     return b;
 }
 
