@@ -501,8 +501,8 @@ bool RDMAConnection::_connect( )
     _conn_param.private_data_len = sizeof(uint32_t);
     _conn_param.responder_resources = _dev_attr.max_qp_rd_atom;
     _conn_param.initiator_depth = _dev_attr.max_qp_init_rd_atom;
-    _conn_param.retry_count = 3;
-    _conn_param.rnr_retry_count = 3;
+    //_conn_param.retry_count = 3;
+    //_conn_param.rnr_retry_count = 3;
 
     if( 0 != ::rdma_connect( _cm_id, &_conn_param ))
     {
@@ -602,11 +602,11 @@ bool RDMAConnection::_initBuffers( )
 {
     EQASSERT( NULL != _pd );
 
-    const uint32_t rbs =
+    const uint32_t rbs = 1024UL * 1024UL *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
 
-    if( !_sourcebuf.resize( _pd, rbs * 1024 )) {}
-    else if( !_sinkbuf.resize( _pd, rbs * 1024 )) {}
+    if( !_sourcebuf.resize( _pd, rbs )) {}
+    else if( !_sinkbuf.resize( _pd, rbs )) {}
     else
     {
         _sourceptr.clear( _sourcebuf.getSize( ));
@@ -654,6 +654,7 @@ bool RDMAConnection::_createQP( )
 bool RDMAConnection::_postReceives( const unsigned int count )
 {
     EQASSERT( NULL != _qp );
+    EQASSERT( count <= _qpcap.max_recv_wr );
 
     if( 0U < count )
     {
@@ -699,7 +700,7 @@ void RDMAConnection::_handleImm( const uint32_t imm )
 // caller: event thread
 void RDMAConnection::_handleFC( RDMAFCPayload &fc )
 {
-    _rptr.moveValue( _rptr.TAIL, fc.ringTail );
+    _rptr.moveValue( _rptr.TAIL, ntohl( fc.ringTail ));
 }
 
 // caller: event thread
@@ -728,19 +729,11 @@ void RDMAConnection::_handleMsg( RDMAMessage &message )
 }
 
 // caller: application
-uint32_t RDMAConnection::_makeImm( )
-{
-    RDMAFCImm fc = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
-    _sourceptr.incr( _sourceptr.MIDDLE, fc );
-
-    return htonl( fc );
-}
-
-// caller: application
 void RDMAConnection::_fillFC( RDMAFCPayload &fc )
 {
-    fc.ringTail = _sinkptr.value( _sinkptr.MIDDLE );
-    _sinkptr.moveValue( _sinkptr.TAIL, fc.ringTail );
+    const uint32_t rt = _sinkptr.value( _sinkptr.MIDDLE );
+    fc.ringTail = htonl( rt );
+    _sinkptr.moveValue( _sinkptr.TAIL, rt );
 }
 
 // caller: application
@@ -831,6 +824,7 @@ bool RDMAConnection::_postRDMAWrite( )
         _sourceptr.ptr( _sourceptr.MIDDLE ));
     sge.length = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
     sge.lkey = _sourcebuf.getMR( )->lkey;
+    _sourceptr.incr( _sourceptr.MIDDLE, sge.length );
 
     struct ibv_send_wr wr;
     ::memset( (void *)&wr, 0, sizeof(struct ibv_send_wr));
@@ -839,7 +833,7 @@ bool RDMAConnection::_postRDMAWrite( )
     wr.num_sge = 1;
     wr.send_flags = IBV_SEND_SIGNALED;
     wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
-    wr.imm_data = _makeImm( );
+    wr.imm_data = htonl( sge.length );
     wr.wr.rdma.rkey = _rkey;
     wr.wr.rdma.remote_addr = _rbase + _rptr.ptr( _rptr.HEAD );
     _rptr.incrHead( sge.length );
@@ -924,7 +918,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
         EQASSERT( ev_cq == _cq );
 
         _completions++;
-        if( std::numeric_limits< unsigned >::max() <= _completions )
+        if( std::numeric_limits< unsigned >::max( ) <= _completions )
         {
             ::ibv_ack_cq_events( ev_cq, _completions );
             _completions = 0U;
@@ -972,8 +966,6 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 #endif
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
-                                _rptr.moveValue( _rptr.MIDDLE,
-                                    static_cast< uint32_t >( wc.wr_id ));
                                 _sourceptr.moveValue( _sourceptr.TAIL,
                                     static_cast< uint32_t >( wc.wr_id ));
                                 // not a message buffer, don't free
@@ -1124,7 +1116,7 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 {
     const uint32_t b = std::min( bytes,
         std::min( _sourceptr.negAvailable( _sourceptr.HEAD, _sourceptr.TAIL ),
-            _rptr.negAvailable( _rptr.HEAD, _rptr.MIDDLE )));
+            _rptr.negAvailable( _rptr.HEAD, _rptr.TAIL )));
     ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.HEAD )), buffer, b );
     _sourceptr.incrHead( b );
