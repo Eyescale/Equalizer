@@ -176,7 +176,6 @@ private:
     void _handleMsg( RDMAMessage &message );
 
     // application read/write services
-    uint32_t _makeImm( );
     void _fillFC( RDMAFCPayload &fc );
     void _fillParams( RDMAParamsPayload &params );
 
@@ -267,10 +266,9 @@ private:
         // TAIL   : advanced by application while posting FC
 
     /* local "view" of remote sink MR */
-    Ring<uint32_t, 3> _rptr;
+    Ring<uint32_t, 2> _rptr;
         //        : initialized by event thread on receipt of setup message
         // HEAD   : advanced by application while posting RDMA write
-        // MIDDLE : advanced by event thread after completing RDMA write
         // TAIL   : advanced by event thread on receipt of remote FC
 
     /* remote sink MR parameters */
