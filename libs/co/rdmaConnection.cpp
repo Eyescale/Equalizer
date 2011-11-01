@@ -606,7 +606,11 @@ bool RDMAConnection::_initBuffers( )
     const uint32_t rbs = 1024UL * 1024UL *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
 
-    if( !_sourcebuf.resize( _pd, rbs )) {}
+    if( 0UL == rbs )
+    {
+        EQERROR << "IATTR_RDMA_RING_BUFFER_SIZE_MB overflow" << std::endl;
+    }
+    else if( !_sourcebuf.resize( _pd, rbs )) {}
     else if( !_sinkbuf.resize( _pd, rbs )) {}
     else
     {
