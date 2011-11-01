@@ -650,9 +650,13 @@ void ConfigTool::_writeWall( Config* config ) const
 
     Canvas* canvas = new Canvas( config );
     canvas->setName( "wall" );
-    
+    canvas->setSwapBarrier( new SwapBarrier );
+
     eq::Wall wall;
     canvas->setWall( wall );
+
+    canvas->addLayout( layout );
+    config->activateCanvas( canvas );
 
     const float width  = 1.0f / static_cast< float >( _rows );
     const float height = 1.0f / static_cast< float >( _columns );
