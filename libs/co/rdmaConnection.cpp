@@ -96,7 +96,7 @@ struct RDMAMessage
 };
 
 RDMAConnection::RDMAConnection( )
-    : _notifier( 0 )
+    : _notifier( -1 )
     , _event_thread( NULL )
     , _efd( 0 )
     , _setup( SETUP_WAIT )
@@ -203,7 +203,6 @@ void RDMAConnection::close( )
     _joinEventThread( );
     _cleanup( );
 
-    _notifier = 0;
     setState( STATE_CLOSED );
 }
 
@@ -240,6 +239,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     //   " <<<<<<<<<<---------- " << std::endl;
 
     uint64_t available_bytes;
+    EQASSERT( 0 <= _notifier );
     while( 0 > ::read( _notifier, (void *)&available_bytes, sizeof(uint64_t)))
     {
         if( EAGAIN == errno )
@@ -250,7 +250,12 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     }
 
     if( _disconnected )
-        return -1LL;
+    {
+        if( available_bytes > 1ULL )
+            available_bytes--;
+        else
+            return -1LL;
+    }
 
     const uint32_t bytes_taken = _drain( buffer,
         static_cast< uint32_t >( std::min( bytes, available_bytes )));
@@ -268,10 +273,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
 
     // TODO : send FC less frequently?
     if( !_postSendFC( ))
-    {
-        close( );
-        return -1LL;
-    }
+        EQWARN << "Failed to send flow control message" << std::endl;
 
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
     //   " <<<<<<<<<<========== took " << bytes_taken << " bytes" << std::endl;
@@ -344,6 +346,11 @@ void RDMAConnection::_cleanup( )
     _sourcebuf.clear( );
     _sinkbuf.clear( );
     _msgbuf.clear( );
+
+    if(( 0 <= _notifier ) && ( _cm->fd != _notifier ) &&
+        ( 0 != ::close( _notifier )))
+        EQWARN << "close : " << base::sysError << std::endl;
+    _notifier = -1;
 
     if(( NULL != _cc ) && ( setBlocking( _cc->fd, false )))
         _doCQEvents( _cc ); // drain
@@ -758,6 +765,13 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
 {
     EQASSERT( NULL != _qp );
 
+    struct ibv_send_wr *bad_wr;
+    if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
+    {
+        EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
+        return false;
+    }
+
     // track available
 #ifdef EQ_RELEASE_ASSERT
     EQCHECK( --_available_wr >= 0 );
@@ -765,12 +779,6 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
     --_available_wr;
 #endif
 
-    struct ibv_send_wr *bad_wr;
-    if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
-    {
-        EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
-        return false;
-    }
     return true;
 }
 
@@ -1006,7 +1014,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 // caller: application & event thread
 void RDMAConnection::_notify( const uint64_t val )
 {
-    EQASSERT( 0 < _notifier );
+    EQASSERT( 0 <= _notifier );
 
     if( ::write( _notifier, (const void *)&val, sizeof( val )) != sizeof( val ))
         EQWARN << "Write failed" << std::endl;
@@ -1015,7 +1023,7 @@ void RDMAConnection::_notify( const uint64_t val )
 // caller: application
 bool RDMAConnection::_startEventThread( )
 {
-    EQASSERT( 0 == _notifier );
+    EQASSERT( -1 == _notifier );
     EQASSERT( NULL == _event_thread );
 
     if( 0 > ( _notifier = ::eventfd( 0, EFD_NONBLOCK )))
@@ -1025,8 +1033,6 @@ bool RDMAConnection::_startEventThread( )
     else
         return true;
 
-    if(( 0 < _notifier ) && ( 0 != ::close( _notifier )))
-        EQWARN << "close : " << base::sysError << std::endl;
     return false;
 }
 
@@ -1095,8 +1101,6 @@ void RDMAConnection::_runEventThread( )
     _notify( 1ULL );
 
     if( 0 != ::close( _efd ))
-        EQWARN << "close : " << base::sysError << std::endl;
-    if( 0 != ::close( _notifier ))
         EQWARN << "close : " << base::sysError << std::endl;
 }
 
