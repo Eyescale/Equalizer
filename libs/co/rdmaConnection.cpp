@@ -89,6 +89,7 @@ struct RDMAMessage
     uint8_t length;
     union
     {
+        uint8_t offsetof_placeholder;
         struct RDMAParamsPayload params;
         struct RDMAFCPayload fc;
     };
@@ -773,7 +774,7 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
     sge.length =
-        (uint32_t)( sizeof(OpCode) + sizeof(uint8_t) + message.length );
+        (uint32_t)( offsetof( RDMAMessage, offsetof_placeholder ) + message.length );
     sge.lkey = _msgbuf.getMR( )->lkey;
 
     struct ibv_send_wr wr;
