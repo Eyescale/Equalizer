@@ -259,11 +259,10 @@ private:
 
     /* sink RDMA MR */
     RingBuffer _sinkbuf;
-    Ring<uint32_t, 3> _sinkptr;
+    Ring<uint32_t, 2> _sinkptr;
         //        : initialized by application during connect/accept
         // HEAD   : advanced by event thread on receipt of remote FC
-        // MIDDLE : advanced by application after copying buffer on local read
-        // TAIL   : advanced by application while posting FC
+        // TAIL   : advanced by application after copying buffer on local read
 
     /* local "view" of remote sink MR */
     Ring<uint32_t, 2> _rptr;

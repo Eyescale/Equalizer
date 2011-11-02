@@ -74,7 +74,7 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
     524288, // UDP_BUFFER_SIZE
     1,      // QUEUE_MIN_SIZE
     2,      // QUEUE_MAX_SIZE
-    16,     // RDMA_RING_BUFFER_SIZE_MB
+    8,      // RDMA_RING_BUFFER_SIZE_MB
     5000,   // RDMA_RESOLVE_TIMEOUT_MS
 };
 }
