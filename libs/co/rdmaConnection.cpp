@@ -89,13 +89,14 @@ struct RDMAMessage
     uint8_t length;
     union
     {
+        uint8_t offsetof_placeholder;
         struct RDMAParamsPayload params;
         struct RDMAFCPayload fc;
     };
 };
 
 RDMAConnection::RDMAConnection( )
-    : _notifier( 0 )
+    : _notifier( -1 )
     , _event_thread( NULL )
     , _efd( 0 )
     , _setup( SETUP_WAIT )
@@ -202,7 +203,6 @@ void RDMAConnection::close( )
     _joinEventThread( );
     _cleanup( );
 
-    _notifier = 0;
     setState( STATE_CLOSED );
 }
 
@@ -239,6 +239,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     //   " <<<<<<<<<<---------- " << std::endl;
 
     uint64_t available_bytes;
+    EQASSERT( 0 <= _notifier );
     while( 0 > ::read( _notifier, (void *)&available_bytes, sizeof(uint64_t)))
     {
         if( EAGAIN == errno )
@@ -249,7 +250,12 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     }
 
     if( _disconnected )
-        return -1LL;
+    {
+        if( available_bytes > 1ULL )
+            available_bytes--;
+        else
+            return -1LL;
+    }
 
     const uint32_t bytes_taken = _drain( buffer,
         static_cast< uint32_t >( std::min( bytes, available_bytes )));
@@ -267,10 +273,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
 
     // TODO : send FC less frequently?
     if( !_postSendFC( ))
-    {
-        close( );
-        return -1LL;
-    }
+        EQWARN << "Failed to send flow control message" << std::endl;
 
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
     //   " <<<<<<<<<<========== took " << bytes_taken << " bytes" << std::endl;
@@ -289,9 +292,12 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     while( _available_wr == 0 ) // TODO: timeout?
         co::base::Thread::yield( );
 
-    const uint32_t bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ));
+    uint32_t bytes_put;
+    while( 0UL == // TODO: timeout?
+        ( bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ))))
+        co::base::Thread::yield( );
 
-    if(( 0UL < bytes_put ) && ( !_postRDMAWrite( )))
+    if( !_postRDMAWrite( ))
     {
         close( );
         return -1LL;
@@ -340,6 +346,11 @@ void RDMAConnection::_cleanup( )
     _sourcebuf.clear( );
     _sinkbuf.clear( );
     _msgbuf.clear( );
+
+    if(( 0 <= _notifier ) && ( _cm->fd != _notifier ) &&
+        ( 0 != ::close( _notifier )))
+        EQWARN << "close : " << base::sysError << std::endl;
+    _notifier = -1;
 
     if(( NULL != _cc ) && ( setBlocking( _cc->fd, false )))
         _doCQEvents( _cc ); // drain
@@ -501,8 +512,8 @@ bool RDMAConnection::_connect( )
     _conn_param.private_data_len = sizeof(uint32_t);
     _conn_param.responder_resources = _dev_attr.max_qp_rd_atom;
     _conn_param.initiator_depth = _dev_attr.max_qp_init_rd_atom;
-    _conn_param.retry_count = 3;
-    _conn_param.rnr_retry_count = 3;
+    _conn_param.retry_count = 7;
+    _conn_param.rnr_retry_count = 7;
 
     if( 0 != ::rdma_connect( _cm_id, &_conn_param ))
     {
@@ -602,11 +613,15 @@ bool RDMAConnection::_initBuffers( )
 {
     EQASSERT( NULL != _pd );
 
-    const uint32_t rbs =
+    const uint32_t rbs = 1024UL * 1024UL *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
 
-    if( !_sourcebuf.resize( _pd, rbs * 1024 )) {}
-    else if( !_sinkbuf.resize( _pd, rbs * 1024 )) {}
+    if( 0UL == rbs )
+    {
+        EQERROR << "IATTR_RDMA_RING_BUFFER_SIZE_MB overflow" << std::endl;
+    }
+    else if( !_sourcebuf.resize( _pd, rbs )) {}
+    else if( !_sinkbuf.resize( _pd, rbs )) {}
     else
     {
         _sourceptr.clear( _sourcebuf.getSize( ));
@@ -654,6 +669,7 @@ bool RDMAConnection::_createQP( )
 bool RDMAConnection::_postReceives( const unsigned int count )
 {
     EQASSERT( NULL != _qp );
+    EQASSERT( count <= _qpcap.max_recv_wr );
 
     if( 0U < count )
     {
@@ -699,7 +715,7 @@ void RDMAConnection::_handleImm( const uint32_t imm )
 // caller: event thread
 void RDMAConnection::_handleFC( RDMAFCPayload &fc )
 {
-    _rptr.moveValue( _rptr.TAIL, fc.ringTail );
+    _rptr.moveValue( _rptr.TAIL, ntohl( fc.ringTail ));
 }
 
 // caller: event thread
@@ -728,19 +744,9 @@ void RDMAConnection::_handleMsg( RDMAMessage &message )
 }
 
 // caller: application
-uint32_t RDMAConnection::_makeImm( )
-{
-    RDMAFCImm fc = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
-    _sourceptr.incr( _sourceptr.MIDDLE, fc );
-
-    return htonl( fc );
-}
-
-// caller: application
 void RDMAConnection::_fillFC( RDMAFCPayload &fc )
 {
-    fc.ringTail = _sinkptr.value( _sinkptr.MIDDLE );
-    _sinkptr.moveValue( _sinkptr.TAIL, fc.ringTail );
+    fc.ringTail = htonl( _sinkptr.value( _sinkptr.TAIL ));
 }
 
 // caller: application
@@ -757,6 +763,13 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
 {
     EQASSERT( NULL != _qp );
 
+    struct ibv_send_wr *bad_wr;
+    if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
+    {
+        EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
+        return false;
+    }
+
     // track available
 #ifdef EQ_RELEASE_ASSERT
     EQCHECK( --_available_wr >= 0 );
@@ -764,12 +777,6 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
     --_available_wr;
 #endif
 
-    struct ibv_send_wr *bad_wr;
-    if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
-    {
-        EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
-        return false;
-    }
     return true;
 }
 
@@ -780,7 +787,7 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
     sge.length =
-        (uint32_t)( sizeof(OpCode) + sizeof(uint8_t) + message.length );
+        (uint32_t)( offsetof( RDMAMessage, offsetof_placeholder ) + message.length );
     sge.lkey = _msgbuf.getMR( )->lkey;
 
     struct ibv_send_wr wr;
@@ -831,6 +838,7 @@ bool RDMAConnection::_postRDMAWrite( )
         _sourceptr.ptr( _sourceptr.MIDDLE ));
     sge.length = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
     sge.lkey = _sourcebuf.getMR( )->lkey;
+    _sourceptr.incr( _sourceptr.MIDDLE, sge.length );
 
     struct ibv_send_wr wr;
     ::memset( (void *)&wr, 0, sizeof(struct ibv_send_wr));
@@ -839,7 +847,7 @@ bool RDMAConnection::_postRDMAWrite( )
     wr.num_sge = 1;
     wr.send_flags = IBV_SEND_SIGNALED;
     wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
-    wr.imm_data = _makeImm( );
+    wr.imm_data = htonl( sge.length );
     wr.wr.rdma.rkey = _rkey;
     wr.wr.rdma.remote_addr = _rbase + _rptr.ptr( _rptr.HEAD );
     _rptr.incrHead( sge.length );
@@ -924,7 +932,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
         EQASSERT( ev_cq == _cq );
 
         _completions++;
-        if( std::numeric_limits< unsigned >::max() <= _completions )
+        if( std::numeric_limits< unsigned >::max( ) <= _completions )
         {
             ::ibv_ack_cq_events( ev_cq, _completions );
             _completions = 0U;
@@ -972,8 +980,6 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 #endif
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
-                                _rptr.moveValue( _rptr.MIDDLE,
-                                    static_cast< uint32_t >( wc.wr_id ));
                                 _sourceptr.moveValue( _sourceptr.TAIL,
                                     static_cast< uint32_t >( wc.wr_id ));
                                 // not a message buffer, don't free
@@ -1006,7 +1012,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 // caller: application & event thread
 void RDMAConnection::_notify( const uint64_t val )
 {
-    EQASSERT( 0 < _notifier );
+    EQASSERT( 0 <= _notifier );
 
     if( ::write( _notifier, (const void *)&val, sizeof( val )) != sizeof( val ))
         EQWARN << "Write failed" << std::endl;
@@ -1015,7 +1021,7 @@ void RDMAConnection::_notify( const uint64_t val )
 // caller: application
 bool RDMAConnection::_startEventThread( )
 {
-    EQASSERT( 0 == _notifier );
+    EQASSERT( -1 == _notifier );
     EQASSERT( NULL == _event_thread );
 
     if( 0 > ( _notifier = ::eventfd( 0, EFD_NONBLOCK )))
@@ -1025,8 +1031,6 @@ bool RDMAConnection::_startEventThread( )
     else
         return true;
 
-    if(( 0 < _notifier ) && ( 0 != ::close( _notifier )))
-        EQWARN << "close : " << base::sysError << std::endl;
     return false;
 }
 
@@ -1096,8 +1100,6 @@ void RDMAConnection::_runEventThread( )
 
     if( 0 != ::close( _efd ))
         EQWARN << "close : " << base::sysError << std::endl;
-    if( 0 != ::close( _notifier ))
-        EQWARN << "close : " << base::sysError << std::endl;
 }
 
 void RDMAConnection::_joinEventThread( )
@@ -1112,11 +1114,10 @@ void RDMAConnection::_joinEventThread( )
 
 uint32_t RDMAConnection::_drain( void *buffer, const uint32_t bytes )
 {
-    const uint32_t b = std::min( bytes,
-        _sinkptr.available( _sinkptr.HEAD, _sinkptr.MIDDLE ));
+    const uint32_t b = std::min( bytes, _sinkptr.available( ));
     ::memcpy( buffer, (const void *)((uintptr_t)_sinkbuf.getBase( ) +
-        _sinkptr.ptr( _sinkptr.MIDDLE )), b );
-    _sinkptr.incr( _sinkptr.MIDDLE, b );
+        _sinkptr.tail( )), b );
+    _sinkptr.incrTail( b );
     return b;
 }
 
@@ -1124,7 +1125,7 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 {
     const uint32_t b = std::min( bytes,
         std::min( _sourceptr.negAvailable( _sourceptr.HEAD, _sourceptr.TAIL ),
-            _rptr.negAvailable( _rptr.HEAD, _rptr.MIDDLE )));
+            _rptr.negAvailable( _rptr.HEAD, _rptr.TAIL )));
     ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.HEAD )), buffer, b );
     _sourceptr.incrHead( b );

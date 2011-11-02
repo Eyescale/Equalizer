@@ -56,7 +56,7 @@ package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 
 xcode:
 	@mkdir -p XCode
-	@cd XCode; $(CMAKE) -G Xcode ..
+	@cd XCode; $(CMAKE) -G Xcode .. -DCMAKE_INSTALL_PREFIX:PATH=install
 	open XCode/Equalizer.xcodeproj
 
 tests: debug/Makefile
