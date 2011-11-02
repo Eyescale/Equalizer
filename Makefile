@@ -5,7 +5,8 @@ BUILD ?= debug
 PYTHON ?= python
 CMAKE ?= cmake
 
-all: $(BUILD) RELNOTES.txt README.rst
+default: $(BUILD) RELNOTES.txt README.rst
+all: debug release RELNOTES.txt README.rst
 clobber:
 	rm -rf debug release XCode debug_glx man cdash
 clean:
