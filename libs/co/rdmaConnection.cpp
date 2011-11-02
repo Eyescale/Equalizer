@@ -512,8 +512,8 @@ bool RDMAConnection::_connect( )
     _conn_param.private_data_len = sizeof(uint32_t);
     _conn_param.responder_resources = _dev_attr.max_qp_rd_atom;
     _conn_param.initiator_depth = _dev_attr.max_qp_init_rd_atom;
-    //_conn_param.retry_count = 3;
-    //_conn_param.rnr_retry_count = 3;
+    _conn_param.retry_count = 7;
+    _conn_param.rnr_retry_count = 7;
 
     if( 0 != ::rdma_connect( _cm_id, &_conn_param ))
     {
