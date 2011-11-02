@@ -118,7 +118,7 @@ namespace fabric
          *
          * @param barrier the swap barrier.
          */
-        void setSwapBarrier( SwapBarrierPtr barrier );
+        EQFABRIC_INL void setSwapBarrier( SwapBarrierPtr barrier );
 
         /** @internal @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
