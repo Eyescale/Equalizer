@@ -195,18 +195,17 @@ private:
     /* Completion Queue event handler */
     bool _doCQEvents( struct ibv_comp_channel *channel );
 
-    typedef base::RefPtr< RDMAConnection > RDMAConnectionPtr;
     /* Event handler thread */
     class ChannelEventThread : public base::Thread
     {       
     public:
-        ChannelEventThread( RDMAConnectionPtr conn ) : _conn( conn ) { }
+        ChannelEventThread( RDMAConnection *conn ) : _conn( conn ) { }
         virtual ~ChannelEventThread( ) { _conn = NULL; }
 
         virtual bool init( ) { return _conn->_initEventThread( ); }
         virtual void run( ) { _conn->_runEventThread( ); }
     private:
-        RDMAConnectionPtr _conn;
+        RDMAConnection *_conn;
     };  
 
     Notifier _notifier;
