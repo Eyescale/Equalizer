@@ -338,11 +338,24 @@ uint32_t Config::finishFrame()
                 client->processCommand();
         }
 
+
         // global sync
-        const uint32_t timeout = getTimeout();
-        if( !_finishedFrame.timedWaitGE( frameToFinish, timeout ))
-            EQWARN << "Timeout waiting for at least one node to finish frame " 
+        const uint32_t timeout = co::Global::getTimeout();
+        uint64_t totalTimeout = 0;
+        const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
+        while( !_finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+        {
+            EQWARN << "# (global sync) Keep-alive Timeout retry frame "
                    << frameToFinish << std::endl;
+            totalTimeout += pingTimeout;
+            if( totalTimeout >= timeout/2 || 
+                !(getLocalNode()->pingTimedOutNodes()) )
+            {
+                EQWARN << "Timeout waiting for at least one node to finish frame " 
+                       << frameToFinish << std::endl;
+                break;
+            }
+        }
     }
 
     handleEvents();

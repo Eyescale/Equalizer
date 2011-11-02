@@ -64,6 +64,7 @@ namespace eqPly
 
         /** @return a string containing an online help description. */
         static const std::string& getHelp();
+        virtual void notifyDisconnect( co::NodePtr node );
 
     protected:
         /** @sa eq::Client::clientLoop. */
@@ -71,6 +72,7 @@ namespace eqPly
         
     private:
         const LocalInitData& _initData;
+        bool stopPipes();
     };
 
     enum ColorMode
@@ -86,6 +88,8 @@ namespace eqPly
         LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
         LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
     };
+
+
 }
 
 #endif // EQ_PLY_H

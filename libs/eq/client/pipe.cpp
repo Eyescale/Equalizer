@@ -456,6 +456,15 @@ void Pipe::joinThread()
     _thread = 0;
 }
 
+void Pipe::cancelThread()
+{
+    co::Command& command = getLocalNode()->allocCommand( sizeof( eq::PipeExitThreadPacket ));
+    eq::PipeExitThreadPacket* packet = 
+        command.getModifiable< eq::PipeExitThreadPacket >();
+    *packet = eq::PipeExitThreadPacket();
+    dispatchCommand( command );
+}
+
 void Pipe::waitExited() const
 {
     _state.waitGE( STATE_STOPPED );

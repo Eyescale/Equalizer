@@ -308,7 +308,7 @@ namespace co
         CO_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
-        void getNodes( Nodes& nodes, const bool addSelf = true ) const;
+        CO_API void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
         /**
          * Acquire a singular send token from the given node.
@@ -367,6 +367,12 @@ namespace co
         /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
+        /** requests keep-alive from remote node */
+        CO_API void ping( NodePtr remoteNode );
+        CO_API bool pingTimedOutNodes();
+        /** notify client disconnection */
+        CO_API virtual void notifyDisconnect( NodePtr node ) { }
+
     protected:
         /** 
          * Connect a node proxy to this node.
@@ -382,9 +388,6 @@ namespace co
          * @internal
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
-
-        /** requests keep-alive from remote node */
-        bool _ping( NodePtr remoteNode ); 
 
     private:
         typedef std::list< Command* > CommandList;

@@ -315,6 +315,7 @@ co::NodePtr Client::createNode( const uint32_t type )
         {
             Server* server = new Server;
             server->setClient( this );
+            _servers.push_back( server );
             return server;
         }
 
@@ -326,8 +327,11 @@ co::NodePtr Client::createNode( const uint32_t type )
 bool Client::_cmdExit( co::Command& command )
 {
     _running = false;
+    co::NodePtr node = command.getNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
     // Close connection here, this is the last packet we'll get on it
-    command.getLocalNode()->disconnect( command.getNode( ));
+    if ( node->getNodeID() != localNode->getNodeID() )
+        localNode->disconnect( node );
     return true;
 }
 }

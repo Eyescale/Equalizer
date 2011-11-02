@@ -104,6 +104,7 @@ namespace eq
 
         /** Exit the process cleanly on render clients. @version 1.0 */
         EQ_API virtual void exitClient();
+        Servers _servers;
 
     private:
         /** The command->node command queue. */

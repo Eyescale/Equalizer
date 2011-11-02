@@ -171,6 +171,8 @@ namespace eq
         /** @internal Wait for the pipe thread to exit. */
         void joinThread();
 
+        void cancelThread();
+
         /** 
          * @name Interface to and from the SystemPipe, the window-system
          *       specific pieces for a pipe.
