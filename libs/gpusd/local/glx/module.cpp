@@ -21,6 +21,8 @@
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
+#include <cstdlib>
+#include <limits>
 #include <sstream>
 
 namespace gpusd
