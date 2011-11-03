@@ -83,7 +83,7 @@ private:
     struct ibv_mr *_mr;
 }; // RingBuffer
 
-struct RDMAParamsPayload;
+struct RDMASetupPayload;
 struct RDMAFCPayload;
 struct RDMAMessage;
 
@@ -103,8 +103,8 @@ struct RDMAMessage;
  * 1) The rdma_ucm kernel module must be loaded
  * 2) The application must have read/write access to the IB device nodes
  *    (typically /dev/infiniband/[rdma_cm|uverbs*])
- * 3) The address assigned to the connection must be an address assigned to an
- *    RDMA-capable device (e.g. IPoIB)
+ * 3) The IP address assigned to the connection must be an address assigned to
+ *    an RDMA-capable device (e.g. IPoIB)
  * 4) Shared memory must be sufficient for all RDMA connections,
  *    2 * Global::IATTR_RDMA_RING_BUFFER_SIZE_MB for each one
  *    (i.e. /dev/shm, kernel.shm[min|max|all])
@@ -143,14 +143,14 @@ protected:
     void setState( const State state );
 
 private:
-    // teardown
+    /* Teardown */
     void _disconnect( );
     void _cleanup( );
 
-    // setup
+    /* Setup */
     bool _finishAccept( struct rdma_event_channel *listen_channel );
-    
-    bool _parseAddress( struct sockaddr &address, const bool passive );
+
+    bool _parseAddress( struct sockaddr &address, const bool passive ) const;
     bool _createEventChannel( );
     bool _createId( );
 
@@ -158,10 +158,10 @@ private:
     bool _resolveRoute( );
     bool _connect( );
 
-    bool _bindAddress( struct sockaddr &address );
-    bool _listen( );
+    bool _bindAddress( struct sockaddr &address ) const;
+    bool _listen( ) const;
     bool _accept( );
-    bool _migrateId( );
+    bool _migrateId( ) const;
 
     bool _initVerbs( );
     bool _initBuffers( );
@@ -169,45 +169,47 @@ private:
 
     bool _postReceives( const unsigned int count );
 
-    // event thread handlers
-    void _handleImm( const uint32_t imm );
+    /* Event thread handlers */
+    void _handleSetup( RDMASetupPayload &setup );
     void _handleFC( RDMAFCPayload &fc );
-    void _handleSetup( RDMAParamsPayload &params );
-    void _handleMsg( RDMAMessage &message );
+    void _handleMessage( RDMAMessage &message );
+    void _handleImm( const uint32_t imm );
 
-    // application read/write services
-    void _fillFC( RDMAFCPayload &fc );
-    void _fillParams( RDMAParamsPayload &params );
-
+    /* Application read/write services */
     bool _postSendWR( struct ibv_send_wr &wr );
+
     bool _postSendMessage( RDMAMessage &message );
-    bool _postSendFC( );
+    void _fillSetup( RDMASetupPayload &setup ) const;
     bool _postSendSetup( );
+    void _fillFC( RDMAFCPayload &fc ) const;
+    bool _postSendFC( );
+
     bool _postRDMAWrite( );
 
-    bool _waitRecvSetup( );
+    bool _waitRecvSetup( ) const;
 
 private:
+    /* Connection Manager event handler */
     bool _doCMEvent( struct rdma_event_channel *channel,
         rdma_cm_event_type expected );
+    /* Completion Queue event handler */
     bool _doCQEvents( struct ibv_comp_channel *channel );
 
-    typedef base::RefPtr< RDMAConnection > RDMAConnectionPtr;
+    /* Event handler thread */
     class ChannelEventThread : public base::Thread
     {       
     public:
-        ChannelEventThread( RDMAConnectionPtr conn )
-            : _conn(conn) {}
+        ChannelEventThread( RDMAConnection *conn ) : _conn( conn ) { }
         virtual ~ChannelEventThread( ) { _conn = NULL; }
-    
+
         virtual bool init( ) { return _conn->_initEventThread( ); }
         virtual void run( ) { _conn->_runEventThread( ); }
     private:
-        RDMAConnectionPtr _conn;
+        RDMAConnection *_conn;
     };  
 
     Notifier _notifier;
-    void _notify( const uint64_t val );
+    void _notify( const uint64_t val ) const;
 
     ChannelEventThread *_event_thread;
     int _efd; // epoll fd
@@ -224,8 +226,8 @@ private:
         SETUP_OK   = 1,
         SETUP_WAIT = 2
     };
-    /* blocks application connect/accept until the event
-       thread receives the remote sink's MR parameters */
+    /* Blocks application connect/accept until the event thread receives the
+       remote sink's MR parameters */
     base::Monitor<SetupWait> _setup;
 
     struct rdma_event_channel *_cm;
@@ -243,11 +245,11 @@ private:
     unsigned int _completions;
     struct ibv_qp_cap _qpcap;
 
-    /* MR for setup and FC messages */
-    BufferPool _msgbuf;
-
     /* Send WR tracking */
     base::a_int32_t _available_wr;
+
+    /* MR for setup and FC messages */
+    BufferPool _msgbuf;
 
     /* source RDMA MR */
     RingBuffer _sourcebuf;
