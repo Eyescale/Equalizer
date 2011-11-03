@@ -45,14 +45,6 @@ if(APPLE)
   LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
 endif(APPLE)
 
-if(X11_FOUND)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
-  if(APPLE)
-    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
-  endif(APPLE)
-endif(X11_FOUND)
-
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
@@ -66,8 +58,7 @@ if(LINUX)
 endif(LINUX)
 
 if(APPLE)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
 
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
     set(GPUSD_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
