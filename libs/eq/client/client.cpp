@@ -16,6 +16,8 @@
  */
 
 #include "client.h"
+#include "config.h"
+#include "node.h"
 
 #include "commandQueue.h"
 #include "global.h"
@@ -25,6 +27,7 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/client/clientPackets.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -333,6 +336,43 @@ bool Client::_cmdExit( co::Command& command )
     if ( node->getNodeID() != localNode->getNodeID() )
         localNode->disconnect( node );
     return true;
+}
+
+void Client::notifyDisconnect( co::NodePtr node )
+{
+    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    {
+        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        eq::ClientExitPacket* packet = 
+            command.getModifiable< eq::ClientExitPacket >();
+        *packet = eq::ClientExitPacket();
+        dispatchCommand( command );
+        _stopPipes();
+    }
+}
+
+void Client::_stopPipes()
+{
+    const eq::Configs& configs = _servers.front()->getConfigs();
+    if( configs.empty( ))
+    {
+        std::cout << "No configs on server, exiting" << std::endl;
+        return;
+    }
+
+    eq::Config* config = configs.front();
+    const eq::Nodes& nodes = config->getNodes();
+    if( nodes.empty( ))
+    {
+        std::cout << "No nodes in config, exiting" << std::endl;
+        return;
+    }
+
+    eq::Node* node = nodes.front();
+
+    node->dirtyClientExit();
+
+    return;
 }
 }
 

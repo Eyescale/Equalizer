@@ -370,8 +370,6 @@ namespace co
         /** requests keep-alive from remote node */
         CO_API void ping( NodePtr remoteNode );
         CO_API bool pingTimedOutNodes();
-        /** notify client disconnection */
-        CO_API virtual void notifyDisconnect( NodePtr node ) { }
 
     protected:
         /** 
@@ -388,6 +386,9 @@ namespace co
          * @internal
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
+
+        /** notify client disconnection */
+        virtual void notifyDisconnect( NodePtr node ) { }
 
     private:
         typedef std::list< Command* > CommandList;

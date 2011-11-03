@@ -30,8 +30,6 @@
 
 #include "config.h"
 #include "localInitData.h"
-#include <eq/fabric/nodeType.h>
-#include <eq/client/clientPackets.h>
 
 #include <stdlib.h>
 
@@ -179,40 +177,8 @@ void EqPly::clientLoop()
 
 void EqPly::notifyDisconnect( co::NodePtr node )
 {
-    if( ( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
-        && !_initData.isResident( ) )
-    {
-        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
-        eq::ClientExitPacket* packet = 
-            command.getModifiable< eq::ClientExitPacket >();
-        *packet = eq::ClientExitPacket();
-        dispatchCommand( command );
-        bool sendStopPipes = stopPipes();
-    }
-}
-
-bool EqPly::stopPipes()
-{
-    const eq::Configs& configs = _servers.front()->getConfigs();
-    if( configs.empty( ))
-    {
-        std::cout << "No configs on server, exiting" << std::endl;
-        return false;
-    }
-
-    eq::Config* config = configs.front();
-    const eq::Nodes& nodes = config->getNodes();
-    if( nodes.empty( ))
-    {
-        std::cout << "No nodes in config, exiting" << std::endl;
-        return false;
-    }
-
-    eq::Node* node = nodes.front();
-
-    node->dirtyClientExit();
-
-    return true;
+    if( !_initData.isResident( ) )
+         eq::Client::notifyDisconnect( node );
 }
 
 }

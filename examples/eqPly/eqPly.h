@@ -64,15 +64,16 @@ namespace eqPly
 
         /** @return a string containing an online help description. */
         static const std::string& getHelp();
-        virtual void notifyDisconnect( co::NodePtr node );
 
     protected:
         /** @sa eq::Client::clientLoop. */
         virtual void clientLoop();
+
+        /** @sa eq::Client::notifyDisconnect. */
+        virtual void notifyDisconnect( co::NodePtr node );
         
     private:
         const LocalInitData& _initData;
-        bool stopPipes();
     };
 
     enum ColorMode
