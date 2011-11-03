@@ -20,16 +20,15 @@
 
 #include <gpusd1/local/api.h>
 #include <iostream>
+#include <limits.h>
 
 namespace gpusd
-{
-namespace local
 {
     /** A structure containing GPU-specific information. */
     struct GPUInfo
     {
         /** A non-enumerated port or device */
-        static GPUSD_LOCAL_API unsigned defaultValue;
+        static const unsigned defaultValue = UINT_MAX;
 
         /** Default constructor pointing to default display. */
         GPUInfo()
@@ -109,8 +108,6 @@ namespace local
                << info.pvp[2] << ' ' << info.pvp[3] << ']' << std::endl;
         return os;
     }
-
-}
 }
 #endif // GPUSD_LOCAL_GPUINFO_H
 

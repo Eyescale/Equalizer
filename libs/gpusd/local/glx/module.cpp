@@ -17,7 +17,7 @@
 
 #include "module.h"
 
-#include <gpusd1/local/gpuInfo.h>
+#include <gpusd1/gpuInfo.h>
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>

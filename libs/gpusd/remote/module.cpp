@@ -21,7 +21,7 @@
 
 namespace gpusd
 {
-namespace local
+namespace remote
 {
 namespace
 {

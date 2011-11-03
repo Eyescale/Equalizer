@@ -15,19 +15,38 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_TYPES_H
-#define GPUSD_LOCAL_TYPES_H
+#ifndef GPUSD_REMOTE_MODULE_H
+#define GPUSD_REMOTE_MODULE_H
 
-#include <vector>
+#include <gpusd1/remote/api.h>
+#include <gpusd1/types.h>
+#include <iostream>
 
 namespace gpusd
 {
-namespace local
+namespace remote
 {
-struct GPUInfo;
-typedef std::vector< GPUInfo > GPUInfos;
-}
-}
+    /** Base class for runtime-attached DSOs containing a query implementation.*/
+    class Module
+    {
+    public:
+        /** Register and construct a new module. */
+        GPUSD_REMOTE_API Module();
 
-#endif // GPUSD_LOCAL_TYPES_H
+        /** Destruct and destruct a module. */
+        GPUSD_REMOTE_API virtual ~Module();
+
+        /** @return information about all found GPUs. */
+        static GPUInfos discoverGPUs();
+
+    protected:
+        /** @return information about all found GPUs. */
+        virtual GPUInfos discoverGPUs_() const = 0;
+        
+    private:
+        Module* next_;
+    };
+}
+}
+#endif // GPUSD_REMOTE_MODULE_H
 

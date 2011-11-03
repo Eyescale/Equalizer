@@ -17,7 +17,7 @@
   along with GPU-SD. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gpusd1/local/gpuInfo.h>
+#include <gpusd1/gpuInfo.h>
 #include <gpusd1/local/module.h>
 
 #include <dns_sd.h>
@@ -40,8 +40,8 @@ typedef int pid_t;
 #  include <arpa/inet.h>
 #endif
 
-using gpusd::local::GPUInfo;
-using gpusd::local::GPUInfos;
+using gpusd::GPUInfo;
+using gpusd::GPUInfos;
 
 static void setTXTRecordValue( TXTRecordRef& record, const size_t gpuIndex,
                                const std::string& name, const unsigned value )

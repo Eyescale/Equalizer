@@ -76,10 +76,6 @@ if(APPLE)
   message(STATUS "Building for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
-function(install_symlink FROM TO WHERE)
-  install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${FROM} ${TO} WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${WHERE})" )
-endfunction()
-
 add_subdirectory(daemon)
 add_subdirectory(libs)
 #add_subdirectory(doc) # must be after all targets

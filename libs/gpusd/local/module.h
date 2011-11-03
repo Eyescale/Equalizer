@@ -19,7 +19,7 @@
 #define GPUSD_LOCAL_MODULE_H
 
 #include <gpusd1/local/api.h>
-#include <gpusd1/local/types.h>
+#include <gpusd1/types.h>
 #include <iostream>
 
 namespace gpusd
