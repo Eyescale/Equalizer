@@ -20,6 +20,7 @@
 #include <gpusd1/gpuInfo.h>
 #include <gpusd1/local/module.h>
 
+#include <arpa/inet.h>
 #include <dns_sd.h>
 #include <cerrno>
 #include <cstdio>
@@ -27,18 +28,6 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-
-#ifdef _WIN32
-#  include <process.h>
-typedef int pid_t;
-#  define getpid _getpid
-#  define strcasecmp _stricmp
-#  define snprintf _snprintf
-#else
-#  include <sys/time.h>
-#  include <unistd.h>
-#  include <arpa/inet.h>
-#endif
 
 using gpusd::GPUInfo;
 using gpusd::GPUInfos;

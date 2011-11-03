@@ -23,3 +23,5 @@ install(FILES ${HEADERS} DESTINATION include/gpusd${VERSION_MAJOR}/remote
 install(TARGETS ${LIBRARY}
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
   COMPONENT lib)
+
+add_subdirectory(dns_sd)

@@ -76,7 +76,7 @@ if(APPLE)
   message(STATUS "Building for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
-add_subdirectory(daemon)
+add_subdirectory(apps)
 add_subdirectory(libs)
 #add_subdirectory(doc) # must be after all targets
 
