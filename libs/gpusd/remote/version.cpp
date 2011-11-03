@@ -15,23 +15,36 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_API_H
-#define GPUSD_LOCAL_API_H
+#include <gpusd/remote/version.h>
+#include <sstream>
 
-#if defined(_MSC_VER) || defined(__declspec)
-#  define GPUSD_LOCAL_DLLEXPORT __declspec(dllexport)
-#  define GPUSD_LOCAL_DLLIMPORT __declspec(dllimport)
-#else
-#  define GPUSD_LOCAL_DLLEXPORT
-#  define GPUSD_LOCAL_DLLIMPORT
-#endif
+namespace gpusd
+{
+namespace remote
+{
 
-#if defined(GPUSD_LOCAL_STATIC)
-#  define GPUSD_LOCAL_API
-#elif defined(GPUSD_LOCAL_SHARED)
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLEXPORT
-#else
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLIMPORT
-#endif
+int Version::getMajor() 
+{
+    return GPUSD_REMOTE_VERSION_MAJOR; 
+}
 
-#endif //GPUSD_LOCAL_API_H
+int Version::getMinor()
+{
+    return GPUSD_REMOTE_VERSION_MINOR; 
+}
+
+int Version::getPatch() 
+{
+    return GPUSD_REMOTE_VERSION_PATCH; 
+}
+
+std::string Version::getString()
+{
+    std::ostringstream version;
+    version << GPUSD_REMOTE_VERSION_MAJOR << '.' << GPUSD_REMOTE_VERSION_MINOR
+            << '.' << GPUSD_REMOTE_VERSION_PATCH;
+    return version.str();
+}
+
+}
+}

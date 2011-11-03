@@ -3,7 +3,6 @@ set(HEADERS)
 set(SOURCES
   gpu-sd.cpp)
 
-find_package(DNSSD REQUIRED)
 include_directories(${DNSSD_INCLUDE_DIRS})
 
 set(GPUSD_LOCAL_LIBRARIES gpusd_local)

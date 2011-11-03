@@ -8,6 +8,9 @@ set(SOURCES
 )
 
 find_library(CARBON_LIBRARY Carbon)
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
+
 set(LIBRARY gpusd_local_agl)
 
 # No 64 bit support for AGL

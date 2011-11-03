@@ -30,7 +30,8 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/libs)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
-find_package(Doxygen)
+#find_package(Doxygen)
+find_package(DNSSD REQUIRED)
 
 if(APPLE)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )

@@ -15,23 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_API_H
-#define GPUSD_LOCAL_API_H
+#ifndef GPUSD_REMOTE_API_H
+#define GPUSD_REMOTE_API_H
 
 #if defined(_MSC_VER) || defined(__declspec)
-#  define GPUSD_LOCAL_DLLEXPORT __declspec(dllexport)
-#  define GPUSD_LOCAL_DLLIMPORT __declspec(dllimport)
+#  define GPUSD_REMOTE_DLLEXPORT __declspec(dllexport)
+#  define GPUSD_REMOTE_DLLIMPORT __declspec(dllimport)
 #else
-#  define GPUSD_LOCAL_DLLEXPORT
-#  define GPUSD_LOCAL_DLLIMPORT
+#  define GPUSD_REMOTE_DLLEXPORT
+#  define GPUSD_REMOTE_DLLIMPORT
 #endif
 
-#if defined(GPUSD_LOCAL_STATIC)
-#  define GPUSD_LOCAL_API
-#elif defined(GPUSD_LOCAL_SHARED)
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLEXPORT
+#if defined(GPUSD_REMOTE_STATIC)
+#  define GPUSD_REMOTE_API
+#elif defined(GPUSD_REMOTE_SHARED)
+#  define GPUSD_REMOTE_API GPUSD_REMOTE_DLLEXPORT
 #else
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLIMPORT
+#  define GPUSD_REMOTE_API GPUSD_REMOTE_DLLIMPORT
 #endif
 
-#endif //GPUSD_LOCAL_API_H
+#endif //GPUSD_REMOTE_API_H
