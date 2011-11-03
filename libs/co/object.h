@@ -216,8 +216,8 @@ namespace co
          * versions are random and unordered.
          *
          * This function is not thread safe, that is, calling sync()
-         * simultaneously from multiple threads has to be protected by the
-         * caller using a mutex.
+         * simultaneously on the same object from multiple threads has to be
+         * protected by the caller using a mutex.
          * 
          * @param version the version to synchronize (see above).
          * @return the last version applied.
