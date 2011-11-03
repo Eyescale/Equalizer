@@ -29,3 +29,4 @@ install(TARGETS ${LIBRARY}
 install_symlink(${LIB_INCLUDE} ${LIBRARY} include)
 
 add_subdirectory(agl)
+add_subdirectory(glx)

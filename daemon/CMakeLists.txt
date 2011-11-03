@@ -19,6 +19,10 @@ if(APPLE)
   message(STATUS "Building gpu-sd for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
+if(X11_FOUND)
+  list(APPEND GPUSD_LOCAL_LIBRARIES gpusd_local_glx)
+endif()
+
 source_group(\\ FILES ${SOURCES} ${HEADERS})
 add_executable(gpu-sd ${SOURCES} ${HEADERS})
 target_link_libraries(gpu-sd ${DNSSD_LIBRARIES} ${GPUSD_LOCAL_LIBRARIES})

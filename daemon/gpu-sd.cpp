@@ -43,11 +43,23 @@ typedef int pid_t;
 using gpusd::local::GPUInfo;
 using gpusd::local::GPUInfos;
 
-static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus )
+static void setTXTRecordValue( TXTRecordRef& record, const size_t gpuIndex,
+                               const std::string& name, const unsigned value )
 {
     std::ostringstream out;
+    out << "GPU" << gpuIndex << " " << name;
+    const std::string string = out.str();
 
+    out.str("");
+    out << value;
+    TXTRecordSetValue( &record, string.c_str(),
+                       out.str().length(), out.str().c_str( ));
+}
+
+static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus )
+{
     // GPU Count=<integer>
+    std::ostringstream out;
     out << gpus.size();
     TXTRecordSetValue( &record, "GPU Count",
                        out.str().length(), out.str().c_str( ));
@@ -64,37 +76,19 @@ static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus )
                            4, info.getName().c_str( ));
 
         if( info.port != GPUInfo::defaultValue )
-        {
             // GPU<integer> Port=<integer> // X11 display number, 0 otherwise
-            out.str("");
-            out << "GPU" << index << " Port";
-            const std::string name = out.str();
-
-            out.str("");
-            out.clear();
-            out << info.port;
-            TXTRecordSetValue( &record, name.c_str(),
-                               out.str().length(), out.str().c_str( ));
-        }
+            setTXTRecordValue( record, index, "Port", info.port );
 
         if( info.device != GPUInfo::defaultValue )
-        {
             // GPU<integer> Device=<integer> // X11 display number, 0 otherwise
-            out.str("");
-            out << "GPU" << index << " Device";
-            const std::string name = out.str();
+            setTXTRecordValue( record, index, "Device", info.device );
 
-            out.str("");
-            out.clear();
-            out << info.device;
-            TXTRecordSetValue( &record, name.c_str(),
-                               out.str().length(), out.str().c_str( ));
-#if 0
-            GPU<integer> Width=<integer>
-            GPU<integer> Height=<integer>
-            GPU<integer> X=<integer>
-            GPU<integer> Y=<integer>
-#endif
+        if( info.pvp[2] > 0 && info.pvp[3] > 0 )
+        {
+            setTXTRecordValue( record, index, "X", info.pvp[0] );
+            setTXTRecordValue( record, index, "Y", info.pvp[1] );
+            setTXTRecordValue( record, index, "Width", info.pvp[2] );
+            setTXTRecordValue( record, index, "Height", info.pvp[3] );
         }
     }
 }
