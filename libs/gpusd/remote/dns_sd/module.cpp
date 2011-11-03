@@ -83,8 +83,8 @@ static void browseCallback( DNSServiceRef service,
     if( !( flags & kDNSServiceFlagsAdd ))
         return;
 
-    std::cout << "Found " << name << " " << type << "." << domain << " more "
-              << (flags & kDNSServiceFlagsMoreComing) << std::endl;
+    std::cout << "Found " << name << " " << type << "." << domain
+              << " interface " << interfaceIndex << std::endl;
 }
 
 }

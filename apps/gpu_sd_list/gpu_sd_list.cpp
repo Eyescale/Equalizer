@@ -16,9 +16,11 @@
  */
 
 
+#include <gpusd1/gpuInfo.h>
 #include <gpusd1/remote/module.h>
 
 int main (int argc, const char * argv[])
 {
+    const gpusd::GPUInfos gpus = gpusd::remote::Module::discoverGPUs();    
     return 0;
 }
