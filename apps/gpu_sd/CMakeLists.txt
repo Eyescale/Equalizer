@@ -1,7 +1,7 @@
 
 set(HEADERS)
 set(SOURCES
-  gpu-sd.cpp)
+  gpu_sd.cpp)
 
 include_directories(${DNSSD_INCLUDE_DIRS})
 
@@ -15,7 +15,7 @@ if(APPLE)
   else()
     set(CMAKE_OSX_ARCHITECTURES "i386")
   endif()
-  message(STATUS "Building gpu-sd for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS "Building gpu_sd for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
 if(X11_FOUND)
@@ -23,6 +23,6 @@ if(X11_FOUND)
 endif()
 
 source_group(\\ FILES ${SOURCES} ${HEADERS})
-add_executable(gpu-sd ${SOURCES} ${HEADERS})
-target_link_libraries(gpu-sd ${DNSSD_LIBRARIES} ${GPUSD_LOCAL_LIBRARIES})
-install(TARGETS gpu-sd DESTINATION bin COMPONENT daemon)
+add_executable(gpu_sd ${SOURCES} ${HEADERS})
+target_link_libraries(gpu_sd ${DNSSD_LIBRARIES} ${GPUSD_LOCAL_LIBRARIES})
+install(TARGETS gpu_sd DESTINATION bin COMPONENT daemon)
