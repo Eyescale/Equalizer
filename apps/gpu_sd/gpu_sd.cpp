@@ -146,6 +146,11 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 int main (int argc, const char * argv[])
 {
     const GPUInfos gpus = gpusd::local::Module::discoverGPUs();
+    if( gpus.empty( ))
+    {
+        std::cerr << "No GPUs found, quitting";
+        return EXIT_FAILURE;
+    }
 
     TXTRecordRef record;
     TXTRecordCreate( &record, 0, 0 );

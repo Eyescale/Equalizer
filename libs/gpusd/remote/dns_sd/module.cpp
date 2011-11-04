@@ -22,7 +22,11 @@
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include <arpa/inet.h>
+#include <sys/time.h>
+
+#define WAIT_TIME 500 // ms
 
 namespace gpusd
 {
@@ -35,35 +39,51 @@ namespace
 
 Module instance;
 
-static void handleEvents( DNSServiceRef serviceRef )
+static bool handleEvent( DNSServiceRef service )
 {
-    const int fd = DNSServiceRefSockFD( serviceRef );
+    const int fd = DNSServiceRefSockFD( service );
     const int nfds = fd + 1;
 
-    while( true )
-    {
-        fd_set fdSet;
-        FD_ZERO( &fdSet );
-        FD_SET( fd, &fdSet );
+    fd_set fdSet;
+    FD_ZERO( &fdSet );
+    FD_SET( fd, &fdSet );
 
-        const int result = select( nfds, &fdSet, 0, 0, 0 );
-        if( result > 0 )
-        {
-            DNSServiceErrorType error = kDNSServiceErr_NoError;
-            if( FD_ISSET( fd, &fdSet ))
-                error = DNSServiceProcessResult( serviceRef );
-            if( error )
-                return;
-        }
-        else
-        {
-            std::cerr << "Select error: " << strerror( errno ) << " (" << errno
-                      << ")" << std::endl;
-            if( errno != EINTR )
-                return;
-        }
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = WAIT_TIME * 1000;
+
+    const int result = select( nfds, &fdSet, 0, 0, &tv );
+    switch( result )
+    {
+      case 0: // timeout
+          return false;
+
+      default:
+          DNSServiceProcessResult( service );
+          return true;
+
+      case -1:
+          std::cerr << "Select error: " << strerror( errno ) << " (" 
+                    << errno << ")" << std::endl;
+          return false;
     }
 }
+
+template< class T >
+bool getTXTRecordValue( const uint16_t txtLen, const unsigned char* txt,
+                        const std::string& name, T& result )
+{
+    uint8_t len = 0;
+    const char* data = (const char*)TXTRecordGetValuePtr( txtLen, txt,
+                                                          name.c_str(), &len );
+    if( !data || len == 0 )
+        return false;
+
+    std::istringstream in( std::string( data, len ));
+    in >> result;
+    return true;
+}
+
 
 static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
                              uint32_t interface, DNSServiceErrorType error,
@@ -73,12 +93,35 @@ static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
 {
     if( error != kDNSServiceErr_NoError)
     {
-        std::cerr << "Resolve callback error" << error << std::endl;
+        std::cerr << "Resolve callback error: " << error << std::endl;
         return;
     }
 
-    std::cout << "Resolved " << name << " @ " << host << ":" << ntohs( port )
-              << " " << txt << std::endl;
+    unsigned nGPUs = 0;
+    getTXTRecordValue( txtLen, txt, "GPU Count", nGPUs );
+    if( !nGPUs )
+        return;
+
+    GPUInfos* result = reinterpret_cast< GPUInfos* >( context );
+    for( unsigned i = 0; i < nGPUs; ++i )
+    {
+        std::ostringstream out;
+        out << "GPU" << i << " ";
+        const std::string& gpu = out.str();
+
+        std::string type;
+        if( !getTXTRecordValue( txtLen, txt, gpu + "Type", type ))
+            continue;
+
+        GPUInfo info( type );
+        getTXTRecordValue( txtLen, txt, gpu + "Port", info.port );
+        getTXTRecordValue( txtLen, txt, gpu + "Device", info.device );
+        getTXTRecordValue( txtLen, txt, gpu + "X", info.pvp[0] );
+        getTXTRecordValue( txtLen, txt, gpu + "Y", info.pvp[1] );
+        getTXTRecordValue( txtLen, txt, gpu + "Width", info.pvp[2] );
+        getTXTRecordValue( txtLen, txt, gpu + "Height", info.pvp[3] );
+        result->push_back( info );
+    }
 }
 
 
@@ -96,31 +139,48 @@ static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
     if( !( flags & kDNSServiceFlagsAdd ))
         return;
 
-    std::cout << "Found " << name << " " << type << "." << domain
-              << " interface " << interface << std::endl;
-    error = DNSServiceResolve( &service, 0, 0, name, type, domain,
-                               resolveCallback, 0 );
+    error = DNSServiceResolve( &service, 0, interface, name, type, domain,
+                               resolveCallback, context );
     if( error != kDNSServiceErr_NoError)
+    {
         std::cerr << "DNSServiceResolve error: " << error << std::endl;
+        return;
+    }
+
+    GPUInfos* result = reinterpret_cast< GPUInfos* >( context );
+    const size_t old = result->size();
+
+    while( old == result->size() && handleEvent( service ))
+        /* nop */;
 }
 
 }
 
 GPUInfos Module::discoverGPUs_() const
 {
-    DNSServiceRef serviceRef;
-    const DNSServiceErrorType error =
-        DNSServiceBrowse( &serviceRef, 0, 0, "_gpu-sd._tcp", "", browseCallback,
-                          0 );
+    DNSServiceRef service;
+    GPUInfos candidates;
+    const DNSServiceErrorType error = DNSServiceBrowse( &service, 0, 0,
+                                                        "_gpu-sd._tcp", "",
+                                                        browseCallback,
+                                                        &candidates );
     if( error == kDNSServiceErr_NoError )
     {
-        handleEvents(serviceRef);
-        DNSServiceRefDeallocate(serviceRef);
+        while( handleEvent( service ))
+            /* nop */;
+        DNSServiceRefDeallocate( service );
     }
     else
         std::cerr << "DNSServiceDiscovery error: " << error << std::endl;
 
+    // eliminate duplicates
     GPUInfos result;
+    for( GPUInfosCIter i = candidates.begin(); i != candidates.end(); ++i )
+    {
+        const GPUInfo& info = *i;
+        if( std::find( result.begin(), result.end(), info ) == result.end( ))
+            result.push_back( info );
+    }
     return result;
 }
 
