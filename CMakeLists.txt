@@ -49,6 +49,7 @@ if(APPLE)
 endif(APPLE)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,--no-as-needed") # force linking of module DSOs
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
   if(NOT WIN32 AND NOT XCODE_VERSION)
