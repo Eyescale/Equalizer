@@ -127,7 +127,6 @@ namespace co
 
         virtual void applyInstanceData( co::DataIStream& is )
             {
-                EQASSERT( is.hasData( ));
                 if( !is.hasData( ))
                     return;
                 deserialize( is, DIRTY_ALL );
