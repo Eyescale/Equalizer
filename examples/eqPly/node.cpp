@@ -68,7 +68,7 @@ void Distributable::notifyNewHeadVersion(const eq::uint128_t& version)
 	v = version;
     Worker* worker = new Worker;
     worker->slave = this;
-    worker->run();
+    worker->start();
     // memleak, but who cares here?
 }
 namespace eqPly
@@ -111,7 +111,7 @@ bool Node::configInit( const eq::uint128_t& initID )
 {
     PeriodicMap* mapper = new PeriodicMap;
     mapper->node = this;
-    mapper->run();
+    mapper->start();
 
     if( !eq::Node::configInit( initID ))
         return false;
