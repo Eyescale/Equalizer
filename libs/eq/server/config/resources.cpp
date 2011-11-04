@@ -40,7 +40,12 @@ static co::base::a_int32_t _frameCounter;
 
 bool Resources::discoverLocal( Config* config )
 {
+#ifdef AGL
+    // prefer over GLX
+    const GPUInfos infos = WindowSystem( "AGL" ).discoverGPUs();
+#else
     const GPUInfos infos = WindowSystem().discoverGPUs();
+#endif
     if( infos.empty( ))
         return false;
 
