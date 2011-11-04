@@ -65,18 +65,31 @@ static void handleEvents( DNSServiceRef serviceRef )
     }
 }
 
-static void browseCallback( DNSServiceRef service,
-                            DNSServiceFlags flags,
-                            uint32_t interfaceIndex,
-                            DNSServiceErrorType errorCode,
-                            const char* name,
-                            const char* type,
-                            const char* domain,
-                            void* context )
+static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
+                             uint32_t interface, DNSServiceErrorType error,
+                             const char* name, const char* host, uint16_t port,
+                             uint16_t txtLen, const unsigned char* txt,
+                             void* context )
 {
-    if( errorCode != kDNSServiceErr_NoError)
+    if( error != kDNSServiceErr_NoError)
     {
-        std::cerr << "Browse callback error" << errorCode << std::endl;
+        std::cerr << "Resolve callback error" << error << std::endl;
+        return;
+    }
+
+    std::cout << "Resolved " << name << " @ " << host << ":" << ntohs( port )
+              << " " << txt << std::endl;
+}
+
+
+static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
+                            uint32_t interface, DNSServiceErrorType error,
+                            const char* name, const char* type,
+                            const char* domain, void* context )
+{
+    if( error != kDNSServiceErr_NoError)
+    {
+        std::cerr << "Browse callback error: " << error << std::endl;
         return;
     }
 
@@ -84,7 +97,11 @@ static void browseCallback( DNSServiceRef service,
         return;
 
     std::cout << "Found " << name << " " << type << "." << domain
-              << " interface " << interfaceIndex << std::endl;
+              << " interface " << interface << std::endl;
+    error = DNSServiceResolve( &service, 0, 0, name, type, domain,
+                               resolveCallback, 0 );
+    if( error != kDNSServiceErr_NoError)
+        std::cerr << "DNSServiceResolve error: " << error << std::endl;
 }
 
 }
@@ -92,9 +109,9 @@ static void browseCallback( DNSServiceRef service,
 GPUInfos Module::discoverGPUs_() const
 {
     DNSServiceRef serviceRef;
-    const DNSServiceErrorType error = DNSServiceBrowse( &serviceRef, 0, 0,
-                                                        "_gpu-sd._tcp", "",
-                                                        browseCallback, 0 );
+    const DNSServiceErrorType error =
+        DNSServiceBrowse( &serviceRef, 0, 0, "_gpu-sd._tcp", "", browseCallback,
+                          0 );
     if( error == kDNSServiceErr_NoError )
     {
         handleEvents(serviceRef);
