@@ -24,7 +24,6 @@
 #include "monitor.h"
 #include "rng.h"
 #include "scopedMutex.h"
-#include "executionListener.h"
 #include "sleep.h"
 
 #include <co/base/lock.h>
@@ -51,47 +50,7 @@ struct ThreadIDPrivate
     pthread_t pthread;
 };
 
-namespace
-{
-
-static Monitoru& _numThreads()
-{
-    static Monitoru monitor;
-    return monitor;
-}
-
-static Lock& _listenerLock()
-{
-    static Lock lock;
-    return lock;
-}
-
-typedef std::vector< ExecutionListener* >  ExecutionListenerVector;
-
-static ExecutionListenerVector& _listeners()
-{
-    static ExecutionListenerVector listeners;
-    return listeners;
-}
-}
-
-static pthread_key_t _createCleanupKey();
 void _notifyStopping( void* arg );
-
-static pthread_key_t _cleanupKey = _createCleanupKey();
-
-pthread_key_t _createCleanupKey()
-{
-    const int error = pthread_key_create( &_cleanupKey, _notifyStopping );
-    if( error )
-    {
-        EQERROR
-            << "Can't create thread-specific key for thread cleanup handler: " 
-            << strerror( error ) << std::endl;
-        EQASSERT( !error );
-    }
-    return _cleanupKey;
-}
 
 Thread::Thread()
         : _state( STATE_STOPPED )
@@ -116,7 +75,6 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    ++_numThreads();
     setName( className( this ));
     pinCurrentThread();
     _id._data->pthread = pthread_self();
@@ -133,8 +91,6 @@ void Thread::_runChild()
     _state = STATE_RUNNING;
     EQINFO << "Thread " << className( this ) << " successfully initialized"
            << std::endl;
-    pthread_setspecific( _cleanupKey, this ); // install cleanup handler
-    _notifyStarted();
 
     run();
     EQINFO << "Thread " << className( this ) << " finished" << std::endl;
@@ -143,49 +99,8 @@ void Thread::_runChild()
     EQUNREACHABLE;
 }
 
-void Thread::_notifyStarted()
-{
-    // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock().set();
-    const ExecutionListenerVector listeners = _listeners();
-    _listenerLock().unset();
-
-    EQVERB << "Calling " << listeners.size() << " thread started listeners"
-           << std::endl;
-    for( ExecutionListenerVector::const_iterator i = listeners.begin();
-         i != listeners.end(); ++i )
-    {
-        (*i)->notifyExecutionStarted();
-    }
-}
-
-void _notifyStopping( void* )
-{ 
-    Thread::_notifyStopping();
-}
-
-void Thread::_notifyStopping()
-{
-    pthread_setspecific( _cleanupKey, 0 );
-
-    // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock().set();
-    ExecutionListenerVector listeners = _listeners();
-    _listenerLock().unset();
-
-    // Call them in reverse order so that symmetry is kept
-    for( ExecutionListenerVector::reverse_iterator i = listeners.rbegin();
-         i != listeners.rend(); ++i )
-    {   
-        (*i)->notifyExecutionStopping();
-    }
-
-    --_numThreads();
-}
-
 bool Thread::start()
 {
-    _listenerLock(); // avoid race during notification
     if( _state != STATE_STOPPED )
         return false;
 
@@ -267,54 +182,6 @@ ThreadID Thread::getSelfThreadID()
     ThreadID threadID;
     threadID._data->pthread = pthread_self();
     return threadID;
-}
-
-void Thread::addListener( ExecutionListener* listener )
-{
-    ScopedMutex<> mutex( _listenerLock() );
-    _listeners().push_back( listener );
-}
-
-bool Thread::removeListener( ExecutionListener* listener )
-{
-    ScopedMutex<> mutex( _listenerLock() );
-
-    ExecutionListenerVector::iterator i = find( _listeners().begin(),
-                                                     _listeners().end(),
-                                                     listener );
-    if( i == _listeners().end( ))
-        return false;
-
-    _listeners().erase( i );
-    return true;
-}
-
-void Thread::removeAllListeners()
-{
-    _numThreads().waitEQ( 0 );
-    _listenerLock().set();
-
-    EQINFO << _listeners().size() << " thread listeners active" << std::endl;
-    for( ExecutionListenerVector::const_iterator i = _listeners().begin();
-         i != _listeners().end(); ++i )
-    {
-        EQINFO << "    " << className( *i ) << std::endl;
-    }
-    _listenerLock().unset();
-    
-    _notifyStopping();
-
-    _listenerLock().set();
-    _listeners().clear();
-    _listenerLock().unset();
-}
-
-void Thread::untrack()
-{
-    EQASSERTINFO( std::string( "Watchdog" ) ==
-                  std::string( Log::instance().getThreadName( )),
-                  "Are you sure you want to call this method?" );
-    --_numThreads();
 }
 
 void Thread::yield()
