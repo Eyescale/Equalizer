@@ -59,7 +59,7 @@ namespace fabric
          * @internal
          * @return the timeout in ms or EQ_TIMEOUT_INDEFINITE for failures.
          */
-        uint32_t getTimeout() const;
+        EQFABRIC_INL uint32_t getTimeout() const;
 
         /**
          * @return the vector of nodes instantiated in this process.

@@ -174,4 +174,11 @@ void EqPly::clientLoop()
     }
     while( _initData.isResident( )); // execute at lease one config run
 }
+
+void EqPly::notifyDisconnect( co::NodePtr node )
+{
+    if( !_initData.isResident( ) )
+         eq::Client::notifyDisconnect( node );
+}
+
 }

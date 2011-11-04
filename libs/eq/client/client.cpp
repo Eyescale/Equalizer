@@ -16,6 +16,8 @@
  */
 
 #include "client.h"
+#include "config.h"
+#include "node.h"
 
 #include "commandQueue.h"
 #include "global.h"
@@ -25,6 +27,7 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/client/clientPackets.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -315,6 +318,7 @@ co::NodePtr Client::createNode( const uint32_t type )
         {
             Server* server = new Server;
             server->setClient( this );
+            _servers.push_back( server );
             return server;
         }
 
@@ -326,9 +330,49 @@ co::NodePtr Client::createNode( const uint32_t type )
 bool Client::_cmdExit( co::Command& command )
 {
     _running = false;
+    co::NodePtr node = command.getNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
     // Close connection here, this is the last packet we'll get on it
-    command.getLocalNode()->disconnect( command.getNode( ));
+    if ( node->getNodeID() != localNode->getNodeID() )
+        localNode->disconnect( node );
     return true;
+}
+
+void Client::notifyDisconnect( co::NodePtr node )
+{
+    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    {
+        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        eq::ClientExitPacket* packet = 
+            command.getModifiable< eq::ClientExitPacket >();
+        *packet = eq::ClientExitPacket();
+        dispatchCommand( command );
+        _stopPipes();
+    }
+}
+
+void Client::_stopPipes()
+{
+    const eq::Configs& configs = _servers.front()->getConfigs();
+    if( configs.empty( ))
+    {
+        std::cout << "No configs on server, exiting" << std::endl;
+        return;
+    }
+
+    eq::Config* config = configs.front();
+    const eq::Nodes& nodes = config->getNodes();
+    if( nodes.empty( ))
+    {
+        std::cout << "No nodes in config, exiting" << std::endl;
+        return;
+    }
+
+    eq::Node* node = nodes.front();
+
+    node->dirtyClientExit();
+
+    return;
 }
 }
 

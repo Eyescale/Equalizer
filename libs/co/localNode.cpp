@@ -894,12 +894,13 @@ void LocalNode::_handleDisconnect()
     ConnectionPtr connection = _incoming.getConnection();
     ConnectionNodeHash::iterator i = _connectionNodes.find( connection );
 
+    NodePtr node = 0;
     if( i != _connectionNodes.end( ))
     {
-        NodePtr node = i->second;
+        node = i->second;
         Command& command = _commandCache.alloc( node, this,
                                                 sizeof( NodeRemoveNodePacket ));
-         NodeRemoveNodePacket* packet =
+        NodeRemoveNodePacket* packet =
              command.getModifiable< NodeRemoveNodePacket >();
         *packet = NodeRemoveNodePacket();
         packet->node = node.get();
@@ -947,6 +948,9 @@ void LocalNode::_handleDisconnect()
 
     _removeConnection( connection );
     EQINFO << "connection used " << connection->getRefCount() << std::endl;
+    
+    if( node )
+        notifyDisconnect( node );
 }
 
 bool LocalNode::_handleData()
@@ -1631,7 +1635,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 //----------------------------------------------------------------------
 // Keep-Alive
 //----------------------------------------------------------------------
-void LocalNode::_ping( NodePtr remoteNode )
+void LocalNode::ping( NodePtr remoteNode )
 {
     EQASSERT( !_inReceiverThread( ) );
     NodePingPacket packet;
@@ -1645,5 +1649,28 @@ bool LocalNode::_cmdPing( Command& command )
     command.getNode()->send( reply );
     return true;
 }
+
+bool LocalNode::pingTimedOutNodes()
+{
+    EQASSERT( !_inReceiverThread( ) );
+    const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
+    NodePingPacket packet;
+    Nodes nodes;
+    bool timedOut = false;
+    getNodes( nodes, false );
+    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        if ( getTime64() - (*i)->getLastReceiveTime() > aliveTimeout )
+        {
+            EQWARN << " Ping Node(ID): " <<  (*i)->getNodeID()
+                << " Last Rcv:"
+                << (*i)->getLastReceiveTime() << std::endl;
+            (*i)->send(packet);
+            timedOut |= true;
+        }
+    }
+    return timedOut;
+}
+
 
 }

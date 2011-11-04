@@ -40,6 +40,7 @@
 #include <co/base/global.h>
 #include <co/base/executionListener.h>
 #include <co/base/monitor.h>
+#include <co/global.h>
 
 #include <co/plugins/compressor.h>
 
@@ -420,19 +421,43 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            const uint32_t timeout = channel->getConfig()->getTimeout();
+            //const uint32_t timeout = channel->getConfig()->getTimeout(); //indefinite
+            const uint32_t timeout =  co::Global::getTimeout();
+            //TODO:Refactor to use config
+            const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
+            uint64_t totalTimeout = 0;
 
             if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
-            else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
+             else
             {
-                // de-register the monitor
-                for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+                ++nUsedFrames;
+                while( !monitor.timedWaitGE( nUsedFrames, aliveTimeout ))
                 {
-                    Frame* frame = *i;
-                    frame->removeListener( monitor );
+                    // pings timeout nodes
+                    EQWARN << "## Keep-alive Timeout retry input frame "
+                           << std::endl;
+                    totalTimeout += aliveTimeout;
+                    bool timedOut = channel->getLocalNode()->pingTimedOutNodes();
+
+                    // TODO: make input frames have node info (node of origin):
+                    // It would be helpful to know which node was supposed to
+                    // send each frame. May be we should send this info in the 
+                    // ChannelFrameAssemblePacket.
+
+                    if( totalTimeout >= timeout || !timedOut )
+                    {
+                        // de-register the monitor
+                        for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+                        {
+                            Frame* frame = *i;
+                            frame->removeListener( monitor );
+                        }
+                        throw Exception( Exception::TIMEOUT_INPUTFRAME );
+                        break;
+                    }
                 }
-                throw Exception( Exception::TIMEOUT_INPUTFRAME );
+
             }
         }
 
