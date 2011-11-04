@@ -31,6 +31,8 @@
 #include <sstream>
 #include <limits>
 
+#define BLOCKING_WRITE 0
+
 namespace co
 {
 
@@ -99,13 +101,15 @@ typedef uint32_t RDMAFCImm;
  */
 RDMAConnection::RDMAConnection( )
     : _notifier( -1 )
+    , _wfd( -1 )
     , _event_thread( NULL )
     , _efd( 0 )
-    , _setup( SETUP_WAIT )
+    , _setup_block( SETUP_WAIT )
     , _cm( NULL )
     , _cm_id( NULL )
     , _established( false )
     , _disconnected( false )
+    , _wcerr( false )
     , _depth( 256UL )
     , _pd( NULL )
     , _cc( NULL )
@@ -204,6 +208,7 @@ bool RDMAConnection::listen( )
         // on events such as new incoming connections by waking up any polling
         // operation.
         _notifier = _cm->fd;
+        _disconnected = true;
         setState( STATE_LISTENING );
         return true;
     }
@@ -223,7 +228,6 @@ void RDMAConnection::close( )
     setState( STATE_CLOSING );
 
     _disconnect( );
-    _joinEventThread( );
     _cleanup( );
 
     setState( STATE_CLOSED );
@@ -255,29 +259,24 @@ void RDMAConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
 int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     const bool )
 {
-    if( STATE_CONNECTED != _state )
-        return -1LL;
-
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
     //   " <<<<<<<<<<---------- " << std::endl;
 
     uint64_t available_bytes;
     EQASSERT( 0 <= _notifier );
+    // TODO : Timeout?
     while( 0 > ::read( _notifier, (void *)&available_bytes, sizeof(uint64_t)))
     {
-        if( EAGAIN == errno )
-            continue; // eventfd is non-blocking
-        EQINFO << "Got EOF, closing connection." << std::endl;
-        close( );
-        return -1LL;
+        EQASSERT( EAGAIN == errno );
+        co::base::Thread::yield( );
+        continue;
     }
 
     if( _disconnected )
     {
         if( available_bytes > 1ULL )
             available_bytes--;
-        else
-            return -1LL;
+        _disconnect( );
     }
 
     const uint32_t bytes_taken = _drain( buffer,
@@ -285,18 +284,28 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
 
     EQASSERTINFO( bytes_taken <= available_bytes,
         bytes_taken << " > " << available_bytes );
-    EQASSERTINFO( bytes_taken > 0, bytes_taken << " == 0" );
+
+    if(( 1ULL == available_bytes ) && ( 0UL == bytes_taken ) && _disconnected )
+    {
+        EQINFO << "Got EOF, closing connection." << std::endl;
+        close( );
+        return -1LL;
+    }
 
     // Put back what wasn't taken
     if( available_bytes > bytes_taken )
         _notify( available_bytes - bytes_taken );
 
-    while( _available_wr == 0 ) // TODO : Timeout?
-        co::base::Thread::yield( );
+    if( bytes_taken > 0UL )
+    {
+        // TODO : Timeout?
+        while( !_disconnected && ( 0 == _available_wr ))
+            co::base::Thread::yield( );
 
-    // TODO : Send FC less frequently?
-    if( !_postSendFC( ))
-        EQWARN << "Failed to send flow control message." << std::endl;
+        // TODO : Send FC less frequently?
+        if( !_postSendFC( ))
+            EQWARN << "Failed to send flow control message." << std::endl;
+    }
 
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
     //   " <<<<<<<<<<========== took " << bytes_taken << " bytes" << std::endl;
@@ -312,15 +321,38 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     //EQWARN << (void *)this << ".write(" << bytes << ")" <<
     //    " ---------->>>>>>>>>>" << std::endl;
 
-    while( _available_wr == 0 ) // TODO : Timeout?
-        co::base::Thread::yield( );
-
     uint32_t bytes_put;
-    while( 0UL == // TODO : Timeout?
-        ( bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ))))
+    // TODO : Timeout?
+    while( !_disconnected &&
+        ( 0UL == ( bytes_put =
+            _fill( buffer, static_cast< uint32_t >( bytes )))))
         co::base::Thread::yield( );
 
-    if( !_postRDMAWrite( ))
+    // TODO : Timeout?
+    while( !_disconnected && ( 0 == _available_wr ))
+        co::base::Thread::yield( );
+
+    if( !_disconnected && _postRDMAWrite( ))
+    {
+        uint64_t completed_bytes = 0ULL;
+        EQASSERT( 0 <= _wfd );
+        while( 0 > ::read( _wfd, (void *)&completed_bytes, sizeof(uint64_t)))
+        {
+            EQASSERT( EAGAIN == errno );
+            if( _disconnected || _wcerr )
+            {
+                close( );
+                return -1LL;
+            }
+#if BLOCKING_WRITE
+            co::base::Thread::yield( );
+            continue;
+#else
+            break;
+#endif
+        }
+    }
+    else
     {
         close( );
         return -1LL;
@@ -352,12 +384,23 @@ void RDMAConnection::_disconnect( )
 {
     if( _established )
     {
+        // Wait for outstanding work requests, TODO : Timeout?
+        while( _available_wr < (int)_qpcap.max_send_wr )
+            co::base::Thread::yield( );
+
         EQASSERT( NULL != _cm_id );
         EQASSERT( NULL != _cm_id->verbs );
 
         if( 0 != ::rdma_disconnect( _cm_id ))
             EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
     }
+
+    _joinEventThread( );
+
+    if(( NULL != _cc ) && _established )
+        while( _doCQEvents( _cc, true )) // Drain completion queue
+            co::base::Thread::yield( );
+
     _established = false;
 }
 
@@ -375,8 +418,9 @@ void RDMAConnection::_cleanup( )
         EQWARN << "close : " << base::sysError << std::endl;
     _notifier = -1;
 
-    if(( NULL != _cc ) && ( setBlocking( _cc->fd, false )))
-        _doCQEvents( _cc ); // drain
+    if(( 0 <= _wfd ) && ( 0 != ::close( _wfd )))
+        EQWARN << "close : " << base::sysError << std::endl;
+    _wfd = -1;
 
     if(( NULL != _qp ) && ( 0 != ::ibv_destroy_qp( _qp )))
         EQWARN << "ibv_destroy_qp : " << base::sysError << std::endl;
@@ -549,6 +593,18 @@ bool RDMAConnection::_connect( )
     _conn_param.retry_count = 7;
     _conn_param.rnr_retry_count = 7;
 
+    EQINFO << "Connect on" << std::showbase <<
+        " source lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        "to" <<
+        " dest lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+        << std::endl;
+
     if( 0 != ::rdma_connect( _cm_id, &_conn_param ))
     {
         EQERROR << "rdma_connect : " << base::sysError << std::endl;
@@ -596,6 +652,18 @@ bool RDMAConnection::_accept( )
     _conn_param.initiator_depth =
         std::min( static_cast< int >( _conn_param.initiator_depth ),
             _dev_attr.max_qp_init_rd_atom );
+
+    EQINFO << "Accept on" << std::showbase <<
+        " source lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        "from" <<
+        " dest lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+        << std::endl;
 
     if( 0 != ::rdma_accept( _cm_id, &_conn_param ))
     {
@@ -748,7 +816,7 @@ void RDMAConnection::_handleSetup( RDMASetupPayload &setup )
     _rptr.clear( setup.rlen );
     _rkey = setup.rkey;
 
-    _setup.set( SETUP_OK );
+    _setup_block.set( SETUP_OK );
 }
 
 // caller: event thread
@@ -896,9 +964,7 @@ bool RDMAConnection::_postRDMAWrite( )
 // caller: application
 bool RDMAConnection::_waitRecvSetup( ) const
 {
-    // TODO : Timeout/SETUP_NOK
-
-    return( SETUP_OK == _setup.waitNE( SETUP_WAIT ));
+    return( _setup_block.timedWaitEQ( SETUP_OK, Global::getTimeout( )));
 }
 
 // caller: application if listener or during connect/accept,
@@ -917,8 +983,6 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
     }
     else
     {
-        EQASSERT( 0 == event->status );
-
         bool ok = ( event->event == expected );
 
         EQVERB << (void *)this << " : " << ::rdma_event_str( event->event )
@@ -955,7 +1019,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 }
 
 // caller: event thread while connected, application on cleanup
-bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
+bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
 {
     struct ibv_cq *ev_cq;
     void *ev_ctx;
@@ -963,7 +1027,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
     if( 0 > ::ibv_get_cq_event( channel, &ev_cq, &ev_ctx ))
     {
         if( EAGAIN == errno )
-            return true; // Channel is non-blocking & no events are available
+            return !drain; // Channel is non-blocking & no events are available
         EQERROR << "ibv_get_cq_event(" << errno << ") : " << base::sysError <<
             std::endl;
     }
@@ -1005,15 +1069,26 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 
                     if( IBV_WC_SUCCESS != wc.status )
                     {
+                        _wcerr = true;
+
+                        // Wake up any blocking write
+                        if( IBV_WC_RDMA_WRITE == wc.opcode )
+                            _complete( 1UL );
+
+                        // Ignore flush errors while closing
                         if(( IBV_WC_WR_FLUSH_ERR == wc.status ) &&
                             ( STATE_CLOSING == _state ))
-                            continue; // Ignore flush errors while closing
-                        EQERROR << "!IBV_WC_SUCCESS : " <<
-                            "opcode = " << (unsigned int)wc.opcode <<
+                            continue;
+
+                        EQERROR << (void *)this << " !IBV_WC_SUCCESS : " <<
+                            "wr_id = " << std::showbase << std::hex <<
+                            (unsigned int)wc.wr_id << std::dec <<
+                            ", opcode = " << (unsigned int)wc.opcode <<
                             ", status = " << (unsigned int)wc.status <<
                             " (" << ::ibv_wc_status_str( wc.status ) << ")" <<
-                            ", vendor_err = " << std::showbase << std::hex <<
-                            wc.vendor_err << std::dec << std::endl;
+                            ", vendor_err = " << std::hex << wc.vendor_err <<
+                            std::dec << std::endl;
+
                         success = false;
                     }
                     else
@@ -1030,10 +1105,18 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 #endif
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
+                                const uint32_t bytes_written =
+                                    _sourceptr.available( _sourceptr.MIDDLE,
+                                        _sourceptr.TAIL );
+                                  
                                 _sourceptr.moveValue( _sourceptr.TAIL,
                                     static_cast< uint32_t >( wc.wr_id ));
+
                                 // Not a message buffer, don't free
                                 wc.wr_id = 0ULL;
+
+                                // Wake up any blocking write
+                                _complete( bytes_written );
                             }
                         }
                         // Receive completions
@@ -1053,7 +1136,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
                     }
                 }
 
-                if( success )
+                if( success && !_disconnected )
                     return _postReceives( num_recvs );
             }
         }
@@ -1061,19 +1144,36 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
     return false;
 }
 
+void RDMAConnection::_eventFDWrite( int fd, const uint64_t val ) const
+{
+    EQASSERT( 0 <= fd );
+
+#ifdef EQ_RELEASE_ASSERT
+    EQCHECK( ::write( fd, (const void *)&val, sizeof( val )) == sizeof( val ));
+#else
+    ::write( fd, (const void *)&val, sizeof( val ));
+#endif
+}
+
 // caller: application & event thread
 void RDMAConnection::_notify( const uint64_t val ) const
 {
     EQASSERT( 0 <= _notifier );
+    _eventFDWrite( _notifier, val );
+}
 
-    if( ::write( _notifier, (const void *)&val, sizeof( val )) != sizeof( val ))
-        EQWARN << "Write failed" << std::endl;
+// caller: event thread
+void RDMAConnection::_complete( const uint64_t val ) const
+{
+    EQASSERT( 0 <= _wfd );
+    _eventFDWrite( _wfd, val );
 }
 
 // caller: application
 bool RDMAConnection::_startEventThread( )
 {
     EQASSERT( -1 == _notifier );
+    EQASSERT( -1 == _wfd );
     EQASSERT( NULL == _event_thread );
 
     // For a connected instance we need to "multiplex" both the connection
@@ -1081,6 +1181,8 @@ bool RDMAConnection::_startEventThread( )
     // we do that by epoll'ing those fds in our own thread and passing along
     // "events" via an eventfd.
     if( 0 > ( _notifier = ::eventfd( 0, EFD_NONBLOCK )))
+        EQERROR << "eventfd : " << base::sysError << std::endl;
+    else if( 0 > ( _wfd = ::eventfd( 0, EFD_NONBLOCK )))
         EQERROR << "eventfd : " << base::sysError << std::endl;
     else if( !( _event_thread = new ChannelEventThread( this ))->start( ))
         EQERROR << "Event thread failed to start!" << std::endl;
@@ -1102,7 +1204,7 @@ bool RDMAConnection::_initEventThread( )
     else
         return true;
 
-    _setup.set( SETUP_NOK );
+    _setup_block.set( SETUP_NOK );
     return false;
 }
 

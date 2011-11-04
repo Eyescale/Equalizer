@@ -193,7 +193,7 @@ private:
     bool _doCMEvent( struct rdma_event_channel *channel,
         rdma_cm_event_type expected );
     /* Completion Queue event handler */
-    bool _doCQEvents( struct ibv_comp_channel *channel );
+    bool _doCQEvents( struct ibv_comp_channel *channel, bool drain = false );
 
     /* Event handler thread */
     class ChannelEventThread : public base::Thread
@@ -208,8 +208,12 @@ private:
         RDMAConnection *_conn;
     };  
 
-    Notifier _notifier;
+    void _eventFDWrite( int fd, const uint64_t val ) const;
+
+    Notifier _notifier; // _cm->fd or read/status event fd
     void _notify( const uint64_t val ) const;
+    int _wfd; // write completion event fd
+    void _complete( const uint64_t val ) const;
 
     ChannelEventThread *_event_thread;
     int _efd; // epoll fd
@@ -228,13 +232,14 @@ private:
     };
     /* Blocks application connect/accept until the event thread receives the
        remote sink's MR parameters */
-    base::Monitor<SetupWait> _setup;
+    base::Monitor<SetupWait> _setup_block;
 
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
     struct rdma_conn_param _conn_param;
-    bool _established;
-    bool _disconnected;
+    bool _established; // set on receipt of RDMA_CM_EVENT_ESTABLISHED.
+    bool _disconnected; // set when event thread receives any unexpected event.
+    bool _wcerr; // set when any work completion indicates failure
     uint32_t _depth;
 
     struct ibv_device_attr _dev_attr;
