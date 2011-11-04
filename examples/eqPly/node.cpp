@@ -30,7 +30,6 @@
 
 #include "config.h"
 #include "error.h"
-#include "process.h"
 
 class Distributable : public co::Serializable
 {
@@ -45,15 +44,20 @@ private:
 };
 
 //MVP: This thread simulates a worker thread. It syncs the Distributable and does some work.
-static void Worker(void* p)
+class Worker : public co::base::Thread
 {
-	Distributable* slave = reinterpret_cast<Distributable*>(p);
-	//MVP: Uncomment this line to prevent deadlocking.
-	//if(slave->v != co::VERSION_FIRST)
-	slave->sync();
-	//do some work
-	Sleep(500);
-}
+public:
+	Distributable* slave;
+
+    virtual void run()
+        {
+            //MVP: Uncomment this line to prevent deadlocking.
+            //if(slave->v != co::VERSION_FIRST)
+            slave->sync();
+            //do some work
+            co::base::sleep(500);
+        }
+};
 
 Distributable::Distributable(eqPly::Node* parent)
 {
@@ -62,45 +66,52 @@ Distributable::Distributable(eqPly::Node* parent)
 void Distributable::notifyNewHeadVersion(const eq::uint128_t& version)
 {
 	v = version;
-	::_beginthread(Worker,0,this);
+    Worker* worker = new Worker;
+    worker->slave = this;
+    worker->run();
+    // memleak, but who cares here?
 }
 namespace eqPly
 {
 	//MVP: This thread simulates the client UI thread. We add a new Distributable every quarter of a second and map it.
-static void PeriodicMap(void* p)
+class PeriodicMap : public co::base::Thread
 {
-	eqPly::Node* Node = reinterpret_cast<eqPly::Node*>(p);
-	eq::Config* config = Node->getConfig();
-	UINT iter = 0;
-	while(true)
-	{
-		Sleep(250);
+public:
+    eqPly::Node* node;
+    virtual void run()
+        {
+            eq::Config* config = node->getConfig();
+            unsigned iter = 0;
+            while(true)
+            {
+                co::base::sleep(250);
+                ++iter;
+                EQINFO << "Iteration " << iter << std::endl;
+
+                Distributable* master_thing = new Distributable(node);
 		
-		char c[128];
-		sprintf(c,"iteration: %d\n",++iter);
-		OutputDebugString((LPCSTR)c);
+                EQINFO << "Registering master..." << std::endl;
+                config->registerObject(master_thing);
+                EQINFO << "Master registered." << std::endl;
 
-		Distributable* master_thing = new Distributable(Node);
-		
-		OutputDebugString("Registering master...\n");
-		config->registerObject(master_thing);
-		OutputDebugString("Master registered.\n");
+                Distributable* slave_thing = new Distributable(node);
 
-
-		Distributable* slave_thing = new Distributable(Node);
-
-		OutputDebugString("Mapping slave...\n");
-		bool bMapped = config->mapObject(slave_thing,master_thing->getID());
-		if(bMapped)
-			OutputDebugString("Slave mapped.\n");
-		else
-			OutputDebugString("Map failed.\n");
-	}
-}
+                EQINFO << "Mapping slave..." << std::endl;
+                bool bMapped = config->mapObject( slave_thing,
+                                                  master_thing->getID( ));
+                if(bMapped)
+                    EQINFO << "Slave mapped" << std::endl;
+                else
+                    EQINFO << "Mapping failed" << std::endl;
+            }
+        }
+};
 
 bool Node::configInit( const eq::uint128_t& initID )
 {
-	::_beginthread(PeriodicMap,0,(void*)this);
+    PeriodicMap* mapper = new PeriodicMap;
+    mapper->node = this;
+    mapper->run();
 
     if( !eq::Node::configInit( initID ))
         return false;
