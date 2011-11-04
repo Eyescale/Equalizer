@@ -104,9 +104,6 @@ namespace eq
 
         /** Exit the process cleanly on render clients. @version 1.0 */
         EQ_API virtual void exitClient();
-        
-        /** Notifies client disconnection */
-        EQ_API virtual void notifyDisconnect( co::NodePtr node );
 
     private:
         /** The command->node command queue. */
@@ -123,9 +120,11 @@ namespace eq
         /** @sa co::Node::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
-        bool _setupClient( const std::string& clientArgs );
+        /** @internal */
+        EQ_API virtual void notifyDisconnect( co::NodePtr node );
 
-        void _stopPipes();
+        bool _setupClient( const std::string& clientArgs );
+        void _stopNodes();
 
         /** The command functions. */
         bool _cmdExit( co::Command& command );

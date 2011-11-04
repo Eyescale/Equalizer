@@ -171,7 +171,7 @@ namespace eq
         /** @internal Trigger pipe thread exit and wait for completion. */
         void exitThread();
 
-        void cancelThread();
+        void cancelThread(); //!< @internal
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system

@@ -16,10 +16,11 @@
  */
 
 #include "client.h"
-#include "config.h"
-#include "node.h"
 
 #include "commandQueue.h"
+#include "config.h"
+#include "clientPackets.h"
+#include "node.h"
 #include "global.h"
 #include "init.h"
 #include "nodeFactory.h"
@@ -27,7 +28,6 @@
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/nodeType.h>
-#include <eq/client/clientPackets.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -330,49 +330,40 @@ co::NodePtr Client::createNode( const uint32_t type )
 bool Client::_cmdExit( co::Command& command )
 {
     _running = false;
-    co::NodePtr node = command.getNode();
-    co::LocalNodePtr localNode = command.getLocalNode();
     // Close connection here, this is the last packet we'll get on it
-    if ( node->getNodeID() != localNode->getNodeID() )
-        localNode->disconnect( node );
+    command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
 
 void Client::notifyDisconnect( co::NodePtr node )
 {
-    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    if( node->getType() != eq::fabric::NODETYPE_EQ_SERVER )
     {
         co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
         eq::ClientExitPacket* packet = 
             command.getModifiable< eq::ClientExitPacket >();
         *packet = eq::ClientExitPacket();
         dispatchCommand( command );
-        _stopPipes();
+        _stopNodes();
     }
+    fabric::Client::notifyDisconnect( node );
 }
 
-void Client::_stopPipes()
+void Client::_stopNodes()
 {
     const eq::Configs& configs = _servers.front()->getConfigs();
     if( configs.empty( ))
-    {
-        std::cout << "No configs on server, exiting" << std::endl;
         return;
-    }
 
     eq::Config* config = configs.front();
     const eq::Nodes& nodes = config->getNodes();
     if( nodes.empty( ))
-    {
-        std::cout << "No nodes in config, exiting" << std::endl;
         return;
-    }
+    EQASSERT( nodes.size() == 1 );
 
-    eq::Node* node = nodes.front();
-
-    node->dirtyClientExit();
-
-    return;
+    for( eq::NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+        (*i)->dirtyClientExit();
 }
+
 }
 

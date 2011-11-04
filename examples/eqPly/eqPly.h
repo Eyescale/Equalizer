@@ -69,9 +69,6 @@ namespace eqPly
         /** @sa eq::Client::clientLoop. */
         virtual void clientLoop();
 
-        /** @sa eq::Client::notifyDisconnect. */
-        virtual void notifyDisconnect( co::NodePtr node );
-        
     private:
         const LocalInitData& _initData;
     };
@@ -89,8 +86,6 @@ namespace eqPly
         LOG_STATS = eq::LOG_CUSTOM << 0, // 65536
         LOG_CULL  = eq::LOG_CUSTOM << 1  // 131072
     };
-
-
 }
 
 #endif // EQ_PLY_H

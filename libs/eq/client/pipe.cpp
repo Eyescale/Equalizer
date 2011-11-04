@@ -462,7 +462,11 @@ void Pipe::exitThread()
 
 void Pipe::cancelThread()
 {
-    co::Command& command = getLocalNode()->allocCommand( sizeof( eq::PipeExitThreadPacket ));
+    if( !_thread )
+        return;
+
+    co::Command& command = 
+        getLocalNode()->allocCommand( sizeof( eq::PipeExitThreadPacket ));
     eq::PipeExitThreadPacket* packet = 
         command.getModifiable< eq::PipeExitThreadPacket >();
     *packet = eq::PipeExitThreadPacket();

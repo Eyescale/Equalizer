@@ -129,8 +129,8 @@ namespace eq
 
         /** @internal @sa Serializable::setDirty() */
         EQ_API virtual void setDirty( const uint64_t bits );
-        
-		/** @internal */
+
+        /** @internal */
         EQ_API void dirtyClientExit();
 
     protected:

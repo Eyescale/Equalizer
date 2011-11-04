@@ -396,9 +396,8 @@ void Node::TransmitThread::run()
 
 void Node::dirtyClientExit()
 {
-    Config* config = getConfig();
     const Pipes& pipes = getPipes();
-    for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
+    for( PipesCIter i = pipes.begin(); i != pipes.end(); ++i )
     {
         Pipe* pipe = *i;
         pipe->cancelThread();

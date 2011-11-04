@@ -367,9 +367,15 @@ namespace co
         /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
-        /** requests keep-alive from remote node */
+        /** Request keep-alive update from the remote node. */
         CO_API void ping( NodePtr remoteNode );
-        CO_API bool pingTimedOutNodes();
+
+        /**
+         * Request updates from all nodes above keep-alive timeout.
+         *
+         * @return true if at least one ping was send.
+         */
+        CO_API bool pingIdleNodes();
 
     protected:
         /** 

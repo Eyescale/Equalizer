@@ -485,6 +485,36 @@ void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
     }
 }
 
+void LocalNode::ping( NodePtr remoteNode )
+{
+    EQASSERT( !_inReceiverThread( ) );
+    NodePingPacket packet;
+    remoteNode->send( packet );
+}
+
+bool LocalNode::pingIdleNodes()
+{
+    EQASSERT( !_inReceiverThread( ) );
+    const int64_t timeout = co::Global::getKeepaliveTimeout();
+    Nodes nodes;
+    getNodes( nodes, false );
+
+    bool pinged = false;
+    for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr node = *i;
+        if( getTime64() - node->getLastReceiveTime() > timeout )
+        {
+            EQINFO << " Ping Node: " <<  node->getNodeID() << " last seen "
+                   << node->getLastReceiveTime() << std::endl;
+            NodePingPacket packet;
+            node->send( packet );
+            pinged = true;
+        }
+    }
+    return pinged;
+}
+
 //----------------------------------------------------------------------
 // Object functionality
 //----------------------------------------------------------------------
@@ -894,10 +924,9 @@ void LocalNode::_handleDisconnect()
     ConnectionPtr connection = _incoming.getConnection();
     ConnectionNodeHash::iterator i = _connectionNodes.find( connection );
 
-    NodePtr node = 0;
     if( i != _connectionNodes.end( ))
     {
-        node = i->second;
+        NodePtr node = i->second;
         Command& command = _commandCache.alloc( node, this,
                                                 sizeof( NodeRemoveNodePacket ));
         NodeRemoveNodePacket* packet =
@@ -944,13 +973,12 @@ void LocalNode::_handleDisconnect()
                 }
             }
         }
+
+        notifyDisconnect( node );
     }
 
     _removeConnection( connection );
     EQINFO << "connection used " << connection->getRefCount() << std::endl;
-    
-    if( node )
-        notifyDisconnect( node );
 }
 
 bool LocalNode::_handleData()
@@ -1631,17 +1659,6 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     return true;
 }
 
-
-//----------------------------------------------------------------------
-// Keep-Alive
-//----------------------------------------------------------------------
-void LocalNode::ping( NodePtr remoteNode )
-{
-    EQASSERT( !_inReceiverThread( ) );
-    NodePingPacket packet;
-    remoteNode->send( packet );
-}
-
 bool LocalNode::_cmdPing( Command& command )
 {
     EQASSERT( inCommandThread( ));
@@ -1649,28 +1666,5 @@ bool LocalNode::_cmdPing( Command& command )
     command.getNode()->send( reply );
     return true;
 }
-
-bool LocalNode::pingTimedOutNodes()
-{
-    EQASSERT( !_inReceiverThread( ) );
-    const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
-    NodePingPacket packet;
-    Nodes nodes;
-    bool timedOut = false;
-    getNodes( nodes, false );
-    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
-        if ( getTime64() - (*i)->getLastReceiveTime() > aliveTimeout )
-        {
-            EQWARN << " Ping Node(ID): " <<  (*i)->getNodeID()
-                << " Last Rcv:"
-                << (*i)->getLastReceiveTime() << std::endl;
-            (*i)->send(packet);
-            timedOut |= true;
-        }
-    }
-    return timedOut;
-}
-
 
 }
