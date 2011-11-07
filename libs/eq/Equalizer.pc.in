@@ -10,5 +10,5 @@ Description: Framework to create and deploy parallel OpenGL-based applications
 Version: @VERSION@
 Requires: Collage
 Conflicts:
-Libs: -L${libdir} -lEqualizer
+Libs: -L${libdir} -lEqualizer -lEqualizerFabric
 Cflags: -I${includedir}
