@@ -1144,6 +1144,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
     return false;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-result"
 void RDMAConnection::_eventFDWrite( int fd, const uint64_t val ) const
 {
     EQASSERT( 0 <= fd );
