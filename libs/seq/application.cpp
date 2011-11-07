@@ -123,4 +123,9 @@ bool Application::exit()
     return retVal;
 }
 
+void Application::stopRunning()
+{
+    getConfig()->stopRunning();
+}
+
 }
