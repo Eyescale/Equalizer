@@ -21,7 +21,7 @@
 
 #include "compressor.h"
 
-#include <eq/GL/glew.h>
+#include <eq/gl.h>
 
 namespace eq
 {

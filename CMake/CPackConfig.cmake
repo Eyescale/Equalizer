@@ -3,6 +3,9 @@
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
+configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
+              ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
+
 set(CPACK_PACKAGE_NAME "Equalizer")
 
 if(APPLE)

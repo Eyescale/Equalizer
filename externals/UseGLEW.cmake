@@ -45,6 +45,7 @@ if(GLEW_FOUND)
 endif(GLEW_FOUND)
 
 if(NOT GLEW_FOUND OR NOT GLEW_MX_SUPPORTED)
+  add_definitions(-DEQ_GLEW_INTERNAL)
 
   set(GLEW_NAME glew-1.5.8)
   set(GLEW_TGZ ${CMAKE_SOURCE_DIR}/externals/${GLEW_NAME}.tgz)

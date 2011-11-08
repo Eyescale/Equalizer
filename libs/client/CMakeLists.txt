@@ -88,5 +88,5 @@ purple_add_amalgamation(Equalizer eq ${SHORT_VERSION} ${API_VERSION}
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
-configure_file(Equalizer.pc.in Equalizer.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION lib/pkgconfig COMPONENT eqlib)
+configure_file(Equalizer.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT eqlib)

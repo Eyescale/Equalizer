@@ -68,5 +68,5 @@ purple_add_amalgamation(Collage co ${CO_VERSION} "0.3.0"
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
-configure_file(Collage.pc.in Collage.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc DESTINATION lib/pkgconfig COMPONENT colib)
+configure_file(Collage.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT colib)
