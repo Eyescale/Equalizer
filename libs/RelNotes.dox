@@ -34,16 +34,16 @@
   1.0.
 </p>
 <p>
-  Equalizer 1.0.1 culminates over 6 years of development and decades of
+  Equalizer 1.0.2 culminates over 6 years of development and decades of
   experience into a feature-rich, high-performance and mature parallel rendering
   framework and an object-oriented high-level network library. It is intended
   for all application developers creating parallel, interactive OpenGL
-  applications. Equalizer 1.0.1 can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.0.1.tar.gz">source
+  applications. Equalizer 1.0.2 can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.0.2.tar.gz">source
     code</a>, updating the subversion trunk to revision 5834 (<code>svn up -r
     5834</code>) or by using:<br>
   <code>svn co
-    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.1</code>
+    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.2</code>
 </p>
 
 <a name="features"></a>
@@ -73,7 +73,7 @@
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 1.0.1 is a minor release and contains the following enhancements and bug fixes:
+  Equalizer 1.0.2 is a minor release and contains the following enhancements and bug fixes:
 </p>
 
 <a name="newFeatures"></a>
@@ -82,7 +82,14 @@
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
-<p>No enhancements</p>
+<p>1.0.2</p>
+<ul>
+  <li>Compatibility with an external GLEW library</li>
+  <li>Improvements and spec file for RPM packaging</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make RNG
+    functional without init()</li>
+  <li>Support for Mac OS X 10.7 and RHEL 6.1</li>
+</ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
@@ -107,8 +114,9 @@
 <a name="bugfixes"></a>
 <h3>2.8. Bug Fixes</h3>
 <p>
-  Equalizer 1.0.1 includes the following bugfixes over the 1.0 release:
+  Equalizer 1.0.2 includes the following bugfixes over the 1.0 release:
 </p>
+<p>1.0.1</p>
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/29">29</a>: NV swap
     barrier with affinity context does not work</li>
@@ -146,7 +154,7 @@
 </p>
 <p>
   Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
-  but uses newer OpenGL features when available. Version 1.0.1 has been tested
+  but uses newer OpenGL features when available. Version 1.0.2 has been tested
   on:
 </p>
 
@@ -157,9 +165,9 @@
   following platforms and build environments are tested:
 </p>
 <ul>
-  <li><b>Linux:</b> Ubuntu 11.04, 10.10 (Makefile, i386, x64)</li>
+  <li><b>Linux:</b> Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)</li>
   <li><b>Windows:</b> XP and 7 (Visual Studio 2008, i386, x64)</li>
-  <li><b>Mac OS X:</b> 10.5, 10.6 (Makefile, XCode, i386, x64)</li>
+  <li><b>Mac OS X:</b> 10.6, 10.7 (Makefile, XCode, i386, x64)</li>
 </ul>
 
 <a name="ws"></a>
@@ -181,7 +189,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-1.0.1/examples/">examples</a>
+  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-1.0.2/examples/">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features. XCode users can
