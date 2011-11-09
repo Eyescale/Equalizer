@@ -143,7 +143,8 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::PluginRegistry& registry =
+        co::base::Global::getPluginRegistry();
     const co::base::Plugins& plugins = registry.getPlugins();
     const uint32_t tokenType = getExternalFormat( buffer );
 
