@@ -19,6 +19,7 @@
 
 #include <gpusd1/gpuInfo.h>
 #include <dns_sd.h>
+#include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
