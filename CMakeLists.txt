@@ -198,10 +198,15 @@ endif(EQ_AGL_USED)
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
-  if(NOT WIN32 AND NOT XCODE_VERSION)
+  if(NOT WIN32 AND NOT XCODE_VERSION AND NOT EQUALIZER_RELEASE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
+
+IF(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
+  SET(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
+ENDIF()
+SET(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(LINUX)
   add_definitions(-fPIC) # 64bit Linux wants this
