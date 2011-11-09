@@ -222,12 +222,13 @@ void ConfigTool::writeConfig() const
     global->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
     global->setWindowIAttribute( eq::server::Window::IATTR_HINT_FULLSCREEN,
                                  eq::fabric::ON );
-    global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
-                                 eq::fabric::OFF );
     if( _mode != MODE_WALL )
+    {
+        global->setWindowIAttribute(eq::server::Window::IATTR_HINT_DOUBLEBUFFER,
+                                    eq::fabric::OFF );
         global->setWindowIAttribute( eq::server::Window::IATTR_HINT_DRAWABLE,
                                      eq::fabric::PBUFFER );
-
+    }
     if( _mode >= MODE_DB && _mode <= MODE_DB_STREAM )
         global->setWindowIAttribute( eq::server::Window::IATTR_PLANES_STENCIL,
                                      eq::fabric::ON );
@@ -291,7 +292,7 @@ void ConfigTool::_writeResources( Config* config,
 
             if( c == 0 ) // destination window
             {
-                if( !_fullScreen )
+                if( !_fullScreen && _mode != MODE_WALL )
                     window->setIAttribute( 
                         eq::server::Window::IATTR_HINT_FULLSCREEN,
                         eq::fabric::OFF );
