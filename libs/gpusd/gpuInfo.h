@@ -64,8 +64,8 @@ namespace gpusd
         /** @return true if both infos are identical. @version 1.0 */
         bool operator == ( const GPUInfo& rhs ) const 
             { 
-                return ( type == rhs.type && port == rhs.port &&
-                         device == rhs.device &&
+                return ( type == rhs.type && hostname == rhs.hostname &&
+                         port == rhs.port && device == rhs.device &&
                          pvp[0] == rhs.pvp[0] && pvp[1] == rhs.pvp[1] &&
                          pvp[2] == rhs.pvp[2] && pvp[3] == rhs.pvp[3] );
             }
@@ -73,8 +73,8 @@ namespace gpusd
         /** @return true if both infos are not identical. @version 1.0 */
         bool operator != ( const GPUInfo& rhs ) const 
             { 
-                return ( type != rhs.type || port != rhs.port ||
-                         device != rhs.device || 
+                return ( type != rhs.type || hostname != rhs.hostname ||
+                         port != rhs.port || device != rhs.device || 
                          pvp[0] != rhs.pvp[0] || pvp[1] != rhs.pvp[1] ||
                          pvp[2] != rhs.pvp[2] || pvp[3] != rhs.pvp[3] );
             }

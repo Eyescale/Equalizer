@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,36 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd/remote/version.h>
-#include <sstream>
+#ifndef GPUSD_DNS_SD_MODULE_H
+#define GPUSD_DNS_SD_MODULE_H
+
+#include <gpusd1/module.h> // base class
 
 namespace gpusd
 {
-namespace remote
+namespace dns_sd
 {
+    /** The DNS_SD implementation for remote GPU discovery. */
+    class Module : public gpusd::Module
+    {
+    public:
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
 
-int Version::getMajor() 
-{
-    return GPUSD_REMOTE_VERSION_MAJOR; 
+    protected:
+        virtual GPUInfos discoverGPUs_() const;
+    };
 }
+}
+#endif // GPUSD_DNS_SD_MODULE_H
 
-int Version::getMinor()
-{
-    return GPUSD_REMOTE_VERSION_MINOR; 
-}
-
-int Version::getPatch() 
-{
-    return GPUSD_REMOTE_VERSION_PATCH; 
-}
-
-std::string Version::getString()
-{
-    std::ostringstream version;
-    version << GPUSD_REMOTE_VERSION_MAJOR << '.' << GPUSD_REMOTE_VERSION_MINOR
-            << '.' << GPUSD_REMOTE_VERSION_PATCH;
-    return version.str();
-}
-
-}
-}

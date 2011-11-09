@@ -11,7 +11,7 @@ find_library(CARBON_LIBRARY Carbon)
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
-set(LIBRARY gpusd_local_agl)
+set(LIBRARY gpusd_agl)
 
 # No 64 bit support for AGL
 if(_CMAKE_OSX_MACHINE MATCHES "ppc")
@@ -22,7 +22,7 @@ endif()
 message(STATUS "Building ${LIBRARY} for ${CMAKE_OSX_ARCHITECTURES}")
 
 add_library(${LIBRARY} SHARED ${SOURCES})
-target_link_libraries(${LIBRARY} ${CARBON_LIBRARY} ${OPENGL_LIBRARIES} gpusd_local)
+target_link_libraries(${LIBRARY} ${CARBON_LIBRARY} ${OPENGL_LIBRARIES} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR})
 

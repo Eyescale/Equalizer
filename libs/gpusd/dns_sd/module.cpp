@@ -31,8 +31,6 @@
 
 namespace gpusd
 {
-namespace remote
-{
 namespace dns_sd
 {
 namespace
@@ -188,5 +186,3 @@ GPUInfos Module::discoverGPUs_() const
 
 }
 }
-}
-

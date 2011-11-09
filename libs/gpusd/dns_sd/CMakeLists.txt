@@ -6,10 +6,10 @@ set(SOURCES
   module.cpp
 )
 
-set(LIBRARY gpusd_remote_dns_sd)
+set(LIBRARY gpusd_dns_sd)
 
 add_library(${LIBRARY} SHARED ${SOURCES})
-target_link_libraries(${LIBRARY} ${DNSSD_LIBRARIES} gpusd_remote)
+target_link_libraries(${LIBRARY} ${DNSSD_LIBRARIES} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR})
 

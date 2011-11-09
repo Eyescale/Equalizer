@@ -5,9 +5,9 @@ set(SOURCES
 
 include_directories(${DNSSD_INCLUDE_DIRS})
 
-set(GPUSD_LOCAL_LIBRARIES gpusd_local)
+set(GPUSD_LIBRARIES gpusd)
 if(APPLE)
-  list(APPEND GPUSD_LOCAL_LIBRARIES gpusd_local_agl)
+  list(APPEND GPUSD_LIBRARIES gpusd_agl)
 
   # No 64 bit support for AGL
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
@@ -19,10 +19,10 @@ if(APPLE)
 endif()
 
 if(X11_FOUND)
-  list(APPEND GPUSD_LOCAL_LIBRARIES gpusd_local_glx)
+  list(APPEND GPUSD_LIBRARIES gpusd_glx)
 endif()
 
 source_group(\\ FILES ${SOURCES} ${HEADERS})
 add_executable(gpu_sd ${SOURCES} ${HEADERS})
-target_link_libraries(gpu_sd ${DNSSD_LIBRARIES} ${GPUSD_LOCAL_LIBRARIES})
+target_link_libraries(gpu_sd ${DNSSD_LIBRARIES} ${GPUSD_LIBRARIES})
 install(TARGETS gpu_sd DESTINATION bin COMPONENT daemon)

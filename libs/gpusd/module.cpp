@@ -15,13 +15,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "module.h"
-
+#include <gpusd1/module.h>
 #include <gpusd1/gpuInfo.h>
 
 namespace gpusd
-{
-namespace local
 {
 namespace
 {
@@ -63,5 +60,4 @@ GPUInfos Module::discoverGPUs()
     return result;
 }
 
-}
 }

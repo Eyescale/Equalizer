@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,23 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_API_H
-#define GPUSD_LOCAL_API_H
+#ifndef GPUSD_AGL_MODULE_H
+#define GPUSD_AGL_MODULE_H
 
-#if defined(_MSC_VER) || defined(__declspec)
-#  define GPUSD_LOCAL_DLLEXPORT __declspec(dllexport)
-#  define GPUSD_LOCAL_DLLIMPORT __declspec(dllimport)
-#else
-#  define GPUSD_LOCAL_DLLEXPORT
-#  define GPUSD_LOCAL_DLLIMPORT
-#endif
+#include <gpusd1/module.h> // base class
 
-#if defined(GPUSD_LOCAL_STATIC)
-#  define GPUSD_LOCAL_API
-#elif defined(GPUSD_LOCAL_SHARED)
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLEXPORT
-#else
-#  define GPUSD_LOCAL_API GPUSD_LOCAL_DLLIMPORT
-#endif
+namespace gpusd
+{
+namespace agl
+{
+    /** The AGL implementation for local GPU discovery. */
+    class Module : public gpusd::Module
+    {
+    public:
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
 
-#endif //GPUSD_LOCAL_API_H
+    protected:
+        virtual GPUInfos discoverGPUs_() const;
+    };
+}
+}
+#endif // GPUSD_AGL_MODULE_H
+

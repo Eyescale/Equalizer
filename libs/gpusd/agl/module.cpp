@@ -28,8 +28,6 @@
 
 namespace gpusd
 {
-namespace local
-{
 namespace agl
 {
 namespace
@@ -73,7 +71,6 @@ GPUInfos Module::discoverGPUs_() const
     return result;
 }
 
-}
 }
 }
 

@@ -18,7 +18,7 @@
 */
 
 #include <gpusd1/gpuInfo.h>
-#include <gpusd1/local/module.h>
+#include <gpusd1/module.h>
 
 #include <arpa/inet.h>
 #include <dns_sd.h>
@@ -145,7 +145,7 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 
 int main (int argc, const char * argv[])
 {
-    const GPUInfos gpus = gpusd::local::Module::discoverGPUs();
+    const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
     {
         std::cerr << "No GPUs found, quitting";

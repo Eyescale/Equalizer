@@ -15,38 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_MODULE_H
-#define GPUSD_LOCAL_MODULE_H
+#ifndef GPUSD_GLX_MODULE_H
+#define GPUSD_GLX_MODULE_H
 
-#include <gpusd1/local/api.h>
-#include <gpusd1/types.h>
-#include <iostream>
+#include <gpusd1/module.h> // base class
 
 namespace gpusd
 {
-namespace local
+namespace glx
 {
-    /** Base class for runtime-attached DSOs containing a query implementation.*/
-    class Module
+    /** The GLX implementation for local GPU discovery. */
+    class Module : public gpusd::Module
     {
     public:
-        /** Register and construct a new module. */
-        GPUSD_LOCAL_API Module();
-
-        /** Destruct and destruct a module. */
-        GPUSD_LOCAL_API virtual ~Module();
-
-        /** @return information about all locally-found GPUs. */
-        static GPUInfos discoverGPUs();
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
 
     protected:
-        /** @return information about all locally-found GPUs. */
-        virtual GPUInfos discoverGPUs_() const = 0;
-        
-    private:
-        Module* next_;
+        virtual GPUInfos discoverGPUs_() const;
     };
 }
 }
-#endif // GPUSD_LOCAL_MODULE_H
+#endif // GPUSD_GLX_MODULE_H
 

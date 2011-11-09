@@ -15,36 +15,33 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd/local/version.h>
+#include <gpusd/version.h>
 #include <sstream>
 
 namespace gpusd
 {
-namespace local
-{
 
 int Version::getMajor() 
 {
-    return GPUSD_LOCAL_VERSION_MAJOR; 
+    return GPUSD_VERSION_MAJOR; 
 }
 
 int Version::getMinor()
 {
-    return GPUSD_LOCAL_VERSION_MINOR; 
+    return GPUSD_VERSION_MINOR; 
 }
 
 int Version::getPatch() 
 {
-    return GPUSD_LOCAL_VERSION_PATCH; 
+    return GPUSD_VERSION_PATCH; 
 }
 
 std::string Version::getString()
 {
     std::ostringstream version;
-    version << GPUSD_LOCAL_VERSION_MAJOR << '.' << GPUSD_LOCAL_VERSION_MINOR
-            << '.' << GPUSD_LOCAL_VERSION_PATCH;
+    version << GPUSD_VERSION_MAJOR << '.' << GPUSD_VERSION_MINOR << '.'
+            << GPUSD_VERSION_PATCH;
     return version.str();
 }
 
-}
 }

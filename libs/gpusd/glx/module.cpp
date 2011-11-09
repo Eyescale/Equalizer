@@ -27,8 +27,6 @@
 
 namespace gpusd
 {
-namespace local
-{
 namespace glx
 {
 namespace
@@ -123,5 +121,3 @@ GPUInfos Module::discoverGPUs_() const
 
 }
 }
-}
-

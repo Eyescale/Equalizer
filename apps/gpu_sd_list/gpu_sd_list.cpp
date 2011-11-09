@@ -17,11 +17,11 @@
 
 
 #include <gpusd1/gpuInfo.h>
-#include <gpusd1/remote/module.h>
+#include <gpusd1/module.h>
 
 int main (int argc, const char * argv[])
 {
-    const gpusd::GPUInfos gpus = gpusd::remote::Module::discoverGPUs();
+    const gpusd::GPUInfos gpus = gpusd::Module::discoverGPUs();
     for( gpusd::GPUInfosCIter i = gpus.begin(); i != gpus.end(); ++i )
         std::cout << *i << std::endl;
 
