@@ -40,10 +40,7 @@
   for all application developers creating parallel, interactive OpenGL
   applications. Equalizer 1.0.2 can be retrieved by downloading the
   <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.0.2.tar.gz">source
-    code</a>, updating the subversion trunk to revision 5834 (<code>svn up -r
-    5834</code>) or by using:<br>
-  <code>svn co
-    https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.2</code>
+    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html#1.0">precompiled packages</a>.
 </p>
 
 <a name="features"></a>
@@ -189,7 +186,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="http://www.equalizergraphics.com/cgi-bin/viewvc.cgi/tags/release-1.0.2/examples/">examples</a>
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.0/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features. XCode users can
