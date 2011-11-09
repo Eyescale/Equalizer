@@ -15,10 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_GPUINFO_H
-#define GPUSD_LOCAL_GPUINFO_H
+#ifndef GPUSD_GPUINFO_H
+#define GPUSD_GPUINFO_H
 
-#include <gpusd1/local/api.h>
 #include <iostream>
 #include <limits.h>
 
@@ -48,7 +47,7 @@ namespace gpusd
             {
                 invalidatePVP();
                 std::string fourName = name;
-                while( fourName.length() < sizeof( unsigned))
+                while( fourName.length() < sizeof( unsigned ))
                     fourName = std::string( " " ) + fourName;
                 type = *reinterpret_cast< const unsigned* >( fourName.c_str( ));
             }
@@ -96,6 +95,8 @@ namespace gpusd
         /** The size and location of the GPU (x,y,w,h). */
         int pvp[4];
 
+        std::string hostname; //!< remote system  hostname, empty for local GPUs
+
         char dummy[32]; //!< Buffer for binary-compatible additions
     };
 
@@ -103,6 +104,8 @@ namespace gpusd
     {
         if( !info.getName().empty( ))
             os << "type     " << info.getName() << std::endl;
+        if( !info.hostname.empty( ))
+            os << "hostname " << info.hostname << std::endl;
         if( info.port != GPUInfo::defaultValue )
             os << "port     " << info.port << std::endl;
         if( info.device != GPUInfo::defaultValue )
@@ -113,5 +116,5 @@ namespace gpusd
         return os;
     }
 }
-#endif // GPUSD_LOCAL_GPUINFO_H
+#endif // GPUSD_GPUINFO_H
 

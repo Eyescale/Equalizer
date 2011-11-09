@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_LOCAL_TYPES_H
-#define GPUSD_LOCAL_TYPES_H
+#ifndef GPUSD_TYPES_H
+#define GPUSD_TYPES_H
 
 #include <vector>
 
@@ -29,5 +29,5 @@ typedef GPUInfos::const_iterator GPUInfosCIter;
 
 }
 
-#endif // GPUSD_LOCAL_TYPES_H
+#endif // GPUSD_TYPES_H
 
