@@ -30,6 +30,7 @@ if(CMAKE_VERSION VERSION_LESS 2.8)
 endif()
 
 include(revision)
+include(GPUSD)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "1")
@@ -263,6 +264,9 @@ endif()
 add_definitions(${EQ_DEFINITIONS})
 
 add_subdirectory(tools)
+if(FOUND_GPUSD)
+  add_subdirectory(gpu-sd)
+endif()
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
