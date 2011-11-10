@@ -1,9 +1,9 @@
-RHEL 6.1 porting
+CMake updates
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
