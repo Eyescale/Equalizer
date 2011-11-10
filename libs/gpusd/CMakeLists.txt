@@ -20,6 +20,9 @@ set(SOURCES
 set(LIBRARY gpusd)
 set(INCLUDE ${LIBRARY}${VERSION_MAJOR})
 
+execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+  ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}${VERSION_MAJOR})
+
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
                                             SOVERSION ${VERSION_MAJOR})
