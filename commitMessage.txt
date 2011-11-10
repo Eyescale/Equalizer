@@ -1,4 +1,4 @@
-Fix RHEL 5.3 build
+Minor CMake update
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
