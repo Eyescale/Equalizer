@@ -44,6 +44,8 @@ namespace base
      */
     template< class T > class RefPtr 
     {
+        typedef T* RefPtr::*bool_t;
+
     public:
         /** Construct a new, empty reference pointer. @version 1.0 */
         RefPtr()                     : _ptr( 0 )         {}
@@ -103,6 +105,12 @@ namespace base
          */
         bool operator != ( const RefPtr& rhs ) const
             { return ( _ptr != rhs._ptr ); }
+
+        /**
+         * @return true if a pointer is held, false otherwise.
+         * @version 1.1.5
+         */
+        operator bool_t() const { return _ptr == 0 ? 0 : &RefPtr::_ptr; }
 
         /**
          * @return true if the left RefPtr is smaller then the right.

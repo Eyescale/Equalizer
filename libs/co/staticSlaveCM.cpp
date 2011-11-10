@@ -55,9 +55,11 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
     EQASSERT( _object );
     EQASSERT( _currentIStream->getVersion() == VERSION_FIRST );
     EQASSERT( _currentIStream->hasInstanceData( ));
-    _object->applyInstanceData( *_currentIStream );
-    EQASSERTINFO( _currentIStream->getRemainingBufferSize() == 0 &&
-                  _currentIStream->nRemainingBuffers() == 0,
+
+    if( _currentIStream->hasData( )) // not VERSION_NONE
+        _object->applyInstanceData( *_currentIStream );
+
+    EQASSERTINFO( !_currentIStream->hasData(),
                   "Object " << typeid( *_object ).name() <<
                   " did not unpack all data" );
 

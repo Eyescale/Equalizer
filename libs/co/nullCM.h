@@ -19,7 +19,6 @@
 #define EQNET_NULLCM_H
 
 #include "objectCM.h"    // base class
-#include <co/objectVersion.h> // VERSION_FOO values
 
 namespace co
 {
@@ -37,35 +36,16 @@ namespace co
 
         virtual void init() {}
 
-        /**
-         * @name Versioning
-         */
-        //@{
-        virtual uint32_t commitNB( const uint32_t )
-            { EQDONTCALL; return EQ_UNDEFINED_UINT32; }
-        virtual uint128_t commitSync( const uint32_t )
-            { EQDONTCALL; return VERSION_NONE; }
-
-        virtual void setAutoObsolete( const uint32_t ) { EQDONTCALL; }
-        virtual uint32_t getAutoObsolete() const { EQDONTCALL; return 0; }
-
-        virtual uint128_t sync( const uint128_t& )
-            { EQDONTCALL; return VERSION_NONE; }
+        virtual void push( const uint128_t&, const uint128_t&, Nodes& )
+            { EQDONTCALL; }
 
         virtual uint128_t getHeadVersion() const   { return VERSION_NONE; }
         virtual uint128_t getVersion() const       { return VERSION_NONE; }
-        //@}
-
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
 
-        virtual void addSlave( Command&, NodeMapObjectReplyPacket& )
-            { EQDONTCALL; }
-        virtual void removeSlave( NodePtr ) { EQDONTCALL; }
         virtual void removeSlaves( NodePtr ) { EQDONTCALL; }
-
-        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
 
     private:
     };

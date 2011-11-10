@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,6 +59,30 @@ namespace eVolve
         
     private:
         const LocalInitData& _initData;
+    };
+
+    enum ColorMode
+    {
+        COLOR_MODEL,    //!< Render using the colors defined in the ply file
+        COLOR_DEMO,     //!< Use a unique color to demonstrate decomposition
+        COLOR_HALF_DEMO,//!< 50% unique color + 50% original color
+        COLOR_ALL       //!< @internal, must be last
+    };
+
+    enum BackgroundMode
+    {
+        BG_BLACK,   //!< Black background
+        BG_WHITE,   //!< White background
+        BG_COLOR,   //!< Unique color
+        BG_ALL      //!< @internal, must be last
+    };
+
+    enum NormalsQuality
+    {
+        NQ_FULL,    //!< Highest normals quality
+        NQ_MEDIUM,  //!< Average normals quality
+        NQ_MINIMAL, //!< Basic normal approximation
+        NQ_ALL      //!< @internal, must be last
     };
 
     enum LogTopics

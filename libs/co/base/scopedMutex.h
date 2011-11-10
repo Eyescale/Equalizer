@@ -96,6 +96,12 @@ namespace base
 
     /** A scoped mutex for a fast uncontended write operation. @version 1.1.2 */
     typedef ScopedMutex< SpinLock, WriteOp > ScopedFastWrite;
+
+    /** A scoped mutex for a read operation. @version 1.1.5 */
+    typedef ScopedMutex< Lock, ReadOp > ScopedRead;
+
+    /** A scoped mutex for a write operation. @version 1.1.5 */
+    typedef ScopedMutex< Lock, WriteOp > ScopedWrite;
 }
 }
 #endif //COBASE_SCOPEDMUTEX_H

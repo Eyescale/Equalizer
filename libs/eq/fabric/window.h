@@ -165,11 +165,16 @@ namespace fabric
         /** @internal @return the index path to this window. */
         EQFABRIC_INL WindowPath getPath() const;
 
+        /** @name internal */
+        //@{
         EQFABRIC_INL virtual void backup(); //!< @internal
         EQFABRIC_INL virtual void restore(); //!< @internal
         void create( C** channel ); //!< @internal
         void release( C* channel ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
+        /** @internal */
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation =
+                                               CO_COMMIT_NEXT );
         //@}
 
     protected: 
@@ -257,7 +262,6 @@ namespace fabric
         EQFABRIC_INL bool _removeChannel( C* channel );
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _pipe->_mapNodeObjects(); }
 
         typedef co::CommandFunc< Window< P, W, C > > CmdFunc;

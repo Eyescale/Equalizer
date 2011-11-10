@@ -19,6 +19,7 @@
 #define CO_OBJECTCM_H
 
 #include <co/dispatcher.h>   // base class
+#include <co/objectVersion.h> // VERSION_FOO values
 #include <co/types.h>
 
 //#define EQ_INSTRUMENT_MULTICAST
@@ -42,7 +43,7 @@ namespace co
     {
     public:
         /** Construct a new change manager. */
-        ObjectCM( Object* object ) : _object( object ) {}
+        ObjectCM( Object* object );
         virtual ~ObjectCM() {}
 
         /** Initialize the change manager. */
@@ -50,26 +51,18 @@ namespace co
 
         /** @name Versioning */
         //@{
+        /** @sa Object::push() */
+        virtual void push( const uint128_t& groupID, const uint128_t& typeID,
+                           const Nodes& nodes );
+
         /** 
-         * Start committing a new version.
+         * Commit a new version.
          * 
          * @param incarnation the commit incarnation for auto obsoletion.
-         * @return the commit identifier to be passed to commitSync
-         * @sa commitSync
-         */
-        virtual uint32_t commitNB( const uint32_t incarnation ) = 0;
-        
-        /** 
-         * Finalize a commit transaction.
-         * 
-         * @param commitID the commit identifier returned from commitNB
          * @return the new head version.
          */
-        virtual uint128_t commitSync( const uint32_t commitID ) = 0;
-
-        /** Increase the count of how often commit() was called. */
-        virtual void increaseCommitCount( const uint32_t incarnation )
-            { /* NOP */ }
+        virtual uint128_t commit( const uint32_t incarnation )
+            { EQUNIMPLEMENTED; return VERSION_NONE; }
 
         /** 
          * Automatically obsolete old versions.
@@ -77,10 +70,10 @@ namespace co
          * @param count the number of versions to retain, excluding the head
          *              version.
          */
-        virtual void setAutoObsolete( const uint32_t count ) = 0;
+        virtual void setAutoObsolete( const uint32_t count ){ EQUNIMPLEMENTED; }
  
         /** @return get the number of versions this object retains. */
-        virtual uint32_t getAutoObsolete() const = 0;
+        virtual uint32_t getAutoObsolete() const { EQUNIMPLEMENTED; return 0; }
 
         /** 
          * Sync to a given version.
@@ -89,7 +82,8 @@ namespace co
          *                current version.
          * @return the version of the object after the operation.
          */
-        virtual uint128_t sync( const uint128_t& version ) = 0;
+        virtual uint128_t sync( const uint128_t& version )
+            { EQUNIMPLEMENTED; return VERSION_FIRST; }
 
         /** @return the latest available (head) version. */
         virtual uint128_t getHeadVersion() const = 0;
@@ -120,24 +114,26 @@ namespace co
          * @param reply the reply packet.
          * @return the first version the slave has to use from its cache.
          */
-        virtual void addSlave( Command& command,
-                               NodeMapObjectReplyPacket& reply ) = 0;
+        virtual void addSlave(Command& command, NodeMapObjectReplyPacket& reply)
+            { EQUNIMPLEMENTED; }
 
         /** 
          * Remove a subscribed slave.
          * 
          * @param node the slave node. 
          */
-        virtual void removeSlave( NodePtr node ) = 0;
+        virtual void removeSlave( NodePtr node )
+            { EQUNIMPLEMENTED; }
 
         /** Remove all subscribed slaves from the given node. */
         virtual void removeSlaves( NodePtr node ) = 0;
 
         /** @return the vector of current slave nodes. */
-        virtual const Nodes* getSlaveNodes() const { return 0; }
+        virtual const Nodes getSlaveNodes() const { return Nodes(); }
 
         /** Apply the initial data after mapping. */
-        virtual void applyMapData( const uint128_t& version ) = 0;
+        virtual void applyMapData( const uint128_t& version )
+            { EQUNIMPLEMENTED; }
 
         /** Add existing instance data to the object (from local node cache) */
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&,
@@ -164,7 +160,7 @@ namespace co
 #ifdef EQ_INSTRUMENT_MULTICAST
         static base::a_int32_t _hit;
         static base::a_int32_t _miss;
-#endif        
+#endif
     };
 }
 

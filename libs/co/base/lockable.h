@@ -48,6 +48,12 @@ namespace base
         /** Access the held data. @version 1.0 */
         const D* operator->() const { return &data; }
 
+        /** Access the held data. @version 1.1.5 */
+        D& operator *() { return data; }
+
+        /** Access the held data. @version 1.1.5 */
+        const D& operator*() const { return data; }
+
         /** @return true if the data is equal to the rhs object. @version 1.0*/ 
         bool operator == ( const D& rhs ) const { return ( data == rhs ); }
 

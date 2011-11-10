@@ -632,24 +632,18 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 template< class S, class C, class O, class L, class CV, class N, class V >
 uint128_t Config< S, C, O, L, CV, N, V >::commit( const uint32_t incarnation )
 {
-    return commitSync( commitNB( incarnation ));
-}
-
-template< class S, class C, class O, class L, class CV, class N, class V >
-uint32_t Config< S, C, O, L, CV, N, V >::commitNB( const uint32_t incarnation )
-{
-    if( Serializable::isDirty( Config::DIRTY_NODES ))
+    if( Serializable::isDirty( DIRTY_NODES ))
         commitChildren< N >( _nodes, incarnation );
-    if( Serializable::isDirty( Config::DIRTY_OBSERVERS ))
+    if( Serializable::isDirty( DIRTY_OBSERVERS ))
         commitChildren< O, ConfigNewObserverPacket, C >(
             _observers, static_cast< C* >( this ), incarnation );
     // Always traverse layouts: view objects may be dirty
     commitChildren< L, ConfigNewLayoutPacket, C >(
         _layouts, static_cast<C*>( this ), incarnation );
-    if( Serializable::isDirty( Config::DIRTY_CANVASES ))
+    if( Serializable::isDirty( DIRTY_CANVASES ))
         commitChildren< CV, ConfigNewCanvasPacket, C >(
             _canvases, static_cast< C* >( this ), incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

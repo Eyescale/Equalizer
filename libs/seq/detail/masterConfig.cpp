@@ -127,7 +127,10 @@ public:
         {
             View* view = static_cast< View* >( v );
             if( view->updateData( ))
+            {
+                EQVERB << "Redraw: new view data" << std::endl;
                 _redraw = true;
+            }
             return eq::TRAVERSE_CONTINUE;
         }
 
@@ -146,7 +149,11 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
 
       case eq::Event::KEY_PRESS:
       case eq::Event::KEY_RELEASE:
-          Config::handleEvent( event );
+          if( Config::handleEvent( event ))
+          {
+              _redraw = true;
+              EQVERB << "Redraw: requested by eq::Config" << std::endl;
+          }
           // no break;
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
       case eq::Event::CHANNEL_POINTER_MOTION:
@@ -157,7 +164,11 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
               return false;
 
           View* view = static_cast<View*>( find<eq::View>( _currentViewID ));
-          _redraw = view->handleEvent( event );
+          if( view->handleEvent( event ))
+          {
+              _redraw = true;
+              EQVERB << "Redraw: requested by view event handler" << std::endl;
+          }
           return true;
       }
 
@@ -177,6 +188,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
       case eq::Event::WINDOW_CLOSE:
       case eq::Event::VIEW_RESIZE:
           _redraw = true;
+          EQVERB << "Redraw: window change" << std::endl;
           break;
 
       default:
@@ -184,7 +196,10 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
     }
 
     if( eq::Config::handleEvent( event ))
+    {
         _redraw = true;
+        EQVERB << "Redraw: requested by config event handler" << std::endl;
+    }
     return _redraw;
 }
 

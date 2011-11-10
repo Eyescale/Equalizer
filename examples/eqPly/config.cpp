@@ -532,6 +532,10 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'u':
+            _frameData.toggleCompression();
+            return true;
+
         case 'n':
         case 'N':
             _frameData.togglePilotMode();

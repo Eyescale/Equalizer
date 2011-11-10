@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -60,10 +60,12 @@ namespace eVolve
         }
 
 
-        bool render( const eq::Range&       range,
+        bool render( const eq::Range&     range,
                      const eq::Matrix4d&  modelviewM,
                      const eq::Matrix3d&  modelviewITM,
-                     const eq::Matrix4f&  invRotationM  );
+                     const eq::Matrix4f&  invRotationM,
+                     const eq::Vector4f&  taintColor,
+                     const int            normalsQuality );
 
         void setPrecision( const uint32_t precision ){ _precision = precision; }
         void setOrtho( const uint32_t ortho )        { _ortho = ortho; }
@@ -72,7 +74,11 @@ namespace eVolve
         bool loadShaders();
 
     private:
-        void _putVolumeDataToShader( const VolumeInfo& volumeInfo, const float sliceDistance, const eq::Matrix4f& invRotationM );
+        void _putVolumeDataToShader( const VolumeInfo&   volumeInfo,
+                                     const float         sliceDistance,
+                                     const eq::Matrix4f& invRotationM,
+                                     const eq::Vector4f& taintColor,
+                                     const int           normalsQuality );
 
         RawVolumeModel  _rawModel;      //!< volume data
         SliceClipper    _sliceClipper;  //!< frame clipping algorithm

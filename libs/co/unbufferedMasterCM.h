@@ -35,17 +35,15 @@ namespace co
         UnbufferedMasterCM( Object* object );
         virtual ~UnbufferedMasterCM();
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
+        virtual uint128_t commit( const uint32_t incarnation );
         virtual void setAutoObsolete( const uint32_t ) {} 
         virtual uint32_t getAutoObsolete() const { return 0; }
         //@}
 
         virtual void addSlave( Command& command, 
                                NodeMapObjectReplyPacket& reply );
-        virtual void removeSlave( NodePtr node );
 
     private:
         /* The command handlers. */

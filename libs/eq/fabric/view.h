@@ -90,7 +90,7 @@ namespace fabric
         EQFABRIC_INL void setViewport( const Viewport& viewport );
 
         /** @internal Get the mode of this view. */
-        Mode getMode( ) const { return _mode; }
+        Mode getMode() const { return _mode; }
         
         /**
          * Set the mode of this view.
@@ -107,6 +107,9 @@ namespace fabric
          * @param mode the new rendering mode 
          */
         virtual void activateMode( const Mode mode ){ _mode = mode; }
+
+        /** @return true if the view's layout is active. @version 1.1.5 */
+        EQFABRIC_INL bool isActive() const;
         //@}
 
         /** @name Operations */

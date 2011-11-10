@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,13 @@
 
 #include "objectCM.h"
 
+#include "command.h"
 #include "nullCM.h"
 #include "node.h"
+#include "nodePackets.h"
+#include "object.h"
+#include "objectInstanceDataOStream.h"
+#include "objectPackets.h"
 
 co::ObjectCM* co::ObjectCM::ZERO = new co::NullCM;
 
@@ -26,3 +31,27 @@ co::ObjectCM* co::ObjectCM::ZERO = new co::NullCM;
 co::base::a_int32_t co::ObjectCM::_hit( 0 );
 co::base::a_int32_t co::ObjectCM::_miss( 0 );
 #endif
+
+namespace co
+{
+ObjectCM::ObjectCM( Object* object )
+        : _object( object )
+{}
+
+void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
+                     const Nodes& nodes )
+{
+    EQASSERT( _object );
+    EQASSERT( !nodes.empty( ));
+    if( nodes.empty( ))
+        return;
+
+    ObjectInstanceDataOStream os( this );
+    os.enablePush( getVersion(), nodes );
+    _object->getInstanceData( os );
+
+    NodeObjectPushPacket pushPacket( _object->getID(), groupID, typeID );
+    os.disable( pushPacket );
+}
+
+}

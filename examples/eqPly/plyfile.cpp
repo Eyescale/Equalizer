@@ -930,7 +930,10 @@ PlyFile *ply_read(FILE *fp, int *nelems, char ***elem_names)
 
     if (equal_strings (words[0], "format")) {
       if (nwords != 3)
-        return (NULL);
+      {
+          free( plyfile );
+          return (NULL);
+      }
       if (equal_strings (words[1], "ascii"))
         plyfile->file_type = PLY_ASCII;
       else if (equal_strings (words[1], "binary_big_endian"))
@@ -939,8 +942,9 @@ PlyFile *ply_read(FILE *fp, int *nelems, char ***elem_names)
         plyfile->file_type = PLY_BINARY_LE;
       else
         {
-        free (words);
-        return (NULL);
+            free (words);
+            free( plyfile );
+            return (NULL);
         }
       plyfile->version = atof (words[2]);
     }

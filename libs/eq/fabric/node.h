@@ -96,11 +96,16 @@ namespace fabric
         static const std::string& getIAttributeString( const IAttribute attr );
         //@}
 
+        /** @internal */
+        //@{
         EQFABRIC_INL virtual void backup(); //!< @internal
         EQFABRIC_INL virtual void restore(); //!< @internal
         void create( P** pipe ); //!< @internal
         void release( P* pipe ); //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation =
+                                               CO_COMMIT_NEXT );
+        //@}
 
     protected:
         /** @internal Construct a new node. */
@@ -162,7 +167,6 @@ namespace fabric
         bool _removePipe( P* pipe );
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
         bool _mapNodeObjects() { return _config->mapNodeObjects(); }
     };
 

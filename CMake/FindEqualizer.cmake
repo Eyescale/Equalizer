@@ -74,6 +74,7 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.1.4 "0.4.1")
   set(_eq_coVersion_1.1.3 "0.4.0")
   set(_eq_coVersion_1.1.2 "0.4.0")
   set(_eq_coVersion_1.1.1 "0.4.0")
@@ -105,6 +106,12 @@ else() # find old one
   endif()
 endif()
 
+if(Equalizer_FIND_REQUIRED)
+    set(_eq_version_output_type FATAL_ERROR)
+else()
+    set(_eq_version_output_type STATUS)
+endif()
+
 if(_eq_Version_file)
 # Try to ascertain the version...
   if("${_eq_INCLUDE_DIR}" MATCHES "\\.framework$" AND
@@ -127,6 +134,10 @@ if(_eq_Version_file)
 
   set(EQUALIZER_VERSION "${EQUALIZER_VERSION_MAJOR}.${EQUALIZER_VERSION_MINOR}.${EQUALIZER_VERSION_PATCH}"
     CACHE INTERNAL "The version of Equalizer which was detected")
+else()
+  set(_eq_EPIC_FAIL TRUE)
+  message(${_eq_version_output_type}
+    "ERROR: Can't find Equalizer header file version.h.")
 endif()
 
 #
@@ -169,12 +180,6 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(Equalizer_FIND_REQUIRED)
-    set(_eq_version_output_type FATAL_ERROR)
-else()
-    set(_eq_version_output_type STATUS)
-endif()
-
 if(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}

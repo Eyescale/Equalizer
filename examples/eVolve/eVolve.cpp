@@ -44,6 +44,9 @@ static const std::string _help(
     std::string( "\t\tRight Mouse Button:        Move model in Z\n" ) +
     std::string( "\t\t<Esc>, All Mouse Buttons:  Exit program\n" ) +
     std::string( "\t\t<Space>, r:                Reset camera\n" ) +
+    std::string( "\t\td:                         Toggle demo color mode\n" ) +
+    std::string( "\t\tb:                         Toggle background color\n" ) +
+    std::string( "\t\tn:                         Toggle normals Quality mode (raw data only)\n" ) +
     std::string( "\t\to:                         Toggle " ) +
     std::string( "perspective/orthographic\n" ) +
     std::string( "\t\ts:                         Toggle statistics " ) +

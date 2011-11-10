@@ -74,11 +74,11 @@ void Global::_setupDefaults()
         _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
+        "ssh -n %h %c --eq-logfile %q%d/%h.%n.log%q";
 #ifdef WIN32
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c";
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\"';
 #else
-    _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] = "ssh -n %h %c >& %h.%n.log";
     _nodeCAttributes[Node::CATTR_LAUNCH_COMMAND_QUOTE] = '\'';
 #endif
 
@@ -96,7 +96,7 @@ void Global::_setupDefaults()
     _windowIAttributes[Window::IATTR_HINT_STEREO]       = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::ON;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
     _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;

@@ -27,6 +27,7 @@
 #include <co/commandQueue.h>    // member
 #include <co/connectionSet.h>   // member
 #include <co/objectVersion.h>   // used in inline method
+#include <co/worker.h>          // member
 
 #include <co/base/clock.h>          // member
 #include <co/base/hash.h>           // member
@@ -236,7 +237,7 @@ namespace co
          * @sa registerObject
          */
         CO_API bool mapObject( Object* object, const base::UUID& id, 
-                                  const uint128_t& version = VERSION_OLDEST );
+                               const uint128_t& version = VERSION_OLDEST );
 
         /** Convenience wrapper for mapObject(). */
         bool mapObject( Object* object, const ObjectVersion& v )
@@ -269,13 +270,15 @@ namespace co
         /** 
          * Handler for an Object::push operation.
          *
-         * Called on each node listed in an Object::push upon reception of the
-         * pushed data. The default implementation is empty.
+         * Called at least on each node listed in an Object::push upon reception
+         * of the pushed data from the command thread. Called on all nodes of a
+         * multicast group, even on nodes not listed in the Object::push.
          *
-         * Typically used to create an Object on a remote node, using the typeID
-         * for instantiation, the istream to initialize it and the objectID to
-         * map it using VERSION_NONE. The groupID may be used to differentiate
-         * multiple concurrent push operations.
+         * The default implementation is empty. Typically used to create an
+         * Object on a remote node, using the typeID for instantiation, the
+         * istream to initialize it and the objectID to map it using
+         * VERSION_NONE. The groupID may be used to differentiate multiple
+         * concurrent push operations.
          *
          * @param groupID The group identifier given to Object::push()
          * @param typeID The type identifier given to Object::push()
@@ -315,8 +318,8 @@ namespace co
         CO_API void releaseSendToken( SendToken& token );
 
         /** Return the command queue to the command thread. */
-        virtual CommandQueue* getCommandThreadQueue() 
-            { return &_commandThreadQueue; }
+        CommandQueue* getCommandThreadQueue()
+            { return _commandThread->getWorkerQueue(); }
 
         /** 
          * @return true if executed from the command handler thread, false if
@@ -380,6 +383,9 @@ namespace co
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
+        /** @internal Requests keep-alive from remote node. */
+        void _ping( NodePtr remoteNode ); 
+
     private:
         typedef std::list< Command* > CommandList;
 
@@ -388,9 +394,6 @@ namespace co
 
         /** The command 'allocator' */
         CommandCache _commandCache;
-
-        /** The receiver->command command queue. */
-        CommandQueue _commandThreadQueue;
 
         /** true if the send token can be granted, false otherwise. */
         bool _hasSendToken;
@@ -460,10 +463,9 @@ namespace co
         //@}
 
         friend class ObjectStore;
-        template< typename T >
-        void _registerCommand( const uint32_t command,
-                               const CommandFunc< T >& func,
-                               CommandQueue* destinationQueue )
+        template< typename T > void
+        _registerCommand( const uint32_t command, const CommandFunc< T >& func,
+                          CommandQueue* destinationQueue )
         {
             registerCommand( command, func, destinationQueue );
         }
@@ -473,23 +475,22 @@ namespace co
          */
         //@{
         /** The command handler thread. */
-        class CommandThread : public base::Thread
+        class CommandThread : public Worker
         {
         public:
             CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
-            virtual bool init()
-                {
-                    setName( std::string("Cmd ") + base::className(_localNode));
-                    return true;
-                }
-            virtual void run(){ _localNode->_runCommandThread(); }
+
+        protected:
+            virtual bool init();
+            virtual bool stopRunning() { return _localNode->isClosed(); }
+            virtual bool notifyIdle();
+
         private:
             LocalNode* const _localNode;
         };
         CommandThread* _commandThread;
 
         void _dispatchCommand( Command& command );
-        void _runCommandThread();
         void   _redispatchCommands();
 
         /** The command functions. */
@@ -508,6 +509,8 @@ namespace co
         bool _cmdReleaseSendToken( Command& command );
         bool _cmdAddListener( Command& command );
         bool _cmdRemoveListener( Command& command );
+        bool _cmdPing( Command& command );
+        bool _cmdDiscard( Command& ) { return true; }
         //@}
 
         EQ_TS_VAR( _cmdThread );

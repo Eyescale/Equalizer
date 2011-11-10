@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *               2007-2009, Maxim Makhinya
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,10 @@ namespace eVolve
         //*{
         void setOrtho( const bool ortho );
         void adjustQuality( const float delta );
-        void toggleOrtho( );
+        void toggleBackground();
+        void toggleNormalsQuality();
+        void toggleColorMode();
+        void toggleOrtho();
         void toggleHelp();
         void toggleStatistics();
 
@@ -65,6 +68,9 @@ namespace eVolve
         const eq::Vector3f& getTranslation() const { return _translation; }
         const eq::Matrix4f& getRotation()    const { return _rotation;    }
         float getQuality() const { return _quality; }
+        ColorMode getColorMode() const { return _colorMode; }
+        BackgroundMode getBackgroundMode() const { return _bgMode; }
+        NormalsQuality getNormalsQuality() const { return _normalsQuality; }
         //*}
 
         /** @name View interface. */
@@ -103,14 +109,17 @@ namespace eVolve
 
     private:
 
-        eq::Matrix4f _rotation;
-        eq::Vector3f _translation;
-        bool         _ortho;
-        bool         _statistics;
-        bool         _help;
-        float        _quality;
-        eq::uint128_t    _currentViewID;
-        std::string  _message;
+        eq::Matrix4f    _rotation;
+        eq::Vector3f    _translation;
+        bool            _ortho;
+        ColorMode       _colorMode;
+        BackgroundMode  _bgMode;
+        NormalsQuality  _normalsQuality;
+        bool            _statistics;
+        bool            _help;
+        float           _quality;
+        eq::uint128_t   _currentViewID;
+        std::string     _message;
     };
 }
 

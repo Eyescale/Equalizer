@@ -19,6 +19,7 @@
 #define CO_MASTERCM_H
 
 #include "objectCM.h" // base class
+#include "dataIStreamQueue.h" // member
 #include <co/types.h>
 
 #include <co/base/mtQueue.h> // member
@@ -28,14 +29,15 @@
 
 namespace co
 {
-    class ObjectDataIStream;
-
     /** 
-     * The base class for versioned master change managers.
      * @internal
+     * The base class for versioned master change managers.
      */
     class MasterCM : public ObjectCM
     {
+    protected:
+        typedef base::ScopedWrite Mutex;
+
     public:
         MasterCM( Object* object );
         virtual ~MasterCM();
@@ -44,26 +46,26 @@ namespace co
 
         /** @name Versioning */
         //@{
-        virtual uint32_t commitNB( const uint32_t incarnation );
-        virtual uint128_t commitSync( const uint32_t commitID );
-
         virtual uint128_t sync( const uint128_t& version );
 
-        virtual uint128_t getHeadVersion() const { return _version; }
-        virtual uint128_t getVersion() const     { return _version; }
+        virtual uint128_t getHeadVersion() const
+            { Mutex mutex( _slaves ); return _version; }
+        virtual uint128_t getVersion() const
+            { Mutex mutex( _slaves ); return _version; }
         //@}
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
-        virtual void applyMapData( const uint128_t& version ) { EQDONTCALL; }
-        
+
+        virtual void removeSlave( NodePtr node );
         virtual void removeSlaves( NodePtr node );
-        virtual const Nodes* getSlaveNodes() const { return &_slaves; }
+        virtual const Nodes getSlaveNodes() const
+            { Mutex mutex( _slaves ); return *_slaves; }
 
     protected:
         /** The list of subscribed slave nodes. */
-        Nodes _slaves;
+        base::Lockable< Nodes > _slaves;
 
         typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
 
@@ -73,20 +75,12 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
-        typedef std::pair< base::UUID, ObjectDataIStream* > PendingStream;
-        typedef std::vector< PendingStream > PendingStreams;
+        /** Slave commit queue. */
+        DataIStreamQueue _slaveCommits;
 
-        /** Not yet ready streams. */
-        PendingStreams _pendingDeltas;
-
-        /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedDeltas;
-
-        /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
-
-        void _apply( ObjectDataIStream* is );
-        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID );
+        uint128_t _apply( ObjectDataIStream* is );
+        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID,
+                                const uint128_t& version );
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );

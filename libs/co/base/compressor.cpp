@@ -149,7 +149,7 @@ bool Compressor::initDecompressor( uint32_t name )
     }
 
     _plugin = _findPlugin( name );
-    EQASSERT( _plugin );
+    EQASSERTINFO( _plugin, "Can't find plugin for compressor " << name );
 
     if( !_plugin )
         return false;

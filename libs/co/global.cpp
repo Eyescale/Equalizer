@@ -74,7 +74,7 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
     524288, // UDP_BUFFER_SIZE
     1,      // QUEUE_MIN_SIZE
     2,      // QUEUE_MAX_SIZE
-    16384,  // RDMA_RING_BUFFER_SIZE_MB
+    8,      // RDMA_RING_BUFFER_SIZE_MB
     5000,   // RDMA_RESOLVE_TIMEOUT_MS
 };
 }
@@ -176,6 +176,19 @@ uint32_t Global::getTimeout()
     return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
            base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
            EQ_TIMEOUT_INDEFINITE;
+}
+
+uint32_t Global::getKeepaliveTimeout()
+{
+    const char* env = getenv( "CO_KEEPALIVE_TIMEOUT" );
+    if( !env )
+        return 2000; // ms
+
+    const int64_t size = atoi( env );
+    if( size == 0 )
+        return 2000; // ms
+
+    return size;
 }
 
 }

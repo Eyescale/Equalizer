@@ -81,6 +81,7 @@ void Display::discoverLocal( Config* config )
 
         View* view = new View( layout );
         view->setObserver( observer );
+        view->setWall( wall );
 
         canvas->addLayout( layout );
     }

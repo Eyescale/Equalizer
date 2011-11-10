@@ -63,15 +63,27 @@ static const Window* _ntCurrentWindow = 0;
 typedef co::CommandFunc<Pipe> PipeFunc;
 /** @endcond */
 
+class Pipe::Thread : public eq::Worker
+{
+public:
+    Thread( Pipe* pipe ) : _pipe( pipe ) {}
+    
+protected:
+    virtual void run();
+    virtual bool stopRunning() { return !_pipe; }
+
+private:
+    Pipe* _pipe;
+    friend class Pipe;
+};
+
 Pipe::Pipe( Node* parent )
         : Super( parent )
         , _systemPipe( 0 )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
-        , _waitTime( 0 )
         , _thread( 0 )
-        , _pipeThreadQueue( 0 )
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
@@ -149,7 +161,11 @@ void Pipe::setDirty( const uint64_t bits )
 
 WindowSystem Pipe::selectWindowSystem() const
 {
+#ifdef AGL
+    return WindowSystem( "AGL" ); // prefer over GLX
+#else
     return WindowSystem();
+#endif
 }
 
 void Pipe::_setupCommandQueue()
@@ -162,14 +178,15 @@ void Pipe::_setupCommandQueue()
     if( !_thread ) // Non-threaded pipes have no pipe thread message pump
         return;
     
-    EQASSERT( _pipeThreadQueue );
-    EQASSERT( !_pipeThreadQueue->getMessagePump( ));
+    CommandQueue* queue = _thread->getWorkerQueue();
+    EQASSERT( queue );
+    EQASSERT( !queue->getMessagePump( ));
 
     MessagePump* pump = createMessagePump();
     if( pump )
         pump->dispatchAll(); // initializes _receiverQueue
 
-    _pipeThreadQueue->setMessagePump( pump );
+    queue->setMessagePump( pump );
 }
 
 void Pipe::_exitCommandQueue()
@@ -178,10 +195,11 @@ void Pipe::_exitCommandQueue()
     if( !_thread )
         return;
     
-    EQASSERT( _pipeThreadQueue );
+    CommandQueue* queue = _thread->getWorkerQueue();
+    EQASSERT( queue );
 
-    MessagePump* pump = _pipeThreadQueue->getMessagePump();
-    _pipeThreadQueue->setMessagePump( 0 );
+    MessagePump* pump = queue->getMessagePump();
+    queue->setMessagePump( 0 );
     delete pump;
 }
 
@@ -193,42 +211,33 @@ MessagePump* Pipe::createMessagePump()
 MessagePump* Pipe::getMessagePump()
 {
     EQ_TS_THREAD( _pipeThread );
-    if( _pipeThreadQueue )
-        return _pipeThreadQueue->getMessagePump();
-    return 0;
+    if( !_thread )
+        return 0;
+
+    CommandQueue* queue = _thread->getWorkerQueue();
+    return queue->getMessagePump();
 }
 
-void Pipe::_runThread()
+void Pipe::Thread::run()
 {
-    EQ_TS_THREAD( _pipeThread );
+    EQ_TS_THREAD( _pipe->_pipeThread );
     EQINFO << "Entered pipe thread" << std::endl;
 
-    _state.waitEQ( STATE_MAPPED );
-    _windowSystem = selectWindowSystem();
-    _setupCommandQueue();
+    Pipe* pipe = _pipe; // _pipe gets cleared on exit
+    pipe->_state.waitEQ( STATE_MAPPED );
+    pipe->_windowSystem = pipe->selectWindowSystem();
+    pipe->_setupCommandQueue();
 
-    Config* config = getConfig();
-    EQASSERT( config );
-    EQASSERT( _pipeThreadQueue );
+    Worker::run();
 
-    while( _pipeThreadQueue )
-    {
-        const int64_t startWait = config->getTime();
-        co::Command& command = *(_pipeThreadQueue->pop( ));
-        _waitTime += ( config->getTime() - startWait );
-
-        EQASSERT( command.isValid( ));
-        EQCHECK( command( ));
-        command.release();
-    }
-
+    pipe->_exitCommandQueue();
     EQINFO << "Leaving pipe thread" << std::endl;
 }
 
 co::CommandQueue* Pipe::getPipeThreadQueue()
 {
     if( _thread )
-        return _pipeThreadQueue;
+        return _thread->getWorkerQueue();
 
     return getNode()->getMainThreadQueue();
 }
@@ -434,12 +443,11 @@ void Pipe::setCurrent( const Window* window ) const
 
 void Pipe::startThread()
 {
-    _pipeThreadQueue = new CommandQueue;
-    _thread          = new PipeThread( this );
+    _thread = new Thread( this );
     _thread->start();
 }
 
-void Pipe::joinThread()
+void Pipe::exitThread()
 {
     if( !_thread )
         return;
@@ -793,13 +801,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 bool Pipe::_cmdExitThread( co::Command& command )
 {
     EQASSERT( _thread );
-
-    // cleanup
-    _pipeThreadQueue->flush();
-    _exitCommandQueue();
-    delete _pipeThreadQueue;
-    _pipeThreadQueue = 0;
-
+    _thread->_pipe = 0;
     return true;
 }
 
@@ -832,10 +834,10 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     if( lastFrameTime > 0 )
     {
         PipeStatistics waitEvent( Statistic::PIPE_IDLE, this );
-        waitEvent.event.data.statistic.idleTime  = _waitTime;
+        waitEvent.event.data.statistic.idleTime =
+            _thread ? _thread->getWorkerQueue()->resetWaitTime() : 0;
         waitEvent.event.data.statistic.totalTime = _frameTime - lastFrameTime;
     }
-    _waitTime = 0;
 
     const uint32_t frameNumber = packet->frameNumber;
     EQASSERTINFO( _currentFrame + 1 == frameNumber,
@@ -890,7 +892,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
     EQ_TS_THREAD( _pipeThread );
-    PipeFrameDrawFinishPacket* packet =
+    const PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;

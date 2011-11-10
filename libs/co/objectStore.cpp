@@ -78,10 +78,14 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_COMMIT,
         CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
+    localNode->_registerCommand( CMD_NODE_OBJECT_INSTANCE_PUSH,
+        CmdFunc( this, &ObjectStore::_cmdInstance ), 0 );
     localNode->_registerCommand( CMD_NODE_DISABLE_SEND_ON_REGISTER,
         CmdFunc( this, &ObjectStore::_cmdDisableSendOnRegister ), queue );
     localNode->_registerCommand( CMD_NODE_REMOVE_NODE,
         CmdFunc( this, &ObjectStore::_cmdRemoveNode ), queue );
+    localNode->_registerCommand( CMD_NODE_OBJECT_PUSH,
+        CmdFunc( this, &ObjectStore::_cmdObjectPush ), queue );
 }
 
 ObjectStore::~ObjectStore()
@@ -668,8 +672,7 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 bool ObjectStore::_cmdFindMasterNodeIDReply( Command& command )
 {
     const NodeFindMasterNodeIDReplyPacket* packet =
-          command.get<NodeFindMasterNodeIDReplyPacket>();
-
+          command.get< NodeFindMasterNodeIDReplyPacket >();
     _localNode->serveRequest( packet->requestID, packet->masterNodeID );
     return true;
 }
@@ -677,8 +680,8 @@ bool ObjectStore::_cmdFindMasterNodeIDReply( Command& command )
 bool ObjectStore::_cmdAttachObject( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const NodeAttachObjectPacket* packet = 
-        command.get<NodeAttachObjectPacket>();
+    const NodeAttachObjectPacket* packet =
+        command.get< NodeAttachObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
 
     Object* object = static_cast< Object* >( _localNode->getRequestData( 
@@ -691,8 +694,8 @@ bool ObjectStore::_cmdAttachObject( Command& command )
 bool ObjectStore::_cmdDetachObject( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
-    const NodeDetachObjectPacket* packet = 
-        command.get<NodeDetachObjectPacket>();
+    const NodeDetachObjectPacket* packet =
+        command.get< NodeDetachObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
     const base::UUID& id = packet->objectID;
@@ -769,7 +772,7 @@ bool ObjectStore::_cmdDeregisterObject( Command& command )
 bool ObjectStore::_cmdMapObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    NodeMapObjectPacket* packet = command.get<NodeMapObjectPacket>();
+    const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr node = command.getNode();
@@ -801,7 +804,6 @@ bool ObjectStore::_cmdMapObject( Command& command )
     if( master )
     {
         // Check requested version
-        const uint128_t version = packet->requestedVersion;
         NodeMapObjectSuccessPacket successPacket( packet );
         successPacket.changeType       = master->getChangeType();
         successPacket.masterInstanceID = master->getInstanceID();
@@ -853,7 +855,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
     const NodeMapObjectReplyPacket* packet = 
-        command.get<NodeMapObjectReplyPacket>();
+        command.get< NodeMapObjectReplyPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet << std::endl;
 
     // Map reply packets are potentially multicasted (see above)
@@ -905,8 +907,8 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
 bool ObjectStore::_cmdUnsubscribeObject( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    NodeUnsubscribeObjectPacket* packet =
-        command.get<NodeUnsubscribeObjectPacket>();
+    const NodeUnsubscribeObjectPacket* packet =
+        command.get< NodeUnsubscribeObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
     NodePtr node = command.getNode();
@@ -972,7 +974,8 @@ bool ObjectStore::_cmdInstance( Command& command )
     EQ_TS_THREAD( _receiverThread );
     EQASSERT( _localNode );
 
-    ObjectInstancePacket* packet = command.get< ObjectInstancePacket >();
+    ObjectInstancePacket* packet =
+        command.getModifiable< ObjectInstancePacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
 
     const uint32_t type = packet->command;
@@ -981,19 +984,17 @@ bool ObjectStore::_cmdInstance( Command& command )
     packet->command = CMD_OBJECT_INSTANCE;
     const ObjectVersion rev( packet->objectID, packet->version ); 
 
+    if( _instanceCache )
+        _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+
     switch( type )
     {
       case CMD_NODE_OBJECT_INSTANCE:
         EQASSERT( packet->nodeID == NodeID::ZERO );
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
         return true;
 
       case CMD_NODE_OBJECT_INSTANCE_MAP:
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 1 );
-
         if( packet->nodeID != _localNode->getNodeID( )) // not for me
             return true;
 
@@ -1003,11 +1004,13 @@ bool ObjectStore::_cmdInstance( Command& command )
       case CMD_NODE_OBJECT_INSTANCE_COMMIT:
         EQASSERT( packet->nodeID == NodeID::ZERO );
         EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
-
-        if( _instanceCache )
-            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
-
         return dispatchObjectCommand( command );
+
+      case CMD_NODE_OBJECT_INSTANCE_PUSH:
+        EQASSERT( packet->nodeID == NodeID::ZERO );
+        EQASSERT( packet->instanceID == EQ_INSTANCE_NONE );
+        _pushData.addDataPacket( packet->objectID, command );
+        return true;
 
       default:
         EQUNREACHABLE;
@@ -1035,7 +1038,7 @@ bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
         }
     }
 
-    NodeDisableSendOnRegisterPacket* packet =
+    const NodeDisableSendOnRegisterPacket* packet =
         command.get< NodeDisableSendOnRegisterPacket >();
     _localNode->serveRequest( packet->requestID );
     return true;
@@ -1044,7 +1047,7 @@ bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
 bool ObjectStore::_cmdRemoveNode( Command& command )
 {
     EQ_TS_THREAD( _commandThread );
-    NodeRemoveNodePacket* packet = command.get<NodeRemoveNodePacket>();
+    const NodeRemoveNodePacket* packet = command.get< NodeRemoveNodePacket >();
 
     EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
 
@@ -1059,6 +1062,18 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
         _localNode->serveRequest( packet->requestID );
 
+    return true;
+}
+
+bool ObjectStore::_cmdObjectPush( Command& command )
+{
+    EQ_TS_THREAD( _commandThread );
+    const NodeObjectPushPacket* packet = command.get< NodeObjectPushPacket >();
+    ObjectDataIStream* is = _pushData.pull( packet->objectID );
+    
+    _localNode->objectPush( packet->groupID, packet->typeID, packet->objectID,
+                            *is );
+    _pushData.recycle( is );
     return true;
 }
 

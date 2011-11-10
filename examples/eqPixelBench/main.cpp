@@ -30,6 +30,12 @@
 #include "config.h"
 #include "window.h"
 
+
+#ifdef _WIN32
+#  define setenv( name, value, overwrite ) \
+    SetEnvironmentVariable( name, value )
+#endif
+
 class NodeFactory : public eq::NodeFactory
 {
 public:
@@ -43,6 +49,8 @@ public:
 
 int main( int argc, char** argv )
 {
+    setenv( "EQ_CONFIG_IATTR_ROBUSTNESS", "0", 0 /* don't overwrite */ );
+
     // 1. initialization of local node
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
@@ -50,7 +58,6 @@ int main( int argc, char** argv )
         EQERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
-    
 
     eq::ClientPtr client = new eq::Client;
     if( !client->initLocal( argc, argv ))

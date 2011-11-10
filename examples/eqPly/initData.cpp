@@ -42,6 +42,11 @@ namespace eqPly
 
 InitData::InitData()
         : _frameDataID( co::base::UUID::ZERO )
+#ifdef AGL
+        , _windowSystem( "AGL" ) // prefer over GLX
+#else
+        , _windowSystem()
+#endif
 #ifdef Darwin
         , _renderMode( mesh::RENDER_MODE_BUFFER_OBJECT )
 #else

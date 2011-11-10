@@ -36,6 +36,13 @@ namespace
 
 bool init( const int argc, char** argv )
 {
+#ifndef NDEBUG
+    EQVERB << "Options: ";
+    for( int i = 1; i < argc; ++i )
+        EQVERB << argv[i] << ", ";
+    EQVERB << std::endl;
+#endif
+
     if( ++_initialized > 1 ) // not first
         return true;
 
@@ -90,11 +97,9 @@ bool exit()
 
     // de-initialize registered plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
-    plugins.exit(); 
-    Thread::removeAllListeners();
+    plugins.exit();
     Log::exit();
-
-    return RNG::_exit();
+    return true;
 }
 
 }

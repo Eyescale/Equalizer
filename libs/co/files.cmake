@@ -37,10 +37,12 @@ set(CO_PUBLIC_HEADERS
     queueSlave.h
     serializable.h
     types.h
+    worker.h
   )
 
 set(CO_HEADERS 
     barrierPackets.h
+    dataIStreamQueue.h
     dataOStream.ipp
     deltaMasterCM.h
     eventConnection.h
@@ -74,6 +76,7 @@ set(CO_SOURCES
     connectionDescription.cpp
     connectionSet.cpp
     dataIStream.cpp
+    dataIStreamQueue.cpp
     dataOStream.cpp
     deltaMasterCM.cpp
     dispatcher.cpp
@@ -106,6 +109,7 @@ set(CO_SOURCES
     unbufferedMasterCM.cpp
     version.cpp
     versionedSlaveCM.cpp
+    worker.cpp
 )
   
 set(CO_COMPRESSOR_HEADERS

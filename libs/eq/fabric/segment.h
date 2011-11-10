@@ -113,15 +113,18 @@ namespace fabric
         /** @internal
          * Set a swap barrier.
          *
-         * This barrier will be set as a barrier on all segments added
-         * afterwards, unless the segment already has a barrier.
-         * 
+         * This barrier will be set as a barrier on all destination compounds ,
+         * unless the compounds already has a barrier.
+         *
          * @param barrier the swap barrier.
          */
-        void setSwapBarrier( SwapBarrierPtr barrier );
-        
+        EQFABRIC_INL void setSwapBarrier( SwapBarrierPtr barrier );
+
         /** @internal @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
+
+        /** @internal @return the current swap barrier. */
+        SwapBarrierPtr getSwapBarrier() { return _swapBarrier; }
         //@}
         
         /** @name Operations */
@@ -145,6 +148,9 @@ namespace fabric
 
         virtual void backup(); //!< @internal
         virtual void restore(); //!< @internal
+
+        /** @internal */
+        virtual uint128_t commit( const uint32_t incarnation=CO_COMMIT_NEXT );
         //@}
 
     protected:
@@ -193,8 +199,6 @@ namespace fabric
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
-
-        virtual uint32_t commitNB( const uint32_t incarnation ); //!< @internal
     };
 
     template< class C, class S, class CH >

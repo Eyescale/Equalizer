@@ -791,7 +791,7 @@ canvasField:
           else
               canvas->addLayout( layout ); 
       }
-    | swapBarrier { canvas->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
+    | swapBarrier { canvas->setSwapBarrier( swapBarrier ); swapBarrier = 0; }
     | EQTOKEN_LAYOUT UNSIGNED
       {
           const eq::server::LayoutPath path( $2 );
@@ -833,7 +833,7 @@ segmentField:
         segumentEyes  ']'
     | EQTOKEN_VIEWPORT viewport
         { segment->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
-    | swapBarrier { segment->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
+    | swapBarrier { segment->setSwapBarrier( swapBarrier ); swapBarrier = 0; }
     | wall       { segment->setWall( wall ); }
     | projection { segment->setProjection( projection ); }
 
@@ -916,7 +916,7 @@ compoundField:
     | projection { eqCompound->setProjection( projection ); }
     | loadBalancer
     | equalizer
-    | swapBarrier { eqCompound->setSwapBarrier( swapBarrier ); swapBarrier = 0 }
+    | swapBarrier { eqCompound->setSwapBarrier(swapBarrier); swapBarrier = 0; }
     | outputFrame
     | inputFrame
     | EQTOKEN_ATTRIBUTES '{' compoundAttributes '}'

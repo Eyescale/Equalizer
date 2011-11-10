@@ -41,15 +41,11 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
 #pragma warning(pop)
 {
     EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
-    CommandQueue* q = object->getLocalNode()->getCommandThreadQueue();
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
                              CmdFunc( this, &VersionedSlaveCM::_cmdData ), 0 );
     object->registerCommand( CMD_OBJECT_DELTA,
                              CmdFunc( this, &VersionedSlaveCM::_cmdData ), 0 );
-    object->registerCommand( CMD_OBJECT_COMMIT, 
-                             CmdFunc( this, &VersionedSlaveCM::_cmdCommit ), q);
 }
 
 VersionedSlaveCM::~VersionedSlaveCM()
@@ -65,23 +61,20 @@ VersionedSlaveCM::~VersionedSlaveCM()
     _master = 0;
 }
 
-uint32_t VersionedSlaveCM::commitNB( const uint32_t /*incarnation*/ )
+uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
 {
-    LocalNodePtr localNode = _object->getLocalNode();
-    ObjectCommitPacket packet;
-    packet.instanceID = _object->_instanceID;
-    packet.requestID  = localNode->registerRequest();
+#if 0
+    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+                         << std::endl;
+#endif
+    if( !_object->isDirty() || !_master || !_master->isConnected( ))
+        return VERSION_NONE;
 
-    _object->send( _object->getLocalNode(), packet );
-    return packet.requestID;
-}
+    _ostream.enableCommit( _master );
+    _object->pack( _ostream );
+    _ostream.disable();
 
-uint128_t VersionedSlaveCM::commitSync( const uint32_t commitID )
-{
-    LocalNodePtr localNode = _object->getLocalNode();
-    uint128_t version = VERSION_NONE;
-    localNode->waitRequest( commitID, version );
-    return version;
+    return _ostream.hasSentData() ? _ostream.getVersion() : VERSION_NONE;
 }
 
 uint128_t VersionedSlaveCM::sync( const uint128_t& v )
@@ -103,7 +96,7 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
     EQASSERTINFO( version.high() == 0, "Not a master version: " << version )
     EQASSERTINFO( _version <= version,
                   "can't sync to older version of object " << 
-                  typeid( *_object ).name() << " " << _object->getID() <<
+                  base::className( _object ) << " " << _object->getID() <<
                   " (" << _version << ", " << version <<")" );
 
     while( _version < version )
@@ -189,12 +182,12 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
         {
             EQASSERTINFO( is->hasInstanceData(), *_object );
 
-            _object->applyInstanceData( *is );
+            if( is->hasData( )) // not VERSION_NONE
+                _object->applyInstanceData( *is );
             _version = is->getVersion();
-            EQASSERT( _version != VERSION_INVALID );
 
-            EQASSERTINFO( is->getRemainingBufferSize()==0 &&
-                          is->nRemainingBuffers()==0,
+            EQASSERT( _version != VERSION_INVALID );
+            EQASSERTINFO( !is->hasData(),
                           base::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
@@ -341,33 +334,6 @@ bool VersionedSlaveCM::_cmdData( Command& command )
         _object->notifyNewHeadVersion( version );
         _currentIStream = 0;
     }
-    return true;
-}
-
-
-bool VersionedSlaveCM::_cmdCommit( Command& command )
-{
-    EQ_TS_THREAD( _cmdThread );
-    const ObjectCommitPacket* packet = command.get<ObjectCommitPacket>();
-#if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
-                         << std::endl;
-#endif
-    LocalNodePtr localNode = _object->getLocalNode();
-    if( !_master || !_master->isConnected( ))
-    {
-        EQASSERTINFO( false, "Master node not connected " << *_object );
-        localNode->serveRequest( packet->requestID, VERSION_NONE );
-        return true;
-    }
-
-    _ostream.enableCommit( _master );
-    _object->pack( _ostream );
-    _ostream.disable();
-
-    localNode->serveRequest( packet->requestID,
-                             _ostream.hasSentData() ? _ostream.getVersion() :
-                             VERSION_NONE );
     return true;
 }
 

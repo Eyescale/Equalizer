@@ -5,7 +5,8 @@ BUILD ?= debug
 PYTHON ?= python
 CMAKE ?= cmake
 
-all: $(BUILD) RELNOTES.txt README.rst
+default: $(BUILD) RELNOTES.txt README.rst
+all: debug release RELNOTES.txt README.rst
 clobber:
 	rm -rf debug release XCode debug_glx man cdash
 clean:
@@ -34,7 +35,8 @@ cdash: cdash/Makefile
 
 debug/Makefile:
 	@mkdir -p debug
-	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX:PATH=install
+	@cd debug; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Debug \
+	-DCMAKE_INSTALL_PREFIX:PATH=install -DEQUALIZER_RUN_GPU_TESTS=ON
 
 release/Makefile:
 	@mkdir -p release
@@ -54,7 +56,7 @@ package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 
 xcode:
 	@mkdir -p XCode
-	@cd XCode; $(CMAKE) -G Xcode ..
+	@cd XCode; $(CMAKE) -G Xcode .. -DCMAKE_INSTALL_PREFIX:PATH=install
 	open XCode/Equalizer.xcodeproj
 
 tests: debug/Makefile

@@ -482,10 +482,23 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig,
                     KeyPressMask | KeyReleaseMask | PointerMotionMask |
                     ButtonPressMask | ButtonReleaseMask;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF )
-        wa.override_redirect = False;
-    else
-        wa.override_redirect = True;
+    switch( getIAttribute( eq::Window::IATTR_HINT_DECORATION ))
+    {
+      case ON:
+          wa.override_redirect = False;
+          break;
+
+      case OFF:
+          wa.override_redirect = True;
+          break;
+        
+      case AUTO:
+      default:
+          wa.override_redirect = 
+              getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ?
+              True : False;
+          break;
+    }
 
     XID drawable = XCreateWindow( _xDisplay, parent, 
                                   pvp.x, pvp.y, pvp.w, pvp.h,

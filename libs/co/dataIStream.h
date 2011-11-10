@@ -105,9 +105,8 @@ namespace co
         /** Advance the current buffer by a number of bytes. */
         CO_API void advanceBuffer( const uint64_t offset );
 
-        /** @return true if all data has been read. */
-        bool isEmpty()
-            { return nRemainingBuffers()==0 && getRemainingBufferSize()==0; }
+        /** @return true if not all data has been read. */
+        bool hasData() { return _checkBuffer(); }
         //@}
  
     protected:
@@ -129,7 +128,7 @@ namespace co
          * Check that the current buffer has data left, get the next buffer is
          * necessary, return false if no data is left. 
          */
-        bool _checkBuffer();
+        CO_API bool _checkBuffer();
         CO_API void _reset();
         
         const uint8_t* _decompress( const void* data, const uint32_t name,

@@ -45,6 +45,7 @@ FrameData::FrameData()
         , _wireframe( false )
         , _pilotMode( false )
         , _idle( false )
+        , _compression( true )
         , _currentViewID( co::base::UUID::ZERO )
 {
     reset();
@@ -58,7 +59,8 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _position << _rotation << _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         os << _modelID << _renderMode << _colorMode << _quality << _ortho
-           << _statistics << _help << _wireframe << _pilotMode << _idle;
+           << _statistics << _help << _wireframe << _pilotMode << _idle
+           << _compression;
     if( dirtyBits & DIRTY_VIEW )
         os << _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -72,7 +74,8 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _position >> _rotation >> _modelRotation;
     if( dirtyBits & DIRTY_FLAGS )
         is >> _modelID >> _renderMode >> _colorMode >> _quality >> _ortho
-           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle;
+           >> _statistics >> _help >> _wireframe >> _pilotMode >> _idle
+           >> _compression;
     if( dirtyBits & DIRTY_VIEW )
         is >> _currentViewID;
     if( dirtyBits & DIRTY_MESSAGE )
@@ -160,6 +163,12 @@ void FrameData::toggleRenderMode()
         ( _renderMode + 1) % mesh::RENDER_MODE_ALL );
 
     EQINFO << "Switched to " << _renderMode << std::endl;
+    setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::toggleCompression()
+{
+    _compression = !_compression;
     setDirty( DIRTY_FLAGS );
 }
 

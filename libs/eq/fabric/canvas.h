@@ -63,6 +63,9 @@ namespace fabric
         /** Find the first segment of a given name. @internal */
         S* findSegment( const std::string& name );
 
+        /** Find the first segment of a given name. @internal */
+        const S* findSegment( const std::string& name ) const;
+
         /** @return the vector of possible layouts. @version 1.0 */
         const Layouts& getLayouts() const { return _layouts; }        
 
@@ -80,7 +83,7 @@ namespace fabric
          * 
          * @param barrier the swap barrier.
          */
-        void setSwapBarrier( SwapBarrierPtr barrier );
+        EQFABRIC_INL void setSwapBarrier( SwapBarrierPtr barrier );
         
         /** @internal @return the current swap barrier. */
         SwapBarrierConstPtr getSwapBarrier() const { return _swapBarrier; }
@@ -193,7 +196,7 @@ namespace fabric
         bool _removeChild( S* segment ); //!< @internal
 
         /** @internal */
-        EQFABRIC_INL virtual uint32_t commitNB( const uint32_t incarnation );
+        EQFABRIC_INL virtual uint128_t commit( const uint32_t incarnation );
         bool _mapViewObjects();
 
         typedef co::CommandFunc< Canvas< CFG, C, S, L > > CmdFunc;

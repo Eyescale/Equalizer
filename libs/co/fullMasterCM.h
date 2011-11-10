@@ -25,7 +25,6 @@
 
 namespace co
 {
-    class Node;
     class ObjectDataIStream;
 
     /** 
@@ -40,17 +39,18 @@ namespace co
         virtual ~FullMasterCM();
 
         virtual void init();
+        virtual uint128_t commit( const uint32_t incarnation );
+        virtual void push( const uint128_t& groupID, const uint128_t& typeID,
+                           const Nodes& nodes );
 
         /** @name Versioning */
         //@{
         virtual void setAutoObsolete( const uint32_t count );
-        virtual void increaseCommitCount( const uint32_t incarnation );
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
         //@}
 
         virtual void addSlave( Command& command,
                                NodeMapObjectReplyPacket& reply );
-        virtual void removeSlave( NodePtr node );
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes );
@@ -92,6 +92,7 @@ namespace co
         /* The command handlers. */
         bool _cmdCommit( Command& command );
         bool _cmdObsolete( Command& command );
+        bool _cmdPush( Command& command );
     };
 }
 

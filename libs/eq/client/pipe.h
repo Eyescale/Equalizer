@@ -30,7 +30,7 @@
 #include <co/objectVersion.h>
 #include <co/base/lock.h>
 #include <co/base/refPtr.h>
-#include <co/base/thread.h>
+#include <co/worker.h>
 
 namespace eq
 {
@@ -38,7 +38,7 @@ namespace eq
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * co::base::Thread, in parallel with all other pipes in the system. An
+     * eq::Worker thread, in parallel with all other pipes in the system. An
      * exception are non-threaded pipes, which execute their tasks on the Node's
      * main thread.
      *
@@ -168,8 +168,8 @@ namespace eq
         /** @internal Start the pipe thread. */
         void startThread();
 
-        /** @internal Wait for the pipe thread to exit. */
-        void joinThread();
+        /** @internal Trigger pipe thread exit and wait for completion. */
+        void exitThread();
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system
@@ -403,9 +403,6 @@ namespace eq
         /** The base time for the currently active frame. */
         int64_t _frameTime;
 
-        /** The time spent waiting since the last frame start. */
-        int64_t _waitTime;
-
         typedef stde::hash_map< uint128_t, Frame* > FrameHash;
         typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
 
@@ -424,22 +421,8 @@ namespace eq
         QueueHash _queues;
 
         /** The pipe thread. */
-        class PipeThread : public co::base::Thread
-        {
-        public:
-            PipeThread( Pipe* pipe ) 
-                    : _pipe( pipe )
-                {}
-            
-            virtual void run(){ _pipe->_runThread(); }
-
-        private:
-            Pipe* _pipe;
-        };
-        PipeThread* _thread;
-
-        /** The receiver->pipe thread command queue. */
-        eq::CommandQueue*   _pipeThreadQueue;
+        class Thread;
+        Thread* _thread;
 
         /** The last window made current. */
         const mutable Window* _currentWindow;
@@ -451,7 +434,6 @@ namespace eq
         Private* _private; // placeholder for binary-compatible changes
 
         //-------------------- Methods --------------------
-        void _runThread();
         void _setupCommandQueue();
         void _exitCommandQueue();
 

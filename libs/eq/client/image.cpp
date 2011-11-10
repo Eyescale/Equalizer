@@ -143,7 +143,8 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::PluginRegistry& registry =
+        co::base::Global::getPluginRegistry();
     const co::base::Plugins& plugins = registry.getPlugins();
     const uint32_t tokenType = getExternalFormat( buffer );
 
@@ -647,6 +648,8 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     }
 
     EQASSERT( !pixels.compressedData.empty( ));
+    EQASSERT( pixels.compressorName != EQ_COMPRESSOR_AUTO );
+
     Attachment& attachment = _getAttachment( buffer );
     if( !_allocDecompressor( attachment, pixels.compressorName ))
     {
@@ -805,25 +808,36 @@ void Image::Memory::useLocalBuffer()
     pixels = localBuffer.getData();
 }
 
+void Image::useCompressor( const Frame::Buffer buffer, const uint32_t name )
+{
+    _getMemory( buffer ).compressorName = name;
+}
+
 const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 {
     EQASSERT( getPixelDataSize( buffer ) > 0 );
 
     Attachment& attachment = _getAttachment( buffer );
     Memory& memory = attachment.memory;
-    if( memory.isCompressed )
+    if( memory.isCompressed || memory.compressorName == EQ_COMPRESSOR_NONE )
+    {
+        EQASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
         return memory;
+    }
 
     const co::base::CPUCompressor* compressor = attachment.compressor;
 
     if( compressor->isValid( attachment.compressor->getName( )) && 
-        compressor->getInfo().tokenType == getExternalFormat( buffer ) )
+        compressor->getInfo().tokenType == getExternalFormat( buffer ) &&
+        memory.compressorName != EQ_COMPRESSOR_AUTO )
     {
         memory.compressorName = compressor->getName();
     }
     else
     {
-        memory.compressorName = _chooseCompressor( buffer );
+        if( memory.compressorName == EQ_COMPRESSOR_AUTO )
+            memory.compressorName = _chooseCompressor( buffer );
+
         if( !allocCompressor( buffer, memory.compressorName ) || 
             memory.compressorName == EQ_COMPRESSOR_NONE )
         {
@@ -833,7 +847,8 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         }
     }
 
-    EQASSERT( memory.compressorName != 0 );
+    EQASSERT( memory.compressorName != EQ_COMPRESSOR_AUTO );
+    EQASSERT( memory.compressorName != EQ_COMPRESSOR_INVALID );
     if( memory.compressorName == EQ_COMPRESSOR_NONE )
         return memory;
 

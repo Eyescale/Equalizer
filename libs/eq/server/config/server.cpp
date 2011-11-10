@@ -49,7 +49,6 @@ ServerPtr Server::configureLocal()
         return 0;
 
     const Channels channels = Resources::configureSourceChannels( config );
-    EQINFO << *config << std::endl;
     Resources::configure( compounds, channels );
     return server;
 }

@@ -120,7 +120,8 @@ namespace server
         void commitData();
 
         /** Commit the frame */
-        EQSERVER_API virtual uint32_t commitNB( const uint32_t incarnation );
+        EQSERVER_API virtual uint128_t commit( const uint32_t incarnation = 
+                                               CO_COMMIT_NEXT );
 
         /** 
          * Cycle the current FrameData.

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_EXECUTIONLISTENER_H
-#define COBASE_EXECUTIONLISTENER_H
+#include "worker.h"
+
+#include "command.h"
 
 namespace co
 {
-namespace base
+template< class Q > void WorkerThread< Q >::run()
 {
-    /**
-     * A listener interface to monitor execution unit (Thread, Process) state
-     * changes.
-     */
-    class ExecutionListener
+    while( !stopRunning( ))
     {
-    public:
-        /** Destruct the execution listener. @version 1.0 */
-        virtual ~ExecutionListener() {}
+        Command& command = *(_commands.pop( ));
+        EQASSERT( command.isValid( ));
 
-        /** Notify that a new execution unit started. @version 1.0 */
-        virtual void notifyExecutionStarted() {}
+        if( !command( ))
+        {
+            EQABORT( "Error handling " << command );
+        }
+        command.release();
 
-        /** Notify that the execution unit is about to stop. @version 1.0 */
-        virtual void notifyExecutionStopping() {}
-    };
+        while( _commands.isEmpty( ))
+            if( !notifyIdle( )) // nothing to do
+                break;
+    }
+ 
+    _commands.flush();
+    EQINFO << "Leaving worker thread " << base::className( this ) << std::endl;
 }
 
 }
-#endif //COBASE_EXECUTIONLISTENER_H

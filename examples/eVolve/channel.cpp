@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *               2007-2009, Maxim Makhinya
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@ Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _bgColor( eq::Vector3f::ZERO )
         , _drawRange( eq::Range::ALL )
+        , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
     eq::FrameData* frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
@@ -63,19 +64,23 @@ bool Channel::configInit( const eq::uint128_t& initID )
         return false;
 
     setNearFar( 0.001f, 10.0f );
-
-    if( getenv( "EQ_TAINT_CHANNELS" ))
-    {
-        _bgColor = getUniqueColor();
-        _bgColor /= 255.f;
-    }
-
     return true;
 }
 
-void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber )
+void Channel::frameStart( const eq::uint128_t& frameID,
+                          const uint32_t frameNumber )
 {
     _drawRange = eq::Range::ALL;
+    _bgColor = eq::Vector3f( 0.f, 0.f, 0.f );
+
+    const BackgroundMode bgMode = _getFrameData().getBackgroundMode();
+
+    if( bgMode == BG_WHITE )
+        _bgColor = eq::Vector3f( 1.f, 1.f, 1.f );
+    else
+        if( bgMode == BG_COLOR || _taint )
+             _bgColor = eq::Vector3f( getUniqueColor( )) / 255.f;
+
     eq::Channel::frameStart( frameID, frameNumber );
 }
 
@@ -84,7 +89,8 @@ void Channel::frameClear( const eq::uint128_t& frameID )
     applyBuffer();
     applyViewport();
 
-    if( getRange() == eq::Range::ALL )
+    _drawRange = getRange();
+    if( _drawRange == eq::Range::ALL )
         glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
     else
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -113,6 +119,21 @@ static void setLights( eq::Matrix4f& invRotationM )
     glPopMatrix();
 }
 
+
+static eq::Vector4f _getTaintColor( const ColorMode colorMode,
+                                    const eq::Vector3f& color )
+{
+    if( colorMode == COLOR_MODEL )
+        return eq::Vector4f::ZERO;
+
+    eq::Vector4f taintColor( color.r(), color.g(), color.b(), 1.0 );
+    const float alpha = ( colorMode == COLOR_HALF_DEMO ) ? 0.5 : 1.0;
+
+    taintColor /= 255.f;
+    taintColor      *= alpha;
+    taintColor.a()   = alpha;
+    return taintColor;
+}
 
 void Channel::frameDraw( const eq::uint128_t& frameID )
 {
@@ -150,9 +171,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
     _calcMVandITMV( modelviewM, modelviewITM );
 
-    const eq::Range& range = getRange();
-    renderer->render( range, modelviewM, modelviewITM, invRotationM );
+    // set fancy data colors
+    const eq::Vector4f taintColor = _getTaintColor( frameData.getColorMode(),
+                                                    getUniqueColor( ));
+    const int normalsQuality = _getFrameData().getNormalsQuality();
 
+    const eq::Range& range = getRange();
+    renderer->render( range, modelviewM, modelviewITM, invRotationM,
+                      taintColor, normalsQuality );
     checkError( "error during rendering " );
 
     _drawRange = range;
@@ -185,13 +211,13 @@ void Channel::_calcMVandITMV(
     if( renderer )
     {
         const VolumeScaling& volScaling = renderer->getVolumeScaling();
-        
+
         eq::Matrix4f scale( eq::Matrix4f::ZERO );
         scale.at(0,0) = volScaling.W;
         scale.at(1,1) = volScaling.H;
         scale.at(2,2) = volScaling.D;
         scale.at(3,3) = 1.f;
-        
+
         modelviewM = scale * frameData.getRotation();
     }
     modelviewM.set_translation( frameData.getTranslation( ));
@@ -220,7 +246,12 @@ void Channel::clearViewport( const eq::PixelViewport &pvp )
 {
     // clear given area
     glScissor(  pvp.x, pvp.y, pvp.w, pvp.h );
-    glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
+
+    if( _drawRange == eq::Range::ALL )
+        glClearColor( _bgColor.r(), _bgColor.g(), _bgColor.b(), 1.0f );
+    else
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+
     glClear( GL_COLOR_BUFFER_BIT );
 
     // restore assembly state
@@ -245,13 +276,12 @@ void Channel::_orderFrames( eq::Frames& frames )
 void Channel::frameAssemble( const eq::uint128_t& frameID )
 {
     const bool composeOnly = (_drawRange == eq::Range::ALL);
-    eq::FrameData* data = _frame.getData();
 
     _startAssemble();
 
     const eq::Frames& frames = getInputFrames();
     eq::PixelViewport  coveredPVP;
-    eq::Frames    dbFrames;
+    eq::Frames         dbFrames;
     eq::Zoom           zoom( eq::Zoom::NONE );
 
     // Make sure all frames are ready and gather some information on them
@@ -283,6 +313,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // calculate correct frames sequence
+    eq::FrameData* data = _frame.getData();
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();
@@ -291,6 +322,16 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     _orderFrames( dbFrames );
+
+    // Update range
+    eq::Range newRange( 1.f, 0.f );
+    for( size_t i = 0; i < dbFrames.size(); ++i )
+    {
+        const eq::Range range = dbFrames[i]->getRange();
+        if( newRange.start > range.start ) newRange.start = range.start;
+        if( newRange.end   < range.end   ) newRange.end   = range.end;
+    }
+    _drawRange = newRange;
 
     // check if current frame is in proper position, read back if not
     if( !composeOnly )
@@ -324,9 +365,6 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
-
-    // Update range
-    _drawRange = getRange();
 }
 
 void Channel::_startAssemble()
@@ -347,6 +385,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
         frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
+        frame->getData()->setRange( _drawRange );
     }
 
     eq::Channel::frameReadback( frameID );

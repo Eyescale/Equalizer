@@ -24,8 +24,6 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
-#include <co/base/refPtr.h>
-#include <co/base/uuid.h>
 
 #include <map>
 #include <vector>
@@ -241,6 +239,8 @@ using co::base::uint128_t;
 using co::base::UUID;
 
 /** @cond IGNORE */
+typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
+
 // originator serial -> statistics
 typedef std::map< uint32_t, Statistics > SortedStatistics;
 

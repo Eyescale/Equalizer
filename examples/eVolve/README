@@ -31,20 +31,30 @@ Data Format
 
    Raw File Format
 
-      The raw file is a file where each voxel is represented by 4
-      bytes. The first byte is the color index of the voxel itself, the
-      other 3 bytes are x, y and z components of the gradient vector for
-      the current voxel. The gradient vector is used for lighting
-      calculations. eVolve works only with data which is represented as
-      a regular parallelepiped grid of voxels. The position of each
-      voxel in a raw file could be calculated as:
+      There are two input data are supported:
+        1) RAW data, where each byte correspond to a single voxel value;
+        2) Each voxel is represented by 4 bytes. The first 3 bytes are
+           x, y and z components of the gradient vector for the current
+           voxel, the fourth byte is the color index of the voxel itself.
+           The gradient vector is used for lighting calculations.
 
-         pos = ( z*(W*H) + y*W + x )*4
+      The type of the input data is determined from the file name's ending:
+      <name>.raw is recognized as a first case, and <name>_d.raw is considered
+      to be RAW + gradient data.
+
+      eVolve works only with data which is represented as a regular
+      parallelepiped grid of voxels. The position of each voxel in a raw
+      file could be calculated as:
+
+         pos = ( z*(W*H) + y*W + x )*depth
 
          where:
 
          W, H, D - width, height and depth of a model,
          x, y, z - coordinates of a voxel.
+         depth   - equals 1, when RAW data is used,
+                   equals 4, when RAW + gradient data is used.
+                   
 
     VHF File Format
 

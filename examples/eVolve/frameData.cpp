@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *               2007-2009, Maxim Makhinya
+ *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,9 @@ namespace eVolve
 
 FrameData::FrameData()
     : _ortho(         false )
+    , _colorMode(     COLOR_MODEL )
+    , _bgMode(        BG_BLACK )
+    , _normalsQuality(NQ_FULL )
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
@@ -56,6 +59,26 @@ void FrameData::reset()
     _rotation.rotate_y( static_cast<float>( -M_PI_2 ));
 
     setDirty( DIRTY_CAMERA );
+}
+
+void FrameData::toggleBackground()
+{
+    _bgMode = static_cast< BackgroundMode >(( _bgMode + 1 ) % BG_ALL );
+    setDirty( DIRTY_FLAGS );
+}
+
+void FrameData::toggleNormalsQuality()
+{
+    _normalsQuality = 
+        static_cast< NormalsQuality >(( _normalsQuality + 1 ) % NQ_ALL );
+    setDirty( DIRTY_FLAGS );
+}
+
+
+void FrameData::toggleColorMode()
+{
+    _colorMode = static_cast< ColorMode >(( _colorMode + 1 ) % COLOR_ALL );
+    setDirty( DIRTY_FLAGS );
 }
 
 void FrameData::toggleOrtho( )
@@ -139,7 +162,8 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _rotation << _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        os << _ortho << _statistics << _quality  << _help;
+        os  << _ortho << _colorMode << _bgMode << _normalsQuality
+            << _statistics << _quality << _help;
 
     if( dirtyBits & DIRTY_MESSAGE )
         os << _message;
@@ -155,7 +179,8 @@ void FrameData::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
         is >> _rotation >> _translation;
 
     if( dirtyBits & DIRTY_FLAGS )
-        is >> _ortho >> _statistics  >> _quality >> _help;
+        is  >> _ortho >> _colorMode >> _bgMode >> _normalsQuality
+            >> _statistics  >> _quality >> _help;
 
     if( dirtyBits & DIRTY_MESSAGE )
         is >> _message;

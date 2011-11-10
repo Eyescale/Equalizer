@@ -18,7 +18,6 @@ set(COBASE_PUBLIC_HEADERS
     dso.h
     error.h
     errorRegistry.h
-    executionListener.h
     file.h
     global.h
     hash.h

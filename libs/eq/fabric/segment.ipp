@@ -52,11 +52,11 @@ Segment< C, S, CH >::~Segment()
 }
 
 template< class C, class S, class CH >
-uint32_t Segment< C, S, CH >::commitNB( const uint32_t incarnation )
+uint128_t Segment< C, S, CH >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_CHANNEL ) && _channel )
         commitChild< typename CH::Parent >( _channel->getWindow(), incarnation);
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class C, class S, class CH >
@@ -273,7 +273,8 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     if( vp.isValid( ) && vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    if( segment.getSwapBarrier().isValid( ))
+    SwapBarrierConstPtr barrier = segment.getSwapBarrier();
+    if( barrier && barrier != segment.getCanvas()->getSwapBarrier( ))
         os << *segment.getSwapBarrier();
     os << static_cast< const Frustum& >( segment );
 

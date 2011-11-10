@@ -102,19 +102,26 @@ Compounds Loader::addOutputCompounds( ServerPtr server )
         Config* config = *i;
         config->accept( finder );
 
-        const Channels& channels = finder.getResult();
-        if( channels.empty( ))
-            continue;
-
-        Compound* group = new Compound( config );
-        for( Channels::const_iterator j = channels.begin(); 
-             j != channels.end(); ++j )
+        Channels channels = finder.getResult();
+        while( !channels.empty( ))
         {
-            Compound* compound = new Compound( group );
-            Channel* channel = *j;
-            compound->setChannel( channel );
+            const Layout* layout = channels.front()->getLayout();
+
+            Compound* group = new Compound( config );
+            for( ChannelsIter j = channels.begin(); j != channels.end(); )
+            {
+                Channel* channel = *j;
+                if( channel->getLayout() == layout )
+                {
+                    Compound* compound = new Compound( group );
+                    compound->setChannel( channel );
+                    j = channels.erase( j );
+                }
+                else
+                    ++j;
+            }
+            result.push_back( group );
         }
-        result.push_back( group );
     }
     return result;
 }

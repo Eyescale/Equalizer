@@ -48,7 +48,9 @@ class ObjectDataIStream;
 class Serializable;
 class QueueMaster;
 class QueueSlave;
+template< class Q > class WorkerThread;
 struct ObjectVersion;
+struct Packet;
 
 /** A unique identifier for nodes. */
 typedef base::UUID NodeID;
@@ -66,6 +68,8 @@ typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
+/** An iterator for a vector of nodes. */
+typedef Nodes::iterator                          NodesIter;
 /** A const iterator for a vector of nodes. */
 typedef Nodes::const_iterator                    NodesCIter;
 
@@ -74,7 +78,8 @@ typedef std::vector< Object* >                   Objects;
 /** A const iterator for a vector of objects. */
 typedef Objects::const_iterator                  ObjectsCIter;
 
-typedef std::vector< Barrier* > Barriers; //!< A vector of Barriers
+typedef std::vector< Barrier* > Barriers; //!< A vector of barriers
+typedef Barriers::iterator BarriersIter;  //!< Barriers iterator
 typedef Barriers::const_iterator BarriersCIter; //!< Barriers const iterator
 
 /** A vector of ConnectionPtr's. */

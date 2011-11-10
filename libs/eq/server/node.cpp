@@ -346,6 +346,14 @@ bool Node::_launch( const std::string& hostname ) const
                 replacement << _node->getNodeID();
                 break;
 
+            case 'd':
+                replacement << getConfig()->getWorkDir();
+                break;
+
+            case 'q':
+                replacement << getCAttribute( CATTR_LAUNCH_COMMAND_QUOTE );
+                break;
+
             default:
                 EQWARN << "Unknown token " << command[percentPos+1] 
                        << std::endl;
@@ -437,8 +445,9 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    _flushedFrame  = 0;
-    _finishedFrame = 0;
+    const Config* config = getConfig();
+    _flushedFrame  = config->getFinishedFrame();
+    _finishedFrame = config->getFinishedFrame();
     _frameIDs.clear();
 
     EQLOG( LOG_INIT ) << "Create node" << std::endl;

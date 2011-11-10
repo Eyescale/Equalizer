@@ -94,11 +94,11 @@ void Canvas< CFG, C, S, L >::attach( const co::base::UUID& id,
 }
 
 template< class CFG, class C, class S, class L >
-uint32_t Canvas< CFG, C, S, L >::commitNB( const uint32_t incarnation )
+uint128_t Canvas< CFG, C, S, L >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_SEGMENTS ))
         commitChildren< S, CanvasNewSegmentPacket >( _segments, incarnation );
-    return Object::commitNB( incarnation );
+    return Object::commit( incarnation );
 }
 
 template< class CFG, class C, class S, class L >
@@ -248,6 +248,14 @@ template< class CFG, class C, class S, class L >
 S* Canvas< CFG, C, S, L >::findSegment( const std::string& name )
 {
     NameFinder< S, Visitor > finder( name );
+    accept( finder );
+    return finder.getResult();
+}
+
+template< class CFG, class C, class S, class L >
+const S* Canvas< CFG, C, S, L >::findSegment( const std::string& name ) const
+{
+    NameFinder< const S, Visitor > finder( name );
     accept( finder );
     return finder.getResult();
 }

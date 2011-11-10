@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007       Maxim Makhinya
+/* Copyright (c) 2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,13 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
         : _headerLoaded( false )
         , _filename( filename )
         , _preintName  ( 0 )
+        , _w( 0 )
+        , _h( 0 )
+        , _d( 0 )
+        , _tW( 0 )
+        , _tH( 0 )
+        , _tD( 0 )
+        , _hasDerivatives( true )
         , _glewContext( 0 )
 {}
 
@@ -72,6 +79,12 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
         EQERROR << "Can't open header file" << std::endl;
         return false;
     }
+
+    // test for raw+der or raw
+    const size_t fNameLen = _filename.length();
+    _hasDerivatives = 
+        ( fNameLen >= 6 && _filename.substr( fNameLen-6, 6 ) == "_d.raw" ) ?
+        true : false;
 
     if( !readDimensionsAndScaling( header.f, _w, _h, _d, _volScaling ) )
         return false;
@@ -136,8 +149,19 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
     info.volume     = volumePart->volume;
     info.TD         = volumePart->TD;
     info.preint     = _preintName;
-    info.volScaling  = _volScaling;
-
+    info.volScaling = _volScaling;
+    info.hasDerivatives = _hasDerivatives;
+    if( _hasDerivatives )
+    {
+        info.voxelSize.W  = 1.f;
+        info.voxelSize.H  = 1.f;
+        info.voxelSize.D  = 1.f;
+    }else
+    {
+        info.voxelSize.W  = 1.f / _tW;
+        info.voxelSize.H  = 1.f / _tH;
+        info.voxelSize.D  = 1.f / _tD;
+    }
     return true;
 }
 
@@ -180,6 +204,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     const uint32_t w = _w;
     const uint32_t h = _h;
     const uint32_t d = _d;
+    const uint32_t bytes = _hasDerivatives ? 4 : 1;
 
     const int32_t bwStart = 2; //border width from left
     const int32_t bwEnd   = 2; //border width from right
@@ -198,34 +223,34 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     const uint32_t depth = end-start+1;
 
-    const uint32_t tW = calcMinPow2( w );
-    const uint32_t tH = calcMinPow2( h );
-    const uint32_t tD = calcMinPow2( depth );
+    _tW = calcMinPow2( w );
+    _tH = calcMinPow2( h );
+    _tD = calcMinPow2( depth );
 
     //texture scaling coefficients
-    TD.W  = static_cast<float>( w     ) / static_cast<float>( tW );
-    TD.H  = static_cast<float>( h     ) / static_cast<float>( tH );
-    TD.D  = static_cast<float>( e-s+1 ) / static_cast<float>( tD );
+    TD.W  = static_cast<float>( w     ) / static_cast<float>( _tW );
+    TD.H  = static_cast<float>( h     ) / static_cast<float>( _tH );
+    TD.D  = static_cast<float>( e-s+1 ) / static_cast<float>( _tD );
     TD.D /= range.end>range.start ? (range.end-range.start) : 1.0f;
 
     // Shift coefficient and left border in texture for depth
     TD.Do = range.start;
-    TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(tD) : 0;
+    TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(_tD) : 0;
 
     EQLOG( eq::LOG_CUSTOM )
             << "==============================================="   << std::endl
-            << " w: "  << w << " " << tW
-            << " h: "  << h << " " << tH
-            << " d: "  << d << " " << depth << " " << tD           << std::endl
+            << " w: "  << w << " " << _tW
+            << " h: "  << h << " " << _tH
+            << " d: "  << d << " " << depth << " " << _tD           << std::endl
             << " r: "  << _resolution                              << std::endl
             << " ws: " << TD.W  << " hs: " << TD.H  << " wd: " << TD.D 
             << " Do: " << TD.Do << " Db: " << TD.Db                << std::endl
             << " s= "  << start << " e= "  << end                  << std::endl;
 
     // Reading of requested part of a volume
-    std::vector<uint8_t> data( tW*tH*tD*4, 0 );
-    const uint32_t  wh4 =  w *  h * 4;
-    const uint32_t tWH4 = tW * tH * 4;
+    std::vector<uint8_t> data( _tW*_tH*_tD*bytes, 0 );
+    const uint32_t  wh4 =   w *   h * bytes;
+    const uint32_t tWH4 = _tW * _tH * bytes;
 
     std::ifstream file ( _filename.c_str(), std::ifstream::in |
                          std::ifstream::binary | std::ifstream::ate );
@@ -238,20 +263,20 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     file.seekg( wh4*start, std::ios::beg );
 
-    if( w==tW && h==tH ) // width and height are power of 2
+    if( w==_tW && h==_tH ) // width and height are power of 2
     {
         file.read( (char*)( &data[0] ), wh4*depth );
     }
-    else if( w==tW )     // only width is power of 2
+    else if( w==_tW )     // only width is power of 2
     {
         for( uint32_t i=0; i<depth; i++ )
             file.read( (char*)( &data[i*tWH4] ), wh4 );
     }
     else
     {               // nor width nor heigh is power of 2
-        const uint32_t   w4 =  w * 4;
-        const uint32_t  tW4 = tW * 4;
-        
+        const uint32_t   w4 =   w * bytes;
+        const uint32_t  tW4 = _tW * bytes;
+
         for( uint32_t i=0; i<depth; i++ )
             for( uint32_t j=0; j<h; j++ )
                 file.read( (char*)( &data[ i*tWH4 + j*tW4] ), w4 );
@@ -271,9 +296,18 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR        );
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR        );
 
-    glTexImage3D(   GL_TEXTURE_3D, 
-                    0, GL_RGBA, tW, tH, tD, 
-                    0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
+    if( _hasDerivatives )
+    {
+        glTexImage3D(   GL_TEXTURE_3D,
+                        0, GL_RGBA, _tW, _tH, _tD,
+                        0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
+    }else
+    {
+        glTexImage3D(   GL_TEXTURE_3D,
+                        0, GL_ALPHA, _tW, _tH, _tD,
+                        0, GL_ALPHA, GL_UNSIGNED_BYTE, (GLvoid*)(&data[0]) );
+    }
+
     return true;
 }
 
@@ -390,7 +424,6 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         }
         TF[4*i+3] = tmp;
     }
-
     return true;
 }
 
@@ -404,13 +437,19 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
     double bInt[256]; bInt[0] = 0.;
     double aInt[256]; aInt[0] = 0.;
 
+    // Creating SAT (Summed Area Tables) from averaged neighbouring RGBA values
     for( int i=1; i<256; i++ )
     {
-        const double tauc = ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2.;
+        // average Alpha from two neighbouring TF values
+        const double tauc =   ( Table[(i-1)*4+3] + Table[i*4+3] ) / 2. / 255.;
 
-        rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc/255.;
-        gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc/255.;
-        bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc/255.;
+        // SAT of average RGBs from two neighbouring TF values 
+        // multiplied with Alpha
+        rInt[i] = rInt[i-1] + ( Table[(i-1)*4+0] + Table[i*4+0] )/2.*tauc;
+        gInt[i] = gInt[i-1] + ( Table[(i-1)*4+1] + Table[i*4+1] )/2.*tauc;
+        bInt[i] = bInt[i-1] + ( Table[(i-1)*4+2] + Table[i*4+2] )/2.*tauc;
+
+        // SAT of average Alpha values
         aInt[i] = aInt[i-1] + tauc;
     }
 
@@ -426,28 +465,27 @@ static GLuint createPreintegrationTable( const uint8_t *Table )
             if( sb<sf ) { smin=sb; smax=sf; }
             else        { smin=sf; smax=sb; }
 
-            int rcol, gcol, bcol, acol;
+            double rcol, gcol, bcol, acol;
             if( smax != smin )
             {
                 const double factor = 1. / (double)(smax-smin);
-                rcol = static_cast<int>( (rInt[smax]-rInt[smin])*factor );
-                gcol = static_cast<int>( (gInt[smax]-gInt[smin])*factor );
-                bcol = static_cast<int>( (bInt[smax]-bInt[smin])*factor );
-                acol = static_cast<int>( 
-                        256.*(    exp(-(aInt[smax]-aInt[smin])*factor/255.)));
+                rcol =       ( rInt[smax] - rInt[smin] ) * factor;
+                gcol =       ( gInt[smax] - gInt[smin] ) * factor;
+                bcol =       ( bInt[smax] - bInt[smin] ) * factor;
+                acol = exp( -( aInt[smax] - aInt[smin] ) * factor) * 255.;
             } else
             {
                 const int    index  = smin*4;
                 const double factor = 1./255.;
-                rcol = static_cast<int>( Table[index+0]*Table[index+3]*factor );
-                gcol = static_cast<int>( Table[index+1]*Table[index+3]*factor );
-                bcol = static_cast<int>( Table[index+2]*Table[index+3]*factor );
-                acol = static_cast<int>( 256.*(    exp(-Table[index+3]/255.)) );
+                rcol =       Table[index+0] * Table[index+3] * factor;
+                gcol =       Table[index+1] * Table[index+3] * factor;
+                bcol =       Table[index+2] * Table[index+3] * factor;
+                acol = exp(                  -Table[index+3] * factor ) * 256.;
             }
-            lookupImg[lookupindex++] = clip( rcol, 0, 255 );//MIN( rcol, 255 );
-            lookupImg[lookupindex++] = clip( gcol, 0, 255 );//MIN( gcol, 255 );
-            lookupImg[lookupindex++] = clip( bcol, 0, 255 );//MIN( bcol, 255 );
-            lookupImg[lookupindex++] = clip( acol, 0, 255 );//MIN( acol, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(rcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(gcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(bcol), 0, 255 );
+            lookupImg[lookupindex++] = clip( static_cast<int>(acol), 0, 255 );
         }
     }
 

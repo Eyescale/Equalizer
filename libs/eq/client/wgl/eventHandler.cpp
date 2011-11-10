@@ -33,7 +33,6 @@
 #include "../window.h"
 
 #include <co/base/debug.h>
-#include <co/base/executionListener.h>
 
 #include <algorithm>
 #include <windowsx.h>

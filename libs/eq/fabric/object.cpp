@@ -58,10 +58,10 @@ bool Object::isDirty() const
     return Serializable::isDirty();
 }
 
-uint32_t Object::commitNB( const uint32_t incarnation )
+uint128_t Object::commit( const uint32_t incarnation )
 {
     if( !_userData )
-        return Serializable::commitNB( incarnation );
+        return Serializable::commit( incarnation );
 
     if( !_userData->isAttached() && hasMasterUserData( ))
     {
@@ -96,7 +96,7 @@ uint32_t Object::commitNB( const uint32_t incarnation )
         }
     }
 
-    return Serializable::commitNB( incarnation );
+    return Serializable::commit( incarnation );
 }
 
 void Object::notifyDetach()
