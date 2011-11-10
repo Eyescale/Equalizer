@@ -387,7 +387,13 @@ eq::server::Compound* ConfigTool::_addSingleSegment( Config* config ) const
 
     const Compounds compounds = Loader::addOutputCompounds(config->getServer());
     EQASSERT( compounds.size() == 1 );
-    return compounds.empty() ? 0 : compounds.front();
+    if( compounds.empty( ))
+        return 0;
+
+    Compound* root = compounds.front();
+    const Compounds& children = root->getChildren();
+    EQASSERT( children.size() == 1 );
+    return children.empty() ? 0 : children.front();
 }
 
 void ConfigTool::_write2D( Config* config ) const
