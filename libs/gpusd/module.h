@@ -18,13 +18,13 @@
 #ifndef GPUSD_MODULE_H
 #define GPUSD_MODULE_H
 
-#include <gpusd1/api.h>
-#include <gpusd1/types.h>
+#include <gpusd/api.h>
+#include <gpusd/types.h>
 #include <iostream>
 
 namespace gpusd
 {
-    /** Base class for runtime-attached DSOs containing a query implementation.*/
+    /** Base class for runtime-attached DSOs of a query implementation. */
     class Module
     {
     public:
