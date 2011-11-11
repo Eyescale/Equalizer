@@ -79,6 +79,8 @@ if(Equalizer_FIND_VERSION)
   set(_eq_coVersion_1.1.2 "0.4.0")
   set(_eq_coVersion_1.1.1 "0.4.0")
   set(_eq_coVersion_1.1.0 "0.4.0")
+  set(_eq_coVersion_1.0.2 "0.3.1")
+  set(_eq_coVersion_1.0.1 "0.3.1")
   set(_eq_coVersion_1.0.0 "0.3.0")
   find_package(Collage "${_eq_coVersion_${Equalizer_FIND_VERSION}}"
                ${_eq_required})
