@@ -9,16 +9,7 @@ set(GPUSD_LIBRARIES gpusd)
 if(APPLE)
   add_definitions(-DGPUSD_AGL)
   list(APPEND GPUSD_LIBRARIES gpusd_agl)
-
-  # No 64 bit support for AGL
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(CMAKE_OSX_ARCHITECTURES "ppc")
-  else()
-    set(CMAKE_OSX_ARCHITECTURES "i386")
-  endif()
-  message(STATUS "Building gpu_sd daemon for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
-
 if(X11_FOUND)
   add_definitions(-DGPUSD_GLX)
   list(APPEND GPUSD_LIBRARIES gpusd_glx)

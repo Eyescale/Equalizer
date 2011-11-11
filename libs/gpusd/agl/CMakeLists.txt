@@ -17,14 +17,6 @@ include_directories(${OPENGL_INCLUDE_DIR})
 set(LIBRARY gpusd_agl)
 set(INCLUDE gpusd/agl)
 
-# No 64 bit support for AGL
-if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-  set(CMAKE_OSX_ARCHITECTURES "ppc")
-else()
-  set(CMAKE_OSX_ARCHITECTURES "i386")
-endif()
-message(STATUS "Building ${LIBRARY} for ${CMAKE_OSX_ARCHITECTURES}")
-
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${LIBRARY} ${CARBON_LIBRARY} ${OPENGL_LIBRARIES} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
