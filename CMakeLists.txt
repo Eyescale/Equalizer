@@ -76,7 +76,7 @@ if(APPLE)
   mark_as_advanced(GPUSD_OSX_ARCHITECTURES)
   
   set(CMAKE_OSX_ARCHITECTURES "${GPUSD_OSX_ARCHITECTURES}")
-  message(STATUS "Building for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS "Building gpu_sd for ${CMAKE_OSX_ARCHITECTURES}")
 endif(APPLE)
 
 add_subdirectory(apps)

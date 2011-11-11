@@ -15,7 +15,7 @@ if(APPLE)
   else()
     set(CMAKE_OSX_ARCHITECTURES "i386")
   endif()
-  message(STATUS "Building gpu_sd for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS "Building gpu_sd daemon for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
 if(X11_FOUND)
