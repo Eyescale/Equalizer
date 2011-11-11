@@ -22,8 +22,8 @@
 #include "pipe.h"
 #include "messagePump.h"
 
-#include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
+#include <co/base/debug.h>
 
 #define MAX_GPUS 32
 
@@ -55,38 +55,8 @@ static class : WindowSystemIF
 
     GPUInfos discoverGPUs() const
     {
-        const CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-
-        CGDirectDisplayID displayIDs[MAX_GPUS];
-        CGDisplayCount    nDisplays = 0;
-        if( CGGetOnlineDisplayList( MAX_GPUS, displayIDs, &nDisplays ) !=
-            kCGErrorSuccess )
-        {
-            GPUInfos result;
-            result.push_back( GPUInfo() );
-            return result;
-        }
-
-        std::deque< GPUInfo > infos;
-        for( CGDisplayCount i = 0; i < nDisplays; ++i )
-        {
-            GPUInfo info;
-            const CGRect displayRect = CGDisplayBounds( displayIDs[i] );
-
-            info.device = i;
-            info.pvp.x = int32_t(displayRect.origin.x);
-            info.pvp.y = int32_t(displayRect.origin.y);
-            info.pvp.w = int32_t(displayRect.size.width);
-            info.pvp.h = int32_t(displayRect.size.height);
-
-            if( mainDisplayID == displayIDs[i] )
-                infos.push_front( info );
-            else
-                infos.push_back( info );
-        }
-
-        GPUInfos result( infos.size( ));
-        std::copy( infos.begin(), infos.end(), result.begin( ));
+        EQASSERTINFO( false, "Moved to gpu-sd library" );
+        GPUInfos result;
         return result;
     }
 

@@ -30,6 +30,14 @@
 #include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
 
+#include <gpusd/gpuInfo.h>
+#ifdef AGL
+#  include <gpusd/cgl/module.h>
+#endif
+#ifdef GLX
+#  include <gpusd/glx/module.h>
+#endif
+
 namespace eq
 {
 namespace server
@@ -38,13 +46,28 @@ namespace config
 {
 static co::base::a_int32_t _frameCounter;
 
+#ifdef WGL // TODO remove once gpu-sd has WGL support
+typedef eq::fabric::GPUInfo GPUInfo;
+typedef eq::fabric::GPUInfos GPUInfos;
+typedef eq::fabric::GPUInfosCIter GPUInfosCIter;
+#else
+typedef gpusd::GPUInfo GPUInfo;
+typedef gpusd::GPUInfos GPUInfos;
+typedef gpusd::GPUInfosCIter GPUInfosCIter;
+#endif
+
+
 bool Resources::discoverLocal( Config* config )
 {
 #ifdef AGL
-    // prefer over GLX
-    const GPUInfos infos = WindowSystem( "AGL" ).discoverGPUs();
-#else
+    gpusd::cgl::Module::use();
+#elif defined (GLX)
+    gpusd::glx::Module::use();
+#endif
+#ifdef WGL // not yet in gpu_sd
     const GPUInfos infos = WindowSystem().discoverGPUs();
+#else
+    const GPUInfos infos = gpusd::Module::discoverGPUs();
 #endif
     if( infos.empty( ))
         return false;
@@ -60,7 +83,7 @@ bool Resources::discoverLocal( Config* config )
         Pipe* pipe = new Pipe( node );
         pipe->setPort( info.port );
         pipe->setDevice( info.device );
-        pipe->setPixelViewport( info.pvp );
+        pipe->setPixelViewport( PixelViewport( info.pvp ));
 
         std::stringstream name;
         if( info.device == EQ_UNDEFINED_UINT32 )

@@ -29,30 +29,6 @@ namespace eq
 namespace glx
 {
 
-namespace
-{
-static bool _queryDisplay( const std::string display, GPUInfo& info )
-{
-    EQASSERT( !display.empty( ));
-
-    ::Display* xDisplay = XOpenDisplay( display.c_str( ));
-    if( !xDisplay )
-        return false;
-
-    int major, event, error;
-    if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
-    {
-        XCloseDisplay( xDisplay );
-        return false;
-    }
-
-    EQCHECK( Pipe::getGPUInfo( xDisplay, info ));
-    XCloseDisplay( xDisplay );
-    return true;
-}
-
-}
-
 static class : WindowSystemIF
 {
     std::string getName() const { return "GLX"; }
@@ -76,46 +52,8 @@ static class : WindowSystemIF
 
     GPUInfos discoverGPUs() const
     {
+        EQASSERTINFO( false, "Moved to gpu-sd library" );
         GPUInfos result;
-        GPUInfo defaultInfo;
-
-        const char* displayEnv = getenv( "DISPLAY" );
-        if( displayEnv && displayEnv[0] != '\0' )
-        {
-            const std::string display( displayEnv );
-            if( _queryDisplay( display, defaultInfo ))
-            {
-                if( display[0] != ':' )
-                {
-                    defaultInfo.port = EQ_UNDEFINED_UINT32;
-                    defaultInfo.device = EQ_UNDEFINED_UINT32;
-                }
-                result.push_back( defaultInfo );
-            }
-        }
-
-        for( uint32_t i = 0; i < EQ_MAX_UINT32; ++i ) // x servers
-            for( uint32_t j = 0; j < EQ_MAX_UINT32; ++j ) // x screens
-            {
-                std::stringstream stream;
-                stream <<  ':' << i << '.' << j;
-                
-                GPUInfo info;
-                if( _queryDisplay( stream.str(), info ))
-                {
-                    EQASSERTINFO( i == info.port, i << ", " << info );
-                    EQASSERT( j == info.device );
-
-                    if( info != defaultInfo )
-                        result.push_back( info );
-                }
-                else if( j == 0 ) // X Server does not exist, stop query
-                    return result;
-                else // X Screen does not exist, try next server
-                    break;
-            }
-
-        EQASSERTINFO( 0, "Unreachable" );
         return result;
     }
 

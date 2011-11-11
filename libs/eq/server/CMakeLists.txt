@@ -128,9 +128,16 @@ set(AUTOCONFIG
 
 set(SERVER_LIBRARIES shared Equalizer)
 if(FOUND_GPUSD)
+  include_directories(${CMAKE_SOURCE_DIR}/gpu-sd/libs)
   list(APPEND SOURCES ${AUTOCONFIG})
   add_definitions(-DEQ_USE_GPUSD)
   list(APPEND SERVER_LIBRARIES gpusd_dns_sd)
+  if(EQ_AGL_USED)
+    list(APPEND SERVER_LIBRARIES gpusd_cgl)
+  endif()
+  if(EQ_GLX_USED)
+    list(APPEND SERVER_LIBRARIES gpusd_glx)
+  endif()
 endif()
 
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
