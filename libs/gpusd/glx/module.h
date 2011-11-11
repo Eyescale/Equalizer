@@ -18,7 +18,7 @@
 #ifndef GPUSD_GLX_MODULE_H
 #define GPUSD_GLX_MODULE_H
 
-#include <gpusd1/module.h> // base class
+#include <gpusd/module.h> // base class
 
 namespace gpusd
 {

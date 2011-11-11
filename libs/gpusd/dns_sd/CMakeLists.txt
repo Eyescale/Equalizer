@@ -1,4 +1,8 @@
 
+if(NOT DNSSD_FOUND)
+  return()
+endif()
+
 include_directories(${DNSSD_INCLUDE_DIRS})
 
 set(HEADERS
