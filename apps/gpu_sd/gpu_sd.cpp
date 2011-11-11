@@ -17,8 +17,14 @@
   along with GPU-SD. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gpusd1/gpuInfo.h>
-#include <gpusd1/module.h>
+#include <gpusd/gpuInfo.h>
+#include <gpusd/module.h>
+#ifdef GPUSD_AGL
+#  include <gpusd/agl/module.h>
+#endif
+#ifdef GPUSD_GLX
+#  include <gpusd/glx/module.h>
+#endif
 
 #include <arpa/inet.h>
 #include <dns_sd.h>
@@ -145,6 +151,12 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 
 int main (int argc, const char * argv[])
 {
+#ifdef GPUSD_AGL
+    gpusd::agl::Module::use();
+#endif
+#ifdef GPUSD_GLX
+    gpusd::glx::Module::use();
+#endif
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
     {

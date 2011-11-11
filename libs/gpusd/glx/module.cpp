@@ -32,7 +32,7 @@ namespace glx
 namespace
 {
 
-Module instance;
+Module* instance = 0;
 
 static bool getGPUInfo_( Display* display, GPUInfo& info )
 {
@@ -74,6 +74,12 @@ static bool queryDisplay_( const std::string display, GPUInfo& info )
     return true;
 }
 
+}
+
+void Module::use()
+{
+    if( !instance )
+        instance = new Module;
 }
 
 GPUInfos Module::discoverGPUs_() const

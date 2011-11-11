@@ -18,7 +18,7 @@
 #ifndef GPUSD_AGL_MODULE_H
 #define GPUSD_AGL_MODULE_H
 
-#include <gpusd1/module.h> // base class
+#include <gpusd/module.h> // base class
 
 namespace gpusd
 {
@@ -28,11 +28,15 @@ namespace agl
     class Module : public gpusd::Module
     {
     public:
-        Module() : gpusd::Module() {}
-        virtual ~Module() {}
+        /** Instantiate an AGL discovery module for the process. */
+        static GPUSD_API void use();
 
     protected:
         virtual GPUInfos discoverGPUs_() const;
+
+    private:
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
     };
 }
 }

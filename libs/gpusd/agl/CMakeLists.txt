@@ -2,8 +2,11 @@ if(NOT APPLE)
   return()
 endif()
 
-set(SOURCES
+set(HEADERS
   module.h
+)
+  
+set(SOURCES
   module.cpp
 )
 
@@ -12,6 +15,7 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 set(LIBRARY gpusd_agl)
+set(INCLUDE gpusd/agl)
 
 # No 64 bit support for AGL
 if(_CMAKE_OSX_MACHINE MATCHES "ppc")
@@ -21,11 +25,12 @@ else()
 endif()
 message(STATUS "Building ${LIBRARY} for ${CMAKE_OSX_ARCHITECTURES}")
 
-add_library(${LIBRARY} SHARED ${SOURCES})
+add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${LIBRARY} ${CARBON_LIBRARY} ${OPENGL_LIBRARIES} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR})
 
+install(FILES ${HEADERS} DESTINATION ${INCLUDE} COMPONENT dev)
 install(TARGETS ${LIBRARY}
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
   COMPONENT lib)

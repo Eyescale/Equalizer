@@ -32,7 +32,13 @@ namespace agl
 {
 namespace
 {
-    Module instance;
+    Module* instance = 0;
+}
+
+void Module::use()
+{
+    if( !instance )
+        instance = new Module;
 }
 
 GPUInfos Module::discoverGPUs_() const

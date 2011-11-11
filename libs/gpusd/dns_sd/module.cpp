@@ -36,7 +36,7 @@ namespace dns_sd
 namespace
 {
 
-Module instance;
+Module* instance = 0;
 
 static bool handleEvent( DNSServiceRef service )
 {
@@ -154,6 +154,12 @@ static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
         /* nop */;
 }
 
+}
+
+void Module::use()
+{
+    if( !instance )
+        instance = new Module;
 }
 
 GPUInfos Module::discoverGPUs_() const

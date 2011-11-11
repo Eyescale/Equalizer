@@ -7,6 +7,7 @@ include_directories(${DNSSD_INCLUDE_DIRS})
 
 set(GPUSD_LIBRARIES gpusd)
 if(APPLE)
+  add_definitions(-DGPUSD_AGL)
   list(APPEND GPUSD_LIBRARIES gpusd_agl)
 
   # No 64 bit support for AGL
@@ -19,6 +20,7 @@ if(APPLE)
 endif()
 
 if(X11_FOUND)
+  add_definitions(-DGPUSD_GLX)
   list(APPEND GPUSD_LIBRARIES gpusd_glx)
 endif()
 

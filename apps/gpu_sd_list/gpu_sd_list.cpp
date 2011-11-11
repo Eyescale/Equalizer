@@ -16,11 +16,12 @@
  */
 
 
-#include <gpusd1/gpuInfo.h>
-#include <gpusd1/module.h>
+#include <gpusd/gpuInfo.h>
+#include <gpusd/dns_sd/module.h>
 
 int main (int argc, const char * argv[])
 {
+    gpusd::dns_sd::Module::use();
     const gpusd::GPUInfos gpus = gpusd::Module::discoverGPUs();
     for( gpusd::GPUInfosCIter i = gpus.begin(); i != gpus.end(); ++i )
         std::cout << *i << std::endl;

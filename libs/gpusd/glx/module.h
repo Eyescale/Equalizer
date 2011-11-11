@@ -28,11 +28,15 @@ namespace glx
     class Module : public gpusd::Module
     {
     public:
-        Module() : gpusd::Module() {}
-        virtual ~Module() {}
+        /** Instantiate an AGL discovery module for the process. */
+        static GPUSD_API void use();
 
     protected:
         virtual GPUInfos discoverGPUs_() const;
+
+    private:
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
     };
 }
 }
