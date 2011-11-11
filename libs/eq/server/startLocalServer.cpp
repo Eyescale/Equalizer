@@ -21,7 +21,9 @@
 #include "global.h"
 #include "loader.h"
 
-#include "config/server.h"
+#ifdef EQ_USE_GPUSD
+#  include "config/server.h"
+#endif
 
 #include <co/node.h>
 
@@ -83,10 +85,12 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader    loader;
     eq::server::ServerPtr server;
 
-    if( file.empty( ))
-        server = eq::server::config::Server::configureLocal();
-    else
+    if( !file.empty( ))
         server = loader.loadFile( file );
+#ifdef EQ_USE_GPUSD
+    else
+        server = eq::server::config::Server::configureLocal();
+#endif
 
     if( !server )
         server = loader.parseServer( CONFIG );

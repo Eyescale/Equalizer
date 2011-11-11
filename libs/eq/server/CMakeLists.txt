@@ -16,7 +16,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DYY_NEVER_INTERACTIVE)
 
-set(SERVER_HEADERS
+set(HEADERS
     api.h
     canvas.h
     channel.h
@@ -45,7 +45,7 @@ set(SERVER_HEADERS
     window.h
 )
 
-set(SERVER_SOURCES
+set(SOURCES
     ${BISON_PARSER_OUTPUTS}
     ${FLEX_LEXER_OUTPUTS}
     canvas.cpp
@@ -81,12 +81,6 @@ set(SERVER_SOURCES
     configUpdateSyncVisitor.h
     configUpdateVisitor.h
     configVisitor.h
-    config/display.h
-    config/display.cpp
-    config/resources.h
-    config/resources.cpp
-    config/server.h
-    config/server.cpp
     connectionDescription.cpp
     convert11Visitor.h
     convert12Visitor.h
@@ -123,20 +117,33 @@ set(SERVER_SOURCES
     window.cpp
 )
 
+set(AUTOCONFIG
+    config/display.h
+    config/display.cpp
+    config/resources.h
+    config/resources.cpp
+    config/server.h
+    config/server.cpp
+)
+
+set(SERVER_LIBRARIES shared Equalizer)
+if(FOUND_GPUSD)
+  list(APPEND SOURCES ${AUTOCONFIG})
+  add_definitions(-DEQ_USE_GPUSD)
+  list(APPEND SERVER_LIBRARIES gpusd_dns_sd)
+endif()
+
 if(EQUALIZER_INSTALL_SERVER_HEADERS)
   purple_add_library(EqualizerServer SHARED
-    HEADERS_PREFIX "eq/server/"
-    HEADERS ${SERVER_HEADERS}
-    SOURCES ${SERVER_SOURCES}
-    LINK_LIBRARIES Equalizer
+    HEADERS_PREFIX "eq/server/" HEADERS ${HEADERS} SOURCES ${SOURCES}
+    LINK_LIBRARIES ${SERVER_LIBRARIES}
     )
 else()
   purple_add_library(EqualizerServer SHARED
-    HEADERS_PREFIX "eq/server/"
-    SOURCES ${SERVER_HEADERS} ${SERVER_SOURCES}
-    LINK_LIBRARIES shared Equalizer
+    HEADERS_PREFIX "eq/server/" SOURCES ${HEADERS} ${SOURCES}
+    LINK_LIBRARIES ${SERVER_LIBRARIES}
     )
 endif()
 
 source_group(equalizers REGULAR_EXPRESSION equalizers.*)
-source_group(\\ FILES CMakeLists.txt ${SERVER_HEADERS} ${SERVER_SOURCES})
+source_group(\\ FILES CMakeLists.txt ${HEADERS} ${SOURCES})
