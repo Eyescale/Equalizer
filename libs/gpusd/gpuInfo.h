@@ -46,10 +46,7 @@ namespace gpusd
                 : type( 0 ), port( defaultValue ), device( defaultValue )
             {
                 invalidatePVP();
-                std::string fourName = name;
-                while( fourName.length() < sizeof( unsigned ))
-                    fourName = std::string( " " ) + fourName;
-                type = *reinterpret_cast< const unsigned* >( fourName.c_str( ));
+                strncpy( reinterpret_cast< char* >( &type ), name.c_str(), 4 );
             }
 
         /** Invalidate the pixel viewport. */
