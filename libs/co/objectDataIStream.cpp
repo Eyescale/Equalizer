@@ -27,7 +27,6 @@ namespace co
 {
 ObjectDataIStream::ObjectDataIStream()
         : _usedCommand( 0 )
-        , _version( VERSION_INVALID )
 {
     _reset();
 }
@@ -76,6 +75,7 @@ void ObjectDataIStream::_reset()
 void ObjectDataIStream::addDataPacket( Command& command )
 {
     EQ_TS_THREAD( _thread );
+    EQASSERT( !isReady( ));
 
     const ObjectDataPacket* packet = command.get< ObjectDataPacket >();
 #ifndef NDEBUG
