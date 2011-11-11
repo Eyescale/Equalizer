@@ -19,7 +19,7 @@
 
 #include <gpusd1/gpuInfo.h>
 
-#include <AGL/agl.h>
+//#include <AGL/agl.h>
 #include <Carbon/Carbon.h>
 
 #include <deque>
@@ -28,7 +28,7 @@
 
 namespace gpusd
 {
-namespace agl
+namespace cgl
 {
 namespace
 {

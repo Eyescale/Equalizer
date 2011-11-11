@@ -33,6 +33,6 @@ install(TARGETS ${LIBRARY}
   COMPONENT lib)
 install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INCLUDE} ${LIBRARY} WORKING_DIRECTORY \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/include)" )
 
-add_subdirectory(agl)
+add_subdirectory(cgl)
 add_subdirectory(glx)
 add_subdirectory(dns_sd)

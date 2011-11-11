@@ -19,8 +19,8 @@
 
 #include <gpusd/gpuInfo.h>
 #include <gpusd/module.h>
-#ifdef GPUSD_AGL
-#  include <gpusd/agl/module.h>
+#ifdef GPUSD_CGL
+#  include <gpusd/cgl/module.h>
 #endif
 #ifdef GPUSD_GLX
 #  include <gpusd/glx/module.h>
@@ -151,8 +151,8 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 
 int main (int argc, const char * argv[])
 {
-#ifdef GPUSD_AGL
-    gpusd::agl::Module::use();
+#ifdef GPUSD_CGL
+    gpusd::cgl::Module::use();
 #endif
 #ifdef GPUSD_GLX
     gpusd::glx::Module::use();

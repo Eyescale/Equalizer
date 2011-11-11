@@ -15,20 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_AGL_MODULE_H
-#define GPUSD_AGL_MODULE_H
+#ifndef GPUSD_CGL_MODULE_H
+#define GPUSD_CGL_MODULE_H
 
 #include <gpusd/module.h> // base class
 
 namespace gpusd
 {
-namespace agl
+namespace cgl
 {
-    /** The AGL implementation for local GPU discovery. */
+    /** The CGL implementation for local GPU discovery. */
     class Module : public gpusd::Module
     {
     public:
-        /** Instantiate an AGL discovery module for the process. */
+        /** Instantiate an CGL discovery module for the process. */
         static GPUSD_API void use();
 
     protected:
@@ -40,5 +40,5 @@ namespace agl
     };
 }
 }
-#endif // GPUSD_AGL_MODULE_H
+#endif // GPUSD_CGL_MODULE_H
 
