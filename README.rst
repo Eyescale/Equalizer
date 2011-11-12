@@ -11,6 +11,7 @@ Protocol
 The service type name is "_gpu-sd". The following text fields describe
 the available GPUs:
 
+* Session=default|<string>
 * GPU Count=<integer>
 * GPU<integer> Type=GLX | WGL | WGLn | CGL
 * GPU<integer> Port=<integer> // X11 display number, 0 otherwise

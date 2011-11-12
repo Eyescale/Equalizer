@@ -32,6 +32,7 @@ namespace gpusd
         /** Default constructor pointing to default display. */
         GPUInfo()
                 : type( 0 ), port( defaultValue ), device( defaultValue )
+                , session( "local" )
             { invalidatePVP(); }
 
         /**
@@ -44,6 +45,7 @@ namespace gpusd
          */
         GPUInfo( const std::string& name )
                 : type( 0 ), port( defaultValue ), device( defaultValue )
+                , session( "local" )
             {
                 invalidatePVP();
                 strncpy( reinterpret_cast< char* >( &type ), name.c_str(), 4 );
@@ -62,7 +64,8 @@ namespace gpusd
         bool operator == ( const GPUInfo& rhs ) const 
             { 
                 return ( type == rhs.type && hostname == rhs.hostname &&
-                         port == rhs.port && device == rhs.device &&
+                         session == rhs.session && port == rhs.port &&
+                         device == rhs.device &&
                          pvp[0] == rhs.pvp[0] && pvp[1] == rhs.pvp[1] &&
                          pvp[2] == rhs.pvp[2] && pvp[3] == rhs.pvp[3] );
             }
@@ -71,7 +74,8 @@ namespace gpusd
         bool operator != ( const GPUInfo& rhs ) const 
             { 
                 return ( type != rhs.type || hostname != rhs.hostname ||
-                         port != rhs.port || device != rhs.device || 
+                         session != rhs.session || port != rhs.port ||
+                         device != rhs.device || 
                          pvp[0] != rhs.pvp[0] || pvp[1] != rhs.pvp[1] ||
                          pvp[2] != rhs.pvp[2] || pvp[3] != rhs.pvp[3] );
             }
@@ -93,6 +97,7 @@ namespace gpusd
         int pvp[4];
 
         std::string hostname; //!< remote system  hostname, empty for local GPUs
+        std::string session; //!< session name: local, default or custom string
 
         char dummy[32]; //!< Buffer for binary-compatible additions
     };
@@ -103,6 +108,8 @@ namespace gpusd
             os << "type     " << info.getName() << std::endl;
         if( !info.hostname.empty( ))
             os << "hostname " << info.hostname << std::endl;
+        if( !info.session.empty() && info.session != "local" )
+            os << "session  " << info.session << std::endl;
         if( info.port != GPUInfo::defaultValue )
             os << "port     " << info.port << std::endl;
         if( info.device != GPUInfo::defaultValue )

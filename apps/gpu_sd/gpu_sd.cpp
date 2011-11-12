@@ -51,8 +51,11 @@ static void setTXTRecordValue( TXTRecordRef& record, const size_t gpuIndex,
                        out.str().length(), out.str().c_str( ));
 }
 
-static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus )
+static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus, 
+                             const std::string session )
 {
+    TXTRecordSetValue( &record, "Session", session.length(), session.c_str( ));
+
     // GPU Count=<integer>
     std::ostringstream out;
     out << gpus.size();
@@ -149,7 +152,7 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
     return error;
 }
 
-int main (int argc, const char * argv[])
+int main (int argc, char * argv[])
 {
 #ifdef GPUSD_CGL
     gpusd::cgl::Module::use();
@@ -164,9 +167,25 @@ int main (int argc, const char * argv[])
         return EXIT_FAILURE;
     }
 
+    std::string session( "default" );
+    switch( getopt( argc, argv, "s:" ))
+    {
+      case 's':
+          session = optarg;
+          break;
+
+      case '?':
+          std::cout << "Usage: " << argv[0] << " [-s sessionName]" << std::endl;
+          break;
+
+      default: // ??
+      case -1: // end
+          break;
+    }
+
     TXTRecordRef record;
     TXTRecordCreate( &record, 0, 0 );
-    createTXTRecord( record, gpus );
+    createTXTRecord( record, gpus, session );
 
     DNSServiceErrorType error = registerService( record );
     std::cout << "DNSServiceDiscovery returned: " << error << std::endl;
