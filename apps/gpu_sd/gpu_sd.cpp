@@ -34,6 +34,7 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 using gpusd::GPUInfo;
 using gpusd::GPUInfos;
