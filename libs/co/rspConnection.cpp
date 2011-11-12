@@ -254,6 +254,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
+        EQINFO << "Binding to interface " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
@@ -716,8 +717,6 @@ void RSPConnection::_repeatData()
 
 void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 {
-    EQLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
-                     << _sequence << std::endl;
     EQASSERT( !_writeBuffers.empty( ));
 
     RSPConnectionPtr connection = _findConnection( _id );
@@ -731,6 +730,9 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     const uint16_t size = _sequence - sequence - 1;
     EQASSERTINFO( size <= uint16_t( _writeBuffers.size( )),
                   size << " > " << _writeBuffers.size( ));
+    EQLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
+                     << _sequence << " advance " << _writeBuffers.size() - size
+                     << " buffers" << std::endl;
 
     while( _writeBuffers.size() > size_t( size ))
     {
@@ -1091,7 +1093,7 @@ void RSPConnection::_pushDataBuffer( Buffer* buffer )
                   ((DatagramData*)buffer->getData( ))->sequence << " != " <<
                   _sequence );
 
-    if( (( _sequence + _id ) % _ackFreq ) == 0 )
+    if( (( _sequence + _parent->_id ) % _ackFreq ) == 0 )
         _parent->_sendAck( _id, _sequence );
 
     EQLOG( LOG_RSP ) << "post buffer " << _sequence << std::endl;
@@ -1112,8 +1114,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
                      << ack->writerID << " sequence " << ack->sequence
                      << " current " << _sequence << std::endl;
 
-    // find connection destination and if we have not received an ack from it,
-    // we update the ack data.
+    // find destination connection, update ack data if needed
     RSPConnectionPtr connection = _findConnection( ack->readerID );
     if( !connection )
     {
@@ -1135,20 +1136,24 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     connection->_acked = ack->sequence;
     _timeouts = 0; // reset timeout counter
 
-    // Check if we got all acks until here
-    for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
-          i != _children.end(); ++i )
+    // Check if we can advance _acked
+    uint16_t acked = ack->sequence;
+
+    for( RSPConnectionsCIter i = _children.begin(); i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if( child->_id == _id )
             continue;
 
-        const uint16_t distance = child->_acked - ack->sequence;
+        const uint16_t distance = child->_acked - acked;
         if( distance > _numBuffers )
-            return true;
+            acked = child->_acked;
     }
 
-    _finishWriteQueue( ack->sequence );
+    RSPConnectionPtr selfChild = _findConnection( _id );
+    const uint16_t distance = acked - selfChild->_acked;
+    if( distance <= _numBuffers )
+        _finishWriteQueue( acked );
     return true;
 }
 
@@ -1158,16 +1163,18 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
     ++nNAcksRead;
 #endif
 
+    if( _id != nack->writerID )
+    {
+        EQLOG( LOG_RSP )
+            << "ignore " << nack->count << " nacks from " << nack->readerID
+            << " for " << nack->writerID << " (not me)"<< std::endl;
+        return true;
+    }
+
     EQLOG( LOG_RSP )
         << "handle " << nack->count << " nacks from " << nack->readerID
         << " for " << nack->writerID << std::endl;
 
-    if( _id != nack->writerID )
-    {
-        EQLOG( LOG_RSP ) << "ignore nack, it's not for me" << std::endl;
-        return true;
-    }
-    
     RSPConnectionPtr connection = _findConnection( nack->readerID );
     if( !connection )
     {

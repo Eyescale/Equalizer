@@ -31,6 +31,8 @@
 #include <sstream>
 #include <limits>
 
+#define BLOCKING_WRITE 0
+
 namespace co
 {
 
@@ -53,8 +55,18 @@ static bool setBlocking( int fd, bool blocking );
  */
 enum OpCode
 {
-   PARAMS = 1 << 0,
-   FC     = 1 << 1,
+   SETUP = 1 << 0,
+   FC    = 1 << 1,
+};
+
+/**
+ * Initial setup message used to exchange sink MR parameters
+ */
+struct RDMASetupPayload
+{
+    uint64_t rbase;
+    uint64_t rlen;
+    uint64_t rkey;
 };
 
 /**
@@ -65,51 +77,47 @@ struct RDMAFCPayload {
 };
 
 /**
+ * Payload wrapper
+ */
+struct RDMAMessage
+{
+    enum OpCode opcode;
+    uint8_t length;
+    union
+    {
+        uint8_t offsetof_placeholder;
+        struct RDMASetupPayload setup;
+        struct RDMAFCPayload fc;
+    };
+};
+
+/**
  * "IMM" data sent with RDMA write, tells sink about send progress
  */
 typedef uint32_t RDMAFCImm;
 
 /**
- * Initial setup message used to exchange sink MR parameters
+ * An RDMA connection implementation.
  */
-struct RDMAParamsPayload
-{
-    uint64_t rbase;
-    uint64_t rlen;
-    uint64_t rkey;
-    struct RDMAFCPayload fc;
-};
-
-/**
- * Payload wrapper
- */
-struct RDMAMessage
-{
-    OpCode opcode;
-    uint8_t length;
-    union
-    {
-        struct RDMAParamsPayload params;
-        struct RDMAFCPayload fc;
-    };
-};
-
 RDMAConnection::RDMAConnection( )
-    : _notifier( 0 )
+    : _notifier( -1 )
+    , _wfd( -1 )
     , _event_thread( NULL )
     , _efd( 0 )
-    , _setup( SETUP_WAIT )
+    , _setup_block( SETUP_WAIT )
     , _cm( NULL )
     , _cm_id( NULL )
     , _established( false )
+    , _disconnected( false )
+    , _wcerr( false )
     , _depth( 256UL )
     , _pd( NULL )
     , _cc( NULL )
     , _cq( NULL )
     , _qp( NULL )
     , _completions( 0U )
-    , _msgbuf( sizeof(struct RDMAMessage) )
     , _available_wr( 0 )
+    , _msgbuf( sizeof(RDMAMessage) )
     , _sourcebuf( 0 )
     , _sourceptr( 0 )
     , _sinkbuf( IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE )
@@ -138,19 +146,32 @@ bool RDMAConnection::connect( )
     EQASSERT( STATE_CLOSED == _state );
     setState( STATE_CONNECTING );
 
-    if( !_createEventChannel( )) {}
-    else if( !_createId( )) {}
-    else if( !_parseAddress( address, false )) {}
-    else if( !_resolveAddress( address )) {}
-    else if( !_resolveRoute( )) {}
-    else if( !_initVerbs( )) {}
-    else if( !_initBuffers( )) {}
-    else if( !_createQP( )) {}
-    else if( !_postReceives( _qpcap.max_recv_wr )) {}
-    else if( !_connect( )) {}
-    else if( !_startEventThread( )) {}
-    else if( !_postSendSetup( )) {}
-    else if( !_waitRecvSetup( )) {}
+    if( !_createEventChannel( ))
+        EQERROR << "Failed to create communication event channel." << std::endl;
+    else if( !_createId( ))
+        EQERROR << "Failed to create communication identifier." << std::endl;
+    else if( !_parseAddress( address, false ))
+        EQERROR << "Failed to parse destination address." << std::endl;
+    else if( !_resolveAddress( address ))
+        EQERROR << "Failed to resolve destination address." << std::endl;
+    else if( !_resolveRoute( ))
+        EQERROR << "Failed to resolve route to destination." << std::endl;
+    else if( !_initVerbs( ))
+        EQERROR << "Failed to initialize verbs." << std::endl;
+    else if( !_initBuffers( ))
+        EQERROR << "Failed to initialize ring buffers." << std::endl;
+    else if( !_createQP( ))
+        EQERROR << "Failed to create queue pair." << std::endl;
+    else if( !_postReceives( _qpcap.max_recv_wr ))
+        EQERROR << "Failed to pre-post receives." << std::endl;
+    else if( !_connect( ))
+        EQERROR << "Failed to connect to destination." << std::endl;
+    else if( !_startEventThread( ))
+        EQERROR << "Failed to start event thread." << std::endl;
+    else if( !_postSendSetup( ))
+        EQERROR << "Failed to send setup message." << std::endl;
+    else if( !_waitRecvSetup( ))
+        EQERROR << "Failed to receive setup message." << std::endl;
     else
     {
         setState( STATE_CONNECTED );
@@ -171,14 +192,23 @@ bool RDMAConnection::listen( )
     EQASSERT( STATE_CLOSED == _state );
     setState( STATE_CONNECTING );
 
-    if( !_createEventChannel( )) {}
-    else if( !_createId( )) {}
-    else if( !_parseAddress( address, true )) {}
-    else if( !_bindAddress( address )) {}
-    else if( !_listen( )) {}
+    if( !_createEventChannel( ))
+        EQERROR << "Failed to create communication event channel." << std::endl;
+    else if( !_createId( ))
+        EQERROR << "Failed to create communication identifier." << std::endl;
+    else if( !_parseAddress( address, true ))
+        EQERROR << "Failed to parse local address." << std::endl;
+    else if( !_bindAddress( address ))
+        EQERROR << "Failed to bind to local address." << std::endl;
+    else if( !_listen( ))
+        EQERROR << "Failed to listen on bound address." << std::endl;
     else
     {
+        // For a listening instance, the connection manager fd will indicate
+        // on events such as new incoming connections by waking up any polling
+        // operation.
         _notifier = _cm->fd;
+        _disconnected = true;
         setState( STATE_LISTENING );
         return true;
     }
@@ -198,10 +228,8 @@ void RDMAConnection::close( )
     setState( STATE_CLOSING );
 
     _disconnect( );
-    _joinEventThread( );
     _cleanup( );
 
-    _notifier = 0;
     setState( STATE_CLOSED );
 }
 
@@ -220,7 +248,7 @@ ConnectionPtr RDMAConnection::acceptSync( )
     if( !newConnection->_finishAccept( _cm ))
     {
         delete newConnection;
-        return NULL;
+        newConnection = NULL;
     }
 
     return newConnection;
@@ -231,20 +259,24 @@ void RDMAConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
 int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     const bool )
 {
-    if( STATE_CONNECTED != _state )
-        return -1LL;
-
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
     //   " <<<<<<<<<<---------- " << std::endl;
 
     uint64_t available_bytes;
+    EQASSERT( 0 <= _notifier );
+    // TODO : Timeout?
     while( 0 > ::read( _notifier, (void *)&available_bytes, sizeof(uint64_t)))
     {
-        if( EAGAIN == errno )
-            continue; // eventfd is non-blocking
-        EQINFO << "Got EOF, closing connection" << std::endl;
-        close( );
-        return -1LL;
+        EQASSERT( EAGAIN == errno );
+        co::base::Thread::yield( );
+        continue;
+    }
+
+    if( _disconnected )
+    {
+        if( available_bytes > 1ULL )
+            available_bytes--;
+        _disconnect( );
     }
 
     const uint32_t bytes_taken = _drain( buffer,
@@ -252,20 +284,27 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
 
     EQASSERTINFO( bytes_taken <= available_bytes,
         bytes_taken << " > " << available_bytes );
-    EQASSERTINFO( bytes_taken > 0, bytes_taken << " == 0" );
 
-    // put back what wasn't taken
+    if(( 1ULL == available_bytes ) && ( 0UL == bytes_taken ) && _disconnected )
+    {
+        EQINFO << "Got EOF, closing connection." << std::endl;
+        close( );
+        return -1LL;
+    }
+
+    // Put back what wasn't taken
     if( available_bytes > bytes_taken )
         _notify( available_bytes - bytes_taken );
 
-    while( _available_wr == 0 ) // TODO: timeout?
-        co::base::Thread::yield( );
-
-    // TODO : send FC less frequently?
-    if( !_postSendFC( ))
+    if( bytes_taken > 0UL )
     {
-        close( );
-        return -1LL;
+        // TODO : Timeout?
+        while( !_disconnected && ( 0 == _available_wr ))
+            co::base::Thread::yield( );
+
+        // TODO : Send FC less frequently?
+        if( !_postSendFC( ))
+            EQWARN << "Failed to send flow control message." << std::endl;
     }
 
     //EQWARN << (void *)this << ".read(" << bytes << ")" <<
@@ -282,12 +321,38 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     //EQWARN << (void *)this << ".write(" << bytes << ")" <<
     //    " ---------->>>>>>>>>>" << std::endl;
 
-    while( _available_wr == 0 ) // TODO: timeout?
+    uint32_t bytes_put;
+    // TODO : Timeout?
+    while( !_disconnected &&
+        ( 0UL == ( bytes_put =
+            _fill( buffer, static_cast< uint32_t >( bytes )))))
         co::base::Thread::yield( );
 
-    const uint32_t bytes_put = _fill( buffer, static_cast< uint32_t >( bytes ));
+    // TODO : Timeout?
+    while( !_disconnected && ( 0 == _available_wr ))
+        co::base::Thread::yield( );
 
-    if(( 0UL < bytes_put ) && ( !_postRDMAWrite( )))
+    if( !_disconnected && _postRDMAWrite( ))
+    {
+        uint64_t completed_bytes = 0ULL;
+        EQASSERT( 0 <= _wfd );
+        while( 0 > ::read( _wfd, (void *)&completed_bytes, sizeof(uint64_t)))
+        {
+            EQASSERT( EAGAIN == errno );
+            if( _disconnected || _wcerr )
+            {
+                close( );
+                return -1LL;
+            }
+#if BLOCKING_WRITE
+            co::base::Thread::yield( );
+            continue;
+#else
+            break;
+#endif
+        }
+    }
+    else
     {
         close( );
         return -1LL;
@@ -303,7 +368,7 @@ RDMAConnection::~RDMAConnection( )
 {
     EQVERB << (void *)this << ".delete" << std::endl;
 
-    EQASSERT( STATE_CLOSED == _state );
+    close( );
 }
 
 void RDMAConnection::setState( const State state )
@@ -319,12 +384,23 @@ void RDMAConnection::_disconnect( )
 {
     if( _established )
     {
+        // Wait for outstanding work requests, TODO : Timeout?
+        while( _available_wr < (int)_qpcap.max_send_wr )
+            co::base::Thread::yield( );
+
         EQASSERT( NULL != _cm_id );
         EQASSERT( NULL != _cm_id->verbs );
 
         if( 0 != ::rdma_disconnect( _cm_id ))
             EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
     }
+
+    _joinEventThread( );
+
+    if(( NULL != _cc ) && _established )
+        while( _doCQEvents( _cc, true )) // Drain completion queue
+            co::base::Thread::yield( );
+
     _established = false;
 }
 
@@ -337,8 +413,14 @@ void RDMAConnection::_cleanup( )
     _sinkbuf.clear( );
     _msgbuf.clear( );
 
-    if(( NULL != _cc ) && ( setBlocking( _cc->fd, false )))
-        _doCQEvents( _cc ); // drain
+    if(( 0 <= _notifier ) && ( _cm->fd != _notifier ) &&
+        ( 0 != ::close( _notifier )))
+        EQWARN << "close : " << base::sysError << std::endl;
+    _notifier = -1;
+
+    if(( 0 <= _wfd ) && ( 0 != ::close( _wfd )))
+        EQWARN << "close : " << base::sysError << std::endl;
+    _wfd = -1;
 
     if(( NULL != _qp ) && ( 0 != ::ibv_destroy_qp( _qp )))
         EQWARN << "ibv_destroy_qp : " << base::sysError << std::endl;
@@ -376,17 +458,28 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
     EQASSERT( STATE_CLOSED == _state );
     setState( STATE_CONNECTING );
 
-    if( !_createEventChannel( )) {}
-    else if( !_doCMEvent( listen_channel, RDMA_CM_EVENT_CONNECT_REQUEST )) {}
-    else if( !_migrateId( )) {}
-    else if( !_initVerbs( )) {}
-    else if( !_initBuffers( )) {}
-    else if( !_createQP( )) {}
-    else if( !_postReceives( _qpcap.max_recv_wr )) {}
-    else if( !_accept( )) {}
-    else if( !_startEventThread( )) {}
-    else if( !_postSendSetup( )) {}
-    else if( !_waitRecvSetup( )) {}
+    if( !_createEventChannel( ))
+        EQERROR << "Failed to create event channel." << std::endl;
+    else if( !_doCMEvent( listen_channel, RDMA_CM_EVENT_CONNECT_REQUEST ))
+        EQERROR << "Failed to receive valid connect request." << std::endl;
+    else if( !_migrateId( ))
+        EQERROR << "Failed to migrate communication identifier." << std::endl;
+    else if( !_initVerbs( ))
+        EQERROR << "Failed to initialize verbs." << std::endl;
+    else if( !_initBuffers( ))
+        EQERROR << "Failed to initialize ring buffers." << std::endl;
+    else if( !_createQP( ))
+        EQERROR << "Failed to create queue pair." << std::endl;
+    else if( !_postReceives( _qpcap.max_recv_wr ))
+        EQERROR << "Failed to pre-post receives." << std::endl;
+    else if( !_accept( ))
+        EQERROR << "Failed to accept initiated connection." << std::endl;
+    else if( !_startEventThread( ))
+        EQERROR << "Failed to start event thread." << std::endl;
+    else if( !_postSendSetup( ))
+        EQERROR << "Failed to send setup message." << std::endl;
+    else if( !_waitRecvSetup( ))
+        EQERROR << "Failed to receive setup message." << std::endl;
     else
     {
         setState( STATE_CONNECTED );
@@ -398,7 +491,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 }
 
 bool RDMAConnection::_parseAddress( struct sockaddr &address,
-    const bool passive )
+    const bool passive ) const
 {
     const char *node = NULL, *service = NULL;
     struct addrinfo hints, *res;
@@ -418,13 +511,13 @@ bool RDMAConnection::_parseAddress( struct sockaddr &address,
     if( 0u != _description->port )
         service = port.c_str( );
 
-    int errcode = ::getaddrinfo( node, service, &hints, &res );
+    const int errcode = ::getaddrinfo( node, service, &hints, &res );
     if( 0 != errcode )
         EQERROR << "getaddrinfo : " << ::gai_strerror( errcode ) << std::endl;
     else
     {
         if( NULL != res->ai_next )
-            EQWARN << "multiple getaddrinfo results, using first" << std::endl;
+            EQWARN << "Multiple getaddrinfo results, using first." << std::endl;
         ::memcpy( (void *)&address, (const void *)res->ai_addr,
             res->ai_addrlen );
 
@@ -497,8 +590,20 @@ bool RDMAConnection::_connect( )
     _conn_param.private_data_len = sizeof(uint32_t);
     _conn_param.responder_resources = _dev_attr.max_qp_rd_atom;
     _conn_param.initiator_depth = _dev_attr.max_qp_init_rd_atom;
-    _conn_param.retry_count = 3;
-    _conn_param.rnr_retry_count = 3;
+    _conn_param.retry_count = 7;
+    _conn_param.rnr_retry_count = 7;
+
+    EQINFO << "Connect on" << std::showbase <<
+        " source lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        "to" <<
+        " dest lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+        << std::endl;
 
     if( 0 != ::rdma_connect( _cm_id, &_conn_param ))
     {
@@ -509,7 +614,7 @@ bool RDMAConnection::_connect( )
         return _doCMEvent( _cm, RDMA_CM_EVENT_ESTABLISHED );
 }
 
-bool RDMAConnection::_bindAddress( struct sockaddr &address )
+bool RDMAConnection::_bindAddress( struct sockaddr &address ) const
 {
     EQASSERT( NULL != _cm_id );
 
@@ -521,7 +626,7 @@ bool RDMAConnection::_bindAddress( struct sockaddr &address )
     return true;
 }
 
-bool RDMAConnection::_listen( )
+bool RDMAConnection::_listen( ) const
 {
     EQASSERT( NULL != _cm_id );
 
@@ -538,12 +643,27 @@ bool RDMAConnection::_accept( )
     EQASSERT( NULL != _cm_id );
     EQASSERT( !_established );
 
+    // _conn_param holds the initiator's parameters at this point, acquired
+    // in _doCMEvent when event == RDMA_CM_EVENT_CONNECT_REQUEST.  We accept
+    // with the minimum of the initiator's and our own values.
     _conn_param.responder_resources =
         std::min( static_cast< int >( _conn_param.responder_resources ),
             _dev_attr.max_qp_rd_atom );
     _conn_param.initiator_depth =
         std::min( static_cast< int >( _conn_param.initiator_depth ),
             _dev_attr.max_qp_init_rd_atom );
+
+    EQINFO << "Accept on" << std::showbase <<
+        " source lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        "from" <<
+        " dest lid : " <<
+            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " (" 
+            <<
+            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+        << std::endl;
 
     if( 0 != ::rdma_accept( _cm_id, &_conn_param ))
     {
@@ -554,7 +674,7 @@ bool RDMAConnection::_accept( )
         return _doCMEvent( _cm, RDMA_CM_EVENT_ESTABLISHED );
 }
 
-bool RDMAConnection::_migrateId( )
+bool RDMAConnection::_migrateId( ) const
 {
     EQASSERT( NULL != _cm_id );
     EQASSERT( NULL != _cm );
@@ -578,7 +698,7 @@ bool RDMAConnection::_initVerbs( )
         std::endl;
 
     if( 0 != ::ibv_query_device( _cm_id->verbs, &_dev_attr ))
-        EQERROR << "ibv_query_device" << base::sysError << std::endl;
+        EQERROR << "ibv_query_device : " << base::sysError << std::endl;
     else if( NULL == ( _pd = ::ibv_alloc_pd( _cm_id->verbs )))
         EQERROR << "ibv_alloc_pd : " << base::sysError << std::endl;
     else if( NULL == ( _cc = ::ibv_create_comp_channel( _cm_id->verbs )))
@@ -598,11 +718,15 @@ bool RDMAConnection::_initBuffers( )
 {
     EQASSERT( NULL != _pd );
 
-    const uint32_t rbs =
+    const uint32_t rbs = 1024UL * 1024UL *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
 
-    if( !_sourcebuf.resize( _pd, rbs * 1024 )) {}
-    else if( !_sinkbuf.resize( _pd, rbs * 1024 )) {}
+    if( 0UL == rbs )
+        EQERROR << "Invalid RDMA ring buffer size." << std::endl;
+    else if( !_sourcebuf.resize( _pd, rbs ))
+        EQERROR << "Failed to resize source buffer." << std::endl;
+    else if( !_sinkbuf.resize( _pd, rbs ))
+        EQERROR << "Failed to resize sink buffer." << std::endl;
     else
     {
         _sourceptr.clear( _sourcebuf.getSize( ));
@@ -646,10 +770,12 @@ bool RDMAConnection::_createQP( )
     return _msgbuf.resize( _pd, _qpcap.max_send_wr * 2 + _qpcap.max_recv_wr );
 }
 
-// caller: application before connect/accept & event thread otherwise
+// caller: application before connect/accept (AKA pre-posting receives),
+// event thread otherwise
 bool RDMAConnection::_postReceives( const unsigned int count )
 {
     EQASSERT( NULL != _qp );
+    EQASSERT( count <= _qpcap.max_recv_wr );
 
     if( 0U < count )
     {
@@ -658,7 +784,7 @@ bool RDMAConnection::_postReceives( const unsigned int count )
         for( unsigned int i = 0U; i != count; i++ )
         {
             sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer( );
-            sge[i].length = _msgbuf.getBufferSize( );
+            sge[i].length = (uint64_t)_msgbuf.getBufferSize( );
             sge[i].lkey = _msgbuf.getMR( )->lkey;
         }
 
@@ -684,6 +810,36 @@ bool RDMAConnection::_postReceives( const unsigned int count )
 }
 
 // caller: event thread
+void RDMAConnection::_handleSetup( RDMASetupPayload &setup )
+{
+    _rbase = setup.rbase;
+    _rptr.clear( setup.rlen );
+    _rkey = setup.rkey;
+
+    _setup_block.set( SETUP_OK );
+}
+
+// caller: event thread
+void RDMAConnection::_handleFC( RDMAFCPayload &fc )
+{
+    _rptr.moveValue( _rptr.TAIL, ntohl( fc.ringTail ));
+}
+
+// caller: event thread
+void RDMAConnection::_handleMessage( RDMAMessage &message )
+{
+    switch( message.opcode )
+    {
+        case SETUP:
+            _handleSetup( message.setup );
+            break;
+        case FC:
+            _handleFC( message.fc );
+            break;
+    }
+}
+
+// caller: event thread
 void RDMAConnection::_handleImm( const uint32_t imm )
 {
     RDMAFCImm fc = ntohl( imm );
@@ -692,69 +848,10 @@ void RDMAConnection::_handleImm( const uint32_t imm )
     _notify( fc );
 }
 
-// caller: event thread
-void RDMAConnection::_handleFC( RDMAFCPayload &fc )
-{
-    _rptr.moveValue( _rptr.TAIL, fc.ringTail );
-}
-
-// caller: event thread
-void RDMAConnection::_handleSetup( RDMAParamsPayload &params )
-{
-    _rbase = params.rbase;
-    _rptr.clear( params.rlen );
-    _rkey = params.rkey;
-    _handleFC( params.fc );
-
-    _setup.set( SETUP_OK );
-}
-
-// caller: event thread
-void RDMAConnection::_handleMsg( RDMAMessage &message )
-{
-    switch( message.opcode )
-    {
-        case FC:
-            _handleFC( message.fc );
-            break;
-        case PARAMS:
-            _handleSetup( message.params );
-            break;
-    }
-}
-
-// caller: application
-uint32_t RDMAConnection::_makeImm( )
-{
-    RDMAFCImm fc = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
-    _sourceptr.incr( _sourceptr.MIDDLE, fc );
-
-    return htonl( fc );
-}
-
-// caller: application
-void RDMAConnection::_fillFC( RDMAFCPayload &fc )
-{
-    fc.ringTail = _sinkptr.value( _sinkptr.MIDDLE );
-    _sinkptr.moveValue( _sinkptr.TAIL, fc.ringTail );
-}
-
-// caller: application
-void RDMAConnection::_fillParams( RDMAParamsPayload &params )
-{
-    params.rbase = (uint64_t)(uintptr_t)_sinkbuf.getBase( );
-    params.rlen = _sinkbuf.getSize( );
-    params.rkey = _sinkbuf.getMR( )->rkey;
-    _fillFC( params.fc );
-}
-
 // caller: application
 bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
 {
     EQASSERT( NULL != _qp );
-
-    // track available
-    EQCHECK( --_available_wr >= 0 );
 
     struct ibv_send_wr *bad_wr;
     if( 0 != ::ibv_post_send( _qp, &wr, &bad_wr ))
@@ -762,6 +859,14 @@ bool RDMAConnection::_postSendWR( struct ibv_send_wr &wr )
         EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
         return false;
     }
+
+    // Track available work requests
+#ifdef EQ_RELEASE_ASSERT
+    EQCHECK( --_available_wr >= 0 );
+#else
+    --_available_wr;
+#endif
+
     return true;
 }
 
@@ -771,19 +876,45 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
     struct ibv_sge sge; 
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
-    sge.length =
-        (uint32_t)( sizeof(OpCode) + sizeof(uint8_t) + message.length );
+    sge.length = (uint64_t)( offsetof( RDMAMessage, offsetof_placeholder ) +
+        message.length );
     sge.lkey = _msgbuf.getMR( )->lkey;
 
     struct ibv_send_wr wr;
     ::memset( (void *)&wr, 0, sizeof(struct ibv_send_wr));
-    wr.wr_id = sge.addr;
+    wr.wr_id = sge.addr; // Carry the &message so we can free it on completion
     wr.sg_list = &sge;
     wr.num_sge = 1;
     wr.send_flags = IBV_SEND_SIGNALED;
     wr.opcode = IBV_WR_SEND;
 
     return _postSendWR( wr );
+}
+
+// caller: application
+void RDMAConnection::_fillSetup( RDMASetupPayload &setup ) const
+{
+    setup.rbase = (uint64_t)(uintptr_t)_sinkbuf.getBase( );
+    setup.rlen = (uint64_t)_sinkbuf.getSize( );
+    setup.rkey = _sinkbuf.getMR( )->rkey;
+}
+
+// caller: application
+bool RDMAConnection::_postSendSetup( )
+{
+    RDMAMessage &message =
+        *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
+    message.opcode = SETUP;
+    message.length = sizeof(struct RDMASetupPayload);
+    _fillSetup( message.setup );
+
+    return _postSendMessage( message );
+}
+
+// caller: application
+void RDMAConnection::_fillFC( RDMAFCPayload &fc ) const
+{
+    fc.ringTail = htonl( _sinkptr.value( _sinkptr.TAIL ));
 }
 
 // caller: application
@@ -799,30 +930,20 @@ bool RDMAConnection::_postSendFC( )
 }
 
 // caller: application
-bool RDMAConnection::_postSendSetup( )
-{
-    RDMAMessage &message =
-        *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
-    message.opcode = PARAMS;
-    message.length = sizeof(struct RDMAParamsPayload);
-    _fillParams( message.params );
-
-    return _postSendMessage( message );
-}
-
-// caller: application
 bool RDMAConnection::_postRDMAWrite( )
 {
     EQASSERT( NULL != _qp );
 
-    // TODO : break up large messages into multiple WR?
+    // TODO : Break up large messages into multiple WR?
 
     struct ibv_sge sge; 
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)( (uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.MIDDLE ));
-    sge.length = _sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
+    sge.length =
+        (uint64_t)_sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
     sge.lkey = _sourcebuf.getMR( )->lkey;
+    _sourceptr.incr( _sourceptr.MIDDLE, (uint32_t)sge.length );
 
     struct ibv_send_wr wr;
     ::memset( (void *)&wr, 0, sizeof(struct ibv_send_wr));
@@ -831,20 +952,19 @@ bool RDMAConnection::_postRDMAWrite( )
     wr.num_sge = 1;
     wr.send_flags = IBV_SEND_SIGNALED;
     wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
-    wr.imm_data = _makeImm( );
+    wr.imm_data = htonl( static_cast< uint32_t >( sge.length ));
     wr.wr.rdma.rkey = _rkey;
-    wr.wr.rdma.remote_addr = _rbase + _rptr.ptr( _rptr.HEAD );
-    _rptr.incrHead( sge.length );
+    wr.wr.rdma.remote_addr = (uint64_t)( (uintptr_t)_rbase +
+        _rptr.ptr( _rptr.HEAD ));
+    _rptr.incrHead( (uint32_t)sge.length );
 
     return _postSendWR( wr );
 }
 
 // caller: application
-bool RDMAConnection::_waitRecvSetup( )
+bool RDMAConnection::_waitRecvSetup( ) const
 {
-    // TODO : timeout/SETUP_NOK
-
-    return( SETUP_OK == _setup.waitNE( SETUP_WAIT ));
+    return( _setup_block.timedWaitEQ( SETUP_OK, Global::getTimeout( )));
 }
 
 // caller: application if listener or during connect/accept,
@@ -857,7 +977,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
     if( 0 > ::rdma_get_cm_event( channel, &event ))
     {
         if( EAGAIN == errno )
-            return true; // channel is non-blocking & no events are available
+            return true; // Channel is non-blocking & no events are available
         EQERROR << "rdma_get_cm_event(" << errno << ") : " << base::sysError <<
             std::endl;
     }
@@ -868,19 +988,19 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
         EQVERB << (void *)this << " : " << ::rdma_event_str( event->event )
             << "( " << (!ok ? "*not* " : "") << "expected )" << std::endl;
 
-        // special case, flag that its safe to call rdma_disconnect
+        // Special case, flag that its safe to call rdma_disconnect
         _established = ( ok && ( RDMA_CM_EVENT_ESTABLISHED == event->event ));
 
-        // special case, extract connection params from event
+        // Special case, extract connection params from event
         if( ok && ( RDMA_CM_EVENT_CONNECT_REQUEST == event->event ))
         {
-            // TODO : reject "bad" connect requests?
+            // TODO : Reject "bad" connect requests?
             // e.g. also require a magic value (i.e. password) in private_data?
             _cm_id = event->id;
             _conn_param = event->param.conn;
             // Note that the actual amount of data transferred to the
             // remote side is transport dependent and may be larger
-            // than that requested.  TODO : Probably shouldn't assert
+            // than that requested.  TODO : probably shouldn't assert
             // here, instead reject.
             EQASSERT( sizeof(uint32_t) <= _conn_param.private_data_len );
             _depth = *reinterpret_cast< const uint32_t * >(
@@ -899,7 +1019,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 }
 
 // caller: event thread while connected, application on cleanup
-bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
+bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
 {
     struct ibv_cq *ev_cq;
     void *ev_ctx;
@@ -907,7 +1027,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
     if( 0 > ::ibv_get_cq_event( channel, &ev_cq, &ev_ctx ))
     {
         if( EAGAIN == errno )
-            return true; // channel is non-blocking & no events are available
+            return !drain; // Channel is non-blocking & no events are available
         EQERROR << "ibv_get_cq_event(" << errno << ") : " << base::sysError <<
             std::endl;
     }
@@ -915,8 +1035,14 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
     {
         EQASSERT( ev_cq == _cq );
 
+        // We just keep track of completions and periodically ack to avoid
+        // overflow of the counter which we will use in _cleanup so we don't
+        // hang on ibv_destroy_cq since "destroying a CQ will wait for all
+        // completion events to be acknowledged" (per IBV_GET_CQ_EVENT(3)).
+        //
+        // Also see: http://tinyurl.com/3rvuxjh
         _completions++;
-        if( std::numeric_limits< unsigned >::max() <= _completions )
+        if( std::numeric_limits< unsigned int >::max( ) <= _completions )
         {
             ::ibv_ack_cq_events( ev_cq, _completions );
             _completions = 0U;
@@ -943,11 +1069,26 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
 
                     if( IBV_WC_SUCCESS != wc.status )
                     {
+                        _wcerr = true;
+
+                        // Wake up any blocking write
+                        if( IBV_WC_RDMA_WRITE == wc.opcode )
+                            _complete( 1UL );
+
+                        // Ignore flush errors while closing
                         if(( IBV_WC_WR_FLUSH_ERR == wc.status ) &&
                             ( STATE_CLOSING == _state ))
-                            continue; // ignore flush errors while closing
-                        EQERROR << "!IBV_WC_SUCCESS : " <<
-                            ::ibv_wc_status_str( wc.status ) << std::endl;
+                            continue;
+
+                        EQERROR << (void *)this << " !IBV_WC_SUCCESS : " <<
+                            "wr_id = " << std::showbase << std::hex <<
+                            (unsigned int)wc.wr_id << std::dec <<
+                            ", opcode = " << (unsigned int)wc.opcode <<
+                            ", status = " << (unsigned int)wc.status <<
+                            " (" << ::ibv_wc_status_str( wc.status ) << ")" <<
+                            ", vendor_err = " << std::hex << wc.vendor_err <<
+                            std::dec << std::endl;
+
                         success = false;
                     }
                     else
@@ -956,35 +1097,46 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
                         if(( IBV_WC_SEND == wc.opcode ) ||
                             ( IBV_WC_RDMA_WRITE == wc.opcode ))
                         {
-                            // track available
-                            EQCHECK( ++_available_wr <= int(_qpcap.max_send_wr));
-
+                            // Track available work requests
+#ifdef EQ_RELEASE_ASSERT
+                            EQCHECK( ++_available_wr <=int(_qpcap.max_send_wr));
+#else
+                            ++_available_wr;
+#endif
                             if( IBV_WC_RDMA_WRITE == wc.opcode )
                             {
-                                _rptr.moveValue( _rptr.MIDDLE,
-                                    static_cast< uint32_t >( wc.wr_id ));
+                                const uint32_t bytes_written =
+                                    _sourceptr.available( _sourceptr.MIDDLE,
+                                        _sourceptr.TAIL );
+                                  
                                 _sourceptr.moveValue( _sourceptr.TAIL,
                                     static_cast< uint32_t >( wc.wr_id ));
-                                // not a message buffer, don't free
+
+                                // Not a message buffer, don't free
                                 wc.wr_id = 0ULL;
+
+                                // Wake up any blocking write
+                                _complete( bytes_written );
                             }
                         }
                         // Receive completions
                         else if( IBV_WC_RECV == wc.opcode )
-                            _handleMsg(
+                            _handleMessage(
                                 *reinterpret_cast< RDMAMessage * >( wc.wr_id ));
                         else if( IBV_WC_RECV_RDMA_WITH_IMM == wc.opcode )
                             _handleImm( wc.imm_data );
 
+                        // All receives need to be re-posted
                         if( IBV_WC_RECV & wc.opcode )
                             num_recvs++;
 
+                        // Release message buffers back to the pool
                         if( 0ULL != wc.wr_id )
                             _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
                     }
                 }
 
-                if( success )
+                if( success && !_disconnected )
                     return _postReceives( num_recvs );
             }
         }
@@ -992,44 +1144,71 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel )
     return false;
 }
 
-// caller: application & event thread
-void RDMAConnection::_notify( const uint64_t val )
-{
-    EQASSERT( 0 < _notifier );
+#ifdef EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-result"
+#endif
 
-    if( ::write( _notifier, (const void *)&val, sizeof( val )) != sizeof( val ))
-        EQWARN << "Write failed" << std::endl;
+void RDMAConnection::_eventFDWrite( int fd, const uint64_t val ) const
+{
+    EQASSERT( 0 <= fd );
+
+#ifdef EQ_RELEASE_ASSERT
+    EQCHECK( ::write( fd, (const void *)&val, sizeof( val )) == sizeof( val ));
+#else
+    ::write( fd, (const void *)&val, sizeof( val ));
+#endif
+}
+
+// caller: application & event thread
+void RDMAConnection::_notify( const uint64_t val ) const
+{
+    EQASSERT( 0 <= _notifier );
+    _eventFDWrite( _notifier, val );
+}
+
+// caller: event thread
+void RDMAConnection::_complete( const uint64_t val ) const
+{
+    EQASSERT( 0 <= _wfd );
+    _eventFDWrite( _wfd, val );
 }
 
 // caller: application
 bool RDMAConnection::_startEventThread( )
 {
-    EQASSERT( 0 == _notifier );
+    EQASSERT( -1 == _notifier );
+    EQASSERT( -1 == _wfd );
     EQASSERT( NULL == _event_thread );
 
+    // For a connected instance we need to "multiplex" both the connection
+    // manager fd and the completion channel fd to any polling operation,
+    // we do that by epoll'ing those fds in our own thread and passing along
+    // "events" via an eventfd.
     if( 0 > ( _notifier = ::eventfd( 0, EFD_NONBLOCK )))
+        EQERROR << "eventfd : " << base::sysError << std::endl;
+    else if( 0 > ( _wfd = ::eventfd( 0, EFD_NONBLOCK )))
         EQERROR << "eventfd : " << base::sysError << std::endl;
     else if( !( _event_thread = new ChannelEventThread( this ))->start( ))
         EQERROR << "Event thread failed to start!" << std::endl;
     else
         return true;
 
-    if(( 0 < _notifier ) && ( 0 != ::close( _notifier )))
-        EQWARN << "close : " << base::sysError << std::endl;
     return false;
 }
 
 // caller: event thread
 bool RDMAConnection::_initEventThread( )
 {
-    if( !setBlocking( _cm->fd, false )) {}
-    else if( !setBlocking( _cc->fd, false )) {}
+    if( !setBlocking( _cm->fd, false ))
+        EQERROR << "Failed to unblock connection manager fd." << std::endl;
+    else if( !setBlocking( _cc->fd, false ))
+        EQERROR << "Failed to unblock completion queue fd." << std::endl;
     else if( 0 > ( _efd = ::epoll_create( 2 )))
         EQERROR << "epoll_create : " << base::sysError << std::endl;
     else
         return true;
 
-    _setup.set( SETUP_NOK );
+    _setup_block.set( SETUP_NOK );
     return false;
 }
 
@@ -1054,7 +1233,7 @@ void RDMAConnection::_runEventThread( )
         struct epoll_event events[sizeof(evctl) / sizeof(evctl[0])];
         do
         {
-            int nfds = ::epoll_wait( _efd, events,
+            const int nfds = ::epoll_wait( _efd, events,
                 sizeof(evctl) / sizeof(evctl[0]), -1 );
             if( 0 > nfds )
             {
@@ -1080,12 +1259,14 @@ void RDMAConnection::_runEventThread( )
         while( ok );
     }
 
+    _disconnected = true;
+    _notify( 1ULL );
+
     if( 0 != ::close( _efd ))
-        EQWARN << "close : " << base::sysError << std::endl;
-    if( 0 != ::close( _notifier ))
         EQWARN << "close : " << base::sysError << std::endl;
 }
 
+// caller: application
 void RDMAConnection::_joinEventThread( )
 {
     if( NULL != _event_thread )
@@ -1096,21 +1277,22 @@ void RDMAConnection::_joinEventThread( )
     }
 }
 
+// caller: application
 uint32_t RDMAConnection::_drain( void *buffer, const uint32_t bytes )
 {
-    const uint32_t b = std::min( bytes,
-        _sinkptr.available( _sinkptr.HEAD, _sinkptr.MIDDLE ));
+    const uint32_t b = std::min( bytes, _sinkptr.available( ));
     ::memcpy( buffer, (const void *)((uintptr_t)_sinkbuf.getBase( ) +
-        _sinkptr.ptr( _sinkptr.MIDDLE )), b );
-    _sinkptr.incr( _sinkptr.MIDDLE, b );
+        _sinkptr.tail( )), b );
+    _sinkptr.incrTail( b );
     return b;
 }
 
+// caller: application
 uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 {
     const uint32_t b = std::min( bytes,
         std::min( _sourceptr.negAvailable( _sourceptr.HEAD, _sourceptr.TAIL ),
-            _rptr.negAvailable( _rptr.HEAD, _rptr.MIDDLE )));
+            _rptr.negAvailable( _rptr.HEAD, _rptr.TAIL )));
     ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.HEAD )), buffer, b );
     _sourceptr.incrHead( b );
@@ -1160,8 +1342,8 @@ bool BufferPool::resize( ibv_pd *pd, const unsigned int num_bufs )
         _num_bufs = num_bufs;
         _ring.clear( _num_bufs );
 
-        if( NULL == ( _buffer = ::malloc( _num_bufs * _buffer_size )))
-            EQERROR << "malloc : " << base::sysError << std::endl;
+        if( NULL == ( _buffer = ::calloc( _num_bufs, _buffer_size )))
+            EQERROR << "calloc : " << base::sysError << std::endl;
         else if( NULL == ( _mr = ::ibv_reg_mr( pd, _buffer,
             _num_bufs * _buffer_size, IBV_ACCESS_LOCAL_WRITE )))
             EQERROR << "ibv_reg_mr : " << base::sysError << std::endl;
@@ -1218,8 +1400,8 @@ bool RingBuffer::resize( ibv_pd *pd, const unsigned long size )
         _size = size;
 
         char path[] = "/dev/shm/co-rdma-buffer-XXXXXX";
-        int fd = ::mkstemp( path );
-        if( 0 > fd )
+        int fd;
+        if( 0 > ( fd = ::mkstemp( path )))
             EQERROR << "mkstemp : " << base::sysError << std::endl;
         else if( 0 != ::unlink( path ))
             EQERROR << "unlink : " << base::sysError << std::endl;

@@ -30,8 +30,6 @@ namespace co
 {
 namespace base
 {
-    class ExecutionListener;
-
     /** An utility class to execute code in a separate execution thread. */
     class Thread 
     {
@@ -48,12 +46,9 @@ namespace base
         /** 
          * Start the thread.
          *
-         * All thread state listeners will be notified from the new thread,
-         * after the thread was initialized successfully.
-         * 
          * @return <code>true</code> if the thread was launched and initialized
          *         successfully, <code>false</code> otherwise.
-         * @sa init(), run(), addListener()
+         * @sa init(), run()
          * @version 1.0
          */
         COBASE_API bool start();
@@ -85,7 +80,7 @@ namespace base
          * Exit the child thread immediately.
          * 
          * This function does not return. It is only to be called from the child
-         * thread. The thread listeners will be notified.
+         * thread.
          *
          * @version 1.0
          */
@@ -136,30 +131,8 @@ namespace base
          */
         COBASE_API bool isCurrent() const;
 
-        /** 
-         * Add a new thread state listener.
-         * 
-         * @param listener the listener.
-         * @version 1.0
-         */
-        COBASE_API static void addListener( ExecutionListener* listener );
-
-        /** 
-         * Remove a thread state listener.
-         * 
-         * @param listener the listener.
-         * @version 1.0
-         */
-        COBASE_API static bool removeListener( ExecutionListener* listener );
-
-        /** Remove all registered listeners, used at exit. @version 1.0 */
-        COBASE_API static void removeAllListeners();
-
         /** @return a unique identifier for the calling thread. @version 1.0 */
         COBASE_API static ThreadID getSelfThreadID();
-
-        /** @internal @warning do not call unless you know the side effects. */
-        COBASE_API void untrack();
 
         /** @internal */
         COBASE_API static void yield();

@@ -358,7 +358,7 @@ HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     DWORD windowStyleEx = WS_EX_APPWINDOW;
     DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
+    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != ON )
         windowStyle = WS_POPUP;
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )

@@ -131,7 +131,8 @@ namespace co
                                        const ObjectDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->dataSize << " seq " << packet->sequence;
+           << " size " << packet->dataSize << " seq " << packet->sequence
+           << " last " << static_cast< bool >( packet->last );
         return os;
     }
 

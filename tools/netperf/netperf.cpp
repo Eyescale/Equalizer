@@ -383,7 +383,7 @@ int main( int argc, char **argv )
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
         co::base::Clock clock;
-        size_t      lastOutput = nPackets;
+        size_t lastOutput = nPackets;
 
         clock.reset();
         while( nPackets-- )

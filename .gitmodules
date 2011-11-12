@@ -1,0 +1,3 @@
+[submodule "gpu-sd"]
+	path = gpu-sd
+	url = https://github.com/Eyescale/gpu-sd.git

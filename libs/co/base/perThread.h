@@ -21,7 +21,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <co/base/executionListener.h>
 #include <co/base/nonCopyable.h>
 
 namespace co

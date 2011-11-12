@@ -161,7 +161,11 @@ void Pipe::setDirty( const uint64_t bits )
 
 WindowSystem Pipe::selectWindowSystem() const
 {
+#ifdef AGL
+    return WindowSystem( "AGL" ); // prefer over GLX
+#else
     return WindowSystem();
+#endif
 }
 
 void Pipe::_setupCommandQueue()

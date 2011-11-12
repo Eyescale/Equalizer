@@ -584,7 +584,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
     EQASSERTINFO( vp.isValid(), vp );
     EQASSERTINFO( range.isValid(), range );
     EQASSERTINFO( node->resources > 0.f || !vp.hasArea() || !range.hasData(),
-                  "Assigning work to unused compound: " << vp << ", " << range);
+                  "Assigning " << node->resources <<
+                  " work to viewport " << vp << ", " << range );
 
     Compound* compound = node->compound;
     if( compound )

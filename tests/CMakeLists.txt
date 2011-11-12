@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010-2011, Stefan Eilemann <eile@eyescale.ch>
 #
-# Increase this number when adding tests to force CMake rerun: 1
+# Change this number when adding tests to force CMake rerun: 1
 
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)
@@ -13,11 +13,13 @@ if(NOT WIN32) # tests want to be with DLLs on Windows - no rpath
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/tests)
 endif()
 
-file(GLOB COMPOSITOR_IMAGES eq/compositor/*.rgb)
-file(GLOB TEST_CONFIGS eq/server/reliability/*.eqc)
-file(COPY eq/compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
+if(CMAKE_VERSION VERSION_GREATER 2.7)
+  file(GLOB COMPOSITOR_IMAGES eq/compositor/*.rgb)
+  file(GLOB TEST_CONFIGS eq/server/reliability/*.eqc)
+  file(COPY eq/compressor/images ${CMAKE_SOURCE_DIR}/examples/configs
 	  ${COMPOSITOR_IMAGES} ${TEST_CONFIGS}
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+          DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -56,6 +58,9 @@ foreach(FILE ${TEST_FILES})
     endif()
     if(${NAME} MATCHES "eq_fabric_.*")
       target_link_libraries(${NAME} lib_EqualizerFabric_shared)
+    endif()
+    if(${NAME} MATCHES "seq_.*")
+      target_link_libraries(${NAME} lib_Sequel_shared)
     endif()
     get_target_property(EXECUTABLE ${NAME} LOCATION)
     STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"

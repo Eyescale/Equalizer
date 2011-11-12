@@ -97,8 +97,7 @@ bool exit()
 
     // de-initialize registered plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
-    plugins.exit(); 
-    Thread::removeAllListeners();
+    plugins.exit();
     Log::exit();
     return true;
 }

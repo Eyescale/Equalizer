@@ -96,7 +96,7 @@ void Global::_setupDefaults()
     _windowIAttributes[Window::IATTR_HINT_STEREO]       = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::ON;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
     _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;

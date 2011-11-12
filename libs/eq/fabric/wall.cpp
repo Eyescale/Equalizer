@@ -145,8 +145,7 @@ void Wall::apply( const Viewport& viewport )
     
     bottomLeft  = bottomLeft + u * viewport.x + v * viewport.y;
     bottomRight = bottomLeft + u * viewport.w;
-    topLeft     = bottomLeft + v * viewport.h;  
-    
+    topLeft     = bottomLeft + v * viewport.h;
 }
 
 Wall& Wall::operator = ( const Projection& projection )
@@ -216,6 +215,9 @@ bool Wall::operator != ( const Wall& rhs ) const
 
 std::ostream& operator << ( std::ostream& os, const Wall& wall )
 {
+    const std::ios::fmtflags flags = os.flags();
+    os.setf( std::ios::fixed, std::ios::floatfield );
+
     os << co::base::disableHeader << co::base::disableFlush
        << "wall" << std::endl
        << "{" << std::endl << co::base::indent
@@ -226,6 +228,8 @@ std::ostream& operator << ( std::ostream& os, const Wall& wall )
         os << "type         " << wall.type << std::endl;
     os << co::base::exdent << "}"
        << co::base::enableFlush << co::base::enableHeader << std::endl;
+
+    os.setf( flags );
     return os;
 }
 
@@ -239,6 +243,7 @@ std::ostream& operator << ( std::ostream& os, const Wall::Type& type )
 
       default:
           EQASSERT( false );
+
       case Wall::TYPE_FIXED:
           os << "fixed";
           break;
