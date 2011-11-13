@@ -17,15 +17,17 @@
 
 #include "module.h"
 
-#include <gpusd1/gpuInfo.h>
+#include <gpusd/gpuInfo.h>
 #include <dns_sd.h>
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <arpa/inet.h>
-#include <sys/time.h>
+#ifndef _WIN32
+#  include <arpa/inet.h>
+#  include <sys/time.h>
+#endif
 
 #define WAIT_TIME 500 // ms
 
@@ -85,7 +87,7 @@ bool getTXTRecordValue( const uint16_t txtLen, const unsigned char* txt,
 
 
 static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
-                             uint32_t interface, DNSServiceErrorType error,
+                             uint32_t interfaceIdx, DNSServiceErrorType error,
                              const char* name, const char* host, uint16_t port,
                              uint16_t txtLen, const unsigned char* txt,
                              void* context )
@@ -127,7 +129,7 @@ static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
 
 
 static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
-                            uint32_t interface, DNSServiceErrorType error,
+                            uint32_t interfaceIdx, DNSServiceErrorType error,
                             const char* name, const char* type,
                             const char* domain, void* context )
 {
@@ -140,8 +142,8 @@ static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
     if( !( flags & kDNSServiceFlagsAdd ))
         return;
 
-    error = DNSServiceResolve( &service, 0, interface, name, type, domain,
-                               resolveCallback, context );
+    error = DNSServiceResolve( &service, 0, interfaceIdx, name, type, domain,
+                               (DNSServiceResolveReply)resolveCallback, context );
     if( error != kDNSServiceErr_NoError)
     {
         std::cerr << "DNSServiceResolve error: " << error << std::endl;
@@ -169,7 +171,7 @@ GPUInfos Module::discoverGPUs_() const
     GPUInfos candidates;
     const DNSServiceErrorType error = DNSServiceBrowse( &service, 0, 0,
                                                         "_gpu-sd._tcp", "",
-                                                        browseCallback,
+                                                        (DNSServiceBrowseReply)browseCallback,
                                                         &candidates );
     if( error == kDNSServiceErr_NoError )
     {

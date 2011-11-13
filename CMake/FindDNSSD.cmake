@@ -81,6 +81,11 @@ if(APPLE)
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
     PATH_SUFFIXES lib PATHS /usr /usr/local /opt/local /opt
     )
+elseif(WIN32)
+  find_library(_dnssd_LIBRARY dnssd.lib
+    HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
+    PATH_SUFFIXES lib PATHS E:/Downloads/mDNSResponder-333.10/mDNSWindows/DLL/Win32/Debug
+    )
 else()
   find_library(_dnssd_LIBRARY dns_sd
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}

@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <limits.h>
+#include <string>
 
 namespace gpusd
 {

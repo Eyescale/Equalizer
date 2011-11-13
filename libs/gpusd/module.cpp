@@ -15,8 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd1/module.h>
-#include <gpusd1/gpuInfo.h>
+#include <gpusd/module.h>
+#include <gpusd/gpuInfo.h>
 
 namespace gpusd
 {

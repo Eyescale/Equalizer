@@ -1,9 +1,6 @@
-
-if(NOT DNSSD_FOUND)
+if(NOT WIN32)
   return()
 endif()
-
-include_directories(${DNSSD_INCLUDE_DIRS})
 
 set(HEADERS
   module.h
@@ -13,15 +10,13 @@ set(SOURCES
   module.cpp
 )
 
-set(LIBRARY gpusd_dns_sd)
+find_package(OpenGL REQUIRED)
 
-set(INCLUDE gpusd/dns_sd)
+set(LIBRARY gpusd_wgl)
+set(INCLUDE gpusd/wgl)
+
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
-if(WIN32)
-  target_link_libraries(${LIBRARY} ${DNSSD_LIBRARIES} gpusd ws2_32)
-else()
-  target_link_libraries(${LIBRARY} ${DNSSD_LIBRARIES} gpusd)
-endif()
+target_link_libraries(${LIBRARY} ${OPENGL_LIBRARIES} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR} COMPILE_DEFINITIONS "GPUSD_SHARED")
 

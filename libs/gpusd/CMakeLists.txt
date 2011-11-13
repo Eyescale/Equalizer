@@ -27,7 +27,8 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
-                                            SOVERSION ${VERSION_MAJOR})
+                                            SOVERSION ${VERSION_MAJOR}
+                                            COMPILE_DEFINITIONS "GPUSD_SHARED")
 
 install(FILES ${HEADERS} DESTINATION ${INCLUDE} COMPONENT dev)
 install(TARGETS ${LIBRARY}
@@ -37,4 +38,5 @@ install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INCLU
 
 add_subdirectory(cgl)
 add_subdirectory(glx)
+add_subdirectory(wgl)
 add_subdirectory(dns_sd)
