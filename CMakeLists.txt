@@ -264,7 +264,7 @@ endif()
 add_definitions(${EQ_DEFINITIONS})
 
 add_subdirectory(tools)
-if(FOUND_GPUSD)
+if(GPUSD_FOUND)
   add_subdirectory(gpu-sd)
 endif()
 if(EQUALIZER_BUILD_EXAMPLES)

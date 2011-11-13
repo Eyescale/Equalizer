@@ -48,10 +48,14 @@ namespace fabric
 
         /** The size and location of the GPU. */
         PixelViewport pvp;
+
+        std::string hostname; //!< remote system  hostname, empty for local GPUs
     };
 
     inline std::ostream& operator << ( std::ostream& os, const GPUInfo& info )
     {
+        if( !info.hostname.empty( ))
+            os << "hostname " << info.hostname << std::endl;
         if( info.port != EQ_UNDEFINED_UINT32 )
             os << "port     " << info.port << std::endl;
         if( info.device != EQ_UNDEFINED_UINT32 )

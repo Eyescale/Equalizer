@@ -30,7 +30,7 @@ namespace config
 class Server
 {
 public:
-    static ServerPtr configureLocal();
+    static ServerPtr configure( const std::string& session );
 };
 
 }
