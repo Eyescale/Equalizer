@@ -1,6 +1,6 @@
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")
-  set(FOUND_GPUSD 1)
+  set(GPUSD_FOUND 1)
 endif()
 
 if(${EQ_REVISION} STREQUAL "")
@@ -16,4 +16,4 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")
   return()
 endif()
 
-set(FOUND_GPUSD 1)
+set(GPUSD_FOUND 1)
