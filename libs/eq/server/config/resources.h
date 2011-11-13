@@ -30,7 +30,7 @@ namespace config
 class Resources
 {
 public:
-    static bool discoverLocal( Config* config );
+    static bool discover( Config* config, const std::string& session );
     static Channels configureSourceChannels( Config* config );
     static void configure( const Compounds& compounds, const Channels& sources);
 

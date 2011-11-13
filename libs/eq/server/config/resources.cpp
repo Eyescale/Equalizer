@@ -37,6 +37,9 @@
 #ifdef GLX
 #  include <gpusd/glx/module.h>
 #endif
+#ifdef EQ_USE_GPUSD_DNSSD
+#  include <gpusd/dns_sd/module.h>
+#endif
 
 namespace eq
 {
@@ -57,28 +60,45 @@ typedef gpusd::GPUInfosCIter GPUInfosCIter;
 #endif
 
 
-bool Resources::discoverLocal( Config* config )
+bool Resources::discover( Config* config, const std::string& session )
 {
-#ifdef AGL
-    gpusd::cgl::Module::use();
-#elif defined (GLX)
-    gpusd::glx::Module::use();
-#endif
 #ifdef WGL // not yet in gpu_sd
-    const GPUInfos infos = WindowSystem().discoverGPUs();
+    const GPUInfos& infos = WindowSystem().discoverGPUs();
 #else
-    const GPUInfos infos = gpusd::Module::discoverGPUs();
+#  ifdef AGL
+    gpusd::cgl::Module::use();
+#  elif defined (GLX)
+    gpusd::glx::Module::use();
+#  endif
+#  ifdef EQ_USE_GPUSD_DNSSD
+    gpusd::dns_sd::Module::use();
+#  endif
+
+    const GPUInfos& infos = gpusd::Module::discoverGPUs(
+        gpusd::SessionFilter( session ) | gpusd::MirrorFilter( ));
 #endif
+
     if( infos.empty( ))
         return false;
 
-    Node* node = new Node( config );
+    typedef stde::hash_map< std::string, Node* > NodeMap;
+
+    NodeMap nodes;
+    Node* node = new Node( config ); // Add default appNode
     node->setApplicationNode( true );
+    nodes[ "" ] = node;
 
     size_t gpuCounter = 0;
     for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
         const GPUInfo& info = *i;
+
+        node = nodes[ info.hostname ];
+        if( !node )
+        {
+            node = new Node( config );
+            nodes[ info.hostname ] = node;
+        }
 
         Pipe* pipe = new Pipe( node );
         pipe->setPort( info.port );
