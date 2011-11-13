@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011, Daniel Nachbaur <danielnachbaur@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,36 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_MODULE_H
-#define GPUSD_MODULE_H
+#ifndef GPUSD_WGL_MODULE_H
+#define GPUSD_WGL_MODULE_H
 
-#include <gpusd/api.h>
-#include <gpusd/filter.h>
-#include <gpusd/types.h>
-#include <iostream>
+#include <gpusd/module.h> // base class
 
 namespace gpusd
 {
-    /** Base class for runtime-attached DSOs of a query implementation. */
-    class Module
+namespace wgl
+{
+    /** The WGL implementation for local GPU discovery. */
+    class Module : public gpusd::Module
     {
     public:
-        /** Register and construct a new module. */
-        GPUSD_API Module();
-
-        /** Destruct this module. */
-        GPUSD_API virtual ~Module();
-
-        /** @return information about all found GPUs. */
-        GPUSD_API static GPUInfos discoverGPUs( const Filter& filter = DuplicateFilter());
+        /** Instantiate an WGL discovery module for the process. */
+        static GPUSD_API void use();
 
     protected:
-        /** @return information about all found GPUs. */
-        virtual GPUInfos discoverGPUs_() const = 0;
-        
+        virtual GPUInfos discoverGPUs_() const;
+
     private:
-        Module* next_;
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
     };
 }
-#endif // GPUSD_MODULE_H
+}
+#endif // GPUSD_WGL_MODULE_H
 

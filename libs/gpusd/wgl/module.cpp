@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011, Daniel Nachbaur <danielnachbaur@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_DNS_SD_MODULE_H
-#define GPUSD_DNS_SD_MODULE_H
+#include "module.h"
 
-#include <gpusd/module.h> // base class
+#include <gpusd/gpuInfo.h>
+
 
 namespace gpusd
 {
-namespace dns_sd
+namespace wgl
 {
-    /** The DNS_SD implementation for remote GPU discovery. */
-    class Module : public gpusd::Module
-    {
-    public:
-        /** Instantiate an AGL discovery module for the process. */
-        static GPUSD_API void use();
+namespace
+{
 
-    protected:
-        virtual GPUInfos discoverGPUs_() const;
+Module* instance = 0;
 
-    private:
-        Module() : gpusd::Module() {}
-        virtual ~Module() {}
-    };
+}
+
+void Module::use()
+{
+    if( !instance )
+        instance = new Module;
+}
+
+GPUInfos Module::discoverGPUs_() const
+{
+    GPUInfos result;
+    GPUInfo defaultInfo( "WGL" );
+    return result;
+}
+
 }
 }
-#endif // GPUSD_DNS_SD_MODULE_H
-

@@ -25,8 +25,14 @@
 #ifdef GPUSD_GLX
 #  include <gpusd/glx/module.h>
 #endif
+#ifdef GPUSD_WGL
+#  include <gpusd/wgl/module.h>
+#endif
 
-#include <arpa/inet.h>
+#ifndef _WIN32
+#  include <arpa/inet.h>
+#  include <unistd.h>
+#endif
 #include <dns_sd.h>
 #include <cerrno>
 #include <cstdio>
@@ -34,7 +40,6 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
-#include <unistd.h>
 
 using gpusd::GPUInfo;
 using gpusd::GPUInfos;
@@ -144,7 +149,7 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
                             htons( 4242 ) /* port */,
                             TXTRecordGetLength( &record ),
                             TXTRecordGetBytesPtr( &record ),
-                            registerCB, 0 /* context* */ );
+                            (DNSServiceRegisterReply)registerCB, 0 /* context* */ );
     if( error == kDNSServiceErr_NoError )
     {
         handleEvents( serviceRef );
@@ -161,6 +166,9 @@ int main (int argc, char * argv[])
 #ifdef GPUSD_CGL
     gpusd::cgl::Module::use();
 #endif
+#ifdef GPUSD_WGL
+    gpusd::wgl::Module::use();
+#endif
 
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
@@ -170,6 +178,7 @@ int main (int argc, char * argv[])
     }
 
     std::string session( "default" );
+#ifndef _WIN32
     switch( getopt( argc, argv, "s:" ))
     {
       case 's':
@@ -184,6 +193,9 @@ int main (int argc, char * argv[])
       case -1: // end
           break;
     }
+#else
+    // TODO: getopt not available for WIN32
+#endif
 
     TXTRecordRef record;
     TXTRecordCreate( &record, 0, 0 );
