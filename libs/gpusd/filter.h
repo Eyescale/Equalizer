@@ -46,7 +46,15 @@ namespace gpusd
     {
     public:
         virtual ~DuplicateFilter() {}
+        GPUSD_API virtual bool operator() ( const GPUInfos& current,
+                                            const GPUInfo& candidate ) const;
+    };
 
+    /** Filters duplicates with the same position, hostname and session. */
+    class MirrorFilter : public Filter
+    {
+    public:
+        virtual ~MirrorFilter() {}
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
                                             const GPUInfo& candidate ) const;
     };

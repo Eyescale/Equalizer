@@ -29,6 +29,23 @@ bool DuplicateFilter::operator() ( const GPUInfos& current,
     return false;
 }
 
+bool MirrorFilter::operator() ( const GPUInfos& current,
+                                const GPUInfo& candidate ) const
+{
+    for( GPUInfosCIter i = current.begin(); i != current.end(); ++i )
+    {
+        const GPUInfo& info = *i;
+        if( info.hostname == candidate.hostname &&
+            info.session == candidate.session &&
+            info.pvp[0] == candidate.pvp[0] && info.pvp[1] == candidate.pvp[1] )
+        {
+             return false;
+        }
+    }
+
+    return Filter::operator()( current, candidate );
+}
+
 bool SessionFilter::operator() ( const GPUInfos& current,
                                  const GPUInfo& candidate ) const
 {

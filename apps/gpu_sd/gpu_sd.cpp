@@ -155,12 +155,13 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 
 int main (int argc, char * argv[])
 {
-#ifdef GPUSD_CGL
-    gpusd::cgl::Module::use();
-#endif
 #ifdef GPUSD_GLX
     gpusd::glx::Module::use();
 #endif
+#ifdef GPUSD_CGL
+    gpusd::cgl::Module::use();
+#endif
+
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
     {
