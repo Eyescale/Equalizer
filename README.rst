@@ -28,4 +28,12 @@ The build system is using CMake, with a default Makefile to trigger
 CMake and compilation. Typing 'make' should suffice. A ZeroConf
 implementation is required. On Mac OS X it is part of the operating
 system, on Linux AVAHI is tested ('sudo apt-get install
-libavahi-compat-libdnssd-dev' on Ubuntu).
+libavahi-compat-libdnssd-dev' on Ubuntu). If no ZeroConf implementation
+is found, GPU-SD is only compiled with local discovery modules.
+
+TODO List
+---------
+
+* GPU<integer> Vendor=<OpenGL vendor string>
+* GPU<integer> Renderer=<OpenGL renderer string>
+* GPU<integer> version=<OpenGL version string>
