@@ -10,13 +10,15 @@ set(SOURCES
   module.cpp
 )
 
+include(GLEW/CMakeLists.txt)
+
 find_package(OpenGL REQUIRED)
 
 set(LIBRARY gpusd_wgl)
 set(INCLUDE gpusd/wgl)
 
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
-target_link_libraries(${LIBRARY} ${OPENGL_LIBRARIES} gpusd)
+target_link_libraries(${LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
   SOVERSION ${VERSION_MAJOR} COMPILE_DEFINITIONS "GPUSD_SHARED")
 
