@@ -7,12 +7,14 @@ configure_file("version.in.h" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 set(HEADERS
   "${CMAKE_CURRENT_BINARY_DIR}/version.h"
   api.h
+  filter.h
   module.h
   gpuInfo.h
   types.h
 )
 
 set(SOURCES
+  filter.cpp
   module.cpp
   version.cpp
 )

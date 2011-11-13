@@ -15,36 +15,26 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef GPUSD_MODULE_H
-#define GPUSD_MODULE_H
-
-#include <gpusd/api.h>
-#include <gpusd/filter.h>
-#include <gpusd/types.h>
-#include <iostream>
+#include "filter.h"
+#include <gpusd/gpuInfo.h>
 
 namespace gpusd
 {
-    /** Base class for runtime-attached DSOs of a query implementation. */
-    class Module
-    {
-    public:
-        /** Register and construct a new module. */
-        GPUSD_API Module();
 
-        /** Destruct this module. */
-        GPUSD_API virtual ~Module();
-
-        /** @return information about all found GPUs. */
-        static GPUInfos discoverGPUs( const Filter& filter = DuplicateFilter());
-
-    protected:
-        /** @return information about all found GPUs. */
-        virtual GPUInfos discoverGPUs_() const = 0;
-        
-    private:
-        Module* next_;
-    };
+bool DuplicateFilter::operator() ( const GPUInfos& current,
+                                   const GPUInfo& candidate ) const
+{
+    if( std::find( current.begin(), current.end(), candidate ) == current.end())
+        return Filter::operator()( current, candidate );
+    return false;
 }
-#endif // GPUSD_MODULE_H
 
+bool SessionFilter::operator() ( const GPUInfos& current,
+                                 const GPUInfo& candidate ) const
+{
+    if( candidate.session == name_ )
+        return Filter::operator()( current, candidate );
+    return false;
+}
+
+}

@@ -49,13 +49,18 @@ Module::~Module()
     }
 }
 
-GPUInfos Module::discoverGPUs()
+GPUInfos Module::discoverGPUs( const Filter& filter )
 {
     GPUInfos result;
     for( Module* module = stack_; module; module = module->next_ )
     {
         const GPUInfos infos = module->discoverGPUs_(); 
-        std::copy( infos.begin(), infos.end(), std::back_inserter( result ));
+        for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
+        {
+            const GPUInfo& info = *i;
+            if( filter( result, info ))
+                result.push_back( info );
+        }
     }
     return result;
 }
