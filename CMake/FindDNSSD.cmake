@@ -117,6 +117,6 @@ set(DNSSD_INCLUDE_DIRS ${_dnssd_INCLUDE_DIR})
 set(DNSSD_LIBRARIES ${_dnssd_LIBRARY})
 
 if(DNSSD_FOUND)
-  message("-- Found ZeroConf in ${DNSSD_INCLUDE_DIRS};${DNSSD_LIBRARIES}")
+  message(STATUS "Found ZeroConf in ${DNSSD_INCLUDE_DIRS};${DNSSD_LIBRARIES}")
 endif()
 
