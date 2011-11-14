@@ -18,8 +18,9 @@
 #ifndef GPUSD_GPUINFO_H
 #define GPUSD_GPUINFO_H
 
+#include <climits>
+#include <cstring>
 #include <iostream>
-#include <limits.h>
 #include <string>
 
 namespace gpusd
