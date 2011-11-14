@@ -51,6 +51,8 @@
 #
 #    EQUALIZER_LIBRARIES - The Equalizer libraries
 #
+#    EQUALIZER_DEB_DEPENDENCIES - A list of dependencies for CPack deb generator
+#
 #==================================
 # Example Usage:
 #
@@ -210,6 +212,10 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     set(_eq_LIBRARY)
     set(_eq_fabric_LIBRARY)
     set(_eq_INCLUDE_DIR)
+else()
+  math(EXPR _eq_NEXT_MINOR ${EQUALIZER_VERSION_MINOR}+1)
+  set(EQUALIZER_DEB_DEPENDENCIES
+    "equalizer (>=${EQUALIZER_VERSION}), equalizer (<<${EQUALIZER_VERSION_MAJOR}.${_eq_NEXT_MINOR})")
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
