@@ -61,14 +61,14 @@ static class : WindowSystemIF
         return result;
     }
 
-    void configInit(eq::Node* node) const
+    void configInit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
         EventHandler::initMagellan(node);
 #endif
     }
 
-    void configExit(eq::Node* node) const
+    void configExit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
         EventHandler::exitMagellan(node);
