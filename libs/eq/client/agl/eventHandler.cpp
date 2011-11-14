@@ -33,6 +33,7 @@
 #include <co/base/file.h>
 
 #ifdef EQ_USE_MAGELLAN
+#  include <eq/client/node.h>
 #  include <3DconnexionClient/ConnexionClientAPI.h>
 #endif
 

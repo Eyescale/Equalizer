@@ -18,9 +18,10 @@
 
 #include "../windowSystem.h"
 
-#include "window.h"
-#include "pipe.h"
+#include "eventHandler.h"
 #include "messagePump.h"
+#include "pipe.h"
+#include "window.h"
 
 #include <eq/fabric/gpuInfo.h>
 #include <co/base/debug.h>
