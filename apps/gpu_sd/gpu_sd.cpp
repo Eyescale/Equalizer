@@ -173,7 +173,7 @@ int main (int argc, char * argv[])
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
     {
-        std::cerr << "No GPUs found, quitting";
+        std::cerr << "No GPUs found, quitting" << std::endl;
         return EXIT_FAILURE;
     }
 
