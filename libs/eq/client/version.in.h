@@ -94,6 +94,13 @@ namespace eq
          * @version 1.0
          */
         static std::string getString();
+
+        /**
+         * @return true if the link-time and compile-time DSO versions are
+         *         compatible.
+         */ 
+        static bool check()
+        { return getMajor()==EQ_VERSION_MAJOR && getMinor()==EQ_VERSION_MINOR; }
     };
 }
 

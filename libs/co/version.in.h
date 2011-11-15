@@ -94,6 +94,13 @@ namespace co
          * @version 1.1
          */
         static std::string getString();
+
+        /**
+         * @return true if the link-time and compile-time DSO versions are
+         *         compatible.
+         */ 
+        static bool check()
+        { return getMajor()==CO_VERSION_MAJOR && getMinor()==CO_VERSION_MINOR; }
     };
 }
 
