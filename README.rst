@@ -69,4 +69,4 @@ TODO List
 
 * GPU<integer> Vendor=<OpenGL vendor string>
 * GPU<integer> Renderer=<OpenGL renderer string>
-* GPU<integer> version=<OpenGL version string>
+* GPU<integer> Version=<OpenGL version string>
