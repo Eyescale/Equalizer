@@ -49,7 +49,7 @@ bool MirrorFilter::operator() ( const GPUInfos& current,
 bool SessionFilter::operator() ( const GPUInfos& current,
                                  const GPUInfo& candidate ) const
 {
-    if( candidate.session == name_ )
+    if( name_.empty() || candidate.session == name_ )
         return Filter::operator()( current, candidate );
     return false;
 }
