@@ -39,6 +39,7 @@ bool MirrorFilter::operator() ( const GPUInfos& current,
             info.session == candidate.session &&
             info.pvp[0] == candidate.pvp[0] && info.pvp[1] == candidate.pvp[1] )
         {
+            std::cout << "Discard " << info << std::endl;
              return false;
         }
     }

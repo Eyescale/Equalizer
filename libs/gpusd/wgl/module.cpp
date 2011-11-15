@@ -246,12 +246,12 @@ GPUInfos Module::discoverGPUs_() const
 {
     GPUInfos result;
 
-    if ( !_initWGLEW( ))
+    if( !_initWGLEW( ))
         return result;
 
-    if ( WGLEW_NV_gpu_affinity )
+    if( WGLEW_NV_gpu_affinity )
         _affinityDiscover( result );
-    else if ( WGLEW_AMD_gpu_association )
+    else if( WGLEW_AMD_gpu_association )
         _associationDiscover( result );
     else
         _nativeDiscover( result );
