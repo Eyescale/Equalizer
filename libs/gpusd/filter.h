@@ -34,8 +34,7 @@ namespace gpusd
         Filter() : next_( 0 ) {}
         virtual ~Filter() {}
 
-        Filter& operator | ( const Filter& rhs )
-            { std::cout << (void*)this << "->" << (void*)&rhs << std::endl; next_ = &rhs; return *this; }
+        Filter& operator | ( const Filter& rhs ) { next_ = &rhs; return *this; }
         virtual bool operator() ( const GPUInfos& current,
                                   const GPUInfo& candidate ) const
             { return next_ ? (*next_)( current, candidate ) : true; }

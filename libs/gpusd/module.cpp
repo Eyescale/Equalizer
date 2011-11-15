@@ -59,10 +59,7 @@ GPUInfos Module::discoverGPUs( const Filter& filter )
         {
             const GPUInfo& info = *i;
             if( filter( result, info ))
-            {
-                std::cout << "Add " << info << std::endl;
                 result.push_back( info );
-            }
         }
     }
     return result;
