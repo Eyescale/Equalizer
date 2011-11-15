@@ -139,6 +139,10 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
         //----- Link input frame to output frame (connects frame data)
         outputFrame->addInputFrame( frame, compound );
 
+        //----- Commit
+        outputFrame->commitData();
+        outputFrame->commit();
+
         for( unsigned k = 0; k < NUM_EYES; ++k )
         {
             const eq::Eye eye = eq::Eye( 1<<k );
