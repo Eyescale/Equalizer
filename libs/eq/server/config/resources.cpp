@@ -37,6 +37,9 @@
 #ifdef GLX
 #  include <gpusd/glx/module.h>
 #endif
+#ifdef WGL
+#  include <gpusd/wgl/module.h>
+#endif
 #ifdef EQ_USE_GPUSD_DNSSD
 #  include <gpusd/dns_sd/module.h>
 #endif
@@ -49,34 +52,24 @@ namespace config
 {
 static co::base::a_int32_t _frameCounter;
 
-#ifdef WGL // TODO remove once gpu-sd has WGL support
-typedef eq::fabric::GPUInfo GPUInfo;
-typedef eq::fabric::GPUInfos GPUInfos;
-typedef eq::fabric::GPUInfosCIter GPUInfosCIter;
-#else
-typedef gpusd::GPUInfo GPUInfo;
-typedef gpusd::GPUInfos GPUInfos;
-typedef gpusd::GPUInfosCIter GPUInfosCIter;
-#endif
-
-
 bool Resources::discover( Config* config, const std::string& session )
 {
-#ifdef WGL // not yet in gpu_sd
-    const GPUInfos& infos = WindowSystem().discoverGPUs();
-#else
-#  ifdef AGL
+#ifdef AGL
     gpusd::cgl::Module::use();
-#  elif defined (GLX)
-    gpusd::glx::Module::use();
-#  endif
-#  ifdef EQ_USE_GPUSD_DNSSD
-    gpusd::dns_sd::Module::use();
-#  endif
-
-    const GPUInfos& infos = gpusd::Module::discoverGPUs(
-        gpusd::SessionFilter( session ) | gpusd::MirrorFilter( ));
 #endif
+#ifdef GLX
+    gpusd::glx::Module::use();
+#endif
+#ifdef WGL
+    gpusd::wgl::Module::use();
+#endif
+#ifdef EQ_USE_GPUSD_DNSSD
+    gpusd::dns_sd::Module::use();
+#endif
+
+    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs(
+        gpusd::SessionFilter( session ) | gpusd::MirrorFilter() |
+        gpusd::DuplicateFilter( ));
 
     if( infos.empty( ))
         return false;
@@ -89,9 +82,9 @@ bool Resources::discover( Config* config, const std::string& session )
     nodes[ "" ] = node;
 
     size_t gpuCounter = 0;
-    for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
+    for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
-        const GPUInfo& info = *i;
+        const gpusd::GPUInfo& info = *i;
 
         node = nodes[ info.hostname ];
         if( !node )
@@ -112,6 +105,13 @@ bool Resources::discover( Config* config, const std::string& session )
             name << "GPU" << ++gpuCounter;
 
         pipe->setName( name.str( ));
+    }
+
+    node = nodes[ "" ];
+    if( node->getPipes().empty( )) // add display window
+    {
+        Pipe* pipe = new Pipe( node );
+        pipe->setName( "display" );
     }
     return true;
 }
