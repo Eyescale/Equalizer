@@ -13,7 +13,7 @@ Modules
 
 The GPU-SD library uses modules which implement discovery using
 different protocols. Each module is a separate library, which can be
-selectively linked by applications to reduce dependencies. Currently
+selectively linked by applications, limiting dependencies. Currently
 available are:
 
 - DNS_SD: Remote ZeroConf (Bonjour) discovery for GPUs announced by the daemon
@@ -25,10 +25,11 @@ available are:
 Daemon
 ------
 
-The daemon uses the available local modules to query all local GPUs and
+The daemon uses all available local modules to query local GPUs and
 announces them using ZeroConf on the local network. The service type
-name is "_gpu-sd". The following text fields describe the available
-GPUs:
+name is "_gpu-sd". The dns_sd discovery module gathers the information
+announced by all servers on the local network. The following protocol is
+used by the daemon:
 
 * Session=default|<string>
 * GPU Count=<integer>
@@ -59,9 +60,9 @@ libraries, instantiation the modules in the code and then quering the
 instantiated modules. The following will find all remote and the local
 GPUs on Windows:
 
-|    gpusd::wgl::Module::use();
-|    gpusd::dns_sd::Module::use();
-|    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs();
+    gpusd::wgl::Module::use();
+    gpusd::dns_sd::Module::use();
+    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs();
 
 TODO List
 ---------
