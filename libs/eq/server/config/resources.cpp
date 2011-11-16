@@ -18,6 +18,7 @@
 #include "resources.h"
 
 #include "../compound.h"
+#include "../configVisitor.h"
 #include "../frame.h"
 #include "../layout.h"
 #include "../node.h"
@@ -90,6 +91,7 @@ bool Resources::discover( Config* config, const std::string& session )
         if( !node )
         {
             node = new Node( config );
+            node->setHost( info.hostname );
             nodes[ info.hostname ] = node;
         }
 
@@ -116,19 +118,53 @@ bool Resources::discover( Config* config, const std::string& session )
     return true;
 }
 
+namespace
+{
+class AddSourcesVisitor : public ConfigVisitor
+{
+public:
+    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
+
+    virtual VisitorResult visitPre( Pipe* pipe )
+        {
+            const Node* node = pipe->getNode();
+            if( node->isApplicationNode() && node->getPipes().front() == pipe )
+            {
+                // display window has discrete 'affinity' GPU
+                if( pipe->getName() != "display" )
+                    _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
+                return TRAVERSE_CONTINUE;
+            }
+
+            Window* window = new Window( pipe );
+            if( !pipe->getPixelViewport().isValid( ))
+                window->setPixelViewport( _pvp );
+            window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+            window->setName( pipe->getName() + " source window" );
+
+            _channels.push_back( new Channel( window ));
+            _channels.back()->setName( pipe->getName() + " source channel" );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    const Channels& getChannels() const { return _channels; }
+private:
+    const PixelViewport& _pvp;
+    Channels _channels;
+};
+}
+
 Channels Resources::configureSourceChannels( Config* config )
 {
-    Channels channels;
-
     const Node* node = config->findAppNode();
     EQASSERT( node );
     if( !node )
-        return channels;
+        return Channels();
 
     const Pipes& pipes = node->getPipes();
     EQASSERT( !pipes.empty( ));
     if( pipes.empty( ))
-        return channels;
+        return Channels();
 
     Pipe* pipe = pipes.front();
     PixelViewport pvp = pipe->getPixelViewport();
@@ -140,22 +176,9 @@ Channels Resources::configureSourceChannels( Config* config )
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-    if( pipe->getName() != "display" ) // add as resource
-        channels.push_back( pipe->getChannel( ChannelPath( 0 )));
-
-    for( PipesCIter i = ++pipes.begin(); i != pipes.end(); ++i )
-    {
-        pipe = *i;
-        Window* window = new Window( pipe );
-        window->setPixelViewport( pvp );
-        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
-        window->setName( pipe->getName() + " source window" );
-
-        channels.push_back( new Channel( window ));
-        channels.back()->setName( pipe->getName() + " source channel" );
-    }
-
-    return channels;
+    AddSourcesVisitor addSources( pvp );
+    config->accept( addSources );
+    return addSources.getChannels();
 }
 
 void Resources::configure( const Compounds& compounds, const Channels& channels)
