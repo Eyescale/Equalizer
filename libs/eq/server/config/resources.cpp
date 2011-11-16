@@ -19,6 +19,7 @@
 
 #include "../compound.h"
 #include "../configVisitor.h"
+#include "../connectionDescription.h"
 #include "../frame.h"
 #include "../layout.h"
 #include "../node.h"
@@ -115,6 +116,9 @@ bool Resources::discover( Config* config, const std::string& session )
         Pipe* pipe = new Pipe( node );
         pipe->setName( "display" );
     }
+    if( nodes.size() > 1 ) // add appNode connection for cluster configs
+        node->addConnectionDescription( new ConnectionDescription );
+
     return true;
 }
 
