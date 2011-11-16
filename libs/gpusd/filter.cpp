@@ -21,6 +21,18 @@
 namespace gpusd
 {
 
+bool Filter::operator() ( const GPUInfos& current,
+                          const GPUInfo& candidate ) const
+{
+    for( ConstFiltersCIter i = next_.begin(); i != next_.end(); ++i )
+    {
+        const Filter* filter = *i;
+        if( !(*filter)( current, candidate ))
+            return false;
+    }
+    return true;
+}
+
 bool DuplicateFilter::operator() ( const GPUInfos& current,
                                    const GPUInfo& candidate ) const
 {
