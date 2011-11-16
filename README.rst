@@ -1,12 +1,11 @@
 # GPU Service Discovery
 =======================
 
-Introduction
-------------
-
 GPU-SD is a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. Its primary use case is to
 allow auto-configuration of ad-hoc GPU clusters.
+
+The source code is hosted on _github: https://github.com/Eyescale/gpu-sd
 
 Modules
 -------
