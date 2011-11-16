@@ -3,8 +3,8 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")
   set(GPUSD_FOUND 1)
 endif()
 
-if(${EQ_REVISION} STREQUAL "")
-  message(WARNING "git not found, automatic submodule configuration not done")
+if("${EQ_REVISION}" STREQUAL "")
+  message(STATUS "git not found, automatic submodule configuration not done")
   return()
 endif()
 
