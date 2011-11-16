@@ -160,11 +160,11 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
 
 int main (int argc, char * argv[])
 {
-#ifdef GPUSD_GLX
-    gpusd::glx::Module::use();
-#endif
 #ifdef GPUSD_CGL
     gpusd::cgl::Module::use();
+#endif
+#ifdef GPUSD_GLX
+    gpusd::glx::Module::use();
 #endif
 #ifdef GPUSD_WGL
     gpusd::wgl::Module::use();
