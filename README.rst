@@ -63,6 +63,15 @@ GPUs on Windows:
     gpusd::dns_sd::Module::use();
     const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs();
 
+Filters are chainable functors which can be passed to the query function
+to discard information. The following filters are provided:
+
+* DuplicateFilter eliminates duplicates, e.g.,  when one announcement is
+  seen on multiple interfaces
+* MirrorFilter eliminates the same GPU with a different type, e.g., when
+  enabling both the cgl and glx module on Mac OS X.
+* SessionFilter discards all GPUs not belonging to a given session
+
 TODO List
 ---------
 
