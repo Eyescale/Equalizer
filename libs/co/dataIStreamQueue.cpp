@@ -82,7 +82,6 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
             _pending.erase( i );
 
         _queued.push( QueuedStream( key, istream ));
-        EQASSERTINFO( _queued.getSize() < 100, "More than 100 queued commits" );
         //EQLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
         return true;
     }
