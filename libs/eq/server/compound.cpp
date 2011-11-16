@@ -1171,6 +1171,13 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames, outputQueues );
     accept( updateInputVisitor );
 
+    // commit output frames after input frames have been set
+    for( FrameMapCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
+    {
+        Frame* frame = i->second;
+        frame->commit();
+    }
+
     const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
     for( BarrierMapCIter i = swapBarriers.begin(); i != swapBarriers.end(); ++i)
     {

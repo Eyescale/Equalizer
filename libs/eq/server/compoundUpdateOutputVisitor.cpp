@@ -173,6 +173,9 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         // 2) zoom
         _updateZoom( compound, frame );
 
+        //----- Commit
+        frame->commitData();
+        
         _outputFrames[name] = frame;
         EQLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "

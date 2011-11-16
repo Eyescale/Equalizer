@@ -42,17 +42,5 @@ void FrameData::applyInstanceData( co::DataIStream& is )
     _data.deserialize( is );
 }
 
-void FrameData::addInputNode( const uint128_t& node, const uint128_t& netNode )
-{
-    _data.inputNodes.push_back( node );
-    _data.inputNetNodes.push_back( netNode );
-}
-
-void FrameData::clearInputNodes()
-{
-    _data.inputNodes.clear();
-    _data.inputNetNodes.clear();
-}
-
 }
 }

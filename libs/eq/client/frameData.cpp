@@ -132,13 +132,13 @@ FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
 void FrameData::Data::serialize( co::DataOStream& os ) const
 {
     os << pvp << frameType << buffers << period << phase << range
-       << pixel << subpixel << zoom << inputNodes << inputNetNodes;
+       << pixel << subpixel << zoom;
 }
 
 void FrameData::Data::deserialize( co::DataIStream& is )
 {
     is >> pvp >> frameType >> buffers >> period >> phase >> range
-       >> pixel >> subpixel >> zoom >> inputNodes >> inputNetNodes;
+       >> pixel >> subpixel >> zoom;
 }
 
 void FrameData::clear()

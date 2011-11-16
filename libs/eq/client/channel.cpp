@@ -1366,8 +1366,8 @@ void Channel::_transmitTileImages( const RenderContext& context )
     {
         Frame* frame = *i;    
         const FrameData* data = frame->getData();
-        const std::vector<uint128_t>& toNodes = data->getInputNodes();
-        const std::vector<uint128_t>& toNetNodes = data->getInputNetNodes();
+        const std::vector<uint128_t>& toNodes = frame->getInputNodes(getEye());
+        const std::vector<uint128_t>& toNetNodes = frame->getInputNetNodes(getEye());
         std::vector<uint128_t>::const_iterator j = toNodes.begin();
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
         for( ; j != toNodes.end(); ++j, ++k )
@@ -1403,8 +1403,8 @@ void Channel::_transmitTileFrameReady( const RenderContext& context )
         frame->setReady();
 
         const FrameData* data = frame->getData();
-        const std::vector<uint128_t>& toNodes = data->getInputNodes();
-        const std::vector<uint128_t>& toNetNodes = data->getInputNetNodes();
+        const std::vector<uint128_t>& toNodes = frame->getInputNodes(getEye());
+        const std::vector<uint128_t>& toNetNodes = frame->getInputNetNodes(getEye());
         std::vector<uint128_t>::const_iterator j = toNodes.begin();
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
         for( ; j != toNodes.end(); ++j, ++k )

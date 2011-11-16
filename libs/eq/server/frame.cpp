@@ -64,13 +64,13 @@ Frame::~Frame()
 
 void Frame::getInstanceData( co::DataOStream& os )
 {
-    os << _inherit;
+    _inherit.serialize( os );
 }
 
 void Frame::applyInstanceData( co::DataIStream& is )
 {
     EQUNREACHABLE;
-    is >> _inherit;
+    _inherit.deserialize( is );
 }
 
 void Frame::flush()
@@ -90,11 +90,12 @@ void Frame::unsetData()
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
-        if( _frameData[i] )
-            _frameData[i]->clearInputNodes();
         _frameData[i] = 0;
         _inputFrames[i].clear();
+        _data.toNodes[i].inputNodes.clear();
+        _data.toNodes[i].inputNetNodes.clear();
     }
+
 }
 
 void Frame::commitData()
@@ -117,8 +118,11 @@ void Frame::commitData()
 uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
         _inherit.frameData[i] = _frameData[i];
-
+        _inherit.toNodes[i].inputNodes = _data.toNodes[i].inputNodes;
+        _inherit.toNodes[i].inputNetNodes = _data.toNodes[i].inputNetNodes;
+    }
     return co::Object::commit( incarnation );
 }
 
@@ -155,7 +159,8 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
     
         _datas.push_front( data );
         _frameData[i] = data;
-        _frameData[i]->clearInputNodes();
+        _data.toNodes[i].inputNodes.clear();
+        _data.toNodes[i].inputNetNodes.clear();
         if( !_masterFrameData )
             _masterFrameData = data;
     }
@@ -174,8 +179,8 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
 
             const Node* inputNode = frame->getNode();
             co::NodePtr inputNetNode = inputNode->getNode();
-            _frameData[i]->addInputNode( inputNode->getID(),
-                                         inputNetNode->getNodeID() );
+            _data.toNodes[i].inputNodes.push_back( inputNode->getID() );
+            _data.toNodes[i].inputNetNodes.push_back( inputNetNode->getNodeID() );
         }
         else
         {

@@ -247,6 +247,14 @@ namespace server
         void removeListener( co::base::Monitor<uint32_t>& listener );
         //@}
 
+        /** @internal @return list of receiving eq::Node IDs of an output frame */
+        const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
+        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
+
+        /** @internal @return list of receiving co::Node IDs of an output frame */
+        const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
+        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( co::DataOStream& os );
@@ -260,13 +268,24 @@ namespace server
 
         /** The distributed data shared between Frame and server::Frame. */
         friend class eq::server::Frame;
+
         struct Data
         {
+	        struct ToNode
+	        {
+	            std::vector< uint128_t > inputNodes;
+	            std::vector< uint128_t > inputNetNodes;
+	        };
+
             Data() : offset( Vector2i::ZERO ) {}
 
             Vector2i offset;
             Zoom zoom;
             co::ObjectVersion frameData[ NUM_EYES ];
+            ToNode toNodes[ NUM_EYES ];
+
+            EQ_API void serialize( co::DataOStream& os ) const;
+            EQ_API void deserialize( co::DataIStream& is );
         }
         _data;
 

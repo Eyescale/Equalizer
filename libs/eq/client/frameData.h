@@ -275,13 +275,6 @@ namespace server
         bool addImage( const NodeFrameDataTransmitPacket* packet );
         void setReady( const NodeFrameDataReadyPacket* packet ); //!< @internal
 
-        /** @internal @return list of receiving eq::Node IDs of an output frame */
-        const std::vector< uint128_t >& getInputNodes() const
-            { return _data.inputNodes; }
-        /** @internal @return list of receiving co::Node IDs of an output frame */
-        const std::vector< uint128_t >& getInputNetNodes() const
-            { return _data.inputNetNodes; }
-
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( co::DataOStream& os );
@@ -305,8 +298,6 @@ namespace server
             Pixel         pixel;     //<! pixel decomposition of source
             SubPixel      subpixel;  //<! subpixel decomposition of source
             Zoom          zoom;
-            std::vector< uint128_t > inputNodes;
-            std::vector< uint128_t > inputNetNodes;
 
             EQ_API void serialize( co::DataOStream& os ) const;
             EQ_API void deserialize( co::DataIStream& is );
