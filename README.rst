@@ -1,7 +1,7 @@
 # GPU Service Discovery
 =======================
 
-|logo| GPU-SD is a daemon and library for the discovery and announcement of
+GPU-SD is a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. Its primary use case is to
 allow auto-configuration of ad-hoc GPU clusters.
 
