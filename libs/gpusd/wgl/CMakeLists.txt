@@ -1,6 +1,6 @@
-# TODO: resolve linkage within Equalizer: if(NOT WIN32)
+if(NOT WIN32)
   return()
-# endif()
+endif()
 
 set(HEADERS
   module.h
