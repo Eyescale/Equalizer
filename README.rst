@@ -92,4 +92,4 @@ TODO List
 .. _github: https://github.com/Eyescale/gpu-sd
 .. |logo| image:: http://equalizergraphics.com/images/gpu-sd_g.png
 .. _Equalizer: http://www.equalizergraphics.com
-.. source_: https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61
+.. _source: https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61
