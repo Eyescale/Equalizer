@@ -1,6 +1,6 @@
-[TOC]
-
 # GPU Service Discovery
+
+[TOC]
 
 GPU-SD is a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. Its primary use case is to
