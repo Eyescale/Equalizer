@@ -227,11 +227,11 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
         }
-        else if( name == "static DB" || name == "dynamic DB" )
+        else if( name == "Static DB" || name == "Dynamic DB" )
         {
             Compound* db = _addDBCompound( segmentCompound, channels );
             db->setName( name );
-            if( name == "dynamic DB" )
+            if( name == "Dynamic DB" )
                 db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
         }
         else if( name == "Simple" )
