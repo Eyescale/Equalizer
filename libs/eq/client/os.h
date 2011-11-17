@@ -64,6 +64,9 @@
 #  include <AGL/agl.h>
 #  include <Carbon/Carbon.h>
 #  define EQ_AGL_MENUBARHEIGHT 22
+#  ifdef check // undo global namespace pollution (AssertMacros.h)
+#    undef check
+#  endif
 #endif
 
 #ifdef WGL
