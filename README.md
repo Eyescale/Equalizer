@@ -72,7 +72,7 @@ to discard information. The following filters are provided:
 ## Projects using GPU-SD
 
 * [Equalizer](http://www.equalizergraphics.com) parallel rendering
-  framework [source_](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61) 
+  framework [source](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61) 
 
 ## TODO List
 
