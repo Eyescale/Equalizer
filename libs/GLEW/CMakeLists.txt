@@ -8,7 +8,7 @@ else()
   set(EQ_GLEW_INTERNAL TRUE)
   set(GLEW_VERSION 1.7.0)
   set(GLEW_DIR ${CMAKE_BINARY_DIR}/glew-${GLEW_VERSION})
-  set(GLEW_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
+  set(GLEW_MX_INCLUDE_DIRS "${OUTPUT_INCLUDE_DIR}/eq")
   set(GLEW_LIBRARY "GLEW_MX-Equalizer")
   set(GLEW_TGZ ${CMAKE_CURRENT_SOURCE_DIR}/GLEW/glew-${GLEW_VERSION}.tgz)
 
@@ -32,7 +32,7 @@ else()
     install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL COMPONENT eqdev)
   endforeach()
 
-  include_directories(BEFORE SYSTEM ${GLEW_INCLUDE_DIRS})
+  include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1 -DGLEW_NO_GLU)
   add_library(${GLEW_LIBRARY} STATIC ${GLEW_DIR}/src/glew.c)
   set_target_properties(${GLEW_LIBRARY} PROPERTIES
