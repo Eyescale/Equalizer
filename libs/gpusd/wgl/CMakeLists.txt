@@ -1,6 +1,6 @@
-# TODO: resolve linkage within Equalizer: if(NOT WIN32)
+if(NOT WIN32)
   return()
-# endif()
+endif()
 
 set(HEADERS
   module.h
@@ -17,6 +17,7 @@ find_package(OpenGL REQUIRED)
 set(LIBRARY gpusd_wgl)
 set(INCLUDE gpusd/wgl)
 
+source_group(\\ FILES CMakeLists.txt ${HEADERS} ${SOURCES})
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} gpusd)
 set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
