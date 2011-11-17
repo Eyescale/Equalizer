@@ -84,6 +84,7 @@ bool Resources::discover( Config* config, const std::string& session )
 
     NodeMap nodes;
     Node* node = new Node( config ); // Add default appNode
+    node->setName( "Local Node" );
     node->setApplicationNode( true );
     nodes[ "" ] = node;
 
@@ -96,6 +97,7 @@ bool Resources::discover( Config* config, const std::string& session )
         if( !node )
         {
             node = new Node( config );
+            node->setName( info.hostname );
             node->setHost( info.hostname );
             nodes[ info.hostname ] = node;
         }
