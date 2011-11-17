@@ -195,6 +195,9 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
+#ifdef EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
     const Canvas* canvas = 0;
     for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
