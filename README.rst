@@ -72,6 +72,11 @@ to discard information. The following filters are provided:
   enabling both the cgl and glx module on Mac OS X.
 * SessionFilter discards all GPUs not belonging to a given session
 
+Projects using GPU-SD
+---------------------
+
+* Equalizer_ parallel rendering framework
+
 TODO List
 ---------
 
@@ -86,3 +91,4 @@ TODO List
 
 .. _github: https://github.com/Eyescale/gpu-sd
 .. |logo| image:: http://equalizergraphics.com/images/gpu-sd_g.png
+.. _Equalizer: http://www.equalizergraphics.com
