@@ -1,14 +1,14 @@
-GPU Service Discovery
-=====================
+[TOC]
+
+# GPU Service Discovery
 
 GPU-SD is a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. Its primary use case is to
 allow auto-configuration of ad-hoc GPU clusters.
 
-The source code is hosted on github_.
+The source code is hosted on [github](https://github.com/Eyescale/gpu-sd).
 
-Modules
--------
+## Modules
 
 The GPU-SD library uses modules which implement discovery using
 different protocols. Each module is a separate library, which can be
@@ -21,8 +21,7 @@ available are:
 - WGL: Local discovery of WGL_NV_gpu_affinity, WGL_AMD_gpu_association
   or Windows displays (Windows only)
 
-Daemon
-------
+## Daemon
 
 The daemon uses all available local modules to query local GPUs and
 announces them using ZeroConf on the local network. The service type
@@ -40,8 +39,7 @@ used by the daemon:
 * GPU<integer> X=<integer>
 * GPU<integer> Y=<integer>
 
-Compilation
------------
+## Compilation
 
 The build system is using CMake, with a default Makefile to trigger
 CMake and compilation. Typing 'make' should suffice. A ZeroConf
@@ -51,8 +49,7 @@ apt-get install libavahi-compat-libdnssd-dev' on Ubuntu). If no ZeroConf
 implementation is found, GPU-SD is only compiled with local discovery
 modules.
 
-Usage
------
+## Usage
 
 An application can use the discovery by linking the relevant module
 libraries, instantiation the modules in the code and then quering the
@@ -72,13 +69,12 @@ to discard information. The following filters are provided:
   enabling both the cgl and glx module on Mac OS X.
 * SessionFilter discards all GPUs not belonging to a given session
 
-Projects using GPU-SD
----------------------
+## Projects using GPU-SD
 
-* Equalizer_ parallel rendering framework (source_)
+* [Equalizer](http://www.equalizergraphics.com) parallel rendering
+  framework [source_](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61) 
 
-TODO List
----------
+## TODO List
 
 * GPU<integer> Vendor=<OpenGL vendor string>
 * GPU<integer> Renderer=<OpenGL renderer string>
@@ -88,8 +84,3 @@ TODO List
 * GPU<integer> Segment<integer> Y=<integer>
 * GPU<integer> Segment<integer> Width=<integer>
 * GPU<integer> Segment<integer> Height=<integer>
-
-.. _github: https://github.com/Eyescale/gpu-sd
-.. |logo| image:: http://equalizergraphics.com/images/gpu-sd_g.png
-.. _Equalizer: http://www.equalizergraphics.com
-.. _source: https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61
