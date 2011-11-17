@@ -130,6 +130,7 @@ set(SERVER_LIBRARIES shared Equalizer)
 if(GPUSD_FOUND)
   list(APPEND SOURCES ${AUTOCONFIG})
   list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/gpu-sd/CMake)
+  list(APPEND SERVER_LIBRARIES gpusd)
   include_directories(${CMAKE_SOURCE_DIR}/gpu-sd/libs)
   add_definitions(-DEQ_USE_GPUSD)
 

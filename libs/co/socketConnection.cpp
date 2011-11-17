@@ -666,12 +666,13 @@ bool SocketConnection::listen()
             gethostname( cHostname, 256 );
             hostname = cHostname;
 
+#ifndef _MSC_VER
             char cDomainname[256] = {0};
             getdomainname( cDomainname, 256 );
             const std::string domainname( cDomainname );
             if( !domainname.empty( ))
                 hostname += "." + domainname;
-
+#endif
             _description->setHostname( hostname );
         }
         else

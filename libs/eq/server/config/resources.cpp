@@ -33,13 +33,17 @@
 #include <eq/fabric/gpuInfo.h>
 
 #include <gpusd/gpuInfo.h>
+#ifdef EQ_USE_GPUSD
+#  include <gpusd/gpuInfo.h>
+#  include <gpusd/module.h>
+#endif
 #ifdef AGL
 #  include <gpusd/cgl/module.h>
 #endif
 #ifdef GLX
 #  include <gpusd/glx/module.h>
 #endif
-#ifdef WGL
+#ifdef WGL_notyet
 #  include <gpusd/wgl/module.h>
 #endif
 #ifdef EQ_USE_GPUSD_DNSSD
@@ -62,7 +66,7 @@ bool Resources::discover( Config* config, const std::string& session )
 #ifdef GLX
     gpusd::glx::Module::use();
 #endif
-#ifdef WGL
+#ifdef WGL_notyet
     gpusd::wgl::Module::use();
 #endif
 #ifdef EQ_USE_GPUSD_DNSSD
