@@ -78,6 +78,11 @@ TODO List
 * GPU<integer> Vendor=<OpenGL vendor string>
 * GPU<integer> Renderer=<OpenGL renderer string>
 * GPU<integer> Version=<OpenGL version string>
+* GPU<integer> Segment Count=<integer>
+* GPU<integer> Segment<integer> X=<integer>
+* GPU<integer> Segment<integer> Y=<integer>
+* GPU<integer> Segment<integer> Width=<integer>
+* GPU<integer> Segment<integer> Height=<integer>
 
 .. _github: https://github.com/Eyescale/gpu-sd
 .. |logo| image:: http://equalizergraphics.com/images/gpu-sd_g.png
