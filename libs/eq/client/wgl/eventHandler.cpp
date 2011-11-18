@@ -33,7 +33,6 @@
 #include "../window.h"
 
 #include <co/base/debug.h>
-#include <co/base/executionListener.h>
 
 #include <algorithm>
 #include <windowsx.h>
@@ -641,7 +640,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 #endif
 }
 
-bool EventHandler::initMagellan(Node* node)
+bool EventHandler::initMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
     _magellanGotRotation = false;

@@ -39,7 +39,6 @@
 #include <co/global.h>
 #include <co/base/debug.h>
 #include <co/base/global.h>
-#include <co/base/executionListener.h>
 #include <co/base/monitor.h>
 
 #include <co/plugins/compressor.h>

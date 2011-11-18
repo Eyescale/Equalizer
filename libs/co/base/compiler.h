@@ -49,6 +49,18 @@
 #  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5)) )
 #    define EQ_GCC_4_5_OR_LATER
 #  endif
+#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)) )
+#    define EQ_GCC_4_6_OR_LATER
+#  endif
+#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)) )
+#    define EQ_GCC_4_7_OR_LATER
+#  endif
+#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) )
+#    define EQ_GCC_4_8_OR_LATER
+#  endif
+#  if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 9)) )
+#    define EQ_GCC_4_9_OR_LATER
+#  endif
 #endif // GCC
 
 #endif //COBASE_COMPILER_H

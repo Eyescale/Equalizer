@@ -40,8 +40,8 @@ private:
     virtual MessagePump* createMessagePump() const = 0;
     virtual GPUInfos discoverGPUs() const = 0;
 
-    virtual void configInit(Node* node) const {}
-    virtual void configExit(Node* node) const {}
+    virtual void configInit( Node* node ) {}
+    virtual void configExit( Node* node ) {}
 
 private:
     WindowSystemIF* _next;

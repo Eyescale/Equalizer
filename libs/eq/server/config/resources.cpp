@@ -18,6 +18,8 @@
 #include "resources.h"
 
 #include "../compound.h"
+#include "../configVisitor.h"
+#include "../connectionDescription.h"
 #include "../frame.h"
 #include "../layout.h"
 #include "../node.h"
@@ -30,6 +32,24 @@
 #include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
 
+#include <gpusd/gpuInfo.h>
+#ifdef EQ_USE_GPUSD
+#  include <gpusd/gpuInfo.h>
+#  include <gpusd/module.h>
+#endif
+#ifdef AGL
+#  include <gpusd/cgl/module.h>
+#endif
+#ifdef GLX
+#  include <gpusd/glx/module.h>
+#endif
+#ifdef WGL
+#  include <gpusd/wgl/module.h>
+#endif
+#ifdef EQ_USE_GPUSD_DNSSD
+#  include <gpusd/dns_sd/module.h>
+#endif
+
 namespace eq
 {
 namespace server
@@ -38,24 +58,54 @@ namespace config
 {
 static co::base::a_int32_t _frameCounter;
 
-bool Resources::discoverLocal( Config* config )
+bool Resources::discover( Config* config, const std::string& session )
 {
-    const GPUInfos infos = WindowSystem().discoverGPUs();
+#ifdef AGL
+    gpusd::cgl::Module::use();
+#endif
+#ifdef GLX
+    gpusd::glx::Module::use();
+#endif
+#ifdef WGL
+    gpusd::wgl::Module::use();
+#endif
+#ifdef EQ_USE_GPUSD_DNSSD
+    gpusd::dns_sd::Module::use();
+#endif
+
+    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs(
+        gpusd::SessionFilter( session ) | gpusd::MirrorFilter() |
+        gpusd::DuplicateFilter( ));
+
     if( infos.empty( ))
         return false;
 
-    Node* node = new Node( config );
+    typedef stde::hash_map< std::string, Node* > NodeMap;
+
+    NodeMap nodes;
+    Node* node = new Node( config ); // Add default appNode
+    node->setName( "Local Node" );
     node->setApplicationNode( true );
+    nodes[ "" ] = node;
 
     size_t gpuCounter = 0;
-    for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
+    for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
-        const GPUInfo& info = *i;
+        const gpusd::GPUInfo& info = *i;
+
+        node = nodes[ info.hostname ];
+        if( !node )
+        {
+            node = new Node( config );
+            node->setName( info.hostname );
+            node->setHost( info.hostname );
+            nodes[ info.hostname ] = node;
+        }
 
         Pipe* pipe = new Pipe( node );
         pipe->setPort( info.port );
         pipe->setDevice( info.device );
-        pipe->setPixelViewport( info.pvp );
+        pipe->setPixelViewport( PixelViewport( info.pvp ));
 
         std::stringstream name;
         if( info.device == EQ_UNDEFINED_UINT32 )
@@ -65,22 +115,66 @@ bool Resources::discoverLocal( Config* config )
 
         pipe->setName( name.str( ));
     }
+
+    node = nodes[ "" ];
+    if( node->getPipes().empty( )) // add display window
+    {
+        Pipe* pipe = new Pipe( node );
+        pipe->setName( "display" );
+    }
+    if( nodes.size() > 1 ) // add appNode connection for cluster configs
+        node->addConnectionDescription( new ConnectionDescription );
+
     return true;
+}
+
+namespace
+{
+class AddSourcesVisitor : public ConfigVisitor
+{
+public:
+    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
+
+    virtual VisitorResult visitPre( Pipe* pipe )
+        {
+            const Node* node = pipe->getNode();
+            if( node->isApplicationNode() && node->getPipes().front() == pipe )
+            {
+                // display window has discrete 'affinity' GPU
+                if( pipe->getName() != "display" )
+                    _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
+                return TRAVERSE_CONTINUE;
+            }
+
+            Window* window = new Window( pipe );
+            if( !pipe->getPixelViewport().isValid( ))
+                window->setPixelViewport( _pvp );
+            window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
+            window->setName( pipe->getName() + " source window" );
+
+            _channels.push_back( new Channel( window ));
+            _channels.back()->setName( pipe->getName() + " source channel" );
+            return TRAVERSE_CONTINUE; 
+        }
+
+    const Channels& getChannels() const { return _channels; }
+private:
+    const PixelViewport& _pvp;
+    Channels _channels;
+};
 }
 
 Channels Resources::configureSourceChannels( Config* config )
 {
-    Channels channels;
-
     const Node* node = config->findAppNode();
     EQASSERT( node );
     if( !node )
-        return channels;
+        return Channels();
 
     const Pipes& pipes = node->getPipes();
     EQASSERT( !pipes.empty( ));
     if( pipes.empty( ))
-        return channels;
+        return Channels();
 
     Pipe* pipe = pipes.front();
     PixelViewport pvp = pipe->getPixelViewport();
@@ -92,22 +186,9 @@ Channels Resources::configureSourceChannels( Config* config )
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-    if( pipe->getName() != "display" ) // add as resource
-        channels.push_back( pipe->getChannel( ChannelPath( 0 )));
-
-    for( PipesCIter i = ++pipes.begin(); i != pipes.end(); ++i )
-    {
-        pipe = *i;
-        Window* window = new Window( pipe );
-        window->setPixelViewport( pvp );
-        window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
-        window->setName( pipe->getName() + " source window" );
-
-        channels.push_back( new Channel( window ));
-        channels.back()->setName( pipe->getName() + " source channel" );
-    }
-
-    return channels;
+    AddSourcesVisitor addSources( pvp );
+    config->accept( addSources );
+    return addSources.getChannels();
 }
 
 void Resources::configure( const Compounds& compounds, const Channels& channels)
@@ -116,6 +197,9 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
+#ifdef EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
     const Canvas* canvas = 0;
     for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
@@ -143,11 +227,11 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
         }
-        else if( name == "static DB" || name == "dynamic DB" )
+        else if( name == "Static DB" || name == "Dynamic DB" )
         {
             Compound* db = _addDBCompound( segmentCompound, channels );
             db->setName( name );
-            if( name == "dynamic DB" )
+            if( name == "Dynamic DB" )
                 db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
         }
         else if( name == "Simple" )

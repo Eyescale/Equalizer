@@ -657,14 +657,26 @@ bool SocketConnection::listen()
 
     _description->port = ntohs( address.sin_port );
 
-    const std::string& hostname = _description->getHostname();
+    std::string hostname = _description->getHostname();
     if( hostname.empty( ))
     {
         if( address.sin_addr.s_addr == INADDR_ANY )
         {
-            char cHostname[256];
+            char cHostname[256] = {0};
             gethostname( cHostname, 256 );
-            _description->setHostname( cHostname );
+            hostname = cHostname;
+
+#ifndef _MSC_VER
+#  ifdef EQ_GCC_4_5_OR_LATER
+#    pragma GCC diagnostic ignored "-Wunused-result"
+#  endif
+            char cDomainname[256] = {0};
+            getdomainname( cDomainname, 256 );
+            const std::string domainname( cDomainname );
+            if( !domainname.empty( ))
+                hostname += "." + domainname;
+#endif
+            _description->setHostname( hostname );
         }
         else
             _description->setHostname( inet_ntoa( address.sin_addr ));

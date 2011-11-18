@@ -1,13 +1,20 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#
+#  sudo apt-get install devscripts
 ##
 
 find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
 
-if(NOT DEBUILD_EXECUTABLE OR NOT DPUT_EXECUTABLE)
+if(NOT DEBUILD_EXECUTABLE)
+  message(WARNING "debuild not found")
   return()
-endif(NOT DEBUILD_EXECUTABLE OR NOT DPUT_EXECUTABLE)
+endif()
+if(NOT DPUT_EXECUTABLE)
+  message(WARNING "dput not found")
+  return()
+endif()
 
 # DEBIAN/control
 # debian policy enforce lower case for package name

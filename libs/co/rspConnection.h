@@ -186,6 +186,7 @@ namespace co
         };
 
         typedef std::vector< RSPConnectionPtr > RSPConnections;
+        typedef RSPConnections::const_iterator RSPConnectionsCIter;
 
         RSPConnectionPtr _parent;
         RSPConnections _children;

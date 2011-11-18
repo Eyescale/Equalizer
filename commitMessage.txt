@@ -1,8 +1,8 @@
-Make OpenMP configurable
+Fix and enable WGL GPU-SD module
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
 [ ] Cleanup
 [ ] Optimization

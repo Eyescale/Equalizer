@@ -41,7 +41,8 @@ namespace eq
      *         an application-specific server is used (cf.
      *         Global::setConfigFile())</li>
      *   <li>--eq-render-client &lt;filename&gt; to specify an alternate name
-     *         for the render client executable (default is argv[0]).</li>
+     *         for the render client executable (default is argv[0]). Also sets
+     *         the working directory to the director part of the filename.</li>
      *   <li>--eq-logfile &lt;filename&gt; to specify an output file for debug
      *         logging.</li>
      * </ul>

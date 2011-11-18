@@ -29,6 +29,7 @@
 #include <eq/client/version.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
+#include <co/base/file.h>
 #include <co/base/global.h>
 #include <co/base/pluginRegistry.h>
 
@@ -171,6 +172,7 @@ void _parseArguments( const int argc, char** argv )
             if( i<argc )
             {
                 co::Global::setProgramName( argv[i] );
+                co::Global::setWorkDir( co::base::getDirname( argv[i] ));
             }
         }
     }

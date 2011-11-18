@@ -18,6 +18,7 @@
 #include <pthread.h>
 #include <test.h>
 #include <co/base/clock.h>
+#include <co/base/compiler.h>
 #include <co/base/mtQueue.h>
 #include <co/base/thread.h>
 #include <iostream>
@@ -32,6 +33,9 @@ public:
     virtual ~ReadThread() {}
     virtual void run()
         {
+#ifdef EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
             uint64_t item = 0xffffffffffffffffull;
 
             co::base::Clock clock;

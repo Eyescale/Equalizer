@@ -23,7 +23,7 @@
 namespace eq
 {
 NodeFactory* Global::_nodeFactory = 0;
-std::string Global::_configFile;
+std::string Global::_configFile = "local";
 
 #ifdef AGL
 static co::base::Lock _carbonLock;

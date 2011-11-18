@@ -21,7 +21,9 @@
 #include "global.h"
 #include "loader.h"
 
-#include "config/server.h"
+#ifdef EQ_USE_GPUSD
+#  include "config/server.h"
+#endif
 
 #include <co/node.h>
 
@@ -71,7 +73,7 @@ static ServerThread _serverThread;
 #pragma warning(push)
 #pragma warning(disable: 4190)
 extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
-    const std::string& file )
+    const std::string& config )
 {
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
@@ -80,13 +82,15 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    eq::server::Loader    loader;
+    eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( file.empty( ))
-        server = eq::server::config::Server::configureLocal();
+    if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
+        server = loader.loadFile( config );
+#ifdef EQ_USE_GPUSD
     else
-        server = loader.loadFile( file );
+        server = eq::server::config::Server::configure( config );
+#endif
 
     if( !server )
         server = loader.parseServer( CONFIG );

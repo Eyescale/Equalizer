@@ -58,7 +58,6 @@ public:
     virtual void run()
         {
             co::base::Thread::setName( "Watchdog" );
-            untrack();
 #ifdef EQ_TEST_RUNTIME
             co::base::sleep( EQ_TEST_RUNTIME * 1000 );
             TESTINFO( false, 

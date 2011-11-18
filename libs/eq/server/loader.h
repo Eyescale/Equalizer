@@ -109,6 +109,7 @@ namespace server
 
     private:
         void _parseString( const char* config );
+        void _parse();
     };
 }
 }

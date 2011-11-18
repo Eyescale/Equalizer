@@ -33,6 +33,7 @@
 #include <co/base/file.h>
 
 #ifdef EQ_USE_MAGELLAN
+#  include <eq/client/node.h>
 #  include <3DconnexionClient/ConnexionClientAPI.h>
 #endif
 
@@ -555,10 +556,10 @@ static Node*    _magellanNode = 0;
 
 void _magellanEventHandler( io_connect_t connection, natural_t messageType, 
                             void *messageArgument ) 
-{ 
-    switch (messageType) 
-    { 
-        case kConnexionMsgDeviceState: 
+{
+    switch (messageType)
+    {
+        case kConnexionMsgDeviceState:
         {
             ConnexionDeviceState *state = static_cast< ConnexionDeviceState* >(
                                                               messageArgument );
@@ -566,7 +567,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
             { 
                 ConfigEvent event;
                 event.data.originator = _magellanNode->getID();
-                event.serial = _magellanNode->getSerial();
+                event.data.serial = _magellanNode->getSerial();
                 event.data.magellan.buttons = state->buttons;
                 event.data.magellan.xAxis = state->axis[0];
                 event.data.magellan.yAxis = state->axis[1];
@@ -617,8 +618,8 @@ void EventHandler::initMagellan( Node* node )
         EQWARN << "Can't install Space Mouse connexion handlers" << std::endl;
     else
     {
-        std::string program( '\0' + 
-                             base::getFilename( co::Global::getProgramName( )));
+        std::string program( '\0' + co::base::getFilename(
+                                        co::Global::getProgramName( )));
         program[0] = program.length() - 1;
 
         _magellanID = RegisterConnexionClient( 0, (uint8_t*)program.c_str( ),

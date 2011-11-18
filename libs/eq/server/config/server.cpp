@@ -32,16 +32,20 @@ namespace server
 namespace config
 {
 
-ServerPtr Server::configureLocal()
+ServerPtr Server::configure( const std::string& session )
 {
-    Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.1f );
+    Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
     ServerPtr server = new server::Server;
 
     Config* config = new Config( server );
-    config->setName( "Local Auto-Config" );
+    config->setName( session + " autoconfig" );
 
-    if( !Resources::discoverLocal( config ))
+    if( !Resources::discover( config, session ))
         return 0;
+
+    if( config->getNodes().size() > 1 )
+        // add server connection for cluster configs
+        server->addConnectionDescription( new ConnectionDescription );
 
     Display::discoverLocal( config );
     const Compounds compounds = Loader::addOutputCompounds( server );

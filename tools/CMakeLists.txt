@@ -26,6 +26,10 @@ else()
   add_definitions(-DGLEW_STATIC=1 -DGLEW_MX=1)
 endif()
 
+if(GPUSD_FOUND)
+  add_definitions(-DEQ_USE_GPUSD)
+endif()
+
 if(WIN32)
   eq_add_tool(affinityCheck
     SOURCES affinityCheck/affinityCheck.cpp
