@@ -26,7 +26,6 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "serverVisitor.h"
 #include "window.h"
 
 #include <eq/admin/packets.h>
@@ -55,8 +54,8 @@ static NodeFactory _nf;
 }
 
 typedef co::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode >
-            Super;
+typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode,
+                        ServerVisitor > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -88,60 +87,6 @@ Server::~Server()
     EQASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
     deleteConfigs();
     co::base::Log::setClock( 0 );
-}
-
-namespace
-{
-template< class C, class V >
-VisitorResult _accept( C* server, V& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( server );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const Configs& configs = server->getConfigs();
-    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( server ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Server::accept( ServerVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Server::accept( ServerVisitor& visitor ) const
-{
-    return _accept( this, visitor );
 }
 
 void Server::init()
@@ -472,12 +417,9 @@ bool Server::_cmdUnmap( co::Command& command )
 template class eq::fabric::Server< co::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,
-                                   co::LocalNode >;
+                                   co::LocalNode, eq::server::ServerVisitor >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator <<
-( std::ostream&, const fabric::Server< co::Node, eq::server::Server,
-                                       eq::server::Config,
-                                       eq::server::NodeFactory,
-                                       co::LocalNode >& );
+template std::ostream&
+eq::fabric::operator << ( std::ostream&, const eq::server::Super& );
 /** @endcond */

@@ -110,7 +110,6 @@ set(SOURCES
     pipe.cpp
     segment.cpp
     server.cpp
-    serverVisitor.h
     startLocalServer.cpp
     tileQueue.cpp
     view.cpp
