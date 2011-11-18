@@ -350,7 +350,7 @@ public:
         }
 };
 }
-    
+
 void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )

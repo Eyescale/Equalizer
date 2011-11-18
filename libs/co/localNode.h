@@ -308,7 +308,7 @@ namespace co
         CO_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
-        CO_API void getNodes( Nodes& nodes, const bool addSelf = true ) const;
+        void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
         /**
          * Acquire a singular send token from the given node.
@@ -393,7 +393,7 @@ namespace co
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
-        /** notify client disconnection */
+        /** Notify remote node disconnection */
         virtual void notifyDisconnect( NodePtr node ) { }
 
     private:

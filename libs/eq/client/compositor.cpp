@@ -424,7 +424,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
 
             if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
-             else
+            else
             {
                 ++nUsedFrames;
                 co::base::Clock time;
