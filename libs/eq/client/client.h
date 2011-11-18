@@ -114,9 +114,6 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        /** Servers connected to this client */
-        Servers _servers;
-
         /** @sa co::Node::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
