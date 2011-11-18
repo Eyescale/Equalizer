@@ -18,6 +18,7 @@
 #ifndef EQSERVER_CONFIG_SERVER_H
 #define EQSERVER_CONFIG_SERVER_H
 
+#include "../api.h"
 #include "../types.h"
 
 namespace eq
@@ -30,7 +31,7 @@ namespace config
 class Server
 {
 public:
-    static ServerPtr configure( const std::string& session );
+    static EQSERVER_API ServerPtr configure( const std::string& session );
 };
 
 }
