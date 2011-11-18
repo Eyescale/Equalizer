@@ -29,15 +29,15 @@ name is "_gpu-sd". The dns_sd discovery module gathers the information
 announced by all servers on the local network. The following protocol is
 used by the daemon:
 
-* Session=default|<string>
-* GPU Count=<integer>
-* GPU<integer> Type=GLX | WGL | WGLn | WGLa | CGL
-* GPU<integer> Port=<integer> // X11 display number, 0 otherwise
-* GPU<integer> Device=<integer> // X11 screen number, wglEnumGpusNV index, CGDirectDisplayID
-* GPU<integer> Width=<integer>
-* GPU<integer> Height=<integer>
-* GPU<integer> X=<integer>
-* GPU<integer> Y=<integer>
+* Session=default|&lt;string&gt;
+* GPU Count=&lt;integer&gt;
+* GPU&lt;integer&gt; Type=GLX | WGL | WGLn | WGLa | CGL
+* GPU&lt;integer&gt; Port=&lt;integer&gt; // X11 display number, 0 otherwise
+* GPU&lt;integer&gt; Device=&lt;integer&gt; // X11 screen number, wglEnumGpusNV index, CGDirectDisplayID
+* GPU&lt;integer&gt; Width=&lt;integer&gt;
+* GPU&lt;integer&gt; Height=&lt;integer&gt;
+* GPU&lt;integer&gt; X=&lt;integer&gt;
+* GPU&lt;integer&gt; Y=&lt;integer&gt;
 
 ## Compilation
 
@@ -76,11 +76,11 @@ to discard information. The following filters are provided:
 
 ## TODO List
 
-* GPU<integer> Vendor=<OpenGL vendor string>
-* GPU<integer> Renderer=<OpenGL renderer string>
-* GPU<integer> Version=<OpenGL version string>
-* GPU<integer> Segment Count=<integer>
-* GPU<integer> Segment<integer> X=<integer>
-* GPU<integer> Segment<integer> Y=<integer>
-* GPU<integer> Segment<integer> Width=<integer>
-* GPU<integer> Segment<integer> Height=<integer>
+* GPU&lt;integer&gt; Vendor=&lt;OpenGL vendor string&gt;
+* GPU&lt;integer&gt; Renderer=&lt;OpenGL renderer string&gt;
+* GPU&lt;integer&gt; Version=&lt;OpenGL version string&gt;
+* GPU&lt;integer&gt; Segment Count=&lt;integer&gt;
+* GPU&lt;integer&gt; Segment&lt;integer&gt; X=&lt;integer&gt;
+* GPU&lt;integer&gt; Segment&lt;integer&gt; Y=&lt;integer&gt;
+* GPU&lt;integer&gt; Segment&lt;integer&gt; Width=&lt;integer&gt;
+* GPU&lt;integer&gt; Segment&lt;integer&gt; Height=&lt;integer&gt;
