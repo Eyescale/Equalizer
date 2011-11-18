@@ -176,8 +176,8 @@ void _affinityDiscover( GPUInfos& result )
         {
             info.pvp[0] = 0;
             info.pvp[1] = 0;
-            info.pvp[2] = 4096;
-            info.pvp[3] = 4096;
+            info.pvp[2] = 8192;
+            info.pvp[3] = 8192;
         }
         result.push_back( info );
     }
@@ -195,43 +195,38 @@ void _associationDiscover( GPUInfos& result )
         info.device = gpuIDs[device];
         info.pvp[0] = 0;
         info.pvp[1] = 0;
-        info.pvp[2] = 4096;
-        info.pvp[3] = 4096;
+        info.pvp[2] = 8192;
+        info.pvp[3] = 8192;
         result.push_back( info );
     }
 }
 
-void _nativeDiscover( GPUInfos& result )
+// callback function called by EnumDisplayMonitors for each enabled monitor
+BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon,
+                            LPARAM lParam )
 {
-    for( UINT device = 0; true; ++device )
-    {
-        DISPLAY_DEVICE devInfo;
-        devInfo.cb = sizeof( devInfo );
+	GPUInfos* result = reinterpret_cast<GPUInfos*>( lParam );
+	
+	MONITORINFO mi;
+	mi.cbSize = sizeof(mi);
+    if( !GetMonitorInfo( hMon, &mi ))
+        return FALSE;
+    
+    GPUInfo info( "WGL" );
+    info.device = result->size();
+    info.pvp[0] = mi.rcMonitor.left;
+    info.pvp[1] = mi.rcMonitor.top;
+    info.pvp[2] = mi.rcMonitor.left + mi.rcMonitor.right;
+    info.pvp[3] = mi.rcMonitor.top + mi.rcMonitor.bottom;    
+    result->push_back( info );
 
-        if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
-            break;
+	return TRUE;
+}
 
-        const HDC displayDC = CreateDC( "DISPLAY", devInfo.DeviceName, 0, 0 );
-        if( !displayDC )
-            break;
-
-        GPUInfo info( "WGL" );
-        info.device = device;
-        info.pvp[0] = 0;
-        info.pvp[1] = 0;
-        if( displayDC )
-        {
-            info.pvp[2] = GetDeviceCaps( displayDC, HORZRES );
-            info.pvp[3] = GetDeviceCaps( displayDC, VERTRES );
-            DeleteDC( displayDC );
-        }
-        else
-        {
-            info.pvp[2] = 2048;
-            info.pvp[3] = 2048;
-        }
-        result.push_back( info );
-    }
+void _displayDiscover( GPUInfos& result )
+{
+    EnumDisplayMonitors( 0, 0, EnumDispProc,
+                         reinterpret_cast<LPARAM>( &result ));
 }
 
 }
@@ -249,12 +244,18 @@ GPUInfos Module::discoverGPUs_() const
     if ( !_initWGLEW( ))
         return result;
 
+    // also finds attached displays
     if ( WGLEW_NV_gpu_affinity )
+    {
         _affinityDiscover( result );
-    else if ( WGLEW_AMD_gpu_association )
-        _associationDiscover( result );
-    else
-        _nativeDiscover( result );
+        return result;
+    }
+    
+    _displayDiscover( result );
+    
+    // does not find GPUs with attached display
+    if ( WGLEW_AMD_gpu_association )
+        _associationDiscover( result ); 
 
     return result;
 }
