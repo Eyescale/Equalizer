@@ -27,6 +27,9 @@
 #include "server.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
 #include <co/command.h>
 #include <co/connection.h>
@@ -335,6 +338,20 @@ bool Client::_cmdExit( co::Command& command )
     return true;
 }
 
+namespace
+{
+class StopNodesVisitor : public ServerVisitor
+{
+public:
+    virtual ~StopNodesVisitor() {}
+    virtual VisitorResult visitPre( Node* node )
+        {
+            node->dirtyClientExit();
+            return TRAVERSE_CONTINUE;
+        }
+};
+}
+    
 void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
@@ -344,25 +361,12 @@ void Client::notifyDisconnect( co::NodePtr node )
             command.getModifiable< eq::ClientExitPacket >();
         *packet = eq::ClientExitPacket();
         dispatchCommand( command );
-        _stopNodes();
+
+        ServerPtr server = static_cast< Server* >( node.get( ));
+        StopNodesVisitor stopNodes;
+        server->accept( stopNodes );
     }
     fabric::Client::notifyDisconnect( node );
-}
-
-void Client::_stopNodes()
-{
-    const eq::Configs& configs = _servers.front()->getConfigs();
-    if( configs.empty( ))
-        return;
-
-    eq::Config* config = configs.front();
-    const eq::Nodes& nodes = config->getNodes();
-    if( nodes.empty( ))
-        return;
-    EQASSERT( nodes.size() == 1 );
-
-    for( eq::NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
-        (*i)->dirtyClientExit();
 }
 
 }

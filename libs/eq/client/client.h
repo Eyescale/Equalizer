@@ -124,7 +124,6 @@ namespace eq
         EQ_API virtual void notifyDisconnect( co::NodePtr node );
 
         bool _setupClient( const std::string& clientArgs );
-        void _stopNodes();
 
         /** The command functions. */
         bool _cmdExit( co::Command& command );
