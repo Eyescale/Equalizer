@@ -35,7 +35,7 @@ namespace eq
      * @sa fabric::Server, Client::connectServer()
      */
     class Server : public fabric::Server< Client, Server, Config, NodeFactory,
-                                          co::Node >
+                                          co::Node, ServerVisitor >
     {
     public:
         /** Construct a new server. @version 1.0 */

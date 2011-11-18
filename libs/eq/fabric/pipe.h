@@ -37,6 +37,8 @@ namespace fabric
         /** A vector of pointers to windows. @version 1.0 */
         typedef std::vector< W* >  Windows; 
         
+        /** @name Data Access */
+        //@{
         /** @return the parent node of this pipe. @version 1.0 */
         N*       getNode()       { return _node; }
         /** @return the parent node of this pipe. @version 1.0 */

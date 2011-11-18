@@ -75,7 +75,7 @@ template< class, class, class > class Window;
 template< class, class, class, class > class Canvas;
 template< class, class, class, class > class Node;
 template< class, class, class, class > class Pipe;
-template< class, class, class, class, class > class Server;
+template< class, class, class, class, class, class > class Server;
 template< class, class, class, class, class, class, class > class Config;
 template< class, class > class ElementVisitor;
 template< class > class LeafVisitor;

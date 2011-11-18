@@ -217,7 +217,8 @@ namespace fabric
         virtual void _removeChild( const co::base::UUID& )
             { EQUNIMPLEMENTED; }
 
-        template< class, class, class, class, class > friend class Server;
+        template< class, class, class, class, class, class >
+        friend class Server;
 
         void setAppNodeID( const co::NodeID& nodeID ); //!< @internal
         /** @internal */
