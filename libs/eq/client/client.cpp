@@ -321,7 +321,6 @@ co::NodePtr Client::createNode( const uint32_t type )
         {
             Server* server = new Server;
             server->setClient( this );
-            _servers.push_back( server );
             return server;
         }
 
