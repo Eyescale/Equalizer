@@ -337,7 +337,7 @@ bool Client::_cmdExit( co::Command& command )
 
 void Client::notifyDisconnect( co::NodePtr node )
 {
-    if( node->getType() != eq::fabric::NODETYPE_EQ_SERVER )
+    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
         co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
         eq::ClientExitPacket* packet = 
