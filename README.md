@@ -26,7 +26,7 @@ available are:
 The daemon uses all available local modules to query local GPUs and
 announces them using ZeroConf on the local network. The service type
 name is "_gpu-sd". The dns_sd discovery module gathers the information
-announced by all servers on the local network. The following protocol is
+announced by all daemons on the local network. The following protocol is
 used by the daemon:
 
 * Session=default|&lt;string&gt;
