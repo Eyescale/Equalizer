@@ -36,7 +36,8 @@ namespace gpusd
         GPUSD_API virtual ~Module();
 
         /** @return information about all found GPUs. */
-        GPUSD_API static GPUInfos discoverGPUs( const Filter& filter = DuplicateFilter());
+        GPUSD_API static GPUInfos discoverGPUs(
+            const Filter& filter = DuplicateFilter());
 
     protected:
         /** @return information about all found GPUs. */

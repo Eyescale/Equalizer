@@ -25,6 +25,7 @@ namespace gpusd
 
 struct GPUInfo;
 typedef std::vector< GPUInfo > GPUInfos;
+typedef GPUInfos::iterator GPUInfosIter;
 typedef GPUInfos::const_iterator GPUInfosCIter;
 
 }

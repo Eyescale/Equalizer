@@ -210,7 +210,7 @@ BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon,
 	MONITORINFO mi;
 	mi.cbSize = sizeof(mi);
     if( !GetMonitorInfo( hMon, &mi ))
-        return FALSE;
+        return TRUE;    // continue enumeration
     
     GPUInfo info( "WGL" );
     info.device = result->size();
@@ -241,11 +241,11 @@ GPUInfos Module::discoverGPUs_() const
 {
     GPUInfos result;
 
-    if ( !_initWGLEW( ))
+    if( !_initWGLEW( ))
         return result;
 
     // also finds attached displays
-    if ( WGLEW_NV_gpu_affinity )
+    if( WGLEW_NV_gpu_affinity )
     {
         _affinityDiscover( result );
         return result;
@@ -254,8 +254,8 @@ GPUInfos Module::discoverGPUs_() const
     _displayDiscover( result );
     
     // does not find GPUs with attached display
-    if ( WGLEW_AMD_gpu_association )
-        _associationDiscover( result ); 
+    if( WGLEW_AMD_gpu_association )
+        _associationDiscover( result );
 
     return result;
 }

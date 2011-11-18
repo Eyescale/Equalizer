@@ -1,3 +1,6 @@
+if(NOT DNSSD_FOUND)
+  return()
+endif()
 
 set(HEADERS)
 set(SOURCES

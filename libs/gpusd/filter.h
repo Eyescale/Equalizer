@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <string>
 
+#include <iostream>
+
 namespace gpusd
 {
     /** Base class for all discovery filters. */
@@ -32,13 +34,14 @@ namespace gpusd
         Filter() : next_( 0 ) {}
         virtual ~Filter() {}
 
-        Filter& operator | ( const Filter& rhs ) { next_ = &rhs; return *this; }
-        virtual bool operator() ( const GPUInfos& current,
-                                  const GPUInfo& candidate ) const
-            { return next_ ? (*next_)( current, candidate ) : true; }
-
+        Filter& operator | ( const Filter& rhs )
+            { next_.push_back( &rhs ); return *this; }
+        GPUSD_API virtual bool operator() ( const GPUInfos& current,
+                                            const GPUInfo& candidate ) const;
     private:
-        const Filter* next_;
+        typedef std::vector< const Filter* > ConstFilters;
+        typedef ConstFilters::const_iterator ConstFiltersCIter;
+        ConstFilters next_;
     };
 
     /** Filters all duplicates during discovery. */

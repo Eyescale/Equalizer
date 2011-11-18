@@ -143,7 +143,8 @@ static void browseCallback( DNSServiceRef service, DNSServiceFlags flags,
         return;
 
     error = DNSServiceResolve( &service, 0, interfaceIdx, name, type, domain,
-                               (DNSServiceResolveReply)resolveCallback, context );
+                               (DNSServiceResolveReply)resolveCallback,
+                               context );
     if( error != kDNSServiceErr_NoError)
     {
         std::cerr << "DNSServiceResolve error: " << error << std::endl;
@@ -168,29 +169,37 @@ void Module::use()
 GPUInfos Module::discoverGPUs_() const
 {
     DNSServiceRef service;
-    GPUInfos candidates;
-    const DNSServiceErrorType error = DNSServiceBrowse( &service, 0, 0,
-                                                        "_gpu-sd._tcp", "",
-                                                        (DNSServiceBrowseReply)browseCallback,
-                                                        &candidates );
-    if( error == kDNSServiceErr_NoError )
-    {
-        while( handleEvent( service ))
-            /* nop */;
-        DNSServiceRefDeallocate( service );
-    }
-    else
-        std::cerr << "DNSServiceDiscovery error: " << error << std::endl;
 
-    // eliminate duplicates
-    GPUInfos result;
-    for( GPUInfosCIter i = candidates.begin(); i != candidates.end(); ++i )
+    GPUInfos candidates[2];
+    uint32_t interfaces[2] = { 0, kDNSServiceInterfaceIndexLocalOnly };
+    for( unsigned i = 0; i < 2; ++i )
     {
-        const GPUInfo& info = *i;
-        if( std::find( result.begin(), result.end(), info ) == result.end( ))
-            result.push_back( info );
+        const DNSServiceErrorType error = DNSServiceBrowse( &service, 0,
+                                                            interfaces[i],
+                                                            "_gpu-sd._tcp", "",
+                                     (DNSServiceBrowseReply)browseCallback,
+                                                            &candidates[i] );
+        if( error == kDNSServiceErr_NoError )
+        {
+            while( handleEvent( service ))
+                /* nop */;
+            DNSServiceRefDeallocate( service );
+        }
+        else
+            std::cerr << "DNSServiceDiscovery error: " << error << std::endl;
     }
-    return result;
+
+    // set localhost records to localhost
+    for( GPUInfosIter i = candidates[0].begin(); i != candidates[0].end(); ++i )
+    {
+        GPUInfo& info = *i;
+        if( std::find( candidates[1].begin(), candidates[1].end(), info ) !=
+            candidates[1].end( ))
+        {
+            info.hostname.clear();
+        }
+    }
+    return candidates[0];
 }
 
 }

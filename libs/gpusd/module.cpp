@@ -26,9 +26,19 @@ Module* stack_ = 0;
 }
 
 Module::Module()
-        : next_( stack_ )
+        : next_( 0 )
 {
-    stack_ = this;
+    if( !stack_ )
+        stack_ = this;
+    else
+        for( Module* module = stack_; module; module = module->next_ )
+        {
+            if( !module->next_ )
+            {
+                module->next_ = this;
+                return;
+            }
+        }
 }
 
 Module::~Module()

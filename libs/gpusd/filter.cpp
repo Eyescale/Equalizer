@@ -21,6 +21,18 @@
 namespace gpusd
 {
 
+bool Filter::operator() ( const GPUInfos& current,
+                          const GPUInfo& candidate ) const
+{
+    for( ConstFiltersCIter i = next_.begin(); i != next_.end(); ++i )
+    {
+        const Filter* filter = *i;
+        if( !(*filter)( current, candidate ))
+            return false;
+    }
+    return true;
+}
+
 bool DuplicateFilter::operator() ( const GPUInfos& current,
                                    const GPUInfo& candidate ) const
 {
@@ -37,6 +49,7 @@ bool MirrorFilter::operator() ( const GPUInfos& current,
         const GPUInfo& info = *i;
         if( info.hostname == candidate.hostname &&
             info.session == candidate.session &&
+            info.device == candidate.device &&
             info.pvp[0] == candidate.pvp[0] && info.pvp[1] == candidate.pvp[1] )
         {
              return false;
@@ -49,7 +62,7 @@ bool MirrorFilter::operator() ( const GPUInfos& current,
 bool SessionFilter::operator() ( const GPUInfos& current,
                                  const GPUInfo& candidate ) const
 {
-    if( candidate.session == name_ )
+    if( name_.empty() || candidate.session == name_ )
         return Filter::operator()( current, candidate );
     return false;
 }
