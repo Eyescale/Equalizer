@@ -205,10 +205,10 @@ void _associationDiscover( GPUInfos& result )
 BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon,
                             LPARAM lParam )
 {
-	GPUInfos* result = reinterpret_cast<GPUInfos*>( lParam );
-	
-	MONITORINFO mi;
-	mi.cbSize = sizeof(mi);
+    GPUInfos* result = reinterpret_cast<GPUInfos*>( lParam );
+    
+    MONITORINFO mi;
+    mi.cbSize = sizeof(mi);
     if( !GetMonitorInfo( hMon, &mi ))
         return TRUE;    // continue enumeration
     
@@ -220,7 +220,7 @@ BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon,
     info.pvp[3] = mi.rcMonitor.top + mi.rcMonitor.bottom;    
     result->push_back( info );
 
-	return TRUE;
+    return TRUE;
 }
 
 void _displayDiscover( GPUInfos& result )
