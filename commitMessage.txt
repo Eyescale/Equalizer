@@ -1,9 +1,9 @@
-Fix and enable WGL GPU-SD module
+Fix Windows build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
