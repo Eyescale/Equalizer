@@ -92,7 +92,7 @@ namespace gpusd
         /** The display (GLX) or ignored (WGL, AGL). */
         unsigned port;
 
-        /** The screen (GLX), GPU (WGL) or virtual screen (AGL). */
+        /** The screen (GLX, WGL), GPU (WGLn, WGLa) or virtual screen (AGL). */
         unsigned device;
 
         /** The size and location of the GPU (x,y,w,h). */
