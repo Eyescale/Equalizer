@@ -1,9 +1,6 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
-if(GLEW_MX_FOUND)
-  include_directories(SYSTEM ${GLEW_MX_INCLUDE_DIRS})
-endif()
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
 if(CUDA_FOUND)
   include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
 endif()

@@ -197,12 +197,12 @@ namespace co
         /** @return last receive time. */
         int64_t getLastReceiveTime() const { return _lastReceive; }
 
+        /** @return the type of the node, used during connect(). */
+        virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
+
     protected:
         /** Destructs this node. */
         CO_API virtual ~Node();
-
-        /** @return the type of the node, used during connect(). */
-        virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
 
         /** 
          * Factory method to create a new node.

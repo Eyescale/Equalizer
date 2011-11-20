@@ -124,10 +124,14 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
 
+/** A visitor to traverse servers and children. */
+typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::Config */
 typedef std::vector< Config* > Configs;
+/** A vector of pointers to eq::Server */
+typedef std::vector< Server* > Servers;
 /** A vector of pointers to eq::Node */
 typedef std::vector< Node* > Nodes;
 /** A vector of pointers to eq::Pipe */
@@ -159,6 +163,8 @@ typedef std::vector< Statistic > Statistics;
 
 /** A const_iterator over a eq::Config vector */
 typedef Configs::const_iterator ConfigsCIter;
+/** A const_iterator over a eq::Server vector */
+typedef Servers::const_iterator ServersCIter;
 /** A const_iterator over a eq::Node vector */
 typedef Nodes::const_iterator NodesCIter;
 /** A const_iterator over a eq::Pipe vector */

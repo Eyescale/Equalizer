@@ -35,7 +35,8 @@ namespace
 }
 
 typedef co::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node,
+                        ServerVisitor > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -121,7 +122,7 @@ bool Server::_cmdUnmapReply( co::Command& command )
 #include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::admin::Client, eq::admin::Server,
                                    eq::admin::Config, eq::admin::NodeFactory,
-                                   co::Node >;
+                                   co::Node, eq::admin::ServerVisitor >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

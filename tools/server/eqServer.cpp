@@ -20,6 +20,7 @@
 #include <eq/server/init.h>
 #include <eq/server/loader.h>
 #include <eq/server/server.h>
+#include <eq/server/config/server.h>
 
 #include <co/global.h>
 #include <co/init.h>
@@ -42,15 +43,20 @@ int main( const int argc, char** argv )
     eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( argc == 1 )
-        server = loader.parseServer( CONFIG );
+    const std::string config( argc == 1 ? "" : argv[1] );
+    if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
+        server = loader.loadFile( config );
+#ifdef EQ_USE_GPUSD
     else
-        server = loader.loadFile( argv[1] );
+        server = eq::server::config::Server::configure( config );
+#endif
 
-    if( !server.isValid( ))
+    if( !server )
+        server = loader.parseServer( CONFIG );
+    if( !server )
     {
-        EQERROR << "Server load failed" << std::endl;
-        return EXIT_FAILURE;
+        EQERROR << "Failed to load configuration" << std::endl;
+        return 0;
     }
 
     eq::server::Loader::addOutputCompounds( server );

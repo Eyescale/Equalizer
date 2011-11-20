@@ -394,6 +394,18 @@ void Node::TransmitThread::run()
     }
 }
 
+void Node::dirtyClientExit()
+{
+    const Pipes& pipes = getPipes();
+    for( PipesCIter i = pipes.begin(); i != pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        pipe->cancelThread();
+    }
+    transmitter.getQueue().wakeup();
+    transmitter.join();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

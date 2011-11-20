@@ -24,18 +24,23 @@
 #include <co/base/file.h>
 #include <co/base/init.h>
 
+#include <locale.h>
+
 // Tests (re)loading of all examples/configs/*.eqc files
 int main( int argc, char **argv )
 {
+    // Test for: https://github.com/Eyescale/Equalizer/issues/56
+    setlocale( LC_ALL, "de_DE.UTF-8" ); 
+
     TEST( co::base::init( argc, argv ));
 
     eq::server::Loader loader;
-    co::base::Strings candidates = co::base::searchDirectory( "config",
-		                                                      "*.eqc" );
-    for( co::base::Strings::const_iterator i = candidates.begin();
-        i != candidates.end(); ++i )
+    co::base::Strings configs = co::base::searchDirectory( "configs", "*.eqc" );
+    TESTINFO( configs.size() > 20, configs.size( ));
+
+    for( co::base::StringsCIter i = configs.begin(); i != configs.end(); ++i )
     {
-        const std::string& filename = "config/" + *i;
+        const std::string& filename = "configs/" + *i;
         eq::server::Global* global = eq::server::Global::instance();
         const eq::server::Config::FAttribute attr = 
             eq::server::Config::FATTR_VERSION;
@@ -46,7 +51,7 @@ int main( int argc, char **argv )
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
         TESTINFO( global->getConfigFAttribute( attr ) == 1.1f ||
                   global->getConfigFAttribute( attr ) == 1.2f,
-                  global->getConfigFAttribute( attr ) << " file " << filename);
+                  global->getConfigFAttribute( attr ) << " in " << filename );
 
         // convert
         eq::server::Loader::addOutputCompounds( server );

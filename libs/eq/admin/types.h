@@ -82,6 +82,8 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
 
+/** A visitor to traverse servers and children. */
+typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::admin::Config */

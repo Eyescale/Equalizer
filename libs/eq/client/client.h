@@ -117,6 +117,9 @@ namespace eq
         /** @sa co::Node::createNode */
         EQ_API virtual co::NodePtr createNode( const uint32_t type );
 
+        /** @internal */
+        EQ_API virtual void notifyDisconnect( co::NodePtr node );
+
         bool _setupClient( const std::string& clientArgs );
 
         /** The command functions. */

@@ -246,7 +246,7 @@ bool RSPConnection::listen()
         _read->bind( readEndpoint );
 
         const ip::udp::resolver::query queryIF( ip::udp::v4(),
-                                          _description->getInterface( ), "0" );
+                                            _description->getInterface(), "0" );
         const ip::udp::resolver::iterator interfaceIP =
             resolver.resolve( queryIF );
 

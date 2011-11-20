@@ -126,7 +126,8 @@ co::CommandQueue* Pipe::getCommandThreadQueue()
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
     const Windows& windows = getWindows(); 
-    EQASSERT( windows.size() > path.windowIndex );
+    EQASSERTINFO( windows.size() > path.windowIndex,
+                  "Path " << path << " for " << *this );
 
     if( windows.size() <= path.windowIndex )
         return 0;

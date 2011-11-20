@@ -367,6 +367,16 @@ namespace co
         /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
+        /** Request keep-alive update from the remote node. */
+        CO_API void ping( NodePtr remoteNode );
+
+        /**
+         * Request updates from all nodes above keep-alive timeout.
+         *
+         * @return true if at least one ping was send.
+         */
+        CO_API bool pingIdleNodes();
+
     protected:
         /** 
          * Connect a node proxy to this node.
@@ -383,8 +393,8 @@ namespace co
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
-        /** @internal Requests keep-alive from remote node. */
-        void _ping( NodePtr remoteNode ); 
+        /** Notify remote node disconnection */
+        virtual void notifyDisconnect( NodePtr node ) { }
 
     private:
         typedef std::list< Command* > CommandList;

@@ -18,6 +18,9 @@
 #include "server.h"
 
 #include "configPackets.h"
+#include "configVisitor.h"
+#include "elementVisitor.h"
+#include "leafVisitor.h"
 #include "log.h"
 #include "serverPackets.h"
 
@@ -30,26 +33,26 @@ namespace eq
 namespace fabric
 {
 
-#define CmdFunc co::CommandFunc< Server< CL, S, CFG, NF, N > >
+#define CmdFunc co::CommandFunc< Server< CL, S, CFG, NF, N, V > >
 
-template< class CL, class S, class CFG, class NF, class N >
-Server< CL, S, CFG, NF, N >::Server( NF* nodeFactory )
+template< class CL, class S, class CFG, class NF, class N, class V >
+Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
     EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
 }
 
-template< class CL, class S, class CFG, class NF, class N >
-Server< CL, S, CFG, NF, N >::~Server()
+template< class CL, class S, class CFG, class NF, class N, class V >
+Server< CL, S, CFG, NF, N, V >::~Server()
 {
     EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
 
-template< class CL, class S, class CFG, class NF, class N >
-void Server< CL, S, CFG, NF, N >::setClient( ClientPtr client )
+template< class CL, class S, class CFG, class NF, class N, class V >
+void Server< CL, S, CFG, NF, N, V >::setClient( ClientPtr client )
 {
     _client = client;
     if( !client )
@@ -62,16 +65,16 @@ void Server< CL, S, CFG, NF, N >::setClient( ClientPtr client )
                      CmdFunc( this, &Server::_cmdDestroyConfig ), queue );
 }
 
-template< class CL, class S, class CFG, class NF, class N >
-void Server< CL, S, CFG, NF, N >::_addConfig( CFG* config )
+template< class CL, class S, class CFG, class NF, class N, class V >
+void Server< CL, S, CFG, NF, N, V >::_addConfig( CFG* config )
 { 
     EQASSERT( config->getServer() == static_cast< S* >( this ));
     EQASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
-template< class CL, class S, class CFG, class NF, class N >
-bool Server< CL, S, CFG, NF, N >::_removeConfig( CFG* config )
+template< class CL, class S, class CFG, class NF, class N, class V >
+bool Server< CL, S, CFG, NF, N, V >::_removeConfig( CFG* config )
 {
     typename Configs::iterator i = stde::find( _configs, config );
     if( i == _configs.end( ))
@@ -81,11 +84,68 @@ bool Server< CL, S, CFG, NF, N >::_removeConfig( CFG* config )
     return true;
 }
 
+namespace
+{
+template< class S, class V >
+VisitorResult _accept( S* server, V& visitor )
+{
+    VisitorResult result = visitor.visitPre( server );
+    if( result != TRAVERSE_CONTINUE )
+        return result;
+
+    const typename S::Configs& configs = server->getConfigs();
+    for( typename S::Configs::const_iterator i = configs.begin(); 
+         i != configs.end(); ++i )
+    {
+        switch( (*i)->accept( visitor ))
+        {
+            case TRAVERSE_TERMINATE:
+                return TRAVERSE_TERMINATE;
+
+            case TRAVERSE_PRUNE:
+                result = TRAVERSE_PRUNE;
+                break;
+                
+            case TRAVERSE_CONTINUE:
+            default:
+                break;
+        }
+    }
+
+    switch( visitor.visitPost( server ))
+    {
+        case TRAVERSE_TERMINATE:
+            return TRAVERSE_TERMINATE;
+
+        case TRAVERSE_PRUNE:
+            return TRAVERSE_PRUNE;
+                
+        case TRAVERSE_CONTINUE:
+        default:
+            break;
+    }
+
+    return result;
+}
+}
+
+template< class CL, class S, class CFG, class NF, class N, class V >
+VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor )
+{
+    return _accept( static_cast< S* >( this ), visitor );
+}
+
+template< class CL, class S, class CFG, class NF, class N, class V >
+VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor ) const
+{
+    return _accept( static_cast< const S* >( this ), visitor );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-template< class CL, class S, class CFG, class NF, class N > bool
-Server< CL, S, CFG, NF, N >::_cmdCreateConfig( co::Command& command )
+template< class CL, class S, class CFG, class NF, class N, class V > bool
+Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.get<ServerCreateConfigPacket>();
@@ -104,8 +164,8 @@ Server< CL, S, CFG, NF, N >::_cmdCreateConfig( co::Command& command )
     return true;
 }
 
-template< class CL, class S, class CFG, class NF, class N > bool
-Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( co::Command& command )
+template< class CL, class S, class CFG, class NF, class N, class V > bool
+Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.get<ServerDestroyConfigPacket>();
@@ -136,9 +196,9 @@ Server< CL, S, CFG, NF, N >::_cmdDestroyConfig( co::Command& command )
     return true;
 }
 
-template< class CL, class S, class CFG, class NF, class N >
+template< class CL, class S, class CFG, class NF, class N, class V >
 std::ostream& operator << ( std::ostream& os, 
-                            const Server< CL, S, CFG, NF, N >& server )
+                            const Server< CL, S, CFG, NF, N, V >& server )
 {
     os << co::base::disableFlush << co::base::disableHeader << "server "
        << std::endl;

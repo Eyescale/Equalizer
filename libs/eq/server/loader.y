@@ -44,7 +44,10 @@
 #include <eq/fabric/paths.h>
 #include <co/base/os.h>
 #include <co/base/file.h>
+
+#include <locale.h>
 #include <string>
+
 #pragma warning(disable: 4065)
 
     namespace eq
@@ -1348,30 +1351,20 @@ namespace server
 //---------------------------------------------------------------------------
 ServerPtr Loader::loadFile( const std::string& filename )
 {
-    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
-    eq::loader::loader = this;
-
     yyin       = fopen( filename.c_str(), "r" );
     yyinString = 0;
 
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << std::endl;
-        eq::loader::loader = 0;
         return 0;
     }
 
     loader::filename = filename;
-    loader::server = 0;
-    config = 0;
-    const bool error = ( eqLoader_parse() != 0 );
-
-    fclose( yyin );
-    eq::loader::loader = 0;
+    _parse();
     loader::filename.clear();
 
-    if( error )
-        loader::server = 0;
+    fclose( yyin );
 
     eq::server::ServerPtr server = loader::server;
     loader::server = 0;
@@ -1380,15 +1373,23 @@ ServerPtr Loader::loadFile( const std::string& filename )
 
 void Loader::_parseString( const char* data )
 {
+    yyin       = 0;
+    yyinString = data;
+    _parse();
+}
+
+void Loader::_parse()
+{
     EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
 
-    yyin       = 0;
-    yyinString = data;
-
     loader::server = 0;
     config = 0;
+
+    const std::string oldLocale = setlocale( LC_NUMERIC, "C" ); 
     const bool error = ( eqLoader_parse() != 0 );
+    setlocale( LC_NUMERIC, oldLocale.c_str( )); 
+
     if( error )
         loader::server = 0;
 

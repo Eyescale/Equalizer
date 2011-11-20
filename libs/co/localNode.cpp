@@ -485,6 +485,36 @@ void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
     }
 }
 
+void LocalNode::ping( NodePtr remoteNode )
+{
+    EQASSERT( !_inReceiverThread( ) );
+    NodePingPacket packet;
+    remoteNode->send( packet );
+}
+
+bool LocalNode::pingIdleNodes()
+{
+    EQASSERT( !_inReceiverThread( ) );
+    const int64_t timeout = co::Global::getKeepaliveTimeout();
+    Nodes nodes;
+    getNodes( nodes, false );
+
+    bool pinged = false;
+    for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr node = *i;
+        if( getTime64() - node->getLastReceiveTime() > timeout )
+        {
+            EQINFO << " Ping Node: " <<  node->getNodeID() << " last seen "
+                   << node->getLastReceiveTime() << std::endl;
+            NodePingPacket packet;
+            node->send( packet );
+            pinged = true;
+        }
+    }
+    return pinged;
+}
+
 //----------------------------------------------------------------------
 // Object functionality
 //----------------------------------------------------------------------
@@ -899,7 +929,7 @@ void LocalNode::_handleDisconnect()
         NodePtr node = i->second;
         Command& command = _commandCache.alloc( node, this,
                                                 sizeof( NodeRemoveNodePacket ));
-         NodeRemoveNodePacket* packet =
+        NodeRemoveNodePacket* packet =
              command.getModifiable< NodeRemoveNodePacket >();
         *packet = NodeRemoveNodePacket();
         packet->node = node.get();
@@ -943,6 +973,8 @@ void LocalNode::_handleDisconnect()
                 }
             }
         }
+
+        notifyDisconnect( node );
     }
 
     _removeConnection( connection );
@@ -1625,17 +1657,6 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     _connectionNodes.erase( connection );
     serveRequest( packet->requestID );
     return true;
-}
-
-
-//----------------------------------------------------------------------
-// Keep-Alive
-//----------------------------------------------------------------------
-void LocalNode::_ping( NodePtr remoteNode )
-{
-    EQASSERT( !_inReceiverThread( ) );
-    NodePingPacket packet;
-    remoteNode->send( packet );
 }
 
 bool LocalNode::_cmdPing( Command& command )

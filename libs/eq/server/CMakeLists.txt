@@ -111,7 +111,6 @@ set(SOURCES
     pipe.cpp
     segment.cpp
     server.cpp
-    serverVisitor.h
     startLocalServer.cpp
     tileQueue.cpp
     view.cpp
@@ -131,6 +130,7 @@ set(SERVER_LIBRARIES shared Equalizer)
 if(GPUSD_FOUND)
   list(APPEND SOURCES ${AUTOCONFIG})
   list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/gpu-sd/CMake)
+  list(APPEND SERVER_LIBRARIES gpusd)
   include_directories(${CMAKE_SOURCE_DIR}/gpu-sd/libs)
   add_definitions(-DEQ_USE_GPUSD)
 
@@ -144,6 +144,9 @@ if(GPUSD_FOUND)
   endif()
   if(EQ_GLX_USED)
     list(APPEND SERVER_LIBRARIES gpusd_glx)
+  endif()
+  if(WIN32)
+    list(APPEND SERVER_LIBRARIES gpusd_wgl)
   endif()
 endif()
 

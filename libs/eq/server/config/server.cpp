@@ -43,6 +43,10 @@ ServerPtr Server::configure( const std::string& session )
     if( !Resources::discover( config, session ))
         return 0;
 
+    if( config->getNodes().size() > 1 )
+        // add server connection for cluster configs
+        server->addConnectionDescription( new ConnectionDescription );
+
     Display::discoverLocal( config );
     const Compounds compounds = Loader::addOutputCompounds( server );
     if( compounds.empty( ))

@@ -36,6 +36,7 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 
+#include <co/global.h>
 #include <co/base/debug.h>
 #include <co/base/global.h>
 #include <co/base/monitor.h>
@@ -247,7 +248,6 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
 
     if( _isSubPixelDecomposition( frames ))
     {
-        uint32_t count = 0;
         if( !accum )
         {
             accum = _obtainAccum( channel );
@@ -257,6 +257,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
             accum->setTotalSteps( subpixel.size );
         }
 
+        uint32_t count = 0;
         Frames framesLeft = frames;
         while( !framesLeft.empty( ))
         {
@@ -274,7 +275,6 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         return count;
     }
 
-    uint32_t count = 0;
     if( blendAlpha )
     {
         glEnable( GL_BLEND );
@@ -282,6 +282,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
     }
 
+    uint32_t count = 0;
     if( _useCPUAssembly( frames, channel, blendAlpha ))
         count |= assembleFramesCPU( frames, channel, blendAlpha );
     else
@@ -411,8 +412,8 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
 
     uint32_t    nUsedFrames  = 0;
     Frames unusedFrames = frames;
-
     uint32_t count = 0;
+
     // wait and assemble frames
     while( !unusedFrames.empty( ))
     {
@@ -423,15 +424,38 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
 
             if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
-            else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
+            else
             {
-                // de-register the monitor
-                for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+                ++nUsedFrames;
+                co::base::Clock time;
+                // TODO: Refactor to use config
+                const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
+
+                while( !monitor.timedWaitGE( nUsedFrames, aliveTimeout ))
                 {
-                    Frame* frame = *i;
-                    frame->removeListener( monitor );
+                    // pings timeout nodes
+                    const bool pinged =channel->getLocalNode()->pingIdleNodes();
+
+                    // TODO: make input frames have node info (node of origin):
+                    // It would be helpful to know which node was supposed to
+                    // send each frame. May be we should send this info in the 
+                    // ChannelFrameAssemblePacket.
+                    // eile: Not sure. let's discuss.
+
+                    if( time.getTime64() >= timeout || !pinged )
+                    {
+                        // de-register the monitor
+                        for( FramesCIter i = frames.begin();
+                             i != frames.end(); ++i )
+                        {
+                            Frame* frame = *i;
+                            frame->removeListener( monitor );
+                        }
+                        throw Exception( Exception::TIMEOUT_INPUTFRAME );
+                        break;
+                    }
                 }
-                throw Exception( Exception::TIMEOUT_INPUTFRAME );
+
             }
         }
 

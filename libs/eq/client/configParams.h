@@ -51,7 +51,8 @@ namespace eq
          * Set the directory from which to launch the render client.
          *
          * The default value is the program directory retrieved from
-         * co::Global::getWorkDir(), i.e., the directory part of argv[0].
+         * co::Global::getWorkDir(), i.e., the directory part of the render
+         * client executable.
          * @version 1.0
          */
         EQ_API void setWorkDir( const std::string& workDir );

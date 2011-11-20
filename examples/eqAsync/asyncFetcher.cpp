@@ -34,7 +34,6 @@
 #undef EQUALIZER_STATIC
 
 #include "asyncFetcher.h"
-
 #include "eqAsync.h"
 
 #include <eq/eq.h>
@@ -45,8 +44,6 @@
 #ifdef GLX
 #  include "glXWindowShared.h"
 #endif
-
-#include <ctime>
 
 namespace eqAsync
 {

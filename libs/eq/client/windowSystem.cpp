@@ -126,7 +126,7 @@ bool WindowSystem::supports( std::string const& type )
 void WindowSystem::configInit( Node* node )
 {
     if( _stack )
-        _stack->configInit(node );
+        _stack->configInit( node );
 }
 
 void WindowSystem::configExit( Node* node )

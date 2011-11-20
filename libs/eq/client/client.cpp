@@ -18,12 +18,18 @@
 #include "client.h"
 
 #include "commandQueue.h"
+#include "config.h"
+#include "clientPackets.h"
+#include "node.h"
 #include "global.h"
 #include "init.h"
 #include "nodeFactory.h"
 #include "server.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
 #include <co/command.h>
 #include <co/connection.h>
@@ -330,5 +336,37 @@ bool Client::_cmdExit( co::Command& command )
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
+
+namespace
+{
+class StopNodesVisitor : public ServerVisitor
+{
+public:
+    virtual ~StopNodesVisitor() {}
+    virtual VisitorResult visitPre( Node* node )
+        {
+            node->dirtyClientExit();
+            return TRAVERSE_CONTINUE;
+        }
+};
+}
+
+void Client::notifyDisconnect( co::NodePtr node )
+{
+    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    {
+        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        eq::ClientExitPacket* packet = 
+            command.getModifiable< eq::ClientExitPacket >();
+        *packet = eq::ClientExitPacket();
+        dispatchCommand( command );
+
+        ServerPtr server = static_cast< Server* >( node.get( ));
+        StopNodesVisitor stopNodes;
+        server->accept( stopNodes );
+    }
+    fabric::Client::notifyDisconnect( node );
+}
+
 }
 

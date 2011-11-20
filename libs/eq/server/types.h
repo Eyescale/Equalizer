@@ -154,7 +154,9 @@ typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 class ConfigVisitor;
-class ServerVisitor;
+
+/** A visitor to traverse servers and children. */
+typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
 
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;
