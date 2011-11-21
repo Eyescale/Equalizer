@@ -27,15 +27,15 @@
 
 co::base::MTQueue< uint64_t > queue;
 
+#if 0 //EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 class ReadThread : public co::base::Thread
 {
 public:
     virtual ~ReadThread() {}
     virtual void run()
         {
-#ifdef EQ_GCC_4_5_OR_LATER
-#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
             uint64_t item = 0xffffffffffffffffull;
 
             co::base::Clock clock;

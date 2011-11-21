@@ -191,15 +191,15 @@ Channels Resources::configureSourceChannels( Config* config )
     return addSources.getChannels();
 }
 
+#if 0 // EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 void Resources::configure( const Compounds& compounds, const Channels& channels)
 {
     EQASSERT( !compounds.empty( ));
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
-#ifdef EQ_GCC_4_5_OR_LATER
-#  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
     const Canvas* canvas = 0;
     for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
