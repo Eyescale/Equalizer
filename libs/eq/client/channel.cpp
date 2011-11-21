@@ -1402,7 +1402,6 @@ void Channel::_transmitTileFrameReady( const RenderContext& context )
         Frame* frame = *i;    
         frame->setReady();
 
-        const FrameData* data = frame->getData();
         const std::vector<uint128_t>& toNodes = frame->getInputNodes(getEye());
         const std::vector<uint128_t>& toNetNodes = frame->getInputNetNodes(getEye());
         std::vector<uint128_t>::const_iterator j = toNodes.begin();
