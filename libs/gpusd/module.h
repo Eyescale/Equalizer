@@ -25,6 +25,10 @@
 
 namespace gpusd
 {
+namespace detail
+{
+    class Module;
+}
     /** Base class for runtime-attached DSOs of a query implementation. */
     class Module
     {
@@ -44,7 +48,7 @@ namespace gpusd
         virtual GPUInfos discoverGPUs_() const = 0;
         
     private:
-        Module* next_;
+        detail::Module* const impl_;
     };
 }
 #endif // GPUSD_MODULE_H

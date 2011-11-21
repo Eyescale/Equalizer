@@ -28,10 +28,10 @@ namespace gpusd
     /** A structure containing GPU-specific information. */
     struct GPUInfo
     {
-        /** A non-enumerated port or device */
+        /** A non-enumerated port or device. @version 1.0 */
         static const unsigned defaultValue = UINT_MAX;
 
-        /** Default constructor pointing to default display. */
+        /** Default constructor pointing to the default display. @version 1.0 */
         GPUInfo()
                 : type( 0 ), port( defaultValue ), device( defaultValue )
                 , session( "local" )
@@ -40,10 +40,11 @@ namespace gpusd
         /**
          * Constructor pointing to default display of a specific GPU type.
          *
-         * The information name is a type code of eight characters. The passed
+         * The information name is a type code of four characters. The passed
          * string is formatted accordingly.
          *
-         * @param name the type of the GPU
+         * @param name the type of the GPU.
+         * @version 1.0
          */
         GPUInfo( const std::string& name )
                 : type( 0 ), port( defaultValue ), device( defaultValue )
@@ -53,7 +54,7 @@ namespace gpusd
                 strncpy( reinterpret_cast< char* >( &type ), name.c_str(), 4 );
             }
 
-        /** Invalidate the pixel viewport. */
+        /** Invalidate the pixel viewport. @version 1.0 */
         void invalidatePVP()
             {
                 pvp[0] = 0;
@@ -62,7 +63,7 @@ namespace gpusd
                 pvp[3] = -1;
             }
 
-        /** @return true if both infos are identical. @version 1.0 */
+        /** @return true if both informations are identical. @version 1.0 */
         bool operator == ( const GPUInfo& rhs ) const 
             { 
                 return ( type == rhs.type && hostname == rhs.hostname &&
@@ -82,20 +83,23 @@ namespace gpusd
                          pvp[2] != rhs.pvp[2] || pvp[3] != rhs.pvp[3] );
             }
 
-        /** @return the type name string of this information. */
+        /** @return the type name string of this information. @version 1.0 */
         std::string getName() const
             { return std::string( reinterpret_cast<const char*>( &type ), 4 ); }
 
-        /** Four-character code of the GPU type. */
+        /** Four-character code of the GPU type. @version 1.0 */
         unsigned type;
 
-        /** The display (GLX) or ignored (WGL, AGL). */
+        /** The display (GLX) or ignored (WGL, AGL). @version 1.0 */
         unsigned port;
 
-        /** The screen (GLX, WGL), GPU (WGLn, WGLa) or virtual screen (AGL). */
+        /**
+         * The screen (GLX, WGL), GPU (WGLn, WGLa) or virtual screen (AGL).
+         * @version 1.0
+         */
         unsigned device;
 
-        /** The size and location of the GPU (x,y,w,h). */
+        /** The size and location of the GPU (x,y,w,h). @version 1.0 */
         int pvp[4];
 
         std::string hostname; //!< remote system  hostname, empty for local GPUs

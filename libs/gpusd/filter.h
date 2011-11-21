@@ -27,21 +27,45 @@
 
 namespace gpusd
 {
+namespace detail
+{
+    class Filter;
+    class SessionFilter;
+}
     /** Base class for all discovery filters. */
     class Filter
     {
     public:
-        Filter() : next_( 0 ) {}
-        virtual ~Filter() {}
+        /** Create a new filter. @version 1.0 */
+        GPUSD_API Filter();
 
-        Filter& operator | ( const Filter& rhs )
-            { next_.push_back( &rhs ); return *this; }
+        /** Destruct this filter. @version 1.0 */
+        GPUSD_API virtual ~Filter();
+
+        /**
+         * Chain another Filter to this one.
+         *
+         * Invoking the operator() will call chained filters.
+         * @version 1.0
+         */
+        GPUSD_API Filter& operator | ( const Filter& rhs );
+
+        /**
+         * Call all chained operators.
+         *
+         * Filter implementations overwrite this method to implement the
+         * filtering and call this base class implementation if the candidate
+         * passed.
+         *
+         * @param current the list of passed GPU informations.
+         * @param candidate the new GPU information to test.
+         * @return true if all chained operators returned true, false otherwise.
+         * @version 1.0
+         */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
                                             const GPUInfo& candidate ) const;
     private:
-        typedef std::vector< const Filter* > ConstFilters;
-        typedef ConstFilters::const_iterator ConstFiltersCIter;
-        ConstFilters next_;
+        detail::Filter* const impl_;
     };
 
     /** Filters all duplicates during discovery. */
@@ -49,15 +73,26 @@ namespace gpusd
     {
     public:
         virtual ~DuplicateFilter() {}
+
+        /**
+         * @return true if the candidate is not in the current vector.
+         * @version 1.0
+         */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
                                             const GPUInfo& candidate ) const;
     };
 
-    /** Filters duplicates with the same position, hostname and session. */
+    /** Filter overlapping duplicates with different GPU types. */
     class MirrorFilter : public Filter
     {
     public:
         virtual ~MirrorFilter() {}
+
+        /**
+         * @return true if the candidate is unique wrt the position, device,
+         *         hostname and session.
+         * @version 1.0
+         */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
                                             const GPUInfo& candidate ) const;
     };
@@ -66,13 +101,14 @@ namespace gpusd
     class SessionFilter : public Filter
     {
     public:
-        SessionFilter( const std::string name ) : name_( name ) {}
-        virtual ~SessionFilter() {}
+        GPUSD_API SessionFilter( const std::string& name );
+        GPUSD_API virtual ~SessionFilter();
 
+        /** @return true if the candidate has the given session. @version 1.0 */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
                                             const GPUInfo& candidate ) const;
     private:
-        const std::string& name_;
+        detail::SessionFilter* const impl_;
     };
 }
 #endif // GPUSD_FILTER_H

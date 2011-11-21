@@ -31,7 +31,7 @@ else()
   set(GLEW_INCLUDES GL/glew.h GL/glxew.h GL/wglew.h)
   foreach(file ${GLEW_INCLUDES})
     configure_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file} COPYONLY)
-    install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL COMPONENT eqdev)
+    install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL COMPONENT dev)
   endforeach()
 
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -40,7 +40,7 @@ else()
   set_target_properties(${GLEW_LIBRARY} PROPERTIES
                         FOLDER "Libraries" VERSION ${GLEW_VERSION})
 
-  install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT eqdev)
+  install(TARGETS ${GLEW_LIBRARY} ARCHIVE DESTINATION lib COMPONENT dev)
   message(STATUS "${GLEW_LIBRARY}-${GLEW_VERSION} will be built and linked statically to GPU-SD.")
 endif()
 

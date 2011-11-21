@@ -20,11 +20,27 @@
 
 namespace gpusd
 {
+typedef std::vector< const Filter* > ConstFilters;
+typedef ConstFilters::const_iterator ConstFiltersCIter;
+
+// Filter
+//-------
+namespace detail
+{
+class Filter
+{
+public:
+    ConstFilters next_;
+};
+}
+
+Filter::Filter() : impl_( new detail::Filter ) {}
+Filter::~Filter() { delete impl_; }
 
 bool Filter::operator() ( const GPUInfos& current,
                           const GPUInfo& candidate ) const
 {
-    for( ConstFiltersCIter i = next_.begin(); i != next_.end(); ++i )
+    for( ConstFiltersCIter i = impl_->next_.begin(); i!=impl_->next_.end(); ++i)
     {
         const Filter* filter = *i;
         if( !(*filter)( current, candidate ))
@@ -33,6 +49,14 @@ bool Filter::operator() ( const GPUInfos& current,
     return true;
 }
 
+Filter& Filter::operator | ( const Filter& rhs )
+{
+    impl_->next_.push_back( &rhs );
+    return *this;
+}
+
+// DuplicateFilter
+//----------------
 bool DuplicateFilter::operator() ( const GPUInfos& current,
                                    const GPUInfo& candidate ) const
 {
@@ -41,6 +65,8 @@ bool DuplicateFilter::operator() ( const GPUInfos& current,
     return false;
 }
 
+// MirrorFilter
+//-------------
 bool MirrorFilter::operator() ( const GPUInfos& current,
                                 const GPUInfo& candidate ) const
 {
@@ -59,10 +85,29 @@ bool MirrorFilter::operator() ( const GPUInfos& current,
     return Filter::operator()( current, candidate );
 }
 
+// SessionFilter
+//--------------
+namespace detail
+{
+class SessionFilter
+{
+public:
+    SessionFilter( const std::string& name ) : name_( name ) {}
+
+    const std::string& name_;
+};
+}
+
+SessionFilter::SessionFilter( const std::string& name )
+        : impl_( new detail::SessionFilter( name ))
+{}
+
+SessionFilter::~SessionFilter() { delete impl_; }
+
 bool SessionFilter::operator() ( const GPUInfos& current,
                                  const GPUInfo& candidate ) const
 {
-    if( name_.empty() || candidate.session == name_ )
+    if( impl_->name_.empty() || candidate.session == impl_->name_ )
         return Filter::operator()( current, candidate );
     return false;
 }

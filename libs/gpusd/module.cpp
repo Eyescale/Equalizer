@@ -24,45 +24,59 @@ namespace
 {
 Module* stack_ = 0;
 }
+namespace detail
+{
+class Module
+{
+public:
+    Module() : next_( 0 ) {}
+    ~Module() {};
+
+    gpusd::Module* next_;
+};
+}
 
 Module::Module()
-        : next_( 0 )
+        : impl_( new detail::Module( ))
 {
     if( !stack_ )
+    {
         stack_ = this;
-    else
-        for( Module* module = stack_; module; module = module->next_ )
+        return;
+    }
+
+    for( Module* module = stack_; module; module = module->impl_->next_ )
+    {
+        if( !module->impl_->next_ )
         {
-            if( !module->next_ )
-            {
-                module->next_ = this;
-                return;
-            }
+            module->impl_->next_ = this;
+            return;
         }
+    }
 }
 
 Module::~Module()
 {
     Module* previous = stack_;
-
-    for( Module* module = stack_; module; module = module->next_ )
+    for( Module* module = stack_; module; module = module->impl_->next_ )
     {
         if( module == this )
         {
             if( previous )
-                previous->next_ = next_;
+                previous->impl_->next_ = impl_->next_;
             else
-                stack_ = next_;
+                stack_ = impl_->next_;
             return;
         }
         previous = module;
     }
+    delete impl_;
 }
 
 GPUInfos Module::discoverGPUs( const Filter& filter )
 {
     GPUInfos result;
-    for( Module* module = stack_; module; module = module->next_ )
+    for( Module* module = stack_; module; module = module->impl_->next_ )
     {
         const GPUInfos infos = module->discoverGPUs_(); 
         for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )

@@ -59,7 +59,7 @@ namespace gpusd
                                       (GPUSD_VERSION_MINOR==MINOR &&    \
                                        GPUSD_VERSION_PATCH<=PATCH))))
 
-/** Information about the current Gpusd version. */
+/** Information about the current GPU-SD version. */
 class Version
 {
 public:
