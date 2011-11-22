@@ -55,6 +55,12 @@ Filter& Filter::operator | ( const Filter& rhs )
     return *this;
 }
 
+Filter& Filter::operator |= ( const Filter& rhs )
+{
+    impl_->next_.push_back( &rhs );
+    return *this;
+}
+
 // DuplicateFilter
 //----------------
 bool DuplicateFilter::operator() ( const GPUInfos& current,
@@ -107,7 +113,7 @@ SessionFilter::~SessionFilter() { delete impl_; }
 bool SessionFilter::operator() ( const GPUInfos& current,
                                  const GPUInfo& candidate ) const
 {
-    if( impl_->name_.empty() || candidate.session == impl_->name_ )
+    if( candidate.session == impl_->name_ )
         return Filter::operator()( current, candidate );
     return false;
 }

@@ -51,6 +51,14 @@ namespace detail
         GPUSD_API Filter& operator | ( const Filter& rhs );
 
         /**
+         * Chain another Filter to this one.
+         *
+         * Invoking the operator() will call chained filters.
+         * @version 1.0
+         */
+        GPUSD_API Filter& operator |= ( const Filter& rhs );
+
+        /**
          * Call all chained operators.
          *
          * Filter implementations overwrite this method to implement the

@@ -35,7 +35,7 @@ find_package(DNSSD)
 
 if(APPLE)
   set(GPUSD_OSX_VERSION 10.6)
-  list(APPEND CMAKE_CXX_FLAGS "-mmacosx-version-min=${GPUSD_OSX_VERSION}" )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${GPUSD_OSX_VERSION}" )
 
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
