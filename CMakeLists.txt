@@ -174,7 +174,7 @@ endif(APPLE)
 if(X11_FOUND)
   if(APPLE)
     set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    list(APPEND CMAKE_CXX_FLAGS "-mmacosx-version-min=${EQ_OSX_VERSION}" )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}" )
     if(EXISTS /Developer/SDKs/MacOSX10.7.sdk)
       set(EQ_AGL_USED 1)
       set(EQ_GLX_USED 1)

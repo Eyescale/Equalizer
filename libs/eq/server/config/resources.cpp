@@ -73,9 +73,10 @@ bool Resources::discover( Config* config, const std::string& session )
     gpusd::dns_sd::Module::use();
 #endif
 
-    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs(
-        gpusd::SessionFilter( session ) | gpusd::MirrorFilter() |
-        gpusd::DuplicateFilter( ));
+    gpusd::Filter filter = gpusd::MirrorFilter() | gpusd::DuplicateFilter();
+    if( !session.empty( ))
+        filter |= gpusd::SessionFilter( session );
+    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs( filter );
 
     if( infos.empty( ))
         return false;
