@@ -42,12 +42,14 @@ typedef struct _GPU_DEVICE {
   RECT rcVirtualScreen; 
 } GPU_DEVICE, *PGPU_DEVICE;
 
+typedef const char* (WINAPI * PFNWGLGETEXTENSIONSSTRINGARBPROC) (HDC hdc);
 typedef BOOL (WINAPI * PFNWGLENUMGPUSNVPROC) (UINT iGpuIndex, HGPUNV *phGpu);
 typedef BOOL (WINAPI * PFNWGLENUMGPUDEVICESNVPROC) (HGPUNV hGpu,
                                                     UINT iDeviceIndex,
                                                     PGPU_DEVICE lpGpuDevice);
 typedef UINT (WINAPI * PFNWGLGETGPUIDSAMDPROC) (UINT maxCount, UINT* ids);
 
+PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB_ = 0;
 PFNWGLENUMGPUSNVPROC wglEnumGpusNV_ = 0;
 PFNWGLENUMGPUDEVICESNVPROC wglEnumGpuDevicesNV_ = 0;
 PFNWGLGETGPUIDSAMDPROC wglGetGPUIDsAMD_ = 0;
@@ -148,7 +150,9 @@ bool _initGLFuncs()
 
     wglMakeCurrent( dc, context );
 
-    const char* ext = (const char*)glGetString( GL_EXTENSIONS );
+    wglGetExtensionsStringARB_ = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
+        wglGetProcAddress( "wglGetExtensionsStringARB" );
+    const char* ext = wglGetExtensionsStringARB_( dc );
     if( ext )
     {
         const std::string extensions( ext );

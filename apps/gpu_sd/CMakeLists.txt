@@ -20,7 +20,6 @@ if(X11_FOUND)
 endif()
 if(WIN32)
   add_definitions(-DGPUSD_WGL)
-  list(APPEND GPUSD_LIBRARIES gpusd_wgl)
   list(APPEND GPUSD_LIBRARIES gpusd_wgl ws2_32)
 endif()
 
