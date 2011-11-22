@@ -36,11 +36,6 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(GLEW_MX DEFAULT_MSG
 
 set(GLEW_MX_INCLUDE_DIRS ${_glew_mx_INCLUDE_DIR})
 set(GLEW_MX_LIBRARIES ${_glew_mx_LIBRARY})
-
-if(NOT GLEW_MX_FOUND AND GPUSD_FOUND AND MSVC)
-  include(${Equalizer_SOURCE_DIR}/gpu-sd/libs/gpusd/wgl/GLEW/CMakeLists.txt)
-endif()
-
 if(GLEW_MX_FOUND)
   message(STATUS "Found GLEW_MX in ${GLEW_MX_INCLUDE_DIRS};${GLEW_MX_LIBRARIES}")
 endif()
