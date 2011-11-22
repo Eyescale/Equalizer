@@ -3,8 +3,8 @@
 [TOC]
 
 GPU-SD is a daemon and library for the discovery and announcement of
-graphics processing units using ZeroConf. Its primary use case is to
-allow auto-configuration of ad-hoc GPU clusters.
+graphics processing units using ZeroConf. It enables auto-configuration
+of ad-hoc GPU clusters and multi-GPU machines.
 
 The source code is hosted on [github](https://github.com/Eyescale/gpu-sd).
 

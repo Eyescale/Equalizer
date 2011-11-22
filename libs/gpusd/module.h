@@ -23,6 +23,11 @@
 #include <gpusd/types.h>
 #include <iostream>
 
+
+/**
+ * @namespace gpusd
+ * @brief The GPU-SD discovery library
+ */
 namespace gpusd
 {
 namespace detail
@@ -33,17 +38,17 @@ namespace detail
     class Module
     {
     public:
-        /** Register and construct a new module. */
+        /** Register and construct a new module. @version 1.0 */
         GPUSD_API Module();
 
-        /** Destruct this module. */
+        /** Destruct this module. @version 1.0 */
         GPUSD_API virtual ~Module();
 
-        /** @return information about all found GPUs. */
+        /** @return information about all found GPUs. @version 1.0 */
         GPUSD_API static GPUInfos discoverGPUs( FilterPtr filter =
                                                 FilterPtr(new DuplicateFilter));
     protected:
-        /** @return information about all found GPUs. */
+        /** @return information about all found GPUs. @version 1.0 */
         virtual GPUInfos discoverGPUs_() const = 0;
         
     private:

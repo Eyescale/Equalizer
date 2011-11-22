@@ -1,0 +1,125 @@
+/**
+@mainpage GPU-SD Release Notes
+
+@section Introduction Introduction
+
+Welcome to GPU-SD, a daemon and library for the discovery and announcement of
+graphics processing units using ZeroConf. GPU-SD enables auto-configuration of
+ad-hoc GPU clusters and multi-GPU machines.
+
+GPU-SD 1.0 is the initial release delivering local discovery for all major
+operating systems and remote announcements and discovery using the ZeroConf
+protocol. GPU-Sd 1.0 can be retrieved by downloading the
+<a href="http://www.equalizergraphics.com/downloads/GPU-SD-1.0.tar.gz">source
+  code</a> or one of the
+<a href="http://www.equalizergraphics.com/gpu-sd/downloads.html">binary
+  distributions</a>.
+</p>
+
+@subsection Features Features
+
+GPU-SD provides the following features to enable GPU discovery:
+- <b>Local Discovery:</b> Automatic GPU discovery for Linux (X11/GLX), Mac
+  OS X (CGL, GLX) and Windows (WGL, WGL_NV_gpu_affinity,
+  WGL_AMD_gpu_association).
+- <b>Network annoucement:</b> A daemon for network annoucement of available GPUs
+  and their configuration using DNS service discovery and ZeroConf networking.
+- <b>Remote Discovery:</b> Remote GPU discovery of resources announced using the
+  GPU-SD daemon.
+
+@section New New in this release
+
+Equalizer 1.0 is the initial release and contains the following features:
+
+@subsection NewFeatures New Features
+- Base discovery library
+  - Runtime-loadable discovery modules
+  - Chainable, user-programmable filters during discovery
+  - CGL discovery module (Mac OS X)
+  - GLX discovery module (Linux, Mac OS X)
+  - WGL discovery module supporting plain WGL, WGL_NV_gpu_affinity and
+    WGL_AMD_gpu_association (Windows)
+  - DNS_SD discovery module for remote discovery (all systems)
+- DNS_SD announcement daemon using the CGL, GLX and WGL modules.
+  - Session support
+ 
+@subsection Enhancements Enhancements
+
+No enhancements.
+
+@subsection Optimizations Optimizations
+
+No optimizations.
+
+@subsection Examples Examples
+
+No example code.
+
+@subsection Tools Tools
+
+- DNS_SD query tool using the DNS_SD module
+
+@subsection API Changes
+
+The following changes breaking compatibility with Equalizer 0.6 source code
+were made:
+
+No API changes.
+
+@subsection Documentation
+
+The following documentation has been added or substantially improved since the
+last release:
+
+- README outlining the protocol and basic usage
+- API documentation
+
+@subsection Bugs Bug Fixes
+
+GPU-SD 1.0 includes various bugfixes over the last release, including the
+following:
+
+No bug fixes.
+
+@subsection KnownBugs Known Bugs
+
+The following bugs were known at release time. Please file
+a <a href="https://github.com/Eyescale/gpu-sd/issues">Bug Report</a> if you find
+any other issue with this release.
+
+No known bugs.
+
+@section About About
+<p>
+  GPU-Sd is a cross-platform library, designed to run on any modern operating
+  system, including all Unix variants and the Windows operating system. A
+  ZeroConf implementation is required for the DNS_SD module and applications.
+</p>
+
+@subsection OS Operating System Support
+
+GPU-SD uses CMake to create a platform-specific build environment. The following
+platforms and build environments are tested:
+
+- <b>Linux:</b> Ubuntu 11.04, 11.10 (Makefile, i386, x64) using the dns_sd
+  compatibility layer of avahi.
+- <b>Windows:</b> 7 (Visual Studio 2008, i386, x64) using Apple's Bonjour SDK
+- <b>Mac OS X:</b> 10.6, 10.7 (Makefile, XCode, i386, x64) using the native
+  Bonjour SDK
+
+@subsection Documentation Documentation
+
+@subsection Support Support
+
+Technical questions can be posted to the 
+<a href="http://www.equalizergraphics.com/cgi-bin/mailman/listinfo/eq-dev">Developer
+  Mailing List</a>, or directly
+to <a href="mailto:info@equalizergraphics.com?subject=GPU-Sd%20question">info@equalizergraphics.com</a>.
+
+Commercial support, custom software development and porting services are
+available from <a href="http://www.eyescale.ch">Eyescale</a>. Please contact
+<a href="mailto:info@eyescale.ch?subject=GPU-SD%20support">info@eyescale.ch</a>
+for further information.
+
+@section Errata
+*/
