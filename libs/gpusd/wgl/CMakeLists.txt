@@ -10,8 +10,6 @@ set(SOURCES
   module.cpp
 )
 
-include(GLEW/CMakeLists.txt)
-
 find_package(OpenGL REQUIRED)
 
 set(LIBRARY gpusd_wgl)

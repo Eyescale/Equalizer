@@ -62,7 +62,8 @@
 
 find_path(_dnssd_INCLUDE_DIR dns_sd.h
   HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
-  PATH_SUFFIXES include PATHS /usr /usr/local /opt/local /opt
+  PATH_SUFFIXES include 
+  PATHS /usr /usr/local /opt/local /opt "$ENV{PROGRAMFILES}/Bonjour SDK/Include"
   )
 
 if(DNSSD_FIND_REQUIRED)
@@ -82,10 +83,15 @@ if(APPLE)
     PATH_SUFFIXES lib PATHS /usr /usr/local /opt/local /opt
     )
 elseif(WIN32)
+  if("${CMAKE_GENERATOR}" MATCHES "Win64")
+    set(_dnssd_lib_postfix "x64")
+  else()
+    set(_dnssd_lib_postfix "Win32")
+  endif()
   find_library(_dnssd_LIBRARY dnssd.lib
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}
-    PATH_SUFFIXES lib PATHS E:/Downloads/mDNSResponder-333.10/mDNSWindows/DLL/Win32/Debug
-    )
+    PATH_SUFFIXES lib 
+    PATHS "$ENV{PROGRAMFILES}/Bonjour SDK/Lib/${_dnssd_lib_postfix}")
 else()
   find_library(_dnssd_LIBRARY dns_sd
     HINTS $ENV{DNSSD_ROOT} ${DNSSD_ROOT}

@@ -19,9 +19,10 @@
 
 #include <gpusd/gpuInfo.h>
 #include <sstream>
-#include <GL/glew.h>
-#include <GL/wglew.h>
 
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+#include <GL/gl.h>
 
 namespace gpusd
 {
@@ -32,8 +33,24 @@ namespace
 
 Module* instance = 0;
 
-static WGLEWContext* wglewContext = new WGLEWContext;
-WGLEWContext* wglewGetContext() { return wglewContext; }
+DECLARE_HANDLE(HGPUNV);
+typedef struct _GPU_DEVICE {
+  DWORD cb; 
+  CHAR DeviceName[32]; 
+  CHAR DeviceString[128]; 
+  DWORD Flags; 
+  RECT rcVirtualScreen; 
+} GPU_DEVICE, *PGPU_DEVICE;
+
+typedef BOOL (WINAPI * PFNWGLENUMGPUSNVPROC) (UINT iGpuIndex, HGPUNV *phGpu);
+typedef BOOL (WINAPI * PFNWGLENUMGPUDEVICESNVPROC) (HGPUNV hGpu,
+                                                    UINT iDeviceIndex,
+                                                    PGPU_DEVICE lpGpuDevice);
+typedef UINT (WINAPI * PFNWGLGETGPUIDSAMDPROC) (UINT maxCount, UINT* ids);
+
+PFNWGLENUMGPUSNVPROC wglEnumGpusNV_ = 0;
+PFNWGLENUMGPUDEVICESNVPROC wglEnumGpuDevicesNV_ = 0;
+PFNWGLGETGPUIDSAMDPROC wglGetGPUIDsAMD_ = 0;
 
 std::string getErrorString()
 {
@@ -46,13 +63,12 @@ std::string getErrorString()
     return std::string( text );
 }
 
-bool _initWGLEW()
+bool _initGLFuncs()
 {
-    //Create and make current a temporary GL context to initialize WGLEW
-
+    // Create a temporary GL context to initialize GL function pointers
     // window class
     std::ostringstream className;
-    className << "TMP" << (void*)&_initWGLEW;
+    className << "TMP" << (void*)&className;
     const std::string& classStr = className.str();
 
     HINSTANCE instance = GetModuleHandle( 0 );
@@ -83,8 +99,8 @@ bool _initWGLEW()
 
     if( !hWnd )
     {
-        std::cerr << "Can't create temporary window: "
-                  << getErrorString() << std::endl;
+        std::cerr << "Can't create temporary window: " << getErrorString()
+                  << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
@@ -132,12 +148,20 @@ bool _initWGLEW()
 
     wglMakeCurrent( dc, context );
 
-    const GLenum result = wglewInit();
-    if( result != GLEW_OK )
+    const char* ext = (const char*)glGetString( GL_EXTENSIONS );
+    if( ext )
     {
-        std::cerr << "Pipe WGLEW initialization failed with error " 
-                  << result << std::endl;
-        return false;
+        const std::string extensions( ext );
+        if( extensions.find( "WGL_NV_gpu_affinity" ) != std::string::npos )
+        {
+            wglEnumGpusNV_ = (PFNWGLENUMGPUSNVPROC)
+                wglGetProcAddress( "wglEnumGpusNV" );
+            wglEnumGpuDevicesNV_ = (PFNWGLENUMGPUDEVICESNVPROC)
+                wglGetProcAddress( "wglEnumGpuDevicesNV" );
+        }
+        if( extensions.find( "WGL_AMD_gpu_association" ) != std::string::npos )
+            wglGetGPUIDsAMD_ = (PFNWGLGETGPUIDSAMDPROC)
+                wglGetProcAddress( "wglGetGPUIDsAMD" );
     }
 
     wglDeleteContext( context );
@@ -154,12 +178,12 @@ void _affinityDiscover( GPUInfos& result )
     for( UINT device = 0; true; ++device )
     {
         HGPUNV hGPU = 0;
-        if( !wglEnumGpusNV( device, &hGPU ))
+        if( !wglEnumGpusNV_( device, &hGPU ))
             break;
 
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
-        if ( !wglEnumGpuDevicesNV( hGPU, 0, &gpuDevice ))
+        if ( !wglEnumGpuDevicesNV_( hGPU, 0, &gpuDevice ))
             break;
 
         GPUInfo info( "WGLn" );
@@ -187,7 +211,7 @@ void _associationDiscover( GPUInfos& result )
 {
     const UINT maxGPUs = 32;
     UINT gpuIDs[maxGPUs];
-    UINT numGPUs = wglGetGPUIDsAMD( maxGPUs, gpuIDs );
+    UINT numGPUs = wglGetGPUIDsAMD_( maxGPUs, gpuIDs );
 
     for( UINT device = 0; device < numGPUs; ++device )
     {
@@ -213,7 +237,7 @@ BOOL CALLBACK EnumDispProc( HMONITOR hMon, HDC dcMon, RECT* pRcMon,
         return TRUE;    // continue enumeration
     
     GPUInfo info( "WGL" );
-    info.device = result->size();
+    info.device = unsigned( result->size( ));
     info.pvp[0] = mi.rcMonitor.left;
     info.pvp[1] = mi.rcMonitor.top;
     info.pvp[2] = mi.rcMonitor.left + mi.rcMonitor.right;
@@ -241,11 +265,11 @@ GPUInfos Module::discoverGPUs_() const
 {
     GPUInfos result;
 
-    if( !_initWGLEW( ))
+    if( !_initGLFuncs( ))
         return result;
 
     // also finds attached displays
-    if( WGLEW_NV_gpu_affinity )
+    if( wglEnumGpusNV_ )
     {
         _affinityDiscover( result );
         return result;
@@ -254,7 +278,7 @@ GPUInfos Module::discoverGPUs_() const
     _displayDiscover( result );
     
     // does not find GPUs with attached display
-    if( WGLEW_AMD_gpu_association )
+    if( wglGetGPUIDsAMD_ )
         _associationDiscover( result );
 
     return result;

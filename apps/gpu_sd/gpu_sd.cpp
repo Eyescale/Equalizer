@@ -53,20 +53,21 @@ static void setTXTRecordValue( TXTRecordRef& record, const size_t gpuIndex,
 
     out.str("");
     out << value;
-    TXTRecordSetValue( &record, string.c_str(),
-                       out.str().length(), out.str().c_str( ));
+    TXTRecordSetValue( &record, string.c_str(), uint8_t( out.str().length( )),
+                       out.str().c_str( ));
 }
 
 static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus, 
                              const std::string session )
 {
-    TXTRecordSetValue( &record, "Session", session.length(), session.c_str( ));
+    TXTRecordSetValue( &record, "Session", uint8_t( session.length( )),
+                       session.c_str( ));
 
     // GPU Count=<integer>
     std::ostringstream out;
     out << gpus.size();
-    TXTRecordSetValue( &record, "GPU Count",
-                       out.str().length(), out.str().c_str( ));
+    TXTRecordSetValue( &record, "GPU Count", uint8_t( out.str().length( )),
+                       out.str().c_str( ));
 
     for( GPUInfos::const_iterator i = gpus.begin(); i != gpus.end(); ++i )
     {
