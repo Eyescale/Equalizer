@@ -15,7 +15,7 @@ find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 set(LIBRARY gpusd_cgl)
-set(INCLUDE gpusd/cgl)
+set(INCLUDE include/gpusd/cgl)
 
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${LIBRARY} ${CARBON_LIBRARY} ${OPENGL_LIBRARIES} gpusd)

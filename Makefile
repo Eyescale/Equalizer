@@ -30,7 +30,7 @@ release/Makefile:
 	@cd release; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release
 
 package: release/Makefile
-	@$(MAKE) -C release doxygen
+	#@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
 tests: debug/Makefile

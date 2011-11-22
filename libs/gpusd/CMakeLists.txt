@@ -20,6 +20,7 @@ set(SOURCES
 )
 
 set(LIBRARY gpusd)
+set(INCLUDE include/${LIBRARY})
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
   ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}${VERSION_MAJOR})
@@ -30,7 +31,7 @@ set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
                                             SOVERSION ${VERSION_MAJOR}
                                             COMPILE_DEFINITIONS "GPUSD_SHARED")
 
-install(FILES ${HEADERS} DESTINATION ${LIBRARY} COMPONENT dev)
+install(FILES ${HEADERS} DESTINATION ${INCLUDE} COMPONENT dev)
 install(TARGETS ${LIBRARY}
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
   COMPONENT runtime)

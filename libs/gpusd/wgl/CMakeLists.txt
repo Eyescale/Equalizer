@@ -15,7 +15,7 @@ include(GLEW/CMakeLists.txt)
 find_package(OpenGL REQUIRED)
 
 set(LIBRARY gpusd_wgl)
-set(INCLUDE gpusd/wgl)
+set(INCLUDE include/gpusd/wgl)
 
 source_group(\\ FILES CMakeLists.txt ${HEADERS} ${SOURCES})
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})

@@ -15,7 +15,7 @@ set(SOURCES
 
 set(LIBRARY gpusd_dns_sd)
 
-set(INCLUDE gpusd/dns_sd)
+set(INCLUDE include/gpusd/dns_sd)
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
 if(WIN32)
   target_link_libraries(${LIBRARY} ${DNSSD_LIBRARIES} gpusd ws2_32)

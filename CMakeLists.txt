@@ -34,7 +34,8 @@ include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR
 find_package(DNSSD)
 
 if(APPLE)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
+  set(GPUSD_OSX_VERSION 10.6)
+  list(APPEND CMAKE_CXX_FLAGS "-mmacosx-version-min=${GPUSD_OSX_VERSION}" )
 
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
@@ -61,8 +62,6 @@ if(LINUX)
 endif(LINUX)
 
 if(APPLE)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=10.5" )
-
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
     set(GPUSD_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
         "OS X build architectures")
@@ -91,3 +90,4 @@ add_subdirectory(libs)
 #add_subdirectory(doc) # must be after all targets
 
 include(CTest)
+include(CPackConfig)
