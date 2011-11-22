@@ -43,20 +43,20 @@ namespace detail
         GPUSD_API virtual ~Filter();
 
         /**
-         * Chain another Filter to this one.
+         * Chain another filter to this one.
          *
          * Invoking the operator() will call chained filters.
          * @version 1.0
          */
-        GPUSD_API Filter& operator | ( const Filter& rhs );
+        GPUSD_API FilterPtr operator | ( FilterPtr rhs );
 
         /**
-         * Chain another Filter to this one.
+         * Chain another filter to this one.
          *
          * Invoking the operator() will call chained filters.
          * @version 1.0
          */
-        GPUSD_API Filter& operator |= ( const Filter& rhs );
+        GPUSD_API FilterPtr operator |= ( FilterPtr rhs );
 
         /**
          * Call all chained operators.
@@ -71,7 +71,7 @@ namespace detail
          * @version 1.0
          */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
-                                            const GPUInfo& candidate ) const;
+                                            const GPUInfo& candidate );
     private:
         detail::Filter* const impl_;
     };
@@ -87,7 +87,7 @@ namespace detail
          * @version 1.0
          */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
-                                            const GPUInfo& candidate ) const;
+                                            const GPUInfo& candidate );
     };
 
     /** Filter overlapping duplicates with different GPU types. */
@@ -102,7 +102,7 @@ namespace detail
          * @version 1.0
          */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
-                                            const GPUInfo& candidate ) const;
+                                            const GPUInfo& candidate );
     };
 
     /** Filters for a specific session. */
@@ -114,7 +114,7 @@ namespace detail
 
         /** @return true if the candidate has the given session. @version 1.0 */
         GPUSD_API virtual bool operator() ( const GPUInfos& current,
-                                            const GPUInfo& candidate ) const;
+                                            const GPUInfo& candidate );
     private:
         detail::SessionFilter* const impl_;
     };

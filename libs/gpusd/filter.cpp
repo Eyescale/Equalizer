@@ -20,8 +20,8 @@
 
 namespace gpusd
 {
-typedef std::vector< const Filter* > ConstFilters;
-typedef ConstFilters::const_iterator ConstFiltersCIter;
+typedef std::vector< FilterPtr > Filters;
+typedef Filters::const_iterator FiltersCIter;
 
 // Filter
 //-------
@@ -30,7 +30,7 @@ namespace detail
 class Filter
 {
 public:
-    ConstFilters next_;
+    Filters next_;
 };
 }
 
@@ -38,33 +38,33 @@ Filter::Filter() : impl_( new detail::Filter ) {}
 Filter::~Filter() { delete impl_; }
 
 bool Filter::operator() ( const GPUInfos& current,
-                          const GPUInfo& candidate ) const
+                          const GPUInfo& candidate )
 {
-    for( ConstFiltersCIter i = impl_->next_.begin(); i!=impl_->next_.end(); ++i)
+    for( FiltersCIter i = impl_->next_.begin(); i!=impl_->next_.end(); ++i)
     {
-        const Filter* filter = *i;
+        FilterPtr filter = *i;
         if( !(*filter)( current, candidate ))
             return false;
     }
     return true;
 }
 
-Filter& Filter::operator | ( const Filter& rhs )
+FilterPtr Filter::operator | ( FilterPtr rhs )
 {
-    impl_->next_.push_back( &rhs );
-    return *this;
+    impl_->next_.push_back( rhs );
+    return rhs;
 }
 
-Filter& Filter::operator |= ( const Filter& rhs )
+FilterPtr Filter::operator |= ( FilterPtr rhs )
 {
-    impl_->next_.push_back( &rhs );
-    return *this;
+    impl_->next_.push_back( rhs );
+    return rhs;
 }
 
 // DuplicateFilter
 //----------------
 bool DuplicateFilter::operator() ( const GPUInfos& current,
-                                   const GPUInfo& candidate ) const
+                                   const GPUInfo& candidate )
 {
     if( std::find( current.begin(), current.end(), candidate ) == current.end())
         return Filter::operator()( current, candidate );
@@ -74,7 +74,7 @@ bool DuplicateFilter::operator() ( const GPUInfos& current,
 // MirrorFilter
 //-------------
 bool MirrorFilter::operator() ( const GPUInfos& current,
-                                const GPUInfo& candidate ) const
+                                const GPUInfo& candidate )
 {
     for( GPUInfosCIter i = current.begin(); i != current.end(); ++i )
     {
@@ -111,7 +111,7 @@ SessionFilter::SessionFilter( const std::string& name )
 SessionFilter::~SessionFilter() { delete impl_; }
 
 bool SessionFilter::operator() ( const GPUInfos& current,
-                                 const GPUInfo& candidate ) const
+                                 const GPUInfo& candidate )
 {
     if( candidate.session == impl_->name_ )
         return Filter::operator()( current, candidate );

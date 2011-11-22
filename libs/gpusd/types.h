@@ -19,6 +19,11 @@
 #define GPUSD_TYPES_H
 
 #include <vector>
+#ifdef _MSC_VER
+#  include <memory>
+#else
+#  include <tr1/memory>
+#endif
 
 namespace gpusd
 {
@@ -29,6 +34,8 @@ typedef GPUInfos::iterator GPUInfosIter; //!< An iterator over GPUInfos
 /** A const iterator over GPUInfos. */
 typedef GPUInfos::const_iterator GPUInfosCIter;
 
+class Filter;
+typedef std::tr1::shared_ptr< Filter > FilterPtr;
 }
 
 #endif // GPUSD_TYPES_H

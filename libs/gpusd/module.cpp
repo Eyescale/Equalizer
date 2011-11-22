@@ -73,7 +73,7 @@ Module::~Module()
     delete impl_;
 }
 
-GPUInfos Module::discoverGPUs( const Filter& filter )
+GPUInfos Module::discoverGPUs( FilterPtr filter )
 {
     GPUInfos result;
     for( Module* module = stack_; module; module = module->impl_->next_ )
@@ -82,7 +82,7 @@ GPUInfos Module::discoverGPUs( const Filter& filter )
         for( GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
         {
             const GPUInfo& info = *i;
-            if( filter( result, info ))
+            if( !filter || (*filter)( result, info ))
                 result.push_back( info );
         }
     }
