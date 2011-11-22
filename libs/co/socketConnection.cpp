@@ -604,6 +604,9 @@ void SocketConnection::_tuneSocket( const Socket fd )
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
+#ifdef EQ_GCC_4_5_OR_LATER
+#  pragma GCC diagnostic ignored "-Wunused-result"
+#endif
 bool SocketConnection::listen()
 {
     EQASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
@@ -667,9 +670,6 @@ bool SocketConnection::listen()
             hostname = cHostname;
 
 #ifndef _MSC_VER
-#  ifdef EQ_GCC_4_5_OR_LATER
-#    pragma GCC diagnostic ignored "-Wunused-result"
-#  endif
             char cDomainname[256] = {0};
             getdomainname( cDomainname, 256 );
             const std::string domainname( cDomainname );
