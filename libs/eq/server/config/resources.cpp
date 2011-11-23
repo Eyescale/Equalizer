@@ -62,8 +62,7 @@ bool Resources::discover( Config* config, const std::string& session )
 {
 #ifdef AGL
     gpusd::cgl::Module::use();
-#endif
-#ifdef GLX
+#elif defined(GLX)
     gpusd::glx::Module::use();
 #endif
 #ifdef WGL
