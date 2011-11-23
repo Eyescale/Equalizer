@@ -27,14 +27,15 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 
 source_group(\\ FILES CMakeLists.txt ${HEADERS} ${SOURCES})
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
-set_target_properties(${LIBRARY} PROPERTIES VERSION ${VERSION}
-                                            SOVERSION ${VERSION_MAJOR}
-                                            COMPILE_DEFINITIONS "GPUSD_SHARED")
+set_target_properties(${LIBRARY} PROPERTIES
+  VERSION ${VERSION} SOVERSION ${VERSION_MAJOR}
+  FRAMEWORK TRUE PUBLIC_HEADER "${HEADERS}"
+  COMPILE_DEFINITIONS "GPUSD_SHARED")
 
-install(FILES ${HEADERS} DESTINATION ${INCLUDE} COMPONENT dev)
-install(TARGETS ${LIBRARY}
+# install(FILES ${HEADERS} DESTINATION ${INCLUDE} COMPONENT dev)
+install(TARGETS ${LIBRARY} PUBLIC_HEADER
   ARCHIVE DESTINATION lib RUNTIME DESTINATION bin LIBRARY DESTINATION lib
-  COMPONENT runtime)
+  FRAMEWORK DESTINATION lib COMPONENT runtime)
 
 add_subdirectory(cgl)
 add_subdirectory(glx)
