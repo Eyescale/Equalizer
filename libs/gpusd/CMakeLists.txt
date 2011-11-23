@@ -1,7 +1,4 @@
 
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-  ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}${VERSION_MAJOR})
-
 configure_file("version.in.h" "${CMAKE_CURRENT_BINARY_DIR}/version.h" @ONLY)
 
 set(HEADERS
@@ -21,9 +18,6 @@ set(SOURCES
 
 set(LIBRARY gpusd)
 set(INCLUDE include/${LIBRARY})
-
-execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
-  ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}${VERSION_MAJOR})
 
 source_group(\\ FILES CMakeLists.txt ${HEADERS} ${SOURCES})
 add_library(${LIBRARY} SHARED ${HEADERS} ${SOURCES})
