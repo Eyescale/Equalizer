@@ -173,23 +173,8 @@ namespace eq
         uint32_t             nFrames;
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
-        
-    struct ChannelFrameTransmitPacket : public ChannelTaskPacket
-    {
-        ChannelFrameTransmitPacket()
-            {
-                command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT;
-                size          = sizeof( ChannelFrameTransmitPacket );
-            }
 
-        co::ObjectVersion  frameData;
-        uint128_t          netNodeID;
-        uint128_t          clientNodeID;
-        uint32_t           statisticsIndex;
-        uint32_t           frameNumber;
-    };
-
-    struct ChannelFrameTransmitImagePacket : public ChannelFrameTransmitPacket
+    struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
     {
         ChannelFrameTransmitImagePacket()
         {
@@ -197,10 +182,15 @@ namespace eq
             size          = sizeof( ChannelFrameTransmitImagePacket );
         }
 
+        co::ObjectVersion  frameData;
+        uint128_t          netNodeID;
+        uint128_t          clientNodeID;
+        uint32_t           statisticsIndex;
+        uint32_t           frameNumber;
         uint64_t           imageIndex;
     };
 
-    struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitPacket
+    struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket
     {
         ChannelFrameSetReadyPacket()
         {
@@ -275,7 +265,7 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ChannelFrameTransmitPacket* packet )
+                                     const ChannelFrameTransmitImagePacket* packet )
     {
         os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
            << " receiver " << packet->clientNodeID << " on "

@@ -487,45 +487,6 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet
         << std::endl;
-
-    // transmit tasks
-    Node* node = _channel->getNode();
-    co::NodePtr netNode = node->getNode();
-    const co::NodeID&  outputNodeID = netNode->getNodeID();
-    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
-    {
-        Frame* outputFrame = *i;
-        const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
-        std::set< uint128_t > nodeIDs;
-
-        for( FramesCIter j = inputFrames.begin(); j != inputFrames.end(); ++j )
-        {
-            const Frame* inputFrame   = *j;
-            const Node*  inputNode    = inputFrame->getNode();
-            co::NodePtr inputNetNode = inputNode->getNode();
-
-            ChannelFrameTransmitPacket transmitPacket;
-            transmitPacket.netNodeID = inputNetNode->getNodeID();
-
-            if( transmitPacket.netNodeID == outputNodeID ||
-                nodeIDs.find( transmitPacket.netNodeID ) != nodeIDs.end( ))
-            {
-                continue;  // TODO filter: buffers, vp, eye
-            }
-
-            // send
-            transmitPacket.context   = context;
-            transmitPacket.frameData = outputFrame->getDataVersion( _eye );
-            transmitPacket.clientNodeID = inputNode->getID();
-
-            EQLOG( LOG_ASSEMBLY | LOG_TASKS )
-                << "TASK transmit " << _channel->getName() <<  " "
-                << &transmitPacket << std::endl;
-
-            _channel->send( transmitPacket );
-            nodeIDs.insert( transmitPacket.netNodeID );
-        }
-    }        
 }
 
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,

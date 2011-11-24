@@ -106,11 +106,6 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT, 
-                     CmdFunc( this, &Channel::_cmdFrameTransmit ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC, 
-                     CmdFunc( this, &Channel::_cmdFrameTransmitAsync ),
-                     transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
                      transmitQ );
@@ -1178,7 +1173,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 }
 
 void Channel::_transmitImage( Image* image,
-                              const ChannelFrameTransmitPacket* request )
+                              const ChannelFrameTransmitImagePacket* request )
 {
     if ( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
@@ -1349,7 +1344,7 @@ void Channel::_transmitImage( Image* image,
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameTransmitPacket* request )
+void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* request )
 {
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( request->netNodeID );
@@ -1360,7 +1355,7 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitPacket* request )
     toNode->send( packet );
 }
 
-void Channel::_transmitTileImages( const RenderContext& context )
+void Channel::_transmitImages( const RenderContext& context )
 {
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
     {
@@ -1395,7 +1390,7 @@ void Channel::_transmitTileImages( const RenderContext& context )
     }
 }
 
-void Channel::_transmitTileFrameReady( const RenderContext& context )
+void Channel::_transmitFrameReady( const RenderContext& context )
 {
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
     {
@@ -1483,6 +1478,8 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     else
         event.event.data.statistic.ratio = 1.0f;
 
+    _transmitImages( getContext() );
+    _transmitFrameReady( getContext() );    
     _outputFrames.clear();
 }
 
@@ -1674,54 +1671,6 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTransmit( co::Command& command )
-{
-    ChannelFrameTransmitPacket* packet = 
-        command.getModifiable< ChannelFrameTransmitPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK transmit " << getName() <<  " " 
-                                      << packet << std::endl;
-
-    ++_statistics.data[ _statisticsIndex ].used;
-
-    packet->command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_ASYNC;
-    packet->statisticsIndex = _statisticsIndex;
-    packet->frameNumber = getPipe()->getCurrentFrame();
-    dispatchCommand( command );
-    return true;
-}
-
-bool Channel::_cmdFrameTransmitAsync( co::Command& command )
-{
-    const ChannelFrameTransmitPacket* packet = 
-        command.get< ChannelFrameTransmitPacket >();
-
-    FrameData* frameData = getNode()->getFrameData( packet->frameData ); 
-    EQASSERT( frameData );
-
-    if( frameData->getBuffers() == 0 )
-    {
-        EQWARN << "No buffers for frame data" << std::endl;
-        return true;
-    }
-
-    {
-        ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
-        transmitEvent.statisticsIndex = packet->statisticsIndex;
-        transmitEvent.event.data.statistic.task = packet->context.taskID;
-
-        // send all images
-        const Images& images = frameData->getImages();
-        for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-            _transmitImage( *i, packet );
-
-        // all data transmitted -> ready
-        _sendFrameDataReady( packet );
-    }
-
-    _unrefFrame( packet->frameNumber, packet->statisticsIndex );
-    return true;
-}
-
 bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
 {
     const ChannelFrameTransmitImagePacket* packet = 
@@ -1875,8 +1824,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                 }
             }
 
-            // transmit image
-            _transmitTileImages( context );
+            _transmitImages( context );
         }
 
         queuePacket->release();
@@ -1905,8 +1853,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         startTime += readbackTime;
         event.event.data.statistic.endTime = startTime;
 
-        // set frame ready
-        _transmitTileFrameReady( context );
+        _transmitFrameReady( context );
         _outputFrames.clear();
     }
 

@@ -28,7 +28,6 @@
 
 namespace eq
 {
-    struct ChannelFrameTransmitPacket;
     struct ChannelFrameTransmitImagePacket;
     struct ChannelFrameSetReadyPacket;
 
@@ -579,10 +578,10 @@ namespace eq
 
         /** Transmit one image of a frame to one node. */
         void _transmitImage( Image* image, 
-                             const ChannelFrameTransmitPacket* packet );
+                             const ChannelFrameTransmitImagePacket* packet );
         
         /** Send the ready signal of a frame to one node. */
-        void _sendFrameDataReady( const ChannelFrameTransmitPacket* packet );
+        void _sendFrameDataReady( const ChannelFrameTransmitImagePacket* packet );
 
         void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
@@ -591,11 +590,11 @@ namespace eq
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        /** Transmit all new images after a tile draw. */
-        void _transmitTileImages( const RenderContext& context );
+        /** Transmit all new images after a readback. */
+        void _transmitImages( const RenderContext& context );
 
-        /** Transmit frame ready after all tile draws. */
-        void _transmitTileFrameReady( const RenderContext& context );
+        /** Transmit frame ready after transmitting all images. */
+        void _transmitFrameReady( const RenderContext& context );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -607,8 +606,6 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmit( co::Command& command );
-        bool _cmdFrameTransmitAsync( co::Command& command );
         bool _cmdFrameTransmitImageAsync( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
