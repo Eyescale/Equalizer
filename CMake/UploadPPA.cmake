@@ -9,11 +9,11 @@ find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
 
 if(NOT DEBUILD_EXECUTABLE)
-  message(WARNING "debuild not found")
+  message(STATUS "debuild not found")
   return()
 endif()
 if(NOT DPUT_EXECUTABLE)
-  message(WARNING "dput not found")
+  message(STATUS "dput not found")
   return()
 endif()
 
