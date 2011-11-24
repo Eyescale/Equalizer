@@ -17,6 +17,8 @@ if(NOT DPUT_EXECUTABLE)
   return()
 endif()
 
+set(UPLOADPPA_FOUND TRUE)
+
 # DEBIAN/control
 # debian policy enforce lower case for package name
 # Package: (mandatory)
