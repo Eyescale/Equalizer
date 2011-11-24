@@ -1,5 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2011 Stefan Eilemann <eile@eyescale.ch>
 #
 #  sudo apt-get install devscripts
 ##
@@ -38,151 +39,154 @@ foreach(LINE ${DESC_LINES})
   set(DEB_LONG_DESCRIPTION "${DEB_LONG_DESCRIPTION} ${LINE}\n")
 endforeach(LINE ${DESC_LINES})
 
-file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/Debian)
-set(DEBIAN_SOURCE_DIR ${CMAKE_BINARY_DIR}/Debian/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source)
-execute_process(COMMAND ${CMAKE_COMMAND} -E
-  copy_directory ${CMAKE_SOURCE_DIR} ${DEBIAN_SOURCE_DIR}
-  )
-execute_process(COMMAND ${CMAKE_COMMAND} -E
-  remove_directory ${DEBIAN_SOURCE_DIR}/.git
-  )
+function(UPLOAD_PPA UBUNTU_NAME) 
+  set(DEBIAN_BASE_DIR ${CMAKE_BINARY_DIR}/Debian/${UBUNTU_NAME})
+  file(REMOVE_RECURSE ${DEBIAN_BASE_DIR})
+  set(DEBIAN_SOURCE_DIR
+    ${DEBIAN_BASE_DIR}/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-source)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E
+    copy_directory ${CMAKE_SOURCE_DIR} ${DEBIAN_SOURCE_DIR}
+    )
 
-file(MAKE_DIRECTORY ${DEBIAN_SOURCE_DIR}/debian)
-file(REMOVE_RECURSE ${DEBIAN_SOURCE_DIR}/.git)
+  file(MAKE_DIRECTORY ${DEBIAN_SOURCE_DIR}/debian)
+  file(REMOVE_RECURSE ${DEBIAN_SOURCE_DIR}/.git)
 
-##############################################################################
-# debian/control
-set(DEBIAN_CONTROL ${DEBIAN_SOURCE_DIR}/debian/control)
-file(WRITE ${DEBIAN_CONTROL}
-  "Source: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
-  "Section: ${CPACK_DEBIAN_PACKAGE_SECTION}\n"
-  "Priority: ${CPACK_DEBIAN_PACKAGE_PRIORITY}\n"
-  "Maintainer: ${CPACK_PACKAGE_CONTACT}\n"
-  "Build-Depends: "
-  )
+  ##############################################################################
+  # debian/control
+  set(DEBIAN_CONTROL ${DEBIAN_SOURCE_DIR}/debian/control)
+  file(WRITE ${DEBIAN_CONTROL}
+    "Source: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
+    "Section: ${CPACK_DEBIAN_PACKAGE_SECTION}\n"
+    "Priority: ${CPACK_DEBIAN_PACKAGE_PRIORITY}\n"
+    "Maintainer: ${CPACK_PACKAGE_CONTACT}\n"
+    "Build-Depends: "
+    )
 
-foreach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
-  file(APPEND ${DEBIAN_CONTROL} "${DEP}, ")
-endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})  
+  foreach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
+    file(APPEND ${DEBIAN_CONTROL} "${DEP}, ")
+  endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})  
 
-file(APPEND ${DEBIAN_CONTROL} "cmake\n"
-  "Standards-Version: 3.9.1\n"
-  "Homepage: ${CPACK_PACKAGE_VENDOR}\n"
-  "\n"
-  "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
-  "Architecture: any\n"
-  "Depends: ${CPACK_DEBIAN_PACKAGE_DEPENDS}\n"
-  "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"
-  "${DEB_LONG_DESCRIPTION}"
-  )
-
-foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
-  string(TOUPPER ${COMPONENT} UPPER_COMPONENT)
-  set(DEPENDS "${CPACK_DEBIAN_PACKAGE_NAME}")
-  foreach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})
-    set(DEPENDS "${DEPENDS}, ${CPACK_DEBIAN_PACKAGE_NAME}-${DEP}")
-  endforeach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})
-  file(APPEND ${DEBIAN_CONTROL} "\n"
-    "Package: ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT}\n"
+  file(APPEND ${DEBIAN_CONTROL} "cmake\n"
+    "Standards-Version: 3.9.1\n"
+    "Homepage: ${CPACK_PACKAGE_VENDOR}\n"
+    "\n"
+    "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
     "Architecture: any\n"
-    "Depends: ${DEPENDS}\n"
-    "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}"
-    ": ${CPACK_COMPONENT_${UPPER_COMPONENT}_DISPLAY_NAME}\n"
+    "Depends: ${CPACK_DEBIAN_PACKAGE_DEPENDS}\n"
+    "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"
     "${DEB_LONG_DESCRIPTION}"
-    " .\n"
-    " ${CPACK_COMPONENT_${UPPER_COMPONENT}_DESCRIPTION}\n"
     )
-endforeach(COMPONENT ${CPACK_COMPONENTS_ALL})
 
-##############################################################################
-# debian/copyright
-set(DEBIAN_COPYRIGHT ${DEBIAN_SOURCE_DIR}/debian/copyright)
-execute_process(COMMAND ${CMAKE_COMMAND} -E
-  copy ${CPACK_RESOURCE_FILE_LICENSE} ${DEBIAN_COPYRIGHT}
-  )
+  foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
+    string(TOUPPER ${COMPONENT} UPPER_COMPONENT)
+    set(DEPENDS "${CPACK_DEBIAN_PACKAGE_NAME}")
+    foreach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})
+      set(DEPENDS "${DEPENDS}, ${CPACK_DEBIAN_PACKAGE_NAME}-${DEP}")
+    endforeach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})
+    file(APPEND ${DEBIAN_CONTROL} "\n"
+      "Package: ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT}\n"
+      "Architecture: any\n"
+      "Depends: ${DEPENDS}\n"
+      "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}"
+      ": ${CPACK_COMPONENT_${UPPER_COMPONENT}_DISPLAY_NAME}\n"
+      "${DEB_LONG_DESCRIPTION}"
+      " .\n"
+      " ${CPACK_COMPONENT_${UPPER_COMPONENT}_DESCRIPTION}\n"
+      )
+  endforeach(COMPONENT ${CPACK_COMPONENTS_ALL})
 
-##############################################################################
-# debian/rules
-set(DEBIAN_RULES ${DEBIAN_SOURCE_DIR}/debian/rules)
-file(WRITE ${DEBIAN_RULES}
-  "#!/usr/bin/make -f\n"
-  "\n"
-  "BUILDDIR = build_dir\n"
-  "\n"
-  "build:\n"
-  "	mkdir -p $(BUILDDIR)\n"
-  "	cd $(BUILDDIR); cmake ..\n"
-  "	make -C $(BUILDDIR) preinstall\n"
-  "	touch build\n"
-  "\n"
-  "binary: binary-indep binary-arch\n"
-  "\n"
-  "binary-indep: build\n"
-  "\n"
-  "binary-arch: build\n"
-  "	cd $(BUILDDIR); cmake -DCOMPONENT=Unspecified -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr -P cmake_install.cmake\n"
-  "	mkdir -p debian/tmp/DEBIAN\n"
-  "	dpkg-gencontrol -p${CPACK_DEBIAN_PACKAGE_NAME}\n"
-  "	dpkg --build debian/tmp ..\n"
-  )
+  ##############################################################################
+  # debian/copyright
+  set(DEBIAN_COPYRIGHT ${DEBIAN_SOURCE_DIR}/debian/copyright)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E
+    copy ${CPACK_RESOURCE_FILE_LICENSE} ${DEBIAN_COPYRIGHT}
+    )
 
-foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
-  set(PATH debian/tmp_${COMPONENT})
-  set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
+  ##############################################################################
+  # debian/rules
+  set(DEBIAN_RULES ${DEBIAN_SOURCE_DIR}/debian/rules)
+  file(WRITE ${DEBIAN_RULES}
+    "#!/usr/bin/make -f\n"
+    "\n"
+    "BUILDDIR = build_dir\n"
+    "\n"
+    "build:\n"
+    "	mkdir -p $(BUILDDIR)\n"
+    "	cd $(BUILDDIR); cmake ..\n"
+    "	make -C $(BUILDDIR) preinstall\n"
+    "	touch build\n"
+    "\n"
+    "binary: binary-indep binary-arch\n"
+    "\n"
+    "binary-indep: build\n"
+    "\n"
+    "binary-arch: build\n"
+    "	cd $(BUILDDIR); cmake -DCOMPONENT=Unspecified -DCMAKE_INSTALL_PREFIX=../debian/tmp/usr -P cmake_install.cmake\n"
+    "	mkdir -p debian/tmp/DEBIAN\n"
+    "	dpkg-gencontrol -p${CPACK_DEBIAN_PACKAGE_NAME}\n"
+    "	dpkg --build debian/tmp ..\n"
+    )
+
+  foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
+    set(PATH debian/tmp_${COMPONENT})
+    set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
+    file(APPEND ${DEBIAN_RULES}
+      "	cd $(BUILDDIR); cmake -DCOMPONENT=${COMPONENT} -DCMAKE_INSTALL_PREFIX=../${PATH}/usr -P cmake_install.cmake\n"
+      "	mkdir -p ${PATH}/DEBIAN\n"
+      "	dpkg-gencontrol -p${PACKAGE} -P${PATH}\n"
+      "	dpkg --build ${PATH} ..\n"
+      )
+  endforeach(COMPONENT ${CPACK_COMPONENTS_ALL})
+
   file(APPEND ${DEBIAN_RULES}
-    "	cd $(BUILDDIR); cmake -DCOMPONENT=${COMPONENT} -DCMAKE_INSTALL_PREFIX=../${PATH}/usr -P cmake_install.cmake\n"
-    "	mkdir -p ${PATH}/DEBIAN\n"
-    "	dpkg-gencontrol -p${PACKAGE} -P${PATH}\n"
-    "	dpkg --build ${PATH} ..\n"
+    "\n"
+    "clean:\n"
+    "	rm -f build\n"
+    "	rm -rf $(BUILDDIR)\n"
+    "\n"
+    ".PHONY: binary binary-arch binary-indep clean\n"
     )
-endforeach(COMPONENT ${CPACK_COMPONENTS_ALL})
 
-file(APPEND ${DEBIAN_RULES}
-  "\n"
-  "clean:\n"
-  "	rm -f build\n"
-  "	rm -rf $(BUILDDIR)\n"
-  "\n"
-  ".PHONY: binary binary-arch binary-indep clean\n"
-  )
+  execute_process(COMMAND chmod +x ${DEBIAN_RULES})
 
-execute_process(COMMAND chmod +x ${DEBIAN_RULES})
+  ##############################################################################
+  # debian/compat
+  file(WRITE ${DEBIAN_SOURCE_DIR}/debian/compat "7")
 
-##############################################################################
-# debian/compat
-file(WRITE ${DEBIAN_SOURCE_DIR}/debian/compat "7")
+  ##############################################################################
+  # debian/source/format
+  file(WRITE ${DEBIAN_SOURCE_DIR}/debian/source/format "3.0 (native)")
 
-##############################################################################
-# debian/source/format
-file(WRITE ${DEBIAN_SOURCE_DIR}/debian/source/format "3.0 (native)")
+  ##############################################################################
+  # debian/changelog
+  set(DEBIAN_CHANGELOG ${DEBIAN_SOURCE_DIR}/debian/changelog)
+  execute_process(COMMAND date -R  OUTPUT_VARIABLE DATE_TIME)
+  file(WRITE ${DEBIAN_CHANGELOG}
+    "${CPACK_DEBIAN_PACKAGE_NAME} (${CPACK_PACKAGE_VERSION}~${UBUNTU_NAME}) ${UBUNTU_NAME}; urgency=low\n\n"
+    "  * Package built with CMake\n"
+    )
+  if(UBUNTU_LP_BUG)
+    file(APPEND ${DEBIAN_CHANGELOG} "  * LP: #${UBUNTU_LP_BUG}\n")
+  endif()
+  file(APPEND ${DEBIAN_CHANGELOG} "\n -- ${CPACK_PACKAGE_CONTACT}  ${DATE_TIME}")
 
-##############################################################################
-# debian/changelog
-set(DEBIAN_CHANGELOG ${DEBIAN_SOURCE_DIR}/debian/changelog)
-execute_process(COMMAND date -R  OUTPUT_VARIABLE DATE_TIME)
-file(WRITE ${DEBIAN_CHANGELOG}
-  "${CPACK_DEBIAN_PACKAGE_NAME} (${CPACK_PACKAGE_VERSION}) natty; urgency=low\n\n"
-  "  * Package built with CMake\n"
-  )
-if(UBUNTU_LP_BUG)
-  file(APPEND ${DEBIAN_CHANGELOG} "  * LP: #${UBUNTU_LP_BUG}\n")
-endif()
-file(APPEND ${DEBIAN_CHANGELOG} "\n -- ${CPACK_PACKAGE_CONTACT}  ${DATE_TIME}")
+  ##############################################################################
+  # debuild -S
+  set(DEB_SOURCE_CHANGES
+    ${CPACK_DEBIAN_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}~${UBUNTU_NAME}_source.changes
+    )
 
-##############################################################################
-# debuild -S
-set(DEB_SOURCE_CHANGES
-  ${CPACK_DEBIAN_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION}_source.changes
-  )
+  add_custom_command(
+    OUTPUT ${DEBIAN_BASE_DIR}/${DEB_SOURCE_CHANGES}
+    COMMAND ${DEBUILD_EXECUTABLE} -S
+    WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR}
+    )
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Debian/${DEB_SOURCE_CHANGES}
-  COMMAND ${DEBUILD_EXECUTABLE} -S
-  WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR}
-  )
-
-##############################################################################
-# dput ppa:your-lp-id/ppa <source.changes>
-add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES}
-  DEPENDS ${CMAKE_BINARY_DIR}/Debian/${DEB_SOURCE_CHANGES}
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian
-  )
+  ##############################################################################
+  # dput ppa:your-lp-id/ppa <source.changes>
+  add_custom_target(dput_${PROJECT_NAME}_${UBUNTU_NAME}
+    ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES}
+    DEPENDS ${DEBIAN_BASE_DIR}/${DEB_SOURCE_CHANGES}
+    WORKING_DIRECTORY ${DEBIAN_BASE_DIR}
+    )
+endfunction()
