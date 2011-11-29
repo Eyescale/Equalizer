@@ -33,20 +33,17 @@
 #include <eq/fabric/gpuInfo.h>
 
 #include <gpusd/gpuInfo.h>
-#ifdef EQ_USE_GPUSD
-#  include <gpusd/gpuInfo.h>
-#  include <gpusd/module.h>
-#endif
-#ifdef AGL
+#include <gpusd/module.h>
+#ifdef EQ_USE_GPUSD_cgl
 #  include <gpusd/cgl/module.h>
 #endif
-#ifdef GLX
+#ifdef EQ_USE_GPUSD_glx
 #  include <gpusd/glx/module.h>
 #endif
-#ifdef WGL
+#ifdef EQ_USE_GPUSD_wgl
 #  include <gpusd/wgl/module.h>
 #endif
-#ifdef EQ_USE_GPUSD_DNSSD
+#ifdef EQ_USE_GPUSD_dns_sd
 #  include <gpusd/dns_sd/module.h>
 #endif
 
@@ -60,15 +57,15 @@ static co::base::a_int32_t _frameCounter;
 
 bool Resources::discover( Config* config, const std::string& session )
 {
-#ifdef AGL
+#ifdef EQ_USE_GPUSD_cgl
     gpusd::cgl::Module::use();
-#elif defined(GLX)
+#elif defined(EQ_USE_GPUSD_glx)
     gpusd::glx::Module::use();
 #endif
-#ifdef WGL
+#ifdef EQ_USE_GPUSD_wgl
     gpusd::wgl::Module::use();
 #endif
-#ifdef EQ_USE_GPUSD_DNSSD
+#ifdef EQ_USE_GPUSD_dns_sd
     gpusd::dns_sd::Module::use();
 #endif
 
