@@ -78,9 +78,8 @@
 #
 # find and parse gpusd/version.h
 find_path(_gpusd_INCLUDE_DIR gpusd/version.h
-  HINTS $ENV{GPUSD_ROOT} ${GPUSD_ROOT}
-  PATHS /usr/include /usr/local/include /opt/local/include /opt/include
-  ${CMAKE_BINARY_DIR}/gpu-sd/libs)
+  HINTS ${CMAKE_BINARY_DIR}/gpu-sd/libs ${GPUSD_ROOT} ENV GPUSD_ROOT
+  PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
 
 if(GPUSD_FIND_REQUIRED)
   set(_gpusd_version_output_type FATAL_ERROR)
