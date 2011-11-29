@@ -6,6 +6,7 @@
 *.pbxuser
 *.ply.*.bin
 *.vcproj.*.user
+*.log
 Result_*.rgb*
 ___*
 tt.*
