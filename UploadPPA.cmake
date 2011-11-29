@@ -16,6 +16,10 @@ if(NOT DPUT_EXECUTABLE)
   message(STATUS "dput not found")
   return()
 endif()
+if(CMAKE_BINARY_DIR MATCHES "${CMAKE_SOURCE_DIR}")
+  message(STATUS "Build directory is a sub-directory of source, no PPA upload")
+  return()
+endif()
 
 set(UPLOADPPA_FOUND TRUE)
 
