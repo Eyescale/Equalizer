@@ -76,8 +76,10 @@ bool Resources::discover( Config* config, const std::string& session )
     const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs( filter );
 
     if( infos.empty( ))
+    {
+        EQINFO << "No resources found for session " << session << std::endl;
         return false;
-
+    }
     typedef stde::hash_map< std::string, Node* > NodeMap;
 
     NodeMap nodes;

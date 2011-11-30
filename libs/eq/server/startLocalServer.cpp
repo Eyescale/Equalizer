@@ -21,7 +21,7 @@
 #include "global.h"
 #include "loader.h"
 
-#ifdef EQ_USE_GPUSD_core
+#ifdef EQ_USE_GPUSD
 #  include "config/server.h"
 #endif
 
@@ -87,7 +87,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
 
     if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
         server = loader.loadFile( config );
-#ifdef EQ_USE_GPUSD_core
+#ifdef EQ_USE_GPUSD
     else
         server = eq::server::config::Server::configure( config );
 #endif

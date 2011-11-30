@@ -111,7 +111,7 @@ endif(MSVC)
 
 if(APPLE)
   set(CPACK_GENERATOR "PackageMaker")
-  set(CPACK_SET_DESTDIR ON)
+#  set(CPACK_SET_DESTDIR ON)
 endif(APPLE)
 
 if(LINUX)
