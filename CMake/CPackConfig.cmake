@@ -31,14 +31,6 @@ if(GPUSD_PACKAGE_VERSION)
       ${CPACK_PACKAGE_VERSION_PATCH}-${GPUSD_PACKAGE_VERSION})
 endif()
 
-set(CPACK_COMPONENTS_ALL dev runtime)
-
-set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "GPU-SD libraries and applications")
-set(CPACK_COMPONENT_RUNTIME_DESCRIPTION "Runtime components of GPU-SD: The core library, discovery modules, announcement daemon and discovery tools")
-
-set(CPACK_COMPONENT_DEV_DISPLAY_NAME "GPU-SD development files")
-set(CPACK_COMPONENT_DEV_DESCRIPTION "GPU-SD header and library Files for development")
-set(CPACK_COMPONENT_DEV_DEPENDS runtime)
 set(CPACK_RPM_PACKAGE_LICENSE "LGPL, GPL")
 # set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries/Parallel")
 set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
@@ -72,6 +64,30 @@ endif(LINUX)
 
 set(CPACK_STRIP_FILES TRUE)
 #set(UBUNTU_LP_BUG 300472)
+
+# components
+set(CPACK_COMPONENTS_ALL gpusd_dev gpusd_runtime gpusd_tools gpusd_daemon)
+
+set(CPACK_COMPONENT_GPUSD_RUNTIME_DISPLAY_NAME
+  "GPU-SD libraries and applications")
+set(CPACK_COMPONENT_GPUSD_RUNTIME_DESCRIPTION
+  "Runtime components of GPU-SD: The core library, discovery modules, announcement daemon and discovery tools")
+
+set(CPACK_COMPONENT_GPUSD_DEV_DISPLAY_NAME "GPU-SD development files")
+set(CPACK_COMPONENT_GPUSD_DEV_DESCRIPTION
+  "GPU-SD header and library Files for development")
+set(CPACK_COMPONENT_GPUSD_DEV_DEPENDS gpusd_runtime)
+
+set(CPACK_COMPONENT_GPUSD_DAEMON_DISPLAY_NAME "GPU-SD ZeroConf daemon")
+set(CPACK_COMPONENT_GPUSD_DAEMON_DESCRIPTION
+  "GPU-SD ZeroConf annoucement daemon")
+set(CPACK_COMPONENT_GPUSD_DAEMON_DEPENDS gpusd_runtime)
+
+set(CPACK_COMPONENT_GPUSD_TOOLS_DISPLAY_NAME "GPU-SD helper applications")
+set(CPACK_COMPONENT_GPUSD_TOOLS_DESCRIPTION
+  "GPU-SD Helper applications")
+set(CPACK_COMPONENT_GPUSD_TOOLS_DEPENDS gpusd_runtime)
+
 include(InstallRequiredSystemLibraries)
 include(CPack)
 include(UploadPPA)

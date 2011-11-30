@@ -10,4 +10,4 @@ set(SOURCES
 source_group(\\ FILES ${SOURCES} ${HEADERS})
 add_executable(gpu_sd_list ${SOURCES} ${HEADERS})
 target_link_libraries(gpu_sd_list gpusd_dns_sd)
-install(TARGETS gpu_sd_list DESTINATION bin COMPONENT tools)
+install(TARGETS gpu_sd_list DESTINATION bin COMPONENT gpusd_tools)

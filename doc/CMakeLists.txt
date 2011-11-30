@@ -19,6 +19,6 @@ add_custom_target(gpusd_doxygen ALL
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html) # needed for install:
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/gpu-sd
-  COMPONENT dev)
+  COMPONENT gpusd_dev)
 install(FILES AUTHORS  ../LICENSE.txt LGPL.txt GPL.txt
-  DESTINATION share/gpu-sd/doc COMPONENT runtime)
+  DESTINATION share/gpu-sd/doc COMPONENT gpusd_runtime)
