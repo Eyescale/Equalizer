@@ -22,7 +22,7 @@ my $netperf;
 my $uname = `uname`;
 chomp( $uname );
 
-my @netperfDirs = ( ".", dirname( $0 ), "build/$uname/bin" );
+my @netperfDirs = ( ".", dirname( $0 ), "release/bin" );
 foreach my $dir (@netperfDirs)
 {
     if( -e $dir . "/netperf" )
@@ -45,7 +45,7 @@ foreach my $node (@nodes)
     push( @pids, launchNetperf( $node ));
 }
 
-sleep( 1 ); # give clients some time to start
+sleep( 5 ); # give clients some time to start
 #print "$netperf -n $num -c RSP#102400#239.255.42.43#$localnode#4242#default#\n";
 system( "$netperf -n $num -c RSP#102400#239.255.42.43#$localnode#4242#default# 2>&1" );
 
@@ -61,9 +61,8 @@ sub launchNetperf
 
     if( $pid == 0 )
     {
-        my $cmdLine = "ssh $node env LD_LIBRARY_PATH=" .
-            $ENV{"LD_LIBRARY_PATH"} . " DYLD_LIBRARY_PATH=" .
-            $ENV{"DYLD_LIBRARY_PATH"} .
+        my $cmdLine = "ssh $node env LD_LIBRARY_PATH=".$ENV{"LD_LIBRARY_PATH"} .
+            " DYLD_LIBRARY_PATH=" . $ENV{"DYLD_LIBRARY_PATH"} .
             " $netperf -s RSP\\\\#102400\\\\#239.255.42.43\\\\#$node\\\\#4242\\\\#default\\\\# 2>&1";
         print "$cmdLine\n";
         my @result = `$cmdLine`;

@@ -14,5 +14,5 @@ install(FILES eq.h DESTINATION include/eq COMPONENT eqdev)
 
 configure_file(Equalizer.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Equalizer.pc
-        DESTINATION lib/pkgconfig COMPONENT eqlib)
+        DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT eqlib)
 

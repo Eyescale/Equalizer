@@ -49,8 +49,6 @@ public:
 
 int main( int argc, char** argv )
 {
-    setenv( "EQ_CONFIG_IATTR_ROBUSTNESS", "0", 0 /* don't overwrite */ );
-
     // 1. initialization of local node
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))

@@ -1,0 +1,96 @@
+diff --git examples/eqPixelBench/channel.cpp examples/eqPixelBench/channel.cpp
+index 995cbfe..5caf77e 100644
+--- examples/eqPixelBench/channel.cpp
++++ examples/eqPixelBench/channel.cpp
+@@ -33,6 +33,8 @@
+ 
+ #include <co/plugins/compressor.h>
+ 
++#include <sched.h>
++
+ #ifdef WIN32_API
+ #  define snprintf _snprintf
+ #endif
+@@ -55,12 +57,7 @@ struct EnumMap
+     { #internalFormat, EQ_COMPRESSOR_DATATYPE_ ## internalFormat, pixelSize }
+ 
+ static EnumMap _enums[] = {
+-    ENUM_MAP_ITEM( RGBA32F, 16 ), // initial buffer resize
+     ENUM_MAP_ITEM( RGBA, 4 ),
+-    ENUM_MAP_ITEM( RGB10_A2, 4 ),
+-    ENUM_MAP_ITEM( RGBA16F, 8 ),
+-    ENUM_MAP_ITEM( RGBA32F, 16 ),
+-    ENUM_MAP_ITEM( DEPTH, 4 ),
+     { 0, 0, 0 }};
+ #define NUM_IMAGES 8
+ }
+@@ -122,10 +119,12 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
+     setupAssemblyState();
+ 
+     _testFormats( 1.0f );
++#if 0
+     _testFormats( 0.5f );
+     _testFormats( 2.0f );
+     _testTiledOperations();
+     _testDepthAssemble();
++#endif
+ 
+     resetAssemblyState();
+ }
+@@ -177,6 +176,16 @@ void Channel::_testFormats( float applyZoom )
+         for( std::vector< uint32_t >::const_iterator j = names.begin();
+              j != names.end(); ++j )
+         {
++            if( *j != 0x101 )
++                continue;
++
++            for( int k = 0; k < 12; ++k )
++            {
++                cpu_set_t mask;
++                CPU_ZERO( &mask );
++                CPU_SET( k, &mask );
++                sched_setaffinity( 0, sizeof( mask ), &mask );
++
+             _draw( 0 );
+ 
+             // setup
+@@ -188,20 +197,20 @@ void Channel::_testFormats( float applyZoom )
+ 
+             const uint32_t outputToken = 
+                 image->getExternalFormat( eq::Frame::BUFFER_COLOR );
+-            snprintf( event.formatType, 32, "%s/%x/%x", 
+-                _enums[i].internalFormatString, outputToken, *j );
++            snprintf( event.formatType, 32, "%s/%x/%x/%x", 
++                      _enums[i].internalFormatString, outputToken, *j, k );
+ 
+ 
+             // read
+-	    glFinish();
+-	    size_t nLoops = 0;
++            glFinish();
++            size_t nLoops = 0;
+             clock.reset();
+-	    while( clock.getTime64() < 100 /*ms*/ )
+-	    {
+-		image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
+-		++nLoops;
+-	    }
+-	    glFinish();
++            while( clock.getTime64() < 1000 /*ms*/ )
++            {
++                image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
++                ++nLoops;
++            }
++            glFinish();
+             event.msec = clock.getTimef() / float( nLoops );
+ 
+             const eq::PixelData& pixels =
+@@ -243,7 +252,7 @@ void Channel::_testFormats( float applyZoom )
+             if( error != GL_NO_ERROR )
+                 event.msec = -static_cast<float>( error );
+             config->sendEvent( event );
+-        }
++            }}
+     }
+ }
+ 
