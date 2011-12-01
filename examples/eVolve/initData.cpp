@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,12 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID(  co::base::UUID::ZERO )
+        : _frameDataID( co::base::UUID::ZERO )
+#ifdef AGL
+        , _windowSystem( "AGL" ) // prefer over GLX
+#else
+        , _windowSystem()
+#endif
         , _precision( 2 )
         , _brightness( 1.0f )
         , _alpha( 1.0f )
