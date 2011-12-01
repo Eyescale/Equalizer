@@ -40,11 +40,11 @@ namespace eqAsync
  */
 struct TextureId
 {
-    TextureId( const GLuint id_ = 0, const int key_ = 0 )
+    TextureId( const GLuint id_ = 0, const void* key_ = 0 )
             : id( id_ ), key( key_ ){};
 
-    GLuint  id;  // OpenGL texture id
-    int     key; // Object manager key; used to delete textures
+    GLuint id;       // OpenGL texture id
+    const void* key; // Object manager key; used to delete textures
 };
 
 class Window;
@@ -65,17 +65,17 @@ public:
 
     TextureId getTextureId()               { return _outQueue.pop().id;      }
     bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const int key )    { _inQueue.push( key );           }
+    void deleteTexture( const void* key )  { _inQueue.push( key );           }
 
     const GLEWContext* glewGetContext() const;
 
 private:
-    Window*                      _wnd;
-    co::base::MTQueue<int>       _inQueue;       // textures to delete
+    Window*                        _wnd;
+    co::base::MTQueue<const void*> _inQueue;       // textures to delete
     co::base::MTQueue<TextureId> _outQueue;      // generated textures
-    ObjectManager*               _objectManager;
-    eq::SystemWindow*            _sharedContextWindow;
-    GLbyte*                      _tmpTexture;    // temporal texture storage
+    eq::ObjectManager*             _objectManager;
+    eq::SystemWindow*              _sharedContextWindow;
+    GLbyte*                        _tmpTexture;    // temporal texture storage
 };
 
 } 

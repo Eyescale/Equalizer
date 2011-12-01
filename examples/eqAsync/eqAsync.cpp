@@ -59,7 +59,7 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
 {
     eq::Pipe::frameStart( frameID, frameNumber );
 
-    int oldKey = _txId.key;
+    const void* oldKey = _txId.key;
     if( _asyncFetcher.tryGetTextureId( _txId ))
     {
         if( oldKey != 0 )
