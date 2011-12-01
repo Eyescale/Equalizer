@@ -67,7 +67,7 @@ namespace eq
         typedef eq::ObjectManager ObjectManager;
 
         /** Fonts used for overlays. @version 1.0 */
-        typedef util::BitmapFont< const void* > Font;
+        typedef BitmapFont Font;
 
         /** Construct a new window. @version 1.0 */
         EQ_API Window( Pipe* parent );

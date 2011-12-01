@@ -340,8 +340,8 @@ uint32_t Config::finishFrame()
 
         // global sync
         const uint32_t timeout = getTimeout();
-        co::base::Clock time;
         const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
+        co::base::Clock time;
 
         while( !_finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
         {
