@@ -159,12 +159,6 @@ MessagePump* WindowSystem::createMessagePump() const
     return _impl->createMessagePump();
 }
 
-GPUInfos WindowSystem::discoverGPUs() const
-{
-    EQASSERT( _impl );
-    return _impl->discoverGPUs();
-}
-
 bool WindowSystem::operator == ( const WindowSystem& other) const
 {
     return _impl == other._impl;

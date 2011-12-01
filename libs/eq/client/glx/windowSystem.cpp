@@ -49,14 +49,6 @@ static class : WindowSystemIF
     {
         return new MessagePump;
     }
-
-    GPUInfos discoverGPUs() const
-    {
-        EQASSERTINFO( false, "Moved to gpu-sd library" );
-        GPUInfos result;
-        return result;
-    }
-
 } _glXFactory;
 
 }

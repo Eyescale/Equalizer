@@ -38,7 +38,6 @@ private:
     virtual SystemWindow* createWindow(Window* window) const = 0;
     virtual SystemPipe* createPipe(Pipe* pipe) const = 0;
     virtual MessagePump* createMessagePump() const = 0;
-    virtual GPUInfos discoverGPUs() const = 0;
 
     virtual void configInit( Node* node ) {}
     virtual void configExit( Node* node ) {}
@@ -84,7 +83,6 @@ public:
     EQ_API SystemWindow* createWindow( Window* window ) const;
     EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
     EQ_API MessagePump* createMessagePump() const;
-    EQ_API GPUInfos discoverGPUs() const;
 
     EQ_API bool operator == ( const WindowSystem& other ) const;
     EQ_API bool operator != ( const WindowSystem& other ) const;
