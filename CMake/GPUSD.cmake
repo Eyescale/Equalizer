@@ -1,6 +1,6 @@
 
 find_package(GPUSD)
-if(GPUSD_FOUND OR EQUALIZER_RELEASE)
+if(EQUALIZER_RELEASE)
   return()
 endif()
 
@@ -9,6 +9,10 @@ if(GIT_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 else()
   message(STATUS "git not found, automatic submodule configuration not done")
+endif()
+
+if(GPUSD_FOUND)
+  return()
 endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")

@@ -203,8 +203,13 @@ typedef co::base::RefPtr< Server >        ServerPtr;
 
 namespace util
 {
+template< class > class BitmapFont;
 template< class > class ObjectManager;
 }
+
+/** The bitmap font used in the client library. */
+typedef util::BitmapFont< const void* > BitmapFont;
+
 /** The OpenGL object manager used in the client library. */
 typedef util::ObjectManager< const void* > ObjectManager;
 

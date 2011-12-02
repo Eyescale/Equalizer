@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without

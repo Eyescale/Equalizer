@@ -66,8 +66,8 @@ Window::Window( Pipe* parent )
         , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
-        , _lastTime ( 0.0 )
-        , _avgFPS ( 0.0 )
+        , _lastTime ( 0.0f )
+        , _avgFPS ( 0.0f )
         , _lastSwapTime( 0 )
 {
     const Windows& windows = parent->getWindows();

@@ -27,12 +27,6 @@
  *
  */
 
-#define EQUALIZER_STATIC
-#include <eq/util/objectManager.h>
-#include <eq/util/objectManager.ipp>
-#include <eq/util/bitmapFont.ipp>
-#undef EQUALIZER_STATIC
-
 #include "asyncFetcher.h"
 #include "eqAsync.h"
 
@@ -116,7 +110,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 
 static void deleteSharedContextWindow( eq::Window* wnd,
                                        eq::SystemWindow** sharedContextWindow,
-                                   AsyncFetcher::ObjectManager** objectManager )
+                                       eq::ObjectManager** objectManager )
 {
     EQWARN << "Deleting shared context" << std::endl;
     if( !sharedContextWindow || !*sharedContextWindow )
@@ -180,10 +174,10 @@ void AsyncFetcher::run()
     if( !_sharedContextWindow )
         return;
 
-    _objectManager = new ObjectManager( glewGetContext( ));
+    _objectManager = new eq::ObjectManager( glewGetContext( ));
     EQINFO << "async fetcher initialized: " << _wnd << std::endl;
 
-    int i = 0;
+    uint8_t* i = 0;
     bool running = true;
     co::base::sleep( 1000 ); // imitate loading of the first texture
     while( running )
@@ -211,13 +205,13 @@ void AsyncFetcher::run()
         EQ_GL_CALL( glFinish( ));
 
         // add new texture to the pool
-        _outQueue.push( TextureId( tx->getName( ), i ));
+        _outQueue.push( TextureId( tx->getName(), i ));
 
         // imitate hard work of loading something else
         co::base::sleep( rng.get< uint32_t >() % 5000u );
 
         // clean unused textures
-        int keyToDelete = 0;
+        const void* keyToDelete = 0;
         while( _inQueue.tryPop( keyToDelete ))
         {
             if( keyToDelete )

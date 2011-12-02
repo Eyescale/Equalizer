@@ -56,61 +56,6 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-#define wglewGetContext wglPipe->wglewGetContext
-
-    GPUInfos discoverGPUs() const
-    {
-        // Create fake config to use wgl::Pipe affinity code for queries
-        ServerPtr server = new Server;
-        Config* config = new Config( server );
-        Node* node = new Node( config );
-        eq::Pipe* pipe = new eq::Pipe( node );
-        Pipe* wglPipe = new Pipe( pipe );
-
-        GPUInfos result;
-        if( !wglPipe->configInit( ))
-        {
-            wglPipe->configExit();
-            return result;
-        }
-
-        if( !WGLEW_NV_gpu_affinity )
-        {
-            GPUInfo info;
-            info.pvp = pipe->getPixelViewport();
-            result.push_back( info );
-
-            wglPipe->configExit();
-            return result;
-        }
-
-        for( uint32_t i = 0; i < EQ_UNDEFINED_UINT32; ++i )
-        {
-            pipe->setDevice( i );
-            pipe->setPixelViewport( PixelViewport( ));
-
-            HDC dc;
-            if( wglPipe->createWGLAffinityDC( dc ))
-            {
-                GPUInfo info;
-                info.device = i;
-                info.pvp = pipe->getPixelViewport();
-                result.push_back( info );
-
-                wglDeleteDCNV( dc );
-            }
-            else
-            {
-                wglPipe->configExit();
-                return result;
-            }
-        }
-
-        EQASSERTINFO( 0, "Unreachable" );
-        wglPipe->configExit();
-        return result;
-    }
-
     void configInit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN

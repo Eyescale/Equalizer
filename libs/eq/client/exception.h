@@ -32,7 +32,6 @@ namespace eq
         enum Type
         {
             TIMEOUT_INPUTFRAME  = co::Exception::CUSTOM,
-            TIMEOUT_FRAMESYNC,
             CUSTOM              = co::Exception::CUSTOM + 20 // leave some room
         };
 
@@ -52,13 +51,11 @@ namespace eq
         switch( e.getType() )
         {
           case Exception::TIMEOUT_INPUTFRAME:
-            os << " Timeout waiting on input frame";
-            break;
-          case Exception::TIMEOUT_FRAMESYNC:
-            os << " Timeout during thread frame synchronization";
-            break;
+              os << " Timeout waiting on input frame";
+              break;
           default:
-            os << static_cast< const co::Exception& >( e );
+              os << static_cast< const co::Exception& >( e );
+              break;
         }
         return os;
     }
