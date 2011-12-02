@@ -6,7 +6,8 @@ GPU-SD is a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. It enables auto-configuration
 of ad-hoc GPU clusters and multi-GPU machines.
 
-The source code is hosted on [github](https://github.com/Eyescale/gpu-sd).
+The source code is hosted on
+[github](https://github.com/Eyescale/gpu-sd) and documented [here](http://www.equalizergraphics.com/gpu-sd/API/).
 
 ## Modules
 
@@ -72,7 +73,7 @@ to discard information. The following filters are provided:
 ## Projects using GPU-SD
 
 * [Equalizer](http://www.equalizergraphics.com) parallel rendering
-  framework [source](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61) 
+  framework. ([source](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61))
 
 ## TODO List
 
