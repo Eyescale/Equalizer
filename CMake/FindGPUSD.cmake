@@ -51,6 +51,8 @@
 #
 #    GPUSD_COMPONENTS - A list of components found
 #
+#    GPUSD_DEB_DEPENDENCIES - A list of dependencies for the CPack deb generator
+#
 # Components may be: core, cgl, glx, wgl, dns_sd
 #   For each component, the following variables are set. In addition, the
 #   relevent libraries are added to GPUSD_LIBRARIES. The core component is
@@ -221,6 +223,8 @@ if(_gpusd_EPIC_FAIL)
   set(GPUSD_LIBRARIES)
   set(GPUSD_INCLUDE_DIRS)
   set(GPUSD_COMPONENTS)
+else()
+  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}")
 endif()
 
 get_filename_component(GPUSD_LIBRARY_DIR ${GPUSD_core_LIBRARY} PATH)
