@@ -95,7 +95,6 @@ void Frame::unsetData()
         _data.toNodes[i].inputNodes.clear();
         _data.toNodes[i].inputNetNodes.clear();
     }
-
 }
 
 void Frame::commitData()

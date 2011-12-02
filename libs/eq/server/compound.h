@@ -311,6 +311,10 @@ namespace server
         /** @return the vector of output tile queues. */
         const TileQueues& getOutputTileQueues() const
             { return _outputTileQueues; }
+
+        /** @return true if the compound is a tile compound. */
+        bool hasTiles() const
+            { return !_outputTileQueues.empty() || !_inputTileQueues.empty(); }
         //@}
 
         /** 

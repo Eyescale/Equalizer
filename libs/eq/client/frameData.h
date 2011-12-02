@@ -133,9 +133,6 @@ namespace server
         /** The images of this frame data holder. @version 1.0 */
         const Images& getImages() const { return _images; }
 
-        /** @internal @return the number of newly read back images. */
-        size_t getNewImages() const { return _newImages; }
-
         /**
          * Set the covered area for readbacks.
          *
@@ -205,9 +202,6 @@ namespace server
 
         /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_API void clear();
-
-        /** @internal Reset new images counter. */
-        void resetNewImages();
 
         /** 
          * Read back an image for this frame data.
@@ -331,8 +325,6 @@ namespace server
 
         uint32_t _colorCompressor;
         uint32_t _depthCompressor;
-
-        size_t _newImages;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

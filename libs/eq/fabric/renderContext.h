@@ -66,8 +66,7 @@ namespace fabric
         uint32_t       alignToEight;   //!< @internal padding
 
         ColorMask      bufferMask;     //!< color mask for anaglyph stereo
-        bool           tilesEnabled;   //!< tile based rendering used
-        bool           alignDummy[27]; //!< @internal padding
+        bool           alignDummy[28]; //!< @internal padding
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, 
