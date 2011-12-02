@@ -1162,8 +1162,8 @@ viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
     {
         eqCompound->addEqualizer( new eq::server::ViewEqualizer );
     }
-tileEqualizer: EQTOKEN_TILEEQUALIZER '{' 
-    { tileEqualizer = new eq::server::TileEqualizer }
+tileEqualizer: EQTOKEN_TILEEQUALIZER
+    '{' { tileEqualizer = new eq::server::TileEqualizer; }
     tileEqualizerFields '}'
     {
         eqCompound->addEqualizer( tileEqualizer );
