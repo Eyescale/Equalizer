@@ -173,21 +173,30 @@ namespace eq
         uint32_t             nFrames;
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
-        
-    struct ChannelFrameTransmitPacket : public ChannelTaskPacket
-    {
-        ChannelFrameTransmitPacket()
-            {
-                command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT;
-                size          = sizeof( ChannelFrameTransmitPacket );
-            }
 
-        
-        co::ObjectVersion frameData;
+    struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
+    {
+        ChannelFrameTransmitImagePacket()
+        {
+            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+            size          = sizeof( ChannelFrameTransmitImagePacket );
+        }
+
+        co::ObjectVersion  frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
         uint32_t           statisticsIndex;
         uint32_t           frameNumber;
+        uint64_t           imageIndex;
+    };
+
+    struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket
+    {
+        ChannelFrameSetReadyPacket()
+        {
+            command       = fabric::CMD_CHANNEL_FRAME_SET_READY;
+            size          = sizeof( ChannelFrameSetReadyPacket );
+        }
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
@@ -216,7 +225,11 @@ namespace eq
             size              = sizeof( ChannelFrameTilesPacket );
         }
 
+        bool              isLocal;
         co::ObjectVersion queueVersion;
+        uint32_t          tasks;
+        uint32_t          nFrames;
+        EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     inline std::ostream& operator << ( std::ostream& os, 
@@ -252,7 +265,7 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ChannelFrameTransmitPacket* packet )
+                                     const ChannelFrameTransmitImagePacket* packet )
     {
         os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
            << " receiver " << packet->clientNodeID << " on "

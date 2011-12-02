@@ -281,6 +281,8 @@ namespace server
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
                    , phase( 0 ) {}
 
+            EQ_API Data& operator=( const Data& rhs );
+
             PixelViewport pvp;
             Frame::Type   frameType;
             uint32_t      buffers;
@@ -290,6 +292,9 @@ namespace server
             Pixel         pixel;     //<! pixel decomposition of source
             SubPixel      subpixel;  //<! subpixel decomposition of source
             Zoom          zoom;
+
+            EQ_API void serialize( co::DataOStream& os ) const;
+            EQ_API void deserialize( co::DataIStream& is );
         } _data;
 
         friend class server::FrameData;

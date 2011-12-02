@@ -41,12 +41,28 @@ Frame::~Frame()
 void Frame::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
-    os << _data;
+    _data.serialize( os );
 }
 
 void Frame::applyInstanceData( co::DataIStream& is )
 {
-    is >> _data;
+    _data.deserialize( is );
+}
+
+void Frame::Data::serialize( co::DataOStream& os ) const
+{
+    os << offset << zoom;
+
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        os << frameData[i] << toNodes[i].inputNodes << toNodes[i].inputNetNodes;
+}
+
+void Frame::Data::deserialize( co::DataIStream& is )
+{
+    is >> offset >> zoom;
+    
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        is >> frameData[i] >> toNodes[i].inputNodes >> toNodes[i].inputNetNodes;
 }
 
 const std::string& Frame::getName() const

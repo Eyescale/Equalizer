@@ -41,6 +41,8 @@
 
 namespace eqPly
 {
+    class View;
+
     /**
      * The configuration, run be the EqPly application. 
      *
@@ -127,7 +129,9 @@ namespace eqPly
         void _switchViewMode();
         void _switchModel();
         void _freezeLoadBalancing( const bool onOff );
+        void _adjustTileSize( const int delta );
         void _switchLayout( int32_t increment );
+        void _toggleEqualizer();
 
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
@@ -137,6 +141,9 @@ namespace eqPly
         /** @return a pointer to a connected admin server. */
         eq::admin::ServerPtr _getAdminServer();
         void _closeAdminServer();
+
+        View* _getCurrentView();
+        const View* _getCurrentView() const;
 
         void _setMessage( const std::string& message );
         void _updateData();

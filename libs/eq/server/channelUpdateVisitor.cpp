@@ -27,6 +27,7 @@
 #include "segment.h"
 #include "view.h"
 #include "window.h"
+#include "tileQueue.h"
 
 #include "channel.ipp"
 
@@ -141,21 +142,7 @@ VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
     _setupRenderContext( compound, context );
     _updateFrameRate( compound );
     _updateViewStart( compound, context );
-
-    if( compound->testInheritTask( fabric::TASK_CLEAR ))
-        _sendClear( context );
-    if( compound->testInheritTask( fabric::TASK_DRAW ))
-    {
-        ChannelFrameDrawPacket drawPacket;
-
-        drawPacket.context = context;
-        drawPacket.finish = _channel->hasListeners(); // finish for equalizers
-        _channel->send( drawPacket );
-        _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
-                           << &drawPacket << std::endl;
-    }
-
+    _updateDraw( compound, context );
     _updateDrawFinish( compound );
     _updatePostDraw( compound, context );
     return TRAVERSE_CONTINUE;
@@ -172,7 +159,6 @@ VisitorResult ChannelUpdateVisitor::visitPost( const Compound* compound )
 
     return TRAVERSE_CONTINUE;
 }
-
 
 void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 RenderContext& context )
@@ -221,7 +207,75 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     }
     // TODO: pvp size overcommit check?
 
-    _computeFrustum( compound, context );
+    compound->computeFrustum( context, _eye );
+}
+
+void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
+                                        const RenderContext& context )
+{
+    if( compound->hasTiles( ))
+    {
+        _updateDrawTiles( compound, context );
+        return;
+    }
+
+    if( compound->testInheritTask( fabric::TASK_CLEAR ))
+        _sendClear( context );
+
+    if( compound->testInheritTask( fabric::TASK_DRAW ))
+    {
+        ChannelFrameDrawPacket drawPacket;
+        drawPacket.context = context;
+        drawPacket.finish = _channel->hasListeners(); // finish for eq stats
+        _channel->send( drawPacket );
+        _updated = true;
+        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+                           << &drawPacket << std::endl;
+    }
+}
+
+void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
+                                             const RenderContext& context )
+{
+    Frames frames;
+    std::vector< co::ObjectVersion > frameIDs;
+    const Frames& outputFrames = compound->getOutputFrames();
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i)
+    {
+        Frame* frame = *i;
+
+        if( !frame->hasData( _eye )) // TODO: filter: buffers, vp, eye
+            continue;
+
+        frames.push_back( frame );
+        frameIDs.push_back( co::ObjectVersion( frame ));
+    }
+
+    const Channel* destChannel = compound->getInheritChannel();
+    const TileQueues& inputQueues = compound->getInputTileQueues();
+    for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
+    {
+        const TileQueue* inputQueue = *i;
+        const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
+        const UUID& id = outputQueue->getQueueMasterID( context.eye );
+        EQASSERT( id != co::base::UUID::ZERO );
+
+        ChannelFrameTilesPacket tilesPacket;
+        tilesPacket.isLocal = (_channel == destChannel);
+        tilesPacket.context = context;
+        tilesPacket.tasks = compound->getInheritTasks() &
+                            ( eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
+                              eq::fabric::TASK_READBACK );
+
+        tilesPacket.queueVersion.identifier = id;
+        tilesPacket.queueVersion.version = co::VERSION_FIRST; // eile: ???
+        tilesPacket.nFrames = uint32_t( frames.size( ));
+        _channel->send< co::ObjectVersion >( tilesPacket, frameIDs );
+
+        _updated = true;
+        EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
+                           << &tilesPacket << std::endl;
+    }
 }
 
 void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
@@ -348,191 +402,6 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
     }
 }
 
-void ChannelUpdateVisitor::_computeFrustum( const Compound* compound,
-                                            RenderContext& context )
-{
-    // compute eye position in screen space
-    const Vector3f eyeWorld = _getEyePosition( compound, _eye );
-    const FrustumData& frustumData = compound->getInheritFrustumData();
-    const Matrix4f& xfm = frustumData.getTransform();
-    const Vector3f eyeWall = xfm * eyeWorld;
-
-    EQVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
-           << std::endl;
-    _computePerspective( compound, context, eyeWall );
-    _computeOrtho( compound, context, eyeWall );
-}
-
-namespace
-{
-static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
-                                   const Vector3f& eye )
-{
-    // headTransform = -trans(eye) * view matrix (frustum position)
-    for( int i=0; i<16; i += 4 )
-    {
-        result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
-        result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
-        result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
-        result.array[i+3] = xfm.array[i+3];
-    }
-}
-}
-
-void ChannelUpdateVisitor::_computePerspective( const Compound* compound,
-                                                RenderContext& context,
-                                                const Vector3f& eye )
-{
-    const FrustumData& frustumData = compound->getInheritFrustumData();
-
-    _computeFrustumCorners( compound, context.frustum, frustumData, eye, false);
-    _computeHeadTransform( context.headTransform, frustumData.getTransform(),
-                           eye );
-
-    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-    if( isHMD )
-        context.headTransform *= _getInverseHeadMatrix( compound );
-}
-
-void ChannelUpdateVisitor::_computeOrtho( const Compound* compound,
-                                          RenderContext& context,
-                                          const Vector3f& eye )
-{
-    // Compute corners for cyclop eye without perspective correction:
-    const Vector3f cyclopWorld = _getEyePosition( compound, EYE_CYCLOP );
-    const FrustumData& frustumData = compound->getInheritFrustumData();
-    const Matrix4f& xfm = frustumData.getTransform();
-    const Vector3f cyclopWall = xfm * cyclopWorld;
-
-    _computeFrustumCorners( compound, context.ortho, frustumData, cyclopWall,
-                            true );
-    _computeHeadTransform( context.orthoTransform, xfm, eye );
-
-    // Apply stereo shearing
-    context.orthoTransform.array[8] += (cyclopWall[0] - eye[0]) / eye[2];
-    context.orthoTransform.array[9] += (cyclopWall[1] - eye[1]) / eye[2];
-
-    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
-    if( isHMD )
-        context.orthoTransform *= _getInverseHeadMatrix( compound );
-}
-
-Vector3f ChannelUpdateVisitor::_getEyePosition( const Compound* compound,
-                                                const fabric::Eye eye ) const
-{
-    const FrustumData& frustumData = compound->getInheritFrustumData();
-    const Channel* destChannel = compound->getInheritChannel();
-    const View* view = destChannel->getView();
-    const Observer* observer = view ? view->getObserver() : 0;
-
-    if( observer && frustumData.getType() == Wall::TYPE_FIXED )
-        return observer->getEyePosition( eye );
-
-    const Config* config = compound->getConfig();
-    const float eyeBase_2 = 0.5f * ( observer ? 
-      observer->getEyeBase() : config->getFAttribute( Config::FATTR_EYE_BASE ));
-
-    switch( eye )
-    {
-        case EYE_LEFT:
-            return Vector3f(-eyeBase_2, 0.f, 0.f );
-
-        case EYE_RIGHT:
-            return Vector3f( eyeBase_2, 0.f, 0.f );
-
-        default:
-            EQUNIMPLEMENTED;
-        case EYE_CYCLOP:
-            return Vector3f::ZERO;
-    }
-}
-
-const Matrix4f& ChannelUpdateVisitor::_getInverseHeadMatrix(
-    const Compound* compound ) const
-{
-    const Channel* destChannel = compound->getInheritChannel();
-    const View* view = destChannel->getView();
-    const Observer* observer = static_cast< const Observer* >(
-        view ? view->getObserver() : 0);
-
-    if( observer )
-        return observer->getInverseHeadMatrix();
-
-    return Matrix4f::IDENTITY;
-}
-
-void ChannelUpdateVisitor::_computeFrustumCorners( const Compound* compound,
-                                                   Frustumf& frustum,
-                                                 const FrustumData& frustumData,
-                                                   const Vector3f& eye,
-                                                   const bool ortho )
-{
-    const Channel* destination = compound->getInheritChannel();
-    frustum = destination->getFrustum();
-
-    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
-    const float width_2  = frustumData.getWidth()  * .5f;
-    const float height_2 = frustumData.getHeight() * .5f;
-
-    if( eye.z() > 0 || ortho )
-    {
-        frustum.left()   =  ( -width_2  - eye.x() ) * ratio;
-        frustum.right()  =  (  width_2  - eye.x() ) * ratio;
-        frustum.bottom() =  ( -height_2 - eye.y() ) * ratio;
-        frustum.top()    =  (  height_2 - eye.y() ) * ratio;
-    }
-    else // eye behind near plane - 'mirror' x
-    {
-        frustum.left()   =  (  width_2  - eye.x() ) * ratio;
-        frustum.right()  =  ( -width_2  - eye.x() ) * ratio;
-        frustum.bottom() =  (  height_2 + eye.y() ) * ratio;
-        frustum.top()    =  ( -height_2 + eye.y() ) * ratio;
-    }
-
-    // move frustum according to pixel decomposition
-    const Pixel& pixel = compound->getInheritPixel();
-    if( pixel != Pixel::ALL && pixel.isValid( ))
-    {
-        const Channel* inheritChannel = compound->getInheritChannel();
-        const PixelViewport& destPVP = inheritChannel->getPixelViewport();
-        
-        if( pixel.w > 1 )
-        {
-            const float         frustumWidth = frustum.right() - frustum.left();
-            const float           pixelWidth = frustumWidth / 
-                                               static_cast<float>( destPVP.w );
-            const float               jitter = pixelWidth * pixel.x - 
-                                               pixelWidth * .5f;
-
-            frustum.left()  += jitter;
-            frustum.right() += jitter;
-        }
-        if( pixel.h > 1 )
-        {
-            const float frustumHeight = frustum.bottom() - frustum.top();
-            const float pixelHeight = frustumHeight / float( destPVP.h );
-            const float jitter = pixelHeight * pixel.y + pixelHeight * .5f;
-
-            frustum.top()    -= jitter;
-            frustum.bottom() -= jitter;
-        }
-    }
-
-    // adjust to viewport (screen-space decomposition)
-    // Note: vp is computed pixel-correct by Compound::updateInheritData()
-    const Viewport vp = compound->getInheritViewport();
-    if( vp != Viewport::FULL && vp.isValid( ))
-    {
-        const float frustumWidth = frustum.right() - frustum.left();
-        frustum.left()  += frustumWidth * vp.x;
-        frustum.right()  = frustum.left() + frustumWidth * vp.w;
-        
-        const float frustumHeight = frustum.top() - frustum.bottom();
-        frustum.bottom() += frustumHeight * vp.y;
-        frustum.top()     = frustum.bottom() + frustumHeight * vp.h;
-    }
-}
-
 void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound, 
                                             const RenderContext& context )
 {
@@ -562,7 +431,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         frameIDs.push_back( co::ObjectVersion( frame ));
     }
 
-    if( frameIDs.empty() )
+    if( frameIDs.empty( ))
         return;
 
     // assemble task
@@ -571,24 +440,27 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     packet.nFrames   = uint32_t( frameIDs.size( ));
 
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
-        << "TASK assemble " << _channel->getName() <<  " " << &packet << std::endl;
-    _channel->send<co::ObjectVersion>( packet, frameIDs );
+        << "TASK assemble " << _channel->getName() <<  " " << &packet
+        << std::endl;
+    _channel->send< co::ObjectVersion >( packet, frameIDs );
     _updated = true;
 }
-    
+
 void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const RenderContext& context )
 {
-    if( !compound->testInheritTask( fabric::TASK_READBACK ))
+    if( !compound->testInheritTask( fabric::TASK_READBACK ) ||
+        ( compound->hasTiles() && compound->isLeaf( )))
+    {
         return;
+    }
 
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
     EQASSERT( !outputFrames.empty( ));
 
     Frames frames;
     std::vector< co::ObjectVersion > frameIDs;
-    for( Frames::const_iterator i = outputFrames.begin(); 
-         i != outputFrames.end(); ++i )
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
     {
         Frame* frame = *i;
 
@@ -612,46 +484,6 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet
         << std::endl;
-
-    // transmit tasks
-    Node* node = _channel->getNode();
-    co::NodePtr netNode = node->getNode();
-    const co::NodeID&  outputNodeID = netNode->getNodeID();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
-    {
-        Frame* outputFrame = *i;
-        const Frames& inputFrames = outputFrame->getInputFrames( context.eye );
-        std::set< uint128_t > nodeIDs;
-
-        for( Frames::const_iterator j = inputFrames.begin();
-             j != inputFrames.end(); ++j )
-        {
-            const Frame* inputFrame   = *j;
-            const Node*  inputNode    = inputFrame->getNode();
-            co::NodePtr inputNetNode = inputNode->getNode();
-
-            ChannelFrameTransmitPacket transmitPacket;
-            transmitPacket.netNodeID = inputNetNode->getNodeID();
-
-            if( transmitPacket.netNodeID == outputNodeID ||
-                nodeIDs.find( transmitPacket.netNodeID ) != nodeIDs.end( ))
-            {
-                continue;  // TODO filter: buffers, vp, eye
-            }
-
-            // send
-            transmitPacket.context   = context;
-            transmitPacket.frameData = outputFrame->getDataVersion( _eye );
-            transmitPacket.clientNodeID = inputNode->getID();
-
-            EQLOG( LOG_ASSEMBLY | LOG_TASKS )
-                << "TASK transmit " << _channel->getName() <<  " "
-                << &transmitPacket << std::endl;
-
-            _channel->send( transmitPacket );
-            nodeIDs.insert( transmitPacket.netNodeID );
-        }
-    }        
 }
 
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,

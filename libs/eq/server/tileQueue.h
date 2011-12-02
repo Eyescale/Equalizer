@@ -63,7 +63,21 @@ namespace server
         const Vector2i& getTileSize() const { return _size; }
 
         /** Add a tile to the queue. */
-        void addTile( const TileTaskPacket& tile );
+        void addTile( const TileTaskPacket& tile, fabric::Eye eye );
+
+        /** 
+         * Cycle the current tile queue.
+         * 
+         * Used for output tile queues to allocate/recycle queue masters.
+         *
+         * @param frameNumber the current frame number.
+         * @param compound the compound holding the output frame.
+         */
+        void cycleData( const uint32_t frameNumber, const Compound* compound );
+
+        void setOutputQueue( TileQueue* queue, const Compound* compound );
+        const TileQueue* getOutputQueue( const eq::Eye eye ) const
+            { return _outputQueue[ co::base::getIndexOfLastBit( eye ) ]; }
 
         /**
          * @name Operations
@@ -76,6 +90,8 @@ namespace server
         void flush();
         //@}
 
+        const UUID getQueueMasterID( fabric::Eye eye ) const;
+
     protected:
         EQSERVER_API virtual ChangeType getChangeType() const 
                                                             { return INSTANCE; }
@@ -83,6 +99,13 @@ namespace server
         EQSERVER_API virtual void applyInstanceData( co::DataIStream& is );
 
     private:
+
+        struct LatencyQueue
+        {
+            uint32_t _frameNumber;
+            co::QueueMaster _queue;
+        };
+
         /** The parent compound. */
         Compound* _compound;
 
@@ -92,8 +115,14 @@ namespace server
         /** The size of each tile in the queue. */
         Vector2i _size;
 
-        /** The collage tile queue holding the tiles. */
-        co::QueueMaster _queueMaster;
+        /** The collage queue pool. */
+        std::deque< LatencyQueue* > _queues;
+
+        /** the currently used tile queues */
+        LatencyQueue* _queueMaster[ eq::NUM_EYES ];
+
+        /** The current output queue. */
+        TileQueue* _outputQueue[ eq::NUM_EYES ];
     };
 
     std::ostream& operator << ( std::ostream& os, const TileQueue* frame );

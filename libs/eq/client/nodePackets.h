@@ -156,6 +156,7 @@ namespace eq
         uint32_t      buffers;
         uint32_t      frameNumber;
         bool          useAlpha;
+        Zoom          zoom;
 
         EQ_ALIGN8( uint8_t data[8] );
     };

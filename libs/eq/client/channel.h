@@ -28,7 +28,8 @@
 
 namespace eq
 {
-    struct ChannelFrameTransmitPacket;
+    struct ChannelFrameTransmitImagePacket;
+    struct ChannelFrameSetReadyPacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -487,6 +488,12 @@ namespace eq
         EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
+        /** Start a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesStart( const uint128_t& frameID ) {}
+
+        /** Finish a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesFinish( const uint128_t& frameID ) {}
+
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
 
@@ -569,11 +576,26 @@ namespace eq
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
 
-        /** Transmit the frame data to the nodeID. */
-        void _transmit( const ChannelFrameTransmitPacket* packet );
+        /** Transmit one image of a frame to one node. */
+        void _transmitImage( Image* image, 
+                             const ChannelFrameTransmitImagePacket* packet );
+        
+        /** Send the ready signal of a frame to one node. */
+        void _sendFrameDataReady( const ChannelFrameTransmitImagePacket* packet );
+
+        void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
+        void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
+                             co::ObjectVersion* frames );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
+
+        /** Transmit all new images after a readback. */
+        void _transmitImages( const RenderContext& context, Frame* frame,
+                              const size_t startPos );
+
+        /** Transmit frame ready after transmitting all images. */
+        void _resetOutputFrames( const RenderContext& context );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -585,8 +607,8 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmit( co::Command& command );
-        bool _cmdFrameTransmitAsync( co::Command& command );
+        bool _cmdFrameTransmitImageAsync( co::Command& command );
+        bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );

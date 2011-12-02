@@ -91,6 +91,7 @@ set(SOURCES
     equalizers/monitorEqualizer.cpp
     equalizers/treeEqualizer.cpp
     equalizers/viewEqualizer.cpp
+    equalizers/tileEqualizer.cpp
     frame.cpp
     frameData.cpp
     frustum.cpp

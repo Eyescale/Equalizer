@@ -37,12 +37,7 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
-    EQASSERT( _queue.isEmpty( ));
-    while (!_queue.isEmpty())
-    {
-        Command* cmd = _queue.pop();
-        cmd->release();
-    }
+    clear(); // clear leftover QUEUE_EMPTY packets here
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
@@ -81,6 +76,15 @@ Command* QueueSlave::pop()
     
     cmd->release();
     return 0;
+}
+
+void QueueSlave::clear()
+{
+    while( !_queue.isEmpty( ))
+    {
+        Command* cmd = _queue.pop();
+        cmd->release();
+    }
 }
 
 }

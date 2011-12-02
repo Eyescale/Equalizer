@@ -36,6 +36,7 @@
 #include "log.h"
 #include "segment.h"
 #include "view.h"
+#include "observer.h"
 
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
@@ -412,12 +413,28 @@ void Compound::addInputTileQueue( TileQueue* tileQueue )
     tileQueue->setCompound( this );
 }
 
+void Compound::removeInputTileQueue( TileQueue* tileQueue )
+{
+    TileQueuesIter i;
+    i = find (_inputTileQueues.begin(), _inputTileQueues.end(), tileQueue);
+    if ( i != _inputTileQueues.end() )
+        _inputTileQueues.erase( i );
+}
+
 void Compound::addOutputTileQueue( TileQueue* tileQueue )
 {
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _outputTileQueues.push_back( tileQueue ); 
     tileQueue->setCompound( this );
+}
+
+void Compound::removeOutputTileQueue( TileQueue* tileQueue )
+{
+    TileQueuesIter i;
+    i = find (_outputTileQueues.begin(), _outputTileQueues.end(), tileQueue);
+    if ( i != _outputTileQueues.end() )
+        _outputTileQueues.erase( i );
 }
 
 void Compound::_setDefaultFrameName( Frame* frame )
@@ -603,6 +620,197 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         }
         default: 
             EQUNIMPLEMENTED;
+    }
+}
+
+void Compound::computeFrustum( RenderContext& context, 
+                               const fabric::Eye eye ) const
+{
+    // compute eye position in screen space
+    const Vector3f eyeWorld = _getEyePosition( eye );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f eyeWall = xfm * eyeWorld;
+
+    EQVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
+        << std::endl;
+    _computePerspective( context, eyeWall );
+    _computeOrtho( context, eyeWall );
+}
+
+void Compound::computeTileFrustum( Frustumf& frustum, const fabric::Eye eye,
+                                   Viewport vp, bool ortho ) const
+{
+    const Vector3f eyeWorld = _getEyePosition( eye );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f eyeWall = xfm * eyeWorld;
+
+    _computeFrustumCorners( frustum, frustumData, eyeWall, ortho, &vp);
+}
+
+namespace
+{
+    static void _computeHeadTransform( Matrix4f& result, const Matrix4f& xfm,
+                                       const Vector3f& eye )
+    {
+        // headTransform = -trans(eye) * view matrix (frustum position)
+        for( int i=0; i<16; i += 4 )
+        {
+            result.array[i]   = xfm.array[i]   - eye[0] * xfm.array[i+3];
+            result.array[i+1] = xfm.array[i+1] - eye[1] * xfm.array[i+3];
+            result.array[i+2] = xfm.array[i+2] - eye[2] * xfm.array[i+3];
+            result.array[i+3] = xfm.array[i+3];
+        }
+    }
+}
+
+void Compound::_computePerspective( RenderContext& context, 
+                                    const Vector3f& eye ) const
+{
+    const FrustumData& frustumData = getInheritFrustumData();
+
+    _computeFrustumCorners( context.frustum, frustumData, eye, false);
+    _computeHeadTransform( context.headTransform, frustumData.getTransform(),
+        eye );
+
+    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+    if( isHMD )
+        context.headTransform *= _getInverseHeadMatrix();
+}
+
+void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
+{
+    // Compute corners for cyclop eye without perspective correction:
+    const Vector3f cyclopWorld = _getEyePosition( EYE_CYCLOP );
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Matrix4f& xfm = frustumData.getTransform();
+    const Vector3f cyclopWall = xfm * cyclopWorld;
+
+    _computeFrustumCorners( context.ortho, frustumData, cyclopWall, true );
+    _computeHeadTransform( context.orthoTransform, xfm, eye );
+
+    // Apply stereo shearing
+    context.orthoTransform.array[8] += (cyclopWall[0] - eye[0]) / eye[2];
+    context.orthoTransform.array[9] += (cyclopWall[1] - eye[1]) / eye[2];
+
+    const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
+    if( isHMD )
+        context.orthoTransform *= _getInverseHeadMatrix();
+}
+
+Vector3f Compound::_getEyePosition( const fabric::Eye eye ) const
+{
+    const FrustumData& frustumData = getInheritFrustumData();
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = view ? view->getObserver() : 0;
+
+    if( observer && frustumData.getType() == Wall::TYPE_FIXED )
+        return observer->getEyePosition( eye );
+
+    const Config* config = getConfig();
+    const float eyeBase_2 = 0.5f * ( observer ? 
+        observer->getEyeBase() : 
+        config->getFAttribute( Config::FATTR_EYE_BASE ));
+
+    switch( eye )
+    {
+    case EYE_LEFT:
+        return Vector3f(-eyeBase_2, 0.f, 0.f );
+
+    case EYE_RIGHT:
+        return Vector3f( eyeBase_2, 0.f, 0.f );
+
+    default:
+        EQUNIMPLEMENTED;
+    case EYE_CYCLOP:
+        return Vector3f::ZERO;
+    }
+}
+
+const Matrix4f& Compound::_getInverseHeadMatrix() const
+{
+    const Channel* destChannel = getInheritChannel();
+    const View* view = destChannel->getView();
+    const Observer* observer = static_cast< const Observer* >(
+        view ? view->getObserver() : 0);
+
+    if( observer )
+        return observer->getInverseHeadMatrix();
+
+    return Matrix4f::IDENTITY;
+}
+
+void Compound::_computeFrustumCorners( Frustumf& frustum,
+                                       const FrustumData& frustumData,
+                                       const Vector3f& eye,
+                                       const bool ortho,
+                                       Viewport* invp /* = 0*/) const
+{
+    const Channel* destination = getInheritChannel();
+    frustum = destination->getFrustum();
+
+    const float ratio    = ortho ? 1.0f : frustum.near_plane() / eye.z();
+    const float width_2  = frustumData.getWidth()  * .5f;
+    const float height_2 = frustumData.getHeight() * .5f;
+
+    if( eye.z() > 0 || ortho )
+    {
+        frustum.left()   =  ( -width_2  - eye.x() ) * ratio;
+        frustum.right()  =  (  width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  ( -height_2 - eye.y() ) * ratio;
+        frustum.top()    =  (  height_2 - eye.y() ) * ratio;
+    }
+    else // eye behind near plane - 'mirror' x
+    {
+        frustum.left()   =  (  width_2  - eye.x() ) * ratio;
+        frustum.right()  =  ( -width_2  - eye.x() ) * ratio;
+        frustum.bottom() =  (  height_2 + eye.y() ) * ratio;
+        frustum.top()    =  ( -height_2 + eye.y() ) * ratio;
+    }
+
+    // move frustum according to pixel decomposition
+    const Pixel& pixel = getInheritPixel();
+    if( pixel != Pixel::ALL && pixel.isValid( ))
+    {
+        const Channel* inheritChannel = getInheritChannel();
+        const PixelViewport& destPVP = inheritChannel->getPixelViewport();
+
+        if( pixel.w > 1 )
+        {
+            const float         frustumWidth = frustum.right() - frustum.left();
+            const float           pixelWidth = frustumWidth / 
+                static_cast<float>( destPVP.w );
+            const float               jitter = pixelWidth * pixel.x - 
+                pixelWidth * .5f;
+
+            frustum.left()  += jitter;
+            frustum.right() += jitter;
+        }
+        if( pixel.h > 1 )
+        {
+            const float frustumHeight = frustum.bottom() - frustum.top();
+            const float pixelHeight = frustumHeight / float( destPVP.h );
+            const float jitter = pixelHeight * pixel.y + pixelHeight * .5f;
+
+            frustum.top()    -= jitter;
+            frustum.bottom() -= jitter;
+        }
+    }
+
+    // adjust to viewport (screen-space decomposition)
+    // Note: vp is computed pixel-correct by Compound::updateInheritData()
+    const Viewport vp = invp ? *invp : getInheritViewport();
+    if( vp != Viewport::FULL && vp.isValid( ))
+    {
+        const float frustumWidth = frustum.right() - frustum.left();
+        frustum.left()  += frustumWidth * vp.x;
+        frustum.right()  = frustum.left() + frustumWidth * vp.w;
+
+        const float frustumHeight = frustum.top() - frustum.bottom();
+        frustum.bottom() += frustumHeight * vp.y;
+        frustum.top()     = frustum.bottom() + frustumHeight * vp.h;
     }
 }
 
@@ -896,6 +1104,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -905,6 +1114,7 @@ void Compound::register_()
     {
         TileQueue* queue = *i;
         server->registerObject( queue );
+        queue->setAutoObsolete( latency );
         EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
@@ -961,10 +1171,15 @@ void Compound::update( const uint32_t frameNumber )
     CompoundUpdateInputVisitor updateInputVisitor( outputFrames, outputQueues );
     accept( updateInputVisitor );
 
-    const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
+    // commit output frames after input frames have been set
+    for( FrameMapCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
+    {
+        Frame* frame = i->second;
+        frame->commit();
+    }
 
-    for( stde::hash_map< std::string, co::Barrier* >::const_iterator i = 
-             swapBarriers.begin(); i != swapBarriers.end(); ++i )
+    const BarrierMap& swapBarriers = updateOutputVisitor.getSwapBarriers();
+    for( BarrierMapCIter i = swapBarriers.begin(); i != swapBarriers.end(); ++i)
     {
         co::Barrier* barrier = i->second;
         if( barrier->isAttached( ))
@@ -1455,11 +1670,16 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     }
 
     const Equalizers& equalizers = compound.getEqualizers();
-    for( Equalizers::const_iterator i = equalizers.begin();
-         i != equalizers.end(); ++i )
-    {
+    for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i )
         os << *i;
-    }
+
+    const TileQueues& outputQueues = compound.getOutputTileQueues();
+    for( TileQueuesCIter i = outputQueues.begin(); i != outputQueues.end(); ++i)
+        os << "output" <<  *i;
+
+    const TileQueues& inputQueues = compound.getInputTileQueues();
+    for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
+        os << "input" << *i;
 
     if( compound.getSwapBarrier( ))
         os << *compound.getSwapBarrier();
@@ -1468,23 +1688,16 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     if( !children.empty( ))
     {
         os << std::endl;
-        for( Compounds::const_iterator i = children.begin();
-             i != children.end(); ++i )
-        {
+        for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
             os << **i;
-        }
     }
 
     const Frames& inputFrames = compound.getInputFrames();
-    for( Frames::const_iterator i = inputFrames.begin();
-         i != inputFrames.end(); ++i )
-        
+    for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
         os << "input" << *i;
 
     const Frames& outputFrames = compound.getOutputFrames();
-    for( Frames::const_iterator i = outputFrames.begin();
-         i != outputFrames.end(); ++i )
-        
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;

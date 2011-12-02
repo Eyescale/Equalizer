@@ -21,6 +21,7 @@
 #include "../api.h"
 #include "../compoundListener.h" // base class
 #include "../types.h"
+#include <eq/fabric/equalizerTypes.h>
 
 namespace eq
 {
@@ -41,8 +42,6 @@ namespace server
         Equalizer( const Equalizer& from );
         virtual ~Equalizer();
 
-        /** Create a copy. */
-        virtual Equalizer* clone() const = 0;
 
         /** Output to a stream. */
         virtual void toStream( std::ostream& os ) const = 0;
@@ -60,6 +59,11 @@ namespace server
         void setFrozen( const bool onOff ) { _frozen = onOff; }
         bool isFrozen() const { return _frozen; }
 
+        virtual void setActive( bool flag ) { _active = flag; }
+        virtual bool isActive() const { return _active; }
+
+        virtual uint32_t getType() const = 0;
+
     private:
         // override in sub-classes to handle dynamic compounds.
         virtual void notifyChildAdded( Compound* compound, Compound* child )
@@ -69,6 +73,7 @@ namespace server
 
         Compound* _compound;       //!< The attached compound
         bool      _frozen;
+        bool      _active;
     };
 
     inline std::ostream& operator << ( std::ostream& os, const Equalizer* eq )

@@ -42,7 +42,7 @@ namespace fabric
         TASK_DRAW     = EQ_BIT13,  //!< Draw data to the framebuffer
         TASK_ASSEMBLE = EQ_BIT17,  //!< Combine input frames
         TASK_READBACK = EQ_BIT21,  //!< Read results to output frames
-        TASK_ALL      = EQ_BIT_ALL
+        TASK_ALL      = EQ_BIT_ALL_32
     };
 }
 }

@@ -43,8 +43,6 @@ namespace server
         EQSERVER_API FramerateEqualizer();
         FramerateEqualizer( const FramerateEqualizer& from );
         virtual ~FramerateEqualizer();
-        virtual Equalizer* clone() const
-            { return new FramerateEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** @sa Equalizer::attach */
@@ -53,6 +51,8 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
+
+        virtual uint32_t getType() const { return fabric::FRAMERATE_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )

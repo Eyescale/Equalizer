@@ -100,23 +100,51 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 void FrameData::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
-    os << _data;
+    _data.serialize( os );
 }
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
-    is >> _data;
+    _data.deserialize( is );
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+}
+
+FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
+{
+    if( this != &rhs )
+    {
+        pvp = rhs.pvp;
+        frameType = rhs.frameType;
+        buffers = rhs.buffers;
+        period = rhs.period;
+        phase = rhs.phase;
+        range = rhs.range;
+        pixel = rhs.pixel;
+        subpixel = rhs.subpixel;
+        zoom = rhs.zoom;
+        // don't assign input nodes & -netNodes here
+    }
+    return *this;
+}
+
+void FrameData::Data::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+}
+
+void FrameData::Data::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
 }
 
 void FrameData::clear()
 {
-
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
     _imageCacheLock.unset();
-
     _images.clear();
 }
 
@@ -211,7 +239,6 @@ void FrameData::readback( const Frame& frame,
         return;
 
     const Zoom& zoom = frame.getZoom();
-
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
@@ -219,7 +246,6 @@ void FrameData::readback( const Frame& frame,
     }
 
     PixelViewports pvps;
-
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
 //                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
@@ -248,7 +274,6 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
-    setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
@@ -386,13 +411,13 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
+            image->setZoom( packet->zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }
     }
 
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _pendingImages.empty());
     _pendingImages.push_back( image );
     return true;
 }

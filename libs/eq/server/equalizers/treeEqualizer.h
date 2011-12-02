@@ -43,7 +43,6 @@ namespace server
         EQSERVER_API TreeEqualizer();
         TreeEqualizer( const TreeEqualizer& from );
         virtual ~TreeEqualizer();
-        virtual Equalizer* clone() const { return new TreeEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         enum Mode
@@ -95,6 +94,8 @@ namespace server
 
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
+
+        virtual uint32_t getType() const { return fabric::TREE_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )

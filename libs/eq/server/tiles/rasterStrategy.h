@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,32 +15,28 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "frameData.h"
-
-#include <co/dataIStream.h>
-#include <co/dataOStream.h>
+#ifndef EQSERVER_TILES_RASTERSTRATEGY_H
+#define EQSERVER_TILES_RASTERSTRATEGY_H
 
 namespace eq
 {
 namespace server
 {
-
-FrameData::FrameData()
+namespace tiles
 {
-    _data.buffers = eq::Frame::BUFFER_UNDEFINED;
-    _data.frameType = eq::Frame::TYPE_MEMORY;
+    /** Generates tiles for a channel using a raster strategy */
+    class RasterStrategy
+    {
+    public:
+        void operator()( std::vector< Vector2i >& tiles, const Vector2i& dim )
+        {
+            for( int y = 0; y < dim.y(); ++y )
+                for( int x = 0; x < dim.x(); ++x )
+                    tiles.push_back( Vector2i( x, y ));
+        }
+    };
+}
+}
 }
 
-void FrameData::getInstanceData( co::DataOStream& os )
-{
-    _data.serialize( os );
-}
-
-void FrameData::applyInstanceData( co::DataIStream& is )
-{
-    EQUNREACHABLE;
-    _data.deserialize( is );
-}
-
-}
-}
+#endif // EQSERVER_TILES_RASTERSTRATEGY_H

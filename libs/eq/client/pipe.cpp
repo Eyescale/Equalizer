@@ -332,7 +332,7 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
         _queues[ queueVersion.identifier ] = queue;
     }
 
-    queue->sync( queueVersion.version );
+    queue->clear();
     return queue;
 }
 

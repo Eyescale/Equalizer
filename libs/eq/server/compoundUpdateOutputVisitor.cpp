@@ -24,8 +24,15 @@
 #include "tileQueue.h"
 #include "window.h"
 
+#include "tiles/rasterStrategy.h"
+#include "tiles/spiralStrategy.h"
+#include "tiles/squareStrategy.h"
+#include "tiles/zigzagStrategy.h"
+
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
+
+#define TILE_STRATEGY ZigzagStrategy
 
 namespace eq
 {
@@ -51,9 +58,6 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 {
     const Channel* channel = compound->getChannel();
 
-    if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
-        return;
-
     const TileQueues& outputQueues = compound->getOutputTileQueues();
     for( TileQueuesCIter i = outputQueues.begin(); 
         i != outputQueues.end(); ++i )
@@ -70,11 +74,15 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             continue;
         }
 
+        queue->cycleData( _frameNumber, compound );
+
         //----- Generate tile task packets
         _generateTiles( queue, compound );
-
         _outputTileQueues[name] = queue;
     }
+
+    if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
+        return;
 
     const Frames& outputFrames = compound->getOutputFrames();
     if( outputFrames.empty( ))
@@ -129,7 +137,9 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Set frame data parameters:
         // 1) offset is position wrt destination view
-        frameData->setOffset( Vector2i( framePVP.x, framePVP.y ));
+        const bool usesTiles = !compound->getInputTileQueues().empty();
+        frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
+                                          Vector2i( framePVP.x, framePVP.y ) );
 
         // 2) pvp is area within channel
         framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );
@@ -165,8 +175,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         //----- Commit
         frame->commitData();
-        frame->commit();
-
+        
         _outputFrames[name] = frame;
         EQLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
@@ -179,20 +188,66 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 void CompoundUpdateOutputVisitor::_generateTiles( TileQueue* queue,
                                                   Compound* compound )
 {
-    const PixelViewport& inheritPVP = compound->getInheritPixelViewport();
     const Vector2i& tileSize = queue->getTileSize();
-    const size_t tiles( size_t( ceilf( float(inheritPVP.w) / tileSize.x( ))) *
-                        size_t( ceilf( float(inheritPVP.h) / tileSize.y( ))));
+    const PixelViewport pvp = compound->getInheritPixelViewport();
+    if( !pvp.hasArea( ))
+        return;
 
-    for( size_t i = 0; i < tiles; ++i )
+    const Vector2i dim( pvp.w / tileSize.x() + ((pvp.w%tileSize.x()) ? 1 : 0),
+                        pvp.h / tileSize.y() + ((pvp.h%tileSize.y()) ? 1 : 0));
+
+    std::vector< Vector2i > tiles;
+    tiles.reserve( dim.x() * dim.y() );
+
+    tiles::TILE_STRATEGY strategy;
+    strategy( tiles, dim );
+    _addTilesToQueue( queue, compound, tiles );
+}
+
+void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue, 
+                                                    Compound* compound, 
+                                         const std::vector< Vector2i >& tiles )
+{
+
+    const Vector2i& tileSize = queue->getTileSize();
+    PixelViewport pvp = compound->getInheritPixelViewport();
+    const double xFraction = 1.0 / pvp.w;
+    const double yFraction = 1.0 / pvp.h;
+
+    for( std::vector< Vector2i >::const_iterator i = tiles.begin();
+         i != tiles.end(); ++i )
     {
-        TileTaskPacket tile;
-        tile.tasks = fabric::TASK_CLEAR | fabric::TASK_DRAW
-                                        | fabric::TASK_READBACK;
-        tile.pvp = compound->getInheritPixelViewport();
-        tile.vp = compound->getInheritViewport();
-        tile.frustum = compound->getFrustum();
-        queue->addTile( tile );
+        const Vector2i& tile = *i;
+        PixelViewport tilePVP( tile.x() * tileSize.x(), tile.y() * tileSize.y(),
+                               tileSize.x(), tileSize.y( ));
+
+        if ( tilePVP.x + tileSize.x() > pvp.w ) // no full tile
+            tilePVP.w = pvp.w - tilePVP.x;
+
+        if ( tilePVP.y + tileSize.y() > pvp.h ) // no full tile
+            tilePVP.h = pvp.h - tilePVP.y;
+
+        const Viewport tileVP( tilePVP.x * xFraction, tilePVP.y * yFraction,
+                               tilePVP.w * xFraction, tilePVP.h * yFraction );
+
+        for( fabric::Eye eye = fabric::EYE_CYCLOP; eye < fabric::EYES_ALL;
+             eye = fabric::Eye(eye<<1) )
+        {
+            if ( !(compound->getInheritEyes() & eye) ||
+                 !compound->isInheritActive( eye ))
+            {
+                continue;
+            }
+
+            TileTaskPacket packet;
+            packet.pvp = tilePVP;
+            packet.vp = tileVP;
+
+            compound->computeTileFrustum( packet.frustum, eye, packet.vp,
+                                          false );
+            compound->computeTileFrustum( packet.ortho, eye, packet.vp, true );
+            queue->addTile( packet, eye );
+        }
     }
 }
 

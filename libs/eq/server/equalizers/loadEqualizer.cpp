@@ -70,7 +70,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     _checkHistory(); // execute to not leak memory
-    if( isFrozen() || !compound->isRunning( ))
+    if( isFrozen() || !compound->isRunning( ) || !isActive( ))
         return;
 
     if( !_tree )

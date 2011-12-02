@@ -37,7 +37,6 @@ namespace server
     public:
         DFREqualizer();
         virtual ~DFREqualizer();
-        virtual Equalizer* clone() const { return new DFREqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the average frame rate for the DFREqualizer  */
@@ -64,6 +63,8 @@ namespace server
                                      const uint32_t frameNumber,
                                      const uint32_t nStatistics,
                                      const eq::Statistic* statistics  );
+
+        virtual uint32_t getType() const { return fabric::DFR_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child ){}

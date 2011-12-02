@@ -87,6 +87,8 @@ typedef TileQueues::const_iterator TileQueuesCIter;
 typedef TileQueues::iterator TileQueuesIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
+typedef Equalizers::const_iterator EqualizersCIter;
+typedef Equalizers::iterator EqualizersIter;
 typedef Windows::const_iterator WindowsCIter;
 typedef Windows::iterator WindowsIter;
 

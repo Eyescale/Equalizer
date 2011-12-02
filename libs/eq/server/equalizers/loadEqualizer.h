@@ -51,7 +51,6 @@ namespace server
         EQSERVER_API LoadEqualizer( const Mode mode = MODE_2D );
         LoadEqualizer( const LoadEqualizer& from );
         virtual ~LoadEqualizer();
-        virtual Equalizer* clone() const { return new LoadEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         /** Set the load balancer adaptation mode. */
@@ -98,6 +97,8 @@ namespace server
 
         void setAssembleOnlyLimit( const float limit )
             { _assembleOnlyLimit = limit; }
+
+        virtual uint32_t getType() const { return fabric::LOAD_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
