@@ -339,16 +339,22 @@ uint32_t Config::finishFrame()
         }
 
         // global sync
-        const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
-        const int64_t timeout = getTime() + getTimeout();
-
-        while( !_finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+        const uint32_t timeout = getTimeout();
+        if( timeout == EQ_TIMEOUT_INDEFINITE )
+            _finishedFrame.waitGE( frameToFinish );
+        else
         {
-            if( getTime() >= timeout || !getLocalNode()->pingIdleNodes())
+            const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
+            const int64_t time = getTime() + timeout;
+
+            while( !_finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
             {
-                EQWARN << "Timeout waiting for nodes to finish frame " 
-                       << frameToFinish << std::endl;
-                break;
+                if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
+                {
+                    EQWARN << "Timeout waiting for nodes to finish frame " 
+                           << frameToFinish << std::endl;
+                    break;
+                }
             }
         }
     }

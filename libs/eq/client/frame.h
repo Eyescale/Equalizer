@@ -228,7 +228,8 @@ namespace server
         EQ_API bool isReady() const;
 
         /** Wait for the frame to become available. @version 1.0 */
-        EQ_API void waitReady() const;
+        EQ_API void waitReady( const uint32_t timeout =
+                               EQ_TIMEOUT_INDEFINITE ) const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.

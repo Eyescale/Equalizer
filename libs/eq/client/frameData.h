@@ -231,7 +231,7 @@ namespace server
         bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady() const;
+        void waitReady( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE ) const;
         
         /** @internal */
         void setVersion( const uint64_t version );
