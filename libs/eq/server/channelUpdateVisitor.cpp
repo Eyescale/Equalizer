@@ -183,9 +183,6 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.bufferMask    = _getDrawBufferMask( compound );
     context.view          = destChannel->getViewVersion();
     context.taskID        = compound->getTaskID();
-    context.tilesEnabled  = !compound->getOutputTileQueues().empty() || 
-                            !compound->getInputTileQueues().empty();
-
 
     const View* view = destChannel->getView();
     EQASSERT( context.view == view );
@@ -216,7 +213,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
 void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
                                         const RenderContext& context )
 {
-    if( context.tilesEnabled )
+    if( compound->hasTiles( ))
     {
         _updateDrawTiles( compound, context );
         return;
@@ -453,7 +450,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
                                             const RenderContext& context )
 {
     if( !compound->testInheritTask( fabric::TASK_READBACK ) ||
-        ( context.tilesEnabled && compound->isLeaf( )))
+        ( compound->hasTiles() && compound->isLeaf( )))
     {
         return;
     }

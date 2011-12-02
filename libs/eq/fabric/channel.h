@@ -300,8 +300,6 @@ namespace fabric
 
         /** @warning Undocumented - may not be supported in the future */
         uint32_t getTaskID() const { return _context->taskID; }
-
-        bool getTilesEnabled() const { return _context->tilesEnabled; }
         //@}
 
         /** @name Attributes */

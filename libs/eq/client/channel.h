@@ -488,11 +488,11 @@ namespace eq
         EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
-        /** Start a batch of tile rendering operations. @version 1.1.5 */
-        virtual void frameTileStart( const uint128_t& frameID ) {}
+        /** Start a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesStart( const uint128_t& frameID ) {}
 
-        /** Finish a batch of tile rendering operations. @version 1.1.5 */
-        virtual void frameTileFinish( const uint128_t& frameID ) {}
+        /** Finish a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesFinish( const uint128_t& frameID ) {}
 
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
@@ -591,7 +591,8 @@ namespace eq
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
         /** Transmit all new images after a readback. */
-        void _transmitImages( const RenderContext& context );
+        void _transmitImages( const RenderContext& context, Frame* frame,
+                              const size_t startPos );
 
         /** Transmit frame ready after transmitting all images. */
         void _transmitFrameReady( const RenderContext& context );

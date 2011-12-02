@@ -333,7 +333,6 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
     }
 
     queue->clear();
-
     return queue;
 }
 

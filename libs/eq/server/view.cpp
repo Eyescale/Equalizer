@@ -378,7 +378,6 @@ void View::trigger( const Canvas* canvas, const bool active )
              j != compounds.end(); ++j )
         {
             Compound* compound = *j;
-
             if( active )
             {
                 compound->activate( eyes );

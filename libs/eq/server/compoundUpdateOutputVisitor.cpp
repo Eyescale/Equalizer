@@ -251,7 +251,6 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
     }
 }
 
-
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
 {

@@ -132,10 +132,10 @@ namespace eq
         const PixelViewport& getPixelViewport() const { return _pvp; }
 
         /** Sets the zoom factor to be used for compositing. */
-        void setZoom( const eq::Zoom& zoom ) { _zoom = zoom; }
+        void setZoom( const Zoom& zoom ) { _zoom = zoom; }
 
         /** @return zoom factor to be used for compositing. */
-        const eq::Zoom& getZoom() const      { return _zoom; }
+        const Zoom& getZoom() const      { return _zoom; }
 
         /**
          * Set a compressor to be used during transmission of the image.
@@ -359,7 +359,7 @@ namespace eq
         PixelViewport _pvp;
 
         /** Zoom factor used for compositing. */
-        eq::Zoom _zoom;
+        Zoom _zoom;
 
         /** @internal Raw image data. */
         struct Memory : public PixelData
