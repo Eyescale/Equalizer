@@ -595,7 +595,7 @@ namespace eq
                               const size_t startPos );
 
         /** Transmit frame ready after transmitting all images. */
-        void _transmitFrameReady( const RenderContext& context );
+        void _resetOutputFrames( const RenderContext& context );
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );

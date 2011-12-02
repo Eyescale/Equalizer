@@ -1388,7 +1388,17 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     }
 }
 
-void Channel::_transmitFrameReady( const RenderContext& context )
+void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
+{
+    for( uint32_t i=0; i<nFrames; ++i )
+    {
+        Pipe*  pipe  = getPipe();
+        Frame* frame = pipe->getFrame( frames[i], getEye(), true );
+        _outputFrames.push_back( frame );
+    }
+}
+
+void Channel::_resetOutputFrames( const RenderContext& context )
 {
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
     {
@@ -1398,9 +1408,9 @@ void Channel::_transmitFrameReady( const RenderContext& context )
         const Eye eye = getEye();
         const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
         const std::vector<uint128_t>& toNetNodes = frame->getInputNetNodes(eye);
-        std::vector<uint128_t>::const_iterator j = toNodes.begin();
         std::vector<uint128_t>::const_iterator k = toNetNodes.begin();
-        for( ; j != toNodes.end(); ++j, ++k )
+        for( std::vector<uint128_t>::const_iterator j = toNodes.begin();
+             j != toNodes.end(); ++j, ++k )
         {
             ++_statistics.data[ _statisticsIndex ].used;
 
@@ -1418,16 +1428,7 @@ void Channel::_transmitFrameReady( const RenderContext& context )
             EQWARN << "unable to set frame ready " << context.frameID
             << std::endl;
     }
-}
-
-void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
-{
-    for( uint32_t i=0; i<nFrames; ++i )
-    {
-        Pipe*  pipe  = getPipe();
-        Frame* frame = pipe->getFrame( frames[i], getEye(), true );
-        _outputFrames.push_back( frame );
-    }
+    _outputFrames.clear();
 }
 
 void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
@@ -1453,8 +1454,6 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
     {
         Frame* frame = *i;
-        frame->setReady();
-
         const Images& images = frame->getImages();
         for( ImagesCIter j = images.begin(); j != images.end(); ++j )
         {
@@ -1483,8 +1482,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _outputFrames[i], nImages[i] );
-    _transmitFrameReady( getContext() );    
-    _outputFrames.clear();
+    _resetOutputFrames( getContext() );    
 }
 
 //---------------------------------------------------------------------------
@@ -1856,8 +1854,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         startTime += readbackTime;
         event.event.data.statistic.endTime = startTime;
 
-        _transmitFrameReady( context );
-        _outputFrames.clear();
+        _resetOutputFrames( context );
     }
 
     frameTilesFinish( packet->context.frameID );
