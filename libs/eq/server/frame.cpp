@@ -170,16 +170,19 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         // eye pass not used && no output frame for eye pass
-        if( compound->isInheritActive( (eq::Eye)(1<<i) ) &&  
-            _frameData[i] )     
+        if( compound->isInheritActive( (eq::Eye)(1<<i) ) && _frameData[i] )     
         {
             frame->_frameData[i] = _frameData[i];
             _inputFrames[i].push_back( frame );
 
             const Node* inputNode = frame->getNode();
-            co::NodePtr inputNetNode = inputNode->getNode();
-            _data.toNodes[i].inputNodes.push_back( inputNode->getID() );
-            _data.toNodes[i].inputNetNodes.push_back( inputNetNode->getNodeID() );
+            if( inputNode != getNode( ))
+            {
+                co::NodePtr inputNetNode = inputNode->getNode();
+                _data.toNodes[i].inputNodes.push_back( inputNode->getID() );
+                _data.toNodes[i].inputNetNodes.push_back(
+                    inputNetNode->getNodeID());
+            }
         }
         else
         {
@@ -190,7 +193,7 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
 
 co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye ) ] );
+    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye )]);
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )
