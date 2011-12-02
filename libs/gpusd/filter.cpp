@@ -20,8 +20,10 @@
 
 namespace gpusd
 {
+/** @cond IGNORE */
 typedef std::vector< FilterPtr > Filters;
 typedef Filters::const_iterator FiltersCIter;
+/** @endcond */
 
 // Filter
 //-------
