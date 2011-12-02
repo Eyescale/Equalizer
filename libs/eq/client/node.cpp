@@ -210,19 +210,10 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
-        EQASSERT( pipe->isThreaded() || 
-                  pipe->getFinishedFrame() >= frameNumber );
+        EQASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
 
-        try
-        {
-            pipe->waitFrameLocal( frameNumber );
-            pipe->waitFrameFinished( frameNumber );
-        }
-        catch( const co::Exception& e )
-        {
-            EQASSERT( e.getType() == Exception::TIMEOUT_FRAMESYNC );
-            EQWARN << e.what() << std::endl;
-        }
+        pipe->waitFrameLocal( frameNumber );
+        pipe->waitFrameFinished( frameNumber );
     }
 }
 
