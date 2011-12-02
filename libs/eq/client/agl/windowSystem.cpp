@@ -16,6 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// HACK: Get rid of deprecated warning for aglUseFont
+//   -Wno-deprecated-declarations would do as well, but here it is more isolated
+#include <eq/client/defines.h>
+#include <AvailabilityMacros.h>
+#undef DEPRECATED_ATTRIBUTE
+#define DEPRECATED_ATTRIBUTE
+
 #include "../windowSystem.h"
 
 #include "eventHandler.h"
@@ -23,11 +30,13 @@
 #include "pipe.h"
 #include "window.h"
 
+#include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
 #include <co/base/debug.h>
 
 #define MAX_GPUS 32
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 namespace eq
 {
 namespace agl
@@ -52,6 +61,49 @@ static class : WindowSystemIF
     eq::MessagePump* createMessagePump() const
     {
         return new MessagePump;
+    }
+
+    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
+                    const uint32_t size ) const
+    {
+        AGLContext context = aglGetCurrentContext();
+        EQASSERT( context );
+        if( !context )
+        {
+            EQWARN << "No AGL context current" << std::endl;
+            return false;
+        }
+
+        CFStringRef cfFontName = name.empty() ?
+            CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
+                                       kCFStringEncodingMacRoman ) :
+            CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
+                                       kCFStringEncodingMacRoman );
+
+        ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName, 
+                                                       kATSOptionFlagsDefault );
+        CFRelease( cfFontName );
+
+        if( font == 0 )
+        {
+            EQWARN << "Can't load font " << name << ", using Georgia"
+                   << std::endl;
+            cfFontName = 
+                CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
+                                           kCFStringEncodingMacRoman );
+
+            font = ATSFontFamilyFindFromName( cfFontName,
+                                              kATSOptionFlagsDefault );
+            CFRelease( cfFontName );
+        }
+        EQASSERT( font );
+
+        const GLuint lists = _setupLists( gl, key, 256 );
+        if( aglUseFont( context, font, normal, size, 0, 256, (long)lists ))
+            return true;
+
+        _setupLists( gl, key, 0 );
+        return false;
     }
 
     void configInit( eq::Node* node )

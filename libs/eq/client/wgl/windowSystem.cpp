@@ -56,6 +56,58 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
+    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
+                    const uint32_t size ) const
+    {
+        HDC dc = wglGetCurrentDC();
+        if( !dc )
+        {
+            EQWARN << "No WGL device context current" << std::endl;
+            return false;
+        }
+
+        LOGFONT font;
+        memset( &font, 0, sizeof( font ));
+        font.lfHeight = -static_cast< LONG >( size );
+        font.lfWeight = FW_NORMAL;
+        font.lfCharSet = ANSI_CHARSET;
+        font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+        font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+        font.lfQuality = DEFAULT_QUALITY;
+        font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
+
+        if( name.empty( ))
+            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+        else
+            strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
+
+        font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
+
+        HFONT newFont = CreateFontIndirect( &font );
+        if( !newFont )
+        {
+            EQWARN << "Can't load font " << name << ", using Times New Roman" 
+                   << std::endl;
+
+            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+            newFont = CreateFontIndirect( &font );
+        }
+        EQASSERT( newFont );
+
+        HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
+
+        const GLuint lists = _setupLists( gl, key, 256 );
+        const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
+    
+        SelectObject( dc, oldFont );
+        //DeleteObject( newFont );
+    
+        if( !ret )
+            _setupLists( gl, key, 0 );
+
+        return ret;
+    }
+
     void configInit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN

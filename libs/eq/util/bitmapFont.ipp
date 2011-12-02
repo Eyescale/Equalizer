@@ -15,28 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <eq/client/defines.h>
-
-#ifdef AGL
-// HACK: Get rid of deprecated warning for aglUseFont
-//   -Wno-deprecated-declarations would do as well, but here it is more isolated
-#  include <AvailabilityMacros.h>
-#  undef DEPRECATED_ATTRIBUTE
-#  define DEPRECATED_ATTRIBUTE
-#endif
-
 #include "bitmapFont.h"
-
 #include "objectManager.h"
-
-#ifdef GLX
-#  include <eq/client/glXTypes.h>
-#endif
-#include <eq/client/os.h>
-#include <co/base/debug.h>
-#include <co/base/lock.h>
-#include <co/base/log.h>
-#include <co/base/scopedMutex.h>
 
 namespace eq
 {
@@ -64,206 +44,15 @@ template< class OMT >
 bool BitmapFont< OMT >::init( const WindowSystem ws, const std::string& name,
                               const uint32_t size )
 {
-    // TODO: initBitmapFont could be a member function of WindowSystem
-    if( ws.getName() == "AGL" )
-        return _initAGL( name, size );
-    if( ws.getName() == "GLX" )
-        return _initGLX( name, size );
-    if( ws.getName() == "WGL" )
-        return _initWGL( name, size );
-
-    return false;
+    return ws.setupFont( _gl, _key, name, size );
 }
 
 template< class OMT >
 void BitmapFont< OMT >::exit()
 {
-    _setupLists( 0 );
-}
-
-#ifdef GLX
-template< class OMT >
-bool BitmapFont< OMT >::_initGLX( const std::string& name, const uint32_t size )
-{
-    Display* display = XGetCurrentDisplay();
-    EQASSERT( display );
-    if( !display )
-    {
-        EQWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
-               << std::endl;
-        return false;
-    }
-
-    // see xfontsel
-    std::stringstream font;
-    font << "-*-";
-
-    if( name.empty( ))
-        font << "times";
-    else
-        font << name;
-    font << "-*-r-*-*-" << size << "-*-*-*-*-*-*-*";
-
-    // X11 font initialization is not thread safe. Using a mutex here is not
-    // performance-critical
-    static co::base::Lock lock;
-    co::base::ScopedMutex<> mutex( lock );
-
-    XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( )); 
-    if( !fontStruct )
-    {
-        EQWARN << "Can't load font " << font.str() << ", using fixed"
-               << std::endl;
-        fontStruct = XLoadQueryFont( display, "fixed" ); 
-    }
-
-    EQASSERT( fontStruct );
-
-    const GLuint lists = _setupLists( 127 );
-    glXUseXFont( fontStruct->fid, 0, 127, lists );
-
-    XFreeFont( display, fontStruct );
-    return true;
-}
-#else
-template< class OMT >
-bool BitmapFont< OMT >::_initGLX( const std::string&, const uint32_t )
-{
-    return false;
-}
-#endif
-
-#ifdef WGL
-template< class OMT >
-bool BitmapFont< OMT >::_initWGL( const std::string& name, const uint32_t size )
-{
-    HDC dc = wglGetCurrentDC();
-    if( !dc )
-    {
-        EQWARN << "No WGL device context current" << std::endl;
-        return false;
-    }
-
-    LOGFONT font;
-    memset( &font, 0, sizeof( font ));
-    font.lfHeight = -static_cast< LONG >( size );
-    font.lfWeight = FW_NORMAL;
-    font.lfCharSet = ANSI_CHARSET;
-    font.lfOutPrecision = OUT_DEFAULT_PRECIS;
-    font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-    font.lfQuality = DEFAULT_QUALITY;
-    font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
-
-    if( name.empty( ))
-        strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
-    else
-        strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
-
-    font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
-
-    HFONT newFont = CreateFontIndirect( &font );
-    if( !newFont )
-    {
-        EQWARN << "Can't load font " << name << ", using Times New Roman" 
-               << std::endl;
-
-        strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
-        newFont = CreateFontIndirect( &font );
-    }
-    EQASSERT( newFont );
-
-    HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
-
-    const GLuint lists = _setupLists( 256 );
-    const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
-    
-    SelectObject( dc, oldFont );
-    //DeleteObject( newFont );
-    
-    if( !ret )
-        _setupLists( 0 );
-
-    return ret;
-}
-#else
-template< class OMT >
-bool BitmapFont< OMT >::_initWGL( const std::string&, const uint32_t )
-{
-    return false;
-}
-#endif
-
-#ifdef AGL
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-template< class OMT >
-bool BitmapFont< OMT >::_initAGL( const std::string& name, const uint32_t size )
-{
-    AGLContext context = aglGetCurrentContext();
-    EQASSERT( context );
-    if( !context )
-    {
-        EQWARN << "No AGL context current" << std::endl;
-        return false;
-    }
-
-    CFStringRef cfFontName;
-    if( name.empty( ))
-        cfFontName = CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
-                                                kCFStringEncodingMacRoman );
-    else
-        cfFontName = 
-            CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
-                                   kCFStringEncodingMacRoman );
-
-    ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName, 
-                                                       kATSOptionFlagsDefault );
-    CFRelease( cfFontName );
-
-    if( font == 0 )
-    {
-        EQWARN << "Can't load font " << name << ", using Georgia" << std::endl;
-        cfFontName = 
-            CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
-                                       kCFStringEncodingMacRoman );
-
-        font = ATSFontFamilyFindFromName( cfFontName, kATSOptionFlagsDefault );
-        CFRelease( cfFontName );
-    }
-    EQASSERT( font );
-
-    const GLuint lists = _setupLists( 127 );
-    if( !aglUseFont( context, font, normal, size, 0, 256, (long)lists ))
-    {
-        _setupLists( 0 );
-        return false;
-    }
-    
-    return true;
-}
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
-#else
-template< class OMT >
-bool BitmapFont< OMT >::_initAGL( const std::string&, const uint32_t )
-{
-    return false;
-}
-#endif
-
-template< class OMT >
-uint32_t BitmapFont< OMT >::_setupLists( const int num )
-{
     GLuint lists = _gl.getList( _key );
     if( lists != ObjectManager< OMT >::INVALID )
         _gl.deleteList( _key );
-
-    if( num == 0 )
-        lists = ObjectManager< OMT >::INVALID;
-    else
-    {
-        lists = _gl.newList( _key, num );
-        EQASSERT( lists != ObjectManager< OMT >::INVALID );
-    }
-    return lists;
 }
 
 template< class OMT >
