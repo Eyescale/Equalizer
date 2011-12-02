@@ -293,22 +293,10 @@ void FrameData::setVersion( const uint64_t version )
     EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
-void FrameData::waitReady() const 
+void FrameData::waitReady( const uint32_t timeout ) const 
 {
-    // TODO: Use Config::getTimeout() cf. compositor.cpp
-    if( co::base::Global::getIAttribute( co::base::Global::IATTR_ROBUSTNESS ) )
-    { 
-        if( !_readyVersion.timedWaitGE( 
-                       _version, co::base::Global::getIAttribute( 
-                                    co::base::Global::IATTR_TIMEOUT_DEFAULT )))
-        {
-            throw Exception( Exception::TIMEOUT_INPUTFRAME );
-        }
-    }
-    else
-    {
-        _readyVersion.waitGE( _version );
-    }
+    if( !_readyVersion.timedWaitGE( _version, timeout ))
+        throw Exception( Exception::TIMEOUT_INPUTFRAME );
 }
 
 void FrameData::setReady()

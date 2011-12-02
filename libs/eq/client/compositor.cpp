@@ -109,6 +109,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     uint32_t colorExternalFormat = 0;
     uint32_t depthInternalFormat = 0;
     uint32_t depthExternalFormat = 0;
+    const uint32_t timeout = channel->getConfig()->getTimeout();
 
     for( Frames::const_iterator i = frames.begin();
          i != frames.end(); ++i )
@@ -117,7 +118,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            frame->waitReady();
+            frame->waitReady( timeout );
         }
 
         if( frame->getData()->getZoom() != Zoom::NONE )
@@ -287,6 +288,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         count |= assembleFramesCPU( frames, channel, blendAlpha );
     else
     {
+        const uint32_t timeout = channel->getConfig()->getTimeout();
         for( Frames::const_iterator i = frames.begin();
              i != frames.end(); ++i )
         {
@@ -294,7 +296,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
             {
                 ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                          channel );
-                frame->waitReady( );
+                frame->waitReady( timeout );
             }
 
             if( !frame->getImages().empty( ))
@@ -420,15 +422,15 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            const uint32_t timeout = channel->getConfig()->getTimeout();
+            const Config* config = channel->getConfig();
+            const uint32_t timeout = config->getTimeout();
 
             if( timeout == EQ_TIMEOUT_INDEFINITE )
                 monitor.waitGE( ++nUsedFrames );
             else
             {
                 ++nUsedFrames;
-                co::base::Clock time;
-                // TODO: Refactor to use config
+                const int64_t time = config->getTime() + timeout;
                 const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
 
                 while( !monitor.timedWaitGE( nUsedFrames, aliveTimeout ))
@@ -442,7 +444,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
                     // ChannelFrameAssemblePacket.
                     // eile: Not sure. let's discuss.
 
-                    if( time.getTime64() >= timeout || !pinged )
+                    if( config->getTime() >= time || !pinged )
                     {
                         // de-register the monitor
                         for( FramesCIter i = frames.begin();
@@ -499,7 +501,8 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames,
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds.
 
-    const Image* result = mergeFramesCPU( frames, blendAlpha );
+    const Image* result = mergeFramesCPU( frames, blendAlpha,
+                                          channel->getConfig()->getTimeout( ));
     if( !result )
         return 0;
 
@@ -520,7 +523,8 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames,
 }
 
 const Image* Compositor::mergeFramesCPU( const Frames& frames,
-                                         const bool blendAlpha )
+                                         const bool blendAlpha,
+                                         const uint32_t timeout )
 {
     EQVERB << "Sorted CPU assembly" << std::endl;
 
@@ -537,7 +541,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
                              colorInternalFormat, colorPixelSize,
                              colorExternalFormat,
                              depthInternalFormat, depthPixelSize,
-                             depthExternalFormat ))
+                             depthExternalFormat, timeout ))
     {
         return 0;
     }
@@ -585,12 +589,12 @@ bool Compositor::_collectOutputData(
          uint32_t& colorInternalFormat, uint32_t& colorPixelSize,
          uint32_t& colorExternalFormat,
          uint32_t& depthInternalFormat, uint32_t& depthPixelSize,
-         uint32_t& depthExternalFormat )
+         uint32_t& depthExternalFormat, const uint32_t timeout )
 {
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        frame->waitReady();
+        frame->waitReady( timeout );
 
         EQASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
@@ -655,7 +659,8 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
                                  const uint32_t colorBufferSize,
                                  void* depthBuffer,
                                  const uint32_t depthBufferSize,
-                                 PixelViewport& outPVP )
+                                 PixelViewport& outPVP,
+                                 const uint32_t timeout )
 {
     EQASSERT( colorBuffer );
     EQVERB << "Sorted CPU assembly" << std::endl;
@@ -672,7 +677,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     if( !_collectOutputData( frames, outPVP, colorInternalFormat,
                              colorPixelSize, colorExternalFormat,
                              depthInternalFormat,
-                             depthPixelSize, depthExternalFormat ))
+                             depthPixelSize, depthExternalFormat, timeout ))
         return false;
 
     // pre-condition check for current _merge implementations

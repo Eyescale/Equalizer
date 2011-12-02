@@ -161,10 +161,10 @@ bool Frame::isReady() const
     return _frameData->isReady();
 }
 
-void Frame::waitReady() const
+void Frame::waitReady( const uint32_t timeout ) const
 {
     EQASSERT( _frameData );
-    _frameData->waitReady();
+    _frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )

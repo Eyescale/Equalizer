@@ -497,16 +497,12 @@ void Pipe::notifyMapped()
 
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
-    const uint32_t timeout = getConfig()->getTimeout();
-    if( !_finishedFrame.timedWaitGE( frameNumber, timeout ))
-        throw Exception( Exception::TIMEOUT_FRAMESYNC );
+    _finishedFrame.waitGE( frameNumber );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
-    const uint32_t timeout = getConfig()->getTimeout();
-    if( !_unlockedFrame.timedWaitGE( frameNumber, timeout ))
-        throw Exception( Exception::TIMEOUT_FRAMESYNC );
+    _unlockedFrame.waitGE( frameNumber );
 }
 
 uint32_t Pipe::getFinishedFrame() const
