@@ -29,7 +29,7 @@ GPU-SD provides the following features to enable GPU discovery:
 
 @section New New in this release
 
-Equalizer 1.0 is the initial release and contains the following features:
+GPU-SD 1.0 is the initial release and contains the following features:
 
 @subsection NewFeatures New Features
 - Base discovery library
@@ -57,11 +57,11 @@ No example code.
 
 @subsection Tools Tools
 
-- DNS_SD query tool using the DNS_SD module
+- gpu_sd_list query tool printing all GPUs found using the DNS_SD module
 
 @subsection API Changes
 
-The following changes breaking compatibility with Equalizer 0.6 source code
+The following changes breaking compatibility with GPU-SD 1.0 source code
 were made:
 
 No API changes.
@@ -91,7 +91,7 @@ No known bugs.
 
 @section About About
 <p>
-  GPU-Sd is a cross-platform library, designed to run on any modern operating
+  GPU-SD is a cross-platform library, designed to run on any modern operating
   system, including all Unix variants and the Windows operating system. A
   ZeroConf implementation is required for the DNS_SD module and applications.
 </p>
