@@ -268,6 +268,12 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     while( 0 > ::read( _notifier, (void *)&available_bytes, sizeof(uint64_t)))
     {
         EQASSERT( EAGAIN == errno );
+        if( _disconnected )
+        {
+            EQINFO << "Got EOF, closing connection." << std::endl;
+            close( );
+            return -1LL;
+        }
         co::base::Thread::yield( );
         continue;
     }
