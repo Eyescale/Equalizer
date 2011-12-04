@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # four-window configuration showing all Equalizer features
 global
@@ -469,6 +469,7 @@ server
 
             compound
             {
+                #tile_equalizer {}
                 load_equalizer { mode 2D }
 
                 compound {}
