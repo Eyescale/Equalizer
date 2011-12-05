@@ -1,7 +1,7 @@
 #!gmake
 .PHONY: debug tests release clean clobber package
 
-BUILD ?= release
+BUILD ?= debug
 CMAKE ?= cmake
 
 all: $(BUILD)
