@@ -1,7 +1,7 @@
 #!gmake
 .PHONY: debug tests release clean clobber package
 
-BUILD ?= debug
+BUILD ?= release
 CMAKE ?= cmake
 
 all: $(BUILD)
@@ -30,7 +30,7 @@ release/Makefile:
 	@cd release; $(CMAKE) .. -DCMAKE_BUILD_TYPE=Release
 
 package: release/Makefile
-	#@$(MAKE) -C release doxygen
+	@$(MAKE) -C release gpusd_doxygen
 	@$(MAKE) -C release package
 
 tests: debug/Makefile

@@ -17,7 +17,7 @@
 
 #include "module.h"
 
-#include <gpusd1/gpuInfo.h>
+#include <gpusd/gpuInfo.h>
 
 //#include <AGL/agl.h>
 #include <Carbon/Carbon.h>
