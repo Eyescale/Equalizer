@@ -21,21 +21,17 @@
 
    Welcome to Equalizer, the standard middleware to create and
    deploy parallel, scalable OpenGL applications. This release
-   introduces the Collage library, support for GPU compression
-   plugins and an administrative API for runtime configuration
-   changes.
+   TBD
 
-   Equalizer 1.0 culminates over 6 years of development and
-   decades of experience into a feature-rich, high-performance
-   and mature parallel rendering framework and an
-   object-oriented high-level network library. It is intended
-   for all application developers creating parallel,
-   interactive OpenGL applications. Equalizer 1.0 can be
-   retrieved by downloading the source code, updating the
-   subversion trunk to revision 5809 (svn up -r 5809) or by
-   using:
-   svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0
+   Equalizer 1.2 is a feature release extending the 1.0 API,
+   distilling over 6 years of development and decades of
+   experience into a feature-rich, high-performance and mature
+   parallel rendering framework and an object-oriented
+   high-level network library. It is intended for all
+   application developers creating parallel, interactive
+   OpenGL applications. Equalizer 1.2 can be retrieved by
+   downloading the source code or one of the precompiled
+   packages.
 
   1.1. Features
 
@@ -45,9 +41,10 @@
    on the Equalizer website.
 
      * Runtime Configurability: An Equalizer application is
-       configured at runtime and can be deployed on laptops,
-       multi-GPU workstations and large-scale visualization
-       clusters without recompilation.
+       configured automatically or manually at runtime and can
+       be deployed on laptops, multi-GPU workstations and
+       large-scale visualization clusters without
+       recompilation.
      * Runtime Scalability: An Equalizer application can
        benefit from multiple graphics cards, processors and
        computers to scale rendering performance, visual
@@ -65,139 +62,42 @@
 
 2. New in this release
 
-   Equalizer 1.0 contains the following features,
+   Equalizer 1.2 contains the following features,
    enhancements, bug fixes and documentation changes:
 
   2.1. New Features
 
-   1.0, 1.0-beta (0.9.3): No new features
-
-   1.0-alpha (0.9.2):
-
-     * Collage: an object-oriented network library, formerly
-       known as eq::net. Eventually Collage will be separated
-       completely from Equalizer. (technology preview)
-     * CMake build system for all supported platforms
-     * Support for GPU-CPU transfer and compression plugins
-     * Failure tolerance during initialization
-     * Administrative API for runtime configuration changes
-       (technology preview)
-     * Runtime stereo switching to select mono and stereo
-       rendering at application runtime
-     * Slave object commit supports serializing changed data
-       on a slave object instance to the master instance
-     * Automatic compression of distributed object data
-     * Support for pixel formats with 10 bit per color
-       component
-     * Rendering capabilities allow application-dependent
-       (de-)activation of channels
-     * Interruptible rendering allows applications to stop
-       rendering on all pending frames
-
-   0.9.1:
-
-     * Subpixel compounds for full-scene anti-aliasing (FSAA)
-       or depth-of-field (DOF) decomposition
-     * Data distribution and data updates using reliable UDP
-       multicast
-     * Support for writing applications which are not using
-       OpenGL
+     * Initial release of Sequel, a simplification of the
+       Equalizer API enabling rapid development of clustered
+       multi-GPU applications
+     * Automic local and remote configuration using the GPU-SD
+       library
+     * Runtime failure tolerance
+     * Tile compounds for fill-limited rendering such as
+       volume raycasting and raytracing
 
   2.2. Enhancements
 
-   1.0
-
-     * RFE 3237701: Allow direct mapping of objects with known
-       master node
-     * Make co::Object serialization compressor configurable
-
-   1.0-beta (0.9.3):
-
-     * RFE 3076532: Configurable texture filtering for frame
-     * RFE 3175000: Add Window FPS event
-     * RFE 3170562: Support distributing segments to multiple
-       channels
-     * RFE 3160123: Support for orthographic stereo frustum
-     * RFE 2990876: Mouse wheel support
-     * Upgraded GLEW to version 1.5.8
-
-   1.0-alpha (0.9.2):
-
-     * Support for Windows 7
-     * Upgraded GLEW to version 1.5.7.3
-     * Structured error reporting
-     * Statistics overlay: Add compression and download ratio,
-       render overlay without usage of depth buffer
-     * CPU compression plugins: allow different output from
-       input token
-     * New command line argument --eq-logfile
-     * New compound auto stereo mode detection (active,
-       anaglyph, passive)
-     * RFE 3098130: Support hostnames for multicast
-       connections
-     * RFE 2809019: Specify connection from a config file when
-       using appNode
-     * RFE 3086646: Load and view equalizer: consider assemble
-       time
-     * RFE 3036064: View and load equalizer should consider
-       network times
-     * RFE 2927688: Loadbalancer tile sizes should not exceed
-       channel PVP's
-
-   0.9.1:
-
-     * Support for Mac OS X 10.6 Snow Leopard
-     * Tile and range boundaries for the load equalizer
-     * New eq::util::Accum class for accumulation operations
-       using an FBO or the OpenGL accumulation buffer
-     * Multiple windows on the same pipe can join the same
-       software swap barrier
-     * Configurable message pump
-     * Added attached and detach notification to co::Object.
+     * Added FindEqualizer.cmake and FindCollage.cmake for
+       integration of Equalizer and Collage in CMake build
+       environments
+     * Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
+     * Add time member to eq::Event recording time when the
+       event was received from the operating system
+     * Extend co::base::SpinLock and ScopedMutex with
+       read-write semantics
 
   2.3. Optimizations
 
-   1.0:
+     * 2.4. Examples
 
-     * Optimize Collage command cache performance
-     * Optimize short int data transmission
-
-   1.0-beta (0.9.3): No new optimizations
-
-   1.0-alpha (0.9.2):
-
-     * Mac OS X: Use SpinLocks over pthread locks for
-       significantly improved performance in various places
-     * Collage: Simplify and speed up command packet dispatch
-       and invocation
-     * Collage: Optimize RSP multicast using sliding ack
-       window with early acks
-     * Collage: Send object instance data during registration
-       to accelerate object mapping
-
-   0.9.1:
-
-     * Configurable object serialization buffer size
-     * Performance optimization for image compression
-     * Reduce memory footprint for eq::net::Objects with
-       change type DELTA
-
-  2.4. Examples
-
-   1.0, 1.0-beta (0.9.3): No significant example changes
-
-   1.0-alpha (0.9.2):
-
-     * New OSGScaleViewer example, evolved from eqOSG
-       contribution
-     * EqPly: Run-time configurable image quality
-     * EqPly: Run-time toggling of idle anti-aliasing
-
-   0.9.1:
-
-     * EqPly: added anti-aliasing when the application is idle
-     * EqPly: recursively search directories for models
-     * EqPly: switch to faster VBO rendering on OSX
+     * Provide CMake files for installed examples
+     * eqPly:
+     * seqPly: An new example similar to eqPly, but using the
+       Sequel API
+     * eqAsync: A new example demonstrating OpenGL context
+       sharing for asynchronously texture uploads
+     * eqHello: Ported to Sequel
 
   2.5. Tools
 
@@ -205,153 +105,55 @@
 
   2.6. API Changes
 
-   The following changes breaking compatibility with Equalizer
-   0.6 source code were made:
+   The following API changes may impact existing applications:
 
-   1.0-alpha and later: API changes are tracked in
-   CHANGES.txt.
-
-   0.9.1:
-
-     * The utility classes Accum, AccumBufferObject,
-       FrameBufferObject and Texture where moved from the eq
-       to the eq::util namespace.
-     * eq::Window::getColorType has been changed to
-       getColorFormat for consistency.
-     * The font handling provided by eq::Window has been
-       refactored for non-OpenGL rendering support.
+     * Removed co::Object::commitNB and commitSync since the
+       commit request is no longer dispatched to command
+       thread. Use commit instead.
+     * Moved installed client headers to eq/client.
+       Applications should always use eq/eq.h instead of
+       individual headers.
+     * Added a return value and timeout to
+       co::LocalNode::acquireSendToken(), see method
+       documentation.
+     * Changed 'uint32_t eq::Version::getRevision()' to
+       'std::string eq::Version::getRevision()'
 
   2.7. Documentation
 
    The following documentation has been added or substantially
    improved since the last release:
 
-   1.0:
-
      * Full API documentation for the public Equalizer API.
-
-   1.0-beta (0.9.3):
-
-     * The Programming and User Guide has been extended to 102
-       pages and 56 figures.
-     * Full API documentation for the public Equalizer API.
-
-   1.0-alpha (0.9.2):
-
-     * Full API documentation for the public Equalizer API.
-     * Error handling structures error reporting, mostly
-       during initialization.
-     * Interruptible rendering allows applications to stop
-       rendering on all pending frames.
-     * Rendering capabilities allow application-dependent
-       deactivation of channels.
-     * Administrative API for runtime configuration changes.
-     * Runtime stereo switching allows to change the rendering
-       between mono and stereo at runtime, with different
-       scalability compounds.
-     * Failure tolerance during initialization.
-
-   0.9.1:
-
-     * Subpixel Compound for full-scene anti-aliasing (FSAA)
-       or depth-of-field (DOF).
-     * Data distribution and data updates using reliable UDP
-       multicast.
+     * The Programming and User Guide has been extended to TBD
+       pages and TBD figures.
 
   2.8. Bug Fixes
 
-   Equalizer 1.0 includes various bugfixes over the 0.9
+   Equalizer 1.2 includes various bugfixes over the 1.0
    release, including the following:
 
-   1.0:
-
-     * 3264449: View/segment channel viewport failure when
-       using pvp
-     * 3234693: Delete 'channel' views when view is deleted
-       using admin API
-     * Fixed some minor memory leak found with valgrind
-     * 3213628: Win32: co::base::Condition leaks memory on
-       destruction
-     * 3206311: Node process does not exit after failed
-       Node::configInit
-     * 3203934: Channel statistics-related race
-     * 3201871: View equalizer: changing capabilities does not
-       update nPipes
-     * 3199651: Improve handling of unsupported connections
-     * 3196124: View mapping may fail when Config::update is
-       used
-
-   1.0-beta (0.9.3):
-
-     * 3190280: Wrong compressor when switching image format
-     * 3185777: occasional segfault on exit
-     * 3185685: Assembly fails if the channel has no view
-     * 3183597: Multicast / RSP assertions on exit
-     * 3175659: Excessive memory usage with serialization
-       compression
-     * 3175117: Occasional hang on exit
-     * 3172604: Near plane adaptation fails sometimes
-     * 3171582: Assertion during admin mapping
-     * 3168709: AGL/GLX: (half) float PBuffers not implemented
-     * 3166620: send-on-register should not send to self
-     * 3166560: Win32: RNG not random
-     * 3166619: Win32: PipeConnection too slow
-     * 3166437: Startup deadlock
-     * 3165985: Send-on-register and multicast don't match
-     * 3161488: FPS decreases over time
-     * 3159980: Constant reallocation of decompression engines
-     * 3158106: 'Self' compressor plugin init fails
-     * 3156359: 'Admin' passive window uses anaglyph in
-       1-pipe.stereo.anagly
-     * 3156321: Delta object commits call getInstanceData(),
-       not pack()
-     * 3156114: Release build / NDEBUG issues
-     * 3156103: Add default appNode connection for multi-node
-       configs
-     * 3156102: 32/64 bit interoperability broken
-     * 3156100: MSVC / gcc interoperability broken
-     * 3155603: XCode-build binaries don't find server library
-     * 3155543: Missing fragments when using YUV GPU
-       Compressor
-     * 3155530: Assertion server/config.cpp:875
-     * 3155511: Wrong detection of AUTO stereo mode
-     * 3155397: GL_INVALID_OPERATION when switching layouts
-     * 3155386: Admin copies are never synced
-     * 3138516: eVolve is broken
-     * 2985875: View user data mapping fails during
-       initialization
-     * 2934387: Ubuntu: GLX problem with PBuffer
-     * 2003195: Ortho frustra ignores eye offset
-
-   1.0-alpha (0.9.2):
-
-     * 3152421: Distinguish window and channel pointer events
-     * 2976899: Config::finishFrame deadlocks when no nodes
-       are active
-     * 2994111: Rounding errors with 2D LB and 16 sources
-     * 3137933: GLXEW init buggy
-     * 2882248: Spurious network deadlocks on Win32
-     * 3071764: GLX: No distinction between lowercase and
-       uppercase keys
-
-   0.9.1:
-
-     * 2873353: Usage of ext/hash_map and -Werror causes
-       compiler error
-     * 2834063: eqPly and eVolve freezes on Mac with glX
-     * 2828269: eVolve depth compositing is broken
-     * 2642034: Win32: max 64 connections possible
-     * 2874188: Occasional lockup at shutdown
+     * 29: NV swap barrier with affinity context does not work
+     * Fixed activation of OpenMP during build
+     * Fixed glxew.h include
+     * 3383573: Win32: occasional crash with
+       CO_AGGRESSIVE_CACHING OFF
+     * 3357684: View user data occasionally synced one frame
+       too late
+     * 3306308: Deadlock with config.eqc and window init
+       failure
+     * 3306148: Including eq/gl.h with AGL fails
+     * 3301423: Config::stopFrames called from non-main thread
+       causes deadlocks
 
   2.9. Known Bugs
 
    The following bugs were known at release time. Please file
    a Bug Report if you find any other issue with this release.
 
-     * 2796444: Race during simultaneous node connect
-     * 2609161: zoom: depth readback does not work
-     * 2556940: zoom: FBO usage
-     * 1854929: eqPly GLSL shader has artefacts
+     * 19: zoom readback with FBO
+     * 18: zoom: depth readback does not work
+     * 17: AGL: Window close does not work
 
 3. About
 
@@ -361,7 +163,7 @@
    can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer
-   OpenGL features when available. Version 1.0 has been tested
+   OpenGL features when available. Version 1.2 has been tested
    on:
 
   3.1. Operating System Support
@@ -370,9 +172,9 @@
    environment. The following platforms and build environments
    are tested:
 
-     * Linux: Ubuntu 10.04, 10.10 (Makefile, i386, x64)
+     * Linux: Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
      * Windows: XP and 7 (Visual Studio 2008, i386, x64)
-     * Mac OS X: 10.5, 10.6 (Makefile, XCode, i386, x64)
+     * Mac OS X: 10.6, 10.7 (Makefile, XCode, i386, x64)
 
   3.2. Window System Support
 
@@ -403,8 +205,3 @@
    info@eyescale.ch for further information.
 
 4. Errata
-
-   0.9.1:
-
-     * Patch to fix occasional compilation errors on Windows
-       when using EQ_IGNORE_GLEW.
