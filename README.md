@@ -46,7 +46,11 @@ Version 1.0
 [release notes](http://www.equalizergraphics.com/gpu-sd/API-1.0):
 
 * Source: [tar.gz](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd-1.0.tar.gz)
-* Binaries: [![OS X](http://www.equalizergraphics.com/images/mac.png)](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd1-1.0.0-Darwin.dmg) [![Ubuntu](http://www.equalizergraphics.com/images/ubuntu.png)](https://launchpad.net/%7Eeilemann/+archive/equalizer/)
+* Binaries:
+  [![OS X](http://www.equalizergraphics.com/images/mac.png)](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd1-1.0.0-Darwin.dmg)
+  [![Ubuntu](http://www.equalizergraphics.com/images/ubuntu.png)](https://launchpad.net/%7Eeilemann/+archive/equalizer/)
+  [![Windows 32 bit](http://www.equalizergraphics.com/images/windows32.png)](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd1-1.0.0-win32.exe)
+  [![Windows 64 bit](http://www.equalizergraphics.com/images/windows64.png)](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd1-1.0.0-win64.exe)
 
 ## Compilation
 
