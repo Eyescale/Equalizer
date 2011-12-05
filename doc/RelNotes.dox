@@ -9,7 +9,7 @@ ad-hoc GPU clusters and multi-GPU machines.
 
 GPU-SD 1.0 is the initial release delivering local discovery for all major
 operating systems and remote announcements and discovery using the ZeroConf
-protocol. GPU-Sd 1.0 can be retrieved by downloading the
+protocol. GPU-SD 1.0 can be retrieved by downloading the
 <a href="http://www.equalizergraphics.com/downloads/GPU-SD-1.0.tar.gz">source
   code</a> or one of the
 <a href="http://www.equalizergraphics.com/gpu-sd/downloads.html">binary
@@ -22,8 +22,9 @@ GPU-SD provides the following features to enable GPU discovery:
 - <b>Local Discovery:</b> Automatic GPU discovery for Linux (X11/GLX), Mac
   OS X (CGL, GLX) and Windows (WGL, WGL_NV_gpu_affinity,
   WGL_AMD_gpu_association).
-- <b>Network annoucement:</b> A daemon for network annoucement of available GPUs
-  and their configuration using DNS service discovery and ZeroConf networking.
+- <b>Network announcement:</b> A daemon for network announcement of available
+  GPUs and their configuration using DNS service discovery and ZeroConf
+  networking.
 - <b>Remote Discovery:</b> Remote GPU discovery of resources announced using the
   GPU-SD daemon.
 
