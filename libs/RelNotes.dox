@@ -84,6 +84,8 @@
   <li>Runtime failure tolerance</li>
   <li>Tile compounds for fill-limited rendering such as volume raycasting and
     raytracing</li>
+  <li>RDMA-based connection class for InfiniBand</li>
+  <li>Support push-based object distribution</li>
 </ul>
 
 <a name="enhancements"></a>
@@ -95,12 +97,24 @@
   <li>Add time member to eq::Event recording time when the event was received
     from the operating system</li>
   <li>Extend co::base::SpinLock and ScopedMutex with read-write semantics</li>
+  <li>Make Collage usable from multiple libraries by allowing init and exit to
+    be called multiple times</li>
+  <li>Support for render clients without listening sockets</li>
+  <li>Allow the image compressor to be chosen by the application</li>
+  <li>Allow and prefer external GLEW installation during compilation</li>
+  <li>Updgrade internal GLEW version to 1.7.0</li>
+  <li>Per-segment or canvas swap barriers</li>
+  <li>#43: Add View::isActive and Layout::isActive</li>
+  <li>#45: Make RNG functional without co::base::init</li>
+  <li>Implement maximum size of multi-threaded queue, resulting in blocking push
+    operations</li>
 </ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li></li>
+  <li>Make LocalNode::registerObject and Object::commit parallelizable by
+    executing Object serialization from calling thread</li>
 </ul>
 
 <a name="examples"></a>
@@ -156,6 +170,7 @@
   following:
 </p>
 <ul>
+  <li>RSP: Fix scattered ack implementation</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/29">29</a>: NV swap
     barrier with affinity context does not work</li>
   <li>Fixed activation of OpenMP during build</li>
