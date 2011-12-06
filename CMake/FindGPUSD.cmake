@@ -141,7 +141,6 @@ set(GPUSD_INCLUDE_DIRS ${_gpusd_INCLUDE_DIR})
 if("${_gpusd_INCLUDE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}/gpu-sd/libs")
   set(GPUSD_LOCAL TRUE CACHE BOOL "Local GPU-SD source code")
   list(APPEND GPUSD_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/gpu-sd/libs)
-  add_subdirectory(gpu-sd)
 endif()
 
 # components
