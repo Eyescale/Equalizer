@@ -1,5 +1,5 @@
 
-find_package(GPUSD)
+find_package(GPUSD 1.0.0)
 if(EQUALIZER_RELEASE)
   return()
 endif()
