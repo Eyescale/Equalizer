@@ -15,6 +15,9 @@ else()
 endif()
 
 if(GPUSD_FOUND)
+  if(GPUSD_LOCAL)
+    add_subdirectory(gpu-sd)
+  endif()
   return()
 endif()
 
