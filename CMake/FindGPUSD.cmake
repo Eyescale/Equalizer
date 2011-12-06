@@ -211,9 +211,6 @@ else()
         "See ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  include(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(GPUSD DEFAULT_MSG
-                                    GPUSD_core_LIBRARY _gpusd_INCLUDE_DIR)
 endif()
 
 if(_gpusd_EPIC_FAIL)
@@ -223,7 +220,10 @@ if(_gpusd_EPIC_FAIL)
   set(GPUSD_INCLUDE_DIRS)
   set(GPUSD_COMPONENTS)
 else()
-  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}")
+  include(FindPackageHandleStandardArgs)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(GPUSD DEFAULT_MSG
+                                    GPUSD_core_LIBRARY _gpusd_INCLUDE_DIR)
+  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}-gpusdruntime")
 endif()
 
 get_filename_component(GPUSD_LIBRARY_DIR ${GPUSD_core_LIBRARY} PATH)
