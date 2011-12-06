@@ -19,6 +19,7 @@ if(GPUSD_FOUND)
 endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")
+  add_subdirectory(gpu-sd)
   find_package(GPUSD)
 else()
   message(WARNING "git submodule update failed, no automatic configuration")
