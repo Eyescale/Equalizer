@@ -1361,10 +1361,7 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
     if( toNodes.empty( ))
-    {
-        EQWARN << "unable to transmit frame " << context.frameID << std::endl;
         return;
-    }
 
     const std::vector< uint128_t >& toNetNodes = frame->getInputNetNodes( eye );
     std::vector< uint128_t >::const_iterator j = toNetNodes.begin();
@@ -1423,10 +1420,6 @@ void Channel::_resetOutputFrames( const RenderContext& context )
 
             send( getLocalNode(), setReadyPacket );
         }
-
-        if( toNodes.empty() )
-            EQWARN << "unable to set frame ready " << context.frameID
-            << std::endl;
     }
     _outputFrames.clear();
 }

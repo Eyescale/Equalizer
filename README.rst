@@ -78,8 +78,11 @@ documentation changes:
 -   Runtime failure tolerance
 -   Tile compounds for fill-limited rendering such as volume raycasting
     and raytracing
+<<<<<<< HEAD
 -   RDMA-based connection class for InfiniBand
 -   Support push-based object distribution
+=======
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 
 
 2.2. Enhancements
@@ -91,6 +94,7 @@ documentation changes:
 -   Add time member to eq::Event recording time when the event was
     received from the operating system
 -   Extend co::base::SpinLock and ScopedMutex with read-write semantics
+<<<<<<< HEAD
 -   Make Collage usable from multiple libraries by allowing init and exit
     to be called multiple times
 -   Support for render clients without listening sockets
@@ -102,15 +106,21 @@ documentation changes:
 -   #45: Make RNG functional without co::base::init
 -   Implement maximum size of multi-threaded queue, resulting in blocking
     push operations
+=======
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 
 
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
+<<<<<<< HEAD
 -   Make LocalNode::registerObject and Object::commit parallelizable by
     executing Object serialization from calling thread
 
 
+=======
+-
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 2.4. Examples
 ~~~~~~~~~~~~~
 
@@ -160,7 +170,10 @@ the last release:
 Equalizer 1.2 includes various bugfixes over the 1.0 release, including the
 following:
 
+<<<<<<< HEAD
 -   RSP: Fix scattered ack implementation
+=======
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 -   `29`_: NV swap barrier with affinity context does not work
 -   Fixed activation of OpenMP during build
 -   Fixed glxew.h include

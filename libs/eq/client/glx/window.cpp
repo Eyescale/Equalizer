@@ -436,10 +436,12 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     
     // Grab keyboard focus in fullscreen mode
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ||
+        getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
+    {
         XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync, 
                       CurrentTime );
-    
+    }
     setXDrawable( drawable );
     
     EQINFO << "Created X11 drawable " << drawable << std::endl;

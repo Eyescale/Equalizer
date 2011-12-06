@@ -75,8 +75,11 @@
      * Runtime failure tolerance
      * Tile compounds for fill-limited rendering such as
        volume raycasting and raytracing
+<<<<<<< HEAD
      * RDMA-based connection class for InfiniBand
      * Support push-based object distribution
+=======
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 
   2.2. Enhancements
 
@@ -88,6 +91,7 @@
        event was received from the operating system
      * Extend co::base::SpinLock and ScopedMutex with
        read-write semantics
+<<<<<<< HEAD
      * Make Collage usable from multiple libraries by allowing
        init and exit to be called multiple times
      * Support for render clients without listening sockets
@@ -109,6 +113,12 @@
        calling thread
 
   2.4. Examples
+=======
+
+  2.3. Optimizations
+
+     * 2.4. Examples
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 
      * Provide CMake files for installed examples
      * eqPly:
@@ -152,7 +162,10 @@
    Equalizer 1.2 includes various bugfixes over the 1.0
    release, including the following:
 
+<<<<<<< HEAD
      * RSP: Fix scattered ack implementation
+=======
+>>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
      * 29: NV swap barrier with affinity context does not work
      * Fixed activation of OpenMP during build
      * Fixed glxew.h include
