@@ -1,5 +1,8 @@
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/gpu-sd/CMake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/gpu-sd/CMake)
 find_package(GPUSD 1.0.0)
+
 if(EQUALIZER_RELEASE)
   return()
 endif()

@@ -30,7 +30,6 @@ if(CMAKE_VERSION VERSION_LESS 2.8)
 endif()
 
 include(revision)
-include(GPUSD)
 
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "1")
@@ -79,6 +78,8 @@ if(EQUALIZER_USE_SOLUTION_FOLDERS)
 else()
   set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
 endif()
+
+include(GPUSD)
 
 set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
