@@ -2,7 +2,7 @@
 
 [TOC]
 
-GPU-SD is a daemon and library for the discovery and announcement of
+GPU-SD is a library and daemon for the discovery and announcement of
 graphics processing units using ZeroConf. It enables auto-configuration
 of ad-hoc GPU clusters and multi-GPU machines.
 
