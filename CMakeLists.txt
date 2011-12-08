@@ -15,6 +15,7 @@ option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
+option(EQ_USE_GPUSD "Test for GPU SD support" ON)
 
 set(EQUALIZER_RELEASE OFF)
 
@@ -79,7 +80,9 @@ else()
   set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
 endif()
 
-include(GPUSD)
+if (EQ_USE_GPUSD)
+  include(GPUSD)
+endif()
 
 set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
@@ -203,8 +206,10 @@ if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL")
 endif(EQ_AGL_USED)
 
-if(GPUSD_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
+if(EQ_USE_GPUSD)
+  if(GPUSD_FOUND)
+    set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
+  endif()
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
