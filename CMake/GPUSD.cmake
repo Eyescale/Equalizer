@@ -1,5 +1,8 @@
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_INSTALL_PREFIX}/share/gpu-sd/CMake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/gpu-sd/CMake)
 find_package(GPUSD 1.0.0)
+
 if(EQUALIZER_RELEASE)
   return()
 endif()
@@ -12,10 +15,14 @@ else()
 endif()
 
 if(GPUSD_FOUND)
+  if(GPUSD_LOCAL)
+    add_subdirectory(gpu-sd)
+  endif()
   return()
 endif()
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/gpu-sd/CMakeLists.txt")
+  add_subdirectory(gpu-sd)
   find_package(GPUSD)
 else()
   message(WARNING "git submodule update failed, no automatic configuration")

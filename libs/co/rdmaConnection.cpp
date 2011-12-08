@@ -40,7 +40,7 @@ namespace
 {
 template< class T > inline std::string to_string( const T &t )
 {
-    std::stringstream ss; ss << t; return ss.str( );
+    std::stringstream ss; ss << t; return ss.str();
 }
 }
 
@@ -99,7 +99,7 @@ typedef uint32_t RDMAFCImm;
 /**
  * An RDMA connection implementation.
  */
-RDMAConnection::RDMAConnection( )
+RDMAConnection::RDMAConnection()
     : _notifier( -1 )
     , _wfd( -1 )
     , _event_thread( NULL )
@@ -136,11 +136,11 @@ RDMAConnection::RDMAConnection( )
         ::ibv_rate_to_mult( IBV_RATE_40_GBPS ) * 2.5 * 1000000 / 8;
 }
 
-bool RDMAConnection::connect( )
+bool RDMAConnection::connect()
 {
     struct sockaddr address;
 
-    EQVERB << (void *)this << ".connect( )" << std::endl;
+    EQVERB << (void *)this << ".connect()" << std::endl;
 
     EQASSERT( CONNECTIONTYPE_RDMA == _description->type );
     EQASSERT( STATE_CLOSED == _state );
@@ -178,15 +178,15 @@ bool RDMAConnection::connect( )
         return true;
     }
 
-    close( );
+    close();
     return false;
 }
 
-bool RDMAConnection::listen( )
+bool RDMAConnection::listen()
 {
     struct sockaddr address;
 
-    EQVERB << (void *)this << ".listen( )" << std::endl;
+    EQVERB << (void *)this << ".listen()" << std::endl;
 
     EQASSERT( CONNECTIONTYPE_RDMA == _description->type );
     EQASSERT( STATE_CLOSED == _state );
@@ -213,13 +213,13 @@ bool RDMAConnection::listen( )
         return true;
     }
 
-    close( );
+    close();
     return false;
 }
 
-void RDMAConnection::close( )
+void RDMAConnection::close()
 {
-    EQVERB << (void *)this << ".close( )" << std::endl;
+    EQVERB << (void *)this << ".close()" << std::endl;
 
     if( STATE_CLOSED == _state )
         return;
@@ -227,21 +227,21 @@ void RDMAConnection::close( )
     EQASSERT( STATE_CLOSING != _state );
     setState( STATE_CLOSING );
 
-    _disconnect( );
-    _cleanup( );
+    _disconnect();
+    _cleanup();
 
     setState( STATE_CLOSED );
 }
 
-void RDMAConnection::acceptNB( ) { /* NOP */ }
+void RDMAConnection::acceptNB() { /* NOP */ }
 
-ConnectionPtr RDMAConnection::acceptSync( )
+ConnectionPtr RDMAConnection::acceptSync()
 {
-    EQVERB << (void *)this << ".acceptSync( )" << std::endl;
+    EQVERB << (void *)this << ".acceptSync()" << std::endl;
 
     EQASSERT( STATE_LISTENING == _state );
 
-    RDMAConnection *newConnection = new RDMAConnection( );
+    RDMAConnection *newConnection = new RDMAConnection();
 
     newConnection->setDescription( _description );
 
@@ -271,10 +271,10 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
         if( _disconnected )
         {
             EQINFO << "Got EOF, closing connection." << std::endl;
-            close( );
+            close();
             return -1LL;
         }
-        co::base::Thread::yield( );
+        co::base::Thread::yield();
         continue;
     }
 
@@ -282,7 +282,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     {
         if( available_bytes > 1ULL )
             available_bytes--;
-        _disconnect( );
+        _disconnect();
     }
 
     const uint32_t bytes_taken = _drain( buffer,
@@ -294,7 +294,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     if(( 1ULL == available_bytes ) && ( 0UL == bytes_taken ) && _disconnected )
     {
         EQINFO << "Got EOF, closing connection." << std::endl;
-        close( );
+        close();
         return -1LL;
     }
 
@@ -306,7 +306,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     {
         // TODO : Timeout?
         while( !_disconnected && ( 0 == _available_wr ))
-            co::base::Thread::yield( );
+            co::base::Thread::yield();
 
         // TODO : Send FC less frequently?
         if( !_postSendFC( ))
@@ -332,11 +332,11 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     while( !_disconnected &&
         ( 0UL == ( bytes_put =
             _fill( buffer, static_cast< uint32_t >( bytes )))))
-        co::base::Thread::yield( );
+        co::base::Thread::yield();
 
     // TODO : Timeout?
     while( !_disconnected && ( 0 == _available_wr ))
-        co::base::Thread::yield( );
+        co::base::Thread::yield();
 
     if( !_disconnected && _postRDMAWrite( ))
     {
@@ -347,11 +347,11 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
             EQASSERT( EAGAIN == errno );
             if( _disconnected || _wcerr )
             {
-                close( );
+                close();
                 return -1LL;
             }
 #if BLOCKING_WRITE
-            co::base::Thread::yield( );
+            co::base::Thread::yield();
             continue;
 #else
             break;
@@ -360,7 +360,7 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     }
     else
     {
-        close( );
+        close();
         return -1LL;
     }
 
@@ -370,11 +370,11 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     return static_cast< int64_t >( bytes_put );
 }
 
-RDMAConnection::~RDMAConnection( )
+RDMAConnection::~RDMAConnection()
 {
     EQVERB << (void *)this << ".delete" << std::endl;
 
-    close( );
+    close();
 }
 
 void RDMAConnection::setState( const State state )
@@ -382,17 +382,17 @@ void RDMAConnection::setState( const State state )
     if( state != _state )
     {
         _state = state;
-        _fireStateChanged( );
+        _fireStateChanged();
     }
 }
 
-void RDMAConnection::_disconnect( )
+void RDMAConnection::_disconnect()
 {
     if( _established )
     {
         // Wait for outstanding work requests, TODO : Timeout?
         while( _available_wr < (int)_qpcap.max_send_wr )
-            co::base::Thread::yield( );
+            co::base::Thread::yield();
 
         EQASSERT( NULL != _cm_id );
         EQASSERT( NULL != _cm_id->verbs );
@@ -401,23 +401,23 @@ void RDMAConnection::_disconnect( )
             EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
     }
 
-    _joinEventThread( );
+    _joinEventThread();
 
     if(( NULL != _cc ) && _established )
         while( _doCQEvents( _cc, true )) // Drain completion queue
-            co::base::Thread::yield( );
+            co::base::Thread::yield();
 
     _established = false;
 }
 
-void RDMAConnection::_cleanup( )
+void RDMAConnection::_cleanup()
 {
     EQASSERT( STATE_CLOSING == _state );
     EQASSERT( NULL == _event_thread );
 
-    _sourcebuf.clear( );
-    _sinkbuf.clear( );
-    _msgbuf.clear( );
+    _sourcebuf.clear();
+    _sinkbuf.clear();
+    _msgbuf.clear();
 
     if(( 0 <= _notifier ) && ( _cm->fd != _notifier ) &&
         ( 0 != ::close( _notifier )))
@@ -492,7 +492,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         return true;
     }
 
-    close( );
+    close();
     return false;
 }
 
@@ -508,14 +508,14 @@ bool RDMAConnection::_parseAddress( struct sockaddr &address,
     hints.ai_protocol = 0;
     hints.ai_flags = AI_V4MAPPED | AI_ADDRCONFIG;
 
-    const std::string &hostname = _description->getHostname( );
+    const std::string &hostname = _description->getHostname();
     if( !hostname.empty( ))
-        node = hostname.c_str( );
+        node = hostname.c_str();
     else if( passive )
         hints.ai_flags |= AI_PASSIVE;
     const std::string port = to_string<uint16_t>( _description->port );
     if( 0u != _description->port )
-        service = port.c_str( );
+        service = port.c_str();
 
     const int errcode = ::getaddrinfo( node, service, &hints, &res );
     if( 0 != errcode )
@@ -533,7 +533,7 @@ bool RDMAConnection::_parseAddress( struct sockaddr &address,
     return false;
 }
 
-bool RDMAConnection::_createEventChannel( )
+bool RDMAConnection::_createEventChannel()
 {
     EQASSERT( NULL == _cm );
 
@@ -546,7 +546,7 @@ bool RDMAConnection::_createEventChannel( )
     return true;
 }
 
-bool RDMAConnection::_createId( )
+bool RDMAConnection::_createId()
 {
     EQASSERT( NULL != _cm );
 
@@ -572,7 +572,7 @@ bool RDMAConnection::_resolveAddress( struct sockaddr &address )
         return _doCMEvent( _cm, RDMA_CM_EVENT_ADDR_RESOLVED );
 }
 
-bool RDMAConnection::_resolveRoute( )
+bool RDMAConnection::_resolveRoute()
 {
     EQASSERT( NULL != _cm_id );
 
@@ -586,7 +586,7 @@ bool RDMAConnection::_resolveRoute( )
         return _doCMEvent( _cm, RDMA_CM_EVENT_ROUTE_RESOLVED );
 }
 
-bool RDMAConnection::_connect( )
+bool RDMAConnection::_connect()
 {
     EQASSERT( NULL != _cm_id );
     EQASSERT( !_established );
@@ -632,7 +632,7 @@ bool RDMAConnection::_bindAddress( struct sockaddr &address ) const
     return true;
 }
 
-bool RDMAConnection::_listen( ) const
+bool RDMAConnection::_listen() const
 {
     EQASSERT( NULL != _cm_id );
 
@@ -644,7 +644,7 @@ bool RDMAConnection::_listen( ) const
     return true;
 }
 
-bool RDMAConnection::_accept( )
+bool RDMAConnection::_accept()
 {
     EQASSERT( NULL != _cm_id );
     EQASSERT( !_established );
@@ -680,7 +680,7 @@ bool RDMAConnection::_accept( )
         return _doCMEvent( _cm, RDMA_CM_EVENT_ESTABLISHED );
 }
 
-bool RDMAConnection::_migrateId( ) const
+bool RDMAConnection::_migrateId() const
 {
     EQASSERT( NULL != _cm_id );
     EQASSERT( NULL != _cm );
@@ -693,7 +693,7 @@ bool RDMAConnection::_migrateId( ) const
     return true;
 }
 
-bool RDMAConnection::_initVerbs( )
+bool RDMAConnection::_initVerbs()
 {
     EQASSERT( STATE_CONNECTING == _state );
     EQASSERT( NULL != _cm_id );
@@ -720,7 +720,7 @@ bool RDMAConnection::_initVerbs( )
     return false;
 }
 
-bool RDMAConnection::_initBuffers( )
+bool RDMAConnection::_initBuffers()
 {
     EQASSERT( NULL != _pd );
 
@@ -742,7 +742,7 @@ bool RDMAConnection::_initBuffers( )
     return false;
 }
 
-bool RDMAConnection::_createQP( )
+bool RDMAConnection::_createQP()
 {
     EQASSERT( NULL != _pd );
     EQASSERT( NULL != _cq );
@@ -789,9 +789,9 @@ bool RDMAConnection::_postReceives( const unsigned int count )
         ::memset( &sge, 0, count * sizeof(struct ibv_sge));
         for( unsigned int i = 0U; i != count; i++ )
         {
-            sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer( );
-            sge[i].length = (uint64_t)_msgbuf.getBufferSize( );
-            sge[i].lkey = _msgbuf.getMR( )->lkey;
+            sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer();
+            sge[i].length = (uint64_t)_msgbuf.getBufferSize();
+            sge[i].lkey = _msgbuf.getMR()->lkey;
         }
 
         struct ibv_recv_wr wrs[count];
@@ -884,7 +884,7 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
     sge.addr = (uint64_t)&message;
     sge.length = (uint64_t)( offsetof( RDMAMessage, offsetof_placeholder ) +
         message.length );
-    sge.lkey = _msgbuf.getMR( )->lkey;
+    sge.lkey = _msgbuf.getMR()->lkey;
 
     struct ibv_send_wr wr;
     ::memset( (void *)&wr, 0, sizeof(struct ibv_send_wr));
@@ -900,13 +900,13 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
 // caller: application
 void RDMAConnection::_fillSetup( RDMASetupPayload &setup ) const
 {
-    setup.rbase = (uint64_t)(uintptr_t)_sinkbuf.getBase( );
-    setup.rlen = (uint64_t)_sinkbuf.getSize( );
-    setup.rkey = _sinkbuf.getMR( )->rkey;
+    setup.rbase = (uint64_t)(uintptr_t)_sinkbuf.getBase();
+    setup.rlen = (uint64_t)_sinkbuf.getSize();
+    setup.rkey = _sinkbuf.getMR()->rkey;
 }
 
 // caller: application
-bool RDMAConnection::_postSendSetup( )
+bool RDMAConnection::_postSendSetup()
 {
     RDMAMessage &message =
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
@@ -924,7 +924,7 @@ void RDMAConnection::_fillFC( RDMAFCPayload &fc ) const
 }
 
 // caller: application
-bool RDMAConnection::_postSendFC( )
+bool RDMAConnection::_postSendFC()
 {
     RDMAMessage &message =
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
@@ -936,7 +936,7 @@ bool RDMAConnection::_postSendFC( )
 }
 
 // caller: application
-bool RDMAConnection::_postRDMAWrite( )
+bool RDMAConnection::_postRDMAWrite()
 {
     EQASSERT( NULL != _qp );
 
@@ -944,11 +944,11 @@ bool RDMAConnection::_postRDMAWrite( )
 
     struct ibv_sge sge; 
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
-    sge.addr = (uint64_t)( (uintptr_t)_sourcebuf.getBase( ) +
+    sge.addr = (uint64_t)( (uintptr_t)_sourcebuf.getBase() +
         _sourceptr.ptr( _sourceptr.MIDDLE ));
     sge.length =
         (uint64_t)_sourceptr.available( _sourceptr.HEAD, _sourceptr.MIDDLE );
-    sge.lkey = _sourcebuf.getMR( )->lkey;
+    sge.lkey = _sourcebuf.getMR()->lkey;
     _sourceptr.incr( _sourceptr.MIDDLE, (uint32_t)sge.length );
 
     struct ibv_send_wr wr;
@@ -968,7 +968,7 @@ bool RDMAConnection::_postRDMAWrite( )
 }
 
 // caller: application
-bool RDMAConnection::_waitRecvSetup( ) const
+bool RDMAConnection::_waitRecvSetup() const
 {
     return( _setup_block.timedWaitEQ( SETUP_OK, Global::getTimeout( )));
 }
@@ -1048,7 +1048,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
         //
         // Also see: http://tinyurl.com/3rvuxjh
         _completions++;
-        if( std::numeric_limits< unsigned int >::max( ) <= _completions )
+        if( std::numeric_limits< unsigned int >::max() <= _completions )
         {
             ::ibv_ack_cq_events( ev_cq, _completions );
             _completions = 0U;
@@ -1180,7 +1180,7 @@ void RDMAConnection::_complete( const uint64_t val ) const
 }
 
 // caller: application
-bool RDMAConnection::_startEventThread( )
+bool RDMAConnection::_startEventThread()
 {
     EQASSERT( -1 == _notifier );
     EQASSERT( -1 == _wfd );
@@ -1203,7 +1203,7 @@ bool RDMAConnection::_startEventThread( )
 }
 
 // caller: event thread
-bool RDMAConnection::_initEventThread( )
+bool RDMAConnection::_initEventThread()
 {
     if( !setBlocking( _cm->fd, false ))
         EQERROR << "Failed to unblock connection manager fd." << std::endl;
@@ -1219,7 +1219,7 @@ bool RDMAConnection::_initEventThread( )
 }
 
 // caller: event thread
-void RDMAConnection::_runEventThread( )
+void RDMAConnection::_runEventThread()
 {
     enum { CM_EVENT = 0, CQ_EVENT = 1 };
     unsigned int cm_event = CM_EVENT, cq_event = CQ_EVENT;
@@ -1273,11 +1273,11 @@ void RDMAConnection::_runEventThread( )
 }
 
 // caller: application
-void RDMAConnection::_joinEventThread( )
+void RDMAConnection::_joinEventThread()
 {
     if( NULL != _event_thread )
     {
-        _event_thread->join( );
+        _event_thread->join();
         delete _event_thread;
         _event_thread = NULL;
     }
@@ -1287,7 +1287,7 @@ void RDMAConnection::_joinEventThread( )
 uint32_t RDMAConnection::_drain( void *buffer, const uint32_t bytes )
 {
     const uint32_t b = std::min( bytes, _sinkptr.available( ));
-    ::memcpy( buffer, (const void *)((uintptr_t)_sinkbuf.getBase( ) +
+    ::memcpy( buffer, (const void *)((uintptr_t)_sinkbuf.getBase() +
         _sinkptr.tail( )), b );
     _sinkptr.incrTail( b );
     return b;
@@ -1299,7 +1299,7 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
     const uint32_t b = std::min( bytes,
         std::min( _sourceptr.negAvailable( _sourceptr.HEAD, _sourceptr.TAIL ),
             _rptr.negAvailable( _rptr.HEAD, _rptr.TAIL )));
-    ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase( ) +
+    ::memcpy( (void *)((uintptr_t)_sourcebuf.getBase() +
         _sourceptr.ptr( _sourceptr.HEAD )), buffer, b );
     _sourceptr.incrHead( b );
     return b;
@@ -1316,12 +1316,12 @@ BufferPool::BufferPool( unsigned int buffer_size )
 {
 }
 
-BufferPool::~BufferPool( )
+BufferPool::~BufferPool()
 {
-    clear( );
+    clear();
 }
 
-void BufferPool::clear( )
+void BufferPool::clear()
 {
     _num_bufs = 0;
     _ring.clear( _num_bufs );
@@ -1339,7 +1339,7 @@ bool BufferPool::resize( ibv_pd *pd, const unsigned int num_bufs )
 {
     bool ok = false;
 
-    clear( );
+    clear();
 
     if( 0U == num_bufs )
         ok = true;
@@ -1373,12 +1373,12 @@ RingBuffer::RingBuffer( int access )
 {
 }
 
-RingBuffer::~RingBuffer( )
+RingBuffer::~RingBuffer()
 {
-    clear( );
+    clear();
 }
 
-void RingBuffer::clear( )
+void RingBuffer::clear()
 {
     if(( NULL != _mr ) && ( 0 != ::ibv_dereg_mr( _mr )))
         EQWARN << "ibv_dereg_mr : " << base::sysError << std::endl;
@@ -1397,7 +1397,7 @@ bool RingBuffer::resize( ibv_pd *pd, const unsigned long size )
     bool ok = false;
     void *addr1, *addr2;
 
-    clear( );
+    clear();
 
     if( 0UL == size )
         ok = true;
