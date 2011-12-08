@@ -78,12 +78,16 @@
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
 <ul>
-  <li>Initial release of Sequel, a simplification of the Equalizer API enabling
-    rapid development of clustered multi-GPU applications</li>
   <li>Automic local and remote configuration using the GPU-SD library</li>
-  <li>Runtime failure tolerance</li>
+  <li>Initial release of Sequel, a simplification and utility layer on top of
+    Equalizer, enabling rapid development of clustered multi-GPU
+    applications</li>
+  <li>Runtime failure tolerance detecting hardware and software failures</li>
   <li>Tile compounds for fill-limited rendering such as volume raycasting and
     raytracing</li>
+</ul>
+<ul>
+  <li>
   <li>RDMA-based connection class for InfiniBand</li>
   <li>Support push-based object distribution</li>
 </ul>
@@ -96,18 +100,20 @@
   <li>Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX</li>
   <li>Add time member to eq::Event recording time when the event was received
     from the operating system</li>
-  <li>Extend co::base::SpinLock and ScopedMutex with read-write semantics</li>
-  <li>Make Collage usable from multiple libraries by allowing init and exit to
-    be called multiple times</li>
   <li>Support for render clients without listening sockets</li>
   <li>Allow the image compressor to be chosen by the application</li>
   <li>Allow and prefer external GLEW installation during compilation</li>
   <li>Updgrade internal GLEW version to 1.7.0</li>
   <li>Per-segment or canvas swap barriers</li>
-  <li>#43: Add View::isActive and Layout::isActive</li>
-  <li>#45: Make RNG functional without co::base::init</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/43">43</a>: Add
+    View::isActive and Layout::isActive</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make RNG
+    functional without co::base::init</li>
   <li>Implement maximum size of multi-threaded queue, resulting in blocking push
     operations</li>
+  <li>Extend co::base::SpinLock and ScopedMutex with read-write semantics</li>
+  <li>Make Collage usable from multiple libraries by allowing init and exit to
+    be called multiple times</li>
 </ul>
 
 <a name="optimizations"></a>

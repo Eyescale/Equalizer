@@ -72,17 +72,16 @@ documentation changes:
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
--   Initial release of Sequel, a simplification of the Equalizer API
-    enabling rapid development of clustered multi-GPU applications
 -   Automic local and remote configuration using the GPU-SD library
--   Runtime failure tolerance
+-   Initial release of Sequel, a simplification and utility layer on top
+    of Equalizer, enabling rapid development of clustered multi-GPU
+    applications
+-   Runtime failure tolerance detecting hardware and software failures
 -   Tile compounds for fill-limited rendering such as volume raycasting
     and raytracing
-<<<<<<< HEAD
--   RDMA-based connection class for InfiniBand
+
+-   -   RDMA-based connection class for InfiniBand
 -   Support push-based object distribution
-=======
->>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 
 
 2.2. Enhancements
@@ -93,34 +92,27 @@ documentation changes:
 -   Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
 -   Add time member to eq::Event recording time when the event was
     received from the operating system
--   Extend co::base::SpinLock and ScopedMutex with read-write semantics
-<<<<<<< HEAD
--   Make Collage usable from multiple libraries by allowing init and exit
-    to be called multiple times
 -   Support for render clients without listening sockets
 -   Allow the image compressor to be chosen by the application
 -   Allow and prefer external GLEW installation during compilation
 -   Updgrade internal GLEW version to 1.7.0
 -   Per-segment or canvas swap barriers
--   #43: Add View::isActive and Layout::isActive
--   #45: Make RNG functional without co::base::init
+-   `43`_: Add View::isActive and Layout::isActive
+-   `45`_: Make RNG functional without co::base::init
 -   Implement maximum size of multi-threaded queue, resulting in blocking
     push operations
-=======
->>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
+-   Extend co::base::SpinLock and ScopedMutex with read-write semantics
+-   Make Collage usable from multiple libraries by allowing init and exit
+    to be called multiple times
 
 
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
-<<<<<<< HEAD
 -   Make LocalNode::registerObject and Object::commit parallelizable by
     executing Object serialization from calling thread
 
 
-=======
--
->>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 2.4. Examples
 ~~~~~~~~~~~~~
 
@@ -170,10 +162,7 @@ the last release:
 Equalizer 1.2 includes various bugfixes over the 1.0 release, including the
 following:
 
-<<<<<<< HEAD
 -   RSP: Fix scattered ack implementation
-=======
->>>>>>> 737aa1696adee9ea58bcf51712dd33b1c3662d13
 -   `29`_: NV swap barrier with affinity context does not work
 -   Fixed activation of OpenMP during build
 -   Fixed glxew.h include
@@ -276,6 +265,8 @@ information.
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/major.html#1.2
 .. _detailed feature list: /features.html
+.. _43: https://github.com/Eyescale/Equalizer/issues/43
+.. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _API       documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
 .. _Programming and       User Guide:
