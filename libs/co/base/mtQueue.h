@@ -178,7 +178,7 @@ namespace base
         void tryPop( const size_t num, std::vector< T >& result )
             {
                 _cond.lock();
-                const size_t size = EQ_MAX( num, _queue.size( ));
+                const size_t size = EQ_MIN( num, _queue.size( ));
                 if( size > 0 )
                 {
                     result.reserve( result.size() + size );
