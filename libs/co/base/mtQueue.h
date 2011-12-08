@@ -164,6 +164,35 @@ namespace base
             }   
 
         /** 
+         * Try to retrieve a number of items for the front of the queue.
+         *
+         * Between zero and the given number of items are appended to the
+         * vector.
+         *
+         * @param num the maximum number of items to retrieve
+         * @param result the front value or unmodified.
+         * @return true if an element was placed in result, false if the queue
+         *         is empty.
+         * @version 1.1.6
+         */
+        void tryPop( const size_t num, std::vector< T >& result )
+            {
+                _cond.lock();
+                const size_t size = EQ_MAX( num, _queue.size( ));
+                if( size > 0 )
+                {
+                    result.reserve( result.size() + size );
+                    for( size_t i = 0; i < size; ++i )
+                    {
+                        result.push_back( _queue.front( ));
+                        _queue.pop_front();
+                    }
+                    _cond.signal();
+                }
+                _cond.unlock();
+            }   
+
+        /** 
          * @param result the front value or unmodified.
          * @return true if an element was placed in result, false if the queue
          *         is empty.

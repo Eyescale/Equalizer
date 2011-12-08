@@ -152,7 +152,7 @@ void Object::setID( const base::UUID& identifier )
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
     EQASSERT( isAttached( ));
-    packet.objectID  = _id;
+    packet.objectID = _id;
     return node->send( packet );
 }
 

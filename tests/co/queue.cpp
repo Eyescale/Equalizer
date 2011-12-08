@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Carsten Rohn <carsten.rohn@rtt.ag> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2011, Carsten Rohn <carsten.rohn@rtt.ag> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +18,13 @@
 
 #include <test.h>
 
-#include <co/queueSlave.h>
-#include <co/queueMaster.h>
+#include <co/command.h>
+#include <co/connectionDescription.h>
 #include <co/init.h>
 #include <co/node.h>
-#include <co/connectionDescription.h>
+#include <co/queueMaster.h>
+#include <co/queuePackets.h>
+#include <co/queueSlave.h>
 #include <co/base/sleep.h>
 
 

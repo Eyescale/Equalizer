@@ -22,7 +22,7 @@
 #include "commands.h"
 #include "dataIStream.h"
 #include "global.h"
-#include "packets.h"
+#include "queuePackets.h"
 
 namespace co
 {

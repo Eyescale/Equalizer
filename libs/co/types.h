@@ -51,9 +51,9 @@ class QueueSlave;
 template< class Q > class WorkerThread;
 struct ObjectVersion;
 struct Packet;
+struct QueueItemPacket;
 
-/** A unique identifier for nodes. */
-typedef base::UUID NodeID;
+typedef base::UUID NodeID; //!< A unique identifier for nodes.
 
 typedef base::uint128_t uint128_t;
 

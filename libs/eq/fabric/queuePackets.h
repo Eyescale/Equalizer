@@ -18,7 +18,7 @@
 #ifndef EQ_QUEUEPACKETS_H
 #define EQ_QUEUEPACKETS_H
 
-#include <co/packets.h> // 'base'
+#include <co/queuePackets.h> // 'base'
 
 #include "range.h"
 #include "pixelViewport.h"

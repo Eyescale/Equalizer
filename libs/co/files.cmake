@@ -34,6 +34,7 @@ set(CO_PUBLIC_HEADERS
     objectVersion.h
     packets.h
     queueMaster.h
+    queuePackets.h
     queueSlave.h
     serializable.h
     types.h
