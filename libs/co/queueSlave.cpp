@@ -26,65 +26,78 @@
 
 namespace co
 {
+namespace detail
+{
+class QueueSlave
+{
+public:
+    QueueSlave()
+            : prefetchLow(Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
+            , prefetchHigh(Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE))
+            , masterInstanceID( EQ_INSTANCE_ALL )
+        {}
+
+    CommandQueue queue;
+
+    uint32_t prefetchLow;
+    uint32_t prefetchHigh;
+    uint32_t masterInstanceID;
+
+    NodePtr master;
+};
+}
 
 QueueSlave::QueueSlave()
-        : Object()
-        , _prefetchLow( Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
-        , _prefetchHigh( Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE ))
-        , _masterInstanceID( EQ_INSTANCE_ALL )
-{
-}
+        : _impl( new detail::QueueSlave )
+{}
 
 QueueSlave::~QueueSlave()
 {
-    clear(); // clear leftover QUEUE_EMPTY packets here
+    EQASSERT( _impl->queue.isEmpty( ));
+    while( !_impl->queue.isEmpty( ))
+    {
+        Command* cmd = _impl->queue.pop();
+        cmd->release();
+    }
+    delete _impl;
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
-    registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_queue);
-    registerCommand( CMD_QUEUE_EMPTY, CommandFunc<Object>(0, 0), &_queue);
+    registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_impl->queue );
+    registerCommand( CMD_QUEUE_EMPTY, CommandFunc<Object>(0, 0), &_impl->queue);
 }
 
 void QueueSlave::applyInstanceData( co::DataIStream& is )
 {
     uint128_t masterNodeID;
-    is >> _masterInstanceID >> masterNodeID;
+    is >> _impl->masterInstanceID >> masterNodeID;
 
     EQASSERT( masterNodeID != NodeID::ZERO );
-    EQASSERT( !_master );
+    EQASSERT( !_impl->master );
     LocalNodePtr localNode = getLocalNode();
-    _master = localNode->connect( masterNodeID );
+    _impl->master = localNode->connect( masterNodeID );
 }
 
 Command* QueueSlave::pop()
 {
-    if ( _queue.getSize() <= _prefetchLow )
+    const uint32_t queueSize( _impl->queue.getSize( ));
+    if ( queueSize <= _impl->prefetchLow )
     {
         QueueGetItemPacket packet;
-        uint32_t queueSize = static_cast<uint32_t>(_queue.getSize());
-        packet.itemsRequested = _prefetchHigh - queueSize;
-        packet.instanceID = _masterInstanceID;
+        packet.itemsRequested = _impl->prefetchHigh - queueSize;
+        packet.instanceID = _impl->masterInstanceID;
         packet.slaveInstanceID = getInstanceID();
-        send( _master, packet );
+        send( _impl->master, packet );
     }
-    
-    Command* cmd = _queue.pop();
-    if ((*cmd)->command == CMD_QUEUE_ITEM)
+
+    Command* cmd = _impl->queue.pop();
+    if( (*cmd)->command == CMD_QUEUE_ITEM )
         return cmd;
     
     cmd->release();
     return 0;
-}
-
-void QueueSlave::clear()
-{
-    while( !_queue.isEmpty( ))
-    {
-        Command* cmd = _queue.pop();
-        cmd->release();
-    }
 }
 
 }

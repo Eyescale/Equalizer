@@ -78,16 +78,19 @@
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
 <ul>
-  <li>Automic local and remote configuration using the GPU-SD library</li>
-  <li>Initial release of Sequel, a simplification and utility layer on top of
-    Equalizer, enabling rapid development of clustered multi-GPU
-    applications</li>
+  <li><a href="http://www.equalizergraphics.com/build/documentation/user/configuration.html">Automic
+      local and remote configuration</a> using
+    the <a href="http://www.equalizergraphics.com/gpu-sd">GPU-SD library</li>
+  <li>Initial release
+    of <a href="http://www.equalizergraphics.com//documents/Developer/API-1.2/sequel/namespaceseq.html">Sequel</a>,
+    a simplification and utility layer on top of Equalizer, enabling rapid
+    development of clustered multi-GPU applications</li>
   <li>Runtime failure tolerance detecting hardware and software failures</li>
   <li>Tile compounds for fill-limited rendering such as volume raycasting and
-    raytracing</li>
+    interactive raytracing</li>
 </ul>
 <ul>
-  <li>
+  <li>Distributed queue</li>
   <li>RDMA-based connection class for InfiniBand</li>
   <li>Support push-based object distribution</li>
 </ul>

@@ -72,15 +72,16 @@ documentation changes:
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
--   Automic local and remote configuration using the GPU-SD library
--   Initial release of Sequel, a simplification and utility layer on top
-    of Equalizer, enabling rapid development of clustered multi-GPU
+-   `Automic local and remote configuration`_ using the `GPU-SD library
+-   Initial release of `Sequel`_, a simplification and utility layer on
+    top of Equalizer, enabling rapid development of clustered multi-GPU
     applications
 -   Runtime failure tolerance detecting hardware and software failures
 -   Tile compounds for fill-limited rendering such as volume raycasting
-    and raytracing
+    and interactive raytracing
 
--   -   RDMA-based connection class for InfiniBand
+-   Distributed queue
+-   RDMA-based connection class for InfiniBand
 -   Support push-based object distribution
 
 
@@ -265,6 +266,10 @@ information.
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/major.html#1.2
 .. _detailed feature list: /features.html
+.. _Automic       local and remote configuration: http://www.equalizergra
+    phics.com/build/documentation/user/configuration.html
+.. _Sequel: http://www.equalizergraphics.com//documents/Developer/API-1.2
+    /sequel/namespaceseq.html
 .. _43: https://github.com/Eyescale/Equalizer/issues/43
 .. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _API       documentation:

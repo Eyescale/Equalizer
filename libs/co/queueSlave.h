@@ -25,33 +25,42 @@
 
 namespace co
 {
+namespace detail { class QueueSlave; }
 
+/**
+ * The consumer end of a distributed queue.
+ *
+ * One or more instances of this class are mapped to the identifier of the
+ * QueueMaster registered on another node.
+ */
 class QueueSlave : public Object
 {
 public:
-
+    /** Construct a new queue consumer. @version 1.1.6 */
     CO_API QueueSlave();
-    ~QueueSlave();
 
-    CO_API virtual void attach( const base::UUID& id, 
-        const uint32_t instanceID );
+    /** Destruct this new queue consumer. @version 1.1.6 */
+    virtual CO_API ~QueueSlave();
 
+    /** 
+     * Pop an item from the distributed queue.
+     * 
+     * If the queue is empty, 0 is returned. Otherwise the returned command has
+     * to be released by the caller.
+     *
+     * @return the popped command, or 0 if the queue was empty.
+     * @version 1.1.6
+     */
     CO_API Command* pop();
-    CO_API void clear();
 
-protected:
+private:
+    detail::QueueSlave* const _impl;
+
+    CO_API virtual void attach(const base::UUID& id, const uint32_t instanceID);
+
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& ) { EQDONTCALL }
     virtual void applyInstanceData( co::DataIStream& is );
-
-private:
-    CommandQueue _queue;
-
-    uint32_t _prefetchLow;
-    uint32_t _prefetchHigh;
-    uint32_t _masterInstanceID;
-
-    NodePtr _master;
 };
 
 } // co
