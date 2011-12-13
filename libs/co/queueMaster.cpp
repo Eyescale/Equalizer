@@ -52,9 +52,7 @@ public:
 
         if( packet->itemsRequested > commands.size( ))
         {
-            QueueEmptyPacket reply;
-            reply.objectID = packet->objectID;
-            reply.instanceID = packet->slaveInstanceID;
+            QueueEmptyPacket reply( packet );
             command.getNode()->send( reply );
         }
         return true;

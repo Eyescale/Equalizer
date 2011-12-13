@@ -22,16 +22,6 @@
 
 namespace co
 {
-    struct QueueItemPacket : public ObjectPacket
-    {
-        QueueItemPacket()
-            : ObjectPacket()
-        {
-            command = CMD_QUEUE_ITEM;
-            size = sizeof( QueueItemPacket );
-        }
-    };
-
     struct QueueGetItemPacket : public ObjectPacket
     {
         QueueGetItemPacket()
@@ -44,16 +34,32 @@ namespace co
         }
         uint32_t itemsRequested;
         uint32_t slaveInstanceID;
+        int32_t requestID;
     };
     
+    struct QueueItemPacket : public ObjectPacket
+    {
+        QueueItemPacket()
+            : ObjectPacket()
+        {
+            command = CMD_QUEUE_ITEM;
+            size = sizeof( QueueItemPacket );
+        }
+    };
+
     struct QueueEmptyPacket : public ObjectPacket
     {
-        QueueEmptyPacket()
+        QueueEmptyPacket( const QueueGetItemPacket* request )
             : ObjectPacket()
+            , requestID( request->requestID )
         {
             command = CMD_QUEUE_EMPTY;
             size = sizeof( QueueEmptyPacket );
+            objectID = request->objectID;
+            instanceID = request->slaveInstanceID;
         }
+
+        const int32_t requestID;
     };
 }
 

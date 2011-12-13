@@ -53,10 +53,10 @@ QueueSlave::QueueSlave()
 
 QueueSlave::~QueueSlave()
 {
-    EQASSERT( _impl->queue.isEmpty( ));
     while( !_impl->queue.isEmpty( ))
     {
         Command* cmd = _impl->queue.pop();
+        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
         cmd->release();
     }
     delete _impl;
@@ -82,22 +82,36 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
 
 Command* QueueSlave::pop()
 {
-    const uint32_t queueSize( _impl->queue.getSize( ));
-    if ( queueSize <= _impl->prefetchLow )
-    {
-        QueueGetItemPacket packet;
-        packet.itemsRequested = _impl->prefetchHigh - queueSize;
-        packet.instanceID = _impl->masterInstanceID;
-        packet.slaveInstanceID = getInstanceID();
-        send( _impl->master, packet );
-    }
+    static base::a_int32_t _request;
+    const int32_t request = ++_request;
 
-    Command* cmd = _impl->queue.pop();
-    if( (*cmd)->command == CMD_QUEUE_ITEM )
-        return cmd;
+    while( true )
+    {
+        const uint32_t queueSize( _impl->queue.getSize( ));
+        if( queueSize <= _impl->prefetchLow )
+        {
+            QueueGetItemPacket packet;
+            packet.itemsRequested = _impl->prefetchHigh - queueSize;
+            packet.instanceID = _impl->masterInstanceID;
+            packet.slaveInstanceID = getInstanceID();
+            packet.requestID = request;
+            send( _impl->master, packet );
+        }
+
+        Command* cmd = _impl->queue.pop();
+        if( (*cmd)->command == CMD_QUEUE_ITEM )
+            return cmd;
     
-    cmd->release();
-    return 0;
+        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+        const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
+        if( packet->requestID == request )
+        {
+            cmd->release();
+            return 0;
+        }
+        // else left-over or not our empty packet, discard and retry
+        cmd->release();
+    }
 }
 
 }
