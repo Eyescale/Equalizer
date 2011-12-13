@@ -77,8 +77,8 @@ documentation changes:
     top of Equalizer, enabling rapid development of clustered multi-GPU
     applications
 -   Runtime failure tolerance detecting hardware and software failures
--   Tile compounds for fill-limited rendering such as volume raycasting
-    and interactive raytracing
+-   Tile compounds for fill-limited rendering such as direct volume
+    rendering and interactive raytracing
 
 -   Distributed queue
 -   RDMA-based connection class for InfiniBand

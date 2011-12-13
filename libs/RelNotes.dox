@@ -86,8 +86,8 @@
     a simplification and utility layer on top of Equalizer, enabling rapid
     development of clustered multi-GPU applications</li>
   <li>Runtime failure tolerance detecting hardware and software failures</li>
-  <li>Tile compounds for fill-limited rendering such as volume raycasting and
-    interactive raytracing</li>
+  <li>Tile compounds for fill-limited rendering such as direct volume rendering
+    and interactive raytracing</li>
 </ul>
 <ul>
   <li>Distributed queue</li>

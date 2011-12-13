@@ -19,9 +19,10 @@
 #ifndef CO_QUEUESLAVE_H
 #define CO_QUEUESLAVE_H
 
-#include "types.h"
-#include "object.h"
 #include "api.h"
+#include "global.h" // used inline
+#include "object.h" // base class
+#include "types.h"
 
 namespace co
 {
@@ -36,8 +37,24 @@ namespace detail { class QueueSlave; }
 class QueueSlave : public Object
 {
 public:
-    /** Construct a new queue consumer. @version 1.1.6 */
-    CO_API QueueSlave();
+    /**
+     * Construct a new queue consumer.
+     *
+     * The implementation will prefetch items from the queue master to cache
+     * thems locally. The prefetchMark determines when new items are requested,
+     * and the prefetchAmount how many items are fetched. Prefetching items
+     * hides the network latency by pipelining the network communication with
+     * the processing but may introduce imbalance between queue slaves if used
+     * aggressively.
+     *
+     * @param prefetchMark the low-water mark for prefetching.
+     * @param prefetchAmount the refill quantity when prefetching.
+     * @version 1.1.6
+     */
+    CO_API QueueSlave( const uint32_t prefetchMark = 
+                       Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ),
+                       const uint32_t prefetchAmount = 
+                       Global::getIAttribute( Global::IATTR_QUEUE_REFILL ));
 
     /** Destruct this new queue consumer. @version 1.1.6 */
     virtual CO_API ~QueueSlave();

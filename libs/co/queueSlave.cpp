@@ -31,24 +31,25 @@ namespace detail
 class QueueSlave
 {
 public:
-    QueueSlave()
-            : prefetchLow(Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
-            , prefetchHigh(Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE))
+    QueueSlave( const uint32_t mark, const uint32_t amount)
+            : prefetchMark( mark )
+            , prefetchAmount( amount )
             , masterInstanceID( EQ_INSTANCE_ALL )
         {}
 
     CommandQueue queue;
 
-    uint32_t prefetchLow;
-    uint32_t prefetchHigh;
+    const uint32_t prefetchMark;
+    const uint32_t prefetchAmount;
     uint32_t masterInstanceID;
 
     NodePtr master;
 };
 }
 
-QueueSlave::QueueSlave()
-        : _impl( new detail::QueueSlave )
+QueueSlave::QueueSlave( const uint32_t prefetchMark,
+                        const uint32_t prefetchAmount )
+        : _impl( new detail::QueueSlave( prefetchMark, prefetchAmount ))
 {}
 
 QueueSlave::~QueueSlave()
@@ -88,10 +89,10 @@ Command* QueueSlave::pop()
     while( true )
     {
         const uint32_t queueSize( _impl->queue.getSize( ));
-        if( queueSize <= _impl->prefetchLow )
+        if( queueSize <= _impl->prefetchMark )
         {
             QueueGetItemPacket packet;
-            packet.itemsRequested = _impl->prefetchHigh - queueSize;
+            packet.itemsRequested = _impl->prefetchAmount;
             packet.instanceID = _impl->masterInstanceID;
             packet.slaveInstanceID = getInstanceID();
             packet.requestID = request;
