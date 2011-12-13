@@ -111,9 +111,7 @@ namespace co
          */
         CO_API virtual bool close();
 
-        /** 
-         * Close a listening node.
-         */
+        /** Close a listening node. */
         virtual bool exitLocal() { return close(); }
 
         /**

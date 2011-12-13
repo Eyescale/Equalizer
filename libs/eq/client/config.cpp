@@ -182,6 +182,36 @@ ConstClientPtr Config::getClient() const
     return getServer()->getClient(); 
 }
 
+
+namespace
+{
+class ActivateLayoutVisitor : public ConfigVisitor
+{
+public:
+    ActivateLayoutVisitor( const Strings& layouts ) : _names( layouts ) {}
+
+    virtual VisitorResult visitPre( Canvas* canvas )
+        {
+            const Layouts& layouts = canvas->getLayouts();
+
+            for( StringsCIter i = _names.begin(); i != _names.end(); ++i )
+            {
+                const std::string& name = *i;
+                for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
+                {
+                    const Layout* layout = *j;
+                    if( layout->getName() == name )
+                        canvas->useLayout( j - layouts.begin( ));
+                }
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+private:
+    const Strings& _names;
+};
+}
+
 bool Config::init( const uint128_t& initID )
 {
     EQASSERT( !_running );
@@ -190,14 +220,16 @@ bool Config::init( const uint128_t& initID )
     _finishedFrame = 0;
     _frameTimes.clear();
 
+    ClientPtr client = getClient();
+    ActivateLayoutVisitor activate( client->getActiveLayouts( ));
+    accept( activate );
+
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
-    packet.requestID  = localNode->registerRequest();
-    packet.initID     = initID;
-
+    packet.requestID = localNode->registerRequest();
+    packet.initID = initID;
     send( getServer(), packet );
     
-    ClientPtr client = getClient();
     while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
     localNode->waitRequest( packet.requestID, _running );

@@ -45,6 +45,11 @@
 namespace eq
 {
 /** @cond IGNORE */
+namespace
+{
+    Strings _activeLayouts;
+}
+
 typedef co::CommandFunc<Client> ClientFunc;
 
 static co::ConnectionPtr _startLocalServer();
@@ -217,6 +222,12 @@ bool Client::initLocal( const int argc, char** argv )
                 EQASSERT( !clientOpts.empty( ));
             }
         }
+        else if( std::string( "--eq-layout" ) == argv[i] &&
+                 i < argc-1 && // more args
+                 argv[i+1][0] != '-' ) // next arg not an option
+        {
+            _activeLayouts.push_back( argv[++i] ); 
+        }
     }
     EQINFO << "Launching " << getNodeID() << std::endl;
 
@@ -297,6 +308,12 @@ void Client::clientLoop()
     _mainThreadQueue.flush();
 }
 
+bool Client::exitLocal()
+{
+    _activeLayouts.clear();
+    return fabric::Client::exitLocal();
+}
+
 void Client::exitClient()
 {
     bool ret = exitLocal();
@@ -311,6 +328,11 @@ void Client::exitClient()
 bool Client::hasCommands()
 {
     return !_mainThreadQueue.isEmpty();
+}
+
+const Strings& Client::getActiveLayouts()
+{
+    return _activeLayouts;
 }
 
 co::NodePtr Client::createNode( const uint32_t type )

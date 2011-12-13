@@ -72,8 +72,8 @@ static ServerThread _serverThread;
 }
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
-    const std::string& config )
+extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
+                                                      const std::string& config )
 {
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
