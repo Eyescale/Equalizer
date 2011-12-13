@@ -42,6 +42,14 @@ used by the daemon:
 
 ## Downloads
 
+Version 1.0.1
+[release notes](http://www.equalizergraphics.com/gpu-sd/API-1.0.1):
+
+* Source: [tar.gz](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd-1.0.1.tar.gz)
+* Binaries:
+  [![OS X](http://www.equalizergraphics.com/images/mac.png)](http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd1-1.0.1-Darwin.dmg)
+  [![Ubuntu](http://www.equalizergraphics.com/images/ubuntu.png)](https://launchpad.net/%7Eeilemann/+archive/equalizer/)
+
 Version 1.0
 [release notes](http://www.equalizergraphics.com/gpu-sd/API-1.0):
 
