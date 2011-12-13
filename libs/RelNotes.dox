@@ -90,9 +90,11 @@
     and interactive raytracing</li>
 </ul>
 <ul>
-  <li>Distributed queue</li>
-  <li>RDMA-based connection class for InfiniBand</li>
-  <li>Support push-based object distribution</li>
+  <li>Distributed single-producer, multi-consumer queue</li>
+  <li>RDMA-based connection class for InfiniBand (Linux only)</li>
+  <li>Support
+    <a href="https://github.com/Eyescale/Equalizer/issues/28">push-based object
+      distribution</a></li>
 </ul>
 
 <a name="enhancements"></a>
@@ -100,14 +102,15 @@
 <ul>
   <li>Added FindEqualizer.cmake and FindCollage.cmake for integration of
     Equalizer and Collage in CMake build environments</li>
+  <li>Support for render clients without listening sockets</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/24">Per-segment or
+      per-canvas swap barriers</a></li>
+  <li>Allow the image compressor to be chosen by the application</li>
+  <li>Allow and prefer external GLEW installation during compilation</li>
+  <li>Upgrade internal GLEW version to 1.7.0</li>
   <li>Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX</li>
   <li>Add time member to eq::Event recording time when the event was received
     from the operating system</li>
-  <li>Support for render clients without listening sockets</li>
-  <li>Allow the image compressor to be chosen by the application</li>
-  <li>Allow and prefer external GLEW installation during compilation</li>
-  <li>Updgrade internal GLEW version to 1.7.0</li>
-  <li>Per-segment or canvas swap barriers</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/43">43</a>: Add
     View::isActive and Layout::isActive</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make RNG
@@ -123,14 +126,13 @@
 <h3>2.3. Optimizations</h3>
 <ul>
   <li>Make LocalNode::registerObject and Object::commit parallelizable by
-    executing Object serialization from calling thread</li>
+    executing object serialization from calling thread</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
 <ul>
   <li>Provide CMake files for installed examples</li>
-  <li>eqPly:</li>
   <li>seqPly: An new example similar to eqPly, but using the Sequel API</li>
   <li>eqAsync: A new example demonstrating OpenGL context sharing for
     asynchronously texture uploads</li>

@@ -80,9 +80,9 @@ documentation changes:
 -   Tile compounds for fill-limited rendering such as direct volume
     rendering and interactive raytracing
 
--   Distributed queue
--   RDMA-based connection class for InfiniBand
--   Support push-based object distribution
+-   Distributed single-producer, multi-consumer queue
+-   RDMA-based connection class for InfiniBand (Linux only)
+-   Support `push-based object distribution`_
 
 
 2.2. Enhancements
@@ -90,14 +90,14 @@ documentation changes:
 
 -   Added FindEqualizer.cmake and FindCollage.cmake for integration of
     Equalizer and Collage in CMake build environments
+-   Support for render clients without listening sockets
+-   `Per-segment or per-canvas swap barriers`_
+-   Allow the image compressor to be chosen by the application
+-   Allow and prefer external GLEW installation during compilation
+-   Upgrade internal GLEW version to 1.7.0
 -   Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
 -   Add time member to eq::Event recording time when the event was
     received from the operating system
--   Support for render clients without listening sockets
--   Allow the image compressor to be chosen by the application
--   Allow and prefer external GLEW installation during compilation
--   Updgrade internal GLEW version to 1.7.0
--   Per-segment or canvas swap barriers
 -   `43`_: Add View::isActive and Layout::isActive
 -   `45`_: Make RNG functional without co::base::init
 -   Implement maximum size of multi-threaded queue, resulting in blocking
@@ -111,14 +111,13 @@ documentation changes:
 ~~~~~~~~~~~~~~~~~~
 
 -   Make LocalNode::registerObject and Object::commit parallelizable by
-    executing Object serialization from calling thread
+    executing object serialization from calling thread
 
 
 2.4. Examples
 ~~~~~~~~~~~~~
 
 -   Provide CMake files for installed examples
--   eqPly:
 -   seqPly: An new example similar to eqPly, but using the Sequel API
 -   eqAsync: A new example demonstrating OpenGL context sharing for
     asynchronously texture uploads
@@ -270,6 +269,10 @@ information.
     phics.com/build/documentation/user/configuration.html
 .. _Sequel: http://www.equalizergraphics.com//documents/Developer/API-1.2
     /sequel/namespaceseq.html
+.. _push-based object       distribution:
+    https://github.com/Eyescale/Equalizer/issues/28
+.. _Per-segment or       per-canvas swap barriers:
+    https://github.com/Eyescale/Equalizer/issues/24
 .. _43: https://github.com/Eyescale/Equalizer/issues/43
 .. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _API       documentation:
