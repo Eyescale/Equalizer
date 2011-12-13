@@ -7,10 +7,9 @@ Welcome to GPU-SD, a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. GPU-SD enables auto-configuration of
 ad-hoc GPU clusters and multi-GPU machines.
 
-GPU-SD 1.0 is the initial release delivering local discovery for all major
-operating systems and remote announcements and discovery using the ZeroConf
-protocol. GPU-SD 1.0 can be retrieved by downloading the
-<a href="http://www.equalizergraphics.com/downloads/GPU-SD-1.0.tar.gz">source
+GPU-SD 1.0.1 is a bugfix release for version 1.0. It can be retrieved by
+downloading the
+<a href="http://www.equalizergraphics.com/downloads/GPU-SD-1.0.1.tar.gz">source
   code</a> or one of the
 <a href="http://www.equalizergraphics.com/gpu-sd/downloads.html">binary
   distributions</a>.
@@ -33,16 +32,8 @@ GPU-SD provides the following features to enable GPU discovery:
 GPU-SD 1.0 is the initial release and contains the following features:
 
 @subsection NewFeatures New Features
-- Base discovery library
-  - Runtime-loadable discovery modules
-  - Chainable, user-programmable filters during discovery
-  - CGL discovery module (Mac OS X)
-  - GLX discovery module (Linux, Mac OS X)
-  - WGL discovery module supporting plain WGL, WGL_NV_gpu_affinity and
-    WGL_AMD_gpu_association (Windows)
-  - DNS_SD discovery module for remote discovery (all systems)
-- DNS_SD announcement daemon using the CGL, GLX and WGL modules.
-  - Session support
+
+No new features.
  
 @subsection Enhancements Enhancements
 
@@ -58,29 +49,25 @@ No example code.
 
 @subsection Tools Tools
 
-- gpu_sd_list query tool printing all GPUs found using the DNS_SD module
+No tool changes.
 
 @subsection API Changes
 
-The following changes breaking compatibility with GPU-SD 1.0 source code
-were made:
-
-No API changes.
+No API changes breaking compatibility with GPU-SD 1.0 source code were made.
 
 @subsection Documentation
 
 The following documentation has been added or substantially improved since the
 last release:
 
-- README outlining the protocol and basic usage
-- API documentation
+No updates.
 
 @subsection Bugs Bug Fixes
 
 GPU-SD 1.0 includes various bugfixes over the last release, including the
 following:
 
-No bug fixes.
+- Install header file for dns_sd module
 
 @subsection KnownBugs Known Bugs
 
@@ -91,11 +78,10 @@ any other issue with this release.
 No known bugs.
 
 @section About About
-<p>
-  GPU-SD is a cross-platform library, designed to run on any modern operating
-  system, including all Unix variants and the Windows operating system. A
-  ZeroConf implementation is required for the DNS_SD module and applications.
-</p>
+
+GPU-SD is a cross-platform library, designed to run on any modern operating
+system, including all Unix variants and the Windows operating system. A ZeroConf
+implementation is required for the DNS_SD module and applications.
 
 @subsection OS Operating System Support
 
