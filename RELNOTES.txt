@@ -155,17 +155,6 @@
 
      * RSP: Fix scattered ack implementation
      * 29: NV swap barrier with affinity context does not work
-     * Fixed activation of OpenMP during build
-     * Fixed glxew.h include
-     * 3383573: Win32: occasional crash with
-       CO_AGGRESSIVE_CACHING OFF
-     * 3357684: View user data occasionally synced one frame
-       too late
-     * 3306308: Deadlock with config.eqc and window init
-       failure
-     * 3306148: Including eq/gl.h with AGL fails
-     * 3301423: Config::stopFrames called from non-main thread
-       causes deadlocks
 
   2.9. Known Bugs
 
