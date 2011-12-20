@@ -602,9 +602,9 @@ const Model* Channel::_getModel()
 
 void Channel::_drawModel( const Model* model )
 {
-    Window*            window    = static_cast< Window* >( getWindow( ));
-    VertexBufferState& state     = window->getState();
-    const FrameData&   frameData = _getFrameData();
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const FrameData& frameData = _getFrameData();
 
     if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
         state.setColors( true );
