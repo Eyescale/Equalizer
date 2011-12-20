@@ -67,27 +67,27 @@ set(CPACK_STRIP_FILES TRUE)
 #set(UBUNTU_LP_BUG 300472)
 
 # components
-set(CPACK_COMPONENTS_ALL gpusddev gpusdruntime gpusdtools gpusddaemon)
+set(CPACK_COMPONENTS_ALL dev runtime tools daemon)
 
-set(CPACK_COMPONENT_GPUSDRUNTIME_DISPLAY_NAME
+set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME
   "GPU-SD libraries and applications")
-set(CPACK_COMPONENT_GPUSDRUNTIME_DESCRIPTION
+set(CPACK_COMPONENT_RUNTIME_DESCRIPTION
   "Runtime components of GPU-SD: The core library, discovery modules, announcement daemon and discovery tools")
 
-set(CPACK_COMPONENT_GPUSDDEV_DISPLAY_NAME "GPU-SD development files")
-set(CPACK_COMPONENT_GPUSDDEV_DESCRIPTION
+set(CPACK_COMPONENT_DEV_DISPLAY_NAME "GPU-SD development files")
+set(CPACK_COMPONENT_DEV_DESCRIPTION
   "GPU-SD header and library Files for development")
-set(CPACK_COMPONENT_GPUSDDEV_DEPENDS gpusdruntime)
+set(CPACK_COMPONENT_DEV_DEPENDS runtime)
 
-set(CPACK_COMPONENT_GPUSDDAEMON_DISPLAY_NAME "GPU-SD ZeroConf daemon")
-set(CPACK_COMPONENT_GPUSDDAEMON_DESCRIPTION
+set(CPACK_COMPONENT_DAEMON_DISPLAY_NAME "GPU-SD ZeroConf daemon")
+set(CPACK_COMPONENT_DAEMON_DESCRIPTION
   "GPU-SD ZeroConf annoucement daemon")
-set(CPACK_COMPONENT_GPUSDDAEMON_DEPENDS gpusdruntime)
+set(CPACK_COMPONENT_DAEMON_DEPENDS runtime)
 
-set(CPACK_COMPONENT_GPUSDTOOLS_DISPLAY_NAME "GPU-SD helper applications")
-set(CPACK_COMPONENT_GPUSDTOOLS_DESCRIPTION
+set(CPACK_COMPONENT_TOOLS_DISPLAY_NAME "GPU-SD helper applications")
+set(CPACK_COMPONENT_TOOLS_DESCRIPTION
   "GPU-SD Helper applications")
-set(CPACK_COMPONENT_GPUSDTOOLS_DEPENDS gpusdruntime)
+set(CPACK_COMPONENT_TOOLS_DEPENDS runtime)
 
 include(InstallRequiredSystemLibraries)
 include(CPack)

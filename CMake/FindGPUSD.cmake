@@ -223,7 +223,7 @@ else()
   include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(GPUSD DEFAULT_MSG
                                     GPUSD_core_LIBRARY _gpusd_INCLUDE_DIR)
-  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}-gpusdruntime")
+  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}-runtime")
 endif()
 
 get_filename_component(GPUSD_LIBRARY_DIR ${GPUSD_core_LIBRARY} PATH)
