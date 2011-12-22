@@ -85,7 +85,7 @@ namespace eqPly
         bool needRedraw();
 
         /** @return the current animation frame number. */
-        uint32_t getAnimationAbsoluteFrame();
+        uint32_t getAnimationFrame();
 
     protected:
         virtual ~Config();

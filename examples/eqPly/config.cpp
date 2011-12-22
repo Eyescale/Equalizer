@@ -49,7 +49,6 @@ Config::Config( eq::ServerPtr parent )
         , _redraw( true )
         , _useIdleAA( true )
         , _numFramesAA( 0 )
-
 {
 }
 
@@ -366,9 +365,9 @@ bool Config::needRedraw()
     return( _needNewFrame() || _numFramesAA > 0 );
 }
 
-u_int32_t Config::getAnimationAbsoluteFrame()
+uint32_t Config::getAnimationFrame()
 {
-    return _animation.getAbsoluteCurrentFrame();
+    return _animation.getCurrentFrame();
 }
 
 bool Config::_needNewFrame()

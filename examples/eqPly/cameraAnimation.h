@@ -50,8 +50,8 @@ namespace eqPly
         bool isValid() const { return !_steps.empty(); }
 
         Step getNextStep();
-        
-        uint32_t getAbsoluteCurrentFrame() { return _curFrame; }
+
+        uint32_t getCurrentFrame() { return _curFrame; }
 
         const eq::Vector3f& getModelRotation() const { return _modelRotation;}
 
@@ -60,7 +60,7 @@ namespace eqPly
             Step()
                 : frame( 0 )
                 , position( eq::Vector3f( .0f, .0f, -1.0f ))
-                , rotation(    eq::Vector3f( .0f, .0f,   .0f )){}
+                , rotation( eq::Vector3f( .0f, .0f,   .0f )){}
 
             Step( int frame_, const eq::Vector3f& position_,
                               const eq::Vector3f& rotation_  )
