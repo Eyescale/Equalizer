@@ -84,14 +84,16 @@ int main( int argc, char **argv )
     co::CommandCache commandCache;
     co::LocalNodePtr node = new co::LocalNode;
 
+    co::ObjectInstancePacket pkg( co::NodeID::ZERO, 0 );
+    pkg.last = true;
+    pkg.dataSize = PACKET_SIZE;
+    pkg.version = 1;
+    pkg.sequence = 0;
+
     co::Command& command = commandCache.alloc( node, node, PACKET_SIZE );
-    co::ObjectInstancePacket* packet = 
+    co::ObjectInstancePacket* packet =
         command.getModifiable< co::ObjectInstancePacket >();
-    *packet = co::ObjectInstancePacket();
-    packet->last = true;
-    packet->dataSize = PACKET_SIZE;
-    packet->version = 1;
-    packet->sequence = 0;
+    memcpy( packet, &pkg, sizeof( packet ));
 
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));

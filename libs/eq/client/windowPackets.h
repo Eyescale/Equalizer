@@ -70,13 +70,14 @@ namespace eq
 
     struct WindowCreateChannelPacket : public WindowPacket
     {
-        WindowCreateChannelPacket()
+        WindowCreateChannelPacket( const UUID& id )
+                : channelID( id )
             {
                 command = fabric::CMD_WINDOW_CREATE_CHANNEL;
                 size    = sizeof( WindowCreateChannelPacket );
             }
 
-        co::base::UUID channelID;
+        const UUID channelID;
     };
 
     struct WindowDestroyChannelPacket : public WindowPacket

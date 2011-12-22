@@ -363,7 +363,10 @@ bool Connection::send( Packet& packet, const void* data,
 
     if( dataSize <= 8 ) // fits in existing packet
     {
-        memcpy( (char*)(&packet) + packet.size-8, data, dataSize );
+#ifndef NDEBUG // fill all eight bytes in debug to keep valgrind happy
+        *(uint64_t*)((char*)(&packet) + packet.size - 8) = 0;
+#endif
+        memcpy( (char*)(&packet) + packet.size - 8, data, dataSize );
         return send( packet );
     }
     // else

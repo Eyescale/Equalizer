@@ -77,19 +77,25 @@ namespace co
                 , sequence( 0 )
                 , compressorName( 0 )
                 , nChunks( 0 )
-                , last( false ) {}
+                , fill( 0 )
+                , last( false )
+            {}
 
         uint128_t version;
         uint64_t dataSize;
         uint32_t sequence;
         uint32_t compressorName;
         uint32_t nChunks;
+        uint32_t fill;
         EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
     };
 
     struct ObjectInstancePacket : public ObjectDataPacket
     {
-        ObjectInstancePacket()
+        ObjectInstancePacket( const NodeID& id, const uint32_t iID )
+                : nodeID( id )
+                , masterInstanceID( iID )
+                , fill( 0 )
             {
                 // Always go through session which caches and forwards to object
                 type    = PACKETTYPE_CO_NODE;
@@ -98,8 +104,9 @@ namespace co
                 data[0] = 0;
             }
 
-        NodeID nodeID;
-        uint32_t masterInstanceID;
+        const NodeID nodeID;
+        const uint32_t masterInstanceID;
+        const uint32_t fill;
         EQ_ALIGN8( uint8_t data[8] );
     };
 

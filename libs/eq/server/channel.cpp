@@ -298,8 +298,7 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    WindowCreateChannelPacket createChannelPacket;
-    createChannelPacket.channelID = getID();
+    WindowCreateChannelPacket createChannelPacket( getID( ));
     getWindow()->send( createChannelPacket );
 
     ChannelConfigInitPacket packet;

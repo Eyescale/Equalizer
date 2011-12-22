@@ -775,10 +775,8 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     _addConnection( connection );
 
     // send connect packet to peer
-    NodeConnectPacket packet;
+    NodeConnectPacket packet( this );
     packet.requestID = registerRequest( node.get( ));
-    packet.nodeID    = _id;
-    packet.nodeType  = getType();
     connection->send( packet, serialize( ));
 
     bool connected = false;
@@ -798,7 +796,7 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 }
 
 NodePtr LocalNode::getNode( const NodeID& id ) const
-{ 
+{
     base::ScopedMutex< base::SpinLock > mutex( _nodes );
     NodeHash::const_iterator i = _nodes->find( id );
     if( i == _nodes->end( ))
