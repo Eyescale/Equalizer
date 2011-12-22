@@ -62,6 +62,7 @@ using fabric::OFF;
 Config::Config( ServerPtr parent )
         : Super( parent )
         , _currentFrame( 0 )
+        , _incarnation( 1 )
         , _finishedFrame( 0 )
         , _state( STATE_UNUSED )
         , _needsFinish( false )
@@ -490,7 +491,7 @@ void Config::deregister()
 
 uint128_t Config::commit()
 {
-    return Super::commit( _currentFrame + 1 );
+    return Super::commit( _incarnation );
 }
 
 void Config::restore()
@@ -835,6 +836,7 @@ void Config::_startFrame( const uint128_t& frameID )
     _syncClock();
 
     ++_currentFrame;
+    ++_incarnation;
     EQLOG( co::base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                                << std::endl;
 
@@ -1033,7 +1035,6 @@ bool Config::_cmdStartFrame( co::Command& command )
         frameFinishPacket.frameNumber = _currentFrame;
         send( command.getNode(), frameFinishPacket );
     }
-
     return true;
 }
 

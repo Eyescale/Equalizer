@@ -202,6 +202,9 @@ namespace server
         /** The last started frame, or 0. */
         uint32_t _currentFrame;
 
+        /** The eternal frame commit counter, starting at 1 (#66). */
+        uint32_t _incarnation;
+
         /** The last finished frame, or 0. */
         co::base::Monitor< uint32_t > _finishedFrame;
 

@@ -31,15 +31,12 @@ Welcome to Equalizer, the standard middleware to create and deploy parallel,
 scalable OpenGL applications. This release is a bugfix release for Equalizer
 1.0.
 
-Equalizer 1.0.1 culminates over 6 years of development and decades of
+Equalizer 1.0.2 culminates over 6 years of development and decades of
 experience into a feature-rich, high-performance and mature parallel
 rendering framework and an object-oriented high-level network library. It is
 intended for all application developers creating parallel, interactive OpenGL
-applications. Equalizer 1.0.1 can be retrieved by downloading the `source
-code`_, updating the subversion trunk to revision 5834 (``svn up -r 5834``)
-or by using:
-``svn co
-https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.1``
+applications. Equalizer 1.0.2 can be retrieved by downloading the `source
+code`_ or one of the `precompiled packages`_.
 
 
 1.1. Features
@@ -67,7 +64,7 @@ can be found on the Equalizer website.
 2. New in this release
 ----------------------
 
-Equalizer 1.0.1 is a minor release and contains the following enhancements
+Equalizer 1.0.2 is a minor release and contains the following enhancements
 and bug fixes:
 
 
@@ -80,7 +77,12 @@ No new features
 2.2. Enhancements
 ~~~~~~~~~~~~~~~~~
 
-No enhancements
+1.0.2
+
+-   Compatibility with an external GLEW library
+-   Improvements and spec file for RPM packaging
+-   `45`_: Make RNG functional without init()
+-   Support for Mac OS X 10.7 and RHEL 6.1
 
 
 2.3. Optimizations
@@ -116,7 +118,9 @@ No documentation changes
 2.8. Bug Fixes
 ~~~~~~~~~~~~~~
 
-Equalizer 1.0.1 includes the following bugfixes over the 1.0 release:
+Equalizer 1.0.2 includes the following bugfixes over the 1.0 release:
+
+1.0.1
 
 -   `29`_: NV swap barrier with affinity context does not work
 -   Fixed activation of OpenMP during build
@@ -148,7 +152,7 @@ operating system, including all Unix variants and the Windows operating
 system. A `compatibility matrix`_ can be found on the Equalizer website.
 
 Equalizer requires at least `OpenGL 1.1`_, but uses newer OpenGL features
-when available. Version 1.0.1 has been tested on:
+when available. Version 1.0.2 has been tested on:
 
 
 3.1. Operating System Support
@@ -157,9 +161,9 @@ when available. Version 1.0.1 has been tested on:
 Equalizer uses CMake to create a platform-specific build environment. The
 following platforms and build environments are tested:
 
--   **Linux:** Ubuntu 11.04, 10.10 (Makefile, i386, x64)
+-   **Linux:** Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
 -   **Windows:** XP and 7 (Visual Studio 2008, i386, x64)
--   **Mac OS X:** 10.5, 10.6 (Makefile, XCode, i386, x64)
+-   **Mac OS X:** 10.6, 10.7 (Makefile, XCode, i386, x64)
 
 
 3.2. Window System Support
@@ -216,8 +220,11 @@ information.
 .. _3.4. Support: #support
 .. _4. Errata: #errata
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-1.0.1.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-1.0.2.tar.gz
+.. _precompiled packages:
+    http://www.equalizergraphics.com/downloads/major.html#1.0
 .. _detailed feature list: /features.html
+.. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _29: https://github.com/Eyescale/Equalizer/issues/29
 .. _3383573: https://sourceforge.net/tracker/?func=detail&aid=3383573&gro
     up_id=170962&atid=856209
@@ -241,8 +248,7 @@ information.
 .. _online: http://www.equalizergraphics.com/survey.html
 .. _API   documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
-.. _examples: http://www.equalizergraphics.com/cgi-
-    bin/viewvc.cgi/tags/release-1.0.1/examples/
+.. _examples: https://github.com/Eyescale/Equalizer/tree/1.0/examples
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev

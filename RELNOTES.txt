@@ -23,17 +23,14 @@
    deploy parallel, scalable OpenGL applications. This release
    is a bugfix release for Equalizer 1.0.
 
-   Equalizer 1.0.1 culminates over 6 years of development and
+   Equalizer 1.0.2 culminates over 6 years of development and
    decades of experience into a feature-rich, high-performance
    and mature parallel rendering framework and an
    object-oriented high-level network library. It is intended
    for all application developers creating parallel,
-   interactive OpenGL applications. Equalizer 1.0.1 can be
-   retrieved by downloading the source code, updating the
-   subversion trunk to revision 5834 (svn up -r 5834) or by
-   using:
-   svn co
-   https://equalizer.svn.sourceforge.net/svnroot/equalizer/tags/release-1.0.1
+   interactive OpenGL applications. Equalizer 1.0.2 can be
+   retrieved by downloading the source code or one of the
+   precompiled packages.
 
   1.1. Features
 
@@ -63,7 +60,7 @@
 
 2. New in this release
 
-   Equalizer 1.0.1 is a minor release and contains the
+   Equalizer 1.0.2 is a minor release and contains the
    following enhancements and bug fixes:
 
   2.1. New Features
@@ -72,7 +69,12 @@
 
   2.2. Enhancements
 
-   No enhancements
+   1.0.2
+
+     * Compatibility with an external GLEW library
+     * Improvements and spec file for RPM packaging
+     * 45: Make RNG functional without init()
+     * Support for Mac OS X 10.7 and RHEL 6.1
 
   2.3. Optimizations
 
@@ -96,8 +98,10 @@
 
   2.8. Bug Fixes
 
-   Equalizer 1.0.1 includes the following bugfixes over the
+   Equalizer 1.0.2 includes the following bugfixes over the
    1.0 release:
+
+   1.0.1
 
      * 29: NV swap barrier with affinity context does not work
      * Fixed activation of OpenMP during build
@@ -129,7 +133,7 @@
    can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer
-   OpenGL features when available. Version 1.0.1 has been
+   OpenGL features when available. Version 1.0.2 has been
    tested on:
 
   3.1. Operating System Support
@@ -138,9 +142,9 @@
    environment. The following platforms and build environments
    are tested:
 
-     * Linux: Ubuntu 11.04, 10.10 (Makefile, i386, x64)
+     * Linux: Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
      * Windows: XP and 7 (Visual Studio 2008, i386, x64)
-     * Mac OS X: 10.5, 10.6 (Makefile, XCode, i386, x64)
+     * Mac OS X: 10.6, 10.7 (Makefile, XCode, i386, x64)
 
   3.2. Window System Support
 

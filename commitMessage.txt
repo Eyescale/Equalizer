@@ -1,8 +1,8 @@
-CMake updates
+Closes #66: use eternal incarnation counter for server config commits
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [ ] New Feature
 [ ] Cleanup
 [ ] Optimization

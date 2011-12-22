@@ -83,7 +83,6 @@ namespace
         VisitorResult _restore( fabric::Object* object )
             {
                 object->restore();
-                object->commit();
                 return TRAVERSE_CONTINUE;
             }
     };
