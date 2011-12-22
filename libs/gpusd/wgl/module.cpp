@@ -152,7 +152,8 @@ bool _initGLFuncs()
 
     wglGetExtensionsStringARB_ = (PFNWGLGETEXTENSIONSSTRINGARBPROC)
         wglGetProcAddress( "wglGetExtensionsStringARB" );
-    const char* ext = wglGetExtensionsStringARB_( dc );
+    const char* ext = wglGetExtensionsStringARB_ ?
+      wglGetExtensionsStringARB_( dc ) : 0;
     if( ext )
     {
         const std::string extensions( ext );
