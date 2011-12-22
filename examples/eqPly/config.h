@@ -111,7 +111,6 @@ namespace eqPly
         CameraAnimation _animation;
 
         uint64_t _messageTime;
-        uint32_t _frameNumber;
 
         bool _redraw;
         bool _useIdleAA;
