@@ -84,6 +84,9 @@ namespace eqPly
         /** @return true if an event required a redraw. */
         bool needRedraw();
 
+        /** @return the current animation frame number. */
+        uint32_t getAnimationAbsoluteFrame();
+
     protected:
         virtual ~Config();
 
@@ -108,6 +111,7 @@ namespace eqPly
         CameraAnimation _animation;
 
         uint64_t _messageTime;
+        uint32_t _frameNumber;
 
         bool _redraw;
         bool _useIdleAA;

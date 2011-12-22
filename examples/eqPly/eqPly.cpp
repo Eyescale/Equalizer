@@ -122,9 +122,28 @@ int EqPly::run()
     uint32_t maxFrames = _initData.getMaxFrames();
     
     clock.reset();
+    float previousTime = clock.getTimef();
+    bool firstRun = true;
+    int frameNumber = 0;
+    int lastFrame = 0;
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
+        
+        if(config->getAnimationAbsoluteFrame() == 1)
+        {
+            float timeDiff = clock.getTimef() - previousTime;
+               
+            if(!firstRun)
+               EQLOG( LOG_STATS ) << "Animation took " << timeDiff << " ms (" << frameNumber - lastFrame - 1
+                                  << " frames @ " << ( ( frameNumber - lastFrame - 1) / timeDiff * 1000.f) << " FPS)"
+                                  << std::endl;
+             
+            previousTime = clock.getTimef();
+            firstRun = false;
+            lastFrame = frameNumber;
+        }                     
+        frameNumber++;
         if( config->getError( ))
             EQWARN << "Error during frame start: " << config->getError()
                    << std::endl;

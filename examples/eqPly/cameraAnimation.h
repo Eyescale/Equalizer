@@ -50,6 +50,8 @@ namespace eqPly
         bool isValid() const { return !_steps.empty(); }
 
         Step getNextStep();
+        
+        uint32_t getAbsoluteCurrentFrame() { return _curFrame; }
 
         const eq::Vector3f& getModelRotation() const { return _modelRotation;}
 

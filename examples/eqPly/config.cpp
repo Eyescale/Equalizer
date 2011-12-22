@@ -46,9 +46,11 @@ Config::Config( eq::ServerPtr parent )
         , _advance( 0 )
         , _currentCanvas( 0 )
         , _messageTime( 0 )
+        , _frameNumber(-1)
         , _redraw( true )
         , _useIdleAA( true )
         , _numFramesAA( 0 )
+
 {
 }
 
@@ -363,6 +365,11 @@ bool Config::isIdleAA()
 bool Config::needRedraw()
 {
     return( _needNewFrame() || _numFramesAA > 0 );
+}
+
+u_int32_t Config::getAnimationAbsoluteFrame()
+{
+    return _animation.getAbsoluteCurrentFrame();
 }
 
 bool Config::_needNewFrame()
