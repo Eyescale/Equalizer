@@ -1,4 +1,4 @@
-Fix Windows window decorations
+Bump gpu-sd
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
