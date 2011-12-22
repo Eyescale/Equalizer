@@ -82,13 +82,13 @@ void StaticMasterCM::addSlave( Command& command,
     }
 
     // no data, send empty packet to set version
-    ObjectInstancePacket instancePacket;
+    ObjectInstancePacket instancePacket( NodeID::ZERO,
+                                         _object->getInstanceID( ));
     instancePacket.type = PACKETTYPE_CO_OBJECT;
     instancePacket.command = CMD_OBJECT_INSTANCE;
     instancePacket.version = VERSION_FIRST;
     instancePacket.last = true;
     instancePacket.instanceID = instanceID;
-    instancePacket.masterInstanceID = _object->getInstanceID();
     _object->send( node, instancePacket );
 }
 

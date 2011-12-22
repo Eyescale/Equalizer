@@ -32,6 +32,7 @@ namespace fabric
                                   const uint32_t req = EQ_UNDEFINED_UINT32 )
                 : configVersion( config )
                 , requestID( req )
+                , fill( 0 )
             {
                 command   = CMD_SERVER_CREATE_CONFIG;
                 size      = sizeof( ServerCreateConfigPacket );
@@ -39,6 +40,7 @@ namespace fabric
 
         const co::ObjectVersion configVersion;
         const uint32_t requestID;
+        const uint32_t fill;
     };
 
     struct ServerDestroyConfigPacket : public ServerPacket
