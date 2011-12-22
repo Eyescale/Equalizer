@@ -1,4 +1,4 @@
-Bump gpu-sd
+Closes #66: use eternal incarnation counter for server config commits
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
