@@ -1,9 +1,9 @@
-Closes #66: use eternal incarnation counter for server config commits
+Adding support for loading thread affinity configuration.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
