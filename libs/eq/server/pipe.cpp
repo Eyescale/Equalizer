@@ -342,6 +342,7 @@ void Pipe::output( std::ostream& os ) const
         
         os << ( i == IATTR_HINT_THREAD ? "hint_thread          " :
                 i == IATTR_HINT_CUDA_GL_INTEROP ? "hint_cuda_GL_interop " :
+                i == IATTR_HINT_AFFINITY  ? "hint_affinity " :
                 "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

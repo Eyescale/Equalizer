@@ -936,3 +936,4 @@ template class eq::fabric::Pipe< eq::Node, eq::Pipe, eq::Window,
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,
                                                 const eq::Super& );
 /** @endcond */
+

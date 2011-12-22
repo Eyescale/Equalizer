@@ -57,7 +57,8 @@ typedef co::base::RefPtr< Application > ApplicationPtr;
 
 int main( const int argc, char** argv )
 {
-    eqHello::ApplicationPtr app = new eqHello::Application;
+
+	eqHello::ApplicationPtr app = new eqHello::Application;
 
     if( app->init( argc, argv, 0 ) && app->run( 0 ) && app->exit( ))
         return EXIT_SUCCESS;
