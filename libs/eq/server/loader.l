@@ -139,7 +139,7 @@ hint_stereo                     { return EQTOKEN_HINT_STEREO; }
 hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
 hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
-hint_affinity					{ return EQTOKEN_HINT_AFFINITY; }
+hint_affinity                   { return EQTOKEN_HINT_AFFINITY; }
 hint_cuda_GL_interop            { return EQTOKEN_HINT_CUDA_GL_INTEROP; }
 hint_screensaver                { return EQTOKEN_HINT_SCREENSAVER; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }

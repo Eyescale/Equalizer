@@ -88,7 +88,7 @@ void Global::_setupDefaults()
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = fabric::ON;
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
-    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = OFF;
+    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = AUTO;
 
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
@@ -342,14 +342,11 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
     for( uint32_t i=0; i<Pipe::IATTR_ALL; ++i )
     {
         const int value = global->_pipeIAttributes[i];
-
         if( value == reference._pipeIAttributes[i] )
             continue;
 
         const std::string& name = Pipe::getIAttributeString( 
             static_cast<Pipe::IAttribute>( i ));
-
-
         os << name << std::string( GLOBAL_ATTR_LENGTH - name.length(), ' ' )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

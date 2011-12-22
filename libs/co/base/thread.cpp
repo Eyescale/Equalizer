@@ -79,7 +79,6 @@ void Thread::_runChild()
     pinCurrentThread();
     _id._data->pthread = pthread_self();
 
-
     if( !init( ))
     {
         EQWARN << "Thread " << className( this ) << " failed to initialize"
