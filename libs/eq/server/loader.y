@@ -648,8 +648,6 @@ pipeAttribute:
     | EQTOKEN_HINT_CUDA_GL_INTEROP IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 ); }
         
-
-
 window: EQTOKEN_WINDOW '{' 
             {
                 window = new eq::server::Window( eqPipe );

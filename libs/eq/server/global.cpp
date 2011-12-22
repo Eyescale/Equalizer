@@ -90,7 +90,6 @@ void Global::_setupDefaults()
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
     _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = OFF;
 
-
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
         _windowIAttributes[i] = fabric::UNDEFINED;
@@ -345,7 +344,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         const int value = global->_pipeIAttributes[i];
 
         if( value == reference._pipeIAttributes[i] )
-			continue;
+            continue;
 
         const std::string& name = Pipe::getIAttributeString( 
             static_cast<Pipe::IAttribute>( i ));

@@ -430,8 +430,9 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
     const PixelViewport& pvp = pipe.getPixelViewport();
     if( pvp.isValid( ))
         os << "viewport " << pvp << std::endl;
-      
+        
     pipe.output( os );
+    os << std::endl;
 
     const typename P::Windows& windows = pipe.getWindows();
     for( typename P::Windows::const_iterator i = windows.begin();
@@ -442,7 +443,6 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
 
     os << co::base::exdent << "}" << std::endl << co::base::enableHeader
        << co::base::enableFlush;
-    
     return os;
 }
 

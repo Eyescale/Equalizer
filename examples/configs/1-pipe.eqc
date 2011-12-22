@@ -15,8 +15,7 @@ server
         {
             pipe
             {
-				                
-				window
+                window
                 {
                     channel
                     {

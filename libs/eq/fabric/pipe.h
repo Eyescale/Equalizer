@@ -116,8 +116,8 @@ namespace fabric
         enum IAttribute
         {
             // Note: also update string array initialization in pipe.cpp
-        	IATTR_HINT_AFFINITY,
         	IATTR_HINT_THREAD,   //!< Execute tasks in separate thread (default)
+        	IATTR_HINT_AFFINITY,
             IATTR_HINT_CUDA_GL_INTEROP, //!< Configure CUDA context
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
@@ -129,8 +129,7 @@ namespace fabric
 
         /** @return the value of a pipe integer attribute. @version 1.0 */
         int32_t getIAttribute( const IAttribute attr ) const
-            {
-        	return _iAttributes[attr]; }
+            {return _iAttributes[attr]; }
 
         /** @internal @return true if tasks are executed in a separate thread.*/
         bool isThreaded() const
