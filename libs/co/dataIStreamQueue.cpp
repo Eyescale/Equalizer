@@ -63,6 +63,16 @@ ObjectDataIStream* DataIStreamQueue::pull( const uint128_t& key )
     return is;
 }
 
+void DataIStreamQueue::recycle( ObjectDataIStream* stream )
+{
+#ifdef CO_AGGRESSIVE_CACHING
+    stream->reset();
+    _iStreamCache.release( stream );
+#else
+    delete stream;
+#endif
+}
+
 bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
 {
     EQ_TS_THREAD( _thread );

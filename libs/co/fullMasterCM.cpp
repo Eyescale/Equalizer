@@ -111,6 +111,8 @@ void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
         return;
     }
 
+    EQASSERTINFO( incarnation >= _commitCount,
+		  "Detected decreasing commit incarnation counter" );
     _commitCount = incarnation;
 
     // obsolete 'future' old packages
@@ -130,8 +132,11 @@ void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
 
     InstanceData* data = _instanceDatas.back();
     if( data->commitCount > _commitCount )
+    {
         // tweak commitCount of minimum retained version for correct obsoletion
         data->commitCount = 0;
+	_version = data->os.getVersion();
+    }
 }
 
 void FullMasterCM::_obsolete()

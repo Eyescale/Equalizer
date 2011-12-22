@@ -125,7 +125,7 @@ namespace fabric
 
         /** @internal Set a pipe attribute. */
         EQFABRIC_INL void setIAttribute( const IAttribute attr,
-                                            const int32_t value );
+                                         const int32_t value );
 
         /** @return the value of a pipe integer attribute. @version 1.0 */
         int32_t getIAttribute( const IAttribute attr ) const

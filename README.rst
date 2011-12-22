@@ -164,14 +164,6 @@ following:
 
 -   RSP: Fix scattered ack implementation
 -   `29`_: NV swap barrier with affinity context does not work
--   Fixed activation of OpenMP during build
--   Fixed glxew.h include
--   `3383573`_: Win32: occasional crash with CO_AGGRESSIVE_CACHING OFF
--   `3357684`_: View user data occasionally synced one frame too late
--   `3306308`_: Deadlock with config.eqc and window init failure
--   `3306148`_: Including eq/gl.h with AGL fails
--   `3301423`_: Config::stopFrames called from non-main thread causes
-    deadlocks
 
 
 2.9. Known Bugs
@@ -280,16 +272,6 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _29: https://github.com/Eyescale/Equalizer/issues/29
-.. _3383573: https://sourceforge.net/tracker/?func=detail&aid=3383573&gro
-    up_id=170962&atid=856209
-.. _3357684: https://sourceforge.net/tracker/?func=detail&aid=3357684&gro
-    up_id=170962&atid=856209
-.. _3306308: https://sourceforge.net/tracker/?func=detail&aid=3306308&gro
-    up_id=170962&atid=856209
-.. _3306148: https://sourceforge.net/tracker/?func=detail&aid=3306148&gro
-    up_id=170962&atid=856209
-.. _3301423: https://sourceforge.net/tracker/?func=detail&aid=3301423&gro
-    up_id=170962&atid=856209
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
 .. _19: https://github.com/Eyescale/Equalizer/issues/19
 .. _18: https://github.com/Eyescale/Equalizer/issues/18
