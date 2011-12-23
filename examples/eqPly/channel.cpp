@@ -164,7 +164,13 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glColor3f( .75f, .75f, .75f );
 
     if( model )
+    {
         _drawModel( model );
+        glTranslatef(0.0001f, 0.0001f, 0.0001f);
+        _drawModel( model );
+        glTranslatef(-0.0002f, -0.0002f, -0.0002f);
+        _drawModel( model );
+    }
     else
     {
         glNormal3f( 0.f, -1.f, 0.f );
