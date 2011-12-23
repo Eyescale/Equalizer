@@ -259,8 +259,8 @@ information.
 .. _detailed feature list: /features.html
 .. _Automic       local and remote configuration: http://www.equalizergra
     phics.com/build/documentation/user/configuration.html
-.. _Sequel: http://www.equalizergraphics.com//documents/Developer/API-1.2
-    /sequel/namespaceseq.html
+.. _Sequel: http://www.equalizergraphics.com/documents/Developer/API-1.2/
+    sequel/namespaceseq.html
 .. _push-based object       distribution:
     https://github.com/Eyescale/Equalizer/issues/28
 .. _Per-segment or       per-canvas swap barriers:

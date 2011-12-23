@@ -82,7 +82,7 @@
       local and remote configuration</a> using
     the <a href="http://www.equalizergraphics.com/gpu-sd">GPU-SD library</li>
   <li>Initial release
-    of <a href="http://www.equalizergraphics.com//documents/Developer/API-1.2/sequel/namespaceseq.html">Sequel</a>,
+    of <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/sequel/namespaceseq.html">Sequel</a>,
     a simplification and utility layer on top of Equalizer, enabling rapid
     development of clustered multi-GPU applications</li>
   <li>Runtime failure tolerance detecting hardware and software failures</li>
@@ -172,6 +172,9 @@
       documentation</a> for the public Equalizer API.</li>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
       User Guide</a> has been extended to TBD pages and TBD figures.</li>
+  <li><a href="/documents/design/tileCompounds.html">Tile compounds</a>
+    using a pull-based task distribution for volume rendering and interactive
+    raytracing.</li>
 </ul>
 
 <a name="bugfixes"></a>
@@ -184,6 +187,13 @@
   <li>RSP: Fix scattered ack implementation</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/29">29</a>: NV swap
     barrier with affinity context does not work</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make
+    co::base::RNG function without init()</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/56">56</a>: 
+    Parsing configuration files is locale-dependent and fails in some
+    locales</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/66">66</a>:
+    Assertion when using the server for more than one session</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -193,6 +203,14 @@
   find any other issue with this release.
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/65">65</a>: Startup
+    crash with Multi-GPU config</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/61">61</a>: VMMlib
+    static initializer issue</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
+    netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/49">49</a>:
+    eqPixelBench crash with double free</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/19">19</a>: zoom
     readback with FBO</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/18">18</a>: zoom:
@@ -221,7 +239,8 @@
   following platforms and build environments are tested:
 </p>
 <ul>
-  <li><b>Linux:</b> Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)</li>
+  <li><b>Linux:</b> Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile, i386,
+    x64)</li>
   <li><b>Windows:</b> XP and 7 (Visual Studio 2008, i386, x64)</li>
   <li><b>Mac OS X:</b> 10.6, 10.7 (Makefile, XCode, i386, x64)</li>
 </ul>
