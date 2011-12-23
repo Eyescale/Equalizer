@@ -255,15 +255,15 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     _addSources( compound, channels );
 
     const Compounds& children = compound->getChildren();
-    const float step =  1.0f / float( children.size( ));
-    float start = 0.0f;
+    const size_t step =  size_t( 100000.0f / float( children.size( )));
+    size_t start = 0;
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
         Compound* child = *i;
         if( i+1 == children.end( )) // last - correct rounding 'error'
-            child->setViewport( eq::fabric::Viewport( start, 0.0, 1.0, 1.0  ) );
+            child->setViewport( eq::fabric::Viewport( float( start ) / 100000.f, 0.0, ( 100000.0f - float( start ) ) / 100000.f, 1.0  ) );
         else
-            child->setViewport( eq::fabric::Viewport( start, 0.0, start + step, 1.0 ) );
+            child->setViewport( eq::fabric::Viewport( float( start ) / 100000.f, 0.0, float( step ) / 100000.f, 1.0 ) );
         start += step;
     }
 
