@@ -219,13 +219,18 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
         EQASSERT( layout );
         
         const std::string& name = layout->getName();
-        if( name == "2D" )
+        if( name == "Static 2D" || name == "Dynamic 2D" )
         {
             Compound* mono = _add2DCompound( segmentCompound, channels );
             mono->setEyes( EYE_CYCLOP );
 
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
+            if( name == "Dynamic 2D" )
+            {
+                mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+                stereo->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+            }
         }
         else if( name == "Static DB" || name == "Dynamic DB" )
         {
@@ -247,8 +252,21 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
 {
     Compound* compound = new Compound( root );
     compound->setName( "2D" );
-    compound->addEqualizer( new LoadEqualizer );
     _addSources( compound, channels );
+
+    const Compounds& children = compound->getChildren();
+    const float step =  1.0f / float( children.size( ));
+    float start = 0.0f;
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    {
+        Compound* child = *i;
+        if( i+1 == children.end( )) // last - correct rounding 'error'
+            child->setViewport( eq::fabric::Viewport( start, 0.0, 1.0, 1.0  ) );
+        else
+            child->setViewport( eq::fabric::Viewport( start, 0.0, start + step, 1.0 ) );
+        start += step;
+    }
+
     return compound;
 }
 
@@ -260,7 +278,7 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
         compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
     _addSources( compound, channels );
 
-    const Compounds& children = compound->getChildren();\
+    const Compounds& children = compound->getChildren();
     const size_t step = size_t( 100000.0f / float( children.size( )));
     size_t start = 0;
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
