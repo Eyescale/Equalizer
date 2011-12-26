@@ -473,7 +473,7 @@ void RDMAConnection::_drainEvents( )
         {
             if( !warned )
             {
-                EQWARN << "Still waiting for outstanding work requests ( "
+                EQINFO << "Still waiting for outstanding work requests ( "
                     << _available_wr << " < " << _qpcap.max_send_wr
                     << " )" << std::endl;
                 warned = true;
@@ -1221,7 +1221,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     ok = ( event->event == expected );
 
-    EQWARN << (void *)this << " : " << ::rdma_event_str( event->event )
+    EQINFO << (void *)this << " : " << ::rdma_event_str( event->event )
         << "( " << ( !ok ? "*not* " : "" ) << "expected )" << std::endl;
 
     // Special case, flag that its safe to call rdma_disconnect
