@@ -391,7 +391,7 @@ void RDMAConnection::_disconnect()
     if( _established )
     {
         // Wait for outstanding work requests, TODO : Timeout?
-        while( _available_wr < (int)_qpcap.max_send_wr )
+        while( !_disconnected && ( _available_wr < (int)_qpcap.max_send_wr ))
             co::base::Thread::yield();
 
         EQASSERT( NULL != _cm_id );
