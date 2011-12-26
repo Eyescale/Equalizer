@@ -144,7 +144,7 @@ protected:
 
 private:
     /* Teardown */
-    void _disconnect( );
+    void _drainEvents( );
     void _cleanup( );
 
     /* Setup */
@@ -237,8 +237,8 @@ private:
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
     struct rdma_conn_param _conn_param;
-    bool _established; // set on receipt of RDMA_CM_EVENT_ESTABLISHED.
-    bool _disconnected; // set when event thread receives any unexpected event.
+    bool _established; // set on receipt of RDMA_CM_EVENT_ESTABLISHED
+    bool _thread_running; // state of the event thread
     bool _wcerr; // set when any work completion indicates failure
     uint32_t _depth;
 
