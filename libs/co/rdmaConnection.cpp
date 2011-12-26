@@ -464,11 +464,6 @@ void RDMAConnection::_drainEvents( )
 {
     if( _established )
     {
-<<<<<<< Updated upstream:libs/co/rdmaConnection.cpp
-        // Wait for outstanding work requests, TODO : Timeout?
-        while( !_disconnected && ( _available_wr < (int)_qpcap.max_send_wr ))
-            co::base::Thread::yield();
-=======
         bool warned = false;
 
         // Wait for event thread to process outstanding work requests, as long
@@ -485,7 +480,6 @@ void RDMAConnection::_drainEvents( )
             }
             co::base::Thread::yield( );
         }
->>>>>>> Stashed changes:libs/co/rdmaConnection.cpp
 
         EQASSERT( NULL != _cm_id );
         EQASSERT( NULL != _cm_id->verbs );
