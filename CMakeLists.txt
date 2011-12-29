@@ -93,7 +93,7 @@ add_subdirectory(libs)
 add_subdirectory(doc)
 
 install(FILES CMake/FindGPUSD.cmake DESTINATION share/gpu-sd/CMake
-        COMPONENT gpusddev)
+        COMPONENT dev)
 
 include(CTest)
 include(CPackConfig)
