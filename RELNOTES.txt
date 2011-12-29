@@ -147,6 +147,8 @@
      * Full API documentation for the public Equalizer API.
      * The Programming and User Guide has been extended to TBD
        pages and TBD figures.
+     * Tile compounds using a pull-based task distribution for
+       volume rendering and interactive raytracing.
 
   2.8. Bug Fixes
 
@@ -155,12 +157,21 @@
 
      * RSP: Fix scattered ack implementation
      * 29: NV swap barrier with affinity context does not work
+     * 45: Make co::base::RNG function without init()
+     * 56: Parsing configuration files is locale-dependent and
+       fails in some locales
+     * 66: Assertion when using the server for more than one
+       session
 
   2.9. Known Bugs
 
    The following bugs were known at release time. Please file
    a Bug Report if you find any other issue with this release.
 
+     * 65: Startup crash with Multi-GPU config
+     * 61: VMMlib static initializer issue
+     * 58: netperf/RDMA exit deadlock
+     * 49: eqPixelBench crash with double free
      * 19: zoom readback with FBO
      * 18: zoom: depth readback does not work
      * 17: AGL: Window close does not work
@@ -182,7 +193,8 @@
    environment. The following platforms and build environments
    are tested:
 
-     * Linux: Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
+     * Linux: Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile,
+       i386, x64)
      * Windows: XP and 7 (Visual Studio 2008, i386, x64)
      * Mac OS X: 10.6, 10.7 (Makefile, XCode, i386, x64)
 

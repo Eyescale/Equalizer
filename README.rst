@@ -154,6 +154,8 @@ the last release:
 -   Full `API documentation`_ for the public Equalizer API.
 -   The `Programming and User Guide`_ has been extended to TBD pages and
     TBD figures.
+-   `Tile compounds`_ using a pull-based task distribution for volume
+    rendering and interactive raytracing.
 
 
 2.8. Bug Fixes
@@ -164,6 +166,10 @@ following:
 
 -   RSP: Fix scattered ack implementation
 -   `29`_: NV swap barrier with affinity context does not work
+-   `45`_: Make co::base::RNG function without init()
+-   `56`_: Parsing configuration files is locale-dependent and fails in
+    some locales
+-   `66`_: Assertion when using the server for more than one session
 
 
 2.9. Known Bugs
@@ -172,6 +178,10 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
+-   `65`_: Startup crash with Multi-GPU config
+-   `61`_: VMMlib static initializer issue
+-   `58`_: netperf/RDMA exit deadlock
+-   `49`_: eqPixelBench crash with double free
 -   `19`_: zoom readback with FBO
 -   `18`_: zoom: depth readback does not work
 -   `17`_: AGL: Window close does not work
@@ -194,7 +204,7 @@ when available. Version 1.2 has been tested on:
 Equalizer uses CMake to create a platform-specific build environment. The
 following platforms and build environments are tested:
 
--   **Linux:** Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
+-   **Linux:** Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)
 -   **Windows:** XP and 7 (Visual Studio 2008, i386, x64)
 -   **Mac OS X:** 10.6, 10.7 (Makefile, XCode, i386, x64)
 
@@ -271,8 +281,16 @@ information.
     http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
+.. _Tile compounds: /documents/design/tileCompounds.html
 .. _29: https://github.com/Eyescale/Equalizer/issues/29
+.. _45: https://github.com/Eyescale/Equalizer/issues/45
+.. _56: https://github.com/Eyescale/Equalizer/issues/56
+.. _66: https://github.com/Eyescale/Equalizer/issues/66
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
+.. _65: https://github.com/Eyescale/Equalizer/issues/65
+.. _61: https://github.com/Eyescale/Equalizer/issues/61
+.. _58: https://github.com/Eyescale/Equalizer/issues/58
+.. _49: https://github.com/Eyescale/Equalizer/issues/49
 .. _19: https://github.com/Eyescale/Equalizer/issues/19
 .. _18: https://github.com/Eyescale/Equalizer/issues/18
 .. _17: https://github.com/Eyescale/Equalizer/issues/17
