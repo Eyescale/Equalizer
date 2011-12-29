@@ -1,9 +1,9 @@
-Adding support for loading thread affinity configuration.
+Tweaks for using installed GPUSD on Windows
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
-[ ] Cleanup
+[x] Bugfix
+[ ] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
