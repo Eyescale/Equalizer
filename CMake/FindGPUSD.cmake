@@ -80,7 +80,7 @@
 #
 # find and parse gpusd/version.h
 find_path(_gpusd_INCLUDE_DIR gpusd/version.h
-  HINTS ${CMAKE_BINARY_DIR}/gpu-sd/libs ${GPUSD_ROOT} ENV GPUSD_ROOT
+  HINTS "${CMAKE_BINARY_DIR}/gpu-sd/libs" "${GPUSD_ROOT}/include"
   PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
 
 if(GPUSD_FIND_REQUIRED)
