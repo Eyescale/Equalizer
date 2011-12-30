@@ -22,7 +22,9 @@
 #ifndef NDEBUG
 #  define VMMLIB_SAFE_ACCESSORS
 #endif
-#define VMMLIB_ALIGN( var ) var
+#ifndef VMMLIB_ALIGN
+#  define VMMLIB_ALIGN( var ) var
+#endif
 
 #pragma warning(push)
 #pragma warning(disable : 4996)
