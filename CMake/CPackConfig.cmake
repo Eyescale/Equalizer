@@ -9,7 +9,11 @@ configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
 
-set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+if(LINUX)
+  set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+else()
+  set(CPACK_PACKAGE_NAME "Equalizer")
+endif()
 
 if(APPLE)
   set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
