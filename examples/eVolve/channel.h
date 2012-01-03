@@ -52,16 +52,15 @@ namespace eVolve
         virtual void frameStart( const eq::uint128_t& frameID, 
                                  const uint32_t frameNumber );
 
-        virtual void frameDraw( const eq::uint128_t& frameID );
-        virtual void frameAssemble( const eq::uint128_t& frameID );
-        virtual void frameReadback( const eq::uint128_t& frameID );
+        virtual void frameDraw(       const eq::uint128_t& frameID );
+        virtual void frameAssemble(   const eq::uint128_t& frameID );
+        virtual void frameReadback(   const eq::uint128_t& frameID );
         virtual void frameViewFinish( const eq::uint128_t& frameID );
+        virtual void frameClear(      const eq::uint128_t& frameID );
 
         virtual bool useOrtho() const;
 
         void clearViewport( const eq::PixelViewport &pvp );
-
-        void frameClear( const eq::uint128_t& frameID );
 
     private:
         void _startAssemble();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007,       Maxim Makhinya
+/* Copyright (c) 2007-2011,  Maxim Makhinya  <maxmah@gmail.com>
    Copyright (c) 2008,       Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,14 +61,26 @@ GLhandleARB GLSLShaders::_loadShader( const std::string &shader,
 
     GLint status;
     glGetObjectParameterivARB( handle, GL_OBJECT_COMPILE_STATUS_ARB, &status );
-    if( status == GL_FALSE )
-    {
-        glDeleteObjectARB( handle );
-        _printLog( handle, "Compiling" );
-        return 0;
-    }
+    if( status != GL_FALSE )
+        return handle;
 
-    return handle;
+    _printLog( handle, "Compiling" );
+    glDeleteObjectARB( handle );
+    return 0;
+}
+
+
+bool GLSLShaders::_cleanupOnError( GLhandleARB vShader, GLhandleARB fShader )
+{
+    if( vShader )
+        glDeleteObjectARB( vShader );
+
+    if( fShader )
+        glDeleteObjectARB( fShader );
+
+    glDeleteObjectARB( _program );
+    _program = 0;
+    return false;
 }
 
 
@@ -85,32 +97,31 @@ bool GLSLShaders::loadShaders( const std::string &vShader,
     _program = glCreateProgramObjectARB();
 
     GLhandleARB vertexShader = _loadShader( vShader, GL_VERTEX_SHADER_ARB );
+    if( !vertexShader )
+        return _cleanupOnError();
+
     glAttachObjectARB( _program, vertexShader );
 
     GLhandleARB fragmentShader = _loadShader( fShader, GL_FRAGMENT_SHADER_ARB );
+    if( !fragmentShader )
+        return _cleanupOnError( vertexShader );
+
     glAttachObjectARB( _program, fragmentShader );
 
     glLinkProgramARB( _program );
 
     GLint status;
     glGetObjectParameterivARB( _program, GL_OBJECT_LINK_STATUS_ARB, &status );
-    if( status == GL_FALSE )
+    if( status != GL_FALSE )
     {
-        _printLog( _program, "Linking" );
-        
-        if( fragmentShader )
-            glDeleteObjectARB( fragmentShader );
-        if( vertexShader )
-            glDeleteObjectARB( vertexShader );
-
-        glDeleteObjectARB( _program );
-        _program = 0;
-        return false;
+        _shadersLoaded = true;
+        return true;
     }
 
-    _shadersLoaded = true;
-    return true;
+    _printLog( _program, "Linking" );
+    return _cleanupOnError( vertexShader, fragmentShader );
 }
+
 
 void GLSLShaders::unloadShaders()
 {
