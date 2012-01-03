@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
@@ -9,7 +9,11 @@
 set(GPUSD_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(GPUSD_PACKAGE_VERSION)
 
-set(CPACK_PACKAGE_NAME "gpu-sd${VERSION_MAJOR}")
+if(LINUX)
+  set(CPACK_PACKAGE_NAME "gpu-sd${VERSION_MAJOR}")
+else()
+  set(CPACK_PACKAGE_NAME "gpu-sd")
+endif()
 
 if(APPLE)
   set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
