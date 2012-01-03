@@ -80,7 +80,8 @@
 <ul>
   <li><a href="http://www.equalizergraphics.com/build/documentation/user/configuration.html">Automatic
       local and remote configuration</a> using
-    the <a href="http://www.equalizergraphics.com/gpu-sd">GPU-SD library</li>
+      the <a href="http://www.equalizergraphics.com/gpu-sd">GPU-SD
+      library</a></li>
   <li>Initial release
     of <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/sequel/namespaceseq.html">Sequel</a>,
     a simplification and utility layer on top of Equalizer, enabling rapid

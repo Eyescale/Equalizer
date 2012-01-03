@@ -67,8 +67,8 @@
 
   2.1. New Features
 
-     * Automic local and remote configuration using the GPU-SD
-       library
+     * Automatic local and remote configuration using the
+       GPU-SD library
      * Initial release of Sequel, a simplification and utility
        layer on top of Equalizer, enabling rapid development
        of clustered multi-GPU applications
