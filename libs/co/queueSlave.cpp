@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -88,7 +88,7 @@ Command* QueueSlave::pop()
 
     while( true )
     {
-        const uint32_t queueSize( _impl->queue.getSize( ));
+        const size_t queueSize = _impl->queue.getSize();
         if( queueSize <= _impl->prefetchMark )
         {
             QueueGetItemPacket packet;
