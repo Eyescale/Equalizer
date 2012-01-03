@@ -813,11 +813,12 @@ HGLRC Window::createWGLContext()
     {
         EQASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
         const WindowIF* shareWGLWindow = 
-	    static_cast< const WindowIF* >( sysWindow );
+            static_cast< const WindowIF* >( sysWindow );
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
         if( shareCtx && !wglShareLists( shareCtx, context ))
-            EQWARN << "Context sharing failed: " << co::base::sysError << std::endl;
+            EQWARN << "Context sharing failed: " << co::base::sysError
+                   << std::endl;
     }
 
     return context;

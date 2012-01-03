@@ -331,7 +331,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     GLXContext context = GLXEW_VERSION_1_3 ?
-        glXCreateNewContext( _xDisplay, fbConfig[ 0 ], type, shCtx, True ):
+        glXCreateNewContext( _xDisplay, fbConfig[0], type, shCtx, True ):
         glXCreateContextWithConfigSGIX( _xDisplay, fbConfig[0], type, shCtx,
                                         True );
 
@@ -662,7 +662,7 @@ void Window::_initSwapSync()
 }   
 
 
-void Window::configExit( )
+void Window::configExit()
 {
     if( !_xDisplay ) 
         return;
