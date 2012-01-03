@@ -392,7 +392,9 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
             _swap = true;
     }
 
-    if( !_lastDrawChannel ) // no FrameDrawFinish sent
+    if( _lastDrawChannel )
+        _lastDrawChannel = 0;
+    else // no FrameDrawFinish sent
     {
         WindowFrameDrawFinishPacket drawFinishPacket;
         drawFinishPacket.frameNumber = frameNumber;
@@ -401,14 +403,12 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
         EQLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
-    _lastDrawChannel = 0;
 
     if( _swapFinish )
     {
-        WindowFinishPacket packet;
+        WindowFlushPacket packet;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK finish  " << &packet << std::endl;
-        _swapFinish = false;
+        EQLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
     }
 }
 
@@ -431,6 +431,14 @@ void Window::updatePost( const uint128_t& frameID,
 
 void Window::_updateSwap( const uint32_t frameNumber )
 {
+    if( _swapFinish )
+    {
+        WindowFinishPacket packet;
+        send( packet );
+        EQLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
+        _swapFinish = false;
+    }
+
     if( _maxFPS < std::numeric_limits< float >::max( ))
     {
         WindowThrottleFramerate packetThrottle;
@@ -447,7 +455,6 @@ void Window::_updateSwap( const uint32_t frameNumber )
          i != _swapBarriers.end(); ++i )
     {
         const co::Barrier* barrier = *i;
-
         if( barrier->getHeight() <= 1 )
         {
             EQVERB << "Ignoring swap barrier of height " << barrier->getHeight()
@@ -458,7 +465,6 @@ void Window::_updateSwap( const uint32_t frameNumber )
         WindowBarrierPacket packet;
         packet.barrier = barrier;
         send( packet );
-
         EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
     }
 

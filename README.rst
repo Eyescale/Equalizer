@@ -72,7 +72,7 @@ documentation changes:
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
--   `Automic local and remote configuration`_ using the `GPU-SD library
+-   `Automatic local and remote configuration`_ using the `GPU-SD library
 -   Initial release of `Sequel`_, a simplification and utility layer on
     top of Equalizer, enabling rapid development of clustered multi-GPU
     applications
@@ -267,8 +267,8 @@ information.
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/major.html#1.2
 .. _detailed feature list: /features.html
-.. _Automic       local and remote configuration: http://www.equalizergra
-    phics.com/build/documentation/user/configuration.html
+.. _Automatic       local and remote configuration: http://www.equalizerg
+    raphics.com/build/documentation/user/configuration.html
 .. _Sequel: http://www.equalizergraphics.com/documents/Developer/API-1.2/
     sequel/namespaceseq.html
 .. _push-based object       distribution:

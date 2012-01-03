@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -147,6 +147,7 @@ namespace fabric
         CMD_WINDOW_DESTROY_CHANNEL,
         CMD_WINDOW_FRAME_START,
         CMD_WINDOW_FRAME_FINISH,
+        CMD_WINDOW_FLUSH,
         CMD_WINDOW_FINISH,
         CMD_WINDOW_THROTTLE_FRAMERATE,
         CMD_WINDOW_BARRIER,

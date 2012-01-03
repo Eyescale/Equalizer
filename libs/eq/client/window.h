@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -467,6 +467,7 @@ namespace eq
         bool _cmdFrameStart( co::Command& command );
         bool _cmdFrameFinish( co::Command& command );
         bool _cmdThrottleFramerate( co::Command& command );
+        bool _cmdFlush( co::Command& command );
         bool _cmdFinish( co::Command& command );
         bool _cmdBarrier( co::Command& command );
         bool _cmdNVBarrier( co::Command& command );
