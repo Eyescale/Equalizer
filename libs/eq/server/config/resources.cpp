@@ -228,8 +228,8 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
             if( name == "Dynamic 2D" )
             {
-                mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
-                stereo->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+                mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D));
+                stereo->addEqualizer(new LoadEqualizer(LoadEqualizer::MODE_2D));
             }
         }
         else if( name == "Static DB" || name == "Dynamic DB" )
@@ -261,9 +261,13 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     {
         Compound* child = *i;
         if( i+1 == children.end( )) // last - correct rounding 'error'
-            child->setViewport( eq::fabric::Viewport( float( start ) / 100000.f, 0.0, ( 100000.0f - float( start ) ) / 100000.f, 1.0  ) );
+            child->setViewport(
+                fabric::Viewport( float( start ) / 100000.f, 0.f,
+                                  ( 100000.f - float( start ))/100000.f, 1.f ));
         else
-            child->setViewport( eq::fabric::Viewport( float( start ) / 100000.f, 0.0, float( step ) / 100000.f, 1.0 ) );
+            child->setViewport(
+                fabric::Viewport( float( start ) / 100000.f, 0.f,
+                                  float( step ) / 100000.f, 1.f ));
         start += step;
     }
 

@@ -69,11 +69,11 @@ void Display::discoverLocal( Config* config )
     segment->setChannel( channel );
 
     Strings names;
-    names.push_back( "Static 2D" );
     names.push_back( "Dynamic 2D" );
     names.push_back( "Simple" );
     names.push_back( "Static DB" );
     names.push_back( "Dynamic DB" );
+    names.push_back( "Static 2D" );
 
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )
