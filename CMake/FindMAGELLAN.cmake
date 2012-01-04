@@ -12,6 +12,6 @@ if(EQ_AGL_USED)
   endif()
 endif()
 
-if(EQ_WGL_USED)
+if(MSVC)
   set(MAGELLAN_FOUND 1) # always on
 endif()
