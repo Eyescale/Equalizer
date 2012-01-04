@@ -247,7 +247,9 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
     if( !object )
         return 0;
 
-    if( !_factory.getConfig()->mapObject( object, identifier, entry.version ))
+    eq::Config* config = _factory.getConfig();
+    EQASSERT( config );
+    if( !config->mapObject( object, identifier, entry.version ))
     {
         if( !instance )
             _factory.destroyObject( object, entry.type );
