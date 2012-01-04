@@ -43,7 +43,7 @@ namespace eqNbody
         NBODY_NUM_CONFIGS
     };
     
-    class FrameData : public eq::fabric::Serializable
+    class FrameData : public co::Serializable
     {
     public:
 
@@ -72,7 +72,7 @@ namespace eqNbody
                             const eq::uint128_t& version,
                             const float *range );
         
-        virtual uint128_t commit( const uint32_t incarnation );
+        virtual eq::uint128_t commit();
         bool isReady();
 
         const float* getPosData() const { return _hPos; }
@@ -99,9 +99,9 @@ namespace eqNbody
 
         enum DirtyBits
         {
-            DIRTY_DATA      = eq::fabric::Serializable::DIRTY_CUSTOM << 0,
-            DIRTY_PROXYDATA = eq::fabric::Serializable::DIRTY_CUSTOM << 1,
-            DIRTY_FLAGS     = eq::fabric::Serializable::DIRTY_CUSTOM << 2
+            DIRTY_DATA      = co::Serializable::DIRTY_CUSTOM << 0,
+            DIRTY_PROXYDATA = co::Serializable::DIRTY_CUSTOM << 1,
+            DIRTY_FLAGS     = co::Serializable::DIRTY_CUSTOM << 2
         };
         
     private:                

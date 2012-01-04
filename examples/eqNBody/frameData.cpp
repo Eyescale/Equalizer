@@ -56,7 +56,7 @@ FrameData::~FrameData()
     
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {       
-    eq::fabric::Serializable::serialize( os, dirtyBits );
+    co::Serializable::serialize( os, dirtyBits );
         
     if( dirtyBits & DIRTY_DATA ) {
         if(_hPos && _hVel && _hCol) {
@@ -81,7 +81,7 @@ void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
-    eq::fabric::Serializable::deserialize( is, dirtyBits );
+    co::Serializable::deserialize( is, dirtyBits );
         
     if( dirtyBits & DIRTY_DATA ) {
         if(_hPos && _hVel && _hCol) {
@@ -131,10 +131,10 @@ void FrameData::updateProxyID( const eq::uint128_t& pid,
     setDirty( DIRTY_PROXYDATA );
 }
     
-uint128_t FrameData::commit( const uint32_t incarnation )
+eq::uint128_t FrameData::commit()
 {
-    const uint128_t v = eq::fabric::Serializable::commit( incarnation );
-    for( unsigned int i=0; i< _numDataProxies; ++i )
+    const eq::uint128_t v = co::Serializable::commit();
+    for( unsigned int i = 0; i< _numDataProxies; ++i )
         _dataRanges[i] = 0.0f;
         
     return v;

@@ -40,9 +40,10 @@ namespace eqNbody
         _hCol = NULL;
     }
         
-    void SharedDataProxy::serialize( co::DataOStream& os, const uint64_t dirtyBits )
+    void SharedDataProxy::serialize( co::DataOStream& os,
+                                     const uint64_t dirtyBits )
     {
-        eq::fabric::Serializable::serialize( os, dirtyBits );
+        co::Serializable::serialize( os, dirtyBits );
         
         if( dirtyBits & DIRTY_DATA ) {
             os << _offset << _numBytes;
@@ -56,9 +57,10 @@ namespace eqNbody
         }        
     }
     
-    void SharedDataProxy::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
+    void SharedDataProxy::deserialize( co::DataIStream& is,
+                                       const uint64_t dirtyBits )
     {
-        eq::fabric::Serializable::deserialize( is, dirtyBits );
+        co::Serializable::deserialize( is, dirtyBits );
 
         if( dirtyBits & DIRTY_DATA ) {
             is >> _offset >> _numBytes;
