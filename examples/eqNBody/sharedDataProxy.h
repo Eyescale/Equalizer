@@ -34,7 +34,7 @@
 
 namespace eqNbody
 {
-    class SharedDataProxy : public eq::fabric::Serializable
+    class SharedDataProxy : public co::Serializable
     {
     public:
 
@@ -61,7 +61,7 @@ namespace eqNbody
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
         enum DirtyBits
         {
-            DIRTY_DATA   = eq::fabric::Serializable::DIRTY_CUSTOM << 0
+            DIRTY_DATA   = co::Serializable::DIRTY_CUSTOM << 0
         };
 
     private:
