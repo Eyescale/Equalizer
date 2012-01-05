@@ -104,7 +104,7 @@ uint32_t Config::startFrame()
         isInitialized = true;
     }       
     
-    const co::base::uint128_t& version = _frameData.commit();    
+    const eq::uint128_t& version = _frameData.commit();    
     
     _redraw = false;
     return eq::Config::startFrame( version );

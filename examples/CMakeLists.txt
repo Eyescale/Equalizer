@@ -76,10 +76,10 @@ install(FILES ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
-if(CUDA_FOUND AND EXISTS eqNBody)
+if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")
   add_subdirectory(eqNBody)
 endif()
-if(OSG_FOUND AND EXISTS osgScaleViewer)
+if(OSG_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/osgScaleViewer")
   add_subdirectory(osgScaleViewer)
 endif()
 
