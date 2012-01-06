@@ -659,8 +659,6 @@ void Channel::_drawModel( const Model* model )
         glUseProgram( program );
     
     model->cullDraw( state );
-    if( getName() == "channel-left" )
-        EQINFO << state.getRegion() << std::endl;
     _updateRegion( state.getRegion( ));
 
     state.setChannel( 0 );
@@ -669,18 +667,20 @@ void Channel::_drawModel( const Model* model )
 
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
-
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
+    const eq::Vector4f rect( float( _region.x ) + .5f, float( _region.y ) + .5f,
+                             float( _region.getXEnd( )) - .5f,
+                             float( _region.getYEnd( )) - .5f );
     glBegin( GL_LINE_LOOP ); {
-        glVertex3f( float( _region.x ) , float( _region.y ), -.99f );
-        glVertex3f( float( _region.getXEnd()), float( _region.y ), -.99f );
-        glVertex3f( float( _region.getXEnd()), float( _region.getYEnd()), -.99f );
-        glVertex3f( float( _region.x ), float( _region.getYEnd()), -.99f );
+        glVertex3f( rect[0], rect[1], -.99f );
+        glVertex3f( rect[2], rect[1], -.99f );
+        glVertex3f( rect[2], rect[3], -.99f );
+        glVertex3f( rect[0], rect[3], -.99f );
     } glEnd();
 #endif
 }
