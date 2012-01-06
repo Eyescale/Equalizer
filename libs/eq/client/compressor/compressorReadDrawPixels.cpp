@@ -365,7 +365,7 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
         _texture->setGLData( destination, _internalFormat,
                              outDims[1], outDims[3] );
         _texture->setExternalFormat( _format, _type );
-        _texture->upload( outDims[1] , outDims[3], buffer );
+        _texture->upload( outDims[1], outDims[3], buffer );
         _texture->flushNoDelete();
     }
 }

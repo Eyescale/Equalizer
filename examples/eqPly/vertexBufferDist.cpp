@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -165,7 +165,8 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
         const mesh::VertexBufferLeaf* leaf = 
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
-        os << uint64_t( leaf->_vertexStart ) << uint64_t( leaf->_indexStart )
+        os << leaf->_boundingBox[0] << leaf->_boundingBox[1]
+           << uint64_t( leaf->_vertexStart ) << uint64_t( leaf->_indexStart )
            << uint64_t( leaf->_indexLength ) << leaf->_vertexLength;
     }
 
@@ -222,7 +223,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
 
         uint64_t i1, i2, i3;
-        is >> i1 >> i2 >> i3 >> leaf->_vertexLength;
+        is >> leaf->_boundingBox[0] >> leaf->_boundingBox[1]
+           >> i1 >> i2 >> i3 >> leaf->_vertexLength;
         leaf->_vertexStart = size_t( i1 );
         leaf->_indexStart = size_t( i2 );
         leaf->_indexLength = size_t( i3 );

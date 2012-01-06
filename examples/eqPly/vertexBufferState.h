@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,21 +54,7 @@ namespace mesh
         virtual void setColors( const bool colors ) { _useColors = colors; }
         virtual bool stopRendering() const { return false; }
         virtual RenderMode getRenderMode() const { return _renderMode; }
-        virtual void setRenderMode( const RenderMode mode ) 
-        { 
-            if( _renderMode == mode )
-                return;
-
-            _renderMode = mode;
-
-            // Check if VBO funcs available, else fall back to display lists
-            if( _renderMode == RENDER_MODE_BUFFER_OBJECT && !GLEW_VERSION_1_5 )
-            {
-                MESHINFO << "VBO not available, using display lists"
-                         << std::endl;
-                _renderMode = RENDER_MODE_DISPLAY_LIST;
-            }
-        }
+        virtual void setRenderMode( const RenderMode mode );
 
         void setProjectionModelViewMatrix( const Matrix4f& pmv )
             { _pmvMatrix = pmv; }
@@ -77,6 +63,10 @@ namespace mesh
 
         void setRange( const Range& range ) { _range = range; }
         const Range& getRange() const { return _range; }
+
+        void resetRegion();
+        void updateRegion( const BoundingBox& box );
+        Vector4f getRegion() const;
 
         virtual GLuint getDisplayList( const void* key ) = 0;
         virtual GLuint newDisplayList( const void* key ) = 0;
@@ -87,23 +77,14 @@ namespace mesh
         const GLEWContext* glewGetContext() const { return _glewContext; }
         
     protected:
-        VertexBufferState( const GLEWContext* glewContext ) 
-                : _pmvMatrix( Matrix4f::IDENTITY )
-                , _glewContext( glewContext )
-                , _renderMode( RENDER_MODE_DISPLAY_LIST )
-                , _useColors( false )
-        {
-            _range[0] = 0.f;
-            _range[1] = 1.f;
-            MESHASSERT( glewContext );
-        } 
-        
+        VertexBufferState( const GLEWContext* glewContext );        
         virtual ~VertexBufferState() {}
         
         Matrix4f      _pmvMatrix; //!< projection * modelView matrix
         Range         _range; //!< normalized [0,1] part of the model to draw
         const GLEWContext* const _glewContext;
         RenderMode    _renderMode;
+        Vector4f      _region; //!< normalized x1 y1 x2 y2 region from cullDraw 
         bool          _useColors;
         
     private:
@@ -121,49 +102,11 @@ namespace mesh
         VertexBufferStateSimple( const GLEWContext* glewContext )
             : VertexBufferState( glewContext ) {}
         
-        virtual GLuint getDisplayList( const void* key )
-        {
-            if( _displayLists.find( key ) == _displayLists.end() )
-                return INVALID;
-            return _displayLists[key];
-        }
-        
-        virtual GLuint newDisplayList( const void* key )
-        {
-            _displayLists[key] = glGenLists( 1 );
-            return _displayLists[key];
-        }
-        
-        virtual GLuint getBufferObject( const void* key )
-        {
-            if( _bufferObjects.find( key ) == _bufferObjects.end() )
-                return INVALID;
-            return _bufferObjects[key];
-        }
-        
-        virtual GLuint newBufferObject( const void* key )
-        {
-            if( !GLEW_VERSION_1_5 )
-                return INVALID;
-            glGenBuffers( 1, &_bufferObjects[key] );
-            return _bufferObjects[key];
-        }
-        
-        virtual void deleteAll()
-            {
-                for( GLMapCIter i = _displayLists.begin();
-                     i != _displayLists.end(); ++i )
-                {
-                    glDeleteLists( i->second, 1 );
-                }
-                for( GLMapCIter i = _bufferObjects.begin();
-                     i != _bufferObjects.end(); ++i )
-                {
-                    glDeleteBuffers( 1, &(i->second) );
-                }
-                _displayLists.clear();
-                _bufferObjects.clear();
-            }
+        virtual GLuint getDisplayList( const void* key );
+        virtual GLuint newDisplayList( const void* key );        
+        virtual GLuint getBufferObject( const void* key );        
+        virtual GLuint newBufferObject( const void* key );
+        virtual void deleteAll();
 
     private:
         GLMap  _displayLists;

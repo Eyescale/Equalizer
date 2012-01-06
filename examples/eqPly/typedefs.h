@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
  *               2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -72,6 +72,7 @@ namespace mesh
     typedef vmml::vector< 4, GLubyte >    Color;
     typedef vmml::vector< 3, GLfloat >    Normal;
     typedef vmml::matrix< 4, 4, float >   Matrix4f;
+    typedef vmml::vector< 4, float >      Vector4f;
     typedef size_t                        Index;
     typedef GLushort                      ShortIndex;    
     
@@ -131,9 +132,8 @@ namespace mesh
     const Index             LEAF_SIZE( 21845 );
     
     // binary mesh file version, increment if changing the file format
-    const unsigned short    FILE_VERSION ( 0x0115 );
-    
-    
+    const unsigned short    FILE_VERSION ( 0x0116 );
+
     // enumeration for the sort axis
     enum Axis
     {

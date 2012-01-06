@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2008, Stefan Eilemann <eile@equalizergraphics.com>
+ *           2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -70,6 +70,7 @@ namespace mesh
         void renderBufferObject( VertexBufferState& state ) const;
         
         VertexBufferData&   _globalData;
+        BoundingBox         _boundingBox;
         Index               _vertexStart;
         Index               _indexStart;
         Index               _indexLength;

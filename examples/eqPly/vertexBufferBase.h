@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -61,20 +61,15 @@ namespace mesh
         virtual Index getNumberOfVertices() const = 0;
 
         const BoundingSphere& getBoundingSphere() const 
-        {
-            return _boundingSphere;
-        }
+            { return _boundingSphere; }
         
-        const float* getRange() const
-        {
-            return &_range[0];
-        }
-        
+        const float* getRange() const { return &_range[0]; }
+
         virtual const VertexBufferBase* getLeft() const { return 0; }
         virtual const VertexBufferBase* getRight() const { return 0; }
 
         virtual const BoundingSphere& updateBoundingSphere() = 0;
-                
+
     protected:
         VertexBufferBase() : _boundingSphere( 0.0f ) 
         {
@@ -86,8 +81,7 @@ namespace mesh
         {
             os.write( reinterpret_cast< char* >( &_boundingSphere ), 
                       sizeof( BoundingSphere ) );
-            os.write( reinterpret_cast< char* >( &_range ), 
-                      sizeof( Range ) );
+            os.write( reinterpret_cast< char* >( &_range ), sizeof( Range ) );
         }
         
         virtual void fromMemory( char** addr, VertexBufferData& globalData )

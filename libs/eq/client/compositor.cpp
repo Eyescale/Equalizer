@@ -1465,16 +1465,16 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     const float startX = static_cast< float >
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x() + (pvp.x+pvp.w) * op.pixel.w*op.zoom.x() + op.pixel.x );
+        ( op.offset.x() + pvp.getXEnd() * op.pixel.w*op.zoom.x() + op.pixel.x );
     const float startY = static_cast< float >
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-        ( op.offset.y() + (pvp.y+pvp.h) * op.pixel.h*op.zoom.y() + op.pixel.y );
+        ( op.offset.y() + pvp.getYEnd() * op.pixel.h*op.zoom.y() + op.pixel.y );
 
     const float w = static_cast< float >( pvp.w );
     const float h = static_cast< float >( pvp.h );
 
-    glBegin( GL_TRIANGLE_STRIP );
+    glBegin( GL_TRIANGLE_STRIP ); {
         glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
         glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
         glVertex3f( startX, startY, 0.0f );
@@ -1490,7 +1490,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glMultiTexCoord2f( GL_TEXTURE0, w, h );
         glMultiTexCoord2f( GL_TEXTURE1, w, h );
         glVertex3f( endX, endY, 0.0f );
-    glEnd();
+    } glEnd();
 
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );

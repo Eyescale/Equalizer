@@ -32,11 +32,8 @@
 
 namespace eq
 {
+namespace server { class FrameData; }
 
-namespace server
-{
-    class FrameData;
-}
     class  ROIFinder;
     struct NodeFrameDataTransmitPacket;
     struct NodeFrameDataReadyPacket;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2007, Tobias Wolf <twolf@access.unizh.ch>
  *
@@ -93,6 +93,8 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
+    _region.invalidate();    
+
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
     if( _isDone() && !_accum[ eyeIndex ].transfer )
@@ -204,6 +206,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         }
 
         eq::Channel::frameAssemble( frameID );
+        _updateRegion( getInputFrames( ));
         return;
     }
     // else
@@ -239,22 +242,20 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
+    _updateRegion( frames );
 }
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
-    if( stopRendering( ))
+    if( stopRendering() || _isDone() || !_region.hasArea( ))
         return;
 
-    if( _isDone( ))
-        return;
-
-    // OPT: Drop alpha channel from all frames during network transport
     const FrameData& frameData = _getFrameData();
     const eq::Frames& frames = getOutputFrames();
     for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
+        // OPT: Drop alpha channel from all frames during network transport
         frame->setAlphaUsage( false );
         
         if( frameData.isIdle( ))
@@ -266,9 +267,34 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_AUTO );
         else
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_NONE );
-    }
 
-    eq::Channel::frameReadback( frameID );
+        const eq::DrawableConfig& drawable = getDrawableConfig();
+        eq::Window::ObjectManager* glObjects = getObjectManager();
+        eq::FrameData* data = frame->getData();
+
+        if( data->getType() == eq::Frame::TYPE_TEXTURE )
+            frame->readback( glObjects, drawable );
+        else
+        {
+            // ROI readback, TODO move to eq::Channel::frameReadback
+            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
+            const eq::PixelViewport& framePVP = data->getPixelViewport();
+            eq::PixelViewport area = framePVP + frame->getOffset();
+
+            area.intersect( _region );
+            if( !area.hasArea( ))
+                continue;
+
+            eq::Image* image = data->newImage( data->getType(), drawable );
+            image->readback( data->getBuffers(), area, frame->getZoom(),
+                             glObjects );
+
+            const eq::Pixel& pixel = getPixel();
+            area -= frame->getOffset();
+            image->setOffset( (area.x - framePVP.x) * pixel.w,
+                              (area.y - framePVP.y) * pixel.h );
+        }
+    }
 }
 
 void Channel::frameStart( const eq::uint128_t& frameID,
@@ -633,10 +659,30 @@ void Channel::_drawModel( const Model* model )
         glUseProgram( program );
     
     model->cullDraw( state );
-    state.setChannel( 0 );
+    if( getName() == "channel-left" )
+        EQINFO << state.getRegion() << std::endl;
+    _updateRegion( state.getRegion( ));
 
+    state.setChannel( 0 );
     if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
+
+#ifndef NDEBUG // region border
+    const eq::PixelViewport& pvp = getPixelViewport();
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    glBegin( GL_LINE_LOOP ); {
+        glVertex3f( float( _region.x ) , float( _region.y ), -.99f );
+        glVertex3f( float( _region.getXEnd()), float( _region.y ), -.99f );
+        glVertex3f( float( _region.getXEnd()), float( _region.getYEnd()), -.99f );
+        glVertex3f( float( _region.x ), float( _region.getYEnd()), -.99f );
+    } glEnd();
+#endif
 }
 
 void Channel::_drawOverlay()
@@ -647,7 +693,6 @@ void Channel::_drawOverlay()
     if( !texture )
         return;
 
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();
@@ -657,23 +702,7 @@ void Channel::_drawOverlay()
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
-
-#if 1
-    // border
-    const eq::PixelViewport& pvp = getPixelViewport();
-    const eq::Viewport& vp = getViewport();
-    const float w = pvp.w / vp.w - .5f;
-    const float h = pvp.h / vp.h - .5f;
-
-    glBegin( GL_LINE_LOOP );
-    {
-        glVertex3f( .5f, .5f, 0.f );
-        glVertex3f(   w, .5f, 0.f );
-        glVertex3f(   w,   h, 0.f );
-        glVertex3f( .5f,   h, 0.f );
-    } 
-    glEnd();
-#endif
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
     // logo
     glEnable( GL_BLEND );
@@ -828,6 +857,40 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
         const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z() );
 
         setNearFar( zNear, zFar );
+    }
+}
+
+void Channel::_updateRegion( const eq::Vector4f& vp )
+{
+    if( vp == eq::Vector4f::ZERO )
+        return;
+
+    eq::PixelViewport pvp = getPixelViewport();
+    pvp.x = 0;
+    pvp.y = 0;
+
+    eq::PixelViewport region( pvp );
+    region.apply( eq::Viewport( vp ));
+    _region.merge( region );
+    _region.intersect( pvp );
+}
+
+void Channel::_updateRegion( const eq::Frames& frames )
+{
+    // Increase ROI, TODO move to eq::Channel::frameReadback
+    for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
+    {
+        const eq::Frame* frame = *i;
+        const eq::FrameData* data = frame->getData();
+        const eq::Images& images = data->getImages();
+
+        for( eq::ImagesCIter j = images.begin(); j != images.end(); ++j )
+        {
+            const eq::Image* image = *j;
+            const eq::PixelViewport area = image->getPixelViewport() + 
+                                           frame->getOffset();
+            _region.merge( area );
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -79,6 +79,8 @@ namespace eqPly
         void _drawOverlay();
         void _drawHelp();
         void _updateNearFar( const mesh::BoundingSphere& boundingSphere );
+        void _updateRegion( const eq::Vector4f& vp ); // with draw area
+        void _updateRegion( const eq::Frames& frames ); // with assemble area
 
         bool _isDone() const;
 
@@ -108,6 +110,7 @@ namespace eqPly
         _accum[ eq::NUM_EYES ];
 
         eq::PixelViewport _currentPVP;
+        eq::PixelViewport _region;
     };
 }
 
