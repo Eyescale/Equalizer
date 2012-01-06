@@ -185,6 +185,14 @@ namespace fabric
                 return PixelViewport( x+offset.x(), y+offset.y(), w, h );
             }
 
+        /** @return this pvp minus an offset. @version 1.3.0 */
+        const PixelViewport& operator -= ( const Vector2i& offset )
+            {
+                x -= offset.x();
+                y -= offset.y();
+                return *this;
+            }
+
         /**
          * Perform the inverse operation of applying a pixel decomposition to
          * this pixel viewport.

@@ -80,6 +80,9 @@ namespace server
 
         /** @name Data Access */
         //@{
+        /** @return the storage type. @version 1.3.0 */
+        Frame::Type getType() const { return _data.frameType; }
+
         /** @return the enabled frame buffer attachments. @version 1.0 */
         uint32_t getBuffers() const { return _data.buffers; }
 
@@ -142,7 +145,10 @@ namespace server
          * @version 1.0
          */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
-        
+
+        /** @return the covered area for readbacks. @version 1.3.0 */
+        const PixelViewport& getPixelViewport() const { return _data.pvp; }
+
         /**
          * Set alpha usage for newly allocated images.
          *
