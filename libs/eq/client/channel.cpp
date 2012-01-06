@@ -1201,7 +1201,7 @@ void Channel::_transmitImage( Image* image,
     const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
 
     packet.objectID    = request->clientNodeID;
-    packet.frameData   = getNode()->getFrameData( request->frameData);
+    packet.frameData   = request->frameData;
     packet.frameNumber = request->frameNumber;
 
     std::vector< const PixelData* > pixelDatas;
@@ -1305,10 +1305,10 @@ void Channel::_transmitImage( Image* image,
                 data->pixelSize, data->pvp,
                 useCompression ? data->compressorName : EQ_COMPRESSOR_NONE,
                 data->compressorFlags, 
-                data->isCompressed ? uint32_t(data->compressedSize.size()):1,
+                data->isCompressed ? uint32_t( data->compressedSize.size()) : 1,
                 qualities[ j ] };
 
-        connection->send( &header, sizeof( FrameData::ImageHeader ), true );
+        connection->send( &header, sizeof( header ), true );
 
         if( data->isCompressed )
         {
@@ -1318,7 +1318,7 @@ void Channel::_transmitImage( Image* image,
                 connection->send( &dataSize, sizeof( dataSize ), true );
                 if( dataSize > 0 )
                     connection->send( data->compressedData[k], 
-                    dataSize, true );
+                                      dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif
