@@ -34,6 +34,13 @@ namespace base
     class Thread 
     {
     public:
+    	enum Affinity
+    	{
+    		OFF = 0,
+    		AUTO = -1,
+    		CORE = 1,
+    		CPU = -65536
+    	};
         /** Construct a new thread. @version 1.0 */
         COBASE_API Thread();
 
@@ -142,6 +149,13 @@ namespace base
 
         /** @internal */
         COBASE_API static void setName( const std::string& name );
+
+        /** @internal
+         *  This function sets the affinity of the calling thread to a
+         *  certain core
+         *  TBD: Making this function official
+         * */
+        COBASE_API static void setAffinity(const int32_t affIndex);
 
     private:
         ThreadID _id;
