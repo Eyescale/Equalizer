@@ -38,8 +38,8 @@ namespace base
     	{
     		OFF = 0,
     		AUTO = -1,
-    		CORE = 1,
-    		CPU = -65536
+    		CORE = 1, /* cores from 1 and upwards */
+    		CPU = -65536 /* CPUs from -2^16 and upwards */
     	};
         /** Construct a new thread. @version 1.0 */
         COBASE_API Thread();

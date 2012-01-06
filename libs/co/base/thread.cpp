@@ -331,16 +331,16 @@ void Thread::setAffinity(const int32_t affIndex)
 			// Getting the CPU #cpuIndex (subtree node)
 			const hwloc_obj_t cpuObj = hwloc_get_obj_by_type(topology, HWLOC_OBJ_SOCKET, cpuIndex);
 
-			// Get the number of PUs shipped on
+			// Get the number of cores shipped on
 			const int numCores = hwloc_get_nbobjs_by_type(topology, HWLOC_OBJ_PU);
 
 			// Core object
 			hwloc_obj_t coreObj;
 
-			/* Now, we are ready for the loop */
+			// Adding the belonging cores to CPU #cpuIndex
 			for (int iCore = 0; iCore < numCores; iCore++)
 			{
-				// Get the PUs inside iSocket according to their index "pointed by socketObj"
+				// Get the cores inside iSocket according to their index "pointed by socketObj"
 				coreObj = hwloc_get_obj_below_by_type(topology, HWLOC_OBJ_SOCKET, cpuIndex, HWLOC_OBJ_PU, iCore);
 
 				// If this core "PU" is under this CPU "socket" in this topology

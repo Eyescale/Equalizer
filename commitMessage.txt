@@ -1,4 +1,4 @@
-Adding support for loading thread affinity configuration.
+Adding support for maual thread placement on certain cpu or core 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
