@@ -80,20 +80,11 @@ server
         compound
         {
             channel  ( segment 0 view 0 )
-            task    [ CLEAR ASSEMBLE ] 
             buffer  [ COLOR DEPTH ]
-
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
 
             compound
             {
                 channel "channel-first"
-                task    [ CLEAR ASSEMBLE ] 
                 range   [ 0 .5 ]
 
                 compound
@@ -115,7 +106,6 @@ server
             compound
             {
                 channel "channel-second"
-                task    [ CLEAR ASSEMBLE ] 
                 range   [ .5 1 ]
 
                 compound

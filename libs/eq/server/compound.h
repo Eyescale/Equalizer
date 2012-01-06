@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -466,7 +466,7 @@ namespace server
         void exit();
 
         /** Initialize the default tasks of this compound. */
-        void initInheritTasks();
+        void updateInheritTasks();
 
         /** Register all distributed objects (frames) */
         void register_();

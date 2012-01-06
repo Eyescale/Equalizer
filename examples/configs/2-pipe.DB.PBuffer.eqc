@@ -51,7 +51,7 @@ server
         {
             channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
-            task    [ CLEAR ASSEMBLE ]
+
             compound
             {
                 channel "buffer1"

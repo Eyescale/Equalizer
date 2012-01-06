@@ -59,7 +59,6 @@ server
         compound
         {
             channel  ( segment 0 view 0 )
-            task    [ CLEAR ASSEMBLE ] 
             buffer  [ COLOR DEPTH ]
 
             compound

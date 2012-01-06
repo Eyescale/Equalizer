@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -1228,7 +1228,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     }
 
     // Tasks
-    initInheritTasks();
+    updateInheritTasks();
 
     const View* view = _inherit.channel ? _inherit.channel->getView() : 0;
     const Channel* channel = getChannel();
@@ -1402,14 +1402,25 @@ void Compound::_updateInheritOverdraw()
                   _inherit.overdraw.y() + _inherit.overdraw.w( ));
 }
 
-void Compound::initInheritTasks()
+void Compound::updateInheritTasks()
 {
     if( _data.tasks == fabric::TASK_DEFAULT )
     {
         if( isLeaf( ))
+        {
             _inherit.tasks = fabric::TASK_ALL;
+            // check if a parent compound has cleared us
+            for( Compound* compound = getParent(); compound;
+                 compound = compound->getParent( ))
+            {
+                Channel* channel = compound->getChannel();
+                if( channel == getChannel( ))
+                    _inherit.tasks &= ~fabric::TASK_CLEAR; // done already
+            }
+        }
         else
-            _inherit.tasks = fabric::TASK_ASSEMBLE | fabric::TASK_READBACK;
+            _inherit.tasks = fabric::TASK_CLEAR | fabric::TASK_ASSEMBLE |
+                             fabric::TASK_READBACK;
     }
     else
         _inherit.tasks = _data.tasks;

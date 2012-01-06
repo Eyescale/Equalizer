@@ -74,13 +74,6 @@ server
             channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
-
             compound
             {
                 channel "channel1"
@@ -131,7 +124,6 @@ server
                 outputframe { name "f3.c3" viewport [ .5 0 .5 .666 ] }
             }
 
-            task [ CLEAR ASSEMBLE ]
             inputframe { name "f3.c1" }
             inputframe { name "f3.c2" }
             inputframe { name "f3.c3" }
