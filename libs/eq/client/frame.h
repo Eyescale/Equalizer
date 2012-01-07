@@ -187,7 +187,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameData[co::base::getIndexOfLastBit( eye ) ]; }
+            { return _data.frameDataVersion[co::base::getIndexOfLastBit(eye)]; }
         //@}
 
         /** @name Operations */
@@ -272,17 +272,17 @@ namespace server
 
         struct Data
         {
-	        struct ToNode
-	        {
-	            std::vector< uint128_t > inputNodes;
-	            std::vector< uint128_t > inputNetNodes;
-	        };
+            struct ToNode
+            {
+                std::vector< uint128_t > inputNodes;
+                std::vector< uint128_t > inputNetNodes;
+            };
 
             Data() : offset( Vector2i::ZERO ) {}
 
             Vector2i offset;
             Zoom zoom;
-            co::ObjectVersion frameData[ NUM_EYES ];
+            co::ObjectVersion frameDataVersion[ NUM_EYES ];
             ToNode toNodes[ NUM_EYES ];
 
             EQ_API void serialize( co::DataOStream& os ) const;

@@ -145,20 +145,20 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const co::ObjectVersion& frameData )
+FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
     co::base::ScopedMutex<> mutex( _frameDatas );
-    FrameData* data = _frameDatas.data[ frameData.identifier ];
+    FrameData* data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
     {
         data = new FrameData;
-        data->setID( frameData.identifier );
-        _frameDatas.data[ frameData.identifier ] = data;
+        data->setID( frameDataVersion.identifier );
+        _frameDatas.data[ frameDataVersion.identifier ] = data;
     }
 
-    EQASSERT( frameData.version.high() == 0 );
-    data->setVersion( frameData.version.low( ));
+    EQASSERT( frameDataVersion.version.high() == 0 );
+    data->setVersion( frameDataVersion.version.low( ));
     return data;
 }
 

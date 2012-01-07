@@ -118,8 +118,8 @@ uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
-        _inherit.frameData[i] = _frameData[i];
-        _inherit.toNodes[i].inputNodes = _data.toNodes[i].inputNodes;
+        _inherit.frameDataVersion[i]      = _frameData[i];
+        _inherit.toNodes[i].inputNodes    = _data.toNodes[i].inputNodes;
         _inherit.toNodes[i].inputNetNodes = _data.toNodes[i].inputNetNodes;
     }
     return co::Object::commit( incarnation );

@@ -216,3 +216,34 @@ void EqCompressorUpload( void* const        ptr,
                         destination );
 }
 
+#ifdef EQ_ASYNC_READBACK
+void EqCompressorStartDownload( void* const        ptr,
+                                const unsigned     name,
+                                const GLEWContext* glewContext,
+                                const eq_uint64_t  inDims[4],
+                                const unsigned     source,
+                                const eq_uint64_t  flags )
+{
+    assert( ptr );
+    co::plugin::Compressor* compressor =
+        reinterpret_cast< co::plugin::Compressor* >( ptr );
+    compressor->startDownload( glewContext, inDims, source, flags );
+}
+
+
+void EqCompressorFinishDownload( void* const        ptr,
+                                 const unsigned     name,
+                                 const GLEWContext* glewContext,
+                                 const eq_uint64_t  inDims[4],
+                                 const unsigned     source,
+                                 const eq_uint64_t  flags,
+                                 eq_uint64_t        outDims[4],
+                                 void**             out )
+{
+    assert( ptr );
+    co::plugin::Compressor* compressor =
+        reinterpret_cast< co::plugin::Compressor* >( ptr );
+    compressor->finishDownload( glewContext, inDims, source, flags, outDims,
+                               out );
+}
+#endif

@@ -262,30 +262,30 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     {
         ClientPtr client = getClient();
         frame = new Frame();
-        
+
         EQCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     else
         frame->sync( frameVersion.version );
 
-    const co::ObjectVersion& data = frame->getDataVersion( eye );
-    EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
+    const co::ObjectVersion& dataVersion = frame->getDataVersion( eye );
+    EQLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
-    FrameData* frameData = getNode()->getFrameData( data ); 
+    FrameData* frameData = getNode()->getFrameData( dataVersion );
     EQASSERT( frameData );
 
     if( isOutput )
-    {    
+    {
         if( !frameData->isAttached() )
-        { 
+        {
             ClientPtr client = getClient();
-            EQCHECK( client->mapObject( frameData, data ));
+            EQCHECK( client->mapObject( frameData, dataVersion ));
         }
-        else if( frameData->getVersion() < data.version )
-            frameData->sync( data.version );
+        else if( frameData->getVersion() < dataVersion.version )
+            frameData->sync( dataVersion.version );
 
-        _outputFrameDatas[ data.identifier ] = frameData;
+        _outputFrameDatas[ dataVersion.identifier ] = frameData;
     }
 
     frame->setData( frameData );

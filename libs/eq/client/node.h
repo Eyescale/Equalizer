@@ -75,10 +75,10 @@ namespace eq
          * @internal
          * Get a frame data instance.
          * 
-         * @param dataVersion the frame data identifier and version.
+         * @param frameDataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const co::ObjectVersion& dataVersion );
+        FrameData* getFrameData( const co::ObjectVersion& frameDataVersion );
 
         /** @internal Wait for the node to be initialized. */
         EQ_API void waitInitialized() const;
