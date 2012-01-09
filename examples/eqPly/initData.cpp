@@ -55,6 +55,7 @@ InitData::InitData()
         , _useGLSL( false )
         , _invFaces( false )
         , _logo( true )
+        , _roi ( true )
 {}
 
 InitData::~InitData()
@@ -65,13 +66,13 @@ InitData::~InitData()
 void InitData::getInstanceData( co::DataOStream& os )
 {
     os << _frameDataID << _windowSystem << _renderMode << _useGLSL << _invFaces
-       << _logo;
+       << _logo << _roi;
 }
 
 void InitData::applyInstanceData( co::DataIStream& is )
 {
     is >> _frameDataID >> _windowSystem >> _renderMode >> _useGLSL >> _invFaces
-       >> _logo;
+       >> _logo >> _roi;
 
     EQASSERT( _frameDataID != eq::UUID::ZERO );
     EQINFO << "New InitData instance" << std::endl;

@@ -49,6 +49,7 @@ namespace eqPly
         bool               useGLSL() const          { return _useGLSL; }
         bool               useInvertedFaces() const { return _invFaces; }
         bool               showLogo() const         { return _logo; }
+        bool               useROI() const           { return _roi; }
 
     protected:
         virtual void getInstanceData( co::DataOStream& os );
@@ -61,6 +62,7 @@ namespace eqPly
         void enableGLSL()          { _useGLSL  = true; }
         void enableInvertedFaces() { _invFaces = true; }
         void disableLogo()         { _logo     = false; }
+        void disableROI()          { _roi      = false; }
 
     private:
         eq::uint128_t    _frameDataID;
@@ -69,6 +71,7 @@ namespace eqPly
         bool             _useGLSL;
         bool             _invFaces;
         bool             _logo;
+        bool             _roi;
     };
 }
 

@@ -75,6 +75,8 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
         enableInvertedFaces();
     if( !from.showLogo( )) 
         disableLogo();
+    if( !from.useROI( ))
+        disableROI();
 
     return *this;
 }
@@ -137,6 +139,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::UnlabeledMultiArg< std::string >
             ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                         command );
+        TCLAP::SwitchArg roiArg( "d", "disableROI", "Disable ROI",
+                                            command, true );
 
         command.parse( argc, argv );
 
@@ -187,6 +191,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             enableInvertedFaces();
         if( overlayArg.isSet( ))
             disableLogo();
+        if( roiArg.isSet( ))
+            disableROI();
     }
     catch( const TCLAP::ArgException& exception )
     {
