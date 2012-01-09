@@ -15,6 +15,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <fstream>
+
 #include "server.h"
 
 #include "display.h"
@@ -54,6 +56,13 @@ ServerPtr Server::configure( const std::string& session )
 
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
+
+    std::ofstream outputConfigurationFile;
+    outputConfigurationFile.open( "default.autoconfig.eqc" );
+    outputConfigurationFile << co::base::indent << Global::instance() << *server
+                            << co::base::exdent << std::endl;
+    outputConfigurationFile.close();
+
     return server;
 }
 
