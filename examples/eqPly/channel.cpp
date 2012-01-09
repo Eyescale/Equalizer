@@ -62,6 +62,7 @@ Channel::Channel( eq::Window* parent )
         , _model(0)
         , _modelID( co::base::UUID::ZERO )
         , _frameRestart( 0 )
+        , _useROI(true)
 {
 }
 
@@ -73,6 +74,10 @@ bool Channel::configInit( const eq::uint128_t& initID )
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = co::base::UUID::ZERO;
+
+    const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
+    _useROI = id.useROI();
+
     return true;
 }
 
@@ -93,7 +98,8 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    _region.invalidate();    
+    if(_useROI)
+        _region.invalidate();
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -242,7 +248,8 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
-    _updateRegion( frames );
+    if( _useROI )
+        _updateRegion( frames );
 }
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
@@ -274,7 +281,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
 
         if( data->getType() == eq::Frame::TYPE_TEXTURE )
             frame->readback( glObjects, drawable );
-        else
+        else if( _useROI )
         {
             // ROI readback, TODO move to eq::Channel::frameReadback
             EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
@@ -294,6 +301,8 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
             image->setOffset( (area.x - framePVP.x) * pixel.w,
                               (area.y - framePVP.y) * pixel.h );
         }
+        else
+            eq::Channel::frameReadback( frameID );
     }
 }
 
@@ -666,22 +675,25 @@ void Channel::_drawModel( const Model* model )
         glUseProgram( 0 );
 
 #ifndef NDEBUG // region border
-    const eq::PixelViewport& pvp = getPixelViewport();
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    if( _useROI )
+    {
+        const eq::PixelViewport& pvp = getPixelViewport();
+        glMatrixMode( GL_PROJECTION );
+        glLoadIdentity();
+        glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
+        glMatrixMode( GL_MODELVIEW );
+        glLoadIdentity();
 
-    const eq::Vector4f rect( float( _region.x ) + .5f, float( _region.y ) + .5f,
-                             float( _region.getXEnd( )) - .5f,
-                             float( _region.getYEnd( )) - .5f );
-    glBegin( GL_LINE_LOOP ); {
-        glVertex3f( rect[0], rect[1], -.99f );
-        glVertex3f( rect[2], rect[1], -.99f );
-        glVertex3f( rect[2], rect[3], -.99f );
-        glVertex3f( rect[0], rect[3], -.99f );
-    } glEnd();
+        const eq::Vector4f rect( float( _region.x ) + .5f, float( _region.y ) + .5f,
+                                 float( _region.getXEnd( )) - .5f,
+                                 float( _region.getYEnd( )) - .5f );
+        glBegin( GL_LINE_LOOP ); {
+            glVertex3f( rect[0], rect[1], -.99f );
+            glVertex3f( rect[2], rect[1], -.99f );
+            glVertex3f( rect[2], rect[3], -.99f );
+            glVertex3f( rect[0], rect[3], -.99f );
+        } glEnd();
+    }
 #endif
 }
 
