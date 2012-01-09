@@ -130,8 +130,7 @@ bool Config::exit()
     _deregisterData();
     _closeAdminServer();
 
-    // retain models and distributors for possible other config runs, destructor
-    // deletes it
+    // retain model & distributors for possible other config runs, dtor deletes
     return ret;
 }
 
@@ -307,7 +306,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const co::base::uint128_t& version = _frameData.commit();
+    const eq::uint128_t& version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
