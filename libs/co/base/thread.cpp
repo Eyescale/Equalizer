@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,7 +35,7 @@
 // Experimental Win32 thread pinning
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
-#pragma message ("Thread affinity is not supported by WIN32")
+#  pragma message ("Thread affinity  not supported on WIN32")
 #endif
 
 #ifdef Linux
@@ -306,78 +306,74 @@ void Thread::setName( const std::string& name )
 #endif
 }
 
-void Thread::setAffinity(const int32_t affIndex)
+void Thread::setAffinity(const int32_t affinity)
 {
-	EQINFO << "Setting thread affinity " << std::endl;
+    const std::vector< int > cores = _getCores( affinity );
+#ifdef Linux
+    cpu_set_t cpuMask; // CPU mask
+    CPU_ZERO( &cpuMask ); // Sets the mask to 0's
+
+    for( std::vector< int >::const_iterator i = cores.begin(); i != cores.end();
+         ++i )
+    {
+        CPU_SET( *i, &cpuMask );
+    }
+
+    sched_setaffinity( 0, sizeof( cpuMask ), &cpuMask );
+    sched_setaffinity(0, sizeof(cpuMask), &cpuMask);
+#else
+    EQWARN << "Thread affinity is not supported for this platform" << std::endl;
+#endif
+}
+
+std::vector< int > Thread::_getCores( const int32_t affinity )
+{
+    if (affinity >= CORE)
+        return std::vector< int >( 1, affinity - CORE );
+
+    if( affinity >= 0 )
+        return std::vector< int >();
 
 #ifdef CO_USE_HWLOC
+    /* Sets the affinity to a specific CPU or "socket" with all of its cores */
+    EQASSERT( affinity >= CPU );
+    const int32_t cpuIndex = affinity - CPU;
 
-	hwloc_topology_t topology; // HW topology
-	hwloc_topology_init(&topology); // Allocate & initialize the topology
-	hwloc_topology_load(topology); 	// Perform HW topology detection
+    // Make sure that this cpuID is existing in the topology
+    hwloc_topology_t topology; // HW topology
+    hwloc_topology_init( &topology ); // Allocate & initialize the topology
+    hwloc_topology_load( topology );  // Perform HW topology detection
 
-	cpu_set_t cpuMask; // CPU mask
-	CPU_ZERO(&cpuMask); // Sets the mask to 0's
+    if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_SOCKET, cpuIndex ) == 0 )
+    {
+        EQWARN << "CPU ID " << cpuIndex << " does not exist in the topology"
+               << std::endl;
+        return std::vector< int >();
+    }
 
-	/* Sets the affinity to a specific CPU or "socket" with all of its cores */
-	if( affIndex <= CPU )
-	{
-		const int cpuIndex = affIndex - CPU;
+    // Getting the CPU #cpuIndex (subtree node)
+    const hwloc_obj_t cpuObj = hwloc_get_obj_by_type( topology,
+                                                      HWLOC_OBJ_SOCKET,
+                                                      cpuIndex );
+    // Get the number of cores on machine
+    const int numCores = hwloc_get_nbobjs_by_type( topology, HWLOC_OBJ_PU );
+    std::vector< int > result;
 
-		// Make sure that this cpuID is existing in the topology
-		if ( hwloc_get_obj_by_type(topology, HWLOC_OBJ_SOCKET, cpuIndex) != 0 )
-		{
-			// Getting the CPU #cpuIndex (subtree node)
-			const hwloc_obj_t cpuObj = hwloc_get_obj_by_type(topology, HWLOC_OBJ_SOCKET, cpuIndex);
+    // Adding the cores belonging to CPU #cpuIndex
+    for( int i = 0; i < numCores; ++i )
+    {
+        const hwloc_obj_t coreObj = 
+            hwloc_get_obj_below_by_type( topology, HWLOC_OBJ_SOCKET, cpuIndex,
+                                         HWLOC_OBJ_PU, i );
 
-			// Get the number of cores shipped on
-			const int numCores = hwloc_get_nbobjs_by_type(topology, HWLOC_OBJ_PU);
-
-			// Core object
-			hwloc_obj_t coreObj;
-
-			// Adding the belonging cores to CPU #cpuIndex
-			for (int iCore = 0; iCore < numCores; iCore++)
-			{
-				// Get the cores inside iSocket according to their index "pointed by socketObj"
-				coreObj = hwloc_get_obj_below_by_type(topology, HWLOC_OBJ_SOCKET, cpuIndex, HWLOC_OBJ_PU, iCore);
-
-				// If this core "PU" is under this CPU "socket" in this topology
-				if( hwloc_obj_is_in_subtree(topology, coreObj, cpuObj) )
-				{
-					// Add core "PU" to the mask set
-					CPU_SET(iCore, &cpuMask);
-				}
-			}
-			EQINFO << "Thread is set to CPU #" << cpuIndex << std::endl;
-		}
-		else
-		{
-			// Warning if the CPU is not in the topology tree
-			EQWARN << "CPU ID " << cpuIndex << " is not existing in the topology \n" << std::endl;
-		}
-	}
-	/* Sets the affinity to a specific core or "PU" of your machine */
-	else if (affIndex >= CORE)
-	{
-		const int32_t coreIndex = (affIndex - CORE);
-		CPU_SET(coreIndex, &cpuMask);
-		EQINFO << "Thread is set to core #" << coreIndex << std::endl;
-	}
-	else {
-		EQWARN << "Thread affinity is not set" << std::endl;
-	}
-
-#  ifdef Linux
-	// Sets the affinity according to the generated cpuMask
-	sched_setaffinity(0, sizeof(cpuMask), &cpuMask);
-#  else
-	EQWARN << "Thread affinity is not supported for this platform" << std::endl;
-	EQWARN << "Thread affinity is not set " << std::endl;
-#  endif
+        if( hwloc_obj_is_in_subtree( topology, coreObj, cpuObj ))
+            result.push_back( i );
+    }
+    return result;
 #else
-	EQWARN << "HWLoc library is not supported " << std::endl;
-	EQWARN << "Thread affinity is not set " << std::endl;
+    EQWARN << "HWLoc library is not supported " << std::endl;
+    EQWARN << "Thread affinity is not set " << std::endl;
+    return std::vector< int >();
 #endif
 }
 

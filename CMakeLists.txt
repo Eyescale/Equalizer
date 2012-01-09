@@ -159,7 +159,6 @@ if(OFED_FOUND)
   include_directories(SYSTEM ${OFED_INCLUDE_DIR})
 endif()
 
-
 find_package(HWLOC)
 if(HWLOC_FOUND)
   include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})

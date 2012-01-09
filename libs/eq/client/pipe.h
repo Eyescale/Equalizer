@@ -437,6 +437,7 @@ namespace eq
 
         //-------------------- Methods --------------------
         void _setupCommandQueue();
+        void _setupAffinity();
         void _exitCommandQueue();
 
         friend class Window;

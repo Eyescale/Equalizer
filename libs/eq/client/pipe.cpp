@@ -50,7 +50,6 @@
 #include <co/queueSlave.h>
 #include <sstream>
 
-
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
@@ -190,6 +189,28 @@ void Pipe::_setupCommandQueue()
     queue->setMessagePump( pump );
 }
 
+void Pipe::_setupAffinity()
+{
+    const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
+    switch( affinity )
+    {
+        case OFF:
+            break;
+
+        case AUTO:
+            // To be implemented later
+            /*
+            const int32_t cpu = getCPU();
+            Pipe::Thread::setAffinity( cpu );
+            */
+            break;
+
+        default:
+            Pipe::Thread::setAffinity( affinity );
+            break;
+    }
+}
+
 void Pipe::_exitCommandQueue()
 {
     // Non-threaded pipes have no pipe thread message pump
@@ -228,26 +249,7 @@ void Pipe::Thread::run()
     pipe->_state.waitEQ( STATE_MAPPED );
     pipe->_windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
-
-    switch(pipe->getIAttribute(IATTR_HINT_AFFINITY))
-    {
-		case OFF:
-			EQINFO << "Thread affinity is set to OFF" << std::endl;
-			break;
-
-		case AUTO:
-			EQINFO << "Thread affinity is set to AUTO" << std::endl;
-			// To be implemented later
-			/*
-			const int32_t cpu = getCPU();
-			Pipe::Thread::setAffinity(pipe->getIAttribute(IATTR_HINT_AFFINITY));
-			*/
-			break;
-		default:
-			// Here we either set the affinity to a certain CPU or a certain core
-			Pipe::Thread::setAffinity(pipe->getIAttribute(IATTR_HINT_AFFINITY));
-			break;
-    }
+    pipe->_setupAffinity();
 
     Worker::run();
 

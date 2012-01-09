@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,13 +34,13 @@ namespace base
     class Thread 
     {
     public:
-    	enum Affinity
-    	{
-    		OFF = 0,
-    		AUTO = -1,
-    		CORE = 1, /* cores from 1 and upwards */
-    		CPU = -65536 /* CPUs from -2^16 and upwards */
-    	};
+        enum Affinity
+        {
+            /* Not yet implemented:  OFF = 0, */
+            CORE = 1, /* cores from 1 and upwards */
+            CPU = -65536 /* CPUs from -2^16 and upwards */
+        };
+
         /** Construct a new thread. @version 1.0 */
         COBASE_API Thread();
 
@@ -151,11 +151,16 @@ namespace base
         COBASE_API static void setName( const std::string& name );
 
         /** @internal
-         *  This function sets the affinity of the calling thread to a
-         *  certain core
-         *  TBD: Making this function official
-         * */
-        COBASE_API static void setAffinity(const int32_t affIndex);
+         * Set the affinity of the calling thread.
+         *
+         * If given a value greater or equal than CORE, this method binds the
+         * calling thread to core affinity - CORE. If set to a value greater
+         * than CPU and smaller than 0, this method binds the calling thread to
+         * all cores of the given processor (affinity - CPU).
+         *
+         * @param affinity the affinity value (see above).
+         */
+        COBASE_API static void setAffinity( const int32_t affinity );
 
     private:
         ThreadID _id;
@@ -179,6 +184,8 @@ namespace base
         static void _notifyStarted();
         static void _notifyStopping();
         friend void _notifyStopping( void* ); //!< @internal
+
+        static std::vector< int > _getCores( const int32_t affinity );
 
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
