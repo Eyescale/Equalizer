@@ -38,6 +38,8 @@
 #include "window.h"
 #include "vertexBufferState.h"
 
+#define BENCHMARK
+
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -130,6 +132,26 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
+#ifdef BENCHMARK
+    Pipe* pipe = static_cast< Pipe* >( getPipe( ));
+    FrameData& frameData = pipe->getFrameData();
+
+    frameData.moveCamera( -.5f, -.5f, 0.f );
+    _frameDraw( frameID );
+    frameData.moveCamera( 1.f, 0.f, 0.f );
+    _frameDraw( frameID );
+    frameData.moveCamera( 0.f, 1.f, 0.f );
+    _frameDraw( frameID );
+    frameData.moveCamera( -1.f, 0.f, 0.f );
+    _frameDraw( frameID );
+    frameData.moveCamera( 0.f, -1.f, 0.f );
+#else
+    _frameDraw( frameID );
+#endif
+}
+
+void Channel::_frameDraw( const eq::uint128_t& frameID )
+{
     const Model* model = _getModel();
     if( model )
         _updateNearFar( model->getBoundingSphere( ));

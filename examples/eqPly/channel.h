@@ -75,6 +75,7 @@ namespace eqPly
             { _frameRestart = lastFrameNumber + 1; }
 
     private:
+        void _frameDraw( const eq::uint128_t& frameID );
         void _drawModel( const Model* model );
         void _drawOverlay();
         void _drawHelp();
