@@ -1,9 +1,9 @@
-Tweaks for using installed GPUSD on Windows
+Adding support for maual thread placement on certain cpu or core 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [x] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -50,6 +50,7 @@
 #include <co/queueSlave.h>
 #include <sstream>
 
+
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
@@ -227,6 +228,26 @@ void Pipe::Thread::run()
     pipe->_state.waitEQ( STATE_MAPPED );
     pipe->_windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
+
+    switch(pipe->getIAttribute(IATTR_HINT_AFFINITY))
+    {
+		case OFF:
+			EQINFO << "Thread affinity is set to OFF" << std::endl;
+			break;
+
+		case AUTO:
+			EQINFO << "Thread affinity is set to AUTO" << std::endl;
+			// To be implemented later
+			/*
+			const int32_t cpu = getCPU();
+			Pipe::Thread::setAffinity(pipe->getIAttribute(IATTR_HINT_AFFINITY));
+			*/
+			break;
+		default:
+			// Here we either set the affinity to a certain CPU or a certain core
+			Pipe::Thread::setAffinity(pipe->getIAttribute(IATTR_HINT_AFFINITY));
+			break;
+    }
 
     Worker::run();
 
@@ -618,7 +639,7 @@ void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         case DRAW_SYNC:  // release
-            releaseFrameLocal( frameNumber ); 
+            releaseFrameLocal( frameNumber );
             break;
 
         case LOCAL_SYNC: // release in frameFinish

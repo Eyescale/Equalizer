@@ -62,6 +62,10 @@ if(OFED_FOUND)
   list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
 endif()
 
+if(HWLOC_FOUND)
+  list(APPEND CO_HEADERS ${HWLOC_INCLUDE_DIR})
+  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIB})
+endif(HWLOC_FOUND)
 
 source_group(base REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
