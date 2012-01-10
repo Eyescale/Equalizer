@@ -127,11 +127,6 @@ uint128_t Frame::commit( const uint32_t incarnation )
 
 void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
 {
-    // aplication was started more than once with the same running server,
-    // therefore reset reuse statistics for data
-    if( !_datas.empty() && frameNumber == 0 )
-        flush();
-
     _masterFrameData = 0;
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
