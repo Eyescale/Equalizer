@@ -985,7 +985,12 @@ bool ObjectStore::_cmdInstance( Command& command )
     const ObjectVersion rev( packet->objectID, packet->version ); 
 
     if( _instanceCache )
-        _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+    {
+#ifndef CO_AGGRESSIVE_CACHING // Issue #82: 
+        if( type != CMD_NODE_OBJECT_INSTANCE_PUSH )
+#endif
+            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+    }
 
     switch( type )
     {
