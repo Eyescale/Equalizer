@@ -15,8 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <fstream>
-
 #include "server.h"
 
 #include "display.h"
@@ -26,6 +24,8 @@
 #include "../global.h"
 #include "../loader.h"
 #include "../server.h"
+
+#include <fstream>
 
 namespace eq
 {
@@ -57,11 +57,12 @@ ServerPtr Server::configure( const std::string& session )
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
-    std::ofstream outputConfigurationFile;
-    outputConfigurationFile.open( "default.autoconfig.eqc" );
-    outputConfigurationFile << co::base::indent << Global::instance() << *server
-                            << co::base::exdent << std::endl;
-    outputConfigurationFile.close();
+    std::ofstream configFile;
+    const std::string filename = session + ".auto.eqc";
+    configFile.open( filename.c_str( ));
+    configFile << co::base::indent << Global::instance() << *server
+               << co::base::exdent << std::endl;
+    configFile.close();
 
     return server;
 }
