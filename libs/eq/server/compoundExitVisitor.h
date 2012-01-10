@@ -49,7 +49,7 @@ namespace server
                 }
 
                 const Frames& outputFrames = compound->getOutputFrames();
-                for( FramesCIter_iterator i = outputFrames.begin(); 
+                for( FramesCIter i = outputFrames.begin(); 
                      i != outputFrames.end(); ++i )
                 {
                     Frame* frame = *i;
