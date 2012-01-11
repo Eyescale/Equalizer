@@ -171,10 +171,10 @@ namespace co
          * of this node, since they will potentially read out-of-order data
          * streams on the multicast connection.
          *
-         * Enable and disable are counted, that is, the last disable on a
-         * matched series of enable/disable will be effective. The disable is
+         * Enable and disable are counted, that is, the last enable on a
+         * matched series of disable/enable will be effective. The disable is
          * completely synchronous, that is, no more instance data will be sent
-         * after an effective disable.
+         * after the first disable.
          */
         CO_API void enableSendOnRegister();
         
