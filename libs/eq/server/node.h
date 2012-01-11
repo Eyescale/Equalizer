@@ -24,12 +24,10 @@
 #include "types.h"
 
 #include <eq/fabric/node.h> // base class
-
 #include <co/barrier.h>
 #include <co/bufferConnection.h>
 #include <co/connectionDescription.h>
 #include <co/node.h>
-
 #include <vector>
 
 namespace eq

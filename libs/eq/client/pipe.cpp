@@ -192,6 +192,7 @@ void Pipe::_setupCommandQueue()
 void Pipe::_setupAffinity()
 {
     const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
+
     switch( affinity )
     {
         case OFF:

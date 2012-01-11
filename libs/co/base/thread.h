@@ -38,7 +38,8 @@ namespace base
         {
             /* Not yet implemented:  OFF = 0, */
             CORE = 1, /* cores from 1 and upwards */
-            CPU = -65536 /* CPUs from -2^16 and upwards */
+            CPU = -65536, /* CPUs from -(2^16-1) and upwards until -1024*/
+            MAX_CPU_VALUE = -1024 /* Maximum CPU value */
         };
 
         /** Construct a new thread. @version 1.0 */
