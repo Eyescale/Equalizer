@@ -107,13 +107,7 @@ to discard information. The following filters are provided:
 * [Equalizer](http://www.equalizergraphics.com) parallel rendering
   framework. ([source](https://github.com/Eyescale/Equalizer/blob/master/libs/eq/server/config/resources.cpp#L61))
 
-## TODO List
+## Further Links
 
-* GPU&lt;integer&gt; Vendor=&lt;OpenGL vendor string&gt;
-* GPU&lt;integer&gt; Renderer=&lt;OpenGL renderer string&gt;
-* GPU&lt;integer&gt; Version=&lt;OpenGL version string&gt;
-* GPU&lt;integer&gt; Segment Count=&lt;integer&gt;
-* GPU&lt;integer&gt; Segment&lt;integer&gt; X=&lt;integer&gt;
-* GPU&lt;integer&gt; Segment&lt;integer&gt; Y=&lt;integer&gt;
-* GPU&lt;integer&gt; Segment&lt;integer&gt; Width=&lt;integer&gt;
-* GPU&lt;integer&gt; Segment&lt;integer&gt; Height=&lt;integer&gt;
+[List of unimplemented Features](https://github.com/Eyescale/gpu-sd/issues?labels=Feature)
+[Known Bugs](https://github.com/Eyescale/gpu-sd/issues?labels=Bug)
