@@ -109,5 +109,5 @@ to discard information. The following filters are provided:
 
 ## Further Links
 
-* [List of unimplemented Features](https://github.com/Eyescale/gpu-sd/issues?labels=Feature)
+* [Unimplemented Features](https://github.com/Eyescale/gpu-sd/issues?labels=Feature)
 * [Known Bugs](https://github.com/Eyescale/gpu-sd/issues?labels=Bug)
