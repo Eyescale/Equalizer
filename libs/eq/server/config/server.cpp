@@ -27,6 +27,8 @@
 #include "../loader.h"
 #include "../server.h"
 
+#include "../node.h"
+
 namespace eq
 {
 namespace server
@@ -41,6 +43,8 @@ ServerPtr Server::configure( const std::string& session )
 
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
+
+    EQINFO << "SessionName:" << session << std::endl;
 
     if( !Resources::discover( config, session ))
         return 0;
@@ -57,8 +61,28 @@ ServerPtr Server::configure( const std::string& session )
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
+    if( session == "AffEnabled" )
+    {
+		const Nodes& nodes = config->getNodes();
+		const int nbOfNodes = nodes.size();
+
+		for(int i=0; i < nbOfNodes; i++)
+		{
+			const Pipes& pipes = nodes[i]->getPipes();
+			const int nbOfPipes = pipes.size();
+			EQINFO << "Number of pipes:" << nbOfPipes << std::endl;
+
+			if( nbOfPipes == 3 )
+			{
+				pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 2 );
+				pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 3 );
+				pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 8 );
+			}
+		}
+    }
+
     std::ofstream outputConfigurationFile;
-    outputConfigurationFile.open( "default.autoconfig.eqc" );
+    outputConfigurationFile.open( (session + "default.autoconfig.eqc").c_str() );
     outputConfigurationFile << co::base::indent << Global::instance() << *server
                             << co::base::exdent << std::endl;
     outputConfigurationFile.close();
