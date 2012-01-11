@@ -103,6 +103,7 @@ int EqPly::run()
     co::base::Clock clock;
 
     config->setInitData( _initData );
+
     if( !config->init( ))
     {
         EQWARN << "Error during initialization: " << config->getError()
@@ -111,6 +112,8 @@ int EqPly::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
+
+
     if( config->getError( ))
         EQWARN << "Error during initialization: " << config->getError()
                << std::endl;
@@ -123,6 +126,9 @@ int EqPly::run()
     int lastFrame = 0;
     
     clock.reset();
+
+    std::ofstream outputFrameFile;
+    outputFrameFile.open( "FPSInfo.txt" );
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
@@ -140,6 +146,8 @@ int EqPly::run()
             EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                                << ( nFrames / time * 1000.f) << " FPS)"
                                << std::endl;
+
+            outputFrameFile << ( nFrames / time * 1000.f) << std::endl;
         }
 
         while( !config->needRedraw( )) // wait for an event requiring redraw
@@ -158,6 +166,8 @@ int EqPly::run()
         }
         config->handleEvents(); // process all pending events
     }
+    outputFrameFile.close();
+
     const uint32_t frame = config->finishAllFrames();
     const float time = clock.resetTimef();
     const size_t nFrames = frame - lastFrame;
