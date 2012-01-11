@@ -673,7 +673,7 @@ bool SocketConnection::listen()
             char cDomainname[256] = {0};
             getdomainname( cDomainname, 256 );
             const std::string domainname( cDomainname );
-            if( !domainname.empty( ))
+            if( !domainname.empty() && domainname != "(none)" )
                 hostname += "." + domainname;
 #endif
             _description->setHostname( hostname );
