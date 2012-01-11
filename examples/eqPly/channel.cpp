@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2007, Tobias Wolf <twolf@access.unizh.ch>
  *
@@ -243,10 +243,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
-    if( stopRendering( ))
-        return;
-
-    if( _isDone( ))
+    if( stopRendering() || _isDone( ))
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
@@ -600,13 +597,13 @@ const Model* Channel::_getModel()
     return _model;
 }
 
-void Channel::_drawModel( const Model* model )
+void Channel::_drawModel( const Model* scene )
 {
     Window* window = static_cast< Window* >( getWindow( ));
     VertexBufferState& state = window->getState();
     const FrameData& frameData = _getFrameData();
 
-    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
+    if( frameData.getColorMode() == COLOR_MODEL && scene->hasColors( ))
         state.setColors( true );
     else
         state.setColors( false );
@@ -618,13 +615,13 @@ void Channel::_drawModel( const Model* model )
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
     position.set_translation( frameData.getCameraPosition());
 
-    const eq::Matrix4f& xfm = getHeadTransform();
-    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
-
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
                                                  frustum.compute_matrix();
-    state.setProjectionModelViewMatrix( projection * modelView );
+    const eq::Matrix4f& view = getHeadTransform();
+    const eq::Matrix4f model = rotation * position * modelRotation;
+
+    state.setProjectionModelViewMatrix( projection * view * model );
     state.setRange( &getRange().start);
 
     const eq::Pipe* pipe = getPipe();
@@ -632,7 +629,7 @@ void Channel::_drawModel( const Model* model )
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
-    model->cullDraw( state );
+    scene->cullDraw( state );
     state.setChannel( 0 );
 
     if( program != VertexBufferState::INVALID )
