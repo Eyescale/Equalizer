@@ -264,7 +264,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         {
             Frames current = _extractOneSubPixel( framesLeft );
             const uint32_t subCount = assembleFramesSorted( current, channel,
-                                                            accum );
+                                                            accum, blendAlpha );
             EQASSERT( subCount < 2 );
 
             if( subCount > 0 )
