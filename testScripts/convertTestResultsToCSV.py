@@ -1,12 +1,9 @@
 #!/usr/bin/python
 
-import startServers
 import os
 import numpy
-import runTests
 
-testFileName = "FPSInfo.txt"
-resultsDir = "Results"
+from common import *
 
 def convertToCSV( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
 
@@ -19,7 +16,7 @@ def convertToCSV( dirName, layoutName, ROIenabled, affinityEnabled, sessionName 
       
    nodeFPSArray = []
    
-   for serverCount in range( 1, startServers.numberOfServers + 1 ):
+   for serverCount in range( 1, numberOfServers + 1 ):
       
       oldDir = os.getcwd()
       
@@ -46,7 +43,7 @@ def convertToCSV( dirName, layoutName, ROIenabled, affinityEnabled, sessionName 
    
   
 def main():
-    runTests.testScheme( convertToCSV )
+    testScheme( convertToCSV )
 
 if __name__ == "__main__":
     main()

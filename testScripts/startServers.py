@@ -6,8 +6,7 @@ import getopt
 import subprocess
 import time
 
-numberOfServers = 13
-excludedServers = [] 
+from common import *
 
 # Killall the servers in range
 def stopServersInRange( serverRange ):

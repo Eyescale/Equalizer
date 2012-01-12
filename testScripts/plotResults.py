@@ -1,28 +1,27 @@
 #!/usr/bin/python
 
-import startServers
 import os
 import numpy
-import runTests
-import convertTestResultsToCSV
 from pylab import *
+
+from common import *
 
 resultsDict = dict()
 
 def readResultsToDict( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
 
-   if not os.path.exists( convertTestResultsToCSV.resultsDir ):
+   if not os.path.exists( resultsDir ):
       convertTestResultsToCSV.main()
       
    oldDir = os.getcwd()  
-   os.chdir( convertTestResultsToCSV.resultsDir )
+   os.chdir( resultsDir )
    data = numpy.genfromtxt( dirName + ".txt", dtype=None )
    resultsDict[ dirName ] = data
    os.chdir( oldDir )
 
 def drawFigure( dirName, labelName ):
      
-   xarr = arange( startServers.numberOfServers ) + 1 
+   xarr = arange( numberOfServers ) + 1 
    data = resultsDict[ dirName ]
    p = plot( xarr, data, label = labelName ) 
    legend( loc=2 )
@@ -35,7 +34,7 @@ def plotIndividualResults( dirName, layoutName, ROIenabled, affinityEnabled, ses
    figure()
    drawFigure( dirName, '' )
    title( dirName )
-   plt.savefig( convertTestResultsToCSV.resultsDir + "/" + dirName + ".png", dpi=300)
+   plt.savefig( resultsDir + "/" + dirName + ".png", dpi=300)
  
    
 def plotROIEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
@@ -43,7 +42,7 @@ def plotROIEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled, ses
    if not ROIenabled:
       return
   
-   labelName = layoutName + "," + runTests.affStateStr[ int(affinityEnabled) ] 
+   labelName = layoutName + "," + affStateStr[ int(affinityEnabled) ] 
    drawFigure( dirName, labelName )
    
 def plotROIDisabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
@@ -51,7 +50,7 @@ def plotROIDisabledResults( dirName, layoutName, ROIenabled, affinityEnabled, se
    if ROIenabled:
       return
       
-   labelName = layoutName + "," + runTests.affStateStr[ int(affinityEnabled) ] 
+   labelName = layoutName + "," + affStateStr[ int(affinityEnabled) ] 
    drawFigure( dirName, labelName )
    
 def plotAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
@@ -59,7 +58,7 @@ def plotAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled
    if not affinityEnabled:
       return
       
-   labelName = layoutName + "," + runTests.roiStateStr[ int(ROIenabled) ] 
+   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName ) 
 
 def plotAffinityDisabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
@@ -67,67 +66,67 @@ def plotAffinityDisabledResults( dirName, layoutName, ROIenabled, affinityEnable
    if affinityEnabled:
       return
       
-   labelName = layoutName + "," + runTests.roiStateStr[ int(ROIenabled) ] 
+   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName )
    
 def plotStatic2DResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
    
-   if not( layoutName == runTests.layoutNames[ 0 ] ):
+   if not( layoutName == layoutNames[ 0 ] ):
       return
       
-   labelName = runTests.affStateStr[ int(affinityEnabled) ] + "," + runTests.roiStateStr[ int(ROIenabled) ] 
+   labelName = affStateStr[ int(affinityEnabled) ] + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName )
    
 def plotDynamic2DResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
    
-   if not( layoutName == runTests.layoutNames[ 1 ] ):
+   if not( layoutName == layoutNames[ 1 ] ):
       return
       
-   labelName = runTests.affStateStr[ int(affinityEnabled) ] + "," + runTests.roiStateStr[ int(ROIenabled) ]
+   labelName = affStateStr[ int(affinityEnabled) ] + "," + roiStateStr[ int(ROIenabled) ]
    drawFigure( dirName, labelName )
    
    
 def main():
      
-    runTests.testScheme( readResultsToDict )
+    testScheme( readResultsToDict )
     
-    runTests.testScheme( plotIndividualResults )
+    testScheme( plotIndividualResults )
     # show()
     
     figure()
-    runTests.testScheme( plotROIEnabledResults )
+    testScheme( plotROIDisabledResults )
     title( "ROIDisabled" )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/ROIDisabled.png", dpi=300)
+    plt.savefig( resultsDir + "/ROIDisabled.png", dpi=300)
     # show()
-    
+
     figure()
-    runTests.testScheme( plotAffinityEnabledResults )
+    testScheme( plotROIEnabledResults )
     title( "ROIEnabled" )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/ROIEnabled.png", dpi=300)
-    # show()
-
-    figure()
-    runTests.testScheme( plotAffinityDisabledResults )
-    title( "AffinityDisabled" )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/AffinityDisabled.png", dpi=300)
+    plt.savefig( resultsDir + "/ROIEnabled.png", dpi=300)
     # show()
     
     figure()
-    runTests.testScheme( plotROIDisabledResults )
+    testScheme( plotAffinityDisabledResults )
     title( "AffinityEnabled" )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/AffinityEnabled.png", dpi=300)
-    # show()
-    
-    figure()
-    runTests.testScheme( plotStatic2DResults )
-    title( runTests.layoutNames[ 0 ] )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/" + runTests.layoutNames[ 0 ] + ".png", dpi=300)
+    plt.savefig( resultsDir + "/AffinityDisabled.png", dpi=300)
     # show()
 
     figure()
-    runTests.testScheme( plotDynamic2DResults )
-    title( runTests.layoutNames[ 1 ] )
-    plt.savefig( convertTestResultsToCSV.resultsDir + "/" + runTests.layoutNames[ 1 ] + ".png", dpi=300)
+    testScheme( plotAffinityEnabledResults )
+    title( "AffinityEnabled" )
+    plt.savefig( resultsDir + "/AffinityEnabled.png", dpi=300)
+    # show()
+    
+    figure()
+    testScheme( plotStatic2DResults )
+    title( layoutNames[ 0 ] )
+    plt.savefig( resultsDir + "/" + layoutNames[ 0 ] + ".png", dpi=300)
+    # show()
+
+    figure()
+    testScheme( plotDynamic2DResults )
+    title( layoutNames[ 1 ] )
+    plt.savefig( resultsDir + "/" + layoutNames[ 1 ] + ".png", dpi=300)
     # show()
 
 
