@@ -1,8 +1,9 @@
 Correcting the affinity condition for the CPU case. 
-Changing the CORE value from 2 back to 1.   
+Changing the CORE value from 2 back to 1.
+
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
 [ ] Cleanup
 [ ] Optimization

@@ -1,4 +1,4 @@
-# Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch> 
+# Copyright (c) 2012
 
 find_path(HWLOC_INCLUDE_DIR "hwloc.h"
   /usr/include

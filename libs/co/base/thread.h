@@ -34,12 +34,13 @@ namespace base
     class Thread 
     {
     public:
+        /** Enumeration values for thread affinity. */
         enum Affinity
         {
             /* Not yet implemented:  OFF = 0, */
-            CORE = 1, /* cores from 1 and upwards */
-            CPU = -65536, /* CPUs from -(2^16-1) and upwards until -1024*/
-            MAX_CPU_VALUE = -1024 /* Maximum CPU value */
+            CORE = 1, //!< Bind to a specific CPU core
+            CPU = -65536, //!< Bind to all cores of a specific CPU
+            CPU_MAX = -1024 //!< Highes bindable CPU
         };
 
         /** Construct a new thread. @version 1.0 */
