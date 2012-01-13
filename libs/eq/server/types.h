@@ -125,6 +125,9 @@ using fabric::ObserverPath;
 using fabric::LayoutPath;
 using fabric::ViewPath;
 
+using fabric::CPU;
+using fabric::CORE;
+
 /** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
 
