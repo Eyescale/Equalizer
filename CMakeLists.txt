@@ -159,6 +159,12 @@ if(OFED_FOUND)
   include_directories(SYSTEM ${OFED_INCLUDE_DIR})
 endif()
 
+find_package(HWLOC)
+if(HWLOC_FOUND)
+  include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})
+  set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
+endif()
+
 if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)

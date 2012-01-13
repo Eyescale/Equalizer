@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,6 +24,8 @@
 #include "../global.h"
 #include "../loader.h"
 #include "../server.h"
+
+#include <fstream>
 
 namespace eq
 {
@@ -54,6 +56,14 @@ ServerPtr Server::configure( const std::string& session )
 
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
+
+    std::ofstream configFile;
+    const std::string filename = session + ".auto.eqc";
+    configFile.open( filename.c_str( ));
+    configFile << co::base::indent << Global::instance() << *server
+               << co::base::exdent << std::endl;
+    configFile.close();
+
     return server;
 }
 

@@ -272,7 +272,11 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Window::ObjectManager* glObjects = getObjectManager();
         eq::FrameData* data = frame->getData();
 
-        if( data->getType() == eq::Frame::TYPE_TEXTURE )
+        const InitData& initData = 
+            static_cast<Config*>( getConfig( ))->getInitData();
+        const bool useRegion = initData.useROI();
+
+        if( data->getType() == eq::Frame::TYPE_TEXTURE || !useRegion )
             frame->readback( glObjects, drawable );
         else
         {
@@ -626,13 +630,13 @@ const Model* Channel::_getModel()
     return _model;
 }
 
-void Channel::_drawModel( const Model* model )
+void Channel::_drawModel( const Model* scene )
 {
     Window* window = static_cast< Window* >( getWindow( ));
     VertexBufferState& state = window->getState();
     const FrameData& frameData = _getFrameData();
 
-    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
+    if( frameData.getColorMode() == COLOR_MODEL && scene->hasColors( ))
         state.setColors( true );
     else
         state.setColors( false );
@@ -644,13 +648,13 @@ void Channel::_drawModel( const Model* model )
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
     position.set_translation( frameData.getCameraPosition());
 
-    const eq::Matrix4f& xfm = getHeadTransform();
-    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
-
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
                                                  frustum.compute_matrix();
-    state.setProjectionModelViewMatrix( projection * modelView );
+    const eq::Matrix4f& view = getHeadTransform();
+    const eq::Matrix4f model = rotation * position * modelRotation;
+
+    state.setProjectionModelViewMatrix( projection * view * model );
     state.setRange( &getRange().start);
 
     const eq::Pipe* pipe = getPipe();
@@ -658,7 +662,7 @@ void Channel::_drawModel( const Model* model )
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
-    model->cullDraw( state );
+    scene->cullDraw( state );
     _updateRegion( state.getRegion( ));
 
     state.setChannel( 0 );
@@ -666,6 +670,11 @@ void Channel::_drawModel( const Model* model )
         glUseProgram( 0 );
 
 #ifndef NDEBUG // region border
+    const InitData& initData =
+        static_cast<Config*>( getConfig( ))->getInitData();
+    if( !initData.useROI( ))
+        return;
+
     const eq::PixelViewport& pvp = getPixelViewport();
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();

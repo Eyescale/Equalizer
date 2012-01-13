@@ -291,6 +291,8 @@
 %token EQTOKEN_INTEGER
 %token EQTOKEN_UNSIGNED
 %token EQTOKEN_SIZE
+%token EQTOKEN_CORE
+%token EQTOKEN_CPU
 
 %union{
     const char*             _string;
@@ -644,7 +646,7 @@ pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
     | EQTOKEN_HINT_AFFINITY IATTR
-        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_AFFINITY, $2 ); }
+        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_AFFINITY, $2); }
     | EQTOKEN_HINT_CUDA_GL_INTEROP IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 ); }
 
@@ -1330,6 +1332,8 @@ IATTR:
     | EQTOKEN_RELATIVE_TO_ORIGIN   { $$ = eq::fabric::RELATIVE_TO_ORIGIN; }
     | EQTOKEN_RELATIVE_TO_OBSERVER { $$ = eq::fabric::RELATIVE_TO_OBSERVER; }
     | INTEGER            { $$ = $1; }
+    | EQTOKEN_CORE INTEGER { $$ = eq::fabric::CORE + $2; }
+    | EQTOKEN_CPU INTEGER  { $$ = eq::fabric::CPU  + $2; }
 
 STRING: EQTOKEN_STRING
      {

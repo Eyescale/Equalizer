@@ -1,9 +1,10 @@
-Tweaks for using installed GPUSD on Windows
+Correcting the affinity condition for the CPU case. 
+Changing the CORE value from 2 back to 1.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

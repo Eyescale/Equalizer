@@ -189,6 +189,28 @@ void Pipe::_setupCommandQueue()
     queue->setMessagePump( pump );
 }
 
+void Pipe::_setupAffinity()
+{
+    const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
+    switch( affinity )
+    {
+        case OFF:
+            break;
+
+        case AUTO:
+            // To be implemented later
+            /*
+            const int32_t cpu = getCPU();
+            Pipe::Thread::setAffinity( cpu );
+            */
+            break;
+
+        default:
+            Pipe::Thread::setAffinity( affinity );
+            break;
+    }
+}
+
 void Pipe::_exitCommandQueue()
 {
     // Non-threaded pipes have no pipe thread message pump
@@ -227,6 +249,7 @@ void Pipe::Thread::run()
     pipe->_state.waitEQ( STATE_MAPPED );
     pipe->_windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
+    pipe->_setupAffinity();
 
     Worker::run();
 
@@ -618,7 +641,7 @@ void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         case DRAW_SYNC:  // release
-            releaseFrameLocal( frameNumber ); 
+            releaseFrameLocal( frameNumber );
             break;
 
         case LOCAL_SYNC: // release in frameFinish
