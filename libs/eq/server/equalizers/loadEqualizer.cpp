@@ -97,7 +97,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     _history.back().first = frameNumber;
 
     _update( _tree );
-    EQLOG( LOG_LB2 ) << "LB tree: " << _tree;
+    EQLOG( LOG_LB2 ) << "LB tree @ " << frameNumber << ": " << _tree;
     _computeSplit();
 }
 
@@ -216,6 +216,8 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t nStatistics,
                                     const Statistic* statistics )
 {
+    EQLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
+                     << " @ " << frameNumber << std::endl;
     for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
     {
