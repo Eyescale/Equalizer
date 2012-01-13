@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -79,6 +79,8 @@ typedef Frames::const_iterator FramesCIter;
 typedef Frames::iterator FramesIter;
 typedef Layouts::const_iterator LayoutsCIter;
 typedef Layouts::iterator LayoutsIter;
+typedef Nodes::const_iterator NodesCIter;
+typedef Nodes::iterator NodesIter;
 typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
 typedef Pipes::const_iterator PipesCIter;
@@ -122,6 +124,9 @@ using fabric::SegmentPath;
 using fabric::ObserverPath;
 using fabric::LayoutPath;
 using fabric::ViewPath;
+
+using fabric::CPU;
+using fabric::CORE;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;

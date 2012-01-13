@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,7 +27,7 @@
 #include "../loader.h"
 #include "../server.h"
 
-#include "../node.h"
+#include <fstream>
 
 namespace eq
 {
@@ -43,8 +43,6 @@ ServerPtr Server::configure( const std::string& session )
 
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
-
-    EQINFO << "SessionName:" << session << std::endl;
 
     if( !Resources::discover( config, session ))
         return 0;
@@ -81,11 +79,12 @@ ServerPtr Server::configure( const std::string& session )
 		}
     }
 
-    std::ofstream outputConfigurationFile;
-    outputConfigurationFile.open( (session + "default.autoconfig.eqc").c_str() );
-    outputConfigurationFile << co::base::indent << Global::instance() << *server
-                            << co::base::exdent << std::endl;
-    outputConfigurationFile.close();
+    std::ofstream configFile;
+    const std::string filename = session + ".auto.eqc";
+    configFile.open( filename.c_str( ));
+    configFile << co::base::indent << Global::instance() << *server
+               << co::base::exdent << std::endl;
+    configFile.close();
 
     return server;
 }

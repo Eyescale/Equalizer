@@ -130,8 +130,7 @@ bool Config::exit()
     _deregisterData();
     _closeAdminServer();
 
-    // retain models and distributors for possible other config runs, destructor
-    // deletes it
+    // retain model & distributors for possible other config runs, dtor deletes
     return ret;
 }
 
@@ -283,8 +282,10 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     if( modelID == eq::UUID::ZERO )
         return 0;
 
-    // Accessed concurrently from pipe threads
-    co::base::ScopedMutex<> _mutex( _modelLock );
+    // Protect if accessed concurrently from multiple pipe threads
+    const eq::Node* node = getNodes().front();
+    const bool needModelLock = (node->getPipes().size() > 1);
+    co::base::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
     EQASSERT( _modelDist.size() == nModels );
@@ -307,7 +308,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const co::base::uint128_t& version = _frameData.commit();
+    const eq::uint128_t& version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
