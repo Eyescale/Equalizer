@@ -43,8 +43,6 @@ ServerPtr Server::configure( const std::string& session )
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    EQINFO << "SessionName:" << session << std::endl;
-
     if( !Resources::discover( config, session ))
         return 0;
 
@@ -62,22 +60,19 @@ ServerPtr Server::configure( const std::string& session )
 
     if( session == "AffEnabled" )
     {
-		const Nodes& nodes = config->getNodes();
-		const int nbOfNodes = nodes.size();
+        const Nodes& nodes = config->getNodes();
+        for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+        {
+            const Node* node = *i;
+            const Pipes& pipes = node->getPipes();
 
-		for(int i=0; i < nbOfNodes; i++)
-		{
-			const Pipes& pipes = nodes[i]->getPipes();
-			const int nbOfPipes = pipes.size();
-			EQINFO << "Number of pipes:" << nbOfPipes << std::endl;
-
-			if( nbOfPipes == 3 )
-			{
-				pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 2 );
-				pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 3 );
-				pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 8 );
-			}
-		}
+            if( pipes.size() == 3 ) // BBP viz cluster 'heuristic'
+            {
+                pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, CPU + 0 );
+                pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, CPU + 0 );
+                pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, CPU + 1 );
+            }
+        }
     }
 
     std::ofstream configFile;

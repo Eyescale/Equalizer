@@ -38,8 +38,6 @@
 #include "window.h"
 #include "vertexBufferState.h"
 
-#define BENCHMARK
-
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};

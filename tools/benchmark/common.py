@@ -10,7 +10,7 @@ roiStateStr = [ 'ROIDisabled', 'ROIEnabled' ]
 affStateStr = [ 'AffDisabled', 'AffEnabled' ]
 nbOfFrames = 2500
 nbOfFramesArg = '-n ' + str(nbOfFrames) 
-testFileName = "FPSInfo.txt"
+testFileName = "FPS.eqPly.txt"
 resultsDir = "Results"
 
 def testScheme( function ):
