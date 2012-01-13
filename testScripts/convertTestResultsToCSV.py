@@ -43,7 +43,7 @@ def convertToCSV( dirName, layoutName, ROIenabled, affinityEnabled, sessionName 
    
   
 def main():
-    testScheme( convertToCSV )
+    testScheme( "eqPly", convertToCSV )
 
 if __name__ == "__main__":
     main()

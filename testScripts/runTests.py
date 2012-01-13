@@ -37,7 +37,7 @@ def test( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
       os.chdir( oldDir)      
 
 def main():
-    testScheme( test )
+    testScheme( "eqPly", test )
 
 if __name__ == "__main__":
     main()

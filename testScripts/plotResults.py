@@ -88,43 +88,43 @@ def plotDynamic2DResults( dirName, layoutName, ROIenabled, affinityEnabled, sess
    
 def main():
      
-    testScheme( readResultsToDict )
+    testScheme( "eqPly", readResultsToDict )
     
-    testScheme( plotIndividualResults )
+    testScheme( "eqPly", plotIndividualResults )
     # show()
     
     figure()
-    testScheme( plotROIDisabledResults )
+    testScheme( "eqPly", plotROIDisabledResults )
     title( "ROIDisabled" )
     plt.savefig( resultsDir + "/ROIDisabled.png", dpi=300)
     # show()
 
     figure()
-    testScheme( plotROIEnabledResults )
+    testScheme( "eqPly", plotROIEnabledResults )
     title( "ROIEnabled" )
     plt.savefig( resultsDir + "/ROIEnabled.png", dpi=300)
     # show()
     
     figure()
-    testScheme( plotAffinityDisabledResults )
-    title( "AffinityEnabled" )
+    testScheme( "eqPly", plotAffinityDisabledResults )
+    title( "AffinityDisabled" )
     plt.savefig( resultsDir + "/AffinityDisabled.png", dpi=300)
     # show()
 
     figure()
-    testScheme( plotAffinityEnabledResults )
+    testScheme( "eqPly", plotAffinityEnabledResults )
     title( "AffinityEnabled" )
     plt.savefig( resultsDir + "/AffinityEnabled.png", dpi=300)
     # show()
     
     figure()
-    testScheme( plotStatic2DResults )
+    testScheme( "eqPly", plotStatic2DResults )
     title( layoutNames[ 0 ] )
     plt.savefig( resultsDir + "/" + layoutNames[ 0 ] + ".png", dpi=300)
     # show()
 
     figure()
-    testScheme( plotDynamic2DResults )
+    testScheme( "eqPly", plotDynamic2DResults )
     title( layoutNames[ 1 ] )
     plt.savefig( resultsDir + "/" + layoutNames[ 1 ] + ".png", dpi=300)
     # show()

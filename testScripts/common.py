@@ -3,7 +3,8 @@
 numberOfServers = 13
 excludedServers = [] 
 
-layoutNames = [ 'Static 2D', 'Dynamic 2D' ] 
+layoutNames = [ 'Static2D', 'Dynamic2D', 'StaticDB' ]
+
 eqPlyBinaryPath = '/home/bilgili/Build/bin/eqPly'
 eqPlyDefaultArgs = '-m ~/EqualizerData/david1mm.ply -a ~/EqualizerConfigs/eqPly/cameraPath'
 roiStateStr = [ 'ROIDisabled', 'ROIEnabled' ]
@@ -13,9 +14,11 @@ nbOfFramesArg = '-n ' + str(nbOfFrames)
 testFileName = "FPSInfo.txt"
 resultsDir = "Results"
 
-def testScheme( function ):
-   for layoutName in layoutNames:
-       for roiState in range(0, len(roiStateStr)):
-         for affState in range(0, len(affStateStr)):
-            dirName =  '%s-%s-%s' % (layoutName, roiStateStr[roiState], affStateStr[affState])
-            function( dirName, layoutName, bool(roiState), bool(affState), affStateStr[affState] )
+def testScheme( application, function ):
+
+   if application == "eqPly":
+      for layoutName in layoutNames:
+          for roiState in range(0, len(roiStateStr)):
+            for affState in range(0, len(affStateStr)):
+               dirName =  '%s-%s-%s' % (layoutName, roiStateStr[roiState], affStateStr[affState])
+               function( dirName, layoutName, bool(roiState), bool(affState), affStateStr[affState] )
