@@ -23,6 +23,7 @@
 #include "../config.h"
 #include "../global.h"
 #include "../loader.h"
+#include "../node.h"
 #include "../server.h"
 
 #include <fstream>
@@ -42,6 +43,8 @@ ServerPtr Server::configure( const std::string& session )
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
+    EQINFO << "SessionName:" << session << std::endl;
+
     if( !Resources::discover( config, session ))
         return 0;
 
@@ -57,13 +60,35 @@ ServerPtr Server::configure( const std::string& session )
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
+    if( session == "AffEnabled" )
+    {
+		const Nodes& nodes = config->getNodes();
+		const int nbOfNodes = nodes.size();
+
+		for(int i=0; i < nbOfNodes; i++)
+		{
+			const Pipes& pipes = nodes[i]->getPipes();
+			const int nbOfPipes = pipes.size();
+			EQINFO << "Number of pipes:" << nbOfPipes << std::endl;
+
+			if( nbOfPipes == 3 )
+			{
+				pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 2 );
+				pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 3 );
+				pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 8 );
+			}
+		}
+    }
+
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
     configFile.open( filename.c_str( ));
-    configFile << co::base::indent << Global::instance() << *server
-               << co::base::exdent << std::endl;
-    configFile.close();
-
+    if( configFile.is_open( ))
+    {
+        configFile << co::base::indent << Global::instance() << *server
+                   << co::base::exdent << std::endl;
+        configFile.close();
+    }
     return server;
 }
 
