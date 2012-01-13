@@ -1,9 +1,9 @@
-Adding support for maual thread placement on certain cpu or core 
-
+Correcting the affinity condition for the CPU case. 
+Changing the CORE value from 2 back to 1.   
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

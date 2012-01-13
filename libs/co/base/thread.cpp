@@ -336,7 +336,7 @@ std::vector< int > Thread::_getCores( const int32_t affinity )
 
 #ifdef CO_USE_HWLOC
     /* Sets the affinity to a specific CPU or "socket" with all of its cores */
-    EQASSERT( affinity >= CPU );
+    EQASSERT( affinity >= CPU && affinity < MAX_CPU_VALUE );
     const int32_t cpuIndex = affinity - CPU;
 
     // Make sure that this cpuID is existing in the topology
