@@ -408,7 +408,7 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const uint32_t totalSteps = view->getIdleSteps();
+    const int32_t totalSteps = view->getIdleSteps();
     if( totalSteps == 0 )
         return;
 
@@ -550,7 +550,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( !view )
         return eq::Vector2i::ZERO;
 
-    const uint32_t totalSteps = view->getIdleSteps();
+    const uint32_t totalSteps = uint32_t( view->getIdleSteps( ));
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
