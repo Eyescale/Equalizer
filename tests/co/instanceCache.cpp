@@ -93,7 +93,7 @@ int main( int argc, char **argv )
     co::Command& command = commandCache.alloc( node, node, PACKET_SIZE );
     co::ObjectInstancePacket* packet =
         command.getModifiable< co::ObjectInstancePacket >();
-    memcpy( packet, &pkg, sizeof( packet ));
+    memcpy( packet, &pkg, sizeof( pkg ));
 
     Reader** readers = static_cast< Reader** >( 
         alloca( N_READER * sizeof( Reader* )));
