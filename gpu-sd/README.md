@@ -111,3 +111,4 @@ to discard information. The following filters are provided:
 
 * [Unimplemented Features](https://github.com/Eyescale/gpu-sd/issues?labels=Feature)
 * [Known Bugs](https://github.com/Eyescale/gpu-sd/issues?labels=Bug)
+* [New Features in GPU-SD 1.2](https://github.com/Eyescale/gpu-sd/issues?state=closed&milestone=1)
