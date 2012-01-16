@@ -29,6 +29,13 @@
 #  include <gpusd/wgl/module.h>
 #endif
 
+#ifdef GPUSD_BOOST
+#  include <boost/program_options/options_description.hpp>
+#  include <boost/program_options/parsers.hpp>
+#  include <boost/program_options/variables_map.hpp>
+   namespace arg = boost::program_options;
+#endif
+
 #ifndef _WIN32
 #  include <arpa/inet.h>
 #  include <unistd.h>
@@ -150,7 +157,8 @@ static DNSServiceErrorType registerService( const TXTRecordRef& record )
                             htons( 4242 ) /* port */,
                             TXTRecordGetLength( &record ),
                             TXTRecordGetBytesPtr( &record ),
-                            (DNSServiceRegisterReply)registerCB, 0 /* context* */ );
+                            (DNSServiceRegisterReply)registerCB,
+                            0 /* context */ );
     if( error == kDNSServiceErr_NoError )
     {
         handleEvents( serviceRef );
@@ -171,32 +179,43 @@ int main (int argc, char * argv[])
     gpusd::wgl::Module::use();
 #endif
 
+    std::string session( "default" );
+
+#ifdef GPUSD_BOOST
+    arg::variables_map vm;
+    arg::options_description desc("GPU service discovery daemon");
+    desc.add_options()
+        ("help,h", "output this help message")
+        ("session,s", arg::value< std::string >(), "set session name")
+        ;
+
+
+    try
+    {
+        arg::store( arg::parse_command_line( argc, argv, desc ), vm );
+        arg::notify( vm );
+    }
+    catch(...)
+    {
+        std::cout << desc << std::endl;
+        return EXIT_SUCCESS;
+    }
+    if( vm.count( "help" ))
+    {
+        std::cout << desc << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    if( vm.count( "session" )) 
+        session = vm["session"].as< std::string >();
+#endif
+
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
     if( gpus.empty( ))
     {
         std::cerr << "No GPUs found, quitting" << std::endl;
         return EXIT_FAILURE;
     }
-
-    std::string session( "default" );
-#ifndef _WIN32
-    switch( getopt( argc, argv, "s:" ))
-    {
-      case 's':
-          session = optarg;
-          break;
-
-      case '?':
-          std::cout << "Usage: " << argv[0] << " [-s sessionName]" << std::endl;
-          break;
-
-      default: // ??
-      case -1: // end
-          break;
-    }
-#else
-    // TODO: getopt not available for WIN32
-#endif
 
     TXTRecordRef record;
     TXTRecordCreate( &record, 0, 0 );
