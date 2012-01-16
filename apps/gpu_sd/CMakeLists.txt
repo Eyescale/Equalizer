@@ -23,7 +23,6 @@ if(WIN32)
   list(APPEND LINK_LIBRARIES gpusd_wgl ws2_32)
 endif()
 
-find_package(Boost COMPONENTS program_options) 
 if(Boost_FOUND)
   add_definitions(-DGPUSD_BOOST)
   include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
