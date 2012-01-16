@@ -147,13 +147,15 @@ static void registerCB( DNSServiceRef service, DNSServiceFlags flags,
                   << std::endl;
 }
 
-static DNSServiceErrorType registerService( const TXTRecordRef& record )
+static DNSServiceErrorType registerService( const TXTRecordRef& record,
+                                            const std::string& hostname )
 {
     DNSServiceRef serviceRef = 0;
+    const char* host = hostname.empty() ? 0 : hostname.c_str();
     const DNSServiceErrorType error =
         DNSServiceRegister( &serviceRef, 0 /* flags */, 0 /* all interfaces */,
-                            0 /* computer name */, "_gpu-sd._tcp",
-                            0 /* default domains */, 0 /* default hostname */,
+                            host /* service name */, "_gpu-sd._tcp",
+                            0 /* default domains */, host /* hostname */,
                             htons( 4242 ) /* port */,
                             TXTRecordGetLength( &record ),
                             TXTRecordGetBytesPtr( &record ),
@@ -180,13 +182,15 @@ int main (int argc, char * argv[])
 #endif
 
     std::string session( "default" );
+    std::string hostname;
 
 #ifdef GPUSD_BOOST
     arg::variables_map vm;
     arg::options_description desc("GPU service discovery daemon");
     desc.add_options()
-        ("help,h", "output this help message")
+        ("help", "output this help message")
         ("session,s", arg::value< std::string >(), "set session name")
+        ("hostname,h", arg::value< std::string >(), "set hostname")
         ;
 
 
@@ -208,6 +212,8 @@ int main (int argc, char * argv[])
 
     if( vm.count( "session" )) 
         session = vm["session"].as< std::string >();
+    if( vm.count( "hostname" )) 
+        hostname = vm["hostname"].as< std::string >();
 #endif
 
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
@@ -221,7 +227,7 @@ int main (int argc, char * argv[])
     TXTRecordCreate( &record, 0, 0 );
     createTXTRecord( record, gpus, session );
 
-    DNSServiceErrorType error = registerService( record );
+    DNSServiceErrorType error = registerService( record, hostname );
     std::cout << "DNSServiceDiscovery returned: " << error << std::endl;
 
     TXTRecordDeallocate( &record );
