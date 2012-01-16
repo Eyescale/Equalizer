@@ -34,6 +34,7 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/libs)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
+find_package(Boost COMPONENTS program_options) 
 find_package(DNSSD)
 
 if(APPLE)
