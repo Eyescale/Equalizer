@@ -8,7 +8,7 @@ from common import *
 
 resultsDict = dict()
 
-def readResultsToDict( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def readResultsToDict( dirName, layoutName, ROIenabled, affinityState, sessionName ):
 
    if not os.path.exists( resultsDir ):
       convertTestResultsToCSV.main()
@@ -29,7 +29,7 @@ def drawFigure( dirName, labelName ):
    ylabel('FPS') 
    return p
 
-def plotIndividualResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotIndividualResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
 
    figure()
    drawFigure( dirName, '' )
@@ -37,52 +37,60 @@ def plotIndividualResults( dirName, layoutName, ROIenabled, affinityEnabled, ses
    plt.savefig( resultsDir + "/" + dirName + ".png", dpi=300)
  
    
-def plotROIEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotROIEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
    if not ROIenabled:
       return
   
-   labelName = layoutName + "," + affStateStr[ int(affinityEnabled) ] 
+   labelName = layoutName + "," + affStateStr[ affinityState ] 
    drawFigure( dirName, labelName )
    
-def plotROIDisabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotROIDisabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
    if ROIenabled:
       return
       
-   labelName = layoutName + "," + affStateStr[ int(affinityEnabled) ] 
+   labelName = layoutName + "," + affStateStr[ affinityState ] 
    drawFigure( dirName, labelName )
    
-def plotAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
-   if not affinityEnabled:
+   if not affStateStr[ affinityState ]  == "AffinityEnabled":
       return
       
    labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName ) 
 
-def plotAffinityDisabledResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotAffinityDisabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
-   if affinityEnabled:
+   if not affStateStr[ affinityState ]  == "AffDisabled":
       return
       
    labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName )
    
-def plotStatic2DResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotWrongAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+   
+   if not affStateStr[ affinityState ]  == "WrongAffEnabled":
+      return
+      
+   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
+   drawFigure( dirName, labelName )
+
+def plotStatic2DResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
    if not( layoutName == layoutNames[ 0 ] ):
       return
       
-   labelName = affStateStr[ int(affinityEnabled) ] + "," + roiStateStr[ int(ROIenabled) ] 
+   labelName = affStateStr[ affinityState ] + "," + roiStateStr[ int(ROIenabled) ] 
    drawFigure( dirName, labelName )
    
-def plotDynamic2DResults( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def plotDynamic2DResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
    if not( layoutName == layoutNames[ 1 ] ):
       return
       
-   labelName = affStateStr[ int(affinityEnabled) ] + "," + roiStateStr[ int(ROIenabled) ]
+   labelName = affStateStr[ affinityState ] + "," + roiStateStr[ int(ROIenabled) ]
    drawFigure( dirName, labelName )
    
    
@@ -115,6 +123,12 @@ def main():
     testScheme( "eqPly", plotAffinityEnabledResults )
     title( "AffinityEnabled" )
     plt.savefig( resultsDir + "/AffinityEnabled.png", dpi=300)
+    # show()
+
+    figure()
+    testScheme( "eqPly", plotWrongAffinityEnabledResults )
+    title( "AffinityEnabled" )
+    plt.savefig( resultsDir + "/WrongAffinityEnabled.png", dpi=300)
     # show()
     
     figure()

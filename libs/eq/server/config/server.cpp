@@ -59,10 +59,13 @@ ServerPtr Server::configure( const std::string& session )
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
-    if( session == "AffEnabled" )
+    if( session == "AffEnabled" ||  session == "WrongAffEnabled" )
     {
 		const Nodes& nodes = config->getNodes();
 		const int nbOfNodes = nodes.size();
+		int32_t affEnabledCoreArr[3] = { 2, 3, 8 };
+		int32_t wrongAffEnabledCoreArr[3] = { 8, 9, 2 };
+		int32_t *affCoreArr = NULL;
 
 		for(int i=0; i < nbOfNodes; i++)
 		{
@@ -72,9 +75,14 @@ ServerPtr Server::configure( const std::string& session )
 
 			if( nbOfPipes == 3 )
 			{
-				pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 2 );
-				pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 3 );
-				pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, 8 );
+			    if( session == "AffEnabled" )
+			        affCoreArr = affEnabledCoreArr;
+			    else if( session == "WrongAffEnabled"  )
+			        affCoreArr = wrongAffEnabledCoreArr;
+
+			    pipes[0]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, affCoreArr[0] );
+                pipes[1]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, affCoreArr[1] );
+	            pipes[2]->setIAttribute(Pipe::IATTR_HINT_AFFINITY, affCoreArr[2] );
 			}
 		}
     }

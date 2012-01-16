@@ -4,7 +4,7 @@ import startServers
 from common import *
 import os
 
-def test( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def test( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    
    if not os.path.exists( dirName ):
          os.mkdir( dirName )

@@ -5,7 +5,7 @@ import numpy
 
 from common import *
 
-def convertToCSV( dirName, layoutName, ROIenabled, affinityEnabled, sessionName ):
+def convertToCSV( dirName, layoutName, ROIenabled, affinityState, sessionName ):
 
    if not os.path.exists( resultsDir ):
       os.mkdir( resultsDir )
