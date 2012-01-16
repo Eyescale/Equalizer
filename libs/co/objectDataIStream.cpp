@@ -81,7 +81,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
 #ifndef NDEBUG
     if( _commands.empty( ))
     {
-        EQASSERT( packet->sequence == 0 );
+        EQASSERTINFO( packet->sequence == 0, packet );
     }
     else
     {

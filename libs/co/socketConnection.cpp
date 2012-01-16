@@ -671,10 +671,12 @@ bool SocketConnection::listen()
 
 #ifndef _MSC_VER
             char cDomainname[256] = {0};
-            getdomainname( cDomainname, 256 );
-            const std::string domainname( cDomainname );
-            if( !domainname.empty() && domainname != "(none)" )
-                hostname += "." + domainname;
+            if( getdomainname( cDomainname, 256 ) == 0 ) // ok
+            {
+                const std::string domainname( cDomainname );
+                if( !domainname.empty() && domainname != "(none)" )
+                    hostname += "." + domainname;
+            }
 #endif
             _description->setHostname( hostname );
         }
