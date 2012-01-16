@@ -115,7 +115,7 @@ namespace eqPly
         bool _redraw;
         bool _useIdleAA;
 
-        uint32_t _numFramesAA;
+        int32_t _numFramesAA;
 
         eq::admin::ServerPtr _admin;
 
