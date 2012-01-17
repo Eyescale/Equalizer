@@ -18,6 +18,7 @@
 #ifndef EQSERVER_TYPES_H
 #define EQSERVER_TYPES_H
 
+#include <eq/fabric/eye.h>
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
@@ -125,8 +126,10 @@ using fabric::ObserverPath;
 using fabric::LayoutPath;
 using fabric::ViewPath;
 
-using fabric::CPU;
 using fabric::CORE;
+using fabric::CPU;
+using fabric::EYES_STEREO;
+using fabric::UNDEFINED;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;

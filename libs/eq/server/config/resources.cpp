@@ -240,7 +240,7 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
             if( name == EQ_SERVER_LAYOUTNAME_DynamicDB )
                 db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
         }
-        else if( name == "Simple" )
+        else if( name == EQ_SERVER_LAYOUTNAME_Simple )
             /* nop */ ;
         else
         {

@@ -20,10 +20,11 @@
 
 #include "../types.h"
 
-#define EQ_SERVER_LAYOUTNAME_Static2D "Static2D"
-#define EQ_SERVER_LAYOUTNAME_Dynamic2D "Dynamic2D"
-#define EQ_SERVER_LAYOUTNAME_StaticDB "StaticDB"
-#define EQ_SERVER_LAYOUTNAME_DynamicDB "DynamicDB"
+#define EQ_SERVER_LAYOUTNAME_Simple     "Simple"
+#define EQ_SERVER_LAYOUTNAME_Static2D   "Static2D"
+#define EQ_SERVER_LAYOUTNAME_Dynamic2D  "Dynamic2D"
+#define EQ_SERVER_LAYOUTNAME_StaticDB   "StaticDB"
+#define EQ_SERVER_LAYOUTNAME_DynamicDB  "DynamicDB"
 
 namespace eq
 {
