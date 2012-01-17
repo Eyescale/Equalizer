@@ -53,9 +53,6 @@
 namespace eq
 {
 
-using fabric::EYES_STEREO;
-using fabric::UNDEFINED;
-
 namespace server
 {
 #define MAKE_ATTR_STRING( attr ) ( std::string("EQ_COMPOUND_") + #attr )
@@ -1466,9 +1463,9 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
     for( size_t i = 0; i < fabric::NUM_EYES; ++i )
     {
         const uint32_t eye = 1 << i;
+        const bool eyeActive = _inherit.eyes & eye;
         const bool destActive = isDestination() ? _data.active[i] :
                                                   _inherit.active[i];
-        const bool eyeActive = _inherit.eyes & eye;
 
         if( destActive && eyeActive && phaseActive && channelActive )
             _inherit.active[i] = 1;

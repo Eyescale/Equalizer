@@ -239,7 +239,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     // else
     
-    bool subPixelALL = true;
+    accum.transfer = true;
     const eq::Frames& frames = getInputFrames();
 
     for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
@@ -248,13 +248,11 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         const eq::SubPixel& curSubPixel = frame->getSubPixel();
 
         if( curSubPixel != eq::SubPixel::ALL )
-            subPixelALL = false;
+            accum.transfer = false;
 
         accum.stepsDone = EQ_MAX( accum.stepsDone, 
-                                  frame->getSubPixel().size*frame->getPeriod());
+                                  frame->getSubPixel().size*frame->getPeriod( ));
     }
-
-    accum.transfer = subPixelALL;
 
     applyBuffer();
     applyViewport();
@@ -363,7 +361,7 @@ void Channel::frameFinish( const eq::uint128_t& frameID,
         Accum& accum = _accum[ i ];
         if( accum.step > 0 )
         {
-            if( static_cast< int32_t >( accum.stepsDone ) > accum.step )
+            if( int32_t( accum.stepsDone ) > accum.step )
                 accum.step = 0;
             else
                 accum.step -= accum.stepsDone;
@@ -420,19 +418,14 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
 
     if( frameData.isIdle( ))
     {
-        int32_t maxSteps = 0;
+        event.steps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
-            maxSteps = EQ_MAX( maxSteps, _accum[i].step );
-
-        event.steps = maxSteps;
+            event.steps = EQ_MAX( event.steps, _accum[i].step );
     }
     else
     {
         const View* view = static_cast< const View* >( getView( ));
-        if( view )
-            event.steps = view->getIdleSteps();
-        else
-            event.steps = 0;
+        event.steps = view ? view->getIdleSteps() : 0;
     }
 
     // if _jitterStep == 0 and no user redraw event happened, the app will exit
@@ -461,7 +454,7 @@ bool Channel::_isDone() const
 
     const eq::SubPixel& subpixel = getSubPixel();
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-    return static_cast< int32_t >( subpixel.index ) >= accum.step;
+    return int32_t( subpixel.index ) >= accum.step;
 }
 
 void Channel::_initJitter()
@@ -477,14 +470,12 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const uint32_t totalSteps = view->getIdleSteps();
-
+    const int32_t totalSteps = view->getIdleSteps();
     if( totalSteps == 0 )
         return;
 
     // ready for the next FSAA
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-
     if( accum.buffer )
         accum.buffer->clear();
     accum.step = totalSteps;
@@ -603,8 +594,6 @@ eq::Vector2f Channel::getJitter() const
     return eq::Vector2f( value_i, value_j );
 }
 
-namespace
-{
 static const uint32_t _primes[100] = {
     739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
     839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
@@ -614,7 +603,6 @@ static const uint32_t _primes[100] = {
     1217, 1223, 1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291,
     1297, 1301, 1303, 1307, 1319, 1321, 1327, 1361, 1367, 1373, 1381, 1399,
     1409, 1423, 1427, 1429, 1433, 1439, 1447, 1451 };
-}
 
 eq::Vector2i Channel::_getJitterStep() const
 {
@@ -624,7 +612,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( !view )
         return eq::Vector2i::ZERO;
 
-    const uint32_t totalSteps = view->getIdleSteps();
+    const uint32_t totalSteps = uint32_t( view->getIdleSteps( ));
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 

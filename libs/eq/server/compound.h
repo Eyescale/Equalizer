@@ -566,7 +566,7 @@ namespace server
             int32_t           iAttributes[IATTR_ALL];
             float             maxFPS;
 
-            // compound activation per eye and Has been activated (by view) */
+            // compound activation per eye
             uint32_t active[ fabric::NUM_EYES ];
 
             union // placeholder for binary-compatible changes
