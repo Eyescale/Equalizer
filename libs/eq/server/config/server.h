@@ -32,6 +32,7 @@ class Server
 {
 public:
     static EQSERVER_API ServerPtr configure( const std::string& session );
+    static void configureForBenchmark( Config* config, const std::string& session );
 };
 
 }

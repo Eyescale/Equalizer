@@ -21,10 +21,7 @@ def startServersInRange( serverRange, config ):
          continue
 
       nodeNumberStr = str(i).zfill(2)
-      #noteHostnameStr = (interfaceHostnameDict[ config.ethType ]) % nodeNumberStr
-      #cmdStr = "ssh bilgili@node%s gpu_sd -s %s -h %s" % ( nodeNumberStr, config.session, noteHostnameStr )
-      noteHostnameStr = (interfaceHostnameDict[ config.ethType ]) % nodeNumberStr
-      cmdStr = "ssh bilgili@node%s gpu_sd -s %s" % ( nodeNumberStr, config.session )
+      cmdStr = "ssh node%s gpu_sd -s %s" % ( nodeNumberStr, config.session )
       
       print cmdStr
       subprocess.Popen( [ cmdStr ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
