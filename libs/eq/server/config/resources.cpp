@@ -94,6 +94,7 @@ bool Resources::discover( Config* config, const std::string& session )
         const gpusd::GPUInfo& info = *i;
 
         node = nodes[ info.hostname ];
+        EQINFO << info.hostname  << std::endl;
         if( !node )
         {
             node = new Node( config );
@@ -219,24 +220,24 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
         EQASSERT( layout );
         
         const std::string& name = layout->getName();
-        if( name == "Static 2D" || name == "Dynamic 2D" )
+        if( name == EQ_SERVER_LAYOUTNAME_Static2D || name == EQ_SERVER_LAYOUTNAME_Dynamic2D )
         {
             Compound* mono = _add2DCompound( segmentCompound, channels );
             mono->setEyes( EYE_CYCLOP );
 
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
-            if( name == "Dynamic 2D" )
+            if( name == EQ_SERVER_LAYOUTNAME_Dynamic2D )
             {
                 mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D));
                 stereo->addEqualizer(new LoadEqualizer(LoadEqualizer::MODE_2D));
             }
         }
-        else if( name == "Static DB" || name == "Dynamic DB" )
+        else if( name == EQ_SERVER_LAYOUTNAME_StaticDB || name == EQ_SERVER_LAYOUTNAME_DynamicDB )
         {
             Compound* db = _addDBCompound( segmentCompound, channels );
             db->setName( name );
-            if( name == "Dynamic DB" )
+            if( name == EQ_SERVER_LAYOUTNAME_DynamicDB )
                 db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
         }
         else if( name == "Simple" )

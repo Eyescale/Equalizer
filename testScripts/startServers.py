@@ -14,20 +14,24 @@ def stopServersInRange( serverRange ):
    os.system("cexec killall -9 gpu_sd")
 
 # Start the servers in range 
-def startServersInRange( serverRange, sessionName ):
+def startServersInRange( serverRange, config ):
  
    for i in serverRange:
       if i in excludedServers:
          continue
 
       nodeNumberStr = str(i).zfill(2)
-      cmdStr = "ssh bilgili@node%s gpu_sd -s %s " % ( nodeNumberStr, sessionName )
+      #noteHostnameStr = (interfaceHostnameDict[ config.ethType ]) % nodeNumberStr
+      #cmdStr = "ssh bilgili@node%s gpu_sd -s %s -h %s" % ( nodeNumberStr, config.session, noteHostnameStr )
+      noteHostnameStr = (interfaceHostnameDict[ config.ethType ]) % nodeNumberStr
+      cmdStr = "ssh bilgili@node%s gpu_sd -s %s" % ( nodeNumberStr, config.session )
+      
       print cmdStr
       subprocess.Popen( [ cmdStr ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
-def startServers( firstServer, lastServer, sessionName ):
+def startServers( firstServer, lastServer, config ):
    stopServersInRange( range( 1, numberOfServers + 1 ) ) # Killall servers
-   startServersInRange( range( firstServer, lastServer + 1 ), sessionName )
+   startServersInRange( range( firstServer, lastServer + 1 ), config )
    time.sleep(30)
 
 

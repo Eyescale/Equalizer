@@ -8,15 +8,15 @@ from common import *
 
 resultsDict = dict()
 
-def readResultsToDict( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def readResultsToDict( config ):
 
    if not os.path.exists( resultsDir ):
       convertTestResultsToCSV.main()
       
    oldDir = os.getcwd()  
    os.chdir( resultsDir )
-   data = numpy.genfromtxt( dirName + ".txt", dtype=None )
-   resultsDict[ dirName ] = data
+   data = numpy.genfromtxt( config.dirName + ".txt", dtype=None )
+   resultsDict[ config.dirName ] = data
    os.chdir( oldDir )
 
 def drawFigure( dirName, labelName ):
@@ -29,69 +29,69 @@ def drawFigure( dirName, labelName ):
    ylabel('FPS') 
    return p
 
-def plotIndividualResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotIndividualResults( config ):
 
    figure()
-   drawFigure( dirName, '' )
-   title( dirName )
-   plt.savefig( resultsDir + "/" + dirName + ".png", dpi=300)
+   drawFigure( config.dirName, '' )
+   title( config.dirName )
+   plt.savefig( resultsDir + "/" + config.dirName + ".png", dpi=300)
  
    
-def plotROIEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotROIEnabledResults( config ):
    
-   if not ROIenabled:
+   if not bool( config.roiState ):
       return
   
-   labelName = layoutName + "," + affStateStr[ affinityState ] 
-   drawFigure( dirName, labelName )
+   labelName = config.layoutName + "," + affStateStr[ config.affinityState ] 
+   drawFigure( config.dirName, labelName )
    
-def plotROIDisabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotROIDisabledResults( config ):
    
-   if ROIenabled:
+   if bool( config.roiState ):
       return
       
-   labelName = layoutName + "," + affStateStr[ affinityState ] 
-   drawFigure( dirName, labelName )
+   labelName = config.layoutName + "," + affStateStr[ config.affinityState ] 
+   drawFigure( config.dirName, labelName )
    
-def plotAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotAffinityEnabledResults( config ):
    
-   if not affStateStr[ affinityState ]  == "AffinityEnabled":
+   if not affStateStr[ config.affinityState ]  == affStateStr[ 1 ]:
       return
       
-   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
+   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
    drawFigure( dirName, labelName ) 
 
-def plotAffinityDisabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotAffinityDisabledResults( config ):
    
-   if not affStateStr[ affinityState ]  == "AffDisabled":
+   if not affStateStr[ config.affinityState ]  == affStateStr[ 0 ]:
       return
       
-   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
-   drawFigure( dirName, labelName )
+   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
+   drawFigure( config.dirName, labelName )
    
-def plotWrongAffinityEnabledResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotWrongAffinityEnabledResults( config ):
    
-   if not affStateStr[ affinityState ]  == "WrongAffEnabled":
+   if not affStateStr[ config.affinityState ]  == affStateStr[ 2 ]:
       return
       
-   labelName = layoutName + "," + roiStateStr[ int(ROIenabled) ] 
-   drawFigure( dirName, labelName )
+   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
+   drawFigure( config.dirName, labelName )
 
-def plotStatic2DResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotStatic2DResults( config ):
    
-   if not( layoutName == layoutNames[ 0 ] ):
+   if not( config.layoutName == layoutNames[ 0 ] ):
       return
       
-   labelName = affStateStr[ affinityState ] + "," + roiStateStr[ int(ROIenabled) ] 
-   drawFigure( dirName, labelName )
+   labelName = affStateStr[ config.affinityState ] + "," + roiStateStr[ int(config.roiState) ] 
+   drawFigure( config.dirName, labelName )
    
-def plotDynamic2DResults( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def plotDynamic2DResults( config ):
    
-   if not( layoutName == layoutNames[ 1 ] ):
+   if not( config.layoutName == layoutNames[ 1 ] ):
       return
       
-   labelName = affStateStr[ affinityState ] + "," + roiStateStr[ int(ROIenabled) ]
-   drawFigure( dirName, labelName )
+   labelName = affStateStr[ config.affinityState ] + "," + roiStateStr[ int(config.roiState) ]
+   drawFigure( config.dirName, labelName )
    
    
 def main():

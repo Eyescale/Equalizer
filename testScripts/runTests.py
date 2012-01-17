@@ -4,31 +4,32 @@ import startServers
 from common import *
 import os
 
-def test( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def test( config ):
    
-   if not os.path.exists( dirName ):
-         os.mkdir( dirName )
+   if not os.path.exists( config.dirName ):
+         os.mkdir( config.dirName )
    
    for serverCount in range( 1, numberOfServers + 1 ):
-   
+     
       os.system('killall -9 eqPly')
       os.system('cexec killall -9 eqPly')
       
       oldDir = os.getcwd()
          
-      subDirName = dirName + "/" + str( serverCount )   
+      subDirName = config.dirName + "/" + str( serverCount )   
       if not os.path.exists( subDirName ):
          os.mkdir( subDirName )
          
       os.chdir( subDirName )
       roiStr = ''   
-      if( ROIenabled == False ):
+      if( config.roiState == False ):
          roiStr = ' -d '
 
-      eqLayoutArg = '--eq-layout "%s" ' % ( layoutName )
-      eqPlyConfigArg = '--eq-config "%s" ' % ( sessionName )
+      eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
+      eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
+      nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
       
-      startServers.startServers( 1, serverCount, sessionName )
+      startServers.startServers( 1, serverCount, config )
       cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg
      
       print cmdStr
