@@ -77,9 +77,9 @@ find_path(_co_INCLUDE_DIR co/version.h
   )
 
 if(Collage_FIND_REQUIRED)
-    set(_co_version_output_type FATAL_ERROR)
+  set(_co_version_output_type FATAL_ERROR)
 else()
-    set(_co_version_output_type STATUS)
+  set(_co_version_output_type STATUS)
 endif()
 
 # Try to ascertain the version...
