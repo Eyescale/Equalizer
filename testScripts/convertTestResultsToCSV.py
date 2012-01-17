@@ -5,13 +5,13 @@ import numpy
 
 from common import *
 
-def convertToCSV( dirName, layoutName, ROIenabled, affinityState, sessionName ):
+def convertToCSV( config):
 
    if not os.path.exists( resultsDir ):
       os.mkdir( resultsDir )
    
-   if not os.path.exists( dirName ):
-      print "Error finding the test directory: " + dirName
+   if not os.path.exists( config.dirName ):
+      print "Error finding the test directory: " + config.dirName
       exit()
       
    nodeFPSArray = []
@@ -20,7 +20,7 @@ def convertToCSV( dirName, layoutName, ROIenabled, affinityState, sessionName ):
       
       oldDir = os.getcwd()
       
-      subDirName = dirName + "/" + str( serverCount )   
+      subDirName = config.dirName + "/" + str( serverCount )   
       if not os.path.exists( subDirName ):
           print "Error finding the test directory: " + subDirName
           exit()
@@ -37,7 +37,7 @@ def convertToCSV( dirName, layoutName, ROIenabled, affinityState, sessionName ):
    oldDir = os.getcwd()  
    os.chdir( resultsDir )
    
-   numpy.savetxt( dirName + ".txt", nodeFPSArray, fmt="%3.2f", delimiter=',' )
+   numpy.savetxt( config.dirName + ".txt", nodeFPSArray, fmt="%3.2f", delimiter=',' )
    
    os.chdir( oldDir )
    
