@@ -16,28 +16,22 @@ def convertToCSV( config ):
       
    nodeFPSArray = []
    
-   oldDir = os.getcwd()
-   
+   saveCurrentDir()
    subDirName = config.dirName + "/" + str( config.serverCount )   
    if not os.path.exists( subDirName ):
        print "Error finding the test directory: " + subDirName
        exit()
-      
+  
    os.chdir( subDirName )
-
    fpsData = numpy.genfromtxt( testFileName, dtype=None ) 
    maxFrameRate = max( fpsData )
-   
    nodeFPSArray.append( maxFrameRate )
-   
-   os.chdir( oldDir )
+   gotoPreviousDir()
       
-   oldDir = os.getcwd()  
+   saveCurrentDir()  
    os.chdir( resultsDir )
-   
    numpy.savetxt( config.dirName + ".txt", nodeFPSArray, fmt="%3.2f", delimiter=',' )
-   
-   os.chdir( oldDir )
+   gotoPreviousDir()
    
   
 def main():

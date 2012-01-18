@@ -6,6 +6,8 @@ import getopt
 import subprocess
 import time
 
+import checkXServersAndRestart
+
 from common import *
 
 # Killall the servers in range
@@ -27,7 +29,9 @@ def startServersInRange( serverRange, session ):
       subprocess.Popen( [ cmdStr ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
 def startServers( firstServer, lastServer, session ):
-   stopServers() # Killall servers
+   faultServers = checkXServersAndRestart.findInactiveXServers()
+   if len( faultServers > 0 )
+      print "Cluster problem on servers" + str( faultServers )
    startServersInRange( range( firstServer, lastServer + 1 ), session )
    time.sleep(30)
 
