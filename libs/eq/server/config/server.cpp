@@ -34,16 +34,18 @@ namespace server
 namespace config
 {
 
-ServerPtr Server::configure( const std::string& session )
+Config* Server::configure( ServerPtr server, const std::string& session )
 {
     Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
-    ServerPtr server = new server::Server;
 
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
     if( !Resources::discover( config, session ))
+    {
+        delete config;
         return 0;
+    }
 
     if( config->getNodes().size() > 1 )
         // add server connection for cluster configs
@@ -52,7 +54,10 @@ ServerPtr Server::configure( const std::string& session )
     Display::discoverLocal( config );
     const Compounds compounds = Loader::addOutputCompounds( server );
     if( compounds.empty( ))
+    {
+        delete config;
         return 0;
+    }
 
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
@@ -64,7 +69,7 @@ ServerPtr Server::configure( const std::string& session )
                << co::base::exdent << std::endl;
     configFile.close();
 
-    return server;
+    return config;
 }
 
 }

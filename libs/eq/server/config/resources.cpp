@@ -73,12 +73,13 @@ bool Resources::discover( Config* config, const std::string& session )
                                gpusd::FilterPtr( new gpusd::DuplicateFilter );
     if( !session.empty( ))
         *filter |= gpusd::FilterPtr( new gpusd::SessionFilter( session ));
-    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs( filter );
+    gpusd::GPUInfos infos = gpusd::Module::discoverGPUs( filter );
 
     if( infos.empty( ))
     {
-        EQINFO << "No resources found for session " << session << std::endl;
-        return false;
+        EQINFO << "No resources found for session " << session 
+               << ", using default config" << std::endl;
+        infos.push_back( gpusd::GPUInfo( ));
     }
     typedef stde::hash_map< std::string, Node* > NodeMap;
 

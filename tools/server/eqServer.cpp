@@ -48,7 +48,7 @@ int main( const int argc, char** argv )
         server = loader.loadFile( config );
 #ifdef EQ_USE_GPUSD
     else
-        server = eq::server::config::Server::configure( config );
+        server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif
 
     if( !server )
