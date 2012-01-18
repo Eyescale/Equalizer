@@ -19,5 +19,5 @@ include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIB HWLOC_INCLUDE_DIR)
 
 if(HWLOC_FOUND)
-  message("-- Found HWLOC in ${HWLOC_INCLUDE_DIR}, ${HWLOC_LIB}")
+  message(STATUS "Found HWLOC in ${HWLOC_INCLUDE_DIR};${HWLOC_LIB}")
 endif(HWLOC_FOUND)
