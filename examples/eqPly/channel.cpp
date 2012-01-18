@@ -38,8 +38,6 @@
 #include "window.h"
 #include "vertexBufferState.h"
 
-#define BENCHMARK
-
 // light parameters
 static GLfloat lightPosition[] = {0.0f, 0.0f, 1.0f, 0.0f};
 static GLfloat lightAmbient[]  = {0.1f, 0.1f, 0.1f, 1.0f};
@@ -64,7 +62,6 @@ Channel::Channel( eq::Window* parent )
         , _model(0)
         , _modelID( co::base::UUID::ZERO )
         , _frameRestart( 0 )
-        , _useROI(true)
 {
 }
 
@@ -76,10 +73,6 @@ bool Channel::configInit( const eq::uint128_t& initID )
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = co::base::UUID::ZERO;
-
-    const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
-    _useROI = id.useROI();
-
     return true;
 }
 
@@ -100,8 +93,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    if(_useROI)
-        _region.invalidate();
+    _region.invalidate();    
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -268,8 +260,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
-    if( _useROI )
-        _updateRegion( frames );
+    _updateRegion( frames );
 }
 
 void Channel::frameReadback( const eq::uint128_t& frameID )

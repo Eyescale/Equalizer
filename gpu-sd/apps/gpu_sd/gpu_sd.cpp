@@ -65,10 +65,14 @@ static void setTXTRecordValue( TXTRecordRef& record, const size_t gpuIndex,
 }
 
 static void createTXTRecord( TXTRecordRef& record, const GPUInfos& gpus, 
-                             const std::string session )
+                             const std::string& session,
+                             const std::string& hostname )
 {
     TXTRecordSetValue( &record, "Session", uint8_t( session.length( )),
                        session.c_str( ));
+    if( !hostname.empty( ))
+        TXTRecordSetValue( &record, "Hostname", uint8_t( hostname.length( )),
+                           hostname.c_str( ));
 
     // GPU Count=<integer>
     std::ostringstream out;
@@ -147,15 +151,13 @@ static void registerCB( DNSServiceRef service, DNSServiceFlags flags,
                   << std::endl;
 }
 
-static DNSServiceErrorType registerService( const TXTRecordRef& record,
-                                            const std::string& hostname )
+static DNSServiceErrorType registerService( const TXTRecordRef& record )
 {
     DNSServiceRef serviceRef = 0;
-    const char* host = hostname.empty() ? 0 : hostname.c_str();
     const DNSServiceErrorType error =
         DNSServiceRegister( &serviceRef, 0 /* flags */, 0 /* all interfaces */,
-                            host /* service name */, "_gpu-sd._tcp",
-                            0 /* default domains */, host /* hostname */,
+                            0 /* service name */, "_gpu-sd._tcp",
+                            0 /* default domains */, 0 /* hostname */,
                             htons( 4242 ) /* port */,
                             TXTRecordGetLength( &record ),
                             TXTRecordGetBytesPtr( &record ),
@@ -225,9 +227,9 @@ int main (int argc, char * argv[])
 
     TXTRecordRef record;
     TXTRecordCreate( &record, 0, 0 );
-    createTXTRecord( record, gpus, session );
+    createTXTRecord( record, gpus, session, hostname );
 
-    DNSServiceErrorType error = registerService( record, hostname );
+    DNSServiceErrorType error = registerService( record );
     std::cout << "DNSServiceDiscovery returned: " << error << std::endl;
 
     TXTRecordDeallocate( &record );

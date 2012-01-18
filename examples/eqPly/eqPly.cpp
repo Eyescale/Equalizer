@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -103,7 +103,6 @@ int EqPly::run()
     co::base::Clock clock;
 
     config->setInitData( _initData );
-
     if( !config->init( ))
     {
         EQWARN << "Error during initialization: " << config->getError()
@@ -112,8 +111,6 @@ int EqPly::run()
         disconnectServer( server );
         return EXIT_FAILURE;
     }
-
-
     if( config->getError( ))
         EQWARN << "Error during initialization: " << config->getError()
                << std::endl;
@@ -125,10 +122,12 @@ int EqPly::run()
     uint32_t maxFrames = _initData.getMaxFrames();
     int lastFrame = 0;
     
-    clock.reset();
-
+#ifdef BENCHMARK
     std::ofstream outputFrameFile;
-    outputFrameFile.open( "FPSInfo.txt" );
+    outputFrameFile.open( "FPS.eqPly.txt" );
+#endif
+
+    clock.reset();
     while( config->isRunning( ) && maxFrames-- )
     {
         config->startFrame();
@@ -146,8 +145,9 @@ int EqPly::run()
             EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                                << ( nFrames / time * 1000.f) << " FPS)"
                                << std::endl;
-
+#ifdef BENCHMARK
             outputFrameFile << ( nFrames / time * 1000.f) << std::endl;
+#endif
         }
 
         while( !config->needRedraw( )) // wait for an event requiring redraw
@@ -166,7 +166,9 @@ int EqPly::run()
         }
         config->handleEvents(); // process all pending events
     }
+#ifdef BENCHMARK
     outputFrameFile.close();
+#endif
 
     const uint32_t frame = config->finishAllFrames();
     const float time = clock.resetTimef();

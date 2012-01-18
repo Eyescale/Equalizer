@@ -112,8 +112,6 @@ namespace eqPly
 
         eq::PixelViewport _currentPVP;
         eq::PixelViewport _region;
-
-        bool _useROI;
     };
 }
 

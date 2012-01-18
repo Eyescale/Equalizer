@@ -117,6 +117,7 @@ static void resolveCallback( DNSServiceRef service, DNSServiceFlags flags,
         GPUInfo info( type );
         info.hostname = host;
         getTXTRecordValue( txtLen, txt, "Session", info.session );
+        getTXTRecordValue( txtLen, txt, "Hostname", info.hostname );
         getTXTRecordValue( txtLen, txt, gpu + "Port", info.port );
         getTXTRecordValue( txtLen, txt, gpu + "Device", info.device );
         getTXTRecordValue( txtLen, txt, gpu + "X", info.pvp[0] );
