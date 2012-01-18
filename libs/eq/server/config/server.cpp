@@ -25,11 +25,8 @@
 #include "../node.h"
 #include "../server.h"
 
-<<<<<<< HEAD
 #include <co/co.h>
 
-=======
->>>>>>> 51013caee32bb2307fd2c650fd1bc2c04a130d99
 #include <fstream>
 
 namespace eq
