@@ -12,15 +12,15 @@ def test( config ):
    os.system('killall -9 eqPly')
    os.system('cexec killall -9 eqPly')
 
-   oldDir = os.getcwd()
-      
+   saveCurrentDir()
+
    subDirName = config.dirName + "/" + str( serverCount )   
    if not os.path.exists( subDirName ):
       os.mkdir( subDirName )
       
    os.chdir( subDirName )
    roiStr = ''   
-   if( config.roiState == False ):
+   if( config.roiState == 'ROIDisabled' ):
       roiStr = ' -d '
 
    eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
@@ -33,7 +33,8 @@ def test( config ):
    print cmdStr
 
    os.system( cmdStr )
-   os.chdir( oldDir)      
+
+   gotoPreviousDir()      
 
 def main():
     testScheme( "eqPly", test )

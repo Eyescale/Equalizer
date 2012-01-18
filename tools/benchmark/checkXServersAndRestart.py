@@ -7,8 +7,9 @@ import shlex
 import re
 import startServers
 
-def findInactiveXServers():
-   
+def findInactiveXServers( stopServers ):
+    startServers.startServers(1, numberOfServers, 'x-y-z')
+    
     xServerList = []
     gpuList = subprocess.Popen(["gpu_sd_list"], stdout=subprocess.PIPE).communicate()[0]
     for i in range( 1, numberOfServers + 1 ):
@@ -16,7 +17,10 @@ def findInactiveXServers():
        numberOfGPUs = len([(a.start(), a.end()) for a in list(re.finditer('node' + nodeNumberStr, gpuList))])
        if numberOfGPUs < 3:
           xServerList.append( 'node' + nodeNumberStr )
-       
+    
+    if( stopServers ):
+      startServers.stopServers()  
+  
     return xServerList
 
 def startXServers( servers ):
@@ -27,11 +31,9 @@ def startXServers( servers ):
       subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
 
 def main():
-    startServers.startServers(1, numberOfServers, 'x-y-z')
-    servers = findInactiveXServers()
+    servers = findInactiveXServers( True )
     # startXServers( servers )
     print servers
-    startServers.stopServers()
 
 if __name__ == "__main__":
     main()

@@ -51,10 +51,10 @@ def plotROIEnabledResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return
    
-   if not bool( config.roiState ):
+   if not config.roiState == 'ROIEnabled':
       return
   
-   labelName = config.layoutName + "," + affStateStr[ config.affinityState ] 
+   labelName = config.layoutName + "," + config.affinityState 
    drawFigure( config.dirName, labelName )
    
 def plotROIDisabledResults( config ):
@@ -62,10 +62,10 @@ def plotROIDisabledResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return
 
-   if bool( config.roiState ):
+   if not config.roiState == 'ROIDisabled':
       return
       
-   labelName = config.layoutName + "," + affStateStr[ config.affinityState ] 
+   labelName = config.layoutName + "," + config.affinityState 
    drawFigure( config.dirName, labelName )
    
 def plotAffinityEnabledResults( config ):
@@ -73,10 +73,10 @@ def plotAffinityEnabledResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return
    
-   if not affStateStr[ config.affinityState ]  == affStateStr[ 1 ]:
+   if not config.affinityState == 'GoodAffinity' and not config.affinityState == 'BadAffinity':
       return
       
-   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
+   labelName = config.layoutName + "," + config.roiState 
    drawFigure( dirName, labelName ) 
 
 def plotAffinityDisabledResults( config ):
@@ -84,10 +84,10 @@ def plotAffinityDisabledResults( config ):
     if( config.serverCount != 1 ) # Run only once
       return
    
-   if not affStateStr[ config.affinityState ]  == affStateStr[ 0 ]:
+   if not config.affinityState == 'NoAffinity':
       return
       
-   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
+   labelName = config.layoutName + "," + config.roiState
    drawFigure( config.dirName, labelName )
    
 def plotWrongAffinityEnabledResults( config ):
@@ -95,7 +95,7 @@ def plotWrongAffinityEnabledResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return
    
-   if not affStateStr[ config.affinityState ]  == affStateStr[ 2 ]:
+   if not config.affinityState == 'BadAffinity':
       return
       
    labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
@@ -106,10 +106,10 @@ def plotStatic2DResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return
 
-   if not( config.layoutName == layoutNames[ 0 ] ):
+   if not( config.layoutName == 'Static2D' ):
       return
       
-   labelName = affStateStr[ config.affinityState ] + "," + roiStateStr[ int(config.roiState) ] 
+   labelName = config.affinityState + "," + config.roiState
    drawFigure( config.dirName, labelName )
    
 def plotDynamic2DResults( config ):
@@ -117,10 +117,10 @@ def plotDynamic2DResults( config ):
    if( config.serverCount != 1 ) # Run only once
       return;
 
-   if not( config.layoutName == layoutNames[ 1 ] ):
+   if not( config.layoutName == 'Dynamic2D' ):
       return
       
-   labelName = affStateStr[ config.affinityState ] + "," + roiStateStr[ int(config.roiState) ]
+   labelName = config.affinityState  + "," + config.roiState
    drawFigure( config.dirName, labelName )  
    
 def main():
