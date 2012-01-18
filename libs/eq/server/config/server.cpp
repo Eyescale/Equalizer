@@ -83,16 +83,31 @@ void Server::configureForBenchmark( Config* config, const std::string& session )
    std::string sessionCopy = session.c_str(); // strtok changes the underlying memory
 
    char *token = strtok( (char *)sessionCopy.c_str(), "-" );
+   if( !token )
+       return;
+
    affState = token;
-   EQINFO << "affState :" <<  token << std::endl;
+
+   if( affState != "AffEnabled" || affState != "AffDisabled" || affState != "WrongAffEnabled" )
+       return;
 
    token = strtok (NULL, "-");
+   if( !token )
+          return;
+
    networkType = token;
-   EQINFO << "networkType :" <<  token << std::endl;
+
+   if( networkType != "TenGig" || networkType != "Infiniband" )
+         return;
 
    token = strtok (NULL, "-");
+   if( !token )
+          return;
+
    protocol = token;
-   EQINFO << "protocol :" <<  token << std::endl;
+
+   if( protocol != "TCPIP" || protocol != "SDP" || protocol != "RDMA" )
+         return;
 
    const Nodes& nodes = config->getNodes();
 
