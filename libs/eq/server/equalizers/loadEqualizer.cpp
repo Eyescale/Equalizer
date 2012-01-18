@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -70,7 +70,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     _checkHistory(); // execute to not leak memory
-    if( isFrozen() || !compound->isRunning( ) || !isActive( ))
+    if( isFrozen() || !compound->isRunning() || !isActive( ))
         return;
 
     if( !_tree )
@@ -79,16 +79,18 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
         const Compounds& children = compound->getChildren();
         switch( children.size( ))
         {
-          case 0: return; // no leaf compound, can't do anything.
+          case 0: return; // no child compounds, can't do anything.
           case 1: // one child, 'balance' it:
               if( _mode == MODE_DB )
                   children.front()->setRange( Range( ));
               else
                   children.front()->setViewport( Viewport( ));
               return;
+
           default:
               _tree = _buildTree( children );
               _init( _tree, Viewport(), Range( ));
+              break;
         }
     }
 
@@ -97,7 +99,7 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     _history.back().first = frameNumber;
 
     _update( _tree );
-    EQLOG( LOG_LB2 ) << "LB tree: " << _tree;
+    EQLOG( LOG_LB2 ) << "LB tree @ " << frameNumber << ": " << _tree;
     _computeSplit();
 }
 
@@ -216,6 +218,8 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t nStatistics,
                                     const Statistic* statistics )
 {
+    EQLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
+                     << " @ " << frameNumber << std::endl;
     for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
     {
@@ -367,8 +371,7 @@ float LoadEqualizer::_getTotalResources( ) const
     const Compounds& children = getCompound()->getChildren();
 
     float resources = 0.f;
-    for( Compounds::const_iterator i = children.begin();
-             i != children.end(); i++ )
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
        const Compound* compound = *i;
        if( compound->isRunning( ))

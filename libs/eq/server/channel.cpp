@@ -381,7 +381,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
-                           << &startPacket << std::endl;
+                       << &startPacket << std::endl;
 
     bool updated = false;
     const Compounds& compounds = getCompounds();
