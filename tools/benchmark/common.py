@@ -38,7 +38,10 @@ def testScheme( application, function ):
 
    if application == "eqPly":
       for serverCount in range( 1, numberOfServers + 1 ):
-         for protocol in protocols
+         servers = findInactiveXServers( False )
+         if len( servers ) > 0:
+            print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
+         for protocol in protocols:
               for layoutName in layoutNames:
                  for roiState in roiStateList:
                     for affState in affStateList:
