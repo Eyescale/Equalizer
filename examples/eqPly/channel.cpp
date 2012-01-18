@@ -461,15 +461,15 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const int32_t totalSteps = view->getIdleSteps();
-    if( totalSteps == 0 )
+    const int32_t idleSteps = view->getIdleSteps();
+    if( idleSteps == 0 )
         return;
 
     // ready for the next FSAA
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     if( accum.buffer )
         accum.buffer->clear();
-    accum.step = totalSteps;
+    accum.step = idleSteps;
 }
 
 bool Channel::_initAccum()
@@ -609,12 +609,11 @@ eq::Vector2i Channel::_getJitterStep() const
 
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
-    const uint32_t idx = 
-        ( accum.step * _primes[ channelID ] ) % subset + ( channelID * subset );
-
+    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] ) % subset +
+                           ( channelID * subset );
     const uint32_t sampleSize = 16;
-    const int dx = idx % sampleSize;
-    const int dy = idx / sampleSize;
+    const int dx = index % sampleSize;
+    const int dy = index / sampleSize;
 
     return eq::Vector2i( dx, dy );
 }

@@ -77,9 +77,9 @@ find_path(_co_INCLUDE_DIR co/version.h
   )
 
 if(Collage_FIND_REQUIRED)
-    set(_co_version_output_type FATAL_ERROR)
+  set(_co_version_output_type FATAL_ERROR)
 else()
-    set(_co_version_output_type STATUS)
+  set(_co_version_output_type STATUS)
 endif()
 
 # Try to ascertain the version...
@@ -177,7 +177,7 @@ set(COLLAGE_LIBRARIES ${_co_LIBRARY})
 get_filename_component(COLLAGE_LIBRARY_DIR ${_co_LIBRARY} PATH)
 
 if(COLLAGE_FOUND)
-  message("-- Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in ${COLLAGE_INCLUDE_DIRS};"
-    "${COLLAGE_LIBRARIES}")
+  message(STATUS "Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in "
+    "${COLLAGE_INCLUDE_DIRS};${COLLAGE_LIBRARIES}")
 endif()
 
