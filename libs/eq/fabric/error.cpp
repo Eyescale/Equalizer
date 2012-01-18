@@ -130,6 +130,12 @@ ErrorData _errors[] = {
 
     { ERROR_CHANNEL_WINDOW_NOTRUNNING, "Window not running" },
 
+    { ERROR_PBO_UNSUPPORTED, "Pixel Buffer Objects not supported" },
+    { ERROR_PBO_READ_ONLY, "Trying to write to read-only PBO" },
+    { ERROR_PBO_WRITE_ONLY, "Trying to read from write-only PBO" },
+    { ERROR_PBO_NOT_INITIALIZED, "PBO is not initialized" },
+    { ERROR_PBO_SIZE_TOO_SMALL, "PRO size is too small, it has to be > 0" },
+
     { 0, "" } // last!
 };
 }

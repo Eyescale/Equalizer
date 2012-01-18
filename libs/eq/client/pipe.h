@@ -34,6 +34,8 @@
 
 namespace eq
 {
+    class AsyncRBThread;
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -129,6 +131,16 @@ namespace eq
 
         /** @internal @return if the window is made current */
         bool isCurrent( const Window* window ) const;
+
+
+        /** @internal 
+          *
+          * starts async thread for readback if necessary
+          *
+          * @return 
+          */
+        void startAsyncRB( Channel* channel );
+
 
         /**
          * @internal
@@ -377,6 +389,8 @@ namespace eq
         /** The current window system. */
         WindowSystem _windowSystem;
 
+        AsyncRBThread* _asyncRBThread;
+
         enum State
         {
             STATE_MAPPED,
@@ -439,6 +453,9 @@ namespace eq
         void _setupCommandQueue();
         void _setupAffinity();
         void _exitCommandQueue();
+
+        bool _startAsyncRBThread();
+        void _stopAsyncRBThread();
 
         friend class Window;
 

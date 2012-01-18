@@ -19,7 +19,10 @@
 #include "compressorReadDrawPixels.h"
 
 #include <eq/util/texture.h>
+#include <eq/util/pixelBufferObject.h>
 #include <co/base/buffer.h>
+
+#include <co/plugins/useAsyncReadback.h>
 
 #define glewGetContext() glewContext
     
@@ -31,6 +34,48 @@ namespace plugin
 namespace
 {
 static stde::hash_map< unsigned, unsigned > _depths;
+
+#ifdef EQ_ASYNC_READBACK
+
+#define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
+    static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
+    {                                                                   \
+        info->version = EQ_COMPRESSOR_VERSION;                          \
+        info->capabilities = EQ_COMPRESSOR_TRANSFER |                   \
+                             EQ_COMPRESSOR_DATA_2D |                    \
+                             EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
+                             EQ_COMPRESSOR_USE_TEXTURE_2D |             \
+                             EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |         \
+                             EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
+        if( alpha )                                                     \
+            info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
+        info->quality = quality_ ## f;                                  \
+        info->ratio   = ratio_ ## f;                                    \
+        info->speed   = speed_ ## f;                                    \
+        info->name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out;      \
+        info->tokenType = EQ_COMPRESSOR_DATATYPE_ ## in;                \
+        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_ ## out;         \
+        info->outputTokenSize = size;                                   \
+    }                                                                   \
+                                                                        \
+    static bool _register ## in ## out()                                \
+    {                                                                   \
+        const unsigned name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out; \
+        Compressor::registerEngine(                                     \
+            Compressor::Functions(                                      \
+                name,                                                   \
+                _getInfo ## in ## out,                                  \
+                CompressorReadDrawPixels::getNewCompressor,             \
+                CompressorReadDrawPixels::getNewDecompressor,           \
+                0,                                                      \
+                CompressorReadDrawPixels::isCompatible ));              \
+        _depths[ name ] = size;                                         \
+        return true;                                                    \
+    }                                                                   \
+                                                                        \
+    static bool _initialized ## in ## out = _register ## in ## out();
+
+#else
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
@@ -68,6 +113,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
     }                                                                   \
                                                                         \
     static bool _initialized ## in ## out = _register ## in ## out();
+#endif
 
 REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
@@ -107,6 +153,7 @@ REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
 CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         : Compressor()
         , _texture( 0 )
+        , _pbo( 0 )
         , _internalFormat( 0 )
         , _format( 0 )
         , _type( 0 )
@@ -270,6 +317,8 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
 {
     delete _texture;
     _texture = 0;
+    delete _pbo;
+    _pbo = 0;
 }
 
 bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
@@ -280,10 +329,10 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
 void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
                                             eq_uint64_t outDims[4] )
 {
-    outDims[0] = inDims[0];
-    outDims[1] = inDims[1];
-    outDims[2] = inDims[2];
-    outDims[3] = inDims[3];
+    outDims[0] = inDims[0]; // x
+    outDims[1] = inDims[1]; // w
+    outDims[2] = inDims[2]; // y 
+    outDims[3] = inDims[3]; // h
 
     const size_t size = inDims[1] * inDims[3] * _depth;
 
@@ -369,6 +418,124 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
         _texture->flushNoDelete();
     }
 }
+
+bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
+                                         const eq_uint64_t size )
+{
+    // create thread-safe PBO
+    if( _pbo == 0 )
+        _pbo = new util::PixelBufferObject( glewContext, true );
+
+    // PBO is read-only
+    return _pbo->init( size, glewContext, true );
 }
 
+
+#ifdef EQ_ASYNC_READBACK
+namespace
+{
+    void _cp4uint64_t( eq_uint64_t dst[4],  const eq_uint64_t src[4] )
+    {
+        memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
+    }
+
+    bool _cmp4uint64_t( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
+    {
+        for( size_t i = 0; i < 4; ++i )
+            if( s1[i] != s2[i] )
+                return false;
+        return true;
+    }
+}
+
+void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
+                                                const eq_uint64_t  inDims[4],
+                                                const unsigned     source,
+                                                const eq_uint64_t  flags )
+{
+    _cp4uint64_t( _inDimsTmp, inDims );
+
+    const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
+    _buffer.reserve( size );
+    _buffer.setSize( size );
+
+    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
+    {
+        if( !_initPBO( glewContext, size ))
+        {
+            EQERROR << "Can't initialize PBO for async RB" << std::endl;
+            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], 
+                          _format, _type, _buffer.getData() ) );
+            return;
+        }
+        // normal PBO readback
+        EQWARN << "start PBO readback" << std::endl;
+        _pbo->bind( glewContext );
+        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
+                      _format, _type, 0 ));
+        _pbo->unbind( glewContext );
+    }
+    else 
+    {
+        _initTexture( glewContext, flags );
+        _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
+        _texture->setExternalFormat( _format, _type );
+        _texture->download( _buffer.getData( ));
+        _texture->flushNoDelete();
+    }
+}
+
+
+void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
+                                                const eq_uint64_t  inDims[4],
+                                                const unsigned     source,
+                                                const eq_uint64_t  flags,
+                                                eq_uint64_t        outDims[4],
+                                                void**             out )
+{
+    _cp4uint64_t( outDims, _inDimsTmp );
+    *out = _buffer.getData();
+
+    if( !_cmp4uint64_t( inDims, _inDimsTmp ))
+    {
+        EQERROR << "Input dimentions are not the same" << std::endl;
+        return;
+    }
+
+    const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
+
+    if(( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER ) &&
+                                                _pbo && _pbo->isInitialized( ))
+    {
+        const GLubyte* ptr = 
+                        static_cast<const GLubyte*>(_pbo->mapRead( glewContext ));
+        if( !ptr )
+        {
+            EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
+            _pbo->unmap( glewContext );
+            return;
+        }
+        memcpy( _buffer.getData(), ptr, size );
+        _pbo->unmap( glewContext );
+        EQWARN << "finished PBO readback" << std::endl;
+    }
+}
+#else
+void CompressorReadDrawPixels::startDownload(   const GLEWContext* ,
+                                                const eq_uint64_t*,
+                                                const unsigned,
+                                                const eq_uint64_t )
+{ EQDONTCALL; }
+
+
+void CompressorReadDrawPixels::finishDownload(  const GLEWContext*,
+                                                const eq_uint64_t*,
+                                                const unsigned,
+                                                const eq_uint64_t,
+                                                eq_uint64_t*,
+                                                void** )
+{ EQDONTCALL; }
+#endif
+
+}
 }

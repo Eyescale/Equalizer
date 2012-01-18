@@ -26,6 +26,8 @@
 #include <co/base/plugin.h>
 #include <co/base/pluginRegistry.h>
 
+#include <co/plugins/useAsyncReadback.h>
+
 namespace eq
 {
 namespace util
@@ -151,8 +153,26 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
 
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { 0, 0, 0, 0 };
+#ifdef EQ_ASYNC_READBACK
+    // Testing the concept of PBO readback, it should actually have separate
+    // start/finish Download functions!
+    if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
+    {
+        _plugin->startDownload( _instance, _name, _glewContext,
+                            inDims, source, flags );
+        _plugin->finishDownload( _instance, _name, _glewContext,
+                            inDims, source, flags, outDims, out );
+    }
+    else
+    {
+        EQWARN << "async incapable" << std::endl;
+        _plugin->download( _instance, _name, _glewContext,
+                            inDims, source, flags, outDims, out );
+    }
+#else
     _plugin->download( _instance, _name, _glewContext,
                        inDims, source, flags, outDims, out );
+#endif
     pvpOut.x = outDims[0];
     pvpOut.w = outDims[1];
     pvpOut.y = outDims[2];

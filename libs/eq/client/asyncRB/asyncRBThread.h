@@ -27,57 +27,58 @@
  *
  */
 
-#ifndef EQASYNC_ASYNC_FETCHER_H
-#define EQASYNC_ASYNC_FETCHER_H
+#ifndef EQ_ASYNC_RB_ASYNC_FETCHER_H
+#define EQ_ASYNC_RB_ASYNC_FETCHER_H
 
 #include <eq/eq.h>
 
-namespace eqAsync
+namespace eq
 {
 
 /**
- *  Structure to associate OpenGL texture ids with an external key.
+ *  Commands to/from RB thread
  */
-struct TextureId
+enum AsyncRBCommands
 {
-    TextureId( const GLuint id_ = 0, const void* key_ = 0 )
-            : id( id_ ), key( key_ ){};
-
-    GLuint id;       // OpenGL texture id
-    const void* key; // Object manager key; used to delete textures
+    INITIALIZED, // from
+    INIT_FAILED, // from
+    EXIT         // to
 };
+
 
 class Window;
 
 /**
- *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
+ *  Asynchronous readback thread.
  */
-class AsyncFetcher : public co::base::Thread
+class AsyncRBThread : public co::base::Thread
 {
 public:
     typedef eq::util::ObjectManager< int > ObjectManager;
 
-    AsyncFetcher();
-    ~AsyncFetcher();
+    AsyncRBThread();
+    ~AsyncRBThread();
 
     virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
+    void setup( Window* wnd );
 
-    TextureId getTextureId()               { return _outQueue.pop().id;      }
-    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const void* key )  { _inQueue.push( key );           }
+    /* Nonblocking */
+    void startRB( Channel* channel );
+
+    AsyncRBCommands getRespond() { return _outQueue.pop(); }
+    void pushCommand( const AsyncRBCommands command )
+                                 { _inQueue.push( command ); }
 
     const GLEWContext* glewGetContext() const;
 
 private:
-    Window*                        _wnd;
-    co::base::MTQueue<const void*> _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId>   _outQueue;      // generated textures
-    eq::ObjectManager*             _objectManager;
-    eq::SystemWindow*              _sharedContextWindow;
-    GLbyte*                        _tmpTexture;    // temporal texture storage
+    Window*                             _wnd;
+    co::base::MTQueue<AsyncRBCommands>  _inQueue;
+    co::base::MTQueue<AsyncRBCommands>  _outQueue;
+    eq::ObjectManager*                  _objectManager;
+    eq::SystemWindow*                   _sharedContextWindow;
 };
 
 } 
 
-#endif //EQASYNC_ASYNC_FETCHER_H
+#endif //EQ_ASYNC_RB_ASYNC_FETCHER_H

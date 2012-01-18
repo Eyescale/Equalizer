@@ -514,6 +514,7 @@ namespace eq
     private:
         //-------------------- Members --------------------
         friend class fabric::Window< Pipe, Window, Channel >;
+        friend class AsyncRBThread;
 
         /** The channel's drawable config (FBO). */
         DrawableConfig _drawableConfig;
@@ -587,6 +588,12 @@ namespace eq
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
 
+        void _frameStartReadback( const uint128_t& frameID, uint32_t nFrames,
+                                co::ObjectVersion* frames );
+
+        void _frameFinishReadback( const uint128_t& frameID, uint32_t nFrames,
+                                co::ObjectVersion* frames );
+
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
@@ -613,6 +620,8 @@ namespace eq
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
+
+        bool _cmdFrameFinishReadback( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

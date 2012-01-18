@@ -174,6 +174,18 @@ namespace eq
         EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
 
+    struct ChannelFrameFinishReadbackPacket : public ChannelTaskPacket
+    {
+        ChannelFrameFinishReadbackPacket()
+            {
+                command       = fabric::CMD_CHANNEL_FRAME_FINISH_READBACK;
+                size          = sizeof( ChannelFrameFinishReadbackPacket );
+            }
+
+        uint32_t             nFrames;
+        EQ_ALIGN8( co::ObjectVersion frames[1] );
+    };
+
     struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
     {
         ChannelFrameTransmitImagePacket()
@@ -264,6 +276,14 @@ namespace eq
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                      const ChannelFrameFinishReadbackPacket* packet )
+    {
+        os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
+        return os;
+    }
+
     inline std::ostream& operator << ( std::ostream& os, 
                                      const ChannelFrameTransmitImagePacket* packet )
     {

@@ -48,7 +48,6 @@
 
 namespace eq
 {
-#define glewGetContext glObjects->glewGetContext
 
 Image::Image()
         : _type( Frame::TYPE_MEMORY )
@@ -432,13 +431,13 @@ bool Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
         util::Texture& texture = _getAttachment( buffer ).texture;
-        texture.setGLEWContext( glewGetContext( ));
+        texture.setGLEWContext( glObjects->glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
         texture.setGLEWContext( 0 );
         return true;
     }
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return readback( buffer, 0, glewGetContext( ));
+        return readback( buffer, 0, glObjects->glewGetContext( ));
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
     return _readbackZoom( buffer, zoom, glObjects );
 }
@@ -532,7 +531,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 
     EQLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
-    return readback( buffer, zoomedTexture, glewGetContext( ));
+    return readback( buffer, zoomedTexture, glObjects->glewGetContext( ));
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

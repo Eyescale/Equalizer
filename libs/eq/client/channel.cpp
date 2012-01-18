@@ -52,6 +52,8 @@
 #include <co/base/rng.h>
 #include <co/base/scopedMutex.h>
 
+#include <co/plugins/useAsyncReadback.h>
+
 #include <set>
 
 namespace eq
@@ -106,6 +108,10 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
+#ifdef EQ_ASYNC_READBACK
+    registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_READBACK, 
+                     CmdFunc( this, &Channel::_cmdFrameFinishReadback ), queue );
+#endif
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
                      transmitQ );
@@ -1478,6 +1484,80 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     _resetOutputFrames( getContext() );    
 }
 
+#ifdef EQ_ASYNC_READBACK
+//
+// The following two functions are copied from normal readback 
+// and are a placeholder for now
+//
+void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
+                                    co::ObjectVersion* frames )
+{
+    _setOutputFrames( nFrames, frames );
+
+    // start readback
+    frameReadback( frameID );
+}
+
+void Channel::_frameFinishReadback( const uint128_t& frameID, uint32_t nFrames,
+                                    co::ObjectVersion* frames )
+{
+    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+    std::vector< size_t > nImages( nFrames, 0 );
+    for( size_t i = 0; i < nFrames; ++i )
+        nImages[i] = _outputFrames[i]->getImages().size();
+
+    size_t in = 0;
+    size_t out = 0;
+    const DrawableConfig& dc = getDrawableConfig();
+    const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
+
+    event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
+    event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+
+    for( FramesCIter i = _outputFrames.begin(); i != _outputFrames.end(); ++i )
+    {
+        Frame* frame = *i;
+        const Images& images = frame->getImages();
+        for( ImagesCIter j = images.begin(); j != images.end(); ++j )
+        {
+            const Image* image = *j;
+            if( image->hasPixelData( Frame::BUFFER_COLOR ))
+            {
+                in += colorBytes * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_COLOR );
+                event.event.data.statistic.plugins[0] =
+                    image->getDownloaderName( Frame::BUFFER_COLOR );
+            }
+            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
+            {
+                in += 4 * image->getPixelViewport().getArea();
+                out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
+                event.event.data.statistic.plugins[1] =
+                    image->getDownloaderName( Frame::BUFFER_DEPTH );
+            }
+        }
+    }
+
+    if( in > 0 && out > 0 )
+        event.event.data.statistic.ratio = float( out ) / float( in );
+    else
+        event.event.data.statistic.ratio = 1.0f;
+
+    for( size_t i = 0; i < nFrames; ++i )
+        _transmitImages( getContext(), _outputFrames[i], nImages[i] );
+    _resetOutputFrames( getContext() );    
+}
+#else
+void Channel::_frameStartReadback(  const uint128_t&, uint32_t,
+                                                        co::ObjectVersion*)
+{ EQDONTCALL; }
+void Channel::_frameFinishReadback( const uint128_t&, uint32_t,
+                                                        co::ObjectVersion*)
+{ EQDONTCALL; }
+#endif
+
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -1665,6 +1745,23 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     resetRenderContext();
     return true;
 }
+
+#ifdef EQ_ASYNC_READBACK
+//
+// A placeholder for finishReadback command
+//
+bool Channel::_cmdFrameFinishReadback( co::Command& command )
+{
+    ChannelFrameFinishReadbackPacket* packet = 
+        command.getModifiable< ChannelFrameFinishReadbackPacket >();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                       << packet << std::endl;
+    return true;
+}
+#else
+bool Channel::_cmdFrameFinishReadback( co::Command& )
+{ EQDONTCALL; return true; }
+#endif
 
 bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
 {

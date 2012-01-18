@@ -50,6 +50,10 @@
 #include <co/queueSlave.h>
 #include <sstream>
 
+
+#include <eq/client/asyncRB/asyncRBThread.h>
+#include <co/plugins/useAsyncReadback.h>
+
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
@@ -80,6 +84,7 @@ private:
 Pipe::Pipe( Node* parent )
         : Super( parent )
         , _systemPipe( 0 )
+        , _asyncRBThread( 0 )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
@@ -699,6 +704,58 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
                        << std::endl;
 }
+
+
+#ifdef EQ_ASYNC_READBACK
+void Pipe::_stopAsyncRBThread()
+{
+    if( !_asyncRBThread )
+        return;
+
+    _asyncRBThread->pushCommand( EXIT );
+    _asyncRBThread->join();
+}
+
+
+bool Pipe::_startAsyncRBThread()
+{
+    if( _asyncRBThread != 0 )
+        return true;
+
+    const Windows& windows = getWindows();
+    if( windows.empty() )
+    {
+        EQERROR << "At least on window has to be initialized before "
+                << "async readback thread could start." << std::endl;
+        return false;
+    }
+
+    _asyncRBThread = new AsyncRBThread();
+    _asyncRBThread->setup( windows[0] );
+    _asyncRBThread->start();
+    if( _asyncRBThread->getRespond() == INITIALIZED )
+        return true;
+
+    EQERROR << "Async readback failed to initialize" << std::endl;
+    return false;
+}
+
+void Pipe::startAsyncRB( Channel* channel )
+{
+    // Lazily create RB thread
+    if( !_startAsyncRBThread( ))
+        return;
+
+    EQASSERT( _asyncRBThread );
+
+//    _asyncRBThread->readBack( channel );
+}
+#else
+void Pipe::_stopAsyncRBThread()     { EQDONTCALL; }
+bool Pipe::_startAsyncRBThread()    { EQDONTCALL; return false; }
+void Pipe::startAsyncRB( Channel* ) { EQDONTCALL; }
+#endif
+
 
 //---------------------------------------------------------------------------
 // command handlers
