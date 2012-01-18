@@ -94,7 +94,6 @@ bool Resources::discover( Config* config, const std::string& session )
         const gpusd::GPUInfo& info = *i;
 
         node = nodes[ info.hostname ];
-        EQINFO << info.hostname  << std::endl;
         if( !node )
         {
             node = new Node( config );
