@@ -5,7 +5,7 @@ import numpy
 
 from common import *
 
-def convertToCSV( config):
+def convertToCSV( config ):
 
    if not os.path.exists( resultsDir ):
       os.mkdir( resultsDir )
@@ -16,23 +16,21 @@ def convertToCSV( config):
       
    nodeFPSArray = []
    
-   for serverCount in range( 1, numberOfServers + 1 ):
+   oldDir = os.getcwd()
+   
+   subDirName = config.dirName + "/" + str( config.serverCount )   
+   if not os.path.exists( subDirName ):
+       print "Error finding the test directory: " + subDirName
+       exit()
       
-      oldDir = os.getcwd()
-      
-      subDirName = config.dirName + "/" + str( serverCount )   
-      if not os.path.exists( subDirName ):
-          print "Error finding the test directory: " + subDirName
-          exit()
-         
-      os.chdir( subDirName )
- 
-      fpsData = numpy.genfromtxt( testFileName, dtype=None ) 
-      maxFrameRate = max( fpsData )
-      
-      nodeFPSArray.append( maxFrameRate )
-      
-      os.chdir( oldDir )
+   os.chdir( subDirName )
+
+   fpsData = numpy.genfromtxt( testFileName, dtype=None ) 
+   maxFrameRate = max( fpsData )
+   
+   nodeFPSArray.append( maxFrameRate )
+   
+   os.chdir( oldDir )
       
    oldDir = os.getcwd()  
    os.chdir( resultsDir )

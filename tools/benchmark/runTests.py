@@ -7,35 +7,33 @@ import os
 def test( config ):
    
    if not os.path.exists( config.dirName ):
-         os.mkdir( config.dirName )
+      os.mkdir( config.dirName )
    
-   for serverCount in range( 1, numberOfServers + 1 ):
-     
-      os.system('killall -9 eqPly')
-      os.system('cexec killall -9 eqPly')
-      
-      oldDir = os.getcwd()
-         
-      subDirName = config.dirName + "/" + str( serverCount )   
-      if not os.path.exists( subDirName ):
-         os.mkdir( subDirName )
-         
-      os.chdir( subDirName )
-      roiStr = ''   
-      if( config.roiState == False ):
-         roiStr = ' -d '
+   os.system('killall -9 eqPly')
+   os.system('cexec killall -9 eqPly')
 
-      eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
-      eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
-      nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
+   oldDir = os.getcwd()
       
-      startServers.startServers( 1, serverCount, config )
-      cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg
-     
-      print cmdStr
-   
-      os.system( cmdStr )
-      os.chdir( oldDir)      
+   subDirName = config.dirName + "/" + str( serverCount )   
+   if not os.path.exists( subDirName ):
+      os.mkdir( subDirName )
+      
+   os.chdir( subDirName )
+   roiStr = ''   
+   if( config.roiState == False ):
+      roiStr = ' -d '
+
+   eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
+   eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
+   nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
+
+   startServers.startServers( 1, config.serverCount, config.session )
+   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg
+
+   print cmdStr
+
+   os.system( cmdStr )
+   os.chdir( oldDir)      
 
 def main():
     testScheme( "eqPly", test )
