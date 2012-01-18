@@ -628,9 +628,7 @@ nodeAttribute:
                 << std::endl;
         }
     | EQTOKEN_HINT_AFFINITY IATTR
-    {
-    	{ node->setIAttribute( eq::server::Node::IATTR_HINT_AFFINITY, $2 ); }
-    }
+        { node->setIAttribute( eq::server::Node::IATTR_HINT_AFFINITY, $2 ); }
 
 
 pipe: EQTOKEN_PIPE '{' 

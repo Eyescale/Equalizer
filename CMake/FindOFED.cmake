@@ -19,6 +19,6 @@ set(OFED_LIBRARIES ${_rdma_LIBRARY})
 list(APPEND OFED_LIBRARIES ${_ibverbs_LIBRARY})
 
 if(OFED_FOUND)
-  message("-- Found OFED in ${OFED_INCLUDE_DIRS};${OFED_LIBRARIES}")
+  message(STATUS "Found OFED in ${OFED_INCLUDE_DIRS};${OFED_LIBRARIES}")
 endif()
 
