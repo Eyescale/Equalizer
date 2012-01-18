@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,11 +20,11 @@
 
 #include "../types.h"
 
-#define EQ_SERVER_LAYOUTNAME_Simple     "Simple"
-#define EQ_SERVER_LAYOUTNAME_Static2D   "Static2D"
-#define EQ_SERVER_LAYOUTNAME_Dynamic2D  "Dynamic2D"
-#define EQ_SERVER_LAYOUTNAME_StaticDB   "StaticDB"
-#define EQ_SERVER_LAYOUTNAME_DynamicDB  "DynamicDB"
+#define EQ_SERVER_CONFIG_LAYOUT_SIMPLE      "Simple"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_STATIC   "Static2D"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  "Dynamic2D"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
 
 namespace eq
 {

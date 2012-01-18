@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 #include "display.h"
 #include "resources.h"
 
+#include "resources.h"
 #include "../canvas.h"
 #include "../channel.h"
 #include "../config.h"
@@ -70,11 +71,11 @@ void Display::discoverLocal( Config* config )
     segment->setChannel( channel );
 
     Strings names;
-    names.push_back( EQ_SERVER_LAYOUTNAME_Dynamic2D  );
-    names.push_back( EQ_SERVER_LAYOUTNAME_Simple );
-    names.push_back( EQ_SERVER_LAYOUTNAME_DynamicDB );
-    names.push_back( EQ_SERVER_LAYOUTNAME_StaticDB );
-    names.push_back( EQ_SERVER_LAYOUTNAME_Static2D );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_SIMPLE );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )
     {
