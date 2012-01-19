@@ -101,6 +101,11 @@ bool Resources::discover( Config* config, const std::string& session,
             node->setName( info.hostname );
             node->setHost( info.hostname );
             node->setApplicationNode( isApplicationNode );
+
+            co::ConnectionDescriptionPtr desc = new ConnectionDescription;
+            desc->setHostname( info.hostname );
+            node->addConnectionDescription( desc );
+
             nodes[ info.hostname ] = node;
         }
 
@@ -123,14 +128,13 @@ bool Resources::discover( Config* config, const std::string& session,
     {
         node = new Node( config );
         node->setApplicationNode( true );
+        node->addConnectionDescription( new ConnectionDescription );
     }
     if( node->getPipes().empty( )) // add display window
     {
         Pipe* pipe = new Pipe( node );
         pipe->setName( "display" );
     }
-    if( config->getNodes().size() > 1 ) // add appNode connection for clusters
-        node->addConnectionDescription( new ConnectionDescription );
 
     return true;
 }
@@ -250,6 +254,10 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels 
     {
         compound = _addDBCompound( root, channels );
     }
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
+    {
+        compound = _addDBCompound( root, channels ); // TODO: switch to _addDS
+    }
     else
     {
         EQASSERTINFO( false, "Unimplemented mode " << name );
@@ -316,7 +324,7 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     const std::string& name = layout->getName();
 
     Compound* compound = new Compound( root );
-    compound->setName( "2D" );
+    compound->setName( name );
     if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
         compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
 
@@ -347,7 +355,7 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
     const std::string& name = layout->getName();
 
     Compound* compound = new Compound( root );
-    compound->setName( "DB" );
+    compound->setName( name );
     compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
     if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
         compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
@@ -368,6 +376,94 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
 
     return compound;
 }
+
+#if 0
+Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
+{
+    const Channel* channel = root->getChannel();
+    const Layout* layout = channel->getLayout();
+
+    Compound* compound = new Compound( root );
+    compound->setName( name );
+
+    const Compounds& children = _addSources( compound, channels );
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+
+    const size_t step = size_t( 100000.0f / float( children.size( )));
+    size_t start = 0;
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    {
+        Compound* child = *i;
+
+        // leaf draw + tile readback compound
+        Compound* drawChild = new Compound( child );
+        if( i == _nChannels - 1 ) // last - correct rounding 'error'
+        {
+            drawChild->setRange(
+                eq::Range( static_cast< float >( start )/100000.f, 1.f ));
+        }
+        else
+            drawChild->setRange(
+                eq::Range( static_cast< float >( start )/100000.f,
+                           static_cast< float >( start + step )/100000.f ));
+        
+        unsigned y = 0;
+        for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
+        {
+            if( i != j )
+            {
+                std::ostringstream frameName;
+                frameName << "tile" << j << ".channel" << i;
+
+                eq::Viewport vp;
+                if( j == _nChannels - 1 ) // last - correct rounding 'error'
+                {
+                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                              1.f, static_cast< float >( 100000-y )/100000.f );
+                }
+                else
+                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f );
+
+                outputFrame->setBuffers( eq::Frame::BUFFER_COLOR |
+                                         eq::Frame::BUFFER_DEPTH );
+                drawChild->addOutputFrame( ::Frame::create( frameName, vp ));
+
+                // input tiles from other channels
+                frameName.str("");
+                frameName << "tile" << i << ".channel" << j;
+
+                child->addInputFrame(      ::Frame::create( frameName ));
+            }
+            // else own tile, is in place
+
+            y += step;
+        }
+ 
+        // assembled color tile output, if not already in place
+        if( i != 0 )
+        {
+            std::ostringstream frameName;
+            frameName << "frame.channel" << i;
+
+            eq::Viewport vp;
+            if( i == _nChannels - 1 ) // last - correct rounding 'error'
+            {
+                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                                  1.f,
+                               static_cast< float >( 100000-start )/100000.f );
+            }
+            else
+                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
+                                  1.f, static_cast< float >( step )/100000.f );
+
+            child->addOutputFrame(   ::Frame::create( frameName, vp, true ));
+            compound->addInputFrame( ::Frame::create( frameName ));
+        }
+        start += step;
+    }
+}
+#endif
 
 const Compounds& Resources::_addSources( Compound* compound,
                                          const Channels& channels )

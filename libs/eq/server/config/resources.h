@@ -25,6 +25,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  "Dynamic2D"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
 
 namespace eq
 {
