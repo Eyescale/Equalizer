@@ -42,10 +42,11 @@ public:
     static void configure( const Compounds& compounds, const Channels& sources);
 
 private:
+    static Compound* _addMonoCompound( Compound* root, const Channels& );
+    static Compound* _addStereoCompound( Compound* root, const Channels& );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
-    static Compound* _addEyeCompound( Compound* root, const Channels& channels);
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
-    static void _addSources( Compound* compound, const Channels& channels );
+    static const Compounds& _addSources( Compound* compound, const Channels& );
 };
 
 }

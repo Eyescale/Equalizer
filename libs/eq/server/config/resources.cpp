@@ -218,52 +218,109 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
         Compound* segmentCompound = children.front();
         const Channel* channel = segmentCompound->getChannel();
         EQASSERT( channel );
-
         EQASSERT( !canvas || channel->getCanvas() == canvas );
+
         canvas = channel->getCanvas();
 
         const Layout* layout = channel->getLayout();
         EQASSERT( layout );
-        
-        const std::string& name = layout->getName();
-        if( name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC ||
-            name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
-        {
-            Compound* mono = _add2DCompound( segmentCompound, channels );
-            mono->setEyes( EYE_CYCLOP );
 
-            Compound* stereo =_addEyeCompound( segmentCompound, channels );
-            stereo->setEyes( EYE_LEFT | EYE_RIGHT );
-            if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
-            {
-                mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D));
-                stereo->addEqualizer(new LoadEqualizer(LoadEqualizer::MODE_2D));
-            }
-        }
-        else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC ||
-                 name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
-        {
-            Compound* db = _addDBCompound( segmentCompound, channels );
-            db->setName( name );
-            if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
-                db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
-        }
-        else if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
-            /* nop */ ;
-        else
-        {
-            EQASSERTINFO( 0, "Unimplemented" );
-        }
+        _addMonoCompound( segmentCompound, channels );
+        _addStereoCompound( segmentCompound, channels );
     }
+}
+
+Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels )
+{
+    const Channel* channel = root->getChannel();
+    const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
+
+    Compound* compound = 0;
+
+    if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
+        /* nop */;
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
+        name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
+    {
+        compound = _add2DCompound( root, channels );
+    }
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
+        name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
+    {
+        compound = _addDBCompound( root, channels );
+    }
+    else
+    {
+        EQASSERTINFO( false, "Unimplemented mode " << name );
+    }
+
+    if( !compound )
+        return 0;
+
+    compound->setEyes( EYE_CYCLOP );
+    return compound;
+}
+
+Compound* Resources::_addStereoCompound( Compound* root,
+                                         const Channels& channels )
+{
+    const Channel* channel = root->getChannel();
+    const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
+    if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
+        return 0;
+
+    Compound* compound = new Compound( root );
+    compound->setName( "Stereo" );
+    compound->setEyes( EYE_LEFT | EYE_RIGHT );
+
+    const size_t nChannels = channels.size();
+    const ChannelsCIter split = channels.begin() + (nChannels >> 1);
+
+    Channels leftChannels( split - channels.begin( ));
+    std::copy( channels.begin(), split, leftChannels.begin( ));
+
+    Channels rightChannels( channels.end() - split );
+    std::copy( split, channels.end(), rightChannels.begin( ));
+
+    Compound* left = 0;
+    if( leftChannels.empty() ||
+        ( leftChannels.size() == 1 && leftChannels.front() == channel ))
+    {
+        left = new Compound( compound );
+    }
+    else
+        left = _addMonoCompound( compound, leftChannels );
+
+    left->setEyes( EYE_LEFT );
+
+    Compound* right = 0;
+    if( rightChannels.empty() ||
+        ( rightChannels.size() == 1 && rightChannels.front() == channel ))
+    {
+        right = new Compound( compound );
+    }
+    else
+        right = _addMonoCompound( compound, rightChannels );
+
+    right->setEyes( EYE_RIGHT );
+
+    return compound;
 }
 
 Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
 {
+    const Channel* channel = root->getChannel();
+    const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
+
     Compound* compound = new Compound( root );
     compound->setName( "2D" );
-    _addSources( compound, channels );
+    if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
+        compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
 
-    const Compounds& children = compound->getChildren();
+    const Compounds& children = _addSources( compound, channels );
     const size_t step =  size_t( 100000.0f / float( children.size( )));
     size_t start = 0;
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
@@ -285,13 +342,17 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
 
 Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
 {
+    const Channel* channel = root->getChannel();
+    const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
+
     Compound* compound = new Compound( root );
     compound->setName( "DB" );
-    if( channels.size() > 1 )
-        compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
-    _addSources( compound, channels );
+    compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
+    if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
+        compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
 
-    const Compounds& children = compound->getChildren();
+    const Compounds& children = _addSources( compound, channels );
     const size_t step = size_t( 100000.0f / float( children.size( )));
     size_t start = 0;
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
@@ -304,10 +365,12 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
                                     float( start + step ) / 100000.f ));
         start += step;
     }
+
     return compound;
 }
 
-void Resources::_addSources( Compound* compound, const Channels& channels )
+const Compounds& Resources::_addSources( Compound* compound,
+                                         const Channels& channels )
 {
     const Channel* rootChannel = compound->getChannel();
     const Segment* segment = rootChannel->getSegment();
@@ -333,47 +396,8 @@ void Resources::_addSources( Compound* compound, const Channels& channels )
         inFrame->setName( frameName.str( ));
         compound->addInputFrame( inFrame );
     }
-}
 
-Compound* Resources::_addEyeCompound( Compound* root, const Channels& channels )
-{
-    Compound* compound = new Compound( root );
-    compound->setName( "Stereo" );
-
-    const size_t nChannels = channels.size();
-    const ChannelsCIter split = channels.begin() + (nChannels >> 1);
-
-    Channels leftChannels( split - channels.begin( ));
-    std::copy( channels.begin(), split, leftChannels.begin( ));
-
-    Channels rightChannels( channels.end() - (split+1));
-    std::copy( split+1, channels.end(), rightChannels.begin( ));
-    
-    const Channel* rootChannel = compound->getChannel();
-
-    Compound* left = 0;
-    if( leftChannels.empty() ||
-        ( leftChannels.size() == 1 && leftChannels.front() == rootChannel ))
-    {
-        left = new Compound( compound );
-    }
-    else
-        left = _add2DCompound( compound, leftChannels );
-
-    left->setEyes( EYE_LEFT | EYE_CYCLOP );
-
-    Compound* right = 0;
-    if( rightChannels.empty() ||
-        ( rightChannels.size() == 1 && rightChannels.front() == rootChannel ))
-    {
-        right = new Compound( compound );
-    }
-    else
-        right = _add2DCompound( compound, rightChannels );
-
-    right->setEyes( EYE_RIGHT | EYE_CYCLOP );
-
-    return compound;
+    return compound->getChildren();
 }
 
 }
