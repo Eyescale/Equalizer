@@ -500,7 +500,7 @@ eq::Vector2f Channel::getJitter() const
     if( !view || view->getIdleSteps() != 256 )
         return eq::Vector2f::ZERO;
 
-    eq::Vector2i jitterStep = _getJitterStep();
+    const eq::Vector2i jitterStep = _getJitterStep();
     if( jitterStep == eq::Vector2i::ZERO )
         return eq::Vector2f::ZERO;
 
@@ -519,17 +519,14 @@ eq::Vector2f Channel::getJitter() const
 
     // Sample value randomly computed within the subpixel
     co::base::RNG rng;
-    float value_i = rng.get< float >() * subpixel_w
-                    + float( jitterStep.x( )) * subpixel_w;
-
-    float value_j = rng.get< float >() * subpixel_h
-                    + float( jitterStep.y( )) * subpixel_h;
-
     const eq::Pixel& pixel = getPixel();
-    value_i /= float( pixel.w );
-    value_j /= float( pixel.h );
 
-    return eq::Vector2f( value_i, value_j );
+    const float i = ( rng.get< float >() * subpixel_w +
+                      float( jitterStep.x( )) * subpixel_w ) / float( pixel.w );
+    const float j = ( rng.get< float >() * subpixel_h +
+                      float( jitterStep.y( )) * subpixel_h ) / float( pixel.h );
+
+    return eq::Vector2f( i, j );
 }
 
 static const uint32_t _primes[100] = {
