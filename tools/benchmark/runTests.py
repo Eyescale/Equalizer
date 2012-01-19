@@ -14,7 +14,7 @@ def test( config ):
 
    saveCurrentDir()
 
-   subDirName = config.dirName + "/" + str( serverCount )   
+   subDirName = config.dirName + "/" + str( config.serverCount )   
    if not os.path.exists( subDirName ):
       os.mkdir( subDirName )
       
