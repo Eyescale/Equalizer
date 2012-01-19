@@ -96,10 +96,16 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
         const co::ConnectionDescriptions& descriptions =
             node->getConnectionDescriptions();
 
-        if( descriptions.empty( ))
-            continue;
+        co::ConnectionDescriptionPtr desc;
 
-        co::ConnectionDescriptionPtr desc = descriptions.front();
+        if( descriptions.empty() )
+        {
+            desc = new co::ConnectionDescription();
+            (*i)->addConnectionDescription( desc );
+        }
+        else
+            desc = descriptions.front();
+
         desc->type = type;
 
         const std::string& hostname = node->getHost();        
