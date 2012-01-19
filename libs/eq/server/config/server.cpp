@@ -75,10 +75,18 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
     configFile.open( filename.c_str( ));
-    configFile << co::base::indent << Global::instance() << *server
-               << co::base::exdent << std::endl;
-    configFile.close();
+    if( configFile.is_open( ))
+    {
+        std::ostream& previous = co::base::Log::getOutput();
 
+        co::base::Log::setOutput( configFile );
+        co::base::Log::instance( __FILE__, __LINE__ )
+            << co::base::disableHeader << Global::instance() << *server
+            << std::endl << co::base::enableHeader;
+        co::base::Log::setOutput( previous );
+
+        configFile.close();
+    }
     return config;
 }
 
