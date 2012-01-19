@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -219,27 +219,29 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
         EQASSERT( layout );
         
         const std::string& name = layout->getName();
-        if( name == EQ_SERVER_LAYOUTNAME_Static2D || name == EQ_SERVER_LAYOUTNAME_Dynamic2D )
+        if( name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC ||
+            name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
         {
             Compound* mono = _add2DCompound( segmentCompound, channels );
             mono->setEyes( EYE_CYCLOP );
 
             Compound* stereo =_addEyeCompound( segmentCompound, channels );
             stereo->setEyes( EYE_LEFT | EYE_RIGHT );
-            if( name == EQ_SERVER_LAYOUTNAME_Dynamic2D )
+            if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
             {
                 mono->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D));
                 stereo->addEqualizer(new LoadEqualizer(LoadEqualizer::MODE_2D));
             }
         }
-        else if( name == EQ_SERVER_LAYOUTNAME_StaticDB || name == EQ_SERVER_LAYOUTNAME_DynamicDB )
+        else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC ||
+                 name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
         {
             Compound* db = _addDBCompound( segmentCompound, channels );
             db->setName( name );
-            if( name == EQ_SERVER_LAYOUTNAME_DynamicDB )
+            if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
                 db->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
         }
-        else if( name == EQ_SERVER_LAYOUTNAME_Simple )
+        else if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
             /* nop */ ;
         else
         {
