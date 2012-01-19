@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import checkXServersAndRestart
 
 numberOfServers = 13
 excludedServers = [] 
@@ -19,7 +20,7 @@ dirStack = []
 
 class Configuration:
    dirName = ''
-   ethType = 'TenGig'
+   protocol = 'TenGig'
    layoutName = 'Static2D'  
    roiState = 'ROIDisabled'
    affState = 'NoAffinity'
@@ -38,19 +39,21 @@ def testScheme( application, function ):
 
    if application == "eqPly":
       for serverCount in range( 1, numberOfServers + 1 ):
-         servers = findInactiveXServers( False )
-         if len( servers ) > 0:
-            print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
+         #servers = checkXServersAndRestart.findInactiveXServers( False )
+         #if len( servers ) > 0:
+         #  print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
+         #  exit()
          for protocol in protocols:
               for layoutName in layoutNames:
                  for roiState in roiStateList:
                     for affState in affStateList:
                         config = Configuration()
-                        config.dirName = '%s-%s-%s-%s' % ( protocol, connectionType, layoutName, roiState, affState )
-                        config.ethType = ethType
+                        config.dirName = '%s-%s-%s-%s' % ( protocol, layoutName, roiState, affState )
+                        config.protocol = protocol
                         config.layoutName = layoutName
                         config.roiState = roiState
                         config.affState = affState
-                        config.session = '%s-%s-%s' % ( affState, ethType, connectionType )
+                        config.session = '%s-%s' % ( affState, protocol )
                         config.serverCount = serverCount
-      function( config )
+                        print config.session
+         # function( config )

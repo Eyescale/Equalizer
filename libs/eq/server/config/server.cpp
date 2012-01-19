@@ -119,13 +119,13 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
 void Server::configureForBenchmark( Config* config, const std::string& session_ )
 {
     std::string session = session_;
-    
-    for( size_t nextPos = session.find( '-' ); nextPos != std::string::npos;
-         nextPos = session.find( '-' ))
-    {
-        const std::string token = session.substr( 0, nextPos );
-        session = session.substr( nextPos + 1 );
 
+    std::string token;
+
+    std::istringstream iss(session);
+
+    while ( getline(iss, token, '-') )
+    {
         if( token == "GoodAffinity" )
         {
             int32_t affinityCPUs[3] = { fabric::CPU + 0, fabric::CPU + 0, 
