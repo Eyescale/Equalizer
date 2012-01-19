@@ -104,20 +104,14 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
     const Nodes& nodes = config->getNodes();
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
-        const Node* node = *i;
+        Node* node = *i;
         const co::ConnectionDescriptions& descriptions =
             node->getConnectionDescriptions();
 
-        co::ConnectionDescriptionPtr desc;
-
         if( descriptions.empty() )
-        {
-            desc = new co::ConnectionDescription();
-            (*i)->addConnectionDescription( desc );
-        }
-        else
-            desc = descriptions.front();
+            node->addConnectionDescription( new co::ConnectionDescription );
 
+        co::ConnectionDescriptionPtr desc = descriptions.front();
         desc->type = type;
 
         const std::string& hostname = node->getHost();        
@@ -142,7 +136,7 @@ void Server::configureForBenchmark( Config* config, const std::string& session_ 
 
     std::istringstream iss(session);
 
-    while ( getline(iss, token, '-') )
+    while( getline(iss, token, '-'))
     {
         if( token == "GoodAffinity" )
         {
