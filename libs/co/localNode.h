@@ -1,6 +1,5 @@
 
-
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -331,11 +330,17 @@ namespace co
 
         /** @name Operations */
         //@{
+        /**
+         * Add a listening connection to this listening node.
+         * @return the listening connection, or 0 upon error.
+         */
+        CO_API ConnectionPtr addListener( ConnectionDescriptionPtr desc );
+
         /** Add a listening connection to this listening node. */
         CO_API void addListener( ConnectionPtr connection );
 
-        /** Remove a listening connection from this listening node. */
-        CO_API uint32_t removeListenerNB( ConnectionPtr connection );
+        /** Remove listening connections from this listening node. */
+        CO_API void removeListeners( const Connections& connections );
 
         /**
          * Flush all pending commands on this listening node.
@@ -455,6 +460,7 @@ namespace co
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
+        uint32_t _removeListenerNB( ConnectionPtr connection );
 
         /** 
          * @return <code>true</code> if executed from the command handler

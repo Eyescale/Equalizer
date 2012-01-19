@@ -1,5 +1,5 @@
 
-/* Copyright (c)  2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)  2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -250,6 +250,20 @@ bool LocalNode::close()
     return true;
 }
 
+ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
+{
+    EQASSERT( isListening( ));
+
+    ConnectionPtr connection = Connection::create( desc );
+
+    if( connection && connection->listen( ))
+    {
+        addListener( connection );
+        return connection;
+    }
+    return 0;
+}
+
 void LocalNode::addListener( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
@@ -266,7 +280,28 @@ void LocalNode::addListener( ConnectionPtr connection )
     }
 }
 
-uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
+void LocalNode::removeListeners( const Connections& connections )
+{
+    std::vector< uint32_t > requests;
+    for( ConnectionsCIter i = connections.begin(); i != connections.end(); ++i )
+    {
+        co::ConnectionPtr connection = *i;
+        requests.push_back( _removeListenerNB( connection ));
+    }
+
+    for( size_t i = 0; connections.size(); ++i )
+    {
+        co::ConnectionPtr connection = connections[i];
+        waitRequest( requests[ i ] );
+        connection->close();
+        // connection and connections hold a reference
+        EQASSERTINFO( connection->getRefCount()==2 ||
+              connection->getDescription()->type >= co::CONNECTIONTYPE_MULTICAST,
+                      connection->getRefCount() << ": " << *connection );
+    }
+}
+
+uint32_t LocalNode::_removeListenerNB( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
