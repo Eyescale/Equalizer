@@ -28,6 +28,7 @@
 #include "../window.h"
 #include "../equalizers/loadEqualizer.h"
 
+#include <eq/client/configParams.h>
 #include <eq/client/frame.h>
 #include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
@@ -55,7 +56,8 @@ namespace config
 {
 static co::base::a_int32_t _frameCounter;
 
-bool Resources::discover( Config* config, const std::string& session )
+bool Resources::discover( Config* config, const std::string& session,
+                          const uint32_t flags )
 {
 #ifdef EQ_USE_GPUSD_cgl
     gpusd::cgl::Module::use();
@@ -73,32 +75,32 @@ bool Resources::discover( Config* config, const std::string& session )
                                gpusd::FilterPtr( new gpusd::DuplicateFilter );
     if( !session.empty( ))
         *filter |= gpusd::FilterPtr( new gpusd::SessionFilter( session ));
-    const gpusd::GPUInfos& infos = gpusd::Module::discoverGPUs( filter );
+    gpusd::GPUInfos infos = gpusd::Module::discoverGPUs( filter );
 
     if( infos.empty( ))
     {
-        EQINFO << "No resources found for session " << session << std::endl;
-        return false;
+        EQINFO << "No resources found for session " << session 
+               << ", using default config" << std::endl;
+        infos.push_back( gpusd::GPUInfo( ));
     }
     typedef stde::hash_map< std::string, Node* > NodeMap;
 
     NodeMap nodes;
-    Node* node = new Node( config ); // Add default appNode
-    node->setName( "Local Node" );
-    node->setApplicationNode( true );
-    nodes[ "" ] = node;
+    const bool multiprocess = flags & ConfigParams::FLAG_MULTIPROCESS;
 
     size_t gpuCounter = 0;
     for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
         const gpusd::GPUInfo& info = *i;
 
-        node = nodes[ info.hostname ];
-        if( !node )
+        Node* node = nodes[ info.hostname ];
+        if( !node || multiprocess )
         {
+            const bool isApplicationNode = info.hostname.empty() && !node;
             node = new Node( config );
             node->setName( info.hostname );
             node->setHost( info.hostname );
+            node->setApplicationNode( isApplicationNode );
             nodes[ info.hostname ] = node;
         }
 
@@ -116,13 +118,18 @@ bool Resources::discover( Config* config, const std::string& session )
         pipe->setName( name.str( ));
     }
 
-    node = nodes[ "" ];
+    Node* node = config->findAppNode();
+    if( !node )
+    {
+        node = new Node( config );
+        node->setApplicationNode( true );
+    }
     if( node->getPipes().empty( )) // add display window
     {
         Pipe* pipe = new Pipe( node );
         pipe->setName( "display" );
     }
-    if( nodes.size() > 1 ) // add appNode connection for cluster configs
+    if( config->getNodes().size() > 1 ) // add appNode connection for clusters
         node->addConnectionDescription( new ConnectionDescription );
 
     return true;
