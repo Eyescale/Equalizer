@@ -40,7 +40,8 @@ struct ConfigEvent : public eq::ConfigEvent
 public:
     enum Type
     {
-        IDLE_AA_LEFT = eq::Event::USER
+        IDLE_AA_LEFT = eq::Event::USER,
+        PIPE
     };
 
     ConfigEvent()

@@ -73,6 +73,12 @@ bool Channel::configInit( const eq::uint128_t& initID )
     setNearFar( 0.1f, 10.0f );
     _model = 0;
     _modelID = co::base::UUID::ZERO;
+
+    ConfigEvent event;
+    event.data.originator = getPipe()->getID();
+    event.data.type = ConfigEvent::PIPE;
+
+    getConfig()->sendEvent( event );
     return true;
 }
 

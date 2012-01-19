@@ -34,7 +34,8 @@ public:
     static EQSERVER_API Config* configure( ServerPtr server,
                                            const std::string& session,
                                            const uint32_t flags );
-    static void configureForBenchmark( Config* config, const std::string& session );
+    static void configureForBenchmark( Config* config,
+                                       const std::string& session );
 };
 
 }
