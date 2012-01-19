@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -90,6 +90,8 @@ int EqPly::run()
 
     // 2. choose config
     eq::ConfigParams configParams;
+    if( _initData.useMultiProcess( ))
+        configParams.setFlags( eq::ConfigParams::FLAG_MULTIPROCESS );
     Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
 
     if( !config )

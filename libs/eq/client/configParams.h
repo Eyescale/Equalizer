@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,19 +19,33 @@
 #define EQ_CONFIG_PARAMS_H
 
 #include <eq/client/api.h>
+#include <co/base/types.h>
 #include <string>
 
 namespace eq
 {
+namespace detail { class ConfigParams; }
+
     /** Parameters for running a configuration. @sa Server::chooseConfig() */
     class ConfigParams
     {
     public:
+        /**
+         * @warning Experimental - may not be supported in the future.
+         * Flags influencing the configuration to be used or created.
+         * @version 1.3.0
+         */
+        enum Flags
+        {
+            FLAG_NONE = EQ_BIT_NONE, //!< Unset all flags
+            FLAG_MULTIPROCESS = EQ_BIT1, //!< Auto-config: one node per pipe
+        };
+
         /** Construct new configuration parameters. @version 1.0 */
         EQ_API ConfigParams();
 
         /** Destruct this configuration parameters. @version 1.0 */
-        ~ConfigParams(){}
+        EQ_API ~ConfigParams();
         
         /** @name Data Access. */
         //@{
@@ -62,14 +76,22 @@ namespace eq
          * @version 1.0
          */
         EQ_API const std::string& getWorkDir() const;
+
+        /**
+         * @warning Experimental - may not be supported in the future.
+         * Set configuration flags. @version 1.3
+         */
+        EQ_API void setFlags( const uint32_t flags );
+
+        /**
+         * @warning Experimental - may not be supported in the future.
+         * @return the configuration flags. @version 1.3
+         */
+        EQ_API uint32_t getFlags() const;
         //@}
 
     private:
-        std::string _renderClient;
-        std::string _workDir;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        detail::ConfigParams* const _impl;
     };
 }
 

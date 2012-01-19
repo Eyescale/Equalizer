@@ -191,10 +191,13 @@ bool Server::_cmdChooseConfig( co::Command& command )
     if( !config )
     {
         // TODO move session name to ConfigParams
-        config = config::Server::configure( this, eq::Global::getConfigFile( ));
+        config = config::Server::configure( this, eq::Global::getConfigFile(),
+                                            packet->flags );
         if( config )
+        {
             config->register_();
-        EQINFO << "Created " << *config << std::endl;
+            EQINFO << "Created " << *config << std::endl;
+        }
     }
 #endif
 
@@ -290,8 +293,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     waitRequest( destroyConfigPacket.requestID );
 
 #ifdef EQ_USE_GPUSD
-    const std::string& name = config->getName();
-    if( name.find( " autoconfig" ) != std::string::npos )
+    if( config->isAutoConfig( ))
     {
         EQASSERT( _admins.empty( ));
         config->deregister();

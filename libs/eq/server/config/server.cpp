@@ -34,22 +34,29 @@ namespace server
 namespace config
 {
 
-Config* Server::configure( ServerPtr server, const std::string& session )
+Config* Server::configure( ServerPtr server, const std::string& session,
+                           const uint32_t flags )
 {
+    if( !server->getConfigs().empty( )) // don't do more than one auto config
+        return 0;
+
     Global::instance()->setConfigFAttribute( Config::FATTR_VERSION, 1.2f );
 
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( config, session ))
+    if( !Resources::discover( config, session, flags ))
     {
         delete config;
         return 0;
     }
 
-    if( config->getNodes().size() > 1 )
-        // add server connection for cluster configs
-        server->addConnectionDescription( new ConnectionDescription );
+    if( config->getNodes().size() > 1 ) // add server connection for clusters
+    {
+        co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
+        desc->port = EQ_DEFAULT_PORT;
+        server->addListener( desc );
+    }
 
     Display::discoverLocal( config );
     const Compounds compounds = Loader::addOutputCompounds( server );

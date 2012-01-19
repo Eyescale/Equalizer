@@ -174,16 +174,13 @@ bool LocalNode::listen()
         return false;
 
     ConnectionDescriptions descriptions = getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i =
-             descriptions.begin(); i != descriptions.end(); ++i )
+    for( ConnectionDescriptionsCIter i = descriptions.begin();
+         i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
         ConnectionPtr connection = Connection::create( description );
 
-        if( !connection )
-            continue;
-
-        if( !connection->listen( ))
+        if( !connection || !connection->listen( ))
         {
             EQWARN << "Can't create listener connection: " << description
                    << std::endl;
@@ -289,7 +286,7 @@ void LocalNode::removeListeners( const Connections& connections )
         requests.push_back( _removeListenerNB( connection ));
     }
 
-    for( size_t i = 0; connections.size(); ++i )
+    for( size_t i = 0; i < connections.size(); ++i )
     {
         co::ConnectionPtr connection = connections[i];
         waitRequest( requests[ i ] );
@@ -777,9 +774,6 @@ bool LocalNode::connect( NodePtr node )
 
     // try connecting using the given descriptions
     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
-    if( node->getConnectionDescriptions().empty( ))
-        EQWARN << "Can't connect to a node with no listening connections"
-               << std::endl;
     for( ConnectionDescriptions::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {
