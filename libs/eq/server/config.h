@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -56,6 +56,8 @@ namespace server
 
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _state != STATE_UNUSED; }
+        bool isAutoConfig() const
+            { return getName().find( " autoconfig" ) != std::string::npos; }
 
         co::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }

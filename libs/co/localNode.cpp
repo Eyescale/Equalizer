@@ -1,5 +1,5 @@
 
-/* Copyright (c)  2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)  2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -174,16 +174,13 @@ bool LocalNode::listen()
         return false;
 
     ConnectionDescriptions descriptions = getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i =
-             descriptions.begin(); i != descriptions.end(); ++i )
+    for( ConnectionDescriptionsCIter i = descriptions.begin();
+         i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
         ConnectionPtr connection = Connection::create( description );
 
-        if( !connection )
-            continue;
-
-        if( !connection->listen( ))
+        if( !connection || !connection->listen( ))
         {
             EQWARN << "Can't create listener connection: " << description
                    << std::endl;
@@ -250,6 +247,20 @@ bool LocalNode::close()
     return true;
 }
 
+ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
+{
+    EQASSERT( isListening( ));
+
+    ConnectionPtr connection = Connection::create( desc );
+
+    if( connection && connection->listen( ))
+    {
+        addListener( connection );
+        return connection;
+    }
+    return 0;
+}
+
 void LocalNode::addListener( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
@@ -266,7 +277,28 @@ void LocalNode::addListener( ConnectionPtr connection )
     }
 }
 
-uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
+void LocalNode::removeListeners( const Connections& connections )
+{
+    std::vector< uint32_t > requests;
+    for( ConnectionsCIter i = connections.begin(); i != connections.end(); ++i )
+    {
+        co::ConnectionPtr connection = *i;
+        requests.push_back( _removeListenerNB( connection ));
+    }
+
+    for( size_t i = 0; i < connections.size(); ++i )
+    {
+        co::ConnectionPtr connection = connections[i];
+        waitRequest( requests[ i ] );
+        connection->close();
+        // connection and connections hold a reference
+        EQASSERTINFO( connection->getRefCount()==2 ||
+              connection->getDescription()->type >= co::CONNECTIONTYPE_MULTICAST,
+                      connection->getRefCount() << ": " << *connection );
+    }
+}
+
+uint32_t LocalNode::_removeListenerNB( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
@@ -742,9 +774,6 @@ bool LocalNode::connect( NodePtr node )
 
     // try connecting using the given descriptions
     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
-    if( node->getConnectionDescriptions().empty( ))
-        EQWARN << "Can't connect to a node with no listening connections"
-               << std::endl;
     for( ConnectionDescriptions::const_iterator i = cds.begin();
         i != cds.end(); ++i )
     {

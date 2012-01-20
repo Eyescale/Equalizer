@@ -21,10 +21,6 @@
 #include "global.h"
 #include "loader.h"
 
-#ifdef EQ_USE_GPUSD
-#  include "config/server.h"
-#endif
-
 #include <co/node.h>
 
 #include "../../co/pipeConnection.h" // private header
@@ -89,7 +85,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         server = loader.loadFile( config );
 #ifdef EQ_USE_GPUSD
     else
-        server = eq::server::config::Server::configure( config );
+        server = new eq::server::Server; // configured upon Server::chooseConfig
 #endif
 
     if( !server )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -132,6 +132,7 @@ void CommandCache::_compact( const Cache which )
 Command& CommandCache::_newCommand( const Cache which )
 {
     EQ_TS_THREAD( _thread );
+    _compact( which );
 
     Data& cache = _cache[ which ];
     const uint32_t cacheSize = uint32_t( cache.size( ));
@@ -164,14 +165,15 @@ Command& CommandCache::_newCommand( const Cache which )
                     {
                         size_t size = 0;
                         const Data& cmds = _cache[ j ];
-                        for( DataCIter k=cmds.begin(); k != cmds.end(); ++k)
+                        for( DataCIter k = cmds.begin(); k != cmds.end(); ++k )
                             size += (*k)->getAllocationSize();
 
                         EQINFO << _hits << "/" << _hits + _misses << " hits, "
                                << _lookups << " lookups, " << _free[j] << " of "
-                               << cmds.size() << " packets free, " << _allocs
-                               << " allocs, " << _frees << " frees, " 
-                               << size / 1024 << "KB" << std::endl;
+                               << cmds.size() << " packets free (min "
+                               << _minFree[ j ] << " max " << _maxFree[ j ]
+                               << "), " << _allocs << " allocs, " << _frees
+                               << " frees, " << size / 1024 << "KB" << std::endl;
                     }
                 }
 #endif
@@ -207,9 +209,8 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
-
-    _compact( which );
     Command& command = _newCommand( which );
+
     command.alloc_( node, localNode, size );
     return command;
 }

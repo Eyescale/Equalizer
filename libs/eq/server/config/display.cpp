@@ -72,6 +72,7 @@ void Display::discoverLocal( Config* config )
     Strings names;
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  );
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_SIMPLE );
+    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
