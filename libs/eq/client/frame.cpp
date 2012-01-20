@@ -151,6 +151,19 @@ void Frame::readback( util::ObjectManager< const void* >* glObjects,
     _frameData->readback( *this, glObjects, config );
 }
 
+void Frame::startReadback( util::ObjectManager< const void* >* glObjects,
+                      const DrawableConfig& config ) 
+{
+    EQASSERT( _frameData );
+    _frameData->startReadback(  *this, glObjects, config );
+}
+
+void Frame::finishReadback( util::ObjectManager< const void* >* glObjects )
+{
+    EQASSERT( _frameData );
+    _frameData->finishReadback( *this, glObjects );
+}
+
 void Frame::setReady()
 {
     EQASSERT( _frameData );

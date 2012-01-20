@@ -37,6 +37,7 @@
 #include <co/base/scopedMutex.h>
 
 #include <co/plugins/compressor.h>
+#include <co/plugins/useAsyncReadback.h>
 #include <algorithm>
 
 namespace eq
@@ -275,6 +276,80 @@ void FrameData::readback( const Frame& frame,
 #endif
     }
 }
+
+
+#ifdef EQ_ASYNC_READBACK
+void FrameData::startReadback( const Frame& frame,
+                            util::ObjectManager< const void* >* glObjects,
+                            const DrawableConfig& config )
+{
+    if( _data.buffers == Frame::BUFFER_NONE )
+        return;
+
+    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    if( !absPVP.isValid( ))
+        return;
+
+    const Zoom& zoom = frame.getZoom();
+    if( !zoom.isValid( ))
+    {
+        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
+        return;
+    }
+
+    PixelViewports pvps;
+    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
+        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
+//                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
+                    0, 0, glObjects );
+    else
+        pvps.push_back( absPVP );
+
+    for( uint32_t i = 0; i < pvps.size(); i++ )
+    {
+        PixelViewport pvp = pvps[ i ];
+        pvp.intersect( absPVP );
+
+        Image* image = newImage( _data.frameType, config );
+        image->startReadback( _data.buffers, pvp, zoom, glObjects );
+        image->setOffsetRB( pvp.x - absPVP.x, pvp.y - absPVP.y );
+    }
+}
+
+void FrameData::finishReadback( const Frame& frame,
+                             util::ObjectManager< const void* >* glObjects )
+{
+    if( _data.buffers == Frame::BUFFER_NONE )
+        return;
+
+    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    if( !absPVP.isValid( ))
+        return;
+
+    const Zoom& zoom = frame.getZoom();
+    if( !zoom.isValid( ))
+    {
+        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
+        return;
+    }
+
+    for( size_t i = 0; i < _images.size(); ++i )
+    {
+        Image* image = _images[i];
+        image->finishReadback( _data.buffers, zoom, glObjects );
+    }
+}
+#else
+void FrameData::startReadback( const Frame&,
+                            util::ObjectManager< const void* >*,
+                            const DrawableConfig& )
+{ EQDONTCALL; }
+
+void FrameData::finishReadback( const Frame&,
+                             util::ObjectManager< const void* >* )
+{ EQDONTCALL; }
+#endif
+
 
 void FrameData::setVersion( const uint64_t version )
 {

@@ -158,6 +158,8 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         , _format( 0 )
         , _type( 0 )
         , _depth( _depths[ name ] )
+        , _sourceRB( 0 )
+        , _flagsRB( 0 )
 {
     EQASSERT( _depth > 0 );
     switch( name )
@@ -453,7 +455,9 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const unsigned     source,
                                                 const eq_uint64_t  flags )
 {
-    _cp4uint64_t( _inDimsTmp, inDims );
+    _cp4uint64_t( _inDimsRB, inDims );
+    _sourceRB = source;
+    _flagsRB  = flags;
 
     const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
     _buffer.reserve( size );
@@ -461,19 +465,19 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        if( !_initPBO( glewContext, size ))
+        if( _initPBO( glewContext, size ))
         {
-            EQERROR << "Can't initialize PBO for async RB" << std::endl;
-            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3], 
-                          _format, _type, _buffer.getData() ) );
+            EQWARN << "start PBO readback" << std::endl;
+            _pbo->bind( glewContext );
+            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
+                          _format, _type, 0 ));
+            _pbo->unbind( glewContext );
             return;
         }
-        // normal PBO readback
-        EQWARN << "start PBO readback" << std::endl;
-        _pbo->bind( glewContext );
+        // else
+        EQERROR << "Can't initialize PBO for async RB" << std::endl;
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
-                      _format, _type, 0 ));
-        _pbo->unbind( glewContext );
+                      _format, _type, _buffer.getData() ));
     }
     else 
     {
@@ -493,12 +497,17 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
                                                 eq_uint64_t        outDims[4],
                                                 void**             out )
 {
-    _cp4uint64_t( outDims, _inDimsTmp );
+    _cp4uint64_t( outDims, _inDimsRB );
     *out = _buffer.getData();
 
-    if( !_cmp4uint64_t( inDims, _inDimsTmp ))
+    if( !_cmp4uint64_t( inDims, _inDimsRB ))
     {
         EQERROR << "Input dimentions are not the same" << std::endl;
+        return;
+    }
+    if( _sourceRB != source || _flagsRB != flags )
+    {
+        EQERROR << "Source type or flags are not the same" << std::endl;
         return;
     }
 

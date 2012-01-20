@@ -47,7 +47,7 @@ PixelBufferObject::~PixelBufferObject()
     if( !isInitialized( ))
         return;
 
-    EQWARN << "deleting PBO in destructid since it was not deleted manually"
+    EQWARN << "deleting PBO in destructor since it was not deleted manually"
            << std::endl;
 
     _destroy( _initCtx );

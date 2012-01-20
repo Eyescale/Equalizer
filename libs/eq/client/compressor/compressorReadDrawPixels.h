@@ -86,7 +86,9 @@ protected:
     unsigned    _format;         //!< the GL format
     unsigned    _type;           //!< the GL type 
     const unsigned _depth;       //!< the size of one output token
-    eq_uint64_t  _inDimsTmp[4];  //!< inSize for async readback
+    eq_uint64_t _inDimsRB[4];    //!< inSize for async readback
+    unsigned    _sourceRB;       //!< source for async readback
+    eq_uint64_t _flagsRB;        //!< flags for async readback
     void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags );
     bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );

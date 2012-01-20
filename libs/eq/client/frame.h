@@ -210,6 +210,13 @@ namespace server
         EQ_API void readback( util::ObjectManager< const void* >* glObjects,
                               const DrawableConfig& config );
 
+        EQ_API void startReadback(
+                                util::ObjectManager< const void* >* glObjects,
+                                const DrawableConfig& config );
+
+        EQ_API void finishReadback(
+                                util::ObjectManager< const void* >* glObjects );
+
         /**
          * Set the frame ready.
          * 
