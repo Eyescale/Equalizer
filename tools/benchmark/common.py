@@ -6,15 +6,17 @@ import checkXServersAndRestart
 numberOfServers = 13
 excludedServers = [] 
 
-protocols = [ 'TenGig', 'IPoIB', 'SDP', 'RDMA' ]  
-layoutNames = [ 'Static2D', 'Dynamic2D', 'StaticDB' ]
+protocols = [ 'TenGig', 'IPoIB', 'RDMA' ]  
+layoutNames = [ 'StaticDB', 'Static2D', 'Dynamic2D' ]
 eqPlyBinaryPath = '/home/bilgili/Build/bin/eqPly'
 eqPlyDefaultArgs = '-m ~/EqualizerData/david1mm.ply -a ~/EqualizerConfigs/eqPly/cameraPath'
-roiStateList = [ 'ROIDisabled', 'ROIEnabled' ]
-affStateList = [ 'NoAffinity', 'GoodAffinity', 'BadAffinity' ]
+roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
+affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
 
 testFileName = "FPSInfo.txt"
 resultsDir = "Results"
+
+timeSecToWaitForProcess = 15 * 60 # Wait for 15 minutes before killing process ( possible hang )
 
 dirStack = []
 
@@ -26,7 +28,7 @@ class Configuration:
    affState = 'NoAffinity'
    protocol = 'TCP'
    session = ''
-   nbOfFrames = 2500
+   nbOfFrames = 2020
    serverCount = 1
    
 def saveCurrentDir():
@@ -38,7 +40,7 @@ def gotoPreviousDir():
 def testScheme( application, function ):
 
    if application == "eqPly":
-      for serverCount in range( 1, numberOfServers + 1 ):
+      for serverCount in range( 1, numberOfServers + 2, 2 ):
          #servers = checkXServersAndRestart.findInactiveXServers( False )
          #if len( servers ) > 0:
          #  print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
@@ -55,5 +57,4 @@ def testScheme( application, function ):
                         config.affState = affState
                         config.session = '%s-%s' % ( affState, protocol )
                         config.serverCount = serverCount
-                        print config.session
-         # function( config )
+                        function( config )

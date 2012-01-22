@@ -12,6 +12,7 @@ from common import *
 
 # Killall the servers in range
 def stopServers():
+   # os.system("ssh node01 killall -9 gpu_sd")
    os.system("killall -9 gpu_sd")
    os.system("cexec killall -9 gpu_sd")
 
