@@ -100,12 +100,6 @@ namespace server
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
                                      server::Node, ConfigVisitor >;
 
-        /**  Add a new config to this server. */
-        void _addConfig( Config* config );
-
-        /** Remove a config from this server. */
-        bool _removeConfig( Config* config );        
-
         /** The command functions. */
         bool _cmdChooseConfig( co::Command& command );
         bool _cmdReleaseConfig( co::Command& command );

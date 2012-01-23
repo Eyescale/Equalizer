@@ -25,6 +25,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  "Dynamic2D"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
 
 namespace eq
 {
@@ -36,15 +37,17 @@ namespace config
 class Resources
 {
 public:
-    static bool discover( Config* config, const std::string& session );
+    static bool discover( Config* config, const std::string& session,
+                          const uint32_t flags );
     static Channels configureSourceChannels( Config* config );
     static void configure( const Compounds& compounds, const Channels& sources);
 
 private:
+    static Compound* _addMonoCompound( Compound* root, const Channels& );
+    static Compound* _addStereoCompound( Compound* root, const Channels& );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
-    static Compound* _addEyeCompound( Compound* root, const Channels& channels);
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
-    static void _addSources( Compound* compound, const Channels& channels );
+    static const Compounds& _addSources( Compound* compound, const Channels& );
 };
 
 }

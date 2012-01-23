@@ -90,6 +90,8 @@ int EqPly::run()
 
     // 2. choose config
     eq::ConfigParams configParams;
+    if( _initData.useMultiProcess( ))
+        configParams.setFlags( eq::ConfigParams::FLAG_MULTIPROCESS );
     Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
 
     if( !config )
@@ -143,10 +145,11 @@ int EqPly::run()
             lastFrame = config->getFinishedFrame();
 
             EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
-                               << ( nFrames / time * 1000.f) << " FPS)"
-                               << std::endl;
+                               << ( nFrames / time * 1000.f) << " FPS using "
+                               << config->getNPipes() << " GPUs" << std::endl;
 #ifdef BENCHMARK
-            outputFrameFile << ( nFrames / time * 1000.f) << std::endl;
+            outputFrameFile << config->getNPipes() << ", "
+                            << nFrames / time * 1000.f << std::endl;
 #endif
         }
 
@@ -174,7 +177,8 @@ int EqPly::run()
     const float time = clock.resetTimef();
     const size_t nFrames = frame - lastFrame;
     EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
-                       << ( nFrames / time * 1000.f) << " FPS)" << std::endl;
+                       << ( nFrames / time * 1000.f) << " FPS using "
+                       << config->getNPipes() << " GPUs" << std::endl;
 
     // 5. exit config
     clock.reset();
