@@ -126,6 +126,8 @@ void CommandCache::_compact( const Cache which )
     const int32_t num = int32_t( cache.size() >> _freeShift );
     maxFree = EQ_MAX( _minFree[ which ] , num );
     _position[ which ] = cache.begin();
+    if ( which == CACHE_SMALL )
+        _compact( CACHE_BIG );
 #endif // COMPACT
 }
 
