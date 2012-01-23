@@ -323,7 +323,7 @@ void Channel::addStatistic( Event& event )
         EQASSERT( index < _impl->statistics->size( ));
         EQASSERT( _impl->statistics.data[ index ].used > 0 );
 
-        co::base::ScopedMutex< co::base::SpinLock > mutex( _impl->statistics );
+        co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
         statistics.push_back( event.statistic );
     }
