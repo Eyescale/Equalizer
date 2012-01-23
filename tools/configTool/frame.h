@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2009, Maxim Makhinya
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,9 +40,9 @@ public:
         return create( name.str().c_str( ));
     }
 
-    static inline eq::server::Frame* create(      std::ostringstream& name,
-          const eq::Viewport&       vp,
-                bool                colorOnly = false )
+    static inline eq::server::Frame* create( std::ostringstream& name,
+                                             const eq::Viewport& vp,
+                                             bool colorOnly = false )
     {
         eq::server::Frame* frame = create( name );
         frame->setViewport( vp );
