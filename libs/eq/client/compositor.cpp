@@ -489,8 +489,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     return count;
 }
 
-uint32_t Compositor::assembleFramesCPU( const Frames& frames,
-                                        Channel* channel,
+uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
                                         const bool blendAlpha )
 {
     if( frames.empty( ))
@@ -1218,6 +1217,7 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     _drawPixels( image, op, Frame::BUFFER_COLOR );
+    declareRegion( image, op );
 #if 0
     static co::base::a_int32_t counter;
     std::ostringstream stringstream;
@@ -1358,6 +1358,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 
     glDisable( GL_STENCIL_TEST );
+    declareRegion( image, op );
 }
 
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
@@ -1500,6 +1501,16 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     if( op.pixel != Pixel::ALL )
         glPixelZoom( static_cast< float >( op.pixel.w ),
                      static_cast< float >( op.pixel.h ));
+    declareRegion( image, op );
+}
+
+void Compositor::declareRegion( const Image* image, const ImageOp& op )
+{
+    if( !op.channel )
+        return;
+
+    const eq::PixelViewport area = image->getPixelViewport() + op.offset;
+    op.channel->declareRegion( area );
 }
 
 #undef glewGetContext

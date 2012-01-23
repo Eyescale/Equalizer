@@ -285,6 +285,40 @@ namespace detail { class Channel; }
         EQ_API void bindFrameBuffer();        
         //@}
 
+        /** @name Region of Interest. */
+        //@{
+        /**
+         * Reset the declared region of interest.
+         *
+         * Called from frameStart and frameClear to reset the area to be used to
+         * optimize compositing and load balancing for each frame.
+         * @version 1.3
+         */
+        EQ_API virtual void resetRegion();
+
+        /**
+         * Declare a region covered by the current draw or assemble operation.
+         *
+         * The region is relative to the current pixel viewport. It is merged
+         * with the existing region and clipped against the current pixel
+         * viewport of the channel. Called with the full pixel viewport after
+         * frameDraw if no region has been declared.
+         * @version 1.3
+         */
+        EQ_API virtual void declareRegion( const eq::PixelViewport& region );
+
+        /**
+         * Convenience method to declare a region in relative coordinates.
+         *
+         * The given viewport is relative to the current pixel viewport.
+         * @version 1.3
+         */
+        EQ_API void declareRegion( const eq::Viewport& vp );
+
+        /** @return the current region of interest. @version 1.3 */
+        EQ_API const PixelViewport& getRegion() const;
+        //@}
+
         /** 
          * Process a received event.
          *

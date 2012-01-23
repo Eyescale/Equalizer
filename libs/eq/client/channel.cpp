@@ -336,6 +336,7 @@ void Channel::addStatistic( Event& event )
 
 void Channel::frameClear( const uint128_t& )
 {
+    resetRegion();
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
 
@@ -384,18 +385,45 @@ void Channel::frameAssemble( const uint128_t& )
 
 void Channel::frameReadback( const uint128_t& )
 {
+    const PixelViewport& region = getRegion();
+    if( !region.hasArea( ))
+        return;
+
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
     Window::ObjectManager* glObjects = getObjectManager();
-    const DrawableConfig& drawableConfig = getDrawableConfig();
-
+    const DrawableConfig& drawable = getDrawableConfig();
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        frame->readback( glObjects, drawableConfig );
+        eq::FrameData* data = frame->getData();
+
+        if( data->getType() == eq::Frame::TYPE_TEXTURE )
+            frame->readback( glObjects, drawable );
+        else
+        {
+            // ROI readback
+            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
+            const eq::PixelViewport& framePVP = data->getPixelViewport();
+            eq::PixelViewport area = framePVP + frame->getOffset();
+
+            area.intersect( region );
+            if( !area.hasArea( ))
+                continue;
+
+            eq::Image* image = data->newImage( data->getType(), drawable );
+            image->readback( data->getBuffers(), area, frame->getZoom(),
+                             glObjects );
+
+            const eq::Pixel& pixel = getPixel();
+            area -= frame->getOffset();
+            image->setOffset( (area.x - framePVP.x) * pixel.w,
+                              (area.y - framePVP.y) * pixel.h );
+        }
     }
 
     EQ_GL_CALL( resetAssemblyState( ));
@@ -407,6 +435,7 @@ void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
 void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
+    resetRegion();
     startFrame( frameNumber );
 }
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
@@ -706,6 +735,44 @@ bool Channel::isStopped() const { return _impl->state == STATE_STOPPED; }
 const Frames& Channel::getInputFrames() { return _impl->inputFrames; }
 const Frames& Channel::getOutputFrames() { return _impl->outputFrames; }
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
+
+void Channel::resetRegion()
+{
+    _impl->region.invalidate();
+}
+
+void Channel::declareRegion( const eq::Viewport& vp )
+{
+    eq::PixelViewport region = getPixelViewport();
+    region.x = 0;
+    region.y = 0;
+
+    region.apply( vp );
+    declareRegion( region );
+}
+
+void Channel::declareRegion( const eq::PixelViewport& region )
+{
+    if( region.hasArea( ))
+    {
+        _impl->region.merge( region );
+        
+        eq::PixelViewport pvp = getPixelViewport();
+        pvp.x = 0;
+        pvp.y = 0;
+        _impl->region.intersect( pvp );
+    }
+    else if( !_impl->region.isValid( )) // set on first declaration of empty ROI
+    {
+        _impl->region.w = 0;
+        _impl->region.h = 0;
+    }
+}
+
+const PixelViewport& Channel::getRegion() const
+{
+    return _impl->region;
+}
 
 bool Channel::processEvent( const Event& event )
 {
@@ -1609,7 +1676,11 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
                              packet->finish ? NICEST : AUTO );
+
     frameDraw( packet->context.frameID );
+    if( !_impl->region.isValid( ))
+        declareRegion( getPixelViewport( ));
+
     resetRenderContext();
 
     return true;
