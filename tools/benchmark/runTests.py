@@ -41,13 +41,14 @@ def test( config ):
 
 def main():
 
-    if( len( sys.argv ) == 2 ):
+   if( len( sys.argv ) == 2 ):
 	if( sys.argv[1] == "FULLSCREEN" or sys.argv[1] == "fullscreen" or sys.argv[1] == '-f' ):
 		os.environ['EQ_WINDOW_IATTR_HINT_FULLSCREEN'] = '1'
     else:
         os.environ['EQ_WINDOW_IATTR_HINT_FULLSCREEN'] = '0'
 
-    testScheme( "eqPly", test )
+   for serverCount in range( 1, numberOfServers + 1 ):
+      testScheme( "eqPly", test, serverCount )
 
 if __name__ == "__main__":
     main()

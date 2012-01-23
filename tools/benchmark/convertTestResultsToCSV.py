@@ -2,40 +2,57 @@
 
 import os
 import numpy
+import copy
 
 from common import *
+import fixTests
 
-def convertToCSV( config ):
+dirNameGPUCountFPSArrayDict = dict()
 
-   if not os.path.exists( resultsDir ):
-      os.mkdir( resultsDir )
-   
+def convertToDict( config ):
+
    if not os.path.exists( config.dirName ):
-      print "Error finding the test directory: " + config.dirName
-      exit()
+      return
       
-   nodeFPSArray = []
-   
-   saveCurrentDir()
    subDirName = config.dirName + "/" + str( config.serverCount )   
    if not os.path.exists( subDirName ):
-       print "Error finding the test directory: " + subDirName
-       exit()
+      return    
   
-   os.chdir( subDirName )
-   fpsData = numpy.genfromtxt( testFileName, dtype=None ) 
-   maxFrameRate = max( fpsData )
-   nodeFPSArray.append( maxFrameRate )
-   gotoPreviousDir()
+   testfName = subDirName + "/" + testFileName
+
+   if not os.path.exists( testfName ):
+      return
       
-   saveCurrentDir()  
-   os.chdir( resultsDir )
-   numpy.savetxt( config.dirName + ".txt", nodeFPSArray, fmt="%3.2f", delimiter=',' )
-   gotoPreviousDir()
+   if not dirNameGPUCountFPSArrayDict.has_key( config.dirName ):
+      dirNameGPUCountFPSArrayDict[ config.dirName ] = dict()
+    
+   fpsData = numpy.genfromtxt( testfName, dtype=None ) 
+   maxFrameRate = max( fpsData )
    
+   gpufName = subDirName + "/" + gpuCountFile
+   
+   gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
+   
+   dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )
   
+def convert():
+
+   fixTests.fixTests()
+   
+   for serverCount in range( 1, numberOfServers + 1 ):
+      testScheme( "eqPly", convertToDict, serverCount )
+
+   for dirName in dirNameGPUCountFPSArrayDict.keys():
+      print dirName
+      gpuCountList = copy.deepcopy( dirNameGPUCountFPSArrayDict[ dirName ].keys() )
+      gpuCountList.sort()
+      f = open( dirName + "/" + gpuCountFPSFile, "w" )
+      for gpuCount in gpuCountList:
+         f.write( str(gpuCount) + " " + str(dirNameGPUCountFPSArrayDict[ dirName ][ gpuCount ]) + "\n" )
+      f.close()
+   
 def main():
-    testScheme( "eqPly", convertToCSV )
+    convert()
 
 if __name__ == "__main__":
     main()
