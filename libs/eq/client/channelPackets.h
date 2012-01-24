@@ -181,9 +181,6 @@ namespace eq
                 command       = fabric::CMD_CHANNEL_FRAME_FINISH_READBACK;
                 size          = sizeof( ChannelFrameFinishReadbackPacket );
             }
-
-        uint32_t             nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
@@ -280,7 +277,7 @@ namespace eq
     inline std::ostream& operator << ( std::ostream& os, 
                                       const ChannelFrameFinishReadbackPacket* packet )
     {
-        os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
+        os << (ChannelTaskPacket*)packet << " id " << packet->context.frameID;
         return os;
     }
 

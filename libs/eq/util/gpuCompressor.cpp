@@ -26,8 +26,6 @@
 #include <co/base/plugin.h>
 #include <co/base/pluginRegistry.h>
 
-#include <co/plugins/useAsyncReadback.h>
-
 namespace eq
 {
 namespace util
@@ -162,7 +160,6 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void GPUCompressor::startDownload(  const fabric::PixelViewport& pvpIn,
                                     const unsigned               source,
                                     const uint64_t               flags  )
@@ -207,18 +204,6 @@ void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
     pvpOut.y = _outDimsRB[2];
     pvpOut.h = _outDimsRB[3];
 }
-#else
-void GPUCompressor::startDownload(  const fabric::PixelViewport&,
-                                    const unsigned,
-                                    const uint64_t  )
-{ EQDONTCALL; }
-void GPUCompressor::finishDownload( const fabric::PixelViewport&,
-                                    const unsigned,
-                                    const uint64_t,
-                                    fabric::PixelViewport&,
-                                    void** )
-{ EQDONTCALL; }
-#endif
 
 
 void GPUCompressor::upload( const void*                  buffer,

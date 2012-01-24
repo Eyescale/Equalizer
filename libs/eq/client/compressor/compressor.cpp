@@ -18,8 +18,6 @@
 
 #include "compressor.h"
 
-#include <co/plugins/useAsyncReadback.h>
-
 namespace eq
 {
 namespace plugin
@@ -219,7 +217,6 @@ void EqCompressorUpload( void* const        ptr,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void EqCompressorStartDownload( void* const        ptr,
                                 const unsigned     name,
                                 const GLEWContext* glewContext,
@@ -249,27 +246,3 @@ void EqCompressorFinishDownload( void* const        ptr,
     compressor->finishDownload( glewContext, inDims, source, flags, outDims,
                                out );
 }
-#else
-void EqCompressorStartDownload( void* const        ,
-                                const unsigned     ,
-                                const GLEWContext* ,
-                                const eq_uint64_t* ,
-                                const unsigned     ,
-                                const eq_uint64_t   )
-{
-    EQABORT( "This code is not supposed to be called" );
-}
-
-
-void EqCompressorFinishDownload( void* const        ,
-                                 const unsigned     ,
-                                 const GLEWContext* ,
-                                 const eq_uint64_t* ,
-                                 const unsigned     ,
-                                 const eq_uint64_t  ,
-                                 eq_uint64_t        ,
-                                 void**             )
-{
-    EQABORT( "This code is not supposed to be called" );
-}
-#endif

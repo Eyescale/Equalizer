@@ -139,7 +139,7 @@ namespace eq
           *
           * @return 
           */
-        void startAsyncRB( Channel* channel );
+        void startAsyncRB( Channel* channel, const uint128_t& frameID );
 
 
         /**

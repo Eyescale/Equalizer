@@ -214,8 +214,7 @@ namespace server
                                 util::ObjectManager< const void* >* glObjects,
                                 const DrawableConfig& config );
 
-        EQ_API void finishReadback(
-                                util::ObjectManager< const void* >* glObjects );
+        EQ_API void finishReadback( const GLEWContext* glewContext );
 
         /**
          * Set the frame ready.

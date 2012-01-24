@@ -460,6 +460,11 @@ namespace eq
          */
          EQ_API virtual void frameReadback( const uint128_t& frameID );
 
+         EQ_API virtual void frameStartReadback( const uint128_t& frameID );
+
+         EQ_API virtual void frameFinishReadback( const uint128_t& frameID,
+                                              const GLEWContext* glewContext );
+
         /** 
          * Start updating a destination channel.
          *
@@ -591,8 +596,7 @@ namespace eq
         void _frameStartReadback( const uint128_t& frameID, uint32_t nFrames,
                                 co::ObjectVersion* frames );
 
-        void _frameFinishReadback( const uint128_t& frameID, uint32_t nFrames,
-                                co::ObjectVersion* frames );
+        void _frameFinishReadback( const uint128_t& frameID );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
@@ -620,7 +624,6 @@ namespace eq
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
-
         bool _cmdFrameFinishReadback( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );

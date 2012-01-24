@@ -158,10 +158,10 @@ void Frame::startReadback( util::ObjectManager< const void* >* glObjects,
     _frameData->startReadback(  *this, glObjects, config );
 }
 
-void Frame::finishReadback( util::ObjectManager< const void* >* glObjects )
+void Frame::finishReadback( const GLEWContext* glewContext )
 {
     EQASSERT( _frameData );
-    _frameData->finishReadback( *this, glObjects );
+    _frameData->finishReadback( *this, glewContext );
 }
 
 void Frame::setReady()

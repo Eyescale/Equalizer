@@ -37,7 +37,6 @@
 #include <co/base/scopedMutex.h>
 
 #include <co/plugins/compressor.h>
-#include <co/plugins/useAsyncReadback.h>
 #include <algorithm>
 
 namespace eq
@@ -278,7 +277,6 @@ void FrameData::readback( const Frame& frame,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void FrameData::startReadback( const Frame& frame,
                             util::ObjectManager< const void* >* glObjects,
                             const DrawableConfig& config )
@@ -317,7 +315,7 @@ void FrameData::startReadback( const Frame& frame,
 }
 
 void FrameData::finishReadback( const Frame& frame,
-                             util::ObjectManager< const void* >* glObjects )
+                             const GLEWContext* glewContext )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
@@ -336,20 +334,9 @@ void FrameData::finishReadback( const Frame& frame,
     for( size_t i = 0; i < _images.size(); ++i )
     {
         Image* image = _images[i];
-        image->finishReadback( _data.buffers, zoom, glObjects );
+        image->finishReadback( _data.buffers, zoom, glewContext );
     }
 }
-#else
-void FrameData::startReadback( const Frame&,
-                            util::ObjectManager< const void* >*,
-                            const DrawableConfig& )
-{ EQDONTCALL; }
-
-void FrameData::finishReadback( const Frame&,
-                             util::ObjectManager< const void* >* )
-{ EQDONTCALL; }
-#endif
-
 
 void FrameData::setVersion( const uint64_t version )
 {

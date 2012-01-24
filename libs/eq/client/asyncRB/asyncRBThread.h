@@ -38,11 +38,25 @@ namespace eq
 /**
  *  Commands to/from RB thread
  */
-enum AsyncRBCommands
+struct AsyncRBCommand
 {
-    INITIALIZED, // from
-    INIT_FAILED, // from
-    EXIT         // to
+    enum RBCommands
+    {
+        INITIALIZED, // out
+        INIT_FAILED, // out
+        RB,          // in
+        EXIT         // in
+    } command;
+
+    AsyncRBCommand( RBCommands cmd, Channel* c = 0, const uint128_t& fID = 0 )
+        : command( cmd ), channel( c ), frameID( fID ) {}
+
+    AsyncRBCommand& operator= ( const RBCommands cmd )
+        { command = cmd; channel = 0; frameID = 0; return *this; }
+
+    // these are used only if "command == RB"
+    Channel*    channel;
+    uint128_t   frameID;
 };
 
 
@@ -54,28 +68,25 @@ class Window;
 class AsyncRBThread : public co::base::Thread
 {
 public:
-    typedef eq::util::ObjectManager< int > ObjectManager;
-
     AsyncRBThread();
     ~AsyncRBThread();
 
     virtual void run();
     void setup( Window* wnd );
 
-    /* Nonblocking */
-    void startRB( Channel* channel );
-
-    AsyncRBCommands getRespond() { return _outQueue.pop(); }
-    void pushCommand( const AsyncRBCommands command )
-                                 { _inQueue.push( command ); }
+    AsyncRBCommand getRespond() { return _outQueue.pop(); }
+    void pushCommand( const AsyncRBCommand& command )
+                                { _inQueue.push( command ); }
 
     const GLEWContext* glewGetContext() const;
 
 private:
+    void _pushRespond( const AsyncRBCommand& command )
+                                { _outQueue.push( command ); }
+
     Window*                             _wnd;
-    co::base::MTQueue<AsyncRBCommands>  _inQueue;
-    co::base::MTQueue<AsyncRBCommands>  _outQueue;
-    eq::ObjectManager*                  _objectManager;
+    co::base::MTQueue<AsyncRBCommand>   _inQueue;
+    co::base::MTQueue<AsyncRBCommand>   _outQueue;
     eq::SystemWindow*                   _sharedContextWindow;
 };
 

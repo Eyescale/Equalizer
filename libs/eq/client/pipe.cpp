@@ -52,7 +52,6 @@
 
 
 #include <eq/client/asyncRB/asyncRBThread.h>
-#include <co/plugins/useAsyncReadback.h>
 
 namespace eq
 {
@@ -706,13 +705,12 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void Pipe::_stopAsyncRBThread()
 {
     if( !_asyncRBThread )
         return;
 
-    _asyncRBThread->pushCommand( EXIT );
+    _asyncRBThread->pushCommand( AsyncRBCommand::EXIT );
     _asyncRBThread->join();
 }
 
@@ -733,14 +731,14 @@ bool Pipe::_startAsyncRBThread()
     _asyncRBThread = new AsyncRBThread();
     _asyncRBThread->setup( windows[0] );
     _asyncRBThread->start();
-    if( _asyncRBThread->getRespond() == INITIALIZED )
+    if( _asyncRBThread->getRespond().command == AsyncRBCommand::INITIALIZED )
         return true;
 
     EQERROR << "Async readback failed to initialize" << std::endl;
     return false;
 }
 
-void Pipe::startAsyncRB( Channel* channel )
+void Pipe::startAsyncRB( Channel* channel, const uint128_t& frameID )
 {
     // Lazily create RB thread
     if( !_startAsyncRBThread( ))
@@ -748,13 +746,9 @@ void Pipe::startAsyncRB( Channel* channel )
 
     EQASSERT( _asyncRBThread );
 
-//    _asyncRBThread->readBack( channel );
+    _asyncRBThread->pushCommand(
+                AsyncRBCommand( AsyncRBCommand::RB, channel, frameID ));
 }
-#else
-void Pipe::_stopAsyncRBThread()     { EQDONTCALL; }
-bool Pipe::_startAsyncRBThread()    { EQDONTCALL; return false; }
-void Pipe::startAsyncRB( Channel* ) { EQDONTCALL; }
-#endif
 
 
 //---------------------------------------------------------------------------

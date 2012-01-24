@@ -37,8 +37,6 @@
 #include "../../co/base/cpuCompressor.h"
 #include "../util/gpuCompressor.h"
 
-#include <co/plugins/useAsyncReadback.h>
-
 #include <fstream>
 
 #ifdef _WIN32
@@ -62,6 +60,7 @@ Image::~Image(){}
 void Image::reset()
 {
     _ignoreAlpha = false;
+    _zoomedTextureRB = 0;
     setPixelViewport( PixelViewport( ));
 }
 
@@ -314,7 +313,6 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                       const Zoom& zoom,
                       util::ObjectManager< const void* >* glObjects )
@@ -347,21 +345,21 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
 
 bool Image::finishReadback( const uint32_t buffers,
                       const Zoom& zoom,
-                      util::ObjectManager< const void* >* glObjects )
+                      const GLEWContext* glewContext )
 {
-    EQASSERT( glObjects );
+    EQASSERT( glewContext );
     EQLOG( LOG_ASSEMBLY ) << "finishReadback, buffers " << buffers
                           << std::endl;
 
     bool result = true;
     if( (buffers & Frame::BUFFER_COLOR) &&
-        !_finishReadback( Frame::BUFFER_COLOR, zoom, glObjects ))
+        !_finishReadback( Frame::BUFFER_COLOR, zoom, glewContext ))
     {
         result = false;
     }
 
     if( (buffers & Frame::BUFFER_DEPTH) &&
-        !_finishReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
+        !_finishReadback( Frame::BUFFER_DEPTH, zoom, glewContext ))
     {
         result = false;
     }
@@ -391,31 +389,28 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return _startReadback( buffer, 0, glObjects->glewGetContext( ));
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
 
-    const util::Texture* zoomedTexture =
-                                    _readbackZoom( buffer, zoom, glObjects );
-    if( zoomedTexture == 0 )
+    _zoomedTextureRB = _readbackZoom( buffer, zoom, glObjects );
+    if( _zoomedTextureRB == 0 )
         return false;
 
-    return _startReadback( buffer, zoomedTexture, glObjects->glewGetContext( ));
+    return _startReadback( buffer, _zoomedTextureRB, glObjects->glewGetContext( ));
 }
 
 
 bool Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                util::ObjectManager< const void* >* glObjects )
+                const GLEWContext* glewContext )
 {
     if( _type == Frame::TYPE_TEXTURE )
         return true;
 
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return _finishReadback( buffer, 0, glObjects->glewGetContext( ));
+        return _finishReadback( buffer, 0, glewContext );
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
 
-    const util::Texture* zoomedTexture =
-                                _finishReadbackZoom( buffer, zoom, glObjects );
-    if( zoomedTexture == 0 )
+    if( _zoomedTextureRB == 0 )
         return false;
 
-    return _finishReadback( buffer, zoomedTexture, glObjects->glewGetContext( ));
+    return _finishReadback( buffer, _zoomedTextureRB, glewContext );
 }
 
 
@@ -497,52 +492,6 @@ bool Image::_finishReadback( const Frame::Buffer buffer,
     memory.state = Memory::VALID;
     return true;
 }
-
-const util::Texture* Image::_finishReadbackZoom( const Frame::Buffer buffer,
-               const Zoom& zoom, util::ObjectManager< const void* >* glObjects )
-{
-    EQASSERT( glObjects );
-    EQASSERT( glObjects->supportsEqTexture( ));
-    EQASSERT( glObjects->supportsEqFrameBufferObject( ));
-
-    const void* fboKey = _getBufferKey( Frame::BUFFER_COLOR );
-    util::FrameBufferObject* fbo = glObjects->getEqFrameBufferObject( fboKey );
-
-    if( buffer == Frame::BUFFER_COLOR )
-    {
-        glDepthMask( true );
-        return fbo->getColorTextures().front();
-    }
-    //else
-
-    const ColorMask colorMask; // TODO = channel->getDrawBufferMask();
-    glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
-    return &fbo->getDepthTexture();
-}
-
-#else
-bool Image::startReadback( const uint32_t, const PixelViewport&,
-                      const Zoom&, util::ObjectManager< const void* >* )
-{ EQDONTCALL; return false; }
-bool Image::finishReadback( const uint32_t,
-                      const Zoom&, util::ObjectManager< const void* >* )
-{ EQDONTCALL; return false; }
-bool Image::_startReadback( const Frame::Buffer, const Zoom&,
-                util::ObjectManager< const void* >*  )
-{ EQDONTCALL; return false; }
-bool Image::_finishReadback( const Frame::Buffer, const Zoom&,
-                util::ObjectManager< const void* >* )
-{ EQDONTCALL; return false; }
-bool Image::_startReadback( const Frame::Buffer, const util::Texture*,
-               const GLEWContext* )
-{ EQDONTCALL; return false; }
-bool Image::_finishReadback( const Frame::Buffer, const util::Texture*,
-               const GLEWContext* )
-{ EQDONTCALL; return false; }
-const util::Texture* Image::_finishReadbackZoom( const Frame::Buffer,
-                const Zoom&, util::ObjectManager< const void* >* )
-{ EQDONTCALL; return 0; }
-#endif
 
 
 bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,

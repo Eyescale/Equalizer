@@ -22,8 +22,6 @@
 #include <eq/util/pixelBufferObject.h>
 #include <co/base/buffer.h>
 
-#include <co/plugins/useAsyncReadback.h>
-
 #define glewGetContext() glewContext
     
 namespace eq
@@ -34,8 +32,6 @@ namespace plugin
 namespace
 {
 static stde::hash_map< unsigned, unsigned > _depths;
-
-#ifdef EQ_ASYNC_READBACK
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
@@ -75,45 +71,6 @@ static stde::hash_map< unsigned, unsigned > _depths;
                                                                         \
     static bool _initialized ## in ## out = _register ## in ## out();
 
-#else
-
-#define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
-    static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
-    {                                                                   \
-        info->version = EQ_COMPRESSOR_VERSION;                          \
-        info->capabilities = EQ_COMPRESSOR_TRANSFER |                   \
-                             EQ_COMPRESSOR_DATA_2D |                    \
-                             EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
-                             EQ_COMPRESSOR_USE_TEXTURE_2D |             \
-                             EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
-        if( alpha )                                                     \
-            info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
-        info->quality = quality_ ## f;                                  \
-        info->ratio   = ratio_ ## f;                                    \
-        info->speed   = speed_ ## f;                                    \
-        info->name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out;      \
-        info->tokenType = EQ_COMPRESSOR_DATATYPE_ ## in;                \
-        info->outputTokenType = EQ_COMPRESSOR_DATATYPE_ ## out;         \
-        info->outputTokenSize = size;                                   \
-    }                                                                   \
-                                                                        \
-    static bool _register ## in ## out()                                \
-    {                                                                   \
-        const unsigned name = EQ_COMPRESSOR_TRANSFER_ ## in ## _TO_ ## out; \
-        Compressor::registerEngine(                                     \
-            Compressor::Functions(                                      \
-                name,                                                   \
-                _getInfo ## in ## out,                                  \
-                CompressorReadDrawPixels::getNewCompressor,             \
-                CompressorReadDrawPixels::getNewDecompressor,           \
-                0,                                                      \
-                CompressorReadDrawPixels::isCompatible ));              \
-        _depths[ name ] = size;                                         \
-        return true;                                                    \
-    }                                                                   \
-                                                                        \
-    static bool _initialized ## in ## out = _register ## in ## out();
-#endif
 
 REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
@@ -433,7 +390,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 namespace
 {
     void _cp4uint64_t( eq_uint64_t dst[4],  const eq_uint64_t src[4] )
@@ -479,8 +435,9 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                       _format, _type, _buffer.getData() ));
     }
-    else 
+    else
     {
+        // TODO: fix Texture class for async texture download
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->setExternalFormat( _format, _type );
@@ -529,22 +486,6 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
         EQWARN << "finished PBO readback" << std::endl;
     }
 }
-#else
-void CompressorReadDrawPixels::startDownload(   const GLEWContext* ,
-                                                const eq_uint64_t*,
-                                                const unsigned,
-                                                const eq_uint64_t )
-{ EQDONTCALL; }
-
-
-void CompressorReadDrawPixels::finishDownload(  const GLEWContext*,
-                                                const eq_uint64_t*,
-                                                const unsigned,
-                                                const eq_uint64_t,
-                                                eq_uint64_t*,
-                                                void** )
-{ EQDONTCALL; }
-#endif
 
 }
 }

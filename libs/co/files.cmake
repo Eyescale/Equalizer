@@ -140,7 +140,6 @@ set(PLUGIN_HEADERS
     plugins/compressor.h
     plugins/compressorTokens.h
     plugins/compressorTypes.h
-    plugins/useAsyncReadback.h
 )
 
 if(WIN32)

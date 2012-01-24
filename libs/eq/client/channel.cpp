@@ -52,8 +52,6 @@
 #include <co/base/rng.h>
 #include <co/base/scopedMutex.h>
 
-#include <co/plugins/useAsyncReadback.h>
-
 #include <set>
 
 namespace eq
@@ -108,10 +106,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-#ifdef EQ_ASYNC_READBACK
     registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameFinishReadback ), queue );
-#endif
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
                      transmitQ );
@@ -403,6 +399,38 @@ void Channel::frameReadback( const uint128_t& )
 
     EQ_GL_CALL( resetAssemblyState( ));
 }
+
+
+void Channel::frameStartReadback( const uint128_t& )
+{
+    EQ_GL_CALL( applyBuffer( ));
+    EQ_GL_CALL( applyViewport( ));
+    EQ_GL_CALL( setupAssemblyState( ));
+
+    Window::ObjectManager* glObjects = getObjectManager();
+    const DrawableConfig& drawableConfig = getDrawableConfig();
+
+    const Frames& frames = getOutputFrames();
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->startReadback( glObjects, drawableConfig );
+    }
+
+    EQ_GL_CALL( resetAssemblyState( ));
+}
+
+void Channel::frameFinishReadback( const uint128_t&,
+                                   const GLEWContext* glewContext )
+{
+    const Frames& frames = getOutputFrames();
+    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        frame->finishReadback( glewContext );
+    }
+}
+
 
 void Channel::startFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrame( const uint32_t ) { /* nop */ }
@@ -1481,27 +1509,27 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _outputFrames[i], nImages[i] );
-    _resetOutputFrames( getContext() );    
+    _resetOutputFrames( getContext() );
 }
 
-#ifdef EQ_ASYNC_READBACK
-//
-// The following two functions are copied from normal readback 
-// and are a placeholder for now
-//
 void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
                                     co::ObjectVersion* frames )
 {
     _setOutputFrames( nFrames, frames );
 
     // start readback
-    frameReadback( frameID );
+    frameStartReadback( frameID );
+    getPipe()->startAsyncRB( this, frameID );
 }
 
-void Channel::_frameFinishReadback( const uint128_t& frameID, uint32_t nFrames,
-                                    co::ObjectVersion* frames )
+void Channel::_frameFinishReadback( const uint128_t& frameID )
 {
+// this one is called from the RB thread:
+    frameFinishReadback( frameID, getObjectManager()->glewGetContext( ));
+
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+
+    const uint32_t nFrames = _outputFrames.size();
 
     std::vector< size_t > nImages( nFrames, 0 );
     for( size_t i = 0; i < nFrames; ++i )
@@ -1546,16 +1574,8 @@ void Channel::_frameFinishReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _outputFrames[i], nImages[i] );
-    _resetOutputFrames( getContext() );    
+    _resetOutputFrames( getContext() );
 }
-#else
-void Channel::_frameStartReadback(  const uint128_t&, uint32_t,
-                                                        co::ObjectVersion*)
-{ EQDONTCALL; }
-void Channel::_frameFinishReadback( const uint128_t&, uint32_t,
-                                                        co::ObjectVersion*)
-{ EQDONTCALL; }
-#endif
 
 
 //---------------------------------------------------------------------------
@@ -1736,32 +1756,33 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                      << packet << std::endl;
 
     _setRenderContext( packet->context );
+#if 1
     _frameReadback( packet->context.frameID, packet->nFrames,
                     packet->frames );
+#else
+    _frameStartReadback( packet->context.frameID, packet->nFrames,
+                    packet->frames );
+#endif
     resetRenderContext();
     return true;
 }
 
-#ifdef EQ_ASYNC_READBACK
-//
-// A placeholder for finishReadback command
-//
+
 bool Channel::_cmdFrameFinishReadback( co::Command& command )
 {
-    ChannelFrameFinishReadbackPacket* packet = 
+    ChannelFrameFinishReadbackPacket* packet =
         command.getModifiable< ChannelFrameFinishReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK finish readback " << getName()
+                                      <<  " " << packet << std::endl;
+
+    _frameFinishReadback( packet->context.frameID );
     return true;
 }
-#else
-bool Channel::_cmdFrameFinishReadback( co::Command& )
-{ EQDONTCALL; return true; }
-#endif
+
 
 bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
 {

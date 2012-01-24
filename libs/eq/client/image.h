@@ -291,13 +291,12 @@ namespace eq
                        const GLEWContext* glewContext );
 
 
-        EQ_API bool startReadback( const uint32_t buffers, const PixelViewport& pvp,
-                              const Zoom& zoom,
+        EQ_API bool startReadback( const uint32_t buffers,
+                              const PixelViewport& pvp, const Zoom& zoom,
                               util::ObjectManager< const void* >* glObjects );
 
-        EQ_API bool finishReadback( const uint32_t buffers,
-                              const Zoom& zoom,
-                              util::ObjectManager< const void* >* glObjects );
+        EQ_API bool finishReadback( const uint32_t buffers, const Zoom& zoom,
+                              const GLEWContext* glewContext );
 
         /**
          * Upload this image to the frame buffer or a texture.
@@ -437,6 +436,8 @@ namespace eq
         Attachment _color;
         Attachment _depth;
 
+        const util::Texture* _zoomedTextureRB; //!< Async RB with zoom texture
+
         /** Alpha channel significance. */
         bool _ignoreAlpha;
 
@@ -486,7 +487,7 @@ namespace eq
                         util::ObjectManager< const void* >* glObjects );
 
         bool _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                        util::ObjectManager< const void* >* glObjects );
+                        const GLEWContext* glewContext );
 
         bool _startReadback( const Frame::Buffer buffer, const util::Texture* texture,
                        const GLEWContext* glewContext );
@@ -495,10 +496,6 @@ namespace eq
                        const GLEWContext* glewContext );
 
         const util::Texture* _readbackZoom( const Frame::Buffer buffer,
-                        const Zoom& zoom, util::ObjectManager< const void* >* glObjects );
-
-        // basically only to get the texture again
-        const util::Texture* _finishReadbackZoom( const Frame::Buffer buffer,
                         const Zoom& zoom, util::ObjectManager< const void* >* glObjects );
     };
 };
