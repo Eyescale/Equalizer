@@ -1248,6 +1248,11 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
         _conn_param.private_data_len = 0;
     }
 
+    // Special case, log reject reason
+    if( RDMA_CM_EVENT_REJECTED == event->event )
+        EQWARN << "Connection rejected, status " << event->status <<
+            std::endl;
+
     if( 0 != ::rdma_ack_cm_event( event ))
         EQWARN << "rdma_ack_cm_event : "  << base::sysError << std::endl;
 
