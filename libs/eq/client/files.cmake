@@ -95,6 +95,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
+  detail/channel.ipp
   canvas.cpp
   channel.cpp
   channelStatistics.cpp

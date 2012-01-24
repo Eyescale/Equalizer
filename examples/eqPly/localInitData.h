@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,9 +48,10 @@ namespace eqPly
 
         const std::string& getTrackerPort() const { return _trackerPort; }
         const std::string& getPathFilename()const { return _pathFilename; }
+        uint32_t           getMaxFrames()   const { return _maxFrames; }
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
-        uint32_t           getMaxFrames()   const { return _maxFrames; }
+        bool               useMultiProcess() const { return _multiProcess; }
 
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
@@ -64,6 +65,7 @@ namespace eqPly
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
+        bool        _multiProcess;
     };
 }
 

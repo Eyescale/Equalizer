@@ -205,6 +205,11 @@ co::CommandQueue* Window::getCommandThreadQueue()
     return getPipe()->getCommandThreadQueue(); 
 }
 
+uint32_t Window::getCurrentFrame() const
+{
+    return getPipe()->getCurrentFrame();
+}
+
 const Node* Window::getNode() const 
 {
     const Pipe* pipe = getPipe();

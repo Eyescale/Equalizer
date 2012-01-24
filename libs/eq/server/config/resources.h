@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.h> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,13 @@
 
 #include "../types.h"
 
+#define EQ_SERVER_CONFIG_LAYOUT_SIMPLE      "Simple"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_STATIC   "Static2D"
+#define EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  "Dynamic2D"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
+
 namespace eq
 {
 namespace server
@@ -30,15 +37,17 @@ namespace config
 class Resources
 {
 public:
-    static bool discover( Config* config, const std::string& session );
+    static bool discover( Config* config, const std::string& session,
+                          const uint32_t flags );
     static Channels configureSourceChannels( Config* config );
     static void configure( const Compounds& compounds, const Channels& sources);
 
 private:
+    static Compound* _addMonoCompound( Compound* root, const Channels& );
+    static Compound* _addStereoCompound( Compound* root, const Channels& );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
-    static Compound* _addEyeCompound( Compound* root, const Channels& channels);
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
-    static void _addSources( Compound* compound, const Channels& channels );
+    static const Compounds& _addSources( Compound* compound, const Channels& );
 };
 
 }

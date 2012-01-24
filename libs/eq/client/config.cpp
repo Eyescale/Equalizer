@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -137,26 +137,7 @@ void Config::notifyDetach()
         }
     }
 
-    std::vector< uint32_t > requests;
-    for( co::Connections::const_iterator i = _connections.begin();
-         i != _connections.end(); ++i )
-    {
-        co::ConnectionPtr connection = *i;
-        requests.push_back( getClient()->removeListenerNB( connection ));
-    }
-
-    co::LocalNodePtr localNode = getLocalNode();
-    for( size_t i = 0; i < _connections.size(); ++i )
-    {
-        co::ConnectionPtr connection = _connections[i];
-        localNode->waitRequest( requests[ i ] );
-        connection->close();
-        // connection and _connections hold reference
-        EQASSERTINFO( connection->getRefCount()==2 ||
-            connection->getDescription()->type >= co::CONNECTIONTYPE_MULTICAST, 
-                      connection->getRefCount() << ": " << *connection );
-    }
-
+    getClient()->removeListeners( _connections );
     _connections.clear();
     _exitMessagePump();
     Super::notifyDetach();
@@ -724,26 +705,12 @@ void Config::setupServerConnections( const char* connectionData )
     EQCHECK( co::deserialize( data, descriptions ));
     EQASSERTINFO( data.empty(), data << " left from " << connectionData );
 
-    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        co::ConnectionPtr connection = co::Connection::create( *i );
-        if( !connection )
-        {
-            EQWARN << "Unsupported connection: " << *i << std::endl;
-            continue;
-        }
-
-        if( connection->listen( ))
-        {
+        co::ConnectionPtr connection = getClient()->addListener( *i );
+        if( connection )
             _connections.push_back( connection );
-            getClient()->addListener( connection );
-        }
-        else
-        {
-            // TODO: Multi-config handling when same connections are spec'd
-            EQASSERT( connection->isListening( ));
-        }
     }
 }
 
