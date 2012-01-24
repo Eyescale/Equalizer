@@ -26,6 +26,14 @@
 
 #include <ostream>
 
+#ifdef Linux
+#  include <sched.h>
+#endif
+
+#ifdef CO_USE_HWLOC
+#  include <hwloc.h>
+#endif
+
 namespace co
 {
 namespace base
@@ -187,7 +195,9 @@ namespace base
         static void _notifyStopping();
         friend void _notifyStopping( void* ); //!< @internal
 
-        static std::vector< int > _getCores( const int32_t affinity );
+#ifdef CO_USE_HWLOC
+        static hwloc_cpuset_t _getCpuSet( const int32_t affinity, hwloc_topology_t topology );
+#endif
 
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
