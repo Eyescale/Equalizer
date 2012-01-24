@@ -442,7 +442,7 @@ void Channel::frameStartReadback( const uint128_t& )
     const DrawableConfig& drawableConfig = getDrawableConfig();
 
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
         frame->startReadback( glObjects, drawableConfig );
@@ -455,7 +455,7 @@ void Channel::frameFinishReadback( const uint128_t&,
                                    const GLEWContext* glewContext )
 {
     const Frames& frames = getOutputFrames();
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
         frame->finishReadback( glewContext );
@@ -1617,7 +1617,7 @@ void Channel::_frameFinishReadback( const uint128_t& frameID )
     event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
     event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
 
-    for( FramesCIter i  = _impl->outputFrames.begin(); 
+    for( FramesCIter i  = _impl->outputFrames.begin();
                      i != _impl->outputFrames.end(); ++i )
     {
         Frame* frame = *i;
