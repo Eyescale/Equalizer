@@ -196,9 +196,12 @@ namespace base
         friend void _notifyStopping( void* ); //!< @internal
 
 #ifdef CO_USE_HWLOC
-        static hwloc_cpuset_t _getCpuSet( const int32_t affinity, hwloc_topology_t topology );
+        static hwloc_cpuset_t _getCpuSet_hwloc( const int32_t affinity, hwloc_topology_t topology );
+#else
+#  ifdef Linux
+        static cpu_set_t _getCpuSet( const int32_t affinity );
+#  endif
 #endif
-
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
 

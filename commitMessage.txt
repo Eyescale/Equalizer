@@ -1,10 +1,10 @@
-Correcting the affinity condition for the CPU case. 
-Changing the CORE value from 2 back to 1.
+Correctly Displaying the CPU affinity in the o/p stream. 
+Refactoring the thread affinity implementation.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
+[ ] Bugfix
 [x] New Feature
 [ ] Cleanup
-[ ] Optimization
+[x] Optimization
 [ ] Documentation

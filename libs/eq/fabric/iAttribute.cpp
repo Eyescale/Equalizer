@@ -19,13 +19,15 @@
 
 #include <iostream>
 
+#include "eq/server/global.h"
+
 namespace eq
 {
 namespace fabric
 {
 std::ostream& operator << ( std::ostream& os, const IAttribute value )
 {
-    switch( value )
+	switch( value )
     {
         case UNDEFINED:     os << "UNDEFINED"; break;
         case ON:            os << "ON"; break; 
@@ -47,6 +49,7 @@ std::ostream& operator << ( std::ostream& os, const IAttribute value )
         case FIXED:         os << "fixed"; break;
         case RELATIVE_TO_ORIGIN:   os << "relative_to_origin"; break;
         case RELATIVE_TO_OBSERVER: os << "relative_to_observer"; break;
+        case CPU: 			os << "cpu "; break;
         default:            os << static_cast< int >( value );
     }
     return os;
