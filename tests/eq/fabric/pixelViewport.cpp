@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ int main( int argc, char **argv )
     TESTINFO( pvp == eq::fabric::PixelViewport( -750, 1250, 500, 500 ), pvp );
 
     const eq::fabric::Viewport vp2 =
-        pvp.getSubVP( eq::fabric::PixelViewport(-1000, 1000, 1000, 1000));
+        pvp / eq::fabric::PixelViewport( -1000, 1000, 1000, 1000 );
     TESTINFO( vp == vp2, vp2 );
 
     return EXIT_SUCCESS;

@@ -79,6 +79,7 @@ namespace eq
         //@{
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
         /** @return the Node of this window. @version 1.0 */
         EQ_API const Node* getNode() const; 

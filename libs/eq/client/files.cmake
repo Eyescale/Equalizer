@@ -99,6 +99,7 @@ set(CLIENT_HEADERS
 
 set(CLIENT_SOURCES
   asyncRB/aglWindowShared.cpp
+  detail/channel.ipp
   canvas.cpp
   channel.cpp
   channelStatistics.cpp
