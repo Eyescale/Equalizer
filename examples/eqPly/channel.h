@@ -79,8 +79,6 @@ namespace eqPly
         void _drawOverlay();
         void _drawHelp();
         void _updateNearFar( const mesh::BoundingSphere& boundingSphere );
-        void _updateRegion( const eq::Vector4f& vp ); // with draw area
-        void _updateRegion( const eq::Frames& frames ); // with assemble area
 
         bool _isDone() const;
 
@@ -110,11 +108,8 @@ namespace eqPly
         _accum[ eq::NUM_EYES ];
 
         eq::PixelViewport _currentPVP;
-        eq::PixelViewport _region;
     };
 }
-
-
 
 #endif // EQ_PLY_CHANNEL_H
 

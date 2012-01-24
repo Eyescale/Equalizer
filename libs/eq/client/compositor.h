@@ -232,7 +232,18 @@ namespace eq
         static void assembleImageDB_GLSL( const Image* image, 
                                           const ImageOp& op );
         //@}
-                                
+
+        /** @name Region of Interest. */
+        //@{
+        /**
+         * Declare the region covered by the image on the operation's channel.
+         *
+         * Called from all assembleImage methods.
+         * @version 1.3
+         */
+        static void declareRegion( const Image* image, const ImageOp& op );
+        //@}
+
       private:
         typedef std::pair< const Frame*, const Image* > FrameImage;
 

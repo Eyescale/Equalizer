@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -177,6 +177,7 @@ namespace eq
     struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
     {
         ChannelFrameTransmitImagePacket()
+                : fill( 0 )
         {
             command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
             size          = sizeof( ChannelFrameTransmitImagePacket );
@@ -185,9 +186,9 @@ namespace eq
         co::ObjectVersion  frameData;
         uint128_t          netNodeID;
         uint128_t          clientNodeID;
-        uint32_t           statisticsIndex;
-        uint32_t           frameNumber;
         uint64_t           imageIndex;
+        uint32_t           frameNumber;
+        const uint32_t     fill;
     };
 
     struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket

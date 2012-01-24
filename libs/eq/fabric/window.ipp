@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -414,7 +414,7 @@ void Window< P, W, C >::notifyViewportChanged()
     else           // update viewport
     {
         const Viewport oldVP = _data.vp;
-        _data.vp = _data.pvp.getSubVP( pipePVP );
+        _data.vp = _data.pvp / pipePVP;
         if( oldVP != _data.vp )
             setDirty( DIRTY_VIEWPORT );
     }
