@@ -8,170 +8,176 @@ from common import *
 
 resultsDict = dict()
 
+keyConfiguration = Configuration()
+
 def readResultsToDict( config ):
 
-   if( config.serverCount != 1 ) # Run only once
+   gpuCountFPSFilePath = config.dirName + "/" + gpuCountFPSFile
+   
+   if( not os.path.exists( gpuCountFPSFilePath ) ):
       return
 
-   if not os.path.exists( resultsDir ):
-      convertTestResultsToCSV.main()
-      
-   oldDir = os.getcwd()  
-   os.chdir( resultsDir )
-   data = numpy.genfromtxt( config.dirName + ".txt", dtype=None )
+   data = numpy.genfromtxt( gpuCountFPSFilePath, dtype=None )
    resultsDict[ config.dirName ] = data
-   os.chdir( oldDir )
-
+  
 def drawFigure( dirName, labelName ):
-     
-   if( config.serverCount != 1 ) # Run only once
+  
+   if( not resultsDict.has_key( dirName ) ):
       return
-
-   xarr = arange( numberOfServers ) + 1 
-   data = resultsDict[ dirName ]
+  
+   xarr = []
+   data = []
+   
+   for item in resultsDict[ dirName ]:
+      xarr.append( item[ 0 ] )
+      data.append( item[ 1 ] )
+  
    p = plot( xarr, data, label = labelName ) 
-   legend( loc=2 )
-   xlabel('Number of nodes')
+   legend( loc = 0 )
+   xlabel('Number of GPUs')
    ylabel('FPS') 
    return p
+   
 
 def plotIndividualResults( config ):
 
-   if( config.serverCount != 1 ) # Run only once
+   if( not resultsDict.has_key( config.dirName ) ):
       return
-
+  
    figure()
    drawFigure( config.dirName, '' )
    title( config.dirName )
-   plt.savefig( resultsDir + "/" + config.dirName + ".png", dpi=300)
- 
+   plt.savefig( config.dirName + ".png", dpi=300)
    
-def plotROIEnabledResults( config ):
+def plotLayoutROIStateResults( config ):
    
-   if( config.serverCount != 1 ) # Run only once
+   if( not resultsDict.has_key( config.dirName ) ):
       return
    
-   if not config.roiState == 'ROIEnabled':
+   if not ( config.layoutName == keyConfiguration.layoutName and config.roiState == keyConfiguration.roiState ):
       return
   
-   labelName = config.layoutName + "," + config.affinityState 
+   labelName = config.protocol + "," + config.affState
    drawFigure( config.dirName, labelName )
    
-def plotROIDisabledResults( config ):
    
-   if( config.serverCount != 1 ) # Run only once
+def plotLayoutAffStateResults( config ):
+   
+   if( not resultsDict.has_key( config.dirName ) ):
       return
-
-   if not config.roiState == 'ROIDisabled':
+   
+   if not ( config.layoutName == keyConfiguration.layoutName and config.affState == keyConfiguration.affState ):
       return
-      
-   labelName = config.layoutName + "," + config.affinityState 
+  
+   labelName = config.protocol + "," + config.roiState
    drawFigure( config.dirName, labelName )
+ 
+ 
+def plotROIStateAffStateResults( config ):
    
-def plotAffinityEnabledResults( config ):
-   
-   if( config.serverCount != 1 ) # Run only once
+   if( not resultsDict.has_key( config.dirName ) ):
       return
    
-   if not config.affinityState == 'GoodAffinity' and not config.affinityState == 'BadAffinity':
+   if not ( config.roiState == keyConfiguration.roiState and config.affState == keyConfiguration.affState ) :
       return
-      
-   labelName = config.layoutName + "," + config.roiState 
-   drawFigure( dirName, labelName ) 
-
-def plotAffinityDisabledResults( config ):
-   
-    if( config.serverCount != 1 ) # Run only once
-      return
-   
-   if not config.affinityState == 'NoAffinity':
-      return
-      
-   labelName = config.layoutName + "," + config.roiState
-   drawFigure( config.dirName, labelName )
-   
-def plotWrongAffinityEnabledResults( config ):
-   
-   if( config.serverCount != 1 ) # Run only once
-      return
-   
-   if not config.affinityState == 'BadAffinity':
-      return
-      
-   labelName = config.layoutName + "," + roiStateStr[ int(config.roiState) ] 
+  
+   labelName = config.protocol + "," + config.layoutName
    drawFigure( config.dirName, labelName )
 
-def plotStatic2DResults( config ):
-   
-   if( config.serverCount != 1 ) # Run only once
-      return
 
-   if not( config.layoutName == 'Static2D' ):
+def plotLayoutROIStateAffStateResults( config ):
+   
+   if( not resultsDict.has_key( config.dirName ) ):
       return
-      
-   labelName = config.affinityState + "," + config.roiState
+   
+   if not ( config.roiState == keyConfiguration.roiState and config.layoutName == keyConfiguration.layoutName and config.affState == keyConfiguration.affState ) :
+      return
+  
+   labelName = config.protocol
    drawFigure( config.dirName, labelName )
    
-def plotDynamic2DResults( config ):
    
-   if( config.serverCount != 1 ) # Run only once
-      return;
-
-   if not( config.layoutName == 'Dynamic2D' ):
+def plotROIStateAffStateProtocolResults( config ):
+   
+   if( not resultsDict.has_key( config.dirName ) ):
       return
-      
-   labelName = config.affinityState  + "," + config.roiState
-   drawFigure( config.dirName, labelName )  
+   
+   if not ( config.roiState == keyConfiguration.roiState and config.protocol == keyConfiguration.protocol and config.affState == keyConfiguration.affState ) :
+      return
+  
+   labelName = config.layoutName
+   drawFigure( config.dirName, labelName )
+   
+
    
 def main():
      
-    testScheme( "eqPly", readResultsToDict )
+    testScheme( "eqPly", readResultsToDict, 1  )
     
-    testScheme( "eqPly", plotIndividualResults )
-    # show()
-    
-    figure()
-    testScheme( "eqPly", plotROIDisabledResults )
-    title( "ROIDisabled" )
-    plt.savefig( resultsDir + "/ROIDisabled.png", dpi=300)
-    # show()
-
-    figure()
-    testScheme( "eqPly", plotROIEnabledResults )
-    title( "ROIEnabled" )
-    plt.savefig( resultsDir + "/ROIEnabled.png", dpi=300)
+    testScheme( "eqPly", plotIndividualResults, 1 )
     # show()
     
-    figure()
-    testScheme( "eqPly", plotAffinityDisabledResults )
-    title( "AffinityDisabled" )
-    plt.savefig( resultsDir + "/AffinityDisabled.png", dpi=300)
-    # show()
-
-    figure()
-    testScheme( "eqPly", plotAffinityEnabledResults )
-    title( "AffinityEnabled" )
-    plt.savefig( resultsDir + "/AffinityEnabled.png", dpi=300)
-    # show()
-
-    figure()
-    testScheme( "eqPly", plotWrongAffinityEnabledResults )
-    title( "AffinityEnabled" )
-    plt.savefig( resultsDir + "/WrongAffinityEnabled.png", dpi=300)
-    # show()
     
-    figure()
-    testScheme( "eqPly", plotStatic2DResults )
-    title( layoutNames[ 0 ] )
-    plt.savefig( resultsDir + "/" + layoutNames[ 0 ] + ".png", dpi=300)
-    # show()
-
-    figure()
-    testScheme( "eqPly", plotDynamic2DResults )
-    title( layoutNames[ 1 ] )
-    plt.savefig( resultsDir + "/" + layoutNames[ 1 ] + ".png", dpi=300)
-    # show()
-
+    for layout in layoutNames:
+      for roiState in roiStateList:
+         figure()
+         keyConfiguration.layoutName = layout
+         testScheme( "eqPly", plotLayoutROIStateResults, 1 )
+         figureHeading = layout + "-" + roiState
+         title( figureHeading )
+         plt.savefig( figureHeading + ".png", dpi=300)
+         # show()
+    
+    for layout in layoutNames:
+      for affState in affStateList:
+         figure()
+         keyConfiguration.layoutName = layout
+         testScheme( "eqPly", plotLayoutAffStateResults, 1 )
+         figureHeading = layout + "-" + affState
+         title( figureHeading )
+         plt.savefig( figureHeading + ".png", dpi=300)
+         # show()
+    
+    
+    for layout in layoutNames:
+      for roiState in roiStateList:
+         for affState in affStateList:
+            figure()
+            keyConfiguration.layoutName = layout
+            keyConfiguration.roiState = roiState
+            keyConfiguration.affState = affState
+            testScheme( "eqPly", plotLayoutROIStateAffStateResults, 1 )
+            figureHeading = layout + "-" + roiState + "-" + affState
+            title( figureHeading )
+            plt.savefig( figureHeading + ".png", dpi=300)
+            # show()
+    
+      for roiState in roiStateList:
+         for affState in affStateList:
+            figure()
+            keyConfiguration.roiState = roiState
+            keyConfiguration.affState = affState
+            testScheme( "eqPly", plotROIStateAffStateResults, 1 )
+            figureHeading = roiState + "-" + affState
+            title( figureHeading )
+            plt.savefig( figureHeading + ".png", dpi=300)
+            # show()
+    
+    for protocol in protocols:
+      for roiState in roiStateList:
+         for affState in affStateList:
+            figure()
+            keyConfiguration.protocol = protocol
+            keyConfiguration.roiState = roiState
+            keyConfiguration.affState = affState
+            testScheme( "eqPly", plotROIStateAffStateProtocolResults, 1 )
+            figureHeading = protocol + "," + roiState + "," + affState 
+            title( figureHeading )
+            plt.savefig(  figureHeading + ".png", dpi=300)
+            # show()
+    
+    
+    return
 
 if __name__ == "__main__":
     main()

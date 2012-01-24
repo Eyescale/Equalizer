@@ -12,6 +12,7 @@ from common import *
 
 # Killall the servers in range
 def stopServers():
+   # os.system("ssh node01 killall -9 gpu_sd")
    os.system("killall -9 gpu_sd")
    os.system("cexec killall -9 gpu_sd")
 
@@ -19,8 +20,8 @@ def stopServers():
 def startServersInRange( serverRange, session ):
  
    for i in serverRange:
-      if i in excludedServers:
-         continue
+      # if i in excludedServers:
+      #   continue
 
       nodeNumberStr = str(i).zfill(2)
       cmdStr = "ssh node%s gpu_sd -s %s" % ( nodeNumberStr, session )
