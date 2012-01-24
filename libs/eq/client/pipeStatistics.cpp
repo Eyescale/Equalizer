@@ -29,7 +29,7 @@ namespace eq
 {
 
 PipeStatistics::PipeStatistics( const Statistic::Type type, Pipe* pipe )
-        : StatisticSampler< Pipe >( type, pipe, pipe->getCurrentFrame( ))
+        : StatisticSampler< Pipe >( type, pipe )
 {
     const std::string& name = pipe->getName();
     if( name.empty( ))
