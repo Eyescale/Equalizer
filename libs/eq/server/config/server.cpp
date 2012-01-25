@@ -48,7 +48,20 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( config, session, flags ))
+	std::istringstream iss(session);
+	std::string token;
+
+	uint32_t rtNeuronFlag = 0;
+	while( getline(iss, token, '-') )
+	{
+		if( token == "rtneuron" )
+		{
+			rtNeuronFlag = ConfigParams::FLAG_MULTIPROCESS;
+			break;
+		}
+	}
+
+    if( !Resources::discover( config, session, flags | rtNeuronFlag ))
     {
         delete config;
         return 0;
@@ -72,7 +85,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
-    configureForBenchmark( config, session, flags );
+    configureForBenchmark( config, session, flags | rtNeuronFlag );
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";

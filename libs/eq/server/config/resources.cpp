@@ -85,16 +85,7 @@ bool Resources::discover( Config* config, const std::string& session,
         infos.push_back( gpusd::GPUInfo( ));
     }
 
-    std::istringstream iss(session);
-    std::string token;
-
-    bool isRTNeuron = false;
-    while( getline(iss, token, '-') )
-    {
-    	if( token == "rtneuron" )
-    		isRTNeuron = true;
-    }
-    const bool multiprocess = ( flags & ConfigParams::FLAG_MULTIPROCESS ) || isRTNeuron;
+    const bool multiprocess = ( flags & ConfigParams::FLAG_MULTIPROCESS );
 
     typedef stde::hash_map< std::string, Node* > NodeMap;
     NodeMap nodes;
