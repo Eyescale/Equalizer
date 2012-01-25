@@ -288,13 +288,13 @@ namespace detail { class Channel; }
         /** @name Region of Interest. */
         //@{
         /**
-         * Reset the declared region of interest.
+         * Reset the declared regions of interest.
          *
          * Called from frameStart and frameClear to reset the area to be used to
          * optimize compositing and load balancing for each frame.
          * @version 1.3
          */
-        EQ_API virtual void resetRegion();
+        EQ_API virtual void resetRegions();
 
         /**
          * Declare a region covered by the current draw or assemble operation.
@@ -315,8 +315,15 @@ namespace detail { class Channel; }
          */
         EQ_API void declareRegion( const eq::Viewport& vp );
 
-        /** @return the current region of interest. @version 1.3 */
+        /** @return cummulative current region of interest. @version 1.3 */
         EQ_API const PixelViewport& getRegion() const;
+
+        /** @return current regions of interest. @version 1.3 */
+        EQ_API const PixelViewports& getRegions() const;
+
+        /** @return true if regions do not overlap. @version 1.3 */
+        EQ_API bool checkRegionsConsistency() const;
+
         //@}
 
         /** 

@@ -227,14 +227,33 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     return image;
 }
 
+namespace
+{
+void _drawRectangle( const PixelViewport& pvp )
+{
+    glDisable( GL_LIGHTING );
+    glColor3f( 1.0f, 1.0f, 1.0f );
+    glBegin( GL_LINE_LOOP );
+    {
+        glVertex3f( pvp.x + .5f,         pvp.y + .5f,         0.f );
+        glVertex3f( pvp.getXEnd() - .5f, pvp.y + .5f,         0.f );
+        glVertex3f( pvp.getXEnd() - .5f, pvp.getYEnd() - .5f, 0.f );
+        glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
+    }
+    glEnd();
+}
+}
+
 void FrameData::readback( const Frame& frame,
                           util::ObjectManager< const void* >* glObjects,
-                          const DrawableConfig& config  )
+                          const DrawableConfig& config,
+                          const PixelViewports& regions )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
 
-    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    const eq::PixelViewport& framePVP = getPixelViewport();
+    const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
         return;
 
@@ -245,6 +264,8 @@ void FrameData::readback( const Frame& frame,
         return;
     }
 
+// TODO: issue #85: move automatic ROI detection to eq::Channel
+#if 0
     PixelViewports pvps;
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
@@ -252,16 +273,41 @@ void FrameData::readback( const Frame& frame,
                     0, 0, glObjects );
     else
         pvps.push_back( absPVP );
+#endif
 
-    for( uint32_t i = 0; i < pvps.size(); i++ )
+    // readback the whole screen when donig in-place compositing
+    if( getType() == eq::Frame::TYPE_TEXTURE )
     {
-        PixelViewport pvp = pvps[ i ];
+#ifndef NDEBUG
+        if( getenv( "EQ_OUTLINE_RB" ))
+            _drawRectangle( absPVP );
+#endif
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), absPVP, zoom, glObjects );
+        image->setOffset( 0, 0 );
+        return;
+    }
+    //else read only required regions
+    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
+
+    const eq::Pixel& pixel = getPixel();
+    for( uint32_t i = 0; i < regions.size(); i++ )
+    {
+        PixelViewport pvp = regions[ i ];
         pvp.intersect( absPVP );
+        if( !pvp.hasArea( ))
+            continue;
 
-        Image* image = newImage( _data.frameType, config );
-        image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+#ifndef NDEBUG
+        if( getenv( "EQ_OUTLINE_RB" ))
+            _drawRectangle( pvp );
+#endif
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), pvp, zoom, glObjects );
 
+        pvp -= frame.getOffset();
+        image->setOffset( (pvp.x - framePVP.x) * pixel.w,
+                          (pvp.y - framePVP.y) * pixel.h );
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
         {
