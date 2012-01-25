@@ -132,7 +132,8 @@ void CommandCache::_compact( const Cache which )
 Command& CommandCache::_newCommand( const Cache which )
 {
     EQ_TS_THREAD( _thread );
-    _compact( which );
+    _compact( CACHE_SMALL );
+    _compact( CACHE_BIG );
 
     Data& cache = _cache[ which ];
     const uint32_t cacheSize = uint32_t( cache.size( ));
