@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -41,7 +41,7 @@ namespace eq
          * @version 1.0
          */
         StatisticSampler( const Statistic::Type type, Owner* owner, 
-                          const uint32_t frameNumber )
+                          const uint32_t frameNumber = EQ_UNDEFINED_UINT32 )
                 : _owner( owner )
             {
                 EQASSERT( owner );
@@ -55,6 +55,9 @@ namespace eq
                 event.data.statistic.resourceName[0] = '\0';
                 event.data.statistic.startTime   = 0;
                 event.data.statistic.endTime     = 0;
+
+                if( event.data.statistic.frameNumber == EQ_UNDEFINED_UINT32 )
+                    event.data.statistic.frameNumber = owner->getCurrentFrame();
             }
 
         /** Destruct and finish statistics sampling. @version 1.0 */
