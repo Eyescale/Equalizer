@@ -70,7 +70,7 @@ def testRTNeuron( config ):
    rtNeuronConfigArg = '--eq-config "%s" ' % ( config.session )
   
    nbOfFramesArg = '--frame-count ' + str(config.nbOfFrames) 
-
+   
    startServers.startServers( 1, config.serverCount, config.session )
    cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg
 
@@ -94,19 +94,24 @@ def main():
    parser.add_option("-a", "--application", dest="application",
                      help="Select app ( eqPly, rtneuron )", default="eqPly")
    parser.add_option("-s", "--servercount", dest="serverCount",
-                     help="Number of servers to be tested", default = 1)
+                     help="Number of servers to be tested", default = 13, type="int")
    parser.add_option("-p", "--step", dest="step",
-                     help="Servers in range startServer to endServer tested in steps", default = 1)
+                     help="Servers in range startServer to endServer tested in steps", default = 1, type="int")
    
    (options, args) = parser.parse_args()
-     
+  
    setFulscreenMode( options.screenmode )
    
    testFunc = testEqPly
-   if( options.application == "rtneuron" ):
+   if options.application == 'eqPly':
+      testFunc = testEqPly
+   elif options.application == 'rtneuron':
       testFunc = testRTNeuron
+   else:
+      print "No proper application selected"
+      exit()
 
-   for serverCount in range( 1,  options.serverCount + options.step, options.step ):
+   for serverCount in range( 5,  options.serverCount + options.step, options.step ):
       testScheme( options.application, testFunc, serverCount )
 
 

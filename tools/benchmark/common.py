@@ -14,7 +14,7 @@ eqPlyBinaryPath = '/home/bilgili/Build/bin/eqPly'
 rtNeuromBinaryPath = '/home/bilgili/Build/bin/rtneuron.equalizer'
 
 eqPlyDefaultArgs = '-m ~/EqualizerData/david1mm.ply -a ~/EqualizerConfigs/eqPly/cameraPath'
-rtNeuronDefaultArgs = '-b /home/bilgili/RTNeuronData/blueconfig --target mc0_Column mesh none 1 0 0 1.0 --no-sim-data  --no-lod  --no-selections  --background 1.0 1.0 1.0 1.0'
+rtNeuronDefaultArgs = '-b /home/bilgili/RTNeuronData/blueconfig --target mc0_Column mesh none 1 0 0 1.0 --no-sim-data  --no-lod --no-selections  --background 1.0 1.0 1.0 1.0 --path ~/RTNeuronData/camera_path.cam'
 roiStateList = [  'ROIDisabled' ]
 affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
 
