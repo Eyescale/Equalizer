@@ -224,7 +224,8 @@ namespace server { class FrameData; }
 
         void startReadback( const Frame& frame,
                             util::ObjectManager< const void* >* glObjects,
-                            const DrawableConfig& config );
+                            const DrawableConfig& config,
+                            const PixelViewports& regions );
 
         void finishReadback( const Frame& frame,
                              const GLEWContext* glewContext );

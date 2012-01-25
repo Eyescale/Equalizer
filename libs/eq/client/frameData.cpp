@@ -325,12 +325,14 @@ void FrameData::readback( const Frame& frame,
 
 void FrameData::startReadback( const Frame& frame,
                             util::ObjectManager< const void* >* glObjects,
-                            const DrawableConfig& config )
+                            const DrawableConfig& config,
+                            const PixelViewports& regions )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
 
-    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    const eq::PixelViewport& framePVP = getPixelViewport();
+    const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
         return;
 
@@ -341,22 +343,31 @@ void FrameData::startReadback( const Frame& frame,
         return;
     }
 
-    PixelViewports pvps;
-    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
-        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
-//                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
-                    0, 0, glObjects );
-    else
-        pvps.push_back( absPVP );
-
-    for( uint32_t i = 0; i < pvps.size(); i++ )
+    // readback the whole screen when donig in-place compositing
+    if( getType() == eq::Frame::TYPE_TEXTURE )
     {
-        PixelViewport pvp = pvps[ i ];
-        pvp.intersect( absPVP );
+        Image* image = newImage( getType(), config );
+        image->startReadback( getBuffers(), absPVP, zoom, glObjects );
+        image->setOffset( 0, 0 );
+        return;
+    }
+    //else read only required regions
+    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
 
-        Image* image = newImage( _data.frameType, config );
-        image->startReadback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffsetRB( pvp.x - absPVP.x, pvp.y - absPVP.y );
+    const eq::Pixel& pixel = getPixel();
+    for( uint32_t i = 0; i < regions.size(); i++ )
+    {
+        PixelViewport pvp = regions[ i ];
+        pvp.intersect( absPVP );
+        if( !pvp.hasArea( ))
+            continue;
+
+        Image* image = newImage( getType(), config );
+        image->startReadback( getBuffers(), pvp, zoom, glObjects );
+
+        pvp -= frame.getOffset();
+        image->setOffset( (pvp.x - framePVP.x) * pixel.w,
+                          (pvp.y - framePVP.y) * pixel.h );
     }
 }
 
