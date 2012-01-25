@@ -1243,8 +1243,11 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     reply.nStatistics = uint32_t( stats.data.size( ));
     reply.frameNumber = frameNumber;
     reply.objectID = getID();
+    reply.region = stats.region;
     getServer()->send( reply, stats.data );
+
     stats.data.clear();
+    stats.region = Viewport::FULL;
 }
 
 void Channel::_transmitImage( Image* image,
@@ -1676,10 +1679,14 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
                              packet->finish ? NICEST : AUTO );
-
     frameDraw( packet->context.frameID );
+
+    // Update ROI for server equalizers
     if( !_impl->region.isValid( ))
         declareRegion( getPixelViewport( ));
+    const uint32_t frameNumber = getCurrentFrame();
+    const size_t index = frameNumber % _impl->statistics->size();
+    _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
     resetRenderContext();
 

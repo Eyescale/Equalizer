@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQS_CHANNEL_LISTENER_H
 #define EQS_CHANNEL_LISTENER_H
 
-#include <co/base/types.h>
+#include "types.h"
 
 namespace eq
 {
@@ -26,8 +26,6 @@ namespace eq
 
 namespace server
 {
-    class Channel;
-
     /** A listener on various channel operations. */
     class ChannelListener
     {
@@ -41,11 +39,13 @@ namespace server
          * @param frameNumber the frame number.
          * @param nStatistics the statistic's length.
          * @param statistics the frame's statistic.
+         * @param region the draw area wrt the channels viewport
          */
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber,
                                      const uint32_t nStatistics,
-                                     const Statistic* statistics ) = 0;
+                                     const Statistic* statistics,
+                                     const Viewport& region ) = 0;
     };
 }
 }
