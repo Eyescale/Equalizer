@@ -626,7 +626,14 @@ void Channel::_drawModel( const Model* scene )
     if( !initData.useROI( ))
         return;
 
+#if 1
     declareRegion( eq::Viewport( state.getRegion( )));
+#else // test for regions outlining
+    eq::Viewport r1 = eq::Viewport( state.getRegion( )); r1.w /= 2;
+    eq::Viewport r2 = r1;  r2.x += r2.w;
+    declareRegion( r1 );
+    declareRegion( r2 );
+#endif
 
 #if 0
 #ifndef NDEBUG // region border

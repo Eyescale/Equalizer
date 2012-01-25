@@ -321,6 +321,9 @@ namespace detail { class Channel; }
         /** @return current regions of interest. @version 1.3 */
         EQ_API const PixelViewports& getRegions() const;
 
+        /** @return true if regions do not overlap. @version 1.3 */
+        EQ_API bool checkRegionsConsistency() const;
+
         //@}
 
         /** 

@@ -389,6 +389,9 @@ void Channel::frameReadback( const uint128_t& )
     if( !region.hasArea( ))
         return;
 
+    if( !checkRegionsConsistency( ))
+        EQWARN << "Screen regions overlap" << std::endl;
+
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
@@ -741,6 +744,11 @@ void Channel::declareRegion( const eq::PixelViewport& region )
         pvp.x = 0;
         pvp.y = 0;
         _impl->totalRegion.intersect( pvp );
+
+#ifndef NDEBUG
+        if( !checkRegionsConsistency( ))
+            EQWARN << "Screen regions overlap" << std::endl;
+#endif
         return;
     }
 
@@ -750,6 +758,24 @@ void Channel::declareRegion( const eq::PixelViewport& region )
         _impl->totalRegion.h = 0;
     }
 }
+
+bool Channel::checkRegionsConsistency() const
+{
+    if( _impl->regions.size() < 2 )
+        return true;
+
+    for( size_t i = 0; i < _impl->regions.size()-1; ++i )
+        for( size_t j = i+1; j < _impl->regions.size(); ++j )
+        {
+            PixelViewport pv = _impl->regions[j];
+            pv.intersect( _impl->regions[i] );
+            if( pv.hasArea() )
+                return false;
+        }
+
+    return true;
+}
+
 
 const PixelViewport& Channel::getRegion() const
 {
