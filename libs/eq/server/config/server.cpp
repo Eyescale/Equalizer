@@ -92,6 +92,9 @@ Config* Server::configure( ServerPtr server, const std::string& session,
 
 static void _setAffinity( const Config* config, const int32_t cpuMap[3] )
 {
+    //TODO: Change the code so that the affinitiy is set not considering
+    // the nodes are listed in order
+
     const Nodes& nodes = config->getNodes();
     size_t nodeCount = 0;
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
