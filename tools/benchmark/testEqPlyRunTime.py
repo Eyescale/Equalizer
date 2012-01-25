@@ -2,6 +2,7 @@
 
 import psutil
 import time
+import datetime
 
 from common import *
 
@@ -15,7 +16,8 @@ def getProcessRunTime( processName ):
       try:
          process = psutil.Process( pid )
          if process.exe  == processName:
-            timeSec = process.get_cpu_times().user
+            timeDiffObj = datetime.datetime.now() - datetime.datetime.fromtimestamp(process.create_time)
+            timeSec = timeDiffObj.seconds
             break
       except:
          x = 3

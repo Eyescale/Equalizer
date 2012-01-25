@@ -44,8 +44,10 @@ def main():
    if len( sys.argv ) == 4:
       session = sys.argv[3]
       
-   for arg in sys.argv:
-      startServers(1, numberOfServers, session)
+   start = int( sys.argv[1] )
+   stop = int( sys.argv[2] )
+   
+   startServers(start, stop, session)
 
 if __name__ == "__main__":
     main()
