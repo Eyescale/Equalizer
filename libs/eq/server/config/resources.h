@@ -47,7 +47,14 @@ private:
     static Compound* _addStereoCompound( Compound* root, const Channels& );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
+    static Compound* _addDSCompound( Compound* root, const Channels& channels );
     static const Compounds& _addSources( Compound* compound, const Channels& );
+
+    static eq::server::Frame* _createFrame( const char* name );
+    static eq::server::Frame* _createFrame( std::ostringstream& name );
+    static eq::server::Frame* _createFrame( std::ostringstream& name,
+                                            const eq::fabric::Viewport& vp,
+                                            bool colorOnly = false );
 };
 
 }
