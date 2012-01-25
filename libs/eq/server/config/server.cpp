@@ -93,16 +93,24 @@ Config* Server::configure( ServerPtr server, const std::string& session,
 static void _setAffinity( const Config* config, const int32_t cpuMap[3] )
 {
     const Nodes& nodes = config->getNodes();
+    size_t nodeCount = 0;
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Pipes& pipes = (*i)->getPipes();
 
-        if( pipes.size() != 3 )
-            continue;
+        if( !(*i)->isApplicationNode( ) && (*i)->getName().find( "rtneuron" ) > 0 )
+        {
+            pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[ (nodeCount++) % 3 ] );
+        }
+        else
+        {
+            if( pipes.size() != 3 )
+                continue;
 
-        pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[0] );
-        pipes[1]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[1] );
-        pipes[2]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[2] );
+            pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[0] );
+            pipes[1]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[1] );
+            pipes[2]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[2] );
+        }
     }
 }
 

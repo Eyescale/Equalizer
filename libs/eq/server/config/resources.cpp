@@ -28,8 +28,6 @@
 #include "../window.h"
 #include "../equalizers/loadEqualizer.h"
 
-
-
 #include <eq/client/configParams.h>
 #include <eq/client/frame.h>
 #include <eq/client/windowSystem.h>
@@ -86,6 +84,18 @@ bool Resources::discover( Config* config, const std::string& session,
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }
+
+    std::istringstream iss(session);
+    std::string token;
+
+    bool isRTNeuron = false;
+
+    while( getline(iss, token, '-') )
+    {
+        if( token == "rtneuron" )
+            isRTNeuron = true;
+    }
+
     typedef stde::hash_map< std::string, Node* > NodeMap;
 
     NodeMap nodes;
@@ -97,11 +107,15 @@ bool Resources::discover( Config* config, const std::string& session,
         const gpusd::GPUInfo& info = *i;
 
         Node* node = nodes[ info.hostname ];
-        if( !node || multiprocess )
+        if( !node || multiprocess || isRTNeuron )
         {
             const bool isApplicationNode = info.hostname.empty() && !node;
             node = new Node( config );
-            node->setName( info.hostname );
+            std::stringstream nodeName;
+            nodeName << info.hostname;
+            if( isRTNeuron )
+                nodeName << "rtneuron" << gpuCounter;
+            node->setName( nodeName.str() );
             node->setHost( info.hostname );
             node->setApplicationNode( isApplicationNode );
 
