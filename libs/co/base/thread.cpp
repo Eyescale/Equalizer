@@ -315,7 +315,7 @@ void Thread::setAffinity(const int32_t affinity)
 	const hwloc_cpuset_t cpuSet = _getCpuSet_hwloc( affinity, topology );
 	const int affinityFlag = hwloc_set_cpubind ( topology, cpuSet, 0);
 
-	if (affinityFlag == 0)
+	if ( affinityFlag == 0 )
 		EQWARN << "Affinity is successfully set relying on HWloc library " << std::endl;
 	else
 		EQWARN << "Affinity is NOT successfully set with the HWloc library " << std::endl;
@@ -325,7 +325,7 @@ void Thread::setAffinity(const int32_t affinity)
     const cpu_set_t cpuSet = _getCpuSet( affinity );
     const int affinityFlag = sched_setaffinity( 0, sizeof( cpuSet ), &cpuSet);
 
-	if (affinityFlag == 0)
+	if ( affinityFlag == 0 )
 		EQWARN << "Affinity is successfully set relying on sched_setaffinity() " << std::endl;
 	else
 		EQWARN << "Affinity is NOT successfully set with sched_setaffinity() " << std::endl;
@@ -342,7 +342,7 @@ hwloc_cpuset_t Thread::_getCpuSet_hwloc( const int32_t affinity , hwloc_topology
 	cpuSet = hwloc_cpuset_alloc();
 	hwloc_cpuset_zero( cpuSet ); // Initialize to zeros
 
-	if (affinity >= CORE)
+	if ( affinity >= CORE )
     {
 	   hwloc_cpuset_cpu( cpuSet, ( affinity - CORE ) );
 	   return cpuSet;

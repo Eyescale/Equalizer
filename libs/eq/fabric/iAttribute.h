@@ -20,7 +20,6 @@
 
 #include <eq/fabric/api.h>
 #include <co/base/thread.h>
-#include <eq/fabric/pipe.h>
 #include <iostream>
 
 namespace eq
