@@ -93,7 +93,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    resetRegion();
+    resetRegions();
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -628,6 +628,7 @@ void Channel::_drawModel( const Model* scene )
 
     declareRegion( eq::Viewport( state.getRegion( )));
 
+#if 0
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
     const eq::PixelViewport& region = getRegion();
@@ -647,6 +648,7 @@ void Channel::_drawModel( const Model* scene )
         glVertex3f( rect[2], rect[3], -.99f );
         glVertex3f( rect[0], rect[3], -.99f );
     } glEnd();
+#endif
 #endif
 }
 

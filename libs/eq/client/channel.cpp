@@ -336,7 +336,7 @@ void Channel::addStatistic( Event& event )
 
 void Channel::frameClear( const uint128_t& )
 {
-    resetRegion();
+    resetRegions();
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
 
@@ -393,37 +393,15 @@ void Channel::frameReadback( const uint128_t& )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Window::ObjectManager* glObjects = getObjectManager();
-    const DrawableConfig& drawable = getDrawableConfig();
-    const Frames& frames = getOutputFrames();
+    Window::ObjectManager*  glObjects   = getObjectManager();
+    const DrawableConfig&   drawable    = getDrawableConfig();
+    const Frames&           frames      = getOutputFrames();
+    const PixelViewports&   regions     = getRegions();
 
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        eq::FrameData* data = frame->getData();
-
-        if( data->getType() == eq::Frame::TYPE_TEXTURE )
-            frame->readback( glObjects, drawable );
-        else
-        {
-            // ROI readback
-            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
-            const eq::PixelViewport& framePVP = data->getPixelViewport();
-            eq::PixelViewport area = framePVP + frame->getOffset();
-
-            area.intersect( region );
-            if( !area.hasArea( ))
-                continue;
-
-            eq::Image* image = data->newImage( data->getType(), drawable );
-            image->readback( data->getBuffers(), area, frame->getZoom(),
-                             glObjects );
-
-            const eq::Pixel& pixel = getPixel();
-            area -= frame->getOffset();
-            image->setOffset( (area.x - framePVP.x) * pixel.w,
-                              (area.y - framePVP.y) * pixel.h );
-        }
+        frame->readback( glObjects, drawable, regions );
     }
 
     EQ_GL_CALL( resetAssemblyState( ));
@@ -435,7 +413,7 @@ void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
 void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
-    resetRegion();
+    resetRegions();
     startFrame( frameNumber );
 }
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
@@ -736,9 +714,10 @@ const Frames& Channel::getInputFrames() { return _impl->inputFrames; }
 const Frames& Channel::getOutputFrames() { return _impl->outputFrames; }
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 
-void Channel::resetRegion()
+void Channel::resetRegions()
 {
-    _impl->region.invalidate();
+    _impl->regions.clear();
+    _impl->totalRegion.invalidate();
 }
 
 void Channel::declareRegion( const eq::Viewport& vp )
@@ -755,24 +734,34 @@ void Channel::declareRegion( const eq::PixelViewport& region )
 {
     if( region.hasArea( ))
     {
-        _impl->region.merge( region );
-        
+        _impl->regions.push_back( region );
+        _impl->totalRegion.merge( region );
+
         eq::PixelViewport pvp = getPixelViewport();
         pvp.x = 0;
         pvp.y = 0;
-        _impl->region.intersect( pvp );
+        _impl->totalRegion.intersect( pvp );
+        return;
     }
-    else if( !_impl->region.isValid( )) // set on first declaration of empty ROI
+
+    if( !_impl->totalRegion.isValid( )) // set on first declaration of empty ROI
     {
-        _impl->region.w = 0;
-        _impl->region.h = 0;
+        _impl->totalRegion.w = 0;
+        _impl->totalRegion.h = 0;
     }
 }
 
 const PixelViewport& Channel::getRegion() const
 {
-    return _impl->region;
+    return _impl->totalRegion;
 }
+
+
+const PixelViewports& Channel::getRegions() const
+{
+    return _impl->regions;
+}
+
 
 bool Channel::processEvent( const Event& event )
 {
@@ -1678,7 +1667,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                              packet->finish ? NICEST : AUTO );
 
     frameDraw( packet->context.frameID );
-    if( !_impl->region.isValid( ))
+    if( !_impl->totalRegion.isValid( ))
         declareRegion( getPixelViewport( ));
 
     resetRenderContext();

@@ -219,7 +219,8 @@ namespace server { class FrameData; }
          */
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
-                       const DrawableConfig& config );
+                       const DrawableConfig& config,
+                       const PixelViewports& regions );
 
         /**
          * Set the frame data ready.
