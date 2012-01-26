@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -75,7 +75,8 @@ namespace server
             virtual void notifyLoadData( Channel* channel, 
                                          const uint32_t frameNumber,
                                          const uint32_t nStatistics,
-                                         const eq::Statistic* statistics  );
+                                         const eq::Statistic* statistics,
+                                         const Viewport& region );
 
             FramerateEqualizer* parent;
             uint32_t period;

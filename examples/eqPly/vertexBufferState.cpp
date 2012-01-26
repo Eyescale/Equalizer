@@ -62,8 +62,8 @@ void VertexBufferState::resetRegion()
 {
     _region[0] = std::numeric_limits< float >::max();
     _region[1] = std::numeric_limits< float >::max();
-    _region[2] = std::numeric_limits< float >::min();
-    _region[3] = std::numeric_limits< float >::min();
+    _region[2] = -std::numeric_limits< float >::max();
+    _region[3] = -std::numeric_limits< float >::max();
 }
 
 void VertexBufferState::updateRegion( const BoundingBox& box )

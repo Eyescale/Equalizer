@@ -69,6 +69,7 @@ public:
     struct FrameStatistics
     {
         Statistics data; //!< all events for one frame
+        eq::Viewport region; //!< from draw for equalizers
         /** reference count by pipe and transmit thread */
         co::base::a_int32_t used;
     };
