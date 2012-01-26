@@ -732,8 +732,19 @@ Vector2f Channel::getJitter() const
 }
 
 bool Channel::isStopped() const { return _impl->state == STATE_STOPPED; }
-const Frames& Channel::getInputFrames() { return _impl->inputFrames; }
-const Frames& Channel::getOutputFrames() { return _impl->outputFrames; }
+
+const Frames& Channel::getInputFrames()
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _impl->inputFrames;
+}
+
+const Frames& Channel::getOutputFrames()
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _impl->outputFrames;
+}
+
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 
 void Channel::resetRegion()
@@ -1462,6 +1473,7 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
 
 void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
 {
+    EQ_TS_THREAD( _pipeThread );
     for( uint32_t i=0; i<nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
@@ -1470,7 +1482,14 @@ void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
     }
 }
 
-void Channel::_resetOutputFrames( const RenderContext& context )
+void Channel::_resetOutputFrames()
+{
+    EQ_TS_THREAD( _pipeThread );
+    _setOutputFramesReady();
+    _impl->outputFrames.clear();
+}
+
+void Channel::_setOutputFramesReady()
 {
     for( FramesCIter i = _impl->outputFrames.begin();
          i != _impl->outputFrames.end(); ++i )
@@ -1490,7 +1509,7 @@ void Channel::_resetOutputFrames( const RenderContext& context )
             ++_impl->statistics.data[ index ].used;
 
             ChannelFrameSetReadyPacket setReadyPacket;
-            setReadyPacket.frameData = frame->getDataVersion( context.eye );
+            setReadyPacket.frameData = frame->getDataVersion( eye );
             setReadyPacket.clientNodeID = *j;
             setReadyPacket.netNodeID = *k;
             setReadyPacket.frameNumber = frameNumber;
@@ -1498,7 +1517,6 @@ void Channel::_resetOutputFrames( const RenderContext& context )
             send( getLocalNode(), setReadyPacket );
         }
     }
-    _impl->outputFrames.clear();
 }
 
 void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
@@ -1552,7 +1570,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _impl->outputFrames[i], nImages[i] );
-    _resetOutputFrames( getContext() );    
+    _resetOutputFrames();    
 }
 
 //---------------------------------------------------------------------------
@@ -1931,7 +1949,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
         startTime += readbackTime;
         event.event.data.statistic.endTime = startTime;
 
-        _resetOutputFrames( context );
+        _resetOutputFrames();
     }
 
     frameTilesFinish( packet->context.frameID );
