@@ -32,7 +32,6 @@
 #include <eq/client/frame.h>
 #include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
-#include <eq/fabric/viewport.h>
 
 #include <gpusd/gpuInfo.h>
 #include <gpusd/module.h>
@@ -84,12 +83,12 @@ bool Resources::discover( Config* config, const std::string& session,
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }
-
-    const bool multiprocess = ( flags & ConfigParams::FLAG_MULTIPROCESS );
-
     typedef stde::hash_map< std::string, Node* > NodeMap;
-    NodeMap nodes;
 
+    NodeMap nodes;
+    const bool multiprocess = flags & ConfigParams::FLAG_MULTIPROCESS;
+
+    size_t nodeCounter = 0;
     size_t gpuCounter = 0;
     for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
@@ -100,10 +99,10 @@ bool Resources::discover( Config* config, const std::string& session,
         {
             const bool isApplicationNode = info.hostname.empty() && !node;
             node = new Node( config );
+
             std::stringstream nodeName;
-            nodeName << info.hostname;
-            if( multiprocess )
-                nodeName << "multiprocess" << gpuCounter;
+            nodeName << info.hostname << "." << ++nodeCounter;
+
             node->setName( nodeName.str() );
             node->setHost( info.hostname );
             node->setApplicationNode( isApplicationNode );
@@ -231,9 +230,6 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
         EQASSERT( !canvas || channel->getCanvas() == canvas );
 
         canvas = channel->getCanvas();
-
-        //const Layout* layout = channel->getLayout();
-        //EQASSERT( layout );
 
         _addMonoCompound( segmentCompound, channels );
         _addStereoCompound( segmentCompound, channels );
@@ -397,8 +393,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
     const size_t step = size_t( 100000.0f / float( children.size( )));
 
     size_t start = 0;
-    size_t iChildNo = 0;
-    for( CompoundsCIter i = children.begin(); i != children.end(); ++i, ++iChildNo)
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
         Compound* child = *i;
 
@@ -415,14 +410,13 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                            static_cast< float >( start + step )/100000.f ));
         
         unsigned y = 0;
-        size_t jChildNo = 0;
-        for( CompoundsCIter j = children.begin(); j != children.end(); ++j, ++jChildNo )
+        for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
         {
             if( i != j )
             {
                 std::ostringstream frameName;
-                frameName << "tile" << jChildNo << ".channel" << iChildNo;
-
+                frameName << "tile" << j - children.begin() << ".channel"
+                          << i - children.begin();
                 eq::Viewport vp;
                 if(  j+1 == children.end( ) ) // last - correct rounding 'error'
                 {
@@ -440,7 +434,8 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
 
                 // input tiles from other channels
                 frameName.str("");
-                frameName << "tile" << iChildNo << ".channel" << jChildNo;
+                frameName << "tile" << i - children.begin() << ".channel"
+                          << j - children.begin();
 
                 child->addInputFrame( _createFrame( frameName ));
             }
@@ -453,9 +448,9 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         if( i != children.begin( ) )
         {
             std::ostringstream frameName;
-            frameName << "frame.channel" << iChildNo;
+            frameName << "frame.channel" << i - children.begin();
 
-            eq::fabric::Viewport vp;
+            Viewport vp;
             if( i+1 == children.end( ) ) // last - correct rounding 'error'
             {
                 vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
