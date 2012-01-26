@@ -41,7 +41,9 @@
 namespace eq
 {
 
-static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
+namespace
+{
+eq::SystemWindow* _initSharedContextWindow( eq::Window* wnd )
 {
     EQASSERT( wnd );
 
@@ -107,8 +109,8 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 }
 
 
-static void deleteSharedContextWindow( eq::Window* wnd,
-                                       eq::SystemWindow** sharedContextWindow )
+void _deleteSharedContextWindow( eq::Window* wnd,
+                                 eq::SystemWindow** sharedContextWindow )
 {
     EQWARN << "Deleting shared context" << std::endl;
     if( !sharedContextWindow || !*sharedContextWindow )
@@ -125,10 +127,11 @@ static void deleteSharedContextWindow( eq::Window* wnd,
 
     wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
 }
-
+}
 
 AsyncRBThread::AsyncRBThread()
-    : co::base::Thread()
+    : eq::Worker()
+    , _running( true )
     , _wnd( 0 )
     , _sharedContextWindow( 0 )
 {
@@ -138,12 +141,7 @@ AsyncRBThread::AsyncRBThread()
 AsyncRBThread::~AsyncRBThread()
 {
     if( _wnd && _sharedContextWindow )
-        deleteSharedContextWindow( _wnd, &_sharedContextWindow );
-}
-
-void AsyncRBThread::setup( Window* wnd )
-{
-    _wnd = wnd;
+        _deleteSharedContextWindow( _wnd, &_sharedContextWindow );
 }
 
 
@@ -153,43 +151,24 @@ const GLEWContext* AsyncRBThread::glewGetContext() const
 }
 
 
-/**
- *  Function for creating and holding of shared context.
- *  Generation and uploading of new textures over some period with sleep time.
- */
-void AsyncRBThread::run()
+void AsyncRBThread::deleteSharedContextWindow()
+{
+    _deleteSharedContextWindow( _wnd, &_sharedContextWindow );
+}
+
+
+bool AsyncRBThread::init()
 {
     EQASSERT( !_sharedContextWindow );
-    _sharedContextWindow = initSharedContextWindow( _wnd );
-    if( !_sharedContextWindow )
-    {
-        EQERROR << "Can't init shader context window" << std::endl;
-        _pushRespond( AsyncRBCommand::INIT_FAILED );
-        return;
-    }
-    _pushRespond( AsyncRBCommand::INITIALIZED );
+    if( !_wnd )
+        return false;
 
-    bool running = true;
-    while( running )
-    {
-        AsyncRBCommand asyncCmd = _inQueue.pop( );
-        switch( asyncCmd.command )
-        {
-            case AsyncRBCommand::RB:
-                EQASSERT( asyncCmd.channel );
-                asyncCmd.channel->frameFinishReadback( asyncCmd.frameID,
-                                                       glewGetContext( ));
-                // TODO: properly ask channel to send images
-                asyncCmd.channel->_frameFinishReadback( asyncCmd.frameID );
-                break;
-            case AsyncRBCommand::EXIT:
-                running = false;
-                break;
-            default:
-                EQERROR << "Unknown command" << std::endl;
-        }
-    }
-    deleteSharedContextWindow( _wnd, &_sharedContextWindow );
+    _sharedContextWindow = _initSharedContextWindow( _wnd );
+    if( _sharedContextWindow )
+        return true;
+
+    EQERROR << "Can't init shader context window" << std::endl;
+    return false;
 }
 
 } //namespace eq

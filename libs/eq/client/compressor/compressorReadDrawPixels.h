@@ -89,6 +89,7 @@ protected:
     eq_uint64_t _inDimsRB[4];    //!< inSize for async readback
     unsigned    _sourceRB;       //!< source for async readback
     eq_uint64_t _flagsRB;        //!< flags for async readback
+    void _resizeBuffer( const eq_uint64_t size );
     void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags );
     bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );

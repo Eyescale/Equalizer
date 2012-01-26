@@ -48,6 +48,7 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
+#include <co/base/sleep.h>
 #include <sstream>
 
 
@@ -70,7 +71,7 @@ class Pipe::Thread : public eq::Worker
 {
 public:
     Thread( Pipe* pipe ) : _pipe( pipe ) {}
-    
+
 protected:
     virtual void run();
     virtual bool stopRunning() { return !_pipe; }
@@ -80,14 +81,15 @@ private:
     friend class Pipe;
 };
 
+
 Pipe::Pipe( Node* parent )
         : Super( parent )
         , _systemPipe( 0 )
-        , _asyncRBThread( 0 )
         , _state( STATE_STOPPED )
         , _currentFrame( 0 )
         , _frameTime( 0 )
         , _thread( 0 )
+        , _threadRB( 0 )
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
@@ -98,6 +100,9 @@ Pipe::~Pipe()
     EQASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
+
+    delete _threadRB;
+    _threadRB = 0;
 }
 
 Config* Pipe::getConfig()
@@ -154,7 +159,12 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
     registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
                      PipeFunc( this, &Pipe::_cmdDetachView ), queue );
+
+    queue = getPipeAsyncRBThreadQueue();
+    registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
+                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), queue );
 }
+
 
 void Pipe::setDirty( const uint64_t bits )
 {
@@ -267,6 +277,14 @@ co::CommandQueue* Pipe::getPipeThreadQueue()
         return _thread->getWorkerQueue();
 
     return getNode()->getMainThreadQueue();
+}
+
+co::CommandQueue* Pipe::getPipeAsyncRBThreadQueue()
+{
+    if( !_threadRB )
+        _threadRB = new AsyncRBThread();
+
+    return _threadRB->getWorkerQueue();
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
@@ -473,8 +491,46 @@ void Pipe::startThread()
     _thread->start();
 }
 
+bool Pipe::startAsyncRBThread()
+{
+    if( !_threadRB )
+        return false;
+
+    if( _threadRB->isRunning( ))
+        return true;
+
+    // wait for async thread to stop or to start if necessary
+    uint32_t i = 0;
+    while( !_threadRB->isStopped( ) && (i++ < 10 ))
+    {
+        co::base::sleep( 100 );
+        if( _threadRB->isRunning( ))
+            return true;
+    }
+    if( !_threadRB->isStopped( ))
+        return false;
+
+    const Windows& windows = getWindows();
+    if( windows.empty() )
+    {
+        EQERROR << "At least on window has to be initialized before "
+                << "async readback thread could start." << std::endl;
+        return false;
+    }
+
+    _threadRB->setWindow( windows[0] );
+
+    if( _threadRB->start( ))
+        return true;
+
+    EQERROR << "Async readback failed to initialize" << std::endl;
+    return false;
+}
+
 void Pipe::exitThread()
 {
+    _stopAsyncRBThread();
+
     if( !_thread )
         return;
 
@@ -488,6 +544,8 @@ void Pipe::exitThread()
 
 void Pipe::cancelThread()
 {
+    _stopAsyncRBThread();
+
     if( !_thread )
         return;
 
@@ -707,47 +765,16 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 
 void Pipe::_stopAsyncRBThread()
 {
-    if( !_asyncRBThread )
+    if( !_threadRB )
         return;
 
-    _asyncRBThread->pushCommand( AsyncRBCommand::EXIT );
-    _asyncRBThread->join();
-}
-
-
-bool Pipe::_startAsyncRBThread()
-{
-    if( _asyncRBThread != 0 )
-        return true;
-
-    const Windows& windows = getWindows();
-    if( windows.empty() )
-    {
-        EQERROR << "At least on window has to be initialized before "
-                << "async readback thread could start." << std::endl;
-        return false;
-    }
-
-    _asyncRBThread = new AsyncRBThread();
-    _asyncRBThread->setup( windows[0] );
-    _asyncRBThread->start();
-    if( _asyncRBThread->getRespond().command == AsyncRBCommand::INITIALIZED )
-        return true;
-
-    EQERROR << "Async readback failed to initialize" << std::endl;
-    return false;
-}
-
-void Pipe::startAsyncRB( Channel* channel, const uint128_t& frameID )
-{
-    // Lazily create RB thread
-    if( !_startAsyncRBThread( ))
+    if( _threadRB->isStopped( ))
         return;
 
-    EQASSERT( _asyncRBThread );
+    PipeExitAsyncRBThreadPacket packet;
+    send( getLocalNode(), packet );
 
-    _asyncRBThread->pushCommand(
-                AsyncRBCommand( AsyncRBCommand::RB, channel, frameID ));
+    _threadRB->join();
 }
 
 
@@ -887,6 +914,16 @@ bool Pipe::_cmdExitThread( co::Command& command )
     _thread->_pipe = 0;
     return true;
 }
+
+
+bool Pipe::_cmdExitAsyncRBThread( co::Command& )
+{
+    EQASSERT( _threadRB );
+    _threadRB->deleteSharedContextWindow();
+    _threadRB->_running = false;
+    return true;
+}
+
 
 bool Pipe::_cmdFrameStartClock( co::Command& )
 {

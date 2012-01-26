@@ -36,6 +36,7 @@ namespace fabric
 
     typedef co::ObjectPacket ConfigPacket;
     typedef co::ObjectPacket PipePacket;
+    typedef co::ObjectPacket AsyncRBPacket;
     typedef co::ObjectPacket WindowPacket;
     typedef co::ObjectPacket CanvasPacket;
     typedef co::ObjectPacket LayoutPacket;

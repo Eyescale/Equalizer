@@ -146,6 +146,15 @@ namespace eq
             }
     };
 
+    struct PipeExitAsyncRBThreadPacket : public PipePacket
+    {
+        PipeExitAsyncRBThreadPacket()
+            {
+                command = fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD;
+                size    = sizeof( PipeExitAsyncRBThreadPacket );
+            }
+    };
+
     struct PipeDetachViewPacket : public co::ObjectPacket
     {
         PipeDetachViewPacket( const uint128_t& view ) : viewID( view )

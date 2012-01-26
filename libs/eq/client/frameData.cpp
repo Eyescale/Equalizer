@@ -371,29 +371,6 @@ void FrameData::startReadback( const Frame& frame,
     }
 }
 
-void FrameData::finishReadback( const Frame& frame,
-                             const GLEWContext* glewContext )
-{
-    if( _data.buffers == Frame::BUFFER_NONE )
-        return;
-
-    PixelViewport absPVP = _data.pvp + frame.getOffset();
-    if( !absPVP.isValid( ))
-        return;
-
-    const Zoom& zoom = frame.getZoom();
-    if( !zoom.isValid( ))
-    {
-        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
-        return;
-    }
-
-    for( size_t i = 0; i < _images.size(); ++i )
-    {
-        Image* image = _images[i];
-        image->finishReadback( _data.buffers, zoom, glewContext );
-    }
-}
 
 void FrameData::setVersion( const uint64_t version )
 {

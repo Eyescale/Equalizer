@@ -227,9 +227,6 @@ namespace server { class FrameData; }
                             const DrawableConfig& config,
                             const PixelViewports& regions );
 
-        void finishReadback( const Frame& frame,
-                             const GLEWContext* glewContext );
-
         /**
          * Set the frame data ready.
          * 

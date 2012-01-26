@@ -35,61 +35,36 @@
 namespace eq
 {
 
-/**
- *  Commands to/from RB thread
- */
-struct AsyncRBCommand
-{
-    enum RBCommands
-    {
-        INITIALIZED, // out
-        INIT_FAILED, // out
-        RB,          // in
-        EXIT         // in
-    } command;
-
-    AsyncRBCommand( RBCommands cmd, Channel* c = 0, const uint128_t& fID = 0 )
-        : command( cmd ), channel( c ), frameID( fID ) {}
-
-    AsyncRBCommand& operator= ( const RBCommands cmd )
-        { command = cmd; channel = 0; frameID = 0; return *this; }
-
-    // these are used only if "command == RB"
-    Channel*    channel;
-    uint128_t   frameID;
-};
-
-
 class Window;
 
 /**
  *  Asynchronous readback thread.
  */
-class AsyncRBThread : public co::base::Thread
+class AsyncRBThread : public eq::Worker
 {
-public:
+protected:
     AsyncRBThread();
     ~AsyncRBThread();
 
-    virtual void run();
-    void setup( Window* wnd );
+    virtual bool stopRunning() { return !_running; }
+    virtual bool init();
 
-    AsyncRBCommand getRespond() { return _outQueue.pop(); }
-    void pushCommand( const AsyncRBCommand& command )
-                                { _inQueue.push( command ); }
+    void setWindow( Window* wnd ){ _wnd = wnd; }
 
     const GLEWContext* glewGetContext() const;
 
-private:
-    void _pushRespond( const AsyncRBCommand& command )
-                                { _outQueue.push( command ); }
+    void deleteSharedContextWindow();
 
-    Window*                             _wnd;
-    co::base::MTQueue<AsyncRBCommand>   _inQueue;
-    co::base::MTQueue<AsyncRBCommand>   _outQueue;
-    eq::SystemWindow*                   _sharedContextWindow;
+private:
+    friend class Pipe;
+
+    bool _running; // Async thread will exit if this is false
+
+    Window*             _wnd;
+    eq::SystemWindow*   _sharedContextWindow;
+
 };
 
-} 
+}
 
 #endif //EQ_ASYNC_RB_ASYNC_FETCHER_H

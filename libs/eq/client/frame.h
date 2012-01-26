@@ -216,7 +216,6 @@ namespace server
                                 const DrawableConfig& config,
                                 const PixelViewports& regions );
 
-        EQ_API void finishReadback( const GLEWContext* glewContext );
 
         /**
          * Set the frame ready.

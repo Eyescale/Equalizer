@@ -60,6 +60,7 @@ namespace eq
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        co::CommandQueue* getPipeAsyncRBThreadQueue(); //!< @internal
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -179,6 +180,9 @@ namespace eq
 
         /** @internal Start the pipe thread. */
         void startThread();
+
+        /** @internal Start the async readback pipe thread. */
+        bool startAsyncRBThread();
 
         /** @internal Trigger pipe thread exit and wait for completion. */
         void exitThread();
@@ -389,8 +393,6 @@ namespace eq
         /** The current window system. */
         WindowSystem _windowSystem;
 
-        AsyncRBThread* _asyncRBThread;
-
         enum State
         {
             STATE_MAPPED,
@@ -440,6 +442,8 @@ namespace eq
         class Thread;
         Thread* _thread;
 
+        AsyncRBThread* _threadRB;
+
         /** The last window made current. */
         const mutable Window* _currentWindow;
 
@@ -454,7 +458,6 @@ namespace eq
         void _setupAffinity();
         void _exitCommandQueue();
 
-        bool _startAsyncRBThread();
         void _stopAsyncRBThread();
 
         friend class Window;
@@ -479,6 +482,7 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
         bool _cmdDetachView( co::Command& command );
+        bool _cmdExitAsyncRBThread( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

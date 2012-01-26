@@ -117,6 +117,10 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TILES,
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
+
+    queue = getPipe()->getPipeAsyncRBThreadQueue();
+//    registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
+//                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), queue );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -433,14 +437,17 @@ void Channel::frameStartReadback( const uint128_t& )
 }
 
 void Channel::frameFinishReadback( const uint128_t&,
-                                   const GLEWContext* glewContext )
+                                   const GLEWContext*  )
 {
+// MM: this is not valid:
+/*
     const Frames& frames = getOutputFrames();
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
         frame->finishReadback( glewContext );
     }
+*/
 }
 
 
@@ -1604,20 +1611,31 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
                                     co::ObjectVersion* frames )
 {
+    if( !getPipe()->startAsyncRBThread() )
+    {
+        EQERROR << "Can't start async readback thread" << std::endl;
+        return;
+    }
+
     _setOutputFrames( nFrames, frames );
+
+// MM: 1) before calling startRB chack how many images we have.
+//     2) call finish RB for all these images
 
     // start readback
     frameStartReadback( frameID );
-    getPipe()->startAsyncRB( this, frameID );
+
+    _resetOutputFrames( getContext() );
 }
 
 void Channel::_frameFinishReadback( const uint128_t& frameID )
 {
 // this one is called from the RB thread:
-    frameFinishReadback( frameID, getObjectManager()->glewGetContext( ));
+//    frameFinishReadback( frameID, getObjectManager()->glewGetContext( ));
 
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
 
+    // this will not be true
     const uint32_t nFrames = _impl->outputFrames.size();
 
     std::vector< size_t > nImages( nFrames, 0 );
@@ -1854,7 +1872,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
-#if 0
+#if 1
     _frameReadback( packet->context.frameID, packet->nFrames,
                     packet->frames );
 #else

@@ -285,16 +285,24 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
     return true;
 }
 
-void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
-                                            eq_uint64_t outDims[4] )
+namespace
 {
-    outDims[0] = inDims[0]; // x
-    outDims[1] = inDims[1]; // w
-    outDims[2] = inDims[2]; // y 
-    outDims[3] = inDims[3]; // h
+    void _cp4uint64_t( eq_uint64_t dst[4],  const eq_uint64_t src[4] )
+    {
+        memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
+    }
 
-    const size_t size = inDims[1] * inDims[3] * _depth;
+    bool _cmp4uint64_t( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
+    {
+        for( size_t i = 0; i < 4; ++i )
+            if( s1[i] != s2[i] )
+                return false;
+        return true;
+    }
+}
 
+void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
+{
     // eile: The code path using realloc creates visual artefacts on my MacBook
     //       The other crashes occasionally with KERN_BAD_ADDRESS
     //       Seems to be only with GL_RGB. Radar #8261726.
@@ -305,6 +313,16 @@ void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
     // eile: This code path using realloc creates visual artefacts on my MacBook
     _buffer.resize( size );
 #endif
+}
+
+void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
+                                            eq_uint64_t outDims[4] )
+{
+    _cp4uint64_t( outDims, inDims );
+
+    const size_t size = inDims[1] * inDims[3] * _depth;
+
+    _resizeBuffer( size );
 }
 
 void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
@@ -390,22 +408,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
 }
 
 
-namespace
-{
-    void _cp4uint64_t( eq_uint64_t dst[4],  const eq_uint64_t src[4] )
-    {
-        memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
-    }
-
-    bool _cmp4uint64_t( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
-    {
-        for( size_t i = 0; i < 4; ++i )
-            if( s1[i] != s2[i] )
-                return false;
-        return true;
-    }
-}
-
 void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const eq_uint64_t  inDims[4],
                                                 const unsigned     source,
@@ -416,8 +418,6 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
     _flagsRB  = flags;
 
     const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
-    _buffer.reserve( size );
-    _buffer.setSize( size );
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
@@ -425,19 +425,22 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         {
             EQWARN << "start PBO readback" << std::endl;
             _pbo->bind( glewContext );
-            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
-                          _format, _type, 0 ));
+            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2],
+                                      inDims[1], inDims[3],
+                                      _format, _type, 0 ));
             _pbo->unbind( glewContext );
             return;
         }
         // else
         EQERROR << "Can't initialize PBO for async RB" << std::endl;
+        _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                       _format, _type, _buffer.getData() ));
     }
     else
     {
         // TODO: fix Texture class for async texture download
+        _resizeBuffer( size );
         _initTexture( glewContext, flags );
         _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
         _texture->setExternalFormat( _format, _type );
@@ -468,13 +471,13 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
         return;
     }
 
-    const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
-
     if(( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER ) &&
                                                 _pbo && _pbo->isInitialized( ))
     {
+        const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
+        _resizeBuffer( size );
         const GLubyte* ptr = 
-                        static_cast<const GLubyte*>(_pbo->mapRead( glewContext ));
+                      static_cast<const GLubyte*>(_pbo->mapRead( glewContext ));
         if( !ptr )
         {
             EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
