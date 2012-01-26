@@ -584,7 +584,10 @@ namespace detail { class Channel; }
                               const size_t startPos );
 
         /** Transmit frame ready after transmitting all images. */
-        void _resetOutputFrames( const RenderContext& context );
+        void _resetOutputFrames();
+
+        /** Set output ready locally and remotely. */
+        void   _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
