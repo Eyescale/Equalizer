@@ -32,6 +32,7 @@
 #include <eq/client/frame.h>
 #include <eq/client/windowSystem.h>
 #include <eq/fabric/gpuInfo.h>
+#include <eq/fabric/viewport.h>
 
 #include <gpusd/gpuInfo.h>
 #include <gpusd/module.h>
@@ -83,10 +84,11 @@ bool Resources::discover( Config* config, const std::string& session,
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }
-    typedef stde::hash_map< std::string, Node* > NodeMap;
 
+    const bool multiprocess = ( flags & ConfigParams::FLAG_MULTIPROCESS );
+
+    typedef stde::hash_map< std::string, Node* > NodeMap;
     NodeMap nodes;
-    const bool multiprocess = flags & ConfigParams::FLAG_MULTIPROCESS;
 
     size_t gpuCounter = 0;
     for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
@@ -98,7 +100,11 @@ bool Resources::discover( Config* config, const std::string& session,
         {
             const bool isApplicationNode = info.hostname.empty() && !node;
             node = new Node( config );
-            node->setName( info.hostname );
+            std::stringstream nodeName;
+            nodeName << info.hostname;
+            if( multiprocess )
+                nodeName << "multiprocess" << gpuCounter;
+            node->setName( nodeName.str() );
             node->setHost( info.hostname );
             node->setApplicationNode( isApplicationNode );
 
@@ -226,8 +232,8 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
 
         canvas = channel->getCanvas();
 
-        const Layout* layout = channel->getLayout();
-        EQASSERT( layout );
+        //const Layout* layout = channel->getLayout();
+        //EQASSERT( layout );
 
         _addMonoCompound( segmentCompound, channels );
         _addStereoCompound( segmentCompound, channels );
@@ -256,7 +262,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels 
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
     {
-        compound = _addDBCompound( root, channels ); // TODO: switch to _addDS
+        compound = _addDSCompound( root, channels );
     }
     else
     {
@@ -377,27 +383,28 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
     return compound;
 }
 
-#if 0
 Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
 
     Compound* compound = new Compound( root );
     compound->setName( name );
 
     const Compounds& children = _addSources( compound, channels );
-    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
 
     const size_t step = size_t( 100000.0f / float( children.size( )));
+
     size_t start = 0;
-    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    size_t iChildNo = 0;
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i, ++iChildNo)
     {
         Compound* child = *i;
 
         // leaf draw + tile readback compound
         Compound* drawChild = new Compound( child );
-        if( i == _nChannels - 1 ) // last - correct rounding 'error'
+        if( i+1 == children.end( ) ) // last - correct rounding 'error'
         {
             drawChild->setRange(
                 eq::Range( static_cast< float >( start )/100000.f, 1.f ));
@@ -408,15 +415,16 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                            static_cast< float >( start + step )/100000.f ));
         
         unsigned y = 0;
-        for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
+        size_t jChildNo = 0;
+        for( CompoundsCIter j = children.begin(); j != children.end(); ++j, ++jChildNo )
         {
             if( i != j )
             {
                 std::ostringstream frameName;
-                frameName << "tile" << j << ".channel" << i;
+                frameName << "tile" << jChildNo << ".channel" << iChildNo;
 
                 eq::Viewport vp;
-                if( j == _nChannels - 1 ) // last - correct rounding 'error'
+                if(  j+1 == children.end( ) ) // last - correct rounding 'error'
                 {
                     vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
                               1.f, static_cast< float >( 100000-y )/100000.f );
@@ -425,15 +433,16 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                     vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
+                eq::server::Frame* outputFrame = _createFrame( frameName, vp );
                 outputFrame->setBuffers( eq::Frame::BUFFER_COLOR |
                                          eq::Frame::BUFFER_DEPTH );
-                drawChild->addOutputFrame( ::Frame::create( frameName, vp ));
+                drawChild->addOutputFrame( outputFrame );
 
                 // input tiles from other channels
                 frameName.str("");
-                frameName << "tile" << i << ".channel" << j;
+                frameName << "tile" << iChildNo << ".channel" << jChildNo;
 
-                child->addInputFrame(      ::Frame::create( frameName ));
+                child->addInputFrame( _createFrame( frameName ));
             }
             // else own tile, is in place
 
@@ -441,13 +450,13 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         }
  
         // assembled color tile output, if not already in place
-        if( i != 0 )
+        if( i != children.begin( ) )
         {
             std::ostringstream frameName;
-            frameName << "frame.channel" << i;
+            frameName << "frame.channel" << iChildNo;
 
-            eq::Viewport vp;
-            if( i == _nChannels - 1 ) // last - correct rounding 'error'
+            eq::fabric::Viewport vp;
+            if( i+1 == children.end( ) ) // last - correct rounding 'error'
             {
                 vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
                                   1.f,
@@ -457,13 +466,14 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
-            child->addOutputFrame(   ::Frame::create( frameName, vp, true ));
-            compound->addInputFrame( ::Frame::create( frameName ));
+            child->addOutputFrame(   _createFrame( frameName, vp, true ));
+            compound->addInputFrame( _createFrame( frameName ));
         }
         start += step;
     }
+
+    return compound;
 }
-#endif
 
 const Compounds& Resources::_addSources( Compound* compound,
                                          const Channels& channels )
@@ -494,6 +504,29 @@ const Compounds& Resources::_addSources( Compound* compound,
     }
 
     return compound->getChildren();
+}
+
+eq::server::Frame* Resources::_createFrame( const char* name )
+{
+  eq::server::Frame* frame = new eq::server::Frame;
+  frame->setName( std::string( name ));
+  return frame;
+}
+
+eq::server::Frame* Resources::_createFrame( std::ostringstream& name )
+{
+  return _createFrame( name.str().c_str( ));
+}
+
+eq::server::Frame* Resources::_createFrame( std::ostringstream& name,
+                                       const eq::fabric::Viewport& vp,
+                                       bool colorOnly )
+{
+  eq::server::Frame* frame = _createFrame( name );
+  frame->setViewport( vp );
+  if( colorOnly )
+      frame->setBuffers( eq::Frame::BUFFER_COLOR );
+  return frame;
 }
 
 }

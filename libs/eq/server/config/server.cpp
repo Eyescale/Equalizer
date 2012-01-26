@@ -26,6 +26,8 @@
 #include "../node.h"
 #include "../server.h"
 
+#include <eq/client/configParams.h>
+
 #include <fstream>
 
 namespace eq
@@ -46,7 +48,20 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     Config* config = new Config( server );
     config->setName( session + " autoconfig" );
 
-    if( !Resources::discover( config, session, flags ))
+	std::istringstream iss(session);
+	std::string token;
+
+	uint32_t rtNeuronFlag = 0;
+	while( getline(iss, token, '-') )
+	{
+		if( token == "rtneuron" )
+		{
+			rtNeuronFlag = ConfigParams::FLAG_MULTIPROCESS;
+			break;
+		}
+	}
+
+    if( !Resources::discover( config, session, flags | rtNeuronFlag ))
     {
         delete config;
         return 0;
@@ -70,7 +85,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     const Channels channels = Resources::configureSourceChannels( config );
     Resources::configure( compounds, channels );
 
-    configureForBenchmark( config, session );
+    configureForBenchmark( config, session, flags | rtNeuronFlag );
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
@@ -90,19 +105,30 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     return config;
 }
 
-static void _setAffinity( const Config* config, const int32_t cpuMap[3] )
+static void _setAffinity( const Config* config, const int32_t cpuMap[3], const uint32_t flags )
 {
+    //TODO: Change the code so that the affinitiy is set not considering
+    // the nodes are listed in order
+
     const Nodes& nodes = config->getNodes();
+    size_t nodeCount = 0;
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         const Pipes& pipes = (*i)->getPipes();
 
-        if( pipes.size() != 3 )
-            continue;
+        if( !(*i)->isApplicationNode( ) && ( flags & ConfigParams::FLAG_MULTIPROCESS ) )
+        {
+            pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[ (nodeCount++) % 3 ] );
+        }
+        else
+        {
+            if( pipes.size() != 3 )
+                continue;
 
-        pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[0] );
-        pipes[1]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[1] );
-        pipes[2]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[2] );
+            pipes[0]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[0] );
+            pipes[1]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[1] );
+            pipes[2]->setIAttribute( Pipe::IATTR_HINT_AFFINITY, cpuMap[2] );
+        }
     }
 }
 
@@ -136,7 +162,7 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
     }
 }
 
-void Server::configureForBenchmark( Config* config, const std::string& session_ )
+void Server::configureForBenchmark( Config* config, const std::string& session_, const uint32_t flags )
 {
     std::string session = session_;
 
@@ -146,18 +172,23 @@ void Server::configureForBenchmark( Config* config, const std::string& session_ 
 
     while( getline(iss, token, '-'))
     {
-        if( token == "GoodAffinity" )
-        {
-            int32_t affinityCPUs[3] = { fabric::CPU + 0, fabric::CPU + 0, 
-                                        fabric::CPU + 1 };
-            _setAffinity( config, affinityCPUs );
-        }
-        else if( token == "BadAffinity" )
-        {
-            int32_t affinityCPUs[3] = { fabric::CPU + 1, fabric::CPU + 1, 
-                                        fabric::CPU + 0 };
-            _setAffinity( config, affinityCPUs );
-        }
+    	if( token == "GoodAffinity" )
+		{
+			// int32_t affinityCPUs[3] = { fabric::CPU + 0, fabric::CPU + 0,
+			//                             fabric::CPU + 1 };
+			int32_t affinityCPUs[3] = { fabric::CORE + 1, fabric::CORE + 2,
+													fabric::CORE + 7 };
+
+			_setAffinity( config, affinityCPUs, flags );
+		}
+		else if( token == "BadAffinity" )
+		{
+			// int32_t affinityCPUs[3] = { fabric::CPU + 1, fabric::CPU + 1,
+			//                            fabric::CPU + 0 };
+			int32_t affinityCPUs[3] = { fabric::CORE + 7, fabric::CORE + 8,
+														  fabric::CORE + 2 };
+			_setAffinity( config, affinityCPUs, flags );
+		}
         else if( token == "TenGig" )
             _setNetwork( config, co::CONNECTIONTYPE_TCPIP, "t.cluster" );
         else if( token == "IPoIB" )
