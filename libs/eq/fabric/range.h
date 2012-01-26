@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -50,17 +50,20 @@ namespace fabric
         bool operator != ( const Range& rhs ) const
             { return start!=rhs.start || end!=rhs.end; }
         
-        /** Invalidate the database range. @internal */
+        /** @return the interval spanned by this range. @version 1.3 */
+        float getSize() const { return end - start; }
+
+        /** @internal Invalidate the database range. */
         void invalidate() { start=0.f; end=0.f; }
 
-        /** @return true if the database range is valid. @internal */
+        /** @internal @return true if the database range is valid. */
         bool isValid() const 
             { return ( start>=0.f && end <=1.f && (end - start) >= 0.f ); }
 
-        /** @return true if the database range covers some data. @internal */
+        /** @internal @return true if the database range covers some data. */
         bool hasData() const { return  (end - start) > 0.f; }
 
-        /** Apply (accumulate) another database range. @internal */
+        /** @internal Apply (accumulate) another database range. */
         void apply( const Range& rhs )
             {
                 const float w = end-start;

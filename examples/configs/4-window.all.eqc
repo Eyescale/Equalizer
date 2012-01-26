@@ -526,6 +526,7 @@ server
         {
             channel ( segment 0 layout "DB_Stream" view 0 )
             buffer [ COLOR DEPTH ]
+            #load_equalizer{ mode DB }
 
             compound
             {

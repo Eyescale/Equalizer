@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -443,14 +443,16 @@ void Channel::removeListener(  ChannelListener* listener )
 
 void Channel::_fireLoadData( const uint32_t frameNumber, 
                              const uint32_t nStatistics,
-                             const Statistic* statistics )
+                             const Statistic* statistics,
+                             const Viewport& region )
 {
     EQ_TS_SCOPED( _serverThread );
 
     for( ChannelListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
     {
-        (*i)->notifyLoadData( this, frameNumber, nStatistics, statistics );
+        (*i)->notifyLoadData( this, frameNumber, nStatistics, statistics,
+                              region );
     }
 }
 
@@ -485,7 +487,7 @@ bool Channel::_cmdFrameFinishReply( co::Command& command )
         command.get<ChannelFrameFinishReplyPacket>();
 
     _fireLoadData( packet->frameNumber, packet->nStatistics,
-                   packet->statistics );
+                   packet->statistics, packet->region );
     return true;
 }
 

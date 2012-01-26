@@ -112,6 +112,7 @@ namespace eq
                 size        = sizeof( ChannelFrameFinishReplyPacket );
             }
 
+        Viewport region;
         uint32_t frameNumber;
         uint32_t nStatistics;
         EQ_ALIGN8( Statistic statistics[1] );
