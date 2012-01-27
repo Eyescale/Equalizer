@@ -5,11 +5,13 @@ import numpy
 import copy
 
 from common import *
+from optparse import OptionParser
+
 import fixTests
 
 dirNameGPUCountFPSArrayDict = dict()
 
-def convertToDict( config ):
+def convertToDictEqPly( config ):
 
    if not os.path.exists( config.dirName ):
       return
@@ -34,13 +36,71 @@ def convertToDict( config ):
    gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
    
    dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )
-  
-def convert():
+   
+def convertToDictRTNeuron( config ):
 
-   fixTests.fixTests()
+   if not os.path.exists( config.dirName ):
+      return
+      
+   subDirName = config.dirName + "/" + str( config.serverCount )   
+   if not os.path.exists( subDirName ):
+      return    
+  
+   testfName = subDirName + "/" + rtneuronFPSFile
+
+   if not os.path.exists( testfName ):
+      return
+      
+   if not dirNameGPUCountFPSArrayDict.has_key( config.dirName ):
+      dirNameGPUCountFPSArrayDict[ config.dirName ] = dict()
+    
+   fpsData = numpy.genfromtxt( testfName, dtype=None )
+   fpsData = fpsData[20:-5]
+      
+   # Find standard deviation
+   sd = numpy.std( fpsData )
+   
+   # Find mean
+   mn = numpy.mean( fpsData )
+   
+   # how far is it from the mean
+   howFar = 3 
+   lLimit = mn - howFar * sd   
+   hLimit = mn + howFar * sd
+
+   print 1000 / mn 
+   
+   filteredFPSData = []
+         
+   for n in fpsData:
+      if( n >= lLimit and n <= hLimit):
+         filteredFPSData.append( 1000 / n ) # per frame time is converted to fps
+         
+   print len( filteredFPSData )
+   
+   maxFrameRate = max( filteredFPSData )
+   
+   gpufName = subDirName + "/" + gpuCountFile
+   
+   gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
+   
+   dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )   
+   
+  
+def convert( application ):
+
+   fixTests.fixTests( application )
+   
+   convertToDict = convertToDictEqPly
+   if application == 'eqPly':
+      convertToDict = convertToDictEqPly
+   elif application == 'rtneuron':
+      convertToDict = convertToDictRTNeuron
+   else:
+      exit()
    
    for serverCount in range( 1, numberOfServers + 1 ):
-      testScheme( "eqPly", convertToDict, serverCount )
+      testScheme( application, convertToDict, serverCount )
 
    for dirName in dirNameGPUCountFPSArrayDict.keys():
       print dirName
@@ -50,10 +110,13 @@ def convert():
       for gpuCount in gpuCountList:
          f.write( str(gpuCount) + " " + str(dirNameGPUCountFPSArrayDict[ dirName ][ gpuCount ]) + "\n" )
       f.close()
-   
-def main():
-    convert()
+
 
 if __name__ == "__main__":
-    main()
+   
+   parser = OptionParser()
+   parser.add_option("-a", "--application", dest="application",help="Select app ( eqPly, rtneuron )", default="eqPly")
+   (options, args) = parser.parse_args()
+   
+   convert( options.application )
 

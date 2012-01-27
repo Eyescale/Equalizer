@@ -35,6 +35,8 @@ def testEqPly( config ):
    cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg
 
    print cmdStr
+   
+   writeCommandStringToFile( cmdStr )
 
    os.system( cmdStr )
 
@@ -63,9 +65,9 @@ def testRTNeuron( config ):
    if( config.layoutName == "Static2D" or config.layoutName == "Dynamic2D" ):
       rtLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    elif( config.layoutName == "RoundRobinDB" ):
-      rtLayoutArg = '--round-robin-DB-partition'
+      rtLayoutArg = '--eq-layout StaticDB --round-robin-DB-partition'
    elif( config.layoutName == "SpatialDB" ):
-      rtLayoutArg = '--spatial-DB-partition'
+      rtLayoutArg = '--eq-layout StaticDB --spatial-DB-partition'
       
    rtNeuronConfigArg = '--eq-config "%s" ' % ( config.session )
   
@@ -75,9 +77,11 @@ def testRTNeuron( config ):
    cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg
 
    print cmdStr
+   
+   writeCommandStringToFile( cmdStr )
 
    os.system( cmdStr )
-
+ 
    gotoPreviousDir()   
    
    
@@ -111,7 +115,7 @@ def main():
       print "No proper application selected"
       exit()
 
-   for serverCount in range( 5,  options.serverCount + options.step, options.step ):
+   for serverCount in range( 1,  options.serverCount + options.step, options.step ):
       testScheme( options.application, testFunc, serverCount )
 
 

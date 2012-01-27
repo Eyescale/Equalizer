@@ -3,6 +3,7 @@
 import os
 import numpy
 from pylab import *
+from optparse import OptionParser
 
 from common import *
 
@@ -110,11 +111,11 @@ def plotROIStateAffStateProtocolResults( config ):
    
 
    
-def main():
+def plotResults( application ):
      
-    testScheme( "eqPly", readResultsToDict, 1  )
+    testScheme( application, readResultsToDict, 1  )
     
-    testScheme( "eqPly", plotIndividualResults, 1 )
+    testScheme( application, plotIndividualResults, 1 )
     # show()
     
     
@@ -122,7 +123,7 @@ def main():
       for roiState in roiStateList:
          figure()
          keyConfiguration.layoutName = layout
-         testScheme( "eqPly", plotLayoutROIStateResults, 1 )
+         testScheme( application, plotLayoutROIStateResults, 1 )
          figureHeading = layout + "-" + roiState
          title( figureHeading )
          plt.savefig( figureHeading + ".png", dpi=300)
@@ -132,7 +133,7 @@ def main():
       for affState in affStateList:
          figure()
          keyConfiguration.layoutName = layout
-         testScheme( "eqPly", plotLayoutAffStateResults, 1 )
+         testScheme( application, plotLayoutAffStateResults, 1 )
          figureHeading = layout + "-" + affState
          title( figureHeading )
          plt.savefig( figureHeading + ".png", dpi=300)
@@ -146,7 +147,7 @@ def main():
             keyConfiguration.layoutName = layout
             keyConfiguration.roiState = roiState
             keyConfiguration.affState = affState
-            testScheme( "eqPly", plotLayoutROIStateAffStateResults, 1 )
+            testScheme( application, plotLayoutROIStateAffStateResults, 1 )
             figureHeading = layout + "-" + roiState + "-" + affState
             title( figureHeading )
             plt.savefig( figureHeading + ".png", dpi=300)
@@ -157,7 +158,7 @@ def main():
             figure()
             keyConfiguration.roiState = roiState
             keyConfiguration.affState = affState
-            testScheme( "eqPly", plotROIStateAffStateResults, 1 )
+            testScheme( application, plotROIStateAffStateResults, 1 )
             figureHeading = roiState + "-" + affState
             title( figureHeading )
             plt.savefig( figureHeading + ".png", dpi=300)
@@ -170,7 +171,7 @@ def main():
             keyConfiguration.protocol = protocol
             keyConfiguration.roiState = roiState
             keyConfiguration.affState = affState
-            testScheme( "eqPly", plotROIStateAffStateProtocolResults, 1 )
+            testScheme( application, plotROIStateAffStateProtocolResults, 1 )
             figureHeading = protocol + "," + roiState + "," + affState 
             title( figureHeading )
             plt.savefig(  figureHeading + ".png", dpi=300)
@@ -180,5 +181,10 @@ def main():
     return
 
 if __name__ == "__main__":
-    main()
+    
+   parser = OptionParser()
+   parser.add_option("-a", "--application", dest="application",help="Select app ( eqPly, rtneuron )", default="eqPly")
+   (options, args) = parser.parse_args()
+    
+    
 
