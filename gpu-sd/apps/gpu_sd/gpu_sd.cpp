@@ -229,7 +229,7 @@ int main (int argc, char * argv[])
     TXTRecordCreate( &record, 0, 0 );
     createTXTRecord( record, gpus, session, hostname );
 
-    DNSServiceErrorType error = registerService( record, hostname );
+    DNSServiceErrorType error = registerService( record );
     std::cout << "registerService returned: " << error << std::endl;
 
     TXTRecordDeallocate( &record );
