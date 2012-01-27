@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,13 @@
 
 #include <co/packets.h> // base structs
 #include <co/objectVersion.h> // base structs
+
+#ifdef _WIN32
+#  include <malloc.h>
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#else
+#  include <alloca.h>
+#endif
 
 /** @cond IGNORE */
 namespace co
@@ -101,7 +108,7 @@ namespace co
                 type    = PACKETTYPE_CO_NODE;
                 command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
-                data[0] = 0;
+                bzero( data, sizeof( data ));
             }
 
         const NodeID nodeID;
