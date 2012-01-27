@@ -1505,6 +1505,8 @@ void Channel::_setOutputFramesReady()
         {
             const size_t frameNumber = getCurrentFrame();
             const size_t index = frameNumber % _impl->statistics->size();
+
+            EQASSERT( _impl->statistics.data[ index ].used );
             ++_impl->statistics.data[ index ].used;
 
             ChannelFrameSetReadyPacket setReadyPacket;
