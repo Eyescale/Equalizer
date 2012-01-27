@@ -162,15 +162,14 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
     }
 }
 
-void Server::configureForBenchmark( Config* config, const std::string& session_, const uint32_t flags )
+void Server::configureForBenchmark( Config* config, const std::string& session_,
+                                    const uint32_t flags )
 {
     std::string session = session_;
-
     std::string token;
-
     std::istringstream iss(session);
 
-    while( getline(iss, token, '-'))
+    while( getline( iss, token, '-' ))
     {
     	if( token == "GoodAffinity" )
 		{
