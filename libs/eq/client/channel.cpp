@@ -1408,6 +1408,7 @@ void Channel::_resetOutputFrames( const RenderContext& context )
         for( std::vector<uint128_t>::const_iterator j = toNodes.begin();
              j != toNodes.end(); ++j, ++k )
         {
+            EQASSERT( _statistics.data[ _statisticsIndex ].used > 0 );
             ++_statistics.data[ _statisticsIndex ].used;
 
             ChannelFrameSetReadyPacket setReadyPacket;
