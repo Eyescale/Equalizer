@@ -153,8 +153,8 @@ The following documentation has been added or substantially improved since
 the last release:
 
 -   Full `API documentation`_ for the public Equalizer API.
--   The `Programming and User Guide`_ has been extended to TBD pages and
-    TBD figures.
+-   The `Programming and User Guide`_ has been extended to 107 pages and
+    60 figures.
 -   `Tile compounds`_ using a pull-based task distribution for volume
     rendering and interactive raytracing.
 
