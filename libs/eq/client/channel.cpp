@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -106,8 +106,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
-                     CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
+                     CmdFunc( this, &Channel::_cmdFrameTransmitImage ),
                      transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
                      CmdFunc( this, &Channel::_cmdFrameSetReady ), transmitQ );
@@ -1371,7 +1371,6 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
         for( size_t k = startPos; k < frame->getImages().size(); ++k )
         {
             ChannelFrameTransmitImagePacket packet;
-            packet.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
             packet.context   = context;
             packet.frameData = frame->getDataVersion( context.eye );
             packet.clientNodeID = *i;
@@ -1666,7 +1665,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
+bool Channel::_cmdFrameTransmitImage( co::Command& command )
 {
     const ChannelFrameTransmitImagePacket* packet = 
         command.get<ChannelFrameTransmitImagePacket>();
