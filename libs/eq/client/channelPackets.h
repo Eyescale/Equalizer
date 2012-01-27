@@ -180,7 +180,7 @@ namespace eq
         ChannelFrameTransmitImagePacket()
                 : fill( 0 )
         {
-            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE;
             size          = sizeof( ChannelFrameTransmitImagePacket );
         }
 
