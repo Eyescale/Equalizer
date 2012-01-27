@@ -228,7 +228,7 @@ int main (int argc, char * argv[])
     createTXTRecord( record, gpus, session );
 
     DNSServiceErrorType error = registerService( record, hostname );
-    std::cout << "DNSServiceDiscovery returned: " << error << std::endl;
+    std::cout << "registerService returned: " << error << std::endl;
 
     TXTRecordDeallocate( &record );
     return EXIT_SUCCESS;
