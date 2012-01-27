@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,7 @@
 #include <co/base/clock.h>
 #include <co/base/init.h>
 #include <co/base/rng.h>
+#include <co/base/uint128_t.h>
 
 #define MAXLOOPS 100000
 
@@ -48,6 +49,16 @@
     }                                                                   \
 }
 
+template< class T > void testSpeed()
+{
+    co::base::RNG rng;
+    co::base::Clock clock;
+    for( size_t i = 0; i < MAXLOOPS; ++i )
+        rng.get< T >();
+    std::cout << float( MAXLOOPS ) * sizeof( T ) / clock.getTimef()
+              << " byte/ms in " << sizeof( T ) << " byte reads" << std::endl;
+}
+
 int main( int argc, char **argv )
 {
     TEST( co::base::init( argc, argv ));
@@ -67,11 +78,11 @@ int main( int argc, char **argv )
     TESTLOOP( float,  0.1f, 0.9f );
     TESTLOOP( double, 0.1,  0.9 );
 
-    co::base::Clock clock;
-    for( size_t i = 0; i < MAXLOOPS; ++i )
-        rng.get< uint64_t >();
-    std::cout << float( MAXLOOPS ) / clock.getTimef() << " rng/ms"
-              << std::endl;
+    testSpeed< uint8_t >();
+    testSpeed< uint16_t >();
+    testSpeed< uint32_t >();
+    testSpeed< uint64_t >();
+    testSpeed< co::base::uint128_t >();
 
     TEST( co::base::exit( ));
     return EXIT_SUCCESS;

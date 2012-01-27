@@ -117,6 +117,7 @@
 %token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
+%token EQTOKEN_NODE_IATTR_HINT_AFFINITY
 %token EQTOKEN_NODE_IATTR_HINT_STATISTICS
 %token EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP
@@ -383,6 +384,11 @@ global:
          eq::server::Global::instance()->setNodeIAttribute(
              eq::server::Node::IATTR_THREAD_MODEL, $2 );
      }
+     | EQTOKEN_NODE_IATTR_HINT_AFFINITY IATTR
+     {
+         eq::server::Global::instance()->setNodeIAttribute(
+             eq::server::Node::IATTR_HINT_AFFINITY, $2 );
+     }
      | EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
          eq::server::Global::instance()->setNodeIAttribute(
@@ -621,6 +627,8 @@ nodeAttribute:
                 << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
                 << std::endl;
         }
+    | EQTOKEN_HINT_AFFINITY IATTR
+        { node->setIAttribute( eq::server::Node::IATTR_HINT_AFFINITY, $2 ); }
 
 
 pipe: EQTOKEN_PIPE '{' 

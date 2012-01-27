@@ -30,7 +30,8 @@ name is "_gpu-sd". The dns_sd discovery module gathers the information
 announced by all daemons on the local network. The following protocol is
 used by the daemon:
 
-* Session=default|&lt;string&gt;
+* Session=default | &lt;string&gt;
+* Hostname=&lt;string&gt; // optional, hostname for connections (1.2)
 * GPU Count=&lt;integer&gt;
 * GPU&lt;integer&gt; Type=GLX | WGL | WGLn | WGLa | CGL
 * GPU&lt;integer&gt; Port=&lt;integer&gt; // X11 display number, 0 otherwise

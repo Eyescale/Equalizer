@@ -1290,7 +1290,7 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
 
         // Compute the inherit viewport to be pixel-correct with the integer-
         // rounded pvp. This is needed to calculate the frustum correctly.
-        const Viewport vp = _inherit.pvp.getSubVP( _parent->_inherit.pvp );
+        const Viewport vp = _inherit.pvp / _parent->_inherit.pvp;
         _inherit.vp.apply( vp );
             
         _updateInheritOverdraw();

@@ -74,6 +74,7 @@ void Global::_setupDefaults()
         _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeIAttributes[Node::IATTR_HINT_AFFINITY] = AUTO;
     _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
         "ssh -n %h %c --eq-logfile %q%d/%h.%n.log%q";
 #ifdef WIN32

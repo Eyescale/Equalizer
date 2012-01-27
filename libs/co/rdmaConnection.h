@@ -234,6 +234,9 @@ private:
        remote sink's MR parameters */
     base::Monitor<SetupWait> _setup_block;
 
+    /* Protect close( ) from multiple threads */
+    base::Lock _close_mutex;
+
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
     struct rdma_conn_param _conn_param;

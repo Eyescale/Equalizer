@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,6 +27,10 @@
 #include "nodeFactory.h"
 #include "pipe.h"
 #include "window.h"
+#ifdef EQ_USE_GPUSD
+#  include "config/server.h"
+#  include <eq/client/global.h>
+#endif
 
 #include <eq/admin/packets.h>
 #include <eq/client/serverPackets.h>
@@ -95,8 +99,10 @@ void Server::init()
     EQASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
+#ifndef EQ_USE_GPUSD
     if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
+#endif
 
     EQINFO << co::base::disableFlush << "Running server: " << std::endl
            << co::base::indent << Global::instance() << *this
@@ -109,9 +115,6 @@ void Server::init()
 void Server::exit()
 {
     const Configs& configs = getConfigs();
-    if( configs.empty( ))
-        EQWARN << "No configurations loaded" << std::endl;
-
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->deregister();
 }
@@ -121,33 +124,6 @@ void Server::run()
     init();
     handleCommands();
     exit();
-}
-
-void Server::_addConfig( Config* config )
-{
-    Super::_addConfig( config );
-
-    if( config->getName().empty( ))
-    {
-        std::ostringstream stringStream;
-        stringStream << "EQ_CONFIG_" << config->getID();
-        config->setName( stringStream.str( ));
-    }
-
-    if( _running )
-        config->register_();
-}
-
-bool Server::_removeConfig( Config* config )
-{
-    const Configs& configs = getConfigs();
-    if( stde::find( configs, config ) == configs.end( ))
-        return false;
-
-    if( _running )
-        config->deregister();
-
-    return Super::_removeConfig( config );
 }
 
 void Server::deleteConfigs()
@@ -205,12 +181,26 @@ bool Server::_cmdChooseConfig( co::Command& command )
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
-        const float version = candidate->getFAttribute(Config::FATTR_VERSION);
+        const float version = candidate->getFAttribute( Config::FATTR_VERSION );
         EQASSERT( version == 1.2f );
-        if( !candidate->isUsed() && version == 1.2f)
+        if( !candidate->isUsed() && version == 1.2f )
             config = candidate;
     }
     
+#ifdef EQ_USE_GPUSD
+    if( !config )
+    {
+        // TODO move session name to ConfigParams
+        config = config::Server::configure( this, eq::Global::getConfigFile(),
+                                            packet->flags );
+        if( config )
+        {
+            config->register_();
+            EQINFO << "Created " << *config << std::endl;
+        }
+    }
+#endif
+
     ServerChooseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
 
@@ -302,9 +292,20 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     node->send( destroyConfigPacket );
     waitRequest( destroyConfigPacket.requestID );
 
-    ConfigRestoreVisitor restore;
-    config->accept( restore );
-    config->commit();
+#ifdef EQ_USE_GPUSD
+    if( config->isAutoConfig( ))
+    {
+        EQASSERT( _admins.empty( ));
+        config->deregister();
+        delete config;
+    }
+    else
+#endif
+    {
+        ConfigRestoreVisitor restore;
+        config->accept( restore );
+        config->commit();
+    }
 
     node->send( reply );
     EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;

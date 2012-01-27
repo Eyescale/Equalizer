@@ -93,7 +93,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    _region.invalidate();    
+    resetRegion();
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -105,7 +105,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     const eq::View* view = getView();
     if( view && frameData.getCurrentViewID() == view->getID( ))
-        glClearColor( .4f, .4f, .4f, 1.0f );
+        glClearColor( 1.f, 1.f, 1.f, 1.f );
 #ifndef NDEBUG
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {
@@ -206,7 +206,6 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         }
 
         eq::Channel::frameAssemble( frameID );
-        _updateRegion( getInputFrames( ));
         return;
     }
     // else
@@ -240,12 +239,11 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     resetAssemblyState();
-    _updateRegion( frames );
 }
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
-    if( stopRendering() || _isDone() || !_region.hasArea( ))
+    if( stopRendering() || _isDone( ))
         return;
 
     const FrameData& frameData = _getFrameData();
@@ -265,38 +263,9 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_AUTO );
         else
             frame->useCompressor( eq::Frame::BUFFER_COLOR, EQ_COMPRESSOR_NONE );
-
-        const eq::DrawableConfig& drawable = getDrawableConfig();
-        eq::Window::ObjectManager* glObjects = getObjectManager();
-        eq::FrameData* data = frame->getData();
-
-        const InitData& initData = 
-            static_cast<Config*>( getConfig( ))->getInitData();
-        const bool useRegion = initData.useROI();
-
-        if( data->getType() == eq::Frame::TYPE_TEXTURE || !useRegion )
-            frame->readback( glObjects, drawable );
-        else
-        {
-            // ROI readback, TODO move to eq::Channel::frameReadback
-            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
-            const eq::PixelViewport& framePVP = data->getPixelViewport();
-            eq::PixelViewport area = framePVP + frame->getOffset();
-
-            area.intersect( _region );
-            if( !area.hasArea( ))
-                continue;
-
-            eq::Image* image = data->newImage( data->getType(), drawable );
-            image->readback( data->getBuffers(), area, frame->getZoom(),
-                             glObjects );
-
-            const eq::Pixel& pixel = getPixel();
-            area -= frame->getOffset();
-            image->setOffset( (area.x - framePVP.x) * pixel.w,
-                              (area.y - framePVP.y) * pixel.h );
-        }
     }
+
+    eq::Channel::frameReadback( frameID );
 }
 
 void Channel::frameStart( const eq::uint128_t& frameID,
@@ -441,15 +410,15 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const int32_t totalSteps = view->getIdleSteps();
-    if( totalSteps == 0 )
+    const int32_t idleSteps = view->getIdleSteps();
+    if( idleSteps == 0 )
         return;
 
     // ready for the next FSAA
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     if( accum.buffer )
         accum.buffer->clear();
-    accum.step = totalSteps;
+    accum.step = idleSteps;
 }
 
 bool Channel::_initAccum()
@@ -533,7 +502,7 @@ eq::Vector2f Channel::getJitter() const
     if( !view || view->getIdleSteps() != 256 )
         return eq::Vector2f::ZERO;
 
-    eq::Vector2i jitterStep = _getJitterStep();
+    const eq::Vector2i jitterStep = _getJitterStep();
     if( jitterStep == eq::Vector2i::ZERO )
         return eq::Vector2f::ZERO;
 
@@ -552,17 +521,14 @@ eq::Vector2f Channel::getJitter() const
 
     // Sample value randomly computed within the subpixel
     co::base::RNG rng;
-    float value_i = rng.get< float >() * subpixel_w
-                    + float( jitterStep.x( )) * subpixel_w;
-
-    float value_j = rng.get< float >() * subpixel_h
-                    + float( jitterStep.y( )) * subpixel_h;
-
     const eq::Pixel& pixel = getPixel();
-    value_i /= float( pixel.w );
-    value_j /= float( pixel.h );
 
-    return eq::Vector2f( value_i, value_j );
+    const float i = ( rng.get< float >() * subpixel_w +
+                      float( jitterStep.x( )) * subpixel_w ) / float( pixel.w );
+    const float j = ( rng.get< float >() * subpixel_h +
+                      float( jitterStep.y( )) * subpixel_h ) / float( pixel.h );
+
+    return eq::Vector2f( i, j );
 }
 
 static const uint32_t _primes[100] = {
@@ -589,12 +555,11 @@ eq::Vector2i Channel::_getJitterStep() const
 
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
-    const uint32_t idx = 
-        ( accum.step * _primes[ channelID ] ) % subset + ( channelID * subset );
-
+    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] )%subset +
+                           ( channelID * subset );
     const uint32_t sampleSize = 16;
-    const int dx = idx % sampleSize;
-    const int dy = idx / sampleSize;
+    const int dx = index % sampleSize;
+    const int dy = index / sampleSize;
 
     return eq::Vector2i( dx, dy );
 }
@@ -651,28 +616,38 @@ void Channel::_drawModel( const Model* scene )
         glUseProgram( program );
     
     scene->cullDraw( state );
-    _updateRegion( state.getRegion( ));
 
     state.setChannel( 0 );
     if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
 
-#ifndef NDEBUG // region border
     const InitData& initData =
         static_cast<Config*>( getConfig( ))->getInitData();
     if( !initData.useROI( ))
         return;
 
+    declareRegion( eq::Viewport( state.getRegion( )));
+
+#ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
+    const eq::PixelViewport& region = getRegion();
+
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
 
-    const eq::Vector4f rect( float( _region.x ) + .5f, float( _region.y ) + .5f,
-                             float( _region.getXEnd( )) - .5f,
-                             float( _region.getYEnd( )) - .5f );
+    const eq::View* currentView = getView();
+    if( currentView && frameData.getCurrentViewID() == currentView->getID( ))
+        glColor3f( 0.f, 0.f, 0.f );
+    else
+        glColor3f( 1.f, 1.f, 1.f );
+    glNormal3f( 0.f, 0.f, 1.f );
+
+    const eq::Vector4f rect( float( region.x ) + .5f, float( region.y ) + .5f,
+                             float( region.getXEnd( )) - .5f,
+                             float( region.getYEnd( )) - .5f );
     glBegin( GL_LINE_LOOP ); {
         glVertex3f( rect[0], rect[1], -.99f );
         glVertex3f( rect[2], rect[1], -.99f );
@@ -854,40 +829,6 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
         const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z() );
 
         setNearFar( zNear, zFar );
-    }
-}
-
-void Channel::_updateRegion( const eq::Vector4f& vp )
-{
-    if( vp == eq::Vector4f::ZERO )
-        return;
-
-    eq::PixelViewport pvp = getPixelViewport();
-    pvp.x = 0;
-    pvp.y = 0;
-
-    eq::PixelViewport region( pvp );
-    region.apply( eq::Viewport( vp ));
-    _region.merge( region );
-    _region.intersect( pvp );
-}
-
-void Channel::_updateRegion( const eq::Frames& frames )
-{
-    // Increase ROI, TODO move to eq::Channel::frameReadback
-    for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
-    {
-        const eq::Frame* frame = *i;
-        const eq::FrameData* data = frame->getData();
-        const eq::Images& images = data->getImages();
-
-        for( eq::ImagesCIter j = images.begin(); j != images.end(); ++j )
-        {
-            const eq::Image* image = *j;
-            const eq::PixelViewport area = image->getPixelViewport() + 
-                                           frame->getOffset();
-            _region.merge( area );
-        }
     }
 }
 
