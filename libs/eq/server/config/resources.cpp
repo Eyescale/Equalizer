@@ -87,7 +87,8 @@ bool Resources::discover( Config* config, const std::string& session,
     typedef stde::hash_map< std::string, Node* > NodeMap;
     NodeMap nodes;
 
-    const bool multiProcess = flags & ConfigParams::FLAG_MULTIPROCESS;
+    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS |
+                                        ConfigParams::FLAG_MULTIPROCESS_DB );
     const bool multiNode = session != "local" ||
                            ( multiProcess && infos.size() > 1 );
     size_t gpuCounter = 0;
@@ -141,6 +142,8 @@ bool Resources::discover( Config* config, const std::string& session,
             pipe->setName( name.str() + " mp" );
             name << " mt"; // mark companion GPU as multi-threaded only
         }
+        else
+            name << " mt mp"; // mark GPU as multi-threaded and multi-process
 
         Pipe* pipe = new Pipe( mtNode ); // standalone/multi-threaded resource
         pipe->setPort( info.port );
@@ -170,10 +173,7 @@ namespace
 class AddSourcesVisitor : public ConfigVisitor
 {
 public:
-    AddSourcesVisitor( const PixelViewport& pvp, Channels& mtChannels,
-                       Channels& mpChannels )
-            : _pvp( pvp ), _mtChannels( mtChannels ), _mpChannels( mpChannels )
-        {}
+    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
 
     virtual VisitorResult visitPre( Pipe* pipe )
         {
@@ -182,59 +182,39 @@ public:
             {
                 // display window has discrete 'affinity' GPU
                 if( pipe->getName() != "display" )
-                {
-                    _mtChannels.push_back( pipe->getChannel( ChannelPath( 0 )));
-                    _mpChannels.push_back( _mtChannels.back( ));
-                }
+                    _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
                 return TRAVERSE_CONTINUE;
             }
 
-            const std::string& name = pipe->getName();
-            if( name.find( " mt" ) != std::string::npos )
-                _mtChannels.push_back( _addSource( pipe ));
-            else if( name.find( " mp" ) != std::string::npos )
-                _mpChannels.push_back( _addSource( pipe ));
-            else
-            {
-                _mtChannels.push_back( _addSource( pipe ));
-                _mpChannels.push_back( _mtChannels.back( ));
-            }
-
-            return TRAVERSE_CONTINUE; 
-        }
-
-private:
-    const PixelViewport& _pvp;
-    Channels& _mtChannels;
-    Channels& _mpChannels;
-
-    Channel* _addSource( Pipe* pipe )
-        {
             Window* window = new Window( pipe );
             if( !pipe->getPixelViewport().isValid( ))
                 window->setPixelViewport( _pvp );
             window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
             window->setName( pipe->getName() + " source window" );
 
-            Channel* channel = new Channel( window );
-            channel->setName( pipe->getName() + " source channel" );
-            return channel;
+            _channels.push_back( new Channel( window ));
+            _channels.back()->setName( pipe->getName() + " source channel" );
+            return TRAVERSE_CONTINUE; 
         }
+
+    const Channels& getChannels() const { return _channels; }
+private:
+    const PixelViewport& _pvp;
+    Channels _channels;
 };
 }
 
-void Resources::configureSourceChannels( Config* config, Channels& mtChannels,
-                                         Channels& mpChannels )
+Channels Resources::configureSourceChannels( Config* config )
 {
     const Node* node = config->findAppNode();
     EQASSERT( node );
     if( !node )
-        return;
+        return Channels();
 
     const Pipes& pipes = node->getPipes();
     EQASSERT( !pipes.empty( ));
     if( pipes.empty( ))
-        return;
+        return Channels();
 
     Pipe* pipe = pipes.front();
     PixelViewport pvp = pipe->getPixelViewport();
@@ -246,17 +226,16 @@ void Resources::configureSourceChannels( Config* config, Channels& mtChannels,
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-    mtChannels.clear();
-    mpChannels.clear();
-
-    AddSourcesVisitor addSources( pvp, mtChannels, mpChannels );
+    AddSourcesVisitor addSources( pvp );
     config->accept( addSources );
+    return addSources.getChannels();
 }
 
 #if 0 // EQ_GCC_4_5_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void Resources::configure( const Compounds& compounds, const Channels& channels)
+void Resources::configure( const Compounds& compounds, const Channels& channels,
+                           const uint32_t flags )
 {
     EQASSERT( !compounds.empty( ));
     if( compounds.empty() || channels.empty()) // No additional resources
@@ -277,34 +256,48 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
 
         canvas = channel->getCanvas();
 
-        _addMonoCompound( segmentCompound, channels );
-        _addStereoCompound( segmentCompound, channels );
+        _addMonoCompound( segmentCompound, channels, flags );
+        _addStereoCompound( segmentCompound, channels, flags );
     }
 }
 
-Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels )
+static Channels _filter( const Channels& input, const std::string& filter )
+{
+    Channels result;
+
+    for( ChannelsCIter i = input.begin(); i != input.end(); ++i )
+        if( (*i)->getName().find( filter ) != std::string::npos )
+                result.push_back( *i );
+    return result;
+}
+
+Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
+                                       const uint32_t flags )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
     const std::string& name = layout->getName();
 
     Compound* compound = 0;
+    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
+                                        ConfigParams::FLAG_MULTIPROCESS_DB );
+    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt " );
 
     if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
         /* nop */;
     else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
         name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
     {
-        compound = _add2DCompound( root, channels );
+        compound = _add2DCompound( root, active );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
         name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
     {
-        compound = _addDBCompound( root, channels );
+        compound = _addDBCompound( root, active );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
     {
-        compound = _addDBCompound( root, channels ); // TODO: switch to _addDS
+        compound = _addDBCompound( root, active ); // TODO: switch to _addDS
     }
     else
     {
@@ -318,8 +311,8 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels 
     return compound;
 }
 
-Compound* Resources::_addStereoCompound( Compound* root,
-                                         const Channels& channels )
+Compound* Resources::_addStereoCompound(Compound* root, const Channels& channels,
+                                        const uint32_t flags )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
@@ -331,14 +324,18 @@ Compound* Resources::_addStereoCompound( Compound* root,
     compound->setName( "Stereo" );
     compound->setEyes( EYE_LEFT | EYE_RIGHT );
 
-    const size_t nChannels = channels.size();
-    const ChannelsCIter split = channels.begin() + (nChannels >> 1);
+    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
+                                        ConfigParams::FLAG_MULTIPROCESS_DB );
+    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt " );
 
-    Channels leftChannels( split - channels.begin( ));
-    std::copy( channels.begin(), split, leftChannels.begin( ));
+    const size_t nChannels = active.size();
+    const ChannelsCIter split = active.begin() + (nChannels >> 1);
 
-    Channels rightChannels( channels.end() - split );
-    std::copy( split, channels.end(), rightChannels.begin( ));
+    Channels leftChannels( split - active.begin( ));
+    std::copy( active.begin(), split, leftChannels.begin( ));
+
+    Channels rightChannels( active.end() - split );
+    std::copy( split, active.end(), rightChannels.begin( ));
 
     Compound* left = 0;
     if( leftChannels.empty() ||
@@ -347,7 +344,7 @@ Compound* Resources::_addStereoCompound( Compound* root,
         left = new Compound( compound );
     }
     else
-        left = _addMonoCompound( compound, leftChannels );
+        left = _addMonoCompound( compound, leftChannels, flags );
 
     left->setEyes( EYE_LEFT );
 
@@ -358,7 +355,7 @@ Compound* Resources::_addStereoCompound( Compound* root,
         right = new Compound( compound );
     }
     else
-        right = _addMonoCompound( compound, rightChannels );
+        right = _addMonoCompound( compound, rightChannels, flags );
 
     right->setEyes( EYE_RIGHT );
 

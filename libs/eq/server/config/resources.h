@@ -39,13 +39,15 @@ class Resources
 public:
     static bool discover( Config* config, const std::string& session,
                           const uint32_t flags );
-    static void  configureSourceChannels( Config* config, Channels& mtChannels, 
-                                          Channels& mpChannels );
-    static void configure( const Compounds& compounds, const Channels& sources);
+    static Channels configureSourceChannels( Config* config );
+    static void configure( const Compounds& compounds, const Channels& channels,
+                           const uint32_t flags );
 
 private:
-    static Compound* _addMonoCompound( Compound* root, const Channels& );
-    static Compound* _addStereoCompound( Compound* root, const Channels& );
+    static Compound* _addMonoCompound( Compound* root, const Channels& channels,
+                                       const uint32_t flags );
+    static Compound* _addStereoCompound(Compound* root, const Channels& channels,
+                                        const uint32_t flags );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
     static const Compounds& _addSources( Compound* compound, const Channels& );
