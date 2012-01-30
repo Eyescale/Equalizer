@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,27 +19,14 @@
 
 #include <iostream>
 
-
 namespace eq
 {
 namespace fabric
 {
-std::ostream& operator << ( std::ostream& os, IAttribute value )
+std::ostream& operator << ( std::ostream& os, const IAttribute value )
 {
-    int socketIndex;
-    int coreIndex;
     if ( value >= fabric::SOCKET && value <= fabric::SOCKET_MAX )
-    {
-        // Capturing the socket index
-        socketIndex = value - fabric::SOCKET;
-        value = fabric::SOCKET;
-    }
-    else if ( value >= fabric::CORE )
-    {
-        // Capturing the socket index
-        coreIndex = value - fabric::CORE;
-        value = fabric::CORE;
-    }
+        return os << "socket " << value - fabric::SOCKET;
 
     switch( value )
     {
@@ -63,8 +50,6 @@ std::ostream& operator << ( std::ostream& os, IAttribute value )
         case FIXED:         os << "fixed"; break;
         case RELATIVE_TO_ORIGIN:   os << "relative_to_origin"; break;
         case RELATIVE_TO_OBSERVER: os << "relative_to_observer"; break;
-        case SOCKET:        os << "socket " << socketIndex ; break;
-        case CORE:          os << "core " << coreIndex ; break;
         default:            os << static_cast< int >( value );
     }
     return os;

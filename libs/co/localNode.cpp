@@ -45,10 +45,6 @@ LocalNode::LocalNode( )
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
 
-    _receiverThread->setAffinity(3);
-    _commandThread->setAffinity(3);
-
-
     _objectStore = new ObjectStore( this );
 
     CommandQueue* queue = getCommandThreadQueue();
