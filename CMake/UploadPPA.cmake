@@ -72,6 +72,11 @@ function(UPLOAD_PPA UBUNTU_NAME)
     file(APPEND ${DEBIAN_CONTROL} "${DEP}, ")
   endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})  
 
+  foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
+    set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
+    file(APPEND ${DEBIAN_CONTROL} "${PACKAGE}, ")
+  endforeach()
+
   file(APPEND ${DEBIAN_CONTROL} "cmake\n"
     "Standards-Version: 3.9.1\n"
     "Homepage: ${CPACK_PACKAGE_VENDOR}\n"
