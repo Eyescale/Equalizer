@@ -190,6 +190,28 @@ namespace eq
             { return _getAttachment( buffer ).memory.state == Memory::VALID; }
 
         /**
+         * @return true if the image has valid pixel data for either of buffers.
+         */
+        bool hasPixelData() const
+            { return hasPixelData( Frame::BUFFER_COLOR ) ||
+                     hasPixelData( Frame::BUFFER_DEPTH ); }
+
+        /**
+         * @return true if async readback for a buffer was started but not 
+         *              finished.
+         */
+        bool isReadbackInProgress( const Frame::Buffer buffer ) const
+            { return _getAttachment( buffer ).memory.state ==
+                                                          Memory::PROCESSING; }
+
+        /**
+         * @return true if async readback was started but not finished.
+         */
+        bool isReadbackInProgress() const
+            { return isReadbackInProgress( Frame::BUFFER_COLOR ) ||
+                     isReadbackInProgress( Frame::BUFFER_DEPTH ); }
+
+        /**
          * Clear and validate an image buffer.
          *
          * RGBA and BGRA buffers are initialized with (0,0,0,255).
@@ -295,8 +317,8 @@ namespace eq
                               const PixelViewport& pvp, const Zoom& zoom,
                               util::ObjectManager< const void* >* glObjects );
 
-        EQ_API bool finishReadback( const uint32_t buffers, const Zoom& zoom,
-                              const GLEWContext* glewContext );
+        EQ_API bool finishReadback( const Zoom& zoom,
+                                    const GLEWContext* glewContext );
 
         /**
          * Upload this image to the frame buffer or a texture.
@@ -384,13 +406,14 @@ namespace eq
             Memory() : state( INVALID ) {}
 
             void resize( const uint32_t size );
-            void flush();            
+            void flush();
             void useLocalBuffer();
 
             enum State
             {
                 INVALID,
-                VALID
+                VALID,
+                PROCESSING // async RB is in progress
             };
 
             State state;   //!< The current state of the memory

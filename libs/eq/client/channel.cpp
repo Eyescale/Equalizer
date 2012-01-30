@@ -102,8 +102,6 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_FINISH_READBACK, 
-                     CmdFunc( this, &Channel::_cmdFrameFinishReadback ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
                      transmitQ );
@@ -119,8 +117,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
 
     queue = getPipe()->getPipeAsyncRBThreadQueue();
-//    registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
-//                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), queue );
+    registerCommand( fabric::CMD_CHANNEL_FINISH_IMAGE_READBACK,
+                    CmdFunc( this, &Channel::_cmdFinishImageReadback ), queue );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -419,6 +417,8 @@ void Channel::frameReadback( const uint128_t& )
 
 void Channel::frameStartReadback( const uint128_t& )
 {
+    EQ_TS_THREAD( _pipeThread );
+
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
@@ -436,18 +436,39 @@ void Channel::frameStartReadback( const uint128_t& )
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-void Channel::frameFinishReadback( const uint128_t&,
-                                   const GLEWContext*  )
+bool Channel::finishImageReadback( FrameData* frameData,
+                                   const uint64_t imageIndex,
+                                   const GLEWContext* glewContext )
 {
-// MM: this is not valid:
-/*
-    const Frames& frames = getOutputFrames();
-    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+    if( !frameData )
     {
-        Frame* frame = *i;
-        frame->finishReadback( glewContext );
+        EQWARN << "Invalid FrameData painter" << std::endl;
+        return false;
     }
-*/
+    if( frameData->getBuffers() == 0 )
+    {
+        EQWARN << "No buffers for frame data" << std::endl;
+        return false;
+    }
+
+    const Images& images = frameData->getImages();
+    if( images.size() <= imageIndex )
+    {
+        EQWARN << "Invalid image index" << std::endl;
+        return false;
+    }
+    Image* image = images[ imageIndex ];
+
+    // finish readback if it was not yet finished
+    if( !image->isReadbackInProgress( ))
+    {
+        EQWARN << "Readback is not in progress" << std::endl;
+        return false;
+    }
+
+    image->finishReadback( frameData->getZoom(), glewContext );
+    EQASSERT( !image->isReadbackInProgress( ));
+    return true;
 }
 
 
@@ -1527,6 +1548,47 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     }
 }
 
+
+void Channel::_scheduleFinishReadback( const RenderContext& context,
+                                    Frame* frame, const size_t startPos )
+{
+    const Eye eye = getEye();
+    const bool isLocal = frame->getInputNodes( eye ).empty();
+    const std::vector< uint128_t > emptyNode( 1, 0 );
+
+    const std::vector< uint128_t >& toNodes =
+        isLocal ? emptyNode : frame->getInputNodes( eye );
+
+    const std::vector< uint128_t >& toNetNodes =
+        isLocal ? emptyNode : frame->getInputNetNodes( eye );
+
+    EQASSERT( toNetNodes.size() <= toNodes.size() );
+
+    const co::ObjectVersion& frameData = frame->getDataVersion( context.eye );
+    const uint32_t frameNumber = getCurrentFrame();
+
+    std::vector< uint128_t >::const_iterator j = toNetNodes.begin();
+    for( std::vector< uint128_t >::const_iterator i = toNodes.begin();
+         i != toNodes.end(); ++i, ++j )
+    {
+        for( size_t k = startPos; k < frame->getImages().size(); ++k )
+        {
+            ChannelFinishImageReadbackPacket packet;
+            packet.command      = fabric::CMD_CHANNEL_FINISH_IMAGE_READBACK;
+            packet.context      = context;
+            packet.frameData    = frameData;
+            packet.clientNodeID = *i;
+            packet.netNodeID    = *j;
+            packet.frameNumber  = frameNumber;
+            packet.imageIndex   = k;
+            packet.isLocal      = isLocal;
+
+            send( getNode()->getLocalNode(), packet );
+        }
+    }
+}
+
+
 void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
 {
     EQ_TS_THREAD( _pipeThread );
@@ -1550,7 +1612,7 @@ void Channel::_setOutputFramesReady()
     for( FramesCIter i = _impl->outputFrames.begin();
          i != _impl->outputFrames.end(); ++i )
     {
-        Frame* frame = *i;    
+        Frame* frame = *i;
         frame->setReady();
 
         const Eye eye = getEye();
@@ -1599,6 +1661,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     {
         Frame* frame = *i;
         const Images& images = frame->getImages();
+// MAX: shouldn't following start with nImages[i]? 
         for( ImagesCIter j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
@@ -1640,70 +1703,17 @@ void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
 
     _setOutputFrames( nFrames, frames );
 
-// MM: 1) before calling startRB chack how many images we have.
-//     2) call finish RB for all these images
-
-    // start readback
-    frameStartReadback( frameID );
-
-    _resetOutputFrames();
-}
-
-void Channel::_frameFinishReadback( const uint128_t& frameID )
-{
-// this one is called from the RB thread:
-//    frameFinishReadback( frameID, getObjectManager()->glewGetContext( ));
-
-    ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-
-    // this will not be true
-    const uint32_t nFrames = _impl->outputFrames.size();
-
     std::vector< size_t > nImages( nFrames, 0 );
     for( size_t i = 0; i < nFrames; ++i )
         nImages[i] = _impl->outputFrames[i]->getImages().size();
 
-    size_t in = 0;
-    size_t out = 0;
-    const DrawableConfig& dc = getDrawableConfig();
-    const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
-
-    event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
-    event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-    for( FramesCIter i  = _impl->outputFrames.begin();
-                     i != _impl->outputFrames.end(); ++i )
-    {
-        Frame* frame = *i;
-        const Images& images = frame->getImages();
-        for( ImagesCIter j = images.begin(); j != images.end(); ++j )
-        {
-            const Image* image = *j;
-            if( image->hasPixelData( Frame::BUFFER_COLOR ))
-            {
-                in += colorBytes * image->getPixelViewport().getArea();
-                out += image->getPixelDataSize( Frame::BUFFER_COLOR );
-                event.event.data.statistic.plugins[0] =
-                    image->getDownloaderName( Frame::BUFFER_COLOR );
-            }
-            if( image->hasPixelData( Frame::BUFFER_DEPTH ))
-            {
-                in += 4 * image->getPixelViewport().getArea();
-                out += image->getPixelDataSize( Frame::BUFFER_DEPTH );
-                event.event.data.statistic.plugins[1] =
-                    image->getDownloaderName( Frame::BUFFER_DEPTH );
-            }
-        }
-    }
-
-    if( in > 0 && out > 0 )
-        event.event.data.statistic.ratio = float( out ) / float( in );
-    else
-        event.event.data.statistic.ratio = 1.0f;
+//    frameReadback( frameID );
+    frameStartReadback( frameID );
 
     for( size_t i = 0; i < nFrames; ++i )
-        _transmitImages( getContext(), _impl->outputFrames[i], nImages[i] );
-    _resetOutputFrames();
+        _scheduleFinishReadback( getContext(), _impl->outputFrames[i], nImages[i] );
+
+//    _resetOutputFrames();
 }
 
 
@@ -1908,14 +1918,43 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 }
 
 
-bool Channel::_cmdFrameFinishReadback( co::Command& command )
+bool Channel::_cmdFinishImageReadback( co::Command& command )
 {
-    ChannelFrameFinishReadbackPacket* packet =
-        command.getModifiable< ChannelFrameFinishReadbackPacket >();
+    ChannelFinishImageReadbackPacket* packet =
+        command.getModifiable< ChannelFinishImageReadbackPacket >();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK finish readback " << getName()
                                       <<  " " << packet << std::endl;
 
-    _frameFinishReadback( packet->context.frameID );
+    FrameData* frameData = getNode()->getFrameData( packet->frameData );
+    EQASSERT( frameData );
+    if( frameData->getBuffers() == 0 )
+    {
+        EQWARN << "No buffers for frame data" << std::endl;
+        return true;
+    }
+
+    const Images& images = frameData->getImages();
+    EQASSERT( images.size() > packet->imageIndex );
+    Image* image = images[ packet->imageIndex ];
+
+    // finish readback if it was not yet finished
+    if( image->isReadbackInProgress( ))
+    {
+        const GLEWContext* glewContext = getPipe()->getAsyncGlewContext();
+        image->finishReadback( frameData->getZoom(), glewContext );
+        EQASSERT( !image->isReadbackInProgress( ));
+    }
+
+    // send images asynchronously
+    if( !packet->isLocal && image->hasPixelData( ))
+    {
+        ChannelFrameTransmitImagePacket tPacket = *packet;
+        tPacket.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+        send( getNode()->getLocalNode(), tPacket );
+
+        // TODO: send set ready packet
+    }
+
     return true;
 }
 

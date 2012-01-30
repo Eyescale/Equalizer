@@ -527,6 +527,14 @@ bool Pipe::startAsyncRBThread()
     return false;
 }
 
+const GLEWContext* Pipe::getAsyncGlewContext()
+{
+    if( startAsyncRBThread( ))
+        return _threadRB->glewGetContext();
+
+    return 0;
+}
+
 void Pipe::exitThread()
 {
     _stopAsyncRBThread();

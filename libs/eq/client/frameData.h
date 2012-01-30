@@ -200,6 +200,11 @@ namespace server { class FrameData; }
         EQ_API Image* newImage( const Frame::Type type,
                                 const DrawableConfig& config );
 
+        /** 
+         * Deallocates last allocated image.
+         */
+        EQ_API void returnLastImage();
+
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 

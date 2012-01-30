@@ -343,22 +343,20 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     return result;
 }
 
-bool Image::finishReadback( const uint32_t buffers,
-                      const Zoom& zoom,
-                      const GLEWContext* glewContext )
+bool Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
 {
     EQASSERT( glewContext );
-    EQLOG( LOG_ASSEMBLY ) << "finishReadback, buffers " << buffers
+    EQLOG( LOG_ASSEMBLY ) << "finishReadback, zoom " << zoom
                           << std::endl;
 
     bool result = true;
-    if( (buffers & Frame::BUFFER_COLOR) &&
+    if( isReadbackInProgress( Frame::BUFFER_COLOR ) &&
         !_finishReadback( Frame::BUFFER_COLOR, zoom, glewContext ))
     {
         result = false;
     }
 
-    if( (buffers & Frame::BUFFER_DEPTH) &&
+    if( isReadbackInProgress( Frame::BUFFER_DEPTH) &&
         !_finishReadback( Frame::BUFFER_DEPTH, zoom, glewContext ))
     {
         result = false;
@@ -369,11 +367,13 @@ bool Image::finishReadback( const uint32_t buffers,
     return result;
 }
 
+
 bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
                 util::ObjectManager< const void* >* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
+    attachment.memory.state = Memory::PROCESSING;
 
     if( _type == Frame::TYPE_TEXTURE )
     {
@@ -383,6 +383,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         texture.setGLEWContext( glObjects->glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
         texture.setGLEWContext( 0 );
+        attachment.memory.state = Memory::INVALID;
         return true;
     }
     if( zoom == Zoom::NONE ) // normal framebuffer readback
@@ -391,7 +392,10 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
 
     _zoomedTextureRB = _readbackZoom( buffer, zoom, glObjects );
     if( _zoomedTextureRB == 0 )
+    {
+        attachment.memory.state = Memory::INVALID;
         return false;
+    }
 
     return _startReadback( buffer, _zoomedTextureRB, glObjects->glewGetContext( ));
 }
@@ -419,7 +423,7 @@ bool Image::_startReadback( const Frame::Buffer buffer,
 {
     Attachment& attachment = _getAttachment( buffer );
     util::GPUCompressor* downloader = attachment.transfer;
-    Memory& memory = attachment.memory;    
+    Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
     downloader->setGLEWContext( glewContext );
@@ -434,6 +438,7 @@ bool Image::_startReadback( const Frame::Buffer buffer,
                                      flags ))
     {
         EQWARN << "Download plugin initialization failed" << std::endl;
+        attachment.memory.state = Memory::INVALID;
         return false;
     }
 
@@ -447,7 +452,7 @@ bool Image::_startReadback( const Frame::Buffer buffer,
     if( texture )
         downloader->startDownload( PixelViewport( 0, 0, texture->getWidth(),
                                              texture->getHeight( )),
-                              texture->getName(), flags );
+                                             texture->getName(), flags );
     else
         downloader->startDownload( _pvp, 0 , flags );
 
@@ -460,7 +465,7 @@ bool Image::_finishReadback( const Frame::Buffer buffer,
 {
     Attachment& attachment = _getAttachment( buffer );
     util::GPUCompressor* downloader = attachment.transfer;
-    Memory& memory = attachment.memory;    
+    Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
     downloader->setGLEWContext( glewContext );
@@ -474,6 +479,7 @@ bool Image::_finishReadback( const Frame::Buffer buffer,
     if( !downloader->isValidDownloader( inputToken, alpha, flags ))
     {
         EQWARN << "Download plugin initialization failed" << std::endl;
+        attachment.memory.state = Memory::INVALID;
         return false;
     }
 
@@ -529,7 +535,7 @@ bool Image::readback( const Frame::Buffer buffer, const util::Texture* texture,
 {
     Attachment& attachment = _getAttachment( buffer );
     util::GPUCompressor* downloader = attachment.transfer;
-    Memory& memory = attachment.memory;    
+    Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
     downloader->setGLEWContext( glewContext );

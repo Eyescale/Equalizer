@@ -171,6 +171,25 @@ Image* FrameData::newImage( const eq::Frame::Type type,
     return image;
 }
 
+
+void FrameData::returnLastImage()
+{
+    if( _images.size() < 1 )
+    {
+        EQWARN << "Can't return image since no images were reserved"
+               << std::endl;
+        return;
+    }
+
+    _imageCacheLock.set();
+    EQASSERT( _images.size() > 0 );
+    _imageCache.push_back( _images.back() );
+    _imageCacheLock.unset();
+
+    _images.pop_back();
+}
+
+
 Image* FrameData::_allocImage( const eq::Frame::Type type,
                                const DrawableConfig& config,
                                const bool setQuality_ )
@@ -347,7 +366,11 @@ void FrameData::startReadback( const Frame& frame,
     if( getType() == eq::Frame::TYPE_TEXTURE )
     {
         Image* image = newImage( getType(), config );
-        image->startReadback( getBuffers(), absPVP, zoom, glObjects );
+        if( !image->startReadback( getBuffers(), absPVP, zoom, glObjects ))
+        {
+            returnLastImage();
+            return;
+        }
         image->setOffset( 0, 0 );
         return;
     }
@@ -363,7 +386,11 @@ void FrameData::startReadback( const Frame& frame,
             continue;
 
         Image* image = newImage( getType(), config );
-        image->startReadback( getBuffers(), pvp, zoom, glObjects );
+        if( !image->startReadback( getBuffers(), pvp, zoom, glObjects ))
+        {
+            returnLastImage();
+            return;
+        }
 
         pvp -= frame.getOffset();
         image->setOffset( (pvp.x - framePVP.x) * pixel.w,

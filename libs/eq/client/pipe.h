@@ -61,6 +61,8 @@ namespace eq
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
         co::CommandQueue* getPipeAsyncRBThreadQueue(); //!< @internal
+        const GLEWContext* getAsyncGlewContext(); //!< @internal
+
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
