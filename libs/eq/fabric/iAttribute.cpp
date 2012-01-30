@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,9 @@ namespace fabric
 {
 std::ostream& operator << ( std::ostream& os, const IAttribute value )
 {
+    if ( value >= fabric::SOCKET && value <= fabric::SOCKET_MAX )
+        return os << "socket " << value - fabric::SOCKET;
+
     switch( value )
     {
         case UNDEFINED:     os << "UNDEFINED"; break;

@@ -599,7 +599,7 @@ namespace detail { class Channel; }
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmitImageAsync( co::Command& command );
+        bool _cmdFrameTransmitImage( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );

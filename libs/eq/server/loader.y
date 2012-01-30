@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -293,7 +293,7 @@
 %token EQTOKEN_UNSIGNED
 %token EQTOKEN_SIZE
 %token EQTOKEN_CORE
-%token EQTOKEN_CPU
+%token EQTOKEN_SOCKET
 
 %union{
     const char*             _string;
@@ -1341,7 +1341,7 @@ IATTR:
     | EQTOKEN_RELATIVE_TO_OBSERVER { $$ = eq::fabric::RELATIVE_TO_OBSERVER; }
     | INTEGER            { $$ = $1; }
     | EQTOKEN_CORE INTEGER { $$ = eq::fabric::CORE + $2; }
-    | EQTOKEN_CPU INTEGER  { $$ = eq::fabric::CPU  + $2; }
+    | EQTOKEN_SOCKET INTEGER  { $$ = eq::fabric::SOCKET  + $2; }
 
 STRING: EQTOKEN_STRING
      {

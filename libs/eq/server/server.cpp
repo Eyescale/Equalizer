@@ -196,7 +196,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
         if( config )
         {
             config->register_();
-            EQINFO << "Created " << *config << std::endl;
+            EQINFO << "Configured " << *this << std::endl;
         }
     }
 #endif

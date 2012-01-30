@@ -1,6 +1,6 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
-# two-to-one sort-first config, for cluster change hostnames
+# two-to-one tile config, for cluster change hostnames
 global
 {
     EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
@@ -31,10 +31,10 @@ server
         }
 
         observer {}
-        layout { name "tile based" view{ observer "" }}
+        layout { name "tile" view{ observer "" }}
         canvas
         {
-            layout   "tile based"
+            layout   "tile"
             wall {}
 
             segment { channel  "channel1" }
@@ -42,9 +42,9 @@ server
 
         compound
         {
-            channel ( layout "tile based" )
+            channel ( layout "tile" )
             tile_equalizer {}
-            load_equalizer {}
+
             compound {}
             compound
             {

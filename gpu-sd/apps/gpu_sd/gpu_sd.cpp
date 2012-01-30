@@ -216,6 +216,10 @@ int main (int argc, char * argv[])
         session = vm["session"].as< std::string >();
     if( vm.count( "hostname" )) 
         hostname = vm["hostname"].as< std::string >();
+#else
+    if( argc > 1 )
+        std::cerr << "Ignoring command line options, compiled without "
+                  << "boost::program_options support" << std::endl;
 #endif
 
     const GPUInfos gpus = gpusd::Module::discoverGPUs();
@@ -229,7 +233,7 @@ int main (int argc, char * argv[])
     TXTRecordCreate( &record, 0, 0 );
     createTXTRecord( record, gpus, session, hostname );
 
-    DNSServiceErrorType error = registerService( record, hostname );
+    DNSServiceErrorType error = registerService( record );
     std::cout << "registerService returned: " << error << std::endl;
 
     TXTRecordDeallocate( &record );
