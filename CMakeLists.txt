@@ -60,9 +60,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-if(LINUX)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   add_definitions(-fPIC) # 64bit Linux wants this
-endif(LINUX)
+endif()
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")

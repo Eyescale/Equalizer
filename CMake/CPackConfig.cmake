@@ -9,7 +9,7 @@
 set(GPUSD_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(GPUSD_PACKAGE_VERSION)
 
-if(LINUX)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(CPACK_PACKAGE_NAME "gpu-sd${VERSION_MAJOR}")
 else()
   set(CPACK_PACKAGE_NAME "gpu-sd")
@@ -42,7 +42,7 @@ set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
 
 if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  set(DPUT_HOST "ppa:eilemann/equalizer")
+  set(DPUT_HOST "ppa:eilemann/equalizer-dev")
 endif()
 set(CPACK_DEBIAN_BUILD_DEPENDS libgl1-mesa-dev libx11-dev libavahi-compat-libdnssd-dev)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libgl1-mesa-glx, libavahi-compat-libdnssd1")
