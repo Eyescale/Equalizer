@@ -765,6 +765,13 @@ bool _removeOverlap( PixelViewports& regions )
     if( regions.size() < 2 )
         return false;
 
+    if( !regions[0].hasArea( ))
+    {
+        std::swap( regions[0], regions.back() );
+        regions.pop_back();
+        return true;
+    }
+
     for( size_t i = 0; i < regions.size()-1; ++i )
         for( size_t j = i+1; j < regions.size(); ++j )
         {
