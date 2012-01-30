@@ -41,6 +41,9 @@
 #ifdef CO_USE_OFED
 #  include "rdmaConnection.h"
 #endif
+#ifdef CO_USE_UDT
+#  include "udtConnection.h"
+#endif
 
 #include <co/base/scopedMutex.h>
 #include <co/base/stdExt.h>
@@ -125,6 +128,11 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 #ifdef CO_USE_OFED
         case CONNECTIONTYPE_RDMA:
             connection = new RDMAConnection;
+            break;
+#endif
+#ifdef CO_USE_UDT
+        case CONNECTIONTYPE_UDT:
+            connection = new UDTConnection;
             break;
 #endif
 
