@@ -35,8 +35,7 @@ public:
                                            const std::string& session,
                                            const uint32_t flags );
     static void configureForBenchmark( Config* config,
-                                       const std::string& session,
-                                       const uint32_t flags );
+                                       const std::string& session );
 };
 
 }
