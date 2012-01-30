@@ -24,8 +24,23 @@ namespace eq
 {
 namespace fabric
 {
-std::ostream& operator << ( std::ostream& os, const IAttribute value )
+std::ostream& operator << ( std::ostream& os, IAttribute value )
 {
+    int socketIndex;
+    int coreIndex;
+    if ( value >= fabric::SOCKET && value <= fabric::SOCKET_MAX )
+    {
+        // Capturing the socket index
+        socketIndex = value - fabric::SOCKET;
+        value = fabric::SOCKET;
+    }
+    else if ( value >= fabric::CORE )
+    {
+        // Capturing the socket index
+        coreIndex = value - fabric::CORE;
+        value = fabric::CORE;
+    }
+
     switch( value )
     {
         case UNDEFINED:     os << "UNDEFINED"; break;
@@ -48,7 +63,8 @@ std::ostream& operator << ( std::ostream& os, const IAttribute value )
         case FIXED:         os << "fixed"; break;
         case RELATIVE_TO_ORIGIN:   os << "relative_to_origin"; break;
         case RELATIVE_TO_OBSERVER: os << "relative_to_observer"; break;
-        case CPU:           os << "cpu "; break;
+        case SOCKET:        os << "socket " << socketIndex ; break;
+        case CORE:          os << "core " << coreIndex ; break;
         default:            os << static_cast< int >( value );
     }
     return os;

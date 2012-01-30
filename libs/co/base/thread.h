@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2012, Marwan Abdellah <marwan.abdellah@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,10 +27,6 @@
 
 #include <ostream>
 
-#ifdef Linux
-#  include <sched.h>
-#endif
-
 #ifdef CO_USE_HWLOC
 #  include <hwloc.h>
 #endif
@@ -45,10 +42,9 @@ namespace base
         /** Enumeration values for thread affinity. */
         enum Affinity
         {
-            /* Not yet implemented:  OFF = 0, */
-            CORE = 1, //!< Bind to a specific CPU core
-            CPU = -65536, //!< Bind to all cores of a specific CPU
-            CPU_MAX = -1024 //!< Highes bindable CPU
+            CORE = 2, //!< Bind to a specific CPU core
+            SOCKET = -65536, //!< Bind to all cores of a specific socket or CPU
+            SOCKET_MAX = -1024 //!< Highes bindable CPU
         };
 
         /** Construct a new thread. @version 1.0 */
@@ -196,11 +192,7 @@ namespace base
         friend void _notifyStopping( void* ); //!< @internal
 
 #ifdef CO_USE_HWLOC
-        static hwloc_cpuset_t _getCpuSet_hwloc( const int32_t affinity, hwloc_topology_t topology );
-#else
-#  ifdef Linux
-        static cpu_set_t _getCpuSet( const int32_t affinity );
-#  endif
+        static hwloc_cpuset_t _getCpuSet( const int32_t affinity, hwloc_topology_t topology );
 #endif
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };

@@ -340,21 +340,11 @@ void Pipe::output( std::ostream& os ) const
             attrPrinted = true;
         }
         
-        /* To display the CPU affinity correctly */
-        if ( value >= fabric::CPU || value <= fabric::CPU_MAX  )
-        {
-        	const int32_t cpuIndex = value - fabric::CPU;
-        	os << ( i == IATTR_HINT_AFFINITY  ? "hint_affinity " : "ERROR" )
-						   << static_cast< fabric::IAttribute >( fabric::CPU )
-						   << cpuIndex << std::endl;
-        }
-        else
-        {
-        	os << ( i == IATTR_HINT_THREAD ? "hint_thread          " :
-        			i == IATTR_HINT_CUDA_GL_INTEROP ? "hint_cuda_GL_interop " :
-        			"ERROR" )
-        				   << static_cast< fabric::IAttribute >( value ) << std::endl;
-        }
+        os << ( i == IATTR_HINT_THREAD ? "hint_thread "                   :
+                i == IATTR_HINT_CUDA_GL_INTEROP ? "hint_cuda_GL_interop " :
+                i == IATTR_HINT_AFFINITY ? "hint_affinity "               :
+                    "ERROR" )
+           << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     
     if( attrPrinted )

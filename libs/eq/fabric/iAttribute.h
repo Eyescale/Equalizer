@@ -30,9 +30,9 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
-        CPU = co::base::Thread::CPU, //!< CPU thread affinity "-1024 ... -64k"
+        SOCKET = co::base::Thread::SOCKET, //!< CPU thread affinity "-1024 ... -64k"
         CORE = co::base::Thread::CORE, //!< Core thread affinity "1 ... 256"
-        CPU_MAX = co::base::Thread::CPU_MAX, //!< Highes bindable CPU
+        SOCKET_MAX = co::base::Thread::SOCKET_MAX, //!< Highes bindable CPU
         RELATIVE_TO_OBSERVER = -17, //!< focal convergence relative to observer
         RELATIVE_TO_ORIGIN   = -16, //!< focal convergence relative to origin
         FIXED      = -15, //!< config or observer focus fixed on wall/projection

@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+ * Copyright (c) 2012, Marwan Abdellah <marwan.abdellah@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,7 +41,6 @@
 
 #ifdef Linux
 #  include <sys/prctl.h>
-#  include <sched.h>
 #endif
 
 #ifdef CO_USE_HWLOC
@@ -309,93 +309,73 @@ void Thread::setName( const std::string& name )
 void Thread::setAffinity(const int32_t affinity)
 {
 #ifdef CO_USE_HWLOC
-	hwloc_topology_t topology;
-	hwloc_topology_init( &topology ); // Allocate & initialize the topology
-	hwloc_topology_load( topology );  // Perform HW topology detection
-	const hwloc_cpuset_t cpuSet = _getCpuSet_hwloc( affinity, topology );
-	const int affinityFlag = hwloc_set_cpubind ( topology, cpuSet, 0);
+    hwloc_topology_t topology;
+    hwloc_topology_init( &topology ); // Allocate & initialize the topology
+    hwloc_topology_load( topology );  // Perform HW topology detection
+    const hwloc_cpuset_t cpuSet = _getCpuSet( affinity, topology );
+    const int affinityFlag = hwloc_set_cpubind ( topology, cpuSet, 0);
 
-	if ( affinityFlag == 0 )
-		EQWARN << "Affinity is successfully set relying on HWloc library " << std::endl;
-	else
-		EQWARN << "Affinity is NOT successfully set with the HWloc library " << std::endl;
+    if ( affinityFlag == 0 )
+        EQWARN << "Affinity is successfully set relying on HWloc library " << std::endl;
+    else
+        EQWARN << "Affinity is NOT successfully set with the HWloc library " << std::endl;
 #else
-	EQWARN << "HWloc library is not supported " << std::endl;
-#  ifdef Linux
-    const cpu_set_t cpuSet = _getCpuSet( affinity );
-    const int affinityFlag = sched_setaffinity( 0, sizeof( cpuSet ), &cpuSet);
-
-	if ( affinityFlag == 0 )
-		EQWARN << "Affinity is successfully set relying on sched_setaffinity() " << std::endl;
-	else
-		EQWARN << "Affinity is NOT successfully set with sched_setaffinity() " << std::endl;
-#  else
-    EQWARN << "Thread affinity is not supported for this platform" << std::endl;
-#  endif
+    EQWARN << "Thread affinity is not supported since HWloc library was not found" << std::endl;
 #endif
 }
 
 #ifdef CO_USE_HWLOC
-hwloc_cpuset_t Thread::_getCpuSet_hwloc( const int32_t affinity , hwloc_topology_t topology)
+hwloc_cpuset_t Thread::_getCpuSet( const int32_t affinity , hwloc_topology_t topology)
 {
-	hwloc_cpuset_t cpuSet; // HWloc CPU set
-	cpuSet = hwloc_cpuset_alloc();
-	hwloc_cpuset_zero( cpuSet ); // Initialize to zeros
+    hwloc_cpuset_t cpuSet; // HWloc CPU set
+    cpuSet = hwloc_cpuset_alloc();
+    hwloc_cpuset_zero( cpuSet ); // Initialize to zeros
 
-	if ( affinity >= CORE )
+    if ( affinity >= CORE )
     {
-	   hwloc_cpuset_cpu( cpuSet, ( affinity - CORE ) );
-	   return cpuSet;
+        const int32_t coreIndex = affinity - CORE;
+        if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_CORE, coreIndex ) == 0 )
+          {
+              EQWARN << "Core ID " << coreIndex << " does not exist in the topology"
+                     << std::endl;
+              return cpuSet;
+          }
+
+        // Getting the core object #coreIndex
+        const hwloc_obj_t coreObj = hwloc_get_obj_by_type( topology,
+                                                           HWLOC_OBJ_CORE,
+                                                           coreIndex );
+
+        // Get the CPU set associated with the specified core
+        cpuSet = coreObj -> allowed_cpuset;
+        return cpuSet;
     }
 
     if( affinity >= 0 )
     {
-       return cpuSet;
+        return cpuSet;
     }
 
-    /* Sets the affinity to a specific CPU or "socket" with all of its cores */
-    EQASSERT( affinity >= CPU && affinity < CPU_MAX );
-    const int32_t cpuIndex = affinity - CPU;
+    // Sets the affinity to a specific CPU or "socket"
+    EQASSERT( affinity >= SOCKET && affinity < SOCKET_MAX );
+    const int32_t socketIndex = affinity - SOCKET;
 
-    if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_SOCKET, cpuIndex ) == 0 )
+    if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_SOCKET, socketIndex ) == 0 )
     {
-        EQWARN << "CPU ID " << cpuIndex << " does not exist in the topology"
+        EQWARN << "Socket ID " << socketIndex << " does not exist in the topology"
                << std::endl;
         return cpuSet;
     }
 
     // Getting the CPU object #cpuIndex (subtree node)
-    const hwloc_obj_t cpuObj = hwloc_get_obj_by_type( topology,
-                                                      HWLOC_OBJ_SOCKET,
-                                                      cpuIndex );
+    const hwloc_obj_t socketObj = hwloc_get_obj_by_type( topology,
+                                                         HWLOC_OBJ_SOCKET,
+                                                         socketIndex );
 
-	// Get the CPU set associated with the CPU #cpuIndex
-	cpuSet = cpuObj->allowed_cpuset;
-	return cpuSet;
+    // Get the CPU set associated with the specified socket
+    cpuSet = socketObj -> allowed_cpuset;
+    return cpuSet;
 }
-#else
-#  ifdef Linux
-cpu_set_t Thread::_getCpuSet( const int32_t affinity)
-{
-	cpu_set_t cpuSet; // Linux CPU set
-	CPU_ZERO( &cpuSet ); // Initialize to zeros
-
-	if (affinity >= CORE)
-	{
-		CPU_SET( affinity - CORE, &cpuSet );
-		return cpuSet;
-	}
-
-	if( affinity >= 0 )
-	{
-		return cpuSet;
-	}
-
-	if ( affinity >= CPU && affinity < CPU_MAX )
-		EQWARN << "CPU affinity is not supported " << std::endl;
-	return cpuSet;
-}
-#  endif
 #endif
 
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
