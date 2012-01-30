@@ -205,7 +205,7 @@ else()
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  find_package_handle_standard_args(Equalizer DEFAULT_MSG<
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
 endif()
 
