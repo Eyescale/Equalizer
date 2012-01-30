@@ -205,7 +205,7 @@ else()
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Equalizer DEFAULT_MSG
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
 endif()
 
@@ -224,8 +224,10 @@ else()
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${_eq_fabric_LIBRARY}
-                        ${COLLAGE_LIBRARIES})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+if(EQUALIZER_VERSION VERSION_GREATER 1.0)
+  set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
+endif()
 get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)
