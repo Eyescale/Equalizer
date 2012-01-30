@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -607,7 +607,7 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmitImageAsync( co::Command& command );
+        bool _cmdFrameTransmitImage( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
