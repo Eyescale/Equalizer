@@ -102,8 +102,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameAssemble ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_READBACK, 
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC,
-                     CmdFunc( this, &Channel::_cmdFrameTransmitImageAsync ),
+    registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
+                     CmdFunc( this, &Channel::_cmdFrameTransmitImage ),
                      transmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
                      CmdFunc( this, &Channel::_cmdFrameSetReady ), transmitQ );
@@ -1535,7 +1535,6 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
         for( size_t k = startPos; k < frame->getImages().size(); ++k )
         {
             ChannelFrameTransmitImagePacket packet;
-            packet.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
             packet.context   = context;
             packet.frameData = frame->getDataVersion( context.eye );
             packet.clientNodeID = *i;
@@ -1624,6 +1623,8 @@ void Channel::_setOutputFramesReady()
         {
             const size_t frameNumber = getCurrentFrame();
             const size_t index = frameNumber % _impl->statistics->size();
+
+            EQASSERT( _impl->statistics.data[ index ].used );
             ++_impl->statistics.data[ index ].used;
 
             ChannelFrameSetReadyPacket setReadyPacket;
@@ -1949,7 +1950,7 @@ bool Channel::_cmdFinishImageReadback( co::Command& command )
     if( !packet->isLocal && image->hasPixelData( ))
     {
         ChannelFrameTransmitImagePacket tPacket = *packet;
-        tPacket.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+        tPacket.command = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE;
         send( getNode()->getLocalNode(), tPacket );
 
         // TODO: send set ready packet
@@ -1959,7 +1960,7 @@ bool Channel::_cmdFinishImageReadback( co::Command& command )
 }
 
 
-bool Channel::_cmdFrameTransmitImageAsync( co::Command& command )
+bool Channel::_cmdFrameTransmitImage( co::Command& command )
 {
     const ChannelFrameTransmitImagePacket* packet = 
         command.get<ChannelFrameTransmitImagePacket>();
