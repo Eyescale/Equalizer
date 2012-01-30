@@ -83,36 +83,48 @@ bool Resources::discover( Config* config, const std::string& session,
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }
+
     typedef stde::hash_map< std::string, Node* > NodeMap;
-
     NodeMap nodes;
-    const bool multiprocess = flags & ConfigParams::FLAG_MULTIPROCESS;
 
+    const bool multiProcess = flags & ConfigParams::FLAG_MULTIPROCESS;
+    const bool multiNode = session != "local" ||
+                           ( multiProcess && infos.size() > 1 );
     size_t gpuCounter = 0;
+
     for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
         const gpusd::GPUInfo& info = *i;
 
-        Node* node = nodes[ info.hostname ];
-        if( !node || multiprocess )
+        Node* mtNode = nodes[ info.hostname ];
+        Node* mpNode = 0;
+        if( !mtNode )
         {
-            const bool isApplicationNode = info.hostname.empty() && !node;
-            node = new Node( config );
-            node->setName( info.hostname );
-            node->setHost( info.hostname );
-            node->setApplicationNode( isApplicationNode );
+            const bool isApplicationNode = info.hostname.empty();
+            mtNode = new Node( config );
+            mtNode->setName( info.hostname );
+            mtNode->setHost( info.hostname );
+            mtNode->setApplicationNode( isApplicationNode );
 
+            if( multiNode )
+            {
+                co::ConnectionDescriptionPtr desc = new ConnectionDescription;
+                desc->setHostname( info.hostname );
+                mtNode->addConnectionDescription( desc );
+            }
+            nodes[ info.hostname ] = mtNode;
+        }
+        else if( multiProcess )
+        {
+            mpNode = new Node( config );
+            mpNode->setName( info.hostname );
+            mpNode->setHost( info.hostname );
+
+            EQASSERT( multiNode );
             co::ConnectionDescriptionPtr desc = new ConnectionDescription;
             desc->setHostname( info.hostname );
-            node->addConnectionDescription( desc );
-
-            nodes[ info.hostname ] = node;
+            mpNode->addConnectionDescription( desc );
         }
-
-        Pipe* pipe = new Pipe( node );
-        pipe->setPort( info.port );
-        pipe->setDevice( info.device );
-        pipe->setPixelViewport( PixelViewport( info.pvp ));
 
         std::stringstream name;
         if( info.device == EQ_UNDEFINED_UINT32 )
@@ -120,6 +132,20 @@ bool Resources::discover( Config* config, const std::string& session,
         else
             name << "GPU" << ++gpuCounter;
 
+        if( mpNode ) // multi-process resource
+        {
+            Pipe* pipe = new Pipe( mpNode );
+            pipe->setPort( info.port );
+            pipe->setDevice( info.device );
+            pipe->setPixelViewport( PixelViewport( info.pvp ));
+            pipe->setName( name.str() + " mp" );
+            name << " mt"; // mark companion GPU as multi-threaded only
+        }
+
+        Pipe* pipe = new Pipe( mtNode ); // standalone/multi-threaded resource
+        pipe->setPort( info.port );
+        pipe->setDevice( info.device );
+        pipe->setPixelViewport( PixelViewport( info.pvp ));
         pipe->setName( name.str( ));
     }
 
@@ -144,7 +170,10 @@ namespace
 class AddSourcesVisitor : public ConfigVisitor
 {
 public:
-    AddSourcesVisitor( const PixelViewport& pvp ) : _pvp( pvp ) {}
+    AddSourcesVisitor( const PixelViewport& pvp, Channels& mtChannels,
+                       Channels& mpChannels )
+            : _pvp( pvp ), _mtChannels( mtChannels ), _mpChannels( mpChannels )
+        {}
 
     virtual VisitorResult visitPre( Pipe* pipe )
         {
@@ -153,39 +182,59 @@ public:
             {
                 // display window has discrete 'affinity' GPU
                 if( pipe->getName() != "display" )
-                    _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
+                {
+                    _mtChannels.push_back( pipe->getChannel( ChannelPath( 0 )));
+                    _mpChannels.push_back( _mtChannels.back( ));
+                }
                 return TRAVERSE_CONTINUE;
             }
 
+            const std::string& name = pipe->getName();
+            if( name.find( " mt" ) != std::string::npos )
+                _mtChannels.push_back( _addSource( pipe ));
+            else if( name.find( " mp" ) != std::string::npos )
+                _mpChannels.push_back( _addSource( pipe ));
+            else
+            {
+                _mtChannels.push_back( _addSource( pipe ));
+                _mpChannels.push_back( _mtChannels.back( ));
+            }
+
+            return TRAVERSE_CONTINUE; 
+        }
+
+private:
+    const PixelViewport& _pvp;
+    Channels& _mtChannels;
+    Channels& _mpChannels;
+
+    Channel* _addSource( Pipe* pipe )
+        {
             Window* window = new Window( pipe );
             if( !pipe->getPixelViewport().isValid( ))
                 window->setPixelViewport( _pvp );
             window->setIAttribute( Window::IATTR_HINT_DRAWABLE, fabric::FBO );
             window->setName( pipe->getName() + " source window" );
 
-            _channels.push_back( new Channel( window ));
-            _channels.back()->setName( pipe->getName() + " source channel" );
-            return TRAVERSE_CONTINUE; 
+            Channel* channel = new Channel( window );
+            channel->setName( pipe->getName() + " source channel" );
+            return channel;
         }
-
-    const Channels& getChannels() const { return _channels; }
-private:
-    const PixelViewport& _pvp;
-    Channels _channels;
 };
 }
 
-Channels Resources::configureSourceChannels( Config* config )
+void Resources::configureSourceChannels( Config* config, Channels& mtChannels,
+                                         Channels& mpChannels )
 {
     const Node* node = config->findAppNode();
     EQASSERT( node );
     if( !node )
-        return Channels();
+        return;
 
     const Pipes& pipes = node->getPipes();
     EQASSERT( !pipes.empty( ));
     if( pipes.empty( ))
-        return Channels();
+        return;
 
     Pipe* pipe = pipes.front();
     PixelViewport pvp = pipe->getPixelViewport();
@@ -197,9 +246,11 @@ Channels Resources::configureSourceChannels( Config* config )
     else
         pvp = PixelViewport( 0, 0, 1920, 1200 );
 
-    AddSourcesVisitor addSources( pvp );
+    mtChannels.clear();
+    mpChannels.clear();
+
+    AddSourcesVisitor addSources( pvp, mtChannels, mpChannels );
     config->accept( addSources );
-    return addSources.getChannels();
 }
 
 #if 0 // EQ_GCC_4_5_OR_LATER

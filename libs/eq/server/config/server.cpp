@@ -25,6 +25,8 @@
 #include "../loader.h"
 #include "../server.h"
 
+#include <eq/client/configParams.h>
+
 #include <fstream>
 
 namespace eq
@@ -66,8 +68,12 @@ Config* Server::configure( ServerPtr server, const std::string& session,
         return 0;
     }
 
-    const Channels channels = Resources::configureSourceChannels( config );
-    Resources::configure( compounds, channels );
+    Channels mtChannels;
+    Channels mpChannels;
+    Resources::configureSourceChannels( config, mtChannels, mpChannels );
+
+    const bool multiProcess = flags & ConfigParams::FLAG_MULTIPROCESS;
+    Resources::configure( compounds, multiProcess ? mpChannels : mtChannels );
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";

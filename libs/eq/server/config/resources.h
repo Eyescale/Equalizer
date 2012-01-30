@@ -39,7 +39,8 @@ class Resources
 public:
     static bool discover( Config* config, const std::string& session,
                           const uint32_t flags );
-    static Channels configureSourceChannels( Config* config );
+    static void  configureSourceChannels( Config* config, Channels& mtChannels, 
+                                          Channels& mpChannels );
     static void configure( const Compounds& compounds, const Channels& sources);
 
 private:
