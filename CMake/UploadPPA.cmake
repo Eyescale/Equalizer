@@ -78,7 +78,7 @@ function(UPLOAD_PPA UBUNTU_NAME)
     "\n"
     "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
     "Architecture: any\n"
-    "Depends: "
+    "Depends: ")
 
   foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
     set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
