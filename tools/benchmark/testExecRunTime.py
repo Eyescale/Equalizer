@@ -27,10 +27,7 @@ def getProcessRunTime( processName ):
          
 if __name__ == "__main__":
 
-
    parser = OptionParser()
-   parser.add_option("-f", "--fullscreen",
-                     action="store_true", dest="screenmode", default=False )
    parser.add_option("-a", "--application", dest="application",
                      help="Select app ( eqPly, rtneuron )", default="eqPly")
    parser.add_option("-s", "--step", dest="step",
