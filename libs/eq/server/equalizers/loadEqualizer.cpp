@@ -99,7 +99,6 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     _history.back().first = frameNumber;
 
     _update( _tree );
-    EQLOG( LOG_LB2 ) << "LB tree @ " << frameNumber << ": " << _tree;
     _computeSplit();
 }
 
@@ -216,7 +215,8 @@ void LoadEqualizer::_clearTree( Node* node )
 void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t frameNumber,
                                     const uint32_t nStatistics,
-                                    const Statistic* statistics )
+                                    const Statistic* statistics,
+                                    const Viewport& region )
 {
     EQLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
                      << " @ " << frameNumber << std::endl;
@@ -238,9 +238,6 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             // Found corresponding historical data item
             const uint32_t taskID = data.taskID;
             EQASSERTINFO( taskID > 0, channel->getName( ));
-
-            if( data.vp.getArea() <= 0.f )
-                return;
 
             // gather relevant load data
             int64_t startTime = std::numeric_limits< int64_t >::max();
@@ -286,15 +283,15 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             if( startTime == std::numeric_limits< int64_t >::max( ))
                 return;
 
+            data.vp.apply( region ); // Update ROI
             data.time = endTime - startTime;
             data.time = EQ_MAX( data.time, 1 );
             data.time = EQ_MAX( data.time, transmitTime );
             data.assembleTime = EQ_MAX( data.assembleTime, 0 );
-            data.load = static_cast< float >( data.time ) / data.vp.getArea();
-            EQLOG( LOG_LB2 ) << "Added load "<< data.load << " (t=" << data.time
-                            << ") for " << channel->getName() << " " << data.vp
-                            << ", " << data.range << " @ " << frameNumber
-                            << std::endl;
+            EQLOG( LOG_LB2 ) << "Added time " << data.time << " (+"
+                             << data.assembleTime << ") for "
+                             << channel->getName() << " " << data.vp << ", "
+                             << data.range << " @ " << frameNumber << std::endl;
             return;
 
             // Note: if the same channel is used twice as a child, the 
@@ -360,7 +357,6 @@ void LoadEqualizer::_checkHistory()
         
         Data& data = items.front();
         data.time = 1;
-        data.load = 1.f;
         EQASSERT( data.taskID == 0 );
         EQASSERT( data.channel == 0 );
     }
@@ -491,7 +487,7 @@ void LoadEqualizer::_updateNode( Node* node )
 int64_t LoadEqualizer::_getTotalTime() 
 {
     const LBFrameData& frameData = _history.front();
-    LBDatas items( frameData.second );
+    LBDatas items = frameData.second;
     _removeEmpty( items );
 
     int64_t totalTime = 0;
@@ -506,8 +502,7 @@ int64_t LoadEqualizer::_getTotalTime()
 int64_t LoadEqualizer::_getAssembleTime( )
 {
     const LBFrameData& frameData = _history.front();
-    LBDatas items( frameData.second );
-    _removeEmpty( items );
+    const LBDatas& items = frameData.second;
 
     int64_t assembleTime = 0;
     for( LBDatas::const_iterator i = items.begin(); i != items.end(); ++i )
@@ -526,7 +521,8 @@ void LoadEqualizer::_computeSplit()
     const LBFrameData& frameData = _history.front();
     const Compound* compound = getCompound();
     EQLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
-                    << " using frame " << frameData.first << std::endl;
+                    << " using frame " << frameData.first << " tree "
+                     << std::endl << _tree;
 
     // sort load items for each of the split directions
     LBDatas items( frameData.second );
@@ -552,9 +548,8 @@ void LoadEqualizer::_computeSplit()
              ++i )
         {  
             const Data& data = *i;
-            EQLOG( LOG_LB2 ) << "  " << data.vp << ", load " << data.load 
-                            << " (t=" << data.load * data.vp.getArea() << ")"
-                            << std::endl;
+            EQLOG( LOG_LB2 ) << "  " << data.vp << ", time " << data.time
+                             << " (+" << data.assembleTime << ")" << std::endl;
         }
 #endif
     }
@@ -599,10 +594,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
     EQASSERT( node->left && node->right );
 
-    const float leftTime = time * node->left->resources / node->resources;
-
     LBDatas workingSet = datas[ node->mode ];
-    float timeLeft = leftTime;
+    const float leftTime = node->resources > 0 ?
+                           time * node->left->resources / node->resources : 0.f;
+    float timeLeft = EQ_MIN( leftTime, time ); // correct for fp rounding error
 
     switch( node->mode )
     {
@@ -614,9 +609,9 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             const float end = vp.getXEnd();
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
-                   splitPos < end && !workingSet.empty())
+                   splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
+                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
                                 << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
@@ -629,7 +624,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     else
                         i = workingSet.erase( i );
                 }
-                EQASSERT( !workingSet.empty( ));
+                if( workingSet.empty( ))
+                    break;
 
                 // find next 'discontinouity' in loads
                 float currentPos = 1.0f;
@@ -637,17 +633,21 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
-                    currentPos = EQ_MIN( currentPos, data.vp.getXEnd( ));
+                    if( data.vp.x > splitPos && data.vp.x < currentPos )
+                        currentPos = data.vp.x;
+                    const float xEnd = data.vp.getXEnd();
+                    if( xEnd > splitPos && xEnd < currentPos )
+                        currentPos = xEnd;
                 }
 
-                EQASSERTINFO( currentPos > splitPos,
-                              currentPos << "<=" << splitPos );
+                const float width = currentPos - splitPos;
+                EQASSERTINFO( width > 0.f, currentPos << "<=" << splitPos );
                 EQASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
                                  << currentPos << std::endl;
-                float currentLoad = 0.f;
+                float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
@@ -667,27 +667,24 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
 
                     if( yContrib > 0.f )
                     {
-                        const float percentage = yContrib / vp.h;
-                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
-                                        << yContrib << " of " << data.vp.h
-                                        << " (" << percentage
-                                        << ") with " << data.load << ": "
-                                        << ( data.load * percentage )
-                                        << " vp.y " << vp.y << " dataEnd " 
-                                        << dataEnd << " vpEnd " << vpEnd
-                                        << std::endl;
+                        const float percentage = ( width / data.vp.w ) *
+                                                 ( yContrib / data.vp.h );
+                        currentTime += ( data.time * percentage );
 
-                        currentLoad += ( data.load * percentage );
+                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
+                                         << yContrib << " in " << vp.h << " ("
+                                         << percentage << ") with " << data.time
+                                         << ": " << ( data.time * percentage )
+                                         << " vp.y " << vp.y << " dataEnd " 
+                                         << dataEnd << " vpEnd " << vpEnd
+                                         << std::endl;
+                        EQASSERT( percentage < 1.01f )
                     }
                 }
 
-                const float width        = currentPos - splitPos;
-                const float area         = width * vp.h;
-                const float currentTime  = area * currentLoad;
-                    
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
-                                << ": t=" << currentTime << " of " 
-                                << timeLeft << std::endl;
+                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                                 << currentTime << " of " << timeLeft
+                                 << std::endl;
 
                 if( currentTime >= timeLeft ) // found last region
                 {
@@ -771,10 +768,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             const float end = vp.getYEnd();
 
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
-                   splitPos < end && !workingSet.empty( ))
+                   splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
-                                << workingSet.size() << " tiles" << std::endl;
+                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
+                                 << workingSet.size() << " tiles" << std::endl;
 
                 // remove all unrelevant items from working set
                 for( LBDatas::iterator i = workingSet.begin();
@@ -786,25 +783,30 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     else
                         i = workingSet.erase( i );
                 }
-                EQASSERT( !workingSet.empty( ));
+                if( workingSet.empty( ))
+                    break;
 
-                // find next 'discontinouity' in loads
+                // find next 'discontinuouity' in loads
                 float currentPos = 1.0f;
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;
-                    currentPos = EQ_MIN( currentPos, data.vp.getYEnd( ));
+                    if( data.vp.y > splitPos && data.vp.y < currentPos )
+                        currentPos = data.vp.y;
+                    const float yEnd = data.vp.getYEnd();
+                    if( yEnd > splitPos && yEnd < currentPos )
+                        currentPos = yEnd;
                 }
 
-                EQASSERTINFO( currentPos > splitPos,
-                              currentPos << "<=" << splitPos );
+                const float height = currentPos - splitPos;
+                EQASSERTINFO( height > 0.f, currentPos << "<=" << splitPos );
                 EQASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
                                 << currentPos << std::endl;
-                float currentLoad = 0.f;
+                float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
@@ -825,27 +827,24 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     
                     if( xContrib > 0.f )
                     {
-                        const float percentage = xContrib / vp.w;
-                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
-                                        << xContrib << " of " << data.vp.w
-                                        << " (" << percentage
-                                        << ") with " << data.load << ": "
-                                        << ( data.load * percentage )
-                                        << " vp.x " << vp.x << " dataEnd " 
-                                        << dataEnd << " vpEnd " << vpEnd
-                                        << std::endl;
+                        const float percentage = ( height / data.vp.h ) *
+                                                 ( xContrib / data.vp.w );
+                        currentTime += ( data.time * percentage );
 
-                        currentLoad += ( data.load * percentage );
+                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
+                                         << xContrib << " in " << vp.w << " ("
+                                         << percentage << ") with " << data.time
+                                         << ": " << ( data.time * percentage )
+                                         << " total " << currentTime << " vp.x "
+                                         << vp.x << " dataEnd " << dataEnd
+                                         << " vpEnd " << vpEnd << std::endl;
+                        EQASSERT( percentage < 1.01f )
                     }
                 }
 
-                const float height       = currentPos - splitPos;
-                const float area         = height * vp.w;
-                const float currentTime  = area * currentLoad;
-
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
-                                << ": t=" << currentTime << " of " 
-                                << timeLeft << std::endl;
+                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                                 << currentTime << " of " << timeLeft
+                                 << std::endl;
 
                 if( currentTime >= timeLeft ) // found last region
                 {
@@ -923,10 +922,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             const float end = range.end;
 
             while( timeLeft > std::numeric_limits< float >::epsilon() && 
-                   splitPos < end && !workingSet.empty( ))
+                   splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left for "
-                                << workingSet.size() << " tiles" << std::endl;
+                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
+                                 << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
                 for( LBDatas::iterator i = workingSet.begin();
@@ -938,7 +937,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     else
                         i = workingSet.erase( i );
                 }
-                EQASSERT( !workingSet.empty( ));
+                if( workingSet.empty( ))
+                    break;
 
                 // find next 'discontinouity' in loads
                 float currentPos = 1.0f;
@@ -949,14 +949,14 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     currentPos = EQ_MIN( currentPos, data.range.end );
                 }
 
-                EQASSERTINFO( currentPos > splitPos,
-                              currentPos << "<=" << splitPos );
+                const float size = currentPos - splitPos;
+                EQASSERTINFO( size > 0.f, currentPos << "<=" << splitPos );
                 EQASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
                 EQLOG( LOG_LB2 ) << "Computing load in range " << splitPos
                                 << "..." << currentPos << std::endl;
-                float currentLoad = 0.f;
+                float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
                      i != workingSet.end(); ++i )
                 {
@@ -971,22 +971,22 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     EQASSERTINFO( data.range.end >= currentPos, 
                                   data.range.end << " < " << currentPos);
 #endif
-                    currentLoad += data.load;
+                    currentTime += data.time * size / data.range.getSize();
                 }
 
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos 
-                                << ": t=" << currentLoad << " of " 
-                                << timeLeft << std::endl;
+                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                                 << currentTime << " of " << timeLeft
+                                 << std::endl;
 
-                if( currentLoad >= timeLeft ) // found last region
+                if( currentTime >= timeLeft ) // found last region
                 {
                     const float width = currentPos - splitPos;
-                    splitPos += (width * timeLeft / currentLoad );
+                    splitPos += (width * timeLeft / currentTime );
                     timeLeft = 0.0f;
                 }
                 else
                 {
-                    timeLeft -= currentLoad;
+                    timeLeft -= currentTime;
                     splitPos  = currentPos;
                 }
             }

@@ -226,9 +226,6 @@ void Resources::configure( const Compounds& compounds, const Channels& channels)
 
         canvas = channel->getCanvas();
 
-        const Layout* layout = channel->getLayout();
-        EQASSERT( layout );
-
         _addMonoCompound( segmentCompound, channels );
         _addStereoCompound( segmentCompound, channels );
     }

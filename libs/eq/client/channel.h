@@ -591,7 +591,10 @@ namespace detail { class Channel; }
                               const size_t startPos );
 
         /** Transmit frame ready after transmitting all images. */
-        void _resetOutputFrames( const RenderContext& context );
+        void _resetOutputFrames();
+
+        /** Set output ready locally and remotely. */
+        void   _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -603,7 +606,7 @@ namespace detail { class Channel; }
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmitImageAsync( co::Command& command );
+        bool _cmdFrameTransmitImage( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );

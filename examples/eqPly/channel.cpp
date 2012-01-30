@@ -105,7 +105,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     const eq::View* view = getView();
     if( view && frameData.getCurrentViewID() == view->getID( ))
-        glClearColor( .4f, .4f, .4f, 1.0f );
+        glClearColor( 1.f, 1.f, 1.f, 1.f );
 #ifndef NDEBUG
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {
@@ -555,7 +555,7 @@ eq::Vector2i Channel::_getJitterStep() const
 
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
-    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] ) % subset +
+    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] )%subset +
                            ( channelID * subset );
     const uint32_t sampleSize = 16;
     const int dx = index % sampleSize;
@@ -645,6 +645,13 @@ void Channel::_drawModel( const Model* scene )
     glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
+
+    const eq::View* currentView = getView();
+    if( currentView && frameData.getCurrentViewID() == currentView->getID( ))
+        glColor3f( 0.f, 0.f, 0.f );
+    else
+        glColor3f( 1.f, 1.f, 1.f );
+    glNormal3f( 0.f, 0.f, 1.f );
 
     const eq::Vector4f rect( float( region.x ) + .5f, float( region.y ) + .5f,
                              float( region.getXEnd( )) - .5f,

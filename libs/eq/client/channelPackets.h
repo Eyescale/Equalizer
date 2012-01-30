@@ -112,6 +112,7 @@ namespace eq
                 size        = sizeof( ChannelFrameFinishReplyPacket );
             }
 
+        Viewport region;
         uint32_t frameNumber;
         uint32_t nStatistics;
         EQ_ALIGN8( Statistic statistics[1] );
@@ -179,7 +180,7 @@ namespace eq
         ChannelFrameTransmitImagePacket()
                 : fill( 0 )
         {
-            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE_ASYNC;
+            command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE;
             size          = sizeof( ChannelFrameTransmitImagePacket );
         }
 
