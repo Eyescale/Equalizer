@@ -316,13 +316,10 @@ namespace detail { class Channel; }
         EQ_API void declareRegion( const eq::Viewport& vp );
 
         /** @return cummulative current region of interest. @version 1.3 */
-        EQ_API const PixelViewport& getRegion() const;
+        EQ_API PixelViewport getRegion() const;
 
         /** @return current regions of interest. @version 1.3 */
         EQ_API const PixelViewports& getRegions() const;
-
-        /** @return true if regions do not overlap. @version 1.3 */
-        EQ_API bool checkRegionsConsistency() const;
 
         //@}
 
@@ -594,7 +591,7 @@ namespace detail { class Channel; }
         void _resetOutputFrames();
 
         /** Set output ready locally and remotely. */
-        void   _setOutputFramesReady();
+        void _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );

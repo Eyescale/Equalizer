@@ -83,10 +83,9 @@ public:
     /** The initial channel size, used for view resize events. */
     Vector2i initialSize;
 
-    /** The application-declared regions of interest. */
-    PixelViewports    regions;
-    /** Cumulative region of interest. */
-    eq::PixelViewport totalRegion;
+    /** The application-declared regions of interest, merged if 
+        necessary to be non overlapping. */
+    PixelViewports regions;
 };
 
 }

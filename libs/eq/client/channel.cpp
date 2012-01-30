@@ -389,9 +389,6 @@ void Channel::frameReadback( const uint128_t& )
     if( !region.hasArea( ))
         return;
 
-    if( !checkRegionsConsistency( ))
-        EQWARN << "Screen regions overlap" << std::endl;
-
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
@@ -731,7 +728,6 @@ const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 void Channel::resetRegions()
 {
     _impl->regions.clear();
-    _impl->totalRegion.invalidate();
 }
 
 void Channel::declareRegion( const eq::Viewport& vp )
@@ -744,53 +740,96 @@ void Channel::declareRegion( const eq::Viewport& vp )
     declareRegion( region );
 }
 
-void Channel::declareRegion( const eq::PixelViewport& region )
+/** Removes overlaping regions by merging them */
+namespace
 {
+
+bool _hasOverlap( PixelViewports& regions )
+{
+    if( regions.size() < 2 )
+        return false;
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pv = regions[j];
+            pv.intersect( regions[i] );
+            if( pv.hasArea( ))
+                return true;
+        }
+    return false;
+}
+
+bool _removeOverlap( PixelViewports& regions )
+{
+    if( regions.size() < 2 )
+        return false;
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pv = regions[j];
+            if( !pv.hasArea( ))
+            {
+                std::swap( regions[j], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+            pv.intersect( regions[i] );
+            if( pv.hasArea( ))
+            {
+                regions[i].merge( regions[j] );
+                std::swap( regions[j], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+        }
+    return false;
+}
+}
+
+void Channel::declareRegion( const PixelViewport& region )
+{
+    PixelViewports& regions = _impl->regions;
+
     if( region.hasArea( ))
     {
-        _impl->regions.push_back( region );
-        _impl->totalRegion.merge( region );
+        regions.push_back( region );
 
         eq::PixelViewport pvp = getPixelViewport();
         pvp.x = 0;
         pvp.y = 0;
-        _impl->totalRegion.intersect( pvp );
-
-#ifndef NDEBUG
-        if( !checkRegionsConsistency( ))
-            EQWARN << "Screen regions overlap" << std::endl;
-#endif
-        return;
-    }
-
-    if( !_impl->totalRegion.isValid( )) // set on first declaration of empty ROI
-    {
-        _impl->totalRegion.w = 0;
-        _impl->totalRegion.h = 0;
-    }
-}
-
-bool Channel::checkRegionsConsistency() const
-{
-    if( _impl->regions.size() < 2 )
-        return true;
-
-    for( size_t i = 0; i < _impl->regions.size()-1; ++i )
-        for( size_t j = i+1; j < _impl->regions.size(); ++j )
+        regions.back().intersect( pvp );
+        if( regions.back().hasArea( ))
         {
-            PixelViewport pv = _impl->regions[j];
-            pv.intersect( _impl->regions[i] );
-            if( pv.hasArea() )
-                return false;
-        }
 
-    return true;
+#ifdef NDEBUG
+            const PixelViewport pvBefore = getRegion();
+#endif
+            while( _removeOverlap( regions ))
+            {}
+            EQASSERT( !_hasOverlap( regions ));
+#ifdef NDEBUG
+            EQASSERT( pvBefore == getRegion( ));
+#endif
+            return;
+        }
+        else
+            regions.pop_back();
+    }
+
+    if( regions.empty( )) // set on first declaration of empty ROI
+        regions.push_back( PixelViewport( 0, 0, 0, 0 ));
 }
 
 
-const PixelViewport& Channel::getRegion() const
+PixelViewport Channel::getRegion() const
 {
-    return _impl->totalRegion;
+    PixelViewport region( 0, 0, 0, 0 );
+    for( size_t i = 0; i < _impl->regions.size(); ++i )
+        region.merge( _impl->regions[i] );
+
+    return region;
 }
 
 
@@ -1715,7 +1754,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                              packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
     // Update ROI for server equalizers
-    if( !_impl->totalRegion.isValid( ))
+    if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
     const uint32_t frameNumber = getCurrentFrame();
     const size_t index = frameNumber % _impl->statistics->size();
