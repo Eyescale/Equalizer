@@ -1,5 +1,5 @@
 #
-# Copyright 2011 Stefan Eilemann <eile@eyescale.ch>
+# Copyright 2011-2012 Stefan Eilemann <eile@eyescale.ch>
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are met:
