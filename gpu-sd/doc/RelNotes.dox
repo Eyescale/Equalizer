@@ -7,9 +7,9 @@ Welcome to GPU-SD, a daemon and library for the discovery and announcement of
 graphics processing units using ZeroConf. GPU-SD enables auto-configuration of
 ad-hoc GPU clusters and multi-GPU machines.
 
-GPU-SD 1.0.2 is a bugfix release for version 1.0. It can be retrieved by
+GPU-SD 1.0.3 is a bugfix release for version 1.0. It can be retrieved by
 downloading the
-<a href="http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd-1.0.2.tar.gz">source
+<a href="http://www.equalizergraphics.com/gpu-sd/downloads/gpu-sd-1.0.3.tar.gz">source
   code</a> or one of the
 <a href="http://www.equalizergraphics.com/gpu-sd/downloads.html">binary
   distributions</a>.
@@ -29,7 +29,7 @@ GPU-SD provides the following features to enable GPU discovery:
 
 @section New New in this release
 
-GPU-SD 1.0.2 is a bugfix release and contains the following features over GPU-SD
+GPU-SD 1.0.3 is a bugfix release and contains the following features over GPU-SD
 1.0:
 
 @subsection NewFeatures New Features
@@ -65,7 +65,7 @@ No updates.
 
 @subsection Bugs Bug Fixes
 
-GPU-SD 1.0.2 includes various bugfixes over the 1.0 release, including the
+GPU-SD 1.0.3 includes various bugfixes over the 1.0 release, including the
 following:
 
 - Install header file for dns_sd module
