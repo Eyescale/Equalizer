@@ -13,7 +13,7 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 enable_testing()
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
+  set(CMAKE_BUILD_TYPE Release)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT MSVC)
@@ -61,9 +61,9 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-if(LINUX)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   add_definitions(-fPIC) # 64bit Linux wants this
-endif(LINUX)
+endif()
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
