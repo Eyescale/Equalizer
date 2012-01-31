@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2012, Marwan Abdellah <marwan.abdellah@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,10 +38,9 @@ namespace base
         /** Enumeration values for thread affinity. */
         enum Affinity
         {
-            /* Not yet implemented:  OFF = 0, */
             CORE = 1, //!< Bind to a specific CPU core
-            CPU = -65536, //!< Bind to all cores of a specific CPU
-            CPU_MAX = -1024 //!< Highes bindable CPU
+            SOCKET = -65536, //!< Bind to all cores of a specific socket (CPU)
+            SOCKET_MAX = -1024 //!< Highes bindable CPU
         };
 
         /** Construct a new thread. @version 1.0 */
@@ -186,8 +186,6 @@ namespace base
         static void _notifyStarted();
         static void _notifyStopping();
         friend void _notifyStopping( void* ); //!< @internal
-
-        static std::vector< int > _getCores( const int32_t affinity );
 
         friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };

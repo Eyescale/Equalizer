@@ -67,7 +67,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     }
 
     const Channels channels = Resources::configureSourceChannels( config );
-    Resources::configure( compounds, channels );
+    Resources::configure( compounds, channels, flags );
 
     std::ofstream configFile;
     const std::string filename = session + ".auto.eqc";
