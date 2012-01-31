@@ -17,7 +17,7 @@ option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
-set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI versio
+set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI version
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
