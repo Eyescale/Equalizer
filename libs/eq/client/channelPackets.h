@@ -203,6 +203,24 @@ namespace eq
         bool isLocal;
     };
 
+    struct ChannelResetOutputFramesAsync : public ChannelPacket
+    {
+        ChannelResetOutputFramesAsync()
+            {
+                command       = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC;
+                size          = sizeof( ChannelResetOutputFramesAsync );
+            }
+    };
+
+    struct ChannelResetOutputFrames : public ChannelPacket
+    {
+        ChannelResetOutputFrames()
+            {
+                command       = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES;
+                size          = sizeof( ChannelResetOutputFrames );
+            }
+    };
+
     struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket
     {
         ChannelFrameSetReadyPacket()

@@ -115,10 +115,14 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdStopFrame ), commandQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TILES,
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
+    registerCommand( fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES,
+                 CmdFunc( this, &Channel::_cmdResetOutputFrames ), queue );
 
     queue = getPipe()->getPipeAsyncRBThreadQueue();
     registerCommand( fabric::CMD_CHANNEL_FINISH_IMAGE_READBACK,
                     CmdFunc( this, &Channel::_cmdFinishImageReadback ), queue );
+    registerCommand( fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC,
+                 CmdFunc( this, &Channel::_cmdResetOutputFramesAsync ), queue );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -1714,7 +1718,10 @@ void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
     for( size_t i = 0; i < nFrames; ++i )
         _scheduleFinishReadback( getContext(), _impl->outputFrames[i], nImages[i] );
 
-//    _resetOutputFrames();
+    // trigger of _resetOutputFrames, as a last command to async thread
+    ChannelResetOutputFramesAsync packet;
+    packet.command = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC;
+    send( getNode()->getLocalNode(), packet );
 }
 
 
@@ -1956,6 +1963,31 @@ bool Channel::_cmdFinishImageReadback( co::Command& command )
         // TODO: send set ready packet
     }
 
+    return true;
+}
+
+
+bool Channel::_cmdResetOutputFramesAsync( co::Command& )//command )
+{
+//    ChannelResetOutputFramesAsync* packet =
+//        command.getModifiable< ChannelResetOutputFramesAsync >();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK reset output frames async "
+                                      << std::endl;
+
+    ChannelResetOutputFrames packet;
+    packet.command = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES;
+    send( getNode()->getLocalNode(), packet );
+    return true;
+}
+
+
+bool Channel::_cmdResetOutputFrames( co::Command& )//command )
+{
+//    ChannelResetOutputFramesc* packet =
+//        command.getModifiable< ChannelResetOutputFrames >();
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK reset output frames "
+                                      << std::endl;
+    _resetOutputFrames();
     return true;
 }
 

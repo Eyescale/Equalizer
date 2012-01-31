@@ -626,6 +626,8 @@ namespace detail { class Channel; }
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
+        bool _cmdResetOutputFramesAsync( co::Command& command );
+        bool _cmdResetOutputFrames( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };
