@@ -1,5 +1,5 @@
 // -*- mode: c++ -*-
-/* Copyright (c) 2011, Computer Integration & Programming Solutions, Corp. and
+/* Copyright (c) 2012, Computer Integration & Programming Solutions, Corp. and
  *                     United States Naval Research Laboratory
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -67,13 +67,13 @@ private:
     bool initialize( );
     void wake( );
 
-    bool setSockOpts( );
+    bool tuneSocket( );
     bool setSockOpt( UDT::SOCKOPT optname, const void *optval, int optlen );
 
 private:
-    UDTSOCKET _udt; // UDT handle (opaque)
+    UDTSOCKET _udt;
 
-    Notifier _notifier; // UDTConnectionThread -> application event fd
+    Notifier _notifier;
 
     class UDTConnectionThread;
     UDTConnectionThread *_poller;
