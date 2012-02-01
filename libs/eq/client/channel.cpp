@@ -740,7 +740,6 @@ void Channel::declareRegion( const eq::Viewport& vp )
     declareRegion( region );
 }
 
-/** Removes overlaping regions by merging them */
 namespace
 {
 
@@ -760,30 +759,25 @@ bool _hasOverlap( PixelViewports& regions )
     return false;
 }
 
+/** Remove overlapping regions by merging them */
 bool _removeOverlap( PixelViewports& regions )
 {
     if( regions.size() < 2 )
         return false;
 
-    if( !regions[0].hasArea( ))
-    {
-        std::swap( regions[0], regions.back() );
-        regions.pop_back();
-        return true;
-    }
-
     for( size_t i = 0; i < regions.size()-1; ++i )
         for( size_t j = i+1; j < regions.size(); ++j )
         {
-            PixelViewport pv = regions[j];
-            if( !pv.hasArea( ))
+            PixelViewport pvp = regions[i];
+            if( !pvp.hasArea( ))
             {
-                std::swap( regions[j], regions.back() );
+                std::swap( regions[i], regions.back() );
                 regions.pop_back();
                 return true;
             }
-            pv.intersect( regions[i] );
-            if( pv.hasArea( ))
+
+            pvp.intersect( regions[j] );
+            if( pvp.hasArea( ))
             {
                 regions[i].merge( regions[j] );
                 std::swap( regions[j], regions.back() );
@@ -799,30 +793,26 @@ void Channel::declareRegion( const PixelViewport& region )
 {
     PixelViewports& regions = _impl->regions;
 
-    if( region.hasArea( ))
+    PixelViewport clippedRegion = region;
+    PixelViewport pvp = getPixelViewport();
+    pvp.x = 0;
+    pvp.y = 0;
+
+    clippedRegion.intersect( pvp );
+
+    if( clippedRegion.hasArea( ))
     {
-        regions.push_back( region );
-
-        eq::PixelViewport pvp = getPixelViewport();
-        pvp.x = 0;
-        pvp.y = 0;
-        regions.back().intersect( pvp );
-        if( regions.back().hasArea( ))
-        {
+        regions.push_back( clippedRegion );
+#ifdef NDEBUG
+        const PixelViewport pvpBefore = getRegion();
+#endif
+        while( _removeOverlap( regions )) /* nop */ ;
 
 #ifdef NDEBUG
-            const PixelViewport pvBefore = getRegion();
+        EQASSERT( !_hasOverlap( regions ));
+        EQASSERT( pvpBefore == getRegion( ));
 #endif
-            while( _removeOverlap( regions ))
-            {}
-            EQASSERT( !_hasOverlap( regions ));
-#ifdef NDEBUG
-            EQASSERT( pvBefore == getRegion( ));
-#endif
-            return;
-        }
-        else
-            regions.pop_back();
+        return;
     }
 
     if( regions.empty( )) // set on first declaration of empty ROI
@@ -839,12 +829,10 @@ PixelViewport Channel::getRegion() const
     return region;
 }
 
-
 const PixelViewports& Channel::getRegions() const
 {
     return _impl->regions;
 }
-
 
 bool Channel::processEvent( const Event& event )
 {
