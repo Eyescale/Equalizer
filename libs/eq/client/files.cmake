@@ -8,6 +8,7 @@ set(AGL_HEADERS
   agl/window.h
   agl/windowEvent.h
   agl/types.h
+  asyncRB/aglWindowShared.h
 )
 
 set(GLX_HEADERS
@@ -17,6 +18,7 @@ set(GLX_HEADERS
   glx/window.h
   glx/windowEvent.h
   glx/types.h
+  asyncRB/glXWindowShared.h
 )
 
 set(WGL_HEADERS
@@ -32,6 +34,7 @@ set(CLIENT_HEADERS
   ${AGL_HEADERS} ${GLX_HEADERS} ${WGL_HEADERS}
   aglTypes.h
   api.h
+  asyncRB/asyncRBThread.h
   base.h
   canvas.h
   channel.h
@@ -95,6 +98,7 @@ set(CLIENT_HEADERS
   )
 
 set(CLIENT_SOURCES
+  asyncRB/aglWindowShared.cpp
   detail/channel.ipp
   canvas.cpp
   channel.cpp
@@ -149,6 +153,7 @@ if(EQ_AGL_USED)
     agl/window.cpp
     agl/pipe.cpp
     agl/windowSystem.cpp
+    asyncRB/asyncRBThread.cpp
   )
   list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
 endif(EQ_AGL_USED)

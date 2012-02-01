@@ -224,6 +224,12 @@ namespace server
                               const DrawableConfig& config,
                               const PixelViewports& regions );
 
+        EQ_API void startReadback(
+                                util::ObjectManager< const void* >* glObjects,
+                                const DrawableConfig& config,
+                                const PixelViewports& regions );
+
+
         /**
          * Set the frame ready.
          * 

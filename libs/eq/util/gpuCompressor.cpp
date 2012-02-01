@@ -159,6 +159,53 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
     pvpOut.h = outDims[3];
 }
 
+
+void GPUCompressor::startDownload(  const fabric::PixelViewport& pvpIn,
+                                    const unsigned               source,
+                                    const uint64_t               flags  )
+{
+    EQASSERT( _plugin );
+    EQASSERT( _glewContext );
+
+    const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
+
+    memset( &_outDimsRB[0], 0, sizeof(_outDimsRB[0])*4 );
+    _outRB = 0;
+
+    if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
+        _plugin->startDownload( _instance, _name, _glewContext,
+                            inDims, source, flags );
+    else
+        _plugin->download( _instance, _name, _glewContext,
+                            inDims, source, flags, _outDimsRB, &_outRB );
+}
+
+
+void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
+                                    const unsigned               source,
+                                    const uint64_t               flags,
+                                    fabric::PixelViewport&       pvpOut,
+                                    void**                       out   )
+{
+    EQASSERT( _plugin );
+    EQASSERT( _glewContext );
+
+    const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
+
+    if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
+    {
+        _plugin->finishDownload( _instance, _name, _glewContext,
+                            inDims, source, flags, _outDimsRB, &_outRB );
+    }
+    *out = _outRB;
+
+    pvpOut.x = _outDimsRB[0];
+    pvpOut.w = _outDimsRB[1];
+    pvpOut.y = _outDimsRB[2];
+    pvpOut.h = _outDimsRB[3];
+}
+
+
 void GPUCompressor::upload( const void*                  buffer,
                             const fabric::PixelViewport& pvpIn,
                             const uint64_t               flags,

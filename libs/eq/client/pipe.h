@@ -34,6 +34,8 @@
 
 namespace eq
 {
+    class AsyncRBThread;
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -58,6 +60,9 @@ namespace eq
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        co::CommandQueue* getPipeAsyncRBThreadQueue(); //!< @internal
+        const GLEWContext* getAsyncGlewContext(); //!< @internal
+
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -130,6 +135,16 @@ namespace eq
         /** @internal @return if the window is made current */
         bool isCurrent( const Window* window ) const;
 
+
+        /** @internal 
+          *
+          * starts async thread for readback if necessary
+          *
+          * @return 
+          */
+        void startAsyncRB( Channel* channel, const uint128_t& frameID );
+
+
         /**
          * @internal
          * Set the window as current window.
@@ -167,6 +182,9 @@ namespace eq
 
         /** @internal Start the pipe thread. */
         void startThread();
+
+        /** @internal Start the async readback pipe thread. */
+        bool startAsyncRBThread();
 
         /** @internal Trigger pipe thread exit and wait for completion. */
         void exitThread();
@@ -426,6 +444,8 @@ namespace eq
         class Thread;
         Thread* _thread;
 
+        AsyncRBThread* _threadRB;
+
         /** The last window made current. */
         const mutable Window* _currentWindow;
 
@@ -439,6 +459,8 @@ namespace eq
         void _setupCommandQueue();
         void _setupAffinity();
         void _exitCommandQueue();
+
+        void _stopAsyncRBThread();
 
         friend class Window;
 
@@ -462,6 +484,7 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
         bool _cmdDetachView( co::Command& command );
+        bool _cmdExitAsyncRBThread( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

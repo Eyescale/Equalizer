@@ -29,6 +29,7 @@ namespace util
 class Accum;
 class AccumBufferObject;
 class FrameBufferObject;
+class PixelBufferObject;
 class Texture;
 template< class > class BitmapFont;
 template< class > class ObjectManager;

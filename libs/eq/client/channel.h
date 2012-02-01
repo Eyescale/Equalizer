@@ -511,6 +511,12 @@ namespace detail { class Channel; }
          */
          EQ_API virtual void frameReadback( const uint128_t& frameID );
 
+         EQ_API virtual void frameStartReadback( const uint128_t& frameID );
+
+         EQ_API virtual bool finishImageReadback( FrameData* frameData,
+                                              const uint64_t imageIndex,
+                                              const GLEWContext* glewContext );
+
         /** 
          * Start updating a destination channel.
          *
@@ -565,6 +571,7 @@ namespace detail { class Channel; }
     private:
         detail::Channel* const _impl;
         friend class fabric::Window< Pipe, Window, Channel >;
+        friend class AsyncRBThread;
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */
@@ -590,6 +597,12 @@ namespace detail { class Channel; }
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
 
+        void _frameStartReadback( const uint128_t& frameID, uint32_t nFrames,
+                                co::ObjectVersion* frames );
+
+        void _scheduleFinishReadback( const RenderContext& context,
+                                        Frame* frame, const size_t startPos );
+
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
@@ -613,12 +626,15 @@ namespace detail { class Channel; }
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
+        bool _cmdFinishImageReadback( co::Command& command );
         bool _cmdFrameTransmitImage( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
+        bool _cmdResetOutputFramesAsync( co::Command& command );
+        bool _cmdResetOutputFrames( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

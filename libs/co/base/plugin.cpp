@@ -67,7 +67,13 @@ bool Plugin::init( const std::string& libraryName )
     
     download = ( Download_t )
         ( _dso.getFunctionPointer( "EqCompressorDownload" ));
-    
+
+    startDownload = ( StartDownload_t )
+        ( _dso.getFunctionPointer( "EqCompressorStartDownload" ));
+
+    finishDownload = ( FinishDownload_t )
+        ( _dso.getFunctionPointer( "EqCompressorFinishDownload" ));
+
     upload = ( Upload_t )
         ( _dso.getFunctionPointer( "EqCompressorUpload" ));
     

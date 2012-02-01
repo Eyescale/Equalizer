@@ -58,6 +58,13 @@ namespace base
                                       const GLEWContext*, const uint64_t*,
                                       const unsigned, const uint64_t,
                                       uint64_t*, void** );
+        typedef void ( *StartDownload_t )( void* const, const unsigned,
+                                      const GLEWContext*, const uint64_t*,
+                                      const unsigned, const uint64_t );
+        typedef void ( *FinishDownload_t )( void* const, const unsigned,
+                                      const GLEWContext*, const uint64_t*,
+                                      const unsigned, const uint64_t,
+                                      uint64_t*, void** );
         typedef void ( *Upload_t )( void* const, const unsigned, 
                                     const GLEWContext*, const void*,
                                     const uint64_t*,
@@ -110,6 +117,12 @@ namespace base
 
         /** Upload pixel data. */
         Upload_t  upload;
+
+        /** Start downloading pixel data. */
+        StartDownload_t  startDownload;
+
+        /** Start downloading pixel data. */
+        FinishDownload_t  finishDownload;
 
         /** @return true if name is found in the plugin. */
         bool implementsType( const uint32_t name ) const;

@@ -24,7 +24,11 @@
 
 namespace eq
 {
-namespace util{ class Texture; }
+namespace util
+{
+    class Texture;
+    class PixelBufferObject;
+}
 
 namespace plugin
 {
@@ -62,14 +66,32 @@ public:
                          const eq_uint64_t  outDims[4],
                          const unsigned     destination );
 
+    virtual void startDownload( const GLEWContext* glewContext,
+                                const eq_uint64_t  inDims[4],
+                                const unsigned     source,
+                                const eq_uint64_t  flags );
+
+    virtual void finishDownload( const GLEWContext* glewContext,
+                                 const eq_uint64_t  inDims[4],
+                                 const unsigned     source,
+                                 const eq_uint64_t  flags,
+                                 eq_uint64_t        outDims[4],
+                                 void**             out );
+
 protected:
     co::base::Bufferb _buffer;
     util::Texture*    _texture;
+    util::PixelBufferObject* _pbo;
     unsigned    _internalFormat; //!< the GL format
     unsigned    _format;         //!< the GL format
     unsigned    _type;           //!< the GL type 
     const unsigned _depth;       //!< the size of one output token
+    eq_uint64_t _inDimsRB[4];    //!< inSize for async readback
+    unsigned    _sourceRB;       //!< source for async readback
+    eq_uint64_t _flagsRB;        //!< flags for async readback
+    void _resizeBuffer( const eq_uint64_t size );
     void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags );
+    bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };
 

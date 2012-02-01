@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+/* Copyright (c)  2011, Maxim Makhinya <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,57 +27,27 @@
  *
  */
 
-#ifndef EQASYNC_ASYNC_FETCHER_H
-#define EQASYNC_ASYNC_FETCHER_H
+#ifndef EQ_ASYNC_RB_AGL_WINDOW_SHARED_H
+#define EQ_ASYNC_RB_AGL_WINDOW_SHARED_H
 
 #include <eq/eq.h>
+#include <eq/client/system.h>
 
-namespace eqAsync
+namespace eq
 {
 
 /**
- *  Structure to associate OpenGL texture ids with an external key.
+ *  Replaces chooseAGLPixelFormat from eq::AGLWindow, since full screen has to
+ *  be set for shared context windows even when it is an FBO.
  */
-struct TextureId
-{
-    TextureId( const GLuint id_ = 0, const void* key_ = 0 )
-            : id( id_ ), key( key_ ){};
-
-    GLuint id;       // OpenGL texture id
-    const void* key; // Object manager key; used to delete textures
-};
-
-class Window;
-
-/**
- *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
- */
-class AsyncFetcher : public co::base::Thread
+class AGLWindowShared : public eq::agl::Window
 {
 public:
-    typedef eq::util::ObjectManager< int > ObjectManager;
+    AGLWindowShared( eq::Window* parent, CGDirectDisplayID displayID = 0 );
 
-    AsyncFetcher();
-    ~AsyncFetcher();
-
-    virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
-
-    TextureId getTextureId()               { return _outQueue.pop().id;      }
-    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const void* key )  { _inQueue.push( key );           }
-
-    const GLEWContext* glewGetContext() const;
-
-private:
-    Window*                        _wnd;
-    co::base::MTQueue<const void*> _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId>   _outQueue;      // generated textures
-    eq::ObjectManager*             _objectManager;
-    eq::SystemWindow*              _sharedContextWindow;
-    GLbyte*                        _tmpTexture;    // temporal texture storage
+    virtual AGLPixelFormat chooseAGLPixelFormat();
 };
 
-} 
+} // namespace eq
 
-#endif //EQASYNC_ASYNC_FETCHER_H
+#endif //EQ_ASYNC_RB_AGL_WINDOW_SHARED_H

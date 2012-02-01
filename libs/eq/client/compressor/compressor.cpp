@@ -217,7 +217,6 @@ void EqCompressorUpload( void* const        ptr,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void EqCompressorStartDownload( void* const        ptr,
                                 const unsigned     name,
                                 const GLEWContext* glewContext,
@@ -247,4 +246,3 @@ void EqCompressorFinishDownload( void* const        ptr,
     compressor->finishDownload( glewContext, inDims, source, flags, outDims,
                                out );
 }
-#endif

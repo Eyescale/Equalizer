@@ -192,6 +192,35 @@ namespace eq
         const uint32_t     fill;
     };
 
+    struct ChannelFinishImageReadbackPacket :
+                                          public ChannelFrameTransmitImagePacket
+    {
+        ChannelFinishImageReadbackPacket()
+            {
+                command       = fabric::CMD_CHANNEL_FINISH_IMAGE_READBACK;
+                size          = sizeof( ChannelFinishImageReadbackPacket );
+            }
+        bool isLocal;
+    };
+
+    struct ChannelResetOutputFramesAsync : public ChannelPacket
+    {
+        ChannelResetOutputFramesAsync()
+            {
+                command       = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC;
+                size          = sizeof( ChannelResetOutputFramesAsync );
+            }
+    };
+
+    struct ChannelResetOutputFrames : public ChannelPacket
+    {
+        ChannelResetOutputFrames()
+            {
+                command       = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES;
+                size          = sizeof( ChannelResetOutputFrames );
+            }
+    };
+
     struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket
     {
         ChannelFrameSetReadyPacket()
@@ -266,8 +295,16 @@ namespace eq
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
+
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ChannelFrameTransmitImagePacket* packet )
+                                const ChannelFinishImageReadbackPacket* packet )
+    {
+        os << (ChannelTaskPacket*)packet << " id " << packet->context.frameID;
+        return os;
+    }
+
+    inline std::ostream& operator << ( std::ostream& os, 
+                                 const ChannelFrameTransmitImagePacket* packet )
     {
         os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
            << " receiver " << packet->clientNodeID << " on "

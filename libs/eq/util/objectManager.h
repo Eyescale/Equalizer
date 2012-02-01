@@ -130,6 +130,14 @@ namespace util
         EQ_API FrameBufferObject* obtainEqFrameBufferObject( const T& key );
         EQ_API void               deleteEqFrameBufferObject( const T& key );
 
+        EQ_API bool               supportsEqPixelBufferObject() const;
+        EQ_API PixelBufferObject* getEqPixelBufferObject(const T& key) const;
+        EQ_API PixelBufferObject* newEqPixelBufferObject( const T& key,
+                                                        const bool threadSafe );
+        EQ_API PixelBufferObject* obtainEqPixelBufferObject( const T& key,
+                                                        const bool threadSafe );
+        EQ_API void               deleteEqPixelBufferObject( const T& key );
+
         EQ_API util::BitmapFont< T >* getEqBitmapFont( const T& key ) const;
         EQ_API util::BitmapFont< T >* newEqBitmapFont( const T& key );
         EQ_API util::BitmapFont< T >* obtainEqBitmapFont( const T& key );
@@ -147,6 +155,7 @@ namespace util
         typedef stde::hash_map< T, Object >     ObjectHash;
         typedef stde::hash_map< T, Texture* >   TextureHash;
         typedef stde::hash_map< T, FrameBufferObject* > FBOHash;
+        typedef stde::hash_map< T, PixelBufferObject* > PBOHash;
         typedef stde::hash_map< T, util::BitmapFont< T >* > FontHash;
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
@@ -166,6 +175,7 @@ namespace util
             AccumHash  accums;
             TextureHash eqTextures;
             FBOHash eqFrameBufferObjects;
+            PBOHash eqPixelBufferObjects;
             FontHash eqFonts;
             UploaderHash eqUploaders;
 

@@ -27,57 +27,44 @@
  *
  */
 
-#ifndef EQASYNC_ASYNC_FETCHER_H
-#define EQASYNC_ASYNC_FETCHER_H
+#ifndef EQ_ASYNC_RB_ASYNC_FETCHER_H
+#define EQ_ASYNC_RB_ASYNC_FETCHER_H
 
 #include <eq/eq.h>
 
-namespace eqAsync
+namespace eq
 {
-
-/**
- *  Structure to associate OpenGL texture ids with an external key.
- */
-struct TextureId
-{
-    TextureId( const GLuint id_ = 0, const void* key_ = 0 )
-            : id( id_ ), key( key_ ){};
-
-    GLuint id;       // OpenGL texture id
-    const void* key; // Object manager key; used to delete textures
-};
 
 class Window;
 
 /**
- *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
+ *  Asynchronous readback thread.
  */
-class AsyncFetcher : public co::base::Thread
+class AsyncRBThread : public eq::Worker
 {
-public:
-    typedef eq::util::ObjectManager< int > ObjectManager;
+protected:
+    AsyncRBThread();
+    ~AsyncRBThread();
 
-    AsyncFetcher();
-    ~AsyncFetcher();
+    virtual bool stopRunning() { return !_running; }
+    virtual bool init();
 
-    virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
-
-    TextureId getTextureId()               { return _outQueue.pop().id;      }
-    bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
-    void deleteTexture( const void* key )  { _inQueue.push( key );           }
+    void setWindow( Window* wnd ){ _wnd = wnd; }
 
     const GLEWContext* glewGetContext() const;
 
+    void deleteSharedContextWindow();
+
 private:
-    Window*                        _wnd;
-    co::base::MTQueue<const void*> _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId>   _outQueue;      // generated textures
-    eq::ObjectManager*             _objectManager;
-    eq::SystemWindow*              _sharedContextWindow;
-    GLbyte*                        _tmpTexture;    // temporal texture storage
+    friend class Pipe;
+
+    bool _running; // Async thread will exit if this is false
+
+    Window*             _wnd;
+    eq::SystemWindow*   _sharedContextWindow;
+
 };
 
-} 
+}
 
-#endif //EQASYNC_ASYNC_FETCHER_H
+#endif //EQ_ASYNC_RB_ASYNC_FETCHER_H

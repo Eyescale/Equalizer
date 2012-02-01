@@ -200,6 +200,11 @@ namespace server { class FrameData; }
         EQ_API Image* newImage( const Frame::Type type,
                                 const DrawableConfig& config );
 
+        /** 
+         * Deallocates last allocated image.
+         */
+        EQ_API void returnLastImage();
+
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 
@@ -237,6 +242,11 @@ namespace server { class FrameData; }
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config,
                        const PixelViewports& regions );
+
+        void startReadback( const Frame& frame,
+                            util::ObjectManager< const void* >* glObjects,
+                            const DrawableConfig& config,
+                            const PixelViewports& regions );
 
         /**
          * Set the frame data ready.

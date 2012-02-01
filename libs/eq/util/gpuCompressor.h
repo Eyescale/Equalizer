@@ -33,7 +33,7 @@ namespace util
     public:
         /** Construct a new compressorData */
         GPUCompressor( const GLEWContext* glewContext = 0 )
-            : Compressor(), _glewContext( glewContext ){}
+            : Compressor(), _glewContext( glewContext ), _outRB( 0 ){}
 
         /** Set a valid glewContext */
         void setGLEWContext( const GLEWContext* glewContext )
@@ -117,6 +117,33 @@ namespace util
                        void**                       out );
 
         /**
+         * Start downloading data from the frame buffer or texture to cpu
+         *
+         * @param pvpIn the dimensions of the input data
+         * @param source texture name to process.
+         * @param flags capability flags for the compression
+         */
+        void startDownload( const fabric::PixelViewport& pvpIn,
+                            const unsigned               source,
+                            const uint64_t               flags  );
+
+        /**
+         * Finish downloading data from the frame buffer or texture to cpu
+         *
+         * @param pvpIn the dimensions of the input data
+         * @param source texture name to process.
+         * @param flags capability flags for the compression
+         * @param pvpOut the dimensions of the output data
+         * @param out the pointer to the output data
+         */
+        void finishDownload( const fabric::PixelViewport& pvpIn,
+                             const unsigned               source,
+                             const uint64_t               flags,
+                             fabric::PixelViewport&       pvpOut,
+                             void**                       out );
+
+
+        /**
          * Upload data from cpu to the frame buffer or texture 
          *
          * @param buffer data source
@@ -191,6 +218,14 @@ namespace util
             to the current OpenGL context. */
         const GLEWContext* _glewContext;
 
+        /**  Temporary output dimentions for RB, when async RB is not supported.
+        */
+        uint64_t _outDimsRB[4];
+
+        /**  Temporary pointer to the data for RB, when async RB is 
+         *   not supported.
+         */
+        void* _outRB;
     };
 }
 }
