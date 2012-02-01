@@ -208,7 +208,8 @@ namespace server
          * @version 1.0
          */
         EQ_API void readback( util::ObjectManager< const void* >* glObjects,
-                              const DrawableConfig& config );
+                              const DrawableConfig& config,
+                              const PixelViewports& regions );
 
         /**
          * Set the frame ready.

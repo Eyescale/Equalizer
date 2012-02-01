@@ -336,7 +336,7 @@ void Channel::addStatistic( Event& event )
 
 void Channel::frameClear( const uint128_t& )
 {
-    resetRegion();
+    resetRegions();
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
 
@@ -393,37 +393,15 @@ void Channel::frameReadback( const uint128_t& )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Window::ObjectManager* glObjects = getObjectManager();
-    const DrawableConfig& drawable = getDrawableConfig();
-    const Frames& frames = getOutputFrames();
+    Window::ObjectManager*  glObjects   = getObjectManager();
+    const DrawableConfig&   drawable    = getDrawableConfig();
+    const Frames&           frames      = getOutputFrames();
+    const PixelViewports&   regions     = getRegions();
 
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        eq::FrameData* data = frame->getData();
-
-        if( data->getType() == eq::Frame::TYPE_TEXTURE )
-            frame->readback( glObjects, drawable );
-        else
-        {
-            // ROI readback
-            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
-            const eq::PixelViewport& framePVP = data->getPixelViewport();
-            eq::PixelViewport area = framePVP + frame->getOffset();
-
-            area.intersect( region );
-            if( !area.hasArea( ))
-                continue;
-
-            eq::Image* image = data->newImage( data->getType(), drawable );
-            image->readback( data->getBuffers(), area, frame->getZoom(),
-                             glObjects );
-
-            const eq::Pixel& pixel = getPixel();
-            area -= frame->getOffset();
-            image->setOffset( (area.x - framePVP.x) * pixel.w,
-                              (area.y - framePVP.y) * pixel.h );
-        }
+        frame->readback( glObjects, drawable, regions );
     }
 
     EQ_GL_CALL( resetAssemblyState( ));
@@ -435,7 +413,7 @@ void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
 void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
-    resetRegion();
+    resetRegions();
     startFrame( frameNumber );
 }
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
@@ -747,9 +725,9 @@ const Frames& Channel::getOutputFrames()
 
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 
-void Channel::resetRegion()
+void Channel::resetRegions()
 {
-    _impl->region.invalidate();
+    _impl->regions.clear();
 }
 
 void Channel::declareRegion( const eq::Viewport& vp )
@@ -762,28 +740,111 @@ void Channel::declareRegion( const eq::Viewport& vp )
     declareRegion( region );
 }
 
-void Channel::declareRegion( const eq::PixelViewport& region )
+/** Removes overlaping regions by merging them */
+namespace
 {
+
+bool _hasOverlap( PixelViewports& regions )
+{
+    if( regions.size() < 2 )
+        return false;
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pv = regions[j];
+            pv.intersect( regions[i] );
+            if( pv.hasArea( ))
+                return true;
+        }
+    return false;
+}
+
+bool _removeOverlap( PixelViewports& regions )
+{
+    if( regions.size() < 2 )
+        return false;
+
+    if( !regions[0].hasArea( ))
+    {
+        std::swap( regions[0], regions.back() );
+        regions.pop_back();
+        return true;
+    }
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pv = regions[j];
+            if( !pv.hasArea( ))
+            {
+                std::swap( regions[j], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+            pv.intersect( regions[i] );
+            if( pv.hasArea( ))
+            {
+                regions[i].merge( regions[j] );
+                std::swap( regions[j], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+        }
+    return false;
+}
+}
+
+void Channel::declareRegion( const PixelViewport& region )
+{
+    PixelViewports& regions = _impl->regions;
+
     if( region.hasArea( ))
     {
-        _impl->region.merge( region );
-        
+        regions.push_back( region );
+
         eq::PixelViewport pvp = getPixelViewport();
         pvp.x = 0;
         pvp.y = 0;
-        _impl->region.intersect( pvp );
+        regions.back().intersect( pvp );
+        if( regions.back().hasArea( ))
+        {
+
+#ifdef NDEBUG
+            const PixelViewport pvBefore = getRegion();
+#endif
+            while( _removeOverlap( regions ))
+            {}
+            EQASSERT( !_hasOverlap( regions ));
+#ifdef NDEBUG
+            EQASSERT( pvBefore == getRegion( ));
+#endif
+            return;
+        }
+        else
+            regions.pop_back();
     }
-    else if( !_impl->region.isValid( )) // set on first declaration of empty ROI
-    {
-        _impl->region.w = 0;
-        _impl->region.h = 0;
-    }
+
+    if( regions.empty( )) // set on first declaration of empty ROI
+        regions.push_back( PixelViewport( 0, 0, 0, 0 ));
 }
 
-const PixelViewport& Channel::getRegion() const
+
+PixelViewport Channel::getRegion() const
 {
-    return _impl->region;
+    PixelViewport region( 0, 0, 0, 0 );
+    for( size_t i = 0; i < _impl->regions.size(); ++i )
+        region.merge( _impl->regions[i] );
+
+    return region;
 }
+
+
+const PixelViewports& Channel::getRegions() const
+{
+    return _impl->regions;
+}
+
 
 bool Channel::processEvent( const Event& event )
 {
@@ -1699,9 +1760,8 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
                              packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
-
     // Update ROI for server equalizers
-    if( !_impl->region.isValid( ))
+    if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
     const uint32_t frameNumber = getCurrentFrame();
     const size_t index = frameNumber % _impl->statistics->size();
