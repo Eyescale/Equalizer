@@ -356,7 +356,7 @@ bool Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
         result = false;
     }
 
-    if( isReadbackInProgress( Frame::BUFFER_DEPTH) &&
+    if( isReadbackInProgress( Frame::BUFFER_DEPTH ) &&
         !_finishReadback( Frame::BUFFER_DEPTH, zoom, glewContext ))
     {
         result = false;
@@ -373,7 +373,6 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
 {
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
-    attachment.memory.state = Memory::PROCESSING;
 
     if( _type == Frame::TYPE_TEXTURE )
     {
@@ -383,7 +382,6 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         texture.setGLEWContext( glObjects->glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
         texture.setGLEWContext( 0 );
-        attachment.memory.state = Memory::INVALID;
         return true;
     }
     if( zoom == Zoom::NONE ) // normal framebuffer readback
@@ -392,10 +390,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
 
     _zoomedTextureRB = _readbackZoom( buffer, zoom, glObjects );
     if( _zoomedTextureRB == 0 )
-    {
-        attachment.memory.state = Memory::INVALID;
         return false;
-    }
 
     return _startReadback( buffer, _zoomedTextureRB, glObjects->glewGetContext( ));
 }
@@ -438,13 +433,13 @@ bool Image::_startReadback( const Frame::Buffer buffer,
                                      flags ))
     {
         EQWARN << "Download plugin initialization failed" << std::endl;
-        attachment.memory.state = Memory::INVALID;
         return false;
     }
 
     // get the pixel type produced by the downloader
     _setExternalFormat( buffer, downloader->getExternalFormat(),
                         downloader->getTokenSize(), downloader->hasAlpha( ));
+    attachment.memory.state = Memory::PROCESSING;
 
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
