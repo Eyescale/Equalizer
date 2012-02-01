@@ -1,5 +1,5 @@
 #
-# Copyright 2011 Stefan Eilemann <eile@eyescale.ch>
+# Copyright 2011-2012 Stefan Eilemann <eile@eyescale.ch>
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are met:
@@ -223,7 +223,7 @@ else()
   include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(GPUSD DEFAULT_MSG
                                     GPUSD_core_LIBRARY _gpusd_INCLUDE_DIR)
-  set(GPUSD_DEB_DEPENDENCIES "gpusd${GPUSD_VERSION_MAJOR}-runtime")
+  set(GPUSD_DEB_DEPENDENCIES "gpu-sd${GPUSD_VERSION_MAJOR}-runtime")
 endif()
 
 get_filename_component(GPUSD_LIBRARY_DIR ${GPUSD_core_LIBRARY} PATH)

@@ -40,11 +40,14 @@ public:
     static bool discover( Config* config, const std::string& session,
                           const uint32_t flags );
     static Channels configureSourceChannels( Config* config );
-    static void configure( const Compounds& compounds, const Channels& sources);
+    static void configure( const Compounds& compounds, const Channels& channels,
+                           const uint32_t flags );
 
 private:
-    static Compound* _addMonoCompound( Compound* root, const Channels& );
-    static Compound* _addStereoCompound( Compound* root, const Channels& );
+    static Compound* _addMonoCompound( Compound* root, const Channels& channels,
+                                       const uint32_t flags );
+    static Compound* _addStereoCompound(Compound* root, const Channels& channels,
+                                        const uint32_t flags );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
     static Compound* _addDSCompound( Compound* root, const Channels& channels );

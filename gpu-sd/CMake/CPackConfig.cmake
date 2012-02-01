@@ -9,7 +9,7 @@
 set(GPUSD_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(GPUSD_PACKAGE_VERSION)
 
-if(LINUX)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(CPACK_PACKAGE_NAME "gpu-sd${VERSION_MAJOR}")
 else()
   set(CPACK_PACKAGE_NAME "gpu-sd")

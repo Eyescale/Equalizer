@@ -78,7 +78,14 @@ function(UPLOAD_PPA UBUNTU_NAME)
     "\n"
     "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
     "Architecture: any\n"
-    "Depends: ${CPACK_DEBIAN_PACKAGE_DEPENDS}\n"
+    "Depends: ")
+
+  foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
+    set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
+    file(APPEND ${DEBIAN_CONTROL} "${PACKAGE}, ")
+  endforeach()
+
+  file(APPEND ${DEBIAN_CONTROL} "${CPACK_DEBIAN_PACKAGE_DEPENDS}\n"
     "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"
     "${DEB_LONG_DESCRIPTION}"
     )

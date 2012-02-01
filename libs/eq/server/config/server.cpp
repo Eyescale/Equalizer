@@ -68,7 +68,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     }
 
     const Channels channels = Resources::configureSourceChannels( config );
-    Resources::configure( compounds, channels );
+    Resources::configure( compounds, channels, flags );
 
     configureForBenchmark( config, session );
 

@@ -209,8 +209,8 @@ namespace server { class FrameData; }
         /** 
          * Read back an image for this frame data.
          * 
-         * The newly read images are added to the data using
-         * newImage(). Existing images are retained.
+         * The newly read image is added to the data using newImage(). Existing
+         * images are retained.
          *
          * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
@@ -220,6 +220,23 @@ namespace server { class FrameData; }
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
+
+        /** 
+         * Read back a set of images for this frame data.
+         * 
+         * The newly read images are added to the data using
+         * newImage(). Existing images are retained.
+         *
+         * @param frame the corresponding output frame holder.
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @version 1.0
+         */
+        void readback( const Frame& frame, 
+                       util::ObjectManager< const void* >* glObjects,
+                       const DrawableConfig& config,
+                       const PixelViewports& regions );
 
         /**
          * Set the frame data ready.

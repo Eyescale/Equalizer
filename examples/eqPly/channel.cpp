@@ -99,7 +99,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    resetRegion();
+    resetRegions();
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -651,8 +651,6 @@ void Channel::_drawModel( const Model* scene )
         static_cast<Config*>( getConfig( ))->getInitData();
     if( !initData.useROI( ))
         return;
-
-    declareRegion( eq::Viewport( state.getRegion( )));
 
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();

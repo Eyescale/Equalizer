@@ -39,6 +39,7 @@ namespace detail { class ConfigParams; }
         {
             FLAG_NONE = EQ_BIT_NONE, //!< Unset all flags
             FLAG_MULTIPROCESS = EQ_BIT1, //!< Auto-config: one node per pipe
+            FLAG_MULTIPROCESS_DB = EQ_BIT2, //!< one node per DB decomposition
         };
 
         /** Construct new configuration parameters. @version 1.0 */
