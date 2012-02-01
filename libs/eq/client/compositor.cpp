@@ -1509,9 +1509,7 @@ void Compositor::declareRegion( const Image* image, const ImageOp& op )
     if( !op.channel )
         return;
 
-    eq::PixelViewport area = image->getPixelViewport() + op.offset;
-    area.merge( op.channel->getRegion( ));
-    op.channel->resetRegions(); 
+    const eq::PixelViewport area = image->getPixelViewport() + op.offset;
     op.channel->declareRegion( area );
 }
 

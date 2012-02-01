@@ -246,21 +246,11 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     return image;
 }
 
-namespace
+void FrameData::readback( const Frame& frame,
+                          util::ObjectManager< const void* >* glObjects,
+                          const DrawableConfig& config )
 {
-void _drawRectangle( const PixelViewport& pvp )
-{
-    glDisable( GL_LIGHTING );
-    glColor3f( 1.0f, 1.0f, 1.0f );
-    glBegin( GL_LINE_LOOP );
-    {
-        glVertex3f( pvp.x + .5f,         pvp.y + .5f,         0.f );
-        glVertex3f( pvp.getXEnd() - .5f, pvp.y + .5f,         0.f );
-        glVertex3f( pvp.getXEnd() - .5f, pvp.getYEnd() - .5f, 0.f );
-        glVertex3f( pvp.x + .5f,         pvp.getYEnd() - .5f, 0.f );
-    }
-    glEnd();
-}
+    readback( frame, glObjects, config, PixelViewports( 1, getPixelViewport( )));
 }
 
 void FrameData::readback( const Frame& frame,
@@ -294,33 +284,25 @@ void FrameData::readback( const Frame& frame,
         pvps.push_back( absPVP );
 #endif
 
-    // readback the whole screen when donig in-place compositing
+    // readback the whole screen when using textures
     if( getType() == eq::Frame::TYPE_TEXTURE )
     {
-#ifndef NDEBUG
-        if( getenv( "EQ_OUTLINE_RB" ))
-            _drawRectangle( absPVP );
-#endif
         Image* image = newImage( getType(), config );
         image->readback( getBuffers(), absPVP, zoom, glObjects );
         image->setOffset( 0, 0 );
         return;
     }
-    //else read only required regions
+    // else read the given regions
     EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
 
     const eq::Pixel& pixel = getPixel();
-    for( uint32_t i = 0; i < regions.size(); i++ )
+    for( size_t i = 0; i < regions.size(); ++i )
     {
-        PixelViewport pvp = regions[ i ];
+        PixelViewport pvp = regions[ i ] + frame.getOffset();
         pvp.intersect( absPVP );
         if( !pvp.hasArea( ))
             continue;
 
-#ifndef NDEBUG
-        if( getenv( "EQ_OUTLINE_RB" ))
-            _drawRectangle( pvp );
-#endif
         Image* image = newImage( getType(), config );
         image->readback( getBuffers(), pvp, zoom, glObjects );
 
@@ -340,7 +322,6 @@ void FrameData::readback( const Frame& frame,
 #endif
     }
 }
-
 
 void FrameData::startReadback( const Frame& frame,
                             util::ObjectManager< const void* >* glObjects,

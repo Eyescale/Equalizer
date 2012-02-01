@@ -199,12 +199,25 @@ namespace server
         void flush();
 
         /**
-         * Read back a set of images according to the current frame data.
+         * Read back an image.
+         * 
+         * The image is added to the data, existing images are retained.
+         *
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @version 1.0
+         */
+        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+                              const DrawableConfig& config );
+
+        /**
+         * Read back a set of images.
          * 
          * The images are added to the data, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
          * @version 1.0
          */
         EQ_API void readback( util::ObjectManager< const void* >* glObjects,

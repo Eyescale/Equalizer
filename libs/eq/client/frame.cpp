@@ -145,6 +145,13 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 }
 
 void Frame::readback( util::ObjectManager< const void* >* glObjects,
+                      const DrawableConfig& config )
+{
+    EQASSERT( _frameData );
+    _frameData->readback( *this, glObjects, config );
+}
+
+void Frame::readback( util::ObjectManager< const void* >* glObjects,
                       const DrawableConfig& config,
                       const PixelViewports& regions )
 {
