@@ -36,6 +36,7 @@ VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
         , _glewContext( glewContext )
         , _renderMode( RENDER_MODE_DISPLAY_LIST )
         , _useColors( false )
+		, _useFrustumCulling( false )
 {
     _range[0] = 0.f;
     _range[1] = 1.f;
