@@ -73,6 +73,16 @@ const Matrix4f& Channel::getModelMatrix() const
     return data->getModelMatrix();
 }
 
+bool Channel::useOrtho() const
+{
+	const ViewData* data = getViewData();
+	EQASSERT( data );
+    if( !data )
+        return false;
+	
+	return data->useOrtho();
+}
+
 void Channel::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
 {
     getRendererImpl()->setChannel( this );

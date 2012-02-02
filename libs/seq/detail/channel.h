@@ -40,6 +40,8 @@ namespace detail
 
         const Matrix4f& getViewMatrix() const { return getHeadTransform(); }
         const Matrix4f& getModelMatrix() const;
+
+		virtual bool useOrtho() const;
         //@}
 
         /** @name Operations. */

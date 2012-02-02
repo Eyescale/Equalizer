@@ -27,6 +27,7 @@ ViewData::ViewData()
         , _spinY( 5 )
         , _advance( 0 )
         , _statistics( false )
+		, _ortho( false )
 {
     moveModel( 0.f, 0.f, -2.f );
 }
@@ -41,6 +42,8 @@ void ViewData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _modelMatrix;
     if( dirtyBits & DIRTY_STATISTICS )
         os << _statistics;
+	if( dirtyBits & DIRTY_ORTHO )
+        os << _ortho;
 }
 
 void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
@@ -50,6 +53,8 @@ void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _modelMatrix;
     if( dirtyBits & DIRTY_STATISTICS )
         is >> _statistics;
+	if( dirtyBits & DIRTY_ORTHO )
+        is >> _ortho;
 }
 
 bool ViewData::handleEvent( const eq::ConfigEvent* event )
@@ -123,6 +128,9 @@ bool ViewData::handleEvent( const eq::ConfigEvent* event )
             case 's':
                 showStatistics( !getStatistics( ));
                 return true;
+			case 'o':
+                setOrtho( !useOrtho( ));
+                return true;
           }
           return false;
 
@@ -167,6 +175,15 @@ void ViewData::showStatistics( const bool on )
 
     _statistics = on;
     setDirty( DIRTY_STATISTICS );
+}
+
+void  ViewData::setOrtho( const bool on )
+{
+	if( _ortho == on )
+        return;
+
+	_ortho = on;
+	setDirty( DIRTY_ORTHO );
 }
 
 bool ViewData::update()
