@@ -229,12 +229,21 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
 void FrameData::readback( const Frame& frame,
                           util::ObjectManager< const void* >* glObjects,
-                          const DrawableConfig& config  )
+                          const DrawableConfig& config )
+{
+    readback( frame, glObjects, config, PixelViewports( 1, getPixelViewport( )));
+}
+
+void FrameData::readback( const Frame& frame,
+                          util::ObjectManager< const void* >* glObjects,
+                          const DrawableConfig& config,
+                          const PixelViewports& regions )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
 
-    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    const eq::PixelViewport& framePVP = getPixelViewport();
+    const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
         return;
 
@@ -245,6 +254,8 @@ void FrameData::readback( const Frame& frame,
         return;
     }
 
+// TODO: issue #85: move automatic ROI detection to eq::Channel
+#if 0
     PixelViewports pvps;
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
@@ -252,16 +263,33 @@ void FrameData::readback( const Frame& frame,
                     0, 0, glObjects );
     else
         pvps.push_back( absPVP );
+#endif
 
-    for( uint32_t i = 0; i < pvps.size(); i++ )
+    // readback the whole screen when using textures
+    if( getType() == eq::Frame::TYPE_TEXTURE )
     {
-        PixelViewport pvp = pvps[ i ];
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), absPVP, zoom, glObjects );
+        image->setOffset( 0, 0 );
+        return;
+    }
+    // else read the given regions
+    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
+
+    const eq::Pixel& pixel = getPixel();
+    for( size_t i = 0; i < regions.size(); ++i )
+    {
+        PixelViewport pvp = regions[ i ] + frame.getOffset();
         pvp.intersect( absPVP );
+        if( !pvp.hasArea( ))
+            continue;
 
-        Image* image = newImage( _data.frameType, config );
-        image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), pvp, zoom, glObjects );
 
+        pvp -= frame.getOffset();
+        image->setOffset( (pvp.x - framePVP.x) * pixel.w,
+                          (pvp.y - framePVP.y) * pixel.h );
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
         {

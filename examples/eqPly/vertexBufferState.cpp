@@ -77,14 +77,31 @@ void VertexBufferState::updateRegion( const BoundingBox& box )
                                 Vertex( box[1][0], box[0][1], box[1][2] ),
                                 Vertex( box[0][0], box[1][1], box[1][2] ),
                                 Vertex( box[1][0], box[1][1], box[1][2] ) };
+
+    Vector4f region(  std::numeric_limits< float >::max(),
+                      std::numeric_limits< float >::max(),
+                     -std::numeric_limits< float >::max(),
+                     -std::numeric_limits< float >::max( ));
+
     for( size_t i = 0; i < 8; ++i )
     {
         const Vertex corner = _pmvMatrix * corners[i];
-        _region[0] = std::min( corner[0], _region[0] );
-        _region[1] = std::min( corner[1], _region[1] );
-        _region[2] = std::max( corner[0], _region[2] );
-        _region[3] = std::max( corner[1], _region[3] );
+        region[0] = std::min( corner[0], region[0] );
+        region[1] = std::min( corner[1], region[1] );
+        region[2] = std::max( corner[0], region[2] );
+        region[3] = std::max( corner[1], region[3] );
     }
+
+    // transform covered region from [ -1 -1 1 1 ] to normalized viewport
+    const Vector4f normalized( region[0] * .5f + .5f, region[1] * .5f + .5f,
+                               ( region[2] - region[0] ) * .5f,
+                               ( region[3] - region[1] ) * .5f );
+
+    declareRegion( normalized );
+    _region[0] = std::min( _region[0], normalized[0] );
+    _region[1] = std::min( _region[1], normalized[1] );
+    _region[2] = std::max( _region[2], normalized[2] );
+    _region[3] = std::max( _region[3], normalized[3] );
 }
 
 Vector4f VertexBufferState::getRegion() const
@@ -92,10 +109,7 @@ Vector4f VertexBufferState::getRegion() const
     if( _region[0] > _region[2] || _region[1] > _region[3] )
         return Vector4f::ZERO;
 
-    // transform covered region from [ -1 -1 1 1 ] to normalized viewport
-    return Vector4f( _region[0] * .5f + .5f, _region[1] * .5f + .5f,
-                     ( _region[2] - _region[0] ) * .5f,
-                     ( _region[3] - _region[1] ) * .5f );
+    return _region;
 }
 
 GLuint VertexBufferStateSimple::getDisplayList( const void* key )

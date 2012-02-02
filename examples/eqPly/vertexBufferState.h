@@ -68,6 +68,7 @@ namespace mesh
 
         void resetRegion();
         void updateRegion( const BoundingBox& box );
+        virtual void declareRegion( const Vector4f& region ) {}
         Vector4f getRegion() const;
 
         virtual GLuint getDisplayList( const void* key ) = 0;
@@ -162,15 +163,17 @@ namespace eqPly
         virtual void deleteAll() { _objectManager->deleteAll(); }
         bool isShared() const { return _objectManager->isShared(); }
         
-        void setChannel( const Channel* channel )
-             { _channel = channel; }
+        void setChannel( Channel* channel ) { _channel = channel; }
 
         virtual bool stopRendering( ) const
             { return _channel ? _channel->stopRendering() : false; }
 
+        virtual void declareRegion( const mesh::Vector4f& region ) 
+            { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
+
     private:
         eq::Window::ObjectManager* _objectManager;
-        const Channel* _channel;
+        Channel* _channel;
     };
 } // namespace eqPly
 #endif // EQUALIZER

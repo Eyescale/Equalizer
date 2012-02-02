@@ -127,7 +127,7 @@ using fabric::LayoutPath;
 using fabric::ViewPath;
 
 using fabric::CORE;
-using fabric::CPU;
+using fabric::SOCKET;
 using fabric::EYES_STEREO;
 using fabric::UNDEFINED;
 
