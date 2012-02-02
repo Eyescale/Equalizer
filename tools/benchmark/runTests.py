@@ -23,6 +23,7 @@ def testEqPly( config ):
       os.mkdir( subDirName )
       
    os.chdir( subDirName )
+   
    roiStr = ''   
    if( config.roiState == 'ROIDisabled' ):
       roiStr = ' -d '
@@ -73,8 +74,12 @@ def testRTNeuron( config ):
   
    nbOfFramesArg = '--frame-count ' + str(config.nbOfFrames) 
    
+   roiStr = ''   
+   if( config.roiState == 'ROIEnabled' ):
+      roiStr = ' --roi '
+   
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg
+   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg + ' ' + roiStr
 
    print cmdStr
    
@@ -101,7 +106,11 @@ def main():
                      help="Number of servers to be tested", default = 13, type="int")
    parser.add_option("-p", "--step", dest="step",
                      help="Servers in range startServer to endServer tested in steps", default = 1, type="int")
-   
+   parser.add_option("-b", "--beginServer", dest="beginServer",
+                     help="Servers in range beginServer to beginServer + number of servers will be  tested in steps", default = 1, type="int")
+   parser.add_option("-m", "--schema", dest="schema",
+                     help="Schema to test ( single, combination )", default = "combination")
+
    (options, args) = parser.parse_args()
   
    setFulscreenMode( options.screenmode )
@@ -115,8 +124,13 @@ def main():
       print "No proper application selected"
       exit()
 
-   for serverCount in range( 1,  options.serverCount + options.step, options.step ):
-      testScheme( options.application, testFunc, serverCount )
+   maxServer = options.beginServer + options.serverCount - 1
+   if( maxServer > numberOfServers ):
+      maxServer = numberOfServers
+      
+   for serverCount in range( options.beginServer,  maxServer + 1,  options.step ):
+      # print "Server count: ", serverCount
+      testScheme( options.schema, options.application, testFunc, serverCount )
 
 
 if __name__ == "__main__":

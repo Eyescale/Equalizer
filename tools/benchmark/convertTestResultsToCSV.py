@@ -27,11 +27,19 @@ def convertToDictEqPly( config ):
       
    if not dirNameGPUCountFPSArrayDict.has_key( config.dirName ):
       dirNameGPUCountFPSArrayDict[ config.dirName ] = dict()
+
+   testf = open( testfName, "r" )
+   fpsData = []
+   for line in testf.readlines():
+      lst = line.split(",")
+      fpsData.append( float( lst[1] ) )
+   testf.close()
     
-   fpsData = numpy.genfromtxt( testfName, dtype=None ) 
    maxFrameRate = max( fpsData )
    
    gpufName = subDirName + "/" + gpuCountFile
+   
+   gpuf = open( gpufName, "r" )
    
    gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
    
@@ -87,9 +95,9 @@ def convertToDictRTNeuron( config ):
    dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )   
    
   
-def convert( application ):
+def convert( schema, application ):
 
-   fixTests.fixTests( application )
+   fixTests.fixTests( schema, application )
    
    convertToDict = convertToDictEqPly
    if application == 'eqPly':
@@ -100,7 +108,7 @@ def convert( application ):
       exit()
    
    for serverCount in range( 1, numberOfServers + 1 ):
-      testScheme( application, convertToDict, serverCount )
+      testScheme( schema, application, convertToDict, serverCount )
 
    for dirName in dirNameGPUCountFPSArrayDict.keys():
       print dirName
@@ -115,8 +123,13 @@ def convert( application ):
 if __name__ == "__main__":
    
    parser = OptionParser()
-   parser.add_option("-a", "--application", dest="application",help="Select app ( eqPly, rtneuron )", default="eqPly")
+
+   parser.add_option("-a", "--application", dest="application",
+                     help="Select app ( eqPly, rtneuron )", default="eqPly")
+   parser.add_option("-m", "--schema", dest="schema",
+                     help="Schema to test ( single, combination )", default = "combination")
+
    (options, args) = parser.parse_args()
    
-   convert( options.application )
+   convert( options.schema, options.application )
 

@@ -118,7 +118,12 @@ def plotResults( application ):
     testScheme( application, plotIndividualResults, 1 )
     # show()
     
-    
+    layoutName = eqPlyLayoutNames
+    if( application == "eqPly" ):
+	layoutNames = eqPlyLayoutNames
+    elif( application == "rtneuron" ):
+        layoutNames == rtneuronLayoutNames
+	
     for layout in layoutNames:
       for roiState in roiStateList:
          figure()
@@ -185,6 +190,6 @@ if __name__ == "__main__":
    parser = OptionParser()
    parser.add_option("-a", "--application", dest="application",help="Select app ( eqPly, rtneuron )", default="eqPly")
    (options, args) = parser.parse_args()
-    
+   plotResults( options.application )
     
 

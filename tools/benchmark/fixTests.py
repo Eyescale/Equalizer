@@ -90,7 +90,7 @@ def fixTestsForConfigRTNeuron( config ):
    
    dirNameGPUCountDict[ newSubDirName ] = len( files )
     
-def fixTests( application ):
+def fixTests( schema, application ):
 
    fixFunction = fixTestsForConfigEqPly
    if application == 'eqPly':
@@ -101,7 +101,7 @@ def fixTests( application ):
       exit()
       
    for serverCount in range( 1, numberOfServers + 1 ):
-      testScheme( application, fixFunction, serverCount)
+      testScheme( schema, application, fixFunction, serverCount)
      
    for fileDir in dirNameGPUCountDict.keys():
       print fileDir + " " + str( dirNameGPUCountDict[ fileDir ] )
@@ -112,8 +112,12 @@ def fixTests( application ):
 if __name__ == "__main__":
    
    parser = OptionParser()
-   parser.add_option("-a", "--application", dest="application",help="Select app ( eqPly, rtneuron )", default="eqPly")
+   parser.add_option("-a", "--application", dest="application",
+                     help="Select app ( eqPly, rtneuron )", default="eqPly")
+   parser.add_option("-m", "--schema", dest="schema",
+                     help="Schema to test ( single, combination )", default = "combination")
+                     
    (options, args) = parser.parse_args()
    
-   fixTests( options.application )
+   fixTests( options.schema, options.application )
 
