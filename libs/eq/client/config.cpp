@@ -356,8 +356,12 @@ uint32_t Config::finishFrame()
         
         // local draw sync
         if( _needsLocalSync( ))
+        {
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
+                               << std::endl;
+        }
 
         // local node finish (frame-latency) sync
         const Nodes& nodes = getNodes();
@@ -368,6 +372,8 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
+                               << " @ " << _currentFrame << std::endl;
         }
 
         // global sync
@@ -389,6 +395,8 @@ uint32_t Config::finishFrame()
                 }
             }
         }
+        EQLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
+                           << _currentFrame << std::endl;
     }
 
     handleEvents();
