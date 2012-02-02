@@ -75,12 +75,12 @@ const Matrix4f& Channel::getModelMatrix() const
 
 bool Channel::useOrtho() const
 {
-	const ViewData* data = getViewData();
-	EQASSERT( data );
+    const ViewData* data = getViewData();
+    EQASSERT( data );
     if( !data )
         return false;
-	
-	return data->useOrtho();
+
+    return data->useOrtho();
 }
 
 void Channel::frameStart( const uint128_t& frameID, const uint32_t frameNumber )

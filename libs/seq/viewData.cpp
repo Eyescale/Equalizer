@@ -179,11 +179,11 @@ void ViewData::showStatistics( const bool on )
 
 void  ViewData::setOrtho( const bool on )
 {
-	if( _ortho == on )
+    if( _ortho == on )
         return;
-
-	_ortho = on;
-	setDirty( DIRTY_ORTHO );
+    
+    _ortho = on;
+    setDirty( DIRTY_ORTHO );
 }
 
 bool ViewData::update()

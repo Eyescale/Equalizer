@@ -110,14 +110,14 @@ namespace seq
         {
             DIRTY_MODELMATRIX = co::Serializable::DIRTY_CUSTOM << 0, // 1
             DIRTY_STATISTICS = co::Serializable::DIRTY_CUSTOM << 1, // 2
-			DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2 // 3
+            DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2 // 3
         };
 
         Matrix4f _modelMatrix;
         int32_t _spinX, _spinY;
         int32_t _advance;
         bool _statistics;
-		bool _ortho;
+        bool _ortho;
     };
 }
 #endif // EQSEQUEL_VIEWDATA_H
