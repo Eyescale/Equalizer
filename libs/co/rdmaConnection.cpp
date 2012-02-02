@@ -28,6 +28,8 @@
 #include "connectionDescription.h"
 #include "global.h"
 
+#include "base/scopedMutex.h"
+
 #include <sstream>
 #include <limits>
 
@@ -287,6 +289,8 @@ err:
 void RDMAConnection::close( )
 {
     EQVERB << (void *)this << ".close( )" << std::endl;
+
+    base::ScopedMutex<> mutex( _close_mutex );
 
     if( STATE_CLOSED != _state )
     {
