@@ -30,7 +30,9 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. This release TBD
+  scalable OpenGL applications. This release introduces major new features, most
+  notably automatic configuration, the Sequel library, runtime reliability and
+  tile compounds.
 </p>
 <p>
   Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
@@ -195,6 +197,14 @@
     locales</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/66">66</a>:
     Assertion when using the server for more than one session</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/73">73</a>:
+    Missing space mouse support on Windows</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/82">82</a>:
+    Excessive memory usage with object push</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/87">87</a>:
+    Debian packages broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/87">88</a>:
+    draw_sync thread model causes full synchronization</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -225,8 +235,8 @@
 <p>
   Equalizer is a cross-platform toolkit, designed to run on any modern operating
   system, including all Unix variants and the Windows operating system. A 
-  <a href="http://www.equalizergraphics.com/compatibility.html">compatibility matrix</a> can be found on the
-  Equalizer website.
+  <a href="http://www.equalizergraphics.com/compatibility.html">compatibility
+  matrix</a> can be found on the Equalizer website.
 </p>
 <p>
   Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
@@ -240,8 +250,7 @@
   following platforms and build environments are tested:
 </p>
 <ul>
-  <li><b>Linux:</b> Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile, i386,
-    x64)</li>
+  <li><b>Linux:</b> Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)</li>
   <li><b>Windows:</b> XP and 7 (Visual Studio 2008, i386, x64)</li>
   <li><b>Mac OS X:</b> 10.6, 10.7 (Makefile, XCode, i386, x64)</li>
 </ul>
@@ -259,8 +268,9 @@
 <p>
   The Programming and User Guide is available as a 
   <a href="http://www.lulu.com/product/paperback/equalizer-10-programming-and-user-guide/15165632">hard-copy</a>
-  and <a href="http://www.equalizergraphics.com/survey.html">online</a>. <a href="http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html">API
-  documentation</a> can be found on the Equalizer website.
+  and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
+  The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html">API
+    documentation</a> can be found on the Equalizer website.
 </p>
 <p>
   As with any open source project, the available source code, in particular the
@@ -270,7 +280,7 @@
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features. XCode users can
   download
-  a <a href="http://www.equalizergraphics.com/documents/Developer/API-1.0/ch.eyescale.Equalizer.docset.zip">Documentation
+  a <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/ch.eyescale.Equalizer.docset.zip">Documentation
     Set</a>.
 </p>
 

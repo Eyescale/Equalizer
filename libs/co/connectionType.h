@@ -34,6 +34,7 @@ namespace co
         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
         CONNECTIONTYPE_UDP,       //!< Unreliable UDP connection
         CONNECTIONTYPE_RDMA,      //!< Infiniband RDMA CM
+        CONNECTIONTYPE_UDT,       //!< UDT connection
         CONNECTIONTYPE_MULTICAST = 0x100,
         CONNECTIONTYPE_MCIP = CONNECTIONTYPE_MULTICAST, //!< IP-based multicast
         CONNECTIONTYPE_PGM,       //!< IP-based multicast connection (PGM)
@@ -56,6 +57,7 @@ namespace co
             case CONNECTIONTYPE_RSP: return os << "RSP";
             case CONNECTIONTYPE_NONE: return os << "NONE";
             case CONNECTIONTYPE_RDMA: return os << "RDMA";
+            case CONNECTIONTYPE_UDT: return os << "UDT";
                 
             default:
                 EQASSERTINFO( false, "Not implemented" );
