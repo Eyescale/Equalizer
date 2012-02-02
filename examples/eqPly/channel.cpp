@@ -149,9 +149,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     frameData.moveCamera( -1.f, 0.f, 0.f );
     _frameDraw( frameID );
     frameData.moveCamera( 0.f, -1.f, 0.f );
+
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    state.setFrustumCulling( true );
 #else
     _frameDraw( frameID );
 #endif
+
 }
 
 void Channel::_frameDraw( const eq::uint128_t& frameID )

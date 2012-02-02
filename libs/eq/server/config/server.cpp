@@ -121,6 +121,7 @@ static void _setNetwork( const Config* config, const co::ConnectionType type,
 
         co::ConnectionDescriptionPtr desc = descriptions.front();
         desc->type = type;
+        desc->bandwidth = 300000; // To disable compressor
 
         const std::string& hostname = node->getHost();        
         if( hostname.empty( )) // appNode!?
@@ -146,14 +147,15 @@ void Server::configureForBenchmark( Config* config, const std::string& session_ 
     {
         if( token == "GoodAffinity" )
         {
-            int32_t affinityCPUs[3] = { fabric::CPU + 0, fabric::CPU + 0,
-                                        fabric::CPU + 1 };
+            int32_t affinityCPUs[3] = { fabric::CORE + 2, fabric::CORE + 3,
+                                                    fabric::CORE + 8 };
+
             _setAffinity( config, affinityCPUs );
         }
         else if( token == "BadAffinity" )
         {
-            int32_t affinityCPUs[3] = { fabric::CPU + 1, fabric::CPU + 1,
-                                        fabric::CPU + 0 };
+            int32_t affinityCPUs[3] = { fabric::CORE + 7, fabric::CORE + 8,
+                                        fabric::CORE + 2 };
             _setAffinity( config, affinityCPUs );
         }
         else if( token == "TenGig" )
