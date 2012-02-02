@@ -149,19 +149,21 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     frameData.moveCamera( -1.f, 0.f, 0.f );
     _frameDraw( frameID );
     frameData.moveCamera( 0.f, -1.f, 0.f );
-
-    Window* window = static_cast< Window* >( getWindow( ));
-    VertexBufferState& state = window->getState();
-    state.setFrustumCulling( true );
 #else
     _frameDraw( frameID );
 #endif
-
 }
 
 void Channel::_frameDraw( const eq::uint128_t& frameID )
 {
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const Model* oldModel = _model;
     const Model* model = _getModel();
+
+    if( oldModel != model )
+        state.setFrustumCulling( false ); // create all display lists/VBOs
+
     if( model )
         _updateNearFar( model->getBoundingSphere( ));
 
@@ -209,6 +211,7 @@ void Channel::_frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
+    state.setFrustumCulling( true );
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
@@ -597,8 +600,8 @@ eq::Vector2i Channel::_getJitterStep() const
 
 const Model* Channel::_getModel()
 {
-    Config*     config = static_cast< Config* >( getConfig( ));
-    const View* view   = static_cast< const View* >( getView( ));
+    Config* config = static_cast< Config* >( getConfig( ));
+    const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
