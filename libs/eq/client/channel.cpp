@@ -1620,7 +1620,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _impl->outputFrames[i], nImages[i] );
-    _resetOutputFrames();    
+    _resetOutputFrames();
 }
 
 //---------------------------------------------------------------------------
@@ -1808,8 +1808,8 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                      << packet << std::endl;
 
     _setRenderContext( packet->context );
     _frameReadback( packet->context.frameID, packet->nFrames,
