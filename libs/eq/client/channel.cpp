@@ -1948,7 +1948,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
-#if 1
+#if 0
     _frameReadback( packet->context.frameID, packet->nFrames,
                     packet->frames );
 #else
