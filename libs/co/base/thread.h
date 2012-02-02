@@ -60,7 +60,7 @@ namespace base
          * @sa init(), run()
          * @version 1.0
          */
-        COBASE_API bool start();
+        COBASE_API virtual bool start();
 
         /** 
          * The init function for the child thread.

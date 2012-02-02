@@ -83,6 +83,7 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
     co::CommandQueue* queue = getPipeThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
     co::CommandQueue* transmitQ = &getNode()->transmitter.getQueue();
+    co::CommandQueue* asyncRBQ = getPipe()->getAsyncRBThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -117,12 +118,12 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
     registerCommand( fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES,
                  CmdFunc( this, &Channel::_cmdResetOutputFrames ), queue );
-
-    queue = getPipe()->getPipeAsyncRBThreadQueue();
     registerCommand( fabric::CMD_CHANNEL_FINISH_IMAGE_READBACK,
-                    CmdFunc( this, &Channel::_cmdFinishImageReadback ), queue );
+                     CmdFunc( this, &Channel::_cmdFinishImageReadback ),
+                     asyncRBQ );
     registerCommand( fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC,
-                 CmdFunc( this, &Channel::_cmdResetOutputFramesAsync ), queue );
+                     CmdFunc( this, &Channel::_cmdResetOutputFramesAsync ),
+                     asyncRBQ );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()

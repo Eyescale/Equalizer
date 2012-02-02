@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -34,6 +34,7 @@
 #include "view.h"
 #include "window.h"
 #include "windowPackets.h"
+#include "asyncRB/asyncRBThread.h"
 
 #include "messagePump.h"
 #include "systemPipe.h"
@@ -51,8 +52,6 @@
 #include <co/base/sleep.h>
 #include <sstream>
 
-
-#include <eq/client/asyncRB/asyncRBThread.h>
 
 namespace eq
 {
@@ -89,7 +88,7 @@ Pipe::Pipe( Node* parent )
         , _currentFrame( 0 )
         , _frameTime( 0 )
         , _thread( 0 )
-        , _threadRB( 0 )
+        , _asyncRBThread( new detail::AsyncRBThread( ))
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
@@ -101,8 +100,7 @@ Pipe::~Pipe()
     delete _thread;
     _thread = 0;
 
-    delete _threadRB;
-    _threadRB = 0;
+    delete _asyncRBThread;
 }
 
 Config* Pipe::getConfig()
@@ -138,6 +136,7 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
     
     co::CommandQueue* queue = getPipeThreadQueue();
+    co::CommandQueue* readbackQ = getAsyncRBThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT, 
                      PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
@@ -159,10 +158,8 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
     registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
                      PipeFunc( this, &Pipe::_cmdDetachView ), queue );
-
-    queue = getPipeAsyncRBThreadQueue();
     registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
-                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), queue );
+                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), readbackQ );
 }
 
 
@@ -279,12 +276,9 @@ co::CommandQueue* Pipe::getPipeThreadQueue()
     return getNode()->getMainThreadQueue();
 }
 
-co::CommandQueue* Pipe::getPipeAsyncRBThreadQueue()
+co::CommandQueue* Pipe::getAsyncRBThreadQueue()
 {
-    if( !_threadRB )
-        _threadRB = new AsyncRBThread();
-
-    return _threadRB->getWorkerQueue();
+    return _asyncRBThread->getWorkerQueue();
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
@@ -493,44 +487,22 @@ void Pipe::startThread()
 
 bool Pipe::startAsyncRBThread()
 {
-    if( !_threadRB )
-        return false;
-
-    if( _threadRB->isRunning( ))
+    if( _asyncRBThread->isRunning( ))
         return true;
-
-    // wait for async thread to stop or to start if necessary
-    uint32_t i = 0;
-    while( !_threadRB->isStopped( ) && (i++ < 10 ))
-    {
-        co::base::sleep( 100 );
-        if( _threadRB->isRunning( ))
-            return true;
-    }
-    if( !_threadRB->isStopped( ))
-        return false;
 
     const Windows& windows = getWindows();
+    EQASSERT( !windows.empty( ))
     if( windows.empty() )
-    {
-        EQERROR << "At least on window has to be initialized before "
-                << "async readback thread could start." << std::endl;
         return false;
-    }
 
-    _threadRB->setWindow( windows[0] );
-
-    if( _threadRB->start( ))
-        return true;
-
-    EQERROR << "Async readback failed to initialize" << std::endl;
-    return false;
+    _asyncRBThread->setWindow( windows[0] );
+    return _asyncRBThread->start();
 }
 
 const GLEWContext* Pipe::getAsyncGlewContext()
 {
     if( startAsyncRBThread( ))
-        return _threadRB->glewGetContext();
+        return _asyncRBThread->glewGetContext();
 
     return 0;
 }
@@ -773,16 +745,16 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 
 void Pipe::_stopAsyncRBThread()
 {
-    if( !_threadRB )
+    if( !_asyncRBThread )
         return;
 
-    if( _threadRB->isStopped( ))
+    if( _asyncRBThread->isStopped( ))
         return;
 
     PipeExitAsyncRBThreadPacket packet;
     send( getLocalNode(), packet );
 
-    _threadRB->join();
+    _asyncRBThread->join();
 }
 
 
@@ -926,9 +898,9 @@ bool Pipe::_cmdExitThread( co::Command& command )
 
 bool Pipe::_cmdExitAsyncRBThread( co::Command& )
 {
-    EQASSERT( _threadRB );
-    _threadRB->deleteSharedContextWindow();
-    _threadRB->_running = false;
+    EQASSERT( _asyncRBThread );
+    _asyncRBThread->deleteSharedContextWindow();
+    _asyncRBThread->postStop();
     return true;
 }
 
