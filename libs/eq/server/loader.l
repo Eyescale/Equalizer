@@ -197,7 +197,7 @@ MCIP                            { return EQTOKEN_MCIP; }
 PGM                             { return EQTOKEN_PGM; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
-UDT                             { return EQTOKEN_UDT ; }
+UDT                             { return EQTOKEN_UDT; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }
