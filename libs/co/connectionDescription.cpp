@@ -67,6 +67,8 @@ static ConnectionType _getConnectionType( const std::string& string )
         return CONNECTIONTYPE_RSP;
     if( string == "RDMA" )
         return CONNECTIONTYPE_RDMA;
+    if( string == "UDT" )
+        return CONNECTIONTYPE_UDT;
     
     EQASSERTINFO( false, "Not implemented" );
     return CONNECTIONTYPE_NONE;
@@ -259,6 +261,7 @@ std::ostream& operator << ( std::ostream& os,
             desc.type == co::CONNECTIONTYPE_PGM   ? "PGM" :
             desc.type == co::CONNECTIONTYPE_RSP   ? "RSP" :
             desc.type == co::CONNECTIONTYPE_RDMA  ? "RDMA" :
+            desc.type == co::CONNECTIONTYPE_UDT   ? "UDT" :
             "ERROR" ) << std::endl;
     
     os << "hostname      \"" << desc.getHostname() << "\"" << std::endl;

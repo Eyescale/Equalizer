@@ -130,7 +130,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const Model* oldModel = _model;
     const Model* model = _getModel();
+
+    if( oldModel != model )
+        state.setFrustumCulling( false ); // create all display lists/VBOs
+
     if( model )
         _updateNearFar( model->getBoundingSphere( ));
 
@@ -178,6 +185,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
+    state.setFrustumCulling( true );
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
@@ -566,8 +574,8 @@ eq::Vector2i Channel::_getJitterStep() const
 
 const Model* Channel::_getModel()
 {
-    Config*     config = static_cast< Config* >( getConfig( ));
-    const View* view   = static_cast< const View* >( getView( ));
+    Config* config = static_cast< Config* >( getConfig( ));
+    const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
