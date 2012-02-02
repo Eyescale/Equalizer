@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
@@ -17,7 +17,6 @@ option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
-set(EQUALIZER_RELEASE 120) # OFF or 'Mm0' ABI version
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
@@ -32,14 +31,15 @@ endif()
 
 include(revision)
 
+set(EQUALIZER_RELEASE 120) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "1")
-set(VERSION_PATCH "8")
+set(VERSION_MINOR "2")
+set(VERSION_PATCH "0")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "4")
-set(CO_VERSION_PATCH "7")
+set(CO_VERSION_PATCH "8")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
