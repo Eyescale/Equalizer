@@ -147,15 +147,15 @@ void Server::configureForBenchmark( Config* config, const std::string& session_ 
     {
         if( token == "GoodAffinity" )
         {
-            int32_t affinityCPUs[3] = { fabric::CORE + 2, fabric::CORE + 3,
-                                                    fabric::CORE + 8 };
+            int32_t affinityCPUs[3] = { fabric::SOCKET + 0, fabric::SOCKET + 0,
+                                                    fabric::SOCKET + 1 };
 
             _setAffinity( config, affinityCPUs );
         }
         else if( token == "BadAffinity" )
         {
-            int32_t affinityCPUs[3] = { fabric::CORE + 7, fabric::CORE + 8,
-                                        fabric::CORE + 2 };
+            int32_t affinityCPUs[3] = { fabric::SOCKET + 1, fabric::SOCKET + 1,
+                                        fabric::SOCKET + 0 };
             _setAffinity( config, affinityCPUs );
         }
         else if( token == "TenGig" )
