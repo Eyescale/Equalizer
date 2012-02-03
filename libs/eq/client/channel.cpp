@@ -1542,7 +1542,7 @@ void Channel::_setOutputFramesReady()
     for( FramesCIter i = _impl->outputFrames.begin();
          i != _impl->outputFrames.end(); ++i )
     {
-        Frame* frame = *i;    
+        Frame* frame = *i;
         frame->setReady();
 
         const Eye eye = getEye();
