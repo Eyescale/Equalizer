@@ -100,8 +100,8 @@ namespace seq
         //@}
 
     protected:
-        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( co::DataIStream& is,
+        virtual SEQ_API void serialize( co::DataOStream& os, const uint64_t dirtyBits );
+        virtual SEQ_API void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
 
     private:
