@@ -207,6 +207,7 @@
 %token EQTOKEN_PGM
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
+%token EQTOKEN_UDT
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
 %token EQTOKEN_FIXED
@@ -529,6 +530,7 @@ connectionType:
     | EQTOKEN_PGM  { $$ = co::CONNECTIONTYPE_PGM; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
+    | EQTOKEN_UDT  { $$ = co::CONNECTIONTYPE_UDT; }
 
 server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections

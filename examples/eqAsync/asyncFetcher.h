@@ -72,7 +72,7 @@ public:
 private:
     Window*                        _wnd;
     co::base::MTQueue<const void*> _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId> _outQueue;      // generated textures
+    co::base::MTQueue<TextureId>   _outQueue;      // generated textures
     eq::ObjectManager*             _objectManager;
     eq::SystemWindow*              _sharedContextWindow;
     GLbyte*                        _tmpTexture;    // temporal texture storage

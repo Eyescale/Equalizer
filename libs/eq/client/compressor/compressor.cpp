@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -217,7 +217,6 @@ void EqCompressorUpload( void* const        ptr,
 }
 
 
-#ifdef EQ_ASYNC_READBACK
 void EqCompressorStartDownload( void* const        ptr,
                                 const unsigned     name,
                                 const GLEWContext* glewContext,
@@ -247,4 +246,3 @@ void EqCompressorFinishDownload( void* const        ptr,
     compressor->finishDownload( glewContext, inDims, source, flags, outDims,
                                out );
 }
-#endif

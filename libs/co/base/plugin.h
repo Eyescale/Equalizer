@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -55,6 +55,13 @@ namespace base
                                            const uint64_t );
         typedef bool ( *IsCompatible_t ) ( const unsigned, const GLEWContext* );
         typedef void ( *Download_t )( void* const, const unsigned, 
+                                      const GLEWContext*, const uint64_t*,
+                                      const unsigned, const uint64_t,
+                                      uint64_t*, void** );
+        typedef void ( *StartDownload_t )( void* const, const unsigned,
+                                      const GLEWContext*, const uint64_t*,
+                                      const unsigned, const uint64_t );
+        typedef void ( *FinishDownload_t )( void* const, const unsigned,
                                       const GLEWContext*, const uint64_t*,
                                       const unsigned, const uint64_t,
                                       uint64_t*, void** );

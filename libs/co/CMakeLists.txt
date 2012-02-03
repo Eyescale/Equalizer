@@ -62,6 +62,12 @@ if(OFED_FOUND)
   list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
 endif()
 
+if(UDT_FOUND)
+  list(APPEND CO_HEADERS udtConnection.h)
+  list(APPEND CO_SOURCES udtConnection.cpp)
+  list(APPEND CO_ADD_LINKLIB ${UDT_LIBRARIES})
+endif()
+
 if(HWLOC_FOUND)
   list(APPEND CO_ADD_LINKLIB ${HWLOC_LIB})
 endif(HWLOC_FOUND)
