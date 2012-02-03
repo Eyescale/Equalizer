@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
- *               2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -70,7 +70,6 @@ static stde::hash_map< unsigned, unsigned > _depths;
     }                                                                   \
                                                                         \
     static bool _initialized ## in ## out = _register ## in ## out();
-
 
 REGISTER_TRANSFER( RGBA, RGBA, 4, 1., 1., 1., false );
 REGISTER_TRANSFER( RGBA, BGRA, 4, 1., 1., 2., false );
@@ -406,7 +405,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     // PBO is read-only
     return _pbo->init( size, glewContext, true );
 }
-
 
 void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const eq_uint64_t  inDims[4],

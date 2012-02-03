@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -159,7 +159,6 @@ void GPUCompressor::download( const fabric::PixelViewport& pvpIn,
     pvpOut.h = outDims[3];
 }
 
-
 void GPUCompressor::startDownload(  const fabric::PixelViewport& pvpIn,
                                     const unsigned               source,
                                     const uint64_t               flags  )
@@ -204,7 +203,6 @@ void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
     pvpOut.y = _outDimsRB[2];
     pvpOut.h = _outDimsRB[3];
 }
-
 
 void GPUCompressor::upload( const void*                  buffer,
                             const fabric::PixelViewport& pvpIn,

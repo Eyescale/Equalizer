@@ -52,7 +52,6 @@
 #include <co/base/sleep.h>
 #include <sstream>
 
-
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
@@ -79,7 +78,6 @@ private:
     Pipe* _pipe;
     friend class Pipe;
 };
-
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
@@ -161,7 +159,6 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
     registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
                      PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), readbackQ );
 }
-
 
 void Pipe::setDirty( const uint64_t bits )
 {
@@ -757,7 +754,6 @@ void Pipe::_stopAsyncRBThread()
     _asyncRBThread->join();
 }
 
-
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -895,7 +891,6 @@ bool Pipe::_cmdExitThread( co::Command& command )
     return true;
 }
 
-
 bool Pipe::_cmdExitAsyncRBThread( co::Command& )
 {
     EQASSERT( _asyncRBThread );
@@ -903,7 +898,6 @@ bool Pipe::_cmdExitAsyncRBThread( co::Command& )
     _asyncRBThread->postStop();
     return true;
 }
-
 
 bool Pipe::_cmdFrameStartClock( co::Command& )
 {

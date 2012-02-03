@@ -416,7 +416,6 @@ void Channel::frameReadback( const uint128_t& )
     EQ_GL_CALL( resetAssemblyState( ));
 }
 
-
 void Channel::frameStartReadback( const uint128_t& )
 {
     EQ_TS_THREAD( _pipeThread );
@@ -472,7 +471,6 @@ bool Channel::finishImageReadback( FrameData* frameData,
     EQASSERT( !image->isReadbackInProgress( ));
     return true;
 }
-
 
 void Channel::startFrame( const uint32_t ) { /* nop */ }
 void Channel::releaseFrame( const uint32_t ) { /* nop */ }
@@ -1586,7 +1584,6 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     }
 }
 
-
 void Channel::_scheduleFinishReadback( const RenderContext& context,
                                     Frame* frame, const size_t startPos )
 {
@@ -1625,7 +1622,6 @@ void Channel::_scheduleFinishReadback( const RenderContext& context,
         }
     }
 }
-
 
 void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
 {
@@ -1758,7 +1754,6 @@ void Channel::_frameStartReadback(  const uint128_t& frameID, uint32_t nFrames,
     packet.command = fabric::CMD_CHANNEL_RESET_OUTPUT_FRAMES_ASYNC;
     send( getNode()->getLocalNode(), packet );
 }
-
 
 //---------------------------------------------------------------------------
 // command handlers
@@ -1960,7 +1955,6 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     return true;
 }
 
-
 bool Channel::_cmdFinishImageReadback( co::Command& command )
 {
     ChannelFinishImageReadbackPacket* packet =
@@ -2025,7 +2019,6 @@ bool Channel::_cmdResetOutputFrames( co::Command& )//command )
     _resetOutputFrames();
     return true;
 }
-
 
 bool Channel::_cmdFrameTransmitImage( co::Command& command )
 {

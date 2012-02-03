@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -141,7 +141,6 @@ namespace util
                              const uint64_t               flags,
                              fabric::PixelViewport&       pvpOut,
                              void**                       out );
-
 
         /**
          * Upload data from cpu to the frame buffer or texture 
