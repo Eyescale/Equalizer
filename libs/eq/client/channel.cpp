@@ -889,7 +889,7 @@ void Channel::declareRegion( const PixelViewport& region )
 
 PixelViewport Channel::getRegion() const
 {
-    PixelViewport region( 0, 0, 0, 0 );
+    PixelViewport region;
     for( size_t i = 0; i < _impl->regions.size(); ++i )
         region.merge( _impl->regions[i] );
 
