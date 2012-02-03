@@ -3,9 +3,38 @@
 import startServers
 import sys 
 from optparse import OptionParser
+import numpy
 
 from common import *
 import os
+
+forceRedo = False
+checkAndRedo = False
+
+def emtpyDirectory( dirName ):
+   print "Empty directory : " + dirName
+   os.system( 'rm %s/*.log' % ( dirName ) )
+
+def checkEqPlyTestDirectory( dirName ):
+   print "checkEqPlyTestDirectory"
+
+def checkRTNeuronTestDirectory( dirName ):
+   
+   if not os.path.exists( dirName ):
+      return  False
+      
+   testfName = dirName + "/" + rtneuronFPSFile
+
+   if not os.path.exists( testfName ):
+      return False
+      
+   fpsData = numpy.genfromtxt( testfName, dtype=float )
+   
+   if( fpsData.size < 100 ):
+      return False
+      
+   return True
+      
 
 def testEqPly( config ):
    
@@ -45,20 +74,26 @@ def testEqPly( config ):
    
 
 def testRTNeuron( config ):
-   
+
    if not os.path.exists( config.dirName ):
       os.mkdir( config.dirName )
    
-   # os.system('ssh node01 killall -9 eqPly')
-   os.system('killall -9 rtneuron.equalizer')
-   os.system('cexec killall -9 rtneuron.equalizer')
-
    saveCurrentDir()
 
    subDirName = config.dirName + "/" + str( config.serverCount )   
    if not os.path.exists( subDirName ):
       os.mkdir( subDirName )
-      
+   
+   if( forceRedo ):
+      emtpyDirectory( subDirName )
+   
+   if( checkAndRedo ):
+      if( checkRTNeuronTestDirectory( subDirName ) ):
+         return
+      else:
+         emtpyDirectory( subDirName )
+         
+         
    os.chdir( subDirName )
    roiStr = ''   
    rtLayoutArg = ''
@@ -77,9 +112,13 @@ def testRTNeuron( config ):
    roiStr = ''   
    if( config.roiState == 'ROIEnabled' ):
       roiStr = ' --roi '
+      
+   # os.system('ssh node01 killall -9 eqPly')
+   os.system('killall -9 rtneuron.equalizer')
+   os.system('cexec killall -9 rtneuron.equalizer')
    
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg + ' ' + roiStr
+   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg
 
    print cmdStr
    
@@ -110,9 +149,20 @@ def main():
                      help="Servers in range beginServer to beginServer + number of servers will be  tested in steps", default = 1, type="int")
    parser.add_option("-m", "--schema", dest="schema",
                      help="Schema to test ( single, combination )", default = "combination")
+   parser.add_option("-r", "--forceRedo", dest="forceRedo",
+                     action="store_true", help="Force Redo the test", default = False )
+   parser.add_option("-c", "--checkAndRedo", dest="checkAndRedo",
+                     action="store_true", help="Check and Redo the test", default = False )
+
 
    (options, args) = parser.parse_args()
-  
+
+   global checkAndRedo
+   global forceRedo
+   
+   forceRedo = options.forceRedo
+   checkAndRedo = options.checkAndRedo
+   
    setFulscreenMode( options.screenmode )
    
    testFunc = testEqPly

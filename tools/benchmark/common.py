@@ -13,14 +13,6 @@ rtNeuronFullLayoutNames = [ 'RoundRobinDB', 'SpatialDB','Dynamic2D' ]
 eqPlyFullLayoutNames = [ 'StaticDB', 'Static2D', 'Dynamic2D' ]
 roiFullStateList = [  'ROIEnabled', 'ROIDisabled' ]
 
-# run tests options
-protocols = [ 'TenGig' ]  
-eqPlyLayoutNames = [ 'Dynamic2D', 'StaticDB' ]
-rtNeuronLayoutNames = [ 'SpatialDB', 'RoundRobinDB','Dynamic2D' ]
-roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
-affStateList = [  'NoAffinity' ]
-
-
 eqPlyBinaryPath = '/home/bilgili/Build/bin/eqPly'
 rtNeuromBinaryPath = '/home/bilgili/Build/bin/rtneuron.equalizer'
 eqPlyDefaultArgs = '-m ~/EqualizerData/david1mm.ply -a ~/EqualizerConfigs/eqPly/cameraPath'
@@ -45,6 +37,8 @@ class Configuration:
    session = ''
    nbOfFrames = 900
    serverCount = 1
+   forceRedo = False
+   checkAndRedo = False
     
 def saveCurrentDir():
    dirStack.append( os.getcwd() )
@@ -60,6 +54,10 @@ def writeCommandStringToFile( cmdStr ):
 
 def eqPlysingleTestScheme( application, function, serverCount ):
 
+   # run tests options
+   protocols = [ 'TenGig' ]  
+   eqPlyLayoutNames = [ 'Dynamic2D', 'StaticDB' ]
+   
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
 
@@ -108,10 +106,6 @@ def eqPlysingleTestScheme( application, function, serverCount ):
 
 def eqPlyfullTestScheme( application, function, serverCount ):
 
-   #servers = checkXServersAndRestart.findInactiveXServers( False )
-   #if len( servers ) > 0:
-   #  print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
-   #  exit()
    for protocol in protocolsFull:
       for layoutName in eqPlyFullLayoutNames:
          for roiState in roiFullStateList:
@@ -130,10 +124,12 @@ def eqPlyfullTestScheme( application, function, serverCount ):
 
 def eqPlycombinationTestScheme( application, function, serverCount ):
 
-   #servers = checkXServersAndRestart.findInactiveXServers( False )
-   #if len( servers ) > 0:
-   #  print "Problem starting gpu_sd in cluster in nodes: " + str( servers )
-   #  exit()
+   # run tests options
+   protocols = [ 'TenGig' ]  
+   eqPlyLayoutNames = [ 'StaticDB', 'Dynamic2D' ]
+   roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
+   affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
+   
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
          for roiState in roiStateList:
@@ -151,28 +147,30 @@ def eqPlycombinationTestScheme( application, function, serverCount ):
 
 def rtneuronsingleTestScheme( application, function, serverCount ):
 
-   hello = None
+   print "Do nothing"
 
 def rtneuroncombinationTestScheme( application, function, serverCount ):
 
-    for protocol in protocols:
-      for layoutName in rtNeuronLayoutNames:
-         # if ( layoutName == 'RoundRobinDB' or layoutName == 'SpatialDB' ):
-         #    os.environ['EQ_NODE_IATTR_THREAD_MODEL'] = str( -10 ) # ASYNC mode
-         # else:
-         #    os.environ['EQ_NODE_IATTR_THREAD_MODEL'] = str( -10 ) # DRAW_SYNC mode
-         for roiState in roiStateList:
-            for affState in affStateList:
-               config = Configuration()
-               config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
-               config.protocol = protocol
-               config.roiState = roiState
-               config.layoutName = layoutName
-               config.affState = affState
-               config.session = '%s-%s-%s' % ( application, affState, protocol )
-               config.serverCount = serverCount
-               config.nbOfFrames = 400
-               function( config )       
+   # run tests options
+   protocols = [ 'TenGig' ]  
+   rtNeuronLayoutNames = [ 'SpatialDB', 'RoundRobinDB','Dynamic2D' ]
+   roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
+   affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
+
+   for protocol in protocols:
+     for layoutName in rtNeuronLayoutNames:
+       for roiState in roiStateList:
+          for affState in affStateList:
+              config = Configuration()
+              config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+              config.protocol = protocol
+              config.roiState = roiState
+              config.layoutName = layoutName
+              config.affState = affState
+              config.session = '%s-%s-%s' % ( application, affState, protocol )
+              config.serverCount = serverCount
+              config.nbOfFrames = 400
+              function( config )       
 
 
 def testScheme( schemeName, application, function, serverCount ):
