@@ -120,7 +120,7 @@ void Config::notifyAttached()
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
         EQWARN << "Connection to application node failed -- misconfigured "
-               << "connections on appNode?" );
+               << "connections on appNode?" << std::endl;
 }
 
 void Config::notifyDetach()
