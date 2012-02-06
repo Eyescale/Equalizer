@@ -75,9 +75,9 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     }
     
 #ifndef NDEBUG
-    MESHINFO << "VertexBufferLeaf::setupTree" << "( " << _indexStart << ", "
-             << _indexLength << "; start " << _vertexStart << ", "
-             << _vertexLength << " vertices)." << std::endl;
+    MESHINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
+             << "; start " << _vertexStart << ", " << _vertexLength
+             << " vertices)." << std::endl;
 #endif
 }
 

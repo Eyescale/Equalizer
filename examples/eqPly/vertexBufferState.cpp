@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@ VertexBufferState::VertexBufferState( const GLEWContext* glewContext )
         , _glewContext( glewContext )
         , _renderMode( RENDER_MODE_DISPLAY_LIST )
         , _useColors( false )
-		, _useFrustumCulling( false )
+        , _useFrustumCulling( true )
 {
     _range[0] = 0.f;
     _range[1] = 1.f;

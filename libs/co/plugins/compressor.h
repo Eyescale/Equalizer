@@ -288,7 +288,6 @@ extern "C" {
      */
     #define EQ_COMPRESSOR_USE_FRAMEBUFFER 0x40
 
-#if 0 // Not implemented yet
     /**
      * Capability to use asynchronous downloads.
      * If set, the transfer engine will (query time) or shall (download time)
@@ -297,6 +296,7 @@ extern "C" {
      */
     #define EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD 0x100
 
+#if 0 // Not implemented yet
     /**
      * Capability to use asynchronous uploads.
      * If set, the transfer engine will (query time) or shall (upload time)
@@ -602,8 +602,6 @@ extern "C" {
                                              eq_uint64_t        outDims[4],
                                              void**             out );
 
-//#define EQ_ASYNC_READBACK
-#ifdef EQ_ASYNC_READBACK
     /**
      * Start transferring frame buffer data into main memory.
      * 
@@ -662,7 +660,6 @@ extern "C" {
                                                    const eq_uint64_t  flags,
                                                    eq_uint64_t        outDims[4],
                                                    void**             out );
-#endif
 
     /**
      * Transfer data from main memory into GPU memory.

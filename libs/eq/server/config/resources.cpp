@@ -401,7 +401,7 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
 
     Compound* compound = new Compound( root );
     compound->setName( name );
-    compound->setBuffers( eq::Frame::BUFFER_COLOR|eq::Frame::BUFFER_DEPTH );
+    compound->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
     if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC )
         compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_DB ));
 
@@ -460,14 +460,14 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 std::ostringstream frameName;
                 frameName << "tile" << j - children.begin() << ".channel"
                           << i - children.begin();
-                eq::Viewport vp;
+                Viewport vp;
                 if(  j+1 == children.end( ) ) // last - correct rounding 'error'
                 {
-                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                    vp = Viewport( 0.f, static_cast< float >( y )/100000.f,
                               1.f, static_cast< float >( 100000-y )/100000.f );
                 }
                 else
-                    vp = eq::Viewport( 0.f, static_cast< float >( y )/100000.f,
+                    vp = Viewport( 0.f, static_cast< float >( y )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
                 eq::server::Frame* outputFrame = _createFrame( frameName, vp );
@@ -490,22 +490,20 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         // assembled color tile output, if not already in place
         if( i != children.begin( ) )
         {
-            std::ostringstream frameName;
-            frameName << "frame.channel" << i - children.begin();
+            Frame* output = child->getOutputFrames().front();
 
             Viewport vp;
             if( i+1 == children.end( ) ) // last - correct rounding 'error'
             {
-                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
-                                  1.f,
+                vp = Viewport( 0.f, static_cast< float >( start )/100000.f,
+                               1.f,
                                static_cast< float >( 100000-start )/100000.f );
             }
             else
-                vp = eq::Viewport( 0.f, static_cast< float >( start )/100000.f,
-                                  1.f, static_cast< float >( step )/100000.f );
+                vp = Viewport( 0.f, static_cast< float >( start )/100000.f,
+                               1.f, static_cast< float >( step )/100000.f );
 
-            child->addOutputFrame(   _createFrame( frameName, vp, true ));
-            compound->addInputFrame( _createFrame( frameName ));
+            output->setViewport( vp );
         }
         start += step;
     }
