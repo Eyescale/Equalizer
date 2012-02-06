@@ -10,13 +10,28 @@ import os
 
 forceRedo = False
 checkAndRedo = False
+multiprocess = False
 
 def emtpyDirectory( dirName ):
    print "Empty directory : " + dirName
    os.system( 'rm %s/*.log' % ( dirName ) )
 
 def checkEqPlyTestDirectory( dirName ):
-   print "checkEqPlyTestDirectory"
+   
+   if not os.path.exists( dirName ):
+      return  False
+      
+   testfName = dirName + "/" + testFileName
+
+   if not os.path.exists( testfName ):
+      return False
+      
+   fpsData = numpy.genfromtxt( testfName, dtype=float )
+   
+   if( fpsData.size < 4 ):
+      return False
+      
+   return True
 
 def checkRTNeuronTestDirectory( dirName ):
    
@@ -41,15 +56,22 @@ def testEqPly( config ):
    if not os.path.exists( config.dirName ):
       os.mkdir( config.dirName )
    
-   # os.system('ssh node01 killall -9 eqPly')
-   os.system('killall -9 eqPly')
-   os.system('cexec killall -9 eqPly')
-
    saveCurrentDir()
 
    subDirName = config.dirName + "/" + str( config.serverCount )   
+   
    if not os.path.exists( subDirName ):
       os.mkdir( subDirName )
+   
+   if( forceRedo ):
+      emtpyDirectory( subDirName )
+   
+   if( checkAndRedo ):
+      if( checkEqPlyTestDirectory( subDirName ) ):
+         gotoPreviousDir()
+         return
+      else:
+         emtpyDirectory( subDirName )
       
    os.chdir( subDirName )
    
@@ -60,9 +82,15 @@ def testEqPly( config ):
    eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
    nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
+   multiProcessStr = ''
+   if( multiprocess ):
+      multiProcessStr = '-f'
+
+   os.system('killall -9 eqPly')
+   os.system('cexec killall -9 eqPly')
 
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg
+   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg + ' ' + multiProcessStr
 
    print cmdStr
    
@@ -89,6 +117,7 @@ def testRTNeuron( config ):
    
    if( checkAndRedo ):
       if( checkRTNeuronTestDirectory( subDirName ) ):
+         gotoPreviousDir()
          return
       else:
          emtpyDirectory( subDirName )
@@ -113,7 +142,6 @@ def testRTNeuron( config ):
    if( config.roiState == 'ROIEnabled' ):
       roiStr = ' --roi '
       
-   # os.system('ssh node01 killall -9 eqPly')
    os.system('killall -9 rtneuron.equalizer')
    os.system('cexec killall -9 rtneuron.equalizer')
    
@@ -153,15 +181,21 @@ def main():
                      action="store_true", help="Force Redo the test", default = False )
    parser.add_option("-c", "--checkAndRedo", dest="checkAndRedo",
                      action="store_true", help="Check and Redo the test", default = False )
+   parser.add_option("-u", "--multiprocess", dest="multiprocess",
+                     action="store_true", help="Force multi process", default = False )
+   parser.add_option("-j", "--justlist", dest="justlist",
+                     action="store_true", help="Just list, do not run", default = False )
 
 
    (options, args) = parser.parse_args()
 
    global checkAndRedo
    global forceRedo
+   global multiprocess
    
    forceRedo = options.forceRedo
    checkAndRedo = options.checkAndRedo
+   multiprocess = options.multiprocess
    
    setFulscreenMode( options.screenmode )
    
@@ -179,8 +213,9 @@ def main():
       maxServer = numberOfServers
       
    for serverCount in range( options.beginServer,  maxServer + 1,  options.step ):
-      # print "Server count: ", serverCount
-      testScheme( options.schema, options.application, testFunc, serverCount )
+      print startServers.getActiveServers( range(1, serverCount+1) )
+      if( not options.justlist ):
+         testScheme( options.schema, options.application, testFunc, serverCount )
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@
 import os
 import checkXServersAndRestart
 
-numberOfServers = 13
-excludedServers = [] 
+numberOfServers = 12
+excludedServers = [ 5 ] 
 
 # All test options
 protocolsFull = [ 'TenGig', 'IPoIB', 'RDMA', 'SDP' ]  
@@ -56,7 +56,7 @@ def eqPlysingleTestScheme( application, function, serverCount ):
 
    # run tests options
    protocols = [ 'TenGig' ]  
-   eqPlyLayoutNames = [ 'Dynamic2D', 'StaticDB' ]
+   eqPlyLayoutNames = [ 'Dynamic2D' ]
    
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
@@ -126,9 +126,9 @@ def eqPlycombinationTestScheme( application, function, serverCount ):
 
    # run tests options
    protocols = [ 'TenGig' ]  
-   eqPlyLayoutNames = [ 'StaticDB', 'Dynamic2D' ]
-   roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
-   affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
+   eqPlyLayoutNames = [ 'Dynamic2D' ]
+   roiStateList = [  'ROIEnabled' ]
+   affStateList = [  'GoodAffinity',  'NoAffinity' ]
    
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
@@ -147,7 +147,54 @@ def eqPlycombinationTestScheme( application, function, serverCount ):
 
 def rtneuronsingleTestScheme( application, function, serverCount ):
 
-   print "Do nothing"
+   protocols = [ 'TenGig' ]  
+   rtNeuronLayoutNames = [ 'Dynamic2D' ]
+   
+   for protocol in protocols:
+      for layoutName in rtNeuronLayoutNames:
+
+         config = Configuration()
+         config.protocol = protocol
+         config.layoutName = layoutName
+         config.serverCount = serverCount
+         config.nbOfFrames = 400
+
+         roiState = "ROIDisabled"
+         affState = "NoAffinity"
+
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.roiState = roiState
+         config.affState = affState
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         function( config )
+         
+         roiState = "ROIEnabled"
+         affState = "NoAffinity"
+
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.roiState = roiState
+         config.affState = affState
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         function( config )
+
+         roiState = "ROIDisabled"
+         affState = "GoodAffinity"
+
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.roiState = roiState
+         config.affState = affState
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         function( config )
+         
+         roiState = "ROIDisabled"
+         affState = "BadAffinity"
+
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.roiState = roiState
+         config.affState = affState
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         function( config )
+
 
 def rtneuroncombinationTestScheme( application, function, serverCount ):
 

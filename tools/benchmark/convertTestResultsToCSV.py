@@ -72,7 +72,7 @@ def convertToDictRTNeuron( config ):
    mn = numpy.mean( fpsData )
    
    # how far is it from the mean
-   howFar = 3 
+   howFar = 1 
    lLimit = mn - howFar * sd   
    hLimit = mn + howFar * sd
 
@@ -86,7 +86,7 @@ def convertToDictRTNeuron( config ):
          
    print len( filteredFPSData )
    
-   maxFrameRate = max( filteredFPSData )
+   maxFrameRate = numpy.mean( filteredFPSData )
    
    gpufName = subDirName + "/" + gpuCountFile
    
