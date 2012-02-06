@@ -297,7 +297,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
     {
-        compound = _addDBCompound( root, active ); // TODO: switch to _addDS
+        compound = _addDSCompound( root, active );
     }
     else
     {
@@ -422,19 +422,19 @@ Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
     return compound;
 }
 
-#if 0
 Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
+    const std::string& name = layout->getName();
 
     Compound* compound = new Compound( root );
     compound->setName( name );
 
     const Compounds& children = _addSources( compound, channels );
-    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
 
     const size_t step = size_t( 100000.0f / float( children.size( )));
+
     size_t start = 0;
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
@@ -442,7 +442,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
 
         // leaf draw + tile readback compound
         Compound* drawChild = new Compound( child );
-        if( i == _nChannels - 1 ) // last - correct rounding 'error'
+        if( i+1 == children.end( ) ) // last - correct rounding 'error'
         {
             drawChild->setRange(
                 eq::Range( static_cast< float >( start )/100000.f, 1.f ));
@@ -453,13 +453,15 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                            static_cast< float >( start + step )/100000.f ));
         
         unsigned y = 0;
-        for( unsigned j = _useDestination ? 0 : 1; j<_nChannels; ++j )
+        for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
         {
             if( i != j )
             {
                 std::ostringstream frameName;
-                eq::Viewport vp;
-                if( j+1 == children.end( ) ) // last - correct rounding 'error'
+                frameName << "tile" << j - children.begin() << ".channel"
+                          << i - children.begin();
+                Viewport vp;
+                if(  j+1 == children.end( ) ) // last - correct rounding 'error'
                 {
                     vp = Viewport( 0.f, static_cast< float >( y )/100000.f,
                               1.f, static_cast< float >( 100000-y )/100000.f );
@@ -473,11 +475,12 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 outputFrame->setViewport( vp );
                 outputFrame->setBuffers( eq::Frame::BUFFER_COLOR |
                                          eq::Frame::BUFFER_DEPTH );
-                drawChild->addOutputFrame( ::Frame::create( frameName, vp ));
+                drawChild->addOutputFrame( outputFrame );
 
                 // input tiles from other channels
                 frameName.str("");
-                frameName << "tile" << i << ".channel" << j;
+                frameName << "tile" << i - children.begin() << ".channel"
+                          << j - children.begin();
 
                 eq::server::Frame* inputFrame = new eq::server::Frame;
                 inputFrame->setName( frameName.str( ));
@@ -489,12 +492,12 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         }
  
         // assembled color tile output, if not already in place
-        if( i != 0 )
+        if( i != children.begin( ) )
         {
             Frame* output = child->getOutputFrames().front();
 
-            eq::Viewport vp;
-            if( i == _nChannels - 1 ) // last - correct rounding 'error'
+            Viewport vp;
+            if( i+1 == children.end( ) ) // last - correct rounding 'error'
             {
                 vp = Viewport( 0.f, static_cast< float >( start )/100000.f,
                                1.f,
@@ -508,8 +511,9 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         }
         start += step;
     }
+
+    return compound;
 }
-#endif
 
 const Compounds& Resources::_addSources( Compound* compound,
                                          const Channels& channels )
