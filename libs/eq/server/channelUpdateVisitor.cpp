@@ -284,7 +284,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     if( lastDrawCompound && lastDrawCompound != compound )
         return;
 
-    // Test if this is not the last eye pass of this compound
+    // Only pass if this is the last eye pass of this compound
     if( !compound->isLastInheritEye( _eye ))
         return;
 
@@ -307,9 +307,10 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     Window* window = _channel->getWindow();
     const Channel* lastDrawChannel = window->getLastDrawChannel();
 
-    if( lastDrawChannel != _channel )
+    if( lastDrawChannel && lastDrawChannel != _channel )
         return;
 
+    window->setLastDrawChannel( _channel ); // in case not set
     WindowFrameDrawFinishPacket windowPacket;
     windowPacket.objectID    = window->getID();
     windowPacket.frameNumber = _frameNumber;
@@ -322,9 +323,10 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     // Pipe::frameDrawFinish
     Pipe* pipe = _channel->getPipe();
     const Window* lastDrawWindow = pipe->getLastDrawWindow();
-    if( lastDrawWindow != window )
+    if( lastDrawWindow && lastDrawWindow != window )
         return;            
 
+    pipe->setLastDrawWindow( window ); // in case not set
     PipeFrameDrawFinishPacket pipePacket;
     pipePacket.objectID    = pipe->getID();
     pipePacket.frameNumber = _frameNumber;
@@ -336,9 +338,10 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 
     // Node::frameDrawFinish
     const Pipe* lastDrawPipe = node->getLastDrawPipe();
-    if( lastDrawPipe != pipe )
+    if( lastDrawPipe && lastDrawPipe != pipe )
         return;
 
+    node->setLastDrawPipe( pipe ); // in case not set
     NodeFrameDrawFinishPacket nodePacket;
     nodePacket.objectID    = node->getID();
     nodePacket.frameNumber = _frameNumber;
