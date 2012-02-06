@@ -1292,6 +1292,114 @@ void Channel::outlineViewport()
     resetAssemblyState();
 }
 
+void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
+{
+    RenderContext context = packet->context;
+    _setRenderContext( context );
+
+    frameTilesStart( packet->context.frameID );
+
+    if( packet->tasks & fabric::TASK_READBACK )
+        _setOutputFrames( packet->nFrames, packet->frames );
+
+    int64_t startTime = getConfig()->getTime();
+    int64_t clearTime = 0;
+    int64_t drawTime = 0;
+    int64_t readbackTime = 0;
+
+    co::QueueSlave* queue = _getQueue( packet->queueVersion );
+    EQASSERT( queue );
+    for( co::Command* queuePacket = queue->pop(); queuePacket;
+         queuePacket = queue->pop( ))
+    {
+        const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
+        context.frustum = tilePacket->frustum;
+        context.ortho = tilePacket->ortho;
+        context.pvp = tilePacket->pvp;
+        context.vp = tilePacket->vp;
+
+        if ( !packet->isLocal )
+        {
+            context.pvp.x = 0;
+            context.pvp.y = 0;
+        }
+
+        if( packet->tasks & fabric::TASK_CLEAR )
+        {
+            const int64_t time = getConfig()->getTime();
+            frameClear( packet->context.frameID );
+            clearTime += getConfig()->getTime() - time;
+        }
+
+        if( packet->tasks & fabric::TASK_DRAW )
+        {
+            const int64_t time = getConfig()->getTime();
+            frameDraw( packet->context.frameID );
+            drawTime += getConfig()->getTime() - time;
+        }
+
+        if( packet->tasks & fabric::TASK_READBACK )
+        {
+            const int64_t time = getConfig()->getTime();
+
+            const Frames& frames = getOutputFrames();
+            const size_t nFrames = frames.size();
+            std::vector< size_t > nImages( nFrames, 0 );
+            for( size_t i = 0; i < nFrames; ++i )
+            {
+                nImages[i] = frames[i]->getImages().size();
+                frames[i]->getData()->setPixelViewport( getPixelViewport() );
+            }
+            frameReadback( packet->context.frameID );
+            readbackTime += getConfig()->getTime() - time;
+
+            for( size_t i = 0; i < nFrames; ++i )
+            {
+                const Frame* frame = frames[i];
+                const Images& images = frame->getImages();
+                for( size_t index = nImages[i]; index < images.size(); ++index )
+                {
+                    Image* image = images[index];
+                    const PixelViewport& pvp = image->getPixelViewport();
+                    image->setOffset( pvp.x + tilePacket->pvp.x,
+                                      pvp.y + tilePacket->pvp.y );
+                }
+                _transmitImages( getContext(), frames[i], nImages[i] );
+            }
+        }
+        queuePacket->release();
+    }
+
+    if( packet->tasks & fabric::TASK_CLEAR )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += clearTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_DRAW )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += drawTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_READBACK )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += readbackTime;
+        event.event.data.statistic.endTime = startTime;
+
+        _resetOutputFrames();
+    }
+
+    frameTilesFinish( packet->context.frameID );
+    resetRenderContext();
+}
+
 void Channel::_unrefFrame( const uint32_t frameNumber )
 {
     const size_t index = frameNumber % _impl->statistics->size();
@@ -1519,7 +1627,8 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     }
 }
 
-void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
+void Channel::_setOutputFrames( const uint32_t nFrames,
+                                const co::ObjectVersion* frames )
 {
     EQ_TS_THREAD( _pipeThread );
     for( uint32_t i=0; i<nFrames; ++i )
@@ -1542,7 +1651,7 @@ void Channel::_setOutputFramesReady()
     for( FramesCIter i = _impl->outputFrames.begin();
          i != _impl->outputFrames.end(); ++i )
     {
-        Frame* frame = *i;    
+        Frame* frame = *i;
         frame->setReady();
 
         const Eye eye = getEye();
@@ -1895,114 +2004,11 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel frame tiles "
-                                      << getName() <<  " " << packet
-                                      << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY )
+        << "TASK channel frame tiles " << getName() <<  " " << packet
+        << std::endl;
 
-    RenderContext context = packet->context;
-    _setRenderContext( context );
-
-    frameTilesStart( packet->context.frameID );
-
-    if( packet->tasks & fabric::TASK_READBACK )
-        _setOutputFrames( packet->nFrames, packet->frames );
-
-    int64_t startTime = getConfig()->getTime();
-    int64_t clearTime = 0;
-    int64_t drawTime = 0;
-    int64_t readbackTime = 0;
-
-    co::QueueSlave* queue = _getQueue( packet->queueVersion );
-    EQASSERT( queue );
-    for( co::Command* queuePacket = queue->pop(); queuePacket;
-         queuePacket = queue->pop( ))
-    {
-        const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
-        context.frustum = tilePacket->frustum;
-        context.ortho = tilePacket->ortho;
-        context.pvp = tilePacket->pvp;
-        context.vp = tilePacket->vp;
-
-        if ( !packet->isLocal )
-        {
-            context.pvp.x = 0;
-            context.pvp.y = 0;
-        }
-
-        if( packet->tasks & fabric::TASK_CLEAR )
-        {
-            const int64_t time = getConfig()->getTime();
-            frameClear( packet->context.frameID );
-            clearTime += getConfig()->getTime() - time;
-        }
-
-        if( packet->tasks & fabric::TASK_DRAW )
-        {
-            const int64_t time = getConfig()->getTime();
-            frameDraw( packet->context.frameID );
-            drawTime += getConfig()->getTime() - time;
-        }
-
-        if( packet->tasks & fabric::TASK_READBACK )
-        {
-            const int64_t time = getConfig()->getTime();
-
-            const Frames& frames = getOutputFrames();
-            const size_t nFrames = frames.size();
-            std::vector< size_t > nImages( nFrames, 0 );
-            for( size_t i = 0; i < nFrames; ++i )
-            {
-                nImages[i] = frames[i]->getImages().size();
-                frames[i]->getData()->setPixelViewport( getPixelViewport() );
-            }
-            frameReadback( packet->context.frameID );
-            readbackTime += getConfig()->getTime() - time;
-
-            for( size_t i = 0; i < nFrames; ++i )
-            {
-                const Frame* frame = frames[i];
-                const Images& images = frame->getImages();
-                for( size_t index = nImages[i]; index < images.size(); ++index )
-                {
-                    Image* image = images[index];
-                    const PixelViewport& pvp = image->getPixelViewport();
-                    image->setOffset( pvp.x + tilePacket->pvp.x,
-                                      pvp.y + tilePacket->pvp.y );
-                }
-                _transmitImages( getContext(), frames[i], nImages[i] );
-            }
-        }
-        queuePacket->release();
-    }
-
-    if( packet->tasks & fabric::TASK_CLEAR )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += clearTime;
-        event.event.data.statistic.endTime = startTime;
-    }
-
-    if( packet->tasks & fabric::TASK_DRAW )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += drawTime;
-        event.event.data.statistic.endTime = startTime;
-    }
-
-    if( packet->tasks & fabric::TASK_READBACK )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += readbackTime;
-        event.event.data.statistic.endTime = startTime;
-
-        _resetOutputFrames();
-    }
-
-    frameTilesFinish( packet->context.frameID );
-    resetRenderContext();
+    _frameTiles( packet );
     return true;
 }
 

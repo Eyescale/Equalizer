@@ -32,6 +32,7 @@ namespace detail { class Channel; }
 
     struct ChannelFrameTransmitImagePacket;
     struct ChannelFrameSetReadyPacket;
+    struct ChannelFrameTilesPacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -576,6 +577,9 @@ namespace detail { class Channel; }
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
 
+        /** Tile render loop. */
+        void _frameTiles( const ChannelFrameTilesPacket* packet );
+
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber );
 
@@ -586,7 +590,8 @@ namespace detail { class Channel; }
         /** Send the ready signal of a frame to one node. */
         void _sendFrameDataReady(const ChannelFrameTransmitImagePacket* packet);
 
-        void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
+        void _setOutputFrames( const uint32_t nFrames,
+                               const co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
 
