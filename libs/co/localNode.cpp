@@ -32,6 +32,8 @@
 #include <co/base/requestHandler.h>
 #include <co/base/scopedMutex.h>
 
+#include <eq/server/global.h>
+
 namespace co
 {
 
@@ -44,6 +46,14 @@ LocalNode::LocalNode( )
 {
     _receiverThread = new ReceiverThread( this );
     _commandThread  = new CommandThread( this );
+
+    const int32_t affinity = eq::server::Node::IATTR_HINT_AFFINITY;
+    _receiverThread->setAffinity(affinity);
+
+    std::cout << "------------------------------------" << (affinity) << std::endl;
+
+
+   // co::Global::getIAttribute();
 
     _objectStore = new ObjectStore( this );
 
