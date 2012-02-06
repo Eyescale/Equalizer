@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -228,7 +228,6 @@ namespace server
                                 util::ObjectManager< const void* >* glObjects,
                                 const DrawableConfig& config,
                                 const PixelViewports& regions );
-
 
         /**
          * Set the frame ready.

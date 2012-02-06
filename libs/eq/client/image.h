@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -311,7 +311,6 @@ namespace eq
          */
         bool readback( const Frame::Buffer buffer, const util::Texture* texture,
                        const GLEWContext* glewContext );
-
 
         EQ_API bool startReadback( const uint32_t buffers,
                               const PixelViewport& pvp, const Zoom& zoom,

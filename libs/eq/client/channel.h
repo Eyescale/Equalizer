@@ -572,7 +572,6 @@ namespace detail { class Channel; }
     private:
         detail::Channel* const _impl;
         friend class fabric::Window< Pipe, Window, Channel >;
-        friend class AsyncRBThread;
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */

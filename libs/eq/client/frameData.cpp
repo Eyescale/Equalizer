@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -171,7 +171,6 @@ Image* FrameData::newImage( const eq::Frame::Type type,
     return image;
 }
 
-
 void FrameData::returnLastImage()
 {
     if( _images.size() < 1 )
@@ -188,7 +187,6 @@ void FrameData::returnLastImage()
 
     _images.pop_back();
 }
-
 
 Image* FrameData::_allocImage( const eq::Frame::Type type,
                                const DrawableConfig& config,
@@ -378,7 +376,6 @@ void FrameData::startReadback( const Frame& frame,
                           (pvp.y - framePVP.y) * pixel.h );
     }
 }
-
 
 void FrameData::setVersion( const uint64_t version )
 {

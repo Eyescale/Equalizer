@@ -34,7 +34,7 @@
 
 namespace eq
 {
-    class AsyncRBThread;
+namespace detail { class AsyncRBThread; }
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -60,7 +60,7 @@ namespace eq
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
-        co::CommandQueue* getPipeAsyncRBThreadQueue(); //!< @internal
+        co::CommandQueue* getAsyncRBThreadQueue(); //!< @internal
         const GLEWContext* getAsyncGlewContext(); //!< @internal
 
 
@@ -135,16 +135,6 @@ namespace eq
         /** @internal @return if the window is made current */
         bool isCurrent( const Window* window ) const;
 
-
-        /** @internal 
-          *
-          * starts async thread for readback if necessary
-          *
-          * @return 
-          */
-        void startAsyncRB( Channel* channel, const uint128_t& frameID );
-
-
         /**
          * @internal
          * Set the window as current window.
@@ -183,13 +173,13 @@ namespace eq
         /** @internal Start the pipe thread. */
         void startThread();
 
-        /** @internal Start the async readback pipe thread. */
-        bool startAsyncRBThread();
-
         /** @internal Trigger pipe thread exit and wait for completion. */
         void exitThread();
 
         void cancelThread(); //!< @internal
+
+        /** @internal Start the async readback thread. */
+        bool startAsyncRBThread();
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system
@@ -444,7 +434,7 @@ namespace eq
         class Thread;
         Thread* _thread;
 
-        AsyncRBThread* _threadRB;
+        detail::AsyncRBThread* const _asyncRBThread;
 
         /** The last window made current. */
         const mutable Window* _currentWindow;

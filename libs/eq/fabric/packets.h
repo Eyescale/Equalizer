@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -36,7 +36,6 @@ namespace fabric
 
     typedef co::ObjectPacket ConfigPacket;
     typedef co::ObjectPacket PipePacket;
-    typedef co::ObjectPacket AsyncRBPacket;
     typedef co::ObjectPacket WindowPacket;
     typedef co::ObjectPacket CanvasPacket;
     typedef co::ObjectPacket LayoutPacket;

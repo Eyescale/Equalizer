@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -48,6 +48,7 @@
 
 namespace eq
 {
+#define glewGetContext glObjects->glewGetContext
 
 Image::Image()
         : _type( Frame::TYPE_MEMORY )
@@ -312,7 +313,6 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                       texture ? texture->getName() : 0 );
 }
 
-
 bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                       const Zoom& zoom,
                       util::ObjectManager< const void* >* glObjects )
@@ -379,22 +379,21 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
         util::Texture& texture = _getAttachment( buffer ).texture;
-        texture.setGLEWContext( glObjects->glewGetContext( ));
+        texture.setGLEWContext( glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
         texture.setGLEWContext( 0 );
         return true;
     }
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return _startReadback( buffer, 0, glObjects->glewGetContext( ));
+        return _startReadback( buffer, 0, glewGetContext( ));
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
 
     _zoomedTextureRB = _readbackZoom( buffer, zoom, glObjects );
     if( _zoomedTextureRB == 0 )
         return false;
 
-    return _startReadback( buffer, _zoomedTextureRB, glObjects->glewGetContext( ));
+    return _startReadback( buffer, _zoomedTextureRB, glewGetContext( ));
 }
-
 
 bool Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
                 const GLEWContext* glewContext )
@@ -411,7 +410,6 @@ bool Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
 
     return _finishReadback( buffer, _zoomedTextureRB, glewContext );
 }
-
 
 bool Image::_startReadback( const Frame::Buffer buffer,
                   const util::Texture* texture, const GLEWContext* glewContext )
@@ -493,7 +491,6 @@ bool Image::_finishReadback( const Frame::Buffer buffer,
     memory.state = Memory::VALID;
     return true;
 }
-
 
 bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
                       const Zoom& zoom,
@@ -579,21 +576,20 @@ bool Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
         EQASSERTINFO( zoom == Zoom::NONE, "Texture readback zoom not "
                       << "implemented, zoom happens during compositing" );
         util::Texture& texture = _getAttachment( buffer ).texture;
-        texture.setGLEWContext( glObjects->glewGetContext( ));
+        texture.setGLEWContext( glewGetContext( ));
         texture.copyFromFrameBuffer( getInternalFormat( buffer ), _pvp );
         texture.setGLEWContext( 0 );
         return true;
     }
     if( zoom == Zoom::NONE ) // normal framebuffer readback
-        return readback( buffer, 0, glObjects->glewGetContext( ));
+        return readback( buffer, 0, glewGetContext( ));
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
 
-    const util::Texture* zoomedTexture = 
-                                    _readbackZoom( buffer, zoom, glObjects );
+    const util::Texture* zoomedTexture = _readbackZoom(buffer, zoom, glObjects);
     if( zoomedTexture == 0 )
         return false;
 
-    return readback( buffer, zoomedTexture, glObjects->glewGetContext( ));
+    return readback( buffer, zoomedTexture, glewGetContext( ));
 }
 
 const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
@@ -694,7 +690,6 @@ const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
     return zoomedTexture;
 }
 
-
 const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
 {
     switch( buffer )
@@ -708,7 +703,6 @@ const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
             return ( reinterpret_cast< const char* >( this ) + 2 );
     }
 }
-
 
 const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
 {
@@ -731,7 +725,6 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
             return ( reinterpret_cast< const char* >( this ) + 0 );
     }
 }
-
 
 void Image::setPixelViewport( const PixelViewport& pvp )
 {

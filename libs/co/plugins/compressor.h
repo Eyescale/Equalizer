@@ -288,7 +288,6 @@ extern "C" {
      */
     #define EQ_COMPRESSOR_USE_FRAMEBUFFER 0x40
 
-#if 1 // Not implemented yet
     /**
      * Capability to use asynchronous downloads.
      * If set, the transfer engine will (query time) or shall (download time)
@@ -296,7 +295,6 @@ extern "C" {
      * @version 4
      */
     #define EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD 0x100
-#endif
 
 #if 0 // Not implemented yet
     /**
