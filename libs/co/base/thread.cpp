@@ -366,10 +366,13 @@ void Thread::setAffinity(const int32_t affinity)
     const hwloc_cpuset_t cpuSet = _getCpuSet( affinity, topology );
     const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, 0);
 
+    char* cpuSetString;
+    hwloc_cpuset_asprintf(&cpuSetString, cpuSet);
+
     if( affinityFlag == 0 )
-        EQINFO << "Bound thread to " /* << cpuSet */ << std::endl;
+        EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
     else
-        EQWARN << "Error binding thread to " /* << cpuSet */ << std::endl;
+        EQWARN << "Error binding thread to cpu set " << cpuSetString  << std::endl;
 #else
     EQWARN << "Ignoring setAffinity, no hwloc library support" << std::endl;
 #endif

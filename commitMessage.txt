@@ -1,12 +1,10 @@
-Refactoring the manual thread placement implementation. 
-** Following the HWLOC library naming convention. 
-** Removing the Linux fall back.
-** Changing the core value from 1 to 2 "to diplay it".
+Displaying the cpu set mask it which the thread affinity 
+is set to in the output stream
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation
