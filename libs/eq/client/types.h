@@ -24,6 +24,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
+#include <co/base/atomic.h>
 
 #include <map>
 #include <vector>
@@ -246,6 +247,7 @@ typedef std::vector< uint16_t >   Vectorus;
 /** A const_iterator over a std::string vector */
 typedef Strings::const_iterator StringsCIter;
 
+using co::base::a_int32_t;
 using co::base::uint128_t;
 using co::base::UUID;
 

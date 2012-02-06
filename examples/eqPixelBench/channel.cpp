@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -193,15 +193,16 @@ void Channel::_testFormats( float applyZoom )
 
 
             // read
-	    glFinish();
-	    size_t nLoops = 0;
+        glFinish();
+        size_t nLoops = 0;
             clock.reset();
-	    while( clock.getTime64() < 100 /*ms*/ )
-	    {
-		image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
-		++nLoops;
-	    }
-	    glFinish();
+        while( clock.getTime64() < 100 /*ms*/ )
+        {
+            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
+            image->finishReadback( zoom, glObjects->glewGetContext( ));
+            ++nLoops;
+        }
+        glFinish();
             event.msec = clock.getTimef() / float( nLoops );
 
             const eq::PixelData& pixels =
@@ -210,7 +211,7 @@ void Channel::_testFormats( float applyZoom )
             event.area.y() = pixels.pvp.h;
             event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
             event.dataSizeCPU = 
-	        image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             GLenum error = glGetError();
             if( error != GL_NO_ERROR )
@@ -295,8 +296,9 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
             clock.reset();
-            image->readback( eq::Frame::BUFFER_DEPTH, subPVP, eq::Zoom(),
-                             glObjects );
+            image->startReadback( eq::Frame::BUFFER_DEPTH, subPVP,
+                                  eq::Zoom::NONE, glObjects );
+            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
             event.msec += clock.getTimef();
             
         }
@@ -325,8 +327,9 @@ void Channel::_testTiledOperations()
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
 
             clock.reset();
-            image->readback( eq::Frame::BUFFER_COLOR, subPVP, eq::Zoom(),
-                             glObjects );
+            image->startReadback( eq::Frame::BUFFER_COLOR, subPVP,
+                                  eq::Zoom::NONE, glObjects );
+            image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
             event.msec += clock.getTimef();
         }
         config->sendEvent( event );
@@ -413,8 +416,9 @@ void Channel::_testDepthAssemble()
         image->clearPixelData( eq::Frame::BUFFER_COLOR );
         image->clearPixelData( eq::Frame::BUFFER_DEPTH );
 
-        image->readback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
-                         pvp, eq::Zoom(), glObjects );
+        image->startReadback( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH,
+                              pvp, eq::Zoom::NONE, glObjects );
+        image->finishReadback( eq::Zoom::NONE, glObjects->glewGetContext( ));
 
         if( i == NUM_IMAGES-1 )
             _saveImage( image,"EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT",

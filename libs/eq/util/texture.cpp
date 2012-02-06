@@ -367,7 +367,8 @@ void Texture::writeRGB( const std::string& filename ) const
     }
 
     image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
-    image.readback( Frame::BUFFER_COLOR, this, _glewContext );
+    if( image.startReadback( Frame::BUFFER_COLOR, this, _glewContext ))
+        image.finishReadback( Zoom::NONE, _glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
 }
 

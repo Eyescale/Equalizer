@@ -30,9 +30,11 @@ namespace eq
 {
 namespace detail { class Channel; }
 
-    struct ChannelFrameTransmitImagePacket;
+    struct ChannelFinishReadbackPacket;
+    struct ChannelFrameSetReadyNodePacket;
     struct ChannelFrameSetReadyPacket;
     struct ChannelFrameTilesPacket;
+    struct ChannelFrameTransmitImagePacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -127,6 +129,9 @@ namespace detail { class Channel; }
 
         /** @return the FBO used as an alternate frame buffer. @version 1.0*/
         EQ_API util::FrameBufferObject* getFrameBufferObject();
+
+        /** @return a fixed unique color for this channel. @version 1.0 */
+        EQ_API const Vector3ub& getUniqueColor() const;
 
         /** @internal Add a new statistics event for the current frame. */
         EQ_API void addStatistic( Event& event );
@@ -361,8 +366,7 @@ namespace detail { class Channel; }
           */
         void changeLatency( const uint32_t latency );
 
-        /** @return a fixed unique color for this channel. @version 1.0 */
-        EQ_API const Vector3ub& getUniqueColor() const;
+        struct RBStat; //!< @internal
 
     protected:
         /** @internal */
@@ -502,21 +506,15 @@ namespace detail { class Channel; }
         EQ_API virtual void frameAssemble( const uint128_t& frameID );
 
         /** 
-         * Read back the rendered frame buffer into all output frames.
+         * Read back the rendered frame buffer into the output frames.
          * 
          * Called 0 to n times during one frame.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @sa getOutputFrames()
          * @version 1.0
          */
          EQ_API virtual void frameReadback( const uint128_t& frameID );
-
-         EQ_API virtual void frameStartReadback( const uint128_t& frameID );
-
-         EQ_API virtual bool finishImageReadback( FrameData* frameData,
-                                              const uint64_t imageIndex,
-                                              const GLEWContext* glewContext );
 
         /** 
          * Start updating a destination channel.
@@ -586,39 +584,49 @@ namespace detail { class Channel; }
         /** Tile render loop. */
         void _frameTiles( const ChannelFrameTilesPacket* packet );
 
+        /** Reference the frame for an async operation. */
+        void _refFrame( const uint32_t frameNumber );
+
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber );
 
         /** Transmit one image of a frame to one node. */
-        void _transmitImage( Image* image, 
-                             const ChannelFrameTransmitImagePacket* packet );
+        void _transmitImage( const ChannelFrameTransmitImagePacket* packet );
         
-        /** Send the ready signal of a frame to one node. */
-        void _sendFrameDataReady(const ChannelFrameTransmitImagePacket* packet);
-
-        void _setOutputFrames( const uint32_t nFrames,
-                               const co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
+        void _finishReadback( const ChannelFinishReadbackPacket* packet );
 
-        void _frameStartReadback( const uint128_t& frameID, uint32_t nFrames,
-                                co::ObjectVersion* frames );
+        bool _startFinishReadback( RBStat* stat,
+                                   const std::vector< size_t >& imagePos,
+                                   const bool ready );
 
-        void _scheduleFinishReadback( const RenderContext& context,
-                                        Frame* frame, const size_t startPos );
+        void _startTransmit( FrameData* frame, const uint32_t frameNumber,
+                             const size_t image,
+                             const std::vector<uint128_t>& nodes,
+                             const std::vector< uint128_t >& netNodes,
+                             const uint32_t taskID );
+
+        void _startSetReady( const FrameData* frame, RBStat* stat,
+                             const std::vector< uint128_t >& nodes,
+                             const std::vector< uint128_t >& netNodes );
+
+        void _setReady( const ChannelFrameSetReadyPacket* packet );
+        void _setReady( FrameData* frame, RBStat* stat,
+                        const std::vector< uint128_t >& nodes =
+                            std::vector< uint128_t >(),
+                        const std::vector< uint128_t >& netNodes =
+                            std::vector< uint128_t >() );
+
+        /** Send the ready signal of a frame to one node. */
+        void _setReadyNode( const ChannelFrameSetReadyNodePacket* packet );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        /** Transmit all new images after a readback. */
-        void _transmitImages( const RenderContext& context, Frame* frame,
-                              const size_t startPos );
-
-        /** Transmit frame ready after transmitting all images. */
+        void _setOutputFrames( const uint32_t nFrames,
+                               const co::ObjectVersion* frames );
         void _resetOutputFrames();
-
-        /** Set output ready locally and remotely. */
-        void _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -630,15 +638,14 @@ namespace detail { class Channel; }
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFinishImageReadback( co::Command& command );
-        bool _cmdFrameTransmitImage( co::Command& command );
+        bool _cmdFinishReadback( co::Command& command );
         bool _cmdFrameSetReady( co::Command& command );
+        bool _cmdFrameTransmitImage( co::Command& command );
+        bool _cmdFrameSetReadyNode( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
-        bool _cmdResetOutputFramesAsync( co::Command& command );
-        bool _cmdResetOutputFrames( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

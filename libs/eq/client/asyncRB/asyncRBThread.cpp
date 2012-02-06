@@ -156,7 +156,9 @@ void AsyncRBThread::deleteSharedContextWindow()
 
 bool AsyncRBThread::init()
 {
+    co::base::Thread::setName( "async rb " + co::base::className( this ));
     EQASSERT( !_sharedContextWindow );
+
     if( !_window )
         return false;
 

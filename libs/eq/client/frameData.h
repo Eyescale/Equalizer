@@ -211,7 +211,8 @@ namespace server { class FrameData; }
         /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_API void clear();
 
-        /** 
+#ifndef EQ_2_0_API
+        /**
          * Read back an image for this frame data.
          * 
          * The newly read image is added to the data using newImage(). Existing
@@ -221,13 +222,13 @@ namespace server { class FrameData; }
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          * @version 1.0
+         * @deprecated @sa startReadback()
          */
-        void readback( const Frame& frame, 
-                       util::ObjectManager< const void* >* glObjects,
+        void readback( const Frame& frame, ObjectManager* glObjects,
                        const DrawableConfig& config );
-
+#endif
         /** 
-         * Read back a set of images for this frame data.
+         * Start reading back a set of images for this frame data.
          * 
          * The newly read images are added to the data using
          * newImage(). Existing images are retained.
@@ -236,17 +237,12 @@ namespace server { class FrameData; }
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          * @param regions the areas to read back.
-         * @version 1.0
+         * @return the new images which need finishReadback.
+         * @version 1.3.0
          */
-        void readback( const Frame& frame, 
-                       util::ObjectManager< const void* >* glObjects,
-                       const DrawableConfig& config,
-                       const PixelViewports& regions );
-
-        void startReadback( const Frame& frame,
-                            util::ObjectManager< const void* >* glObjects,
-                            const DrawableConfig& config,
-                            const PixelViewports& regions );
+        Images startReadback( const Frame& frame, ObjectManager* glObjects,
+                              const DrawableConfig& config,
+                              const PixelViewports& regions );
 
         /**
          * Set the frame data ready.
