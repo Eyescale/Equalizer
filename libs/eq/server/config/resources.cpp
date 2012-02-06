@@ -468,6 +468,9 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                     vp = Viewport( 0.f, static_cast< float >( y )/100000.f,
                                   1.f, static_cast< float >( step )/100000.f );
 
+                eq::server::Frame* outputFrame = new eq::server::Frame;
+                outputFrame->setName( frameName.str( ));
+                outputFrame->setViewport( vp );
                 outputFrame->setBuffers( eq::Frame::BUFFER_COLOR |
                                          eq::Frame::BUFFER_DEPTH );
                 drawChild->addOutputFrame( ::Frame::create( frameName, vp ));
@@ -476,7 +479,9 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 frameName.str("");
                 frameName << "tile" << i << ".channel" << j;
 
-                child->addInputFrame(      ::Frame::create( frameName ));
+                eq::server::Frame* inputFrame = new eq::server::Frame;
+                inputFrame->setName( frameName.str( ));
+                child->addInputFrame( inputFrame );
             }
             // else own tile, is in place
 
