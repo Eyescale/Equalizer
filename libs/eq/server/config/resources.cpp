@@ -432,7 +432,6 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
     compound->setName( name );
 
     const Compounds& children = _addSources( compound, channels );
-
     const size_t step = size_t( 100000.0f / float( children.size( )));
 
     size_t start = 0;
@@ -492,12 +491,12 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
         }
  
         // assembled color tile output, if not already in place
-        if( i != children.begin( ) )
+        if( child->getChannel() != compound->getChannel( ))
         {
             Frame* output = child->getOutputFrames().front();
 
             Viewport vp;
-            if( i+1 == children.end( ) ) // last - correct rounding 'error'
+            if( i+1 == children.end( )) // last - correct rounding 'error'
             {
                 vp = Viewport( 0.f, static_cast< float >( start )/100000.f,
                                1.f,
