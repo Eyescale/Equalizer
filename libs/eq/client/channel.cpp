@@ -1422,7 +1422,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 void Channel::_transmitImage( Image* image,
                               const ChannelFrameTransmitImagePacket* request )
 {
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+    if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
@@ -1589,7 +1589,7 @@ void Channel::_transmitImage( Image* image,
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
+void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
 {
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( req->netNodeID );

@@ -80,7 +80,8 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 
     if( bytesRead == 0 ) // EOF
     {
-        EQINFO << "Got EOF, closing " << getDescription()<< std::endl;
+        EQINFO << "Got EOF, closing " << getDescription()->toString()
+               << std::endl;
         close();
         return -1;
     }
