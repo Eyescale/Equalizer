@@ -1,10 +1,9 @@
-Displaying the cpu set mask it which the thread affinity 
-is set to in the output stream
-
+Adding thread placement for client receive and command threads
+ 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
