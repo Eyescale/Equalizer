@@ -322,7 +322,7 @@ void Channel::addStatistic( Event& event )
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
         EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
-                      frameNumber << " " << getCurrentFrame( ));
+                      frameNumber );
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -1422,7 +1422,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 void Channel::_transmitImage( Image* image,
                               const ChannelFrameTransmitImagePacket* request )
 {
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+    if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
@@ -1464,14 +1464,12 @@ void Channel::_transmitImage( Image* image,
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                         this, request->frameNumber );
+                                         this, request->frameNumber,
+                                         useCompression ? AUTO : OFF );
         compressEvent.event.data.statistic.task = request->context.taskID;
         compressEvent.event.data.statistic.ratio = 1.0f;
         compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
         compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-        if( !useCompression ) // don't send event
-            compressEvent.event.data.statistic.frameNumber = 0;
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
@@ -1589,7 +1587,7 @@ void Channel::_transmitImage( Image* image,
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
+void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
 {
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( req->netNodeID );
