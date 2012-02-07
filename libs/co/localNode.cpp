@@ -1509,7 +1509,7 @@ bool LocalNode::_cmdGetNodeData( Command& command)
 
     NodePtr toNode = command.getNode();
     toNode->send( reply, nodeData );
-    EQINFO << "Sent node data " << nodeData << " to " << toNode << std::endl;
+    EQINFO << "Sent node data '" << nodeData << "' to " << toNode << std::endl;
     return true;
 }
 
