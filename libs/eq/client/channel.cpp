@@ -1217,8 +1217,7 @@ void Channel::_transmitImage( Image* image,
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                         this, request->frameNumber,
-                                         useCompression ? AUTO : OFF );
+                                         this, useCompression ? AUTO : OFF );
         compressEvent.statisticsIndex = request->statisticsIndex;
         compressEvent.event.data.statistic.task = request->context.taskID;
         compressEvent.event.data.statistic.ratio = 1.0f;
