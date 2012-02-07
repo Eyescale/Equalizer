@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -450,9 +450,9 @@ namespace detail { class AsyncRBThread; }
         void _setupAffinity();
         void _exitCommandQueue();
 
-        void _stopAsyncRBThread();
-
         friend class Window;
+
+        void _stopAsyncRBThread();
 
         /** @internal Release the views not used for some revisions. */
         void _releaseViews();

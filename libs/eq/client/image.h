@@ -198,7 +198,7 @@ namespace eq
 
         /** @return true if async readback for a buffer is in progress. */
         bool hasAsyncReadback( const Frame::Buffer buffer ) const
-            { return _getAttachment(buffer).memory.state == Memory::PROCESSING; }
+            { return _getAttachment(buffer).memory.state == Memory::DOWNLOAD; }
 
         /**@return true if async readback was started but not finished. */
         bool hasAsyncReadback() const
@@ -407,7 +407,7 @@ namespace eq
             {
                 INVALID,
                 VALID,
-                PROCESSING // async RB is in progress
+                DOWNLOAD // async RB is in progress
             };
 
             State state;   //!< The current state of the memory
@@ -452,8 +452,6 @@ namespace eq
         
         Attachment _color;
         Attachment _depth;
-
-        const util::Texture* _zoomedTextureRB; //!< Async RB with zoom texture
 
         /** Alpha channel significance. */
         bool _ignoreAlpha;
@@ -504,9 +502,6 @@ namespace eq
                              ObjectManager* glObjects );
 
         void _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                              const GLEWContext* glewContext );
-        void _finishReadback( const Frame::Buffer buffer,
-                              const util::Texture* texture,
                               const GLEWContext* glewContext );
 
         const util::Texture* _readbackZoom( const Frame::Buffer buffer,

@@ -61,7 +61,6 @@ Image::~Image(){}
 void Image::reset()
 {
     _ignoreAlpha = false;
-    _zoomedTextureRB = 0;
     setPixelViewport( PixelViewport( ));
 }
 
@@ -286,7 +285,7 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 
 void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position,
-                    util::ObjectManager< const void* >* glObjects ) const
+                    ObjectManager* glObjects ) const
 {
     EQASSERT( glObjects );
 
@@ -371,11 +370,11 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return startReadback( buffer, 0, glewGetContext( ));
 
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
-    _zoomedTextureRB = _readbackZoom( buffer, zoom, glObjects );
-    if( _zoomedTextureRB == 0 )
+    const util::Texture* texture = _readbackZoom( buffer, zoom, glObjects );
+    if( texture == 0 )
         return false;
 
-    return startReadback( buffer, _zoomedTextureRB, glewGetContext( ));
+    return startReadback( buffer, texture, glewGetContext( ));
 }
 
 bool Image::startReadback( const Frame::Buffer buffer,
@@ -405,7 +404,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
     // get the pixel type produced by the downloader
     _setExternalFormat( buffer, downloader->getExternalFormat(),
                         downloader->getTokenSize(), downloader->hasAlpha( ));
-    attachment.memory.state = Memory::PROCESSING;
+    attachment.memory.state = Memory::DOWNLOAD;
 
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
@@ -452,26 +451,19 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
     if( _type == Frame::TYPE_TEXTURE )
         return;
 
-    _finishReadback( buffer, _zoomedTextureRB, glewContext );
-}
-
-void Image::_finishReadback( const Frame::Buffer buffer,
-                             const util::Texture* texture,
-                             const GLEWContext* glewContext )
-{
     Attachment& attachment = _getAttachment( buffer );
     util::GPUCompressor* downloader = attachment.transfer;
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
 
-    if( memory.state != Memory::PROCESSING )
+    if( memory.state != Memory::DOWNLOAD )
         return;
 
     downloader->setGLEWContext( glewContext );
 
     uint32_t flags = EQ_COMPRESSOR_TRANSFER | EQ_COMPRESSOR_DATA_2D |
-                     ( texture ? texture->getCompressorTarget() :
-                                 EQ_COMPRESSOR_USE_FRAMEBUFFER );
+                     ( zoom == Zoom::NONE ? EQ_COMPRESSOR_USE_FRAMEBUFFER : 
+                                            EQ_COMPRESSOR_USE_TEXTURE_RECT );
 
     const bool alpha = _ignoreAlpha && buffer == Frame::BUFFER_COLOR;
     if( !downloader->isValidDownloader( inputToken, alpha, flags ))
@@ -484,13 +476,16 @@ void Image::_finishReadback( const Frame::Buffer buffer,
     if( !memory.hasAlpha )
         flags |= EQ_COMPRESSOR_IGNORE_ALPHA;
 
-    if( texture )
-        downloader->finishDownload( PixelViewport( 0, 0, texture->getWidth(),
-                                                   texture->getHeight( )),
-                                    texture->getName(), flags,
-                                    memory.pvp, &memory.pixels );
+    if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
+        downloader->finishDownload( _pvp, flags, memory.pvp, &memory.pixels );
     else
-        downloader->finishDownload( _pvp, 0 , flags, memory.pvp, &memory.pixels);
+    {
+        PixelViewport pvp = _pvp;
+        pvp.apply( zoom );
+        pvp.x = 0;
+        pvp.y = 0;
+        downloader->finishDownload( pvp, flags, memory.pvp, &memory.pixels );
+    }
 
     downloader->setGLEWContext( 0 );
     memory.state = Memory::VALID;
@@ -498,7 +493,8 @@ void Image::_finishReadback( const Frame::Buffer buffer,
 }
 
 const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
-               const Zoom& zoom, util::ObjectManager< const void* >* glObjects )
+                                           const Zoom& zoom,
+                                           ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
     EQASSERT( glObjects->supportsEqTexture( ));

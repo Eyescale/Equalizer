@@ -63,8 +63,7 @@ namespace base
                                       const unsigned, const uint64_t );
         typedef void ( *FinishDownload_t )( void* const, const unsigned,
                                       const GLEWContext*, const uint64_t*,
-                                      const unsigned, const uint64_t,
-                                      uint64_t*, void** );
+                                      const uint64_t, uint64_t*, void** );
         typedef void ( *Upload_t )( void* const, const unsigned, 
                                     const GLEWContext*, const void*,
                                     const uint64_t*,

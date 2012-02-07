@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Maxim Makhinya <maxmah@gmail.com>
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,8 +22,7 @@
 #include <co/base/lock.h>
 
 #include <eq/client/gl.h>   // for GLEW
-#include <co/base/error.h>
-
+#include <co/base/error.h>  // member
 
 namespace eq
 {
@@ -34,8 +34,8 @@ namespace util
       * glContext they should be binded/mapped and unbinded/unmapped 
       * sequentially.
       *
-      * If thread-safe mode is used then when buffer is binded/mapped it is
-      * locked until it is unbinded/unmapped (also locked on init and destroy).
+      * If thread-safe mode is used, buffer binding and mapping is locked until
+      * the corresponding unbind/unmap happened.
       *
       * On correct PBO usage see: http://www.songho.ca/opengl/gl_pbo.html
       */
@@ -45,8 +45,8 @@ namespace util
         /**
          * Construct a new Pixel Buffer Object
          *
-         * @param glewContext OpenGL context
-         * @param shared      if true PBO uses locks for synced access
+         * @param glewContext The OpenGL function table.
+         * @param shared      if true PBO uses locks for synchronized access.
          */
         PixelBufferObject( const GLEWContext* glewContext,
                            const bool         threadSafe );
@@ -102,7 +102,7 @@ namespace util
         bool isInitialized() const { return _initialized; }
 
         /** @return true if the access to pbo is blocking */
-        bool isThreadSafe() const { return _threadSafe; }
+        bool isThreadSafe() const { return _pboLock; }
 
     private:
 
@@ -111,19 +111,18 @@ namespace util
          *
          * @return true if initialized, false otherwise
          */
-        bool _testIfInitialized() const;
+        bool _testInitialized() const;
 
         bool _init( const int32_t newSize, const GLEWContext* glewContext,
-                                                            const bool read );
+                    const bool read );
 
         bool _bind(     const GLEWContext* glewContext ) const;
         void _unbind(   const GLEWContext* glewContext ) const;
         void _unmap(    const GLEWContext* glewContext ) const;
         void _destroy(  const GLEWContext* glewContext );
 
-
-        inline void _lock()   const { if( _threadSafe ) _pboLock.set();   }
-        inline void _unlock() const { if( _threadSafe ) _pboLock.unset(); }
+        void _lock()   const { if( _pboLock ) _pboLock->set();   }
+        void _unlock() const { if( _pboLock ) _pboLock->unset(); }
 
         GLuint  _pboId; //!< the PBO GL name
         int32_t _size;  //!< size of the allocated PBO buffer
@@ -133,15 +132,9 @@ namespace util
         GLuint _op;  //!< GL_STREAM_READ_ARB       or GL_STREAM_DRAW_ARB
 
         bool   _initialized; // true if PBO is fully initialized
-        bool   _threadSafe;  // if "true" PBO uses locks to share access
-
-        const GLEWContext* _initCtx;//used to delete PBO if object is destroyed
 
         mutable co::base::Error _error;   //!< The reason for the last error
-        mutable co::base::Lock  _pboLock;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        mutable co::base::Lock* _pboLock;
 
         void _setError( const int32_t error ) const;
     };

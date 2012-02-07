@@ -40,17 +40,14 @@ public:
     virtual bool init();
 
     void setWindow( Window* window ){ _window = window; }
-    void postStop() { _running = false; }
+    void postStop();
     const GLEWContext* glewGetContext() const;
-
-    void deleteSharedContextWindow();
 
 private:
     bool _running; // Async thread will exit if this is false
 
     Window*           _window;
     eq::SystemWindow* _sharedContextWindow;
-    co::base::Lock    _startLock;
 };
 
 }

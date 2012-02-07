@@ -169,7 +169,7 @@ bool GPUCompressor::startDownload( const fabric::PixelViewport& pvpIn,
 
 
 void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
-                                    const unsigned source, const uint64_t flags,
+                                    const uint64_t flags,
                                     fabric::PixelViewport& pvpOut, void** out )
 {
     EQASSERT( _plugin );
@@ -179,7 +179,7 @@ void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
     {
         const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
         uint64_t outDims[4] = { 0, 0, 0, 0 };
-        _plugin->finishDownload( _instance, _name, _glewContext, inDims, source,
+        _plugin->finishDownload( _instance, _name, _glewContext, inDims,
                                  flags | EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD,
                                  outDims, out );
         pvpOut.x = outDims[0];

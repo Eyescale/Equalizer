@@ -482,20 +482,6 @@ void Pipe::startThread()
     _thread->start();
 }
 
-bool Pipe::startAsyncRBThread()
-{
-    if( _asyncRBThread->isRunning( ))
-        return true;
-
-    const Windows& windows = getWindows();
-    EQASSERT( !windows.empty( ))
-    if( windows.empty() )
-        return false;
-
-    _asyncRBThread->setWindow( windows[0] );
-    return _asyncRBThread->start();
-}
-
 const GLEWContext* Pipe::getAsyncGlewContext()
 {
     if( startAsyncRBThread( ))
@@ -739,13 +725,23 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                        << std::endl;
 }
 
+bool Pipe::startAsyncRBThread()
+{
+    if( _asyncRBThread->isRunning( ))
+        return true;
+
+    const Windows& windows = getWindows();
+    EQASSERT( !windows.empty( ))
+    if( windows.empty() )
+        return false;
+
+    _asyncRBThread->setWindow( windows[0] );
+    return _asyncRBThread->start();
+}
 
 void Pipe::_stopAsyncRBThread()
 {
-    if( !_asyncRBThread )
-        return;
-
-    if( _asyncRBThread->isStopped( ))
+    if( !_asyncRBThread || _asyncRBThread->isStopped( ))
         return;
 
     PipeExitAsyncRBThreadPacket packet;
@@ -894,7 +890,6 @@ bool Pipe::_cmdExitThread( co::Command& command )
 bool Pipe::_cmdExitAsyncRBThread( co::Command& )
 {
     EQASSERT( _asyncRBThread );
-    _asyncRBThread->deleteSharedContextWindow();
     _asyncRBThread->postStop();
     return true;
 }

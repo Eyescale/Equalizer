@@ -141,8 +141,6 @@ namespace plugin
          * @param glewContext the initialized GLEW context describing corresponding
          *                    to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
-         * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
-         *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
          * @param flags capability flags for the compression (see description).
          * @param outDims the dimensions of the output data (see description).
          * @param out the pointer to the output data.
@@ -150,7 +148,6 @@ namespace plugin
          */
         virtual void finishDownload( const GLEWContext* glewContext,
                                      const eq_uint64_t  inDims[4],
-                                     const unsigned     source,
                                      const eq_uint64_t  flags,
                                      eq_uint64_t        outDims[4],
                                      void**             out ) { EQDONTCALL; }

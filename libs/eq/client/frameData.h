@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -199,11 +199,6 @@ namespace server { class FrameData; }
          */
         EQ_API Image* newImage( const Frame::Type type,
                                 const DrawableConfig& config );
-
-        /** 
-         * Deallocates last allocated image.
-         */
-        EQ_API void returnLastImage();
 
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
