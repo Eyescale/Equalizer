@@ -325,8 +325,7 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
-                      frameNumber << " " << getCurrentFrame( ));
+        EQASSERT( _impl->statistics.data[ index ].used > 0 );
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -1641,7 +1640,7 @@ void Channel::_startTransmit( FrameData* frame, const uint32_t frameNumber,
         packet.frameData = frame;
         packet.netNodeID = *j;
         packet.nodeID = *i;
-        packet.frameNumber = getCurrentFrame();
+        packet.frameNumber = frameNumber;
         packet.imageIndex = image;
         packet.taskID = taskID;
 
@@ -1664,7 +1663,8 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
         return;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     request->frameNumber );
     transmitEvent.event.data.statistic.task = request->taskID;
 
     const Images& images = frameData->getImages();
@@ -2044,13 +2044,14 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                        << std::endl;
 
     _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
+    const uint32_t frameNumber = getCurrentFrame();
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this, frameNumber,
                              packet->finish ? NICEST : AUTO );
+
     frameDraw( packet->context.frameID );
     // Update ROI for server equalizers
     if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
-    const uint32_t frameNumber = getCurrentFrame();
     const size_t index = frameNumber % _impl->statistics->size();
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
@@ -2118,31 +2119,10 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 
 bool Channel::_cmdFinishReadback( co::Command& command )
 {
-<<<<<<< HEAD
     const ChannelFinishReadbackPacket* packet = 
         command.get< ChannelFinishReadbackPacket >();
     _finishReadback( packet );
     _unrefFrame( packet->frameNumber );
-=======
-    const ChannelFrameTransmitImagePacket* packet = 
-        command.get<ChannelFrameTransmitImagePacket>();
-
-    FrameData* frameData = getNode()->getFrameData( packet->frameData ); 
-    EQASSERT( frameData );
-
-    if( frameData->getBuffers() == 0 )
-    {
-        EQWARN << "No buffers for frame data" << std::endl;
-        return true;
-    }
-
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
-                                     packet->frameNumber );
-    transmitEvent.event.data.statistic.task = packet->context.taskID;
-    const Images& images = frameData->getImages();
-    EQASSERT( images.size() > packet->imageIndex );
-    _transmitImage( images[ packet->imageIndex ], packet );
->>>>>>> master
     return true;
 }
 
