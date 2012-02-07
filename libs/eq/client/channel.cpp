@@ -1685,6 +1685,7 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
     transmitEvent.statisticsIndex = packet->statisticsIndex;
     transmitEvent.event.data.statistic.task = packet->context.taskID;
+
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > packet->imageIndex );
     _transmitImage( images[ packet->imageIndex ], packet );
