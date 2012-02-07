@@ -301,6 +301,8 @@ namespace eq
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
 
+        void _setupAffinity();
+
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );
     };

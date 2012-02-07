@@ -380,6 +380,18 @@ namespace co
          */
         CO_API bool pingIdleNodes();
 
+        /* @internal Returns the receiver thread. */
+        co::base::Thread* getReceiverThread()
+        {
+            return _receiverThread;
+        }
+
+        /* @internal Returns the command thread. */
+        co::base::Thread* getCommandThread()
+        {
+          return _commandThread;
+        }
+
     protected:
         /** 
          * Connect a node proxy to this node.

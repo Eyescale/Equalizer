@@ -110,6 +110,8 @@ void Server::init()
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->register_();
+
+
 }
 
 void Server::exit()

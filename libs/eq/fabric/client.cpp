@@ -27,6 +27,10 @@
 #include <co/connectionDescription.h>
 #include <co/base/dso.h>
 
+#include <eq/server/global.h>
+
+#include <co/localNode.h>
+
 namespace eq
 {
 namespace fabric
@@ -34,6 +38,16 @@ namespace fabric
 
 Client::Client()
 {
+
+
+    // eq::server::Global* globalAtt = eq::server::Global::instance();
+
+    // int x = globalAtt -> getNodeIAttribute(eq::server::Node::IATTR_HINT_AFFINITY);
+
+    //const int32_t affinity = eq::server::Node::IATTR_HINT_AFFINITY;
+    //this->getReceiverThread()->setAffinity(3);
+    //this->getCommandThread()->setAffinity(3);
+    //std::cout << "------------------------------------" << (x) << std::endl;
 }
 
 Client::~Client()
