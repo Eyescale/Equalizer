@@ -50,6 +50,7 @@ private:
                                         const uint32_t flags );
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
+    static Compound* _addDSCompound( Compound* root, const Channels& channels );
     static const Compounds& _addSources( Compound* compound, const Channels& );
 };
 
