@@ -301,6 +301,7 @@ namespace eq
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
 
+        /* Sets the affinity for the receiver & command threads for a LocalNode */
         void _setupAffinity();
 
         EQ_TS_VAR( _nodeThread );

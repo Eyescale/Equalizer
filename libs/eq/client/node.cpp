@@ -193,15 +193,11 @@ bool Node::configExit()
 
 void Node::_setupAffinity()
 {
-    const int affinity = getIAttribute(IATTR_HINT_AFFINITY);
+    const int32_t affinity = getIAttribute(IATTR_HINT_AFFINITY);
+
     ClientPtr client = getClient();
     client->getReceiverThread()->setAffinity(affinity);
     client->getCommandThread()->setAffinity(affinity);
-
-    // cpu_set_t cpuMask;
-    // CPU_ZERO( &cpuMask );
-    // CPU_SET( affinity, &cpuMask );
-    // sched_setaffinity( 0, sizeof( cpuMask ), &cpuMask );
 }
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const
