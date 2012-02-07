@@ -1,3 +1,5 @@
+*.kdev4
+*~
 .project
 .cproject
 *.mode1v3
