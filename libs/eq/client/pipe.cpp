@@ -527,6 +527,12 @@ void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
     _unlockedFrame.waitGE( frameNumber );
 }
 
+uint32_t Pipe::getCurrentFrame() const
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _currentFrame;
+}
+
 uint32_t Pipe::getFinishedFrame() const
 {
     return _finishedFrame.get();
