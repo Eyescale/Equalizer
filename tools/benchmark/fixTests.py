@@ -63,7 +63,7 @@ def fixTestsForConfigRTNeuron( config ):
 
    nodeDict = dict()
 
-   for serverCount in range( 1, config.serverCount + 1 ):
+   for serverCount in startServers.getActiveServers( range( 1, config.serverCount + 1 ) ):
       searchText = "node" + str(serverCount).zfill(2)
       for fileName in files:
          if ( fileName.find( searchText ) > 0 ):
@@ -87,8 +87,8 @@ def fixTestsForConfigRTNeuron( config ):
       dirNameGPUCountDict[ newSubDirName ] = 0 
   
    files = glob.glob( newSubDirName + "/node*.log" )
-   
-   dirNameGPUCountDict[ newSubDirName ] = len( files )
+   for fileName in files:
+      dirNameGPUCountDict[ newSubDirName ] = dirNameGPUCountDict[ newSubDirName ] + getGPUCountFromLogfile( fileName )
     
 def fixTests( schema, application ):
 

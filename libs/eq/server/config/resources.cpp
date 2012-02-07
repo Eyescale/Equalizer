@@ -496,7 +496,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
             Frame* output = child->getOutputFrames().front();
 
             Viewport vp;
-            if( i+1 == children.end( ) ) // last - correct rounding 'error'
+            if( i+1 == children.end( )) // last - correct rounding 'error'
             {
                 vp = Viewport( 0.f, static_cast< float >( start )/100000.f,
                                1.f,

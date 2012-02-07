@@ -5,6 +5,7 @@ import sys
 import getopt
 import subprocess
 import time
+import common
 
 import checkXServersAndRestart
 
@@ -16,13 +17,26 @@ def stopServers():
    os.system("killall -9 gpu_sd")
    os.system("cexec killall -9 gpu_sd")
 
+def getActiveServers( serverRange ):
+
+   serverCount = len( serverRange )
+   count = 0
+   index = serverRange[0] - 1
+   serverList = []
+   while( count < serverCount ):
+      index = index + 1
+      if( index in common.excludedServers ):
+         continue
+      serverList.append( index )
+      count = count + 1
+   
+   return serverList    
 # Start the servers in range 
 def startServersInRange( serverRange, session ):
  
-   for i in serverRange:
-      # if i in excludedServers:
-      #   continue
-
+   serverList = getActiveServers( serverRange )
+   for i in serverList:
+    
       nodeNumberStr = str(i).zfill(2)
       cmdStr = "ssh node%s gpu_sd -s %s" % ( nodeNumberStr, session )
       
