@@ -1,0 +1,22 @@
+diff --git libs/co/localNode.cpp libs/co/localNode.cpp
+index 6fd594d..c8c1e82 100644
+--- libs/co/localNode.cpp
++++ libs/co/localNode.cpp
+@@ -31,6 +31,7 @@
+ #include <co/base/log.h>
+ #include <co/base/requestHandler.h>
+ #include <co/base/scopedMutex.h>
++#include <co/base/sleep.h>
+ 
+ namespace co
+ {
+@@ -773,6 +774,9 @@ bool LocalNode::connect( NodePtr node )
+ 
+     EQASSERT( node->_state == STATE_CLOSED );
+ 
++    // HACK for https://github.com/Eyescale/Equalizer/issues/90
++    co::base::sleep( getNodeID().low() % 1000 );
++
+     // try connecting using the given descriptions
+     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
+     for( ConnectionDescriptions::const_iterator i = cds.begin();
