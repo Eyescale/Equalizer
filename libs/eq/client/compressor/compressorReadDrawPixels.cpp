@@ -441,7 +441,6 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 #ifdef EQ_USE_PBO_ASYNC
         if( _initPBO( glewContext, size ))
         {
-            EQWARN << "start PBO readback" << std::endl;
             _pbo->bind( glewContext );
             EQ_GL_CALL( glReadPixels( inDims[0], inDims[2],
                                       inDims[1], inDims[3],
@@ -458,7 +457,8 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         return;
 #endif
         // else
-        EQERROR << "Can't initialize PBO for async RB" << std::endl;
+
+        EQWARN << "Can't initialize PBO for async readback" << std::endl;
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                       _format, _type, _buffer.getData() ));
@@ -488,7 +488,7 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
 
     if( !_cmp4uint64_t( inDims, _inDimsRB ))
     {
-        EQERROR << "Input dimentions are not the same" << std::endl;
+        EQERROR << "Input dimensions are not the same" << std::endl;
         return;
     }
     if( _sourceRB != source || _flagsRB != flags )
@@ -498,11 +498,12 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
     }
 
 #ifdef EQ_USE_PBO_ASYNC
-    if(( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER ) &&
-                                                _pbo && _pbo->isInitialized( ))
+    if( (flags&EQ_COMPRESSOR_USE_FRAMEBUFFER) && _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
+        *out = _buffer.getData();
+
         const GLubyte* ptr = 
                       static_cast<const GLubyte*>(_pbo->mapRead( glewContext ));
         if( !ptr )
@@ -513,7 +514,6 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
         }
         memcpy( _buffer.getData(), ptr, size );
         _pbo->unmap( glewContext );
-        EQWARN << "finished PBO readback" << std::endl;
     }
 #else  // async RB through texture
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )

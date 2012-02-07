@@ -35,6 +35,7 @@
 #include <co/base/global.h>
 #include <co/base/monitor.h>
 #include <co/base/scopedMutex.h>
+#include <eq/util/objectManager.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>
@@ -171,23 +172,6 @@ Image* FrameData::newImage( const eq::Frame::Type type,
     return image;
 }
 
-void FrameData::returnLastImage()
-{
-    if( _images.size() < 1 )
-    {
-        EQWARN << "Can't return image since no images were reserved"
-               << std::endl;
-        return;
-    }
-
-    _imageCacheLock.set();
-    EQASSERT( _images.size() > 0 );
-    _imageCache.push_back( _images.back() );
-    _imageCacheLock.unset();
-
-    _images.pop_back();
-}
-
 Image* FrameData::_allocImage( const eq::Frame::Type type,
                                const DrawableConfig& config,
                                const bool setQuality_ )
@@ -244,31 +228,37 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     return image;
 }
 
+#ifndef EQ_2_0_API
 void FrameData::readback( const Frame& frame,
-                          util::ObjectManager< const void* >* glObjects,
+                          ObjectManager* glObjects,
                           const DrawableConfig& config )
 {
-    readback( frame, glObjects, config, PixelViewports( 1, getPixelViewport( )));
-}
+    const Images& images = startReadback( frame, glObjects, config,
+                                        PixelViewports( 1, getPixelViewport( )));
 
-void FrameData::readback( const Frame& frame,
-                          util::ObjectManager< const void* >* glObjects,
-                          const DrawableConfig& config,
-                          const PixelViewports& regions )
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        (*i)->finishReadback( frame.getZoom(), glObjects->glewGetContext( ));
+}
+#endif
+
+Images FrameData::startReadback( const Frame& frame,
+                                 ObjectManager* glObjects,
+                                 const DrawableConfig& config,
+                                 const PixelViewports& regions )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
-        return;
+        return Images();
 
     const eq::PixelViewport& framePVP = getPixelViewport();
     const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
-        return;
+        return Images();
 
     const Zoom& zoom = frame.getZoom();
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
-        return;
+        return Images();
     }
 
 // TODO: issue #85: move automatic ROI detection to eq::Channel
@@ -277,24 +267,29 @@ void FrameData::readback( const Frame& frame,
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
 //                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
-                    0, 0, glObjects );
+                                        0, 0, glObjects );
     else
         pvps.push_back( absPVP );
 #endif
+
+    Images images;
 
     // readback the whole screen when using textures
     if( getType() == eq::Frame::TYPE_TEXTURE )
     {
         Image* image = newImage( getType(), config );
-        image->readback( getBuffers(), absPVP, zoom, glObjects );
+        if( image->startReadback( getBuffers(), absPVP, zoom, glObjects ))
+            images.push_back( image );
         image->setOffset( 0, 0 );
-        return;
+        return images;
     }
-    // else read the given regions
+
+    //else read only required regions
     EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
 
     const eq::Pixel& pixel = getPixel();
-    for( size_t i = 0; i < regions.size(); ++i )
+
+    for( uint32_t i = 0; i < regions.size(); ++i )
     {
         PixelViewport pvp = regions[ i ] + frame.getOffset();
         pvp.intersect( absPVP );
@@ -302,79 +297,14 @@ void FrameData::readback( const Frame& frame,
             continue;
 
         Image* image = newImage( getType(), config );
-        image->readback( getBuffers(), pvp, zoom, glObjects );
-
-        pvp -= frame.getOffset();
-        image->setOffset( (pvp.x - framePVP.x) * pixel.w,
-                          (pvp.y - framePVP.y) * pixel.h );
-#ifndef NDEBUG
-        if( getenv( "EQ_DUMP_IMAGES" ))
-        {
-            static co::base::a_int32_t counter;
-            std::ostringstream stringstream;
-
-            stringstream << "Image_" << std::setfill( '0' ) << std::setw(5)
-                         << ++counter;
-            image->writeImages( stringstream.str( ));
-        }
-#endif
-    }
-}
-
-void FrameData::startReadback( const Frame& frame,
-                            util::ObjectManager< const void* >* glObjects,
-                            const DrawableConfig& config,
-                            const PixelViewports& regions )
-{
-    if( _data.buffers == Frame::BUFFER_NONE )
-        return;
-
-    const eq::PixelViewport& framePVP = getPixelViewport();
-    const PixelViewport      absPVP   = framePVP + frame.getOffset();
-    if( !absPVP.isValid( ))
-        return;
-
-    const Zoom& zoom = frame.getZoom();
-    if( !zoom.isValid( ))
-    {
-        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
-        return;
-    }
-
-    // readback the whole screen when donig in-place compositing
-    if( getType() == eq::Frame::TYPE_TEXTURE )
-    {
-        Image* image = newImage( getType(), config );
-        if( !image->startReadback( getBuffers(), absPVP, zoom, glObjects ))
-        {
-            returnLastImage();
-            return;
-        }
-        image->setOffset( 0, 0 );
-        return;
-    }
-    //else read only required regions
-    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
-
-    const eq::Pixel& pixel = getPixel();
-    for( uint32_t i = 0; i < regions.size(); i++ )
-    {
-        PixelViewport pvp = regions[ i ];
-        pvp.intersect( absPVP );
-        if( !pvp.hasArea( ))
-            continue;
-
-        Image* image = newImage( getType(), config );
-        if( !image->startReadback( getBuffers(), pvp, zoom, glObjects ))
-        {
-            returnLastImage();
-            return;
-        }
+        if( image->startReadback( getBuffers(), pvp, zoom, glObjects ))
+            images.push_back( image );
 
         pvp -= frame.getOffset();
         image->setOffset( (pvp.x - framePVP.x) * pixel.w,
                           (pvp.y - framePVP.y) * pixel.h );
     }
+    return images;
 }
 
 void FrameData::setVersion( const uint64_t version )

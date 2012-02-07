@@ -207,7 +207,7 @@ namespace server
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( ObjectManager* glObjects,
                               const DrawableConfig& config );
 
         /**
@@ -220,14 +220,26 @@ namespace server
          * @param regions the areas to read back.
          * @version 1.0
          */
-        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( ObjectManager* glObjects,
                               const DrawableConfig& config,
                               const PixelViewports& regions );
 
-        EQ_API void startReadback(
-                                util::ObjectManager< const void* >* glObjects,
-                                const DrawableConfig& config,
-                                const PixelViewports& regions );
+        /** 
+         * Start reading back a set of images for this frame.
+         * 
+         * The newly read images are added to the data, existing images are
+         * retained.
+         *
+         * @param frame the corresponding output frame holder.
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @return the new images which need finishReadback.
+         * @version 1.3.0
+         */        
+        EQ_API Images startReadback( ObjectManager* glObjects,
+                                     const DrawableConfig& config,
+                                     const PixelViewports& regions );
 
         /**
          * Set the frame ready.

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,9 @@
 #include "frame.h"
 
 #include "frameData.h"
+#include "image.h"
 
+#include <eq/util/objectManager.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -144,27 +146,33 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
         _frameData->useCompressor( buffer, name );
 }
 
-void Frame::readback( util::ObjectManager< const void* >* glObjects,
-                      const DrawableConfig& config )
+void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 {
     EQASSERT( _frameData );
-    _frameData->readback( *this, glObjects, config );
+    const PixelViewport& pvp = _frameData->getPixelViewport();
+    const Images& images = _frameData->startReadback( *this, glObjects, config,
+                                                      PixelViewports( 1, pvp ));
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
 
-void Frame::readback( util::ObjectManager< const void* >* glObjects,
+void Frame::readback( ObjectManager* glObjects,
                       const DrawableConfig& config,
                       const PixelViewports& regions )
 {
     EQASSERT( _frameData );
-    _frameData->readback( *this, glObjects, config, regions );
+    const Images& images = _frameData->startReadback( *this, glObjects, config,
+                                                      regions );
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
 
-void Frame::startReadback( util::ObjectManager< const void* >* glObjects,
-                      const DrawableConfig& config,
-                      const PixelViewports& regions )
+Images Frame::startReadback( ObjectManager* glObjects,
+                           const DrawableConfig& config,
+                           const PixelViewports& regions )
 {
     EQASSERT( _frameData );
-    _frameData->startReadback(  *this, glObjects, config, regions );
+    return _frameData->startReadback(  *this, glObjects, config, regions );
 }
 
 void Frame::setReady()

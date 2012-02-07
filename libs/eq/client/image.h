@@ -196,20 +196,14 @@ namespace eq
             { return hasPixelData( Frame::BUFFER_COLOR ) ||
                      hasPixelData( Frame::BUFFER_DEPTH ); }
 
-        /**
-         * @return true if async readback for a buffer was started but not 
-         *              finished.
-         */
-        bool isReadbackInProgress( const Frame::Buffer buffer ) const
-            { return _getAttachment( buffer ).memory.state ==
-                                                          Memory::PROCESSING; }
+        /** @return true if async readback for a buffer is in progress. */
+        bool hasAsyncReadback( const Frame::Buffer buffer ) const
+            { return _getAttachment(buffer).memory.state == Memory::PROCESSING; }
 
-        /**
-         * @return true if async readback was started but not finished.
-         */
-        bool isReadbackInProgress() const
-            { return isReadbackInProgress( Frame::BUFFER_COLOR ) ||
-                     isReadbackInProgress( Frame::BUFFER_DEPTH ); }
+        /**@return true if async readback was started but not finished. */
+        bool hasAsyncReadback() const
+            { return hasAsyncReadback( Frame::BUFFER_COLOR ) ||
+                     hasAsyncReadback( Frame::BUFFER_DEPTH ); }
 
         /**
          * Clear and validate an image buffer.
@@ -283,6 +277,7 @@ namespace eq
 
         /** @name Operations */
         //@{
+#ifndef EQ_2_0_API
         /**
          * Read back an image from the frame buffer.
          *
@@ -292,31 +287,39 @@ namespace eq
          * @param glObjects the GL object manager for the current GL context.
          * @return true when data was read back, false on error.
          * @version 1.0
+         * @deprecated @sa startReadback(), finishReadback()
          */
         EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
-                              const Zoom& zoom,
-                              util::ObjectManager< const void* >* glObjects );
+                              const Zoom& zoom, ObjectManager* glObjects );
+#endif
 
         /**
-         * @internal
-         * Read back an image from a given texture.
+         * Start reading back an image from the frame buffer.
          *
-         * If no texture is provided, the readback is performed from the
-         * framebuffer.
-         *
-         * @param buffer the buffer type.
-         * @param texture the OpenGL texture name.
-         * @param glewContext function table for the current GL context.
-         * @return true when data was read back, false on error.
+         * @param buffers bit-wise combination of the Frame::Buffer components.
+         * @param pvp the area of the frame buffer wrt the drawable.
+         * @param zoom the scale factor to apply during readback.
+         * @param glObjects the GL object manager for the current GL context.
+         * @return true when the operation requires a finishReadback().
+         * @version 1.3
          */
-        bool readback( const Frame::Buffer buffer, const util::Texture* texture,
-                       const GLEWContext* glewContext );
-
         EQ_API bool startReadback( const uint32_t buffers,
-                              const PixelViewport& pvp, const Zoom& zoom,
-                              util::ObjectManager< const void* >* glObjects );
+                                   const PixelViewport& pvp, const Zoom& zoom,
+                                   ObjectManager* glObjects );
 
-        EQ_API bool finishReadback( const Zoom& zoom,
+        /** @internal Start reading back data from a texture. */ 
+        bool startReadback( const Frame::Buffer buffer,
+                            const util::Texture* texture,
+                            const GLEWContext* glewContext );
+
+        /** 
+         * Finish an asynchronous readback.
+         * 
+         * @param zoom the scale factor to apply during readback.
+         * @param glObjects the GL object manager for the current GL context.
+         * @version 1.3
+         */
+        EQ_API void finishReadback( const Zoom& zoom,
                                     const GLEWContext* glewContext );
 
         /**
@@ -335,7 +338,7 @@ namespace eq
          */
         EQ_API void upload( const Frame::Buffer buffer, util::Texture* texture,
                             const Vector2i& position,
-                            util::ObjectManager< const void* >* glObjects )
+                            ObjectManager* glObjects )
             const;
 
         /** Write the pixel data as rgb image file. @version 1.0 */
@@ -351,10 +354,6 @@ namespace eq
 
         /** @internal Set image offset after readback to correct position. */
         void setOffset( int32_t x, int32_t y ) { _pvp.x = x; _pvp.y = y; }
-
-        /** @internal Set image offset after readback to correct position.
-                      Applied after finish readback*/
-        void setOffsetRB( int32_t x, int32_t y ){ _offsetXRB=x; _offsetYRB=y; }
         //@}
 
         /** @name Internal */
@@ -393,10 +392,6 @@ namespace eq
 
         /** Zoom factor used for compositing. */
         Zoom _zoom;
-
-        // offset that is applied after readback is done
-        int32_t _offsetXRB;
-        int32_t _offsetYRB;
 
         /** @internal Raw image data. */
         struct Memory : public PixelData
@@ -503,22 +498,19 @@ namespace eq
                                  const bool hasAlpha );
 
         bool _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                        util::ObjectManager< const void* >* glObjects );
+                        ObjectManager* glObjects );
 
         bool _startReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                        util::ObjectManager< const void* >* glObjects );
+                             ObjectManager* glObjects );
 
-        bool _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
-                        const GLEWContext* glewContext );
-
-        bool _startReadback( const Frame::Buffer buffer, const util::Texture* texture,
-                       const GLEWContext* glewContext );
-
-        bool _finishReadback( const Frame::Buffer buffer, const util::Texture* texture,
-                       const GLEWContext* glewContext );
+        void _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
+                              const GLEWContext* glewContext );
+        void _finishReadback( const Frame::Buffer buffer,
+                              const util::Texture* texture,
+                              const GLEWContext* glewContext );
 
         const util::Texture* _readbackZoom( const Frame::Buffer buffer,
-                        const Zoom& zoom, util::ObjectManager< const void* >* glObjects );
+                        const Zoom& zoom, ObjectManager* glObjects );
     };
 };
 #endif // EQ_IMAGE_H
