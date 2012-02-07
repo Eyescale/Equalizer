@@ -320,7 +320,7 @@ bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
                       const Zoom& zoom, ObjectManager* glObjects )
 {
     if( startReadback( buffers, pvp, zoom, glObjects ))
-        finishReadback( zoom, glObjects );
+        finishReadback( zoom, glewGetContext( ));
     return true;
 }
 #endif

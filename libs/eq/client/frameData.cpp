@@ -27,6 +27,7 @@
 #include "roiFinder.h"
 
 #include <eq/fabric/drawableConfig.h>
+#include <eq/util/objectManager.h>
 #include <co/command.h>
 #include <co/commandFunc.h>
 #include <co/connectionDescription.h>
@@ -236,7 +237,7 @@ void FrameData::readback( const Frame& frame,
                                         PixelViewports( 1, getPixelViewport( )));
 
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
-        (*i)->finishReadback( frame.getZoom(), glObjects );
+        (*i)->finishReadback( frame.getZoom(), glObjects->glewGetContext( ));
 }
 #endif
 
