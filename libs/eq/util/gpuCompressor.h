@@ -118,13 +118,11 @@ namespace util
          * Finish downloading data from the frame buffer or texture to cpu
          *
          * @param pvpIn the dimensions of the input data
-         * @param source texture name to process.
          * @param flags capability flags for the compression
          * @param pvpOut the dimensions of the output data
          * @param out the pointer to the output data
          */
         void finishDownload( const fabric::PixelViewport& pvpIn,
-                             const unsigned               source,
                              const uint64_t               flags,
                              fabric::PixelViewport&       pvpOut,
                              void**                       out );

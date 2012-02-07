@@ -114,8 +114,6 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         , _format( 0 )
         , _type( 0 )
         , _depth( _depths[ name ] )
-        , _sourceRB( 0 )
-        , _flagsRB( 0 )
 {
     EQASSERT( _depth > 0 );
     switch( name )
@@ -286,12 +284,12 @@ bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
 
 namespace
 {
-    void _cp4uint64_t( eq_uint64_t dst[4],  const eq_uint64_t src[4] )
+    void _copy4( eq_uint64_t dst[4], const eq_uint64_t src[4] )
     {
         memcpy( &dst[0], &src[0], sizeof(eq_uint64_t)*4 );
     }
 
-    bool _cmp4uint64_t( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
+    bool _compare4( const eq_uint64_t s1[4], const eq_uint64_t s2[4] )
     {
         for( size_t i = 0; i < 4; ++i )
             if( s1[i] != s2[i] )
@@ -306,6 +304,7 @@ void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
     //       The other crashes occasionally with KERN_BAD_ADDRESS
     //       Seems to be only with GL_RGB. Radar #8261726.
 #if 1
+
     _buffer.reserve( size );
     _buffer.setSize( size );
 #else
@@ -317,7 +316,7 @@ void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
 void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
                                             eq_uint64_t outDims[4] )
 {
-    _cp4uint64_t( outDims, inDims );
+    _copy4( outDims, inDims );
 
     const size_t size = inDims[1] * inDims[3] * _depth;
 
@@ -411,10 +410,6 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const unsigned     source,
                                                 const eq_uint64_t  flags )
 {
-    _cp4uint64_t( _inDimsRB, inDims );
-    _sourceRB = source;
-    _flagsRB  = flags;
-
     const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
@@ -433,7 +428,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         EQWARN << "Can't initialize PBO for async readback" << std::endl;
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
-                      _format, _type, _buffer.getData() ));
+                                  _format, _type, _buffer.getData( )));
     }
     else
     {
@@ -450,42 +445,28 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 
 void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
                                                 const eq_uint64_t  inDims[4],
-                                                const unsigned     source,
                                                 const eq_uint64_t  flags,
                                                 eq_uint64_t        outDims[4],
                                                 void**             out )
 {
-    _cp4uint64_t( outDims, _inDimsRB );
-    *out = _buffer.getData();
-
-    if( !_cmp4uint64_t( inDims, _inDimsRB ))
-    {
-        EQERROR << "Input dimensions are not the same" << std::endl;
-        return;
-    }
-    if( _sourceRB != source || _flagsRB != flags )
-    {
-        EQERROR << "Source type or flags are not the same" << std::endl;
-        return;
-    }
+    _copy4( outDims, inDims );
 
     if( (flags&EQ_COMPRESSOR_USE_FRAMEBUFFER) && _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
-        *out = _buffer.getData();
 
-        const GLubyte* ptr = 
-                      static_cast<const GLubyte*>(_pbo->mapRead( glewContext ));
-        if( !ptr )
+        const void* ptr = _pbo->mapRead( glewContext );
+        if( ptr )
+            memcpy( _buffer.getData(), ptr, size );
+        else
         {
             EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
-            _pbo->unmap( glewContext );
-            return;
         }
-        memcpy( _buffer.getData(), ptr, size );
         _pbo->unmap( glewContext );
     }
+
+    *out = _buffer.getData();
 }
 
 }

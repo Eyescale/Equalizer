@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Maxim Makhinya <maxmah@gmail.com>
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +20,7 @@
 
 #include <eq/client/error.h>
 #include <co/base/debug.h>
+#include <co/base/scopedMutex.h>
 
 namespace eq
 {
@@ -26,7 +28,6 @@ namespace util
 {
 
 #define glewGetContext() glewContext
-
 
 PixelBufferObject::PixelBufferObject( const GLEWContext* glewContext,
                                       const bool threadSafe )
@@ -36,25 +37,20 @@ PixelBufferObject::PixelBufferObject( const GLEWContext* glewContext,
     , _type( 0 )
     , _op( 0 )
     , _initialized( false )
-    , _threadSafe( threadSafe )
-    , _initCtx( glewContext )
+    , _pboLock( threadSafe ? new co::base::Lock : 0 )
 {
 }
-
 
 PixelBufferObject::~PixelBufferObject()
 {
-    if( !isInitialized( ))
-        return;
+    if( isInitialized( ))
+        EQWARN << "PBO was not freed" << std::endl;
 
-    EQWARN << "deleting PBO in destructor since it was not deleted manually"
-           << std::endl;
-
-    _destroy( _initCtx );
+    delete _pboLock;
+    _pboLock = 0;
 }
 
-
-bool PixelBufferObject::_testIfInitialized() const
+bool PixelBufferObject::_testInitialized() const
 {
     if( isInitialized( ))
         return true;
@@ -63,16 +59,13 @@ bool PixelBufferObject::_testIfInitialized() const
     return false;
 }
 
-
 bool PixelBufferObject::init( const int32_t newSize,
                               const GLEWContext* glewContext, const bool read )
 {
-    _lock();
-    const bool result = _init( newSize, glewContext, read );
-    _unlock();
-
-    return result;
+    co::base::ScopedWrite mutex( _pboLock );
+    return _init( newSize, glewContext, read );
 }
+
 bool PixelBufferObject::_init( const int32_t newSize,
                                const GLEWContext* glewContext, const bool read )
 {
@@ -89,7 +82,7 @@ bool PixelBufferObject::_init( const int32_t newSize,
         return false;
     }
 
-    if( !_pboId )
+    if( _pboId == 0 )
         EQ_GL_CALL( glGenBuffersARB( 1, &_pboId ));
 
     if( _pboId == 0 )
@@ -126,7 +119,7 @@ const void* PixelBufferObject::mapRead( const GLEWContext* glewContext ) const
 {
     _lock();
 
-    if( !_testIfInitialized() )
+    if( !_testInitialized() )
         return 0;
 
     if( _type != GL_READ_ONLY_ARB )
@@ -142,10 +135,9 @@ const void* PixelBufferObject::mapRead( const GLEWContext* glewContext ) const
 
 void* PixelBufferObject::mapWrite( const GLEWContext* glewContext )
 {
-    EQWARN << "void* PixelBufferObject::map( const GLEWContext* glewContext )" << std::endl;
     _lock();
 
-    if( !_testIfInitialized() )
+    if( !_testInitialized() )
         return 0;
 
     if( _type != GL_WRITE_ONLY_ARB )
@@ -166,9 +158,10 @@ bool PixelBufferObject::bind( const GLEWContext* glewContext ) const
     _lock();
     return _bind( glewContext );
 }
-bool PixelBufferObject::_bind(    const GLEWContext* glewContext ) const
+
+bool PixelBufferObject::_bind( const GLEWContext* glewContext ) const
 {
-    if( !_testIfInitialized() )
+    if( !_testInitialized() )
         return false;
 
     EQ_GL_CALL( glBindBufferARB( _name, _pboId ));
@@ -181,9 +174,10 @@ void PixelBufferObject::unmap( const GLEWContext* glewContext ) const
     _unmap( glewContext );
     _unlock();
 }
+
 void PixelBufferObject::_unmap(   const GLEWContext* glewContext ) const
 {
-    _testIfInitialized();
+    _testInitialized();
 
     EQ_GL_CALL( glUnmapBufferARB( _name ));
     _unbind( glewContext );
@@ -195,20 +189,20 @@ void PixelBufferObject::unbind( const GLEWContext* glewContext ) const
     _unbind( glewContext );
     _unlock();
 }
+
 void PixelBufferObject::_unbind(  const GLEWContext* glewContext ) const
 {
-    _testIfInitialized();
-
+    _testInitialized();
     EQ_GL_CALL( glBindBufferARB( _name, 0 ));
 }
 
 
 void PixelBufferObject::destroy( const GLEWContext* glewContext )
 {
-    _lock();
+    co::base::ScopedWrite mutex( _pboLock );
     _destroy( glewContext );
-    _unlock();
 }
+
 void PixelBufferObject::_destroy( const GLEWContext* glewContext )
 {
     _size = 0;

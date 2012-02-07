@@ -136,7 +136,6 @@ AsyncRBThread::~AsyncRBThread()
 
 bool AsyncRBThread::start()
 {
-    co::base::ScopedWrite mutex( _startLock );
     if( isRunning( ))
         return true;
     return Worker::start();
@@ -148,9 +147,10 @@ const GLEWContext* AsyncRBThread::glewGetContext() const
 }
 
 
-void AsyncRBThread::deleteSharedContextWindow()
+void AsyncRBThread::postStop()
 {
     _deleteSharedContextWindow( _window, &_sharedContextWindow );
+    _running = false;
 }
 
 

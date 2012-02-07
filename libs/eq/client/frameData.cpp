@@ -245,19 +245,21 @@ Images FrameData::startReadback( const Frame& frame,
                                  const DrawableConfig& config,
                                  const PixelViewports& regions )
 {
+    Images images;
+
     if( _data.buffers == Frame::BUFFER_NONE )
-        return Images();
+        return images;
 
     const eq::PixelViewport& framePVP = getPixelViewport();
     const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
-        return Images();
+        return images;
 
     const Zoom& zoom = frame.getZoom();
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
-        return Images();
+        return images;
     }
 
 // TODO: issue #85: move automatic ROI detection to eq::Channel
@@ -270,8 +272,6 @@ Images FrameData::startReadback( const Frame& frame,
     else
         pvps.push_back( absPVP );
 #endif
-
-    Images images;
 
     // readback the whole screen when using textures
     if( getType() == eq::Frame::TYPE_TEXTURE )

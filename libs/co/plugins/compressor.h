@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -628,7 +628,7 @@ extern "C" {
      */
     EQ_PLUGIN_API void EqCompressorStartDownload( void* const        compressor,
                                                   const unsigned     name,
-                                                  const GLEWContext* glewContext,
+                                                 const GLEWContext* glewContext,
                                                   const eq_uint64_t  inDims[4],
                                                   const unsigned     source,
                                                   const eq_uint64_t  flags );
@@ -645,20 +645,17 @@ extern "C" {
      * @param glewContext the initialized GLEW context describing corresponding
      *                    to the current OpenGL context.
      * @param inDims the dimensions of the input data (x, w, y, h).
-     * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
-     *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
      * @param flags capability flags for the compression (see description).
      * @param outDims the dimensions of the output data (see description).
      * @param out the pointer to the output data.
      * @version 4
      */
-    EQ_PLUGIN_API void EqCompressorFinishDownload( void* const        compressor,
+    EQ_PLUGIN_API void EqCompressorFinishDownload( void* const compressor,
                                                    const unsigned     name,
-                                                   const GLEWContext* glewContext,
+                                                 const GLEWContext* glewContext,
                                                    const eq_uint64_t  inDims[4],
-                                                   const unsigned     source,
                                                    const eq_uint64_t  flags,
-                                                   eq_uint64_t        outDims[4],
+                                                   eq_uint64_t outDims[4],
                                                    void**             out );
 
     /**

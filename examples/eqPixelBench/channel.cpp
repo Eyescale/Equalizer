@@ -193,16 +193,17 @@ void Channel::_testFormats( float applyZoom )
 
 
             // read
-        glFinish();
-        size_t nLoops = 0;
+            glFinish();
+            size_t nLoops = 0;
             clock.reset();
-        while( clock.getTime64() < 100 /*ms*/ )
-        {
-            image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
-            image->finishReadback( zoom, glObjects->glewGetContext( ));
-            ++nLoops;
-        }
-        glFinish();
+            while( clock.getTime64() < 100 /*ms*/ )
+            {
+                image->startReadback( eq::Frame::BUFFER_COLOR, pvp, zoom,
+                                      glObjects );
+                image->finishReadback( zoom, glObjects->glewGetContext( ));
+                ++nLoops;
+            }
+            glFinish();
             event.msec = clock.getTimef() / float( nLoops );
 
             const eq::PixelData& pixels =

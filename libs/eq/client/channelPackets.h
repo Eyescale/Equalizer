@@ -307,7 +307,6 @@ namespace eq
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
         return os;
     }
-
     inline std::ostream& operator << ( std::ostream& os, 
                                  const ChannelFrameTransmitImagePacket* packet )
     {

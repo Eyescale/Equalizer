@@ -1411,7 +1411,8 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 }
             }
 
-            hasAsyncReadback |= _startFinishReadback( stat, nImages, false );
+            if( _startFinishReadback( stat, nImages, false ))
+                hasAsyncReadback = true;
         }
         queuePacket->release();
     }
@@ -1844,7 +1845,7 @@ void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
     std::vector< uint128_t > ids = nodes;
     ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
 
-    ChannelFrameSetReadyPacket packet( frame, stat, ids.size( ));
+    ChannelFrameSetReadyPacket packet( frame, stat, nodes.size( ));
     send( getLocalNode(), packet, ids );
 }
 
