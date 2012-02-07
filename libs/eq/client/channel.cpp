@@ -1358,6 +1358,8 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
 void Channel::_transmitImages( const RenderContext& context, Frame* frame,
                                const size_t startPos )
 {
+    EQ_TS_THREAD( _pipeThread );
+
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
     if( toNodes.empty( ))
@@ -1683,7 +1685,6 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
     ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
     transmitEvent.statisticsIndex = packet->statisticsIndex;
     transmitEvent.event.data.statistic.task = packet->context.taskID;
-
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > packet->imageIndex );
     _transmitImage( images[ packet->imageIndex ], packet );
