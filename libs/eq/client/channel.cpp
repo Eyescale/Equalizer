@@ -325,7 +325,8 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERT( _impl->statistics.data[ index ].used > 0 );
+        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
+                      frameNumber << " " << getCurrentFrame( ));
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -2117,10 +2118,31 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 
 bool Channel::_cmdFinishReadback( co::Command& command )
 {
+<<<<<<< HEAD
     const ChannelFinishReadbackPacket* packet = 
         command.get< ChannelFinishReadbackPacket >();
     _finishReadback( packet );
     _unrefFrame( packet->frameNumber );
+=======
+    const ChannelFrameTransmitImagePacket* packet = 
+        command.get<ChannelFrameTransmitImagePacket>();
+
+    FrameData* frameData = getNode()->getFrameData( packet->frameData ); 
+    EQASSERT( frameData );
+
+    if( frameData->getBuffers() == 0 )
+    {
+        EQWARN << "No buffers for frame data" << std::endl;
+        return true;
+    }
+
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     packet->frameNumber );
+    transmitEvent.event.data.statistic.task = packet->context.taskID;
+    const Images& images = frameData->getImages();
+    EQASSERT( images.size() > packet->imageIndex );
+    _transmitImage( images[ packet->imageIndex ], packet );
+>>>>>>> master
     return true;
 }
 

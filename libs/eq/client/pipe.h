@@ -94,7 +94,7 @@ namespace detail { class AsyncRBThread; }
          * @return the current frame number.
          * @version 1.0
          */ 
-        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        EQ_API uint32_t getCurrentFrame() const;
         EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**
