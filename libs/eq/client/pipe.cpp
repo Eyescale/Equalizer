@@ -67,7 +67,7 @@ class Pipe::Thread : public eq::Worker
 {
 public:
     Thread( Pipe* pipe ) : _pipe( pipe ) {}
-    
+
 protected:
     virtual void run();
     virtual bool stopRunning() { return !_pipe; }
