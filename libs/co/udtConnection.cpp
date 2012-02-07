@@ -36,7 +36,9 @@
 #include <set>
 #include <sstream>
 
-#define UDT_POLL_INT 100 // idle connection status/quit poll interval (ms)
+#include <ccc.h>
+
+#define UDT_POLL_INT 1000 // idle connection status/quit poll interval (ms)
 
 namespace co
 {
@@ -130,7 +132,108 @@ static void acknowledge( co::Connection::Notifier n )
 #   endif
 #endif
 }
+
+class CTCP: public CCC
+{
+public:
+    virtual void init( )
+    {
+        EQINFO << "UDT CCC: CTCP" << std::endl;
+
+        m_bSlowStart = true;
+        m_issthresh = 83333;
+
+        m_dPktSndPeriod = 0.0;
+        m_dCWndSize = 2.0;
+
+        setACKInterval( 2 );
+        setRTO( 1000000 );
+    }
+
+    virtual void onACK( const int32_t &ack )
+    {
+        if( ack == m_iLastACK )
+        {
+            if( 3 == ++ m_iDupACKCount )
+                DupACKAction( );
+            else if( m_iDupACKCount > 3 )
+                m_dCWndSize += 1.0;
+            else
+                ACKAction( );
+        }
+        else
+        {
+            if( m_iDupACKCount >= 3 )
+                m_dCWndSize = m_issthresh;
+
+            m_iLastACK = ack;
+            m_iDupACKCount = 1;
+
+            ACKAction( );
+        }
+    }
+
+    virtual void onTimeout( )
+    {
+        m_issthresh = getPerfInfo( )->pktFlightSize / 2;
+        if( m_issthresh < 2 )
+            m_issthresh = 2;
+
+        m_bSlowStart = true;
+        m_dCWndSize = 2.0;
+    }
+protected:
+    virtual void ACKAction( )
+    {
+        if( m_bSlowStart )
+        {
+            m_dCWndSize += 1.0;
+
+            if( m_dCWndSize >= m_issthresh )
+                m_bSlowStart = false;
+        }
+        else
+            m_dCWndSize += 1.0/m_dCWndSize;
+    }
+
+    virtual void DupACKAction( )
+    {
+        m_bSlowStart = false;
+
+        m_issthresh = getPerfInfo( )->pktFlightSize / 2;
+        if( m_issthresh < 2 )
+            m_issthresh = 2;
+
+        m_dCWndSize = m_issthresh + 3;
+    }
+protected:
+    int m_issthresh;
+    bool m_bSlowStart;
+
+    int m_iDupACKCount;
+    int m_iLastACK;
+}; // CTCP
+
+class CUDPBlast: public CCC
+{
+public:
+    virtual void init( )
+    {
+        EQINFO << "UDT CCC: CUDPBlast" << std::endl;
+
+        m_dPktSndPeriod = 1000000;
+        m_dCWndSize = 83333.0;
+    }
+public:
+    void setRate( double mbps )
+    {
+        m_dPktSndPeriod = ( m_iMSS * 8.0 ) / mbps;
+    }
+}; // CUDPBlast
 } // namespace
+
+//#define CONGESTION_CONTROL_CLASS CTCP
+//#define CONGESTION_CONTROL_CLASS CUDPBlast
 
 #define UDTLASTERROR( msg ) \
     ( msg ) << " : " << \
@@ -196,6 +299,8 @@ UDTConnection::UDTConnection( )
 bool UDTConnection::connect( )
 {
     struct sockaddr address;
+    CCC *cc = NULL;
+    int len;
 
     EQASSERT( CONNECTIONTYPE_UDT == _description->type );
     if( STATE_CLOSED != _state )
@@ -229,6 +334,16 @@ bool UDTConnection::connect( )
     if( !setSockOpt( UDT_RCVSYN,
         static_cast<const void *>( &OFF ), sizeof(OFF) ))
         goto err;
+
+    if( UDT::ERROR != UDT::getsockopt( _udt, 0, UDT_CC, &cc, &len ))
+    {
+        if( NULL != cc )
+        {
+            CUDPBlast *ccblast = dynamic_cast<CUDPBlast *>( cc );
+            if( NULL != ccblast )
+                ccblast->setRate( _description->bandwidth / 1000. );
+        }
+    }
 
     if( initialize( ))
     {
@@ -524,7 +639,7 @@ bool UDTConnection::tuneSocket( )
     const int udp_rcv_buf =
         Global::getIAttribute( Global::IATTR_UDP_BUFFER_SIZE );
 */
-    const int mss = Global::getIAttribute( Global::IATTR_UDP_MTU );
+    const int mss = 65520;//Global::getIAttribute( Global::IATTR_UDP_MTU );
 
     if( !setSockOpt( UDT_SNDTIMEO,
         static_cast<const void *>( &timeout ), sizeof(timeout) ))
@@ -548,6 +663,13 @@ bool UDTConnection::tuneSocket( )
 */
     if( !setSockOpt( UDT_MSS, static_cast<const void *>( &mss ), sizeof(mss) ))
         goto err;
+
+#ifdef CONGESTION_CONTROL_CLASS
+    if( !setSockOpt( UDT_CC,
+        static_cast<const void *>( new CCCFactory<CONGESTION_CONTROL_CLASS> ),
+            sizeof(CCCFactory<CONGESTION_CONTROL_CLASS>) ))
+        goto err;
+#endif
 
     return true;
 err:
