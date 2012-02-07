@@ -321,7 +321,8 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERT( _impl->statistics.data[ index ].used > 0 );
+        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
+                      frameNumber << " " << getCurrentFrame( ));
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -1602,6 +1603,8 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
 void Channel::_transmitImages( const RenderContext& context, Frame* frame,
                                const size_t startPos )
 {
+    EQ_TS_THREAD( _pipeThread );
+
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
     if( toNodes.empty( ))
@@ -1941,9 +1944,9 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
         return true;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     packet->frameNumber );
     transmitEvent.event.data.statistic.task = packet->context.taskID;
-
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > packet->imageIndex );
     _transmitImage( images[ packet->imageIndex ], packet );

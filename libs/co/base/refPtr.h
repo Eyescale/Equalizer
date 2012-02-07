@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1q as published
@@ -192,7 +192,7 @@ namespace base
         const T* p = rp.get();
         if( p )
         {
-            os << disableFlush << "RP<" << *p << ">";
+            os << disableFlush << "RP[" << *p << "]";
 #ifdef CO_REFERENCED_DEBUG
             os << std::endl;
             p->printHolders( os );
@@ -200,7 +200,7 @@ namespace base
             os << enableFlush;
         }
         else
-            os << "RP< NULL >";
+            os << "RP[ NULL ]";
 
         return os;
     }
