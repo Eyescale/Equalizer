@@ -4,6 +4,8 @@ import startServers
 import sys 
 from optparse import OptionParser
 import numpy
+import pickle
+import subprocess
 
 from common import *
 import os
@@ -11,6 +13,11 @@ import os
 forceRedo = False
 checkAndRedo = False
 multiprocess = False
+target = ''
+sgraph = ''
+cull = ''
+
+
 
 def emtpyDirectory( dirName ):
    print "Empty directory : " + dirName
@@ -90,7 +97,7 @@ def testEqPly( config ):
    os.system('cexec killall -9 eqPly')
 
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg + ' ' + multiProcessStr
+   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg + ' ' + multiProcessStr 
 
    print cmdStr
    
@@ -133,6 +140,10 @@ def testRTNeuron( config ):
       rtLayoutArg = '--eq-layout StaticDB --round-robin-DB-partition'
    elif( config.layoutName == "SpatialDB" ):
       rtLayoutArg = '--eq-layout StaticDB --spatial-DB-partition'
+   elif( config.layoutName == "DBDirectSendSDB" ):
+      rtLayoutArg = '--eq-layout DBDirectSend --spatial-DB-partition'
+   elif( config.layoutName == "DBDirectSendRR" ):
+      rtLayoutArg = '--eq-layout DBDirectSend --round-robin-DB-partition'
       
    rtNeuronConfigArg = '--eq-config "%s" ' % ( config.session )
   
@@ -142,11 +153,12 @@ def testRTNeuron( config ):
    if( config.roiState == 'ROIEnabled' ):
       roiStr = ' --roi '
       
-   os.system('killall -9 rtneuron.equalizer')
+   os.system('killall -9 rtneuron.equalizer')   
    os.system('cexec killall -9 rtneuron.equalizer')
    
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg
+
+   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg + ' ' + target + ' ' + sgraph + ' ' + cull
 
    print cmdStr
    
@@ -185,17 +197,57 @@ def main():
                      action="store_true", help="Force multi process", default = False )
    parser.add_option("-j", "--justlist", dest="justlist",
                      action="store_true", help="Just list, do not run", default = False )
-
+   parser.add_option("-y", "--async", dest="async",
+                     action="store_true", help="Enable asyncronous thread model", default = False )
+   parser.add_option("-t", "--target", dest="target",
+                     help="Target to render ( col, mcolx (x = 0:50))", default = "col")
+   parser.add_option("-o", "--octree", dest="octree",
+                     help="rtneuron only, use octree", default = -1, type="int" )
+   parser.add_option("-g", "--gpu", dest="gpu",
+                      action="store_true", help="Disable gpu cull", default=False )
+   parser.add_option("-e", "--readtestoption", dest="readtestoption",
+                      action="store_true", help="Read previous test option", default=False )
 
    (options, args) = parser.parse_args()
+
+   if( options.readtestoption ):
+    if( os.path.exists( optionsDumpFilename ) ):
+      with open( optionsDumpFilename, "r" ) as fp:
+         options = pickle.load(fp)
+         options.readtestoption = False
+    else:
+      print "Options cannot be read"
+      exit()
+   
+   with open( optionsDumpFilename, "w" ) as fp:
+      pickle.dump(options, fp)
 
    global checkAndRedo
    global forceRedo
    global multiprocess
+   global target
+   global sgraph
+   global cull
+   
+   if( options.octree >= 0):
+      sgraph = "--use-octree --octree-depth " + str( options.octree )
+   
+   if( options.gpu ):
+      cull = "--no-cuda"
    
    forceRedo = options.forceRedo
    checkAndRedo = options.checkAndRedo
    multiprocess = options.multiprocess
+   
+   if( options.target == "col" ):
+      target = '--target mc0_Column mesh none 1 0 0 1.0'
+   elif( options.target[0:4] == "mcol" ):
+      count = int( options.target[4:] )
+      for i in range(0, int(count)):
+			target +=  " --target MiniColumn_" + str(i) + " mesh none 1 0 0 1.0 "
+   
+   if( options.async ):
+      os.environ['EQ_NODE_IATTR_THREAD_MODEL'] = str(-9)
    
    setFulscreenMode( options.screenmode )
    
