@@ -302,6 +302,11 @@ namespace co
         /** Send a packet to peer object instance(s) on another node. */
         CO_API bool send( NodePtr node, ObjectPacket& packet, 
                           const void* data, const uint64_t size );
+
+        /** Send a packet to peer object instance(s) on another node. */
+        template< class T >
+        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
+            { return send( node, packet, &v.front(), v.size() * sizeof( T )); }
         //@}
 
         /** @name Notifications */

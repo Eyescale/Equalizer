@@ -21,11 +21,10 @@
 
 #include "compressor.h"
 #include <eq/client/gl.h>
+#include <eq/util/types.h>
 
 namespace eq
 {
-namespace util{ class Texture; }
-
 namespace plugin
 {
 

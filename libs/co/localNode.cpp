@@ -1259,7 +1259,7 @@ bool LocalNode::_cmdConnect( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
+        base::ScopedFastWrite mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1334,7 +1334,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     
     _connectionNodes[ connection ] = remoteNode;
     {
-        base::ScopedMutex< base::SpinLock > mutex( _nodes );
+        base::ScopedFastWrite mutex( _nodes );
         _nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1399,7 +1399,7 @@ bool LocalNode::_cmdID( Command& command )
             EQASSERTINFO( data.empty(), data );
 
             {
-                base::ScopedMutex< base::SpinLock > mutex( _nodes );
+                base::ScopedFastWrite mutex( _nodes );
                 _nodes.data[ nodeID ] = node;
             }
             EQVERB << "Added node " << nodeID << " with multicast "

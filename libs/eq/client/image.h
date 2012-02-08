@@ -306,7 +306,7 @@ namespace eq
          */
         EQ_API void upload( const Frame::Buffer buffer, util::Texture* texture,
                             const Vector2i& position,
-                            util::ObjectManager< const void* >* glObjects )
+                            ObjectManager* glObjects )
             const;
 
         /** Write the pixel data as rgb image file. @version 1.0 */
