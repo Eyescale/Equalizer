@@ -75,7 +75,7 @@ public:
 protected:
     co::base::Bufferb _buffer;
     util::Texture*    _texture;
-    util::Texture*    _textureRB;
+    util::Texture*    _asyncTexture;
     util::PixelBufferObject* _pbo;
     unsigned    _internalFormat; //!< the GL format
     unsigned    _format;         //!< the GL format
@@ -84,8 +84,8 @@ protected:
 
     void _resizeBuffer( const eq_uint64_t size );
     void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags);
-    void _initTextureRB( const GLEWContext* glewContext, const eq_uint64_t w,
-                                                         const eq_uint64_t h );
+    void _initAsyncTexture( const GLEWContext* glewContext, const eq_uint64_t w,
+                            const eq_uint64_t h );
     bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };

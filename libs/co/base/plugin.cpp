@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -107,10 +107,10 @@ bool Plugin::init( const std::string& libraryName )
         info.outputTokenSize = 0;
         getInfo( i, &info );
 
-        if( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD &&
-            !( startDownload && finishDownload ))
+        if(( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD ) &&
+            ( !startDownload || !finishDownload ))
         {
-            EQWARN << "Compressor claims to support async readback " <<
+            EQWARN << "Download plugin claims to support async readback " <<
                       "but corresponding functions are missing" << std::endl;
             _infos.clear();
             return false;

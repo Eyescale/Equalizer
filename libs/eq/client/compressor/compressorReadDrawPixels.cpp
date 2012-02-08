@@ -23,7 +23,8 @@
 #include <co/base/buffer.h>
 
 #define glewGetContext() glewContext
-    
+#define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs
+
 namespace eq
 {
 namespace plugin
@@ -109,7 +110,7 @@ REGISTER_TRANSFER( DEPTH, DEPTH_UNSIGNED_INT, 4, 1., 1., 1., false );
 CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         : Compressor()
         , _texture( 0 )
-        , _textureRB( 0 )
+        , _asyncTexture( 0 )
         , _pbo( 0 )
         , _internalFormat( 0 )
         , _format( 0 )
@@ -274,8 +275,8 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
 {
     delete _texture;
     _texture = 0;
-    delete _textureRB;
-    _textureRB = 0;
+    delete _asyncTexture;
+    _asyncTexture = 0;
     delete _pbo;
     _pbo = 0;
 }
@@ -408,20 +409,17 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
 }
 
 
-void CompressorReadDrawPixels::_initTextureRB( const GLEWContext* glewContext,
-                                               const eq_uint64_t  w,
-                                               const eq_uint64_t  h )
+void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
+                                                 const eq_uint64_t w,
+                                                 const eq_uint64_t h )
 {
-    if( !_textureRB )
-        _textureRB = new util::Texture( GL_TEXTURE_RECTANGLE_ARB, glewContext );
-    else
-        _textureRB->setGLEWContext( glewContext );
-
-    _textureRB->init( _internalFormat, w, h );
+    if( !_asyncTexture )
+        _asyncTexture = new util::Texture( GL_TEXTURE_RECTANGLE_ARB,
+                                           glewContext );
+    _asyncTexture->setGLEWContext( glewContext );
+    _asyncTexture->init( _internalFormat, w, h );
 }
 
-
-#define EQ_USE_PBO_ASYNC // remove to use textures for async RB instead of PBOs
 
 void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const eq_uint64_t  inDims[4],
@@ -432,7 +430,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-#ifdef EQ_USE_PBO_ASYNC
+#ifdef EQ_ASYNC_PBO
         if( _initPBO( glewContext, size ))
         {
             _pbo->bind();
@@ -443,11 +441,10 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
             return;
         }
 #else  // async RB through texture
-        const fabric::PixelViewport pvp( inDims[0], inDims[2],
-                                         inDims[1], inDims[3] );
-        _initTextureRB( glewContext, pvp.w, pvp.h );
-        _textureRB->setExternalFormat( _format, _type );
-        _textureRB->copyFromFrameBuffer( _internalFormat, pvp );
+        const PixelViewport pvp( inDims[0], inDims[2], inDims[1], inDims[3] );
+        _initAsyncTexture( glewContext, pvp.w, pvp.h );
+        _asyncTexture->setExternalFormat( _format, _type );
+        _asyncTexture->copyFromFrameBuffer( _internalFormat, pvp );
         return;
 #endif
         // else
@@ -478,7 +475,7 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
 {
     _copy4( outDims, inDims );
 
-#ifdef EQ_USE_PBO_ASYNC
+#ifdef EQ_ASYNC_PBO
     if( (flags&EQ_COMPRESSOR_USE_FRAMEBUFFER) && _pbo && _pbo->isInitialized( ))
     {
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
@@ -496,9 +493,9 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
 #else  // async RB through texture
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        EQASSERT( _textureRB );
-        _textureRB->setGLEWContext( glewContext );
-        _textureRB->download( _buffer.getData( ));
+        EQASSERT( _asyncTexture );
+        _asyncTexture->setGLEWContext( glewContext );
+        _asyncTexture->download( _buffer.getData( ));
     }
 #endif
     *out = _buffer.getData();

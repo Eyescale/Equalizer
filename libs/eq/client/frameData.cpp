@@ -36,7 +36,6 @@
 #include <co/base/global.h>
 #include <co/base/monitor.h>
 #include <co/base/scopedMutex.h>
-#include <eq/util/objectManager.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>
