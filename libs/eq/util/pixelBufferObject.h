@@ -28,6 +28,8 @@ namespace eq
 {
 namespace util
 {
+namespace detail { class PixelBufferObject; }
+
     /** A C++ class to abstract OpenGL pixel buffer objects.
       *
       * If multiple PBOs of the same read/write type are used in the same 
@@ -43,103 +45,77 @@ namespace util
     {
     public:
         /**
-         * Construct a new Pixel Buffer Object
+         * Construct a new Pixel Buffer Object.
          *
-         * @param glewContext The OpenGL function table.
-         * @param shared      if true PBO uses locks for synchronized access.
+         * @param glewContext the OpenGL function table.
+         * @param threadSafe true if PBO shall use locks to synchronize access.
+         * @version 1.3
          */
-        PixelBufferObject( const GLEWContext* glewContext,
-                           const bool         threadSafe );
+        EQ_API PixelBufferObject( const GLEWContext* glewContext,
+                                  const bool threadSafe );
 
         /** Destruct the Frame Buffer Object */
-        virtual ~PixelBufferObject();
+        EQ_API virtual ~PixelBufferObject();
 
         /**
          * Initialize the Pixel Buffer Object.
          *
-         * @param newSize total number of bytes (has to be > 0)
-         * @param read    if true PBO is used for reading, otherwise for writing
-         * @return        true on success, false otherwise
+         * @param size total number of bytes (has to be > 0)
+         * @param type the access type: GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
+         * @return true on success, false otherwise
+         * @version 1.3
          */
-        virtual bool init( const int32_t newSize,
-                            const GLEWContext* glewContext,
-                            const bool read = true );
+        EQ_API virtual bool setup( const ssize_t size, const GLuint type );
 
-        virtual bool bind(    const GLEWContext* glewContext ) const;
-        virtual void unbind(  const GLEWContext* glewContext ) const;
-        virtual void destroy( const GLEWContext* glewContext );
+        /** De-initialize the pixel buffer object. @version 1.3 */
+        EQ_API virtual void destroy();
 
         /**
-         * Binds the PBO and mappes its data for reading.
-         * Supposed to be used only when reading from PBO.
+         * Bind the PBO and map its data for reading.
          *
          * @return pointer to the PBO memory
+         * @version 1.3
          */
-        virtual const void* mapRead( const GLEWContext* glewContext ) const;
+        EQ_API virtual const void* mapRead() const;
 
         /**
-         * Binds the PBO and mappes its data for writing.
-         * Supposed to be used only when writing to PBO
+         * Bind the PBO and mappe its data for writing.
          *
          * @return pointer to the PBO memory
+         * @version 1.3
          */
-        virtual void* mapWrite( const GLEWContext* glewContext );
+        EQ_API virtual void* mapWrite();
 
         /**
-         * Unmaps PBO and unbinds it.
+         * Unmap and unbind the PBO.
          *
          * @return pointer to the PBO memory
+         * @version 1.3
          */
-        virtual void unmap( const GLEWContext* glewContext ) const;
+        EQ_API virtual void unmap() const;
 
-        int32_t getDataSize() const { return _size; }
+        /** Bind the PBO. @version 1.3 */
+        EQ_API virtual bool bind() const;
 
+        /** Unbind the PBO. @version 1.3 */
+        EQ_API virtual void unbind() const;
 
-        /** @return the reason for the last failed operation. */
-        const co::base::Error& getError() const { return _error; }
+        /** @return the allocated size of the PBO. @version 1.3 */
+        EQ_API ssize_t getSize() const;
 
-        /** @return true if the pbo is intialized. */
-        bool isInitialized() const { return _initialized; }
+        /** @return the reason for the last failed operation. @version 1.3 */
+        EQ_API const co::base::Error& getError() const;
 
-        /** @return true if the access to pbo is blocking */
-        bool isThreadSafe() const { return _pboLock; }
+        /** @return true if the pbo is intialized. @version 1.3 */
+        EQ_API bool isInitialized() const;
+
+        /** @return true if the access to pbo is blocking. @version 1.3 */
+        EQ_API bool isThreadSafe() const;
 
     private:
-
-        /**
-         * Sets error if PBO is not initialized
-         *
-         * @return true if initialized, false otherwise
-         */
-        bool _testInitialized() const;
-
-        bool _init( const int32_t newSize, const GLEWContext* glewContext,
-                    const bool read );
-
-        bool _bind(     const GLEWContext* glewContext ) const;
-        void _unbind(   const GLEWContext* glewContext ) const;
-        void _unmap(    const GLEWContext* glewContext ) const;
-        void _destroy(  const GLEWContext* glewContext );
-
-        void _lock()   const { if( _pboLock ) _pboLock->set();   }
-        void _unlock() const { if( _pboLock ) _pboLock->unset(); }
-
-        GLuint  _pboId; //!< the PBO GL name
-        int32_t _size;  //!< size of the allocated PBO buffer
-
-        GLuint _name;//!< GL_PIXEL_PACK_BUFFER_ARB or GL_PIXEL_UNPACK_BUFFER_ARB
-        GLuint _type;//!< GL_READ_ONLY_ARB         or GL_WRITE_ONLY_ARB
-        GLuint _op;  //!< GL_STREAM_READ_ARB       or GL_STREAM_DRAW_ARB
-
-        bool   _initialized; // true if PBO is fully initialized
-
-        mutable co::base::Error _error;   //!< The reason for the last error
-        mutable co::base::Lock* _pboLock;
-
-        void _setError( const int32_t error ) const;
+        detail::PixelBufferObject* const _impl;
     };
 }
 }
-
 
 #endif // EQUTIL_PIXELBUFFEROBJECT_H 

@@ -26,203 +26,256 @@ namespace eq
 {
 namespace util
 {
+namespace detail
+{
+class PixelBufferObject
+{
+public:
+    PixelBufferObject( const GLEWContext* glewContext,
+                       const bool threadSafe )
+            : lock_( threadSafe ? new co::base::Lock : 0 )
+            , pboID( 0 )
+            , size( 0 )
+            , _glewContext( glewContext )
+            , _type( 0 )
+        {}
 
-#define glewGetContext() glewContext
+    ~PixelBufferObject()
+        {
+            if( isInitialized( ))
+                EQWARN << "PBO was not freed" << std::endl;
+
+            delete lock_;
+        }
+
+    const GLEWContext* glewGetContext() const { return _glewContext; }
+
+    bool isInitialized() const { return pboID != 0; }
+
+    bool setup( const ssize_t newSize, const GLuint type )
+        {
+            if( !GLEW_ARB_pixel_buffer_object )
+            {
+                _setError( ERROR_PBO_UNSUPPORTED );
+                return false;
+            }
+
+            if( newSize <= 0 )
+            {
+                _setError( ERROR_PBO_SIZE_TOO_SMALL );
+                destroy();
+                return false;
+            }
+
+            if( pboID == 0 )
+            {
+                EQ_GL_CALL( glGenBuffersARB( 1, &pboID ));
+            }
+            if( pboID == 0 )
+            {
+                _setError( ERROR_PBO_NOT_INITIALIZED );
+                return false;
+            }
+
+            if( _type == type && size >= newSize )
+                return true;
+
+            _type = type;
+            size = newSize;
+
+            switch( type )
+            {
+              case GL_READ_ONLY_ARB:
+                  bind();
+                  EQ_GL_CALL( glBufferDataARB( GL_PIXEL_PACK_BUFFER_ARB, size,
+                                               0, GL_STREAM_READ_ARB ));
+                  unbind();
+                  break;
+
+              case GL_WRITE_ONLY_ARB:
+                  bind();
+                  EQ_GL_CALL( glBufferDataARB( GL_PIXEL_UNPACK_BUFFER_ARB, size,
+                                               0, GL_STREAM_DRAW_ARB ));
+                  unbind();
+                  break;
+
+              default:
+                  _setError( ERROR_PBO_TYPE_UNSUPPORTED );
+                  destroy();
+                  return false;
+            }
+            return true;
+        }
+
+    void destroy()
+        {
+            if( pboID != 0 )
+            {
+                EQ_GL_CALL( glDeleteBuffersARB( 1, &pboID ));
+            }
+            pboID = 0;
+            size = 0;
+            _type = 0;
+        }
+
+
+    const void* mapRead() const
+        {
+            if( !_testInitialized() )
+                return 0;
+
+            if( _type != GL_READ_ONLY_ARB )
+            {
+                _setError( ERROR_PBO_WRITE_ONLY );
+                return 0;
+            }
+
+            bind();
+            return glMapBufferARB( GL_PIXEL_PACK_BUFFER_ARB, _type );
+        }
+
+    void* mapWrite()
+        {
+            if( !_testInitialized() )
+                return 0;
+
+            if( _type != GL_WRITE_ONLY_ARB )
+            {
+                _setError( ERROR_PBO_READ_ONLY );
+                return 0;
+            }
+
+            bind();
+            // cancel all draw operations on this buffer to prevent stalling
+            EQ_GL_CALL( glBufferDataARB( GL_PIXEL_UNPACK_BUFFER_ARB, size, 0, 
+                                         GL_STREAM_DRAW_ARB ));
+            return glMapBufferARB( GL_PIXEL_UNPACK_BUFFER_ARB, _type );
+        }
+
+    void unmap() const
+        {
+            _testInitialized();
+            EQ_GL_CALL( glUnmapBufferARB( _getName( )));
+            unbind();
+        }
+
+    bool bind() const
+        {
+            if( !_testInitialized() )
+                return false;
+
+            EQ_GL_CALL( glBindBufferARB( _getName(), pboID ));
+            return true;
+        }
+
+    void unbind() const
+        {
+            _testInitialized();
+            EQ_GL_CALL( glBindBufferARB( _getName(), 0 ));
+        }
+
+    void lock()   const { if( lock_ ) lock_->set();   }
+    void unlock() const { if( lock_ ) lock_->unset(); }
+
+    mutable co::base::Lock* lock_;
+    mutable co::base::Error error;   //!< The reason for the last error
+    GLuint  pboID; //!< the PBO GL name
+    ssize_t size;  //!< size of the allocated PBO buffer
+
+private:
+    const GLEWContext* const _glewContext;
+    GLuint _type; //!< GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
+
+    void _setError( const int32_t e ) const { error = co::base::Error( e ); }
+
+    GLuint _getName() const
+        {
+            return _type == GL_READ_ONLY_ARB ?
+                GL_PIXEL_PACK_BUFFER_ARB : GL_PIXEL_UNPACK_BUFFER_ARB;
+        }
+
+    bool _testInitialized() const
+        {
+            if( isInitialized( ))
+                return true;
+
+            _setError( ERROR_PBO_NOT_INITIALIZED );
+            return false;
+        }
+};
+}
 
 PixelBufferObject::PixelBufferObject( const GLEWContext* glewContext,
                                       const bool threadSafe )
-    : _pboId( 0 )
-    , _size( 0 )
-    , _name( 0 )
-    , _type( 0 )
-    , _op( 0 )
-    , _initialized( false )
-    , _pboLock( threadSafe ? new co::base::Lock : 0 )
+        : _impl( new detail::PixelBufferObject( glewContext, threadSafe ))
 {
 }
 
 PixelBufferObject::~PixelBufferObject()
 {
-    if( isInitialized( ))
-        EQWARN << "PBO was not freed" << std::endl;
-
-    delete _pboLock;
-    _pboLock = 0;
+    delete _impl;
 }
 
-bool PixelBufferObject::_testInitialized() const
+bool PixelBufferObject::setup( const ssize_t size, const GLuint type )
 {
-    if( isInitialized( ))
-        return true;
-
-    _setError( ERROR_PBO_NOT_INITIALIZED );
-    return false;
+    co::base::ScopedWrite mutex( _impl->lock_ );
+    return _impl->setup( size, type );
 }
 
-bool PixelBufferObject::init( const int32_t newSize,
-                              const GLEWContext* glewContext, const bool read )
+void PixelBufferObject::destroy()
 {
-    co::base::ScopedWrite mutex( _pboLock );
-    return _init( newSize, glewContext, read );
+    co::base::ScopedWrite mutex( _impl->lock_ );
+    _impl->destroy();
 }
 
-bool PixelBufferObject::_init( const int32_t newSize,
-                               const GLEWContext* glewContext, const bool read )
+const void* PixelBufferObject::mapRead() const
 {
-    if( !GLEW_ARB_pixel_buffer_object )
-    {
-        _setError( ERROR_PBO_UNSUPPORTED );
-        return false;
-    }
-
-    if( newSize <= 0 )
-    {
-        _setError( ERROR_PBO_SIZE_TOO_SMALL );
-        _destroy( glewContext );
-        return false;
-    }
-
-    if( _pboId == 0 )
-        EQ_GL_CALL( glGenBuffersARB( 1, &_pboId ));
-
-    if( _pboId == 0 )
-    {
-        _setError( ERROR_PBO_NOT_INITIALIZED );
-        _initialized = false;
-        return false;
-    }
-    _initialized = true;
-
-    // check if new pbo is of the same type as before;
-    // if new one is also smaller in size then don't do anything
-    const GLuint newName = 
-                   read ? GL_PIXEL_PACK_BUFFER_ARB : GL_PIXEL_UNPACK_BUFFER_ARB;
-    const GLuint newType = read ? GL_READ_ONLY_ARB  : GL_WRITE_ONLY_ARB;
-    const GLuint newOp   = read ? GL_STREAM_READ_ARB: GL_STREAM_DRAW_ARB;
-
-    if( _name == newName && _size >= newSize && _initialized )
-        return true;
-
-    _name = newName;
-    _type = newType;
-    _size = newSize;
-    _op   = newOp;
-
-    _bind( glewContext );
-    EQ_GL_CALL( glBufferDataARB( _name, _size, 0, _op ));
-    _unbind( glewContext );
-
-    return true;
+    _impl->lock();
+    return _impl->mapRead();
 }
 
-const void* PixelBufferObject::mapRead( const GLEWContext* glewContext ) const
+void* PixelBufferObject::mapWrite()
 {
-    _lock();
-
-    if( !_testInitialized() )
-        return 0;
-
-    if( _type != GL_READ_ONLY_ARB )
-    {
-        _setError( ERROR_PBO_WRITE_ONLY );
-        return 0;
-    }
-
-    _bind( glewContext );
-    return glMapBufferARB( _name, _type );
+    _impl->lock();
+    return _impl->mapWrite();
 }
 
-
-void* PixelBufferObject::mapWrite( const GLEWContext* glewContext )
+void PixelBufferObject::unmap() const
 {
-    _lock();
-
-    if( !_testInitialized() )
-        return 0;
-
-    if( _type != GL_WRITE_ONLY_ARB )
-    {
-        _setError( ERROR_PBO_READ_ONLY );
-        return 0;
-    }
-
-    _bind( glewContext );
-    // cancel all other draw operations on this buffer to prevent stalling
-    EQ_GL_CALL( glBufferDataARB( _name, _size, 0, _op ));
-    return glMapBufferARB( _name, _type );
+    _impl->unmap();
+    _impl->unlock();
 }
 
-
-bool PixelBufferObject::bind( const GLEWContext* glewContext ) const
+bool PixelBufferObject::bind() const
 {
-    _lock();
-    return _bind( glewContext );
+    _impl->lock();
+    return _impl->bind();
 }
 
-bool PixelBufferObject::_bind( const GLEWContext* glewContext ) const
+void PixelBufferObject::unbind() const
 {
-    if( !_testInitialized() )
-        return false;
-
-    EQ_GL_CALL( glBindBufferARB( _name, _pboId ));
-    return true;
+    _impl->unbind();
+    _impl->unlock();
 }
 
-
-void PixelBufferObject::unmap( const GLEWContext* glewContext ) const
+ssize_t PixelBufferObject::getSize() const
 {
-    _unmap( glewContext );
-    _unlock();
+    return _impl->size;
 }
 
-void PixelBufferObject::_unmap(   const GLEWContext* glewContext ) const
+const co::base::Error& PixelBufferObject::getError() const
 {
-    _testInitialized();
-
-    EQ_GL_CALL( glUnmapBufferARB( _name ));
-    _unbind( glewContext );
+    return _impl->error;
 }
 
-
-void PixelBufferObject::unbind( const GLEWContext* glewContext ) const
+bool PixelBufferObject::isInitialized() const
 {
-    _unbind( glewContext );
-    _unlock();
+    return _impl->isInitialized();
 }
 
-void PixelBufferObject::_unbind(  const GLEWContext* glewContext ) const
+bool PixelBufferObject::isThreadSafe() const
 {
-    _testInitialized();
-    EQ_GL_CALL( glBindBufferARB( _name, 0 ));
-}
-
-
-void PixelBufferObject::destroy( const GLEWContext* glewContext )
-{
-    co::base::ScopedWrite mutex( _pboLock );
-    _destroy( glewContext );
-}
-
-void PixelBufferObject::_destroy( const GLEWContext* glewContext )
-{
-    _size = 0;
-    _name = 0;
-    _type = 0;
-
-    if( _pboId == 0 )
-    {
-        _initialized = false;
-        return;
-    }
-
-    EQ_GL_CALL( glDeleteBuffersARB( 1, &_pboId ));
-    _pboId = 0;
-    _initialized = false;
-}
-
-void PixelBufferObject::_setError( const int32_t error ) const
-{
-    _error = co::base::Error( error );
+    return _impl->lock_ != 0;
 }
 
 }

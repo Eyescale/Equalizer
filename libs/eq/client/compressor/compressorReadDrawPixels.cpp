@@ -1,5 +1,5 @@
 
-/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@equalizergraphics.com>
  *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -401,8 +401,7 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     if( _pbo == 0 )
         _pbo = new util::PixelBufferObject( glewContext, true );
 
-    // PBO is read-only
-    return _pbo->init( size, glewContext, true );
+    return _pbo->setup( size, GL_READ_ONLY_ARB );
 }
 
 void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
@@ -416,11 +415,11 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
     {
         if( _initPBO( glewContext, size ))
         {
-            _pbo->bind( glewContext );
+            _pbo->bind();
             EQ_GL_CALL( glReadPixels( inDims[0], inDims[2],
                                       inDims[1], inDims[3],
                                       _format, _type, 0 ));
-            _pbo->unbind( glewContext );
+            _pbo->unbind();
             return;
         }
         // else
@@ -456,14 +455,14 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
         const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
         _resizeBuffer( size );
 
-        const void* ptr = _pbo->mapRead( glewContext );
+        const void* ptr = _pbo->mapRead();
         if( ptr )
             memcpy( _buffer.getData(), ptr, size );
         else
         {
             EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
         }
-        _pbo->unmap( glewContext );
+        _pbo->unmap();
     }
 
     *out = _buffer.getData();

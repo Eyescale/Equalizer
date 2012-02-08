@@ -856,7 +856,7 @@ void ObjectManager<T>::deleteEqPixelBufferObject( const T& key )
     PixelBufferObject* pixelBufferObject = i->second;
     _data->eqPixelBufferObjects.erase( i );
 
-    pixelBufferObject->destroy( _data->glewContext );
+    pixelBufferObject->destroy();
     delete pixelBufferObject;
 }
 
