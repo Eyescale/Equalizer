@@ -321,9 +321,7 @@ void CompressorReadDrawPixels::_init( const eq_uint64_t inDims[4],
                                             eq_uint64_t outDims[4] )
 {
     _copy4( outDims, inDims );
-
     const size_t size = inDims[1] * inDims[3] * _depth;
-
     _resizeBuffer( size );
 }
 
@@ -408,7 +406,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     return _pbo->setup( size, GL_READ_ONLY_ARB );
 }
 
-
 void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
                                                  const eq_uint64_t w,
                                                  const eq_uint64_t h )
@@ -419,7 +416,6 @@ void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
     _asyncTexture->setGLEWContext( glewContext );
     _asyncTexture->init( _internalFormat, w, h );
 }
-
 
 void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
                                                 const eq_uint64_t  inDims[4],
