@@ -1652,7 +1652,6 @@ void Channel::_startTransmit( FrameData* frame, const uint32_t frameNumber,
 
 void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 {
-<<<<<<< HEAD
     EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( request->frameData ); 
@@ -1837,7 +1836,9 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
+void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
+                              const std::vector< uint128_t >& nodes,
+                              const std::vector< uint128_t >& netNodes )
 {
     stat->ref();
     std::vector< uint128_t > ids = nodes;
