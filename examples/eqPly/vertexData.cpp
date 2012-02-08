@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,16 +25,20 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Implementation of the VertexData class.
 */
-
 
 #include "vertexData.h"
 #include "ply.h"
+
 #include <cstdlib>
 #include <algorithm>
+
+#if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)) )
+#  include <parallel/algorithm>
+using __gnu_parallel::sort;
+#else
+using std::sort;
+#endif
 
 
 using namespace std;
@@ -431,7 +435,6 @@ void VertexData::sort( const Index start, const Index length, const Axis axis )
     MESHASSERT( length > 0 );
     MESHASSERT( start + length <= triangles.size() );
     
-    std::sort( triangles.begin() + start, 
-               triangles.begin() + start + length,
-               _TriangleSort( *this, axis ) );
+    ::sort( triangles.begin() + start, triangles.begin() + start + length,
+            _TriangleSort( *this, axis ) );
 }
