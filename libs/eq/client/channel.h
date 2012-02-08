@@ -593,6 +593,14 @@ namespace detail { class Channel; }
         /** Transmit one image of a frame to one node. */
         void _transmitImage( const ChannelFrameTransmitImagePacket* packet );
         
+<<<<<<< HEAD
+=======
+        /** Send the ready signal of a frame to one node. */
+        void _sendFrameDataReady(const ChannelFrameSetReadyPacket* packet);
+
+        void _setOutputFrames( const uint32_t nFrames,
+                               const co::ObjectVersion* frames );
+>>>>>>> master
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
         void _finishReadback( const ChannelFinishReadbackPacket* packet );
