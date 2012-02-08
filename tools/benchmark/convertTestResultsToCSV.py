@@ -9,7 +9,9 @@ from optparse import OptionParser
 
 import fixTests
 
-dirNameGPUCountFPSArrayDict = dict()
+dirNameGPUCountLFPSArrayDict = dict()
+dirNameGPUCountMFPSArrayDict = dict()
+dirNameGPUCountHFPSArrayDict = dict()
 
 def convertToDictEqPly( config ):
 
@@ -25,8 +27,8 @@ def convertToDictEqPly( config ):
    if not os.path.exists( testfName ):
       return
       
-   if not dirNameGPUCountFPSArrayDict.has_key( config.dirName ):
-      dirNameGPUCountFPSArrayDict[ config.dirName ] = dict()
+   if not dirNameGPUCountMFPSArrayDict.has_key( config.dirName ):
+      dirNameGPUCountMFPSArrayDict[ config.dirName ] = dict()
 
    testf = open( testfName, "r" )
    fpsData = []
@@ -43,7 +45,7 @@ def convertToDictEqPly( config ):
    
    gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
    
-   dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )
+   dirNameGPUCountMFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )
    
 def convertToDictRTNeuron( config ):
 
@@ -59,8 +61,10 @@ def convertToDictRTNeuron( config ):
    if not os.path.exists( testfName ):
       return
       
-   if not dirNameGPUCountFPSArrayDict.has_key( config.dirName ):
-      dirNameGPUCountFPSArrayDict[ config.dirName ] = dict()
+   if not dirNameGPUCountMFPSArrayDict.has_key( config.dirName ):
+      dirNameGPUCountLFPSArrayDict[ config.dirName ] = dict()
+      dirNameGPUCountMFPSArrayDict[ config.dirName ] = dict()
+      dirNameGPUCountHFPSArrayDict[ config.dirName ] = dict()
     
    fpsData = numpy.genfromtxt( testfName, dtype=None )
    fpsData = fpsData[20:-5]
@@ -72,7 +76,7 @@ def convertToDictRTNeuron( config ):
    mn = numpy.mean( fpsData )
    
    # how far is it from the mean
-   howFar = 1 
+   howFar = 100
    lLimit = mn - howFar * sd   
    hLimit = mn + howFar * sd
 
@@ -84,16 +88,33 @@ def convertToDictRTNeuron( config ):
       if( n >= lLimit and n <= hLimit):
          filteredFPSData.append( 1000 / n ) # per frame time is converted to fps
          
-   print len( filteredFPSData )
+   sfFPSData = numpy.sort( filteredFPSData )
+         
+   print len( sfFPSData )
    
-   maxFrameRate = numpy.mean( filteredFPSData )
+   minFrameRate = numpy.mean( sfFPSData[0:10] )
+   meanFrameRate = numpy.mean( sfFPSData )
+   maxFrameRate = numpy.mean( sfFPSData[-10:] )
    
    gpufName = subDirName + "/" + gpuCountFile
    
    gpuCountData = int( numpy.genfromtxt( gpufName, dtype=None ) )
    
-   dirNameGPUCountFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )   
-   
+   dirNameGPUCountLFPSArrayDict[ config.dirName ][ gpuCountData ] = float( minFrameRate )   
+   dirNameGPUCountMFPSArrayDict[ config.dirName ][ gpuCountData ] = float( meanFrameRate )   
+   dirNameGPUCountHFPSArrayDict[ config.dirName ][ gpuCountData ] = float( maxFrameRate )   
+  
+def writeDictToFile( dictObj, filename ):
+
+   for dirName in dictObj.keys():
+      print dirName
+      gpuCountList = copy.deepcopy( dictObj[ dirName ].keys() )
+      gpuCountList.sort()
+      f = open( dirName + "/" + filename, "w" )
+      for gpuCount in gpuCountList:
+         f.write( str(gpuCount) + " " + str(dictObj[ dirName ][ gpuCount ]) + "\n" )
+      f.close()
+
   
 def convert( schema, application ):
 
@@ -110,16 +131,12 @@ def convert( schema, application ):
    for serverCount in range( 1, numberOfServers + 1 ):
       testScheme( schema, application, convertToDict, serverCount )
 
-   for dirName in dirNameGPUCountFPSArrayDict.keys():
-      print dirName
-      gpuCountList = copy.deepcopy( dirNameGPUCountFPSArrayDict[ dirName ].keys() )
-      gpuCountList.sort()
-      f = open( dirName + "/" + gpuCountFPSFile, "w" )
-      for gpuCount in gpuCountList:
-         f.write( str(gpuCount) + " " + str(dirNameGPUCountFPSArrayDict[ dirName ][ gpuCount ]) + "\n" )
-      f.close()
+   writeDictToFile( dirNameGPUCountLFPSArrayDict, gpuCountLFPSFile )
+   writeDictToFile( dirNameGPUCountMFPSArrayDict, gpuCountFPSFile )
+   writeDictToFile( dirNameGPUCountHFPSArrayDict, gpuCountHFPSFile )
 
 
+  
 if __name__ == "__main__":
    
    parser = OptionParser()
