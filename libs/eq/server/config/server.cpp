@@ -59,7 +59,7 @@ Config* Server::configure( ServerPtr server, const std::string& session,
         server->addListener( desc );
     }
 
-    Display::discoverLocal( config );
+    Display::discoverLocal( config, flags );
     const Compounds compounds = Loader::addOutputCompounds( server );
     if( compounds.empty( ))
     {
