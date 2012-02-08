@@ -16,7 +16,8 @@ macro(EQ_ADD_TOOL NAME)
   purple_install_pdb(${THIS_TARGET} DESTINATION bin COMPONENT tools)
 endmacro(EQ_ADD_TOOL NAME)
 
-include_directories(${CMAKE_SOURCE_DIR}/examples/include)
+include_directories(${CMAKE_SOURCE_DIR}/examples/include
+  ${CMAKE_SOURCE_DIR}/examples/eqPly)
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -41,6 +42,27 @@ eq_add_tool(configTool
   HEADERS configTool/configTool.h configTool/frame.h
   SOURCES configTool/configTool.cpp configTool/writeFromFile.cpp
   LINK_LIBRARIES shared Equalizer shared EqualizerServer
+  )
+
+eq_add_tool(eqPlyConverter
+  HEADERS 
+    ../examples/eqPly/ply.h
+    ../examples/eqPly/vertexBufferBase.h
+    ../examples/eqPly/vertexBufferData.h
+    ../examples/eqPly/vertexBufferLeaf.h
+    ../examples/eqPly/vertexBufferNode.h
+    ../examples/eqPly/vertexBufferRoot.h
+    ../examples/eqPly/vertexBufferState.h
+    ../examples/eqPly/vertexData.h
+  SOURCES eqPlyConverter/main.cpp
+    ../examples/eqPly/plyfile.cpp
+    ../examples/eqPly/vertexBufferBase.cpp
+    ../examples/eqPly/vertexBufferLeaf.cpp
+    ../examples/eqPly/vertexBufferNode.cpp
+    ../examples/eqPly/vertexBufferRoot.cpp
+    ../examples/eqPly/vertexBufferState.cpp
+    ../examples/eqPly/vertexData.cpp
+    LINK_LIBRARIES shared Equalizer
   )
 
 eq_add_tool(eVolveConverter
