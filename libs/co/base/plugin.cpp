@@ -107,6 +107,14 @@ bool Plugin::init( const std::string& libraryName )
         info.outputTokenSize = 0;
         getInfo( i, &info );
 
+        if( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD &&
+            !( startDownload && finishDownload ))
+        {
+            EQWARN << "Compressor claims to support async readback " <<
+                      "but corresponding functions are missing" << std::endl;
+            _infos.clear();
+            return false;
+        }
         if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ))
         {
             if( info.outputTokenType == EQ_COMPRESSOR_DATATYPE_NONE )
@@ -140,7 +148,7 @@ void Plugin::exit()
     _infos.clear();
 
     newCompressor = 0;
-    newDecompressor = 0;     
+    newDecompressor = 0;
     deleteCompressor = 0;
     deleteDecompressor = 0;
     compress = 0;

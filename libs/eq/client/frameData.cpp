@@ -36,6 +36,7 @@
 #include <co/base/global.h>
 #include <co/base/monitor.h>
 #include <co/base/scopedMutex.h>
+#include <eq/util/objectManager.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>
@@ -230,7 +231,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
 #ifndef EQ_2_0_API
 void FrameData::readback( const Frame& frame,
-                          util::ObjectManager< const void* >* glObjects,
+                          ObjectManager* glObjects,
                           const DrawableConfig& config )
 {
     const Images& images = startReadback( frame, glObjects, config,
@@ -242,7 +243,7 @@ void FrameData::readback( const Frame& frame,
 #endif
 
 Images FrameData::startReadback( const Frame& frame,
-                                 util::ObjectManager< const void* >* glObjects,
+                                 ObjectManager* glObjects,
                                  const DrawableConfig& config,
                                  const PixelViewports& regions )
 {
