@@ -29,6 +29,8 @@
 #include "../view.h"
 #include "../window.h"
 
+#include <eq/client/configParams.h>
+
 namespace eq
 {
 namespace server
@@ -36,7 +38,7 @@ namespace server
 namespace config
 {
 
-void Display::discoverLocal( Config* config )
+void Display::discoverLocal( Config* config, const uint32_t flags )
 {
     Node* node = config->findAppNode();
     EQASSERT( node );
@@ -70,12 +72,21 @@ void Display::discoverLocal( Config* config )
     segment->setChannel( channel );
 
     Strings names;
-    names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC  );
+    const bool scalability = config->getNodes().size() > 1 || pipes.size() > 1;
+
+    if( scalability )
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
+
     names.push_back( EQ_SERVER_CONFIG_LAYOUT_SIMPLE );
-    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
-    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
-    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
-    names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
+
+    if( scalability )
+    {
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
+        if( flags & ConfigParams::FLAG_MULTIPROCESS_DB )
+            names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_2D );
+    }
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )
     {
