@@ -29,3 +29,4 @@ XCode
 externals/vmmlib/
 tests/client/configVisitor_objc.mm
 build*
+CMakeLists.txt.user
