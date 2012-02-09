@@ -85,8 +85,12 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
-        if( flags & ConfigParams::FLAG_MULTIPROCESS_DB )
+        if( flags & ConfigParams::FLAG_MULTIPROCESS_DB &&
+            config->getNodes().size() > 1 )
+        {
+            // TODO: Only if at least one multi-GPU node found.
             names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_2D );
+        }
     }
 
     for( StringsCIter i = names.begin(); i != names.end(); ++i )

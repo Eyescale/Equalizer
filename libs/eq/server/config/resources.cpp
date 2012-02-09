@@ -281,7 +281,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     Compound* compound = 0;
     const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
                                         ConfigParams::FLAG_MULTIPROCESS_DB );
-    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt " );
+    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt ");
 
     if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
         /* nop */;
@@ -528,7 +528,6 @@ static Channels _filterLocalChannels( const Channels& input,
                                       const Compound& filter )
 {
     Channels result;
-
     for( ChannelsCIter i = input.begin(); i != input.end(); ++i )
     {
         const Node* node = (*i)->getNode();
@@ -539,19 +538,23 @@ static Channels _filterLocalChannels( const Channels& input,
     return result;
 }
 
-Compound* Resources::_addDB2DCompound( Compound* root, const Channels& channels )
+Compound* Resources::_addDB2DCompound( Compound* root,
+                                       const Channels& channels )
 {
+    // TODO: Stereo compound, optimized compositing?
     const Channels& dbChannels = _filter( channels, " mt mp " );
-    Compound* compound = _addDBCompound( root, dbChannels );
+    Compound* compound = _addDSCompound( root, dbChannels );
 
     const Compounds& children = compound->getChildren();
     for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
     {
         Compound* child = *i;
-        child->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+        Compound* drawChild = child->getChildren().front();
+        drawChild->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+        drawChild->setName( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
 
         const Channels& localChannels = _filterLocalChannels( channels, child );
-        _fill2DCompound( child, localChannels );
+        _fill2DCompound( drawChild, localChannels );
     }
 
     return compound;
