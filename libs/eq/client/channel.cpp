@@ -1358,9 +1358,9 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
             {
                 const Frame* frame = frames[i];
                 const Images& images = frame->getImages();
-                for( size_t index = nImages[i]; index < images.size(); ++index )
+                for( size_t j = nImages[i]; j < images.size(); ++j )
                 {
-                    Image* image = images[index];
+                    Image* image = images[j];
                     const PixelViewport& pvp = image->getPixelViewport();
                     image->setOffset( pvp.x + tilePacket->pvp.x,
                                       pvp.y + tilePacket->pvp.y );

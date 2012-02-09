@@ -378,7 +378,6 @@ bool VertexBufferRoot::_readBinary( std::string filename )
 #endif
 }
 
-
 /*  Read binary kd-tree representation, construct from ply if unavailable.  */
 bool VertexBufferRoot::readFromFile( const std::string& filename )
 {

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@
 #include <eq/util/accum.h>
 #include <eq/util/bitmapFont.h>
 #include <eq/util/frameBufferObject.h>
+#include <eq/util/pixelBufferObject.h>
 #include <eq/util/texture.h>
 
 #ifdef EQUALIZER_SHARED
@@ -790,6 +791,73 @@ void ObjectManager<T>::deleteEqFrameBufferObject( const T& key )
 
     frameBufferObject->exit();
     delete frameBufferObject;
+}
+
+// eq::PixelBufferObject object functions
+template< class T >
+bool ObjectManager<T>::supportsEqPixelBufferObject() const
+{
+    return (GLEW_ARB_pixel_buffer_object);
+}
+
+template< class T >
+PixelBufferObject* ObjectManager<T>::getEqPixelBufferObject( const T& key )
+    const
+{
+    typename PBOHash::const_iterator i = _data->eqPixelBufferObjects.find(key);
+    if( i == _data->eqPixelBufferObjects.end( ))
+        return 0;
+
+    return i->second;
+}
+
+template< class T >
+PixelBufferObject* ObjectManager<T>::newEqPixelBufferObject( const T& key,
+                                                         const bool threadSafe )
+{
+    if( _data->eqPixelBufferObjects.find( key ) !=
+        _data->eqPixelBufferObjects.end( ))
+    {
+        EQWARN << "Requested new eqPixelBufferObject for existing key"
+               << std::endl;
+        return 0;
+    }
+
+    PixelBufferObject* pixelBufferObject = 
+                        new PixelBufferObject( _data->glewContext, threadSafe );
+    _data->eqPixelBufferObjects[ key ] = pixelBufferObject;
+    return pixelBufferObject;
+}
+
+template< class T >
+PixelBufferObject* ObjectManager<T>::obtainEqPixelBufferObject( const T& key,
+                                                         const bool threadSafe )
+{
+    PixelBufferObject* pixelBufferObject = getEqPixelBufferObject( key );
+    if( pixelBufferObject )
+    {
+        if( pixelBufferObject->isThreadSafe() != threadSafe )
+        {
+            EQERROR << "Wrong sharing option requested!" << std::endl;
+            return 0;
+        }
+        return pixelBufferObject;
+    }
+    return newEqPixelBufferObject( key, threadSafe );
+}
+
+template< class T >
+void ObjectManager<T>::deleteEqPixelBufferObject( const T& key )
+{
+    typename PBOHash::iterator i = _data->eqPixelBufferObjects.find(key);
+    if( i == _data->eqPixelBufferObjects.end( ))
+        return;
+
+    PixelBufferObject* pixelBufferObject = i->second;
+    _data->eqPixelBufferObjects.erase( i );
+
+    pixelBufferObject->destroy();
+    delete pixelBufferObject;
 }
 
 }

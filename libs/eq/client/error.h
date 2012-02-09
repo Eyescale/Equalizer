@@ -87,6 +87,12 @@ namespace eq
     using fabric::ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED;
     using fabric::ERROR_WGLWINDOW_CREATECONTEXT_FAILED;
     using fabric::ERROR_CHANNEL_WINDOW_NOTRUNNING;
+    using fabric::ERROR_PBO_UNSUPPORTED;
+    using fabric::ERROR_PBO_READ_ONLY;
+    using fabric::ERROR_PBO_WRITE_ONLY;
+    using fabric::ERROR_PBO_NOT_INITIALIZED;
+    using fabric::ERROR_PBO_SIZE_TOO_SMALL;
+    using fabric::ERROR_PBO_TYPE_UNSUPPORTED;
     using fabric::ERROR_CUSTOM;
 }
 #endif // EQ_ERROR_H

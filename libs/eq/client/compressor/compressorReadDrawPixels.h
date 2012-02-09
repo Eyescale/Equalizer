@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,11 +21,10 @@
 
 #include "compressor.h"
 #include <eq/client/gl.h>
+#include <eq/util/types.h>
 
 namespace eq
 {
-namespace util{ class Texture; }
-
 namespace plugin
 {
 
@@ -62,14 +61,32 @@ public:
                          const eq_uint64_t  outDims[4],
                          const unsigned     destination );
 
+    virtual void startDownload( const GLEWContext* glewContext,
+                                const eq_uint64_t  inDims[4],
+                                const unsigned     source,
+                                const eq_uint64_t  flags );
+
+    virtual void finishDownload( const GLEWContext* glewContext,
+                                 const eq_uint64_t  inDims[4],
+                                 const eq_uint64_t  flags,
+                                 eq_uint64_t        outDims[4],
+                                 void**             out );
+
 protected:
     co::base::Bufferb _buffer;
     util::Texture*    _texture;
+    util::Texture*    _asyncTexture;
+    util::PixelBufferObject* _pbo;
     unsigned    _internalFormat; //!< the GL format
     unsigned    _format;         //!< the GL format
     unsigned    _type;           //!< the GL type 
     const unsigned _depth;       //!< the size of one output token
-    void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags );
+
+    void _resizeBuffer( const eq_uint64_t size );
+    void _initTexture( const GLEWContext* glewContext, const eq_uint64_t flags);
+    void _initAsyncTexture( const GLEWContext* glewContext, const eq_uint64_t w,
+                            const eq_uint64_t h );
+    bool _initPBO( const GLEWContext* glewContext, const eq_uint64_t size );
     void _init( const eq_uint64_t  inDims[4], eq_uint64_t  outDims[4] );
 };
 

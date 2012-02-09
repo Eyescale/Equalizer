@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -302,6 +302,11 @@ namespace co
         /** Send a packet to peer object instance(s) on another node. */
         CO_API bool send( NodePtr node, ObjectPacket& packet, 
                           const void* data, const uint64_t size );
+
+        /** Send a packet to peer object instance(s) on another node. */
+        template< class T >
+        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
+            { return send( node, packet, &v.front(), v.size() * sizeof( T )); }
         //@}
 
         /** @name Notifications */

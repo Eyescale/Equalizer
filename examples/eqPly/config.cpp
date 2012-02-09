@@ -169,7 +169,7 @@ void Config::_loadModels()
             if( _initData.useInvertedFaces() )
                 model->useInvertedFaces();
         
-            if( !model->readFromFile( filename.c_str() ) )
+            if( !model->readFromFile( filename.c_str( )))
             {
                 EQWARN << "Can't load model: " << filename << std::endl;
                 delete model;

@@ -207,7 +207,7 @@ namespace server
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( ObjectManager* glObjects,
                               const DrawableConfig& config );
 
         /**
