@@ -16,8 +16,8 @@ multiprocess = False
 target = ''
 sgraph = ''
 cull = ''
-
-
+specialLayout = ''
+model = '-m ~/EqualizerData/david1mm.ply'
 
 def emtpyDirectory( dirName ):
    print "Empty directory : " + dirName
@@ -85,19 +85,25 @@ def testEqPly( config ):
    roiStr = ''   
    if( config.roiState == 'ROIDisabled' ):
       roiStr = ' -d '
-
+      
+   if( specialLayout != '' ):
+      config.layoutName = specialLayout
+ 
    eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
    nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
    multiProcessStr = ''
    if( multiprocess ):
       multiProcessStr = '-f'
-
+      
+   if( config.layoutName == "DB_2D" ):
+      mpdb = '-s'
+    
    os.system('killall -9 eqPly')
    os.system('cexec killall -9 eqPly')
 
    startServers.startServers( 1, config.serverCount, config.session )
-   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg + ' ' + multiProcessStr 
+   cmdStr = eqPlyBinaryPath + ' ' + eqPlyConfigArg + ' ' + eqPlyDefaultArgs + ' ' + roiStr + ' ' + eqLayoutArg + ' ' + nbOfFramesArg + ' ' + multiProcessStr + ' ' + model + ' ' + mpdb
 
    print cmdStr
    
@@ -134,6 +140,9 @@ def testRTNeuron( config ):
    roiStr = ''   
    rtLayoutArg = ''
    
+   if( specialLayout != '' ):
+      config.layoutName = specialLayout
+   
    if( config.layoutName == "Static2D" or config.layoutName == "Dynamic2D" ):
       rtLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    elif( config.layoutName == "RoundRobinDB" ):
@@ -144,6 +153,10 @@ def testRTNeuron( config ):
       rtLayoutArg = '--eq-layout DBDirectSend --spatial-DB-partition'
    elif( config.layoutName == "DBDirectSendRR" ):
       rtLayoutArg = '--eq-layout DBDirectSend --round-robin-DB-partition'
+   elif( config.layoutName == 'DB_2DSDB' ):
+      rtLayoutArg = '--eq-layout DB_2D --spatial-DB-partition'
+   elif( config.layoutName == "DB_2DRR" ):
+      rtLayoutArg = '--eq-layout DB_2D --round-robin-DB-partition'
       
    rtNeuronConfigArg = '--eq-config "%s" ' % ( config.session )
   
@@ -207,7 +220,12 @@ def main():
                       action="store_true", help="Disable gpu cull", default=False )
    parser.add_option("-e", "--readtestoption", dest="readtestoption",
                       action="store_true", help="Read previous test option", default=False )
-
+   parser.add_option("-l", "--layout", dest="layout",
+                      help="Layout to use ( only for single test schemas )", default = emptyLayout )
+   parser.add_option("-d", "--model", dest="model",
+                      action="store_true", help="Use simple mode", default = False )
+                   
+ 
    (options, args) = parser.parse_args()
 
    if( options.readtestoption ):
@@ -221,13 +239,30 @@ def main():
    
    with open( optionsDumpFilename, "w" ) as fp:
       pickle.dump(options, fp)
-
+      
    global checkAndRedo
    global forceRedo
    global multiprocess
    global target
    global sgraph
    global cull
+   global specialLayout
+   global model   
+
+   if( options.layout !=  emptyLayout and options.schema == "single" ):
+      if( options.application == "rtneuron" and not( options.layout in rtNeuronFullLayoutNames )):
+         print "The layout is not in RTNeuron layout list. Possible Values are: "
+         print rtNeuronFullLayoutNames
+         exit()
+      elif( options.application == "eqPly" and not( options.layout in eqPlyFullLayoutNames )):
+         print "The layout is not in eqPly layout list. Possible Values are: "
+         print eqPlyFullLayoutNames
+         exit()
+      specialLayout = options.layout
+   
+   if( options.model ):
+      model = '' # for eqPly
+      options.target = "mcol1" # for rtNeuorn 1 minicolumn
    
    if( options.octree >= 0):
       sgraph = "--use-octree --octree-depth " + str( options.octree )

@@ -45,6 +45,7 @@ LocalInitData::LocalInitData()
         , _color( true )
         , _isResident( false )
         , _multiProcess( false )
+        , _multiProcessDB( false )
 {
 #ifdef EQ_RELEASE
 #  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
@@ -68,6 +69,7 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _filenames    = from._filenames;
     _pathFilename = from._pathFilename;
     _multiProcess = from._multiProcess;
+    _multiProcessDB = from._multiProcessDB;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
@@ -146,6 +148,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::SwitchArg mpArg( "f", "multiProcess",
                             "Use one process per pipe during auto-configuration",
                                 command, false );
+        TCLAP::SwitchArg mpDBArg( "s", "multiProcessDB",
+                                    "Use one process per pipe during auto-configuration ( with DB decomposition )",
+                                        command, false );
+
 
         command.parse( argc, argv );
 
@@ -200,6 +206,8 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             disableROI();
         if( mpArg.isSet( ))
             _multiProcess = true;
+        if( mpDBArg.isSet( ))
+            _multiProcessDB = true;
     }
     catch( const TCLAP::ArgException& exception )
     {

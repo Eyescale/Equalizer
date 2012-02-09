@@ -1,12 +1,9 @@
-Refactoring the manual thread placement implementation. 
-** Following the HWLOC library naming convention. 
-** Removing the Linux fall back.
-** Changing the core value from 1 to 2 "to diplay it".
-
+Added Multiprocess DB mode as a commandline parameter to EqPly, for DB_2D autoconf tests
+Added new options to the benchmark scripts
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-[x] Cleanup
-[x] Optimization
+[ ] Cleanup
+[ ] Optimization
 [ ] Documentation

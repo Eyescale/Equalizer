@@ -52,6 +52,7 @@ namespace eqPly
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
         bool               useMultiProcess() const { return _multiProcess; }
+        bool               useMultiProcessDB() const { return _multiProcessDB; }
 
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
@@ -66,6 +67,7 @@ namespace eqPly
         bool        _color;
         bool        _isResident;
         bool        _multiProcess;
+        bool        _multiProcessDB;
     };
 }
 
