@@ -177,6 +177,7 @@ following:
 -   `82`_: Excessive memory usage with object push
 -   `87`_: Debian packages broken
 -   `88`_: draw_sync thread model causes full synchronization
+-   `90`_: Race condition with direct send and higher number of nodes
 
 
 2.9. Known Bugs
@@ -297,7 +298,8 @@ information.
 .. _73: https://github.com/Eyescale/Equalizer/issues/73
 .. _82: https://github.com/Eyescale/Equalizer/issues/82
 .. _87: https://github.com/Eyescale/Equalizer/issues/87
-.. _88: https://github.com/Eyescale/Equalizer/issues/87
+.. _88: https://github.com/Eyescale/Equalizer/issues/88
+.. _90: https://github.com/Eyescale/Equalizer/issues/90
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
 .. _65: https://github.com/Eyescale/Equalizer/issues/65
 .. _61: https://github.com/Eyescale/Equalizer/issues/61
