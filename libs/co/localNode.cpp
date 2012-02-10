@@ -682,6 +682,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
             return peer;
     }
 
+    EQINFO << "Connecting node " << nodeID << std::endl;
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr peer = *i;
@@ -689,8 +690,9 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
         if( node.isValid( ))
             return node;
     }
-        
+
     EQWARN << "Node " << nodeID << " connection failed" << std::endl;
+    EQUNREACHABLE;
     return 0;
 }
 
@@ -721,8 +723,6 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
             connect( node );
         return node->isConnected() ? node : 0;
     }
-
-    EQINFO << "Connecting node " << nodeID << std::endl;
     EQASSERT( _id != nodeID );
 
     NodeGetNodeDataPacket packet;
@@ -772,6 +772,7 @@ bool LocalNode::connect( NodePtr node )
         return true;
 
     EQASSERT( node->_state == STATE_CLOSED );
+    EQINFO << "Connecting " << node << std::endl;
 
     // try connecting using the given descriptions
     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
@@ -1493,6 +1494,7 @@ bool LocalNode::_cmdGetNodeData( Command& command)
 
     const NodeID& nodeID = packet->nodeID;
     NodePtr node = getNode( nodeID );
+    NodePtr toNode = command.getNode();
     NodeGetNodeDataReplyPacket reply( packet );
 
     std::string nodeData;
@@ -1500,6 +1502,8 @@ bool LocalNode::_cmdGetNodeData( Command& command)
     {
         reply.nodeType = node->getType();
         nodeData = node->serialize();
+        EQINFO << "Sent node data '" << nodeData << "' for " << nodeID << " to "
+               << toNode << std::endl;
     }
     else
     {
@@ -1507,10 +1511,7 @@ bool LocalNode::_cmdGetNodeData( Command& command)
         reply.nodeType = NODETYPE_CO_INVALID;
     }
 
-    NodePtr toNode = command.getNode();
     toNode->send( reply, nodeData );
-    EQINFO << "Sent node data '" << nodeData << "' for " << nodeID << " to "
-           << toNode << std::endl;
     return true;
 }
 
