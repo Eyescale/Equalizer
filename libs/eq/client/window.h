@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -79,6 +79,7 @@ namespace eq
         //@{
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
         /** @return the Node of this window. @version 1.0 */
         EQ_API const Node* getNode() const; 

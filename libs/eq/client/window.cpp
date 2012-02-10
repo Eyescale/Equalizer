@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -201,6 +201,11 @@ co::CommandQueue* Window::getPipeThreadQueue()
 co::CommandQueue* Window::getCommandThreadQueue()
 { 
     return getPipe()->getCommandThreadQueue(); 
+}
+
+uint32_t Window::getCurrentFrame() const
+{
+    return getPipe()->getCurrentFrame();
 }
 
 const Node* Window::getNode() const 

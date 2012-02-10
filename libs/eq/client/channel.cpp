@@ -131,6 +131,11 @@ co::CommandQueue* Channel::getCommandThreadQueue()
     return getWindow()->getCommandThreadQueue(); 
 }
 
+uint32_t Channel::getCurrentFrame() const
+{
+    return getPipe()->getCurrentFrame();
+}
+
 Pipe* Channel::getPipe()
 {
     Window* window = getWindow();
@@ -1175,7 +1180,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber, const uint32_t index )
 void Channel::_transmitImage( Image* image,
                               const ChannelFrameTransmitImagePacket* request )
 {
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+    if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
@@ -1217,7 +1222,8 @@ void Channel::_transmitImage( Image* image,
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                         this, useCompression ? AUTO : OFF );
+                                         this, request->frameNumber,
+                                         useCompression ? AUTO : OFF );
         compressEvent.statisticsIndex = request->statisticsIndex;
         compressEvent.event.data.statistic.task = request->context.taskID;
         compressEvent.event.data.statistic.ratio = 1.0f;
@@ -1279,7 +1285,7 @@ void Channel::_transmitImage( Image* image,
     if( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON )
     {
         ChannelStatistics waitEvent( Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
-                                     this );
+                                     this, request->frameNumber );
         waitEvent.statisticsIndex = request->statisticsIndex;
         waitEvent.event.data.statistic.task = request->context.taskID;
         token = getLocalNode()->acquireSendToken( toNode );
@@ -1315,7 +1321,7 @@ void Channel::_transmitImage( Image* image,
                 connection->send( &dataSize, sizeof( dataSize ), true );
                 if( dataSize > 0 )
                     connection->send( data->compressedData[k], 
-                    dataSize, true );
+                                      dataSize, true );
 #ifndef NDEBUG
                 sentBytes += sizeof( dataSize ) + dataSize;
 #endif
@@ -1427,7 +1433,6 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
                               co::ObjectVersion* frames )
 {
     ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-
     _setOutputFrames( nFrames, frames );
     std::vector< size_t > nImages( nFrames, 0 );
     for( size_t i = 0; i < nFrames; ++i )
@@ -1598,7 +1603,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                        << std::endl;
 
     _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this,
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
                              packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
     resetRenderContext();
@@ -1638,8 +1643,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 
     frameAssemble( packet->context.frameID );
 
-    for( Frames::const_iterator i = _inputFrames.begin();
-         i != _inputFrames.end(); ++i )
+    for( FramesCIter i = _inputFrames.begin(); i != _inputFrames.end(); ++i )
     {
         // Unset the frame data on input frames, so that they only get flushed
         // once by the output frames during exit.
@@ -1655,8 +1659,8 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                      << packet << std::endl;
 
     _setRenderContext( packet->context );
     _frameReadback( packet->context.frameID, packet->nFrames,
@@ -1679,7 +1683,8 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
         return true;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     packet->frameNumber );
     transmitEvent.statisticsIndex = packet->statisticsIndex;
     transmitEvent.event.data.statistic.task = packet->context.taskID;
 

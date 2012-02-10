@@ -55,6 +55,7 @@ namespace eq
         //@{
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
         /**
          * @return true if this channel is stopped, false otherwise.
