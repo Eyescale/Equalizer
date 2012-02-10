@@ -300,7 +300,7 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )
     {
         EQASSERT( multiProcess );
-        compound = _addDB2DCompound( root, active );
+        compound = _addDB2DCompound( root, channels );
     }
     else
     {
@@ -532,7 +532,7 @@ static Channels _filterLocalChannels( const Channels& input,
     {
         const Node* node = (*i)->getNode();
         const Node* filterNode = filter.getChannel()->getNode();
-        if( node->getName() == filterNode->getName() )
+        if( node == filterNode )
             result.push_back( *i );
     }
     return result;
@@ -542,6 +542,7 @@ Compound* Resources::_addDB2DCompound( Compound* root,
                                        const Channels& channels )
 {
     // TODO: Stereo compound, optimized compositing?
+    root->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
     const Channels& dbChannels = _filter( channels, " mt mp " );
     Compound* compound = _addDSCompound( root, dbChannels );
 
@@ -565,8 +566,7 @@ const Compounds& Resources::_addSources( Compound* compound,
 {
     const Channel* rootChannel = compound->getChannel();
     const Segment* segment = rootChannel->getSegment();
-    const Channel* outputChannel = segment ? segment->getChannel() :
-                                             rootChannel;
+    const Channel* outputChannel = segment ? segment->getChannel() : 0;
 
     for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
     {
