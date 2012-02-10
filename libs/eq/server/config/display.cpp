@@ -87,8 +87,15 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         if( flags & ConfigParams::FLAG_MULTIPROCESS_DB &&
             config->getNodes().size() > 1 )
         {
-            // TODO: Only if at least one multi-GPU node found.
-            names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_2D );
+            for( NodesCIter i = config->getNodes().begin();
+                 i != config->getNodes().end(); ++i )
+            {
+                if( (*i)->getPipes().size() > 1 )
+                {
+                    names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_2D );
+                    break;
+                }
+            }
         }
     }
 
