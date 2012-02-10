@@ -1095,14 +1095,16 @@ Command& LocalNode::allocCommand( const uint64_t size )
 void LocalNode::_dispatchCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
+    command.retain();
 
-    const bool dispatched = dispatchCommand( command );
-
-    _redispatchCommands();
-
-    if( !dispatched )
+    if( dispatchCommand( command ))
     {
-        command.retain();
+        command.release();
+        _redispatchCommands();
+    }
+    else
+    {
+        _redispatchCommands();
         _pendingCommands.push_back( &command );
     }
 }
