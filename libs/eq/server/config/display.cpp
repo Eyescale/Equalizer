@@ -72,7 +72,8 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
     segment->setChannel( channel );
 
     Strings names;
-    const bool scalability = config->getNodes().size() > 1 || pipes.size() > 1;
+    const Nodes& nodes = config->getNodes();
+    const bool scalability = nodes.size() > 1 || pipes.size() > 1;
 
     if( scalability )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
@@ -84,11 +85,9 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
-        if( flags & ConfigParams::FLAG_MULTIPROCESS_DB &&
-            config->getNodes().size() > 1 )
+        if( flags & ConfigParams::FLAG_MULTIPROCESS_DB && nodes.size() > 1 )
         {
-            for( NodesCIter i = config->getNodes().begin();
-                 i != config->getNodes().end(); ++i )
+            for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
             {
                 if( (*i)->getPipes().size() > 1 )
                 {
