@@ -175,7 +175,7 @@ void _parseArguments( const int argc, char** argv )
             uint32_t flags = Global::getFlags();
             if( strcmp( "multiprocess", argv[i] ))
                 flags |= ConfigParams::FLAG_MULTIPROCESS;
-            if( strcmp( "multiprocess_db", argv[i] ))
+            else if( strcmp( "multiprocess_db", argv[i] ))
                 flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
             Global::setFlags( flags );
         }
