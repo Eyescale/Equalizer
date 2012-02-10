@@ -194,7 +194,7 @@ public:
 
             _channels.push_back( new Channel( window ));
             _channels.back()->setName( pipe->getName() + " source channel" );
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 
     const Channels& getChannels() const { return _channels; }
@@ -267,7 +267,7 @@ static Channels _filter( const Channels& input, const std::string& filter )
 
     for( ChannelsCIter i = input.begin(); i != input.end(); ++i )
         if( (*i)->getName().find( filter ) != std::string::npos )
-                result.push_back( *i );
+            result.push_back( *i );
     return result;
 }
 
@@ -281,23 +281,26 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     Compound* compound = 0;
     const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
                                         ConfigParams::FLAG_MULTIPROCESS_DB );
-    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt " );
+    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt ");
 
     if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
         /* nop */;
     else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
-        name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
+             name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
     {
         compound = _add2DCompound( root, active );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
-        name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
+             name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
     {
         compound = _addDBCompound( root, active );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
-    {
         compound = _addDSCompound( root, active );
+    else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )
+    {
+        EQASSERT( multiProcess );
+        compound = _addDB2DCompound( root, active );
     }
     else
     {
@@ -317,8 +320,11 @@ Compound* Resources::_addStereoCompound(Compound* root, const Channels& channels
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();
     const std::string& name = layout->getName();
-    if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
+    if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE ||
+        name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )     // TODO: not supported yet
+    {
         return 0;
+    }
 
     Compound* compound = new Compound( root );
     compound->setName( "Stereo" );
@@ -373,6 +379,12 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
     if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC )
         compound->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
 
+    _fill2DCompound( compound, channels );
+    return compound;
+}
+
+void Resources::_fill2DCompound( Compound* compound, const Channels& channels )
+{
     const Compounds& children = _addSources( compound, channels );
     const size_t step =  size_t( 100000.0f / float( children.size( )));
     size_t start = 0;
@@ -389,8 +401,6 @@ Compound* Resources::_add2DCompound( Compound* root, const Channels& channels )
                                   float( step ) / 100000.f, 1.f ));
         start += step;
     }
-
-    return compound;
 }
 
 Compound* Resources::_addDBCompound( Compound* root, const Channels& channels )
@@ -514,13 +524,49 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
     return compound;
 }
 
+static Channels _filterLocalChannels( const Channels& input,
+                                      const Compound& filter )
+{
+    Channels result;
+    for( ChannelsCIter i = input.begin(); i != input.end(); ++i )
+    {
+        const Node* node = (*i)->getNode();
+        const Node* filterNode = filter.getChannel()->getNode();
+        if( node->getName() == filterNode->getName() )
+            result.push_back( *i );
+    }
+    return result;
+}
+
+Compound* Resources::_addDB2DCompound( Compound* root,
+                                       const Channels& channels )
+{
+    // TODO: Stereo compound, optimized compositing?
+    const Channels& dbChannels = _filter( channels, " mt mp " );
+    Compound* compound = _addDSCompound( root, dbChannels );
+
+    const Compounds& children = compound->getChildren();
+    for( CompoundsCIter i = children.begin(); i != children.end(); ++i )
+    {
+        Compound* child = *i;
+        Compound* drawChild = child->getChildren().front();
+        drawChild->addEqualizer( new LoadEqualizer( LoadEqualizer::MODE_2D ));
+        drawChild->setName( EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC );
+
+        const Channels& localChannels = _filterLocalChannels( channels, child );
+        _fill2DCompound( drawChild, localChannels );
+    }
+
+    return compound;
+}
+
 const Compounds& Resources::_addSources( Compound* compound,
                                          const Channels& channels )
 {
     const Channel* rootChannel = compound->getChannel();
     const Segment* segment = rootChannel->getSegment();
-    const Channel* outputChannel = segment ? segment->getChannel() : 0;
-    EQASSERT( outputChannel );
+    const Channel* outputChannel = segment ? segment->getChannel() :
+                                             rootChannel;
 
     for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
     {

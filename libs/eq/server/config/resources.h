@@ -26,6 +26,7 @@
 #define EQ_SERVER_CONFIG_LAYOUT_DB_STATIC   "StaticDB"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC  "DynamicDB"
 #define EQ_SERVER_CONFIG_LAYOUT_DB_DS       "DBDirectSend"
+#define EQ_SERVER_CONFIG_LAYOUT_DB_2D       "DB_2D"
 
 namespace eq
 {
@@ -51,7 +52,10 @@ private:
     static Compound* _add2DCompound( Compound* root, const Channels& channels );
     static Compound* _addDBCompound( Compound* root, const Channels& channels );
     static Compound* _addDSCompound( Compound* root, const Channels& channels );
+    static Compound* _addDB2DCompound( Compound* root,
+                                       const Channels& channels );
     static const Compounds& _addSources( Compound* compound, const Channels& );
+    static void _fill2DCompound( Compound* compound, const Channels& channels );
 };
 
 }
