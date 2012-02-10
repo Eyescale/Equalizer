@@ -84,12 +84,6 @@ bool Resources::discover( Config* config, const std::string& session,
         infos.push_back( gpusd::GPUInfo( ));
     }
 
-    infos.insert( infos.end(), infos.begin(), infos.end());
-    infos.back().hostname = "localhost";
-    infos.insert( infos.end(), infos.begin(), infos.end());
-    infos.back().hostname = "bluebrain002";
-    infos.insert( infos.end(), infos.begin(), infos.end());
-
     typedef stde::hash_map< std::string, Node* > NodeMap;
     NodeMap nodes;
 
