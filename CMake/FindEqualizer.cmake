@@ -219,7 +219,7 @@ else()
   if(EQUALIZER_VERSION_ABI LESS 110)
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
   else()
-    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}")
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
   endif()
 endif()
 
