@@ -90,8 +90,6 @@ int EqPly::run()
 
     // 2. choose config
     eq::ConfigParams configParams;
-    if( _initData.useMultiProcess( ))
-        configParams.setFlags( eq::ConfigParams::FLAG_MULTIPROCESS );
     Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
 
     if( !config )
