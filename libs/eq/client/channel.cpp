@@ -1995,8 +1995,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
+    EQASSERTINFO( statistic.used == 0, packet->frameNumber );
     EQASSERT( statistic.data.empty( ));
-    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
 
     resetRenderContext();

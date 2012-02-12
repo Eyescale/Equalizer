@@ -317,7 +317,7 @@ message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 include(CPackConfig)
 include(copyScript)
 
-SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
+set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
   "ld: warning: duplicate dylib")
 include(CTest)

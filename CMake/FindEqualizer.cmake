@@ -195,7 +195,7 @@ if(_eq_version_not_high_enough)
 elseif(_eq_version_not_exact)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Version ${Equalizer_FIND_VERSION} of Equalizer is required exactly. "
+    "Version ${Equalizer_FIND_VERSION} of Equalizer is required exactly. "
     "Version ${EQUALIZER_VERSION} was found.")
 else()
   if(Equalizer_FIND_REQUIRED)
@@ -219,7 +219,7 @@ else()
   if(EQUALIZER_VERSION_ABI LESS 110)
     set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
   else()
-    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}")
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
   endif()
 endif()
 

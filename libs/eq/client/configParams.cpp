@@ -17,6 +17,7 @@
 
 #include "configParams.h"
 
+#include "global.h"
 #include <co/global.h>
 
 namespace eq
@@ -29,7 +30,7 @@ public:
     ConfigParams()
             : renderClient( co::Global::getProgramName( ))
             , workDir( co::Global::getWorkDir( ))
-            , flags( eq::ConfigParams::FLAG_NONE )
+            , flags( eq::Global::getFlags( ))
         {}
 
     std::string renderClient;

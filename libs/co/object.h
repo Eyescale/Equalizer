@@ -305,8 +305,7 @@ namespace co
 
         /** Send a packet to peer object instance(s) on another node. */
         template< class T >
-        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
-            { return send( node, packet, &v.front(), v.size() * sizeof( T )); }
+        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v );
         //@}
 
         /** @name Notifications */
@@ -428,6 +427,14 @@ namespace co
         EQ_TS_VAR( _thread );
     };
     CO_API std::ostream& operator << ( std::ostream&, const Object& );
+
+    template< class T > inline bool
+    Object::send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
+    {
+        EQASSERT( isAttached() );
+        packet.objectID  = _id;
+        return node->send( packet, v );
+    }
 }
 
 #endif // CO_OBJECT_H

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -292,8 +292,11 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item,
                                      const int64_t minTime )
 {
     EQASSERT( item.access == 0 );
-    while( !item.data.versions.empty() && item.times.front() <= minTime )
+    while( !item.data.versions.empty() && item.times.front() <= minTime &&
+           item.data.versions.front()->isReady( ))
+    {
         _releaseFirstStream( item );
+    }
 }
 
 void InstanceCache::_releaseStreams( InstanceCache::Item& item )
