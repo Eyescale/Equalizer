@@ -86,6 +86,8 @@ void Display::discoverLocal( Config* config, const uint32_t flags )
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DS );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_STATIC );
         names.push_back( EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC );
+        names.push_back( EQ_SERVER_CONFIG_LAYOUT_2D_STATIC );
+
         if( flags & ConfigParams::FLAG_MULTIPROCESS_DB && nodes.size() > 1 )
         {
             for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
