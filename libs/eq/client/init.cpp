@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -165,6 +165,19 @@ void _parseArguments( const int argc, char** argv )
             ++i;
             if( i<argc )
                 Global::setConfigFile( argv[i] );
+        }
+        else if( strcmp( "--eq-config-flags", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i >= argc )
+                break;
+
+            uint32_t flags = Global::getFlags();
+            if( strcmp( "multiprocess", argv[i] ))
+                flags |= ConfigParams::FLAG_MULTIPROCESS;
+            else if( strcmp( "multiprocess_db", argv[i] ))
+                flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
+            Global::setFlags( flags );
         }
         else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
         {
