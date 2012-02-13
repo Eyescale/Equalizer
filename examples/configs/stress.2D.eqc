@@ -114,59 +114,16 @@ server
         compound
         { 
             channel  ( segment 0 view 0 )
-            
-            compound
-            {
-                viewport [ 0 0 .333 .333 ]
-            }
-            compound
-            { 
-                channel "channel2"
-                viewport [ .333 0 .333 .333 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel3"
-                viewport [ .666 0 .334 .333 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel4"
-                viewport [ 0 .333 .333 .333 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel5"
-                viewport [ .333 .333 .333 .333 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel6"
-                viewport [ .666 .333 .334 .333 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel7"
-                viewport [ 0 .666 .333 .334 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel8"
-                viewport [ .333 .666 .333 .334 ]
-                outputframe {}
-            }
-            compound
-            { 
-                channel "channel9"
-                viewport [ .666 .666 .334 .334 ]
-                outputframe {}
-            }
+            load_equalizer { damping 1.f }
+            compound {}
+            compound { channel "channel2" outputframe {} }
+            compound { channel "channel3" outputframe {} }
+            compound { channel "channel4" outputframe {} }
+            compound { channel "channel5" outputframe {} }
+            compound { channel "channel6" outputframe {} }
+            compound { channel "channel7" outputframe {} }
+            compound { channel "channel8" outputframe {} }
+            compound { channel "channel9" outputframe {} }
             inputframe{ name "frame.channel2" }
             inputframe{ name "frame.channel3" }
             inputframe{ name "frame.channel4" }

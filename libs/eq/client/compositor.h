@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -242,6 +242,30 @@ namespace eq
          * @version 1.3
          */
         static void declareRegion( const Image* image, const ImageOp& op );
+        //@}
+
+        /** @name Early assembly. */
+        //@{
+        /** A handle for one unordered assembly. @version 1.3.1 */
+        class WaitHandle;
+
+        /** Start waiting on a set of input frames. @version 1.3.1 */
+        static WaitHandle* startWaitFrames( const Frames& frames,
+                                            Channel* channel );
+
+        /** 
+         * Wait for one input frame from a set of pending frames.
+         * 
+         * Before the first call, a wait handle is acquired using
+         * startWaitFrames(). When all frames have been processed, 0 is returned
+         * and the wait handle is invalidated. If the wait times out, an
+         * exception is thrown and the wait handle in invalidated.
+         *
+         * @param handle the wait handle acquires using startWaitFrames().
+         * @return One ready frame, or 0 if all frames have been processed.
+         * @version 1.3.1
+         */
+        static Frame* waitFrame( WaitHandle* handle );
         //@}
 
       private:
