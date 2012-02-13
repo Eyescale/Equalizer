@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -174,6 +174,8 @@ typedef Pipes::const_iterator PipesCIter;
 typedef Windows::const_iterator WindowsCIter;
 /** A const_iterator over a eq::Channel vector */
 typedef Channels::const_iterator ChannelsCIter;
+/** An iterator over a eq::Frame vector */
+typedef Frames::iterator FramesIter;
 /** A const_iterator over a eq::Frame vector */
 typedef Frames::const_iterator FramesCIter;
 /** A const_iterator over a eq::Image vector */
