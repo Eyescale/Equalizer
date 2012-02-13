@@ -82,7 +82,6 @@ using fabric::DrawableConfig;
 using fabric::Frustum;
 using fabric::Frustumf;
 using fabric::GPUInfo;
-using fabric::GPUInfos;
 using fabric::Pixel;
 using fabric::PixelViewport;
 using fabric::Projection;
