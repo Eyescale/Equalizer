@@ -99,9 +99,6 @@ typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
 
 using fabric::Frustumf;
-using fabric::GPUInfo;
-using fabric::GPUInfos;
-using fabric::GPUInfosCIter;
 using fabric::Matrix4f;
 using fabric::PixelViewport;
 using fabric::Projection;
