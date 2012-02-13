@@ -19,7 +19,7 @@
 #ifndef COBASE_COMPRESSOR_H
 #define COBASE_COMPRESSOR_H
 
-#include <co/base/thread.h>        // thread-safety macros
+#include <co/base/thread.h>         // thread-safety macros
 #include <co/plugins/compressor.h>  // used inline
 
 namespace co
