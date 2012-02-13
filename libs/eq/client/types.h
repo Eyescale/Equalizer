@@ -174,6 +174,8 @@ typedef Pipes::const_iterator PipesCIter;
 typedef Windows::const_iterator WindowsCIter;
 /** A const_iterator over a eq::Channel vector */
 typedef Channels::const_iterator ChannelsCIter;
+/** An iterator over a eq::Frame vector */
+typedef Frames::iterator FramesIter;
 /** A const_iterator over a eq::Frame vector */
 typedef Frames::const_iterator FramesCIter;
 /** A const_iterator over a eq::Image vector */

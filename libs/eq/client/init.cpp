@@ -135,22 +135,27 @@ void _parseArguments( const int argc, char** argv )
             ++i;
             if( i<argc )
             {
-                if( _logFile )
-                {
-                    EQWARN << "Redirecting log to " << argv[i] << std::endl;
-                    _logFile->close();
-                    delete _logFile;
-                }
+                std::ofstream* oldLog = _logFile;
+                std::ofstream* newLog = new std::ofstream( argv[i] );
 
-                _logFile = new std::ofstream( argv[i] );
-                if( _logFile->is_open( ))
-                    co::base::Log::setOutput( *_logFile );
+                if( newLog->is_open( ))
+                {
+                    _logFile = newLog;
+                    co::base::Log::setOutput( *newLog );
+
+                    if( oldLog )
+                    {
+                        *oldLog << "Redirected log to " << argv[i] << std::endl;
+                        oldLog->close();
+                        delete oldLog;
+                    }
+                }
                 else
                 {
                     EQWARN << "Can't open log file " << argv[i] << ": "
                            << co::base::sysError << std::endl;
-                    delete _logFile;
-                    _logFile = 0;
+                    delete newLog;
+                    newLog = 0;
                 }
             }
         }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -403,90 +403,104 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     // available, it increments the monitor which causes this code to wake up
     // and assemble it.
 
-    // register monitor with all input frames
-    Monitor<uint32_t> monitor;
-    for( Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->addListener( monitor );
-    }
-
-    uint32_t    nUsedFrames  = 0;
-    Frames unusedFrames = frames;
     uint32_t count = 0;
 
     // wait and assemble frames
-    while( !unusedFrames.empty( ))
+    WaitHandle* handle = startWaitFrames( frames, channel ); 
+    for( Frame* frame = waitFrame( handle ); frame; frame = waitFrame( handle ))
     {
-        {
-            ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
-                                     channel );
-            const Config* config = channel->getConfig();
-            const uint32_t timeout = config->getTimeout();
+        if( frame->getImages().empty( ))
+            continue;
 
-            if( timeout == EQ_TIMEOUT_INDEFINITE )
-                monitor.waitGE( ++nUsedFrames );
-            else
-            {
-                ++nUsedFrames;
-                const int64_t time = config->getTime() + timeout;
-                const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
-
-                while( !monitor.timedWaitGE( nUsedFrames, aliveTimeout ))
-                {
-                    // pings timeout nodes
-                    const bool pinged =channel->getLocalNode()->pingIdleNodes();
-
-                    // TODO: make input frames have node info (node of origin):
-                    // It would be helpful to know which node was supposed to
-                    // send each frame. May be we should send this info in the 
-                    // ChannelFrameAssemblePacket.
-                    // eile: Not sure. let's discuss.
-
-                    if( config->getTime() >= time || !pinged )
-                    {
-                        // de-register the monitor
-                        for( FramesCIter i = frames.begin();
-                             i != frames.end(); ++i )
-                        {
-                            Frame* frame = *i;
-                            frame->removeListener( monitor );
-                        }
-                        throw Exception( Exception::TIMEOUT_INPUTFRAME );
-                        break;
-                    }
-                }
-
-            }
-        }
-
-        for( Frames::iterator i = unusedFrames.begin();
-             i != unusedFrames.end(); ++i )
-        {
-            Frame* frame = *i;
-            if( !frame->isReady( ))
-                continue;
-
-            if( !frame->getImages().empty( ))
-            {
-                count = 1;
-                assembleFrame( frame, channel );
-            }
-    
-            unusedFrames.erase( i );
-            break;
-        }
-    }
-
-    // de-register the monitor
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->removeListener( monitor );
+        count = 1;
+        assembleFrame( frame, channel );
     }
 
     return count;
+}
+
+class Compositor::WaitHandle
+{
+public:
+    WaitHandle( const Frames& frames, Channel* ch )
+            : left( frames ), channel( ch ), processed( 0 ) {}
+    ~WaitHandle()
+        {
+            // de-register the monitor on eventual left-overs on error/exception
+            for( FramesCIter i = left.begin(); i != left.end(); ++i )
+                (*i)->removeListener( monitor );
+            left.clear();
+        }
+
+    co::base::Monitor< uint32_t > monitor;
+    Frames left;
+    Channel* const channel;
+    uint32_t processed;
+};
+
+Compositor::WaitHandle* Compositor::startWaitFrames( const Frames& frames,
+                                                     Channel* channel )
+{
+    WaitHandle* handle = new WaitHandle( frames, channel );
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+        (*i)->addListener( handle->monitor );
+
+    return handle;
+}
+
+Frame* Compositor::waitFrame( WaitHandle* handle )
+{
+    if( handle->left.empty( ))
+    {
+        delete handle;
+        return 0;
+    }
+
+    ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
+                             handle->channel );
+    Config* config = handle->channel->getConfig();
+    const uint32_t timeout = config->getTimeout();
+
+    ++handle->processed;
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+        handle->monitor.waitGE( handle->processed );
+    else
+    {
+        const int64_t time = config->getTime() + timeout;
+        const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
+
+        while( !handle->monitor.timedWaitGE( handle->processed, aliveTimeout ))
+        {
+            // pings timed out nodes
+            const bool pinged = config->getLocalNode()->pingIdleNodes();
+
+            // TODO: make input frames have node info (node of origin): It would
+            // be helpful to know which node was supposed to send each frame.
+            // May be we should send this info in the ChannelFrameAssemblePacket.
+            // eile: Not sure. let's discuss.
+
+            if( config->getTime() >= time || !pinged )
+            {
+                delete handle;
+                throw Exception( Exception::TIMEOUT_INPUTFRAME );
+            }
+        }
+    }
+
+    for( FramesIter i = handle->left.begin(); i != handle->left.end(); ++i )
+    {
+        Frame* frame = *i;
+        if( !frame->isReady( ))
+            continue;
+
+        frame->removeListener( handle->monitor );
+        handle->left.erase( i );
+        return frame;
+    }
+
+    EQASSERTINFO( false, "Unreachable code" );
+    delete handle;
+    return 0;
 }
 
 uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,

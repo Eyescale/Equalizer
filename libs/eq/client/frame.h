@@ -279,11 +279,11 @@ namespace server
         void removeListener( co::base::Monitor<uint32_t>& listener );
         //@}
 
-        /** @internal @return list of receiving eq::Node IDs of an output frame */
+        /** @internal @return the receiving eq::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
         { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
 
-        /** @internal @return list of receiving co::Node IDs of an output frame */
+        /** @internal @return the receiving co::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
         { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
 
