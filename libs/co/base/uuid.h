@@ -18,7 +18,6 @@
 #ifndef COBASE_UUID_H
 #define COBASE_UUID_H
 
-#include <co/base/rng.h>     // used in inline method
 #include <co/base/uint128_t.h> // base class
 
 namespace co
@@ -40,15 +39,7 @@ namespace base
          * UUID is cleared, i.e., it is equal to UUID::ZERO.
          * @version 1.0
          */
-        explicit UUID( const bool generate = false ) : uint128_t()
-            { 
-                while( generate && high() == 0 )
-                {         
-                    RNG rng;
-                    high() = rng.get< uint64_t >();
-                    low() = rng.get< uint64_t >();
-                }
-            }
+        COBASE_API explicit UUID( const bool generate = false );
 
         /**
          * Construct a new universally unique identifier.

@@ -30,6 +30,7 @@
 
 #include "base/scopedMutex.h"
 
+#include <fcntl.h>
 #include <sstream>
 #include <limits>
 
