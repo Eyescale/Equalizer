@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,6 +21,8 @@
 #include "atomic.h"
 
 #include <errno.h>
+#include <typeinfo>
+
 #ifndef _WIN32
 #  include <execinfo.h>
 #  include <string.h>
@@ -107,6 +109,21 @@ std::ostream& backtrace( std::ostream& os )
 #endif
 
     return os;
+}
+
+std::string demangleTypeID( const char* mangled )
+{
+#ifdef _WIN32
+    return std::string( mangled );
+#else
+    int status;
+    char* name = abi::__cxa_demangle( mangled, 0, 0, &status );
+    const std::string result = name;
+    if( name )
+        free( name );
+
+    return (status==0) ? result : mangled;
+#endif
 }
 
 std::ostream& sysError( std::ostream& os )

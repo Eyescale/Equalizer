@@ -32,6 +32,8 @@
 
 #include <co/base/scopedMutex.h>
 
+#include <limits>
+
 //#define DEBUG_DISPATCH
 #ifdef DEBUG_DISPATCH
 #  include <set>

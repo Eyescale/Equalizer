@@ -21,7 +21,6 @@
 #include <co/base/debug.h>
 
 #include <iostream>
-#include <typeinfo>
 #include <stdlib.h>
 
 //#define CO_REFERENCED_DEBUG
@@ -143,16 +142,16 @@ namespace base
 
         /** Access the held object. @version 1.0 */
         T*       operator->()       
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return _ptr; }
         /** Access the held object. @version 1.0 */
         const T* operator->() const
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return _ptr; }
         /** Access the held object. @version 1.0 */
         T&       operator*()        
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return *_ptr; }
         /** Access the held object. @version 1.0 */
         const T& operator*() const  
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return *_ptr; }
 
         /** @return the C pointer. @version 1.0 */
         T*       get()                { return _ptr; }
@@ -206,7 +205,7 @@ namespace base
     }
 
     template< class T > inline std::string className( const RefPtr<T>& rp )
-    { return className( rp.get( )); }
+        { return className( rp.get( )); }
 }
 
 }

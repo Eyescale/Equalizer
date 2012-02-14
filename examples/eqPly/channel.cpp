@@ -658,7 +658,10 @@ void Channel::_drawModel( const Model* scene )
     const InitData& initData =
         static_cast<Config*>( getConfig( ))->getInitData();
     if( !initData.useROI( ))
+    {
+        declareRegion( getPixelViewport( ));
         return;
+    }
 
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
