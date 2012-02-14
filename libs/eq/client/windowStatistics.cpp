@@ -22,6 +22,8 @@
 #include "pipe.h"
 #include "window.h"
 
+#include <cstdio>
+
 #ifdef _MSC_VER
 #  define snprintf _snprintf
 #endif
