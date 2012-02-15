@@ -1,4 +1,4 @@
-Make hwloc support disablable
+Minor cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
