@@ -217,6 +217,7 @@ void Channel::_testFormats( float applyZoom )
                 event.msec = -static_cast<float>( error );
             config->sendEvent( event );
 
+            // write
             eq::Compositor::ImageOp op;
             op.channel = this;
             op.buffers = eq::Frame::BUFFER_COLOR;
