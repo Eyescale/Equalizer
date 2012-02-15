@@ -1,8 +1,7 @@
-Added Multiprocess DB mode as a commandline parameter to EqPly, for DB_2D autoconf tests
-Added new options to the benchmark scripts
+Added new options to the benchmark scripts ( also bugfixes )
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
+[x] Bugfix
 [x] New Feature
 [ ] Cleanup
 [ ] Optimization

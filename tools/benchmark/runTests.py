@@ -18,6 +18,8 @@ sgraph = ''
 cull = ''
 specialLayout = ''
 model = '-m ~/EqualizerData/david1mm.ply'
+configFile = ''
+lod  = False
 
 def emtpyDirectory( dirName ):
    print "Empty directory : " + dirName
@@ -60,6 +62,10 @@ def checkRTNeuronTestDirectory( dirName ):
 
 def testEqPly( config ):
    
+   if( specialLayout != '' ):
+      config.dirName = config.dirName.replace( config.layoutName, specialLayout)
+      config.layoutName = specialLayout
+   
    if not os.path.exists( config.dirName ):
       os.mkdir( config.dirName )
    
@@ -86,16 +92,14 @@ def testEqPly( config ):
    if( config.roiState == 'ROIDisabled' ):
       roiStr = ' -d '
       
-   if( specialLayout != '' ):
-      config.layoutName = specialLayout
- 
    eqLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    eqPlyConfigArg = '--eq-config "%s" ' % ( config.session )
    nbOfFramesArg = '-n ' + str(config.nbOfFrames) 
    multiProcessStr = ''
    if( multiprocess ):
-      multiProcessStr = '-f'
+      multiProcessStr = '--eq-config-flags multiprocess'
       
+   mpdb = ''   
    if( config.layoutName == "DB_2D" ):
       mpdb = '-s'
     
@@ -116,6 +120,14 @@ def testEqPly( config ):
 
 def testRTNeuron( config ):
 
+   if( configFile != '' ):
+      pathParts = os.path.split( configFile )
+      config.dirName = "rtneuron_" + pathParts[ -1 ]
+   
+   if( configFile == '' and specialLayout != '' ):
+      config.dirName = config.dirName.replace( config.layoutName, specialLayout)
+      config.layoutName = specialLayout
+      
    if not os.path.exists( config.dirName ):
       os.mkdir( config.dirName )
    
@@ -140,9 +152,6 @@ def testRTNeuron( config ):
    roiStr = ''   
    rtLayoutArg = ''
    
-   if( specialLayout != '' ):
-      config.layoutName = specialLayout
-   
    if( config.layoutName == "Static2D" or config.layoutName == "Dynamic2D" ):
       rtLayoutArg = '--eq-layout "%s" ' % ( config.layoutName )
    elif( config.layoutName == "RoundRobinDB" ):
@@ -158,7 +167,12 @@ def testRTNeuron( config ):
    elif( config.layoutName == "DB_2DRR" ):
       rtLayoutArg = '--eq-layout DB_2D --round-robin-DB-partition'
       
-   rtNeuronConfigArg = '--eq-config "%s" ' % ( config.session )
+   rtNeuronConfig = config.session
+   if( configFile != '' ):
+      rtNeuronConfig = configFile
+      rtLayoutArg = ''
+      
+   rtNeuronConfigArg = '--eq-config "%s" ' % ( rtNeuronConfig )
   
    nbOfFramesArg = '--frame-count ' + str(config.nbOfFrames) 
    
@@ -166,12 +180,21 @@ def testRTNeuron( config ):
    if( config.roiState == 'ROIEnabled' ):
       roiStr = ' --roi '
       
+   multiProcessStr = ''
+   if( multiprocess ):
+      multiProcessStr = '--eq-config-flags multiprocess'   
+      
    os.system('killall -9 rtneuron.equalizer')   
    os.system('cexec killall -9 rtneuron.equalizer')
    
-   startServers.startServers( 1, config.serverCount, config.session )
-
-   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg + ' ' + target + ' ' + sgraph + ' ' + cull
+   if( configFile == ''):
+      startServers.startServers( 1, config.serverCount, config.session )
+      
+   lodStr = '--no-lod'
+   if( lod ):
+      lodStr = ''
+      
+   cmdStr = rtNeuromBinaryPath + ' ' + rtNeuronConfigArg + ' ' + rtNeuronDefaultArgs + ' ' + roiStr + ' ' + rtLayoutArg + ' ' + nbOfFramesArg + ' ' + target + ' ' + sgraph + ' ' + cull + ' ' + lodStr + ' ' + multiProcessStr
 
    print cmdStr
    
@@ -201,7 +224,7 @@ def main():
    parser.add_option("-b", "--beginServer", dest="beginServer",
                      help="Servers in range beginServer to beginServer + number of servers will be  tested in steps", default = 1, type="int")
    parser.add_option("-m", "--schema", dest="schema",
-                     help="Schema to test ( single, combination )", default = "combination")
+                     help="Schema to test ( single, combination )", default = "full")
    parser.add_option("-r", "--forceRedo", dest="forceRedo",
                      action="store_true", help="Force Redo the test", default = False )
    parser.add_option("-c", "--checkAndRedo", dest="checkAndRedo",
@@ -224,8 +247,14 @@ def main():
                       help="Layout to use ( only for single test schemas )", default = emptyLayout )
    parser.add_option("-d", "--model", dest="model",
                       action="store_true", help="Use simple mode", default = False )
-                   
- 
+   parser.add_option("-i", "--config", dest="config",
+                      help="Use config file", default = "")
+   parser.add_option("-z", "--lod", dest="lod",
+                      action="store_true", help="Enable lod", default = False )
+   parser.add_option("-x", "--chstatistics", dest="chstatistics",
+                      action="store_true", help="Enable channel statistics", default = False )
+                      
+                                    
    (options, args) = parser.parse_args()
 
    if( options.readtestoption ):
@@ -247,8 +276,19 @@ def main():
    global sgraph
    global cull
    global specialLayout
-   global model   
+   global model
+   global configFile
+   global lod
 
+   if( options.chstatistics ):
+      print "Channel statistics on - Hack to force glfinish per channel"
+      os.environ['EQ_CHANNEL_IATTR_HINT_STATISTICS'] = str( -2 )
+ 
+   if( options.config != "" ):
+      configFile = options.config
+   
+   lod = options.lod
+   
    if( options.layout !=  emptyLayout and options.schema == "single" ):
       if( options.application == "rtneuron" and not( options.layout in rtNeuronFullLayoutNames )):
          print "The layout is not in RTNeuron layout list. Possible Values are: "
