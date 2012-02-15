@@ -21,6 +21,8 @@
 #include <co/base/defines.h>
 #include <co/base/log.h>
 
+#include <typeinfo>
+
 // assertions
 // #define EQ_RELEASE_ASSERT
 

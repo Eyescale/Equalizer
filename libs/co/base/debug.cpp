@@ -21,7 +21,6 @@
 #include "atomic.h"
 
 #include <errno.h>
-#include <typeinfo>
 
 #ifndef _WIN32
 #  include <cxxabi.h>
