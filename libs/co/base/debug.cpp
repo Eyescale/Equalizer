@@ -24,7 +24,9 @@
 #include <typeinfo>
 
 #ifndef _WIN32
+#  include <cxxabi.h>
 #  include <execinfo.h>
+#  include <stdlib.h>
 #  include <string.h>
 #  define EQ_BACKTRACE_DEPTH 256
 #endif

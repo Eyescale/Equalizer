@@ -30,6 +30,8 @@ namespace co
 {
 namespace base
 {
+namespace detail { class Thread; }
+
     /** An utility class to execute code in a separate execution thread. */
     class Thread 
     {
@@ -119,7 +121,7 @@ namespace base
          * @return true if the thread is stopped, false if not.
          * @version 1.0
          */
-        bool isStopped() const { return ( _state == STATE_STOPPED ); }
+        COBASE_API bool isStopped() const;
 
         /** 
          * Return if the thread is running.
@@ -130,7 +132,7 @@ namespace base
          * @return true if the thread is running, false if not.
          * @version 1.0
          */
-        bool isRunning() const { return ( _state == STATE_RUNNING ); }
+        COBASE_API bool isRunning() const;
 
         /** 
          * @return true if the calling thread is the same thread as this
@@ -164,18 +166,7 @@ namespace base
         COBASE_API static void setAffinity( const int32_t affinity );
 
     private:
-        ThreadID _id;
-
-        /** The current state of this thread. */
-        enum State
-        {
-            STATE_STOPPED,
-            STATE_STARTING, // start() in progress
-            STATE_RUNNING,
-            STATE_STOPPING  // child no longer active, join() not yet called
-        };
-
-        Monitor< State > _state;
+        detail::Thread* const _impl;
 
         static void* runChild( void* arg );
         void        _runChild();
@@ -185,12 +176,7 @@ namespace base
         static void _notifyStarted();
         static void _notifyStopping();
         friend void _notifyStopping( void* ); //!< @internal
-
-        friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
-
-    /** Print the thread to the given output stream. */
-    std::ostream& operator << ( std::ostream& os, const Thread* thread );
 
 // thread-safety checks
 // These checks are for development purposes, to check that certain objects are
