@@ -5,8 +5,7 @@ server
 {
     connection { hostname "127.0.0.1" }
     config
-    {latency 200
-
+    {
         appNode
         {
             pipe 
@@ -14,6 +13,7 @@ server
                 device 0
                 window
                 {
+                    viewport [ .25 .25 .5 .5 ]
                     channel { name "channel1" }
                 }
             }
@@ -40,16 +40,15 @@ server
 
             compound
             {
-                period 50 phase 0
-                outputframe { name "frame" }
+                viewport [ 0 0 1 .5 ]
             }
             compound
             {
-                period 50 phase 25
                 channel "channel2"
-                outputframe { name "frame" }
+                viewport [ 0 .5 1 .5 ]
+                outputframe {}
             }
-            inputframe { name "frame" }
+            inputframe { name "frame.channel2" }
         }
     }    
 }
