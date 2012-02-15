@@ -203,8 +203,10 @@
     Excessive memory usage with object push</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/87">87</a>:
     Debian packages broken</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/87">88</a>:
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/88">88</a>:
     draw_sync thread model causes full synchronization</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/90">90</a>:
+    Race condition with direct send and higher number of nodes</li>
 </ul>
 
 <a name="knownbugs"></a>

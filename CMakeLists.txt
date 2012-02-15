@@ -9,6 +9,7 @@ option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
+option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
@@ -33,7 +34,7 @@ include(revision)
 set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
@@ -165,7 +166,9 @@ if(UDT_FOUND)
   include_directories(SYSTEM ${UDT_INCLUDE_DIR})
 endif()
 
-find_package(HWLOC)
+if(EQ_USE_HWLOC)
+  find_package(HWLOC)
+endif()
 if(HWLOC_FOUND)
   include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
@@ -317,7 +320,7 @@ message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 include(CPackConfig)
 include(copyScript)
 
-SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
+set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
   "ld: warning: duplicate dylib")
 include(CTest)

@@ -51,26 +51,54 @@ namespace co
 {
 namespace base
 {
-
-struct ThreadIDPrivate
+namespace
 {
-    pthread_t pthread;
+/** The current state of a thread. */
+enum ThreadState
+{
+    STATE_STOPPED,
+    STATE_STARTING, // start() in progress
+    STATE_RUNNING,
+    STATE_STOPPING  // child no longer active, join() not yet called
 };
+}
+namespace detail
+{
+class Thread
+{
+public:
+    Thread() : state( STATE_STOPPED ) {}
+
+    ThreadID id;
+    Monitor< ThreadState > state;
+};
+}
 
 void _notifyStopping( void* arg );
 
 Thread::Thread()
-        : _state( STATE_STOPPED )
+        : _impl( new detail::Thread )
 {
 }
 
 Thread::Thread( const Thread& from )
-        : _state( STATE_STOPPED )
+        : _impl( new detail::Thread )
 {
 }
 
 Thread::~Thread()
 {
+    delete _impl;
+}
+
+bool Thread::isStopped() const
+{
+    return ( _impl->state == STATE_STOPPED );
+}
+
+bool Thread::isRunning() const
+{
+    return ( _impl->state == STATE_RUNNING );
 }
 
 void* Thread::runChild( void* arg )
@@ -80,22 +108,27 @@ void* Thread::runChild( void* arg )
     return 0; // not reached
 }
 
+struct ThreadIDPrivate
+{
+    pthread_t pthread;
+};
+
 void Thread::_runChild()
 {
     setName( className( this ));
     pinCurrentThread();
-    _id._data->pthread = pthread_self();
+    _impl->id._data->pthread = pthread_self();
 
     if( !init( ))
     {
         EQWARN << "Thread " << className( this ) << " failed to initialize"
                << std::endl;
-        _state = STATE_STOPPED;
+        _impl->state = STATE_STOPPED;
         pthread_exit( 0 );
         EQUNREACHABLE;
     }
 
-    _state = STATE_RUNNING;
+    _impl->state = STATE_RUNNING;
     EQINFO << "Thread " << className( this ) << " successfully initialized"
            << std::endl;
 
@@ -108,10 +141,10 @@ void Thread::_runChild()
 
 bool Thread::start()
 {
-    if( _state != STATE_STOPPED )
+    if( _impl->state != STATE_STOPPED )
         return false;
 
-    _state = STATE_STARTING;
+    _impl->state = STATE_STARTING;
 
     pthread_attr_t attributes;
     pthread_attr_init( &attributes );
@@ -120,9 +153,8 @@ bool Thread::start()
     int nTries = 10;
     while( nTries-- )
     {
-        const int error = pthread_create( &_id._data->pthread, &attributes,
-                                          runChild, this );
-
+        const int error = pthread_create( &_impl->id._data->pthread,
+                                          &attributes, runChild, this );
         if( error == 0 ) // succeeded
         {
             EQVERB << "Created pthread " << this << std::endl;
@@ -138,9 +170,9 @@ bool Thread::start()
     }
 
     // avoid memleak, we don't use pthread_join
-    pthread_detach( _id._data->pthread );
-    _state.waitNE( STATE_STARTING );
-    return (_state != STATE_STOPPED);
+    pthread_detach( _impl->id._data->pthread );
+    _impl->state.waitNE( STATE_STARTING );
+    return (_impl->state != STATE_STOPPED);
 }
 
 void Thread::exit()
@@ -150,7 +182,7 @@ void Thread::exit()
     Log::instance().forceFlush();
     Log::instance().exit();
 
-    _state = STATE_STOPPING;
+    _impl->state = STATE_STOPPING;
     pthread_exit( 0 );
     EQUNREACHABLE;
 }
@@ -160,20 +192,20 @@ void Thread::cancel()
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
     EQINFO << "Canceling thread " << className( this ) << std::endl;
-    _state = STATE_STOPPING;
+    _impl->state = STATE_STOPPING;
 
-    pthread_cancel( _id._data->pthread );
+    pthread_cancel( _impl->id._data->pthread );
 }
 
 bool Thread::join()
 {
-    if( _state == STATE_STOPPED )
+    if( _impl->state == STATE_STOPPED )
         return false;
     if( isCurrent( )) // can't join self
         return false;
 
-    _state.waitNE( STATE_RUNNING );
-    _state = STATE_STOPPED;
+    _impl->state.waitNE( STATE_RUNNING );
+    _impl->state = STATE_STOPPED;
 
     EQINFO << "Joined thread " << className( this ) << std::endl;
     return true;
@@ -181,7 +213,7 @@ bool Thread::join()
 
 bool Thread::isCurrent() const
 {
-    return pthread_equal( pthread_self(), _id._data->pthread );
+    return pthread_equal( pthread_self(), _impl->id._data->pthread );
 }
 
 ThreadID Thread::getSelfThreadID()
@@ -375,13 +407,15 @@ void Thread::setAffinity(const int32_t affinity)
 #endif
 }
 
+#if 0
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
 {
-    os << "Thread " << thread->_id << " state " 
-       << ( thread->_state == Thread::STATE_STOPPED  ? "stopped"  :
-            thread->_state == Thread::STATE_STARTING ? "starting" :
-            thread->_state == Thread::STATE_RUNNING  ? "running"  :
-            thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
+    os << "Thread " << thread->_impl->id << " state " 
+       << ( thread->_impl->state == Thread::STATE_STOPPED  ? "stopped"  :
+            thread->_impl->state == Thread::STATE_STARTING ? "starting" :
+            thread->_impl->state == Thread::STATE_RUNNING  ? "running"  :
+            thread->_impl->state == Thread::STATE_STOPPING ? "stopping" :
+            "unknown" );
 
 #ifdef PTW32_VERSION
     os << " called from " << pthread_self().p;
@@ -391,5 +425,7 @@ std::ostream& operator << ( std::ostream& os, const Thread* thread )
 
     return os;
 }
+#endif
+
 }
 }

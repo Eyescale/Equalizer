@@ -321,7 +321,8 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERT( _impl->statistics.data[ index ].used > 0 );
+        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
+                      frameNumber );
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -1357,9 +1358,9 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
             {
                 const Frame* frame = frames[i];
                 const Images& images = frame->getImages();
-                for( size_t index = nImages[i]; index < images.size(); ++index )
+                for( size_t j = nImages[i]; j < images.size(); ++j )
                 {
-                    Image* image = images[index];
+                    Image* image = images[j];
                     const PixelViewport& pvp = image->getPixelViewport();
                     image->setOffset( pvp.x + tilePacket->pvp.x,
                                       pvp.y + tilePacket->pvp.y );
@@ -1421,7 +1422,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 void Channel::_transmitImage( Image* image,
                               const ChannelFrameTransmitImagePacket* request )
 {
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+    if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
@@ -1463,14 +1464,12 @@ void Channel::_transmitImage( Image* image,
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                         this, request->frameNumber );
+                                         this, request->frameNumber,
+                                         useCompression ? AUTO : OFF );
         compressEvent.event.data.statistic.task = request->context.taskID;
         compressEvent.event.data.statistic.ratio = 1.0f;
         compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
         compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-        if( !useCompression ) // don't send event
-            compressEvent.event.data.statistic.frameNumber = 0;
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
@@ -1588,7 +1587,7 @@ void Channel::_transmitImage( Image* image,
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
+void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
 {
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( req->netNodeID );
@@ -1602,6 +1601,8 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
 void Channel::_transmitImages( const RenderContext& context, Frame* frame,
                                const size_t startPos )
 {
+    EQ_TS_THREAD( _pipeThread );
+
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
     if( toNodes.empty( ))
@@ -1807,8 +1808,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
+    EQASSERTINFO( statistic.used == 0, packet->frameNumber );
     EQASSERT( statistic.data.empty( ));
-    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
 
     resetRenderContext();
@@ -1941,9 +1942,9 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
         return true;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     packet->frameNumber );
     transmitEvent.event.data.statistic.task = packet->context.taskID;
-
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > packet->imageIndex );
     _transmitImage( images[ packet->imageIndex ], packet );

@@ -95,8 +95,11 @@ void LoadEqualizer::notifyUpdatePre( Compound* compound,
     }
 
     // compute new data
-    _history.push_back( LBFrameData( ));
-    _history.back().first = frameNumber;
+    if( _damping < 1.f )
+    {
+        _history.push_back( LBFrameData( ));
+        _history.back().first = frameNumber;
+    }
 
     _update( _tree );
     _computeSplit();
@@ -111,7 +114,7 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
     {
         Compound* compound = compounds.front();
 
-        node->compound  = compound;
+        node->compound = compound;
         node->mode = _mode;
 
         Channel* channel = compound->getChannel();
@@ -139,15 +142,20 @@ LoadEqualizer::Node* LoadEqualizer::_buildTree( const Compounds& compounds )
 
 void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
 {
-    if( node->compound )
-    {
-        EQASSERT( node->mode != MODE_2D );
-        return;
-    }
-    // else
-
     if( node->mode == MODE_2D )
-        node->mode = MODE_HORIZONTAL;
+    {
+        PixelViewport pvp = getCompound()->getChannel()->getPixelViewport();
+        pvp.apply( vp );
+
+        if( pvp.w > pvp.h ) // split along longest axis
+            node->mode = MODE_VERTICAL;
+        else
+            node->mode = MODE_HORIZONTAL;
+    }
+
+    if( node->compound )
+        return;
+    // else
 
     Viewport leftVP = vp;
     Viewport rightVP = vp;
@@ -180,15 +188,6 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
         break;
     }
 
-
-    if( node->left->mode == MODE_2D )
-    {
-        EQASSERT( node->right->mode == MODE_2D );
-
-        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL : 
-                                                           MODE_VERTICAL;
-        node->right->mode = node->left->mode;
-    }
     _init( node->left, leftVP, leftRange );
     _init( node->right, rightVP, rightRange );
 }
@@ -413,7 +412,7 @@ void LoadEqualizer::_updateLeaf( Node* node )
 
     const float time = float( _getTotalTime( ));
     const float assembleTime = float( _getAssembleTime( ));
-    if( assembleTime == 0 || node->resources == 0.f )
+    if( assembleTime == 0.f || node->resources == 0.f )
         return; 
 
     const float timePerResource = time / ( nResources - node->resources );
@@ -501,6 +500,9 @@ int64_t LoadEqualizer::_getTotalTime()
 
 int64_t LoadEqualizer::_getAssembleTime( )
 {
+    if( _damping >= 1.f )
+        return 0;
+
     const LBFrameData& frameData = _history.front();
     const LBDatas& items = frameData.second;
 
@@ -699,7 +701,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
-            splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( _damping < 1.f )
+                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
             EQLOG( LOG_LB2 ) << "Dampened split at X " << splitPos << std::endl;
 
             // There might be more time left due to MIN_PIXEL rounding by parent
@@ -859,7 +862,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             }
 
             EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
-            splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( _damping < 1.f )
+                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
             EQLOG( LOG_LB2 ) << "Dampened split at Y " << splitPos << std::endl;
 
             const Compound* root = getCompound();
@@ -991,7 +995,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 }
             }
             EQLOG( LOG_LB2 ) << "Should split at " << splitPos << std::endl;
-            splitPos = (1.f - _damping) * splitPos + _damping * node->split;
+            if( _damping < 1.f )
+                splitPos = (1.f - _damping) * splitPos + _damping * node->split;
             EQLOG( LOG_LB2 ) << "Dampened split at " << splitPos << std::endl;
 
             const float boundary( node->boundaryf );
@@ -1037,6 +1042,9 @@ void LoadEqualizer::_assign( Compound* compound, const Viewport& vp,
     compound->setRange( range );
     EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
                      << ", " << range << std::endl;
+
+    if( _damping >= 1.f )
+        return;
 
     // save data for later use
     Data data;

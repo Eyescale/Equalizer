@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,15 +20,16 @@
 
 #include <co/base/api.h>
 #include <co/base/nonCopyable.h> // base class
-#include <co/base/stdExt.h> // hash_map
 #include <co/base/types.h>
 
 namespace co 
 {
 namespace base
 {
+namespace detail { class ErrorRegistry; }
+
     /**
-     * A registry translating error codes to strings.
+     * The registry translating error codes to strings.
      *
      * Applications can register custom error strings starting at
      * eq::ERROR_CUSTOM. Error registration and erasure is not
@@ -44,6 +45,8 @@ namespace base
         /** @internal Construct an error registry. */
         ErrorRegistry();
 
+        ~ErrorRegistry(); //!< @internal
+
         /** @return the error string for the given error code. @version 1.0 */
         COBASE_API const std::string& getString( const uint32_t error ) const;
 
@@ -54,11 +57,10 @@ namespace base
         /** Clear a given error code string. @version 1.0 */
         COBASE_API void eraseString( const uint32_t error );
 
-        bool isEmpty() const { return _errors.empty(); } //!< @internal
+        COBASE_API bool isEmpty() const; //!< @internal
 
     private:
-        typedef stde::hash_map< uint32_t, std::string > ErrorHash;
-        ErrorHash _errors;
+        detail::ErrorRegistry* const _impl;
     };
 }
 }

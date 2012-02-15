@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,6 +93,7 @@ int main( int argc, char **argv )
         {
             co::Command& command = cache.alloc( node, node, sizeof( Packet ));
             Packet* packet = command.getModifiable< Packet >();
+            command.retain();
             *packet = Packet();
 
             readers[0].dispatchCommand( command );
@@ -102,6 +103,7 @@ int main( int argc, char **argv )
                 co::Command& clone = cache.clone( command );
                 readers[i].dispatchCommand( clone );
             }
+            command.release();
             ++nOps;
         }
 

@@ -1,12 +1,9 @@
-Refactoring the manual thread placement implementation. 
-** Following the HWLOC library naming convention. 
-** Removing the Linux fall back.
-** Changing the core value from 1 to 2 "to diplay it".
+Minor cleanup
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
-[x] New Feature
+[ ] New Feature
 [x] Cleanup
-[x] Optimization
+[ ] Optimization
 [ ] Documentation

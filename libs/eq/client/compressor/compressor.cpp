@@ -235,7 +235,6 @@ void EqCompressorFinishDownload( void* const        ptr,
                                  const unsigned     name,
                                  const GLEWContext* glewContext,
                                  const eq_uint64_t  inDims[4],
-                                 const unsigned     source,
                                  const eq_uint64_t  flags,
                                  eq_uint64_t        outDims[4],
                                  void**             out )
@@ -243,6 +242,5 @@ void EqCompressorFinishDownload( void* const        ptr,
     assert( ptr );
     eq::plugin::Compressor* compressor =
         reinterpret_cast< eq::plugin::Compressor* >( ptr );
-    compressor->finishDownload( glewContext, inDims, source, flags, outDims,
-                               out );
+    compressor->finishDownload( glewContext, inDims, flags, outDims, out );
 }

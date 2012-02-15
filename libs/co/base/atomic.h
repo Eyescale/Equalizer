@@ -7,7 +7,7 @@
 
 //  Disclaimer: Not a Boost library.
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
    Modifications to use within co::base namespace and naming conventions.
    Original at http://tim.klingt.org/git?p=boost_lockfree.git;a=tree
 */
@@ -16,7 +16,6 @@
 #define COBASE_ATOMIC_H
 
 #include <co/base/api.h>
-#include <co/base/nonCopyable.h>    // base class
 #include <co/base/compiler.h>       // GCC version
 #include <co/base/types.h>
 

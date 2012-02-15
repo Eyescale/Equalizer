@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.h> 
+/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,25 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSERVER_CONFIG_DISPLAY_H
-#define EQSERVER_CONFIG_DISPLAY_H
+#include "uuid.h"
+#include "rng.h"
 
-#include "../types.h"
-
-namespace eq
+namespace co
 {
-namespace server
+namespace base
 {
-namespace config
-{
-
-class Display
-{
-public:
-    static void discoverLocal( Config* config, const uint32_t flags );
-};
+UUID::UUID( const bool generate )
+        : uint128_t()
+{ 
+    while( generate && high() == 0 )
+    {         
+        RNG rng;
+        high() = rng.get< uint64_t >();
+        low() = rng.get< uint64_t >();
+    }
+}
 
 }
 }
-}
-#endif // EQSERVER_CONFIG_DISPLAY_H

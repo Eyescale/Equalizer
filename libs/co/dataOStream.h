@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@
 #include <co/api.h>
 #include <co/types.h>
 #include <co/base/buffer.h> // member
+#include <co/base/nonCopyable.h> // base class
 
 #include <iostream>
 #include <vector>

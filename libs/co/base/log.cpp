@@ -25,6 +25,7 @@
 #include "thread.h"
 
 #include <cstdio>
+#include <cstdlib>
 #ifdef WIN32_API
 #  include <process.h>
 #endif

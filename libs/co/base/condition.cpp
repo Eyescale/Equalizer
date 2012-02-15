@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,19 +33,21 @@ namespace co
 {
 namespace base
 {
-
-class ConditionPrivate
+namespace detail
+{
+class Condition
 {
 public:
     pthread_mutex_t mutex;
     pthread_cond_t  cond;
 };
+}
 
 Condition::Condition()
-        : _data( new ConditionPrivate )
+        : _impl( new detail::Condition )
 {
     // mutex init
-    int error = pthread_mutex_init( &_data->mutex, 0 );
+    int error = pthread_mutex_init( &_impl->mutex, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: " << strerror( error )
@@ -54,7 +56,7 @@ Condition::Condition()
     }
 
     // condvar init
-    error = pthread_cond_init( &_data->cond, 0 );
+    error = pthread_cond_init( &_impl->cond, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread condition: " << strerror( error )
@@ -65,42 +67,42 @@ Condition::Condition()
 
 Condition::~Condition()
 {
-    int error = pthread_mutex_destroy( &_data->mutex );
+    int error = pthread_mutex_destroy( &_impl->mutex );
     if( error )
         EQERROR << "Error destroying pthread mutex: " << strerror( error )
                 << std::endl;
 
-    error = pthread_cond_destroy( &_data->cond );
+    error = pthread_cond_destroy( &_impl->cond );
     if( error )
         EQERROR << "Error destroying pthread condition: " << strerror( error )
                 << std::endl;
 
-    delete _data;
+    delete _impl;
 }
 
 void Condition::lock()
 {
-    pthread_mutex_lock( &_data->mutex );
+    pthread_mutex_lock( &_impl->mutex );
 }
 
 void Condition::signal()
 {
-    pthread_cond_signal( &_data->cond );
+    pthread_cond_signal( &_impl->cond );
 }
 
 void Condition::broadcast()
 {
-    pthread_cond_broadcast( &_data->cond );
+    pthread_cond_broadcast( &_impl->cond );
 }
 
 void Condition::unlock()
 {
-    pthread_mutex_unlock( &_data->mutex );
+    pthread_mutex_unlock( &_impl->mutex );
 }
 
 void Condition::wait()
 {
-    pthread_cond_wait( &_data->cond, &_data->mutex );
+    pthread_cond_wait( &_impl->cond, &_impl->mutex );
 }
 
 bool Condition::timedWait( const uint32_t timeout )
@@ -115,7 +117,7 @@ bool Condition::timedWait( const uint32_t timeout )
         Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
 
 #ifdef _WIN32
-    int error = pthread_cond_timedwait_w32_np( &_data->cond, &_data->mutex,
+    int error = pthread_cond_timedwait_w32_np( &_impl->cond, &_impl->mutex,
                                                time );
 #else
     timespec ts = { 0, 0 };
@@ -127,7 +129,7 @@ bool Condition::timedWait( const uint32_t timeout )
     ts.tv_sec  += tb.time;
     ts.tv_nsec += tb.millitm * 1000000;
 
-    int error = pthread_cond_timedwait( &_data->cond, &_data->mutex, &ts );
+    int error = pthread_cond_timedwait( &_impl->cond, &_impl->mutex, &ts );
 #endif
     if( error == ETIMEDOUT )
         return false;

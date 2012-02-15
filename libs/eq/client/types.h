@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
+#include <co/base/atomic.h>
 
 #include <map>
 #include <vector>
@@ -81,7 +82,6 @@ using fabric::DrawableConfig;
 using fabric::Frustum;
 using fabric::Frustumf;
 using fabric::GPUInfo;
-using fabric::GPUInfos;
 using fabric::Pixel;
 using fabric::PixelViewport;
 using fabric::Projection;
@@ -173,6 +173,8 @@ typedef Pipes::const_iterator PipesCIter;
 typedef Windows::const_iterator WindowsCIter;
 /** A const_iterator over a eq::Channel vector */
 typedef Channels::const_iterator ChannelsCIter;
+/** An iterator over a eq::Frame vector */
+typedef Frames::iterator FramesIter;
 /** A const_iterator over a eq::Frame vector */
 typedef Frames::const_iterator FramesCIter;
 /** A const_iterator over a eq::Image vector */
@@ -246,6 +248,7 @@ typedef std::vector< uint16_t >   Vectorus;
 /** A const_iterator over a std::string vector */
 typedef Strings::const_iterator StringsCIter;
 
+using co::base::a_int32_t;
 using co::base::uint128_t;
 using co::base::UUID;
 

@@ -588,7 +588,7 @@ namespace detail { class Channel; }
                              const ChannelFrameTransmitImagePacket* packet );
         
         /** Send the ready signal of a frame to one node. */
-        void _sendFrameDataReady(const ChannelFrameTransmitImagePacket* packet);
+        void _sendFrameDataReady(const ChannelFrameSetReadyPacket* packet);
 
         void _setOutputFrames( const uint32_t nFrames,
                                const co::ObjectVersion* frames );

@@ -54,9 +54,11 @@ package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
-xcode:
+XCode/Equalizer.xcodeproj: CMakeLists.txt
 	@mkdir -p XCode
 	@cd XCode; $(CMAKE) -G Xcode .. -DCMAKE_INSTALL_PREFIX:PATH=install
+
+xcode: XCode/Equalizer.xcodeproj
 	open XCode/Equalizer.xcodeproj
 
 tests: debug/Makefile

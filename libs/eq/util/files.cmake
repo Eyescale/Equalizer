@@ -11,6 +11,7 @@ set(EQ_UTIL_PUBLIC_HEADERS
   ../util/bitmapFont.h
   ../util/frameBufferObject.h
   ../util/objectManager.h
+  ../util/pixelBufferObject.h
   ../util/texture.h
   ../util/types.h
   )
@@ -28,5 +29,6 @@ set(EQ_UTIL_SOURCES
   ../util/gpuCompressor.cpp
   ../util/objectManager.cpp
   ../util/objectManager.ipp
+  ../util/pixelBufferObject.cpp
   ../util/texture.cpp
   )

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -129,6 +129,13 @@ ErrorData _errors[] = {
     { ERROR_WGLWINDOW_CREATECONTEXT_FAILED, "Can't create WGL context" },
 
     { ERROR_CHANNEL_WINDOW_NOTRUNNING, "Window not running" },
+
+    { ERROR_PBO_UNSUPPORTED, "Pixel Buffer Objects not supported" },
+    { ERROR_PBO_READ_ONLY, "Trying to write to read-only PBO" },
+    { ERROR_PBO_WRITE_ONLY, "Trying to read from write-only PBO" },
+    { ERROR_PBO_NOT_INITIALIZED, "PBO is not initialized" },
+    { ERROR_PBO_SIZE_TOO_SMALL, "PBO size is too small, it has to be > 0" },
+    { ERROR_PBO_TYPE_UNSUPPORTED, "Unsupported PBO type" },
 
     { 0, "" } // last!
 };
