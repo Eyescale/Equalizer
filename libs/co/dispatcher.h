@@ -21,6 +21,7 @@
 #include <co/api.h>
 #include <co/commandFunc.h> // member
 #include <co/types.h>
+#include <co/base/types.h>
 
 #include <vector>
 
