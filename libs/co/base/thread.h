@@ -19,10 +19,10 @@
 #ifndef COBASE_THREAD_H
 #define COBASE_THREAD_H
 
-#include <co/base/api.h>      // COBASE_API definition
-#include <co/base/debug.h>    // debug macros in thread-safety checks
-#include <co/base/monitor.h>  // member
-#include <co/base/threadID.h> // member
+#include <co/base/api.h>         // COBASE_API definition
+#include <co/base/debug.h>       // debug macros in thread-safety checks
+#include <co/base/nonCopyable.h> // base class
+#include <co/base/threadID.h>    // member
 
 #include <ostream>
 
