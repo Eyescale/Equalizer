@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,20 +28,17 @@
 #define COBASE_LOG_H
 
 #include <co/base/api.h>
+#include <co/base/types.h>
 
 #include <assert.h>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <time.h>
 
 namespace co
 {
 namespace base
 {
-    class Clock;
-    class Lock;
-
     /** The logging levels. @version 1.0 */
     enum LogLevel
     {

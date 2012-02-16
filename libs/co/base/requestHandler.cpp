@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,62 +20,134 @@
 #include "scopedMutex.h"
 
 #include <co/base/debug.h>
+#include <co/base/stdExt.h>
+#include <co/base/spinLock.h>
+#include <co/base/timedLock.h>
 
 namespace co
 {
 namespace base
 {
+//! @cond IGNORE
+namespace
+{
+struct Request
+{
+    Request() { lock.set(); }
+    ~Request(){}
+
+    TimedLock lock;
+    void*     data;
+
+    union Result
+    {
+        void*    rPointer;
+        uint32_t rUint32;
+        bool     rBool;
+        struct
+        {
+            uint64_t low;
+            uint64_t high;
+        } rUint128;
+    } result;
+};
+typedef stde::hash_map< uint32_t, Request* > RequestHash;
+typedef RequestHash::const_iterator RequestHashCIter;
+}
+
+namespace detail
+{
+class RequestHandler
+{
+public:
+    RequestHandler() : requestID( 1 ) {}
+
+    bool waitRequest( const uint32_t requestID_, Request::Result& result,
+                      const uint32_t timeout )
+        {
+            Request* request = 0;
+            {
+                ScopedFastWrite mutex( lock );
+                RequestHashCIter i = requests.find( requestID_ );
+                if( i == requests.end( ))
+                    return false;
+
+                request = i->second;
+            }
+
+            const bool requestServed = request->lock.set( timeout );
+            if( requestServed )
+                result = request->result;
+
+            unregisterRequest( requestID_ );
+            return requestServed;
+        }
+
+    void unregisterRequest( const uint32_t requestID_ )
+        {
+            ScopedFastWrite mutex( lock );
+
+            RequestHash::iterator i = requests.find( requestID_ );
+            if( i == requests.end( ))
+                return;
+
+            Request* request = i->second;
+            requests.erase( i );
+            freeRequests.push_front( request );
+        }
+
+    mutable SpinLock lock;
+    uint32_t requestID;
+    RequestHash requests;
+    std::list<Request*> freeRequests;
+};
+}
+// @endcond
+
 RequestHandler::RequestHandler()
-        : _requestID( 1 ) 
+        : _impl( new detail::RequestHandler )
 {}
 
 RequestHandler::~RequestHandler()
 {
-    while( !_freeRequests.empty( ))
+    while( !_impl->freeRequests.empty( ))
     {
-        Request* request = _freeRequests.front();
-        _freeRequests.pop_front();
+        Request* request = _impl->freeRequests.front();
+        _impl->freeRequests.pop_front();
         delete request;
     }
+    delete _impl;
 }
 
 uint32_t RequestHandler::registerRequest( void* data )
 {
-    ScopedMutex< SpinLock > mutex( _mutex );
+    ScopedFastWrite mutex( _impl->lock );
 
     Request* request;
-    if( _freeRequests.empty( ))
+    if( _impl->freeRequests.empty( ))
         request = new Request;
     else
     {
-        request = _freeRequests.front();
-        _freeRequests.pop_front();
+        request = _impl->freeRequests.front();
+        _impl->freeRequests.pop_front();
     }
 
     request->data = data;
-    _requestID = ( _requestID + 1 ) % EQ_MAX_UINT32;
-    _requests[ _requestID ] = request;
-    return _requestID;
+    _impl->requestID = ( _impl->requestID + 1 ) % EQ_MAX_UINT32;
+    _impl->requests[ _impl->requestID ] = request;
+    return _impl->requestID;
 }
 
 void RequestHandler::unregisterRequest( const uint32_t requestID )
 {
-    ScopedMutex< SpinLock > mutex( _mutex );
-
-    RequestHash::iterator i = _requests.find( requestID );
-    if( i == _requests.end( ))
-        return;
-
-    Request* request = i->second;
-    _requests.erase( i );
-    _freeRequests.push_front( request );
+    _impl->unregisterRequest( requestID );
 }
 
 bool RequestHandler::waitRequest( const uint32_t requestID, void*& rPointer,
                                   const uint32_t timeout )
 {
     Request::Result result;
-    if( !_waitRequest( requestID, result, timeout ))
+    if( !_impl->waitRequest( requestID, result, timeout ))
         return false;
 
     rPointer = result.rPointer;
@@ -85,7 +157,7 @@ bool RequestHandler::waitRequest( const uint32_t requestID, uint32_t& rUint32,
                                   const uint32_t timeout )
 {
     Request::Result result;
-    if( !_waitRequest( requestID, result, timeout ))
+    if( !_impl->waitRequest( requestID, result, timeout ))
         return false;
 
     rUint32 = result.rUint32;
@@ -96,7 +168,7 @@ bool RequestHandler::waitRequest( const uint32_t requestID, uint128_t& rUint128,
                                   const uint32_t timeout )
 {
     Request::Result result;
-    if( !_waitRequest( requestID, result, timeout ))
+    if( !_impl->waitRequest( requestID, result, timeout ))
         return false;
 
     rUint128.high() = result.rUint128.high;
@@ -108,7 +180,7 @@ bool RequestHandler::waitRequest( const uint32_t requestID, bool& rBool,
                                   const uint32_t timeout )
 {
     Request::Result result;
-    if( !_waitRequest( requestID, result, timeout ))
+    if( !_impl->waitRequest( requestID, result, timeout ))
         return false;
 
     rBool = result.rBool;
@@ -117,39 +189,14 @@ bool RequestHandler::waitRequest( const uint32_t requestID, bool& rBool,
 bool RequestHandler::waitRequest( const uint32_t requestID )
 {
     Request::Result result;
-    return _waitRequest( requestID, result, EQ_TIMEOUT_INDEFINITE );
-}
-
-bool RequestHandler::_waitRequest( const uint32_t requestID, 
-                                   Request::Result& result,
-                                   const uint32_t timeout )
-{
-    Request* request = 0;
-    {
-        ScopedMutex< SpinLock > mutex( _mutex );
-
-        RequestHash::const_iterator i = _requests.find( requestID );
-        if( i == _requests.end( ))
-            return false;
-
-        request = i->second;
-    }
-
-    const bool requestServed = request->lock.set( timeout );
-    if( requestServed )
-        result = request->result;
-
-    unregisterRequest( requestID );
-    
-    //EQINFO << "Cleared " << requestID << std::endl;
-    return requestServed;
+    return _impl->waitRequest( requestID, result, EQ_TIMEOUT_INDEFINITE );
 }
 
 void* RequestHandler::getRequestData( const uint32_t requestID )
 {
-    ScopedMutex< SpinLock > mutex( _mutex );
-    RequestHash::const_iterator i = _requests.find( requestID );
-    if( i == _requests.end( ))
+    ScopedFastWrite mutex( _impl->lock );
+    RequestHashCIter i = _impl->requests.find( requestID );
+    if( i == _impl->requests.end( ))
         return 0;
 
     return i->second->data;
@@ -159,10 +206,10 @@ void RequestHandler::serveRequest( const uint32_t requestID, void* result )
 {
     Request* request = 0;
     {
-        ScopedMutex< SpinLock > mutex( _mutex );
-        RequestHash::const_iterator i = _requests.find( requestID );
+        ScopedFastWrite mutex( _impl->lock );
+        RequestHashCIter i = _impl->requests.find( requestID );
 
-        if( i != _requests.end( ))
+        if( i != _impl->requests.end( ))
             request = i->second;
     }
     if( request )
@@ -176,10 +223,10 @@ void RequestHandler::serveRequest( const uint32_t requestID, uint32_t result )
 {
     Request* request = 0;
     {
-        ScopedMutex< SpinLock > mutex( _mutex );
-        RequestHash::const_iterator i = _requests.find( requestID );
+        ScopedFastWrite mutex( _impl->lock );
+        RequestHashCIter i = _impl->requests.find( requestID );
 
-        if( i != _requests.end( ))
+        if( i != _impl->requests.end( ))
             request = i->second;
     }
     if( request )
@@ -193,10 +240,10 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
 {
     Request* request = 0;
     {
-        ScopedMutex< SpinLock > mutex( _mutex );
-        RequestHash::const_iterator i = _requests.find( requestID );
+        ScopedFastWrite mutex( _impl->lock );
+        RequestHashCIter i = _impl->requests.find( requestID );
 
-        if( i != _requests.end( ))
+        if( i != _impl->requests.end( ))
             request = i->second;
     }
     if( request )
@@ -206,14 +253,15 @@ void RequestHandler::serveRequest( const uint32_t requestID, bool result )
     }
 }
 
-void RequestHandler::serveRequest( const uint32_t requestID, const uint128_t& result )
+void RequestHandler::serveRequest( const uint32_t requestID,
+                                   const uint128_t& result )
 {
     Request* request = 0;
     {
-        ScopedMutex< SpinLock > mutex( _mutex );
-        RequestHash::const_iterator i = _requests.find( requestID );
+        ScopedFastWrite mutex( _impl->lock );
+        RequestHashCIter i = _impl->requests.find( requestID );
 
-        if( i != _requests.end( ))
+        if( i != _impl->requests.end( ))
             request = i->second;
     }
         
@@ -228,9 +276,9 @@ void RequestHandler::serveRequest( const uint32_t requestID, const uint128_t& re
     
 bool RequestHandler::isRequestServed( const uint32_t requestID ) const
 {
-    ScopedMutex< SpinLock > mutex( _mutex );
-    RequestHash::const_iterator i = _requests.find( requestID );
-    if( i == _requests.end( ))
+    ScopedFastWrite mutex( _impl->lock );
+    RequestHashCIter i = _impl->requests.find( requestID );
+    if( i == _impl->requests.end( ))
         return false;
 
     Request* request = i->second;
@@ -240,17 +288,26 @@ bool RequestHandler::isRequestServed( const uint32_t requestID ) const
     return false;
 }
 
-std::ostream& operator << ( std::ostream& os, const RequestHandler& rh )
+bool RequestHandler::hasPendingRequests() const
 {
-    ScopedMutex< SpinLock > mutex( rh._mutex );
-    for( RequestHandler::RequestHash::const_iterator i = rh._requests.begin();
-         i != rh._requests.end(); ++i )
+    return !_impl->requests.empty();
+}
+
+std::ostream& operator << ( std::ostream& os, const detail::RequestHandler& rh )
+{
+    ScopedFastWrite mutex( rh.lock );
+    for( RequestHashCIter i = rh.requests.begin(); i != rh.requests.end(); ++i )
     {
         os << "request " << i->first << " served " << i->second->lock.isSet()
            << std::endl;
     }
 
     return os;    
+}
+
+std::ostream& operator << ( std::ostream& os, const RequestHandler& rh )
+{
+    return os << *rh._impl;
 }
 
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,11 +19,8 @@
 #define COBASE_REQUESTHANDLER_H
 
 #include <co/base/api.h>       // COBASE_API definition
-#include <co/base/stdExt.h>    // member
 #include <co/base/thread.h>    // thread-safety macros
-#include <co/base/spinLock.h>  // member
-#include <co/base/timedLock.h> // member
-#include <co/base/uint128_t.h> // member
+#include <co/base/types.h>
 
 #include <list>
 
@@ -31,6 +28,8 @@ namespace co
 {
 namespace base
 {
+namespace detail { class RequestHandler; }
+
     /**
      * A thread-safe request handler.
      * 
@@ -145,45 +144,12 @@ namespace base
          * @return true if this request handler has pending requests.
          * @version 1.0
          */
-        bool hasPendingRequests() const { return !_requests.empty( ); }
+        COBASE_API bool hasPendingRequests() const;
 
     private:
-        mutable SpinLock _mutex;
-
-        //! @cond IGNORE
-        struct Request
-        {
-            Request() { lock.set(); }
-            ~Request(){}
-            
-            TimedLock lock;
-            void*     data;
-
-            union Result
-            {
-                void*    rPointer;
-                uint32_t rUint32;
-                bool     rBool;
-                struct
-                {
-                    uint64_t low;
-                    uint64_t high;
-                } rUint128;
-            } result;
-        };
-        // @endcond
-
-        typedef stde::hash_map< uint32_t, Request* > RequestHash;
-
-        uint32_t            _requestID;
-        RequestHash         _requests;
-        std::list<Request*> _freeRequests;
-        friend COBASE_API std::ostream& operator << (std::ostream&,
-                                                     const RequestHandler&);
-
-        bool _waitRequest( const uint32_t requestID, Request::Result& result,
-                           const uint32_t timeout );
-
+        detail::RequestHandler* const _impl;
+        friend COBASE_API std::ostream& operator << ( std::ostream&,
+                                                     const RequestHandler& );
         EQ_TS_VAR( _thread );
     };
 
