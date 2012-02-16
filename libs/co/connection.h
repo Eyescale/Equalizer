@@ -34,6 +34,7 @@
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #  include <malloc.h>
+#  include <co/base/os.h>
 #else
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif

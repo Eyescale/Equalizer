@@ -23,6 +23,7 @@
 #include <co/base/debug.h>       // debug macros in thread-safety checks
 #include <co/base/nonCopyable.h> // base class
 #include <co/base/threadID.h>    // member
+#include <co/base/types.h>
 
 #include <ostream>
 
