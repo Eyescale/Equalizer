@@ -17,6 +17,7 @@
 
 // Tests the functionality of the config visitor
 
+#define EQ_IGNORE_GLEW // just to test that somewhere...
 #include <test.h>
 
 #include <eq/client/channel.h>
