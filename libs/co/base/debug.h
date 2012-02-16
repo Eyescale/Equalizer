@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,6 @@
 
 #include <co/base/defines.h>
 #include <co/base/log.h>
-#include <typeinfo>
 
 #ifndef _WIN32
 #  include <cxxabi.h>
@@ -62,23 +61,11 @@ COBASE_API std::ostream& sysError( std::ostream& os );
  */
 COBASE_API std::ostream& backtrace( std::ostream& os );
 
+COBASE_API std::string demangleTypeID( const char* mangled ); //!< @internal
+
 /** Print the RTTI name of the given class. @version 1.0 */
 template< class T > inline std::string className( T* object )
-{
-#ifdef _WIN32
-    return std::string( typeid( *object ).name( ));
-#else
-    int status;
-    const char* mangled = typeid( *object ).name();
-    char* name = abi::__cxa_demangle( mangled, 0, 0, &status );
-    std::string result = name;
-    if( status != 0 )
-        result = mangled;
-    if( name )
-        free( name );
-    return result;
-#endif
-}
+    { return demangleTypeID( typeid( *object ).name( )); }
 
 }
 }

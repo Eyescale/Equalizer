@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@ namespace co
 {
 namespace base
 {
-    class ClockPrivate;
+namespace detail { class Clock; }
 
     /** A class for time measurements. */
     class Clock
@@ -84,7 +84,7 @@ namespace base
         COBASE_API float getMilliSecondsf() const;
 
     private:
-        ClockPrivate* _data;
+        detail::Clock* const _impl;
     };
 }
 }

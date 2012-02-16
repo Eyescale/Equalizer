@@ -1,6 +1,5 @@
 
-/* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,53 +26,57 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <eq/eq.h>
+#include <vertexBufferRoot.h>
 
-#ifndef MESH_VERTEXBUFFERROOT_H
-#define MESH_VERTEXBUFFERROOT_H
-
-#include "vertexBufferNode.h"
-#include "vertexBufferData.h"
-
-namespace mesh 
+namespace
 {
-    /*  The class for kd-tree root nodes.  */
-    class VertexBufferRoot : public VertexBufferNode
+static bool _isPlyfile( const std::string& filename )
+{
+    const size_t size = filename.length();
+    if( size < 5 )
+        return false;
+
+    if( filename[size-4] != '.' || filename[size-3] != 'p' ||
+        filename[size-2] != 'l' || filename[size-1] != 'y' )
     {
-    public:
-        VertexBufferRoot() : VertexBufferNode(), _invertFaces(false) {}
-
-        virtual void cullDraw( VertexBufferState& state ) const;
-        virtual void draw( VertexBufferState& state ) const;
-        
-        void setupTree( VertexData& data );
-        bool writeToFile( const std::string& filename );
-        bool readFromFile( const std::string& filename );
-        bool hasColors() const { return _data.colors.size() > 0; }
-
-        void useInvertedFaces() { _invertFaces = true; }
-
-        const std::string& getName() const { return _name; }
-
-    protected:
-        virtual void toStream( std::ostream& os );
-        virtual void fromMemory( char* start );
-        
-    private:
-        bool _constructFromPly( const std::string& filename );
-        bool _readBinary( std::string filename );
-
-        void _beginRendering( VertexBufferState& state ) const;
-        void _endRendering( VertexBufferState& state ) const;
-
-        VertexBufferData _data;
-        bool             _invertFaces;
-        std::string      _name;
-
-        friend class eqPly::VertexBufferDist;
-    };
-    
-    
+        return false;
+    }
+    return true;
+}
 }
 
+int main( const int argc, char** argv )
+{
+    eq::Strings filenames;
+    for( int i=1; i < argc; ++i )
+        filenames.push_back( argv[i] );
 
-#endif // MESH_VERTEXBUFFERROOT_H
+    while( !filenames.empty( ))
+    {
+        const std::string filename = filenames.back();
+        filenames.pop_back();
+     
+        if( _isPlyfile( filename ))
+        {
+            mesh::VertexBufferRoot* model = new mesh::VertexBufferRoot;
+            if( !model->readFromFile( filename.c_str( )))
+                EQWARN << "Can't load model: " << filename << std::endl;
+
+            delete model;
+        }
+        else
+        {
+            const std::string basename = co::base::getFilename( filename );
+            if( basename == "." || basename == ".." )
+                continue;
+
+            // recursively search directories
+            const eq::Strings& subFiles =
+                co::base::searchDirectory( filename, "*" );
+
+            for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
+                filenames.push_back( filename + '/' + *i );
+        }
+    }
+}

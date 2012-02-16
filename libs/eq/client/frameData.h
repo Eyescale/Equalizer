@@ -80,6 +80,9 @@ namespace server { class FrameData; }
         /** @return the storage type. @version 1.3.0 */
         Frame::Type getType() const { return _data.frameType; }
 
+        /** Set the storage type. @version 1.3.1 */
+        void setType( const Frame::Type type ){ _data.frameType = type; }
+
         /** @return the enabled frame buffer attachments. @version 1.0 */
         uint32_t getBuffers() const { return _data.buffers; }
 

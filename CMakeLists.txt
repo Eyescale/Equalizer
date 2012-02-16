@@ -33,7 +33,7 @@ include(revision)
 set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
@@ -317,7 +317,7 @@ message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 include(CPackConfig)
 include(copyScript)
 
-SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
+set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
   "ld: warning: duplicate dylib")
 include(CTest)

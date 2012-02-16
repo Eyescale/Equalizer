@@ -168,6 +168,8 @@
      * 82: Excessive memory usage with object push
      * 87: Debian packages broken
      * 88: draw_sync thread model causes full synchronization
+     * 90: Race condition with direct send and higher number
+       of nodes
 
   2.9. Known Bugs
 

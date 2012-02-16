@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -135,22 +135,27 @@ void _parseArguments( const int argc, char** argv )
             ++i;
             if( i<argc )
             {
-                if( _logFile )
-                {
-                    EQWARN << "Redirecting log to " << argv[i] << std::endl;
-                    _logFile->close();
-                    delete _logFile;
-                }
+                std::ofstream* oldLog = _logFile;
+                std::ofstream* newLog = new std::ofstream( argv[i] );
 
-                _logFile = new std::ofstream( argv[i] );
-                if( _logFile->is_open( ))
-                    co::base::Log::setOutput( *_logFile );
+                if( newLog->is_open( ))
+                {
+                    _logFile = newLog;
+                    co::base::Log::setOutput( *newLog );
+
+                    if( oldLog )
+                    {
+                        *oldLog << "Redirected log to " << argv[i] << std::endl;
+                        oldLog->close();
+                        delete oldLog;
+                    }
+                }
                 else
                 {
                     EQWARN << "Can't open log file " << argv[i] << ": "
                            << co::base::sysError << std::endl;
-                    delete _logFile;
-                    _logFile = 0;
+                    delete newLog;
+                    newLog = 0;
                 }
             }
         }
@@ -165,6 +170,19 @@ void _parseArguments( const int argc, char** argv )
             ++i;
             if( i<argc )
                 Global::setConfigFile( argv[i] );
+        }
+        else if( strcmp( "--eq-config-flags", argv[i] ) == 0 )
+        {
+            ++i;
+            if( i >= argc )
+                break;
+
+            uint32_t flags = Global::getFlags();
+            if( strcmp( "multiprocess", argv[i] ))
+                flags |= ConfigParams::FLAG_MULTIPROCESS;
+            else if( strcmp( "multiprocess_db", argv[i] ))
+                flags |= ConfigParams::FLAG_MULTIPROCESS_DB;
+            Global::setFlags( flags );
         }
         else if( strcmp( "--eq-render-client", argv[i] ) == 0 )
         {

@@ -1306,6 +1306,7 @@ struct Channel::RBStat
         {
             event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
             event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
+            EQASSERT( event.event.data.statistic.frameNumber > 0 );
         }
 
     co::base::SpinLock lock;
@@ -1327,9 +1328,12 @@ struct Channel::RBStat
             delete this;
         }
 
+    int32_t getRefCount() const { return _refCount; }
 private:
     a_int32_t _refCount;
 };
+
+typedef co::base::RefPtr< Channel::RBStat > RBStatPtr;
 
 void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 {
@@ -1338,13 +1342,11 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 
     frameTilesStart( packet->context.frameID );
 
-    RBStat* stat = 0;
+    RBStatPtr stat;
     if( packet->tasks & fabric::TASK_READBACK )
     {
         _setOutputFrames( packet->nFrames, packet->frames );
         stat = new RBStat( this );
-        stat->ref(); // set ready
-        stat->ref(); // self
     }
 
     int64_t startTime = getConfig()->getTime();
@@ -1413,7 +1415,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 }
             }
 
-            if( _startFinishReadback( stat, nImages, false ))
+            if( _startFinishReadback( stat.get(), nImages, false ))
                 hasAsyncReadback = true;
         }
         queuePacket->release();
@@ -1451,11 +1453,10 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 frame->getInputNetNodes( eye );
 
             if( hasAsyncReadback )
-                _startSetReady( frame->getData(), stat, nodes, netNodes );
+                _startSetReady( frame->getData(), stat.get(), nodes, netNodes );
             else
-                _setReady( frame->getData(), stat, nodes, netNodes );
+                _setReady( frame->getData(), stat.get(), nodes, netNodes );
         }
-        stat->unref();
     }
 
     frameTilesFinish( packet->context.frameID );
@@ -1466,7 +1467,7 @@ void Channel::_refFrame( const uint32_t frameNumber )
 {
     const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
-    EQASSERT( stats.used > 0 );
+    EQASSERTINFO( stats.used > 0, frameNumber );
     ++stats.used;
 }
 
@@ -1514,8 +1515,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 {
     EQ_TS_THREAD( _pipeThread );
 
-    RBStat* stat = new RBStat( this );
-    stat->ref();
+    RBStatPtr stat = new RBStat( this );
     _setOutputFrames( nFrames, frames );
 
     std::vector< size_t > nImages( nFrames, 0 );
@@ -1523,7 +1523,8 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
         nImages[i] = _impl->outputFrames[i]->getImages().size();
 
     frameReadback( frameID );
-    _startFinishReadback( stat, nImages, true );
+    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    _startFinishReadback( stat.get(), nImages, true );
     _resetOutputFrames();
 }
 
@@ -1846,6 +1847,7 @@ void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
     std::vector< uint128_t > ids = nodes;
     ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
 
+    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
     ChannelFrameSetReadyPacket packet( frame, stat, nodes.size( ));
     send( getLocalNode(), packet, ids );
 }
@@ -1859,7 +1861,9 @@ void Channel::_setReady( const ChannelFrameSetReadyPacket* packet )
     netNodes.insert( netNodes.end(), packet->IDs + packet->nNodes,
                      packet->IDs + 2 * packet->nNodes );
 
-    _setReady( frameData, packet->stat, nodes, netNodes );
+    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
+   _setReady( frameData, packet->stat, nodes, netNodes );
+   packet->stat->unref();
 }
 
 void Channel::_setReady( FrameData* frame, RBStat* stat,
@@ -1908,7 +1912,6 @@ void Channel::_setReady( FrameData* frame, RBStat* stat,
             }
         }
     }
-    stat->unref();
 }
 
 void Channel::_setReadyNode( const ChannelFrameSetReadyNodePacket* packet )
@@ -2030,8 +2033,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
+    EQASSERTINFO( statistic.used == 0, packet->frameNumber );
     EQASSERT( statistic.data.empty( ));
-    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
 
     resetRenderContext();
