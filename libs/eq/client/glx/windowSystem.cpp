@@ -43,6 +43,13 @@ static class : WindowSystemIF
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
+        static bool asyncGLXEnabled = false;
+        if( !asyncGLXEnabled )
+        {
+            XInitThreads();
+            asyncGLXEnabled = true;
+        }
+
         EQINFO << "Using glx::Pipe" << std::endl;
         return new Pipe(pipe);
     }

@@ -180,6 +180,7 @@ namespace fabric
         CMD_CHANNEL_STOP_FRAME,
         CMD_CHANNEL_FRAME_TILES,
         CMD_CHANNEL_FINISH_READBACK,
+        CMD_CHANNEL_DELETE_ASYNC_CONTEXT,
         CMD_CHANNEL_CUSTOM = 40 // some buffer for binary-compatible patches
     };
 

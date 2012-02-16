@@ -185,6 +185,15 @@ namespace eq
         EQ_API const GLEWContext* glewGetContext() const;
 
         /**
+         * Creates async window if necessary and returns its context.
+         * 
+         * Should be called from a separate thread.
+         * 
+         * @return shared context to use in asyncronous thread.
+         */
+        EQ_API const GLEWContext* getAsyncGlewContext();
+
+        /**
          * @internal
          * @return the OpenGL texture format corresponding to the window's color
          *         drawable configuration
@@ -225,7 +234,7 @@ namespace eq
          * @internal
          * Make the window's drawable and context current.
          *
-         * GL drivers tend to be behave sub-optimally if two many makeCurrent
+         * GL drivers tend to behave sub-optimally if two many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
          * this method will only call SystemWindow::makeCurrent if it has not
          * been done before for this window on this pipe.
@@ -263,6 +272,23 @@ namespace eq
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
         SystemPipe* getSystemPipe(); 
+
+        /**
+         * Creates shared context window for asynchronious context usage.
+         *
+         * Should be called from separate thread.
+         *
+         * @return the OS-specific async window implementation.
+         */
+        const eq::SystemWindow* getAsyncSystemWindow();
+
+        /**
+         * Creates shared context window for asynchronious context usage.
+         *
+         * Should be called from the same thread getAsyncSystemWindow 
+         * was called.
+         */
+        void deleteAsyncSystemWindow();
         //@}
 
         /**
@@ -415,6 +441,9 @@ namespace eq
 
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
+
+        /** Async window */
+        SystemWindow* _asyncSystemWindow;
 
         /** Window-system specific functions class */
         SystemWindow* _systemWindow;

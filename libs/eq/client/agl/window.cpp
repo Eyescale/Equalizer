@@ -169,7 +169,8 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     attributes.push_back( GL_TRUE );
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON && 
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )   == WINDOW )
+       (getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )   == WINDOW ||
+        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )   == FBO ))
     {
         attributes.push_back( AGL_FULLSCREEN );
     }

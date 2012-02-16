@@ -63,6 +63,7 @@ const char* _mediumFontKey = "eq_medium_font";
 Window::Window( Pipe* parent )
         : Super( parent )
         , _sharedContextWindow( 0 ) // default set below
+        , _asyncSystemWindow( 0 )
         , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
@@ -472,6 +473,81 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
+
+const SystemWindow* Window::getAsyncSystemWindow()
+{
+    // check if current window shares context with anothers
+    if( _sharedContextWindow != 0 && _sharedContextWindow != this )
+        return _sharedContextWindow->getAsyncSystemWindow();
+    // else this window has shared context
+
+    // check if it is already initialized
+    if( _asyncSystemWindow )
+        return _asyncSystemWindow;
+
+    EQASSERT( _systemWindow );
+
+    // store old drawable of window and set window's drawable to FBO,
+    // create another (shared) osWindow and restore original drawable
+    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
+    setIAttribute( IATTR_HINT_DRAWABLE,  FBO );
+
+    const int32_t stencil = getIAttribute( IATTR_PLANES_STENCIL );
+    setIAttribute( IATTR_PLANES_STENCIL, OFF );
+
+    const Pipe* pipe = getPipe();
+    _asyncSystemWindow = pipe->getWindowSystem().createWindow( this );
+
+    if( !_asyncSystemWindow )
+    {
+        EQERROR << "Window system " << pipe->getWindowSystem()
+                << " not implemented or supported" << std::endl;
+        return 0;
+    }
+    _asyncSystemWindow->ignoreEventHandler();
+
+    if( !_asyncSystemWindow->configInit( ))
+    {
+        EQWARN << "OS Window initialization failed: " << std::endl;
+        delete _asyncSystemWindow;
+        _asyncSystemWindow = 0;
+        return 0;
+    }
+
+    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
+    setIAttribute( IATTR_PLANES_STENCIL, stencil );
+
+    _asyncSystemWindow->makeCurrent();
+
+    EQWARN << "Async fetcher initialization finished" << std::endl;
+    return _asyncSystemWindow;
+}
+
+
+const GLEWContext* Window::getAsyncGlewContext()
+{
+    const SystemWindow* asyncWnd = getAsyncSystemWindow();
+    if( asyncWnd )
+        return asyncWnd->glewGetContext();
+    return 0;
+}
+
+void Window::deleteAsyncSystemWindow()
+{
+    if( _asyncSystemWindow )
+    {
+        const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
+        setIAttribute( IATTR_HINT_DRAWABLE, FBO );
+
+        _asyncSystemWindow->configExit();
+
+        delete _asyncSystemWindow;
+        _asyncSystemWindow = 0;
+
+        setIAttribute( IATTR_HINT_DRAWABLE, drawable );
+    }
+}
+
 //----------------------------------------------------------------------
 // configExit
 //----------------------------------------------------------------------
@@ -483,6 +559,10 @@ bool Window::configExit()
 
 bool Window::configExitSystemWindow()
 {
+    // _asyncSystemWindow has to be deleted from the same thread it was
+    // initialized
+    EQASSERT( !_asyncSystemWindow );
+
     _releaseObjectManager();
 
     if( _systemWindow )

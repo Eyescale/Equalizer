@@ -61,7 +61,6 @@ namespace detail { class AsyncRBThread; }
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
         co::CommandQueue* getAsyncRBThreadQueue(); //!< @internal
-        const GLEWContext* getAsyncGlewContext(); //!< @internal
 
 
         /** @return the parent configuration. @version 1.0 */
@@ -151,7 +150,7 @@ namespace detail { class AsyncRBThread; }
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
         void notifyMapped(); //!< @internal
-        
+
         /**
          * @internal
          * Wait for a frame to be finished.
@@ -180,6 +179,9 @@ namespace detail { class AsyncRBThread; }
 
         /** @internal Start the async readback thread. */
         bool startAsyncRBThread();
+
+        /** @internal Checks if async readback thread is running. */
+        bool hasAsyncRBThread() const;
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system

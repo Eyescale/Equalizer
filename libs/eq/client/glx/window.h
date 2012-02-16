@@ -31,6 +31,7 @@ namespace glx
     {
     public:
         WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
+
         virtual ~WindowIF() {}
 
         /** @return the glX rendering context. @version 1.0 */
@@ -144,6 +145,8 @@ namespace glx
          * @version 1.0
          */
         EQ_API virtual void exitEventHandler();
+
+        EQ_API virtual void ignoreEventHandler(){ _useEventHandler = false; };
         //@}
 
         /** @name Data Access. */
@@ -215,6 +218,9 @@ namespace glx
 
         /** The glX extension pointer table. */
         GLXEWContext* _glxewContext;
+
+        /** whether glX window has event handler or not */
+        bool _useEventHandler;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

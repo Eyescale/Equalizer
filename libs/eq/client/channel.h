@@ -628,6 +628,8 @@ namespace detail { class Channel; }
                                const co::ObjectVersion* frames );
         void _resetOutputFrames();
 
+        void _deleteAsyncContext();
+
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
         bool _cmdConfigExit( co::Command& command );
@@ -646,6 +648,7 @@ namespace detail { class Channel; }
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
+        bool _cmdDeleteAsyncContext( co::Command& command );
 
         EQ_TS_VAR( _pipeThread );
     };

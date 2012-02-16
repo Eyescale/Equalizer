@@ -34,7 +34,6 @@
 #include "view.h"
 #include "window.h"
 #include "windowPackets.h"
-#include "asyncRB/asyncRBThread.h"
 
 #include "messagePump.h"
 #include "systemPipe.h"
@@ -78,6 +77,25 @@ private:
     Pipe* _pipe;
     friend class Pipe;
 };
+
+namespace detail
+{
+
+/** Asynchronous, per-pipe readback thread. */
+class AsyncRBThread : public eq::Worker
+{
+public:
+    AsyncRBThread() : eq::Worker(), _running( true ){}
+
+    virtual bool start(){ if(isRunning()) return true; return Worker::start(); }
+    virtual bool stopRunning() { return !_running; }
+    void postStop() { _running = false; }
+
+private:
+    bool _running; // Async thread will exit if this is false
+};
+}
+
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
@@ -482,14 +500,6 @@ void Pipe::startThread()
     _thread->start();
 }
 
-const GLEWContext* Pipe::getAsyncGlewContext()
-{
-    if( startAsyncRBThread( ))
-        return _asyncRBThread->glewGetContext();
-
-    return 0;
-}
-
 void Pipe::exitThread()
 {
     _stopAsyncRBThread();
@@ -731,19 +741,24 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                        << std::endl;
 }
 
+
 bool Pipe::startAsyncRBThread()
 {
     if( _asyncRBThread->isRunning( ))
         return true;
 
-    const Windows& windows = getWindows();
-    EQASSERT( !windows.empty( ))
-    if( windows.empty() )
-        return false;
-
-    _asyncRBThread->setWindow( windows[0] );
     return _asyncRBThread->start();
 }
+
+
+bool Pipe::hasAsyncRBThread() const
+{
+    if( _asyncRBThread && _asyncRBThread->isRunning( ))
+        return true;
+
+    return false;
+}
+
 
 void Pipe::_stopAsyncRBThread()
 {

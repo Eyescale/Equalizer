@@ -119,6 +119,8 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFinishReadback ), asyncRBQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
                      CmdFunc( this, &Channel::_cmdFrameSetReady ), asyncRBQ );
+    registerCommand( fabric::CMD_CHANNEL_DELETE_ASYNC_CONTEXT,
+                     CmdFunc( this,&Channel::_cmdDeleteAsyncContext),asyncRBQ );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -1603,7 +1605,7 @@ void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
     const Images& images = frameData->getImages();
     Image* image = images[ packet->imageIndex ];
-    const GLEWContext* glewContext = getPipe()->getAsyncGlewContext();
+    const GLEWContext* glewContext = getWindow()->getAsyncGlewContext();
 
     EQASSERT( frameData );
     EQASSERT( images.size() > packet->imageIndex );
@@ -1920,9 +1922,40 @@ void Channel::_setReadyNode( const ChannelFrameSetReadyNodePacket* packet )
     toNode->send( readyPacket );
 }
 
+
+void Channel::_deleteAsyncContext()
+{
+    if( !getPipe()->hasAsyncRBThread( ))
+        return;
+
+    co::base::Lock lock;
+    lock.set();
+
+    ChannelDeleteAsyncContextPacket packet;
+    packet.lock = &lock;
+    send( getLocalNode(), packet );
+
+    // wait for packet to be processed
+    lock.set();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
+bool Channel::_cmdDeleteAsyncContext( co::Command& command )
+{
+    const ChannelDeleteAsyncContextPacket* packet =
+        command.get<ChannelDeleteAsyncContextPacket>();
+    EQLOG( LOG_INIT ) << "Delete async context " << packet << std::endl;
+
+    getWindow()->deleteAsyncSystemWindow();
+
+    // release waiting channel
+    EQASSERT( packet->lock );
+    packet->lock->unset();
+    return true;
+}
+
 bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet =
@@ -1971,6 +2004,8 @@ bool Channel::_cmdConfigExit( co::Command& command )
     const ChannelConfigExitPacket* packet =
         command.get<ChannelConfigExitPacket>();
     EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
+
+    _deleteAsyncContext();
 
     if( _impl->state != STATE_STOPPED )
         _impl->state = configExit() ? STATE_STOPPED : STATE_FAILED;
