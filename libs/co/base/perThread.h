@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,16 +18,16 @@
 #ifndef COBASE_PERTHREAD_H
 #define COBASE_PERTHREAD_H
 
-#include <errno.h>
-#include <string.h>
-
 #include <co/base/nonCopyable.h>
+
+#include <cstdio>
+#include <string.h>
 
 namespace co
 {
 namespace base
 {
-    class PerThreadPrivate;
+namespace detail { class PerThread; }
 
     /** Default PerThread destructor deleting the object. @version 1.1.2 */
     template< class T > void perThreadDelete( T* object ) { delete object; }
@@ -110,7 +110,7 @@ namespace base
         bool isValid() const;
 
     private:
-        PerThreadPrivate* _data;
+        detail::PerThread* const _impl;
     };
 }
 }
@@ -135,19 +135,21 @@ namespace co
 {
 namespace base
 {
-
-class PerThreadPrivate
+namespace detail
+{
+class PerThread
 {
 public:
     pthread_key_t key;
 };
+}
 
 template< class T, void (*D)( T* ) >
 PerThread<T, D>::PerThread() 
-        : _data( new PerThreadPrivate )
+        : _impl( new detail::PerThread )
 {
     typedef void (*PThreadDtor_t)(void*);
-    const int error = pthread_key_create( &_data->key, (PThreadDtor_t)( D ));
+    const int error = pthread_key_create( &_impl->key, (PThreadDtor_t)( D ));
     if( error )
     {
         EQERROR << "Can't create thread-specific key: " 
@@ -163,62 +165,60 @@ PerThread<T, D>::~PerThread()
     if( object )
         D( object );
 
-    pthread_key_delete( _data->key );
-    delete _data;
-    _data = 0;
+    pthread_key_delete( _impl->key );
+    delete _impl;
 }
 
 template< class T, void (*D)( T* ) >
 PerThread<T, D>& PerThread<T, D>::operator = ( const T* data )
 { 
-    pthread_setspecific( _data->key, static_cast<const void*>( data ));
+    pthread_setspecific( _impl->key, static_cast<const void*>( data ));
     return *this; 
 }
 
 template< class T, void (*D)( T* ) >
 PerThread<T, D>& PerThread<T, D>::operator = ( const PerThread<T, D>& rhs )
 { 
-    pthread_setspecific( _data->key, pthread_getspecific( rhs._data->key ));
+    pthread_setspecific( _impl->key, pthread_getspecific( rhs._impl->key ));
     return *this;
 }
 
 template< class T, void (*D)( T* ) >
 T* PerThread<T, D>::get()
 {
-    return static_cast< T* >( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _impl->key )); 
 }
 template< class T, void (*D)( T* ) >
 const T* PerThread<T, D>::get() const
 {
-    return static_cast< const T* >( pthread_getspecific( _data->key )); 
+    return static_cast< const T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< class T, void (*D)( T* ) >
 T* PerThread<T, D>::operator->() 
 {
-    return static_cast< T* >( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _impl->key )); 
 }
 template< class T, void (*D)( T* ) >
 const T* PerThread<T, D>::operator->() const 
 { 
-    return static_cast< const T* >( pthread_getspecific( _data->key )); 
+    return static_cast< const T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< class T, void (*D)( T* ) >
 bool PerThread<T, D>::operator ! () const
 {
-    return pthread_getspecific( _data->key ) == 0;
+    return pthread_getspecific( _impl->key ) == 0;
 }
 
 template< class T, void (*D)( T* ) >
 bool PerThread<T, D>::isValid() const
 {
-    return pthread_getspecific( _data->key ) != 0;
+    return pthread_getspecific( _impl->key ) != 0;
 }
 
 
 }
 }
 #endif // HAVE_PTHREAD_H
-
 #endif //COBASE_PERTHREAD_H

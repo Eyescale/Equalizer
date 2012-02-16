@@ -37,7 +37,7 @@ namespace co
 namespace base
 {
     /**
-     * A smart reference pointer.
+     * A smart reference pointer, aka boost::intrusive_ptr.
      *
      * Relies on the held object to implement ref() and unref() correctly.
      */
