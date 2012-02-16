@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
                       2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -346,11 +346,12 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
     }
 
     // set vsync on/off
-    if( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC ) != AUTO )
+    int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync != AUTO )
     {
-        const GLint vsync = 
-            ( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC )==OFF ? 0 : 1 );
-        aglSetInteger( context, AGL_SWAP_INTERVAL, &vsync );
+        if( swapSync < 0 )
+            swapSync = 1;
+        aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
     }
 
     aglSetCurrentContext( context );

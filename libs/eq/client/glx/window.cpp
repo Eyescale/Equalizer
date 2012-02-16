@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -96,9 +96,7 @@ bool Window::configInit()
 
     makeCurrent();
     initGLEW();
-
-    if( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC ) != AUTO )
-        _initSwapSync();
+    _initSwapSync();
     if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
@@ -649,16 +647,17 @@ void Window::setGLXContext( GLXContext context )
 
 void Window::_initSwapSync()
 {
+    const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync == AUTO ) // leave it alone
+        return;
+
     if( GLXEW_SGI_swap_control )
     {
-        // set vsync on/off
-        const GLint vsync =
-            ( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
-        glXSwapIntervalSGI( vsync );
+        glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
     }
     else
         EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
-               << "swapsync hint" << std::endl;
+               << "swapsync hint " << swapSync << std::endl;
 }   
 
 
