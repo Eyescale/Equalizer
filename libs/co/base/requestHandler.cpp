@@ -96,7 +96,7 @@ public:
             freeRequests.push_front( request );
         }
 
-    mutable SpinLock lock;
+    mutable base::SpinLock lock;
     uint32_t requestID;
     RequestHash requests;
     std::list<Request*> freeRequests;

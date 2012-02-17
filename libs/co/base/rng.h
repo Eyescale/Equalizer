@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,27 +23,12 @@
 #include <co/base/nonCopyable.h>
 #include <co/base/types.h>
 
-#pragma warning (push)
-#pragma warning (disable: 4985) // inconsistent decl of ceil
-
-#ifdef _WIN32
-#  ifndef NOMINMAX
-#    define NOMINMAX
-#  endif
-#  include <wtypes.h>
-#  include <wincrypt.h>
-#  pragma comment(lib, "advapi32.lib")
-#endif
-
-#include <fcntl.h>
-#include <limits>
-#include <stdio.h>
-#pragma warning (pop)
-
 namespace co
 {
 namespace base
 {
+namespace detail { class RNG; }
+
     /**
      * A random number generator.
      *
@@ -54,18 +39,13 @@ namespace base
     {
     public:
         /** Construct a new random number generator. @version 1.0 */
-        RNG() { _init(); }
+        COBASE_API RNG();
 
         /** Destruct the random number generator. @version 1.0 */
-        ~RNG() {}
+        COBASE_API ~RNG();
 
         /** Re-initialize the seed value for pseudo RNG's. @version 1.0 */
-        void reseed()
-        {
-#ifdef Darwin
-            srandomdev();
-#endif
-        }
+        COBASE_API void reseed();
 
         /**
           * Generate a random number.
@@ -78,41 +58,18 @@ namespace base
         template< typename T > T get()
         {
             T value;
-#ifdef Linux
-            EQASSERTINFO( _fd >= 0, "init() not called?" );
-            int read = ::read( _fd, &value, sizeof( T ));
-            EQASSERTINFO( read == sizeof(T),
-                          read << " != " << sizeof( T ) << ": " << sysError );
-            if( read != sizeof( T ))
-            {
-                EQERROR << "random number generator not working" << std::endl;
+            if( !_get( &value, sizeof( T )))
                 return 0;
-            }
-
-#elif defined (_WIN32)
-            EQASSERTINFO( _provider, "init() not called?" );
-            if( !CryptGenRandom( _provider, sizeof( T ), (BYTE*)&value ))
-            {
-                EQASSERTINFO( false, "random number generator not working: " <<
-                                     sysError );
-            }
-#else // Darwin
-            uint8_t* bytes = reinterpret_cast< uint8_t* >( &value );
-            for( size_t i=0; i<sizeof( T ); ++i )
-                bytes[i] = ( random() & 0xff );
-#endif
             return value;
         }
 
     private:
-#ifdef Linux
-        static int _fd;
-#elif defined (_WIN32)
-        static COBASE_API HCRYPTPROV _provider;
-#endif
+        detail::RNG* const _impl;
+
         static COBASE_API bool _init();
         static void _exit();
         friend COBASE_API bool init( const int argc, char** argv );
+        COBASE_API bool _get( void* data, size_t size );
     };
 
     template<> inline float RNG::get()
