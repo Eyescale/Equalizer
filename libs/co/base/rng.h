@@ -23,6 +23,8 @@
 #include <co/base/nonCopyable.h>
 #include <co/base/types.h>
 
+#include <limits>
+
 namespace co
 {
 namespace base

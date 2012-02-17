@@ -127,8 +127,9 @@ bool RNG::_get( void* data, const size_t size )
 #ifdef Linux
     EQASSERTINFO( _fd >= 0, "init() not called?" );
     int read = ::read( _fd, data, size );
-    EQASSERTINFO( read == size, read << " != " << size << ": " << sysError );
-    if( read != size )
+    EQASSERTINFO( read == ssize_t( size ),
+                  read << " != " << size << ": " << sysError );
+    if( read != ssize_t( size ))
     {
         EQERROR << "random number generator not working" << std::endl;
         return false;
