@@ -64,8 +64,9 @@ enum ThreadState
 }
 namespace detail
 {
-struct ThreadID
+class ThreadID
 {
+public:
     pthread_t pthread;
 };
 

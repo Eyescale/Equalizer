@@ -137,7 +137,7 @@ bool RNG::_get( void* data, const size_t size )
 
 #elif defined (_WIN32)
     EQASSERTINFO( _provider, "init() not called?" );
-    if( !CryptGenRandom( _provider, size, data ))
+    if( !CryptGenRandom( _provider, size, (BYTE*)data ))
     {
         EQERROR << "random number generator not working" << std::endl;
         return false;

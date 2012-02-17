@@ -26,7 +26,7 @@ namespace co
 {
 namespace base
 {
-namespace detail { struct ThreadID; }
+namespace detail { class ThreadID; }
 
     /** An utility class to wrap OS-specific thread identifiers. */
     class ThreadID
