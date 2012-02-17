@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,6 +33,7 @@
 #include <co/base/errorRegistry.h>
 #include <co/base/file.h>
 #include <co/base/global.h>
+#include <co/base/monitor.h>
 #include <co/base/perThread.h>
 #include <co/base/rng.h>
 #include <co/base/scopedMutex.h>

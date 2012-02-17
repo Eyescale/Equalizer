@@ -58,6 +58,7 @@
 #ifdef AGL
 #  include <OpenGL/gl.h>
 #else
+#  include <eq/client/os.h>
 #  include <GL/gl.h>
 #endif
 

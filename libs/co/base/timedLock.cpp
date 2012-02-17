@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,28 +17,41 @@
 
 #include "timedLock.h"
 
-#include <co/base/debug.h>
+#include "condition.h"
+#include "debug.h"
 
 namespace co
 {
 namespace base
 {
+namespace detail
+{
+class TimedLock
+{
+public:
+    TimedLock() : locked( false ) {}
+    base::Condition condition;
+    bool locked;
+};
+}
 
 TimedLock::TimedLock()
-        : _locked( false )
+        : _impl( new detail::TimedLock )
 {}
 
 TimedLock::~TimedLock()
-{}
+{
+    delete _impl;
+}
 
 bool TimedLock::set( const uint32_t timeout )
 {
-    _condition.lock();
+    _impl->condition.lock();
 
     bool acquired = true;
-    while( _locked )
+    while( _impl->locked )
     {
-        if( !_condition.timedWait( timeout ))
+        if( !_impl->condition.timedWait( timeout ))
         {
             acquired = false;
             break;
@@ -47,36 +60,41 @@ bool TimedLock::set( const uint32_t timeout )
 
     if( acquired )
     {
-        EQASSERT( !_locked );
-        _locked = true;
+        EQASSERT( !_impl->locked );
+        _impl->locked = true;
     }
 
-    _condition.unlock();
+    _impl->condition.unlock();
     return acquired;
 }
 
 void TimedLock::unset()
 {
-    _condition.lock();
-    _locked = false;
-    _condition.signal();
-    _condition.unlock();
+    _impl->condition.lock();
+    _impl->locked = false;
+    _impl->condition.signal();
+    _impl->condition.unlock();
 }
 
 
 bool TimedLock::trySet()
 {
-    _condition.lock();
+    _impl->condition.lock();
     
     bool acquired = false;
-    if( _locked )
+    if( _impl->locked )
     {
-        _locked  = true;
+        _impl->locked  = true;
         acquired = true;
     }
 
-    _condition.unlock();
+    _impl->condition.unlock();
     return acquired;
+}
+
+bool TimedLock::isSet()
+{
+    return _impl->locked;
 }
 
 }

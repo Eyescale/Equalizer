@@ -134,10 +134,13 @@ typedef Strings::const_iterator StringsCIter;
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
+class Clock;
 class ErrorRegistry;
+class Lock;
 class PluginRegistry;
 class SpinLock;
 class UUID;
+class uint128_t;
 struct CompressorInfo; //!< @internal
 
 /** @internal A vector of compressor information structures. */

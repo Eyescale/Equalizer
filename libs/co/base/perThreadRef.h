@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,7 +25,7 @@ namespace co
 {
 namespace base
 {
-    class PerThreadRefPrivate;
+namespace detail { class PerThreadRef; }
 
     /** 
      * Thread-specific storage for a RefPtr.
@@ -106,7 +106,7 @@ namespace base
         bool isValid() const;
 
     private:
-        PerThreadRefPrivate* _data;
+        PerThreadRef* const _impl;
     };
 
 
@@ -122,18 +122,20 @@ namespace base
 #endif
 
 #ifdef HAVE_PTHREAD_H
-
-class PerThreadRefPrivate
+namespace detail
+{
+class PerThreadRef
 {
 public:
     pthread_key_t key;
 };
+}
 
 template< typename T >
 PerThreadRef<T>::PerThreadRef() 
-        : _data( new PerThreadRefPrivate )
+        : _impl( new detail::PerThreadRef )
 {
-    const int error = pthread_key_create( &_data->key, 0 );
+    const int error = pthread_key_create( &_impl->key, 0 );
     if( error )
     {
         EQERROR << "Can't create thread-specific key: " 
@@ -147,9 +149,8 @@ PerThreadRef<T>::~PerThreadRef()
 {
     RefPtr< T > object = get();
 
-    pthread_key_delete( _data->key );
-    delete _data;
-    _data = 0;
+    pthread_key_delete( _impl->key );
+    delete _impl;
 
     object.unref();
 }
@@ -160,7 +161,7 @@ PerThreadRef<T>& PerThreadRef<T>::operator = ( RefPtr< T > data )
     data.ref(); // ref new
 
     RefPtr< T > object = get();
-    pthread_setspecific( _data->key, static_cast<const void*>( data.get( )));
+    pthread_setspecific( _impl->key, static_cast<const void*>( data.get( )));
 
     object.unref(); // unref old
     return *this; 
@@ -173,7 +174,7 @@ PerThreadRef<T>& PerThreadRef<T>::operator = ( const PerThreadRef<T>& rhs )
     newObject.ref(); // ref new
 
     RefPtr< T > object = get();
-    pthread_setspecific( _data->key, pthread_getspecific( rhs._data->key ));
+    pthread_setspecific( _impl->key, pthread_getspecific( rhs._impl->key ));
 
     object.unref(); // unref old
     return *this;
@@ -182,49 +183,48 @@ PerThreadRef<T>& PerThreadRef<T>::operator = ( const PerThreadRef<T>& rhs )
 template< typename T >
 RefPtr< const T > PerThreadRef<T>::get() const
 {
-    return static_cast< const T* >( pthread_getspecific( _data->key )); 
+    return static_cast< const T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< typename T >
 RefPtr< T > PerThreadRef<T>::get()
 {
-    return static_cast< T* >( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< typename T >
 T* PerThreadRef<T>::getPointer()
 {
-    return static_cast< T* >( pthread_getspecific( _data->key )); 
+    return static_cast< T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< typename T >
 T* PerThreadRef<T>::operator->() 
 {
-    EQASSERT( pthread_getspecific( _data->key ));
-    return static_cast< T* >( pthread_getspecific( _data->key )); 
+    EQASSERT( pthread_getspecific( _impl->key ));
+    return static_cast< T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< typename T >
 const T* PerThreadRef<T>::operator->() const 
 { 
-    EQASSERT( pthread_getspecific( _data->key ));
-    return static_cast< const T* >( pthread_getspecific( _data->key )); 
+    EQASSERT( pthread_getspecific( _impl->key ));
+    return static_cast< const T* >( pthread_getspecific( _impl->key )); 
 }
 
 template< typename T >
 bool PerThreadRef<T>::operator ! () const
 {
-    return pthread_getspecific( _data->key ) == 0;
+    return pthread_getspecific( _impl->key ) == 0;
 }
 
 template< typename T >
 bool PerThreadRef<T>::isValid() const
 {
-    return pthread_getspecific( _data->key ) != 0;
+    return pthread_getspecific( _impl->key ) != 0;
 }
-
 #endif // HAVE_PTHREAD_H
-}
 
+}
 }
 #endif //COBASE_PERTHREADREF_H

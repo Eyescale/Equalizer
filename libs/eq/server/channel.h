@@ -26,7 +26,7 @@
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <co/object.h>
+#include <co/base/monitor.h> // member
 
 #include <iostream>
 #include <vector>
