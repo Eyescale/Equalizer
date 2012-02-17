@@ -120,7 +120,7 @@ void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
                      CmdFunc( this, &Channel::_cmdFrameSetReady ), asyncRBQ );
     registerCommand( fabric::CMD_CHANNEL_DELETE_ASYNC_CONTEXT,
-                     CmdFunc( this,&Channel::_cmdDeleteAsyncContext),asyncRBQ );
+                     CmdFunc( this,&Channel::_cmdDeleteAsyncContext), asyncRBQ);
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -1925,40 +1925,20 @@ void Channel::_setReadyNode( const ChannelFrameSetReadyNodePacket* packet )
     toNode->send( readyPacket );
 }
 
-
 void Channel::_deleteAsyncContext()
 {
     if( !getPipe()->hasAsyncRBThread( ))
         return;
 
-    co::base::Lock lock;
-    lock.set();
-
-    ChannelDeleteAsyncContextPacket packet;
-    packet.lock = &lock;
-    send( getLocalNode(), packet );
-
-    // wait for packet to be processed
-    lock.set();
+    co::LocalNodePtr localNode = getLocalNode();
+    ChannelDeleteAsyncContextPacket packet( localNode->registerRequest( ));
+    send( localNode, packet );
+    localNode->waitRequest( packet.requestID );
 }
 
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Channel::_cmdDeleteAsyncContext( co::Command& command )
-{
-    const ChannelDeleteAsyncContextPacket* packet =
-        command.get<ChannelDeleteAsyncContextPacket>();
-    EQLOG( LOG_INIT ) << "Delete async context " << packet << std::endl;
-
-    getWindow()->deleteAsyncSystemWindow();
-
-    // release waiting channel
-    EQASSERT( packet->lock );
-    packet->lock->unset();
-    return true;
-}
-
 bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet =
@@ -2234,6 +2214,17 @@ bool Channel::_cmdFrameTiles( co::Command& command )
                        << packet << std::endl;
 
     _frameTiles( packet );
+    return true;
+}
+
+bool Channel::_cmdDeleteAsyncContext( co::Command& command )
+{
+    const ChannelDeleteAsyncContextPacket* packet =
+        command.get<ChannelDeleteAsyncContextPacket>();
+    EQLOG( LOG_INIT ) << "Delete async context " << packet << std::endl;
+
+    getWindow()->deleteAsyncSystemWindow();
+    getLocalNode()->serveRequest( packet->requestID );
     return true;
 }
 

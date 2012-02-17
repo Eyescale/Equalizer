@@ -31,7 +31,6 @@ namespace glx
     {
     public:
         WindowIF( eq::Window* parent ) : GLWindow( parent ) {}
-
         virtual ~WindowIF() {}
 
         /** @return the glX rendering context. @version 1.0 */

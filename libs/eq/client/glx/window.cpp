@@ -55,7 +55,6 @@ Window::Window( eq::Window* parent, Display* xDisplay,
     }
 }
 
-
 Window::~Window()
 {
 }

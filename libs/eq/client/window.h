@@ -184,7 +184,7 @@ namespace eq
          */
         EQ_API const GLEWContext* glewGetContext() const;
 
-        /**
+        /** @internal
          * Creates async window if necessary and returns its context.
          * 
          * Should be called from a separate thread.
@@ -234,7 +234,7 @@ namespace eq
          * @internal
          * Make the window's drawable and context current.
          *
-         * GL drivers tend to behave sub-optimally if two many makeCurrent
+         * GL drivers tend to behave sub-optimally if too many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
          * this method will only call SystemWindow::makeCurrent if it has not
          * been done before for this window on this pipe.
@@ -273,7 +273,7 @@ namespace eq
         /** @return the OS-specific pipe implementation. @version 1.0 */
         SystemPipe* getSystemPipe(); 
 
-        /**
+        /** @internal
          * Creates shared context window for asynchronious context usage.
          *
          * Should be called from separate thread.
@@ -282,7 +282,7 @@ namespace eq
          */
         const eq::SystemWindow* getAsyncSystemWindow();
 
-        /**
+        /** @internal
          * Creates shared context window for asynchronious context usage.
          *
          * Should be called from the same thread getAsyncSystemWindow 

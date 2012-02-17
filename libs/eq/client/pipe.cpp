@@ -741,7 +741,6 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                        << std::endl;
 }
 
-
 bool Pipe::startAsyncRBThread()
 {
     if( _asyncRBThread->isRunning( ))
@@ -750,7 +749,6 @@ bool Pipe::startAsyncRBThread()
     return _asyncRBThread->start();
 }
 
-
 bool Pipe::hasAsyncRBThread() const
 {
     if( _asyncRBThread && _asyncRBThread->isRunning( ))
@@ -758,7 +756,6 @@ bool Pipe::hasAsyncRBThread() const
 
     return false;
 }
-
 
 void Pipe::_stopAsyncRBThread()
 {

@@ -473,15 +473,8 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
-
 const SystemWindow* Window::getAsyncSystemWindow()
 {
-    // check if current window shares context with anothers
-    if( _sharedContextWindow != 0 && _sharedContextWindow != this )
-        return _sharedContextWindow->getAsyncSystemWindow();
-    // else this window has shared context
-
-    // check if it is already initialized
     if( _asyncSystemWindow )
         return _asyncSystemWindow;
 
@@ -490,7 +483,7 @@ const SystemWindow* Window::getAsyncSystemWindow()
     // store old drawable of window and set window's drawable to FBO,
     // create another (shared) osWindow and restore original drawable
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE,  FBO );
+    setIAttribute( IATTR_HINT_DRAWABLE, FBO );
 
     const int32_t stencil = getIAttribute( IATTR_PLANES_STENCIL );
     setIAttribute( IATTR_PLANES_STENCIL, OFF );
@@ -523,7 +516,6 @@ const SystemWindow* Window::getAsyncSystemWindow()
     return _asyncSystemWindow;
 }
 
-
 const GLEWContext* Window::getAsyncGlewContext()
 {
     const SystemWindow* asyncWnd = getAsyncSystemWindow();
@@ -534,18 +526,18 @@ const GLEWContext* Window::getAsyncGlewContext()
 
 void Window::deleteAsyncSystemWindow()
 {
-    if( _asyncSystemWindow )
-    {
-        const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-        setIAttribute( IATTR_HINT_DRAWABLE, FBO );
+    if( !_asyncSystemWindow )
+        return;
 
-        _asyncSystemWindow->configExit();
+    const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
+    setIAttribute( IATTR_HINT_DRAWABLE, FBO );
 
-        delete _asyncSystemWindow;
-        _asyncSystemWindow = 0;
+    _asyncSystemWindow->configExit();
 
-        setIAttribute( IATTR_HINT_DRAWABLE, drawable );
-    }
+    delete _asyncSystemWindow;
+    _asyncSystemWindow = 0;
+
+    setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 }
 
 //----------------------------------------------------------------------

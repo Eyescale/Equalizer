@@ -59,13 +59,13 @@ namespace eq
 
     struct ChannelDeleteAsyncContextPacket: public ChannelPacket
     {
-        ChannelDeleteAsyncContextPacket()
+        ChannelDeleteAsyncContextPacket( const uint32_t req )
+                : requestID( req )
             {
                 command = fabric::CMD_CHANNEL_DELETE_ASYNC_CONTEXT;
                 size    = sizeof( ChannelDeleteAsyncContextPacket );
-                lock    = 0;
             }
-        co::base::Lock* lock;
+        const uint32_t requestID;
     };
 
     struct ChannelConfigExitReplyPacket : public ChannelPacket
@@ -329,12 +329,6 @@ namespace eq
                                       const ChannelFrameAssemblePacket* packet )
     {
         os << (ChannelTaskPacket*)packet << " nFrames " << packet->nFrames;
-        return os;
-    }
-    inline std::ostream& operator << ( std::ostream& os, 
-                                 const ChannelDeleteAsyncContextPacket* packet )
-    {
-        os << (ChannelTaskPacket*)packet << " lockPtr " << packet->lock;
         return os;
     }
 }
