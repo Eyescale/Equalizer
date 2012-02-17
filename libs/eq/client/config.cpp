@@ -167,16 +167,23 @@ ConstClientPtr Config::getClient() const
 
 namespace
 {
-class ActivateLayoutVisitor : public ConfigVisitor
+class SetDefaultVisitor : public ConfigVisitor
 {
 public:
-    ActivateLayoutVisitor( const Strings& layouts ) : _names( layouts ) {}
+    SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
+            : _layouts( activeLayouts ), _modelUnit( modelUnit ) {}
+
+    virtual VisitorResult visit( View* view )
+        {
+            view->setModelUnit( _modelUnit );
+            return TRAVERSE_CONTINUE;
+        }
 
     virtual VisitorResult visitPre( Canvas* canvas )
         {
             const Layouts& layouts = canvas->getLayouts();
 
-            for( StringsCIter i = _names.begin(); i != _names.end(); ++i )
+            for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
             {
                 const std::string& name = *i;
                 for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
@@ -190,7 +197,8 @@ public:
         }
 
 private:
-    const Strings& _names;
+    const Strings& _layouts;
+    const float _modelUnit;
 };
 }
 
@@ -203,8 +211,9 @@ bool Config::init( const uint128_t& initID )
     _frameTimes.clear();
 
     ClientPtr client = getClient();
-    ActivateLayoutVisitor activate( client->getActiveLayouts( ));
-    accept( activate );
+    SetDefaultVisitor defaults( client->getActiveLayouts(),
+                                client->getModelUnit( ));
+    accept( defaults );
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;

@@ -31,6 +31,7 @@
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/fabric/view.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -48,6 +49,7 @@ namespace eq
 namespace
 {
     Strings _activeLayouts;
+    float _modelUnit = EQ_M;
 }
 
 typedef co::CommandFunc<Client> ClientFunc;
@@ -228,6 +230,13 @@ bool Client::initLocal( const int argc, char** argv )
         {
             _activeLayouts.push_back( argv[++i] ); 
         }
+        else if( std::string( "--eq-modelunit" ) == argv[i] &&
+                 i < argc-1 && // more args
+                 argv[i+1][0] != '-' ) // next arg not an option
+        {
+            std::istringstream unitString( argv[++i] );
+            unitString >> _modelUnit;
+        }
     }
     EQINFO << "Launching " << getNodeID() << std::endl;
 
@@ -333,6 +342,11 @@ bool Client::hasCommands()
 const Strings& Client::getActiveLayouts()
 {
     return _activeLayouts;
+}
+
+float Client::getModelUnit() const
+{
+    return _modelUnit;
 }
 
 co::NodePtr Client::createNode( const uint32_t type )

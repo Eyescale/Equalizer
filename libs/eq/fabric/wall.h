@@ -120,6 +120,12 @@ namespace fabric
         EQFABRIC_API void apply( const Viewport& viewport);
 
         /**
+         * Move each wall corner by the given ratio.
+         * @version 1.3.1
+         */
+        EQFABRIC_API void scale( const float ratio );
+
+        /**
          * Set the wall parameters from a projection description.
          * @version 1.0
          */
