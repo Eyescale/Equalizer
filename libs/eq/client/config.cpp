@@ -192,6 +192,21 @@ public:
 private:
     const Strings& _names;
 };
+
+class SetModelUnitVisitor : public ConfigVisitor
+{
+public:
+    SetModelUnitVisitor( const float modelUnit ) : _modelUnit( modelUnit ) {}
+
+    virtual VisitorResult visit( View* view )
+        {
+            view->setModelUnit( _modelUnit );
+            return TRAVERSE_CONTINUE;
+        }
+
+private:
+    const float _modelUnit;
+};
 }
 
 bool Config::init( const uint128_t& initID )
@@ -205,6 +220,9 @@ bool Config::init( const uint128_t& initID )
     ClientPtr client = getClient();
     ActivateLayoutVisitor activate( client->getActiveLayouts( ));
     accept( activate );
+
+    SetModelUnitVisitor setModelUnit( client->getModelUnit( ));
+    accept( setModelUnit );
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;

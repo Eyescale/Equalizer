@@ -98,7 +98,10 @@ namespace eq
             { return &_mainThreadQueue; }
 
         /** @internal @return the list of active layouts given by --eq-layout. */
-        static const Strings& getActiveLayouts();
+        const Strings& getActiveLayouts();
+
+        /** @internal @return the model unit for all views. */
+        float getModelUnit() const;
 
     protected:
         /**

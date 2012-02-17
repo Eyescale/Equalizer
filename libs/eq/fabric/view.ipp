@@ -59,6 +59,7 @@ View< L, V, O >::BackupData::BackupData()
         , capabilities( EQ_BIT_ALL_64 )
         , mode( MODE_MONO )
         , equalizers( EQUALIZER_ALL )
+        , modelUnit( EQ_M )
 {}
 
 template< class L, class V, class O > 
@@ -85,6 +86,8 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
         os << _data.mode;
     if( dirtyBits & DIRTY_EQUALIZERS )
         os << _data.equalizers;
+    if( dirtyBits & DIRTY_MODELUNIT )
+        os << _data.modelUnit;
 }
 
 template< class L, class V, class O > 
@@ -151,6 +154,8 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
         is >> _data.equalizers;
+    if( dirtyBits & DIRTY_MODELUNIT)
+        is >> _data.modelUnit;
 }
 
 template< class L, class V, class O > 
@@ -177,6 +182,16 @@ bool View< L, V, O >::isActive() const
     return getLayout()->isActive();
 }
 
+template< class L, class V, class O >
+void View< L, V, O >::setModelUnit( const float modelUnit )
+{
+    if ( _data.modelUnit == modelUnit )
+        return;
+
+    _data.modelUnit = modelUnit;
+    setDirty( DIRTY_MODELUNIT );
+}
+
 template< class L, class V, class O > 
 void View< L, V, O >::setViewport( const Viewport& viewport )
 {
@@ -186,7 +201,6 @@ void View< L, V, O >::setViewport( const Viewport& viewport )
 
 template< class L, class V, class O > void View< L, V, O >::backup()
 {
-
     _backup = _data;
     Frustum::backup();
     Object::backup();
