@@ -967,11 +967,9 @@ void Config::_adjustModelScale( const float factor )
     if( !view )
         return;
 
-    const float current = view->getModelUnit();
-    if( std::fabs( current - 1.f) < std::numeric_limits<float>::epsilon() )
-        view->setModelUnit( factor );
-    else
-        view->setModelUnit( current * factor );
+    const float current = view->getModelUnit() * factor;
+    if( current > std::numeric_limits<float>::epsilon( ))
+        view->setModelUnit( current );
 
     std::ostringstream stream;
     stream << "Set model unit to " << view->getModelUnit();

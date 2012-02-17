@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,8 +30,7 @@
 #define EQ_CM 100.f
 #define EQ_DM 10.f
 #define EQ_M  1.f
-#define EQ_KM 0.001.f
-
+#define EQ_KM 0.001f
 
 namespace eq
 {
@@ -142,7 +141,7 @@ namespace fabric
         EQFABRIC_INL void setModelUnit( const float modelUnit );
 
         /**
-         * Get the model unit this view.
+         * Get the model unit of this view.
          *
          * The default model unit is 1 (1 meter or EQ_M).
          *
@@ -232,7 +231,7 @@ namespace fabric
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
             DIRTY_TILESIZE      = Object::DIRTY_CUSTOM << 8,
             DIRTY_EQUALIZERS    = Object::DIRTY_CUSTOM << 9,
-            DIRTY_MODELUNIT    = Object::DIRTY_CUSTOM << 10,
+            DIRTY_MODELUNIT     = Object::DIRTY_CUSTOM << 10,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
