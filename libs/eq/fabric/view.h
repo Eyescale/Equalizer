@@ -31,6 +31,7 @@
 #define EQ_DM 10.f
 #define EQ_M  1.f
 #define EQ_KM 0.001f
+#define EQ_UNDEFINED_UNIT -1.f
 
 namespace eq
 {

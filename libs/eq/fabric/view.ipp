@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -185,9 +185,11 @@ bool View< L, V, O >::isActive() const
 template< class L, class V, class O >
 void View< L, V, O >::setModelUnit( const float modelUnit )
 {
-    if ( _data.modelUnit == modelUnit )
+    if( modelUnit > std::numeric_limits< float >::epsilon() &&
+        _data.modelUnit == modelUnit )
+    {
         return;
-
+    }
     _data.modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
 }
