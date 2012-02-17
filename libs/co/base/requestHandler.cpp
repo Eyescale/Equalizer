@@ -65,6 +65,8 @@ public:
     bool waitRequest( const uint32_t requestID_, Request::Result& result,
                       const uint32_t timeout )
         {
+            result.rUint128.low = 0;
+            result.rUint128.high = 0;
             Request* request = 0;
             {
                 ScopedFastWrite mutex( lock );
