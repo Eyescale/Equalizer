@@ -154,7 +154,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
         is >> _data.equalizers;
-    if( dirtyBits & DIRTY_MODELUNIT)
+    if( dirtyBits & DIRTY_MODELUNIT )
         is >> _data.modelUnit;
 }
 
@@ -185,13 +185,20 @@ bool View< L, V, O >::isActive() const
 template< class L, class V, class O >
 void View< L, V, O >::setModelUnit( const float modelUnit )
 {
-    if( modelUnit > std::numeric_limits< float >::epsilon() &&
+    if( modelUnit < std::numeric_limits< float >::epsilon() ||
         _data.modelUnit == modelUnit )
     {
         return;
     }
     _data.modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
+}
+
+template< class L, class V, class O >
+float View< L, V, O >::getModelUnit() const
+{
+    EQASSERT( _data.modelUnit > 0.f );
+    return _data.modelUnit;
 }
 
 template< class L, class V, class O > 
