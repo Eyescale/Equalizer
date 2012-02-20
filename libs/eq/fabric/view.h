@@ -149,7 +149,7 @@ namespace fabric
          * @return the model unit of this view.
          * @version 1.3.1
          */
-        float getModelUnit() const { return _data.modelUnit; }
+        EQFABRIC_INL float getModelUnit() const;
         //@}
 
         /** @name Operations */

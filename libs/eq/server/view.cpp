@@ -510,7 +510,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     }
 
     if( distance == std::numeric_limits< float >::max( ))
-        return 1.f;
+        return getModelUnit();
     return (focusDistance / distance) * getModelUnit();
 }
 
