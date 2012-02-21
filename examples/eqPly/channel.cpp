@@ -759,6 +759,8 @@ void Channel::_drawHelp()
     applyViewport();
     setupAssemblyState();
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 
