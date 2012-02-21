@@ -148,6 +148,16 @@ void Wall::apply( const Viewport& viewport )
     topLeft     = bottomLeft + v * viewport.h;
 }
 
+void Wall::scale( const float ratio )
+{
+    if( ratio == 1.0f )
+       return;
+
+    bottomLeft *= ratio;
+    bottomRight *= ratio;
+    topLeft *= ratio;
+}
+
 Wall& Wall::operator = ( const Projection& projection )
 {
     const float width  = fabs( projection.distance * 2.0 * 

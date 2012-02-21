@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,6 +20,7 @@
 #define COBASE_COMPRESSOR_H
 
 #include <co/base/thread.h>         // thread-safety macros
+#include <co/base/types.h>
 #include <co/plugins/compressor.h>  // used inline
 
 namespace co

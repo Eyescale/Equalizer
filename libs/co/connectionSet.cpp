@@ -30,6 +30,7 @@
 #include <errno.h>
 
 #ifdef _WIN32
+#  include <co/base/monitor.h>
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
 #  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)

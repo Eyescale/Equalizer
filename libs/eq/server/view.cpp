@@ -278,7 +278,7 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
 
-    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
+    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW | DIRTY_MODELUNIT ))
         updateFrusta();
     if( dirtyBits & DIRTY_TILESIZE )
     {
@@ -437,11 +437,11 @@ float View::_computeFocusRatio( Vector3f& eye )
     const Observer* observer = getObserver();
     const FocusMode mode = observer ? observer->getFocusMode() :FOCUSMODE_FIXED;
     if( mode == FOCUSMODE_FIXED )
-        return 1.f;
+        return getModelUnit();
 
     const Channels& channels = getChannels();
     if( channels.empty( ))
-        return 1.f;
+        return getModelUnit();
 
     Vector4f view4 = Vector4f::FORWARD;
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
@@ -510,8 +510,8 @@ float View::_computeFocusRatio( Vector3f& eye )
     }
 
     if( distance == std::numeric_limits< float >::max( ))
-        return 1.f;
-    return focusDistance / distance;
+        return getModelUnit();
+    return (focusDistance / distance) * getModelUnit();
 }
 
 bool View::_cmdFreezeLoadBalancing( co::Command& command ) 

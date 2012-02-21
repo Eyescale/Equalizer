@@ -25,6 +25,7 @@
 #include <eq/fabric/node.h>           // base class
 
 #include <co/types.h>
+#include <co/base/monitor.h>          // member
 #include <co/base/mtQueue.h>          // member
 
 namespace eq

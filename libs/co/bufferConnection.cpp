@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,11 +17,22 @@
 
 #include "bufferConnection.h"
 
+#include <co/base/buffer.h>
 #include <string.h>
 
 namespace co
 {
+namespace detail
+{
+class BufferConnection
+{
+public:
+    base::Bufferb buffer;
+};
+}
+
 BufferConnection::BufferConnection()
+        : _impl( new detail::BufferConnection )
 {
     _state = STATE_CONNECTED;
     EQVERB << "New BufferConnection @" << (void*)this << std::endl;
@@ -29,20 +40,26 @@ BufferConnection::BufferConnection()
 
 BufferConnection::~BufferConnection()
 {
-    if( !_buffer.isEmpty( ))
-        EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
     _state = STATE_CLOSED;
+    if( !_impl->buffer.isEmpty( ))
+        EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
+    delete _impl;
+}
+
+uint64_t BufferConnection::getSize() const
+{
+    return _impl->buffer.getSize();
 }
 
 int64_t BufferConnection::write( const void* buffer, const uint64_t bytes )
 {
-    _buffer.append( reinterpret_cast< const uint8_t* >( buffer ), bytes );
+    _impl->buffer.append( reinterpret_cast< const uint8_t* >( buffer ), bytes );
     return bytes;
 }
 
 void BufferConnection::sendBuffer( ConnectionPtr connection )
 {
-    if( _buffer.isEmpty( ))
+    if( _impl->buffer.isEmpty( ))
         return;
 
     if( !connection )
@@ -51,7 +68,9 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
         return;
     }
 
-    EQCHECK( connection->send( _buffer.getData(), _buffer.getSize() ));
-    _buffer.setSize( 0 );
+    EQCHECK( connection->send( _impl->buffer.getData(),
+                               _impl->buffer.getSize() ));
+    _impl->buffer.setSize( 0 );
 }
+
 }

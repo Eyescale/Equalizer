@@ -27,92 +27,83 @@
    This source is placed in the Public Domain, do with it what you will
    It was originally written by Jason Gunthorpe.
 */
+
 #ifndef COBASE_RING_H
 #define COBASE_RING_H
 
 #include <sys/types.h>
 
-template <typename T>
-class RingPtr
+template< typename T > class RingPtr
 {
-    typedef T ring_t;
-    ring_t ptrVal;
-    ring_t ptrAdjust;
-
 public:
+    inline T value() const {return ptrVal;};
+    inline T ptr(T num) const {return ((ptrVal % num) + ptrAdjust) % num;};
+    inline T ptr(T num,T off) const {return ((ptrVal % num) + ptrAdjust + off) % num;};
 
-    inline ring_t value() const {return ptrVal;};
-    inline ring_t ptr(ring_t num) const {return ((ptrVal % num) + ptrAdjust) % num;};
-    inline ring_t ptr(ring_t num,ring_t off) const {return ((ptrVal % num) + ptrAdjust + off) % num;};
-
-    void incr(ring_t num,ring_t amount)
+    void incr(T num,T amount)
         {
-            ring_t optrVal = ptrVal;
+            T optrVal = ptrVal;
             ptrVal += amount;
             /* Since the length of the ring is not a power of two we need to
                correct when there is a wrap around. This scheme puts the bulk of
                the cost of that calculation at incr time, not at access time.*/
             if (ptrVal < optrVal)
-                ptrAdjust = (ptrAdjust + ((ring_t)(-1) % num) + 1) % num;
+                ptrAdjust = (ptrAdjust + ((T)(-1) % num) + 1) % num;
         }
     inline void clear() {ptrVal = 0; ptrAdjust = 0;};
 
     inline RingPtr() : ptrVal(0), ptrAdjust(0) {};
-};
-
-template <typename T,unsigned int NUM>
-class Ring
-{
-public:
-    typedef T ring_t;
 
 private:
-    ring_t num;
-    RingPtr<T> ptrs[NUM];
+    T ptrVal;
+    T ptrAdjust;
+};
 
+template< typename T, unsigned int NUM > class Ring
+{
 public:
 
     enum {HEAD = 0, MIDDLE = NUM/2, TAIL = NUM-1};
 
-    inline ring_t size() const {return num;};
+    inline T size() const {return num;};
     inline bool isEmpty(unsigned int ID1,unsigned int ID2) const
         {return ptrs[ID1].value() == ptrs[ID2].value();};
     inline bool isFull(unsigned int ID1,unsigned int ID2) const
         {return available(ID1,ID2) == num;};
-    inline ring_t available(unsigned int ID1,unsigned int ID2) const
+    inline T available(unsigned int ID1,unsigned int ID2) const
         {return ptrs[ID1].value() - ptrs[ID2].value();};
-    inline ring_t negAvailable(unsigned int ID1,unsigned int ID2) const
+    inline T negAvailable(unsigned int ID1,unsigned int ID2) const
         {return num - available(ID1,ID2);};
     inline bool isEqual(unsigned int ID1,unsigned int ID2) const
         {return ptrs[ID1].value() == ptrs[ID2].value();};
 
-    inline void incr(unsigned int ID,ring_t amount = 1) {ptrs[ID].incr(num,amount);};
-    inline ring_t ptr(unsigned int ID,ring_t off = 0) const {return ptrs[ID].ptr(num,off);};
-    inline ring_t value(unsigned int ID) const {return ptrs[ID].value();};
+    inline void incr(unsigned int ID,T amount = 1) {ptrs[ID].incr(num,amount);};
+    inline T ptr(unsigned int ID,T off = 0) const {return ptrs[ID].ptr(num,off);};
+    inline T value(unsigned int ID) const {return ptrs[ID].value();};
 
     /* This moves the pointer to a new value. The new pointer is thought of as
        ahead of the old one, and buffer indicies are adjusted
        appropriately. */
-    inline void moveValue(unsigned int ID,ring_t val) {incr(ID,val - value(ID));}
+    inline void moveValue(unsigned int ID,T val) {incr(ID,val - value(ID));}
 
     // Simple accessors for the head/tail
     inline bool isEmpty() const {return isEmpty(HEAD,TAIL);};
     inline bool isFull() const {return isFull(HEAD,TAIL);};
-    inline ring_t available() const {return available(HEAD,TAIL);};
-    inline ring_t negAvailable() const {return negAvailable(HEAD,TAIL);};
+    inline T available() const {return available(HEAD,TAIL);};
+    inline T negAvailable() const {return negAvailable(HEAD,TAIL);};
 
-    inline ring_t head(ring_t off = 0) const {return ptr(HEAD,off);};
-    inline void incrHead(ring_t amount = 1) {incr(HEAD,amount);};
-    inline ring_t tail(ring_t off = 0) const {return ptr(TAIL,off);};
-    inline void incrTail(ring_t amount = 1) {incr(TAIL,amount);};
+    inline T head(T off = 0) const {return ptr(HEAD,off);};
+    inline void incrHead(T amount = 1) {incr(HEAD,amount);};
+    inline T tail(T off = 0) const {return ptr(TAIL,off);};
+    inline void incrTail(T amount = 1) {incr(TAIL,amount);};
 
     /* Return the number of consecutive entries between ID1 and ID2, such that
        bptr(ID2) + linearSize() does not pass ID1 or the end of the buffer. */
-    ring_t linearSize(unsigned int ID1,unsigned int ID2) const
+    T linearSize(unsigned int ID1,unsigned int ID2) const
         {
-            ring_t avail = available(ID1,ID2);
-            ring_t id2 = ptr(ID2);
-            ring_t left = size() - id2;
+            T avail = available(ID1,ID2);
+            T id2 = ptr(ID2);
+            T left = size() - id2;
             if (avail < left)
                 return avail;
             return left;
@@ -121,18 +112,18 @@ public:
     /* linearSize is the entries between the pointers (to get from ID2 to ID1)
        while negLinearSize is the entries outside the pointers (to get from ID1
        to ID2). linearSize is for reading, negLinearSize is for writing. */
-    ring_t negLinearSize(unsigned int ID1,unsigned int ID2) const
+    T negLinearSize(unsigned int ID1,unsigned int ID2) const
         {
-            ring_t avail = size() - available(ID1,ID2);
-            ring_t id1 = ptr(ID1);
-            ring_t left = size() - id1;
+            T avail = size() - available(ID1,ID2);
+            T id1 = ptr(ID1);
+            T left = size() - id1;
             if (avail < left)
                 return avail;
             return left;
         }
 
     // Makes ptr(ID) % a == 0
-    inline void align(unsigned int ID,ring_t a)
+    inline void align(unsigned int ID,T a)
         {
             incr(ID,(a - (ptr(ID) % a)) % a);
         }
@@ -142,30 +133,34 @@ public:
        other tails is unrelated. */
     void updateTail()
         {
-            ring_t avail = 0;
+            T avail = 0;
             for (unsigned int I = 1; I < TAIL; I++)
             {
-                ring_t tmp = available(HEAD,I);
+                T tmp = available(HEAD,I);
                 if (tmp > avail)
                     avail = tmp;
             }
             incrTail(available() - avail);
         }
 
-    void clear(ring_t newNum = size())
+    void clear(T newNum = size())
         {
             for (unsigned int I = 0; I != NUM; I++)
                 ptrs[I].clear();
             num = newNum;
         }
 
-    inline Ring(ring_t num_) : num(num_) {};
+    inline Ring(T num_) : num(num_) {};
+
+private:
+    T num;
+    RingPtr<T> ptrs[NUM];
 };
 
 template <typename BT,typename RT = size_t,unsigned int NUM = 2>
 class BufferQ : public Ring<RT,NUM>
 {
-    typedef RT ring_t;
+    typedef RT T;
     typedef BT buffer_t;
     typedef Ring<RT,NUM> RING;
 
@@ -173,19 +168,19 @@ protected:
 
     buffer_t *buffer;
 
-    inline BufferQ(buffer_t *buffer_,ring_t num_) : Ring<RT,NUM>(num_), buffer(buffer_) {};
+    inline BufferQ(buffer_t *buffer_,T num_) : Ring<RT,NUM>(num_), buffer(buffer_) {};
 
 public:
 
     enum {HEAD = 0, MIDDLE = NUM/2, TAIL = NUM-1};
 
-    inline const buffer_t *bptr(unsigned int ID,ring_t off = 0) const {return buffer + ptr(ID,off);}
-    inline const buffer_t *bhead(ring_t off = 0) const {return bptr(HEAD,off);}
-    inline const buffer_t *btail(ring_t off = 0) const {return bptr(TAIL,off);}
+    inline const buffer_t *bptr(unsigned int ID,T off = 0) const {return buffer + ptr(ID,off);}
+    inline const buffer_t *bhead(T off = 0) const {return bptr(HEAD,off);}
+    inline const buffer_t *btail(T off = 0) const {return bptr(TAIL,off);}
 
-    inline buffer_t *bptr(unsigned int ID,ring_t off = 0) {return buffer + ptr(ID,off);}
-    inline buffer_t *bhead(ring_t off = 0) {return bptr(HEAD,off);}
-    inline buffer_t *btail(ring_t off = 0) {return bptr(TAIL,off);}
+    inline buffer_t *bptr(unsigned int ID,T off = 0) {return buffer + ptr(ID,off);}
+    inline buffer_t *bhead(T off = 0) {return bptr(HEAD,off);}
+    inline buffer_t *btail(T off = 0) {return bptr(TAIL,off);}
 
     inline buffer_t &get()
         {
@@ -201,7 +196,7 @@ public:
 
     inline buffer_t *bufferPtr() const {return buffer;};
 
-    void clear(ring_t newNum = RING::size())
+    void clear(T newNum = RING::size())
         {
             if (newNum != RING::size())
             {
@@ -211,7 +206,7 @@ public:
             return RING::clear(newNum);
         }
 
-    inline BufferQ(ring_t num_) : Ring<RT,NUM>(num_)
+    inline BufferQ(T num_) : Ring<RT,NUM>(num_)
         {
             buffer = new buffer_t[num_];
         }
@@ -226,12 +221,12 @@ public:
 template <typename BT,typename RT = size_t,unsigned int NUM = 2>
 class BufferQTrack : public BufferQ<BT,RT,NUM>
 {
-    typedef RT ring_t;
+    typedef RT T;
     typedef BT buffer_t;
     typedef Ring<RT,NUM> RING;
     typedef BufferQ<BT,RT,NUM> BUFFERQ;
 
-    void clear(ring_t newNum);
+    void clear(T newNum);
 
 public:
 

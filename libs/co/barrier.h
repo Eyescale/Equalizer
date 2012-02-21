@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,13 +21,11 @@
 
 #include <co/object.h>   // base class
 #include <co/types.h>
-#include <co/base/monitor.h> // member
-
-#include <map>
 
 namespace co
 {
-    struct BarrierEnterReplyPacket;
+namespace detail { class Barrier; }
+
     /** A networked, versioned barrier. */
     class Barrier : public Object
     {
@@ -59,13 +57,13 @@ namespace co
          */
         //@{
         /** Set the number of participants in the barrier. */
-        void setHeight( const uint32_t height ) { _height = height; }
+        CO_API void setHeight( const uint32_t height );
 
         /** Add one participant to the barrier. */
-        void increase() { ++_height; }
+        CO_API void increase();
 
         /** @return the number of participants. */
-        uint32_t getHeight() const { return _height; }
+        CO_API uint32_t getHeight() const;
         //@}
 
         /** @name Operations */
@@ -92,32 +90,7 @@ namespace co
         virtual void unpack( DataIStream& is );
 
     private:
-        /** The master barrier node. */
-        NodeID   _masterID;
-
-        /** The height of the barrier, only set on the master. */
-        uint32_t _height;
-
-        /** The local, connected instantiation of the master node. */
-        NodePtr _master;
-
-        struct Request
-        {
-            Request() 
-                : time( 0 )
-                , timeout( EQ_TIMEOUT_INDEFINITE )
-                , incarnation( 0 ){}
-            uint64_t time;
-            uint32_t timeout;
-            uint32_t incarnation;
-            Nodes nodes;
-        };
-
-        /** Slave nodes which have entered the barrier, index per version. */
-        std::map< uint128_t, Request > _enteredNodes;
-
-        /** The monitor used for barrier leave notification. */
-        base::Monitor< uint32_t > _leaveNotify;
+        detail::Barrier* const _impl;
 
         void _cleanup( const uint64_t time );
         void _sendNotify( const uint128_t& version, NodePtr node );
