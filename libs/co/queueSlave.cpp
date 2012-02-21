@@ -38,7 +38,7 @@ public:
             , masterInstanceID( EQ_INSTANCE_ALL )
         {}
 
-    CommandQueue queue;
+    co::CommandQueue queue;
 
     const uint32_t prefetchMark;
     const uint32_t prefetchAmount;
