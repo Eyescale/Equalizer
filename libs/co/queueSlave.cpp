@@ -19,6 +19,7 @@
 #include "queueSlave.h"
 
 #include "command.h"
+#include "commandQueue.h"
 #include "commands.h"
 #include "dataIStream.h"
 #include "global.h"
@@ -37,7 +38,7 @@ public:
             , masterInstanceID( EQ_INSTANCE_ALL )
         {}
 
-    CommandQueue queue;
+    co::CommandQueue queue;
 
     const uint32_t prefetchMark;
     const uint32_t prefetchAmount;
