@@ -126,7 +126,7 @@ if __name__ == "__main__":
    parser.add_option("-a", "--application", dest="application",
                      help="Select app ( eqPly, rtneuron )", default="eqPly")
    parser.add_option("-m", "--schema", dest="schema",
-                     help="Schema to test ( single, combination )", default = "combination")
+                     help="Schema to test ( single, combination )", default = "full")
                      
    (options, args) = parser.parse_args()
    

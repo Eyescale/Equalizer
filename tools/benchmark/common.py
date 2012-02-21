@@ -3,20 +3,20 @@
 import os
 import checkXServersAndRestart
 
-numberOfServers = 12
-excludedServers = [ 5 ] 
+numberOfServers = 11
+excludedServers = [ 5, 10 ] 
 
 # All test options
 protocolsFull = [ 'TenGig', 'IPoIB', 'RDMA', 'SDP' ]  
 affFullStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
-rtNeuronFullLayoutNames = [ 'RoundRobinDB', 'SpatialDB','Dynamic2D', 'DBDirectSend', 'DBDirectSendSDB', 'DBDirectSendRR' ]
-eqPlyFullLayoutNames = [ 'StaticDB', 'Static2D', 'Dynamic2D' ]
+rtNeuronFullLayoutNames = [ 'Static2D', 'RoundRobinDB', 'SpatialDB','Dynamic2D', 'DBDirectSendSDB', 'DBDirectSendRR', 'DB_2DSDB', 'DB_2DRR' ]
+eqPlyFullLayoutNames = [ 'StaticDB', 'Static2D', 'Dynamic2D', 'DB_2D', 'DBDirectSend' ]
 roiFullStateList = [  'ROIEnabled', 'ROIDisabled' ]
 
 eqPlyBinaryPath = '/home/bilgili/Build/bin/eqPly'
 rtNeuromBinaryPath = '/home/bilgili/Build/bin/rtneuron.equalizer'
-eqPlyDefaultArgs = '-m ~/EqualizerData/david1mm.ply -a ~/EqualizerConfigs/eqPly/cameraPath --eq-logfile node01.log'
-rtNeuronDefaultArgs = '--profile --path-fps 10 -b /home/bilgili/RTNeuronData/blueconfig --no-sim-data  --no-lod --no-selections  --background 0.5 0.5 0.5 1.0 --path ~/RTNeuronData/camera_path.cam '
+eqPlyDefaultArgs = '-a ~/EqualizerConfigs/eqPly/cameraPath --eq-logfile node01.txt'
+rtNeuronDefaultArgs = '--profile  --path-fps 20  -b /home/bilgili/RTNeuronData/blueconfig --no-sim-data --no-selections  --background 0.5 0.5 0.5 1.0 --path ~/RTNeuronData/rotation.path --eq-logfile node01.txt'
 
 testFileName = "FPS.eqPly.txt"
 gpuCountFile = "GPUCount.txt"
@@ -26,6 +26,7 @@ gpuCountLFPSFile = "GPUCountLFPS.txt"
 commandFile = "CommandString"
 rtneuronFPSFile = "statistics.txt"
 optionsDumpFilename = "runoptions.obj"
+emptyLayout = "notset"
 
 timeSecToWaitForProcess = 20 * 60 # Wait for 20 minutes before killing process ( possible hang )
 
@@ -58,25 +59,72 @@ def writeCommandStringToFile( cmdStr ):
 def eqPlysingleTestScheme( application, function, serverCount ):
 
    # run tests options
+   protocol = 'TenGig' 
+   layoutName = 'DBDirectSend'
+   roiState = "ROIDisabled"
+   affState = "GoodAffinity"
+   
+   config = Configuration()
+   config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+   config.protocol = protocol
+   config.layoutName = layoutName
+   config.roiState = roiState
+   config.affState = affState
+   config.session = '%s-%s-%s' % ( application, affState, protocol )
+   config.serverCount = serverCount
+   config.nbOfFrames = 1210
+   function( config )
+
+def eqPlyflagsTestScheme( application, function, serverCount ):
+
+   # run tests options
    protocols = [ 'TenGig' ]  
    eqPlyLayoutNames = [ 'DBDirectSend' ]
    
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
-
-         roiState = "ROIDisabled"
-         affState = "NoAffinity"
          
          config = Configuration()
-         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
          config.protocol = protocol
          config.layoutName = layoutName
-         config.roiState = roiState
-         config.affState = affState
-         config.session = '%s-%s-%s' % ( application, affState, protocol )
          config.serverCount = serverCount
          config.nbOfFrames = 1210
+         
+         roiState = "ROIEnabled"
+         affState = "NoAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
          function( config )
+      
+         roiState = "ROIEnabled"
+         affState = "NoAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+         
+         roiState = "ROIDisabled"
+         affState = "GoodAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+         
+         roiState = "ROIDisabled"
+         affState = "BadAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
 
 
 def eqPlyfullTestScheme( application, function, serverCount ):
@@ -101,9 +149,33 @@ def eqPlycombinationTestScheme( application, function, serverCount ):
 
    # run tests options
    protocols = [ 'TenGig' ]  
-   eqPlyLayoutNames = [ 'Dynamic2D' ]
-   roiStateList = [  'ROIEnabled' ]
-   affStateList = [  'GoodAffinity',  'NoAffinity' ]
+   eqPlyLayoutNames = [ 'DBDirectSend' ]
+   roiStateList = [  'ROIDisabled' ]
+   affStateList = [  'GoodAffinity' ]
+   
+   for protocol in protocols:
+      for layoutName in eqPlyLayoutNames:
+         for roiState in roiStateList:
+            for affState in affStateList:
+               config = Configuration()
+               config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+               config.protocol = protocol
+               config.layoutName = layoutName
+               config.roiState = roiState
+               config.affState = affState
+               config.session = '%s-%s-%s' % ( application, affState, protocol )
+               config.serverCount = serverCount
+               config.nbOfFrames = 1210
+               function( config )
+
+
+def eqPlynetworkTestScheme( application, function, serverCount ):
+
+   # run tests options
+   protocols = [ 'SDP', 'RDMA', 'IPoIB' ]  
+   eqPlyLayoutNames = [ 'DBDirectSend' ]
+   roiStateList = [  'ROIDisabled' ]
+   affStateList = [  'GoodAffinity' ]
    
    for protocol in protocols:
       for layoutName in eqPlyLayoutNames:
@@ -122,34 +194,32 @@ def eqPlycombinationTestScheme( application, function, serverCount ):
 
 def rtneuronsingleTestScheme( application, function, serverCount ):
 
-   protocols = [ 'TenGig' ]  
-   rtNeuronLayoutNames = [ 'Dynamic2D' ]
+   protocol = 'TenGig'
+   layoutName = 'DBDirectSendSDB'
+   roiState = "ROIDisabled"
+   affState = "GoodAffinity"
    
-   for protocol in protocols:
-      for layoutName in rtNeuronLayoutNames:
+   config = Configuration()
+   config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+   print config.dirName
+   config.protocol = protocol
+   config.layoutName = layoutName
+   config.roiState = roiState
+   config.affState = affState
+   config.session = '%s-%s-%s' % ( application, affState, protocol )
+   config.serverCount = serverCount
+   config.nbOfFrames = 400
+   function( config )
 
-         roiState = "ROIDisabled"
-         affState = "GoodAffinity"
-         
-         config = Configuration()
-         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
-         config.protocol = protocol
-         config.layoutName = layoutName
-         config.roiState = roiState
-         config.affState = affState
-         config.session = '%s-%s-%s' % ( application, affState, protocol )
-         config.serverCount = serverCount
-         config.nbOfFrames = 400
-         function( config )
 
 
 def rtneuroncombinationTestScheme( application, function, serverCount ):
 
    # run tests options
    protocols = [ 'TenGig' ]  
-   rtNeuronLayoutNames = [ 'SpatialDB', 'RoundRobinDB','Dynamic2D' ]
-   roiStateList = [  'ROIEnabled', 'ROIDisabled' ]
-   affStateList = [  'GoodAffinity', 'BadAffinity', 'NoAffinity' ]
+   rtNeuronLayoutNames = [ 'Static2D', 'DBDirectSendSDB', 'DBDirectSendRR' ]
+   roiStateList = [  'ROIDisabled' ]
+   affStateList = [  'GoodAffinity' ]
 
    for protocol in protocols:
      for layoutName in rtNeuronLayoutNames:
@@ -166,6 +236,96 @@ def rtneuroncombinationTestScheme( application, function, serverCount ):
               config.nbOfFrames = 400
               function( config )       
 
+def rtneuronflagsTestScheme( application, function, serverCount ):
+
+   # run tests options
+   protocols = [ 'TenGig' ]  
+   rtNeuronLayoutNames = [  'Dynamic2D' ]
+   
+   config = Configuration()
+   config.serverCount = serverCount
+   config.nbOfFrames = 400
+   
+   for protocol in protocols:
+      for layoutName in rtNeuronLayoutNames:
+         
+         config.protocol = protocol
+         config.layoutName = layoutName
+         
+         roiState = "ROIDisabled"
+         affState = "GoodAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+      
+         roiState = "ROIDisabled"
+         affState = "BadAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+         
+         roiState = "ROIDisabled"
+         affState = "GoodAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+         
+         roiState = "ROIDisabled"
+         affState = "BadAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         
+         # function( config )
+
+   rtNeuronLayoutNames = [  'DBDirectSendSDB', 'DBDirectSendRR' ]
+   
+   config = Configuration()
+   config.serverCount = serverCount
+   config.nbOfFrames = 400
+   
+   for protocol in protocols:
+      for layoutName in rtNeuronLayoutNames:
+         
+         config.protocol = protocol
+         config.layoutName = layoutName
+         
+         roiState = "ROIEnabled"
+         affState = "NoAffinity"
+         config.roiState = roiState
+         config.affState = affState
+         config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+         config.session = '%s-%s-%s' % ( application, affState, protocol )
+         function( config )
+
+
+
+def rtneuronfullTestScheme( application, function, serverCount ):
+
+   for protocol in protocolsFull:
+      for layoutName in rtNeuronFullLayoutNames:
+         for roiState in roiFullStateList:
+            for affState in affFullStateList:
+               config = Configuration()
+               config.dirName = '%s-%s-%s-%s-%s' % ( application, protocol, layoutName, roiState, affState )
+               config.protocol = protocol
+               config.layoutName = layoutName
+               config.roiState = roiState
+               config.affState = affState
+               config.session = '%s-%s-%s' % ( application, affState, protocol )
+               config.serverCount = serverCount
+               config.nbOfFrames = 400
+               function( config )
 
 def testScheme( schemeName, application, function, serverCount ):
 

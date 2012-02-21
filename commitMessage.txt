@@ -1,9 +1,9 @@
-Minor cleanup
+Added new options to the benchmark scripts ( also bugfixes )
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[ ] New Feature
-[x] Cleanup
+[x] Bugfix
+[x] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation
