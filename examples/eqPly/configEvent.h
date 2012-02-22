@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public:
         size = sizeof( ConfigEvent );
     }
 
-    uint32_t steps;
+    int32_t steps;
 };
 
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );

@@ -107,7 +107,6 @@ set(SOURCES
     nodeFactory.h
     nodeFailedVisitor.h
     observer.cpp
-    parser.cpp
     pipe.cpp
     segment.cpp
     server.cpp

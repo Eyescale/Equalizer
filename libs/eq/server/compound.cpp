@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -52,9 +52,6 @@
 
 namespace eq
 {
-
-using fabric::EYES_STEREO;
-using fabric::UNDEFINED;
 
 namespace server
 {
@@ -1455,9 +1452,9 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
     for( size_t i = 0; i < fabric::NUM_EYES; ++i )
     {
         const uint32_t eye = 1 << i;
+        const bool eyeActive = _inherit.eyes & eye;
         const bool destActive = isDestination() ? _data.active[i] :
                                                   _inherit.active[i];
-        const bool eyeActive = _inherit.eyes & eye;
 
         if( destActive && eyeActive && phaseActive && channelActive )
             _inherit.active[i] = 1;

@@ -19,39 +19,65 @@
 #ifndef CO_QUEUESLAVE_H
 #define CO_QUEUESLAVE_H
 
-#include "types.h"
-#include "object.h"
 #include "api.h"
+#include "global.h" // used inline
+#include "object.h" // base class
+#include "types.h"
 
 namespace co
 {
+namespace detail { class QueueSlave; }
 
+/**
+ * The consumer end of a distributed queue.
+ *
+ * One or more instances of this class are mapped to the identifier of the
+ * QueueMaster registered on another node.
+ */
 class QueueSlave : public Object
 {
 public:
+    /**
+     * Construct a new queue consumer.
+     *
+     * The implementation will prefetch items from the queue master to cache
+     * thems locally. The prefetchMark determines when new items are requested,
+     * and the prefetchAmount how many items are fetched. Prefetching items
+     * hides the network latency by pipelining the network communication with
+     * the processing but may introduce imbalance between queue slaves if used
+     * aggressively.
+     *
+     * @param prefetchMark the low-water mark for prefetching.
+     * @param prefetchAmount the refill quantity when prefetching.
+     * @version 1.1.6
+     */
+    CO_API QueueSlave( const uint32_t prefetchMark = 
+                       Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ),
+                       const uint32_t prefetchAmount = 
+                       Global::getIAttribute( Global::IATTR_QUEUE_REFILL ));
 
-    CO_API QueueSlave();
-    ~QueueSlave();
+    /** Destruct this new queue consumer. @version 1.1.6 */
+    virtual CO_API ~QueueSlave();
 
-    CO_API virtual void attach( const base::UUID& id, 
-        const uint32_t instanceID );
-
+    /** 
+     * Pop an item from the distributed queue.
+     * 
+     * If the queue is empty, 0 is returned. Otherwise the returned command has
+     * to be released by the caller.
+     *
+     * @return the popped command, or 0 if the queue was empty.
+     * @version 1.1.6
+     */
     CO_API Command* pop();
-    CO_API void clear();
 
-protected:
+private:
+    detail::QueueSlave* const _impl;
+
+    CO_API virtual void attach(const base::UUID& id, const uint32_t instanceID);
+
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& ) { EQDONTCALL }
     virtual void applyInstanceData( co::DataIStream& is );
-
-private:
-    CommandQueue _queue;
-
-    uint32_t _prefetchLow;
-    uint32_t _prefetchHigh;
-    uint32_t _masterInstanceID;
-
-    NodePtr _master;
 };
 
 } // co

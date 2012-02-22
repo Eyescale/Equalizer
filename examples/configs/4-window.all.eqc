@@ -211,6 +211,21 @@ server
         }
         layout
         {
+            name "Tile"
+            view
+            {
+                observer 0
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
+        layout
+        {
             name "WallLB"
             view { observer 0 }
         }
@@ -293,6 +308,7 @@ server
             layout "DB"
             layout "Eye"
             layout "DPlex"
+            layout "Tile"
             layout "Pixel"
             layout "Subpixel"
 
@@ -689,6 +705,21 @@ server
                 outputframe { name "DPlex" }
             }
             inputframe { name "DPlex" }
+        }
+
+        # Tile compound
+        compound
+        {
+            channel ( segment 0 layout "Tile" view 0 )
+            tile_equalizer {}
+
+            compound {}
+            compound { channel "channel2" outputframe {} }
+            compound { channel "channel3" outputframe {} }
+            compound { channel "channel4" outputframe {} }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
         }
 
         # Direct-send compound

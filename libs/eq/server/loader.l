@@ -100,6 +100,7 @@ EQ_NODE_IATTR_THREAD_MODEL       { return EQTOKEN_NODE_IATTR_THREAD_MODEL; }
 EQ_NODE_IATTR_LAUNCH_TIMEOUT     { return EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT; }
 EQ_NODE_IATTR_HINT_STATISTICS    { return EQTOKEN_NODE_IATTR_HINT_STATISTICS; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
+EQ_PIPE_IATTR_HINT_AFFINITY      { return EQTOKEN_PIPE_IATTR_HINT_AFFINITY; }
 EQ_PIPE_IATTR_HINT_CUDA_GL_INTEROP { return EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
@@ -138,6 +139,7 @@ hint_stereo                     { return EQTOKEN_HINT_STEREO; }
 hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
 hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
+hint_affinity                   { return EQTOKEN_HINT_AFFINITY; }
 hint_cuda_GL_interop            { return EQTOKEN_HINT_CUDA_GL_INTEROP; }
 hint_screensaver                { return EQTOKEN_HINT_SCREENSAVER; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }

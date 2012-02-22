@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -566,7 +566,7 @@ namespace server
             int32_t           iAttributes[IATTR_ALL];
             float             maxFPS;
 
-            // compound activation per eye and Has been activated (by view) */
+            // compound activation per eye
             uint32_t active[ fabric::NUM_EYES ];
 
             union // placeholder for binary-compatible changes

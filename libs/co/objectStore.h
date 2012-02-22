@@ -195,11 +195,10 @@ namespace co
         };
 
         typedef std::deque< SendQueueItem > SendQueue;
-        SendQueue _sendQueue;      //!< Object data to broadcast when idle
 
+        SendQueue _sendQueue;          //!< Object data to broadcast when idle
         InstanceCache* _instanceCache; //!< cached object mapping data
-
-        DataIStreamQueue _pushData; //!< Object::push() queue
+        DataIStreamQueue _pushData;    //!< Object::push() queue
 
         /**
          * Returns the master node id for an identifier.

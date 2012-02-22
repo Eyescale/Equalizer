@@ -76,6 +76,10 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.2.0 "0.4.8")
+  set(_eq_coVersion_1.1.7 "0.4.7")
+  set(_eq_coVersion_1.1.6 "0.4.1")
+  set(_eq_coVersion_1.1.5 "0.4.1")
   set(_eq_coVersion_1.1.4 "0.4.1")
   set(_eq_coVersion_1.1.3 "0.4.0")
   set(_eq_coVersion_1.1.2 "0.4.0")
@@ -202,7 +206,7 @@ else()
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Equalizer DEFAULT_MSG
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
 endif()
 
@@ -213,14 +217,18 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     set(_eq_fabric_LIBRARY)
     set(_eq_INCLUDE_DIR)
 else()
-  math(EXPR _eq_NEXT_MINOR ${EQUALIZER_VERSION_MINOR}+1)
-  set(EQUALIZER_DEB_DEPENDENCIES
-    "equalizer (>=${EQUALIZER_VERSION}), equalizer (<<${EQUALIZER_VERSION_MAJOR}.${_eq_NEXT_MINOR})")
+  if(EQUALIZER_VERSION_ABI LESS 110)
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
+  else()
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
+  endif()
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${_eq_fabric_LIBRARY}
-                        ${COLLAGE_LIBRARIES})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+if(EQUALIZER_VERSION VERSION_GREATER 1.0)
+  set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
+endif()
 get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)

@@ -1,9 +1,9 @@
-Fix Windows build
+Tweaks for using installed GPUSD on Windows
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
 [ ] New Feature
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

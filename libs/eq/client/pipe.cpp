@@ -332,7 +332,6 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
         _queues[ queueVersion.identifier ] = queue;
     }
 
-    queue->clear();
     return queue;
 }
 
@@ -465,11 +464,12 @@ void Pipe::cancelThread()
     if( !_thread )
         return;
 
-    co::Command& command = 
-        getLocalNode()->allocCommand( sizeof( eq::PipeExitThreadPacket ));
+    PipeExitThreadPacket pkg;
+    co::Command& command = getLocalNode()->allocCommand( sizeof( pkg ));
     eq::PipeExitThreadPacket* packet = 
         command.getModifiable< eq::PipeExitThreadPacket >();
-    *packet = eq::PipeExitThreadPacket();
+
+    memcpy( packet, &pkg, sizeof( pkg ));
     dispatchCommand( command );
 }
 
@@ -502,6 +502,12 @@ void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
     _unlockedFrame.waitGE( frameNumber );
+}
+
+uint32_t Pipe::getCurrentFrame() const
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _currentFrame;
 }
 
 uint32_t Pipe::getFinishedFrame() const

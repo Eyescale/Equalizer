@@ -298,8 +298,7 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     EQASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    WindowCreateChannelPacket createChannelPacket;
-    createChannelPacket.channelID = getID();
+    WindowCreateChannelPacket createChannelPacket( getID( ));
     getWindow()->send( createChannelPacket );
 
     ChannelConfigInitPacket packet;
@@ -382,7 +381,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     send( startPacket );
     EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
-                           << &startPacket << std::endl;
+                       << &startPacket << std::endl;
 
     bool updated = false;
     const Compounds& compounds = getCompounds();

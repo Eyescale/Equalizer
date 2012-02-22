@@ -21,7 +21,9 @@
 
    Welcome to Equalizer, the standard middleware to create and
    deploy parallel, scalable OpenGL applications. This release
-   TBD
+   introduces major new features, most notably automatic
+   configuration, the Sequel library, runtime reliability and
+   tile compounds.
 
    Equalizer 1.2 is a feature release extending the 1.0 API,
    distilling over 6 years of development and decades of
@@ -67,16 +69,17 @@
 
   2.1. New Features
 
-     * Automic local and remote configuration using the GPU-SD
-       library
+     * Automatic local and remote configuration using the
+       GPU-SD library
      * Initial release of Sequel, a simplification and utility
        layer on top of Equalizer, enabling rapid development
        of clustered multi-GPU applications
      * Runtime failure tolerance detecting hardware and
        software failures
      * Tile compounds for fill-limited rendering such as
-       volume raycasting and raytracing
-     * * RDMA-based connection class for InfiniBand
+       direct volume rendering and interactive raytracing
+     * Distributed single-producer, multi-consumer queue
+     * RDMA-based connection class for InfiniBand (Linux only)
      * Support push-based object distribution
 
   2.2. Enhancements
@@ -84,16 +87,16 @@
      * Added FindEqualizer.cmake and FindCollage.cmake for
        integration of Equalizer and Collage in CMake build
        environments
-     * Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
-     * Add time member to eq::Event recording time when the
-       event was received from the operating system
      * Support for render clients without listening sockets
+     * Per-segment or per-canvas swap barriers
      * Allow the image compressor to be chosen by the
        application
      * Allow and prefer external GLEW installation during
        compilation
-     * Updgrade internal GLEW version to 1.7.0
-     * Per-segment or canvas swap barriers
+     * Upgrade internal GLEW version to 1.7.0
+     * Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
+     * Add time member to eq::Event recording time when the
+       event was received from the operating system
      * 43: Add View::isActive and Layout::isActive
      * 45: Make RNG functional without co::base::init
      * Implement maximum size of multi-threaded queue,
@@ -106,13 +109,12 @@
   2.3. Optimizations
 
      * Make LocalNode::registerObject and Object::commit
-       parallelizable by executing Object serialization from
+       parallelizable by executing object serialization from
        calling thread
 
   2.4. Examples
 
      * Provide CMake files for installed examples
-     * eqPly:
      * seqPly: An new example similar to eqPly, but using the
        Sequel API
      * eqAsync: A new example demonstrating OpenGL context
@@ -145,8 +147,10 @@
    improved since the last release:
 
      * Full API documentation for the public Equalizer API.
-     * The Programming and User Guide has been extended to TBD
-       pages and TBD figures.
+     * The Programming and User Guide has been extended to 107
+       pages and 60 figures.
+     * Tile compounds using a pull-based task distribution for
+       volume rendering and interactive raytracing.
 
   2.8. Bug Fixes
 
@@ -155,23 +159,25 @@
 
      * RSP: Fix scattered ack implementation
      * 29: NV swap barrier with affinity context does not work
-     * Fixed activation of OpenMP during build
-     * Fixed glxew.h include
-     * 3383573: Win32: occasional crash with
-       CO_AGGRESSIVE_CACHING OFF
-     * 3357684: View user data occasionally synced one frame
-       too late
-     * 3306308: Deadlock with config.eqc and window init
-       failure
-     * 3306148: Including eq/gl.h with AGL fails
-     * 3301423: Config::stopFrames called from non-main thread
-       causes deadlocks
+     * 45: Make co::base::RNG function without init()
+     * 56: Parsing configuration files is locale-dependent and
+       fails in some locales
+     * 66: Assertion when using the server for more than one
+       session
+     * 73: Missing space mouse support on Windows
+     * 82: Excessive memory usage with object push
+     * 87: Debian packages broken
+     * 88: draw_sync thread model causes full synchronization
 
   2.9. Known Bugs
 
    The following bugs were known at release time. Please file
    a Bug Report if you find any other issue with this release.
 
+     * 65: Startup crash with Multi-GPU config
+     * 61: VMMlib static initializer issue
+     * 58: netperf/RDMA exit deadlock
+     * 49: eqPixelBench crash with double free
      * 19: zoom readback with FBO
      * 18: zoom: depth readback does not work
      * 17: AGL: Window close does not work
@@ -193,7 +199,8 @@
    environment. The following platforms and build environments
    are tested:
 
-     * Linux: Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
+     * Linux: Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386,
+       x64)
      * Windows: XP and 7 (Visual Studio 2008, i386, x64)
      * Mac OS X: 10.6, 10.7 (Makefile, XCode, i386, x64)
 
@@ -206,8 +213,8 @@
   3.3. Documentation
 
    The Programming and User Guide is available as a hard-copy
-   and online. API documentation can be found on the Equalizer
-   website.
+   and online. The API documentation can be found on the
+   Equalizer website.
 
    As with any open source project, the available source code,
    in particular the shipped examples provide a reference for

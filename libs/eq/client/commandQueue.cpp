@@ -62,7 +62,7 @@ void CommandQueue::wakeup()
 
 co::Command* CommandQueue::pop()
 {
-    const int64_t start = _clock.getTime64();
+    int64_t start = -1;
     while( true )
     {
         if( _messagePump )
@@ -71,16 +71,23 @@ co::Command* CommandQueue::pop()
         // Poll for a command
         if( !isEmpty( ))
         {
-            _waitTime += ( _clock.getTime64() - start );
+            if( start > -1 )
+                _waitTime += ( _clock.getTime64() - start );
             return co::CommandQueue::pop();
         }
 
         if( _messagePump )
+        {
+            if( start == -1 )
+                start = _clock.getTime64();
             _messagePump->dispatchOne(); // blocking - push will send wakeup
+        }
         else
         {
+            start = _clock.getTime64();
+            co::Command* command = co::CommandQueue::pop(); // blocking
             _waitTime += ( _clock.getTime64() - start );
-            return co::CommandQueue::pop(); // blocking
+            return command;
         }
     }
 }

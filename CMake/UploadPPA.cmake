@@ -1,6 +1,6 @@
 ##
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 #
 #  sudo apt-get install devscripts
 ##
@@ -78,14 +78,21 @@ function(UPLOAD_PPA UBUNTU_NAME)
     "\n"
     "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
     "Architecture: any\n"
-    "Depends: ${CPACK_DEBIAN_PACKAGE_DEPENDS}\n"
+    "Depends: ")
+
+  foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
+    set(PACKAGE ${CPACK_DEBIAN_PACKAGE_NAME}-${COMPONENT})
+    file(APPEND ${DEBIAN_CONTROL} "${PACKAGE}, ")
+  endforeach()
+
+  file(APPEND ${DEBIAN_CONTROL} "\n"
     "Description: ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"
     "${DEB_LONG_DESCRIPTION}"
     )
 
   foreach(COMPONENT ${CPACK_COMPONENTS_ALL})
     string(TOUPPER ${COMPONENT} UPPER_COMPONENT)
-    set(DEPENDS "${CPACK_DEBIAN_PACKAGE_NAME}")
+    set(DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}")
     foreach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})
       set(DEPENDS "${DEPENDS}, ${CPACK_DEBIAN_PACKAGE_NAME}-${DEP}")
     endforeach(DEP ${CPACK_COMPONENT_${UPPER_COMPONENT}_DEPENDS})

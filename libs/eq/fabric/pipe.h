@@ -117,6 +117,7 @@ namespace fabric
         {
             // Note: also update string array initialization in pipe.cpp
             IATTR_HINT_THREAD,   //!< Execute tasks in separate thread (default)
+            IATTR_HINT_AFFINITY, //!< Bind render thread to subset of cores
             IATTR_HINT_CUDA_GL_INTEROP, //!< Configure CUDA context
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
@@ -124,7 +125,7 @@ namespace fabric
 
         /** @internal Set a pipe attribute. */
         EQFABRIC_INL void setIAttribute( const IAttribute attr,
-                                            const int32_t value );
+                                         const int32_t value );
 
         /** @return the value of a pipe integer attribute. @version 1.0 */
         int32_t getIAttribute( const IAttribute attr ) const

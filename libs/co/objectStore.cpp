@@ -43,7 +43,7 @@ typedef CommandFunc<ObjectStore> CmdFunc;
 
 ObjectStore::ObjectStore( LocalNode* localNode )
         : _localNode( localNode )
-        , _instanceIDs( std::numeric_limits< long >::min( )) 
+        , _instanceIDs( -0x7FFFFFFF )
         , _instanceCache( new InstanceCache( Global::getIAttribute( 
                               Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
 {

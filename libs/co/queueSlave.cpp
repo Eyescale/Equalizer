@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,63 +26,91 @@
 
 namespace co
 {
-
-QueueSlave::QueueSlave()
-        : Object()
-        , _prefetchLow( Global::getIAttribute( Global::IATTR_QUEUE_MIN_SIZE ))
-        , _prefetchHigh( Global::getIAttribute( Global::IATTR_QUEUE_MAX_SIZE ))
-        , _masterInstanceID( EQ_INSTANCE_ALL )
+namespace detail
 {
+class QueueSlave
+{
+public:
+    QueueSlave( const uint32_t mark, const uint32_t amount)
+            : prefetchMark( mark )
+            , prefetchAmount( amount )
+            , masterInstanceID( EQ_INSTANCE_ALL )
+        {}
+
+    CommandQueue queue;
+
+    const uint32_t prefetchMark;
+    const uint32_t prefetchAmount;
+    uint32_t masterInstanceID;
+
+    NodePtr master;
+};
 }
+
+QueueSlave::QueueSlave( const uint32_t prefetchMark,
+                        const uint32_t prefetchAmount )
+        : _impl( new detail::QueueSlave( prefetchMark, prefetchAmount ))
+{}
 
 QueueSlave::~QueueSlave()
 {
-    clear(); // clear leftover QUEUE_EMPTY packets here
+    while( !_impl->queue.isEmpty( ))
+    {
+        Command* cmd = _impl->queue.pop();
+        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+        cmd->release();
+    }
+    delete _impl;
 }
 
 void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
-    registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_queue);
-    registerCommand( CMD_QUEUE_EMPTY, CommandFunc<Object>(0, 0), &_queue);
+    registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_impl->queue );
+    registerCommand( CMD_QUEUE_EMPTY, CommandFunc<Object>(0, 0), &_impl->queue);
 }
 
 void QueueSlave::applyInstanceData( co::DataIStream& is )
 {
     uint128_t masterNodeID;
-    is >> _masterInstanceID >> masterNodeID;
+    is >> _impl->masterInstanceID >> masterNodeID;
 
     EQASSERT( masterNodeID != NodeID::ZERO );
-    EQASSERT( !_master );
+    EQASSERT( !_impl->master );
     LocalNodePtr localNode = getLocalNode();
-    _master = localNode->connect( masterNodeID );
+    _impl->master = localNode->connect( masterNodeID );
 }
 
 Command* QueueSlave::pop()
 {
-    if ( _queue.getSize() <= _prefetchLow )
-    {
-        QueueGetItemPacket packet;
-        uint32_t queueSize = static_cast<uint32_t>(_queue.getSize());
-        packet.itemsRequested = _prefetchHigh - queueSize;
-        packet.instanceID = _masterInstanceID;
-        packet.slaveInstanceID = getInstanceID();
-        send( _master, packet );
-    }
-    
-    Command* cmd = _queue.pop();
-    if ((*cmd)->command == CMD_QUEUE_ITEM)
-        return cmd;
-    
-    cmd->release();
-    return 0;
-}
+    static base::a_int32_t _request;
+    const int32_t request = ++_request;
 
-void QueueSlave::clear()
-{
-    while( !_queue.isEmpty( ))
+    while( true )
     {
-        Command* cmd = _queue.pop();
+        const size_t queueSize = _impl->queue.getSize();
+        if( queueSize <= _impl->prefetchMark )
+        {
+            QueueGetItemPacket packet;
+            packet.itemsRequested = _impl->prefetchAmount;
+            packet.instanceID = _impl->masterInstanceID;
+            packet.slaveInstanceID = getInstanceID();
+            packet.requestID = request;
+            send( _impl->master, packet );
+        }
+
+        Command* cmd = _impl->queue.pop();
+        if( (*cmd)->command == CMD_QUEUE_ITEM )
+            return cmd;
+    
+        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+        const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
+        if( packet->requestID == request )
+        {
+            cmd->release();
+            return 0;
+        }
+        // else left-over or not our empty packet, discard and retry
         cmd->release();
     }
 }

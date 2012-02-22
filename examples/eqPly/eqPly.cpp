@@ -120,6 +120,7 @@ int EqPly::run()
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
+    int lastFrame = 0;
     
     clock.reset();
     while( config->isRunning( ) && maxFrames-- )
@@ -129,6 +130,17 @@ int EqPly::run()
             EQWARN << "Error during frame start: " << config->getError()
                    << std::endl;
         config->finishFrame();
+
+        if( config->getAnimationFrame() == 1 )
+        {
+            const float time = clock.resetTimef();
+            const size_t nFrames = config->getFinishedFrame() - lastFrame;
+            lastFrame = config->getFinishedFrame();
+
+            EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+                               << ( nFrames / time * 1000.f) << " FPS)"
+                               << std::endl;
+        }
 
         while( !config->needRedraw( )) // wait for an event requiring redraw
         {
@@ -147,10 +159,10 @@ int EqPly::run()
         config->handleEvents(); // process all pending events
     }
     const uint32_t frame = config->finishAllFrames();
-    const float    time  = clock.getTimef();
-    EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
-                       << " frames @ " << ( frame / time * 1000.f) << " FPS)"
-                       << std::endl;
+    const float time = clock.resetTimef();
+    const size_t nFrames = frame - lastFrame;
+    EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+                       << ( nFrames / time * 1000.f) << " FPS)" << std::endl;
 
     // 5. exit config
     clock.reset();

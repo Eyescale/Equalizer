@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
                       2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -216,9 +216,7 @@ bool Window::configInit()
     setWGLContext( context );
     makeCurrent();
     initGLEW();
-
-    if( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC ) != AUTO )
-        _initSwapSync();
+    _initSwapSync();
     if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
         return configInitFBO();
 
@@ -358,7 +356,7 @@ HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     DWORD windowStyleEx = WS_EX_APPWINDOW;
     DWORD windowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != ON )
+    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
         windowStyle = WS_POPUP;
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
@@ -460,16 +458,17 @@ bool Window::initWGLAffinityDC()
 
 void Window::_initSwapSync()
 {
+    const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync == AUTO ) // leave it alone
+        return;
+
     if( WGLEW_EXT_swap_control )
     {
-        // set vsync on/off
-        const GLint vsync =
-            ( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
-        wglSwapIntervalEXT( vsync );
+        wglSwapIntervalEXT( (swapSync < 0) ? 1 : swapSync );
     }
     else
         EQWARN << "WGL_EXT_swap_control not supported, ignoring window "
-               << "swapsync hint" << std::endl;
+               << "swapsync hint " << swapSync << std::endl;
 }   
 
 void Window::configExit( )

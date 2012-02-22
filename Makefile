@@ -1,7 +1,7 @@
 #!gmake
 .PHONY: debug tests cdash release xcode debug_glx docs clean clobber
 
-BUILD ?= debug
+BUILD ?= release
 PYTHON ?= python
 CMAKE ?= cmake
 

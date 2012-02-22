@@ -44,7 +44,6 @@ namespace co
         ObjectDataIStream* pop() { return _queued.pop().second; }
         ObjectDataIStream* tryPop();
         ObjectDataIStream* pull( const uint128_t& key );
-
         void recycle( ObjectDataIStream* stream );
 
     protected:

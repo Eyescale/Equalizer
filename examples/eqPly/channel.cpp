@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2007, Tobias Wolf <twolf@access.unizh.ch>
  *
@@ -208,7 +208,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     // else
     
-    bool subPixelALL = true;
+    accum.transfer = true;
     const eq::Frames& frames = getInputFrames();
 
     for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
@@ -217,13 +217,11 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         const eq::SubPixel& curSubPixel = frame->getSubPixel();
 
         if( curSubPixel != eq::SubPixel::ALL )
-            subPixelALL = false;
+            accum.transfer = false;
 
         accum.stepsDone = EQ_MAX( accum.stepsDone, 
-                                  frame->getSubPixel().size*frame->getPeriod());
+                                  frame->getSubPixel().size*frame->getPeriod( ));
     }
-
-    accum.transfer = subPixelALL;
 
     applyBuffer();
     applyViewport();
@@ -243,10 +241,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
-    if( stopRendering( ))
-        return;
-
-    if( _isDone( ))
+    if( stopRendering() || _isDone( ))
         return;
 
     // OPT: Drop alpha channel from all frames during network transport
@@ -304,7 +299,7 @@ void Channel::frameFinish( const eq::uint128_t& frameID,
         Accum& accum = _accum[ i ];
         if( accum.step > 0 )
         {
-            if( static_cast< int32_t >( accum.stepsDone ) > accum.step )
+            if( int32_t( accum.stepsDone ) > accum.step )
                 accum.step = 0;
             else
                 accum.step -= accum.stepsDone;
@@ -361,19 +356,14 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
 
     if( frameData.isIdle( ))
     {
-        int32_t maxSteps = 0;
+        event.steps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
-            maxSteps = EQ_MAX( maxSteps, _accum[i].step );
-
-        event.steps = maxSteps;
+            event.steps = EQ_MAX( event.steps, _accum[i].step );
     }
     else
     {
         const View* view = static_cast< const View* >( getView( ));
-        if( view )
-            event.steps = view->getIdleSteps();
-        else
-            event.steps = 0;
+        event.steps = view ? view->getIdleSteps() : 0;
     }
 
     // if _jitterStep == 0 and no user redraw event happened, the app will exit
@@ -402,7 +392,7 @@ bool Channel::_isDone() const
 
     const eq::SubPixel& subpixel = getSubPixel();
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-    return static_cast< int32_t >( subpixel.index ) >= accum.step;
+    return int32_t( subpixel.index ) >= accum.step;
 }
 
 void Channel::_initJitter()
@@ -418,17 +408,15 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const uint32_t totalSteps = view->getIdleSteps();
-
-    if( totalSteps == 0 )
+    const int32_t idleSteps = view->getIdleSteps();
+    if( idleSteps == 0 )
         return;
 
     // ready for the next FSAA
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-
     if( accum.buffer )
         accum.buffer->clear();
-    accum.step = totalSteps;
+    accum.step = idleSteps;
 }
 
 bool Channel::_initAccum()
@@ -512,7 +500,7 @@ eq::Vector2f Channel::getJitter() const
     if( !view || view->getIdleSteps() != 256 )
         return eq::Vector2f::ZERO;
 
-    eq::Vector2i jitterStep = _getJitterStep();
+    const eq::Vector2i jitterStep = _getJitterStep();
     if( jitterStep == eq::Vector2i::ZERO )
         return eq::Vector2f::ZERO;
 
@@ -531,21 +519,16 @@ eq::Vector2f Channel::getJitter() const
 
     // Sample value randomly computed within the subpixel
     co::base::RNG rng;
-    float value_i = rng.get< float >() * subpixel_w
-                    + float( jitterStep.x( )) * subpixel_w;
-
-    float value_j = rng.get< float >() * subpixel_h
-                    + float( jitterStep.y( )) * subpixel_h;
-
     const eq::Pixel& pixel = getPixel();
-    value_i /= float( pixel.w );
-    value_j /= float( pixel.h );
 
-    return eq::Vector2f( value_i, value_j );
+    const float i = ( rng.get< float >() * subpixel_w +
+                      float( jitterStep.x( )) * subpixel_w ) / float( pixel.w );
+    const float j = ( rng.get< float >() * subpixel_h +
+                      float( jitterStep.y( )) * subpixel_h ) / float( pixel.h );
+
+    return eq::Vector2f( i, j );
 }
 
-namespace
-{
 static const uint32_t _primes[100] = {
     739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
     839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
@@ -555,7 +538,6 @@ static const uint32_t _primes[100] = {
     1217, 1223, 1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291,
     1297, 1301, 1303, 1307, 1319, 1321, 1327, 1361, 1367, 1373, 1381, 1399,
     1409, 1423, 1427, 1429, 1433, 1439, 1447, 1451 };
-}
 
 eq::Vector2i Channel::_getJitterStep() const
 {
@@ -565,18 +547,17 @@ eq::Vector2i Channel::_getJitterStep() const
     if( !view )
         return eq::Vector2i::ZERO;
 
-    const uint32_t totalSteps = view->getIdleSteps();
+    const uint32_t totalSteps = uint32_t( view->getIdleSteps( ));
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
-    const uint32_t idx = 
-        ( accum.step * _primes[ channelID ] ) % subset + ( channelID * subset );
-
+    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] ) % subset +
+                           ( channelID * subset );
     const uint32_t sampleSize = 16;
-    const int dx = idx % sampleSize;
-    const int dy = idx / sampleSize;
+    const int dx = index % sampleSize;
+    const int dy = index / sampleSize;
 
     return eq::Vector2i( dx, dy );
 }
@@ -600,13 +581,13 @@ const Model* Channel::_getModel()
     return _model;
 }
 
-void Channel::_drawModel( const Model* model )
+void Channel::_drawModel( const Model* scene )
 {
-    Window*            window    = static_cast< Window* >( getWindow( ));
-    VertexBufferState& state     = window->getState();
-    const FrameData&   frameData = _getFrameData();
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const FrameData& frameData = _getFrameData();
 
-    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
+    if( frameData.getColorMode() == COLOR_MODEL && scene->hasColors( ))
         state.setColors( true );
     else
         state.setColors( false );
@@ -618,13 +599,13 @@ void Channel::_drawModel( const Model* model )
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
     position.set_translation( frameData.getCameraPosition());
 
-    const eq::Matrix4f& xfm = getHeadTransform();
-    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
-
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
                                                  frustum.compute_matrix();
-    state.setProjectionModelViewMatrix( projection * modelView );
+    const eq::Matrix4f& view = getHeadTransform();
+    const eq::Matrix4f model = rotation * position * modelRotation;
+
+    state.setProjectionModelViewMatrix( projection * view * model );
     state.setRange( &getRange().start);
 
     const eq::Pipe* pipe = getPipe();
@@ -632,7 +613,7 @@ void Channel::_drawModel( const Model* model )
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
-    model->cullDraw( state );
+    scene->cullDraw( state );
     state.setChannel( 0 );
 
     if( program != VertexBufferState::INVALID )

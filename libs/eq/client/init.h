@@ -43,8 +43,6 @@ namespace eq
      *   <li>--eq-render-client &lt;filename&gt; to specify an alternate name
      *         for the render client executable (default is argv[0]). Also sets
      *         the working directory to the director part of the filename.</li>
-     *   <li>--eq-logfile &lt;filename&gt; to specify an output file for debug
-     *         logging.</li>
      * </ul>
      *
      * Please note that further command line parameters are recognized by

@@ -67,15 +67,13 @@ namespace co
     {
         ObjectPacket()
                 : instanceID( EQ_INSTANCE_ALL )
-#ifndef NDEBUG
                 , pad( 0 ) // valgrind: write points to uninitialised byte(s)
-#endif
             {
                 type = PACKETTYPE_CO_OBJECT; 
             }
         base::UUID objectID;
         uint32_t instanceID;
-        uint32_t pad; // pad to multiple-of-eight
+        const uint32_t pad; // pad to multiple-of-eight
     };
 
     //------------------------------------------------------------

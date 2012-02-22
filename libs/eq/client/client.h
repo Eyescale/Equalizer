@@ -65,10 +65,16 @@ namespace eq
         /** 
          * Initialize a local, listening node.
          *
-         * The <code>--eq-client</code> command line option is recognized by
-         * this method. It is used for remote nodes which have been
+         * The <code>--eq-client</code> and <code>--eq-layout</code> command
+         * line options are recognized by this method.
+         *
+         * <code>--eq-client</code> is used for remote nodes which have been
          * auto-launched by another node, e.g., remote render clients. This
          * method does not return when this command line option is present.
+         *
+         * <code>--eq-layout</code> can apply multiple times. Each instance has
+         * to be followed by the name of a layout. The given layouts will be
+         * activated on all canvases using them during Config::init().
          *
          * @param argc the command line argument count.
          * @param argv the command line argument values.
@@ -77,6 +83,9 @@ namespace eq
          * @version 1.0
          */
         EQ_API virtual bool initLocal( const int argc, char** argv );
+
+        /** De-initialize a local, listening node. @version 1.1.6 */
+        EQ_API virtual bool exitLocal();
 
         /**
          * @return true if the client has commands pending, false otherwise.
@@ -87,6 +96,9 @@ namespace eq
         /** @internal @return the command queue to the main node thread. */
         virtual co::CommandQueue* getMainThreadQueue()
             { return &_mainThreadQueue; }
+
+        /** @internal @return the list of active layouts given by --eq-layout. */
+        static const Strings& getActiveLayouts();
 
     protected:
         /**

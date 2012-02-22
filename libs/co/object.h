@@ -169,7 +169,8 @@ namespace co
          * metric than commit calls, it has to consistently provide an
          * incarnation counter. Buffers with a higher incarnation count than the
          * current are discarded. A typical use case is to tie the auto
-         * obsoletion to rendering frames in a visualization application.
+         * obsoletion to an application-specific frame loop. Decreasing the
+         * incarnation counter will lead to undefined results.
          *
          * @param incarnation the commit incarnation for auto obsoletion.
          * @return the new head version.

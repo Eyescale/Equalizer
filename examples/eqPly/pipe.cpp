@@ -51,10 +51,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
     const InitData& initData    = config->getInitData();
     const eq::uint128_t&  frameDataID = initData.getFrameDataID();
 
-    const bool mapped = config->mapObject( &_frameData, frameDataID );
-    EQASSERT( mapped );
-
-    return mapped;
+    return config->mapObject( &_frameData, frameDataID );
 }
 
 bool Pipe::configExit()

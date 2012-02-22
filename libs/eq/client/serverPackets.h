@@ -43,17 +43,18 @@ namespace eq
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
     {
-        ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
-                                       requestPacket )
+        ServerChooseConfigReplyPacket( const ServerChooseConfigPacket* req )
+                : fill( 0 )
             {
                 command   = fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket );
-                requestID = requestPacket->requestID;
+                requestID = req->requestID;
                 connectionData[0] = 0;
             }
 
         co::base::UUID configID;
         uint32_t requestID;
+        const uint32_t fill;
         EQ_ALIGN8( char connectionData[8] );
     };
 

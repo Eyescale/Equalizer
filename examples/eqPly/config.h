@@ -84,6 +84,9 @@ namespace eqPly
         /** @return true if an event required a redraw. */
         bool needRedraw();
 
+        /** @return the current animation frame number. */
+        uint32_t getAnimationFrame();
+
     protected:
         virtual ~Config();
 
@@ -112,7 +115,7 @@ namespace eqPly
         bool _redraw;
         bool _useIdleAA;
 
-        uint32_t _numFramesAA;
+        int32_t _numFramesAA;
 
         eq::admin::ServerPtr _admin;
 

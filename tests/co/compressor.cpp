@@ -199,6 +199,9 @@ void _testRandom()
 {
     size_t size = EQ_10MB;
     uint8_t* data = new uint8_t[size];
+    co::base::RNG rng;
+    for( size_t k = 0; k<size; ++k )
+        data[k] = rng.get< uint8_t >();
 
     std::vector< uint32_t >compressorNames = 
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
@@ -213,10 +216,6 @@ void _testRandom()
         size = EQ_10MB;
         for( size_t j = 0; j<8; ++j ) // test all granularities between mod 8..1
         {
-            co::base::RNG rng;
-            for( size_t k = 0; k<size; ++k )
-                data[k] = rng.get< uint8_t >();
-
             _testData( *i, "Random data", data, size );
             --size;
         }

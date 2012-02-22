@@ -1,0 +1,18 @@
+
+                           VirtualGL Support
+
+Equalizer and VirtualGL play well together, and the auto-configuration
+will do the correct thing for 99% of the use cases. There is currently
+an issue[1] in VirtualGL selecting the wrong compression, therefore use
+'vglrun -c jpeg <eqProgram>' to run Equalizer applications through
+VirtualGL.
+
+                                Details
+
+Any window on a pipe using the default DISPLAY, i.e., not defining a
+port and device, will get redirected by VirtualGL to a local GPU, by
+default the first one. When using multiple GPUs, configure one pipe for
+each GPU except the first using a device, and one pipe with no port and
+device for VirtualGL redirection.
+
+[1] https://sourceforge.net/tracker/?func=detail&aid=3463913&group_id=117509&atid=678327

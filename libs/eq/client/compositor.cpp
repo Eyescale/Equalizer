@@ -111,8 +111,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     uint32_t depthExternalFormat = 0;
     const uint32_t timeout = channel->getConfig()->getTimeout();
 
-    for( Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         const Frame* frame = *i;
         {
@@ -199,8 +198,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             ++nImages;
         }
     }
-
-    return false;
+    return (nImages > 1);
 }
 }
 
@@ -264,7 +262,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         {
             Frames current = _extractOneSubPixel( framesLeft );
             const uint32_t subCount = assembleFramesSorted( current, channel,
-                                                            accum );
+                                                            accum, blendAlpha );
             EQASSERT( subCount < 2 );
 
             if( subCount > 0 )
@@ -754,7 +752,7 @@ void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha,
                 _mergeDBImage( colorBuffer, depthBuffer, destPVP,
                                image, frame->getOffset( ));
             else if( blendAlpha && image->hasAlpha( ))
-                _mergeBlendImage( colorBuffer, destPVP, 
+                _mergeBlendImage( colorBuffer, destPVP,
                                   image, frame->getOffset( ));
             else
                 _merge2DImage( colorBuffer, depthBuffer, destPVP, 

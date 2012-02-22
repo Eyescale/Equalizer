@@ -40,7 +40,7 @@ public:
     CO_API QueueMaster();
 
     /** Destruct this queue master. @version 1.1.6 */
-    CO_API ~QueueMaster();
+    virtual CO_API ~QueueMaster();
 
     /**
      * Enqueue a new item.

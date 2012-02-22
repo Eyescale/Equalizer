@@ -88,6 +88,7 @@ void Global::_setupDefaults()
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = fabric::ON;
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
+    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = AUTO;
 
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )

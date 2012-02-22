@@ -20,6 +20,7 @@
 #define EQNET_NODEPACKETS_H
 
 #include <co/packets.h> // base structs
+#include <co/localNode.h> // used inline
 #include <co/objectVersion.h> // VERSION_FOO values
 #include <co/base/compiler.h> // align macros
 
@@ -37,19 +38,18 @@ namespace co
 
     struct NodeConnectPacket : public NodePacket
     {
-        NodeConnectPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
-                , fill( 0 )
+        NodeConnectPacket( const LocalNodePtr node )
+                : nodeID( node->getNodeID( ))
+                , requestID( EQ_UNDEFINED_UINT32 )
+                , nodeType( node->getType( ))
             {
-                command     = CMD_NODE_CONNECT;
-                size        = sizeof( NodeConnectPacket ); 
-                nodeData[0] = '\0';
+                command = CMD_NODE_CONNECT;
+                size = sizeof( NodeConnectPacket ); 
             }
 
-        NodeID   nodeID;
+        const NodeID nodeID;
         uint32_t requestID;
-        uint32_t nodeType;
-        uint32_t fill;
+        const uint32_t nodeType;
         EQ_ALIGN8( char nodeData[8] );
     };
 
@@ -213,6 +213,7 @@ namespace co
     {
         NodeFindMasterNodeIDPacket()
                 : requestID( EQ_UNDEFINED_UINT32 )
+                , fill( 0 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID;
                 size      = sizeof( NodeFindMasterNodeIDPacket ); 
@@ -220,6 +221,7 @@ namespace co
         
         base::UUID identifier;
         uint32_t   requestID;
+        const uint32_t fill;
     };
 
     struct NodeFindMasterNodeIDReplyPacket : public NodePacket

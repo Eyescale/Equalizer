@@ -96,9 +96,9 @@ void CommandCache::_compact( const Cache which )
 #ifdef COMPACT
     EQ_TS_THREAD( _thread );
 
-    base::a_int32_t& current = _free[ which ];
+    base::a_int32_t& currentFree = _free[ which ];
     int32_t& maxFree = _maxFree[ which ];
-    if( current <= maxFree )
+    if( currentFree <= maxFree )
         return;
 
     const int32_t target = maxFree >> 1;
@@ -109,14 +109,14 @@ void CommandCache::_compact( const Cache which )
         const Command* cmd = *i;
         if( cmd->isFree( ))
         {
-            EQASSERT( current > 0 );
+            EQASSERT( currentFree > 0 );
             i = cache.erase( i );
             delete cmd;
 
 #  ifdef PROFILE
             ++_frees;
 #  endif
-            if( --current <= target )
+            if( --currentFree <= target )
                 break;
         }
         else
@@ -126,15 +126,14 @@ void CommandCache::_compact( const Cache which )
     const int32_t num = int32_t( cache.size() >> _freeShift );
     maxFree = EQ_MAX( _minFree[ which ] , num );
     _position[ which ] = cache.begin();
-    if ( which == CACHE_SMALL )
-        _compact( CACHE_BIG );
 #endif // COMPACT
 }
 
 Command& CommandCache::_newCommand( const Cache which )
 {
     EQ_TS_THREAD( _thread );
-    _compact( which );
+    _compact( CACHE_SMALL );
+    _compact( CACHE_BIG );
 
     Data& cache = _cache[ which ];
     const uint32_t cacheSize = uint32_t( cache.size( ));

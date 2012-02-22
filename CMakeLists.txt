@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
@@ -8,6 +8,7 @@ project(Equalizer)
 option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
+option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
@@ -15,9 +16,7 @@ option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
-option(EQ_USE_GPUSD "Test for GPU SD support" ON)
 
-set(EQUALIZER_RELEASE OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
@@ -32,14 +31,15 @@ endif()
 
 include(revision)
 
+set(EQUALIZER_RELEASE 120) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
-set(VERSION_MINOR "1")
-set(VERSION_PATCH "6")
+set(VERSION_MINOR "2")
+set(VERSION_PATCH "0")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "4")
-set(CO_VERSION_PATCH "1")
+set(CO_VERSION_PATCH "8")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
@@ -47,7 +47,7 @@ if(EQUALIZER_RELEASE)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
       CACHE PATH "" FORCE)
-  set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}0)
+  set(VERSION_ABI ${EQUALIZER_RELEASE})
 else()
   set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
 endif()
@@ -80,7 +80,7 @@ else()
   set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
 endif()
 
-if (EQ_USE_GPUSD)
+if(EQUALIZER_USE_GPUSD)
   include(GPUSD)
 endif()
 
@@ -118,7 +118,7 @@ endif(MSVC)
 if(CMAKE_COMPILER_IS_GNUCXX)
   include(EqCompilerVersion)
   EQ_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
-  if(GCC_COMPILER_VERSION LESS 41)
+  if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
@@ -143,7 +143,8 @@ if(EQUALIZER_USE_OPENMP)
   find_package(OpenMP)
 endif()
 if(OPENMP_FOUND)
-  if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION LESS 43 AND NOT EQUALIZER_FORCE_OPENMP)
+  if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION VERSION_LESS 4.3 AND
+      NOT EQUALIZER_FORCE_OPENMP)
     message(STATUS "Disable OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
   else()
     set(CO_OPENMP_USED 1)
@@ -206,11 +207,10 @@ if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL")
 endif(EQ_AGL_USED)
 
-if(EQ_USE_GPUSD)
-  if(GPUSD_FOUND)
-    set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
-  endif()
+if(GPUSD_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
 endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
@@ -282,7 +282,9 @@ add_subdirectory(tools)
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
-add_subdirectory(tests)
+if(NOT EQUALIZER_RELEASE)
+  add_subdirectory(tests)
+endif()
 add_subdirectory(libs)
 if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
    IS_DIRECTORY "${CMAKE_SOURCE_DIR}/auxiliary")

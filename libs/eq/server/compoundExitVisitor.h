@@ -48,7 +48,23 @@ namespace server
                     compound->deactivate( eyes );
                 }
 
-                return TRAVERSE_CONTINUE;    
+                const Frames& outputFrames = compound->getOutputFrames();
+                for( FramesCIter i = outputFrames.begin(); 
+                     i != outputFrames.end(); ++i )
+                {
+                    Frame* frame = *i;
+                    frame->flush();
+                }
+
+                const TileQueues& outputQueues =compound->getOutputTileQueues();
+                for( TileQueuesCIter i = outputQueues.begin();
+                     i != outputQueues.end(); ++i )
+                {
+                    TileQueue* queue = *i;
+                    queue->flush();
+                }
+
+                return TRAVERSE_CONTINUE;
             }
     };
 }

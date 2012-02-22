@@ -130,8 +130,7 @@ bool Config::exit()
     _deregisterData();
     _closeAdminServer();
 
-    // retain models and distributors for possible other config runs, destructor
-    // deletes it
+    // retain model & distributors for possible other config runs, dtor deletes
     return ret;
 }
 
@@ -307,7 +306,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const co::base::uint128_t& version = _frameData.commit();
+    const eq::uint128_t& version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
@@ -363,6 +362,11 @@ bool Config::isIdleAA()
 bool Config::needRedraw()
 {
     return( _needNewFrame() || _numFramesAA > 0 );
+}
+
+uint32_t Config::getAnimationFrame()
+{
+    return _animation.getCurrentFrame();
 }
 
 bool Config::_needNewFrame()
@@ -474,6 +478,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                   _redraw = true;
                   return true;
             }
+            break;
 
         case eq::Event::WINDOW_POINTER_WHEEL:
             _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,

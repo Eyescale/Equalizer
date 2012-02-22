@@ -28,7 +28,9 @@
 ---------------
 
 Welcome to Equalizer, the standard middleware to create and deploy parallel,
-scalable OpenGL applications. This release TBD
+scalable OpenGL applications. This release introduces major new features,
+most notably automatic configuration, the Sequel library, runtime reliability
+and tile compounds.
 
 Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
 years of development and decades of experience into a feature-rich, high-
@@ -72,16 +74,18 @@ documentation changes:
 2.1. New Features
 ~~~~~~~~~~~~~~~~~
 
--   Automic local and remote configuration using the GPU-SD library
--   Initial release of Sequel, a simplification and utility layer on top
-    of Equalizer, enabling rapid development of clustered multi-GPU
+-   `Automatic local and remote configuration`_ using the `GPU-SD
+    library`_
+-   Initial release of `Sequel`_, a simplification and utility layer on
+    top of Equalizer, enabling rapid development of clustered multi-GPU
     applications
 -   Runtime failure tolerance detecting hardware and software failures
--   Tile compounds for fill-limited rendering such as volume raycasting
-    and raytracing
+-   Tile compounds for fill-limited rendering such as direct volume
+    rendering and interactive raytracing
 
--   -   RDMA-based connection class for InfiniBand
--   Support push-based object distribution
+-   Distributed single-producer, multi-consumer queue
+-   RDMA-based connection class for InfiniBand (Linux only)
+-   Support `push-based object distribution`_
 
 
 2.2. Enhancements
@@ -89,14 +93,14 @@ documentation changes:
 
 -   Added FindEqualizer.cmake and FindCollage.cmake for integration of
     Equalizer and Collage in CMake build environments
+-   Support for render clients without listening sockets
+-   `Per-segment or per-canvas swap barriers`_
+-   Allow the image compressor to be chosen by the application
+-   Allow and prefer external GLEW installation during compilation
+-   Upgrade internal GLEW version to 1.7.0
 -   Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX
 -   Add time member to eq::Event recording time when the event was
     received from the operating system
--   Support for render clients without listening sockets
--   Allow the image compressor to be chosen by the application
--   Allow and prefer external GLEW installation during compilation
--   Updgrade internal GLEW version to 1.7.0
--   Per-segment or canvas swap barriers
 -   `43`_: Add View::isActive and Layout::isActive
 -   `45`_: Make RNG functional without co::base::init
 -   Implement maximum size of multi-threaded queue, resulting in blocking
@@ -110,14 +114,13 @@ documentation changes:
 ~~~~~~~~~~~~~~~~~~
 
 -   Make LocalNode::registerObject and Object::commit parallelizable by
-    executing Object serialization from calling thread
+    executing object serialization from calling thread
 
 
 2.4. Examples
 ~~~~~~~~~~~~~
 
 -   Provide CMake files for installed examples
--   eqPly:
 -   seqPly: An new example similar to eqPly, but using the Sequel API
 -   eqAsync: A new example demonstrating OpenGL context sharing for
     asynchronously texture uploads
@@ -152,8 +155,10 @@ The following documentation has been added or substantially improved since
 the last release:
 
 -   Full `API documentation`_ for the public Equalizer API.
--   The `Programming and User Guide`_ has been extended to TBD pages and
-    TBD figures.
+-   The `Programming and User Guide`_ has been extended to 107 pages and
+    60 figures.
+-   `Tile compounds`_ using a pull-based task distribution for volume
+    rendering and interactive raytracing.
 
 
 2.8. Bug Fixes
@@ -164,14 +169,14 @@ following:
 
 -   RSP: Fix scattered ack implementation
 -   `29`_: NV swap barrier with affinity context does not work
--   Fixed activation of OpenMP during build
--   Fixed glxew.h include
--   `3383573`_: Win32: occasional crash with CO_AGGRESSIVE_CACHING OFF
--   `3357684`_: View user data occasionally synced one frame too late
--   `3306308`_: Deadlock with config.eqc and window init failure
--   `3306148`_: Including eq/gl.h with AGL fails
--   `3301423`_: Config::stopFrames called from non-main thread causes
-    deadlocks
+-   `45`_: Make co::base::RNG function without init()
+-   `56`_: Parsing configuration files is locale-dependent and fails in
+    some locales
+-   `66`_: Assertion when using the server for more than one session
+-   `73`_: Missing space mouse support on Windows
+-   `82`_: Excessive memory usage with object push
+-   `87`_: Debian packages broken
+-   `88`_: draw_sync thread model causes full synchronization
 
 
 2.9. Known Bugs
@@ -180,6 +185,10 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
+-   `65`_: Startup crash with Multi-GPU config
+-   `61`_: VMMlib static initializer issue
+-   `58`_: netperf/RDMA exit deadlock
+-   `49`_: eqPixelBench crash with double free
 -   `19`_: zoom readback with FBO
 -   `18`_: zoom: depth readback does not work
 -   `17`_: AGL: Window close does not work
@@ -202,7 +211,7 @@ when available. Version 1.2 has been tested on:
 Equalizer uses CMake to create a platform-specific build environment. The
 following platforms and build environments are tested:
 
--   **Linux:** Ubuntu 11.04, RHEL 6.1 (Makefile, i386, x64)
+-   **Linux:** Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)
 -   **Windows:** XP and 7 (Visual Studio 2008, i386, x64)
 -   **Mac OS X:** 10.6, 10.7 (Makefile, XCode, i386, x64)
 
@@ -219,7 +228,7 @@ following platforms and build environments are tested:
 ~~~~~~~~~~~~~~~~~~
 
 The Programming and User Guide is available as a `hard-copy`_ and `online`_.
-`API documentation`_ can be found on the Equalizer website.
+The `API documentation`_ can be found on the Equalizer website.
 
 As with any open source project, the available source code, in particular the
 shipped `examples`_ provide a reference for developing or porting
@@ -265,40 +274,51 @@ information.
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/major.html#1.2
 .. _detailed feature list: /features.html
+.. _Automatic       local and remote configuration: http://www.equalizerg
+    raphics.com/build/documentation/user/configuration.html
+.. _GPU-SD       library: http://www.equalizergraphics.com/gpu-sd
+.. _Sequel: http://www.equalizergraphics.com/documents/Developer/API-1.2/
+    sequel/namespaceseq.html
+.. _push-based object       distribution:
+    https://github.com/Eyescale/Equalizer/issues/28
+.. _Per-segment or       per-canvas swap barriers:
+    https://github.com/Eyescale/Equalizer/issues/24
 .. _43: https://github.com/Eyescale/Equalizer/issues/43
 .. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _API       documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
+.. _Tile compounds: /documents/design/tileCompounds.html
 .. _29: https://github.com/Eyescale/Equalizer/issues/29
-.. _3383573: https://sourceforge.net/tracker/?func=detail&aid=3383573&gro
-    up_id=170962&atid=856209
-.. _3357684: https://sourceforge.net/tracker/?func=detail&aid=3357684&gro
-    up_id=170962&atid=856209
-.. _3306308: https://sourceforge.net/tracker/?func=detail&aid=3306308&gro
-    up_id=170962&atid=856209
-.. _3306148: https://sourceforge.net/tracker/?func=detail&aid=3306148&gro
-    up_id=170962&atid=856209
-.. _3301423: https://sourceforge.net/tracker/?func=detail&aid=3301423&gro
-    up_id=170962&atid=856209
+.. _45: https://github.com/Eyescale/Equalizer/issues/45
+.. _56: https://github.com/Eyescale/Equalizer/issues/56
+.. _66: https://github.com/Eyescale/Equalizer/issues/66
+.. _73: https://github.com/Eyescale/Equalizer/issues/73
+.. _82: https://github.com/Eyescale/Equalizer/issues/82
+.. _87: https://github.com/Eyescale/Equalizer/issues/87
+.. _88: https://github.com/Eyescale/Equalizer/issues/87
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
+.. _65: https://github.com/Eyescale/Equalizer/issues/65
+.. _61: https://github.com/Eyescale/Equalizer/issues/61
+.. _58: https://github.com/Eyescale/Equalizer/issues/58
+.. _49: https://github.com/Eyescale/Equalizer/issues/49
 .. _19: https://github.com/Eyescale/Equalizer/issues/19
 .. _18: https://github.com/Eyescale/Equalizer/issues/18
 .. _17: https://github.com/Eyescale/Equalizer/issues/17
-.. _compatibility matrix:
+.. _compatibility   matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
 .. _hard-copy: http://www.lulu.com/product/paperback/equalizer-10
     -programming-and-user-guide/15165632
 .. _online: http://www.equalizergraphics.com/survey.html
-.. _API   documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
+.. _API     documentation:
+    http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
 .. _examples: https://github.com/Eyescale/Equalizer/tree/1.2/examples
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev
-    eloper/API-1.0/ch.eyescale.Equalizer.docset.zip
+    eloper/API-1.2/ch.eyescale.Equalizer.docset.zip
 .. _     Developer Mailing List: http://www.equalizergraphics.com/cgi-
     bin/mailman/listinfo/eq-dev
 .. _     info@equalizergraphics.com:

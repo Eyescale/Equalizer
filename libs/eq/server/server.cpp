@@ -304,6 +304,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 
     ConfigRestoreVisitor restore;
     config->accept( restore );
+    config->commit();
 
     node->send( reply );
     EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;

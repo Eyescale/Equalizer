@@ -89,7 +89,7 @@ namespace eq
          * @return the current frame number.
          * @version 1.0
          */ 
-        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        EQ_API uint32_t getCurrentFrame() const;
         EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**
@@ -387,16 +387,16 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-       co::base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-       co::base::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-       co::base::Monitor<uint32_t> _unlockedFrame;
+        co::base::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
