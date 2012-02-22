@@ -9,10 +9,10 @@ include(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(UDT DEFAULT_MSG
   _udt_INCLUDE_DIR _udt_LIBRARY)
 
-set(UDT_INCLUDE_DIR ${_udt_INCLUDE_DIR})
+set(UDT_INCLUDE_DIRS ${_udt_INCLUDE_DIR})
 set(UDT_LIBRARIES ${_udt_LIBRARY})
 
 if(UDT_FOUND)
-  message(STATUS "Found UDT in ${UDT_INCLUDE_DIR};${UDT_LIBRARIES}")
+  message(STATUS "Found UDT in ${UDT_INCLUDE_DIRS};${UDT_LIBRARIES}")
 endif()
 
