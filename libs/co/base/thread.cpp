@@ -341,11 +341,11 @@ void Thread::setName( const std::string& name )
 }
 
 #ifdef CO_USE_HWLOC
-static hwloc_cpuset_t _getCpuSet( const int32_t affinity,
+static hwloc_bitmap_t _getCpuSet( const int32_t affinity,
                                   hwloc_topology_t topology )
 {
-    hwloc_cpuset_t cpuSet = hwloc_cpuset_alloc(); // HWloc CPU set
-    hwloc_cpuset_zero( cpuSet ); // Initialize to zeros
+    hwloc_bitmap_t cpuSet = hwloc_bitmap_alloc(); // HWloc CPU set
+    hwloc_bitmap_zero( cpuSet ); // Initialize to zeros
 
     if( affinity >= Thread::CORE )
     {
@@ -396,7 +396,7 @@ void Thread::setAffinity(const int32_t affinity)
     hwloc_topology_t topology;
     hwloc_topology_init( &topology ); // Allocate & initialize the topology
     hwloc_topology_load( topology );  // Perform HW topology detection
-    const hwloc_cpuset_t cpuSet = _getCpuSet( affinity, topology );
+    const hwloc_bitmap_t cpuSet = _getCpuSet( affinity, topology );
     const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, 0);
 
     if( affinityFlag == 0 )
