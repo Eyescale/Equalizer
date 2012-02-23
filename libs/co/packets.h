@@ -74,6 +74,9 @@ namespace co
         base::UUID objectID;
         uint32_t instanceID;
         const uint32_t pad; // pad to multiple-of-eight
+
+    private:
+        ObjectPacket& operator= ( ObjectPacket const& ) { return *this; } 
     };
 
     //------------------------------------------------------------
