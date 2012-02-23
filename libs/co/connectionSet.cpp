@@ -91,6 +91,7 @@ private:
 
 typedef std::vector< Thread* > Threads;
 typedef Threads::const_iterator ThreadsCIter;
+typedef Threads::iterator ThreadsIter;
 
 union Result
 {
@@ -537,7 +538,7 @@ bool ConnectionSet::_setupFDSet()
     _impl->fdSetResult.append( res );
 
     // add regular connections
-    _impl->impl->lock.set();
+    _impl->lock.set();
     for( ConnectionsCIter i = _impl->connections.begin();
          i != _impl->connections.end(); ++i )
     {
@@ -549,7 +550,7 @@ bool ConnectionSet::_setupFDSet()
             EQINFO << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << std::endl;
             _impl->connection = connection;
-            _impl->impl->lock.unset();
+            _impl->lock.unset();
             return false;
         }
         
@@ -571,7 +572,7 @@ bool ConnectionSet::_setupFDSet()
         result.thread = thread;
         _impl->fdSetResult.append( result );
     }
-    _impl->impl->lock.unset();
+    _impl->lock.unset();
 #else
     pollfd fd;
     fd.events = POLLIN; // | POLLPRI;
