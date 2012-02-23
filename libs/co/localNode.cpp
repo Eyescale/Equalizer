@@ -144,7 +144,7 @@ public:
     base::Lockable< NodeHash, base::SpinLock > nodes; // r: all, w: recv
 
     /** The connection set of all connections from/to this node. */
-    ConnectionSet incoming;
+    co::ConnectionSet incoming;
 
     /** The process-global clock. */
     base::Clock clock;
