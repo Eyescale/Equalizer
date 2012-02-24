@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,7 +82,7 @@ RSPConnection::RSPConnection()
         , _maxBucketSize( ( _mtu * _ackFreq) >> 1 )
         , _bucketSize( 0 )
         , _sendRate( 0 )
-        , _thread ( 0 )
+        , _thread( 0 )
         , _acked( std::numeric_limits< uint16_t >::max( ))
         , _threadBuffers( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS))
         , _recvBuffer( _mtu )
@@ -141,6 +141,7 @@ void RSPConnection::_close()
         _sendSimpleDatagram( ID_EXIT, _id );
         _ioService.stop();
         _thread->join();
+        delete _thread;
         _thread = 0;
     
         // notify children to close
@@ -254,7 +255,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
-        EQINFO << "Binding to interface " << ifAddr << std::endl;
+        EQINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));

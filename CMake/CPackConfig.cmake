@@ -117,7 +117,7 @@ if(LINUX)
   if(${RPM_EXE} MATCHES RPM_EXE-NOTFOUND)
     set(CPACK_GENERATOR "DEB")
   else()
-    set(CPACK_GENERATOR "RPM")
+    set(CPACK_GENERATOR "DEB;RPM")
   endif()
 endif(LINUX)
 

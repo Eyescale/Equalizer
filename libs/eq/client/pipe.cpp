@@ -182,11 +182,13 @@ void Pipe::_setupCommandQueue()
     EQASSERT( queue );
     EQASSERT( !queue->getMessagePump( ));
 
+    Global::enterCarbon();
     MessagePump* pump = createMessagePump();
     if( pump )
         pump->dispatchAll(); // initializes _receiverQueue
 
     queue->setMessagePump( pump );
+    Global::leaveCarbon();
 }
 
 void Pipe::_setupAffinity()
