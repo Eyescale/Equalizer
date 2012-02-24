@@ -550,12 +550,12 @@ void LocalNode::deregisterObject( Object* object )
 bool LocalNode::mapObject( Object* object, const base::UUID& id,
                            const uint128_t& version )
 {
-    const uint32_t requestID = _objectStore->mapObjectNB( object, id, version );
-    return _objectStore->mapObjectSync( requestID );
+    const uint32_t requestID = mapObjectNB( object, id, version );
+    return mapObjectSync( requestID );
 }
 
 uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
-                            const uint128_t& version )
+                                 const uint128_t& version )
 {
     return _objectStore->mapObjectNB( object, id, version );
 }

@@ -339,11 +339,6 @@ void ObjectStore::_detachObject( Object* object )
     return;
 }
 
-uint32_t ObjectStore::mapObjectNB( Object* object, const ObjectVersion& v )
-{
-    return mapObjectNB( object, v.identifier, v.version );
-}
-
 uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
                                    const uint128_t& version )
 {
@@ -357,7 +352,6 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
     EQASSERT( !_localNode->inCommandThread( ));
     EQASSERTINFO( id.isGenerated(), id );
 
-    object->notifyAttach();
     if( !id.isGenerated( ))
         return EQ_UNDEFINED_UINT32;
 
@@ -398,6 +392,8 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
                                  << packet.maxCachedVersion << std::endl;
         }
     }
+
+    object->notifyAttach();
     master->send( packet );
     return packet.requestID;
 }
