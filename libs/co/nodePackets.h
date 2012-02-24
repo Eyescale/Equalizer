@@ -106,6 +106,7 @@ namespace co
     struct NodeGetNodeDataPacket : public NodePacket
     {
         NodeGetNodeDataPacket()
+                : pad( 0 )
             {
                 command = CMD_NODE_GET_NODE_DATA;
                 size    = sizeof( NodeGetNodeDataPacket );
@@ -113,6 +114,7 @@ namespace co
 
         NodeID   nodeID;
         uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct NodeGetNodeDataReplyPacket : public NodePacket
@@ -184,16 +186,18 @@ namespace co
     struct NodeRemoveListenerPacket : public NodePacket
     {
         NodeRemoveListenerPacket( ConnectionPtr conn, const uint32_t request )
-                : connection( conn.get( ))
-                , requestID( request )
+                : requestID( request )
+                , pad( 0 )
+                , connection( conn.get( ))
             {
                 command = CMD_NODE_REMOVE_LISTENER;
                 size    = sizeof( NodeRemoveListenerPacket );
                 connectionData[0] = 0;
             }
 
-        Connection* connection;
         const uint32_t requestID;
+        const uint32_t pad;
+        Connection* connection; // Don't reorder! (32/64 bit interop)
         EQ_ALIGN8( char connectionData[8] );
     };
 
@@ -271,7 +275,7 @@ namespace co
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
-        bool useCache;
+        uint32_t useCache; // bool + valgrind padding
     };
 
 
