@@ -271,7 +271,7 @@ namespace co
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
-        bool useCache;
+        uint32_t useCache; // bool + valgrind padding
     };
 
 
