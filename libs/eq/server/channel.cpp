@@ -301,10 +301,8 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     WindowCreateChannelPacket createChannelPacket( getID( ));
     getWindow()->send( createChannelPacket );
 
-    ChannelConfigInitPacket packet;
-    packet.initID = initID;
-    
     EQLOG( LOG_INIT ) << "Init channel" << std::endl;
+    ChannelConfigInitPacket packet( initID );    
     send( packet );
 }
 
