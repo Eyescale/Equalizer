@@ -114,7 +114,8 @@ namespace co
             IATTR_UDP_BUFFER_SIZE,       //!< @internal send/receiver buffer
             IATTR_QUEUE_MIN_SIZE,        //!< @internal (tile) queue min size
             IATTR_QUEUE_REFILL,          //!< @internal (tile) queue refill size
-            IATTR_RDMA_RING_BUFFER_SIZE_MB, //!< @internal send/receiver buffer
+            IATTR_RDMA_RING_BUFFER_SIZE_MB, //!< @internal send/receive buffer
+            IATTR_RDMA_SEND_QUEUE_DEPTH, //!< @internal max send credits
             IATTR_RDMA_RESOLVE_TIMEOUT_MS, //!< @internal address resolution
             IATTR_ALL
         };
