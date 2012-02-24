@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,7 +21,6 @@
 
 #include <eq/fabric/commands.h>      // enum 
 #include <eq/fabric/packetType.h>    // member
-#include <eq/fabric/renderContext.h> // member
 
 namespace eq
 {
@@ -36,18 +35,6 @@ namespace eq
     {
         ClientPacket(){ type = fabric::PACKETTYPE_EQ_CLIENT; }
     };
-
-    struct ChannelTaskPacket : public ChannelPacket
-    {
-        RenderContext context;
-    };
-    
-    inline std::ostream& operator << ( std::ostream& os, 
-                                       const ChannelTaskPacket* packet )
-    {
-        os << (co::ObjectPacket*)packet << " " << packet->context;
-        return os;
-    }
 /** @endcond */
 }
 
