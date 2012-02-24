@@ -254,7 +254,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
-        EQINFO << "Binding to interface " << ifAddr << std::endl;
+        EQINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
