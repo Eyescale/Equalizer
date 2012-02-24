@@ -1,6 +1,7 @@
 // -*- mode: c++ -*-
 /* Copyright (c) 2011, Computer Integration & Programming Solutions, Corp. and
  *                     United States Naval Research Laboratory
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,22 +18,22 @@
  */
 #include "rdmaConnection.h"
 
-#include <errno.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/mman.h>
-#include <sys/eventfd.h>
-#include <sys/epoll.h>
-
 #include "connectionType.h" // enum
 #include "connectionDescription.h"
 #include "global.h"
+#include <co/base/scopedMutex.h>
 
-#include "base/scopedMutex.h"
-
+#include <arpa/inet.h>
+#include <errno.h>
 #include <fcntl.h>
-#include <sstream>
 #include <limits>
+#include <netdb.h>
+#include <sstream>
+#include <stddef.h>
+#include <sys/epoll.h>
+#include <sys/eventfd.h>
+#include <sys/mman.h>
+
 
 #define BLOCKING_WRITE 0
 
