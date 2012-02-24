@@ -30,7 +30,7 @@ namespace co
 #define SEPARATOR '#'
 
 #ifndef Darwin
-//#  define BIG_SEND
+#  define BIG_SEND
 #endif
 
 namespace
