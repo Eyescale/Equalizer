@@ -106,6 +106,7 @@ namespace co
     struct NodeGetNodeDataPacket : public NodePacket
     {
         NodeGetNodeDataPacket()
+                : pad( 0 )
             {
                 command = CMD_NODE_GET_NODE_DATA;
                 size    = sizeof( NodeGetNodeDataPacket );
@@ -113,6 +114,7 @@ namespace co
 
         NodeID   nodeID;
         uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct NodeGetNodeDataReplyPacket : public NodePacket
