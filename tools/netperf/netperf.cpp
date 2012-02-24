@@ -433,6 +433,9 @@ int main( int argc, char **argv )
 
     
     delete selector;
+    EQASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
+    connection = 0;
+    EQCHECK( co::exit( ));
     return EXIT_SUCCESS;
 }
 
