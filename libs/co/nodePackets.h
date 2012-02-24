@@ -184,16 +184,18 @@ namespace co
     struct NodeRemoveListenerPacket : public NodePacket
     {
         NodeRemoveListenerPacket( ConnectionPtr conn, const uint32_t request )
-                : connection( conn.get( ))
-                , requestID( request )
+                : requestID( request )
+                , pad( 0 )
+                , connection( conn.get( ))
             {
                 command = CMD_NODE_REMOVE_LISTENER;
                 size    = sizeof( NodeRemoveListenerPacket );
                 connectionData[0] = 0;
             }
 
-        Connection* connection;
         const uint32_t requestID;
+        const uint32_t pad;
+        Connection* connection; // Don't reorder! (32/64 bit interop)
         EQ_ALIGN8( char connectionData[8] );
     };
 
