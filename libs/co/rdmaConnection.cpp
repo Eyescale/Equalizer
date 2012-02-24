@@ -18,7 +18,7 @@
  */
 #include "rdmaConnection.h"
 
-#include "connectionType.h" // enum
+#include "connectionType.h"
 #include "connectionDescription.h"
 #include "global.h"
 #include <co/base/scopedMutex.h>

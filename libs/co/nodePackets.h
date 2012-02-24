@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -229,12 +229,14 @@ namespace co
         NodeFindMasterNodeIDReplyPacket( 
                           const NodeFindMasterNodeIDPacket* request )
                 : requestID( request->requestID )
+                , pad( 0 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID_REPLY;
                 size      = sizeof( NodeFindMasterNodeIDReplyPacket ); 
             }
-        NodeID     masterNodeID;
-        uint32_t   requestID;
+        NodeID masterNodeID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct NodeAttachObjectPacket : public NodePacket
@@ -255,20 +257,21 @@ namespace co
         NodeMapObjectPacket()
                 : minCachedVersion( VERSION_HEAD )
                 , maxCachedVersion( VERSION_NONE )
+                , masterInstanceID( 0 )
                 , useCache( false )
             {
                 command = CMD_NODE_MAP_OBJECT;
                 size    = sizeof( NodeMapObjectPacket );
             }
 
-        uint128_t     requestedVersion;
-        uint128_t     minCachedVersion;
-        uint128_t     maxCachedVersion;
-        base::UUID    objectID;
-        uint32_t      requestID;
+        uint128_t requestedVersion;
+        uint128_t minCachedVersion;
+        uint128_t maxCachedVersion;
+        base::UUID objectID;
+        uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
-        bool     useCache;
+        bool useCache;
     };
 
 
