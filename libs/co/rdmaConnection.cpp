@@ -29,7 +29,6 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits>
-#include <netdb.h>
 #include <sstream>
 #include <stddef.h>
 #include <unistd.h>
@@ -38,6 +37,8 @@
 #include <sys/mman.h>
 
 #include <rdma/rdma_verbs.h>
+
+#define IPV6_DEFAULT 0
 
 namespace co
 {
@@ -175,9 +176,6 @@ RDMAConnection::RDMAConnection( )
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
 
-    ::memset( (void *)&_conn_param, 0, sizeof(struct rdma_conn_param) );
-    ::memset( (void *)&_dev_attr, 0, sizeof(struct ibv_device_attr) );
-
     _description->type = CONNECTIONTYPE_RDMA;
     _description->bandwidth = // QDR default, report "actual" 8b/10b bandwidth
         ( ::ibv_rate_to_mult( IBV_RATE_40_GBPS ) * 2.5 * 1024000 / 8 ) * 0.8;
@@ -203,11 +201,6 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    if( ::getnameinfo( _rai->ai_dst_addr, _rai->ai_dst_len,
-            _addr, sizeof(_addr), _serv, sizeof(_serv),
-            NI_NUMERICHOST | NI_NUMERICSERV ))
-        EQWARN << "Remote name info lookup failed." << std::endl;
-
     if( !_createEventChannel( ))
     {
         EQERROR << "Failed to create communication event channel." << std::endl;
@@ -220,18 +213,30 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
+    _updateInfo( _rai->ai_dst_addr );
+
     if( !_resolveAddress( ))
     {
-        EQERROR << "Failed to resolve destination RDMA address : "
+        EQERROR << "Failed to resolve destination address for : "
             << _addr << ":" << _serv << std::endl;
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_storage );
+    _updateInfo( &_cm_id->route.addr.dst_addr );
 
-    if( !_queryDevice( ))
+    _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
+
+    EQVERB << "Initiating connection on "
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " to "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
+
+    _credits = Global::getIAttribute( Global::IATTR_RDMA_SEND_QUEUE_DEPTH );
+    if( _credits <= 0L )
     {
-        EQERROR << "Failed to query device attributes." << std::endl;
+        EQERROR << "Invalid queue depth." << std::endl;
         goto err;
     }
 
@@ -254,7 +259,7 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    if( !_postReceives( _credits ))
+    if( !_postReceives( static_cast< uint32_t >( _credits )))
     {
         EQERROR << "Failed to pre-post receives." << std::endl;
         goto err;
@@ -267,11 +272,6 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    EQINFO << "Connection established to remote address : "
-        << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")" << std::endl;
-
-    // Hand off our connection manager to the event thread
     if( !_eventThreadRegister( ))
     {
         EQERROR << "Failed to register with event thread." << std::endl;
@@ -289,6 +289,13 @@ bool RDMAConnection::connect( )
         EQERROR << "Failed to receive setup message." << std::endl;
         goto err;
     }
+
+    EQINFO << "Connection established on "
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " to "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
 
     // For a connected instance, the receive completion channel fd will indicate
     // on events such as new incoming data by waking up any polling operation.
@@ -318,11 +325,6 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    if(( NULL != _rai ) && ::getnameinfo( _rai->ai_src_addr, _rai->ai_src_len,
-            _addr, sizeof(_addr), _serv, sizeof(_serv),
-            NI_NUMERICHOST | NI_NUMERICSERV ))
-        EQWARN << "Local name info lookup failed." << std::endl;
-
     if( !_createEventChannel( ))
     {
         EQERROR << "Failed to create communication event channel." << std::endl;
@@ -346,6 +348,9 @@ bool RDMAConnection::listen( )
     }
 #endif
 
+    if( NULL != _rai )
+        _updateInfo( _rai->ai_src_addr );
+
     if( !_bindAddress( ))
     {
         EQERROR << "Failed to bind to local address : "
@@ -353,7 +358,7 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.src_storage );
+    _updateInfo( &_cm_id->route.addr.src_addr );
 
     if( !_listen( ))
     {
@@ -362,9 +367,15 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    EQINFO << "Listening on local address : "
+    if( NULL != _cm_id->verbs )
+        _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
+
+    EQINFO << "Listening on "
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " at "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")" << std::endl;
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
 
     // For a listening instance, the connection manager fd will indicate
     // on events such as new incoming connections by waking up any polling
@@ -393,7 +404,7 @@ void RDMAConnection::close( )
         const int64_t start = clock.getTime64( );
         const uint32_t timeout = Global::getTimeout( );
 
-        // Wait for outstanding acks
+        // Wait for outstanding acks.
         while( !_rptr.isEmpty( ) && _established && _pollCQ( ))
         {
             if( EQ_TIMEOUT_INDEFINITE != timeout )
@@ -410,9 +421,11 @@ void RDMAConnection::close( )
 
         _eventThreadUnregister( );
 
-        if(( NULL != _cm_id ) && ( NULL != _cm_id->verbs ))
-            if( ::rdma_disconnect( _cm_id ))
-                EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
+        // TODO : verify this method of determining if we can call disconnect
+        // without getting a error (and spitting out a unnecessary warning).
+        if( _cm_id && _cm_id->qp && ( _cm_id->qp->state > IBV_QPS_INIT ) &&
+                ::rdma_disconnect( _cm_id ))
+            EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
 
         _cleanup( );
 
@@ -675,12 +688,6 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
     EQASSERT( STATE_CLOSED == _state );
     setState( STATE_CONNECTING );
 
-    if( !_createEventChannel( ))
-    {
-        EQERROR << "Failed to create event channel." << std::endl;
-        goto err;
-    }
-
     if( !_doCMEvent( listen_channel, RDMA_CM_EVENT_CONNECT_REQUEST ))
     {
         EQERROR << "Failed to receive valid connect request." << std::endl;
@@ -689,17 +696,32 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 
     EQASSERT( NULL != _cm_id );
 
+    _updateInfo( &_cm_id->route.addr.dst_addr );
+
+    _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
+
+    EQVERB << "Connection initiated on "
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " from "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
+
+    if( !_createEventChannel( ))
+    {
+        EQERROR << "Failed to create event channel." << std::endl;
+        goto err_reject;
+    }
+
     if( !_migrateId( ))
     {
         EQERROR << "Failed to migrate communication identifier." << std::endl;
         goto err_reject;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_storage );
-
-    if( !_queryDevice( ))
+    if( _credits <= 0L )
     {
-        EQERROR << "Failed to query device attributes." << std::endl;
+        EQERROR << "Invalid (unsent?) queue depth." << std::endl;
         goto err_reject;
     }
 
@@ -715,7 +737,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err_reject;
     }
 
-    if( !_postReceives( _credits ))
+    if( !_postReceives( static_cast< uint32_t >( _credits )))
     {
         EQERROR << "Failed to pre-post receives." << std::endl;
         goto err_reject;
@@ -728,11 +750,6 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    EQINFO << "Connection accepted from remote address : "
-        << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")" << std::endl;
-
-    // Hand off our connection manager to the event thread
     if( !_eventThreadRegister( ))
     {
         EQERROR << "Failed to register with event thread." << std::endl;
@@ -750,6 +767,13 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         EQERROR << "Failed to receive setup message." << std::endl;
         goto err;
     }
+
+    EQINFO << "Connection accepted on "
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " from "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
 
     // For a connected instance, the receive completion channel fd will indicate
     // on events such as new incoming data by waking up any polling operation.
@@ -811,24 +835,14 @@ err:
     return false;
 }
 
-void RDMAConnection::_updateInfo( struct sockaddr_storage *sss )
+void RDMAConnection::_updateInfo( struct sockaddr *addr )
 {
-    const void *src = ( AF_INET == sss->ss_family ) ? (const void *)
-        &reinterpret_cast< struct sockaddr_in * >( sss )->sin_addr :
-        &reinterpret_cast< struct sockaddr_in6 * >( sss )->sin6_addr;
-    const int port = ( AF_INET == sss->ss_family ) ?
-        reinterpret_cast< struct sockaddr_in * >( sss )->sin_port :
-        reinterpret_cast< struct sockaddr_in6 * >( sss )->sin6_port;
-
-    EQASSERT( NI_MAXHOST >= (( AF_INET == sss->ss_family ) ?
-        INET_ADDRSTRLEN : INET6_ADDRSTRLEN ));
-
-    if( NULL == ::inet_ntop( sss->ss_family, src, _addr, sizeof(_addr) ))
-        EQWARN << "inet_ntop : " << base::sysError << std::endl;
-
-    std::stringstream ss;
-    ss << ntohs( port );
-    ::strncpy( _serv, ss.str( ).c_str( ), sizeof(_serv) );
+    int err;
+    if(( err = ::getnameinfo( addr, ( AF_INET == addr->sa_family ) ?
+                sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
+            _addr, sizeof(_addr), _serv, sizeof(_serv),
+            NI_NUMERICHOST | NI_NUMERICSERV )))
+        EQWARN << "Name info lookup failed : " << err << std::endl;
 
     if( _description->getHostname( ).empty( ))
         _description->setHostname( _addr );
@@ -870,30 +884,6 @@ err:
     return false;
 }
 
-bool RDMAConnection::_queryDevice( )
-{
-    EQASSERT( STATE_CONNECTING == _state );
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( NULL != _cm_id->verbs );
-    EQASSERT( NULL != _cm_id->verbs->device );
-
-    EQINFO << "RDMA device : "
-        << ::ibv_get_device_name( _cm_id->verbs->device )
-        << ":"
-        << (int)_cm_id->port_num << std::endl;
-
-    if( ::rdma_seterrno( ::ibv_query_device( _cm_id->verbs, &_dev_attr )))
-    {
-        EQERROR << "ibv_query_device : " << base::sysError << std::endl;
-        goto err;
-    }
-
-    return true;
-
-err:
-    return false;
-}
-
 bool RDMAConnection::_createQP( )
 {
     struct ibv_qp_init_attr init_attr;
@@ -905,11 +895,9 @@ bool RDMAConnection::_createQP( )
         goto err;
     }
 
-    _credits = Global::getIAttribute( Global::IATTR_RDMA_SEND_QUEUE_DEPTH );
-
     ::memset( (void *)&init_attr, 0, sizeof(struct ibv_qp_init_attr) );
-    init_attr.cap.max_send_wr = _credits;
-    init_attr.cap.max_recv_wr = _credits;
+    init_attr.cap.max_send_wr = static_cast< uint32_t >( _credits );
+    init_attr.cap.max_recv_wr = static_cast< uint32_t >( _credits );
     init_attr.cap.max_recv_sge = 1;
     init_attr.cap.max_send_sge = 1;
     init_attr.sq_sig_all = 1; // aka always IBV_SEND_SIGNALED
@@ -921,7 +909,7 @@ bool RDMAConnection::_createQP( )
         goto err;
     }
 
-    // Request only solicited events (i.e. don't wake up Collage on ACKs)
+    // Request only solicited events (i.e. don't wake up Collage on ACKs).
     if( ::rdma_seterrno( ::ibv_req_notify_cq( _cm_id->recv_cq, 1 )))
     {
         EQERROR << "ibv_req_notify_cq : " << base::sysError << std::endl;
@@ -932,8 +920,8 @@ bool RDMAConnection::_createQP( )
         init_attr.cap.max_recv_wr << " receives, " <<
         init_attr.cap.max_send_wr << " sends, " << std::endl;
 
-    // Need enough space for sends and receives
-    return _msgbuf.resize( _cm_id->pd, _credits * 2 );
+    // Need enough space for sends and receives.
+    return _msgbuf.resize( _cm_id->pd, static_cast< uint32_t >( _credits * 2 ));
 
 err:
     return false;
@@ -941,10 +929,10 @@ err:
 
 bool RDMAConnection::_initBuffers( )
 {
-    const unsigned long rbs = 1024UL * 1024UL *
+    const size_t rbs = 1024 * 1024 *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
 
-    if( 0UL == rbs )
+    if( 0 == rbs )
     {
         EQERROR << "Invalid RDMA ring buffer size." << std::endl;
         goto err;
@@ -981,7 +969,7 @@ bool RDMAConnection::_resolveAddress( )
         EQERROR << "rdma_resolve_addr : " << base::sysError << std::endl;
         goto err;
     }
-    // block for RDMA_CM_EVENT_ADDR_RESOLVED
+    // Block for RDMA_CM_EVENT_ADDR_RESOLVED.
     return _doCMEvent( _cm, RDMA_CM_EVENT_ADDR_RESOLVED );
 
 err:
@@ -1012,7 +1000,7 @@ bool RDMAConnection::_resolveRoute( )
         EQERROR << "rdma_resolve_route : " << base::sysError << std::endl;
         goto err;
     }
-    // block for RDMA_CM_EVENT_ROUTE_RESOLVED
+    // Block for RDMA_CM_EVENT_ROUTE_RESOLVED.
     return _doCMEvent( _cm, RDMA_CM_EVENT_ROUTE_RESOLVED );
 
 err:
@@ -1035,36 +1023,33 @@ bool RDMAConnection::_connect( )
     }
 #endif
 
-    // TODO : send _rai->ai_connect if necessary? (see rdma_getaddrinfo(3)),
-    // not sure how to put "user supplied private data following it", more
-    // specifically, how to retrieve it on the other end.
+    struct rdma_conn_param conn_param;
 
-    _conn_param.private_data = reinterpret_cast< const void * >( &_credits );
-    _conn_param.private_data_len = sizeof(uint32_t);
-    _conn_param.responder_resources = _dev_attr.max_qp_rd_atom;
-    _conn_param.initiator_depth = _dev_attr.max_qp_init_rd_atom;
-    // Magic values
-    _conn_param.retry_count = 7;
-    _conn_param.rnr_retry_count = 7;
+    ::memset( (void *)&conn_param, 0, sizeof(struct rdma_conn_param) );
 
-    EQINFO << "Connect on" << std::showbase <<
-        " source lid : " <<
-            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-            <<
-            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-        "to" <<
-        " dest lid : " <<
-            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-            <<
-            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+    uint32_t credits = static_cast< uint32_t >( _credits );
+    conn_param.private_data = reinterpret_cast< const void * >( &credits );
+    conn_param.private_data_len = sizeof(uint32_t);
+    conn_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
+    conn_param.responder_resources = RDMA_MAX_RESP_RES;
+    // Magic 3-bit values.
+    conn_param.retry_count = 7;
+    conn_param.rnr_retry_count = 7;
+
+    EQINFO << "Connect on source lid : " << std::showbase
+        << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+        << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        << "to dest lid : "
+        << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+        << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
         << std::endl;
 
-    if( ::rdma_connect( _cm_id, &_conn_param ))
+    if( ::rdma_connect( _cm_id, &conn_param ))
     {
         EQERROR << "rdma_connect : " << base::sysError << std::endl;
         goto err;
     }
-    // block for RDMA_CM_EVENT_ESTABLISHED
+    // Block for RDMA_CM_EVENT_ESTABLISHED.
     return _doCMEvent( _cm, RDMA_CM_EVENT_ESTABLISHED );
 
 err:
@@ -1078,18 +1063,18 @@ bool RDMAConnection::_bindAddress( )
     struct sockaddr_storage sss;
 
     ::memset( (void *)&sss, 0, sizeof(struct sockaddr_storage) );
-#if 1
-    struct sockaddr_in *sin =
-        reinterpret_cast< struct sockaddr_in * >( &sss );
-    sin->sin_family = AF_INET;
-    sin->sin_port = 0;
-    sin->sin_addr.s_addr = INADDR_ANY;
-#else
+#if IPV6_DEFAULT
     struct sockaddr_in6 *sin6 =
         reinterpret_cast< struct sockaddr_in6 * >( &sss );
     sin6->sin6_family = AF_INET6;
     sin6->sin6_port = 0;
     sin6->sin6_addr = in6addr_any;
+#else
+    struct sockaddr_in *sin =
+        reinterpret_cast< struct sockaddr_in * >( &sss );
+    sin->sin_family = AF_INET;
+    sin->sin_port = 0;
+    sin->sin_addr.s_addr = INADDR_ANY;
 #endif
 
     if( ::rdma_bind_addr( _cm_id, ( NULL != _rai ) ? _rai->ai_src_addr :
@@ -1147,27 +1132,17 @@ bool RDMAConnection::_accept( )
 
     ::memset( (void *)&accept_param, 0, sizeof(struct rdma_conn_param) );
 
-    // _conn_param holds the initiator's parameters at this point, acquired
-    // in _doCMEvent when event == RDMA_CM_EVENT_CONNECT_REQUEST.  We accept
-    // with the minimum of the initiator's and our own maximum device values.
-    accept_param.responder_resources =
-        std::min( (int)_conn_param.responder_resources,
-            _dev_attr.max_qp_rd_atom );
-    accept_param.initiator_depth =
-        std::min( (int)_conn_param.initiator_depth,
-            _dev_attr.max_qp_init_rd_atom );
-    accept_param.rnr_retry_count = _conn_param.rnr_retry_count;
+    accept_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
+    accept_param.responder_resources = RDMA_MAX_RESP_RES;
+    // Magic 3-bit value.
+    accept_param.rnr_retry_count = 7;
 
-    EQINFO << "Accept on" << std::showbase <<
-        " source lid : " <<
-            std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-            <<
-            std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-        "from" <<
-        " dest lid : " <<
-            std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-            <<
-            std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+    EQINFO << "Accept on source lid : "<< std::showbase
+        << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+        << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+        << "from dest lid : "
+        << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+        << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
         << std::endl;
 
     if( ::rdma_accept( _cm_id, &accept_param ))
@@ -1175,7 +1150,7 @@ bool RDMAConnection::_accept( )
         EQERROR << "rdma_accept : " << base::sysError << std::endl;
         goto err;
     }
-    // block for RDMA_CM_EVENT_ESTABLISHED
+    // Block for RDMA_CM_EVENT_ESTABLISHED.
     return _doCMEvent( _cm, RDMA_CM_EVENT_ESTABLISHED );
 
 err:
@@ -1196,34 +1171,32 @@ err:
     return false;
 }
 
-bool RDMAConnection::_postReceives( const int32_t count )
+bool RDMAConnection::_postReceives( const uint32_t count )
 {
     EQASSERT( NULL != _cm_id->qp );
+    EQASSERT( count > 0UL );
 
-    if( count > 0L )
+    struct ibv_sge sge[count];
+    struct ibv_recv_wr wrs[count];
+
+    for( uint32_t i = 0UL; i != count; i++ )
     {
-        struct ibv_sge sge[count];
-        struct ibv_recv_wr wrs[count];
+        sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer( );
+        sge[i].length = (uint64_t)_msgbuf.getBufferSize( );
+        sge[i].lkey = _msgbuf.getMR( )->lkey;
 
-        for( int32_t i = 0L; i != count; i++ )
-        {
-            sge[i].addr = (uint64_t)(uintptr_t)_msgbuf.getBuffer( );
-            sge[i].length = (uint64_t)_msgbuf.getBufferSize( );
-            sge[i].lkey = _msgbuf.getMR( )->lkey;
+        wrs[i].wr_id = sge[i].addr;
+        wrs[i].next = &wrs[i + 1];
+        wrs[i].sg_list = &sge[i];
+        wrs[i].num_sge = 1;
+    }
+    wrs[count - 1].next = NULL;
 
-            wrs[i].wr_id = sge[i].addr;
-            wrs[i].next = &wrs[i + 1];
-            wrs[i].sg_list = &sge[i];
-            wrs[i].num_sge = 1;
-        }
-        wrs[count - 1].next = NULL;
-
-        struct ibv_recv_wr *bad_wr;
-        if( ::rdma_seterrno( ::ibv_post_recv( _cm_id->qp, wrs, &bad_wr )))
-        {
-            EQERROR << "ibv_post_recv : "  << base::sysError << std::endl;
-            goto err;
-        }
+    struct ibv_recv_wr *bad_wr;
+    if( ::rdma_seterrno( ::ibv_post_recv( _cm_id->qp, wrs, &bad_wr )))
+    {
+        EQERROR << "ibv_post_recv : "  << base::sysError << std::endl;
+        goto err;
     }
 
     return true;
@@ -1361,9 +1334,9 @@ void RDMAConnection::_recvSetup( const RDMASetupPayload &setup )
     _rptr.clear( setup.rlen );
     _rkey = setup.rkey;
 
-    EQVERB << "RDMA MR: " << std::showbase <<
-        std::dec << setup.rlen << " @ " <<
-        std::hex << setup.rbase << std::endl;
+    EQVERB << "RDMA MR: " << std::showbase
+        << std::dec << setup.rlen << " @ "
+        << std::hex << setup.rbase << std::endl;
 }
 
 bool RDMAConnection::_postSetup( )
@@ -1442,27 +1415,17 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     if( ok && ( RDMA_CM_EVENT_CONNECT_REQUEST == event->event ))
     {
-        const void *pd = event->param.conn.private_data;
-        uint8_t pd_len = event->param.conn.private_data_len;;
-
-        // TODO : how do we skip ai_connect data if provided (assuming the
-        // underlying transport doesn't strip it)?
-
         _cm_id = event->id;
-        _conn_param = event->param.conn;
-        // Won't be valid after ack'ing the event
-        _conn_param.private_data = NULL;
-        _conn_param.private_data_len = 0;
+
+        struct rdma_conn_param *cp = &event->param.conn;
 
         // Note that the actual amount of data transferred to the remote side
         // is transport dependent and may be larger than that requested.
-        //
-        // We simply compare the requested credit limit with our own and
-        // reject if not equal (see _connect( )).  Also serves as a primitive
-        // authentication mechanism ;) (i.e. the "password" is the value of
-        // RDMA_SEND_QUEUE_DEPTH).
-        if( pd_len < sizeof(int32_t) )
-            ok = ( *reinterpret_cast< const int32_t * >( pd ) == _credits );
+        // TODO : should probably have some sort of magic as well?  Also not
+        // sure what happens when initiator sent ai_connect data (assuming the
+        // underlying transport doesn't strip it)?
+        if( cp->private_data_len >= sizeof(uint32_t) )
+            _credits = *reinterpret_cast< const uint32_t * >( cp->private_data);
     }
 
     if( RDMA_CM_EVENT_REJECTED == event->event )
@@ -1477,8 +1440,8 @@ out:
 
 bool RDMAConnection::_pollCQ( )
 {
-    struct ibv_wc wcs[10];
-    uint32_t num_recvs = 0L;
+    struct ibv_wc wcs[static_cast< uint32_t >( _credits )];
+    uint32_t num_recvs = 0UL;
     int count;
 
     base::ScopedMutex<> mutex( _poll_mutex );
@@ -1497,7 +1460,7 @@ bool RDMAConnection::_pollCQ( )
 
         if( IBV_WC_SUCCESS != wc.status )
         {
-            // Non-fatal
+            // Non-fatal.
             if( IBV_WC_WR_FLUSH_ERR == wc.status )
                 continue;
 
@@ -1508,14 +1471,14 @@ bool RDMAConnection::_pollCQ( )
                 << std::hex << ", vendor_err = " << wc.vendor_err
                 << std::dec << std::endl;
 
-            // All others are fatal
+            // All others are fatal.
             goto err;
         }
 
         EQASSERT( IBV_WC_SUCCESS == wc.status );
         EQASSERT( IBV_WC_RECV & wc.opcode );
 
-        // All receive completions need to be reposted
+        // All receive completions need to be reposted.
         num_recvs++;
 
         if( IBV_WC_RECV_RDMA_WITH_IMM == wc.opcode )
@@ -1528,7 +1491,7 @@ bool RDMAConnection::_pollCQ( )
         _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
     }
 
-    if( !_postReceives( (int32_t)num_recvs ))
+    if(( num_recvs > 0UL ) && !_postReceives( num_recvs ))
         goto err;
 
     /* CHECK SEND COMPLETIONS */
@@ -1545,7 +1508,7 @@ bool RDMAConnection::_pollCQ( )
 
         if( IBV_WC_SUCCESS != wc.status )
         {
-            // Non-fatal
+            // Non-fatal.
             if( IBV_WC_WR_FLUSH_ERR == wc.status )
                 continue;
 
@@ -1556,18 +1519,18 @@ bool RDMAConnection::_pollCQ( )
                 << std::hex << ", vendor_err = " << wc.vendor_err
                 << std::dec << std::endl;
 
-            // Warning only as we just might be trying to ack a dead sender
-            if(/*( IBV_WC_RETRY_EXC_ERR == wc.status ) ||*/
-                ( IBV_WC_RNR_RETRY_EXC_ERR == wc.status ))
+            // Warning only as we just might be trying to ack a dead sender.
+            if(( IBV_WC_RETRY_EXC_ERR == wc.status )/* ||
+                ( IBV_WC_RNR_RETRY_EXC_ERR == wc.status )*/)
                 continue;
 
-            // All others are fatal
+            // All others are fatal.
             goto err;
         }
 
         EQASSERT( IBV_WC_SUCCESS == wc.status );
 
-        // All send completions replenish credit
+        // All send completions replenish credit.
         _credits++;
 
         if( IBV_WC_SEND == wc.opcode )
@@ -1924,12 +1887,14 @@ void RDMAConnection::_eventThreadUnregister( )
 
 void RDMAConnection::_showStats( )
 {
-    EQVERB << "reads = " << _stats.reads <<
-        ", buffer_empty = " << _stats.buffer_empty <<
-        ", no_credits_fc = " << _stats.no_credits_fc <<
-        ", writes = " << _stats.writes <<
-        ", buffer_full = " << _stats.buffer_full <<
-        ", no_credits_rdma = " << _stats.no_credits_rdma << std::endl;
+    EQVERB << std::dec
+        << "reads = " << _stats.reads
+        << ", buffer_empty = " << _stats.buffer_empty
+        << ", no_credits_fc = " << _stats.no_credits_fc
+        << ", writes = " << _stats.writes
+        << ", buffer_full = " << _stats.buffer_full
+        << ", no_credits_rdma = " << _stats.no_credits_rdma
+        << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
