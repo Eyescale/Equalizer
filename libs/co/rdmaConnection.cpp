@@ -963,7 +963,7 @@ bool RDMAConnection::_createQP( )
         init_attr.cap.max_send_wr << " sends, " << std::endl;
 
     // Need enough space for sends and receives.
-    return _msgbuf.resize( _cm_id->pd, static_cast< uint32_t >( _credits * 2 ));
+    return _msgbuf.resize( _pd, static_cast< uint32_t >( _credits * 2 ));
 
 err:
     return false;
@@ -980,13 +980,13 @@ bool RDMAConnection::_initBuffers( )
         goto err;
     }
 
-    if( !_sourcebuf.resize( _cm_id->pd, rbs ))
+    if( !_sourcebuf.resize( _pd, rbs ))
     {
         EQERROR << "Failed to resize source buffer." << std::endl;
         goto err;
     }
 
-    if( !_sinkbuf.resize( _cm_id->pd, rbs ))
+    if( !_sinkbuf.resize( _pd, rbs ))
     {
         EQERROR << "Failed to resize sink buffer." << std::endl;
         goto err;
