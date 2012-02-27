@@ -1,6 +1,6 @@
 # Copyright (c) 2011-2012 Stefan Eilemann <eile@eyescale.ch>
 
-find_path(_ofed_INCLUDE_DIR rdma/rdma_cma.h
+find_path(_ofed_INCLUDE_DIR rdma/rdma_verbs.h
   HINTS ${OFED_ROOT}/include
   PATHS /usr/include /usr/local/include /opt/local/include)
 find_library(_rdma_LIBRARY NAMES rdmacm
