@@ -49,7 +49,8 @@ public:
     {
         ::memset( buf, 0, _buffer_size ); // Paranoid
 
-        _ring.put(( (uintptr_t)buf - (uintptr_t)_buffer ) / _buffer_size );
+        _ring.put((uint32_t)(( (uintptr_t)buf - (uintptr_t)_buffer ) /
+            _buffer_size ));
     }
 
     void clear( );
@@ -117,6 +118,13 @@ struct RDMAMessage;
  * NB : Binding to "localhost" does *not* limit remote access, rdma_cm will
  * bind to all available RDMA interfaces as if bound to a wildcard address!
  *
+ * TODO? : Binding to wildcard address doesn't attempt to resolve a hostname.
+ *
+ * TODO? : Mixed IPv6/IPv4 naming isn't handled correctly.  If one listens on
+ * IPv6 and gets an IPv4 connection the address in the route struct doesn't
+ * appear to be valid, and vice versa.  Not sure if this is an RDMA CM
+ * issue or improper handling.
+ *
  */
 class RDMAConnection : public Connection
 {
@@ -152,12 +160,11 @@ private:
     bool _finishAccept( struct rdma_event_channel *listen_channel );
 
     bool _lookupAddress( const bool passive );
-    void _updateInfo( struct sockaddr_storage *sss );
+    void _updateInfo( struct sockaddr *addr );
 
     bool _createEventChannel( );
     bool _createId( );
 
-    bool _queryDevice( );
     bool _createQP( );
     bool _initBuffers( );
 
@@ -172,7 +179,7 @@ private:
     bool _reject( );
 
     /* Protocol */
-    bool _postReceives( const int32_t count );
+    bool _postReceives( const uint32_t count );
     inline void _recvRDMAWrite( const uint32_t imm_data );
     bool _postRDMAWrite( );
     void _recvMessage( const RDMAMessage &message );
@@ -206,13 +213,12 @@ private:
 
     /* Final connection info */
     char _addr[NI_MAXHOST], _serv[NI_MAXSERV];
+    std::string _device_name;
 
     /* RDMA/Verbs vars */
     struct rdma_addrinfo *_rai;
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
-    struct rdma_conn_param _conn_param;
-    struct ibv_device_attr _dev_attr;
     struct ibv_pd *_pd;
 
     bool _established;
