@@ -42,7 +42,7 @@
 
 namespace // from rdma_verbs.h
 {
-static inline int rdma_seterrno( int ret )
+inline int rdma_seterrno( int ret )
 {
     if( ret )
     {
@@ -52,7 +52,7 @@ static inline int rdma_seterrno( int ret )
     return ret;
 }
 
-static inline int rdma_post_sendv( struct rdma_cm_id *id, void *context,
+inline int rdma_post_sendv( struct rdma_cm_id *id, void *context,
     struct ibv_sge *sgl, int nsge, int flags )
 {
     struct ibv_send_wr wr, *bad;
@@ -67,8 +67,8 @@ static inline int rdma_post_sendv( struct rdma_cm_id *id, void *context,
     return ::rdma_seterrno( ::ibv_post_send( id->qp, &wr, &bad ));
 }
 
-static inline int rdma_post_send( struct rdma_cm_id *id, void *context,
-    void *addr, size_t length, struct ibv_mr *mr, int flags )
+inline int rdma_post_send( struct rdma_cm_id *id, void *context, void *addr,
+    size_t length, struct ibv_mr *mr, int flags )
 {
     struct ibv_sge sge;
 
