@@ -88,7 +88,6 @@ public:
     void unregisterRequest( const uint32_t requestID_ )
         {
             ScopedFastWrite mutex( lock );
-
             RequestHash::iterator i = requests.find( requestID_ );
             if( i == requests.end( ))
                 return;

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,13 +18,12 @@
 #ifndef CO_COMMANDFUNC_H
 #define CO_COMMANDFUNC_H
 
+#include <co/types.h>
 #include <co/base/api.h>
 #include <co/base/debug.h>
 
 namespace co
 {
-    class Command;
-
     /**
      * A wrapper to register a function callback on an object instance.
      * 
@@ -34,8 +33,7 @@ namespace co
     template< typename T > class CommandFunc
     {
     public:
-        CommandFunc( T* object, 
-                     bool (T::*func)( Command& ))
+        CommandFunc( T* object, bool (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
         template< typename O > CommandFunc( const CommandFunc< O >& from )

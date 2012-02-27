@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,10 +21,9 @@
 
 #include "fullMasterCM.h"              // base class
 #include "objectDeltaDataOStream.h"
+
 namespace co
 {
-    class Node;
-
     /** 
      * An object change manager handling full versions and deltas for the master
      * instance.
