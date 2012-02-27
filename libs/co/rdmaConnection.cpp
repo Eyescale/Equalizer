@@ -36,49 +36,7 @@
 #include <sys/eventfd.h>
 #include <sys/mman.h>
 
-#if 0 // HAVE_RDMA_VERBS_H?
 #include <rdma/rdma_verbs.h>
-#endif
-
-namespace // from rdma_verbs.h
-{
-inline int rdma_seterrno( int ret )
-{
-    if( ret )
-    {
-        errno = ret;
-        ret = -1;
-    }
-    return ret;
-}
-
-inline int rdma_post_sendv( struct rdma_cm_id *id, void *context,
-    struct ibv_sge *sgl, int nsge, int flags )
-{
-    struct ibv_send_wr wr, *bad;
-
-    wr.wr_id = (uintptr_t)context;
-    wr.next = NULL;
-    wr.sg_list = sgl;
-    wr.num_sge = nsge;
-    wr.opcode = IBV_WR_SEND;
-    wr.send_flags = flags;
-
-    return ::rdma_seterrno( ::ibv_post_send( id->qp, &wr, &bad ));
-}
-
-inline int rdma_post_send( struct rdma_cm_id *id, void *context, void *addr,
-    size_t length, struct ibv_mr *mr, int flags )
-{
-    struct ibv_sge sge;
-
-    sge.addr = (uint64_t)(uintptr_t)addr;
-    sge.length = (uint32_t)length;
-    sge.lkey = mr ? mr->lkey : 0;
-
-    return ::rdma_post_sendv( id, context, &sge, 1, flags );
-}
-}
 
 #define IPV6_DEFAULT 0
 
