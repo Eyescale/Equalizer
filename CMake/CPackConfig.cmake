@@ -42,7 +42,7 @@ set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
 
 if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  set(DPUT_HOST "ppa:eilemann/equalizer")
 endif()
 set(CPACK_DEBIAN_BUILD_DEPENDS libgl1-mesa-dev libx11-dev libavahi-compat-libdnssd-dev)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libgl1-mesa-glx, libavahi-compat-libdnssd1")
