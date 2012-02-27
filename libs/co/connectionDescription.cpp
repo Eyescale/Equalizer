@@ -57,10 +57,6 @@ static ConnectionType _getConnectionType( const std::string& string )
         return CONNECTIONTYPE_NAMEDPIPE;
     if( string == "IB" )
         return CONNECTIONTYPE_IB;
-    if( string == "UDP" )
-        return CONNECTIONTYPE_UDP;
-    if( string == "MCIP" )
-        return CONNECTIONTYPE_MCIP;
     if( string == "PGM" )
         return CONNECTIONTYPE_PGM;
     if( string == "RSP" )
@@ -248,23 +244,10 @@ std::ostream& operator << ( std::ostream& os,
                             const ConnectionDescription& desc)
 {
     os << base::disableFlush << base::disableHeader << "connection"
-       << std::endl;
-    os << "{" << std::endl << base::indent;
-
-    os << "type          " 
-       << ( desc.type == co::CONNECTIONTYPE_TCPIP ? "TCPIP" : 
-            desc.type == co::CONNECTIONTYPE_SDP   ? "SDP" : 
-            desc.type == co::CONNECTIONTYPE_PIPE  ? "ANON_PIPE" :
-            desc.type == co::CONNECTIONTYPE_NAMEDPIPE ? "PIPE" :
-            desc.type == co::CONNECTIONTYPE_IB    ? "IB" :
-            desc.type == co::CONNECTIONTYPE_MCIP  ? "MCIP" :
-            desc.type == co::CONNECTIONTYPE_PGM   ? "PGM" :
-            desc.type == co::CONNECTIONTYPE_RSP   ? "RSP" :
-            desc.type == co::CONNECTIONTYPE_RDMA  ? "RDMA" :
-            desc.type == co::CONNECTIONTYPE_UDT   ? "UDT" :
-            "ERROR" ) << std::endl;
-    
-    os << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
+       << std::endl
+       << "{" << std::endl << base::indent
+       << "type          " << desc.type << std::endl
+       << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
 
     if( !desc.getInterface().empty( ))
         os << "interface     \"" << desc.getInterface() << "\"" << std::endl;
@@ -278,9 +261,8 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    os << base::exdent << "}" << base::enableHeader << base::enableFlush
-       << std::endl;
-    return os;
+    return os << base::exdent << "}" << base::enableHeader << base::enableFlush
+              << std::endl;
 }
 
 bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )

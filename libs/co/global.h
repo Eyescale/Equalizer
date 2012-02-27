@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,11 +24,7 @@
 
 namespace co
 {
-    // global defines
-
-    /** 
-     * Global parameter handling for the Equalizer network implementation. 
-     */
+    /** Global parameter handling for the Collage library. */
     class Global
     {
     public:
