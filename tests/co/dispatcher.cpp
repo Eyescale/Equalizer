@@ -17,6 +17,7 @@
 
 #include <test.h>
 #include <co/command.h>
+#include <co/commandCache.h>
 #include <co/commandFunc.h>
 #include <co/dispatcher.h>
 #include <co/localNode.h>
