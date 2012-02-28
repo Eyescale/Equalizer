@@ -46,7 +46,7 @@ public:
     uint64_t getBars() const { return bar1 + bar2; }
 };
 
-struct Packet : public co::Packet
+struct Packet : public co::NodePacket
 {
     Packet()
         {
