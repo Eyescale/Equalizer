@@ -1060,25 +1060,20 @@ bool RDMAConnection::_bindAddress( )
 {
     EQASSERT( NULL != _cm_id );
 
-    struct sockaddr_storage sss;
-
-    ::memset( (void *)&sss, 0, sizeof(struct sockaddr_storage) );
 #if IPV6_DEFAULT
-    struct sockaddr_in6 *sin6 =
-        reinterpret_cast< struct sockaddr_in6 * >( &sss );
-    sin6->sin6_family = AF_INET6;
-    sin6->sin6_port = 0;
-    sin6->sin6_addr = in6addr_any;
+    struct sockaddr_in6 sin;
+    sin.sin6_family = AF_INET6;
+    sin.sin6_port = 0;
+    sin.sin6_addr = in6addr_any;
 #else
-    struct sockaddr_in *sin =
-        reinterpret_cast< struct sockaddr_in * >( &sss );
-    sin->sin_family = AF_INET;
-    sin->sin_port = 0;
-    sin->sin_addr.s_addr = INADDR_ANY;
+    struct sockaddr_in sin;
+    sin.sin_family = AF_INET;
+    sin.sin_port = 0;
+    sin.sin_addr.s_addr = INADDR_ANY;
 #endif
 
     if( ::rdma_bind_addr( _cm_id, ( NULL != _rai ) ? _rai->ai_src_addr :
-            reinterpret_cast< struct sockaddr * >( &sss )))
+            reinterpret_cast< struct sockaddr * >( &sin )))
     {
         EQERROR << "rdma_bind_addr : " << base::sysError << std::endl;
         goto err;
