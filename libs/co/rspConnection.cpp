@@ -145,8 +145,7 @@ void RSPConnection::_close()
         _thread = 0;
     
         // notify children to close
-        for( RSPConnections::iterator i = _children.begin();
-             i != _children.end(); ++i )
+        for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
             base::ScopedMutex<> mutexChild( child->_mutexEvent );
@@ -307,7 +306,7 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
         
     // protect event->set, _children and _childrenConnecting
-    base::ScopedMutex<> mutexConn( _mutexConnection );
+    base::ScopedWrite mutex( _mutexConnection );
     EQASSERT( !_childrenConnecting.empty( ));
     if( _childrenConnecting.empty( ))
         return 0;
@@ -472,8 +471,7 @@ void RSPConnection::_handleConnectedTimeout( )
         EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
         _appBuffers.pushFront( 0 ); // unlock write function
-        for( RSPConnections::iterator i = _children.begin();
-             i != _children.end(); ++i )
+        for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
             child->_state = STATE_CLOSING;
@@ -1382,12 +1380,9 @@ void RSPConnection::_checkNewID( uint16_t id )
 RSPConnection::RSPConnectionPtr RSPConnection::_findConnection( 
     const uint16_t id )
 {
-    for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
-         i != _children.end(); ++i )
-    {
+    for( RSPConnectionsCIter i = _children.begin(); i != _children.end(); ++i )
         if( (*i)->_id == id )
             return *i;
-    }
     return 0;
 }
 
@@ -1398,14 +1393,10 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
         return false;
 
     base::ScopedMutex<> mutexConn( _mutexConnection );
-    for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
-         i != _children.end(); ++i )
-    {
-        if( (*i)->_id == id )
-            return false;
-    }
-    for( std::vector< RSPConnectionPtr >::const_iterator i = 
-             _childrenConnecting.begin();
+    if( _findConnection( id ).isValid( ))
+        return false;
+
+    for( RSPConnectionsCIter i = _childrenConnecting.begin();
          i != _childrenConnecting.end(); ++i )
     {
         if( (*i)->_id == id )
@@ -1438,13 +1429,12 @@ void RSPConnection::_removeConnection( const uint16_t id )
     if( id == _id )
         return;
 
-    for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
-          i != _children.end(); ++i )
+    for( RSPConnectionsIter i = _children.begin(); i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            base::ScopedMutex<> mutex( _mutexEvent ); 
+            base::ScopedWrite mutex( _mutexEvent ); 
             _children.erase( i );
                 
             child->_appBuffers.push( 0 );
