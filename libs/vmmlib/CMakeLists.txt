@@ -8,7 +8,7 @@ find_path(VMMLIB_INCLUDE_DIR vmmlib/vmmlib.hpp
 
 if(VMMLIB_INCLUDE_DIR)
   message(STATUS "Found vmmlib in ${VMMLIB_INCLUDE_DIR}")
-  include_directories(BEFORE SYSTEM ${VMMLIB_INCLUDE_DIRS})
+  include_directories(BEFORE SYSTEM ${VMMLIB_INCLUDE_DIR})
 else()
   set(VMMLIB_DIR ${OUTPUT_INCLUDE_DIR}/vmmlib)
 
