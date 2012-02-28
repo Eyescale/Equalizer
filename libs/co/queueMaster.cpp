@@ -29,7 +29,7 @@ namespace co
 {
 namespace detail
 {
-class QueueMaster : public Dispatcher
+class QueueMaster : public co::Dispatcher
 {
 public:
     /** The command handler functions. */

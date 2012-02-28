@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,6 @@
 
 #include "connectionDescription.h"
 #include "connectionListener.h"
-#include "mcipConnection.h"
 #include "log.h"
 #include "pipeConnection.h"
 #include "socketConnection.h"
@@ -109,11 +108,6 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             connection = new IBConnection;
             break;
 #endif
-
-        case CONNECTIONTYPE_MCIP:
-            connection = new MCIPConnection;
-            break;
-
 #ifdef EQ_PGM
         case CONNECTIONTYPE_PGM:
             connection = new PGMConnection;
