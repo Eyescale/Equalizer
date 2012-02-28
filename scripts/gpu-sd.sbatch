@@ -6,7 +6,7 @@ import threading
 
 nodes = slurm.getNodelist()
 arguments = sys.argv
-arguments[0] = 'gpu-sd'
+arguments[0] = 'gpu_sd'
 command = ' '.join( arguments )
 
 def launch( command ):
