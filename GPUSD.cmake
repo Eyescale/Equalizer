@@ -2,6 +2,10 @@
 if(GPUSD_ROOT)
   list(APPEND CMAKE_MODULE_PATH "${GPUSD_ROOT}/share/gpu-sd/CMake")
 endif()
+if(NOT "$ENV{GPUSD_ROOT}" STREQUAL "")
+  list(APPEND CMAKE_MODULE_PATH "$ENV{GPUSD_ROOT}/share/gpu-sd/CMake")
+endif()
+
 if(NOT EQUALIZER_RELEASE)
   list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/gpu-sd/CMake")
 endif()
