@@ -159,9 +159,8 @@ private:
     /* Setup */
     bool _finishAccept( struct rdma_event_channel *listen_channel );
 
-    bool _lookupAddress( const bool passive );
     void _updateInfo( struct sockaddr *addr );
-
+    bool _parseAddress( struct sockaddr &address, const bool passive ) const;
     bool _createEventChannel( );
     bool _createId( );
 
