@@ -87,6 +87,17 @@ private:
     struct ibv_mr *_mr;
 }; // RingBuffer
 
+/**
+  * Private data sent with connect/accept to validate protocol version and
+  * pass protocol parameters (NB: limited to 56 bytes for RDMA_PS_TCP).
+  */
+struct RDMAConnParamData
+{
+    uint16_t magic;
+    uint16_t version;
+    uint32_t depth;
+};
+
 struct RDMASetupPayload;
 struct RDMAFCPayload;
 struct RDMAMessage;
@@ -222,6 +233,7 @@ private:
     struct rdma_cm_id *_cm_id;
     struct ibv_pd *_pd;
 
+    struct RDMAConnParamData _cpd;
     bool _established;
     base::a_int32_t _credits;
     unsigned int _completions;
