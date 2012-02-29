@@ -178,6 +178,8 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
+    _updateInfo( &_cm_id->route.addr.dst_addr );
+
     if( !_initVerbs( ))
     {
         EQERROR << "Failed to initialize verbs." << std::endl;
@@ -267,6 +269,8 @@ bool RDMAConnection::listen( )
         EQERROR << "Failed to bind to local address." << std::endl;
         goto err;
     }
+
+    _updateInfo( &_cm_id->route.addr.src_addr );
 
     if( !_listen( ))
     {
@@ -583,6 +587,8 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
+    _updateInfo( &_cm_id->route.addr.dst_addr );
+
     if( !_migrateId( ))
     {
         EQERROR << "Failed to migrate communication identifier." << std::endl;
@@ -643,6 +649,25 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 err:
     close( );
     return false;
+}
+
+void RDMAConnection::_updateInfo( struct sockaddr *addr )
+{
+    char node[NI_MAXHOST], serv[NI_MAXSERV];
+
+    int err;
+    if(( err = ::getnameinfo( addr, ( AF_INET == addr->sa_family ) ?
+                sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
+            node, sizeof(node), serv, sizeof(serv),
+            NI_NUMERICHOST | NI_NUMERICSERV )))
+        EQWARN << "Name info lookup failed : " << err << std::endl;
+    else
+    {
+        if( _description->getHostname( ).empty( ))
+            _description->setHostname( node );
+        if( 0u == _description->port )
+            _description->port = atoi( serv );
+    }
 }
 
 bool RDMAConnection::_parseAddress( struct sockaddr &address,
