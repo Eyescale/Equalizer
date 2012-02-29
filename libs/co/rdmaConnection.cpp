@@ -713,8 +713,6 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err_reject;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
-
     if( !_migrateId( ))
     {
         EQERROR << "Failed to migrate communication identifier." << std::endl;
