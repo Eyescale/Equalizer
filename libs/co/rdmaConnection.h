@@ -118,7 +118,8 @@ struct RDMAMessage;
  * NB : Binding to "localhost" does *not* limit remote access, rdma_cm will
  * bind to all available RDMA interfaces as if bound to a wildcard address!
  *
- * TODO? : Binding to wildcard address doesn't attempt to resolve a hostname.
+ * TODO? : Binding to wildcard address updates the description with the
+ * canonical hostname, which is possibly not a valid RDMA IPoIB name.
  *
  * TODO? : Mixed IPv6/IPv4 naming isn't handled correctly.  If one listens on
  * IPv6 and gets an IPv4 connection the address in the route struct doesn't

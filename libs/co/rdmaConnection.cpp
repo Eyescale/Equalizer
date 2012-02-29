@@ -358,7 +358,13 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.src_addr );
+    if( NULL != _rai )
+        _updateInfo( &_cm_id->route.addr.src_addr );
+    else
+    {
+        ::gethostname( _addr, NI_MAXHOST );
+        _description->setHostname( _addr );
+    }
 
     if( !_listen( ))
     {
@@ -816,8 +822,7 @@ bool RDMAConnection::_lookupAddress( const bool passive )
         service = const_cast< char * >( s.c_str( ));
     }
 
-    if((( NULL != node ) || ( NULL != service )) &&
-            ::rdma_getaddrinfo( node, service, &hints, &_rai ))
+    if(( NULL != node ) && ::rdma_getaddrinfo( node, service, &hints, &_rai ))
     {
         EQERROR << "rdma_getaddrinfo : " << base::sysError << std::endl;
         goto err;
@@ -1063,12 +1068,12 @@ bool RDMAConnection::_bindAddress( )
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
     sin.sin6_family = AF_INET6;
-    sin.sin6_port = 0;
+    sin.sin6_port = htons( _description->port );
     sin.sin6_addr = in6addr_any;
 #else
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
-    sin.sin_port = 0;
+    sin.sin_port = htons( _description->port );
     sin.sin_addr.s_addr = INADDR_ANY;
 #endif
 
