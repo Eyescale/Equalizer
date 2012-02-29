@@ -768,12 +768,9 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    EQINFO << "Connection accepted on "
-        << _device_name << ":" << (int)_cm_id->port_num
-        << " from "
-        << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
-        << std::endl;
+    EQVERB << "Connection accepted on " << _device_name << ":" 
+           << (int)_cm_id->port_num << " from " << _addr << ":" << _serv << " ("
+           << _description->toString( ) << ")" << std::endl;
 
     // For a connected instance, the receive completion channel fd will indicate
     // on events such as new incoming data by waking up any polling operation.
@@ -1132,13 +1129,13 @@ bool RDMAConnection::_accept( )
     // Magic 3-bit value.
     accept_param.rnr_retry_count = 7;
 
-    EQINFO << "Accept on source lid : "<< std::showbase
-        << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-        << "from dest lid : "
-        << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
-        << std::endl;
+    EQVERB << "Accept on source lid : "<< std::showbase
+           << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+           << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+           << "from dest lid : "
+           << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+           << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+           << std::endl;
 
     if( ::rdma_accept( _cm_id, &accept_param ))
     {
@@ -1399,8 +1396,14 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     ok = ( event->event == expected );
 
-    EQINFO << (void *)this << " event : " << ::rdma_event_str( event->event )
-        << " (" << ( !ok ? "*not* " : "" ) << "expected)" << std::endl;
+#ifndef NDEBUG
+    if( ok )
+        EQVERB << (void *)this << " event : " << ::rdma_event_str( event->event )
+               << std::endl;
+    else
+        EQINFO << (void *)this << " event : " << ::rdma_event_str( event->event )
+               << " expected: " << ::rdma_event_str( expected ) << std::endl;
+#endif
 
     if( ok && ( RDMA_CM_EVENT_DISCONNECTED == event->event ))
         _established = false;
