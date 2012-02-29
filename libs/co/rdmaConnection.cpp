@@ -38,7 +38,7 @@
 
 #include <rdma/rdma_verbs.h>
 
-#define IPV6_DEFAULT 0
+#define IPV6_DEFAULT 1
 
 #define RDMA_PROTOCOL_MAGIC     0xC0
 #define RDMA_PROTOCOL_VERSION   0x02
@@ -375,13 +375,7 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    if( NULL != _rai )
-        _updateInfo( &_cm_id->route.addr.src_addr );
-    else
-    {
-        ::gethostname( _addr, NI_MAXHOST );
-        _description->setHostname( _addr );
-    }
+    _updateInfo( &_cm_id->route.addr.src_addr );
 
     if( !_listen( ))
     {
@@ -719,7 +713,50 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 
     EQASSERT( NULL != _cm_id );
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
+    {
+        // FIXME : RDMA CM appears to send up invalid addresses when receiving
+        // connections that use a different protocol than what was bound.  E.g.
+        // if // an IPv6 listener gets an IPv4 connection then the sa_family
+        // will be AF_INET6 but the actual data is struct sockaddr_in.  Example:
+        //
+        // 0000000: 0a00 bc10 c0a8 b01a 0000 0000 0000 0000  ................
+        //
+        // However, in the reverse case, when an IPv4 listener gets an IPv6
+        // connection not only is the address family incorrect, but the actual
+        // IPv6 address is only partially there:
+        //
+        // 0000000: 0200 bc11 0000 0000 fe80 0000 0000 0000  ................
+        // 0000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        //
+        // Surely seems to be a bug in RDMA CM.
+
+        union
+        {
+            struct sockaddr     addr;
+            struct sockaddr_in  sin;
+            struct sockaddr_in6 sin6;
+            struct sockaddr_storage storage;
+        } sss;
+
+        // Make a copy since we might change it.
+        sss.storage = _cm_id->route.addr.dst_storage;
+
+        if(( AF_INET == sss.storage.ss_family ) &&
+                !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
+        {
+            EQWARN << "IPv6 address detected but likely invalid!" << std::endl;
+            sss.storage.ss_family = AF_INET6;
+        }
+        else if(( AF_INET6 == sss.storage.ss_family ) &&
+                ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
+        {
+            sss.storage.ss_family = AF_INET;
+        }
+
+        _updateInfo( &sss.addr );
+    }
 
     _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
@@ -868,12 +905,31 @@ err:
 
 void RDMAConnection::_updateInfo( struct sockaddr *addr )
 {
+    int salen = sizeof(struct sockaddr);
+    bool is_unspec = false;
+
+    if( AF_INET == addr->sa_family )
+    {
+        struct sockaddr_in *sin =
+            reinterpret_cast< struct sockaddr_in * >( addr );
+        is_unspec = ( INADDR_ANY == sin->sin_addr.s_addr );
+        salen = sizeof(struct sockaddr_in);
+    }
+    else if( AF_INET6 == addr->sa_family )
+    {
+        struct sockaddr_in6 *sin6 =
+            reinterpret_cast< struct sockaddr_in6 * >( addr );
+        is_unspec = IN6_IS_ADDR_UNSPECIFIED( sin6->sin6_addr.s6_addr );
+        salen = sizeof(struct sockaddr_in6);
+    }
+
     int err;
-    if(( err = ::getnameinfo( addr, ( AF_INET == addr->sa_family ) ?
-                sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
-            _addr, sizeof(_addr), _serv, sizeof(_serv),
-            NI_NUMERICHOST | NI_NUMERICSERV )))
+    if(( err = ::getnameinfo( addr, salen, _addr, sizeof(_addr),
+            _serv, sizeof(_serv), NI_NUMERICHOST | NI_NUMERICSERV )))
         EQWARN << "Name info lookup failed : " << err << std::endl;
+
+    if( is_unspec )
+        ::gethostname( _addr, NI_MAXHOST );
 
     if( _description->getHostname( ).empty( ))
         _description->setHostname( _addr );
@@ -1095,11 +1151,13 @@ bool RDMAConnection::_bindAddress( )
 
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
+    memset( (void *)&sin, 0, sizeof(struct sockaddr_in6) );
     sin.sin6_family = AF_INET6;
     sin.sin6_port = htons( _description->port );
     sin.sin6_addr = in6addr_any;
 #else
     struct sockaddr_in sin;
+    memset( (void *)&sin, 0, sizeof(struct sockaddr_in) );
     sin.sin_family = AF_INET;
     sin.sin_port = htons( _description->port );
     sin.sin_addr.s_addr = INADDR_ANY;
