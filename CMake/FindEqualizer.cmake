@@ -145,7 +145,7 @@ if(_eq_Version_file)
 else()
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Can't find Equalizer header file version.h.")
+    "Can't find Equalizer header file version.h.")
 endif()
 
 #
@@ -166,8 +166,8 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
 endif()
 
 find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
-   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
-   PATHS /usr /usr/local /opt/local /opt
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
 )
 find_library(_eq_fabric_LIBRARY EqualizerFabric PATH_SUFFIXES lib
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
@@ -191,7 +191,7 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 if(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
+    "Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
     "Version ${EQUALIZER_VERSION} was found in ${_eq_Version_file}.")
 elseif(_eq_version_not_exact)
   set(_eq_EPIC_FAIL TRUE)
@@ -201,7 +201,7 @@ elseif(_eq_version_not_exact)
 else()
   if(Equalizer_FIND_REQUIRED)
     if(_eq_LIBRARY MATCHES "_eq_LIBRARY-NOTFOUND")
-      message(FATAL_ERROR "ERROR: Missing the Equalizer library.\n"
+      message(FATAL_ERROR "Missing the Equalizer library.\n"
         "Consider using CMAKE_PREFIX_PATH or the EQ_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
