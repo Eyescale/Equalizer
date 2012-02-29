@@ -40,6 +40,9 @@
 
 #define IPV6_DEFAULT 0
 
+#define RDMA_PROTOCOL_MAGIC     0xC0
+#define RDMA_PROTOCOL_VERSION   0x02
+
 namespace co
 {
 namespace { static const uint64_t ONE = 1ULL; }
@@ -171,7 +174,10 @@ RDMAConnection::RDMAConnection( )
     , _context( this )
     , _registered( false )
 {
-    EQVERB << (void *)this << ".new" << std::endl;
+    EQVERB << (void *)this << ".new" << std::showbase
+        << std::hex << "(" << RDMA_PROTOCOL_MAGIC
+        << std::dec << ":" << RDMA_PROTOCOL_VERSION << ")"
+        << std::endl;
 
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
@@ -272,6 +278,14 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
+    if(( RDMA_PROTOCOL_MAGIC != _cpd.magic ) ||
+        ( RDMA_PROTOCOL_VERSION != _cpd.version ))
+    {
+        EQERROR << "Protocol mismatch with target : "
+            << _addr << ":" << _serv << std::endl;
+        goto err;
+    }
+
     if( !_eventThreadRegister( ))
     {
         EQERROR << "Failed to register with event thread." << std::endl;
@@ -304,6 +318,9 @@ bool RDMAConnection::connect( )
     return true;
 
 err:
+    EQINFO << "Connection failed to remote address : "
+        << _addr << ":" << _serv << std::endl;
+
     close( );
     return false;
 }
@@ -358,7 +375,13 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.src_addr );
+    if( NULL != _rai )
+        _updateInfo( &_cm_id->route.addr.src_addr );
+    else
+    {
+        ::gethostname( _addr, NI_MAXHOST );
+        _description->setHostname( _addr );
+    }
 
     if( !_listen( ))
     {
@@ -707,6 +730,14 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         << " (" << _description->toString( ) << ")"
         << std::endl;
 
+    if(( RDMA_PROTOCOL_MAGIC != _cpd.magic ) ||
+        ( RDMA_PROTOCOL_VERSION != _cpd.version ))
+    {
+        EQERROR << "Protocol mismatch with initiator : "
+            << _addr << ":" << _serv << std::endl;
+        goto err_reject;
+    }
+
     if( !_createEventChannel( ))
     {
         EQERROR << "Failed to create event channel." << std::endl;
@@ -719,6 +750,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err_reject;
     }
 
+    _credits = _cpd.depth;
     if( _credits <= 0L )
     {
         EQERROR << "Invalid (unsent?) queue depth." << std::endl;
@@ -816,8 +848,7 @@ bool RDMAConnection::_lookupAddress( const bool passive )
         service = const_cast< char * >( s.c_str( ));
     }
 
-    if((( NULL != node ) || ( NULL != service )) &&
-            ::rdma_getaddrinfo( node, service, &hints, &_rai ))
+    if(( NULL != node ) && ::rdma_getaddrinfo( node, service, &hints, &_rai ))
     {
         EQERROR << "rdma_getaddrinfo : " << base::sysError << std::endl;
         goto err;
@@ -1027,9 +1058,11 @@ bool RDMAConnection::_connect( )
 
     ::memset( (void *)&conn_param, 0, sizeof(struct rdma_conn_param) );
 
-    uint32_t credits = static_cast< uint32_t >( _credits );
-    conn_param.private_data = reinterpret_cast< const void * >( &credits );
-    conn_param.private_data_len = sizeof(uint32_t);
+    _cpd.magic = RDMA_PROTOCOL_MAGIC;
+    _cpd.version = RDMA_PROTOCOL_VERSION;
+    _cpd.depth = _credits;
+    conn_param.private_data = reinterpret_cast< const void * >( &_cpd );
+    conn_param.private_data_len = sizeof(struct RDMAConnParamData);
     conn_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
     conn_param.responder_resources = RDMA_MAX_RESP_RES;
     // Magic 3-bit values.
@@ -1063,12 +1096,12 @@ bool RDMAConnection::_bindAddress( )
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
     sin.sin6_family = AF_INET6;
-    sin.sin6_port = 0;
+    sin.sin6_port = htons( _description->port );
     sin.sin6_addr = in6addr_any;
 #else
     struct sockaddr_in sin;
     sin.sin_family = AF_INET;
-    sin.sin_port = 0;
+    sin.sin_port = htons( _description->port );
     sin.sin_addr.s_addr = INADDR_ANY;
 #endif
 
@@ -1127,6 +1160,11 @@ bool RDMAConnection::_accept( )
 
     ::memset( (void *)&accept_param, 0, sizeof(struct rdma_conn_param) );
 
+    _cpd.magic = RDMA_PROTOCOL_MAGIC;
+    _cpd.version = RDMA_PROTOCOL_VERSION;
+    _cpd.depth = _credits;
+    accept_param.private_data = reinterpret_cast< const void * >( &_cpd );
+    accept_param.private_data_len = sizeof(struct RDMAConnParamData);
     accept_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
     accept_param.responder_resources = RDMA_MAX_RESP_RES;
     // Magic 3-bit value.
@@ -1406,7 +1444,18 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
         _established = false;
 
     if( ok && ( RDMA_CM_EVENT_ESTABLISHED == event->event ))
+    {
         _established = true;
+
+        struct rdma_conn_param *cp = &event->param.conn;
+
+        ::memset( (void *)&_cpd, 0, sizeof(RDMAConnParamData) );
+        // Note that the actual amount of data transferred to the remote side
+        // is transport dependent and may be larger than that requested.
+        if( cp->private_data_len >= sizeof(RDMAConnParamData) )
+            _cpd = *reinterpret_cast< const RDMAConnParamData * >(
+                cp->private_data );
+    }
 
     if( ok && ( RDMA_CM_EVENT_CONNECT_REQUEST == event->event ))
     {
@@ -1414,13 +1463,12 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
         struct rdma_conn_param *cp = &event->param.conn;
 
-        // Note that the actual amount of data transferred to the remote side
-        // is transport dependent and may be larger than that requested.
-        // TODO : should probably have some sort of magic as well?  Also not
-        // sure what happens when initiator sent ai_connect data (assuming the
-        // underlying transport doesn't strip it)?
-        if( cp->private_data_len >= sizeof(uint32_t) )
-            _credits = *reinterpret_cast< const uint32_t * >( cp->private_data);
+        ::memset( (void *)&_cpd, 0, sizeof(RDMAConnParamData) );
+        // TODO : Not sure what happens when initiator sent ai_connect data
+        // (assuming the underlying transport doesn't strip it)?
+        if( cp->private_data_len >= sizeof(RDMAConnParamData) )
+            _cpd = *reinterpret_cast< const RDMAConnParamData * >(
+                cp->private_data );
     }
 
     if( RDMA_CM_EVENT_REJECTED == event->event )
