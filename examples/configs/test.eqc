@@ -1,44 +1,71 @@
 #Equalizer 1.1 ascii
+# two-node software-framelocked config
+
 global
 {
-#    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
 }
 
 server
 {
-    connection { hostname "127.0.0.1" }
+    connection { hostname "node02" }
     config
     {
         appNode
         {
-            pipe
+            connection { hostname "node02" }
+            connection { type RSP port 4242 }
+            pipe 
             {
+#                device 0
                 window
                 {
-#                    viewport [ 0 0 1600 1200 ]
-                    channel 
-                    {
-                        viewport [ 500 0 600 1200 ]
-                        name "channel-middle"
-                    }
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel1" }
                 }
             }
         }
-        observer {}
-        layout{ view { observer "" }}
+        node
+        {
+            connection { hostname "node03" }
+            connection { type RSP port 4242 }
+            pipe 
+            {
+                device 0
+                window
+                {
+                    viewport [ .25 .25 .5 .5 ]
+                    channel { name "channel2" }
+                }
+            }
+        }
+
+        layout { view { }}
         canvas
         {
             layout 0
-            segment
+            wall
             {
-                channel "channel-middle"
-                viewport [ 0.3333 0 .3334 1 ]
-                wall
-                {
-                    bottom_left  [ -1 -1 -1 ]
-                    bottom_right [  1 -1 -1 ]
-                    top_left     [ -1  1 -1 ]
-                }
+                bottom_left  [ -1.6 -.5 -1 ]
+                bottom_right [  1.6 -.5 -1 ]
+                top_left     [ -1.6  .5 -1 ]
+            }
+
+            segment { viewport [ 0  0 .5 1 ] channel "channel1" }
+            segment { viewport [ .5 0 .5 1 ] channel "channel2" }
+        }
+
+        compound
+        {
+            compound 
+            {
+                channel ( view 0 segment 0 )
+                swapbarrier {}
+            }
+            compound 
+            {
+                channel ( view 0 segment 1 )
+                swapbarrier {}
             }
         }
     }    
