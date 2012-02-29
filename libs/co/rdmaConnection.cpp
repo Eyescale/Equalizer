@@ -140,7 +140,10 @@ RDMAConnection::RDMAConnection( )
 
 bool RDMAConnection::connect( )
 {
-    struct sockaddr address;
+    union {
+        struct sockaddr addr;
+        struct sockaddr_storage storage;
+    } dst;
 
     EQVERB << (void *)this << ".connect( )" << std::endl;
 
@@ -160,13 +163,13 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    if( !_parseAddress( address, false ))
+    if( !_parseAddress( dst.addr, false ))
     {
         EQERROR << "Failed to parse destination address." << std::endl;
         goto err;
     }
 
-    if( !_resolveAddress( address ))
+    if( !_resolveAddress( dst.addr ))
     {
         EQERROR << "Failed to resolve destination address." << std::endl;
         goto err;
@@ -178,7 +181,7 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
+    //_updateInfo( &_cm_id->route.addr.dst_addr );
 
     if( !_initVerbs( ))
     {
@@ -238,7 +241,10 @@ err:
 
 bool RDMAConnection::listen( )
 {
-    struct sockaddr address;
+    union {
+        struct sockaddr addr;
+        struct sockaddr_storage storage;
+    } src;
 
     EQVERB << (void *)this << ".listen( )" << std::endl;
 
@@ -258,13 +264,13 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    if( !_parseAddress( address, true ))
+    if( !_parseAddress( src.addr, true ))
     {
         EQERROR << "Failed to parse local address." << std::endl;
         goto err;
     }
 
-    if( !_bindAddress( address ))
+    if( !_bindAddress( src.addr ))
     {
         EQERROR << "Failed to bind to local address." << std::endl;
         goto err;
@@ -587,7 +593,50 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
+    {
+        // FIXME : RDMA CM appears to send up invalid addresses when receiving
+        // connections that use a different protocol than what was bound.  E.g.
+        // if // an IPv6 listener gets an IPv4 connection then the sa_family
+        // will be AF_INET6 but the actual data is struct sockaddr_in.  Example:
+        //
+        // 0000000: 0a00 bc10 c0a8 b01a 0000 0000 0000 0000  ................
+        //
+        // However, in the reverse case, when an IPv4 listener gets an IPv6
+        // connection not only is the address family incorrect, but the actual
+        // IPv6 address is only partially there:
+        //
+        // 0000000: 0200 bc11 0000 0000 fe80 0000 0000 0000  ................
+        // 0000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        //
+        // Surely seems to be a bug in RDMA CM.
+
+        union
+        {
+            struct sockaddr     addr;
+            struct sockaddr_in  sin;
+            struct sockaddr_in6 sin6;
+            struct sockaddr_storage storage;
+        } sss;
+
+        // Make a copy since we might change it.
+        sss.storage = _cm_id->route.addr.dst_storage;
+
+        if(( AF_INET == sss.storage.ss_family ) &&
+                !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
+        {
+            EQWARN << "IPv6 address detected but likely invalid!" << std::endl;
+            sss.storage.ss_family = AF_INET6;
+        }
+        else if(( AF_INET6 == sss.storage.ss_family ) &&
+                ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
+        {
+            sss.storage.ss_family = AF_INET;
+        }
+
+        _updateInfo( &sss.addr );
+    }
 
     if( !_migrateId( ))
     {
@@ -654,20 +703,36 @@ err:
 void RDMAConnection::_updateInfo( struct sockaddr *addr )
 {
     char node[NI_MAXHOST], serv[NI_MAXSERV];
+    int salen = sizeof(struct sockaddr);
+    bool is_unspec = false;
+
+    if( AF_INET == addr->sa_family )
+    {
+        struct sockaddr_in *sin =
+            reinterpret_cast< struct sockaddr_in * >( addr );
+        is_unspec = ( INADDR_ANY == sin->sin_addr.s_addr );
+        salen = sizeof(struct sockaddr_in);
+    }
+    else if( AF_INET6 == addr->sa_family )
+    {
+        struct sockaddr_in6 *sin6 =
+            reinterpret_cast< struct sockaddr_in6 * >( addr );
+        is_unspec = IN6_IS_ADDR_UNSPECIFIED( sin6->sin6_addr.s6_addr );
+        salen = sizeof(struct sockaddr_in6);
+    }
 
     int err;
-    if(( err = ::getnameinfo( addr, ( AF_INET == addr->sa_family ) ?
-                sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
-            node, sizeof(node), serv, sizeof(serv),
-            NI_NUMERICHOST | NI_NUMERICSERV )))
+    if(( err = ::getnameinfo( addr, salen, node, sizeof(node),
+            serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV )))
         EQWARN << "Name info lookup failed : " << err << std::endl;
-    else
-    {
-        if( _description->getHostname( ).empty( ))
-            _description->setHostname( node );
-        if( 0u == _description->port )
-            _description->port = atoi( serv );
-    }
+
+    if( is_unspec )
+        ::gethostname( node, NI_MAXHOST );
+
+    if( _description->getHostname( ).empty( ))
+        _description->setHostname( node );
+    if( 0u == _description->port )
+        _description->port = atoi( serv );
 }
 
 bool RDMAConnection::_parseAddress( struct sockaddr &address,
