@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -106,6 +106,7 @@ namespace co
     struct NodeGetNodeDataPacket : public NodePacket
     {
         NodeGetNodeDataPacket()
+                : pad( 0 )
             {
                 command = CMD_NODE_GET_NODE_DATA;
                 size    = sizeof( NodeGetNodeDataPacket );
@@ -113,6 +114,7 @@ namespace co
 
         NodeID   nodeID;
         uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct NodeGetNodeDataReplyPacket : public NodePacket
@@ -184,16 +186,18 @@ namespace co
     struct NodeRemoveListenerPacket : public NodePacket
     {
         NodeRemoveListenerPacket( ConnectionPtr conn, const uint32_t request )
-                : connection( conn.get( ))
-                , requestID( request )
+                : requestID( request )
+                , pad( 0 )
+                , connection( conn.get( ))
             {
                 command = CMD_NODE_REMOVE_LISTENER;
                 size    = sizeof( NodeRemoveListenerPacket );
                 connectionData[0] = 0;
             }
 
-        Connection* connection;
         const uint32_t requestID;
+        const uint32_t pad;
+        Connection* connection; // Don't reorder! (32/64 bit interop)
         EQ_ALIGN8( char connectionData[8] );
     };
 
@@ -229,12 +233,14 @@ namespace co
         NodeFindMasterNodeIDReplyPacket( 
                           const NodeFindMasterNodeIDPacket* request )
                 : requestID( request->requestID )
+                , pad( 0 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID_REPLY;
                 size      = sizeof( NodeFindMasterNodeIDReplyPacket ); 
             }
-        NodeID     masterNodeID;
-        uint32_t   requestID;
+        NodeID masterNodeID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct NodeAttachObjectPacket : public NodePacket
@@ -255,20 +261,21 @@ namespace co
         NodeMapObjectPacket()
                 : minCachedVersion( VERSION_HEAD )
                 , maxCachedVersion( VERSION_NONE )
+                , masterInstanceID( 0 )
                 , useCache( false )
             {
                 command = CMD_NODE_MAP_OBJECT;
                 size    = sizeof( NodeMapObjectPacket );
             }
 
-        uint128_t     requestedVersion;
-        uint128_t     minCachedVersion;
-        uint128_t     maxCachedVersion;
-        base::UUID    objectID;
-        uint32_t      requestID;
+        uint128_t requestedVersion;
+        uint128_t minCachedVersion;
+        uint128_t maxCachedVersion;
+        base::UUID objectID;
+        uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
-        bool     useCache;
+        uint32_t useCache; // bool + valgrind padding
     };
 
 

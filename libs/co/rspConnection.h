@@ -224,6 +224,8 @@ namespace co
 
         typedef base::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
+        typedef Buffers::iterator BuffersIter;
+        typedef Buffers::const_iterator BuffersCIter;
 
         Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */

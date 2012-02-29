@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -68,7 +68,7 @@ static ConnectionType _getConnectionType( const std::string& string )
     if( string == "RDMA" )
         return CONNECTIONTYPE_RDMA;
     
-    EQASSERTINFO( false, "Not implemented" );
+    EQASSERTINFO( false, "Unknown type: " << string );
     return CONNECTIONTYPE_NONE;
 }
 }
@@ -156,7 +156,7 @@ bool ConnectionDescription::fromString( std::string& data )
 
         // else assume SEPARATOR-delimited list
         const std::string typeStr = data.substr( 0, nextPos );
-        data                 = data.substr( nextPos + 1 );
+        data = data.substr( nextPos + 1 );
 
         type = _getConnectionType( typeStr );
         if( type == CONNECTIONTYPE_NONE )

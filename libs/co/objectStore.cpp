@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -339,25 +339,10 @@ void ObjectStore::_detachObject( Object* object )
     return;
 }
 
-uint32_t ObjectStore::mapObjectNB( Object* object, const ObjectVersion& v )
-{
-    return mapObjectNB( object, v.identifier, v.version );
-}
-
 uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
                                    const uint128_t& version )
 {
-    EQ_TS_NOT_THREAD( _commandThread );
-    EQ_TS_NOT_THREAD( _receiverThread );
-    EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
-                         << id << " version " << version << std::endl;
-    EQASSERT( object );
-    EQASSERT( !object->isAttached( ));
-    EQASSERT( !object->isMaster( ));
-    EQASSERT( !_localNode->inCommandThread( ));
     EQASSERTINFO( id.isGenerated(), id );
-
-    object->notifyAttach();
     if( !id.isGenerated( ))
         return EQ_UNDEFINED_UINT32;
 
@@ -369,6 +354,30 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
 uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id, 
                                    const uint128_t& version, NodePtr master )
 {
+    EQ_TS_NOT_THREAD( _commandThread );
+    EQ_TS_NOT_THREAD( _receiverThread );
+    EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
+                         << id << " version " << version << std::endl;
+    EQASSERT( object );
+    EQASSERTINFO( id.isGenerated(), id );
+
+    if( !object || !id.isGenerated( ))
+    {
+        EQWARN << "Invalid object " << object << " or id " << id << std::endl;
+        return EQ_UNDEFINED_UINT32;
+    }
+
+    const bool isAttached = object->isAttached();
+    const bool isMaster = object->isMaster();
+    EQASSERT( !isAttached );
+    EQASSERT( !isMaster ) ;
+    if( isAttached || isMaster )
+    {
+        EQWARN << "Invalid object state: attached " << isAttached << " master "
+               << isMaster << std::endl;
+        return EQ_UNDEFINED_UINT32;
+    }
+
     if( !master || !master->isConnected( ))
     {
         EQWARN << "Mapping of object " << id << " failed, invalid master node"
@@ -398,6 +407,8 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
                                  << packet.maxCachedVersion << std::endl;
         }
     }
+
+    object->notifyAttach();
     master->send( packet );
     return packet.requestID;
 }
@@ -785,8 +796,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
         {
             const Objects& objects = i->second;
 
-            for( Objects::const_iterator j = objects.begin();
-                 j != objects.end(); ++j )
+            for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
             {
                 Object* object = *j;
                 if( object->isMaster( ))

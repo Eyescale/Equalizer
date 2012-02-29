@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer
-#               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force CMake rerun: 2
+# Change this number when adding tests to force a CMake run: 3
 
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)

@@ -1,5 +1,5 @@
 
-/* Copyright (c)  2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c)  2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -269,17 +269,16 @@ void LocalNode::addListener( ConnectionPtr connection )
 uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
-    EQASSERT( connection->isListening( ));
+    EQASSERTINFO( !connection->isConnected(), connection );
 
     connection->ref( CO_REFERENCED_PARAM );
     NodeRemoveListenerPacket packet( connection, registerRequest( ));
     Nodes nodes;
     getNodes( nodes );
 
-    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
+    for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
         (*i)->send( packet, connection->getDescription()->toString( ));
-    }
+
     return packet.requestID;
 }
 
@@ -550,12 +549,12 @@ void LocalNode::deregisterObject( Object* object )
 bool LocalNode::mapObject( Object* object, const base::UUID& id,
                            const uint128_t& version )
 {
-    const uint32_t requestID = _objectStore->mapObjectNB( object, id, version );
-    return _objectStore->mapObjectSync( requestID );
+    const uint32_t requestID = mapObjectNB( object, id, version );
+    return mapObjectSync( requestID );
 }
 
 uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
-                            const uint128_t& version )
+                                 const uint128_t& version )
 {
     return _objectStore->mapObjectNB( object, id, version );
 }
@@ -976,7 +975,6 @@ void LocalNode::_handleDisconnect()
     }
 
     _removeConnection( connection );
-    EQINFO << "connection used " << connection->getRefCount() << std::endl;
 }
 
 bool LocalNode::_handleData()

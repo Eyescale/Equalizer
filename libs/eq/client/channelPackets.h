@@ -27,13 +27,14 @@ namespace eq
 {
     struct ChannelConfigInitPacket : public ChannelPacket
     {
-        ChannelConfigInitPacket()
+        ChannelConfigInitPacket( const uint128_t& initID_ )
+                : initID( initID )
             {
                 command = fabric::CMD_CHANNEL_CONFIG_INIT;
                 size    = sizeof( ChannelConfigInitPacket );
             }
 
-        uint128_t        initID;
+        const uint128_t initID;
     };
 
     struct ChannelConfigInitReplyPacket : public ChannelPacket
