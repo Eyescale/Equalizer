@@ -269,17 +269,16 @@ void LocalNode::addListener( ConnectionPtr connection )
 uint32_t LocalNode::removeListenerNB( ConnectionPtr connection )
 {
     EQASSERT( isListening( ));
-    EQASSERT( connection->isListening( ));
+    EQASSERTINFO( !connection->isConnected(), connection );
 
     connection->ref( CO_REFERENCED_PARAM );
     NodeRemoveListenerPacket packet( connection, registerRequest( ));
     Nodes nodes;
     getNodes( nodes );
 
-    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
-    {
+    for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
         (*i)->send( packet, connection->getDescription()->toString( ));
-    }
+
     return packet.requestID;
 }
 
