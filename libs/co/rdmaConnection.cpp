@@ -38,7 +38,7 @@
 
 #include <rdma/rdma_verbs.h>
 
-#define IPV6_DEFAULT 1
+#define IPV6_DEFAULT 0
 
 #define RDMA_PROTOCOL_MAGIC     0xC0
 #define RDMA_PROTOCOL_VERSION   0x02
@@ -1653,7 +1653,7 @@ bool RDMAConnection::_rearmCQ( )
     struct ibv_cq *ev_cq;
     void *ev_ctx;
 
-    if( ::ibv_get_cq_event( _cm_id->recv_cq_channel, &ev_cq, &ev_ctx ) == -1 )
+    if( ::ibv_get_cq_event( _cm_id->recv_cq_channel, &ev_cq, &ev_ctx ))
     {
         EQERROR << "ibv_get_cq_event : " << base::sysError << std::endl;
         goto err;
