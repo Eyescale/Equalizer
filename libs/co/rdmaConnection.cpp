@@ -546,7 +546,7 @@ retry2:
         // we no longer have any data in the buffer and need to be notified
         // when we receive more.  Take the poll mutex so another thread in
         // write() can't take events off the CQ between check and rearm.
-        base::ScopedMutex<> mutex( _poll_mutex );
+        base::ScopedWrite mutex( _poll_mutex );
         if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
         {
             EQERROR << "Error while rearming receive channel." << std::endl;
@@ -1555,7 +1555,7 @@ bool RDMAConnection::_pollCQ( )
     uint32_t num_recvs = 0UL;
     int count;
 
-    base::ScopedMutex<> mutex( _poll_mutex );
+    base::ScopedWrite mutex( _poll_mutex );
 
     /* CHECK RECEIVE COMPLETIONS */
     count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
