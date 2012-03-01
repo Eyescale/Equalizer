@@ -42,7 +42,7 @@ namespace detail { class Thread; }
         {
             CORE = 1, //!< Bind to a specific CPU core
             SOCKET = -65536, //!< Bind to all cores of a specific socket (CPU)
-            SOCKET_MAX = -1024 //!< Highes bindable CPU
+            SOCKET_MAX = -1024 //!< Highest bindable CPU
         };
 
         /** Construct a new thread. @version 1.0 */

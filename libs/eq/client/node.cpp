@@ -195,7 +195,7 @@ void Node::_setupAffinity()
 {
     const int32_t affinity = getIAttribute(IATTR_HINT_AFFINITY);
     ClientPtr client = getClient(); // Client node "LocalNode"
-    client->setAffinityMask( affinity );
+    client->setAffinity( affinity );
 }
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const

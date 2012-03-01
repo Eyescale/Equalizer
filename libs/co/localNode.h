@@ -368,7 +368,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API bool pingIdleNodes();
 
         /** Sets the affinity mask for the packet that will be sent */
-        void setAffinityMask(const int32_t affinityMask);
+        void setAffinity( const int32_t affinityMask );
 
     protected:
         /**  @internal
@@ -425,8 +425,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdAckRequest( Command& packet );
         bool _cmdStopRcv( Command& command );
         bool _cmdStopCmd( Command& command );
-        bool _cmdSetAffinityRcv( Command& command );
-        bool _cmdSetAffinityCmd( Command& command );
+        bool _cmdSetAffinity( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );

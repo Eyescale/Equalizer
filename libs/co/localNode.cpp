@@ -169,9 +169,9 @@ LocalNode::LocalNode( )
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_SET_AFFINITY_RCV,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinityRcv ), 0);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0);
     registerCommand( CMD_NODE_SET_AFFINITY_CMD,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinityCmd ), queue);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue);
     registerCommand( CMD_NODE_CONNECT,
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -1336,12 +1336,12 @@ bool LocalNode::_cmdStopCmd( Command& command )
     return true;
 }
 
-void LocalNode::setAffinityMask(const int32_t affinityMask)
+void LocalNode::setAffinity(const int32_t affinityMask)
 {
-    NodeAffintyMaskPacket packet;
+    NodeAffinityPacket packet;
 
     // Set the affinity mask before sending the packet
-    packet.affintyMask = affinityMask;
+    packet.affinty = affinityMask;
     packet.command = CMD_NODE_SET_AFFINITY_RCV;
 
     // Send it
@@ -1351,28 +1351,13 @@ void LocalNode::setAffinityMask(const int32_t affinityMask)
     send( packet );
 }
 
-bool LocalNode::_cmdSetAffinityRcv( Command& command )
+bool LocalNode::_cmdSetAffinity( Command& command )
 {
-    // Thread safety
-    EQ_TS_THREAD( _rcvThread );
-
     // The received packet of type NodeAffintyMaskPacket
-    const NodeAffintyMaskPacket* packet = command.get< NodeAffintyMaskPacket > ();
+    const NodeAffinityPacket* packet = command.get< NodeAffinityPacket > ();
 
     // Getting the affinity mask from the packet
-    _receiverThread->setAffinity(packet->affintyMask);
-    return true;
-}
-
-bool LocalNode::_cmdSetAffinityCmd( Command& command )
-{
-    // Thread safety
-    EQ_TS_THREAD( _cmdThread );
-
-    const NodeAffintyMaskPacket* packet = command.get< NodeAffintyMaskPacket > ();
-
-    // Changing the command to the CMD_NODE_SET_AFFINITY_CMD
-    _commandThread->setAffinity(packet->affintyMask);
+    co::base::Thread::setAffinity( packet->affinty );
     return true;
 }
 

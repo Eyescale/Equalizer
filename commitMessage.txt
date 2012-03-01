@@ -1,18 +1,8 @@
-<<<<<<< HEAD
-Modefying the manual thread placement to the receiver and command threads of the local node
- 
+Modefying the manual thread placement to the receiver and command threads of the local node (2)
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
 [x] New Feature
-=======
-Fix unit test
-
-[ ] May break build
-[ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
->>>>>>> origin/master
-[ ] Cleanup
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation
