@@ -36,7 +36,6 @@ namespace co
             }
     };
 
-    // Packet sent to  the node with the affinity mask value
     struct NodeAffinityPacket : public NodePacket
     {
       NodeAffinityPacket()
@@ -45,7 +44,7 @@ namespace co
                 size = sizeof(NodeAffinityPacket);
             }
 
-        int32_t affinty;
+        int32_t affinity;
     };
 
     struct NodeConnectPacket : public NodePacket

@@ -367,7 +367,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          */
         CO_API bool pingIdleNodes();
 
-        /** Sets the affinity mask in the packet that will be sent */
+        /** Set the affinity for this, the receiver and the command thread. */
         void setAffinity( const int32_t affinity );
 
     protected:

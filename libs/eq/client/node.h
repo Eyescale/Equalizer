@@ -285,6 +285,8 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
+        void _setAffinity();
+
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint128_t& frameID,
                            const uint32_t frameNumber );
@@ -302,9 +304,6 @@ namespace eq
         bool _cmdFrameTasksFinish( co::Command& command );
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
-
-        /* Sets the affinity for the receiver & command threads for a LocalNode */
-        void _setupAffinity();
 
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );

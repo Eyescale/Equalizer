@@ -352,6 +352,21 @@ bool LocalNode::close()
     return true;
 }
 
+void LocalNode::setAffinity(const int32_t affinity)
+{
+    base::Thread::setAffinity(affinity);
+
+    NodeAffinityPacket packet;
+    packet.affinity = affinity;
+
+    send( packet );
+
+    packet.command = CMD_NODE_SET_AFFINITY_CMD;
+    send( packet );
+
+    base::Thread::setAffinity(affinity);
+}
+
 ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
 {
     EQASSERT( isListening( ));
@@ -1336,28 +1351,11 @@ bool LocalNode::_cmdStopCmd( Command& command )
     return true;
 }
 
-void LocalNode::setAffinity(const int32_t affinityMask)
-{
-    NodeAffinityPacket packet;
-
-    // Set the affinity mask before sending the packet
-    packet.affinty = affinityMask;
-    packet.command = CMD_NODE_SET_AFFINITY_RCV;
-
-    // Send it
-    send( packet );
-
-    packet.command = CMD_NODE_SET_AFFINITY_CMD;
-    send( packet );
-}
-
 bool LocalNode::_cmdSetAffinity( Command& command )
 {
-    // The received packet of type NodeAffintyMaskPacket
-    const NodeAffinityPacket* packet = command.get< NodeAffinityPacket > ();
+    const NodeAffinityPacket* packet = command.get< NodeAffinityPacket >();
 
-    // Getting the affinity mask from the packet
-    co::base::Thread::setAffinity( packet->affinty );
+    base::Thread::setAffinity( packet->affinity );
     return true;
 }
 

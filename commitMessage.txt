@@ -1,9 +1,8 @@
-Correcting the setAffinity function implementation. 
-
+Setting affinities before and after sending packets to the node
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
+[ ] Bugfix
+[x] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation
