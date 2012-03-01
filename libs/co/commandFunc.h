@@ -21,7 +21,7 @@
 #include <co/types.h>
 #include <co/base/debug.h>
 
-// If you get a warning in your code, add:
+// If you get a warning in your code, add before in including this file:
 //  #pragma warning( disable: 4407 )
 // This warning is 'fixed' by https://github.com/Eyescale/Equalizer/issues/100
 
@@ -41,7 +41,7 @@ namespace co
 
 
         template< typename O > CommandFunc( const CommandFunc< O >& from )
-                : _object( _convertThis< O, T >( from._object )),
+                : _object( _convertThis< O >( from._object )),
                   _func( static_cast<bool (T::*)( Command& )>(from._func))
             {}
 
@@ -63,7 +63,7 @@ namespace co
         bool (T::*_func)( Command& );
 
     private:
-        template< class F, class T > T* _convertThis( F* ptr )
+        template< class F > T* _convertThis( F* ptr )
         {
 #ifdef _MSC_VER
             // https://github.com/Eyescale/Equalizer/issues/100
