@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -621,7 +621,10 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         } sss;
 
         // Make a copy since we might change it.
-        sss.storage = _cm_id->route.addr.dst_storage;
+        //sss.storage = _cm_id->route.addr.dst_storage;
+        ::memcpy( (void *)&sss.storage,
+            (const void *)&_cm_id->route.addr.dst_addr,
+            sizeof(struct sockaddr_storage) );
 
         if(( AF_INET == sss.storage.ss_family ) &&
                 !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
@@ -1198,7 +1201,7 @@ err:
 // caller: application
 bool RDMAConnection::_postSendMessage( RDMAMessage &message )
 {
-    struct ibv_sge sge; 
+    struct ibv_sge sge;
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
     sge.length = (uint64_t)( offsetof( RDMAMessage, offsetof_placeholder ) +
@@ -1261,7 +1264,7 @@ bool RDMAConnection::_postRDMAWrite( )
 
     // TODO : Break up large messages into multiple WR?
 
-    struct ibv_sge sge; 
+    struct ibv_sge sge;
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)( (uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.MIDDLE ));
@@ -1451,7 +1454,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
                     const uint32_t bytes_written =
                         _sourceptr.available( _sourceptr.MIDDLE,
                             _sourceptr.TAIL );
-                      
+
                     _sourceptr.moveValue( _sourceptr.TAIL,
                         static_cast< uint32_t >( wc.wr_id ));
 

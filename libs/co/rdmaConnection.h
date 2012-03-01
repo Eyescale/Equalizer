@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -61,7 +61,7 @@ private:
 
 /**
  * A registered memory region (MR) backed by a fixed size circular buffer
- * <a href="http://en.wikipedia.org/wiki/Circular_buffer#Optimization">mapped 
+ * <a href="http://en.wikipedia.org/wiki/Circular_buffer#Optimization">mapped
  * to two contiguous regions of virtual memory</a>.
  */
 class RingBuffer
@@ -198,7 +198,7 @@ private:
 
     /* Event handler thread */
     class ChannelEventThread : public base::Thread
-    {       
+    {
     public:
         ChannelEventThread( RDMAConnection *conn ) : _conn( conn ) { }
         virtual ~ChannelEventThread( ) { _conn = NULL; }
@@ -207,7 +207,7 @@ private:
         virtual void run( ) { _conn->_runEventThread( ); }
     private:
         RDMAConnection *_conn;
-    };  
+    };
 
     void _eventFDWrite( int fd, const uint64_t val ) const;
 
