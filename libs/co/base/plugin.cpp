@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -67,7 +67,13 @@ bool Plugin::init( const std::string& libraryName )
     
     download = ( Download_t )
         ( _dso.getFunctionPointer( "EqCompressorDownload" ));
-    
+
+    startDownload = ( StartDownload_t )
+        ( _dso.getFunctionPointer( "EqCompressorStartDownload" ));
+
+    finishDownload = ( FinishDownload_t )
+        ( _dso.getFunctionPointer( "EqCompressorFinishDownload" ));
+
     upload = ( Upload_t )
         ( _dso.getFunctionPointer( "EqCompressorUpload" ));
     
@@ -101,6 +107,14 @@ bool Plugin::init( const std::string& libraryName )
         info.outputTokenSize = 0;
         getInfo( i, &info );
 
+        if(( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD ) &&
+            ( !startDownload || !finishDownload ))
+        {
+            EQWARN << "Download plugin claims to support async readback " <<
+                      "but corresponding functions are missing" << std::endl;
+            _infos.clear();
+            return false;
+        }
         if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ))
         {
             if( info.outputTokenType == EQ_COMPRESSOR_DATATYPE_NONE )
@@ -134,7 +148,7 @@ void Plugin::exit()
     _infos.clear();
 
     newCompressor = 0;
-    newDecompressor = 0;     
+    newDecompressor = 0;
     deleteCompressor = 0;
     deleteDecompressor = 0;
     compress = 0;

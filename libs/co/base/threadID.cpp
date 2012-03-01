@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,53 +26,56 @@ namespace co
 {
 namespace base
 {
-
-struct ThreadIDPrivate
+namespace detail
 {
+class ThreadID
+{
+public:
     pthread_t pthread;
 };
+}
 
 const ThreadID ThreadID::ZERO;
 
 ThreadID::ThreadID()
-        : _data( new ThreadIDPrivate )
+        : _impl( new detail::ThreadID )
 {
-    memset( &_data->pthread, 0, sizeof( pthread_t ));
+    memset( &_impl->pthread, 0, sizeof( pthread_t ));
 }
 
 ThreadID::ThreadID( const ThreadID& from )
-        : _data( new ThreadIDPrivate )
+        : _impl( new detail::ThreadID )
 {
-    _data->pthread = from._data->pthread;
+    _impl->pthread = from._impl->pthread;
 }
 
 ThreadID::~ThreadID()
 {
-    delete _data;
+    delete _impl;
 }
 
 ThreadID& ThreadID::operator = ( const ThreadID& from )
 {
-    _data->pthread = from._data->pthread;
+    _impl->pthread = from._impl->pthread;
     return *this;
 }
 
 bool ThreadID::operator == ( const ThreadID& rhs ) const
 {
-    return pthread_equal( _data->pthread, rhs._data->pthread );
+    return pthread_equal( _impl->pthread, rhs._impl->pthread );
 }
 
 bool ThreadID::operator != ( const ThreadID& rhs ) const
 {
-    return !pthread_equal( _data->pthread, rhs._data->pthread );
+    return !pthread_equal( _impl->pthread, rhs._impl->pthread );
 }
 
 std::ostream& operator << ( std::ostream& os, const ThreadID& threadID )
 {
 #ifdef PTW32_VERSION
-    os << threadID._data->pthread.p;
+    os << threadID._impl->pthread.p;
 #else
-    os << threadID._data->pthread;
+    os << threadID._impl->pthread;
 #endif
     return os;
 }

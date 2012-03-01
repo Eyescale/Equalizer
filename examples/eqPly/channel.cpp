@@ -93,7 +93,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
-    resetRegion();
+    resetRegions();
 
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
@@ -130,7 +130,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const Model* oldModel = _model;
     const Model* model = _getModel();
+
+    if( oldModel != model )
+        state.setFrustumCulling( false ); // create all display lists/VBOs
+
     if( model )
         _updateNearFar( model->getBoundingSphere( ));
 
@@ -178,6 +185,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
+    state.setFrustumCulling( true );
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
@@ -200,8 +208,8 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
         if( accum.buffer && !accum.buffer->usesFBO( ))
         {
-            EQWARN << "Current viewport different from view viewport, ";
-            EQWARN << "idle anti-aliasing not implemented." << std::endl;
+            EQWARN << "Current viewport different from view viewport, "
+                   << "idle anti-aliasing not implemented." << std::endl;
             accum.step = 0;
         }
 
@@ -566,8 +574,8 @@ eq::Vector2i Channel::_getJitterStep() const
 
 const Model* Channel::_getModel()
 {
-    Config*     config = static_cast< Config* >( getConfig( ));
-    const View* view   = static_cast< const View* >( getView( ));
+    Config* config = static_cast< Config* >( getConfig( ));
+    const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
@@ -624,9 +632,10 @@ void Channel::_drawModel( const Model* scene )
     const InitData& initData =
         static_cast<Config*>( getConfig( ))->getInitData();
     if( !initData.useROI( ))
+    {
+        declareRegion( getPixelViewport( ));
         return;
-
-    declareRegion( eq::Viewport( state.getRegion( )));
+    }
 
 #ifndef NDEBUG // region border
     const eq::PixelViewport& pvp = getPixelViewport();
@@ -724,6 +733,8 @@ void Channel::_drawHelp()
     applyViewport();
     setupAssemblyState();
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 

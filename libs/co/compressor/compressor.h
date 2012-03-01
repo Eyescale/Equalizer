@@ -123,7 +123,6 @@ namespace plugin
                              const eq_uint64_t  outDims[4],  
                              const unsigned     destination ) { EQDONTCALL; }
 
-#ifdef EQ_ASYNC_READBACK
         /**
          * Start transferring frame buffer data into main memory.
          * 
@@ -160,7 +159,6 @@ namespace plugin
                                      const eq_uint64_t  flags,
                                      eq_uint64_t        outDims[4],
                                      void**             out ) { EQDONTCALL; }
-#endif
 
         /** @internal Register a new plugin engine. */
         static void registerEngine( const Functions& functions );

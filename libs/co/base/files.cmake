@@ -1,7 +1,7 @@
 ##
 # Path : libs/collage/files.cmake
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 ##
 
 set(COBASE_PUBLIC_HEADERS 
@@ -85,9 +85,11 @@ set(COBASE_HEADERS
     referenced.cpp
     requestHandler.cpp
     rng.cpp
+    spinLock.cpp
     sleep.cpp
     thread.cpp
     threadID.cpp
     timedLock.cpp
     uint128_t.cpp
+    uuid.cpp
   )

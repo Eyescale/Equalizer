@@ -118,8 +118,9 @@ void Config::notifyAttached()
     EQASSERT( getAppNodeID().isGenerated() )
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
-    EQASSERTINFO( _appNode, "Connection to application node failed -- " <<
-                            "misconfigured connections on appNode?" );
+    if( !_appNode )
+        EQWARN << "Connection to application node failed -- misconfigured "
+               << "connections on appNode?" << std::endl;
 }
 
 void Config::notifyDetach()
@@ -166,16 +167,23 @@ ConstClientPtr Config::getClient() const
 
 namespace
 {
-class ActivateLayoutVisitor : public ConfigVisitor
+class SetDefaultVisitor : public ConfigVisitor
 {
 public:
-    ActivateLayoutVisitor( const Strings& layouts ) : _names( layouts ) {}
+    SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
+            : _layouts( activeLayouts ), _modelUnit( modelUnit ) {}
+
+    virtual VisitorResult visit( View* view )
+        {
+            view->setModelUnit( _modelUnit );
+            return TRAVERSE_CONTINUE;
+        }
 
     virtual VisitorResult visitPre( Canvas* canvas )
         {
             const Layouts& layouts = canvas->getLayouts();
 
-            for( StringsCIter i = _names.begin(); i != _names.end(); ++i )
+            for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
             {
                 const std::string& name = *i;
                 for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
@@ -189,7 +197,8 @@ public:
         }
 
 private:
-    const Strings& _names;
+    const Strings& _layouts;
+    const float _modelUnit;
 };
 }
 
@@ -202,8 +211,9 @@ bool Config::init( const uint128_t& initID )
     _frameTimes.clear();
 
     ClientPtr client = getClient();
-    ActivateLayoutVisitor activate( client->getActiveLayouts( ));
-    accept( activate );
+    SetDefaultVisitor defaults( client->getActiveLayouts(),
+                                client->getModelUnit( ));
+    accept( defaults );
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
@@ -337,8 +347,12 @@ uint32_t Config::finishFrame()
         
         // local draw sync
         if( _needsLocalSync( ))
+        {
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
+                               << std::endl;
+        }
 
         // local node finish (frame-latency) sync
         const Nodes& nodes = getNodes();
@@ -349,6 +363,8 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
+                               << " @ " << _currentFrame << std::endl;
         }
 
         // global sync
@@ -370,6 +386,8 @@ uint32_t Config::finishFrame()
                 }
             }
         }
+        EQLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
+                           << _currentFrame << std::endl;
     }
 
     handleEvents();

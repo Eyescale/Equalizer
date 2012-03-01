@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,21 +19,19 @@
 #include "queueMaster.h"
 
 #include "command.h"
+#include "commandCache.h"
 #include "dataOStream.h"
 #include "queuePackets.h"
+
+#include <co/base/mtQueue.h>
 
 namespace co
 {
 namespace detail
 {
-class QueueMaster : public Dispatcher
+class QueueMaster : public co::Dispatcher
 {
 public:
-    typedef co::base::MTQueue< Command* > PacketQueue;
-
-    PacketQueue queue;
-    CommandCache cache;
-
     /** The command handler functions. */
     bool cmdGetItem( Command& command )
     {
@@ -57,6 +55,11 @@ public:
         }
         return true;
     }
+
+    typedef co::base::MTQueue< Command* > PacketQueue;
+
+    PacketQueue queue;
+    co::CommandCache cache;
 };
 }
 

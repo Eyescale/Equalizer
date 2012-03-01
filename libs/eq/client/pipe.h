@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@
 
 #include <co/objectVersion.h>
 #include <co/base/lock.h>
+#include <co/base/monitor.h>
 #include <co/base/refPtr.h>
 #include <co/worker.h>
 
@@ -89,7 +90,7 @@ namespace eq
          * @return the current frame number.
          * @version 1.0
          */ 
-        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        EQ_API uint32_t getCurrentFrame() const;
         EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**

@@ -21,7 +21,9 @@
 
    Welcome to Equalizer, the standard middleware to create and
    deploy parallel, scalable OpenGL applications. This release
-   TBD
+   introduces major new features, most notably automatic
+   configuration, the Sequel library, runtime reliability and
+   tile compounds.
 
    Equalizer 1.2 is a feature release extending the 1.0 API,
    distilling over 6 years of development and decades of
@@ -162,6 +164,12 @@
        fails in some locales
      * 66: Assertion when using the server for more than one
        session
+     * 73: Missing space mouse support on Windows
+     * 82: Excessive memory usage with object push
+     * 87: Debian packages broken
+     * 88: draw_sync thread model causes full synchronization
+     * 90: Race condition with direct send and higher number
+       of nodes
 
   2.9. Known Bugs
 
@@ -193,8 +201,8 @@
    environment. The following platforms and build environments
    are tested:
 
-     * Linux: Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile,
-       i386, x64)
+     * Linux: Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386,
+       x64)
      * Windows: XP and 7 (Visual Studio 2008, i386, x64)
      * Mac OS X: 10.6, 10.7 (Makefile, XCode, i386, x64)
 
@@ -207,8 +215,8 @@
   3.3. Documentation
 
    The Programming and User Guide is available as a hard-copy
-   and online. API documentation can be found on the Equalizer
-   website.
+   and online. The API documentation can be found on the
+   Equalizer website.
 
    As with any open source project, the available source code,
    in particular the shipped examples provide a reference for

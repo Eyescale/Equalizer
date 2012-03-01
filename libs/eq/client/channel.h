@@ -32,6 +32,7 @@ namespace detail { class Channel; }
 
     struct ChannelFrameTransmitImagePacket;
     struct ChannelFrameSetReadyPacket;
+    struct ChannelFrameTilesPacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -288,21 +289,21 @@ namespace detail { class Channel; }
         /** @name Region of Interest. */
         //@{
         /**
-         * Reset the declared region of interest.
+         * Reset the declared regions of interest.
          *
          * Called from frameStart and frameClear to reset the area to be used to
          * optimize compositing and load balancing for each frame.
          * @version 1.3
          */
-        EQ_API virtual void resetRegion();
+        EQ_API virtual void resetRegions();
 
         /**
          * Declare a region covered by the current draw or assemble operation.
          *
-         * The region is relative to the current pixel viewport. It is merged
-         * with the existing region and clipped against the current pixel
-         * viewport of the channel. Called with the full pixel viewport after
-         * frameDraw if no region has been declared.
+         * The region is relative to the current pixel viewport. It is clipped
+         * against the current pixel viewport of the channel. Called with the
+         * full pixel viewport after frameDraw if no region has been declared.
+         * The implementation might merge or split the declared regions.
          * @version 1.3
          */
         EQ_API virtual void declareRegion( const eq::PixelViewport& region );
@@ -315,8 +316,22 @@ namespace detail { class Channel; }
          */
         EQ_API void declareRegion( const eq::Viewport& vp );
 
-        /** @return the current region of interest. @version 1.3 */
-        EQ_API const PixelViewport& getRegion() const;
+        /** @return a region covering all declared regions. @version 1.3 */
+        EQ_API PixelViewport getRegion() const;
+
+        /**
+         * Get the current regions of interest.
+         *
+         * The returned regions are guaranteed not to overlap with each
+         * other. Therefore they may differ in number and size from the declared
+         * regions. The actual algorithm to create the non-overlapping regions
+         * is unspecified and may change in the future.
+         *
+         * @return current regions of interest.
+         * @version 1.3
+         */
+        EQ_API const PixelViewports& getRegions() const;
+
         //@}
 
         /** 
@@ -562,6 +577,9 @@ namespace detail { class Channel; }
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
 
+        /** Tile render loop. */
+        void _frameTiles( const ChannelFrameTilesPacket* packet );
+
         /** Check for and send frame finish reply. */
         void _unrefFrame( const uint32_t frameNumber );
 
@@ -570,9 +588,10 @@ namespace detail { class Channel; }
                              const ChannelFrameTransmitImagePacket* packet );
         
         /** Send the ready signal of a frame to one node. */
-        void _sendFrameDataReady(const ChannelFrameTransmitImagePacket* packet);
+        void _sendFrameDataReady(const ChannelFrameSetReadyPacket* packet);
 
-        void _setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames );
+        void _setOutputFrames( const uint32_t nFrames,
+                               const co::ObjectVersion* frames );
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
 
@@ -587,7 +606,7 @@ namespace detail { class Channel; }
         void _resetOutputFrames();
 
         /** Set output ready locally and remotely. */
-        void   _setOutputFramesReady();
+        void _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );

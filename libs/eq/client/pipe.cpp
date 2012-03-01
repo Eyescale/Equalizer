@@ -67,7 +67,7 @@ class Pipe::Thread : public eq::Worker
 {
 public:
     Thread( Pipe* pipe ) : _pipe( pipe ) {}
-    
+
 protected:
     virtual void run();
     virtual bool stopRunning() { return !_pipe; }
@@ -182,11 +182,13 @@ void Pipe::_setupCommandQueue()
     EQASSERT( queue );
     EQASSERT( !queue->getMessagePump( ));
 
+    Global::enterCarbon();
     MessagePump* pump = createMessagePump();
     if( pump )
         pump->dispatchAll(); // initializes _receiverQueue
 
     queue->setMessagePump( pump );
+    Global::leaveCarbon();
 }
 
 void Pipe::_setupAffinity()
@@ -525,6 +527,12 @@ void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
     _unlockedFrame.waitGE( frameNumber );
+}
+
+uint32_t Pipe::getCurrentFrame() const
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _currentFrame;
 }
 
 uint32_t Pipe::getFinishedFrame() const

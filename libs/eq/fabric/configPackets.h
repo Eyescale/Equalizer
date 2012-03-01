@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -30,47 +30,58 @@ namespace fabric
     struct ConfigCreateReplyPacket : public ConfigPacket
     {
         ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
+                : requestID( request->requestID )
+                , pad( 0 )
         {
             command   = CMD_CONFIG_CREATE_REPLY;
             size      = sizeof( ConfigCreateReplyPacket );
             objectID  = request->configVersion.identifier;
-            requestID = request->requestID;
         }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct ConfigNewLayoutPacket : public ConfigPacket
     {
-        ConfigNewLayoutPacket()
+        ConfigNewLayoutPacket( const uint32_t requestID_ )
+                : requestID( requestID_ )
+                , pad( 0 )
             {
                 command = CMD_CONFIG_NEW_LAYOUT;
                 size    = sizeof( ConfigNewLayoutPacket );
             }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct ConfigNewCanvasPacket : public ConfigPacket
     {
-        ConfigNewCanvasPacket()
+        ConfigNewCanvasPacket( const uint32_t requestID_ )
+                : requestID( requestID_ )
+                , pad( 0 )
             {
                 command = CMD_CONFIG_NEW_CANVAS;
                 size    = sizeof( ConfigNewCanvasPacket );
             }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct ConfigNewObserverPacket : public ConfigPacket
     {
-        ConfigNewObserverPacket()
+        ConfigNewObserverPacket( const uint32_t requestID_ )
+                : requestID( requestID_ )
+                , pad( 0 )
             {
                 command = CMD_CONFIG_NEW_OBSERVER;
                 size    = sizeof( ConfigNewObserverPacket );
             }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct ConfigNewEntityReplyPacket : public ConfigPacket

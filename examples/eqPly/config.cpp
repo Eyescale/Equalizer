@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ void Config::_loadModels()
             if( _initData.useInvertedFaces() )
                 model->useInvertedFaces();
         
-            if( !model->readFromFile( filename.c_str() ) )
+            if( !model->readFromFile( filename.c_str( )))
             {
                 EQWARN << "Can't load model: " << filename << std::endl;
                 delete model;
@@ -539,6 +539,18 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'z':
+            _adjustEyeBase( -0.1f );
+            return true;
+        case 'Z':
+            _adjustEyeBase( 0.1f );
+            return true;
+        case 'y':
+            _adjustModelScale( 0.1f );
+            return true;
+        case 'Y':
+            _adjustModelScale( 10.0f );
+            return true;
         case 't':
             _adjustTileSize( -1 );
             return true;
@@ -923,6 +935,19 @@ void Config::_freezeLoadBalancing( const bool onOff )
         view->freezeLoadBalancing( onOff );
 }
 
+void Config::_adjustEyeBase( const float delta )
+{
+    const eq::Observers& observers = getObservers();
+    for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
+    {
+        eq::Observer* observer = *i;
+        observer->setEyeBase( observer->getEyeBase() + delta );
+        std::ostringstream stream;
+        stream << "Set eye base to " << observer->getEyeBase();
+        _setMessage( stream.str( ));
+    }
+}
+
 void Config::_adjustTileSize( const int delta )
 {
     View* view = _getCurrentView();
@@ -934,6 +959,21 @@ void Config::_adjustTileSize( const int delta )
         tileSize = eq::Vector2i( 64, 64 );
     tileSize += delta;
     view->setTileSize( tileSize );
+}
+
+void Config::_adjustModelScale( const float factor )
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    const float current = view->getModelUnit() * factor;
+    if( current > std::numeric_limits<float>::epsilon( ))
+        view->setModelUnit( current );
+
+    std::ostringstream stream;
+    stream << "Set model unit to " << view->getModelUnit();
+    _setMessage( stream.str( ));
 }
 
 void Config::_switchLayout( int32_t increment )

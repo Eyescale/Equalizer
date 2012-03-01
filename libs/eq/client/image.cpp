@@ -285,7 +285,7 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 
 void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position,
-                    util::ObjectManager< const void* >* glObjects ) const
+                    ObjectManager* glObjects ) const
 {
     EQASSERT( glObjects );
 

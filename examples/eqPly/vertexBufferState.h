@@ -55,6 +55,9 @@ namespace mesh
         virtual bool stopRendering() const { return false; }
         virtual RenderMode getRenderMode() const { return _renderMode; }
         virtual void setRenderMode( const RenderMode mode );
+        virtual bool useFrustumCulling() const { return _useFrustumCulling; }
+        virtual void setFrustumCulling( const bool frustumCullingState )
+            { _useFrustumCulling = frustumCullingState; }
 
         void setProjectionModelViewMatrix( const Matrix4f& pmv )
             { _pmvMatrix = pmv; }
@@ -66,6 +69,7 @@ namespace mesh
 
         void resetRegion();
         void updateRegion( const BoundingBox& box );
+        virtual void declareRegion( const Vector4f& region ) {}
         Vector4f getRegion() const;
 
         virtual GLuint getDisplayList( const void* key ) = 0;
@@ -86,6 +90,7 @@ namespace mesh
         RenderMode    _renderMode;
         Vector4f      _region; //!< normalized x1 y1 x2 y2 region from cullDraw 
         bool          _useColors;
+        bool          _useFrustumCulling;
         
     private:
     };
@@ -159,15 +164,17 @@ namespace eqPly
         virtual void deleteAll() { _objectManager->deleteAll(); }
         bool isShared() const { return _objectManager->isShared(); }
         
-        void setChannel( const Channel* channel )
-             { _channel = channel; }
+        void setChannel( Channel* channel ) { _channel = channel; }
 
         virtual bool stopRendering( ) const
             { return _channel ? _channel->stopRendering() : false; }
 
+        virtual void declareRegion( const mesh::Vector4f& region ) 
+            { if( _channel ) _channel->declareRegion( eq::Viewport( region )); }
+
     private:
         eq::Window::ObjectManager* _objectManager;
-        const Channel* _channel;
+        Channel* _channel;
     };
 } // namespace eqPly
 #endif // EQUALIZER

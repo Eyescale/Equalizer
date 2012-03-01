@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
@@ -9,6 +9,7 @@ option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
+option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
@@ -16,8 +17,6 @@ option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
-
-set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI versio
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
@@ -32,9 +31,10 @@ endif()
 
 include(revision)
 
+set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
@@ -157,10 +157,18 @@ endif(OPENMP_FOUND)
 find_package(OFED)
 if(OFED_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} RDMA")
-  include_directories(SYSTEM ${OFED_INCLUDE_DIR})
+  include_directories(SYSTEM ${OFED_INCLUDE_DIRS})
 endif()
 
-find_package(HWLOC)
+find_package(UDT)
+if(UDT_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} UDT")
+  include_directories(SYSTEM ${UDT_INCLUDE_DIRS})
+endif()
+
+if(EQ_USE_HWLOC)
+  find_package(HWLOC)
+endif()
 if(HWLOC_FOUND)
   include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
@@ -288,7 +296,7 @@ add_subdirectory(tools)
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
-if(NOT EQUALIZER_RELEASE)
+if(EXISTS "${Equalizer_SOURCE_DIR}/tests/CMakeLists.txt")
   add_subdirectory(tests)
 endif()
 add_subdirectory(libs)
@@ -312,7 +320,7 @@ message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
 include(CPackConfig)
 include(copyScript)
 
-SET(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
+set(CTEST_CUSTOM_WARNING_EXCEPTION ${CTEST_CUSTOM_WARNING_EXCEPTION}
   # http://public.kitware.com/Bug/view.php?id=10179
   "ld: warning: duplicate dylib")
 include(CTest)

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,10 +32,9 @@ namespace co
         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
         CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
-        CONNECTIONTYPE_UDP,       //!< Unreliable UDP connection
         CONNECTIONTYPE_RDMA,      //!< Infiniband RDMA CM
+        CONNECTIONTYPE_UDT,       //!< UDT connection
         CONNECTIONTYPE_MULTICAST = 0x100,
-        CONNECTIONTYPE_MCIP = CONNECTIONTYPE_MULTICAST, //!< IP-based multicast
         CONNECTIONTYPE_PGM,       //!< IP-based multicast connection (PGM)
         CONNECTIONTYPE_RSP        //!< UDP-based reliable stream protocol
     };
@@ -50,12 +49,11 @@ namespace co
             case CONNECTIONTYPE_PIPE: return os << "ANON_PIPE";
             case CONNECTIONTYPE_NAMEDPIPE: return os << "PIPE";
             case CONNECTIONTYPE_IB: return os << "IB";
-            case CONNECTIONTYPE_UDP: return os << "UDP";
-            case CONNECTIONTYPE_MCIP: return os << "MCIP";
             case CONNECTIONTYPE_PGM: return os << "PGM";
             case CONNECTIONTYPE_RSP: return os << "RSP";
             case CONNECTIONTYPE_NONE: return os << "NONE";
             case CONNECTIONTYPE_RDMA: return os << "RDMA";
+            case CONNECTIONTYPE_UDT: return os << "UDT";
                 
             default:
                 EQASSERTINFO( false, "Not implemented" );

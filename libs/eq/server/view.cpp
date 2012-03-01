@@ -278,7 +278,7 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
 
-    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
+    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW | DIRTY_MODELUNIT ))
         updateFrusta();
     if( dirtyBits & DIRTY_TILESIZE )
     {
@@ -443,7 +443,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( channels.empty( ))
         return 1.f;
 
-    Vector4f view4 = Vector4f::FORWARD;
+    Vector4f view4( Vector3f::FORWARD );
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;

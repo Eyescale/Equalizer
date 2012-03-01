@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -79,6 +79,9 @@ namespace server { class FrameData; }
         //@{
         /** @return the storage type. @version 1.3.0 */
         Frame::Type getType() const { return _data.frameType; }
+
+        /** Set the storage type. @version 1.3.1 */
+        void setType( const Frame::Type type ){ _data.frameType = type; }
 
         /** @return the enabled frame buffer attachments. @version 1.0 */
         uint32_t getBuffers() const { return _data.buffers; }
@@ -209,8 +212,8 @@ namespace server { class FrameData; }
         /** 
          * Read back an image for this frame data.
          * 
-         * The newly read images are added to the data using
-         * newImage(). Existing images are retained.
+         * The newly read image is added to the data using newImage(). Existing
+         * images are retained.
          *
          * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
@@ -220,6 +223,23 @@ namespace server { class FrameData; }
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
+
+        /** 
+         * Read back a set of images for this frame data.
+         * 
+         * The newly read images are added to the data using
+         * newImage(). Existing images are retained.
+         *
+         * @param frame the corresponding output frame holder.
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @version 1.0
+         */
+        void readback( const Frame& frame, 
+                       util::ObjectManager< const void* >* glObjects,
+                       const DrawableConfig& config,
+                       const PixelViewports& regions );
 
         /**
          * Set the frame data ready.

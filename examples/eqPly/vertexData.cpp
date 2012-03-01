@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,16 +25,20 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
-  
-    
-    Implementation of the VertexData class.
 */
-
 
 #include "vertexData.h"
 #include "ply.h"
+
 #include <cstdlib>
 #include <algorithm>
+
+#if (( __GNUC__ > 4 ) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)) )
+#  include <parallel/algorithm>
+using __gnu_parallel::sort;
+#else
+using std::sort;
+#endif
 
 
 using namespace std;
@@ -237,60 +241,47 @@ bool VertexData::readPlyFile( const std::string& filename )
 
 
 /*  Calculate the face or vertex normals of the current vertex data.  */
-void VertexData::calculateNormals( const bool vertexNormals )
+void VertexData::calculateNormals()
 {
 #ifndef NDEBUG
     int wrongNormals = 0;
 #endif
     
     normals.clear();
-    if( vertexNormals )
-    {
-        normals.reserve( vertices.size() );
+    normals.reserve( vertices.size() );
         
-        // initialize all normals to zero
-        for( size_t i = 0; i < vertices.size(); ++i )
-            normals.push_back( Normal( 0, 0, 0 ) );
-    }
-    else
-        normals.reserve( triangles.size() );
+    // initialize all normals to zero
+    for( size_t i = 0; i < vertices.size(); ++i )
+        normals.push_back( Normal( 0, 0, 0 ) );
     
     // iterate over all triangles and add their normals to adjacent vertices
-    Normal  triangleNormal;
-    Index   i0, i1, i2;
+#pragma omp parallel for
     for( size_t i = 0; i < triangles.size(); ++i )
     {
-        i0 = triangles[i][0];
-        i1 = triangles[i][1];
-        i2 = triangles[i][2];
-        triangleNormal.compute_normal( vertices[i0],
-                                       vertices[i1],
-                                       vertices[i2] );
-        
+        const Index i0 = triangles[i][0];
+        const Index i1 = triangles[i][1];
+        const Index i2 = triangles[i][2];
+        const Normal normal = vertices[i0].compute_normal( vertices[i1],
+                                                           vertices[i2] );
+#ifndef NDEBUG
         // count emtpy normals in debug mode
-        #ifndef NDEBUG
-        if( triangleNormal.length() == 0.0f )
-            ++wrongNormals;
-        #endif
+        if( normal.length() == 0.0f )
+            ++wrongNormals; // racy with OpenMP, but not critical
+#endif
          
-        if( vertexNormals )
-        {
-            normals[i0] += triangleNormal; 
-            normals[i1] += triangleNormal; 
-            normals[i2] += triangleNormal;
-        }
-        else
-            normals.push_back( triangleNormal ); 
+        normals[i0] += normal; 
+        normals[i1] += normal; 
+        normals[i2] += normal;
     }
     
     // normalize all the normals
-    if( vertexNormals )
-        for( size_t i = 0; i < vertices.size(); ++i )
-            normals[i].normalize();
+#pragma omp parallel for
+    for( size_t i = 0; i < vertices.size(); ++i )
+        normals[i].normalize();
     
 #ifndef NDEBUG
     if( wrongNormals > 0 )
-        MESHINFO << wrongNormals << " faces had no valid normal." << endl;
+        MESHINFO << wrongNormals << " faces have no valid normal." << endl;
 #endif 
 }
 
@@ -368,6 +359,7 @@ void VertexData::scale( const float baseSize )
         offset[i] = ( _boundingBox[0][i] + _boundingBox[1][i] ) * 0.5f;
     
     // scale the data
+#pragma omp parallel for
     for( size_t v = 0; v < vertices.size(); ++v )
         for( size_t i = 0; i < 3; ++i )
         {
@@ -431,7 +423,6 @@ void VertexData::sort( const Index start, const Index length, const Axis axis )
     MESHASSERT( length > 0 );
     MESHASSERT( start + length <= triangles.size() );
     
-    std::sort( triangles.begin() + start, 
-               triangles.begin() + start + length,
-               _TriangleSort( *this, axis ) );
+    ::sort( triangles.begin() + start, triangles.begin() + start + length,
+            _TriangleSort( *this, axis ) );
 }

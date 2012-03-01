@@ -24,7 +24,9 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
+#include <co/commandQueue.h>
 #include <co/types.h>
+#include <co/base/monitor.h>          // member
 #include <co/base/mtQueue.h>          // member
 
 namespace eq

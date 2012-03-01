@@ -65,7 +65,9 @@ static const std::string _help(
     std::string( "\t\tl:                         Switch layout for active canvas\n" ) +
     std::string( "\t\ta:                         Add active stereo window\n" ) +
     std::string( "\t\tp:                         Add passive stereo window\n" ) +
-    std::string( "\t\tx:                         Remove window\n" )
+    std::string( "\t\tx:                         Remove window\n" ) +
+    std::string( "\t\ty, Y:                      Adjust model unit\n" ) +
+    std::string( "\t\tz, Z:                      Adjust eye base\n" )
                                );
 }
 
@@ -90,8 +92,6 @@ int EqPly::run()
 
     // 2. choose config
     eq::ConfigParams configParams;
-    if( _initData.useMultiProcess( ))
-        configParams.setFlags( eq::ConfigParams::FLAG_MULTIPROCESS );
     Config* config = static_cast<Config*>(server->chooseConfig( configParams ));
 
     if( !config )

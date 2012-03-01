@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,14 +18,14 @@
 #ifndef CO_BUFFER_CONNECTION_H
 #define CO_BUFFER_CONNECTION_H
 
-#include <co/connection.h>   // base class
-#include <co/base/buffer.h>      // member
+#include <co/connection.h>  // base class
+#include <co/base/types.h>
 
 namespace co
 {
-    /**
-     * A proxy connection buffering outgoing data into a memory region.
-     */
+namespace detail { class BufferConnection; }
+
+    /** A proxy connection buffering outgoing data into a memory buffer. */
     class BufferConnection : public Connection
     {
     public:
@@ -33,21 +33,18 @@ namespace co
         CO_API virtual ~BufferConnection();
 
         CO_API void sendBuffer( ConnectionPtr connection );
-
-        uint64_t getSize() const { return _buffer.getSize(); }
+        CO_API uint64_t getSize() const;
 
     protected:
-        virtual void readNB( void*, const uint64_t )
-            { EQDONTCALL; }
+        virtual void readNB( void*, const uint64_t ) { EQDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
             { EQDONTCALL; return -1; }
-        CO_API virtual int64_t write( const void* buffer,
-                                         const uint64_t bytes );
+        CO_API virtual int64_t write( const void* buffer, const uint64_t bytes);
 
         virtual Notifier getNotifier() const { EQDONTCALL; return 0; }
 
     private:
-        mutable base::Bufferb _buffer;
+        detail::BufferConnection* const _impl;
     };
 }
 

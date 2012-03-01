@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -199,16 +199,30 @@ namespace server
         void flush();
 
         /**
-         * Read back a set of images according to the current frame data.
+         * Read back an image.
          * 
-         * The images are added to the data, existing images are retained.
+         * The image is added to the data, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( ObjectManager* glObjects,
                               const DrawableConfig& config );
+
+        /**
+         * Read back a set of images.
+         * 
+         * The images are added to the data, existing images are retained.
+         *
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @version 1.0
+         */
+        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+                              const DrawableConfig& config,
+                              const PixelViewports& regions );
 
         /**
          * Set the frame ready.
@@ -248,11 +262,11 @@ namespace server
         void removeListener( co::base::Monitor<uint32_t>& listener );
         //@}
 
-        /** @internal @return list of receiving eq::Node IDs of an output frame */
+        /** @internal @return the receiving eq::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
         { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
 
-        /** @internal @return list of receiving co::Node IDs of an output frame */
+        /** @internal @return the receiving co::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
         { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
 

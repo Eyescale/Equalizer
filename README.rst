@@ -28,7 +28,9 @@
 ---------------
 
 Welcome to Equalizer, the standard middleware to create and deploy parallel,
-scalable OpenGL applications. This release TBD
+scalable OpenGL applications. This release introduces major new features,
+most notably automatic configuration, the Sequel library, runtime reliability
+and tile compounds.
 
 Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
 years of development and decades of experience into a feature-rich, high-
@@ -171,6 +173,11 @@ following:
 -   `56`_: Parsing configuration files is locale-dependent and fails in
     some locales
 -   `66`_: Assertion when using the server for more than one session
+-   `73`_: Missing space mouse support on Windows
+-   `82`_: Excessive memory usage with object push
+-   `87`_: Debian packages broken
+-   `88`_: draw_sync thread model causes full synchronization
+-   `90`_: Race condition with direct send and higher number of nodes
 
 
 2.9. Known Bugs
@@ -205,7 +212,7 @@ when available. Version 1.2 has been tested on:
 Equalizer uses CMake to create a platform-specific build environment. The
 following platforms and build environments are tested:
 
--   **Linux:** Ubuntu 10.04, 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)
+-   **Linux:** Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)
 -   **Windows:** XP and 7 (Visual Studio 2008, i386, x64)
 -   **Mac OS X:** 10.6, 10.7 (Makefile, XCode, i386, x64)
 
@@ -222,7 +229,7 @@ following platforms and build environments are tested:
 ~~~~~~~~~~~~~~~~~~
 
 The Programming and User Guide is available as a `hard-copy`_ and `online`_.
-`API documentation`_ can be found on the Equalizer website.
+The `API documentation`_ can be found on the Equalizer website.
 
 As with any open source project, the available source code, in particular the
 shipped `examples`_ provide a reference for developing or porting
@@ -288,6 +295,11 @@ information.
 .. _45: https://github.com/Eyescale/Equalizer/issues/45
 .. _56: https://github.com/Eyescale/Equalizer/issues/56
 .. _66: https://github.com/Eyescale/Equalizer/issues/66
+.. _73: https://github.com/Eyescale/Equalizer/issues/73
+.. _82: https://github.com/Eyescale/Equalizer/issues/82
+.. _87: https://github.com/Eyescale/Equalizer/issues/87
+.. _88: https://github.com/Eyescale/Equalizer/issues/88
+.. _90: https://github.com/Eyescale/Equalizer/issues/90
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
 .. _65: https://github.com/Eyescale/Equalizer/issues/65
 .. _61: https://github.com/Eyescale/Equalizer/issues/61
@@ -296,19 +308,19 @@ information.
 .. _19: https://github.com/Eyescale/Equalizer/issues/19
 .. _18: https://github.com/Eyescale/Equalizer/issues/18
 .. _17: https://github.com/Eyescale/Equalizer/issues/17
-.. _compatibility matrix:
+.. _compatibility   matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
 .. _hard-copy: http://www.lulu.com/product/paperback/equalizer-10
     -programming-and-user-guide/15165632
 .. _online: http://www.equalizergraphics.com/survey.html
-.. _API   documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-1.0/index.html
+.. _API     documentation:
+    http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
 .. _examples: https://github.com/Eyescale/Equalizer/tree/1.2/examples
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
 .. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev
-    eloper/API-1.0/ch.eyescale.Equalizer.docset.zip
+    eloper/API-1.2/ch.eyescale.Equalizer.docset.zip
 .. _     Developer Mailing List: http://www.equalizergraphics.com/cgi-
     bin/mailman/listinfo/eq-dev
 .. _     info@equalizergraphics.com:

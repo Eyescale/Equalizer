@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,25 +19,13 @@
 #define CO_CONNECTION_SET_H
 
 #include <co/connectionListener.h> // base class
-
-#include <co/base/buffer.h> // member
-#include <co/base/refPtr.h> // member
 #include <co/base/thread.h> // for EQ_TS_VAR
-
-#ifndef _WIN32
-#  include <poll.h>
-#endif
 
 namespace co
 {
-    class EventConnection;
-    class ConnectionSetThread;
+namespace detail { class ConnectionSet; }
 
-    /**
-     * A set of connections. 
-     *
-     * From the set, a connection with pending events can be selected.
-     */
+    /** Handles events on a set of connections. */
     class ConnectionSet : public ConnectionListener
     {
     public:
@@ -61,10 +49,10 @@ namespace co
         CO_API void addConnection( ConnectionPtr connection );
         CO_API bool removeConnection( ConnectionPtr connection );
         CO_API void clear();
-        size_t getSize()  const { return _connections.size(); }
-        bool   isEmpty() const { return _connections.empty(); }
+        CO_API size_t getSize() const;
+        CO_API bool isEmpty() const;
 
-        const Connections& getConnections() const{ return _allConnections; }
+        CO_API const Connections& getConnections() const;
 
         /** 
          * Selects a Connection which is ready for I/O.
@@ -86,73 +74,24 @@ namespace co
         /** @internal Trigger rebuilding of internal caches. */
         void setDirty();
 
-        int           getError()     { return _error; }
-        ConnectionPtr getConnection(){ return _connection; }
+        CO_API int getError() const;
+        CO_API ConnectionPtr getConnection();
 
     private:
- 
-#ifdef _WIN32
-        typedef ConnectionSetThread Thread;
-        typedef std::vector< ConnectionSetThread* > Threads;
-        /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
-        Threads _threads;
-
-        /** Result thread. */
-        Thread* _thread;
-
-        union Result
-        {
-            Connection* connection;
-            Thread* thread;
-        };
-
-#else
-        union Result
-        {
-            Connection* connection;
-        };
-#endif
-
-        /** Mutex protecting changes to the set. */
-        base::Lock _mutex;
-
-        /** The connections of this set */
-        Connections _allConnections;
-
-        /** The connections to handle */
-        Connections _connections;
-
-        // Note: std::vector had to much overhead here
-#ifdef _WIN32
-        base::Buffer< HANDLE > _fdSet;
-#else
-        base::Buffer< pollfd > _fdSetCopy; // 'const' set
-        base::Buffer< pollfd > _fdSet;     // copy of _fdSetCopy used to poll
-#endif
-        base::Buffer< Result > _fdSetResult;
-
-        /** The connection to reset a running select, see constructor. */
-        base::RefPtr< EventConnection > _selfConnection;
-
-        // result values
-        ConnectionPtr _connection;
-        int           _error;
-
-        /** FD sets need rebuild. */
-        bool _dirty;
+        detail::ConnectionSet* const _impl;
 
         bool _setupFDSet();
         bool _buildFDSet();
-        virtual void notifyStateChanged( Connection* ) { _dirty = true; }
+        virtual void notifyStateChanged( Connection* );
 
         Event _getSelectResult( const uint32_t index );
         EQ_TS_VAR( _selectThread );
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, 
-                                          const ConnectionSet* set );
+                                       const ConnectionSet* set );
     CO_API std::ostream& operator << ( std::ostream& os, 
-                                          const ConnectionSet::Event event );
+                                       const ConnectionSet::Event event );
 }
 
 #endif // CO_CONNECTION_SET_H

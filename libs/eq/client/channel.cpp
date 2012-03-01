@@ -321,7 +321,8 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERT( _impl->statistics.data[ index ].used > 0 );
+        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
+                      frameNumber );
 
         co::base::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -336,7 +337,7 @@ void Channel::addStatistic( Event& event )
 
 void Channel::frameClear( const uint128_t& )
 {
-    resetRegion();
+    resetRegions();
     EQ_GL_CALL( applyBuffer( ));
     EQ_GL_CALL( applyViewport( ));
 
@@ -393,37 +394,15 @@ void Channel::frameReadback( const uint128_t& )
     EQ_GL_CALL( applyViewport( ));
     EQ_GL_CALL( setupAssemblyState( ));
 
-    Window::ObjectManager* glObjects = getObjectManager();
-    const DrawableConfig& drawable = getDrawableConfig();
-    const Frames& frames = getOutputFrames();
+    Window::ObjectManager*  glObjects   = getObjectManager();
+    const DrawableConfig&   drawable    = getDrawableConfig();
+    const Frames&           frames      = getOutputFrames();
+    const PixelViewports&   regions     = getRegions();
 
     for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        eq::FrameData* data = frame->getData();
-
-        if( data->getType() == eq::Frame::TYPE_TEXTURE )
-            frame->readback( glObjects, drawable );
-        else
-        {
-            // ROI readback
-            EQASSERT( data->getType() == eq::Frame::TYPE_MEMORY );
-            const eq::PixelViewport& framePVP = data->getPixelViewport();
-            eq::PixelViewport area = framePVP + frame->getOffset();
-
-            area.intersect( region );
-            if( !area.hasArea( ))
-                continue;
-
-            eq::Image* image = data->newImage( data->getType(), drawable );
-            image->readback( data->getBuffers(), area, frame->getZoom(),
-                             glObjects );
-
-            const eq::Pixel& pixel = getPixel();
-            area -= frame->getOffset();
-            image->setOffset( (area.x - framePVP.x) * pixel.w,
-                              (area.y - framePVP.y) * pixel.h );
-        }
+        frame->readback( glObjects, drawable, regions );
     }
 
     EQ_GL_CALL( resetAssemblyState( ));
@@ -435,7 +414,7 @@ void Channel::releaseFrameLocal( const uint32_t ) { /* nop */ }
 
 void Channel::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
-    resetRegion();
+    resetRegions();
     startFrame( frameNumber );
 }
 void Channel::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
@@ -747,9 +726,9 @@ const Frames& Channel::getOutputFrames()
 
 const Vector3ub& Channel::getUniqueColor() const { return _impl->color; }
 
-void Channel::resetRegion()
+void Channel::resetRegions()
 {
-    _impl->region.invalidate();
+    _impl->regions.clear();
 }
 
 void Channel::declareRegion( const eq::Viewport& vp )
@@ -762,27 +741,98 @@ void Channel::declareRegion( const eq::Viewport& vp )
     declareRegion( region );
 }
 
-void Channel::declareRegion( const eq::PixelViewport& region )
+namespace
 {
-    if( region.hasArea( ))
-    {
-        _impl->region.merge( region );
-        
-        eq::PixelViewport pvp = getPixelViewport();
-        pvp.x = 0;
-        pvp.y = 0;
-        _impl->region.intersect( pvp );
-    }
-    else if( !_impl->region.isValid( )) // set on first declaration of empty ROI
-    {
-        _impl->region.w = 0;
-        _impl->region.h = 0;
-    }
+
+bool _hasOverlap( PixelViewports& regions )
+{
+    if( regions.size() < 2 )
+        return false;
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pv = regions[j];
+            pv.intersect( regions[i] );
+            if( pv.hasArea( ))
+                return true;
+        }
+    return false;
 }
 
-const PixelViewport& Channel::getRegion() const
+/** Remove overlapping regions by merging them */
+bool _removeOverlap( PixelViewports& regions )
 {
-    return _impl->region;
+    if( regions.size() < 2 )
+        return false;
+
+    for( size_t i = 0; i < regions.size()-1; ++i )
+        for( size_t j = i+1; j < regions.size(); ++j )
+        {
+            PixelViewport pvp = regions[i];
+            if( !pvp.hasArea( ))
+            {
+                std::swap( regions[i], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+
+            pvp.intersect( regions[j] );
+            if( pvp.hasArea( ))
+            {
+                regions[i].merge( regions[j] );
+                std::swap( regions[j], regions.back() );
+                regions.pop_back();
+                return true;
+            }
+        }
+    return false;
+}
+}
+
+void Channel::declareRegion( const PixelViewport& region )
+{
+    PixelViewports& regions = _impl->regions;
+
+    PixelViewport clippedRegion = region;
+    PixelViewport pvp = getPixelViewport();
+    pvp.x = 0;
+    pvp.y = 0;
+
+    clippedRegion.intersect( pvp );
+
+    if( clippedRegion.hasArea( ))
+    {
+        regions.push_back( clippedRegion );
+#ifdef NDEBUG
+        const PixelViewport pvpBefore = getRegion();
+#endif
+        while( _removeOverlap( regions )) /* nop */ ;
+
+#ifdef NDEBUG
+        EQASSERT( !_hasOverlap( regions ));
+        EQASSERT( pvpBefore == getRegion( ));
+#endif
+        return;
+    }
+
+    if( regions.empty( )) // set on first declaration of empty ROI
+        regions.push_back( PixelViewport( 0, 0, 0, 0 ));
+}
+
+
+PixelViewport Channel::getRegion() const
+{
+    PixelViewport region;
+    for( size_t i = 0; i < _impl->regions.size(); ++i )
+        region.merge( _impl->regions[i] );
+
+    return region;
+}
+
+const PixelViewports& Channel::getRegions() const
+{
+    return _impl->regions;
 }
 
 bool Channel::processEvent( const Event& event )
@@ -880,7 +930,7 @@ void Channel::drawStatistics()
 
     glMatrixMode( GL_MODELVIEW );
     glDisable( GL_LIGHTING );
-    
+
     Window* window = getWindow();
     const Window::Font* font = window->getSmallFont();
 
@@ -1098,6 +1148,9 @@ void Channel::drawStatistics()
         dim += .1f;
     }
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
+
     //----- Entitity names
     for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
          i != entities.end(); ++i )
@@ -1158,6 +1211,7 @@ void Channel::drawStatistics()
     glRasterPos3f( x+1.f, nextY-12.f, 0.f );
     glColor3f( 1.f, 1.f, 1.f );
     font->draw( "channel" );
+    glDisable( GL_COLOR_LOGIC_OP );
 
     for( size_t i = 1; i < Statistic::CONFIG_START_FRAME; ++i )
     {
@@ -1184,7 +1238,9 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
+            glEnable( GL_COLOR_LOGIC_OP );
             font->draw( "window" );
+            glDisable( GL_COLOR_LOGIC_OP );
             break;
 
           case Statistic::NODE_FRAME_DECOMPRESS:
@@ -1193,7 +1249,9 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
+            glEnable( GL_COLOR_LOGIC_OP );
             font->draw( "node" );
+            glDisable( GL_COLOR_LOGIC_OP );
             break;
 
           default:
@@ -1243,6 +1301,114 @@ void Channel::outlineViewport()
     resetAssemblyState();
 }
 
+void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
+{
+    RenderContext context = packet->context;
+    _setRenderContext( context );
+
+    frameTilesStart( packet->context.frameID );
+
+    if( packet->tasks & fabric::TASK_READBACK )
+        _setOutputFrames( packet->nFrames, packet->frames );
+
+    int64_t startTime = getConfig()->getTime();
+    int64_t clearTime = 0;
+    int64_t drawTime = 0;
+    int64_t readbackTime = 0;
+
+    co::QueueSlave* queue = _getQueue( packet->queueVersion );
+    EQASSERT( queue );
+    for( co::Command* queuePacket = queue->pop(); queuePacket;
+         queuePacket = queue->pop( ))
+    {
+        const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
+        context.frustum = tilePacket->frustum;
+        context.ortho = tilePacket->ortho;
+        context.pvp = tilePacket->pvp;
+        context.vp = tilePacket->vp;
+
+        if ( !packet->isLocal )
+        {
+            context.pvp.x = 0;
+            context.pvp.y = 0;
+        }
+
+        if( packet->tasks & fabric::TASK_CLEAR )
+        {
+            const int64_t time = getConfig()->getTime();
+            frameClear( packet->context.frameID );
+            clearTime += getConfig()->getTime() - time;
+        }
+
+        if( packet->tasks & fabric::TASK_DRAW )
+        {
+            const int64_t time = getConfig()->getTime();
+            frameDraw( packet->context.frameID );
+            drawTime += getConfig()->getTime() - time;
+        }
+
+        if( packet->tasks & fabric::TASK_READBACK )
+        {
+            const int64_t time = getConfig()->getTime();
+
+            const Frames& frames = getOutputFrames();
+            const size_t nFrames = frames.size();
+            std::vector< size_t > nImages( nFrames, 0 );
+            for( size_t i = 0; i < nFrames; ++i )
+            {
+                nImages[i] = frames[i]->getImages().size();
+                frames[i]->getData()->setPixelViewport( getPixelViewport() );
+            }
+            frameReadback( packet->context.frameID );
+            readbackTime += getConfig()->getTime() - time;
+
+            for( size_t i = 0; i < nFrames; ++i )
+            {
+                const Frame* frame = frames[i];
+                const Images& images = frame->getImages();
+                for( size_t j = nImages[i]; j < images.size(); ++j )
+                {
+                    Image* image = images[j];
+                    const PixelViewport& pvp = image->getPixelViewport();
+                    image->setOffset( pvp.x + tilePacket->pvp.x,
+                                      pvp.y + tilePacket->pvp.y );
+                }
+                _transmitImages( getContext(), frames[i], nImages[i] );
+            }
+        }
+        queuePacket->release();
+    }
+
+    if( packet->tasks & fabric::TASK_CLEAR )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += clearTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_DRAW )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += drawTime;
+        event.event.data.statistic.endTime = startTime;
+    }
+
+    if( packet->tasks & fabric::TASK_READBACK )
+    {
+        ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
+        event.event.data.statistic.startTime = startTime;
+        startTime += readbackTime;
+        event.event.data.statistic.endTime = startTime;
+
+        _resetOutputFrames();
+    }
+
+    frameTilesFinish( packet->context.frameID );
+    resetRenderContext();
+}
+
 void Channel::_unrefFrame( const uint32_t frameNumber )
 {
     const size_t index = frameNumber % _impl->statistics->size();
@@ -1264,7 +1430,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 void Channel::_transmitImage( Image* image,
                               const ChannelFrameTransmitImagePacket* request )
 {
-    if ( image->getStorageType() == Frame::TYPE_TEXTURE )
+    if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
@@ -1306,14 +1472,12 @@ void Channel::_transmitImage( Image* image,
     {
         uint64_t rawSize( 0 );
         ChannelStatistics compressEvent( Statistic::CHANNEL_FRAME_COMPRESS, 
-                                         this, request->frameNumber );
+                                         this, request->frameNumber,
+                                         useCompression ? AUTO : OFF );
         compressEvent.event.data.statistic.task = request->context.taskID;
         compressEvent.event.data.statistic.ratio = 1.0f;
         compressEvent.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
         compressEvent.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-
-        if( !useCompression ) // don't send event
-            compressEvent.event.data.statistic.frameNumber = 0;
 
         // Prepare image pixel data
         Frame::Buffer buffers[] = {Frame::BUFFER_COLOR,Frame::BUFFER_DEPTH};
@@ -1431,7 +1595,7 @@ void Channel::_transmitImage( Image* image,
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
+void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
 {
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( req->netNodeID );
@@ -1445,6 +1609,8 @@ void Channel::_sendFrameDataReady( const ChannelFrameTransmitImagePacket* req )
 void Channel::_transmitImages( const RenderContext& context, Frame* frame,
                                const size_t startPos )
 {
+    EQ_TS_THREAD( _pipeThread );
+
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
     if( toNodes.empty( ))
@@ -1470,7 +1636,8 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
     }
 }
 
-void Channel::_setOutputFrames( uint32_t nFrames, co::ObjectVersion* frames )
+void Channel::_setOutputFrames( const uint32_t nFrames,
+                                const co::ObjectVersion* frames )
 {
     EQ_TS_THREAD( _pipeThread );
     for( uint32_t i=0; i<nFrames; ++i )
@@ -1493,7 +1660,7 @@ void Channel::_setOutputFramesReady()
     for( FramesCIter i = _impl->outputFrames.begin();
          i != _impl->outputFrames.end(); ++i )
     {
-        Frame* frame = *i;    
+        Frame* frame = *i;
         frame->setReady();
 
         const Eye eye = getEye();
@@ -1571,7 +1738,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     for( size_t i = 0; i < nFrames; ++i )
         _transmitImages( getContext(), _impl->outputFrames[i], nImages[i] );
-    _resetOutputFrames();    
+    _resetOutputFrames();
 }
 
 //---------------------------------------------------------------------------
@@ -1649,8 +1816,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
+    EQASSERTINFO( statistic.used == 0, packet->frameNumber );
     EQASSERT( statistic.data.empty( ));
-    EQASSERT( statistic.used == 0 );
     statistic.used = 1;
 
     resetRenderContext();
@@ -1699,9 +1866,8 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
                              packet->finish ? NICEST : AUTO );
     frameDraw( packet->context.frameID );
-
     // Update ROI for server equalizers
-    if( !_impl->region.isValid( ))
+    if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
     const uint32_t frameNumber = getCurrentFrame();
     const size_t index = frameNumber % _impl->statistics->size();
@@ -1760,8 +1926,8 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " " 
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                      << packet << std::endl;
 
     _setRenderContext( packet->context );
     _frameReadback( packet->context.frameID, packet->nFrames,
@@ -1784,9 +1950,9 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
         return true;
     }
 
-    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this );
+    ChannelStatistics transmitEvent( Statistic::CHANNEL_FRAME_TRANSMIT, this,
+                                     packet->frameNumber );
     transmitEvent.event.data.statistic.task = packet->context.taskID;
-
     const Images& images = frameData->getImages();
     EQASSERT( images.size() > packet->imageIndex );
     _transmitImage( images[ packet->imageIndex ], packet );
@@ -1847,114 +2013,11 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel frame tiles "
-                                      << getName() <<  " " << packet
-                                      << std::endl;
+    EQLOG( LOG_TASKS | LOG_ASSEMBLY )
+        << "TASK channel frame tiles " << getName() <<  " " << packet
+        << std::endl;
 
-    RenderContext context = packet->context;
-    _setRenderContext( context );
-
-    frameTilesStart( packet->context.frameID );
-
-    if( packet->tasks & fabric::TASK_READBACK )
-        _setOutputFrames( packet->nFrames, packet->frames );
-
-    int64_t startTime = getConfig()->getTime();
-    int64_t clearTime = 0;
-    int64_t drawTime = 0;
-    int64_t readbackTime = 0;
-
-    co::QueueSlave* queue = _getQueue( packet->queueVersion );
-    EQASSERT( queue );
-    for( co::Command* queuePacket = queue->pop(); queuePacket;
-         queuePacket = queue->pop( ))
-    {
-        const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
-        context.frustum = tilePacket->frustum;
-        context.ortho = tilePacket->ortho;
-        context.pvp = tilePacket->pvp;
-        context.vp = tilePacket->vp;
-
-        if ( !packet->isLocal )
-        {
-            context.pvp.x = 0;
-            context.pvp.y = 0;
-        }
-
-        if( packet->tasks & fabric::TASK_CLEAR )
-        {
-            const int64_t time = getConfig()->getTime();
-            frameClear( packet->context.frameID );
-            clearTime += getConfig()->getTime() - time;
-        }
-
-        if( packet->tasks & fabric::TASK_DRAW )
-        {
-            const int64_t time = getConfig()->getTime();
-            frameDraw( packet->context.frameID );
-            drawTime += getConfig()->getTime() - time;
-        }
-
-        if( packet->tasks & fabric::TASK_READBACK )
-        {
-            const int64_t time = getConfig()->getTime();
-
-            const Frames& frames = getOutputFrames();
-            const size_t nFrames = frames.size();
-            std::vector< size_t > nImages( nFrames, 0 );
-            for( size_t i = 0; i < nFrames; ++i )
-            {
-                nImages[i] = frames[i]->getImages().size();
-                frames[i]->getData()->setPixelViewport( getPixelViewport() );
-            }
-            frameReadback( packet->context.frameID );
-            readbackTime += getConfig()->getTime() - time;
-
-            for( size_t i = 0; i < nFrames; ++i )
-            {
-                const Frame* frame = frames[i];
-                const Images& images = frame->getImages();
-                for( size_t index = nImages[i]; index < images.size(); ++index )
-                {
-                    Image* image = images[index];
-                    const PixelViewport& pvp = image->getPixelViewport();
-                    image->setOffset( pvp.x + tilePacket->pvp.x,
-                                      pvp.y + tilePacket->pvp.y );
-                }
-                _transmitImages( getContext(), frames[i], nImages[i] );
-            }
-        }
-        queuePacket->release();
-    }
-
-    if( packet->tasks & fabric::TASK_CLEAR )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += clearTime;
-        event.event.data.statistic.endTime = startTime;
-    }
-
-    if( packet->tasks & fabric::TASK_DRAW )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_DRAW, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += drawTime;
-        event.event.data.statistic.endTime = startTime;
-    }
-
-    if( packet->tasks & fabric::TASK_READBACK )
-    {
-        ChannelStatistics event( Statistic::CHANNEL_READBACK, this );
-        event.event.data.statistic.startTime = startTime;
-        startTime += readbackTime;
-        event.event.data.statistic.endTime = startTime;
-
-        _resetOutputFrames();
-    }
-
-    frameTilesFinish( packet->context.frameID );
-    resetRenderContext();
+    _frameTiles( packet );
     return true;
 }
 

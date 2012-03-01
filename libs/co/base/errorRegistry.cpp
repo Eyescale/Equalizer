@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,7 @@
 
 #include "debug.h"
 #include "error.h"
+#include "stdExt.h"
 
 namespace co 
 {
@@ -27,17 +28,33 @@ namespace base
 namespace
 {
 static std::string _empty;
+typedef stde::hash_map< uint32_t, std::string > ErrorHash;
+}
+
+namespace detail
+{
+class ErrorRegistry
+{
+public:
+    ErrorHash errors;
+};
 }
 
 ErrorRegistry::ErrorRegistry()
+        : _impl( new detail::ErrorRegistry )
 {
-    _errors[ ERROR_NONE ] = "no error";
+    _impl->errors[ ERROR_NONE ] = "no error";
+}
+
+ErrorRegistry::~ErrorRegistry()
+{
+    delete _impl;
 }
 
 const std::string& ErrorRegistry::getString( const uint32_t error ) const
 {
-    ErrorHash::const_iterator i = _errors.find( error );
-    if( i == _errors.end( ))
+    ErrorHash::const_iterator i = _impl->errors.find( error );
+    if( i == _impl->errors.end( ))
         return _empty;
 
     return i->second;
@@ -46,12 +63,17 @@ const std::string& ErrorRegistry::getString( const uint32_t error ) const
 
 void ErrorRegistry::setString( const uint32_t error, const std::string& text )
 {
-    _errors[ error ] = text;
+    _impl->errors[ error ] = text;
 }
 
 void ErrorRegistry::eraseString( const uint32_t error )
 {
-    _errors.erase( error );
+    _impl->errors.erase( error );
+}
+
+bool ErrorRegistry::isEmpty() const
+{
+    return _impl->errors.empty();
 }
 
 }

@@ -116,8 +116,9 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
         }
 
         // bounding sphere view frustum culling
-        const vmml::Visibility visibility =
-            culler.test_sphere( treeNode->getBoundingSphere( ));
+        const vmml::Visibility visibility = state.useFrustumCulling() ?
+                            culler.test_sphere( treeNode->getBoundingSphere( )) :
+                            vmml::VISIBILITY_FULL;
         switch( visibility )
         {
             case vmml::VISIBILITY_FULL:
@@ -376,7 +377,6 @@ bool VertexBufferRoot::_readBinary( std::string filename )
     return result;
 #endif
 }
-
 
 /*  Read binary kd-tree representation, construct from ply if unavailable.  */
 bool VertexBufferRoot::readFromFile( const std::string& filename )
