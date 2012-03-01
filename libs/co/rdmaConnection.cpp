@@ -87,10 +87,9 @@ struct RDMAMessage
     uint8_t length;
     union
     {
-        uint8_t offsetof_placeholder;
         struct RDMASetupPayload setup;
         struct RDMAFCPayload fc;
-    };
+    } payload;
 };
 
 /**
@@ -1156,10 +1155,10 @@ void RDMAConnection::_handleMessage( RDMAMessage &message )
     switch( message.opcode )
     {
         case SETUP:
-            _handleSetup( message.setup );
+            _handleSetup( message.payload.setup );
             break;
         case FC:
-            _handleFC( message.fc );
+            _handleFC( message.payload.fc );
             break;
     }
 }
@@ -1204,7 +1203,7 @@ bool RDMAConnection::_postSendMessage( RDMAMessage &message )
     struct ibv_sge sge;
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
-    sge.length = (uint64_t)( offsetof( RDMAMessage, offsetof_placeholder ) +
+    sge.length = (uint64_t)( offsetof( RDMAMessage, payload ) +
         message.length );
     sge.lkey = _msgbuf.getMR( )->lkey;
 
@@ -1234,7 +1233,7 @@ bool RDMAConnection::_postSendSetup( )
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
     message.opcode = SETUP;
     message.length = sizeof(struct RDMASetupPayload);
-    _fillSetup( message.setup );
+    _fillSetup( message.payload.setup );
 
     return _postSendMessage( message );
 }
@@ -1252,7 +1251,7 @@ bool RDMAConnection::_postSendFC( )
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
     message.opcode = FC;
     message.length = sizeof(struct RDMAFCPayload);
-    _fillFC( message.fc );
+    _fillFC( message.payload.fc );
 
     return _postSendMessage( message );
 }
