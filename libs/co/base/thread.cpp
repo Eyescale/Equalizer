@@ -397,7 +397,7 @@ void Thread::setAffinity(const int32_t affinity)
     hwloc_topology_init( &topology ); // Allocate & initialize the topology
     hwloc_topology_load( topology );  // Perform HW topology detection
     const hwloc_bitmap_t cpuSet = _getCpuSet( affinity, topology );
-    const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, 0);
+    const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, HWLOC_CPUBIND_THREAD);
 
     char* cpuSetString;
     hwloc_cpuset_asprintf(&cpuSetString, cpuSet);
