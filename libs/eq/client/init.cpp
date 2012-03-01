@@ -177,11 +177,6 @@ void _parseArguments( const int argc, char** argv )
         }
     }
 }
-    
-void setAppNodeConfig()
-{
-
-}
 
 
 void _initPlugins()

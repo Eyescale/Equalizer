@@ -54,6 +54,10 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdStopRcv ), 0 );
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
+    registerCommand( CMD_NODE_SET_AFFINITY_RCV,
+                     CmdFunc( this, &LocalNode::_cmdSetAffinityRcv ), 0);
+    registerCommand( CMD_NODE_SET_AFFINITY_CMD,
+                     CmdFunc( this, &LocalNode::_cmdSetAffinityCmd ), queue);
     registerCommand( CMD_NODE_CONNECT,
                     CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -1203,6 +1207,46 @@ bool LocalNode::_cmdStopCmd( Command& command )
     EQINFO << "Cmd stop command " << this << std::endl;
 
     _state = STATE_CLOSED;
+    return true;
+}
+
+void LocalNode::setAffinityMask(const int32_t affinityMask)
+{
+    NodeAffintyMaskPacket packet;
+
+    // Set the affinity mask before sending the packet
+    packet.affintyMask = affinityMask;
+    packet.command = CMD_NODE_SET_AFFINITY_RCV;
+
+    // Send it
+    send( packet );
+
+    packet.command = CMD_NODE_SET_AFFINITY_CMD;
+    send( packet );
+}
+
+bool LocalNode::_cmdSetAffinityRcv( Command& command )
+{
+    // Thread safety
+    EQ_TS_THREAD( _rcvThread );
+
+    // The received packet of type NodeAffintyMaskPacket
+    const NodeAffintyMaskPacket* packet = command.get< NodeAffintyMaskPacket > ();
+
+    // Getting the affinity mask from the packet
+    _receiverThread->setAffinity(packet->affintyMask);
+    return true;
+}
+
+bool LocalNode::_cmdSetAffinityCmd( Command& command )
+{
+    // Thread safety
+    EQ_TS_THREAD( _cmdThread );
+
+    const NodeAffintyMaskPacket* packet = command.get< NodeAffintyMaskPacket > ();
+
+    // Changing the command to the CMD_NODE_SET_AFFINITY_CMD
+    _commandThread->setAffinity(packet->affintyMask);
     return true;
 }
 

@@ -1,4 +1,4 @@
-Adding thread placement for client receive and command threads
+Modefying the manual thread placement to the receiver and command threads of the local node
  
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

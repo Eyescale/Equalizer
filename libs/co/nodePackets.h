@@ -36,6 +36,18 @@ namespace co
             }
     };
 
+    // Packet sent to  the node with the affinity mask value
+    struct NodeAffintyMaskPacket : public NodePacket
+    {
+      	NodeAffintyMaskPacket()
+	    {
+                command = CMD_NODE_SET_AFFINITY_RCV;
+                size = sizeof(NodeAffintyMaskPacket);
+            }
+
+        int32_t affintyMask;
+    };
+
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket( const LocalNodePtr node )

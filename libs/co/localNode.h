@@ -380,17 +380,8 @@ namespace co
          */
         CO_API bool pingIdleNodes();
 
-        /* @internal Returns the receiver thread. */
-        co::base::Thread* getReceiverThread()
-        {
-            return _receiverThread;
-        }
-
-        /* @internal Returns the command thread. */
-        co::base::Thread* getCommandThread()
-        {
-          return _commandThread;
-        }
+        /** Sets the affinity mask for the packet that will be sent */
+        void setAffinityMask(const int32_t affinityMask);
 
     protected:
         /** 
@@ -523,6 +514,8 @@ namespace co
         bool _cmdAckRequest( Command& packet );
         bool _cmdStopRcv( Command& command );
         bool _cmdStopCmd( Command& command );
+        bool _cmdSetAffinityRcv( Command& command );
+        bool _cmdSetAffinityCmd( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );
