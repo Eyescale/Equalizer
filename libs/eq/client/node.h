@@ -285,6 +285,8 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
+        void _setAffinity();
+
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint128_t& frameID,
                            const uint32_t frameNumber );

@@ -168,6 +168,10 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdStopRcv ), 0 );
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
+    registerCommand( CMD_NODE_SET_AFFINITY_RCV,
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0);
+    registerCommand( CMD_NODE_SET_AFFINITY_CMD,
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue);
     registerCommand( CMD_NODE_CONNECT,
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -346,6 +350,18 @@ bool LocalNode::close()
     EQASSERTINFO( !hasPendingRequests(),
                   *static_cast< base::RequestHandler* >( this ));
     return true;
+}
+
+void LocalNode::setAffinity(const int32_t affinityMask)
+{
+    NodeAffinityPacket packet;
+    packet.affinity = affinityMask;
+
+    // Send it
+    send( packet );
+
+    packet.command = CMD_NODE_SET_AFFINITY_CMD;
+    send( packet );
 }
 
 ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
@@ -1329,6 +1345,14 @@ bool LocalNode::_cmdStopCmd( Command& command )
     EQINFO << "Cmd stop command " << this << std::endl;
 
     _state = STATE_CLOSED;
+    return true;
+}
+
+bool LocalNode::_cmdSetAffinity( Command& command )
+{
+    const NodeAffinityPacket* packet = command.get< NodeAffinityPacket >();
+
+    base::Thread::setAffinity( packet->affinity );
     return true;
 }
 

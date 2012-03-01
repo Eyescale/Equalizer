@@ -1,9 +1,8 @@
-Fix unit test
-
+Modefying the manual thread placement to the receiver and command threads of the local node (2)
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[x] Bugfix
-[ ] New Feature
-[ ] Cleanup
+[ ] Bugfix
+[x] New Feature
+[x] Cleanup
 [ ] Optimization
 [ ] Documentation

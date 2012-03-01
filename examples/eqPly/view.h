@@ -65,10 +65,8 @@ namespace eqPly
                 DIRTY_IDLE  = co::Serializable::DIRTY_CUSTOM << 1
             };
 
-            virtual void serialize( co::DataOStream& os,
-                                    const uint64_t dirtyBits );
-            virtual void deserialize( co::DataIStream& is, 
-                                      const uint64_t dirtyBits );
+            virtual void serialize( co::DataOStream&, const uint64_t );
+            virtual void deserialize( co::DataIStream&, const uint64_t );
             virtual void notifyNewVersion() { sync(); }
 
         private:
