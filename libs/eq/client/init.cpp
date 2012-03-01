@@ -196,7 +196,6 @@ void _parseArguments( const int argc, char** argv )
     }
 }
 
-
 void _initPlugins()
 {
     co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();

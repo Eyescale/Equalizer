@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -812,9 +812,9 @@ void Node::output( std::ostream& os ) const
             attrPrinted = true;
         }
         
-        os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout " :
-                i== Node::IATTR_THREAD_MODEL   ? "thread_model   " :
-                i== Node::IATTR_HINT_AFFINITY  ? "hint_affinity  " :
+        os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
+                i== Node::IATTR_THREAD_MODEL   ? "thread_model         " :
+                i== Node::IATTR_HINT_AFFINITY  ? "hint_affinity        " :
                 "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

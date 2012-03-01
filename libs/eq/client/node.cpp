@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -40,8 +40,6 @@
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/base/scopedMutex.h>
-
-#include <sched.h>
 
 namespace eq
 {
@@ -191,9 +189,9 @@ bool Node::configExit()
     return true;
 }
 
-void Node::_setupAffinity()
+void Node::_setAffinity()
 {
-    const int32_t affinity = getIAttribute(IATTR_HINT_AFFINITY);
+    const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
     ClientPtr client = getClient(); // Client node "LocalNode"
     client->setAffinity( affinity );
 }
@@ -463,13 +461,12 @@ bool Node::_cmdConfigInit( co::Command& command )
     _currentFrame  = packet->frameNumber;
     _unlockedFrame = packet->frameNumber;
     _finishedFrame = packet->frameNumber;
+    _setAffinity();
 
     transmitter.start();
     setError( ERROR_NONE );
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
-
-    _setupAffinity();
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
