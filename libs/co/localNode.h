@@ -367,6 +367,9 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          */
         CO_API bool pingIdleNodes();
 
+        /** Set the affinity for this, the receiver and the command thread. */
+        void setAffinity( const int32_t affinity );
+
     protected:
         /**  @internal
          * Connect a node proxy to this node.
@@ -422,6 +425,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdAckRequest( Command& packet );
         bool _cmdStopRcv( Command& command );
         bool _cmdStopCmd( Command& command );
+        bool _cmdSetAffinity( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );

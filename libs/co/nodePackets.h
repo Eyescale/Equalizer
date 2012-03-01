@@ -36,6 +36,17 @@ namespace co
             }
     };
 
+    struct NodeAffinityPacket : public NodePacket
+    {
+      NodeAffinityPacket()
+	    {
+                command = CMD_NODE_SET_AFFINITY_RCV;
+                size = sizeof(NodeAffinityPacket);
+            }
+
+        int32_t affinity;
+    };
+
     struct NodeConnectPacket : public NodePacket
     {
         NodeConnectPacket( const LocalNodePtr node )

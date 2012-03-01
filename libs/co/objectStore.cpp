@@ -185,12 +185,12 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     for( Nodes::iterator i = nodes.begin(); i != nodes.end(); i++ )
     {
         NodePtr node = *i;
-        EQLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
-                             << std::endl;
-
         NodeFindMasterNodeIDPacket packet;
         packet.requestID = _localNode->registerRequest();
         packet.identifier = identifier;
+
+        EQLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
+                             << " req " << packet.requestID << std::endl;
         node->send( packet );
 
         NodeID masterNodeID = base::UUID::ZERO;
@@ -670,14 +670,11 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
                 if( reply.masterNodeID != base::UUID::ZERO )
                     break;
             }
-    
-            EQLOG( LOG_OBJECTS ) << "Found object " << id << " master:"
-                                 << reply.masterNodeID << std::endl;
         }
-        else
-            EQLOG( LOG_OBJECTS ) << "Object " << id << " unknown" << std::endl;
     }
 
+    EQLOG( LOG_OBJECTS ) << "Object " << id << " master " << reply.masterNodeID
+                         << " req " << reply.requestID << std::endl;
     command.getNode()->send( reply );
     return true;
 }

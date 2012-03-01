@@ -40,6 +40,9 @@
 
 #define IPV6_DEFAULT 0
 
+#define RDMA_PROTOCOL_MAGIC     0xC0
+#define RDMA_PROTOCOL_VERSION   0x02
+
 namespace co
 {
 namespace { static const uint64_t ONE = 1ULL; }
@@ -171,7 +174,10 @@ RDMAConnection::RDMAConnection( )
     , _context( this )
     , _registered( false )
 {
-    EQVERB << (void *)this << ".new" << std::endl;
+    EQVERB << (void *)this << ".new" << std::showbase
+        << std::hex << "(" << RDMA_PROTOCOL_MAGIC
+        << std::dec << ":" << RDMA_PROTOCOL_VERSION << ")"
+        << std::endl;
 
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
@@ -272,6 +278,14 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
+    if(( RDMA_PROTOCOL_MAGIC != _cpd.magic ) ||
+        ( RDMA_PROTOCOL_VERSION != _cpd.version ))
+    {
+        EQERROR << "Protocol mismatch with target : "
+            << _addr << ":" << _serv << std::endl;
+        goto err;
+    }
+
     if( !_eventThreadRegister( ))
     {
         EQERROR << "Failed to register with event thread." << std::endl;
@@ -304,6 +318,9 @@ bool RDMAConnection::connect( )
     return true;
 
 err:
+    EQINFO << "Connection failed to remote address : "
+        << _addr << ":" << _serv << std::endl;
+
     close( );
     return false;
 }
@@ -524,13 +541,17 @@ retry2:
     if( !_postFC( ))
         EQWARN << "Error while posting flow control message." << std::endl;
 
-    // We only want to clear the "readability" of the notifier when we know
-    // we no longer have any data in the buffer and need to be notified
-    // when we receive more.
-    if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
     {
-        EQERROR << "Error while rearming receive channel." << std::endl;
-        goto err;
+        // We only want to clear the "readability" of the notifier when we know
+        // we no longer have any data in the buffer and need to be notified
+        // when we receive more.  Take the poll mutex so another thread in
+        // write() can't take events off the CQ between check and rearm.
+        base::ScopedWrite mutex( _poll_mutex );
+        if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
+        {
+            EQERROR << "Error while rearming receive channel." << std::endl;
+            goto err;
+        }
     }
 
 //    EQWARN << (void *)this << std::dec << ".read(" << bytes << ")"
@@ -696,7 +717,53 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 
     EQASSERT( NULL != _cm_id );
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
+    {
+        // FIXME : RDMA CM appears to send up invalid addresses when receiving
+        // connections that use a different protocol than what was bound.  E.g.
+        // if // an IPv6 listener gets an IPv4 connection then the sa_family
+        // will be AF_INET6 but the actual data is struct sockaddr_in.  Example:
+        //
+        // 0000000: 0a00 bc10 c0a8 b01a 0000 0000 0000 0000  ................
+        //
+        // However, in the reverse case, when an IPv4 listener gets an IPv6
+        // connection not only is the address family incorrect, but the actual
+        // IPv6 address is only partially there:
+        //
+        // 0000000: 0200 bc11 0000 0000 fe80 0000 0000 0000  ................
+        // 0000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        //
+        // Surely seems to be a bug in RDMA CM.
+
+        union
+        {
+            struct sockaddr     addr;
+            struct sockaddr_in  sin;
+            struct sockaddr_in6 sin6;
+            struct sockaddr_storage storage;
+        } sss;
+
+        // Make a copy since we might change it.
+        //sss.storage = _cm_id->route.addr.dst_storage;
+        ::memcpy( (void *)&sss.storage,
+            (const void *)&_cm_id->route.addr.dst_addr,
+            sizeof(struct sockaddr_storage) );
+
+        if(( AF_INET == sss.storage.ss_family ) &&
+                !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
+        {
+            EQWARN << "IPv6 address detected but likely invalid!" << std::endl;
+            sss.storage.ss_family = AF_INET6;
+        }
+        else if(( AF_INET6 == sss.storage.ss_family ) &&
+                ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
+        {
+            sss.storage.ss_family = AF_INET;
+        }
+
+        _updateInfo( &sss.addr );
+    }
 
     _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
@@ -706,6 +773,14 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         << _addr << ":" << _serv
         << " (" << _description->toString( ) << ")"
         << std::endl;
+
+    if(( RDMA_PROTOCOL_MAGIC != _cpd.magic ) ||
+        ( RDMA_PROTOCOL_VERSION != _cpd.version ))
+    {
+        EQERROR << "Protocol mismatch with initiator : "
+            << _addr << ":" << _serv << std::endl;
+        goto err_reject;
+    }
 
     if( !_createEventChannel( ))
     {
@@ -719,6 +794,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err_reject;
     }
 
+    _credits = _cpd.depth;
     if( _credits <= 0L )
     {
         EQERROR << "Invalid (unsent?) queue depth." << std::endl;
@@ -768,12 +844,9 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    EQINFO << "Connection accepted on "
-        << _device_name << ":" << (int)_cm_id->port_num
-        << " from "
-        << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
-        << std::endl;
+    EQVERB << "Connection accepted on " << _device_name << ":" 
+           << (int)_cm_id->port_num << " from " << _addr << ":" << _serv << " ("
+           << _description->toString( ) << ")" << std::endl;
 
     // For a connected instance, the receive completion channel fd will indicate
     // on events such as new incoming data by waking up any polling operation.
@@ -816,8 +889,7 @@ bool RDMAConnection::_lookupAddress( const bool passive )
         service = const_cast< char * >( s.c_str( ));
     }
 
-    if((( NULL != node ) || ( NULL != service )) &&
-            ::rdma_getaddrinfo( node, service, &hints, &_rai ))
+    if(( NULL != node ) && ::rdma_getaddrinfo( node, service, &hints, &_rai ))
     {
         EQERROR << "rdma_getaddrinfo : " << base::sysError << std::endl;
         goto err;
@@ -837,12 +909,31 @@ err:
 
 void RDMAConnection::_updateInfo( struct sockaddr *addr )
 {
+    int salen = sizeof(struct sockaddr);
+    bool is_unspec = false;
+
+    if( AF_INET == addr->sa_family )
+    {
+        struct sockaddr_in *sin =
+            reinterpret_cast< struct sockaddr_in * >( addr );
+        is_unspec = ( INADDR_ANY == sin->sin_addr.s_addr );
+        salen = sizeof(struct sockaddr_in);
+    }
+    else if( AF_INET6 == addr->sa_family )
+    {
+        struct sockaddr_in6 *sin6 =
+            reinterpret_cast< struct sockaddr_in6 * >( addr );
+        is_unspec = IN6_IS_ADDR_UNSPECIFIED( sin6->sin6_addr.s6_addr );
+        salen = sizeof(struct sockaddr_in6);
+    }
+
     int err;
-    if(( err = ::getnameinfo( addr, ( AF_INET == addr->sa_family ) ?
-                sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6),
-            _addr, sizeof(_addr), _serv, sizeof(_serv),
-            NI_NUMERICHOST | NI_NUMERICSERV )))
+    if(( err = ::getnameinfo( addr, salen, _addr, sizeof(_addr),
+            _serv, sizeof(_serv), NI_NUMERICHOST | NI_NUMERICSERV )))
         EQWARN << "Name info lookup failed : " << err << std::endl;
+
+    if( is_unspec )
+        ::gethostname( _addr, NI_MAXHOST );
 
     if( _description->getHostname( ).empty( ))
         _description->setHostname( _addr );
@@ -1027,9 +1118,11 @@ bool RDMAConnection::_connect( )
 
     ::memset( (void *)&conn_param, 0, sizeof(struct rdma_conn_param) );
 
-    uint32_t credits = static_cast< uint32_t >( _credits );
-    conn_param.private_data = reinterpret_cast< const void * >( &credits );
-    conn_param.private_data_len = sizeof(uint32_t);
+    _cpd.magic = RDMA_PROTOCOL_MAGIC;
+    _cpd.version = RDMA_PROTOCOL_VERSION;
+    _cpd.depth = _credits;
+    conn_param.private_data = reinterpret_cast< const void * >( &_cpd );
+    conn_param.private_data_len = sizeof(struct RDMAConnParamData);
     conn_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
     conn_param.responder_resources = RDMA_MAX_RESP_RES;
     // Magic 3-bit values.
@@ -1062,13 +1155,15 @@ bool RDMAConnection::_bindAddress( )
 
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
+    memset( (void *)&sin, 0, sizeof(struct sockaddr_in6) );
     sin.sin6_family = AF_INET6;
-    sin.sin6_port = 0;
+    sin.sin6_port = htons( _description->port );
     sin.sin6_addr = in6addr_any;
 #else
     struct sockaddr_in sin;
+    memset( (void *)&sin, 0, sizeof(struct sockaddr_in) );
     sin.sin_family = AF_INET;
-    sin.sin_port = 0;
+    sin.sin_port = htons( _description->port );
     sin.sin_addr.s_addr = INADDR_ANY;
 #endif
 
@@ -1127,18 +1222,23 @@ bool RDMAConnection::_accept( )
 
     ::memset( (void *)&accept_param, 0, sizeof(struct rdma_conn_param) );
 
+    _cpd.magic = RDMA_PROTOCOL_MAGIC;
+    _cpd.version = RDMA_PROTOCOL_VERSION;
+    _cpd.depth = _credits;
+    accept_param.private_data = reinterpret_cast< const void * >( &_cpd );
+    accept_param.private_data_len = sizeof(struct RDMAConnParamData);
     accept_param.initiator_depth = RDMA_MAX_INIT_DEPTH;
     accept_param.responder_resources = RDMA_MAX_RESP_RES;
     // Magic 3-bit value.
     accept_param.rnr_retry_count = 7;
 
-    EQINFO << "Accept on source lid : "<< std::showbase
-        << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
-        << "from dest lid : "
-        << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
-        << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
-        << std::endl;
+    EQVERB << "Accept on source lid : "<< std::showbase
+           << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
+           << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
+           << "from dest lid : "
+           << std::hex << ntohs( _cm_id->route.path_rec->dlid ) << " ("
+           << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
+           << std::endl;
 
     if( ::rdma_accept( _cm_id, &accept_param ))
     {
@@ -1399,14 +1499,31 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     ok = ( event->event == expected );
 
-    EQINFO << (void *)this << " event : " << ::rdma_event_str( event->event )
-        << " (" << ( !ok ? "*not* " : "" ) << "expected)" << std::endl;
+#ifndef NDEBUG
+    if( ok )
+        EQVERB << (void *)this << " event : " << ::rdma_event_str( event->event )
+               << std::endl;
+    else
+        EQINFO << (void *)this << " event : " << ::rdma_event_str( event->event )
+               << " expected: " << ::rdma_event_str( expected ) << std::endl;
+#endif
 
     if( ok && ( RDMA_CM_EVENT_DISCONNECTED == event->event ))
         _established = false;
 
     if( ok && ( RDMA_CM_EVENT_ESTABLISHED == event->event ))
+    {
         _established = true;
+
+        struct rdma_conn_param *cp = &event->param.conn;
+
+        ::memset( (void *)&_cpd, 0, sizeof(RDMAConnParamData) );
+        // Note that the actual amount of data transferred to the remote side
+        // is transport dependent and may be larger than that requested.
+        if( cp->private_data_len >= sizeof(RDMAConnParamData) )
+            _cpd = *reinterpret_cast< const RDMAConnParamData * >(
+                cp->private_data );
+    }
 
     if( ok && ( RDMA_CM_EVENT_CONNECT_REQUEST == event->event ))
     {
@@ -1414,13 +1531,12 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
         struct rdma_conn_param *cp = &event->param.conn;
 
-        // Note that the actual amount of data transferred to the remote side
-        // is transport dependent and may be larger than that requested.
-        // TODO : should probably have some sort of magic as well?  Also not
-        // sure what happens when initiator sent ai_connect data (assuming the
-        // underlying transport doesn't strip it)?
-        if( cp->private_data_len >= sizeof(uint32_t) )
-            _credits = *reinterpret_cast< const uint32_t * >( cp->private_data);
+        ::memset( (void *)&_cpd, 0, sizeof(RDMAConnParamData) );
+        // TODO : Not sure what happens when initiator sent ai_connect data
+        // (assuming the underlying transport doesn't strip it)?
+        if( cp->private_data_len >= sizeof(RDMAConnParamData) )
+            _cpd = *reinterpret_cast< const RDMAConnParamData * >(
+                cp->private_data );
     }
 
     if( RDMA_CM_EVENT_REJECTED == event->event )
@@ -1439,7 +1555,7 @@ bool RDMAConnection::_pollCQ( )
     uint32_t num_recvs = 0UL;
     int count;
 
-    base::ScopedMutex<> mutex( _poll_mutex );
+    base::ScopedWrite mutex( _poll_mutex );
 
     /* CHECK RECEIVE COMPLETIONS */
     count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
@@ -1547,7 +1663,7 @@ bool RDMAConnection::_rearmCQ( )
     struct ibv_cq *ev_cq;
     void *ev_ctx;
 
-    if( ::ibv_get_cq_event( _cm_id->recv_cq_channel, &ev_cq, &ev_ctx ) == -1 )
+    if( ::ibv_get_cq_event( _cm_id->recv_cq_channel, &ev_cq, &ev_ctx ))
     {
         EQERROR << "ibv_get_cq_event : " << base::sysError << std::endl;
         goto err;

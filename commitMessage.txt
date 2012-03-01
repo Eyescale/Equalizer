@@ -1,4 +1,4 @@
-Fix unit test
+Correcting the setAffinity function implementation. 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

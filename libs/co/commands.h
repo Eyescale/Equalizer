@@ -24,6 +24,8 @@ namespace co
     {
         CMD_NODE_STOP_RCV,
         CMD_NODE_STOP_CMD,
+        CMD_NODE_SET_AFFINITY_RCV,
+        CMD_NODE_SET_AFFINITY_CMD,
         CMD_NODE_MESSAGE,
         CMD_NODE_CONNECT,
         CMD_NODE_CONNECT_REPLY,
