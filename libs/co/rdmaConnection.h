@@ -87,6 +87,17 @@ private:
     struct ibv_mr *_mr;
 }; // RingBuffer
 
+/**
+  * Private data sent with connect/accept to validate protocol version and
+  * pass protocol parameters (NB: limited to 56 bytes for RDMA_PS_TCP).
+  */
+struct RDMAConnParamData
+{
+    uint16_t magic;
+    uint16_t version;
+    uint32_t depth;
+};
+
 struct RDMASetupPayload;
 struct RDMAFCPayload;
 struct RDMAMessage;
@@ -118,7 +129,8 @@ struct RDMAMessage;
  * NB : Binding to "localhost" does *not* limit remote access, rdma_cm will
  * bind to all available RDMA interfaces as if bound to a wildcard address!
  *
- * TODO? : Binding to wildcard address doesn't attempt to resolve a hostname.
+ * TODO? : Binding to wildcard address updates the description with the
+ * canonical hostname, which is possibly not a valid RDMA IPoIB name.
  *
  * TODO? : Mixed IPv6/IPv4 naming isn't handled correctly.  If one listens on
  * IPv6 and gets an IPv4 connection the address in the route struct doesn't
@@ -221,6 +233,7 @@ private:
     struct rdma_cm_id *_cm_id;
     struct ibv_pd *_pd;
 
+    struct RDMAConnParamData _cpd;
     bool _established;
     base::a_int32_t _credits;
     unsigned int _completions;
