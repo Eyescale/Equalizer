@@ -541,13 +541,17 @@ retry2:
     if( !_postFC( ))
         EQWARN << "Error while posting flow control message." << std::endl;
 
-    // We only want to clear the "readability" of the notifier when we know
-    // we no longer have any data in the buffer and need to be notified
-    // when we receive more.
-    if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
     {
-        EQERROR << "Error while rearming receive channel." << std::endl;
-        goto err;
+        // We only want to clear the "readability" of the notifier when we know
+        // we no longer have any data in the buffer and need to be notified
+        // when we receive more.  Take the poll mutex so another thread in
+        // write() can't take events off the CQ between check and rearm.
+        base::ScopedMutex<> mutex( _poll_mutex );
+        if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
+        {
+            EQERROR << "Error while rearming receive channel." << std::endl;
+            goto err;
+        }
     }
 
 //    EQWARN << (void *)this << std::dec << ".read(" << bytes << ")"
