@@ -812,8 +812,9 @@ void Node::output( std::ostream& os ) const
             attrPrinted = true;
         }
         
-        os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
-                i== Node::IATTR_THREAD_MODEL   ? "thread_model         " :
+        os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout " :
+                i== Node::IATTR_THREAD_MODEL   ? "thread_model   " :
+                i== Node::IATTR_HINT_AFFINITY  ? "hint_affinity  " :
                 "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }

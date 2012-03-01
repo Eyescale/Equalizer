@@ -34,6 +34,7 @@ namespace fabric
 
 Client::Client()
 {
+
 }
 
 Client::~Client()

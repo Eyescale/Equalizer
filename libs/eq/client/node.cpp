@@ -41,6 +41,8 @@
 #include <co/connection.h>
 #include <co/base/scopedMutex.h>
 
+#include <sched.h>
+
 namespace eq
 {
 /** @cond IGNORE */
@@ -187,6 +189,13 @@ bool Node::configExit()
 {
     WindowSystem::configExit( this );
     return true;
+}
+
+void Node::_setupAffinity()
+{
+    const int32_t affinity = getIAttribute(IATTR_HINT_AFFINITY);
+    ClientPtr client = getClient(); // Client node "LocalNode"
+    client->setAffinity( affinity );
 }
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const
@@ -459,6 +468,8 @@ bool Node::_cmdConfigInit( co::Command& command )
     setError( ERROR_NONE );
     NodeConfigInitReplyPacket reply;
     reply.result = configInit( packet->initID );
+
+    _setupAffinity();
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
