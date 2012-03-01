@@ -745,7 +745,10 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         } sss;
 
         // Make a copy since we might change it.
-        sss.storage = _cm_id->route.addr.dst_storage;
+        //sss.storage = _cm_id->route.addr.dst_storage;
+        ::memcpy( (void *)&sss.storage,
+            (const void *)&_cm_id->route.addr.dst_addr,
+            sizeof(struct sockaddr_storage) );
 
         if(( AF_INET == sss.storage.ss_family ) &&
                 !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
