@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -95,13 +95,10 @@ namespace co
 
     template< typename T >
     void Dispatcher::registerCommand( const uint32_t command,
-                                const CommandFunc< T >& func,
-                                CommandQueue* destinationQueue )
+                                      const CommandFunc< T >& func,
+                                      CommandQueue* queue )
     {
-        _registerCommand( command, Dispatcher::Func( func ),
-                          destinationQueue );
+        _registerCommand( command, Dispatcher::Func( func ), queue );
     }
 }
-
 #endif // CO_DISPATCHER_H
-

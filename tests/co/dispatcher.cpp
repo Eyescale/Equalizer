@@ -15,6 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// https://github.com/Eyescale/Equalizer/issues/100
+#pragma warning( disable: 4407 )
+
 #include <test.h>
 #include <co/command.h>
 #include <co/commandCache.h>
@@ -37,16 +40,31 @@ public:
 class Bar : public co::LocalNode
 {
 public:
-    Bar() : bar1( 7 ), bar2( 6 ) {}
+    Bar() : bar1( 7 ), bar2( 6 )
+        {
+            registerCommand( co::CMD_NODE_CUSTOM,
+                             co::CommandFunc<Bar>( this, &Bar::cmd ), 0 );
+        }
     virtual ~Bar() {}
     virtual uint64_t getBar1() const { return bar1; }
     const uint64_t bar1;
     const uint64_t bar2;
     virtual uint64_t getBar2() const { return bar2; }
     uint64_t getBars() const { return bar1 + bar2; }
+
+    bool cmd( co::Command& )
+        {
+            TESTINFO( bar1 == 7, bar1 );
+            TESTINFO( bar2 == 6, bar2 );
+            TESTINFO( getBar1() == 7, getBar1( ));
+            TESTINFO( getBar2() == 6, getBar2( ));
+            TESTINFO( getBars() == 13, getBars( ));
+            ++calls;
+            return true;
+        }
 };
 
-struct Packet : public co::Packet
+struct Packet : public co::NodePacket
 {
     Packet()
         {
@@ -111,12 +129,14 @@ int main( int argc, char **argv )
     command.retain();
     *packet = Packet();
 
+    Bar bar;
     FooBar fooBar;
     BarFoo barFoo;
 
+    bar.dispatchCommand( command );
     fooBar.dispatchCommand( command );
     barFoo.dispatchCommand ( command );
-    TESTINFO( calls == 2, calls );
+    TESTINFO( calls == 3, calls );
 
     command.release();
     return EXIT_SUCCESS;

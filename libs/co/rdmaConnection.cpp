@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -87,10 +87,9 @@ struct RDMAMessage
     uint8_t length;
     union
     {
-        uint8_t offsetof_placeholder;
         struct RDMASetupPayload setup;
         struct RDMAFCPayload fc;
-    };
+    } payload;
 };
 
 /**
@@ -140,7 +139,10 @@ RDMAConnection::RDMAConnection( )
 
 bool RDMAConnection::connect( )
 {
-    struct sockaddr address;
+    union {
+        struct sockaddr addr;
+        struct sockaddr_storage storage;
+    } dst;
 
     EQVERB << (void *)this << ".connect( )" << std::endl;
 
@@ -160,13 +162,13 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    if( !_parseAddress( address, false ))
+    if( !_parseAddress( dst.addr, false ))
     {
         EQERROR << "Failed to parse destination address." << std::endl;
         goto err;
     }
 
-    if( !_resolveAddress( address ))
+    if( !_resolveAddress( dst.addr ))
     {
         EQERROR << "Failed to resolve destination address." << std::endl;
         goto err;
@@ -177,6 +179,8 @@ bool RDMAConnection::connect( )
         EQERROR << "Failed to resolve route to destination." << std::endl;
         goto err;
     }
+
+    //_updateInfo( &_cm_id->route.addr.dst_addr );
 
     if( !_initVerbs( ))
     {
@@ -236,7 +240,10 @@ err:
 
 bool RDMAConnection::listen( )
 {
-    struct sockaddr address;
+    union {
+        struct sockaddr addr;
+        struct sockaddr_storage storage;
+    } src;
 
     EQVERB << (void *)this << ".listen( )" << std::endl;
 
@@ -256,17 +263,19 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    if( !_parseAddress( address, true ))
+    if( !_parseAddress( src.addr, true ))
     {
         EQERROR << "Failed to parse local address." << std::endl;
         goto err;
     }
 
-    if( !_bindAddress( address ))
+    if( !_bindAddress( src.addr ))
     {
         EQERROR << "Failed to bind to local address." << std::endl;
         goto err;
     }
+
+    _updateInfo( &_cm_id->route.addr.src_addr );
 
     if( !_listen( ))
     {
@@ -583,6 +592,54 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
+    {
+        // FIXME : RDMA CM appears to send up invalid addresses when receiving
+        // connections that use a different protocol than what was bound.  E.g.
+        // if // an IPv6 listener gets an IPv4 connection then the sa_family
+        // will be AF_INET6 but the actual data is struct sockaddr_in.  Example:
+        //
+        // 0000000: 0a00 bc10 c0a8 b01a 0000 0000 0000 0000  ................
+        //
+        // However, in the reverse case, when an IPv4 listener gets an IPv6
+        // connection not only is the address family incorrect, but the actual
+        // IPv6 address is only partially there:
+        //
+        // 0000000: 0200 bc11 0000 0000 fe80 0000 0000 0000  ................
+        // 0000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        // 0000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+        //
+        // Surely seems to be a bug in RDMA CM.
+
+        union
+        {
+            struct sockaddr     addr;
+            struct sockaddr_in  sin;
+            struct sockaddr_in6 sin6;
+            struct sockaddr_storage storage;
+        } sss;
+
+        // Make a copy since we might change it.
+        //sss.storage = _cm_id->route.addr.dst_storage;
+        ::memcpy( (void *)&sss.storage,
+            (const void *)&_cm_id->route.addr.dst_addr,
+            sizeof(struct sockaddr_storage) );
+
+        if(( AF_INET == sss.storage.ss_family ) &&
+                !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
+        {
+            EQWARN << "IPv6 address detected but likely invalid!" << std::endl;
+            sss.storage.ss_family = AF_INET6;
+        }
+        else if(( AF_INET6 == sss.storage.ss_family ) &&
+                ( INADDR_ANY != sss.sin.sin_addr.s_addr ))
+        {
+            sss.storage.ss_family = AF_INET;
+        }
+
+        _updateInfo( &sss.addr );
+    }
+
     if( !_migrateId( ))
     {
         EQERROR << "Failed to migrate communication identifier." << std::endl;
@@ -643,6 +700,41 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 err:
     close( );
     return false;
+}
+
+void RDMAConnection::_updateInfo( struct sockaddr *addr )
+{
+    char node[NI_MAXHOST], serv[NI_MAXSERV];
+    int salen = sizeof(struct sockaddr);
+    bool is_unspec = false;
+
+    if( AF_INET == addr->sa_family )
+    {
+        struct sockaddr_in *sin =
+            reinterpret_cast< struct sockaddr_in * >( addr );
+        is_unspec = ( INADDR_ANY == sin->sin_addr.s_addr );
+        salen = sizeof(struct sockaddr_in);
+    }
+    else if( AF_INET6 == addr->sa_family )
+    {
+        struct sockaddr_in6 *sin6 =
+            reinterpret_cast< struct sockaddr_in6 * >( addr );
+        is_unspec = IN6_IS_ADDR_UNSPECIFIED( sin6->sin6_addr.s6_addr );
+        salen = sizeof(struct sockaddr_in6);
+    }
+
+    int err;
+    if(( err = ::getnameinfo( addr, salen, node, sizeof(node),
+            serv, sizeof(serv), NI_NUMERICHOST | NI_NUMERICSERV )))
+        EQWARN << "Name info lookup failed : " << err << std::endl;
+
+    if( is_unspec )
+        ::gethostname( node, NI_MAXHOST );
+
+    if( _description->getHostname( ).empty( ))
+        _description->setHostname( node );
+    if( 0u == _description->port )
+        _description->port = atoi( serv );
 }
 
 bool RDMAConnection::_parseAddress( struct sockaddr &address,
@@ -1063,10 +1155,10 @@ void RDMAConnection::_handleMessage( RDMAMessage &message )
     switch( message.opcode )
     {
         case SETUP:
-            _handleSetup( message.setup );
+            _handleSetup( message.payload.setup );
             break;
         case FC:
-            _handleFC( message.fc );
+            _handleFC( message.payload.fc );
             break;
     }
 }
@@ -1108,10 +1200,10 @@ err:
 // caller: application
 bool RDMAConnection::_postSendMessage( RDMAMessage &message )
 {
-    struct ibv_sge sge; 
+    struct ibv_sge sge;
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)&message;
-    sge.length = (uint64_t)( offsetof( RDMAMessage, offsetof_placeholder ) +
+    sge.length = (uint64_t)( offsetof( RDMAMessage, payload ) +
         message.length );
     sge.lkey = _msgbuf.getMR( )->lkey;
 
@@ -1141,7 +1233,7 @@ bool RDMAConnection::_postSendSetup( )
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
     message.opcode = SETUP;
     message.length = sizeof(struct RDMASetupPayload);
-    _fillSetup( message.setup );
+    _fillSetup( message.payload.setup );
 
     return _postSendMessage( message );
 }
@@ -1159,7 +1251,7 @@ bool RDMAConnection::_postSendFC( )
         *reinterpret_cast< RDMAMessage * >( _msgbuf.getBuffer( ));
     message.opcode = FC;
     message.length = sizeof(struct RDMAFCPayload);
-    _fillFC( message.fc );
+    _fillFC( message.payload.fc );
 
     return _postSendMessage( message );
 }
@@ -1171,7 +1263,7 @@ bool RDMAConnection::_postRDMAWrite( )
 
     // TODO : Break up large messages into multiple WR?
 
-    struct ibv_sge sge; 
+    struct ibv_sge sge;
     ::memset( (void *)&sge, 0, sizeof(struct ibv_sge));
     sge.addr = (uint64_t)( (uintptr_t)_sourcebuf.getBase( ) +
         _sourceptr.ptr( _sourceptr.MIDDLE ));
@@ -1361,7 +1453,7 @@ bool RDMAConnection::_doCQEvents( struct ibv_comp_channel *channel, bool drain )
                     const uint32_t bytes_written =
                         _sourceptr.available( _sourceptr.MIDDLE,
                             _sourceptr.TAIL );
-                      
+
                     _sourceptr.moveValue( _sourceptr.TAIL,
                         static_cast< uint32_t >( wc.wr_id ));
 
