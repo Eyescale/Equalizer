@@ -80,57 +80,50 @@ std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
     return os;
 }
 
-co::DataOStream& operator << ( co::DataOStream& os, const Frustum& frustum )
+void Frustum::serialize( co::DataOStream& os )
 {
-    switch( frustum.getCurrentType( ))
+    switch( getCurrentType( ))
     {
-        case Frustum::TYPE_WALL:
-            os << Frustum::TYPE_WALL << frustum.getWall();
+        case TYPE_WALL:
+            os << TYPE_WALL << _data.wall;
             break;
 
-        case Frustum::TYPE_PROJECTION:
-            os << Frustum::TYPE_PROJECTION << frustum.getProjection();
+        case TYPE_PROJECTION:
+            os << TYPE_PROJECTION << _data.projection;
             break;
 
-        case Frustum::TYPE_NONE:
-            os << Frustum::TYPE_NONE;
+        case TYPE_NONE:
+            os << TYPE_NONE;
             break;
 
         default:
             EQASSERT( false );
     }
-    return os;
 }
 
-co::DataIStream& operator >> ( co::DataIStream& is, Frustum& frustum )
+void Frustum::deserialize( co::DataIStream& is )
 {
-    Frustum::Type type;
-    is >> type;
+    is >> _data.current;
 
-    switch( type )
+    switch( _data.current )
     {
-        case Frustum::TYPE_WALL:
+        case TYPE_WALL:
         {
-            Wall wall;
-            is >> wall;
-            frustum.setWall( wall );
+            is >> _data.wall;
             break;
         }
         case Frustum::TYPE_PROJECTION:
         {
-            Projection projection;
-            is >> projection;
-            frustum.setProjection( projection );
+            is >> _data.projection;
             break;
         }
         case Frustum::TYPE_NONE:
-            frustum.unsetFrustum();
             break;
 
         default:
             EQASSERT( false );
     }
-    return is;
+    updateFrustum();
 }
 
 }

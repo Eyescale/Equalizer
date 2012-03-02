@@ -30,29 +30,29 @@ namespace server
 Frustum::Frustum( FrustumData& data )
         : _data( data )
 {
-    _updateFrustum();
+    updateFrustum();
 }
 
 Frustum::Frustum( const Frustum& from, FrustumData& data )
         : fabric::Frustum( from )
         , _data( data )
 {
-    _updateFrustum();
+    updateFrustum();
 }
 
 void Frustum::setWall( const fabric::Wall& wall )
 {
     fabric::Frustum::setWall( wall );
-    _updateFrustum();
+    updateFrustum();
 }
         
 void Frustum::setProjection( const fabric::Projection& projection )
 {
     fabric::Frustum::setProjection( projection );
-    _updateFrustum();
+    updateFrustum();
 }
 
-void Frustum::_updateFrustum()
+void Frustum::updateFrustum()
 {
     switch( getCurrentType( ))
     {
