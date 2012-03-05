@@ -61,25 +61,6 @@ void Frustum::unsetFrustum()
     _data.current = TYPE_NONE;
 }
 
-std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
-{
-    switch( frustum.getCurrentType( ))
-    {
-        case Frustum::TYPE_WALL:
-            os << frustum.getWall() << std::endl;
-            break;
-        case Frustum::TYPE_PROJECTION:
-            os << frustum.getProjection() << std::endl;
-            break;
-        case Frustum::TYPE_NONE:
-            break;
-        default:
-            os << "INVALID FRUSTUM";
-            break;
-    }
-    return os;
-}
-
 void Frustum::serialize( co::DataOStream& os )
 {
     switch( getCurrentType( ))
@@ -124,6 +105,25 @@ void Frustum::deserialize( co::DataIStream& is )
             EQASSERT( false );
     }
     updateFrustum();
+}
+
+std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
+{
+    switch( frustum.getCurrentType( ))
+    {
+        case Frustum::TYPE_WALL:
+            os << frustum.getWall() << std::endl;
+            break;
+        case Frustum::TYPE_PROJECTION:
+            os << frustum.getProjection() << std::endl;
+            break;
+        case Frustum::TYPE_NONE:
+            break;
+        default:
+            os << "INVALID FRUSTUM";
+            break;
+    }
+    return os;
 }
 
 }

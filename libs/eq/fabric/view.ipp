@@ -382,21 +382,9 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
             os << observer->getPath() << std::endl;
     } 
 
-    switch( view.getCurrentType( ))
-    {
-        case View< L, V, O >::TYPE_WALL:
-            os << view.getWall() << std::endl;
-            break;
-        case View< L, V, O >::TYPE_PROJECTION:
-            os << view.getProjection() << std::endl;
-            break;
-        default: 
-            break;
-    }
-
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
-    return os;
+    return os << static_cast< const Frustum& >( view )
+              << co::base::exdent << "}" << std::endl << co::base::enableHeader
+              << co::base::enableFlush;
 }
 
 }
