@@ -397,23 +397,24 @@ void Thread::setAffinity(const int32_t affinity)
     hwloc_topology_init( &topology ); // Allocate & initialize the topology
     hwloc_topology_load( topology );  // Perform HW topology detection
     const hwloc_bitmap_t cpuSet = _getCpuSet( affinity, topology );
-    const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, HWLOC_CPUBIND_THREAD);
-
+    const int result = hwloc_set_cpubind( topology, cpuSet,
+                                                HWLOC_CPUBIND_THREAD );
     char* cpuSetString;
-    hwloc_cpuset_asprintf(&cpuSetString, cpuSet);
+    hwloc_cpuset_asprintf( &cpuSetString, cpuSet );
 
     if( affinityFlag == 0 )
     {
         EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
-        delete [] cpuSetString;
     }
     else
     {
-        EQWARN << "Error binding thread to cpu set " << cpuSetString  << std::endl;
-        delete [] cpuSetString;
+        EQWARN << "Error binding thread to cpu set " << cpuSetString
+               << std::endl;
     }
+    ::free( cpuSetString );
 #else
-    EQWARN << "Ignoring setAffinity, no hwloc library support" << std::endl;
+    EQWARN << "Thread::setAffinity not implemented, hwloc library missing"
+           << std::endl;
 #endif
 }
 

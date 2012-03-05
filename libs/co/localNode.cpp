@@ -352,19 +352,16 @@ bool LocalNode::close()
     return true;
 }
 
-void LocalNode::setAffinity(const int32_t affinity)
+void LocalNode::setAffinity( const int32_t affinity )
 {
-    base::Thread::setAffinity(affinity);
-
     NodeAffinityPacket packet;
     packet.affinity = affinity;
-
     send( packet );
 
     packet.command = CMD_NODE_SET_AFFINITY_CMD;
     send( packet );
 
-    base::Thread::setAffinity(affinity);
+    base::Thread::setAffinity( affinity );
 }
 
 ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
