@@ -415,8 +415,6 @@ void Thread::setAffinity(const int32_t affinity)
 #else
     EQWARN << "Ignoring setAffinity, no hwloc library support" << std::endl;
 #endif
-
-
 }
 
 #if 0

@@ -71,8 +71,8 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* queue = getMainThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
-    registerCommand( fabric::CMD_NODE_CREATE_PIPE,                      
-		     NodeFunc( this, &Node::_cmdCreatePipe ), queue );
+    registerCommand( fabric::CMD_NODE_CREATE_PIPE,
+                     NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
                      NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT, 
