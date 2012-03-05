@@ -114,7 +114,7 @@ void Canvas< CFG, C, S, L >::serialize( co::DataOStream& os,
     if( dirtyBits & DIRTY_LAYOUTS )
         os.serializeChildren( _layouts );
     if( dirtyBits & DIRTY_FRUSTUM )
-        os << *static_cast< Frustum* >( this );
+        Frustum::serialize( os );
 }
 
 template< class CFG, class C, class S, class L >
@@ -167,7 +167,7 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
         _config->updateCanvas( static_cast< C* >( this ));
     }
     if( dirtyBits & DIRTY_FRUSTUM )
-        is >> *static_cast< Frustum* >( this );
+        Frustum::deserialize( is );
 }
 
 template< class CFG, class C, class S, class L >
