@@ -71,13 +71,14 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* queue = getMainThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
-
-    registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
+    registerCommand( fabric::CMD_NODE_CREATE_PIPE,
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
                      NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT, 
                      NodeFunc( this, &Node::_cmdConfigInit ), queue );
+    registerCommand( fabric::CMD_NODE_SET_AFFINITY,
+                     NodeFunc( this, &Node::_cmdSetAffinity), &transmitter.getQueue() );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT,
                      NodeFunc( this, &Node::_cmdConfigExit ), queue );
     registerCommand( fabric::CMD_NODE_FRAME_START,
@@ -192,8 +193,12 @@ bool Node::configExit()
 void Node::_setAffinity()
 {
     const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
-    ClientPtr client = getClient(); // Client node "LocalNode"
-    client->setAffinity( affinity );
+
+    NodeAffinityPacket packet;
+    packet.affinity = affinity;
+
+    co::NodePtr nodePtr = this->getLocalNode();
+    send(nodePtr, packet);
 }
 
 void Node::waitFrameStarted( const uint32_t frameNumber ) const
@@ -381,6 +386,7 @@ void Node::TransmitThread::run()
 {
     co::base::Thread::setName( std::string( "Trm " ) +
                                co::base::className( _node ));
+
     while( true )
     {
         co::Command* command = _queue.pop();
@@ -461,6 +467,7 @@ bool Node::_cmdConfigInit( co::Command& command )
     _currentFrame  = packet->frameNumber;
     _unlockedFrame = packet->frameNumber;
     _finishedFrame = packet->frameNumber;
+
     _setAffinity();
 
     transmitter.start();
@@ -607,6 +614,12 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     return true;
 }
 
+bool Node::_cmdSetAffinity( co::Command& command )
+{
+    const NodeAffinityPacket* packet = command.get <NodeAffinityPacket>();
+    co::base::Thread::setAffinity(packet->affinity);
+    return true;
+}
 }
 
 #include "../fabric/node.ipp"

@@ -186,6 +186,17 @@ namespace eq
         uint32_t frameNumber;
     };
 
+    struct NodeAffinityPacket : public NodePacket
+    {
+        NodeAffinityPacket()
+              {
+                  command = fabric::CMD_NODE_SET_AFFINITY;
+                  size = sizeof(NodeAffinityPacket);
+              }
+
+        int32_t affinity;
+    };
+
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeCreatePipePacket* packet )
     {
