@@ -1,4 +1,5 @@
-Setting affinities before and after sending packets to the node
+Removing a memory leak, and setting the affinity for the transmit thread of the node.
+
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [ ] Bugfix
