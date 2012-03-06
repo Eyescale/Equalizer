@@ -1,8 +1,9 @@
-Modefying the manual thread placement to the receiver and command threads of the local node (2)
+Freeing the topolgy object after toplogy detection. 
+
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
-[x] Cleanup
+[x] Bugfix
+[ ] New Feature
+[ ] Cleanup
 [ ] Optimization
 [ ] Documentation

@@ -1046,8 +1046,8 @@ bool ObjectStore::_cmdDisableSendOnRegister( Command& command )
         for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
         {
             NodePtr node = *i;
-            ConnectionPtr connection = node->getMulticast();
-            if( connection.isValid( ))
+            ConnectionPtr connection = node->useMulticast();
+            if( connection )
                 connection->finish();
         }
     }

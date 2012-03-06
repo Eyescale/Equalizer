@@ -368,7 +368,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API bool pingIdleNodes();
 
         /** Set the affinity for this, the receiver and the command thread. */
-        void setAffinity( const int32_t affinity );
+        CO_API void setAffinity( const int32_t affinity );
 
     protected:
         /**  @internal
