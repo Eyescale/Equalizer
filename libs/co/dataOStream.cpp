@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -91,7 +91,7 @@ void DataOStream::_setupConnections( const Nodes& receivers )
 void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
 {
     EQASSERT( _connections.empty( ));
-    ConnectionPtr connection = useMulticast ? node->getMulticast() : 0;
+    ConnectionPtr connection = useMulticast ? node->useMulticast() : 0;
     if( !connection )
         connection = node->getConnection();
         
