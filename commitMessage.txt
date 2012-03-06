@@ -1,9 +1,9 @@
-Removing a memory leak, and setting the affinity for the transmit thread of the node.
+Freeing the topolgy object after toplogy detection. 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
-[ ] Bugfix
-[x] New Feature
+[x] Bugfix
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

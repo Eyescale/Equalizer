@@ -412,6 +412,9 @@ void Thread::setAffinity(const int32_t affinity)
                << std::endl;
     }
     ::free( cpuSetString );
+
+    hwloc_topology_destroy(topology);
+
 #else
     EQWARN << "Thread::setAffinity not implemented, hwloc library missing"
            << std::endl;
