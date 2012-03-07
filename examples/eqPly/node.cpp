@@ -31,82 +31,8 @@
 #include "config.h"
 #include "error.h"
 
-class Distributable : public co::Serializable
-{
-public:
-    Distributable(eqPly::Node* parent);
-	virtual void notifyNewHeadVersion(const eq::uint128_t& version);
-	//the version. we will need this to avoid deadlock (for reasons I don't understand).
-	eq::uint128_t v;
-protected:
-private:
-	eqPly::Node* node;
-};
-
-//MVP: This thread simulates a worker thread. It syncs the Distributable and does some work.
-class Worker : public co::base::Thread
-{
-public:
-	Distributable* slave;
-
-    virtual void run()
-        {
-            //MVP: Uncomment this line to prevent deadlocking.
-            //if(slave->v != co::VERSION_FIRST)
-            slave->sync();
-            //do some work
-            co::base::sleep(500);
-        }
-};
-
-Distributable::Distributable(eqPly::Node* parent)
-{
-	node = parent;
-}
-void Distributable::notifyNewHeadVersion(const eq::uint128_t& version)
-{
-	v = version;
-    Worker* worker = new Worker;
-    worker->slave = this;
-    worker->start();
-    // memleak, but who cares here?
-}
 namespace eqPly
 {
-	//MVP: This thread simulates the client UI thread. We add a new Distributable every quarter of a second and map it.
-class PeriodicMap : public co::base::Thread
-{
-public:
-    eqPly::Node* node;
-    virtual void run()
-        {
-            eq::Config* config = node->getConfig();
-            unsigned iter = 0;
-            while(true)
-            {
-                co::base::sleep(250);
-                ++iter;
-                EQINFO << "Iteration " << iter << std::endl;
-
-                Distributable* master_thing = new Distributable(node);
-		
-                EQINFO << "Registering master..." << std::endl;
-                config->registerObject(master_thing);
-                EQINFO << "Master registered." << std::endl;
-
-                Distributable* slave_thing = new Distributable(node);
-
-                EQINFO << "Mapping slave..." << std::endl;
-                bool bMapped = config->mapObject( slave_thing,
-                                                  master_thing->getID( ));
-                if(bMapped)
-                    EQINFO << "Slave mapped" << std::endl;
-                else
-                    EQINFO << "Mapping failed" << std::endl;
-            }
-        }
-};
-
 bool Node::configInit( const eq::uint128_t& initID )
 {
     // All render data is static or multi-buffered, we can run asynchronously
