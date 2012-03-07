@@ -74,6 +74,7 @@ void Global::_setupDefaults()
         _nodeIAttributes[i] = fabric::UNDEFINED;
 
     _nodeIAttributes[Node::IATTR_LAUNCH_TIMEOUT] = 60000; // ms
+    _nodeIAttributes[Node::IATTR_HINT_AFFINITY] = AUTO;
     _nodeSAttributes[Node::SATTR_LAUNCH_COMMAND] =
         "ssh -n %h %c --eq-logfile %q%d/%h.%n.log%q";
 #ifdef WIN32
@@ -88,6 +89,7 @@ void Global::_setupDefaults()
 
     _pipeIAttributes[Pipe::IATTR_HINT_THREAD] = fabric::ON;
     _pipeIAttributes[Pipe::IATTR_HINT_CUDA_GL_INTEROP] = fabric::OFF;
+    _pipeIAttributes[Pipe::IATTR_HINT_AFFINITY] = AUTO;
 
     // window
     for( uint32_t i=0; i<Window::IATTR_ALL; ++i )
@@ -96,7 +98,7 @@ void Global::_setupDefaults()
     _windowIAttributes[Window::IATTR_HINT_STEREO]       = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DOUBLEBUFFER] = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_FULLSCREEN]   = fabric::OFF;
-    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::ON;
+    _windowIAttributes[Window::IATTR_HINT_DECORATION]   = fabric::AUTO;
     _windowIAttributes[Window::IATTR_HINT_DRAWABLE]     = fabric::WINDOW;
     _windowIAttributes[Window::IATTR_HINT_SCREENSAVER]  = fabric::AUTO;
     _windowIAttributes[Window::IATTR_PLANES_COLOR]      = fabric::AUTO;

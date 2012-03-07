@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@ namespace co
 {
 namespace base
 {
-    struct ThreadIDPrivate;
+namespace detail { class ThreadID; }
 
     /** An utility class to wrap OS-specific thread identifiers. */
     class ThreadID
@@ -56,7 +56,7 @@ namespace base
         COBASE_API static const ThreadID ZERO; //!< a 'NULL' thread identifier
 
     private:
-        ThreadIDPrivate* const _data;
+        detail::ThreadID* const _impl;
         friend class Thread;
 
         friend COBASE_API 

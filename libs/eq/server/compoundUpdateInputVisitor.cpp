@@ -40,14 +40,15 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
 {
     if( !compound->isRunning( ))
         return TRAVERSE_PRUNE;    
-    
+
+    _updateQueues( compound );
+    _updateFrames( compound );
+    return TRAVERSE_CONTINUE;
+}
+
+void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
+{
     const TileQueues& inputQueues = compound->getInputTileQueues();
-    const Channel* channel = compound->getChannel();
-
-    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
-        return TRAVERSE_CONTINUE;
-
-    // TODO refactor in separate methods for queues and frames
     for( TileQueuesCIter i = inputQueues.begin(); i != inputQueues.end(); ++i )
     {
         //----- Find corresponding output queue
@@ -59,19 +60,29 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
         if( j == _outputQueues.end( ))
         {
             EQVERB << "Can't find matching output queue, ignoring input queue "
-                << name << std::endl;
+                   << name << std::endl;
             queue->unsetData();
             continue;
         }
 
         EQASSERT( queue->isAttached( ));
+
+        TileQueue* outputQueue = j->second;
+        queue->setOutputQueue( outputQueue, compound );
     }
+}
+
+void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
+{
+    const Channel* channel = compound->getChannel();
+    if( !compound->testInheritTask( fabric::TASK_ASSEMBLE ) || !channel )
+        return;
 
     const Frames& inputFrames = compound->getInputFrames();
     if( inputFrames.empty( ))
     {
         compound->unsetInheritTask( fabric::TASK_ASSEMBLE );
-        return TRAVERSE_CONTINUE;
+        return;
     }
 
     for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
@@ -145,8 +156,6 @@ VisitorResult CompoundUpdateInputVisitor::visit( Compound* compound )
             }
         }
     }
-
-    return TRAVERSE_CONTINUE;
 }
 
 void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,

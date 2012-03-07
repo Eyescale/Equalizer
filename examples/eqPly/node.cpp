@@ -109,16 +109,12 @@ public:
 
 bool Node::configInit( const eq::uint128_t& initID )
 {
-    PeriodicMap* mapper = new PeriodicMap;
-    mapper->node = this;
-    mapper->start();
-
-    if( !eq::Node::configInit( initID ))
-        return false;
-
     // All render data is static or multi-buffered, we can run asynchronously
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::ASYNC );
+
+    if( !eq::Node::configInit( initID ))
+        return false;
 
     Config* config = static_cast< Config* >( getConfig( ));
     if( !config->mapData( initID ))

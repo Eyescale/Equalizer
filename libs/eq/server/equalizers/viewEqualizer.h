@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,7 +30,6 @@ namespace eq
 {
 namespace server
 {
-    class Compound;
     class ViewEqualizer;
     std::ostream& operator << ( std::ostream& os, const ViewEqualizer* );
 
@@ -44,7 +43,6 @@ namespace server
         EQSERVER_API ViewEqualizer();
         ViewEqualizer( const ViewEqualizer& from );
         virtual ~ViewEqualizer();
-        virtual Equalizer* clone() const { return new ViewEqualizer(*this); }
         virtual void toStream( std::ostream& os ) const { os << this; }
             
         /** @sa Equalizer::attach. */
@@ -53,6 +51,8 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
+
+        virtual uint32_t getType() const { return fabric::VIEW_EQUALIZER; }
 
     protected:        
         virtual void notifyChildAdded( Compound* compound, Compound* child )
@@ -73,7 +73,8 @@ namespace server
             virtual void notifyLoadData( Channel* channel, 
                                          const uint32_t frameNumber,
                                          const uint32_t nStatistics,
-                                         const eq::Statistic* statistics );
+                                         const eq::Statistic* statistics,
+                                         const Viewport& region );
             struct Load
             {
                 static Load NONE;

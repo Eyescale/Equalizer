@@ -1,6 +1,5 @@
 
-
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,23 +20,12 @@
 #define CO_LOCALNODE_H
 
 #include <co/node.h>            // base class
+#include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <co/base/requestHandler.h> // base class
-
-#include <co/commandCache.h>    // member
-#include <co/commandQueue.h>    // member
-#include <co/connectionSet.h>   // member
-#include <co/objectVersion.h>   // used in inline method
-#include <co/worker.h>          // member
-
-#include <co/base/clock.h>          // member
-#include <co/base/hash.h>           // member
-#include <co/base/lockable.h>       // member
-#include <co/base/spinLock.h>       // member
-#include <co/base/types.h>          // member
 
 namespace co
 {
-    class ObjectStore;
+namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
 
     /** 
      * Specialization of a local node.
@@ -111,9 +99,7 @@ namespace co
          */
         CO_API virtual bool close();
 
-        /** 
-         * Close a listening node.
-         */
+        /** Close a listening node. */
         virtual bool exitLocal() { return close(); }
 
         /**
@@ -173,10 +159,10 @@ namespace co
          * of this node, since they will potentially read out-of-order data
          * streams on the multicast connection.
          *
-         * Enable and disable are counted, that is, the last disable on a
-         * matched series of enable/disable will be effective. The disable is
+         * Enable and disable are counted, that is, the last enable on a
+         * matched series of disable/enable will be effective. The disable is
          * completely synchronous, that is, no more instance data will be sent
-         * after an effective disable.
+         * after the first disable.
          */
         CO_API void enableSendOnRegister();
         
@@ -310,34 +296,32 @@ namespace co
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
-        /**
-         * Acquire a singular send token from the given node.
-         * @return The send token to release.
-         */
-        CO_API SendToken acquireSendToken( NodePtr toNode );
-        CO_API void releaseSendToken( SendToken& token );
-
         /** Return the command queue to the command thread. */
-        CommandQueue* getCommandThreadQueue()
-            { return _commandThread->getWorkerQueue(); }
+        CO_API CommandQueue* getCommandThreadQueue();
 
         /** 
          * @return true if executed from the command handler thread, false if
          *         not.
          */
-        bool inCommandThread() const  { return _commandThread->isCurrent(); }
+        CO_API bool inCommandThread() const;
 
         /** @internal */
-        int64_t getTime64(){ return _clock.getTime64(); }
+        CO_API int64_t getTime64() const;
         //@}
 
         /** @name Operations */
         //@{
+        /**
+         * Add a listening connection to this listening node.
+         * @return the listening connection, or 0 upon error.
+         */
+        CO_API ConnectionPtr addListener( ConnectionDescriptionPtr desc );
+
         /** Add a listening connection to this listening node. */
         CO_API void addListener( ConnectionPtr connection );
 
-        /** Remove a listening connection from this listening node. */
-        CO_API uint32_t removeListenerNB( ConnectionPtr connection );
+        /** Remove listening connections from this listening node. */
+        CO_API void removeListeners( const Connections& connections );
 
         /**
          * Flush all pending commands on this listening node.
@@ -345,11 +329,10 @@ namespace co
          * This causes the receiver thread to redispatch all pending commands,
          * which are normally only redispatched when a new command is received.
          */
-        void flushCommands() { _incoming.interrupt(); }
+        CO_API void flushCommands();
 
         /** @internal Clone the given command. */
-        Command& cloneCommand( Command& command )
-            { return _commandCache.clone( command ); }
+        CO_API Command& cloneCommand( Command& command );
 
         /** @internal Allocate a local command from the receiver thread. */
         CO_API Command& allocCommand( const uint64_t size );
@@ -362,13 +345,33 @@ namespace co
          * @sa Command::invoke
          */
         CO_API bool dispatchCommand( Command& command );
+
+        /**
+         * Acquire a singular send token from the given node.
+         * @return The send token to release.
+         */
+        CO_API SendToken acquireSendToken( NodePtr toNode );
+        CO_API void releaseSendToken( SendToken& token );
         //@}
 
         /** @internal Ack an operation to the sender. */
         CO_API void ackRequest( NodePtr node, const uint32_t requestID );
 
+        /** Request keep-alive update from the remote node. */
+        CO_API void ping( NodePtr remoteNode );
+
+        /**
+         * Request updates from all nodes above keep-alive timeout.
+         *
+         * @return true if at least one ping was send.
+         */
+        CO_API bool pingIdleNodes();
+
+        /** Set the affinity for this, the receiver and the command thread. */
+        CO_API void setAffinity( const int32_t affinity );
+
     protected:
-        /** 
+        /**  @internal
          * Connect a node proxy to this node.
          *
          * This node has to be in the listening state. The node proxy will be
@@ -379,88 +382,33 @@ namespace co
          * @param connection the connection to the remote node.
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
-         * @internal
          */
         CO_API bool _connect( NodePtr node, ConnectionPtr connection );
 
-        /** @internal Requests keep-alive from remote node. */
-        void _ping( NodePtr remoteNode ); 
+        /** Notify remote node disconnection */
+        virtual void notifyDisconnect( NodePtr node ) { }
 
     private:
-        typedef std::list< Command* > CommandList;
-
-        /** Commands re-scheduled for dispatch. */
-        CommandList  _pendingCommands;
-
-        /** The command 'allocator' */
-        CommandCache _commandCache;
-
-        /** true if the send token can be granted, false otherwise. */
-        bool _hasSendToken;
-        uint64_t _lastTokenTime; //!< last used time for timeout detection
-        std::deque< Command* > _sendTokenQueue; //!< pending requests
-
-        /** Manager of distributed object */
-        ObjectStore* _objectStore;
-
-        /** Needed for thread-safety during nodeID-based connect() */
-        base::Lock _connectMutex;
-    
-        /** The node for each connection. */
-        typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
-        ConnectionNodeHash _connectionNodes; // read and write: recv only
-
-        /** The connected nodes. */
-        typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
-        // r: all, w: recv
-        base::Lockable< NodeHash, base::SpinLock > _nodes; 
-
-        /** The connection set of all connections from/to this node. */
-        ConnectionSet _incoming;
-
-        /** The process-global clock. */
-        base::Clock _clock;
-    
-        /** @name Receiver management */
-        //@{
-        /** The receiver thread. */
-        class ReceiverThread : public base::Thread
-        {
-        public:
-            ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
-            virtual bool init()
-                {
-                    setName( std::string("Rcv ") + base::className(_localNode));
-                    return _localNode->_commandThread->start();
-                }
-            virtual void run(){ _localNode->_runReceiverThread(); }
-
-        private:
-            LocalNode* const _localNode;
-        };
-        ReceiverThread* _receiverThread;
+        detail::LocalNode* const _impl;
 
         bool _connectSelf();
         void _connectMulticast( NodePtr node );
+
+        bool _startCommandThread();
+        bool _notifyCommandThreadIdle();
+        friend class detail::ReceiverThread;
+        friend class detail::CommandThread;
 
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
-
-        /** 
-         * @return <code>true</code> if executed from the command handler
-         *         thread, <code>false</code> if not.
-         */
-        bool _inReceiverThread() const { return _receiverThread->isCurrent(); }
-
-        void _receiverThreadStart() { _receiverThread->start(); }
+        uint32_t _removeListenerNB( ConnectionPtr connection );
 
         void _runReceiverThread();
         void   _handleConnect();
         void   _handleDisconnect();
         bool   _handleData();
-        //@}
 
         friend class ObjectStore;
         template< typename T > void
@@ -470,26 +418,6 @@ namespace co
             registerCommand( command, func, destinationQueue );
         }
 
-        /**
-         * @name Command management
-         */
-        //@{
-        /** The command handler thread. */
-        class CommandThread : public Worker
-        {
-        public:
-            CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
-
-        protected:
-            virtual bool init();
-            virtual bool stopRunning() { return _localNode->isClosed(); }
-            virtual bool notifyIdle();
-
-        private:
-            LocalNode* const _localNode;
-        };
-        CommandThread* _commandThread;
-
         void _dispatchCommand( Command& command );
         void   _redispatchCommands();
 
@@ -497,6 +425,7 @@ namespace co
         bool _cmdAckRequest( Command& packet );
         bool _cmdStopRcv( Command& command );
         bool _cmdStopCmd( Command& command );
+        bool _cmdSetAffinity( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );

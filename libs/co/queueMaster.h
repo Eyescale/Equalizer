@@ -19,44 +19,53 @@
 #ifndef CO_QUEUEMASTER_H
 #define CO_QUEUEMASTER_H
 
-#include "command.h"
-#include "object.h"
+#include "object.h" // base class
 #include "api.h"
-
 
 namespace co
 {
+namespace detail { class QueueMaster; }
 
-// @bug eile: missing doxygen
+/**
+ * The producer end of a distributed queue.
+ *
+ * One instance of this class is registered with a LocalNode to for the producer
+ * end of a distributed queue. One or more QueueSlave instances are mapped to
+ * this master instance and consume the data.
+ */
 class QueueMaster : public Object
 {
 public:
+    /** Construct a new queue master. @version 1.1.6 */
     CO_API QueueMaster();
-    CO_API ~QueueMaster();
 
-    Command& pop(); // note eile: why is this needed?
+    /** Destruct this queue master. @version 1.1.6 */
+    virtual CO_API ~QueueMaster();
+
+    /**
+     * Enqueue a new item.
+     *
+     * The enqueued item has to inherit from QueueItemPacket and be a flat
+     * structure, that is, it should only contain POD data and no pointers. The
+     * packet is copied as is over the network, using the packet's size
+     * parameter. The packet is copied by this method.
+     *
+     * @param packet the item to enqueue.
+     * @version 1.1.6
+     */
     CO_API void push( const QueueItemPacket& packet );
 
-    CO_API virtual void attach( const base::UUID& id, 
-        const uint32_t instanceID );
-
+    /** Remove all enqueued items. @version 1.1.6 */
     CO_API void clear();
 
-protected:
+private:
+    detail::QueueMaster* const _impl;
+
+    CO_API virtual void attach(const base::UUID& id, const uint32_t instanceID);
+
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& os );
-    virtual void applyInstanceData( co::DataIStream& ) {}
-
-private:
-    typedef std::deque< Command* > PacketQueue;
-
-    PacketQueue _queue;
-    CommandCache _cache;
-
-    /** The command handler functions. */
-    bool _cmdGetItem( Command& command );
-
-    EQ_TS_VAR( _thread );
+    virtual void applyInstanceData( co::DataIStream& ) { EQDONTCALL }
 };
 
 } // co

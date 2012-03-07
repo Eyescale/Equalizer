@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,7 +32,8 @@ namespace eq
 {
 
 typedef co::CommandFunc< Server > CmdFunc;
-typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node > Super;
+typedef fabric::Server< Client, Server, Config, NodeFactory, co::Node,
+                        ServerVisitor > Super;
 
 Server::Server()
         : Super( Global::getNodeFactory( ))
@@ -81,9 +82,10 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
         return 0;
     }
 
-    ServerChooseConfigPacket packet;
     ClientPtr client = getClient();
+    ServerChooseConfigPacket packet;
     packet.requestID =  client->registerRequest();
+    packet.flags = parameters.getFlags();
 
     const std::string& workDir = parameters.getWorkDir();
     std::string rendererInfo = workDir + '#' + renderClient;
@@ -197,7 +199,7 @@ bool Server::_cmdShutdownReply( co::Command& command )
 
 #include "../fabric/server.ipp"
 template class eq::fabric::Server< eq::Client, eq::Server, eq::Config,
-                                   eq::NodeFactory, co::Node >;
+                                 eq::NodeFactory, co::Node, eq::ServerVisitor >;
 
 /** @cond IGNORE */
 template EQFABRIC_API std::ostream& eq::fabric::operator << ( std::ostream&,

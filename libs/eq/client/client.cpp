@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,13 +18,20 @@
 #include "client.h"
 
 #include "commandQueue.h"
+#include "config.h"
+#include "clientPackets.h"
+#include "node.h"
 #include "global.h"
 #include "init.h"
 #include "nodeFactory.h"
 #include "server.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/configVisitor.h>
+#include <eq/fabric/leafVisitor.h>
+#include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/fabric/view.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -39,6 +46,12 @@
 namespace eq
 {
 /** @cond IGNORE */
+namespace
+{
+    Strings _activeLayouts;
+    float _modelUnit = EQ_UNDEFINED_UNIT;
+}
+
 typedef co::CommandFunc<Client> ClientFunc;
 
 static co::ConnectionPtr _startLocalServer();
@@ -211,6 +224,19 @@ bool Client::initLocal( const int argc, char** argv )
                 EQASSERT( !clientOpts.empty( ));
             }
         }
+        else if( std::string( "--eq-layout" ) == argv[i] &&
+                 i < argc-1 && // more args
+                 argv[i+1][0] != '-' ) // next arg not an option
+        {
+            _activeLayouts.push_back( argv[++i] ); 
+        }
+        else if( std::string( "--eq-modelunit" ) == argv[i] &&
+                 i < argc-1 && // more args
+                 argv[i+1][0] != '-' ) // next arg not an option
+        {
+            std::istringstream unitString( argv[++i] );
+            unitString >> _modelUnit;
+        }
     }
     EQINFO << "Launching " << getNodeID() << std::endl;
 
@@ -291,6 +317,12 @@ void Client::clientLoop()
     _mainThreadQueue.flush();
 }
 
+bool Client::exitLocal()
+{
+    _activeLayouts.clear();
+    return fabric::Client::exitLocal();
+}
+
 void Client::exitClient()
 {
     bool ret = exitLocal();
@@ -305,6 +337,16 @@ void Client::exitClient()
 bool Client::hasCommands()
 {
     return !_mainThreadQueue.isEmpty();
+}
+
+const Strings& Client::getActiveLayouts()
+{
+    return _activeLayouts;
+}
+
+float Client::getModelUnit() const
+{
+    return _modelUnit;
 }
 
 co::NodePtr Client::createNode( const uint32_t type )
@@ -330,5 +372,37 @@ bool Client::_cmdExit( co::Command& command )
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
+
+namespace
+{
+class StopNodesVisitor : public ServerVisitor
+{
+public:
+    virtual ~StopNodesVisitor() {}
+    virtual VisitorResult visitPre( Node* node )
+        {
+            node->dirtyClientExit();
+            return TRAVERSE_CONTINUE;
+        }
+};
+}
+
+void Client::notifyDisconnect( co::NodePtr node )
+{
+    if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
+    {
+        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        eq::ClientExitPacket* packet = 
+            command.getModifiable< eq::ClientExitPacket >();
+        *packet = eq::ClientExitPacket();
+        dispatchCommand( command );
+
+        ServerPtr server = static_cast< Server* >( node.get( ));
+        StopNodesVisitor stopNodes;
+        server->accept( stopNodes );
+    }
+    fabric::Client::notifyDisconnect( node );
+}
+
 }
 

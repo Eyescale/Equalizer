@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2012, Marwan Abdellah <marwan.abdellah@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,11 +19,11 @@
 #ifndef COBASE_THREAD_H
 #define COBASE_THREAD_H
 
-#include <co/base/api.h>      // COBASE_API definition
-#include <co/base/debug.h>    // debug macros in thread-safety checks
-#include <co/base/lock.h>     // member
-#include <co/base/monitor.h>  // member
-#include <co/base/threadID.h> // member
+#include <co/base/api.h>         // COBASE_API definition
+#include <co/base/debug.h>       // debug macros in thread-safety checks
+#include <co/base/nonCopyable.h> // base class
+#include <co/base/threadID.h>    // member
+#include <co/base/types.h>
 
 #include <ostream>
 
@@ -30,12 +31,20 @@ namespace co
 {
 namespace base
 {
-    class ExecutionListener;
+namespace detail { class Thread; }
 
     /** An utility class to execute code in a separate execution thread. */
     class Thread 
     {
     public:
+        /** Enumeration values for thread affinity. */
+        enum Affinity
+        {
+            CORE = 1, //!< Bind to a specific CPU core
+            SOCKET = -65536, //!< Bind to all cores of a specific socket (CPU)
+            SOCKET_MAX = -1024 //!< Highest bindable CPU
+        };
+
         /** Construct a new thread. @version 1.0 */
         COBASE_API Thread();
 
@@ -48,15 +57,12 @@ namespace base
         /** 
          * Start the thread.
          *
-         * All thread state listeners will be notified from the new thread,
-         * after the thread was initialized successfully.
-         * 
          * @return <code>true</code> if the thread was launched and initialized
          *         successfully, <code>false</code> otherwise.
-         * @sa init(), run(), addListener()
+         * @sa init(), run()
          * @version 1.0
          */
-        COBASE_API bool start();
+        COBASE_API virtual bool start();
 
         /** 
          * The init function for the child thread.
@@ -85,7 +91,7 @@ namespace base
          * Exit the child thread immediately.
          * 
          * This function does not return. It is only to be called from the child
-         * thread. The thread listeners will be notified.
+         * thread.
          *
          * @version 1.0
          */
@@ -116,7 +122,7 @@ namespace base
          * @return true if the thread is stopped, false if not.
          * @version 1.0
          */
-        bool isStopped() const { return ( _state == STATE_STOPPED ); }
+        COBASE_API bool isStopped() const;
 
         /** 
          * Return if the thread is running.
@@ -127,7 +133,7 @@ namespace base
          * @return true if the thread is running, false if not.
          * @version 1.0
          */
-        bool isRunning() const { return ( _state == STATE_RUNNING ); }
+        COBASE_API bool isRunning() const;
 
         /** 
          * @return true if the calling thread is the same thread as this
@@ -136,30 +142,8 @@ namespace base
          */
         COBASE_API bool isCurrent() const;
 
-        /** 
-         * Add a new thread state listener.
-         * 
-         * @param listener the listener.
-         * @version 1.0
-         */
-        COBASE_API static void addListener( ExecutionListener* listener );
-
-        /** 
-         * Remove a thread state listener.
-         * 
-         * @param listener the listener.
-         * @version 1.0
-         */
-        COBASE_API static bool removeListener( ExecutionListener* listener );
-
-        /** Remove all registered listeners, used at exit. @version 1.0 */
-        COBASE_API static void removeAllListeners();
-
         /** @return a unique identifier for the calling thread. @version 1.0 */
         COBASE_API static ThreadID getSelfThreadID();
-
-        /** @internal @warning do not call unless you know the side effects. */
-        COBASE_API void untrack();
 
         /** @internal */
         COBASE_API static void yield();
@@ -170,19 +154,20 @@ namespace base
         /** @internal */
         COBASE_API static void setName( const std::string& name );
 
+        /** @internal
+         * Set the affinity of the calling thread.
+         *
+         * If given a value greater or equal than CORE, this method binds the
+         * calling thread to core affinity - CORE. If set to a value greater
+         * than CPU and smaller than 0, this method binds the calling thread to
+         * all cores of the given processor (affinity - CPU).
+         *
+         * @param affinity the affinity value (see above).
+         */
+        COBASE_API static void setAffinity( const int32_t affinity );
+
     private:
-        ThreadID _id;
-
-        /** The current state of this thread. */
-        enum State
-        {
-            STATE_STOPPED,
-            STATE_STARTING, // start() in progress
-            STATE_RUNNING,
-            STATE_STOPPING  // child no longer active, join() not yet called
-        };
-
-        Monitor< State > _state;
+        detail::Thread* const _impl;
 
         static void* runChild( void* arg );
         void        _runChild();
@@ -192,12 +177,7 @@ namespace base
         static void _notifyStarted();
         static void _notifyStopping();
         friend void _notifyStopping( void* ); //!< @internal
-
-        friend std::ostream& operator << ( std::ostream& os, const Thread* );
     };
-
-    /** Print the thread to the given output stream. */
-    std::ostream& operator << ( std::ostream& os, const Thread* thread );
 
 // thread-safety checks
 // These checks are for development purposes, to check that certain objects are

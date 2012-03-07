@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 #ifndef EQSERVER_TYPES_H
 #define EQSERVER_TYPES_H
 
+#include <eq/fabric/eye.h>
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
@@ -79,6 +80,8 @@ typedef Frames::const_iterator FramesCIter;
 typedef Frames::iterator FramesIter;
 typedef Layouts::const_iterator LayoutsCIter;
 typedef Layouts::iterator LayoutsIter;
+typedef Nodes::const_iterator NodesCIter;
+typedef Nodes::iterator NodesIter;
 typedef Observers::const_iterator ObserversCIter;
 typedef Observers::iterator ObserversIter;
 typedef Pipes::const_iterator PipesCIter;
@@ -87,6 +90,8 @@ typedef TileQueues::const_iterator TileQueuesCIter;
 typedef TileQueues::iterator TileQueuesIter;
 typedef Views::const_iterator ViewsCIter;
 typedef Views::iterator ViewsIter;
+typedef Equalizers::const_iterator EqualizersCIter;
+typedef Equalizers::iterator EqualizersIter;
 typedef Windows::const_iterator WindowsCIter;
 typedef Windows::iterator WindowsIter;
 
@@ -94,9 +99,6 @@ typedef co::base::RefPtr< Server > ServerPtr;
 typedef co::base::RefPtr< const Server > ConstServerPtr;
 
 using fabric::Frustumf;
-using fabric::GPUInfo;
-using fabric::GPUInfos;
-using fabric::GPUInfosCIter;
 using fabric::Matrix4f;
 using fabric::PixelViewport;
 using fabric::Projection;
@@ -120,6 +122,11 @@ using fabric::SegmentPath;
 using fabric::ObserverPath;
 using fabric::LayoutPath;
 using fabric::ViewPath;
+
+using fabric::CORE;
+using fabric::SOCKET;
+using fabric::EYES_STEREO;
+using fabric::UNDEFINED;
 
 /** A visitor to traverse segments. @sa Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
@@ -152,7 +159,9 @@ typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
 class ConfigVisitor;
-class ServerVisitor;
+
+/** A visitor to traverse servers and children. */
+typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
 
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;

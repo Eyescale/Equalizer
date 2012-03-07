@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,7 +28,11 @@
 
 namespace eq
 {
-    struct ChannelFrameTransmitPacket;
+namespace detail { class Channel; }
+
+    struct ChannelFrameTransmitImagePacket;
+    struct ChannelFrameSetReadyPacket;
+    struct ChannelFrameTilesPacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -54,12 +58,13 @@ namespace eq
         //@{
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
 
         /**
          * @return true if this channel is stopped, false otherwise.
          * @version 1.0 
          */
-        bool isStopped() const { return (_state == STATE_STOPPED); }
+        EQ_API bool isStopped() const;
 
         /** @return the parent pipe. @version 1.0 */
         EQ_API Pipe* getPipe();
@@ -124,7 +129,7 @@ namespace eq
         EQ_API util::FrameBufferObject* getFrameBufferObject();
 
         /** @internal Add a new statistics event for the current frame. */
-        EQ_API void addStatistic( Event& event, const uint32_t index );
+        EQ_API void addStatistic( Event& event );
         //@}
 
         /**
@@ -147,13 +152,13 @@ namespace eq
          * @return the list of input frames, used from frameAssemble().
          * @version 1.0
          */
-        const Frames& getInputFrames() { return _inputFrames; }
+        EQ_API const Frames& getInputFrames();
 
         /**
          * @return the list of output frames, used from frameReadback().
          * @version 1.0
          */
-        const Frames& getOutputFrames() { return _outputFrames; }
+        EQ_API const Frames& getOutputFrames();
 
         /** 
          * Get the channel's current View.
@@ -281,6 +286,54 @@ namespace eq
         EQ_API void bindFrameBuffer();        
         //@}
 
+        /** @name Region of Interest. */
+        //@{
+        /**
+         * Reset the declared regions of interest.
+         *
+         * Called from frameStart and frameClear to reset the area to be used to
+         * optimize compositing and load balancing for each frame.
+         * @version 1.3
+         */
+        EQ_API virtual void resetRegions();
+
+        /**
+         * Declare a region covered by the current draw or assemble operation.
+         *
+         * The region is relative to the current pixel viewport. It is clipped
+         * against the current pixel viewport of the channel. Called with the
+         * full pixel viewport after frameDraw if no region has been declared.
+         * The implementation might merge or split the declared regions.
+         * @version 1.3
+         */
+        EQ_API virtual void declareRegion( const eq::PixelViewport& region );
+
+        /**
+         * Convenience method to declare a region in relative coordinates.
+         *
+         * The given viewport is relative to the current pixel viewport.
+         * @version 1.3
+         */
+        EQ_API void declareRegion( const eq::Viewport& vp );
+
+        /** @return a region covering all declared regions. @version 1.3 */
+        EQ_API PixelViewport getRegion() const;
+
+        /**
+         * Get the current regions of interest.
+         *
+         * The returned regions are guaranteed not to overlap with each
+         * other. Therefore they may differ in number and size from the declared
+         * regions. The actual algorithm to create the non-overlapping regions
+         * is unspecified and may change in the future.
+         *
+         * @return current regions of interest.
+         * @version 1.3
+         */
+        EQ_API const PixelViewports& getRegions() const;
+
+        //@}
+
         /** 
          * Process a received event.
          *
@@ -309,7 +362,7 @@ namespace eq
         void changeLatency( const uint32_t latency );
 
         /** @return a fixed unique color for this channel. @version 1.0 */
-        const Vector3ub& getUniqueColor() const { return _color; }
+        EQ_API const Vector3ub& getUniqueColor() const;
 
     protected:
         /** @internal */
@@ -487,6 +540,12 @@ namespace eq
         EQ_API virtual void frameViewFinish( const uint128_t& frameID );
         //@}
 
+        /** Start a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesStart( const uint128_t& frameID ) {}
+
+        /** Finish a batch of tile rendering operations. @version 1.1.6 */
+        virtual void frameTilesFinish( const uint128_t& frameID ) {}
+
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
 
@@ -505,56 +564,8 @@ namespace eq
         virtual void notifyStopFrame( const uint32_t lastFrameNumber ) {}
 
     private:
-        //-------------------- Members --------------------
+        detail::Channel* const _impl;
         friend class fabric::Window< Pipe, Window, Channel >;
-
-        /** The channel's drawable config (FBO). */
-        DrawableConfig _drawableConfig;
-
-        enum State
-        {
-            STATE_STOPPED,
-            STATE_INITIALIZING,
-            STATE_RUNNING,
-            STATE_FAILED
-        };
-
-        /** The configInit/configExit state. */
-        State _state;
-
-        /** server-supplied vector of output frames for current task. */
-        Frames _outputFrames;
-
-        /** server-supplied vector of input frames for current task. */
-        Frames _inputFrames;
-
-        /** Used as an alternate drawable. */
-        util::FrameBufferObject* _fbo; 
-
-        /** A random, unique color for this channel. */
-        Vector3ub _color;
-
-        typedef std::vector< Statistic > Statistics;
-        struct FrameStatistics
-        {
-            Statistics data; //!< all events for one frame
-            /** reference count by pipe and transmit thread */
-            co::base::a_int32_t used;
-        };
-
-        typedef std::vector< FrameStatistics > StatisticsRB;
-
-        /** Global statistics events, index per frame and channel. */
-        co::base::Lockable< StatisticsRB, co::base::SpinLock > _statistics;
-        /* Index of current vector StatisticsRB */ 
-        uint32_t _statisticsIndex;
-        friend class ChannelStatistics;
-
-        /** The initial channel size, used for view resize events. */
-        Vector2i _initialSize;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
 
         //-------------------- Methods --------------------
         /** Setup the current rendering context. */
@@ -566,14 +577,36 @@ namespace eq
         /** Initialize the channel's drawable config. */
         void _initDrawableConfig();
 
-        /** Check for and send frame finish reply. */
-        void _unrefFrame( const uint32_t frameNumber, const uint32_t index );
+        /** Tile render loop. */
+        void _frameTiles( const ChannelFrameTilesPacket* packet );
 
-        /** Transmit the frame data to the nodeID. */
-        void _transmit( const ChannelFrameTransmitPacket* packet );
+        /** Check for and send frame finish reply. */
+        void _unrefFrame( const uint32_t frameNumber );
+
+        /** Transmit one image of a frame to one node. */
+        void _transmitImage( Image* image, 
+                             const ChannelFrameTransmitImagePacket* packet );
+        
+        /** Send the ready signal of a frame to one node. */
+        void _sendFrameDataReady(const ChannelFrameSetReadyPacket* packet);
+
+        void _setOutputFrames( const uint32_t nFrames,
+                               const co::ObjectVersion* frames );
+        void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
+                             co::ObjectVersion* frames );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
+
+        /** Transmit all new images after a readback. */
+        void _transmitImages( const RenderContext& context, Frame* frame,
+                              const size_t startPos );
+
+        /** Transmit frame ready after transmitting all images. */
+        void _resetOutputFrames();
+
+        /** Set output ready locally and remotely. */
+        void _setOutputFramesReady();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -585,8 +618,8 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdFrameAssemble( co::Command& command );
         bool _cmdFrameReadback( co::Command& command );
-        bool _cmdFrameTransmit( co::Command& command );
-        bool _cmdFrameTransmitAsync( co::Command& command );
+        bool _cmdFrameTransmitImage( co::Command& command );
+        bool _cmdFrameSetReady( co::Command& command );
         bool _cmdFrameViewStart( co::Command& command );
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );

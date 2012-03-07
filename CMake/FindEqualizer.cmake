@@ -51,6 +51,8 @@
 #
 #    EQUALIZER_LIBRARIES - The Equalizer libraries
 #
+#    EQUALIZER_DEB_DEPENDENCIES - A list of dependencies for CPack deb generator
+#
 #==================================
 # Example Usage:
 #
@@ -74,11 +76,20 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_ "0.5.0")
+  set(_eq_coVersion_1.3.1 "0.5.0")
+  set(_eq_coVersion_1.3.0 "0.5.0")
+  set(_eq_coVersion_1.2.0 "0.4.8")
+  set(_eq_coVersion_1.1.7 "0.4.7")
+  set(_eq_coVersion_1.1.6 "0.4.1")
+  set(_eq_coVersion_1.1.5 "0.4.1")
   set(_eq_coVersion_1.1.4 "0.4.1")
   set(_eq_coVersion_1.1.3 "0.4.0")
   set(_eq_coVersion_1.1.2 "0.4.0")
   set(_eq_coVersion_1.1.1 "0.4.0")
   set(_eq_coVersion_1.1.0 "0.4.0")
+  set(_eq_coVersion_1.0.2 "0.3.1")
+  set(_eq_coVersion_1.0.1 "0.3.1")
   set(_eq_coVersion_1.0.0 "0.3.0")
   find_package(Collage "${_eq_coVersion_${Equalizer_FIND_VERSION}}"
                ${_eq_required})
@@ -137,7 +148,7 @@ if(_eq_Version_file)
 else()
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Can't find Equalizer header file version.h.")
+    "Can't find Equalizer header file version.h.")
 endif()
 
 #
@@ -158,8 +169,8 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
 endif()
 
 find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
-   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
-   PATHS /usr /usr/local /opt/local /opt
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
+  PATHS /usr /usr/local /opt/local /opt
 )
 find_library(_eq_fabric_LIBRARY EqualizerFabric PATH_SUFFIXES lib
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
@@ -183,22 +194,22 @@ find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
 if(_eq_version_not_high_enough)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
+    "Version ${Equalizer_FIND_VERSION} or higher of Equalizer is required. "
     "Version ${EQUALIZER_VERSION} was found in ${_eq_Version_file}.")
 elseif(_eq_version_not_exact)
   set(_eq_EPIC_FAIL TRUE)
   message(${_eq_version_output_type}
-    "ERROR: Version ${Equalizer_FIND_VERSION} of Equalizer is required exactly. "
+    "Version ${Equalizer_FIND_VERSION} of Equalizer is required exactly. "
     "Version ${EQUALIZER_VERSION} was found.")
 else()
   if(Equalizer_FIND_REQUIRED)
     if(_eq_LIBRARY MATCHES "_eq_LIBRARY-NOTFOUND")
-      message(FATAL_ERROR "ERROR: Missing the Equalizer library.\n"
+      message(FATAL_ERROR "Missing the Equalizer library.\n"
         "Consider using CMAKE_PREFIX_PATH or the EQ_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Equalizer DEFAULT_MSG
+  find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
 endif()
 
@@ -208,11 +219,19 @@ if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
     set(_eq_LIBRARY)
     set(_eq_fabric_LIBRARY)
     set(_eq_INCLUDE_DIR)
+else()
+  if(EQUALIZER_VERSION_ABI LESS 110)
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer (>=${EQUALIZER_VERSION})")
+  else()
+    set(EQUALIZER_DEB_DEPENDENCIES "equalizer${EQUALIZER_VERSION_ABI}-eqlib")
+  endif()
 endif()
 
 set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${_eq_fabric_LIBRARY}
-                        ${COLLAGE_LIBRARIES})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+if(EQUALIZER_VERSION VERSION_GREATER 1.0)
+  set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
+endif()
 get_filename_component(EQUALIZER_LIBRARY_DIR ${_eq_LIBRARY} PATH)
 
 if(EQUALIZER_FOUND)

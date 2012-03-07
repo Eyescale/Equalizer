@@ -75,6 +75,9 @@ namespace seq
          * @version 1.0
          */
         SEQ_API virtual bool exit();
+
+        /** Request that the application leaves its run loop. @version 1.1.6 */
+        SEQ_API void stopRunning();
         //@}
 
         /** @name Callbacks */
@@ -123,7 +126,7 @@ namespace seq
         SEQ_API virtual void destroyViewData( ViewData* viewData );
         //@}
 
-        /** @name Data Access */
+        /** @name Internal */
         //@{
         SEQ_API eq::Config* getConfig(); //!< @internal
         detail::Application* getImpl() { return _impl; } //!< @internal

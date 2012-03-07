@@ -41,6 +41,8 @@
 
 namespace eqPly
 {
+    class View;
+
     /**
      * The configuration, run be the EqPly application. 
      *
@@ -82,6 +84,9 @@ namespace eqPly
         /** @return true if an event required a redraw. */
         bool needRedraw();
 
+        /** @return the current animation frame number. */
+        uint32_t getAnimationFrame();
+
     protected:
         virtual ~Config();
 
@@ -110,7 +115,7 @@ namespace eqPly
         bool _redraw;
         bool _useIdleAA;
 
-        uint32_t _numFramesAA;
+        int32_t _numFramesAA;
 
         eq::admin::ServerPtr _admin;
 
@@ -127,7 +132,11 @@ namespace eqPly
         void _switchViewMode();
         void _switchModel();
         void _freezeLoadBalancing( const bool onOff );
+        void _adjustEyeBase( const float delta );
+        void _adjustTileSize( const int delta );
+        void _adjustModelScale( const float factor );
         void _switchLayout( int32_t increment );
+        void _toggleEqualizer();
 
         void _setHeadMatrix( const eq::Matrix4f& matrix );
         const eq::Matrix4f& _getHeadMatrix() const;
@@ -137,6 +146,9 @@ namespace eqPly
         /** @return a pointer to a connected admin server. */
         eq::admin::ServerPtr _getAdminServer();
         void _closeAdminServer();
+
+        View* _getCurrentView();
+        const View* _getCurrentView() const;
 
         void _setMessage( const std::string& message );
         void _updateData();

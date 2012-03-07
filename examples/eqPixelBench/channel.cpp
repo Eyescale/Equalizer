@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -193,9 +193,16 @@ void Channel::_testFormats( float applyZoom )
 
 
             // read
+            glFinish();
+            size_t nLoops = 0;
             clock.reset();
-            image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects );
-            event.msec = clock.getTimef();
+            while( clock.getTime64() < 100 /*ms*/ )
+            {
+                image->readback( eq::Frame::BUFFER_COLOR, pvp, zoom, glObjects);
+                ++nLoops;
+            }
+            glFinish();
+            event.msec = clock.getTimef() / float( nLoops );
 
             const eq::PixelData& pixels =
                 image->getPixelData( eq::Frame::BUFFER_COLOR );
@@ -203,13 +210,14 @@ void Channel::_testFormats( float applyZoom )
             event.area.y() = pixels.pvp.h;
             event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
             event.dataSizeCPU = 
-                image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+	        image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             GLenum error = glGetError();
             if( error != GL_NO_ERROR )
                 event.msec = -static_cast<float>( error );
             config->sendEvent( event );
 
+            // write
             eq::Compositor::ImageOp op;
             op.channel = this;
             op.buffers = eq::Frame::BUFFER_COLOR;

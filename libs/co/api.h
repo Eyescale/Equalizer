@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,13 +20,6 @@
 #define CO_API_H
 
 #include <co/base/api.h>
-
-
-#ifdef EQ_USE_DEPRECATED
-namespace co{}
-/** Deprecated namespace eq::net */
-namespace eq{ namespace net = co; }
-#endif
 
 #if defined(CO_STATIC)
 #  define CO_API

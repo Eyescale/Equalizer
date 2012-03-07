@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,7 +24,9 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
+#include <co/commandQueue.h>
 #include <co/types.h>
+#include <co/base/monitor.h>          // member
 #include <co/base/mtQueue.h>          // member
 
 namespace eq
@@ -62,6 +64,9 @@ namespace eq
         EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
+        /** @internal node thread only. */
+        uint32_t getCurrentFrame() const { return _currentFrame.get(); }
+
         /** 
          * @internal
          * Get a network barrier. 
@@ -75,10 +80,10 @@ namespace eq
          * @internal
          * Get a frame data instance.
          * 
-         * @param dataVersion the frame data identifier and version.
+         * @param frameDataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const co::ObjectVersion& dataVersion );
+        FrameData* getFrameData( const co::ObjectVersion& frameDataVersion );
 
         /** @internal Wait for the node to be initialized. */
         EQ_API void waitInitialized() const;
@@ -129,6 +134,9 @@ namespace eq
 
         /** @internal @sa Serializable::setDirty() */
         EQ_API virtual void setDirty( const uint64_t bits );
+
+        /** @internal */
+        EQ_API void dirtyClientExit();
 
     protected:
         /** @internal */
@@ -277,6 +285,8 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
+        void _setAffinity();
+
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint128_t& frameID,
                            const uint32_t frameNumber );
@@ -294,6 +304,7 @@ namespace eq
         bool _cmdFrameTasksFinish( co::Command& command );
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
+        bool _cmdSetAffinity( co::Command& command );
 
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );

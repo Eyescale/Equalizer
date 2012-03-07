@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/config.h> // base class
+#include <co/base/monitor.h> // member
 
 #include <iostream>
 #include <vector>
@@ -56,6 +57,8 @@ namespace server
 
         bool isRunning() const { return ( _state == STATE_RUNNING ); }
         bool isUsed() const { return _state != STATE_UNUSED; }
+        bool isAutoConfig() const
+            { return getName().find( " autoconfig" ) != std::string::npos; }
 
         co::CommandQueue* getMainThreadQueue()
             { return getServer()->getMainThreadQueue(); }
@@ -202,6 +205,9 @@ namespace server
 
         /** The last started frame, or 0. */
         uint32_t _currentFrame;
+
+        /** The eternal frame commit counter, starting at 1 (#66). */
+        uint32_t _incarnation;
 
         /** The last finished frame, or 0. */
         co::base::Monitor< uint32_t > _finishedFrame;

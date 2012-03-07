@@ -24,6 +24,7 @@
 #include "nameFinder.h"
 
 #include <co/command.h>
+#include <co/base/global.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 
@@ -371,7 +372,8 @@ uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 {
     if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
         return EQ_TIMEOUT_INDEFINITE;
-    return EQ_TIMEOUT_DEFAULT;
+    return co::base::Global::getIAttribute( 
+        co::base::Global::IATTR_TIMEOUT_DEFAULT );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
@@ -632,15 +634,15 @@ N* Config< S, C, O, L, CV, N, V >::_findNode( const uint128_t& id )
 template< class S, class C, class O, class L, class CV, class N, class V >
 uint128_t Config< S, C, O, L, CV, N, V >::commit( const uint32_t incarnation )
 {
-    if( Serializable::isDirty( Config::DIRTY_NODES ))
+    if( Serializable::isDirty( DIRTY_NODES ))
         commitChildren< N >( _nodes, incarnation );
-    if( Serializable::isDirty( Config::DIRTY_OBSERVERS ))
+    if( Serializable::isDirty( DIRTY_OBSERVERS ))
         commitChildren< O, ConfigNewObserverPacket, C >(
             _observers, static_cast< C* >( this ), incarnation );
     // Always traverse layouts: view objects may be dirty
     commitChildren< L, ConfigNewLayoutPacket, C >(
         _layouts, static_cast<C*>( this ), incarnation );
-    if( Serializable::isDirty( Config::DIRTY_CANVASES ))
+    if( Serializable::isDirty( DIRTY_CANVASES ))
         commitChildren< CV, ConfigNewCanvasPacket, C >(
             _canvases, static_cast< C* >( this ), incarnation );
     return Object::commit( incarnation );

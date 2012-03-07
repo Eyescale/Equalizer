@@ -62,11 +62,10 @@ server
             compound
             {
                 range [ .5 1 ]
-
                 outputframe { name "stripe2.c1" viewport [ 0 .5 1 .5 ] }
             }
-            inputframe { name "stripe1.c2" }
 
+            inputframe { name "stripe1.c2" }
             inputframe { name "frame.channel2" }
         }
     }    

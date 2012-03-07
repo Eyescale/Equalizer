@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
+#include <co/base/atomic.h>
 
 #include <map>
 #include <vector>
@@ -81,7 +82,7 @@ using fabric::DrawableConfig;
 using fabric::Frustum;
 using fabric::Frustumf;
 using fabric::GPUInfo;
-using fabric::GPUInfos;
+using fabric::IAttribute;
 using fabric::Pixel;
 using fabric::PixelViewport;
 using fabric::Projection;
@@ -124,10 +125,14 @@ typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 typedef fabric::ConfigVisitor< Config, ObserverVisitor, LayoutVisitor,
                                CanvasVisitor, NodeVisitor > ConfigVisitor;
 
+/** A visitor to traverse servers and children. */
+typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
 
 //----- Vectors
 /** A vector of pointers to eq::Config */
 typedef std::vector< Config* > Configs;
+/** A vector of pointers to eq::Server */
+typedef std::vector< Server* > Servers;
 /** A vector of pointers to eq::Node */
 typedef std::vector< Node* > Nodes;
 /** A vector of pointers to eq::Pipe */
@@ -159,6 +164,8 @@ typedef std::vector< Statistic > Statistics;
 
 /** A const_iterator over a eq::Config vector */
 typedef Configs::const_iterator ConfigsCIter;
+/** A const_iterator over a eq::Server vector */
+typedef Servers::const_iterator ServersCIter;
 /** A const_iterator over a eq::Node vector */
 typedef Nodes::const_iterator NodesCIter;
 /** A const_iterator over a eq::Pipe vector */
@@ -167,6 +174,8 @@ typedef Pipes::const_iterator PipesCIter;
 typedef Windows::const_iterator WindowsCIter;
 /** A const_iterator over a eq::Channel vector */
 typedef Channels::const_iterator ChannelsCIter;
+/** An iterator over a eq::Frame vector */
+typedef Frames::iterator FramesIter;
 /** A const_iterator over a eq::Frame vector */
 typedef Frames::const_iterator FramesCIter;
 /** A const_iterator over a eq::Image vector */
@@ -197,8 +206,13 @@ typedef co::base::RefPtr< Server >        ServerPtr;
 
 namespace util
 {
+template< class > class BitmapFont;
 template< class > class ObjectManager;
 }
+
+/** The bitmap font used in the client library. */
+typedef util::BitmapFont< const void* > BitmapFont;
+
 /** The OpenGL object manager used in the client library. */
 typedef util::ObjectManager< const void* > ObjectManager;
 
@@ -235,6 +249,7 @@ typedef std::vector< uint16_t >   Vectorus;
 /** A const_iterator over a std::string vector */
 typedef Strings::const_iterator StringsCIter;
 
+using co::base::a_int32_t;
 using co::base::uint128_t;
 using co::base::UUID;
 

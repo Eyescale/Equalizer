@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,13 @@
 #include <eq/fabric/types.h>
 #include <eq/fabric/viewport.h>       // member
 #include <eq/fabric/visitorResult.h>  // enum
+
+#define EQ_MM 1000.f
+#define EQ_CM 100.f
+#define EQ_DM 10.f
+#define EQ_M  1.f
+#define EQ_KM 0.001f
+#define EQ_UNDEFINED_UNIT -1.f
 
 namespace eq
 {
@@ -84,13 +91,25 @@ namespace fabric
         EQFABRIC_INL void setOverdraw( const Vector2i& pixels );
 
         /** @warning  Undocumented - may not be supported in the future */
-        const Vector2i& getOverdraw() const { return _overdraw; }
+        const Vector2i& getOverdraw() const { return _data.overdraw; }
+
+        /** @warning  Undocumented - may not be supported in the future */
+        EQFABRIC_INL void useEqualizer( uint32_t equalizerMask );
+
+        /** @warning  Undocumented - may not be supported in the future */
+        uint32_t getEqualizers() const { return _data.equalizers; }
+
+        /** @warning  Undocumented - may not be supported in the future */
+        EQFABRIC_INL void setTileSize( const Vector2i& size );
+
+        /** @warning  Undocumented - may not be supported in the future */
+        const Vector2i& getTileSize() const { return _data.tileSize; }
 
         /** @internal Set the 2D viewport wrt Layout and Canvas. */
         EQFABRIC_INL void setViewport( const Viewport& viewport );
 
-        /** @internal Get the mode of this view. */
-        Mode getMode() const { return _mode; }
+        /** @return the stereo mode of this view. @version 1.0 */
+        Mode getMode() const { return _data.mode; }
         
         /**
          * Set the mode of this view.
@@ -106,10 +125,31 @@ namespace fabric
          *
          * @param mode the new rendering mode 
          */
-        virtual void activateMode( const Mode mode ){ _mode = mode; }
+        virtual void activateMode( const Mode mode ){ _data.mode = mode; }
 
         /** @return true if the view's layout is active. @version 1.1.5 */
         EQFABRIC_INL bool isActive() const;
+
+        /**
+         * Set the model unit of this view.
+         *
+         * The model unit defines the size of the model wrt the virtual room
+         * unit which is always in meter.
+         *
+         * @param modelUnit the new model unit value
+         * @version 1.3.1
+         */
+        EQFABRIC_INL void setModelUnit( const float modelUnit );
+
+        /**
+         * Get the model unit of this view.
+         *
+         * The default model unit is 1 (1 meter or EQ_M).
+         *
+         * @return the model unit of this view.
+         * @version 1.3.1
+         */
+        EQFABRIC_INL float getModelUnit() const;
         //@}
 
         /** @name Operations */
@@ -128,7 +168,6 @@ namespace fabric
 
         virtual EQFABRIC_INL void backup(); //!< @internal
         virtual EQFABRIC_INL void restore(); //!< @internal
-        //@}
 
         /**
          * Set the minimum required capabilities for this view.
@@ -143,7 +182,6 @@ namespace fabric
 
         /** @return the bitmask of the minimum capabilities. @version 1.0 */
         EQFABRIC_INL uint64_t getMinimumCapabilities() const;
-        //@}
 
         /**
          * Set the maximum desired capabilities for this view.
@@ -169,7 +207,6 @@ namespace fabric
          * @version 1.0
          */
         EQFABRIC_INL uint64_t getMaximumCapabilities() const;
-        //@}
 
         /**
          * @return the bitmask usable for rendering.
@@ -180,7 +217,7 @@ namespace fabric
         //@}
 
         void setCapabilities( const uint64_t bitmask ); //!< @internal
-        virtual void updateCapabilities() {}; //!< @internal
+        virtual void updateCapabilities() {} //!< @internal
 
         /** @internal */
         enum DirtyBits
@@ -193,10 +230,14 @@ namespace fabric
             DIRTY_MINCAPS       = Object::DIRTY_CUSTOM << 5,
             DIRTY_MAXCAPS       = Object::DIRTY_CUSTOM << 6,
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 7,
+            DIRTY_TILESIZE      = Object::DIRTY_CUSTOM << 8,
+            DIRTY_EQUALIZERS    = Object::DIRTY_CUSTOM << 9,
+            DIRTY_MODELUNIT     = Object::DIRTY_CUSTOM << 10,
             DIRTY_VIEW_BITS =
                 DIRTY_VIEWPORT | DIRTY_OBSERVER | DIRTY_OVERDRAW |
                 DIRTY_FRUSTUM | DIRTY_MODE | DIRTY_MINCAPS | DIRTY_MAXCAPS |
-                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS
+                DIRTY_CAPABILITIES | DIRTY_OBJECT_BITS | DIRTY_TILESIZE |
+                DIRTY_EQUALIZERS | DIRTY_MODELUNIT
         };
 
     protected:
@@ -242,17 +283,28 @@ namespace fabric
         /** The observer for tracking. */
         O* _observer;
 
-        /** Logical 2D area of Canvas covered. */
-        Viewport _viewport;
+        struct BackupData
+        {
+            BackupData();
 
-        /** Enlarge size of all dest channels and adjust frustum accordingly. */
-        Vector2i _overdraw;
+            /** Logical 2D area of Canvas covered. */
+            Viewport viewport;
 
-        Mode _mode;
+            /** Enlarge size of dest channels and adjust frustum accordingly. */
+            Vector2i overdraw;
 
-        uint64_t _minimumCapabilities;
-        uint64_t _maximumCapabilities;
-        uint64_t _capabilities;  
+            Vector2i tileSize; //!< Tile Equalizer size
+
+            uint64_t minimumCapabilities; //!< caps required from channels
+            uint64_t maximumCapabilities; //!< caps used from channels
+            uint64_t capabilities; //!< intersection of all active channel caps
+        
+            Mode mode; //!< Stereo mode
+            uint32_t equalizers; //!< Active Equalizers
+
+            float modelUnit;
+        }
+            _data, _backup;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

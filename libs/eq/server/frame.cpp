@@ -20,6 +20,7 @@
 
 #include "compound.h"
 #include "frameData.h"
+#include "node.h"
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -63,13 +64,13 @@ Frame::~Frame()
 
 void Frame::getInstanceData( co::DataOStream& os )
 {
-    os << _inherit;
+    _inherit.serialize( os );
 }
 
 void Frame::applyInstanceData( co::DataIStream& is )
 {
     EQUNREACHABLE;
-    is >> _inherit;
+    _inherit.deserialize( is );
 }
 
 void Frame::flush()
@@ -91,6 +92,8 @@ void Frame::unsetData()
     {
         _frameData[i] = 0;
         _inputFrames[i].clear();
+        _data.toNodes[i].inputNodes.clear();
+        _data.toNodes[i].inputNetNodes.clear();
     }
 }
 
@@ -114,8 +117,11 @@ void Frame::commitData()
 uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
-        _inherit.frameData[i] = _frameData[i];
-
+    {
+        _inherit.frameDataVersion[i]      = _frameData[i];
+        _inherit.toNodes[i].inputNodes    = _data.toNodes[i].inputNodes;
+        _inherit.toNodes[i].inputNetNodes = _data.toNodes[i].inputNetNodes;
+    }
     return co::Object::commit( incarnation );
 }
 
@@ -152,6 +158,8 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
     
         _datas.push_front( data );
         _frameData[i] = data;
+        _data.toNodes[i].inputNodes.clear();
+        _data.toNodes[i].inputNetNodes.clear();
         if( !_masterFrameData )
             _masterFrameData = data;
     }
@@ -162,22 +170,30 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         // eye pass not used && no output frame for eye pass
-        if( compound->isInheritActive( (eq::Eye)(1<<i) ) &&  
-            _frameData[i] )     
+        if( compound->isInheritActive( (eq::Eye)(1<<i) ) && _frameData[i] )     
         {
             frame->_frameData[i] = _frameData[i];
             _inputFrames[i].push_back( frame );
+
+            const Node* inputNode = frame->getNode();
+            if( inputNode != getNode( ))
+            {
+                co::NodePtr inputNetNode = inputNode->getNode();
+                _data.toNodes[i].inputNodes.push_back( inputNode->getID() );
+                _data.toNodes[i].inputNetNodes.push_back(
+                    inputNetNode->getNodeID());
+            }
         }
         else
         {
-            frame->_frameData[i] = 0;           
+            frame->_frameData[i] = 0;
         }
     }
 }
 
 co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye ) ] );
+    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye )]);
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )

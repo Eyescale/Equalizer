@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1q as published
@@ -21,7 +21,6 @@
 #include <co/base/debug.h>
 
 #include <iostream>
-#include <typeinfo>
 #include <stdlib.h>
 
 //#define CO_REFERENCED_DEBUG
@@ -38,7 +37,7 @@ namespace co
 namespace base
 {
     /**
-     * A smart reference pointer.
+     * A smart reference pointer, aka boost::intrusive_ptr.
      *
      * Relies on the held object to implement ref() and unref() correctly.
      */
@@ -143,16 +142,16 @@ namespace base
 
         /** Access the held object. @version 1.0 */
         T*       operator->()       
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return _ptr; }
         /** Access the held object. @version 1.0 */
         const T* operator->() const
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return _ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return _ptr; }
         /** Access the held object. @version 1.0 */
         T&       operator*()        
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return *_ptr; }
         /** Access the held object. @version 1.0 */
         const T& operator*() const  
-            { EQASSERTINFO( _ptr, typeid(*this).name( )); return *_ptr; }
+            { EQASSERTINFO( _ptr, className( this )); return *_ptr; }
 
         /** @return the C pointer. @version 1.0 */
         T*       get()                { return _ptr; }
@@ -192,7 +191,7 @@ namespace base
         const T* p = rp.get();
         if( p )
         {
-            os << disableFlush << "RP<" << *p << ">";
+            os << disableFlush << "RP[" << *p << "]";
 #ifdef CO_REFERENCED_DEBUG
             os << std::endl;
             p->printHolders( os );
@@ -200,13 +199,13 @@ namespace base
             os << enableFlush;
         }
         else
-            os << "RP< NULL >";
+            os << "RP[ NULL ]";
 
         return os;
     }
 
     template< class T > inline std::string className( const RefPtr<T>& rp )
-    { return className( rp.get( )); }
+        { return className( rp.get( )); }
 }
 
 }

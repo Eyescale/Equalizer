@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,6 +58,12 @@ namespace base
                                       const GLEWContext*, const uint64_t*,
                                       const unsigned, const uint64_t,
                                       uint64_t*, void** );
+        typedef void ( *StartDownload_t )( void* const, const unsigned,
+                                      const GLEWContext*, const uint64_t*,
+                                      const unsigned, const uint64_t );
+        typedef void ( *FinishDownload_t )( void* const, const unsigned,
+                                      const GLEWContext*, const uint64_t*,
+                                      const uint64_t, uint64_t*, void** );
         typedef void ( *Upload_t )( void* const, const unsigned, 
                                     const GLEWContext*, const void*,
                                     const uint64_t*,
@@ -76,40 +82,46 @@ namespace base
         void initChildren();
 
         /** Get the number of engines found in the plugin. */
-        GetNumCompressors_t  getNumCompressors;
+        GetNumCompressors_t getNumCompressors;
 
         /** Get a new compressor instance.  */
         NewCompressor_t newCompressor;
         
         /** Get a new decompressor instance.  */
-        NewDecompressor_t    newDecompressor;
+        NewDecompressor_t newDecompressor;
        
         /** Delete the compressor instance.  */     
-        DeleteCompressor_t   deleteCompressor;
+        DeleteCompressor_t deleteCompressor;
         
         /** Delete the decompressor instance.  */ 
         DeleteDecompressor_t deleteDecompressor;
       
         /** Compress data. */
-        Compress_t       compress;
+        Compress_t compress;
 
         /** Decompress data. */
-        Decompress_t     decompress;
+        Decompress_t decompress;
       
         /** Get the number of results from the last compression.  */
-        GetNumResults_t  getNumResults;
+        GetNumResults_t getNumResults;
 
         /** Get the nth result from the last compression.  */
-        GetResult_t   getResult;
+        GetResult_t getResult;
 
         /** Check if the transfer plugin can be used. */
         IsCompatible_t isCompatible;
 
         /** Download pixel data. */
-        Download_t  download;
+        Download_t download;
 
         /** Upload pixel data. */
-        Upload_t  upload;
+        Upload_t upload;
+
+        /** Start downloading pixel data. */
+        StartDownload_t startDownload;
+
+        /** Start downloading pixel data. */
+        FinishDownload_t finishDownload;
 
         /** @return true if name is found in the plugin. */
         bool implementsType( const uint32_t name ) const;

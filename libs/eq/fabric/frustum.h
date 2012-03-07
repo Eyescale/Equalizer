@@ -68,8 +68,14 @@ namespace fabric
         /** Set the last specified frustum to TYPE_NONE. @version 1.0 */
         EQFABRIC_API virtual void unsetFrustum();
 
+        EQFABRIC_API void serialize( co::DataOStream& os ); //!< @internal
+        EQFABRIC_API void deserialize( co::DataIStream& is ); //!< @internal
+
         EQFABRIC_API virtual void backup(); //!< @internal
         EQFABRIC_API virtual void restore(); //!< @internal
+
+    protected:
+        virtual void updateFrustum() {}
 
     private:
         struct BackupData
@@ -90,10 +96,7 @@ namespace fabric
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
     };
-
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Frustum& );
-    EQFABRIC_API co::DataOStream& operator << (co::DataOStream&, const Frustum&);
-    EQFABRIC_API co::DataIStream& operator >> (co::DataIStream&, Frustum& );
 }
 }
 #endif // EQFABRIC_FRUSTUM_H

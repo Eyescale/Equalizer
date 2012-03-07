@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@
 
 #include <co/objectVersion.h>
 #include <co/base/lock.h>
+#include <co/base/monitor.h>
 #include <co/base/refPtr.h>
 #include <co/worker.h>
 
@@ -89,7 +90,7 @@ namespace eq
          * @return the current frame number.
          * @version 1.0
          */ 
-        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        EQ_API uint32_t getCurrentFrame() const;
         EQ_API uint32_t getFinishedFrame() const; //!< @internal
 
         /**
@@ -170,6 +171,8 @@ namespace eq
 
         /** @internal Trigger pipe thread exit and wait for completion. */
         void exitThread();
+
+        void cancelThread(); //!< @internal
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system
@@ -385,16 +388,16 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-       co::base::Monitor< State > _state;
+        co::base::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-       co::base::Monitor< uint32_t > _finishedFrame;
+        co::base::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-       co::base::Monitor<uint32_t> _unlockedFrame;
+        co::base::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
@@ -435,6 +438,7 @@ namespace eq
 
         //-------------------- Methods --------------------
         void _setupCommandQueue();
+        void _setupAffinity();
         void _exitCommandQueue();
 
         friend class Window;

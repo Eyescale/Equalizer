@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,11 +32,8 @@
 
 namespace eq
 {
+namespace server { class FrameData; }
 
-namespace server
-{
-    class FrameData;
-}
     class  ROIFinder;
     struct NodeFrameDataTransmitPacket;
     struct NodeFrameDataReadyPacket;
@@ -80,6 +77,12 @@ namespace server
 
         /** @name Data Access */
         //@{
+        /** @return the storage type. @version 1.3.0 */
+        Frame::Type getType() const { return _data.frameType; }
+
+        /** Set the storage type. @version 1.3.1 */
+        void setType( const Frame::Type type ){ _data.frameType = type; }
+
         /** @return the enabled frame buffer attachments. @version 1.0 */
         uint32_t getBuffers() const { return _data.buffers; }
 
@@ -142,7 +145,10 @@ namespace server
          * @version 1.0
          */
         void setPixelViewport( const PixelViewport& pvp ) { _data.pvp = pvp; }
-        
+
+        /** @return the covered area for readbacks. @version 1.3.0 */
+        const PixelViewport& getPixelViewport() const { return _data.pvp; }
+
         /**
          * Set alpha usage for newly allocated images.
          *
@@ -206,8 +212,8 @@ namespace server
         /** 
          * Read back an image for this frame data.
          * 
-         * The newly read images are added to the data using
-         * newImage(). Existing images are retained.
+         * The newly read image is added to the data using newImage(). Existing
+         * images are retained.
          *
          * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
@@ -217,6 +223,23 @@ namespace server
         void readback( const Frame& frame, 
                        util::ObjectManager< const void* >* glObjects,
                        const DrawableConfig& config );
+
+        /** 
+         * Read back a set of images for this frame data.
+         * 
+         * The newly read images are added to the data using
+         * newImage(). Existing images are retained.
+         *
+         * @param frame the corresponding output frame holder.
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @version 1.0
+         */
+        void readback( const Frame& frame, 
+                       util::ObjectManager< const void* >* glObjects,
+                       const DrawableConfig& config,
+                       const PixelViewports& regions );
 
         /**
          * Set the frame data ready.
@@ -231,7 +254,7 @@ namespace server
         bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady() const;
+        void waitReady( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE ) const;
         
         /** @internal */
         void setVersion( const uint64_t version );
@@ -281,6 +304,8 @@ namespace server
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
                    , phase( 0 ) {}
 
+            EQ_API Data& operator=( const Data& rhs );
+
             PixelViewport pvp;
             Frame::Type   frameType;
             uint32_t      buffers;
@@ -290,6 +315,9 @@ namespace server
             Pixel         pixel;     //<! pixel decomposition of source
             SubPixel      subpixel;  //<! subpixel decomposition of source
             Zoom          zoom;
+
+            EQ_API void serialize( co::DataOStream& os ) const;
+            EQ_API void deserialize( co::DataIStream& is );
         } _data;
 
         friend class server::FrameData;

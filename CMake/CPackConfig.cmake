@@ -3,10 +3,17 @@
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
+configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
+              ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
+
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
 
-set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+if(LINUX)
+  set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+else()
+  set(CPACK_PACKAGE_NAME "Equalizer")
+endif()
 
 if(APPLE)
   set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
@@ -23,9 +30,6 @@ set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE ${Equalizer_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 
-if(EQ_REVISION AND NOT EQUALIZER_RELEASE)
-  set(CPACK_PACKAGE_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}.${EQ_REVISION})
-endif()
 if(EQUALIZER_NIGHTLY)
   set(CPACK_PACKAGE_VERSION_PATCH
       ${CPACK_PACKAGE_VERSION_PATCH}-${EQUALIZER_BUILD_ARCH})
@@ -33,6 +37,7 @@ endif()
 if(EQUALIZER_PACKAGE_VERSION)
   set(CPACK_PACKAGE_VERSION_PATCH
       ${CPACK_PACKAGE_VERSION_PATCH}-${EQUALIZER_PACKAGE_VERSION})
+  set(CPACK_RPM_PACKAGE_RELEASE ${EQUALIZER_PACKAGE_VERSION})
 endif()
 
 set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev man doc apps examples tools data vmmlib)
@@ -89,18 +94,14 @@ if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
     set(DPUT_HOST "ppa:eilemann/equalizer-dev")
   endif()
 endif()
-set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev)
 
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}")
+set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libgl1-mesa-dev gpu-sd1-dev)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}")
 
 SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "/sbin/ldconfig")
 
-set(CPACK_OSX_PACKAGE_VERSION "10.5")
-
-if(EQ_REVISION)
-  set(CPACK_RPM_PACKAGE_RELEASE ${EQ_REVISION})
-endif()
+set(CPACK_OSX_PACKAGE_VERSION "${EQ_OSX_VERSION}")
 
 if(MSVC)
   set(CPACK_GENERATOR "NSIS")
@@ -108,15 +109,15 @@ endif(MSVC)
 
 if(APPLE)
   set(CPACK_GENERATOR "PackageMaker")
-  set(CPACK_SET_DESTDIR ON)
+#  set(CPACK_SET_DESTDIR ON)
 endif(APPLE)
 
 if(LINUX)
   find_program(RPM_EXE rpmbuild)
   if(${RPM_EXE} MATCHES RPM_EXE-NOTFOUND)
-    set(CPACK_GENERATOR "TGZ;DEB")
+    set(CPACK_GENERATOR "DEB")
   else()
-    set(CPACK_GENERATOR "TGZ;DEB;RPM")
+    set(CPACK_GENERATOR "DEB;RPM")
   endif()
 endif(LINUX)
 
@@ -124,4 +125,9 @@ set(CPACK_STRIP_FILES TRUE)
 set(UBUNTU_LP_BUG 300472)
 include(InstallRequiredSystemLibraries)
 include(CPack)
-#include(UploadPPA)
+include(UploadPPA)
+if(UPLOADPPA_FOUND)
+  upload_ppa(natty)
+  upload_ppa(oneiric)
+  add_custom_target(dput_${PROJECT_NAME} DEPENDS ${DPUT_${PROJECT_NAME}_TARGETS})
+endif()

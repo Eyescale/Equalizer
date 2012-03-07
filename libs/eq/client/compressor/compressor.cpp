@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -216,3 +216,31 @@ void EqCompressorUpload( void* const        ptr,
                         destination );
 }
 
+
+void EqCompressorStartDownload( void* const        ptr,
+                                const unsigned     name,
+                                const GLEWContext* glewContext,
+                                const eq_uint64_t  inDims[4],
+                                const unsigned     source,
+                                const eq_uint64_t  flags )
+{
+    assert( ptr );
+    eq::plugin::Compressor* compressor =
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    compressor->startDownload( glewContext, inDims, source, flags );
+}
+
+
+void EqCompressorFinishDownload( void* const        ptr,
+                                 const unsigned     name,
+                                 const GLEWContext* glewContext,
+                                 const eq_uint64_t  inDims[4],
+                                 const eq_uint64_t  flags,
+                                 eq_uint64_t        outDims[4],
+                                 void**             out )
+{
+    assert( ptr );
+    eq::plugin::Compressor* compressor =
+        reinterpret_cast< eq::plugin::Compressor* >( ptr );
+    compressor->finishDownload( glewContext, inDims, flags, outDims, out );
+}

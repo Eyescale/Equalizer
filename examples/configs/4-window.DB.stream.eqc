@@ -1,10 +1,11 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # single pipe, four-to-one sort-last demo configuration with stream compositing
 global
 {
     EQ_WINDOW_IATTR_HINT_SWAPSYNC   OFF
     EQ_WINDOW_IATTR_HINT_STATISTICS OFF
+    EQ_WINDOW_IATTR_PLANES_STENCIL  ON
 }
 
 server
@@ -61,7 +62,6 @@ server
                     name "window4"
                     attributes 
                     {
-                        planes_stencil ON
                         hint_swapsync  ON
                         hint_statistics NICEST
                     }
@@ -79,20 +79,13 @@ server
         {
             layout 0
             wall{}
-            segment { channel "channel1" }
+            segment { channel "channel4" }
         }
         compound
         {
             channel  ( segment 0 view 0 )
             buffer  [ COLOR DEPTH ]
 
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
-            
             compound
             { 
                 channel "channel1"

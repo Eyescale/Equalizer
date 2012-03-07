@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *               2011, Carsten Rohn <carsten.rohn@rtt.ag> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,43 +18,77 @@
 
 #include "queueMaster.h"
 
+#include "command.h"
+#include "commandCache.h"
 #include "dataOStream.h"
-#include "packets.h"
+#include "queuePackets.h"
+
+#include <co/base/mtQueue.h>
 
 namespace co
 {
+namespace detail
+{
+class QueueMaster : public co::Dispatcher
+{
+public:
+    /** The command handler functions. */
+    bool cmdGetItem( Command& command )
+    {
+        const QueueGetItemPacket* packet = command.get< QueueGetItemPacket >();
+        Commands commands;
+        queue.tryPop( packet->itemsRequested, commands );
+
+        for( CommandsCIter i = commands.begin(); i != commands.end(); ++i )
+        {
+            Command* item = *i;
+            ObjectPacket* reply = item->getModifiable< ObjectPacket >();
+            reply->instanceID = packet->slaveInstanceID;
+            command.getNode()->send( *reply );
+            item->release();
+        }
+
+        if( packet->itemsRequested > commands.size( ))
+        {
+            QueueEmptyPacket reply( packet );
+            command.getNode()->send( reply );
+        }
+        return true;
+    }
+
+    typedef co::base::MTQueue< Command* > PacketQueue;
+
+    PacketQueue queue;
+    co::CommandCache cache;
+};
+}
 
 QueueMaster::QueueMaster()
-        : Object()
-        , _queue()
-        , _cache()
+        : _impl( new detail::QueueMaster )
 {
 }
 
 QueueMaster::~QueueMaster()
 {
     clear();
+    delete _impl;
 }
 
 void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
 {
-    Object::attach(id, instanceID);
+    Object::attach( id, instanceID );
 
     CommandQueue* queue = getLocalNode()->getCommandThreadQueue();
     registerCommand( CMD_QUEUE_GET_ITEM, 
-        CommandFunc<QueueMaster>( this, &QueueMaster::_cmdGetItem ), queue );
+                     CommandFunc< detail::QueueMaster >(
+                         _impl, &detail::QueueMaster::cmdGetItem ), queue );
 }
 
 void QueueMaster::clear()
 {
-    while( !_queue.empty( ))
-    {
-        Command* cmd = _queue.front();
-        _queue.pop_front();
-        cmd->release();
-    }
-
-    _cache.flush();
+    while( !_impl->queue.isEmpty( ))
+        _impl->queue.pop()->release();
+    _impl->cache.flush();
 }
 
 void QueueMaster::getInstanceData( co::DataOStream& os )
@@ -64,53 +98,17 @@ void QueueMaster::getInstanceData( co::DataOStream& os )
 
 void QueueMaster::push( const QueueItemPacket& packet )
 {
-    EQ_TS_SCOPED( _thread );
+    EQASSERT( packet.size >= sizeof( QueueItemPacket ));
+    EQASSERT( packet.command == CMD_QUEUE_ITEM );
 
-    Command& queueCommand = _cache.alloc( getLocalNode(), getLocalNode(),
-                                          packet.size );
-    QueueItemPacket* queuePacket =
-        queueCommand.getModifiable< QueueItemPacket >();
+    Command& command = _impl->cache.alloc( getLocalNode(), getLocalNode(),
+                                           packet.size );
+    QueueItemPacket* queuePacket = command.getModifiable< QueueItemPacket >();
 
     memcpy( queuePacket, &packet, packet.size );
     queuePacket->objectID = getID();
-    queueCommand.retain();
-    _queue.push_back( &queueCommand );
-}
-
-Command& QueueMaster::pop()
-{
-    EQ_TS_SCOPED( _thread );
-    Command* cmd = _queue.front();
-    _queue.pop_front();
-    return *cmd;
-}
-
-bool QueueMaster::_cmdGetItem( Command& command )
-{
-    EQ_TS_SCOPED( _thread );
-    const QueueGetItemPacket* packet = command.get< QueueGetItemPacket >();
-    uint32_t itemsRequested = packet->itemsRequested;
-
-    while( !_queue.empty() && itemsRequested )
-    {
-        Command* queueItem = _queue.front();
-        _queue.pop_front();
-        ObjectPacket* queuePacket = queueItem->getModifiable< ObjectPacket >();
-        queuePacket->instanceID = packet->slaveInstanceID;
-        send( command.getNode(), *queuePacket );
-        --itemsRequested;
-        queueItem->release();
-    }
-
-    if( itemsRequested > 0 )
-    {
-        QueueEmptyPacket queueEmpty;
-        queueEmpty.instanceID = packet->slaveInstanceID;
-        queueEmpty.objectID = getID();
-        send( command.getNode(), queueEmpty );
-    }
-
-    return true;
+    command.retain();
+    _impl->queue.push( &command );
 }
 
 } // co

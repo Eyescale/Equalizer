@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #define CO_TYPES_H
 
 #include <co/base/refPtr.h>
-#include <co/base/uuid.h>
+#include <co/base/types.h>
 
 #include <deque>
 #include <vector>
@@ -39,6 +39,7 @@ class Command;
 class CommandQueue;
 class Connection;
 class ConnectionDescription;
+class ConnectionListener;
 class DataIStream;
 class DataOStream;
 class LocalNode;
@@ -51,9 +52,9 @@ class QueueSlave;
 template< class Q > class WorkerThread;
 struct ObjectVersion;
 struct Packet;
+struct QueueItemPacket;
 
-/** A unique identifier for nodes. */
-typedef base::UUID NodeID;
+typedef base::UUID NodeID; //!< A unique identifier for nodes.
 
 typedef base::uint128_t uint128_t;
 
@@ -85,7 +86,9 @@ typedef Barriers::const_iterator BarriersCIter; //!< Barriers const iterator
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
 /** A const iterator for a vector of ConnectionPtr's. */
-typedef Connections::const_iterator   ConnectionsCIter;
+typedef Connections::const_iterator ConnectionsCIter;
+/** An iterator for a vector of ConnectionPtr's. */
+typedef Connections::iterator   ConnectionsIter;
 
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;

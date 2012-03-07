@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,6 +23,8 @@
 #include "pipe.h"
 #include "window.h"
 
+#include <cstdio>
+
 #ifdef _MSC_VER
 #  define snprintf _snprintf
 #endif
@@ -31,10 +33,9 @@ namespace eq
 {
 
 ChannelStatistics::ChannelStatistics( const Statistic::Type type, 
-                                      Channel* channel, const int32_t hint )
-        : StatisticSampler< Channel >( type, channel, 
-                                       channel->getPipe()->getCurrentFrame( ))
-        , statisticsIndex( channel->_statisticsIndex )
+                                      Channel* channel, const uint32_t frame,
+                                      const int32_t hint )
+        : StatisticSampler< Channel >( type, channel, frame )
         , _hint( hint )
 {
     if( _hint == AUTO )
@@ -83,7 +84,7 @@ ChannelStatistics::~ChannelStatistics()
     if( event.data.statistic.endTime == event.data.statistic.startTime )
         ++event.data.statistic.endTime;
 
-    _owner->addStatistic( event.data, statisticsIndex );
+    _owner->addStatistic( event.data );
 }
 
 }

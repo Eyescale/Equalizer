@@ -9,10 +9,9 @@ set(EQ_UTIL_PUBLIC_HEADERS
   ../util/accumBufferObject.h
   ../util/base.h
   ../util/bitmapFont.h
-  ../util/bitmapFont.ipp
   ../util/frameBufferObject.h
   ../util/objectManager.h
-  ../util/objectManager.ipp
+  ../util/pixelBufferObject.h
   ../util/texture.h
   ../util/types.h
   )
@@ -25,8 +24,11 @@ set(EQ_UTIL_SOURCES
   ../util/accum.cpp
   ../util/accumBufferObject.cpp
   ../util/bitmapFont.cpp
-  ../util/gpuCompressor.cpp
+  ../util/bitmapFont.ipp
   ../util/frameBufferObject.cpp
+  ../util/gpuCompressor.cpp
   ../util/objectManager.cpp
+  ../util/objectManager.ipp
+  ../util/pixelBufferObject.cpp
   ../util/texture.cpp
   )

@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 if(MSVC)
   add_definitions(/wd4996)
@@ -25,6 +25,7 @@ set(KD_SOURCES
     vertexBufferLeaf.cpp
     vertexBufferNode.cpp
     vertexBufferRoot.cpp
+    vertexBufferState.cpp
     vertexData.cpp
 )
 

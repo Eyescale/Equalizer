@@ -57,7 +57,6 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    setenv( "EQ_CONFIG_IATTR_ROBUSTNESS", "0", 0 /* don't overwrite */ );
     eq::ClientPtr client = new eq::Client;
     if( !client->initLocal( argc, argv ))
     {

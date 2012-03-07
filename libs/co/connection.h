@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -34,15 +34,13 @@
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #  include <malloc.h>
+#  include <co/base/os.h>
 #else
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif
 
 namespace co
 {
-    class ConnectionDescription;
-    class ConnectionListener;
-
     /**
      * An interface definition for communication between hosts.
      *
@@ -81,8 +79,7 @@ namespace co
          * @param description the connection parameters.
          * @return the connection.
          */
-        CO_API static ConnectionPtr create( ConnectionDescriptionPtr 
-                                                   description );
+        CO_API static ConnectionPtr create(ConnectionDescriptionPtr description);
 
         /** @name Data Access */
         //@{

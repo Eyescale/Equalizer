@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -102,6 +102,7 @@ namespace fabric
     {
         CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 10
         CMD_NODE_CONFIG_INIT_REPLY,
+        CMD_NODE_SET_AFFINITY,
         CMD_NODE_CONFIG_EXIT,
         CMD_NODE_CONFIG_EXIT_REPLY,
         CMD_NODE_CREATE_PIPE,
@@ -147,6 +148,7 @@ namespace fabric
         CMD_WINDOW_DESTROY_CHANNEL,
         CMD_WINDOW_FRAME_START,
         CMD_WINDOW_FRAME_FINISH,
+        CMD_WINDOW_FLUSH,
         CMD_WINDOW_FINISH,
         CMD_WINDOW_THROTTLE_FRAMERATE,
         CMD_WINDOW_BARRIER,
@@ -170,8 +172,8 @@ namespace fabric
         CMD_CHANNEL_FRAME_DRAW_FINISH,
         CMD_CHANNEL_FRAME_ASSEMBLE,
         CMD_CHANNEL_FRAME_READBACK,
-        CMD_CHANNEL_FRAME_TRANSMIT,
-        CMD_CHANNEL_FRAME_TRANSMIT_ASYNC,
+        CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
+        CMD_CHANNEL_FRAME_SET_READY,
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
         CMD_CHANNEL_STOP_FRAME,

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -118,8 +118,9 @@ void Config::notifyAttached()
     EQASSERT( getAppNodeID().isGenerated() )
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
-    EQASSERTINFO( _appNode, "Connection to application node failed -- " <<
-                            "misconfigured connections on appNode?" );
+    if( !_appNode )
+        EQWARN << "Connection to application node failed -- misconfigured "
+               << "connections on appNode?" << std::endl;
 }
 
 void Config::notifyDetach()
@@ -137,26 +138,7 @@ void Config::notifyDetach()
         }
     }
 
-    std::vector< uint32_t > requests;
-    for( co::Connections::const_iterator i = _connections.begin();
-         i != _connections.end(); ++i )
-    {
-        co::ConnectionPtr connection = *i;
-        requests.push_back( getClient()->removeListenerNB( connection ));
-    }
-
-    co::LocalNodePtr localNode = getLocalNode();
-    for( size_t i = 0; i < _connections.size(); ++i )
-    {
-        co::ConnectionPtr connection = _connections[i];
-        localNode->waitRequest( requests[ i ] );
-        connection->close();
-        // connection and _connections hold reference
-        EQASSERTINFO( connection->getRefCount()==2 ||
-            connection->getDescription()->type >= co::CONNECTIONTYPE_MULTICAST, 
-                      connection->getRefCount() << ": " << *connection );
-    }
-
+    getClient()->removeListeners( _connections );
     _connections.clear();
     _exitMessagePump();
     Super::notifyDetach();
@@ -182,6 +164,44 @@ ConstClientPtr Config::getClient() const
     return getServer()->getClient(); 
 }
 
+
+namespace
+{
+class SetDefaultVisitor : public ConfigVisitor
+{
+public:
+    SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
+            : _layouts( activeLayouts ), _modelUnit( modelUnit ) {}
+
+    virtual VisitorResult visit( View* view )
+        {
+            view->setModelUnit( _modelUnit );
+            return TRAVERSE_CONTINUE;
+        }
+
+    virtual VisitorResult visitPre( Canvas* canvas )
+        {
+            const Layouts& layouts = canvas->getLayouts();
+
+            for( StringsCIter i = _layouts.begin(); i != _layouts.end(); ++i )
+            {
+                const std::string& name = *i;
+                for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
+                {
+                    const Layout* layout = *j;
+                    if( layout->getName() == name )
+                        canvas->useLayout( j - layouts.begin( ));
+                }
+            }
+            return TRAVERSE_CONTINUE;
+        }
+
+private:
+    const Strings& _layouts;
+    const float _modelUnit;
+};
+}
+
 bool Config::init( const uint128_t& initID )
 {
     EQASSERT( !_running );
@@ -190,14 +210,17 @@ bool Config::init( const uint128_t& initID )
     _finishedFrame = 0;
     _frameTimes.clear();
 
+    ClientPtr client = getClient();
+    SetDefaultVisitor defaults( client->getActiveLayouts(),
+                                client->getModelUnit( ));
+    accept( defaults );
+
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
-    packet.requestID  = localNode->registerRequest();
-    packet.initID     = initID;
-
+    packet.requestID = localNode->registerRequest();
+    packet.initID = initID;
     send( getServer(), packet );
     
-    ClientPtr client = getClient();
     while( !localNode->isRequestServed( packet.requestID ))
         client->processCommand();
     localNode->waitRequest( packet.requestID, _running );
@@ -324,8 +347,12 @@ uint32_t Config::finishFrame()
         
         // local draw sync
         if( _needsLocalSync( ))
+        {
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
+                               << std::endl;
+        }
 
         // local node finish (frame-latency) sync
         const Nodes& nodes = getNodes();
@@ -336,13 +363,31 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
+            EQLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
+                               << " @ " << _currentFrame << std::endl;
         }
 
         // global sync
         const uint32_t timeout = getTimeout();
-        if( !_finishedFrame.timedWaitGE( frameToFinish, timeout ))
-            EQWARN << "Timeout waiting for at least one node to finish frame " 
-                   << frameToFinish << std::endl;
+        if( timeout == EQ_TIMEOUT_INDEFINITE )
+            _finishedFrame.waitGE( frameToFinish );
+        else
+        {
+            const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
+            const int64_t time = getTime() + timeout;
+
+            while( !_finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+            {
+                if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
+                {
+                    EQWARN << "Timeout waiting for nodes to finish frame " 
+                           << frameToFinish << std::endl;
+                    break;
+                }
+            }
+        }
+        EQLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
+                           << _currentFrame << std::endl;
     }
 
     handleEvents();
@@ -678,26 +723,12 @@ void Config::setupServerConnections( const char* connectionData )
     EQCHECK( co::deserialize( data, descriptions ));
     EQASSERTINFO( data.empty(), data << " left from " << connectionData );
 
-    for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
+    for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
-        co::ConnectionPtr connection = co::Connection::create( *i );
-        if( !connection )
-        {
-            EQWARN << "Unsupported connection: " << *i << std::endl;
-            continue;
-        }
-
-        if( connection->listen( ))
-        {
+        co::ConnectionPtr connection = getClient()->addListener( *i );
+        if( connection )
             _connections.push_back( connection );
-            getClient()->addListener( connection );
-        }
-        else
-        {
-            // TODO: Multi-config handling when same connections are spec'd
-            EQASSERT( connection->isListening( ));
-        }
     }
 }
 

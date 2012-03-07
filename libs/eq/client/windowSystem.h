@@ -38,10 +38,15 @@ private:
     virtual SystemWindow* createWindow(Window* window) const = 0;
     virtual SystemPipe* createPipe(Pipe* pipe) const = 0;
     virtual MessagePump* createMessagePump() const = 0;
-    virtual GPUInfos discoverGPUs() const = 0;
+    virtual bool setupFont( ObjectManager& gl, const void* key, 
+                       const std::string& name, const uint32_t size ) const = 0;
 
-    virtual void configInit(Node* node) const {}
-    virtual void configExit(Node* node) const {}
+    virtual void configInit( Node* node ) {}
+    virtual void configExit( Node* node ) {}
+
+protected:
+    static uint32_t _setupLists( ObjectManager& gl, const void* key,
+                                 const int num );
 
 private:
     WindowSystemIF* _next;
@@ -84,7 +89,8 @@ public:
     EQ_API SystemWindow* createWindow( Window* window ) const;
     EQ_API SystemPipe* createPipe( Pipe* pipe ) const;
     EQ_API MessagePump* createMessagePump() const;
-    EQ_API GPUInfos discoverGPUs() const;
+    EQ_API bool setupFont( ObjectManager& gl, const void* key,
+                           const std::string& name, const uint32_t size ) const;
 
     EQ_API bool operator == ( const WindowSystem& other ) const;
     EQ_API bool operator != ( const WindowSystem& other ) const;

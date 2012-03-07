@@ -20,6 +20,7 @@
 
 #include "canvas.h" 
 #include "compound.h" 
+#include "configVisitor.h"
 #include "connectionDescription.h" 
 #include "config.h" 
 #include "global.h" 
@@ -27,8 +28,9 @@
 #include "node.h" 
 #include "observer.h" 
 #include "segment.h" 
-#include "serverVisitor.h" 
 #include "view.h" 
+
+#include <eq/fabric/elementVisitor.h>
 
 namespace eq
 {

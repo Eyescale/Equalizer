@@ -143,7 +143,8 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
+    const co::base::PluginRegistry& registry =
+        co::base::Global::getPluginRegistry();
     const co::base::Plugins& plugins = registry.getPlugins();
     const uint32_t tokenType = getExternalFormat( buffer );
 
@@ -284,7 +285,7 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 
 void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position,
-                    util::ObjectManager< const void* >* glObjects ) const
+                    ObjectManager* glObjects ) const
 {
     EQASSERT( glObjects );
 
@@ -1014,9 +1015,8 @@ bool Image::writeImage( const std::string& filename,
             return false;
     }
 
-    // if the data picture has a RGB format, we can easy translate it in 
-    // a BGR format
-    bool invertChannel = false;
+    // Swap red & blue where needed
+    bool swapRB = false;
     switch( getExternalFormat( buffer ))
     {      
         case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
@@ -1027,7 +1027,7 @@ bool Image::writeImage( const std::string& filename,
         case EQ_COMPRESSOR_DATATYPE_RGB32F:
         case EQ_COMPRESSOR_DATATYPE_RGBA16F:
         case EQ_COMPRESSOR_DATATYPE_RGB16F:
-            invertChannel = true;
+            swapRB = true;
     }
 
     if( header.depth == 1 ) // depth
@@ -1058,7 +1058,7 @@ bool Image::writeImage( const std::string& filename,
     if( nChannels == 3 || nChannels == 4 )
     {
         // channel one is R or B
-        if ( invertChannel )
+        if ( swapRB )
             for( size_t j = 0 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
         else
@@ -1070,7 +1070,7 @@ bool Image::writeImage( const std::string& filename,
             image.write( &data[j], bpc );
 
         // channel three is B or G
-        if ( invertChannel )
+        if ( swapRB )
             for( size_t j = 2 * bpc; j < nBytes; j += depth )
                 image.write( &data[j], bpc );
         else

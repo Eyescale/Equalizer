@@ -117,11 +117,9 @@ void ObjectInstanceDataOStream::sendData( const void* buffer,
 {
     EQASSERT( _command );
 
-    ObjectInstancePacket packet;
+    ObjectInstancePacket packet( _nodeID, _cm->getObject()->getInstanceID( ));
     packet.command = _command;
-    packet.nodeID = _nodeID;
     packet.instanceID = _instanceID;
-    packet.masterInstanceID = _cm->getObject()->getInstanceID();
 
     ObjectDataOStream::sendData( packet, buffer, size, last );
 }

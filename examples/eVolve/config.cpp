@@ -172,9 +172,6 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             return true;
 
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON_NONE )
-                return true;
-
             if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
                 _spinX = 0;
@@ -182,21 +179,24 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
                 _frameData.spinCamera(  -0.005f * event->data.pointerMotion.dy,
                                         -0.005f * event->data.pointerMotion.dx);
+                return true;
             }
-            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                     event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
+                event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
                 _frameData.moveCamera( .0, .0,
-                                        .005f*event->data.pointerMotion.dy);
+                                        .005f*event->data.pointerMotion.dy );
+                return true;
             }
-            else if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
+            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
                 _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
                                       -.0005f * event->data.pointerMotion.dy, 
-                                       .0 );
+                                       .0f );
+                return true;
             }
-            return true;
+            break;
 
         default:
             break;

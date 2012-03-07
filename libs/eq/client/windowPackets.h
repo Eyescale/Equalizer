@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -70,13 +70,14 @@ namespace eq
 
     struct WindowCreateChannelPacket : public WindowPacket
     {
-        WindowCreateChannelPacket()
+        WindowCreateChannelPacket( const UUID& id )
+                : channelID( id )
             {
                 command = fabric::CMD_WINDOW_CREATE_CHANNEL;
                 size    = sizeof( WindowCreateChannelPacket );
             }
 
-        co::base::UUID channelID;
+        const UUID channelID;
     };
 
     struct WindowDestroyChannelPacket : public WindowPacket
@@ -89,6 +90,15 @@ namespace eq
             }
 
         const co::base::UUID channelID;
+    };
+
+    struct WindowFlushPacket : public WindowPacket
+    {
+        WindowFlushPacket()
+            {
+                command = fabric::CMD_WINDOW_FLUSH;
+                size    = sizeof( WindowFlushPacket );
+            }
     };
 
     struct WindowFinishPacket : public WindowPacket

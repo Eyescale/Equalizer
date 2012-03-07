@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -51,9 +51,9 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr node = *i;
-        ConnectionPtr connection = node->getMulticast();
+        ConnectionPtr connection = node->useMulticast();
 
-        if( connection.isValid( ))
+        if( connection )
         {
             ConnectionDescriptionPtr desc = connection->getDescription();
             if( mcSet.find( desc ) != mcSet.end( )) // already added

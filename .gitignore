@@ -1,3 +1,5 @@
+*.kdev4
+*~
 .project
 .cproject
 *.mode1v3
@@ -6,6 +8,7 @@
 *.pbxuser
 *.ply.*.bin
 *.vcproj.*.user
+*.log
 Result_*.rgb*
 ___*
 tt.*
@@ -25,3 +28,5 @@ release
 XCode
 externals/vmmlib/
 tests/client/configVisitor_objc.mm
+build*
+CMakeLists.txt.user*

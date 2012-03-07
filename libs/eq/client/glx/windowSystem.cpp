@@ -22,36 +22,14 @@
 #include "pipe.h"
 #include "messagePump.h"
 
+#include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
+#include <co/base/scopedMutex.h>
 
 namespace eq
 {
 namespace glx
 {
-
-namespace
-{
-static bool _queryDisplay( const std::string display, GPUInfo& info )
-{
-    EQASSERT( !display.empty( ));
-
-    ::Display* xDisplay = XOpenDisplay( display.c_str( ));
-    if( !xDisplay )
-        return false;
-
-    int major, event, error;
-    if( !XQueryExtension( xDisplay, "GLX", &major, &event, &error ))
-    {
-        XCloseDisplay( xDisplay );
-        return false;
-    }
-
-    EQCHECK( Pipe::getGPUInfo( xDisplay, info ));
-    XCloseDisplay( xDisplay );
-    return true;
-}
-
-}
 
 static class : WindowSystemIF
 {
@@ -74,49 +52,48 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-    GPUInfos discoverGPUs() const
+    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
+                    const uint32_t size ) const
     {
-        GPUInfos result;
-        GPUInfo defaultInfo;
-
-        const char* displayEnv = getenv( "DISPLAY" );
-        if( displayEnv && displayEnv[0] != '\0' )
+        Display* display = XGetCurrentDisplay();
+        EQASSERT( display );
+        if( !display )
         {
-            const std::string display( displayEnv );
-            if( _queryDisplay( display, defaultInfo ))
-            {
-                if( display[0] != ':' )
-                {
-                    defaultInfo.port = EQ_UNDEFINED_UINT32;
-                    defaultInfo.device = EQ_UNDEFINED_UINT32;
-                }
-                result.push_back( defaultInfo );
-            }
+            EQWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
+                   << std::endl;
+            return false;
         }
 
-        for( uint32_t i = 0; i < EQ_MAX_UINT32; ++i ) // x servers
-            for( uint32_t j = 0; j < EQ_MAX_UINT32; ++j ) // x screens
-            {
-                std::stringstream stream;
-                stream <<  ':' << i << '.' << j;
-                
-                GPUInfo info;
-                if( _queryDisplay( stream.str(), info ))
-                {
-                    EQASSERTINFO( i == info.port, i << ", " << info );
-                    EQASSERT( j == info.device );
+        // see xfontsel
+        std::stringstream font;
+        font << "-*-";
 
-                    if( info != defaultInfo )
-                        result.push_back( info );
-                }
-                else if( j == 0 ) // X Server does not exist, stop query
-                    return result;
-                else // X Screen does not exist, try next server
-                    break;
-            }
+        if( name.empty( ))
+            font << "times";
+        else
+            font << name;
+        font << "-*-r-*-*-" << size << "-*-*-*-*-*-*-*";
 
-        EQASSERTINFO( 0, "Unreachable" );
-        return result;
+        // X11 font initialization is not thread safe. Using a mutex here is not
+        // performance-critical
+        static co::base::Lock lock;
+        co::base::ScopedMutex<> mutex( lock );
+
+        XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
+        if( !fontStruct )
+        {
+            EQWARN << "Can't load font " << font.str() << ", using fixed"
+                   << std::endl;
+            fontStruct = XLoadQueryFont( display, "fixed" ); 
+        }
+
+        EQASSERT( fontStruct );
+
+        const GLuint lists = _setupLists( gl, key, 127 );
+        glXUseXFont( fontStruct->fid, 0, 127, lists );
+
+        XFreeFont( display, fontStruct );
+        return true;
     }
 
 } _glXFactory;

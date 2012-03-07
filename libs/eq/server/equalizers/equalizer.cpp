@@ -33,6 +33,7 @@ namespace server
 Equalizer::Equalizer()
         : _compound( 0 )
         , _frozen( false )
+        , _active( true )
 {
     EQINFO << "New Equalizer @" << (void*)this << std::endl;
 }
@@ -41,6 +42,7 @@ Equalizer::Equalizer( const Equalizer& from )
         : CompoundListener( from )
         , _compound( 0 )
         , _frozen( from._frozen )
+        , _active( from._active )
 {}
 
 Equalizer::~Equalizer()

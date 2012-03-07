@@ -2,7 +2,7 @@
 
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
+libdir=${exec_prefix}/@LIBRARY_DIR@
 includedir=${prefix}/include
 
 Name: Equalizer
@@ -10,5 +10,5 @@ Description: Framework to create and deploy parallel OpenGL-based applications
 Version: @VERSION@
 Requires: Collage
 Conflicts:
-Libs: -L${libdir} -lEqualizer
+Libs: -L${libdir} -lEqualizer -lEqualizerFabric
 Cflags: -I${includedir}

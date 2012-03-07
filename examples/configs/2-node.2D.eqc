@@ -3,17 +3,17 @@
 # two-to-one sort-first config, for cluster change hostnames
 global
 {
-    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
+#    EQ_WINDOW_IATTR_HINT_DRAWABLE FBO
 }
 
 server
 {
-    connection { hostname "127.0.0.1" }
+    connection { hostname "10.1.1.36" }
     config
     {
         appNode
         {
-            connection { hostname "127.0.0.1" }
+            connection { hostname "10.1.1.36" }
             pipe 
             {
                 window
@@ -26,7 +26,8 @@ server
         }
         node
         {
-            host "127.0.0.1"
+            host "10.1.1.43"
+            connection { hostname "10.1.1.43" port 12345 }
             pipe { window { channel { name "channel2" }}}
         }
 

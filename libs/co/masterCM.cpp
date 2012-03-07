@@ -96,14 +96,13 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
 void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID,
                                   const uint128_t& version )
 {
-    ObjectInstancePacket instancePacket;
-    instancePacket.type = PACKETTYPE_CO_OBJECT;
-    instancePacket.command = CMD_OBJECT_INSTANCE;
-    instancePacket.last = true;
-    instancePacket.version = version;
-    instancePacket.instanceID = instanceID;
-    instancePacket.masterInstanceID = _object->getInstanceID();
-    _object->send( node, instancePacket );
+    ObjectInstancePacket packet( NodeID::ZERO, _object->getInstanceID( ));
+    packet.type = PACKETTYPE_CO_OBJECT;
+    packet.command = CMD_OBJECT_INSTANCE;
+    packet.last = true;
+    packet.version = version;
+    packet.instanceID = instanceID;
+    _object->send( node, packet );
 }
 
 void MasterCM::removeSlave( NodePtr node )

@@ -5,7 +5,9 @@
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 ##
 
-# TODO: resolve two-way dependancy between client and util!
+find_package(MAGELLAN)
+
+# TODO: resolve two-way dependency between client and util!
 include(configure.cmake)
 include(files.cmake)
 include(../util/files.cmake)
@@ -13,27 +15,32 @@ include(compressor/files.cmake)
 
 add_definitions(-DEQ_PLUGIN_BUILD)
 
+set(EQ_LIBRARIES)
+if(MAGELLAN_FOUND)
+  include_directories(${MAGELLAN_INCLUDE_DIR})
+  list(APPEND EQ_LIBRARIES ${MAGELLAN_LIBRARY})
+endif()
+
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
-    set(GL_LIBRARIES "${OPENGL_LIBRARIES}")
+    list(APPEND EQ_LIBRARIES "${OPENGL_LIBRARIES}")
   endif(EQ_AGL_USED)
   if(EQ_GLX_USED)
-    set(GL_LIBRARIES ${GL_LIBRARIES} GL)
+    list(APPEND EQ_LIBRARIES GL)
   endif(EQ_GLX_USED)
 else(APPLE)
-  set(GL_LIBRARIES "${OPENGL_gl_LIBRARY}")
+  list(APPEND EQ_LIBRARIES "${OPENGL_gl_LIBRARY}")
 endif(APPLE)
-if(NOT CUDA_FOUND)
-  set(CUDA_LIBRARIES)
-endif(NOT CUDA_FOUND)
+if(CUDA_FOUND)
+  list(APPEND EQ_LIBRARIES "${CUDA_LIBRARIES}")
+endif(CUDA_FOUND)
 
-set(WINDOWING_LIBRARIES)
 if(EQ_AGL_USED) 
-  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${CARBON_LIBRARY}) 
+  list(APPEND EQ_LIBRARIES ${CARBON_LIBRARY}) 
 endif()
 if(EQ_GLX_USED) 
-  set(WINDOWING_LIBRARIES ${WINDOWING_LIBRARIES} ${X11_LIBRARIES}) 
+  list(APPEND EQ_LIBRARIES ${X11_LIBRARIES}) 
 endif()
 
 source_group(fabric REGULAR_EXPRESSION .*)
@@ -51,12 +58,7 @@ purple_add_library(Equalizer SHARED
   HEADERS_PREFIX "eq/client"
   HEADERS ${CLIENT_HEADERS} ${EQ_UTIL_PUBLIC_HEADERS}
   SOURCES ${CLIENT_SOURCES} ${EQ_UTIL_SOURCES} ${EQ_COMPRESSOR_SOURCES}
-  LINK_LIBRARIES
-    shared EqualizerFabric
-    ${GLEW_LIBRARY}
-    ${WINDOWING_LIBRARIES}
-    ${GL_LIBRARIES}
-    ${CUDA_LIBRARIES}
+  LINK_LIBRARIES shared EqualizerFabric ${GLEW_LIBRARY} ${EQ_LIBRARIES}
   )
 
 option(EQUALIZER_OLD_CLIENT_LAYOUT "Install header files as in v1.0 directory layout" OFF)

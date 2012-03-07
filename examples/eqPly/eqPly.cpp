@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,9 @@ static const std::string _help(
     std::string( "\t\tl:                         Switch layout for active canvas\n" ) +
     std::string( "\t\ta:                         Add active stereo window\n" ) +
     std::string( "\t\tp:                         Add passive stereo window\n" ) +
-    std::string( "\t\tx:                         Remove window\n" )
+    std::string( "\t\tx:                         Remove window\n" ) +
+    std::string( "\t\ty, Y:                      Adjust model unit\n" ) +
+    std::string( "\t\tz, Z:                      Adjust eye base\n" )
                                );
 }
 
@@ -120,6 +122,7 @@ int EqPly::run()
 
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
+    int lastFrame = 0;
     
     clock.reset();
     while( config->isRunning( ) && maxFrames-- )
@@ -129,6 +132,17 @@ int EqPly::run()
             EQWARN << "Error during frame start: " << config->getError()
                    << std::endl;
         config->finishFrame();
+
+        if( config->getAnimationFrame() == 1 )
+        {
+            const float time = clock.resetTimef();
+            const size_t nFrames = config->getFinishedFrame() - lastFrame;
+            lastFrame = config->getFinishedFrame();
+
+            EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+                               << ( nFrames / time * 1000.f) << " FPS)"
+                               << std::endl;
+        }
 
         while( !config->needRedraw( )) // wait for an event requiring redraw
         {
@@ -147,10 +161,10 @@ int EqPly::run()
         config->handleEvents(); // process all pending events
     }
     const uint32_t frame = config->finishAllFrames();
-    const float    time  = clock.getTimef();
-    EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
-                       << " frames @ " << ( frame / time * 1000.f) << " FPS)"
-                       << std::endl;
+    const float time = clock.resetTimef();
+    const size_t nFrames = frame - lastFrame;
+    EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+                       << ( nFrames / time * 1000.f) << " FPS)" << std::endl;
 
     // 5. exit config
     clock.reset();

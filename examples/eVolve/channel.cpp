@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -345,7 +345,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
             _frame.setOffset( eq::Vector2i( 0, 0 ));
             _frame.setZoom( zoom );
             data->setPixelViewport( coveredPVP );
-            _frame.readback( glObjects, getDrawableConfig( ));
+            _frame.readback( glObjects, getDrawableConfig(), getRegions( ));
             clearViewport( coveredPVP );
 
             // offset for assembly
@@ -379,8 +379,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
     // Drop depth buffer flag from all output frames
     const eq::Frames& frames = getOutputFrames();
     const FrameData& frameData = _getFrameData();
-    for( eq::Frames::const_iterator i = frames.begin(); 
-         i != frames.end(); ++i )
+    for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());

@@ -81,6 +81,7 @@ namespace fabric
             /** <a href="http://www.equalizergraphics.com/documents/design/threads.html#sync">Threading model</a> */
             IATTR_THREAD_MODEL,
             IATTR_LAUNCH_TIMEOUT, //!< Timeout when auto-launching the node
+            IATTR_HINT_AFFINITY,
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
         };

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -206,7 +206,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
         while( from < static_cast< ssize_t >( _times.size( )))
             _times.pop_back();            //  delete all older samples
 
-    if( isFrozen() || !compound->isRunning( ))
+    if( isFrozen() || !compound->isRunning() || !isActive( ))
     {
         // always execute code above to not leak memory
         compound->setMaxFPS( std::numeric_limits< float >::max( ));
@@ -240,10 +240,8 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 }
 
 void FramerateEqualizer::LoadListener::notifyLoadData( 
-                            Channel* channel,
-                            const uint32_t frameNumber, 
-                            const uint32_t nStatistics,
-                            const eq::Statistic* statistics  )
+    Channel* channel, const uint32_t frameNumber, const uint32_t nStatistics,
+    const eq::Statistic* statistics, const Viewport& region  )
 {
     // gather required load data
     int64_t startTime = std::numeric_limits< int64_t >::max();

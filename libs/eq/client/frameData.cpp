@@ -100,23 +100,51 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 void FrameData::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
-    os << _data;
+    _data.serialize( os );
 }
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
-    is >> _data;
+    _data.deserialize( is );
     EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+}
+
+FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
+{
+    if( this != &rhs )
+    {
+        pvp = rhs.pvp;
+        frameType = rhs.frameType;
+        buffers = rhs.buffers;
+        period = rhs.period;
+        phase = rhs.phase;
+        range = rhs.range;
+        pixel = rhs.pixel;
+        subpixel = rhs.subpixel;
+        zoom = rhs.zoom;
+        // don't assign input nodes & -netNodes here
+    }
+    return *this;
+}
+
+void FrameData::Data::serialize( co::DataOStream& os ) const
+{
+    os << pvp << frameType << buffers << period << phase << range
+       << pixel << subpixel << zoom;
+}
+
+void FrameData::Data::deserialize( co::DataIStream& is )
+{
+    is >> pvp >> frameType >> buffers >> period >> phase >> range
+       >> pixel >> subpixel >> zoom;
 }
 
 void FrameData::clear()
 {
-
     _imageCacheLock.set();
     _imageCache.insert( _imageCache.end(), _images.begin(), _images.end( ));
     _imageCacheLock.unset();
-
     _images.clear();
 }
 
@@ -201,41 +229,67 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
 
 void FrameData::readback( const Frame& frame,
                           util::ObjectManager< const void* >* glObjects,
-                          const DrawableConfig& config  )
+                          const DrawableConfig& config )
+{
+    readback( frame, glObjects, config, PixelViewports( 1, getPixelViewport( )));
+}
+
+void FrameData::readback( const Frame& frame,
+                          util::ObjectManager< const void* >* glObjects,
+                          const DrawableConfig& config,
+                          const PixelViewports& regions )
 {
     if( _data.buffers == Frame::BUFFER_NONE )
         return;
 
-    PixelViewport absPVP = _data.pvp + frame.getOffset();
+    const eq::PixelViewport& framePVP = getPixelViewport();
+    const PixelViewport      absPVP   = framePVP + frame.getOffset();
     if( !absPVP.isValid( ))
         return;
 
     const Zoom& zoom = frame.getZoom();
-
     if( !zoom.isValid( ))
     {
         EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
         return;
     }
 
+// TODO: issue #85: move automatic ROI detection to eq::Channel
+#if 0
     PixelViewports pvps;
-
     if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
         pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
 //                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
                     0, 0, glObjects );
     else
         pvps.push_back( absPVP );
+#endif
 
-    for( uint32_t i = 0; i < pvps.size(); i++ )
+    // readback the whole screen when using textures
+    if( getType() == eq::Frame::TYPE_TEXTURE )
     {
-        PixelViewport pvp = pvps[ i ];
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), absPVP, zoom, glObjects );
+        image->setOffset( 0, 0 );
+        return;
+    }
+    // else read the given regions
+    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
+
+    const eq::Pixel& pixel = getPixel();
+    for( size_t i = 0; i < regions.size(); ++i )
+    {
+        PixelViewport pvp = regions[ i ] + frame.getOffset();
         pvp.intersect( absPVP );
+        if( !pvp.hasArea( ))
+            continue;
 
-        Image* image = newImage( _data.frameType, config );
-        image->readback( _data.buffers, pvp, zoom, glObjects );
-        image->setOffset( pvp.x - absPVP.x, pvp.y - absPVP.y );
+        Image* image = newImage( getType(), config );
+        image->readback( getBuffers(), pvp, zoom, glObjects );
 
+        pvp -= frame.getOffset();
+        image->setOffset( (pvp.x - framePVP.x) * pixel.w,
+                          (pvp.y - framePVP.y) * pixel.h );
 #ifndef NDEBUG
         if( getenv( "EQ_DUMP_IMAGES" ))
         {
@@ -248,7 +302,6 @@ void FrameData::readback( const Frame& frame,
         }
 #endif
     }
-    setReady();
 }
 
 void FrameData::setVersion( const uint64_t version )
@@ -258,22 +311,10 @@ void FrameData::setVersion( const uint64_t version )
     EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
-void FrameData::waitReady() const 
+void FrameData::waitReady( const uint32_t timeout ) const 
 {
-    // TODO: Use Config::getTimeout() cf. compositor.cpp
-    if( co::base::Global::getIAttribute( co::base::Global::IATTR_ROBUSTNESS ) )
-    { 
-        if( !_readyVersion.timedWaitGE( 
-                       _version, co::base::Global::getIAttribute( 
-                                    co::base::Global::IATTR_TIMEOUT_DEFAULT )))
-        {
-            throw Exception( Exception::TIMEOUT_INPUTFRAME );
-        }
-    }
-    else
-    {
-        _readyVersion.waitGE( _version );
-    }
+    if( !_readyVersion.timedWaitGE( _version, timeout ))
+        throw Exception( Exception::TIMEOUT_INPUTFRAME );
 }
 
 void FrameData::setReady()
@@ -398,13 +439,13 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
+            image->setZoom( packet->zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }
     }
 
     EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _pendingImages.empty());
     _pendingImages.push_back( image );
     return true;
 }

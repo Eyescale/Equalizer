@@ -1,6 +1,8 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2011 Stefan Eilemann <eile@eyescale.ch>
 
+include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+
 # WAR bug in FindCUDA.cmake:
 remove_definitions(${EQ_DEFINITIONS})
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -21,6 +21,13 @@
 
 #include <co/packets.h> // base structs
 #include <co/objectVersion.h> // base structs
+
+#ifdef _WIN32
+#  include <malloc.h>
+#  define bzero( ptr, size ) memset( ptr, 0, size );
+#else
+#  include <alloca.h>
+#endif
 
 /** @cond IGNORE */
 namespace co
@@ -77,29 +84,36 @@ namespace co
                 , sequence( 0 )
                 , compressorName( 0 )
                 , nChunks( 0 )
-                , last( false ) {}
+                , fill( 0 )
+                , last( false )
+            {}
 
         uint128_t version;
         uint64_t dataSize;
         uint32_t sequence;
         uint32_t compressorName;
         uint32_t nChunks;
+        uint32_t fill;
         EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
     };
 
     struct ObjectInstancePacket : public ObjectDataPacket
     {
-        ObjectInstancePacket()
+        ObjectInstancePacket( const NodeID& id, const uint32_t iID )
+                : nodeID( id )
+                , masterInstanceID( iID )
+                , fill( 0 )
             {
                 // Always go through session which caches and forwards to object
                 type    = PACKETTYPE_CO_NODE;
                 command = CMD_NODE_OBJECT_INSTANCE;
                 size    = sizeof( ObjectInstancePacket );
-                data[0] = 0;
+                bzero( data, sizeof( data ));
             }
 
-        NodeID nodeID;
-        uint32_t masterInstanceID;
+        const NodeID nodeID;
+        const uint32_t masterInstanceID;
+        const uint32_t fill;
         EQ_ALIGN8( uint8_t data[8] );
     };
 
@@ -131,7 +145,8 @@ namespace co
                                        const ObjectDataPacket* packet )
     {
         os << (ObjectPacket*)packet << " v" << packet->version
-           << " size " << packet->dataSize << " seq " << packet->sequence;
+           << " size " << packet->dataSize << " seq " << packet->sequence
+           << " last " << static_cast< bool >( packet->last );
         return os;
     }
 

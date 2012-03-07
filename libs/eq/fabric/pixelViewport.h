@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -40,9 +40,13 @@ namespace fabric
         PixelViewport() : x(0), y(0), w(-1), h(-1)  {}
 
         /** Construct a new pixel viewport with default values. @version 1.0 */
-        PixelViewport( const int32_t x_, const int32_t y_, 
-                       const int32_t w_, const int32_t h_ )
+        explicit PixelViewport( const int32_t x_, const int32_t y_, 
+                                const int32_t w_, const int32_t h_ )
                 : x(x_), y(y_), w(w_), h(h_)  {}
+
+        /** Construct a new pixel viewport with default values. @version 1.1.6*/
+        explicit PixelViewport( const int32_t pvp[4] )
+                : x( pvp[0] ), y( pvp[1] ), w( pvp[2] ), h( pvp[3] )  {}
         //@}
 
         /** @name Data Access */
@@ -132,26 +136,6 @@ namespace fabric
             }
         
         /**
-         * @return the viewport which would result in the given rhs pixel
-         *         viewport when applied to this pixel viewport.
-         * @internal
-         */
-        const Viewport getSubVP( const PixelViewport& rhs ) const
-            {
-                if( *this == rhs )
-                    return Viewport::FULL;
-
-                if( !rhs.hasArea( ))
-                    return Viewport( static_cast<float>( x ), 
-                                     static_cast<float>( y ), 0.f, 0.f );
-
-                return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
-                                  ( y - rhs.y )/ static_cast<float>( rhs.h ),
-                                  ( w )/ static_cast<float>( rhs.w ),
-                                  ( h )/ static_cast<float>( rhs.h ));
-            }
-
-        /**
          * @return the zoom which would result in the given rhs pixel
          *         viewport when applied to this pixel viewport.
          * @internal
@@ -179,6 +163,33 @@ namespace fabric
         const PixelViewport operator + ( const Vector2i& offset ) const
             {
                 return PixelViewport( x+offset.x(), y+offset.y(), w, h );
+            }
+
+        /** @internal
+         * @return the viewport which would provide this pixel viewport when
+         *         applied to the rhs pixel viewport.
+         */
+        Viewport operator / ( const PixelViewport& rhs ) const
+            {
+                if( *this == rhs )
+                    return Viewport::FULL;
+
+                if( !rhs.hasArea( ))
+                    return Viewport( static_cast<float>( x ), 
+                                     static_cast<float>( y ), 0.f, 0.f );
+
+                return Viewport(  ( x - rhs.x )/ static_cast<float>( rhs.w ),
+                                  ( y - rhs.y )/ static_cast<float>( rhs.h ),
+                                  ( w )/ static_cast<float>( rhs.w ),
+                                  ( h )/ static_cast<float>( rhs.h ));
+            }
+
+        /** @return this pvp minus an offset. @version 1.3.0 */
+        const PixelViewport& operator -= ( const Vector2i& offset )
+            {
+                x -= offset.x();
+                y -= offset.y();
+                return *this;
             }
 
         /**

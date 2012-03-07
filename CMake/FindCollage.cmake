@@ -77,9 +77,9 @@ find_path(_co_INCLUDE_DIR co/version.h
   )
 
 if(Collage_FIND_REQUIRED)
-    set(_co_version_output_type FATAL_ERROR)
+  set(_co_version_output_type FATAL_ERROR)
 else()
-    set(_co_version_output_type STATUS)
+  set(_co_version_output_type STATUS)
 endif()
 
 # Try to ascertain the version...
@@ -114,7 +114,7 @@ if(_co_INCLUDE_DIR)
 else()
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}
-    "ERROR: Can't find Collage header file version.h.")
+    "Can't find Collage header file version.h.")
 endif()
 
 #
@@ -145,17 +145,17 @@ find_library(_co_LIBRARY Collage
 if(_co_version_not_high_enough)
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}
-    "ERROR: Version ${Collage_FIND_VERSION} or higher of Collage is required. "
+    "Version ${Collage_FIND_VERSION} or higher of Collage is required. "
     "Version ${COLLAGE_VERSION} was found in ${_co_INCLUDE_DIR}.")
 elseif(_co_version_not_exact)
   set(_co_EPIC_FAIL TRUE)
   message(${_co_version_output_type}
-    "ERROR: Version ${Collage_FIND_VERSION} of Collage is required exactly. "
+    "Version ${Collage_FIND_VERSION} of Collage is required exactly. "
     "Version ${COLLAGE_VERSION} was found.")
 else()
   if(Collage_FIND_REQUIRED)
     if(_co_LIBRARY MATCHES "_co_LIBRARY-NOTFOUND")
-      message(FATAL_ERROR "ERROR: Missing the Collage library.\n"
+      message(FATAL_ERROR "Missing the Collage library.\n"
         "Consider using CMAKE_PREFIX_PATH or the CO_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
@@ -177,7 +177,7 @@ set(COLLAGE_LIBRARIES ${_co_LIBRARY})
 get_filename_component(COLLAGE_LIBRARY_DIR ${_co_LIBRARY} PATH)
 
 if(COLLAGE_FOUND)
-  message("-- Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in ${COLLAGE_INCLUDE_DIRS};"
-    "${COLLAGE_LIBRARIES}")
+  message(STATUS "Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in "
+    "${COLLAGE_INCLUDE_DIRS};${COLLAGE_LIBRARIES}")
 endif()
 

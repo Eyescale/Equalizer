@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -152,20 +152,19 @@ void Object::setID( const base::UUID& identifier )
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
     EQASSERT( isAttached( ));
-    packet.objectID  = _id;
+    packet.objectID = _id;
     return node->send( packet );
 }
 
-bool Object::send( NodePtr node, ObjectPacket& packet, 
-                   const std::string& string )
+bool Object::send( NodePtr node, ObjectPacket& packet, const std::string& string)
 {
     EQASSERT( isAttached() );
     packet.objectID  = _id;
     return node->send( packet, string );
 }
 
-bool Object::send( NodePtr node, ObjectPacket& packet, 
-                   const void* data, const uint64_t size )
+bool Object::send( NodePtr node, ObjectPacket& packet, const void* data,
+                   const uint64_t size )
 {
     EQASSERT( isAttached() );
     packet.objectID  = _id;

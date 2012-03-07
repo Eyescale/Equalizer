@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,7 @@
 #include <co/types.h>
 
 #include <co/base/clock.h>     // member
+#include <co/base/lock.h>      // member
 #include <co/base/lockable.h>  // member
 #include <co/base/stdExt.h>    // member
 #include <co/base/thread.h>    // member
@@ -51,7 +52,7 @@ namespace co
          * @return true if the command was entered, false if not.
          */
         CO_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
-                  Command& command, const uint32_t usage = 0 );
+                         Command& command, const uint32_t usage = 0 );
 
         /** Remove all items from the given node. */
         void remove( const NodeID& node );

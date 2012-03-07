@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -143,7 +143,7 @@ namespace co
     };
 
     CO_API std::ostream& operator << ( std::ostream&,
-                                          const ConnectionDescription& );
+                                       const ConnectionDescription& );
 
     /** Serialize a vector of connection descriptions to a string. */
     CO_API std::string serialize( const ConnectionDescriptions& );

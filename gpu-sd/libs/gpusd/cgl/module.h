@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,30 +15,30 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_EXECUTIONLISTENER_H
-#define COBASE_EXECUTIONLISTENER_H
+#ifndef GPUSD_CGL_MODULE_H
+#define GPUSD_CGL_MODULE_H
 
-namespace co
+#include <gpusd/module.h> // base class
+
+namespace gpusd
 {
-namespace base
+namespace cgl
 {
-    /**
-     * A listener interface to monitor execution unit (Thread, Process) state
-     * changes.
-     */
-    class ExecutionListener
+    /** The CGL implementation for local GPU discovery. */
+    class Module : public gpusd::Module
     {
     public:
-        /** Destruct the execution listener. @version 1.0 */
-        virtual ~ExecutionListener() {}
+        /** Instantiate an CGL discovery module for the process. */
+        static GPUSD_API void use();
 
-        /** Notify that a new execution unit started. @version 1.0 */
-        virtual void notifyExecutionStarted() {}
+    protected:
+        virtual GPUInfos discoverGPUs_() const;
 
-        /** Notify that the execution unit is about to stop. @version 1.0 */
-        virtual void notifyExecutionStopping() {}
+    private:
+        Module() : gpusd::Module() {}
+        virtual ~Module() {}
     };
 }
-
 }
-#endif //COBASE_EXECUTIONLISTENER_H
+#endif // GPUSD_CGL_MODULE_H
+

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,8 +130,7 @@ bool Config::exit()
     _deregisterData();
     _closeAdminServer();
 
-    // retain models and distributors for possible other config runs, destructor
-    // deletes it
+    // retain model & distributors for possible other config runs, dtor deletes
     return ret;
 }
 
@@ -170,7 +169,7 @@ void Config::_loadModels()
             if( _initData.useInvertedFaces() )
                 model->useInvertedFaces();
         
-            if( !model->readFromFile( filename.c_str() ) )
+            if( !model->readFromFile( filename.c_str( )))
             {
                 EQWARN << "Can't load model: " << filename << std::endl;
                 delete model;
@@ -283,8 +282,10 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     if( modelID == eq::UUID::ZERO )
         return 0;
 
-    // Accessed concurrently from pipe threads
-    co::base::ScopedMutex<> _mutex( _modelLock );
+    // Protect if accessed concurrently from multiple pipe threads
+    const eq::Node* node = getNodes().front();
+    const bool needModelLock = (node->getPipes().size() > 1);
+    co::base::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
     EQASSERT( _modelDist.size() == nModels );
@@ -307,7 +308,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
 uint32_t Config::startFrame()
 {
     _updateData();
-    const co::base::uint128_t& version = _frameData.commit();
+    const eq::uint128_t& version = _frameData.commit();
 
     _redraw = false;
     return eq::Config::startFrame( version );
@@ -365,6 +366,11 @@ bool Config::needRedraw()
     return( _needNewFrame() || _numFramesAA > 0 );
 }
 
+uint32_t Config::getAnimationFrame()
+{
+    return _animation.getCurrentFrame();
+}
+
 bool Config::_needNewFrame()
 {
     if( _messageTime > 0 )
@@ -403,7 +409,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 return false;
             }
             
-            const eq::View* view = find< eq::View > ( viewID );
+            const View* view = _getCurrentView();
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
             for( eq::CanvasesCIter i = canvases.begin();
@@ -474,6 +480,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                   _redraw = true;
                   return true;
             }
+            break;
 
         case eq::Event::WINDOW_POINTER_WHEEL:
             _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
@@ -532,6 +539,24 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 {
     switch( event.key )
     {
+        case 'z':
+            _adjustEyeBase( -0.1f );
+            return true;
+        case 'Z':
+            _adjustEyeBase( 0.1f );
+            return true;
+        case 'y':
+            _adjustModelScale( 0.1f );
+            return true;
+        case 'Y':
+            _adjustModelScale( 10.0f );
+            return true;
+        case 't':
+            _adjustTileSize( -1 );
+            return true;
+        case 'T':
+            _adjustTileSize( 1 );
+             return true;
         case 'u':
             _frameData.toggleCompression();
             return true;
@@ -769,6 +794,15 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case '3':
             _setFocusMode( eq::FOCUSMODE_RELATIVE_TO_OBSERVER );
             return true;
+
+        case 'j':
+            stopFrames();
+            return true;
+
+        case 'e':
+            _toggleEqualizer();
+            return true;
+
         default:
             return false;
     }
@@ -820,17 +854,17 @@ void Config::_switchView()
     if( !layout )
         return;
 
-    const eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
+    const View* view = _getCurrentView();
     const eq::Views& views = layout->getViews();
     EQASSERT( !views.empty( ));
 
-    if( !current )
+    if( !view )
     {
         _frameData.setCurrentViewID( views.front()->getID( ));
         return;
     }
 
-    eq::ViewsCIter i = std::find( views.begin(), views.end(), current );
+    eq::ViewsCIter i = std::find( views.begin(), views.end(), view );
     if( i != views.end( ))
         ++i;
     if( i == views.end( ))
@@ -845,11 +879,9 @@ void Config::_switchModel()
         return;
 
     // current model of current view
-    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-    View* view = static_cast< View* >( find< eq::View >( viewID ));
-    const eq::uint128_t& currentID = view ?
-                               view->getModelID() : _frameData.getModelID();
-
+    View* view = _getCurrentView();
+    const eq::uint128_t& currentID = view ? view->getModelID() :
+                                            _frameData.getModelID();
     // next model
     ModelDistsCIter i;
     for( i = _modelDist.begin(); i != _modelDist.end(); ++i )
@@ -879,30 +911,69 @@ void Config::_switchModel()
 
 void Config::_switchViewMode()
 {
-    eq::View* current = find< eq::View >( _frameData.getCurrentViewID( ));
-    if( !current )
+    View* view = _getCurrentView();
+    if( !view )
         return;
 
-    const eq::View::Mode mode = current->getMode( );
-
+    const eq::View::Mode mode = view->getMode();
     if( mode == eq::View::MODE_MONO )
     {
-        current->changeMode( eq::View::MODE_STEREO );
+        view->changeMode( eq::View::MODE_STEREO );
         _setMessage( "Switched to stereoscopic rendering" );
     }
     else
     {
-        current->changeMode( eq::View::MODE_MONO );
+        view->changeMode( eq::View::MODE_MONO );
         _setMessage( "Switched to monoscopic rendering" );
     }
 }
 
 void Config::_freezeLoadBalancing( const bool onOff )
 {
-    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
-    eq::View* view = find< eq::View >( viewID );
+    View* view = _getCurrentView();
     if ( view )
         view->freezeLoadBalancing( onOff );
+}
+
+void Config::_adjustEyeBase( const float delta )
+{
+    const eq::Observers& observers = getObservers();
+    for( eq::ObserversCIter i = observers.begin(); i != observers.end(); ++i )
+    {
+        eq::Observer* observer = *i;
+        observer->setEyeBase( observer->getEyeBase() + delta );
+        std::ostringstream stream;
+        stream << "Set eye base to " << observer->getEyeBase();
+        _setMessage( stream.str( ));
+    }
+}
+
+void Config::_adjustTileSize( const int delta )
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    eq::Vector2i tileSize = view->getTileSize();
+    if( tileSize == eq::Vector2i( -1, -1 ) )
+        tileSize = eq::Vector2i( 64, 64 );
+    tileSize += delta;
+    view->setTileSize( tileSize );
+}
+
+void Config::_adjustModelScale( const float factor )
+{
+    View* view = _getCurrentView();
+    if( !view )
+        return;
+
+    const float current = view->getModelUnit() * factor;
+    if( current > std::numeric_limits<float>::epsilon( ))
+        view->setModelUnit( current );
+
+    std::ostringstream stream;
+    stream << "Set model unit to " << view->getModelUnit();
+    _setMessage( stream.str( ));
 }
 
 void Config::_switchLayout( int32_t increment )
@@ -935,6 +1006,13 @@ void Config::_switchLayout( int32_t increment )
 
     stream << " active";
     _setMessage( stream.str( ));
+}
+
+void Config::_toggleEqualizer()
+{
+    View* view = _getCurrentView();
+    if ( view )
+        view->toggleEqualizer();
 }
 
 // Note: real applications would use one tracking device per observer
@@ -1030,6 +1108,20 @@ void Config::_closeAdminServer()
     
     _admin = 0;
     eq::admin::exit();
+}
+
+View* Config::_getCurrentView()
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    eq::View* view = find< eq::View >( viewID );
+    return static_cast< View* >( view );
+}
+
+const View* Config::_getCurrentView() const
+{
+    const eq::uint128_t& viewID = _frameData.getCurrentViewID();
+    const eq::View* view = find< eq::View >( viewID );
+    return static_cast< const View* >( view );
 }
 
 }

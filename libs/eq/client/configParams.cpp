@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,34 +17,66 @@
 
 #include "configParams.h"
 
+#include "global.h"
 #include <co/global.h>
 
 namespace eq
 {
-ConfigParams::ConfigParams()
-        : _renderClient( co::Global::getProgramName( ))
-        , _workDir( co::Global::getWorkDir( ))
+namespace detail
 {
+class ConfigParams
+{
+public:
+    ConfigParams()
+            : renderClient( co::Global::getProgramName( ))
+            , workDir( co::Global::getWorkDir( ))
+            , flags( eq::Global::getFlags( ))
+        {}
+
+    std::string renderClient;
+    std::string workDir;
+    uint32_t flags;
+};
+}
+
+ConfigParams::ConfigParams()
+        : _impl( new detail::ConfigParams )
+{
+}
+
+ConfigParams::~ConfigParams()
+{
+    delete _impl;
 }
 
 void ConfigParams::setRenderClient( const std::string& renderClient )
 {
-    _renderClient = renderClient;
+    _impl->renderClient = renderClient;
 }
 
 const std::string& ConfigParams::getRenderClient() const
 {
-    return _renderClient;
+    return _impl->renderClient;
 }
 
 void ConfigParams::setWorkDir( const std::string& workDir )
 {
-    _workDir = workDir;
+    _impl->workDir = workDir;
 }
 
 const std::string& ConfigParams::getWorkDir() const
 {
-    return _workDir;
+    return _impl->workDir;
+}
+
+void ConfigParams::setFlags( const uint32_t flags )
+{
+    _impl->flags = flags;
+}
+
+uint32_t ConfigParams::getFlags() const
+{
+    return _impl->flags;
 }
 
 }

@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010,      Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <co/object.h>
+#include <co/base/monitor.h> // member
 
 #include <iostream>
 #include <vector>
@@ -224,7 +224,8 @@ namespace server
 
         void _fireLoadData( const uint32_t frameNumber, 
                             const uint32_t nStatistics,
-                            const eq::Statistic* statistics );
+                            const eq::Statistic* statistics,
+                            const Viewport& region );
 
         /* command handler functions. */
         bool _cmdConfigInitReply( co::Command& command );

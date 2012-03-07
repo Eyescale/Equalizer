@@ -21,8 +21,6 @@
 #include "global.h"
 #include "loader.h"
 
-#include "config/server.h"
-
 #include <co/node.h>
 
 #include "../../co/pipeConnection.h" // private header
@@ -70,8 +68,8 @@ static ServerThread _serverThread;
 }
 #pragma warning(push)
 #pragma warning(disable: 4190)
-extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer( 
-    const std::string& file )
+extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
+                                                      const std::string& config )
 {
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
@@ -80,13 +78,15 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         return 0;
     }
 
-    eq::server::Loader    loader;
+    eq::server::Loader loader;
     eq::server::ServerPtr server;
 
-    if( file.empty( ))
-        server = eq::server::config::Server::configureLocal();
+    if( !config.empty() && config.find( ".eqc" ) == config.length() - 4 )
+        server = loader.loadFile( config );
+#ifdef EQ_USE_GPUSD
     else
-        server = loader.loadFile( file );
+        server = new eq::server::Server; // configured upon Server::chooseConfig
+#endif
 
     if( !server )
         server = loader.parseServer( CONFIG );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2008-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,6 +28,7 @@
 #include "equalizers/treeEqualizer.h"
 #include "equalizers/monitorEqualizer.h"
 #include "equalizers/viewEqualizer.h"
+#include "equalizers/tileEqualizer.h"
 #include "frame.h"
 #include "tileQueue.h"
 #include "global.h"
@@ -43,7 +44,10 @@
 #include <eq/fabric/paths.h>
 #include <co/base/os.h>
 #include <co/base/file.h>
+
+#include <locale.h>
 #include <string>
+
 #pragma warning(disable: 4065)
 
     namespace eq
@@ -68,6 +72,7 @@
         static eq::server::DFREqualizer* dfrEqualizer = 0;
         static eq::server::LoadEqualizer* loadEqualizer = 0;
         static eq::server::TreeEqualizer* treeEqualizer = 0;
+        static eq::server::TileEqualizer* tileEqualizer = 0;
         static eq::server::SwapBarrierPtr swapBarrier;
         static eq::server::Frame*       frame = 0;
         static eq::server::TileQueue*   tileQueue = 0;
@@ -112,10 +117,12 @@
 %token EQTOKEN_NODE_SATTR_LAUNCH_COMMAND
 %token EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE
 %token EQTOKEN_NODE_IATTR_THREAD_MODEL
+%token EQTOKEN_NODE_IATTR_HINT_AFFINITY
 %token EQTOKEN_NODE_IATTR_HINT_STATISTICS
 %token EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT
 %token EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_PIPE_IATTR_HINT_THREAD
+%token EQTOKEN_PIPE_IATTR_HINT_AFFINITY
 %token EQTOKEN_WINDOW_IATTR_HINT_STEREO
 %token EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER
 %token EQTOKEN_WINDOW_IATTR_HINT_FULLSCREEN
@@ -147,6 +154,7 @@
 %token EQTOKEN_HINT_SWAPSYNC
 %token EQTOKEN_HINT_DRAWABLE
 %token EQTOKEN_HINT_THREAD
+%token EQTOKEN_HINT_AFFINITY
 %token EQTOKEN_HINT_CUDA_GL_INTEROP
 %token EQTOKEN_HINT_SCREENSAVER
 %token EQTOKEN_PLANES_COLOR
@@ -187,6 +195,7 @@
 %token EQTOKEN_TREEEQUALIZER
 %token EQTOKEN_MONITOREQUALIZER
 %token EQTOKEN_VIEWEQUALIZER
+%token EQTOKEN_TILEEQUALIZER
 %token EQTOKEN_DAMPING
 %token EQTOKEN_CONNECTION
 %token EQTOKEN_NAME
@@ -194,10 +203,10 @@
 %token EQTOKEN_TCPIP
 %token EQTOKEN_SDP
 %token EQTOKEN_IB
-%token EQTOKEN_MCIP
 %token EQTOKEN_PGM
 %token EQTOKEN_RSP
 %token EQTOKEN_RDMA
+%token EQTOKEN_UDT
 %token EQTOKEN_TEXTURE
 %token EQTOKEN_MEMORY
 %token EQTOKEN_FIXED
@@ -283,6 +292,8 @@
 %token EQTOKEN_INTEGER
 %token EQTOKEN_UNSIGNED
 %token EQTOKEN_SIZE
+%token EQTOKEN_CORE
+%token EQTOKEN_SOCKET
 
 %union{
     const char*             _string;
@@ -373,6 +384,11 @@ global:
          eq::server::Global::instance()->setNodeIAttribute(
              eq::server::Node::IATTR_THREAD_MODEL, $2 );
      }
+     | EQTOKEN_NODE_IATTR_HINT_AFFINITY IATTR
+     {
+         eq::server::Global::instance()->setNodeIAttribute(
+             eq::server::Node::IATTR_HINT_AFFINITY, $2 );
+     }
      | EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT UNSIGNED
      {
          eq::server::Global::instance()->setNodeIAttribute(
@@ -387,6 +403,11 @@ global:
      {
          eq::server::Global::instance()->setPipeIAttribute(
              eq::server::Pipe::IATTR_HINT_THREAD, $2 );
+     }
+     | EQTOKEN_PIPE_IATTR_HINT_AFFINITY IATTR
+     {
+         eq::server::Global::instance()->setPipeIAttribute(
+             eq::server::Pipe::IATTR_HINT_AFFINITY, $2 );
      }
      | EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP IATTR
      {
@@ -504,10 +525,10 @@ connectionType:
     | EQTOKEN_SDP  { $$ = co::CONNECTIONTYPE_SDP; }
     | EQTOKEN_IB   { $$ = co::CONNECTIONTYPE_IB; }
     | EQTOKEN_PIPE { $$ = co::CONNECTIONTYPE_NAMEDPIPE; }
-    | EQTOKEN_MCIP { $$ = co::CONNECTIONTYPE_MCIP; }
     | EQTOKEN_PGM  { $$ = co::CONNECTIONTYPE_PGM; }
     | EQTOKEN_RSP  { $$ = co::CONNECTIONTYPE_RSP; }
     | EQTOKEN_RDMA { $$ = co::CONNECTIONTYPE_RDMA; }
+    | EQTOKEN_UDT  { $$ = co::CONNECTIONTYPE_UDT; }
 
 server: EQTOKEN_SERVER '{' { server = new eq::server::Server(); }
         serverConnections
@@ -606,6 +627,8 @@ nodeAttribute:
                 << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
                 << std::endl;
         }
+    | EQTOKEN_HINT_AFFINITY IATTR
+        { node->setIAttribute( eq::server::Node::IATTR_HINT_AFFINITY, $2 ); }
 
 
 pipe: EQTOKEN_PIPE '{' 
@@ -630,6 +653,8 @@ pipeAttributes: /*null*/ | pipeAttributes pipeAttribute
 pipeAttribute:
     EQTOKEN_HINT_THREAD IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_THREAD, $2 ); }
+    | EQTOKEN_HINT_AFFINITY IATTR
+        { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_AFFINITY, $2); }
     | EQTOKEN_HINT_CUDA_GL_INTEROP IATTR
         { eqPipe->setIAttribute( eq::server::Pipe::IATTR_HINT_CUDA_GL_INTEROP, $2 ); }
 
@@ -1121,7 +1146,7 @@ loadBalancerMode:
     }
 
 equalizer: dfrEqualizer | framerateEqualizer | loadEqualizer | treeEqualizer |
-           monitorEqualizer | viewEqualizer
+           monitorEqualizer | viewEqualizer | tileEqualizer
         
 dfrEqualizer: EQTOKEN_DFREQUALIZER '{' 
     { dfrEqualizer = new eq::server::DFREqualizer; }
@@ -1155,6 +1180,13 @@ monitorEqualizer: EQTOKEN_MONITOREQUALIZER '{' '}'
 viewEqualizer: EQTOKEN_VIEWEQUALIZER '{' '}'
     {
         eqCompound->addEqualizer( new eq::server::ViewEqualizer );
+    }
+tileEqualizer: EQTOKEN_TILEEQUALIZER
+    '{' { tileEqualizer = new eq::server::TileEqualizer; }
+    tileEqualizerFields '}'
+    {
+        eqCompound->addEqualizer( tileEqualizer );
+        tileEqualizer = 0;
     }
 
 dfrEqualizerFields: /* null */ | dfrEqualizerFields dfrEqualizerField
@@ -1192,6 +1224,11 @@ treeEqualizerMode:
     | EQTOKEN_HORIZONTAL { $$ = eq::server::TreeEqualizer::MODE_HORIZONTAL; }
     | EQTOKEN_VERTICAL   { $$ = eq::server::TreeEqualizer::MODE_VERTICAL; }
     
+tileEqualizerFields: /* null */ | tileEqualizerFields tileEqualizerField
+tileEqualizerField:
+	EQTOKEN_NAME STRING                   { tileEqualizer->setName( $2 ); }
+	| EQTOKEN_SIZE '[' UNSIGNED UNSIGNED ']'  
+                   { tileEqualizer->setTileSize( eq::Vector2i( $3, $4 )); }
 
 swapBarrier:
     EQTOKEN_SWAPBARRIER '{' { swapBarrier = new eq::server::SwapBarrier; }
@@ -1303,6 +1340,8 @@ IATTR:
     | EQTOKEN_RELATIVE_TO_ORIGIN   { $$ = eq::fabric::RELATIVE_TO_ORIGIN; }
     | EQTOKEN_RELATIVE_TO_OBSERVER { $$ = eq::fabric::RELATIVE_TO_OBSERVER; }
     | INTEGER            { $$ = $1; }
+    | EQTOKEN_CORE INTEGER { $$ = eq::fabric::CORE + $2; }
+    | EQTOKEN_SOCKET INTEGER  { $$ = eq::fabric::SOCKET  + $2; }
 
 STRING: EQTOKEN_STRING
      {
@@ -1333,30 +1372,20 @@ namespace server
 //---------------------------------------------------------------------------
 ServerPtr Loader::loadFile( const std::string& filename )
 {
-    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
-    eq::loader::loader = this;
-
     yyin       = fopen( filename.c_str(), "r" );
     yyinString = 0;
 
     if( !yyin )
     {
         EQERROR << "Can't open config file " << filename << std::endl;
-        eq::loader::loader = 0;
         return 0;
     }
 
     loader::filename = filename;
-    loader::server = 0;
-    config = 0;
-    const bool error = ( eqLoader_parse() != 0 );
-
-    fclose( yyin );
-    eq::loader::loader = 0;
+    _parse();
     loader::filename.clear();
 
-    if( error )
-        loader::server = 0;
+    fclose( yyin );
 
     eq::server::ServerPtr server = loader::server;
     loader::server = 0;
@@ -1365,15 +1394,23 @@ ServerPtr Loader::loadFile( const std::string& filename )
 
 void Loader::_parseString( const char* data )
 {
+    yyin       = 0;
+    yyinString = data;
+    _parse();
+}
+
+void Loader::_parse()
+{
     EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
 
-    yyin       = 0;
-    yyinString = data;
-
     loader::server = 0;
     config = 0;
+
+    const std::string oldLocale = setlocale( LC_NUMERIC, "C" ); 
     const bool error = ( eqLoader_parse() != 0 );
+    setlocale( LC_NUMERIC, oldLocale.c_str( )); 
+
     if( error )
         loader::server = 0;
 

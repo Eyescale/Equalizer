@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -92,9 +92,6 @@ namespace co
 
         /** Finalize the mapping of a distributed object. */
         bool mapObjectSync( const uint32_t requestID );
-
-        /** Convenience wrapper for mapObjectNB(). */
-        uint32_t mapObjectNB( Object* object, const ObjectVersion& v );
 
         /** 
          * Unmap a mapped object.
@@ -195,11 +192,10 @@ namespace co
         };
 
         typedef std::deque< SendQueueItem > SendQueue;
-        SendQueue _sendQueue;      //!< Object data to broadcast when idle
 
+        SendQueue _sendQueue;          //!< Object data to broadcast when idle
         InstanceCache* _instanceCache; //!< cached object mapping data
-
-        DataIStreamQueue _pushData; //!< Object::push() queue
+        DataIStreamQueue _pushData;    //!< Object::push() queue
 
         /**
          * Returns the master node id for an identifier.

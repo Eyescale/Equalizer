@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -82,7 +82,7 @@ RSPConnection::RSPConnection()
         , _maxBucketSize( ( _mtu * _ackFreq) >> 1 )
         , _bucketSize( 0 )
         , _sendRate( 0 )
-        , _thread ( 0 )
+        , _thread( 0 )
         , _acked( std::numeric_limits< uint16_t >::max( ))
         , _threadBuffers( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS))
         , _recvBuffer( _mtu )
@@ -128,27 +128,29 @@ void RSPConnection::_close()
         base::sleep( 10 );
     }
 
-    base::ScopedMutex<> mutex( _mutexEvent );
-
     if( _state == STATE_CLOSED )
         return;
 
-    _state = STATE_CLOSING;
- 
     if( _thread )
     {
         EQASSERT( !_thread->isCurrent( ));
         _sendSimpleDatagram( ID_EXIT, _id );
         _ioService.stop();
         _thread->join();
-        _thread = 0;
-    
+        delete _thread;
+    }
+
+    base::ScopedWrite mutex( _mutexEvent );
+    _state = STATE_CLOSING;
+    if( _thread )
+    {
+         _thread = 0;
+
         // notify children to close
-        for( RSPConnections::iterator i = _children.begin();
-             i != _children.end(); ++i )
+        for( RSPConnectionsCIter i=_children.begin(); i !=_children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
-            base::ScopedMutex<> mutexChild( child->_mutexEvent );
+            base::ScopedWrite mutexChild( child->_mutexEvent );
             child->_appBuffers.push( 0 );
             child->_event->set();
         }
@@ -246,7 +248,7 @@ bool RSPConnection::listen()
         _read->bind( readEndpoint );
 
         const ip::udp::resolver::query queryIF( ip::udp::v4(),
-                                          _description->getInterface( ), "0" );
+                                            _description->getInterface(), "0" );
         const ip::udp::resolver::iterator interfaceIP =
             resolver.resolve( queryIF );
 
@@ -254,6 +256,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
+        EQINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
@@ -305,7 +308,7 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
         
     // protect event->set, _children and _childrenConnecting
-    base::ScopedMutex<> mutexConn( _mutexConnection );
+    base::ScopedWrite mutex( _mutexConnection );
     EQASSERT( !_childrenConnecting.empty( ));
     if( _childrenConnecting.empty( ))
         return 0;
@@ -384,7 +387,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         _event->set();
     else
     {
-        base::ScopedMutex<> mutex( _mutexEvent );
+        base::ScopedWrite mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
 
@@ -470,8 +473,7 @@ void RSPConnection::_handleConnectedTimeout( )
         EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
         _appBuffers.pushFront( 0 ); // unlock write function
-        for( RSPConnections::iterator i = _children.begin();
-             i != _children.end(); ++i )
+        for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
             child->_state = STATE_CLOSING;
@@ -492,7 +494,7 @@ bool RSPConnection::_initThread()
     _setTimeout( 10 ); 
     _asyncReceiveFrom();
     _ioService.run();
-    return  _state == STATE_LISTENING;
+    return _state == STATE_LISTENING;
 }
 
 void RSPConnection::_runThread()
@@ -716,8 +718,6 @@ void RSPConnection::_repeatData()
 
 void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 {
-    EQLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
-                     << _sequence << std::endl;
     EQASSERT( !_writeBuffers.empty( ));
 
     RSPConnectionPtr connection = _findConnection( _id );
@@ -731,6 +731,9 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     const uint16_t size = _sequence - sequence - 1;
     EQASSERTINFO( size <= uint16_t( _writeBuffers.size( )),
                   size << " > " << _writeBuffers.size( ));
+    EQLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
+                     << _sequence << " advance " << _writeBuffers.size() - size
+                     << " buffers" << std::endl;
 
     while( _writeBuffers.size() > size_t( size ))
     {
@@ -751,7 +754,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            base::ScopedMutex<> mutex( connection->_mutexEvent );
+            base::ScopedWrite mutex( connection->_mutexEvent );
             EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequence << std::endl;
@@ -775,7 +778,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     _appBuffers.push( freeBuffers );
     if( !readBuffers.empty( ))
     {
-        base::ScopedMutex<> mutex( connection->_mutexEvent );
+        base::ScopedWrite mutex( connection->_mutexEvent );
 #if 0
         EQLOG( LOG_RSP ) 
             << "post " << readBuffers.size() << " buffers starting at "
@@ -981,7 +984,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
         if( !newBuffer ) // no more data buffers, drop packet
             return true;
 
-        base::ScopedMutex<> mutex( connection->_mutexEvent );
+        base::ScopedWrite mutex( connection->_mutexEvent );
         connection->_pushDataBuffer( newBuffer );
             
         while( !connection->_recvBuffers.empty( )) // enqueue ready pending data
@@ -1091,7 +1094,7 @@ void RSPConnection::_pushDataBuffer( Buffer* buffer )
                   ((DatagramData*)buffer->getData( ))->sequence << " != " <<
                   _sequence );
 
-    if( (( _sequence + _id ) % _ackFreq ) == 0 )
+    if( (( _sequence + _parent->_id ) % _ackFreq ) == 0 )
         _parent->_sendAck( _id, _sequence );
 
     EQLOG( LOG_RSP ) << "post buffer " << _sequence << std::endl;
@@ -1112,8 +1115,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
                      << ack->writerID << " sequence " << ack->sequence
                      << " current " << _sequence << std::endl;
 
-    // find connection destination and if we have not received an ack from it,
-    // we update the ack data.
+    // find destination connection, update ack data if needed
     RSPConnectionPtr connection = _findConnection( ack->readerID );
     if( !connection )
     {
@@ -1135,20 +1137,24 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     connection->_acked = ack->sequence;
     _timeouts = 0; // reset timeout counter
 
-    // Check if we got all acks until here
-    for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
-          i != _children.end(); ++i )
+    // Check if we can advance _acked
+    uint16_t acked = ack->sequence;
+
+    for( RSPConnectionsCIter i = _children.begin(); i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if( child->_id == _id )
             continue;
 
-        const uint16_t distance = child->_acked - ack->sequence;
+        const uint16_t distance = child->_acked - acked;
         if( distance > _numBuffers )
-            return true;
+            acked = child->_acked;
     }
 
-    _finishWriteQueue( ack->sequence );
+    RSPConnectionPtr selfChild = _findConnection( _id );
+    const uint16_t distance = acked - selfChild->_acked;
+    if( distance <= _numBuffers )
+        _finishWriteQueue( acked );
     return true;
 }
 
@@ -1158,16 +1164,18 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
     ++nNAcksRead;
 #endif
 
+    if( _id != nack->writerID )
+    {
+        EQLOG( LOG_RSP )
+            << "ignore " << nack->count << " nacks from " << nack->readerID
+            << " for " << nack->writerID << " (not me)"<< std::endl;
+        return true;
+    }
+
     EQLOG( LOG_RSP )
         << "handle " << nack->count << " nacks from " << nack->readerID
         << " for " << nack->writerID << std::endl;
 
-    if( _id != nack->writerID )
-    {
-        EQLOG( LOG_RSP ) << "ignore nack, it's not for me" << std::endl;
-        return true;
-    }
-    
     RSPConnectionPtr connection = _findConnection( nack->readerID );
     if( !connection )
     {
@@ -1374,12 +1382,9 @@ void RSPConnection::_checkNewID( uint16_t id )
 RSPConnection::RSPConnectionPtr RSPConnection::_findConnection( 
     const uint16_t id )
 {
-    for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
-         i != _children.end(); ++i )
-    {
+    for( RSPConnectionsCIter i = _children.begin(); i != _children.end(); ++i )
         if( (*i)->_id == id )
             return *i;
-    }
     return 0;
 }
 
@@ -1389,15 +1394,11 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     if( _findConnection( id ).isValid() )
         return false;
 
-    base::ScopedMutex<> mutexConn( _mutexConnection );
-    for( std::vector< RSPConnectionPtr >::const_iterator i = _children.begin();
-         i != _children.end(); ++i )
-    {
-        if( (*i)->_id == id )
-            return false;
-    }
-    for( std::vector< RSPConnectionPtr >::const_iterator i = 
-             _childrenConnecting.begin();
+    base::ScopedWrite mutex( _mutexConnection );
+    if( _findConnection( id ).isValid( ))
+        return false;
+
+    for( RSPConnectionsCIter i = _childrenConnecting.begin();
          i != _childrenConnecting.end(); ++i )
     {
         if( (*i)->_id == id )
@@ -1412,7 +1413,7 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
     EQASSERT( connection->_appBuffers.isEmpty( ));
 
     // Make all buffers available for reading
-    for( Buffers::iterator i = connection->_buffers.begin();
+    for( BuffersCIter i = connection->_buffers.begin();
          i != connection->_buffers.end(); ++i )
     {
         Buffer* buffer = *i;
@@ -1430,15 +1431,17 @@ void RSPConnection::_removeConnection( const uint16_t id )
     if( id == _id )
         return;
 
-    for( std::vector< RSPConnectionPtr >::iterator i = _children.begin(); 
-          i != _children.end(); ++i )
+    for( RSPConnectionsIter i = _children.begin(); i != _children.end(); ++i )
     {
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            base::ScopedMutex<> mutex( _mutexEvent ); 
-            _children.erase( i );
-                
+            {
+                base::ScopedWrite mutex( _mutexConnection ); 
+                _children.erase( i );
+            }
+
+            base::ScopedWrite mutex( child->_mutexEvent ); 
             child->_appBuffers.push( 0 );
             child->_event->set();
             break;
@@ -1507,7 +1510,6 @@ void RSPConnection::finish()
         return;
     }
     EQASSERT( _state == STATE_LISTENING );
-    
     _appBuffers.waitSize( _buffers.size( ));
 }
 

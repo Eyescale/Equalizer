@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2007, Tobias Wolf <twolf@access.unizh.ch>
  *
@@ -93,6 +93,8 @@ void Channel::frameClear( const eq::uint128_t& frameID )
         return;
 
     _initJitter();
+    resetRegions();
+
     const FrameData& frameData = _getFrameData();
     const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
     if( _isDone() && !_accum[ eyeIndex ].transfer )
@@ -103,7 +105,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
 
     const eq::View* view = getView();
     if( view && frameData.getCurrentViewID() == view->getID( ))
-        glClearColor( .4f, .4f, .4f, 1.0f );
+        glClearColor( 1.f, 1.f, 1.f, 1.f );
 #ifndef NDEBUG
     else if( getenv( "EQ_TAINT_CHANNELS" ))
     {
@@ -128,7 +130,14 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const Model* oldModel = _model;
     const Model* model = _getModel();
+
+    if( oldModel != model )
+        state.setFrustumCulling( false ); // create all display lists/VBOs
+
     if( model )
         _updateNearFar( model->getBoundingSphere( ));
 
@@ -176,6 +185,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
         glEnd();
     }
 
+    state.setFrustumCulling( true );
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
@@ -198,8 +208,8 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
         if( accum.buffer && !accum.buffer->usesFBO( ))
         {
-            EQWARN << "Current viewport different from view viewport, ";
-            EQWARN << "idle anti-aliasing not implemented." << std::endl;
+            EQWARN << "Current viewport different from view viewport, "
+                   << "idle anti-aliasing not implemented." << std::endl;
             accum.step = 0;
         }
 
@@ -208,7 +218,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     // else
     
-    bool subPixelALL = true;
+    accum.transfer = true;
     const eq::Frames& frames = getInputFrames();
 
     for( eq::Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
@@ -217,13 +227,11 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         const eq::SubPixel& curSubPixel = frame->getSubPixel();
 
         if( curSubPixel != eq::SubPixel::ALL )
-            subPixelALL = false;
+            accum.transfer = false;
 
         accum.stepsDone = EQ_MAX( accum.stepsDone, 
-                                  frame->getSubPixel().size*frame->getPeriod());
+                                  frame->getSubPixel().size*frame->getPeriod( ));
     }
-
-    accum.transfer = subPixelALL;
 
     applyBuffer();
     applyViewport();
@@ -243,18 +251,15 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
 void Channel::frameReadback( const eq::uint128_t& frameID )
 {
-    if( stopRendering( ))
+    if( stopRendering() || _isDone( ))
         return;
 
-    if( _isDone( ))
-        return;
-
-    // OPT: Drop alpha channel from all frames during network transport
     const FrameData& frameData = _getFrameData();
     const eq::Frames& frames = getOutputFrames();
     for( eq::FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         eq::Frame* frame = *i;
+        // OPT: Drop alpha channel from all frames during network transport
         frame->setAlphaUsage( false );
         
         if( frameData.isIdle( ))
@@ -304,7 +309,7 @@ void Channel::frameFinish( const eq::uint128_t& frameID,
         Accum& accum = _accum[ i ];
         if( accum.step > 0 )
         {
-            if( static_cast< int32_t >( accum.stepsDone ) > accum.step )
+            if( int32_t( accum.stepsDone ) > accum.step )
                 accum.step = 0;
             else
                 accum.step -= accum.stepsDone;
@@ -361,19 +366,14 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
 
     if( frameData.isIdle( ))
     {
-        int32_t maxSteps = 0;
+        event.steps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
-            maxSteps = EQ_MAX( maxSteps, _accum[i].step );
-
-        event.steps = maxSteps;
+            event.steps = EQ_MAX( event.steps, _accum[i].step );
     }
     else
     {
         const View* view = static_cast< const View* >( getView( ));
-        if( view )
-            event.steps = view->getIdleSteps();
-        else
-            event.steps = 0;
+        event.steps = view ? view->getIdleSteps() : 0;
     }
 
     // if _jitterStep == 0 and no user redraw event happened, the app will exit
@@ -402,7 +402,7 @@ bool Channel::_isDone() const
 
     const eq::SubPixel& subpixel = getSubPixel();
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-    return static_cast< int32_t >( subpixel.index ) >= accum.step;
+    return int32_t( subpixel.index ) >= accum.step;
 }
 
 void Channel::_initJitter()
@@ -418,17 +418,15 @@ void Channel::_initJitter()
     if( !view )
         return;
 
-    const uint32_t totalSteps = view->getIdleSteps();
-
-    if( totalSteps == 0 )
+    const int32_t idleSteps = view->getIdleSteps();
+    if( idleSteps == 0 )
         return;
 
     // ready for the next FSAA
     Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
-
     if( accum.buffer )
         accum.buffer->clear();
-    accum.step = totalSteps;
+    accum.step = idleSteps;
 }
 
 bool Channel::_initAccum()
@@ -512,7 +510,7 @@ eq::Vector2f Channel::getJitter() const
     if( !view || view->getIdleSteps() != 256 )
         return eq::Vector2f::ZERO;
 
-    eq::Vector2i jitterStep = _getJitterStep();
+    const eq::Vector2i jitterStep = _getJitterStep();
     if( jitterStep == eq::Vector2i::ZERO )
         return eq::Vector2f::ZERO;
 
@@ -531,21 +529,16 @@ eq::Vector2f Channel::getJitter() const
 
     // Sample value randomly computed within the subpixel
     co::base::RNG rng;
-    float value_i = rng.get< float >() * subpixel_w
-                    + float( jitterStep.x( )) * subpixel_w;
-
-    float value_j = rng.get< float >() * subpixel_h
-                    + float( jitterStep.y( )) * subpixel_h;
-
     const eq::Pixel& pixel = getPixel();
-    value_i /= float( pixel.w );
-    value_j /= float( pixel.h );
 
-    return eq::Vector2f( value_i, value_j );
+    const float i = ( rng.get< float >() * subpixel_w +
+                      float( jitterStep.x( )) * subpixel_w ) / float( pixel.w );
+    const float j = ( rng.get< float >() * subpixel_h +
+                      float( jitterStep.y( )) * subpixel_h ) / float( pixel.h );
+
+    return eq::Vector2f( i, j );
 }
 
-namespace
-{
 static const uint32_t _primes[100] = {
     739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829,
     839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
@@ -555,7 +548,6 @@ static const uint32_t _primes[100] = {
     1217, 1223, 1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291,
     1297, 1301, 1303, 1307, 1319, 1321, 1327, 1361, 1367, 1373, 1381, 1399,
     1409, 1423, 1427, 1429, 1433, 1439, 1447, 1451 };
-}
 
 eq::Vector2i Channel::_getJitterStep() const
 {
@@ -565,26 +557,25 @@ eq::Vector2i Channel::_getJitterStep() const
     if( !view )
         return eq::Vector2i::ZERO;
 
-    const uint32_t totalSteps = view->getIdleSteps();
+    const uint32_t totalSteps = uint32_t( view->getIdleSteps( ));
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
     const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
-    const uint32_t idx = 
-        ( accum.step * _primes[ channelID ] ) % subset + ( channelID * subset );
-
+    const uint32_t index = ( accum.step * _primes[ channelID % 100 ] )%subset +
+                           ( channelID * subset );
     const uint32_t sampleSize = 16;
-    const int dx = idx % sampleSize;
-    const int dy = idx / sampleSize;
+    const int dx = index % sampleSize;
+    const int dy = index / sampleSize;
 
     return eq::Vector2i( dx, dy );
 }
 
 const Model* Channel::_getModel()
 {
-    Config*     config = static_cast< Config* >( getConfig( ));
-    const View* view   = static_cast< const View* >( getView( ));
+    Config* config = static_cast< Config* >( getConfig( ));
+    const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
@@ -600,13 +591,13 @@ const Model* Channel::_getModel()
     return _model;
 }
 
-void Channel::_drawModel( const Model* model )
+void Channel::_drawModel( const Model* scene )
 {
-    Window*            window    = static_cast< Window* >( getWindow( ));
-    VertexBufferState& state     = window->getState();
-    const FrameData&   frameData = _getFrameData();
+    Window* window = static_cast< Window* >( getWindow( ));
+    VertexBufferState& state = window->getState();
+    const FrameData& frameData = _getFrameData();
 
-    if( frameData.getColorMode() == COLOR_MODEL && model->hasColors( ))
+    if( frameData.getColorMode() == COLOR_MODEL && scene->hasColors( ))
         state.setColors( true );
     else
         state.setColors( false );
@@ -618,13 +609,13 @@ void Channel::_drawModel( const Model* model )
     eq::Matrix4f position = eq::Matrix4f::IDENTITY;
     position.set_translation( frameData.getCameraPosition());
 
-    const eq::Matrix4f& xfm = getHeadTransform();
-    const eq::Matrix4f modelView = xfm * rotation * position * modelRotation;
-
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = useOrtho() ? frustum.compute_ortho_matrix():
                                                  frustum.compute_matrix();
-    state.setProjectionModelViewMatrix( projection * modelView );
+    const eq::Matrix4f& view = getHeadTransform();
+    const eq::Matrix4f model = rotation * position * modelRotation;
+
+    state.setProjectionModelViewMatrix( projection * view * model );
     state.setRange( &getRange().start);
 
     const eq::Pipe* pipe = getPipe();
@@ -632,11 +623,47 @@ void Channel::_drawModel( const Model* model )
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
     
-    model->cullDraw( state );
-    state.setChannel( 0 );
+    scene->cullDraw( state );
 
+    state.setChannel( 0 );
     if( program != VertexBufferState::INVALID )
         glUseProgram( 0 );
+
+    const InitData& initData =
+        static_cast<Config*>( getConfig( ))->getInitData();
+    if( !initData.useROI( ))
+    {
+        declareRegion( getPixelViewport( ));
+        return;
+    }
+
+#ifndef NDEBUG // region border
+    const eq::PixelViewport& pvp = getPixelViewport();
+    const eq::PixelViewport& region = getRegion();
+
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    glOrtho( 0.f, pvp.w, 0.f, pvp.h, -1.f, 1.f );
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+
+    const eq::View* currentView = getView();
+    if( currentView && frameData.getCurrentViewID() == currentView->getID( ))
+        glColor3f( 0.f, 0.f, 0.f );
+    else
+        glColor3f( 1.f, 1.f, 1.f );
+    glNormal3f( 0.f, 0.f, 1.f );
+
+    const eq::Vector4f rect( float( region.x ) + .5f, float( region.y ) + .5f,
+                             float( region.getXEnd( )) - .5f,
+                             float( region.getYEnd( )) - .5f );
+    glBegin( GL_LINE_LOOP ); {
+        glVertex3f( rect[0], rect[1], -.99f );
+        glVertex3f( rect[2], rect[1], -.99f );
+        glVertex3f( rect[2], rect[3], -.99f );
+        glVertex3f( rect[0], rect[3], -.99f );
+    } glEnd();
+#endif
 }
 
 void Channel::_drawOverlay()
@@ -647,7 +674,6 @@ void Channel::_drawOverlay()
     if( !texture )
         return;
 
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     glMatrixMode( GL_PROJECTION );
     glLoadIdentity();
     applyScreenFrustum();
@@ -657,23 +683,7 @@ void Channel::_drawOverlay()
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_LIGHTING );
     glColor3f( 1.0f, 1.0f, 1.0f );
-
-#if 1
-    // border
-    const eq::PixelViewport& pvp = getPixelViewport();
-    const eq::Viewport& vp = getViewport();
-    const float w = pvp.w / vp.w - .5f;
-    const float h = pvp.h / vp.h - .5f;
-
-    glBegin( GL_LINE_LOOP );
-    {
-        glVertex3f( .5f, .5f, 0.f );
-        glVertex3f(   w, .5f, 0.f );
-        glVertex3f(   w,   h, 0.f );
-        glVertex3f( .5f,   h, 0.f );
-    } 
-    glEnd();
-#endif
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 
     // logo
     glEnable( GL_BLEND );
@@ -723,6 +733,8 @@ void Channel::_drawHelp()
     applyViewport();
     setupAssemblyState();
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
     glDisable( GL_LIGHTING );
     glDisable( GL_DEPTH_TEST );
 

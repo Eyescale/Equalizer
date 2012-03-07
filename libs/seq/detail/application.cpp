@@ -102,7 +102,7 @@ bool Application::exit()
             retVal = false;
     }
 
-    _config = 0;
+    EQASSERT( !_config );
     _isMaster = false;
     return retVal;
 }
@@ -116,7 +116,17 @@ eq::Config* Application::createConfig( eq::ServerPtr parent )
 {
     if( isMaster( ))
         return new MasterConfig( parent );
-    return new SlaveConfig( parent );
+
+    EQASSERT( !_config );
+    _config = new SlaveConfig( parent );
+    return _config;
+}
+
+void Application::releaseConfig( eq::Config* config )
+{
+    EQASSERT( config == _config );
+    _config = 0;
+    delete config;
 }
 
 eq::View* Application::createView( eq::Layout* parent )

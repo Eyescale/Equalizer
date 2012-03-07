@@ -39,7 +39,6 @@ namespace server
         MonitorEqualizer();
         MonitorEqualizer( const MonitorEqualizer& from );
         virtual ~MonitorEqualizer();
-        virtual Equalizer* clone() const { return new MonitorEqualizer(*this); }
         virtual void toStream( std::ostream& os ) const { os << this; }
             
         /** @sa Equalizer::attach. */
@@ -48,6 +47,8 @@ namespace server
         /** @sa CompoundListener::notifyUpdatePre */
         virtual void notifyUpdatePre( Compound* compound, 
                                       const uint32_t frameNumber );
+
+        virtual uint32_t getType() const { return fabric::MONITOR_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child ){}

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,13 +84,21 @@ void View::setModelID( const co::base::uint128_t& id )
     _proxy.setDirty( Proxy::DIRTY_MODEL );
 }
 
-void View::setIdleSteps( const uint32_t steps )
+void View::setIdleSteps( const int32_t steps )
 {
     if( _idleSteps == steps )
         return;
 
     _idleSteps = steps;
     _proxy.setDirty( Proxy::DIRTY_IDLE );
+}
+
+void View::toggleEqualizer()
+{
+    if( getEqualizers() & eq::fabric::LOAD_EQUALIZER )
+        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::LOAD_EQUALIZER );
+    else
+        useEqualizer( eq::fabric::EQUALIZER_ALL & ~eq::fabric::TILE_EQUALIZER );
 }
 
 }

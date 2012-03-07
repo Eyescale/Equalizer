@@ -1,5 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+ *               2012, Marwan Abdellah <marwan.abdellah@epfl.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,7 +25,6 @@
 #include "monitor.h"
 #include "rng.h"
 #include "scopedMutex.h"
-#include "executionListener.h"
 #include "sleep.h"
 
 #include <co/base/lock.h>
@@ -36,75 +36,75 @@
 // Experimental Win32 thread pinning
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
+#  pragma message ("Thread affinity  not supported on WIN32")
 #endif
+
 #ifdef Linux
 #  include <sys/prctl.h>
+#endif
+
+#ifdef CO_USE_HWLOC
+#  include <hwloc.h>
 #endif
 
 namespace co
 {
 namespace base
 {
-
-struct ThreadIDPrivate
+namespace
 {
+/** The current state of a thread. */
+enum ThreadState
+{
+    STATE_STOPPED,
+    STATE_STARTING, // start() in progress
+    STATE_RUNNING,
+    STATE_STOPPING  // child no longer active, join() not yet called
+};
+}
+namespace detail
+{
+class ThreadID
+{
+public:
     pthread_t pthread;
 };
 
-namespace
+class Thread
 {
+public:
+    Thread() : state( STATE_STOPPED ) {}
 
-static Monitoru& _numThreads()
-{
-    static Monitoru monitor;
-    return monitor;
+    base::ThreadID id;
+    Monitor< ThreadState > state;
+};
 }
 
-static Lock& _listenerLock()
-{
-    static Lock lock;
-    return lock;
-}
-
-typedef std::vector< ExecutionListener* >  ExecutionListenerVector;
-
-static ExecutionListenerVector& _listeners()
-{
-    static ExecutionListenerVector listeners;
-    return listeners;
-}
-}
-
-static pthread_key_t _createCleanupKey();
 void _notifyStopping( void* arg );
 
-static pthread_key_t _cleanupKey = _createCleanupKey();
-
-pthread_key_t _createCleanupKey()
-{
-    const int error = pthread_key_create( &_cleanupKey, _notifyStopping );
-    if( error )
-    {
-        EQERROR
-            << "Can't create thread-specific key for thread cleanup handler: " 
-            << strerror( error ) << std::endl;
-        EQASSERT( !error );
-    }
-    return _cleanupKey;
-}
-
 Thread::Thread()
-        : _state( STATE_STOPPED )
+        : _impl( new detail::Thread )
 {
 }
 
 Thread::Thread( const Thread& from )
-        : _state( STATE_STOPPED )
+        : _impl( new detail::Thread )
 {
 }
 
 Thread::~Thread()
 {
+    delete _impl;
+}
+
+bool Thread::isStopped() const
+{
+    return ( _impl->state == STATE_STOPPED );
+}
+
+bool Thread::isRunning() const
+{
+    return ( _impl->state == STATE_RUNNING );
 }
 
 void* Thread::runChild( void* arg )
@@ -116,25 +116,22 @@ void* Thread::runChild( void* arg )
 
 void Thread::_runChild()
 {
-    ++_numThreads();
     setName( className( this ));
     pinCurrentThread();
-    _id._data->pthread = pthread_self();
+    _impl->id._impl->pthread = pthread_self();
 
     if( !init( ))
     {
         EQWARN << "Thread " << className( this ) << " failed to initialize"
                << std::endl;
-        _state = STATE_STOPPED;
+        _impl->state = STATE_STOPPED;
         pthread_exit( 0 );
         EQUNREACHABLE;
     }
 
-    _state = STATE_RUNNING;
+    _impl->state = STATE_RUNNING;
     EQINFO << "Thread " << className( this ) << " successfully initialized"
            << std::endl;
-    pthread_setspecific( _cleanupKey, this ); // install cleanup handler
-    _notifyStarted();
 
     run();
     EQINFO << "Thread " << className( this ) << " finished" << std::endl;
@@ -143,53 +140,12 @@ void Thread::_runChild()
     EQUNREACHABLE;
 }
 
-void Thread::_notifyStarted()
-{
-    // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock().set();
-    const ExecutionListenerVector listeners = _listeners();
-    _listenerLock().unset();
-
-    EQVERB << "Calling " << listeners.size() << " thread started listeners"
-           << std::endl;
-    for( ExecutionListenerVector::const_iterator i = listeners.begin();
-         i != listeners.end(); ++i )
-    {
-        (*i)->notifyExecutionStarted();
-    }
-}
-
-void _notifyStopping( void* )
-{ 
-    Thread::_notifyStopping();
-}
-
-void Thread::_notifyStopping()
-{
-    pthread_setspecific( _cleanupKey, 0 );
-
-    // make copy of vector so that listeners can add/remove listeners.
-    _listenerLock().set();
-    ExecutionListenerVector listeners = _listeners();
-    _listenerLock().unset();
-
-    // Call them in reverse order so that symmetry is kept
-    for( ExecutionListenerVector::reverse_iterator i = listeners.rbegin();
-         i != listeners.rend(); ++i )
-    {   
-        (*i)->notifyExecutionStopping();
-    }
-
-    --_numThreads();
-}
-
 bool Thread::start()
 {
-    _listenerLock(); // avoid race during notification
-    if( _state != STATE_STOPPED )
+    if( _impl->state != STATE_STOPPED )
         return false;
 
-    _state = STATE_STARTING;
+    _impl->state = STATE_STARTING;
 
     pthread_attr_t attributes;
     pthread_attr_init( &attributes );
@@ -198,9 +154,8 @@ bool Thread::start()
     int nTries = 10;
     while( nTries-- )
     {
-        const int error = pthread_create( &_id._data->pthread, &attributes,
-                                          runChild, this );
-
+        const int error = pthread_create( &_impl->id._impl->pthread,
+                                          &attributes, runChild, this );
         if( error == 0 ) // succeeded
         {
             EQVERB << "Created pthread " << this << std::endl;
@@ -216,9 +171,9 @@ bool Thread::start()
     }
 
     // avoid memleak, we don't use pthread_join
-    pthread_detach( _id._data->pthread );
-    _state.waitNE( STATE_STARTING );
-    return (_state != STATE_STOPPED);
+    pthread_detach( _impl->id._impl->pthread );
+    _impl->state.waitNE( STATE_STARTING );
+    return (_impl->state != STATE_STOPPED);
 }
 
 void Thread::exit()
@@ -228,7 +183,7 @@ void Thread::exit()
     Log::instance().forceFlush();
     Log::instance().exit();
 
-    _state = STATE_STOPPING;
+    _impl->state = STATE_STOPPING;
     pthread_exit( 0 );
     EQUNREACHABLE;
 }
@@ -238,20 +193,20 @@ void Thread::cancel()
     EQASSERTINFO( !isCurrent(), "Thread::cancel called from child thread" );
 
     EQINFO << "Canceling thread " << className( this ) << std::endl;
-    _state = STATE_STOPPING;
+    _impl->state = STATE_STOPPING;
 
-    pthread_cancel( _id._data->pthread );
+    pthread_cancel( _impl->id._impl->pthread );
 }
 
 bool Thread::join()
 {
-    if( _state == STATE_STOPPED )
+    if( _impl->state == STATE_STOPPED )
         return false;
     if( isCurrent( )) // can't join self
         return false;
 
-    _state.waitNE( STATE_RUNNING );
-    _state = STATE_STOPPED;
+    _impl->state.waitNE( STATE_RUNNING );
+    _impl->state = STATE_STOPPED;
 
     EQINFO << "Joined thread " << className( this ) << std::endl;
     return true;
@@ -259,62 +214,14 @@ bool Thread::join()
 
 bool Thread::isCurrent() const
 {
-    return pthread_equal( pthread_self(), _id._data->pthread );
+    return pthread_equal( pthread_self(), _impl->id._impl->pthread );
 }
 
 ThreadID Thread::getSelfThreadID()
 {
     ThreadID threadID;
-    threadID._data->pthread = pthread_self();
+    threadID._impl->pthread = pthread_self();
     return threadID;
-}
-
-void Thread::addListener( ExecutionListener* listener )
-{
-    ScopedMutex<> mutex( _listenerLock() );
-    _listeners().push_back( listener );
-}
-
-bool Thread::removeListener( ExecutionListener* listener )
-{
-    ScopedMutex<> mutex( _listenerLock() );
-
-    ExecutionListenerVector::iterator i = find( _listeners().begin(),
-                                                     _listeners().end(),
-                                                     listener );
-    if( i == _listeners().end( ))
-        return false;
-
-    _listeners().erase( i );
-    return true;
-}
-
-void Thread::removeAllListeners()
-{
-    _numThreads().waitEQ( 0 );
-    _listenerLock().set();
-
-    EQINFO << _listeners().size() << " thread listeners active" << std::endl;
-    for( ExecutionListenerVector::const_iterator i = _listeners().begin();
-         i != _listeners().end(); ++i )
-    {
-        EQINFO << "    " << className( *i ) << std::endl;
-    }
-    _listenerLock().unset();
-    
-    _notifyStopping();
-
-    _listenerLock().set();
-    _listeners().clear();
-    _listenerLock().unset();
-}
-
-void Thread::untrack()
-{
-    EQASSERTINFO( std::string( "Watchdog" ) ==
-                  std::string( Log::instance().getThreadName( )),
-                  "Are you sure you want to call this method?" );
-    --_numThreads();
 }
 
 void Thread::yield()
@@ -416,7 +323,8 @@ void Thread::setName( const std::string& name )
 
     __try
     {
-        RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
+        RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR),
+                        (ULONG_PTR*)&info );
     }
     __except(EXCEPTION_EXECUTE_HANDLER)
     {
@@ -432,13 +340,96 @@ void Thread::setName( const std::string& name )
 #endif
 }
 
+#ifdef CO_USE_HWLOC
+static hwloc_bitmap_t _getCpuSet( const int32_t affinity,
+                                  hwloc_topology_t topology )
+{
+    hwloc_bitmap_t cpuSet = hwloc_bitmap_alloc(); // HWloc CPU set
+    hwloc_bitmap_zero( cpuSet ); // Initialize to zeros
+
+    if( affinity >= Thread::CORE )
+    {
+        const int32_t coreIndex = affinity - Thread::CORE;
+        if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_CORE, coreIndex ) == 0 )
+        {
+            EQWARN << "Core " << coreIndex << " does not exist in the topology"
+                   << std::endl;
+            return cpuSet;
+        }
+
+        // Getting the core object #coreIndex
+        const hwloc_obj_t coreObj = hwloc_get_obj_by_type( topology,
+                                                           HWLOC_OBJ_CORE,
+                                                           coreIndex );
+        // Get the CPU set associated with the specified core
+        cpuSet = coreObj->allowed_cpuset;
+        return cpuSet;
+    }
+
+    if( affinity >= 0 )
+        return cpuSet;
+
+    // Sets the affinity to a specific CPU or "socket"
+    EQASSERT( affinity >= Thread::SOCKET && affinity < Thread::SOCKET_MAX );
+    const int32_t socketIndex = affinity - Thread::SOCKET;
+
+    if( hwloc_get_obj_by_type( topology, HWLOC_OBJ_SOCKET, socketIndex ) == 0 )
+    {
+        EQWARN << "Socket " << socketIndex << " does not exist in the topology"
+               << std::endl;
+        return cpuSet;
+    }
+
+    // Getting the CPU object #cpuIndex (subtree node)
+    const hwloc_obj_t socketObj = hwloc_get_obj_by_type( topology,
+                                                         HWLOC_OBJ_SOCKET,
+                                                         socketIndex );
+    // Get the CPU set associated with the specified socket
+    cpuSet = socketObj->allowed_cpuset;
+    return cpuSet;
+}
+#endif
+
+void Thread::setAffinity(const int32_t affinity)
+{
+#ifdef CO_USE_HWLOC
+    hwloc_topology_t topology;
+    hwloc_topology_init( &topology ); // Allocate & initialize the topology
+    hwloc_topology_load( topology );  // Perform HW topology detection
+    const hwloc_bitmap_t cpuSet = _getCpuSet( affinity, topology );
+    const int result = hwloc_set_cpubind( topology, cpuSet,
+                                                HWLOC_CPUBIND_THREAD );
+    char* cpuSetString;
+    hwloc_cpuset_asprintf( &cpuSetString, cpuSet );
+
+    if( affinityFlag == 0 )
+    {
+        EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
+    }
+    else
+    {
+        EQWARN << "Error binding thread to cpu set " << cpuSetString
+               << std::endl;
+    }
+    ::free( cpuSetString );
+
+    hwloc_topology_destroy(topology);
+
+#else
+    EQWARN << "Thread::setAffinity not implemented, hwloc library missing"
+           << std::endl;
+#endif
+}
+
+#if 0
 std::ostream& operator << ( std::ostream& os, const Thread* thread )
 {
-    os << "Thread " << thread->_id << " state " 
-       << ( thread->_state == Thread::STATE_STOPPED  ? "stopped"  :
-            thread->_state == Thread::STATE_STARTING ? "starting" :
-            thread->_state == Thread::STATE_RUNNING  ? "running"  :
-            thread->_state == Thread::STATE_STOPPING ? "stopping" : "unknown" );
+    os << "Thread " << thread->_impl->id << " state " 
+       << ( thread->_impl->state == Thread::STATE_STOPPED  ? "stopped"  :
+            thread->_impl->state == Thread::STATE_STARTING ? "starting" :
+            thread->_impl->state == Thread::STATE_RUNNING  ? "running"  :
+            thread->_impl->state == Thread::STATE_STOPPING ? "stopping" :
+            "unknown" );
 
 #ifdef PTW32_VERSION
     os << " called from " << pthread_self().p;
@@ -448,5 +439,7 @@ std::ostream& operator << ( std::ostream& os, const Thread* thread )
 
     return os;
 }
+#endif
+
 }
 }

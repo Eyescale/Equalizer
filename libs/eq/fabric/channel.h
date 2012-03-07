@@ -140,7 +140,7 @@ namespace fabric
         void setOverdraw( const Vector4i& overdraw ); //!< @internal
         const Vector2i& getMaxSize()  const { return _maxSize; } //!< @internal
 
-        /** @return the index path to this channel. @internal */
+        /** @internal @return the index path to this channel. */
         EQFABRIC_INL ChannelPath getPath() const;
 
         EQFABRIC_INL virtual void backup(); //!< @internal

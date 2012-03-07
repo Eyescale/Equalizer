@@ -47,15 +47,16 @@ CameraAnimation::Step CameraAnimation::getNextStep()
 
     EQASSERT( _curStep < _steps.size()-1 );
 
-    _curFrame++;
+    ++_curFrame;
     if( _curFrame > _steps[_curStep+1].frame )
     {
         if( _curStep == _steps.size()-2 )
         {
             _curFrame = 1;
             _curStep  = 0;
-        }else
-            _curStep++;
+        }
+        else
+            ++_curStep;
     }
     //else
     const Step& curStep  = _steps[ _curStep   ];

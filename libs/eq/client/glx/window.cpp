@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -96,9 +96,7 @@ bool Window::configInit()
 
     makeCurrent();
     initGLEW();
-
-    if( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC ) != AUTO )
-        _initSwapSync();
+    _initSwapSync();
     if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == FBO )
         configInitFBO();
 
@@ -331,7 +329,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
     }
 
     GLXContext context = GLXEW_VERSION_1_3 ?
-        glXCreateNewContext( _xDisplay, fbConfig[ 0 ], type, shCtx, True ):
+        glXCreateNewContext( _xDisplay, fbConfig[0], type, shCtx, True ):
         glXCreateContextWithConfigSGIX( _xDisplay, fbConfig[0], type, shCtx,
                                         True );
 
@@ -436,10 +434,12 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     
     // Grab keyboard focus in fullscreen mode
-    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
+    if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ||
+        getIAttribute( eq::Window::IATTR_HINT_DECORATION ) == OFF )
+    {
         XGrabKeyboard( _xDisplay, drawable, True, GrabModeAsync, GrabModeAsync, 
                       CurrentTime );
-    
+    }
     setXDrawable( drawable );
     
     EQINFO << "Created X11 drawable " << drawable << std::endl;
@@ -482,10 +482,23 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig,
                     KeyPressMask | KeyReleaseMask | PointerMotionMask |
                     ButtonPressMask | ButtonReleaseMask;
 
-    if( getIAttribute( eq::Window::IATTR_HINT_DECORATION ) != OFF )
-        wa.override_redirect = False;
-    else
-        wa.override_redirect = True;
+    switch( getIAttribute( eq::Window::IATTR_HINT_DECORATION ))
+    {
+      case ON:
+          wa.override_redirect = False;
+          break;
+
+      case OFF:
+          wa.override_redirect = True;
+          break;
+        
+      case AUTO:
+      default:
+          wa.override_redirect = 
+              getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON ?
+              True : False;
+          break;
+    }
 
     XID drawable = XCreateWindow( _xDisplay, parent, 
                                   pvp.x, pvp.y, pvp.w, pvp.h,
@@ -634,20 +647,21 @@ void Window::setGLXContext( GLXContext context )
 
 void Window::_initSwapSync()
 {
+    const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync == AUTO ) // leave it alone
+        return;
+
     if( GLXEW_SGI_swap_control )
     {
-        // set vsync on/off
-        const GLint vsync =
-            ( getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC )==OFF ) ? 0 : 1;
-        glXSwapIntervalSGI( vsync );
+        glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
     }
     else
         EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
-               << "swapsync hint" << std::endl;
+               << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }   
 
 
-void Window::configExit( )
+void Window::configExit()
 {
     if( !_xDisplay ) 
         return;

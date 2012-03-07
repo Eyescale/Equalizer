@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 
 set(CO_PUBLIC_HEADERS 
     api.h
@@ -34,6 +34,7 @@ set(CO_PUBLIC_HEADERS
     objectVersion.h
     packets.h
     queueMaster.h
+    queuePackets.h
     queueSlave.h
     serializable.h
     types.h
@@ -87,7 +88,6 @@ set(CO_SOURCES
     instanceCache.cpp
     localNode.cpp
     masterCM.cpp
-    mcipConnection.cpp
     node.cpp
     object.cpp
     objectCM.cpp

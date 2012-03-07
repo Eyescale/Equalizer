@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,6 +22,8 @@
 #include "pipe.h"
 #include "window.h"
 
+#include <cstdio>
+
 #ifdef _MSC_VER
 #  define snprintf _snprintf
 #endif
@@ -31,8 +33,7 @@ namespace eq
 
 WindowStatistics::WindowStatistics( const Statistic::Type type, 
                                     Window* window )
-        : StatisticSampler< Window >( type, window, 
-                                      window->getPipe()->getCurrentFrame( ))
+        : StatisticSampler< Window >( type, window )
 {
     const int32_t hint = _owner->getIAttribute( Window::IATTR_HINT_STATISTICS );
     if( hint == OFF )

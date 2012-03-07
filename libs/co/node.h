@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -84,7 +84,7 @@ namespace co
         ConnectionPtr getConnection() const { return _outgoing; }
 
         /** @return the multicast connection to this node, or 0. */
-        ConnectionPtr getMulticast();
+        ConnectionPtr useMulticast();
         //@}
 
         /** @name Messaging API */
@@ -180,7 +180,7 @@ namespace co
          */
         bool multicast( const Packet& packet )
             {
-                ConnectionPtr connection = getMulticast();
+                ConnectionPtr connection = useMulticast();
                 if( !connection )
                     return false;
                 return connection->send( packet );
@@ -197,12 +197,12 @@ namespace co
         /** @return last receive time. */
         int64_t getLastReceiveTime() const { return _lastReceive; }
 
+        /** @return the type of the node, used during connect(). */
+        virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
+
     protected:
         /** Destructs this node. */
         CO_API virtual ~Node();
-
-        /** @return the type of the node, used during connect(). */
-        virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
 
         /** 
          * Factory method to create a new node.

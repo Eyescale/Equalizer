@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -126,7 +126,8 @@ co::CommandQueue* Pipe::getCommandThreadQueue()
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
     const Windows& windows = getWindows(); 
-    EQASSERT( windows.size() > path.windowIndex );
+    EQASSERTINFO( windows.size() > path.windowIndex,
+                  "Path " << path << " for " << *this );
 
     if( windows.size() <= path.windowIndex )
         return 0;
@@ -339,9 +340,10 @@ void Pipe::output( std::ostream& os ) const
             attrPrinted = true;
         }
         
-        os << ( i == IATTR_HINT_THREAD ? "hint_thread          " :
+        os << ( i == IATTR_HINT_THREAD ? "hint_thread "                   :
                 i == IATTR_HINT_CUDA_GL_INTEROP ? "hint_cuda_GL_interop " :
-                "ERROR" )
+                i == IATTR_HINT_AFFINITY ? "hint_affinity "               :
+                    "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
     

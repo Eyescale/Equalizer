@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,8 +26,11 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "serverVisitor.h"
 #include "window.h"
+#ifdef EQ_USE_GPUSD
+#  include "config/server.h"
+#  include <eq/client/global.h>
+#endif
 
 #include <eq/admin/packets.h>
 #include <eq/client/serverPackets.h>
@@ -55,8 +58,8 @@ static NodeFactory _nf;
 }
 
 typedef co::CommandFunc<Server> ServerFunc;
-typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode >
-            Super;
+typedef fabric::Server< co::Node, Server, Config, NodeFactory, co::LocalNode,
+                        ServerVisitor > Super;
 
 Server::Server()
         : Super( &_nf )
@@ -90,68 +93,16 @@ Server::~Server()
     co::base::Log::setClock( 0 );
 }
 
-namespace
-{
-template< class C, class V >
-VisitorResult _accept( C* server, V& visitor )
-{ 
-    VisitorResult result = visitor.visitPre( server );
-    if( result != TRAVERSE_CONTINUE )
-        return result;
-
-    const Configs& configs = server->getConfigs();
-    for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
-    {
-        switch( (*i)->accept( visitor ))
-        {
-            case TRAVERSE_TERMINATE:
-                return TRAVERSE_TERMINATE;
-
-            case TRAVERSE_PRUNE:
-                result = TRAVERSE_PRUNE;
-                break;
-                
-            case TRAVERSE_CONTINUE:
-            default:
-                break;
-        }
-    }
-
-    switch( visitor.visitPost( server ))
-    {
-        case TRAVERSE_TERMINATE:
-            return TRAVERSE_TERMINATE;
-
-        case TRAVERSE_PRUNE:
-            return TRAVERSE_PRUNE;
-                
-        case TRAVERSE_CONTINUE:
-        default:
-            break;
-    }
-
-    return result;
-}
-}
-
-VisitorResult Server::accept( ServerVisitor& visitor )
-{
-    return _accept( this, visitor );
-}
-
-VisitorResult Server::accept( ServerVisitor& visitor ) const
-{
-    return _accept( this, visitor );
-}
-
 void Server::init()
 {
     co::base::Thread::setName( co::base::className( this ));
     EQASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
+#ifndef EQ_USE_GPUSD
     if( configs.empty( ))
         EQWARN << "No configurations loaded" << std::endl;
+#endif
 
     EQINFO << co::base::disableFlush << "Running server: " << std::endl
            << co::base::indent << Global::instance() << *this
@@ -164,9 +115,6 @@ void Server::init()
 void Server::exit()
 {
     const Configs& configs = getConfigs();
-    if( configs.empty( ))
-        EQWARN << "No configurations loaded" << std::endl;
-
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->deregister();
 }
@@ -176,33 +124,6 @@ void Server::run()
     init();
     handleCommands();
     exit();
-}
-
-void Server::_addConfig( Config* config )
-{
-    Super::_addConfig( config );
-
-    if( config->getName().empty( ))
-    {
-        std::ostringstream stringStream;
-        stringStream << "EQ_CONFIG_" << config->getID();
-        config->setName( stringStream.str( ));
-    }
-
-    if( _running )
-        config->register_();
-}
-
-bool Server::_removeConfig( Config* config )
-{
-    const Configs& configs = getConfigs();
-    if( stde::find( configs, config ) == configs.end( ))
-        return false;
-
-    if( _running )
-        config->deregister();
-
-    return Super::_removeConfig( config );
 }
 
 void Server::deleteConfigs()
@@ -260,12 +181,26 @@ bool Server::_cmdChooseConfig( co::Command& command )
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
-        const float version = candidate->getFAttribute(Config::FATTR_VERSION);
+        const float version = candidate->getFAttribute( Config::FATTR_VERSION );
         EQASSERT( version == 1.2f );
-        if( !candidate->isUsed() && version == 1.2f)
+        if( !candidate->isUsed() && version == 1.2f )
             config = candidate;
     }
     
+#ifdef EQ_USE_GPUSD
+    if( !config )
+    {
+        // TODO move session name to ConfigParams
+        config = config::Server::configure( this, eq::Global::getConfigFile(),
+                                            packet->flags );
+        if( config )
+        {
+            config->register_();
+            EQINFO << "Configured " << *this << std::endl;
+        }
+    }
+#endif
+
     ServerChooseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
 
@@ -357,8 +292,20 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     node->send( destroyConfigPacket );
     waitRequest( destroyConfigPacket.requestID );
 
-    ConfigRestoreVisitor restore;
-    config->accept( restore );
+#ifdef EQ_USE_GPUSD
+    if( config->isAutoConfig( ))
+    {
+        EQASSERT( _admins.empty( ));
+        config->deregister();
+        delete config;
+    }
+    else
+#endif
+    {
+        ConfigRestoreVisitor restore;
+        config->accept( restore );
+        config->commit();
+    }
 
     node->send( reply );
     EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;
@@ -472,12 +419,9 @@ bool Server::_cmdUnmap( co::Command& command )
 template class eq::fabric::Server< co::Node, eq::server::Server,
                                    eq::server::Config,
                                    eq::server::NodeFactory,
-                                   co::LocalNode >;
+                                   co::LocalNode, eq::server::ServerVisitor >;
 
 /** @cond IGNORE */
-template std::ostream& eq::fabric::operator <<
-( std::ostream&, const fabric::Server< co::Node, eq::server::Server,
-                                       eq::server::Config,
-                                       eq::server::NodeFactory,
-                                       co::LocalNode >& );
+template std::ostream&
+eq::fabric::operator << ( std::ostream&, const eq::server::Super& );
 /** @endcond */

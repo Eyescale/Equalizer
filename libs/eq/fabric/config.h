@@ -59,7 +59,7 @@ namespace fabric
          * @internal
          * @return the timeout in ms or EQ_TIMEOUT_INDEFINITE for failures.
          */
-        uint32_t getTimeout() const;
+        EQFABRIC_INL uint32_t getTimeout() const;
 
         /**
          * @return the vector of nodes instantiated in this process.
@@ -217,7 +217,8 @@ namespace fabric
         virtual void _removeChild( const co::base::UUID& )
             { EQUNIMPLEMENTED; }
 
-        template< class, class, class, class, class > friend class Server;
+        template< class, class, class, class, class, class >
+        friend class Server;
 
         void setAppNodeID( const co::NodeID& nodeID ); //!< @internal
         /** @internal */

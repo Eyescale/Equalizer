@@ -41,7 +41,7 @@ DataIStreamQueue::~DataIStreamQueue()
 
 ObjectDataIStream* DataIStreamQueue::tryPop()
 {
-    QueuedStream stream( 0, 0 );
+    QueuedStream stream( 0, (ObjectDataIStream*)0 );
     _queued.tryPop( stream );
     return stream.second;
 }
@@ -63,6 +63,16 @@ ObjectDataIStream* DataIStreamQueue::pull( const uint128_t& key )
     return is;
 }
 
+void DataIStreamQueue::recycle( ObjectDataIStream* stream )
+{
+#ifdef CO_AGGRESSIVE_CACHING
+    stream->reset();
+    _iStreamCache.release( stream );
+#else
+    delete stream;
+#endif
+}
+
 bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
 {
     EQ_TS_THREAD( _thread );
@@ -82,7 +92,6 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
             _pending.erase( i );
 
         _queued.push( QueuedStream( key, istream ));
-        EQASSERTINFO( _queued.getSize() < 100, "More than 100 queued commits" );
         //EQLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
         return true;
     }

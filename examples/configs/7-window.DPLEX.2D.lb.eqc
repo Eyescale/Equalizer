@@ -4,7 +4,6 @@
 
 global
 {
-    EQ_WINDOW_IATTR_PLANES_STENCIL 1
     EQ_WINDOW_IATTR_HINT_SWAPSYNC  0
 }
 
@@ -87,22 +86,12 @@ server
         compound
         {
             channel  ( segment 0 view 0 )
-            task    [ CLEAR ASSEMBLE ] 
-
-            wall
-            {
-                bottom_left  [ -.32 -.2 -.75 ]
-                bottom_right [  .32 -.2 -.75 ]
-                top_left     [ -.32  .2 -.75 ]
-            }
             framerate_equalizer {}
 
             compound
             {
                 channel "channel-even"
-                task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 0
-
                 load_equalizer { mode 2D }
 
                 compound
@@ -122,7 +111,6 @@ server
             compound
             {
                 channel "channel-odd"
-                task    [ CLEAR ASSEMBLE ] 
                 period 2 phase 1
                 load_equalizer { mode 2D }
 

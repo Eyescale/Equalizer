@@ -94,6 +94,7 @@ namespace eq
 
     /** Output the statistic type to an std::ostream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Statistic::Type& );
+
     /** Output the statistic to an std::ostream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream&, const Statistic& );
 }

@@ -19,6 +19,7 @@
 #define EQFABRIC_IATTRIBUTE_H
 
 #include <eq/fabric/api.h>
+#include <co/base/thread.h>
 #include <iostream>
 
 namespace eq
@@ -29,6 +30,9 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
+        SOCKET = co::base::Thread::SOCKET, //!< CPU thread affinity: -64k..-1024
+        CORE = co::base::Thread::CORE, //!< Core thread affinity: 1..oo
+        SOCKET_MAX = co::base::Thread::SOCKET_MAX, //!< Highes bindable CPU
         RELATIVE_TO_OBSERVER = -17, //!< focal convergence relative to observer
         RELATIVE_TO_ORIGIN   = -16, //!< focal convergence relative to origin
         FIXED      = -15, //!< config or observer focus fixed on wall/projection
@@ -45,7 +49,7 @@ namespace fabric
         ANAGLYPH   = -4,  //!< Anaglyphic stereo decomposition
         PASSIVE    = -3,  //!< Passive stereo rendering
         /** 
-         * Nicest statisics gathering (Window::IATTR_HINT_STATISTICS,
+         * Nicest statistics gathering (Window::IATTR_HINT_STATISTICS,
          * Channel::IATTR_HINT_STATISTICS)
          */
         NICEST     = -2,
@@ -53,11 +57,11 @@ namespace fabric
         OFF        = 0,   //!< disabled (various attributes)
         ON         = 1,   //!< enabled (various attributes)
         /** 
-         * Fastest statisics gathering (Window::IATTR_HINT_STATISTICS,
+         * Fastest statistics gathering (Window::IATTR_HINT_STATISTICS,
          * Channel::IATTR_HINT_STATISTICS)
          */
         FASTEST    = ON,
-        HORIZONTAL = ON   //!< Horizontal load-balancing
+        HORIZONTAL = ON    //!< Horizontal load-balancing
     };
 
     EQFABRIC_API std::ostream& operator << ( std::ostream& os,

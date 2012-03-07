@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -61,7 +61,7 @@ namespace server
             BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
             BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
             BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
-            BUFFER_ALL       = EQ_BIT_ALL
+            BUFFER_ALL       = EQ_BIT_ALL_32
         };
 
         /** The storage type for pixel data. @version 1.0 */
@@ -187,7 +187,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameData[co::base::getIndexOfLastBit( eye ) ]; }
+            { return _data.frameDataVersion[co::base::getIndexOfLastBit(eye)]; }
         //@}
 
         /** @name Operations */
@@ -199,16 +199,30 @@ namespace server
         void flush();
 
         /**
-         * Read back a set of images according to the current frame data.
+         * Read back an image.
          * 
-         * The images are added to the data, existing images are retained.
+         * The image is added to the data, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
+        EQ_API void readback( ObjectManager* glObjects,
+                              const DrawableConfig& config );
+
+        /**
+         * Read back a set of images.
+         * 
+         * The images are added to the data, existing images are retained.
+         *
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @version 1.0
+         */
         EQ_API void readback( util::ObjectManager< const void* >* glObjects,
-                                 const DrawableConfig& config );
+                              const DrawableConfig& config,
+                              const PixelViewports& regions );
 
         /**
          * Set the frame ready.
@@ -228,7 +242,8 @@ namespace server
         EQ_API bool isReady() const;
 
         /** Wait for the frame to become available. @version 1.0 */
-        EQ_API void waitReady() const;
+        EQ_API void waitReady( const uint32_t timeout =
+                               EQ_TIMEOUT_INDEFINITE ) const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.
@@ -247,6 +262,14 @@ namespace server
         void removeListener( co::base::Monitor<uint32_t>& listener );
         //@}
 
+        /** @internal @return the receiving eq::Node IDs of an output frame */
+        const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
+        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
+
+        /** @internal @return the receiving co::Node IDs of an output frame */
+        const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
+        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
+
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
         virtual void getInstanceData( co::DataOStream& os );
@@ -260,13 +283,24 @@ namespace server
 
         /** The distributed data shared between Frame and server::Frame. */
         friend class eq::server::Frame;
+
         struct Data
         {
+            struct ToNode
+            {
+                std::vector< uint128_t > inputNodes;
+                std::vector< uint128_t > inputNetNodes;
+            };
+
             Data() : offset( Vector2i::ZERO ) {}
 
             Vector2i offset;
             Zoom zoom;
-            co::ObjectVersion frameData[ NUM_EYES ];
+            co::ObjectVersion frameDataVersion[ NUM_EYES ];
+            ToNode toNodes[ NUM_EYES ];
+
+            EQ_API void serialize( co::DataOStream& os ) const;
+            EQ_API void deserialize( co::DataIStream& is );
         }
         _data;
 

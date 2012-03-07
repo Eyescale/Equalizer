@@ -38,6 +38,7 @@ namespace
 #define MAKE_PIPE_ATTR_STRING( attr ) ( std::string("EQ_PIPE_") + #attr )
 std::string _iPipeAttributeStrings[] = {
     MAKE_PIPE_ATTR_STRING( IATTR_HINT_THREAD ),
+    MAKE_PIPE_ATTR_STRING( IATTR_HINT_AFFINITY ),
     MAKE_PIPE_ATTR_STRING( IATTR_HINT_CUDA_GL_INTEROP ),
 };
 

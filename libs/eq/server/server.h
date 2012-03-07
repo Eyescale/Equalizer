@@ -32,8 +32,9 @@ namespace eq
 namespace server
 {
     /** The Equalizer server. */
-    class Server : public fabric::Server< co::Node, Server, Config,
-                                          NodeFactory, co::LocalNode >
+    class Server :
+        public fabric::Server< co::Node, Server, Config, NodeFactory,
+                               co::LocalNode, ServerVisitor >
     {
     public:
         /** 
@@ -69,15 +70,6 @@ namespace server
         /** @return the command queue to the server thread */
         co::CommandQueue* getMainThreadQueue() { return &_mainThreadQueue; }
 
-        /** 
-         * Traverse this server and all children using a server visitor.
-         * 
-         * @param visitor the visitor.
-         * @return the result of the visitor traversal.
-         */
-        EQSERVER_API VisitorResult accept( ServerVisitor& visitor );
-        EQSERVER_API VisitorResult accept( ServerVisitor& visitor ) const;
-
         /** @return the global time in milliseconds. */
         int64_t getTime() const { return _clock.getTime64(); }
 
@@ -107,12 +99,6 @@ namespace server
 
         friend class fabric::Config< Server, Config, Observer, Layout, Canvas,
                                      server::Node, ConfigVisitor >;
-
-        /**  Add a new config to this server. */
-        void _addConfig( Config* config );
-
-        /** Remove a config from this server. */
-        bool _removeConfig( Config* config );        
 
         /** The command functions. */
         bool _cmdChooseConfig( co::Command& command );

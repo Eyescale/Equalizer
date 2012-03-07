@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # four-window configuration showing all Equalizer features
 global
@@ -20,7 +20,7 @@ server
                 window
                 {
                     name     "window1"
-                    viewport [ 25 25 400 400 ]
+                    viewport [ 50 50 400 400 ]
                     channel { name "channel1"  }
                 }
             }
@@ -30,7 +30,7 @@ server
                 window
                 {
                     name     "window2"
-                    viewport [ 450 25 400 400 ]
+                    viewport [ 475 50 400 400 ]
                     channel { name "channel2"  }
                 }
             }
@@ -40,7 +40,7 @@ server
                 window
                 {
                     name     "window3"
-                    viewport [ 25 450 400 400 ]
+                    viewport [ 50 475 400 400 ]
                     channel { name "channel3"  }
                 }
             }
@@ -50,7 +50,7 @@ server
                 window
                 {
                     name     "window4"
-                    viewport [ 450 450 400 400 ]
+                    viewport [ 475 475 400 400 ]
                     channel { name "channel4"  }
                 }
             }
@@ -211,6 +211,21 @@ server
         }
         layout
         {
+            name "Tile"
+            view
+            {
+                observer 0
+                viewport [ 0 .5 .5 .5 ]
+                wall
+                {
+                    bottom_left  [ -.5 -.5 -1 ]
+                    bottom_right [  .5 -.5 -1 ]
+                    top_left     [ -.5  .5 -1 ]
+                }
+            }
+        }
+        layout
+        {
             name "WallLB"
             view { observer 0 }
         }
@@ -293,6 +308,7 @@ server
             layout "DB"
             layout "Eye"
             layout "DPlex"
+            layout "Tile"
             layout "Pixel"
             layout "Subpixel"
 
@@ -433,7 +449,7 @@ server
             }
         }
 
-        # wall compound - need swap barrier
+        # MultiView compound - need swap barrier
         compound
         {
             compound
@@ -458,7 +474,6 @@ server
             }
         }
 
-        # 2D compound
         compound
         {
             channel ( segment 0 layout "2D" view 0 )
@@ -469,6 +484,7 @@ server
 
             compound
             {
+                #tile_equalizer {}
                 load_equalizer { mode 2D }
 
                 compound {}
@@ -493,7 +509,6 @@ server
             }
         }
 
-        # DB compound
         compound
         {
             channel ( segment 0 layout "DB" view 0 )
@@ -523,11 +538,11 @@ server
             inputframe { name "frame.channel4" }
         }
 
-        # DB_Stream compound
         compound
         {
             channel ( segment 0 layout "DB_Stream" view 0 )
             buffer [ COLOR DEPTH ]
+            #load_equalizer{ mode DB }
 
             compound
             {
@@ -556,7 +571,6 @@ server
             }
         }
 
-        # Eye compound
         compound
         {
             channel ( segment 0 layout "Eye" view 0 )
@@ -589,7 +603,6 @@ server
             }
         }
 
-        # Pixel compound
         compound
         {
             channel ( segment 0 layout "Pixel" view 0 )
@@ -601,6 +614,7 @@ server
             {
                 compound
                 {
+                    channel "channel1"
                     pixel [ 0 0 4 1 ]
                     outputframe { type texture }
                 }
@@ -629,7 +643,6 @@ server
             }
         }
 
-        # Subpixel compound
         compound
         {
             channel ( segment 0 layout "Subpixel" view 0 )
@@ -663,7 +676,6 @@ server
             inputframe { name "frame.channel4" }
         }
 
-        # DPlex compound
         compound
         {
             channel ( segment 0 layout "DPlex" view 0 )
@@ -690,7 +702,20 @@ server
             inputframe { name "DPlex" }
         }
 
-        # Direct-send compound
+        compound
+        {
+            channel ( segment 0 layout "Tile" view 0 )
+            tile_equalizer {}
+
+            compound {}
+            compound { channel "channel2" outputframe {} }
+            compound { channel "channel3" outputframe {} }
+            compound { channel "channel4" outputframe {} }
+            inputframe { name "frame.channel2" }
+            inputframe { name "frame.channel3" }
+            inputframe { name "frame.channel4" }
+        }
+
         compound
         {
             channel ( segment 0 layout "DB_DirectSend" view 0 )
@@ -762,7 +787,6 @@ server
             inputframe{ name "ch4" }
         }
 
-        # Binary-swap compound
         compound
         {
             channel ( segment 0 layout "DB_BinarySwap" view 0 )

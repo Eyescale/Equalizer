@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -26,7 +26,8 @@
 
 #include <eq/fabric/window.h> // base class
 #include <co/barrier.h>
-#include <co/base/uint128_t.h> // Member
+#include <co/base/monitor.h>   // member
+#include <co/base/uint128_t.h> // member
 #include <iostream>
 #include <vector>
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2009, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,8 +25,6 @@ namespace eq
 {
 namespace server
 {
-    class Channel;
-    
     /**
      * The compound visitor updating the output data (frames, tiles,
      * swapbarriers) of a compound tree.
@@ -40,8 +38,8 @@ namespace server
         /** Visit all compounds. */
         virtual VisitorResult visit( Compound* compound );
 
-        const Compound::BarrierMap& getSwapBarriers()
-            const { return _swapBarriers; }
+        const Compound::BarrierMap& getSwapBarriers() const
+            { return _swapBarriers; }
         const Compound::FrameMap& getOutputFrames() const
             { return _outputFrames; }
         const Compound::TileQueueMap& getOutputQueues() const
@@ -59,6 +57,8 @@ namespace server
         void _updateSwapBarriers( Compound* compound );
 
         void _generateTiles( TileQueue* queue, Compound* compound );
+        void _addTilesToQueue( TileQueue* queue, Compound* compound, 
+                               const std::vector< Vector2i >& tiles );
     };
 }
 }

@@ -1,6 +1,6 @@
 
 %{
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -97,9 +97,11 @@ EQ_CONFIG_IATTR_FOCUS_MODE       { return EQTOKEN_CONFIG_IATTR_FOCUS_MODE; }
 EQ_NODE_SATTR_LAUNCH_COMMAND     { return EQTOKEN_NODE_SATTR_LAUNCH_COMMAND; }
 EQ_NODE_CATTR_LAUNCH_COMMAND_QUOTE { return EQTOKEN_NODE_CATTR_LAUNCH_COMMAND_QUOTE; }
 EQ_NODE_IATTR_THREAD_MODEL       { return EQTOKEN_NODE_IATTR_THREAD_MODEL; }
+EQ_NODE_IATTR_HINT_AFFINITY      { return EQTOKEN_NODE_IATTR_HINT_AFFINITY; }
 EQ_NODE_IATTR_LAUNCH_TIMEOUT     { return EQTOKEN_NODE_IATTR_LAUNCH_TIMEOUT; }
 EQ_NODE_IATTR_HINT_STATISTICS    { return EQTOKEN_NODE_IATTR_HINT_STATISTICS; }
 EQ_PIPE_IATTR_HINT_THREAD        { return EQTOKEN_PIPE_IATTR_HINT_THREAD; }
+EQ_PIPE_IATTR_HINT_AFFINITY      { return EQTOKEN_PIPE_IATTR_HINT_AFFINITY; }
 EQ_PIPE_IATTR_HINT_CUDA_GL_INTEROP { return EQTOKEN_PIPE_IATTR_HINT_CUDA_GL_INTEROP; }
 EQ_WINDOW_IATTR_HINT_STEREO      { return EQTOKEN_WINDOW_IATTR_HINT_STEREO; }
 EQ_WINDOW_IATTR_HINT_DOUBLEBUFFER { return EQTOKEN_WINDOW_IATTR_HINT_DOUBLEBUFFER; }
@@ -138,6 +140,7 @@ hint_stereo                     { return EQTOKEN_HINT_STEREO; }
 hint_swapsync                   { return EQTOKEN_HINT_SWAPSYNC; }
 hint_drawable                   { return EQTOKEN_HINT_DRAWABLE; }
 hint_thread                     { return EQTOKEN_HINT_THREAD; }
+hint_affinity                   { return EQTOKEN_HINT_AFFINITY; }
 hint_cuda_GL_interop            { return EQTOKEN_HINT_CUDA_GL_INTEROP; }
 hint_screensaver                { return EQTOKEN_HINT_SCREENSAVER; }
 planes_alpha                    { return EQTOKEN_PLANES_ALPHA; }
@@ -150,6 +153,8 @@ planes_samples                  { return EQTOKEN_PLANES_SAMPLES; }
 ON                              { return EQTOKEN_ON; }
 OFF                             { return EQTOKEN_OFF; }
 AUTO                            { return EQTOKEN_AUTO; }
+core                            { return EQTOKEN_CORE; }
+socket                          { return EQTOKEN_SOCKET; }
 FASTEST                         { return EQTOKEN_FASTEST; }
 NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
@@ -179,6 +184,7 @@ load_equalizer                  { return EQTOKEN_LOADEQUALIZER; }
 tree_equalizer                  { return EQTOKEN_TREEEQUALIZER; }
 monitor_equalizer               { return EQTOKEN_MONITOREQUALIZER; }
 view_equalizer                  { return EQTOKEN_VIEWEQUALIZER; }
+tile_equalizer                  { return EQTOKEN_TILEEQUALIZER; }
 damping                         { return EQTOKEN_DAMPING; }
 connection                      { return EQTOKEN_CONNECTION; }
 name                            { return EQTOKEN_NAME; }
@@ -187,10 +193,10 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 IB                              { return EQTOKEN_IB; }
 PIPE                            { return EQTOKEN_PIPE; }
-MCIP                            { return EQTOKEN_MCIP; }
 PGM                             { return EQTOKEN_PGM; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
+UDT                             { return EQTOKEN_UDT; }
 texture                         { return EQTOKEN_TEXTURE; } 
 memory                          { return EQTOKEN_MEMORY; }
 fixed                           { return EQTOKEN_FIXED; }

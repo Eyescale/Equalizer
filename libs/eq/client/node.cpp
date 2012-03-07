@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -71,13 +71,16 @@ void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
 
     co::CommandQueue* queue = getMainThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
+    co::CommandQueue* transmitQ = &transmitter.getQueue();
 
-    registerCommand( fabric::CMD_NODE_CREATE_PIPE, 
+    registerCommand( fabric::CMD_NODE_CREATE_PIPE,
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
                      NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
     registerCommand( fabric::CMD_NODE_CONFIG_INIT, 
                      NodeFunc( this, &Node::_cmdConfigInit ), queue );
+    registerCommand( fabric::CMD_NODE_SET_AFFINITY,
+                     NodeFunc( this, &Node::_cmdSetAffinity), transmitQ );
     registerCommand( fabric::CMD_NODE_CONFIG_EXIT,
                      NodeFunc( this, &Node::_cmdConfigExit ), queue );
     registerCommand( fabric::CMD_NODE_FRAME_START,
@@ -145,20 +148,20 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const co::ObjectVersion& frameData )
+FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
     co::base::ScopedMutex<> mutex( _frameDatas );
-    FrameData* data = _frameDatas.data[ frameData.identifier ];
+    FrameData* data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
     {
         data = new FrameData;
-        data->setID( frameData.identifier );
-        _frameDatas.data[ frameData.identifier ] = data;
+        data->setID( frameDataVersion.identifier );
+        _frameDatas.data[ frameDataVersion.identifier ] = data;
     }
 
-    EQASSERT( frameData.version.high() == 0 );
-    data->setVersion( frameData.version.low( ));
+    EQASSERT( frameDataVersion.version.high() == 0 );
+    data->setVersion( frameDataVersion.version.low( ));
     return data;
 }
 
@@ -189,6 +192,18 @@ bool Node::configExit()
     return true;
 }
 
+void Node::_setAffinity()
+{
+    const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
+
+    NodeAffinityPacket packet;
+    packet.affinity = affinity;
+
+    co::LocalNodePtr node = getLocalNode();
+    send( node, packet );
+    node->setAffinity( affinity );
+}
+
 void Node::waitFrameStarted( const uint32_t frameNumber ) const
 {
     _currentFrame.waitGE( frameNumber );
@@ -210,19 +225,10 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
-        EQASSERT( pipe->isThreaded() || 
-                  pipe->getFinishedFrame() >= frameNumber );
+        EQASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
 
-        try
-        {
-            pipe->waitFrameLocal( frameNumber );
-            pipe->waitFrameFinished( frameNumber );
-        }
-        catch( const co::Exception& e )
-        {
-            EQASSERT( e.getType() == Exception::TIMEOUT_FRAMESYNC );
-            EQWARN << e.what() << std::endl;
-        }
+        pipe->waitFrameLocal( frameNumber );
+        pipe->waitFrameFinished( frameNumber );
     }
 }
 
@@ -394,6 +400,18 @@ void Node::TransmitThread::run()
     }
 }
 
+void Node::dirtyClientExit()
+{
+    const Pipes& pipes = getPipes();
+    for( PipesCIter i = pipes.begin(); i != pipes.end(); ++i )
+    {
+        Pipe* pipe = *i;
+        pipe->cancelThread();
+    }
+    transmitter.getQueue().wakeup();
+    transmitter.join();
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
@@ -451,6 +469,7 @@ bool Node::_cmdConfigInit( co::Command& command )
     _currentFrame  = packet->frameNumber;
     _unlockedFrame = packet->frameNumber;
     _finishedFrame = packet->frameNumber;
+    _setAffinity();
 
     transmitter.start();
     setError( ERROR_NONE );
@@ -596,6 +615,12 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     return true;
 }
 
+bool Node::_cmdSetAffinity( co::Command& command )
+{
+    const NodeAffinityPacket* packet = command.get <NodeAffinityPacket>();
+    co::base::Thread::setAffinity( packet->affinity );
+    return true;
+}
 }
 
 #include "../fabric/node.ipp"

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -61,6 +61,10 @@ namespace eq
         /** Global unlock for non-thread-safe Carbon API calls. @version 1.0 */
         static void leaveCarbon();
 
+        static void setFlags( const uint32_t flags ) //!< @internal
+            { _flags = flags; }
+        static uint32_t getFlags() { return _flags; } //!< @internal
+
     private:
         EQ_API friend bool eq::_init( const int argc, char** argv,
                                       NodeFactory* nodeFactory );
@@ -68,6 +72,7 @@ namespace eq
 
         static NodeFactory* _nodeFactory;
         static std::string  _configFile;
+        static uint32_t     _flags;
     };
 }
 

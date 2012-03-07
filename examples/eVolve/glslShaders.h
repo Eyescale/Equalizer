@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007,       Maxim Makhinya
+/* Copyright (c) 2007-2011,  Maxim Makhinya  <maxmah@gmail.com>
    Copyright (c) 2008-2010,  Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,8 @@ namespace eVolve
 
         GLhandleARB _loadShader( const std::string &shader, GLenum shaderType );
         void _printLog( GLhandleARB shader, const std::string &type );
+
+        bool _cleanupOnError( GLhandleARB vShader=0, GLhandleARB fShader=0 );
     };
 
 }

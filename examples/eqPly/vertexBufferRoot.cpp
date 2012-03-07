@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *          2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -92,10 +92,9 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
     size_t verticesOverlap  = 0;
 #endif
 
+    const Range& range = state.getRange();
     FrustumCuller culler;
     culler.setup( state.getProjectionModelViewMatrix( ));
-
-    const Range& range = state.getRange();
 
     // start with root node
     std::vector< const mesh::VertexBufferBase* > candidates;
@@ -112,12 +111,14 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
         // completely out of range check
         if( treeNode->getRange()[0] >= range[1] ||
             treeNode->getRange()[1] < range[0] )
+        {
             continue;
-            
-        // bounding sphere view frustum culling
-        const vmml::Visibility visibility =
-            culler.test_sphere( treeNode->getBoundingSphere( ));
+        }
 
+        // bounding sphere view frustum culling
+        const vmml::Visibility visibility = state.useFrustumCulling() ?
+                            culler.test_sphere( treeNode->getBoundingSphere( )) :
+                            vmml::VISIBILITY_FULL;
         switch( visibility )
         {
             case vmml::VISIBILITY_FULL:
@@ -183,6 +184,7 @@ void VertexBufferRoot::cullDraw( VertexBufferState& state ) const
 /*  Set up the common OpenGL state for rendering of all nodes.  */
 void VertexBufferRoot::_beginRendering( VertexBufferState& state ) const
 {
+    state.resetRegion();
     switch( state.getRenderMode() )
     {
 #ifdef GL_ARB_vertex_buffer_object
@@ -376,7 +378,6 @@ bool VertexBufferRoot::_readBinary( std::string filename )
 #endif
 }
 
-
 /*  Read binary kd-tree representation, construct from ply if unavailable.  */
 bool VertexBufferRoot::readFromFile( const std::string& filename )
 {
@@ -441,10 +442,6 @@ void VertexBufferRoot::fromMemory( char* start )
                              "node, but found something else instead." );
     _data.fromMemory( addr );
     VertexBufferNode::fromMemory( addr, _data );
-    memRead( reinterpret_cast< char* >( &nodeType ), addr, sizeof( size_t ) );
-    if( nodeType != ROOT_TYPE )
-        throw MeshException( "Error reading binary file. Expected a custom "
-                             "EOF marker, but found something else instead." );
 }
 
 
@@ -457,7 +454,6 @@ void VertexBufferRoot::toStream( std:: ostream& os )
     os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
     _data.toStream( os );
     VertexBufferNode::toStream( os );
-    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
 }
 
 }

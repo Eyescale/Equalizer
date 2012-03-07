@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -66,8 +66,8 @@ Window::Window( Pipe* parent )
         , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
-        , _lastTime ( 0.0 )
-        , _avgFPS ( 0.0 )
+        , _lastTime ( 0.0f )
+        , _avgFPS ( 0.0f )
         , _lastSwapTime( 0 )
 {
     const Windows& windows = parent->getWindows();
@@ -109,6 +109,8 @@ void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
                      WindowFunc( this, &Window::_cmdFrameStart ), queue );
     registerCommand( fabric::CMD_WINDOW_FRAME_FINISH,
                      WindowFunc( this, &Window::_cmdFrameFinish ), queue );
+    registerCommand( fabric::CMD_WINDOW_FLUSH, 
+                     WindowFunc( this, &Window::_cmdFlush), queue );
     registerCommand( fabric::CMD_WINDOW_FINISH, 
                      WindowFunc( this, &Window::_cmdFinish), queue );
     registerCommand( fabric::CMD_WINDOW_THROTTLE_FRAMERATE, 
@@ -201,6 +203,11 @@ co::CommandQueue* Window::getPipeThreadQueue()
 co::CommandQueue* Window::getCommandThreadQueue()
 { 
     return getPipe()->getCommandThreadQueue(); 
+}
+
+uint32_t Window::getCurrentFrame() const
+{
+    return getPipe()->getCurrentFrame();
 }
 
 const Node* Window::getNode() const 
@@ -752,14 +759,12 @@ bool Window::_cmdFrameStart( co::Command& command )
     //_grabFrame( packet->frameNumber ); single-threaded
     sync( packet->version );
 
-    EQASSERT( _systemWindow );
     const DrawableConfig& drawableConfig = getDrawableConfig();
     if( drawableConfig.doublebuffered )
         _renderContexts[FRONT].swap( _renderContexts[BACK] );
     _renderContexts[BACK].clear();
 
     makeCurrent();
-
     frameStart( packet->frameID, packet->frameNumber );
     return true;
 }
@@ -775,12 +780,17 @@ bool Window::_cmdFrameFinish( co::Command& command )
     return true;
 }
 
+bool Window::_cmdFlush( co::Command& ) 
+{
+    flush();
+    return true;
+}
+
 bool Window::_cmdFinish( co::Command& ) 
 {
     WindowStatistics stat( Statistic::WINDOW_FINISH, this );
     makeCurrent();
     finish();
-
     return true;
 }
 
@@ -819,11 +829,10 @@ bool Window::_cmdNVBarrier( co::Command& command )
 {
     const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
-    
     EQASSERT( _systemWindow );
+    
     makeCurrent();
     _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
-
     _enterBarrier( packet->netBarrier );
     return true;
 }

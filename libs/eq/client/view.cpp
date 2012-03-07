@@ -60,13 +60,14 @@ void View::detach()
     //  Don't send packet to stopping pipe (see issue #11)
     if( _pipe && _pipe->isRunning( ))
     {
+        PipeDetachViewPacket pkg( getID( ));
+
         co::LocalNodePtr localNode = getLocalNode();
-        co::Command& command =
-            localNode->allocCommand( sizeof( PipeDetachViewPacket ));
+        co::Command& command = localNode->allocCommand( sizeof( pkg ));
         PipeDetachViewPacket* packet = 
             command.getModifiable< PipeDetachViewPacket >();
 
-        *packet = PipeDetachViewPacket( getID( ));
+        memcpy( packet, &pkg, sizeof( pkg ));
         _pipe->dispatchCommand( command );
     }
     Super::detach();

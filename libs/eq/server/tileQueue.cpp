@@ -28,10 +28,13 @@ namespace server
 {
 
 TileQueue::TileQueue()
-        : _compound( 0 )
+        : co::Object()
+        , _compound( 0 )
+        , _name()
         , _size( 0, 0 )
-        , _queueMaster()
 {
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        _queueMaster[i] = 0;
 }
 
 TileQueue::TileQueue( const TileQueue& from )
@@ -40,6 +43,8 @@ TileQueue::TileQueue( const TileQueue& from )
         , _name( from._name )
         , _size( from._size )
 {
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        _queueMaster[i] = 0;
 }
 
 TileQueue::~TileQueue()
@@ -47,9 +52,55 @@ TileQueue::~TileQueue()
     _compound = 0;
 }
 
-void TileQueue::addTile( const TileTaskPacket& tile )
+void TileQueue::addTile( const TileTaskPacket& tile, fabric::Eye eye )
 {
-    _queueMaster.push( tile );
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    EQASSERT( index < NUM_EYES );
+    _queueMaster[index]->_queue.push( tile );
+}
+
+void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
+{
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
+        if( !compound->isInheritActive( (eq::Eye)(1<<i) ))// eye pass not used
+        {
+            _queueMaster[i] = 0;
+            continue;
+        }
+
+        // reuse unused queues
+        LatencyQueue* queue    = _queues.empty() ? 0 : _queues.back();
+        const uint32_t latency = getAutoObsolete();
+        const uint32_t dataAge = queue ? queue->_frameNumber : 0;
+
+        if( queue && dataAge < frameNumber-latency && frameNumber > latency )
+            // not used anymore
+            _queues.pop_back();
+        else // still used - allocate new data
+        {
+            queue = new LatencyQueue;
+
+            getLocalNode()->registerObject( &queue->_queue );
+            queue->_queue.setAutoObsolete( 1 ); // current + in use by render nodes
+        }
+
+        queue->_queue.clear();
+        queue->_frameNumber = frameNumber;
+
+        _queues.push_front( queue );
+        _queueMaster[i] = queue;
+    }
+}
+
+void TileQueue::setOutputQueue( TileQueue* queue, const Compound* compound )
+{
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
+        // eye pass not used && no output frame for eye pass
+        if( compound->isInheritActive( (eq::Eye)(1<<i) ) )
+            _outputQueue[i] =queue;
+    }
 }
 
 void TileQueue::getInstanceData( co::DataOStream& )
@@ -63,11 +114,33 @@ void TileQueue::applyInstanceData( co::DataIStream& )
 void TileQueue::flush()
 {
     unsetData();
+
+    while( !_queues.empty( ))
+    {
+        LatencyQueue* queue = _queues.front();
+        _queues.pop_front();
+        getLocalNode()->deregisterObject( &queue->_queue );
+        delete queue;
+    }
+
 }
 
 void TileQueue::unsetData()
 {
-    _queueMaster.clear();
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+    {
+        _queueMaster[i] = 0;
+        _outputQueue[i] = 0;
+    }
+}
+
+const UUID TileQueue::getQueueMasterID( fabric::Eye eye ) const
+{
+    uint32_t index = co::base::getIndexOfLastBit(eye);
+    LatencyQueue* queue = _queueMaster[ index ];
+    if ( queue )
+        return queue->_queue.getID();
+    return co::base::UUID::ZERO;
 }
 
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
@@ -75,14 +148,15 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     if( !tileQueue )
         return os;
     
-    os << co::base::disableFlush << "tileQueue" << std::endl;
+    os << co::base::disableFlush << "tiles" << std::endl;
     os << "{" << std::endl << co::base::indent;
-      
+
     const std::string& name = tileQueue->getName();
     os << "name      \"" << name << "\"" << std::endl;
 
     const eq::Vector2i& size = tileQueue->getTileSize();
-    os << "tile size \"" << size << "\"" << std::endl;
+    if( size != Vector2i::ZERO )
+        os << "size      " << size << std::endl;
 
     os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
     return os;

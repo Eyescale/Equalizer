@@ -17,8 +17,9 @@
  */
 
 #include "windowSystem.h"
-#include <eq/fabric/gpuInfo.h>
 
+#include <eq/util/objectManager.h>
+#include <eq/fabric/gpuInfo.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -30,6 +31,23 @@ WindowSystemIF::WindowSystemIF()
         : _next( _stack )
 {
     _stack = this;
+}
+
+uint32_t WindowSystemIF::_setupLists( ObjectManager& gl, const void* key,
+                                      const int num )
+{
+    GLuint lists = gl.getList( key );
+    if( lists != ObjectManager::INVALID )
+        gl.deleteList( key );
+
+    if( num == 0 )
+        lists = ObjectManager::INVALID;
+    else
+    {
+        lists = gl.newList( key, num );
+        EQASSERT( lists != ObjectManager::INVALID );
+    }
+    return lists;
 }
 
 WindowSystem::WindowSystem()
@@ -126,7 +144,7 @@ bool WindowSystem::supports( std::string const& type )
 void WindowSystem::configInit( Node* node )
 {
     if( _stack )
-        _stack->configInit(node );
+        _stack->configInit( node );
 }
 
 void WindowSystem::configExit( Node* node )
@@ -159,10 +177,11 @@ MessagePump* WindowSystem::createMessagePump() const
     return _impl->createMessagePump();
 }
 
-GPUInfos WindowSystem::discoverGPUs() const
+bool WindowSystem::setupFont( ObjectManager& gl, const void* key,
+                            const std::string& name, const uint32_t size ) const
 {
     EQASSERT( _impl );
-    return _impl->discoverGPUs();
+    return _impl->setupFont( gl, key, name, size );
 }
 
 bool WindowSystem::operator == ( const WindowSystem& other) const

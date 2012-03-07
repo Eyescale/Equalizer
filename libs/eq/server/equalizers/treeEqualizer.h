@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -43,7 +43,6 @@ namespace server
         EQSERVER_API TreeEqualizer();
         TreeEqualizer( const TreeEqualizer& from );
         virtual ~TreeEqualizer();
-        virtual Equalizer* clone() const { return new TreeEqualizer( *this ); }
         virtual void toStream( std::ostream& os ) const { os << this; }
 
         enum Mode
@@ -74,7 +73,8 @@ namespace server
         virtual void notifyLoadData( Channel* channel, 
                                      const uint32_t frameNumber, 
                                      const uint32_t nStatistics,
-                                     const eq::Statistic* statistics );
+                                     const eq::Statistic* statistics,
+                                     const Viewport& region );
                                      
         /** Set a boundary for 2D tiles. */
         void setBoundary( const Vector2i& boundary )
@@ -95,6 +95,8 @@ namespace server
 
         /** @return the boundary for DB ranges. */
         float getBoundaryf() const { return _boundaryf; }
+
+        virtual uint32_t getType() const { return fabric::TREE_EQUALIZER; }
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )

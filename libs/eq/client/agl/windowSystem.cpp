@@ -16,17 +16,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// HACK: Get rid of deprecated warning for aglUseFont
+//   -Wno-deprecated-declarations would do as well, but here it is more isolated
+#include <eq/client/defines.h>
+#include <AvailabilityMacros.h>
+#undef DEPRECATED_ATTRIBUTE
+#define DEPRECATED_ATTRIBUTE
+
 #include "../windowSystem.h"
 
-#include "window.h"
-#include "pipe.h"
+#include "eventHandler.h"
 #include "messagePump.h"
+#include "pipe.h"
+#include "window.h"
 
 #include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
+#include <co/base/debug.h>
 
 #define MAX_GPUS 32
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 namespace eq
 {
 namespace agl
@@ -53,51 +63,57 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-    GPUInfos discoverGPUs() const
+    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
+                    const uint32_t size ) const
     {
-        const CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-
-        CGDirectDisplayID displayIDs[MAX_GPUS];
-        CGDisplayCount    nDisplays = 0;
-        if( CGGetOnlineDisplayList( MAX_GPUS, displayIDs, &nDisplays ) !=
-            kCGErrorSuccess )
+        AGLContext context = aglGetCurrentContext();
+        EQASSERT( context );
+        if( !context )
         {
-            GPUInfos result;
-            result.push_back( GPUInfo() );
-            return result;
+            EQWARN << "No AGL context current" << std::endl;
+            return false;
         }
 
-        std::deque< GPUInfo > infos;
-        for( CGDisplayCount i = 0; i < nDisplays; ++i )
+        CFStringRef cfFontName = name.empty() ?
+            CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
+                                       kCFStringEncodingMacRoman ) :
+            CFStringCreateWithCString( kCFAllocatorDefault, name.c_str(),
+                                       kCFStringEncodingMacRoman );
+
+        ATSFontFamilyRef font = ATSFontFamilyFindFromName( cfFontName, 
+                                                       kATSOptionFlagsDefault );
+        CFRelease( cfFontName );
+
+        if( font == 0 )
         {
-            GPUInfo info;
-            const CGRect displayRect = CGDisplayBounds( displayIDs[i] );
+            EQWARN << "Can't load font " << name << ", using Georgia"
+                   << std::endl;
+            cfFontName = 
+                CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",
+                                           kCFStringEncodingMacRoman );
 
-            info.device = i;
-            info.pvp.x = int32_t(displayRect.origin.x);
-            info.pvp.y = int32_t(displayRect.origin.y);
-            info.pvp.w = int32_t(displayRect.size.width);
-            info.pvp.h = int32_t(displayRect.size.height);
-
-            if( mainDisplayID == displayIDs[i] )
-                infos.push_front( info );
-            else
-                infos.push_back( info );
+            font = ATSFontFamilyFindFromName( cfFontName,
+                                              kATSOptionFlagsDefault );
+            CFRelease( cfFontName );
         }
+        EQASSERT( font );
 
-        GPUInfos result( infos.size( ));
-        std::copy( infos.begin(), infos.end(), result.begin( ));
-        return result;
+        const GLuint lists = _setupLists( gl, key, 256 );
+        if( aglUseFont( context, font, normal, size, 0, 256, (long)lists ))
+            return true;
+
+        _setupLists( gl, key, 0 );
+        return false;
     }
 
-    void configInit(eq::Node* node) const
+    void configInit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
         EventHandler::initMagellan(node);
 #endif
     }
 
-    void configExit(eq::Node* node) const
+    void configExit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
         EventHandler::exitMagellan(node);

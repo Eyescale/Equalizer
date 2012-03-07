@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -106,7 +106,7 @@ typedef SSIZE_T    ssize_t;
 #define EQ_BIT47 (0x0000400000000000ull)
 #define EQ_BIT48 (0x0000800000000000ull)
 
-#define EQ_BIT_ALL  (0xffffffffu)
+#define EQ_BIT_ALL_32  (0xffffffffu)
 #define EQ_BIT_ALL_64  (0xffffffffffffffffull)
 #define EQ_BIT_NONE (0)
 
@@ -134,9 +134,13 @@ typedef Strings::const_iterator StringsCIter;
 
 class CPUCompressor; //!< @internal
 class Plugin;        //!< @internal
+class Clock;
 class ErrorRegistry;
+class Lock;
 class PluginRegistry;
 class SpinLock;
+class UUID;
+class uint128_t;
 struct CompressorInfo; //!< @internal
 
 /** @internal A vector of compressor information structures. */

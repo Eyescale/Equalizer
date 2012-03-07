@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/** 
+/**
  * @file plugins/compressor.h
  * 
  * The API to create runtime-loadable compression plugins.
@@ -184,13 +184,15 @@ typedef unsigned long long eq_uint64_t;
 /** @name Compressor Plugin API Versioning */
 /*@{*/
 /** The version of the Compressor API described by this header. */
-#define EQ_COMPRESSOR_VERSION 3
+#define EQ_COMPRESSOR_VERSION 4
 /** At least version 1 of the Compressor API is described by this header. */
 #define EQ_COMPRESSOR_VERSION_1 1
 /**At least version 2 of the Compressor API is described by this header.*/
 #define EQ_COMPRESSOR_VERSION_2 1
 /**At least version 3 of the Compressor API is described by this header.*/
 #define EQ_COMPRESSOR_VERSION_3 1
+/**At least version 4 of the Compressor API is described by this header.*/
+#define EQ_COMPRESSOR_VERSION_4 1
 /*@}*/
 
 #include <co/plugins/compressorTokens.h>
@@ -209,22 +211,25 @@ extern "C" {
      * select a given capability of the plugin.
      */
     /*@{*/
-    /** 
+    /**
      * The compressor can (query time) or should (compress) write the compressed
      * data in the same place as the uncompressed data.
      */
     #define EQ_COMPRESSOR_INPLACE    0x1
+
     /**
      * The compressor can handle linear data (query time), or the input data is
      * linear (compress, decompress). Typically used for binary data.
      */
     #define EQ_COMPRESSOR_DATA_1D    0x2
+
     /**
      * The compressor can handle two-dimensional data (query time), or the input
      * data is two-dimensional (compress, decompress). Typically used for image
      * data.
      */
     #define EQ_COMPRESSOR_DATA_2D    0x4
+
     /**
      * The compressor can, does or should drop the alpha channel.
      *
@@ -245,7 +250,7 @@ extern "C" {
     /** Deprecated */
     #define EQ_COMPRESSOR_IGNORE_MSE EQ_COMPRESSOR_IGNORE_ALPHA
 
-    /** 
+    /**
      * The compressor is a CPU compressor.
      *
      * CPU compressors implement data compression and decompression of a block
@@ -253,9 +258,9 @@ extern "C" {
      */
     #define EQ_COMPRESSOR_CPU 0
 
-    /** 
+    /**
      * The compressor is a CPU-GPU transfer engine.
-     * GPU compressors implement to download from a GPU framebuffer or texture
+     * GPU compressors implement the download from a GPU framebuffer or texture
      * to main memory, as well as the corresponding upload. During this
      * operation, compression might take place.
      */
@@ -276,12 +281,30 @@ extern "C" {
      */
     #define EQ_COMPRESSOR_USE_TEXTURE_2D 0x80
 
-    /** 
+    /**
      * Capability to use the frame buffer as source or destination.
      * If set, the transfer engine can (query time) or shall (compress time) use
      * the frame buffer as the source or destination for its operations.
      */
     #define EQ_COMPRESSOR_USE_FRAMEBUFFER 0x40
+
+    /**
+     * Capability to use asynchronous downloads.
+     * If set, the transfer engine will (query time) or shall (download time)
+     * use asynchronous downloads.
+     * @version 4
+     */
+    #define EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD 0x100
+
+#if 0 // Not implemented yet
+    /**
+     * Capability to use asynchronous uploads.
+     * If set, the transfer engine will (query time) or shall (upload time)
+     * use asynchronous uploads.
+     * @version 4
+     */
+    #define EQ_COMPRESSOR_USE_ASYNC_UPLOAD 0x200
+#endif
     /*@}*/
 
     /** @name DSO information interface. */
@@ -414,7 +437,7 @@ extern "C" {
 
     /** @name CPU Compressor worker functions */
     /*@{*/
-    /** 
+    /**
      * Compress data.
      * 
      * The number of dimensions in the input and output data is given as a
@@ -443,7 +466,7 @@ extern "C" {
                                              const eq_uint64_t* inDims,
                                              const eq_uint64_t flags );
 
-    /** 
+    /**
      * Return the number of results produced by the last compression.
      *
      * A compressor might generate multiple output stream, e.g., when operating
@@ -457,7 +480,7 @@ extern "C" {
     EQ_PLUGIN_API unsigned EqCompressorGetNumResults( void* const compressor,
                                                       const unsigned name );
 
-    /** 
+    /**
      * Return the ith result of the last compression.
      * 
      * @param compressor the compressor instance.
@@ -473,7 +496,7 @@ extern "C" {
                                               void** const out, 
                                               eq_uint64_t* const outSize );
 
-    /** 
+    /**
      * Decompress data.
      * 
      * The decompressor gets all result pointers as produced by the compressor
@@ -532,15 +555,16 @@ extern "C" {
      * valied until the next call to this function or the destruction of this
      * instance.
      *
-     * The correct OpenGL context is current and the frame buffer is bound
-     * correctly. The format and type of the input frame buffer are determined
-     * indirectly by the information provided by the plugin for the given
-     * compressor name, that is, the plugin has pre-declared the frame buffer
-     * type it processes during EqCompressorGetInfo().
+     * The correct SystemWindow is current, e.g., the OpenGL context is current
+     * and the frame buffer is bound correctly. The format and type of the input
+     * frame buffer are determined indirectly by the information provided by the
+     * plugin for the given compressor name, that is, the plugin has
+     * pre-declared the frame buffer type it processes during
+     * EqCompressorGetInfo().
      *
      * The OpenGL context has been setup using Compositor::setupAssemblyState()
-     * using ??? pvp. If the OpenGL state is modified by this function, it has
-     * to reset it before leaving.
+     * using the channel's pvp. If the OpenGL state is modified by this
+     * function, it has to reset it before leaving.
      *
      * The pointer and data size is returned using the out parameters. The
      * outDims parameter has the format <code>x, w, y, h</code>. If the
@@ -551,7 +575,7 @@ extern "C" {
      * compressor instance.
      *
      * Flags will always contain EQ_COMPRESSOR_DATA_2D, and may contain:
-     *  - EQ_COMPRESSOR_IGNORE_MSE if the alpha value of a color buffer may
+     *  - EQ_COMPRESSOR_IGNORE_ALPHA if the alpha value of a color buffer may
      *    be dropped during download
      *  - EQ_COMPRESSOR_USE_TEXTURE_2D if the source is a 2D texture ID
      *  - EQ_COMPRESSOR_USE_TEXTURE_RECT if the source is a rectangle texture ID
@@ -562,7 +586,7 @@ extern "C" {
      * @param glewContext the initialized GLEW context describing corresponding
      *                    to the current OpenGL context.
      * @param inDims the dimensions of the input data (x, w, y, h).
-     * @param source texture name to if EQ_COMPRESSOR_USE_TEXTURE_2D or
+     * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
      *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
      * @param flags capability flags for the compression (see description).
      * @param outDims the dimensions of the output data (see description).
@@ -579,6 +603,62 @@ extern "C" {
                                              void**             out );
 
     /**
+     * Start transferring frame buffer data into main memory.
+     * 
+     * When a plugin indicates that it supports asynchronous downloads during
+     * query time, this function will be set by Equalizer versions supporting
+     * async downloads. This function should then initiate the download using
+     * the given input parameters, which behave exactly as described in
+     * EqCompressorDownload. The operation will be completed from another thread
+     * using EqCompressorFinishDownload().
+     * 
+     * Older Equalizer versions will call EqCompressorDownload(), which should
+     * also be implemented by plugins using EqCompressorStartDownload() and
+     * EqCompressorFinishDownload() to perform a synchronous readback.
+     *
+     * @param compressor the compressor instance.
+     * @param name the type name of the compressor.
+     * @param glewContext the initialized GLEW context describing corresponding
+     *                    to the current OpenGL context.
+     * @param inDims the dimensions of the input data (x, w, y, h).
+     * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
+     *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
+     * @param flags capability flags for the compression (see description).
+     * @version 4
+     */
+    EQ_PLUGIN_API void EqCompressorStartDownload( void* const        compressor,
+                                                  const unsigned     name,
+                                                 const GLEWContext* glewContext,
+                                                  const eq_uint64_t  inDims[4],
+                                                  const unsigned     source,
+                                                  const eq_uint64_t  flags );
+
+    /**
+     * Finish transferring frame buffer data into main memory.
+     * 
+     * Finish an operation started using EqCompressorStartDownload(). The
+     * correct SystemWindow is current, e.g., a shared OpenGL context is current
+     * and the frame buffer is bound correctly. No OpenGL context setup is done.
+     *
+     * @param compressor the compressor instance.
+     * @param name the type name of the compressor.
+     * @param glewContext the initialized GLEW context describing corresponding
+     *                    to the current OpenGL context.
+     * @param inDims the dimensions of the input data (x, w, y, h).
+     * @param flags capability flags for the compression (see description).
+     * @param outDims the dimensions of the output data (see description).
+     * @param out the pointer to the output data.
+     * @version 4
+     */
+    EQ_PLUGIN_API void EqCompressorFinishDownload( void* const compressor,
+                                                   const unsigned     name,
+                                                 const GLEWContext* glewContext,
+                                                   const eq_uint64_t  inDims[4],
+                                                   const eq_uint64_t  flags,
+                                                   eq_uint64_t outDims[4],
+                                                   void**             out );
+
+    /**
      * Transfer data from main memory into GPU memory.
      * 
      * This function applies the inverse operation of EqCompressorDownload, that
@@ -589,8 +669,9 @@ extern "C" {
      *
      * The correct OpenGL context is current. The texture is initialized to the
      * size provided by inDims and it is not bound. The OpenGL context has been
-     * setup using Compositor::setupAssemblyState() using ??? pvp. If the OpenGL
-     * state is modified by this function, it has to reset it before leaving.
+     * setup using Compositor::setupAssemblyState() using the channel pvp. If
+     * the OpenGL state is modified by this function, it has to reset it before
+     * leaving.
      *
      * The parameters buffer, inDims, flags will contain the same values as the
      * parameters out, outDims, flags of the corresponding
@@ -598,7 +679,7 @@ extern "C" {
      * function for further information.
      *
      * Flags will always contain EQ_COMPRESSOR_DATA_2D, and may contain:
-     *  - EQ_COMPRESSOR_IGNORE_MSE if the alpha value of a color buffer may
+     *  - EQ_COMPRESSOR_IGNORE_ALPHA if the alpha value of a color buffer may
      *     be dropped during upload
      *  - EQ_COMPRESSOR_USE_TEXTURE_2D if the destination is a 2D texture ID
      *  - EQ_COMPRESSOR_USE_TEXTURE_RECT if the destination is a rectancle
@@ -627,6 +708,11 @@ extern "C" {
                                            const eq_uint64_t  flags,
                                            const eq_uint64_t  outDims[4],  
                                            const unsigned     destination );
+#if 0
+    // TODO: add EqCompressorStart/FinishUpload and document operations and
+    // parameters
+#endif
+
     /*@}*/
 #ifdef __cplusplus
 }

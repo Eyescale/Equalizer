@@ -23,6 +23,7 @@
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/global.h>
 #include <co/init.h>
 #include <co/node.h>
 #include <co/object.h>
@@ -37,7 +38,7 @@ namespace
 co::base::Monitor< co::Object::ChangeType > monitor( co::Object::NONE ); 
 
 static const std::string message =
-    "Don't Panic! And now some more text to make the string bigger";
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget felis sed leo tincidunt dictum eu eu felis. Aenean aliquam augue nec elit tristique tempus. Pellentesque dignissim adipiscing tellus, ut porttitor nisl lacinia vel. Donec malesuada lobortis velit, nec lobortis metus consequat ac. Ut dictum rutrum dui. Pellentesque quis risus at lectus bibendum laoreet. Suspendisse tristique urna quis urna faucibus et auctor risus ultricies. Morbi vitae mi vitae nisi adipiscing ultricies ac in nulla. Nam mattis venenatis nulla, non posuere felis tempus eget. Cras dapibus ultrices arcu vel dapibus. Nam hendrerit lacinia consectetur. Donec ullamcorper nibh nisl, id aliquam nisl. Nunc at tortor a lacus tincidunt gravida vitae nec risus. Suspendisse potenti. Fusce tristique dapibus ipsum, sit amet posuere turpis fermentum nec. Nam nec ante dolor.";
 }
 
 class Object : public co::Object
@@ -80,7 +81,8 @@ protected:
         {
             const co::Object::ChangeType type =
                 co::Object::ChangeType( typeID.low( ));
-            TESTINFO( istream.nRemainingBuffers() == 1,
+            TESTINFO( istream.nRemainingBuffers() == 1 || // buffered
+                      istream.nRemainingBuffers() == 2,   // unbuffered
                       istream.nRemainingBuffers( ));
             TEST( !object );
             object = new Object( type, istream );
@@ -94,6 +96,7 @@ private:
 int main( int argc, char **argv )
 {
     co::init( argc, argv );
+    co::Global::setObjectBufferSize( 600 );
 
     co::base::RefPtr< Server > server = new Server;
     co::ConnectionDescriptionPtr connDesc = 

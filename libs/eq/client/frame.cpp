@@ -41,12 +41,30 @@ Frame::~Frame()
 void Frame::getInstanceData( co::DataOStream& os )
 {
     EQUNREACHABLE;
-    os << _data;
+    _data.serialize( os );
 }
 
 void Frame::applyInstanceData( co::DataIStream& is )
 {
-    is >> _data;
+    _data.deserialize( is );
+}
+
+void Frame::Data::serialize( co::DataOStream& os ) const
+{
+    os << offset << zoom;
+
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        os << frameDataVersion[i] << toNodes[i].inputNodes 
+           << toNodes[i].inputNetNodes;
+}
+
+void Frame::Data::deserialize( co::DataIStream& is )
+{
+    is >> offset >> zoom;
+
+    for( unsigned i = 0; i < NUM_EYES; ++i )
+        is >> frameDataVersion[i] >> toNodes[i].inputNodes
+           >> toNodes[i].inputNetNodes;
 }
 
 const std::string& Frame::getName() const
@@ -127,10 +145,18 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 }
 
 void Frame::readback( util::ObjectManager< const void* >* glObjects,
-                      const DrawableConfig& config ) 
+                      const DrawableConfig& config )
 {
     EQASSERT( _frameData );
     _frameData->readback( *this, glObjects, config );
+}
+
+void Frame::readback( util::ObjectManager< const void* >* glObjects,
+                      const DrawableConfig& config,
+                      const PixelViewports& regions )
+{
+    EQASSERT( _frameData );
+    _frameData->readback( *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
@@ -145,10 +171,10 @@ bool Frame::isReady() const
     return _frameData->isReady();
 }
 
-void Frame::waitReady() const
+void Frame::waitReady( const uint32_t timeout ) const
 {
     EQASSERT( _frameData );
-    _frameData->waitReady();
+    _frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )

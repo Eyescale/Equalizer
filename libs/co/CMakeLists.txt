@@ -62,6 +62,15 @@ if(OFED_FOUND)
   list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
 endif()
 
+if(UDT_FOUND)
+  list(APPEND CO_HEADERS udtConnection.h)
+  list(APPEND CO_SOURCES udtConnection.cpp)
+  list(APPEND CO_ADD_LINKLIB ${UDT_LIBRARIES})
+endif()
+
+if(HWLOC_FOUND)
+  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIB})
+endif(HWLOC_FOUND)
 
 source_group(base REGULAR_EXPRESSION .*)
 source_group(\\ FILES CMakeLists.txt)
@@ -84,5 +93,6 @@ purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY
-configure_file(Collage.pc.in Collage.pc @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc DESTINATION lib/pkgconfig COMPONENT colib)
+configure_file(Collage.pc.in ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Collage.pc
+        DESTINATION ${LIBRARY_DIR}/pkgconfig COMPONENT colib)

@@ -27,12 +27,12 @@ namespace eq
     struct ViewFreezeLoadBalancingPacket : public co::ObjectPacket
     {
         ViewFreezeLoadBalancingPacket()
-            {
-                command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
-                size    = sizeof( ViewFreezeLoadBalancingPacket );
-            }
+        {
+            command = fabric::CMD_VIEW_FREEZE_LOAD_BALANCING;
+            size    = sizeof( ViewFreezeLoadBalancingPacket );
+        }
         bool freeze;
-    }; 
+    };
 }
 /** @endcond */
 

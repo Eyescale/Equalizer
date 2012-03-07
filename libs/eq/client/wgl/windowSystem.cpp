@@ -56,72 +56,69 @@ static class : WindowSystemIF
         return new MessagePump;
     }
 
-#define wglewGetContext wglPipe->wglewGetContext
-
-    GPUInfos discoverGPUs() const
+    bool setupFont( ObjectManager& gl, const void* key, const std::string& name,
+                    const uint32_t size ) const
     {
-        // Create fake config to use wgl::Pipe affinity code for queries
-        ServerPtr server = new Server;
-        Config* config = new Config( server );
-        Node* node = new Node( config );
-        eq::Pipe* pipe = new eq::Pipe( node );
-        Pipe* wglPipe = new Pipe( pipe );
-
-        GPUInfos result;
-        if( !wglPipe->configInit( ))
+        HDC dc = wglGetCurrentDC();
+        if( !dc )
         {
-            wglPipe->configExit();
-            return result;
+            EQWARN << "No WGL device context current" << std::endl;
+            return false;
         }
 
-        if( !WGLEW_NV_gpu_affinity )
+        LOGFONT font;
+        memset( &font, 0, sizeof( font ));
+        font.lfHeight = -static_cast< LONG >( size );
+        font.lfWeight = FW_NORMAL;
+        font.lfCharSet = ANSI_CHARSET;
+        font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+        font.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+        font.lfQuality = DEFAULT_QUALITY;
+        font.lfPitchAndFamily = FF_DONTCARE | DEFAULT_QUALITY;
+
+        if( name.empty( ))
+            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+        else
+            strncpy( font.lfFaceName, name.c_str(), LF_FACESIZE );
+
+        font.lfFaceName[ LF_FACESIZE-1 ] = '\0';
+
+        HFONT newFont = CreateFontIndirect( &font );
+        if( !newFont )
         {
-            GPUInfo info;
-            info.pvp = pipe->getPixelViewport();
-            result.push_back( info );
+            EQWARN << "Can't load font " << name << ", using Times New Roman" 
+                   << std::endl;
 
-            wglPipe->configExit();
-            return result;
+            strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
+            newFont = CreateFontIndirect( &font );
         }
+        EQASSERT( newFont );
 
-        for( uint32_t i = 0; i < EQ_UNDEFINED_UINT32; ++i )
-        {
-            pipe->setDevice( i );
-            pipe->setPixelViewport( PixelViewport( ));
+        HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
 
-            HDC dc;
-            if( wglPipe->createWGLAffinityDC( dc ))
-            {
-                GPUInfo info;
-                info.device = i;
-                info.pvp = pipe->getPixelViewport();
-                result.push_back( info );
+        const GLuint lists = _setupLists( gl, key, 256 );
+        const bool ret = wglUseFontBitmaps( dc, 0 , 255, lists );
+    
+        SelectObject( dc, oldFont );
+        //DeleteObject( newFont );
+    
+        if( !ret )
+            _setupLists( gl, key, 0 );
 
-                wglDeleteDCNV( dc );
-            }
-            else
-            {
-                wglPipe->configExit();
-                return result;
-            }
-        }
-
-        EQASSERTINFO( 0, "Unreachable" );
-        wglPipe->configExit();
-        return result;
+        return ret;
     }
 
-    void configInit(eq::Node* node) const
+    void configInit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
-        EventHandler::initMagellan(node);
+        EventHandler::initMagellan( node );
 #endif
     }
 
-    void configExit(eq::Node* node) const
+    void configExit( eq::Node* node )
     {
 #ifdef EQ_USE_MAGELLAN
-        EventHandler::exitMagellan(node);
+        EventHandler::exitMagellan( node );
 #endif
     }
 } _wglFactory;

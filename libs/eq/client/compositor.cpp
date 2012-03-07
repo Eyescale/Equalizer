@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -36,9 +36,9 @@
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
 
+#include <co/global.h>
 #include <co/base/debug.h>
 #include <co/base/global.h>
-#include <co/base/executionListener.h>
 #include <co/base/monitor.h>
 
 #include <co/plugins/compressor.h>
@@ -109,15 +109,15 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
     uint32_t colorExternalFormat = 0;
     uint32_t depthInternalFormat = 0;
     uint32_t depthExternalFormat = 0;
+    const uint32_t timeout = channel->getConfig()->getTimeout();
 
-    for( Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
     {
         const Frame* frame = *i;
         {
             ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                      channel );
-            frame->waitReady();
+            frame->waitReady( timeout );
         }
 
         if( frame->getData()->getZoom() != Zoom::NONE )
@@ -198,8 +198,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             ++nImages;
         }
     }
-
-    return false;
+    return (nImages > 1);
 }
 }
 
@@ -248,7 +247,6 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
 
     if( _isSubPixelDecomposition( frames ))
     {
-        uint32_t count = 0;
         if( !accum )
         {
             accum = _obtainAccum( channel );
@@ -258,12 +256,13 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
             accum->setTotalSteps( subpixel.size );
         }
 
+        uint32_t count = 0;
         Frames framesLeft = frames;
         while( !framesLeft.empty( ))
         {
             Frames current = _extractOneSubPixel( framesLeft );
             const uint32_t subCount = assembleFramesSorted( current, channel,
-                                                            accum );
+                                                            accum, blendAlpha );
             EQASSERT( subCount < 2 );
 
             if( subCount > 0 )
@@ -275,7 +274,6 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         return count;
     }
 
-    uint32_t count = 0;
     if( blendAlpha )
     {
         glEnable( GL_BLEND );
@@ -283,10 +281,12 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
         glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
     }
 
+    uint32_t count = 0;
     if( _useCPUAssembly( frames, channel, blendAlpha ))
         count |= assembleFramesCPU( frames, channel, blendAlpha );
     else
     {
+        const uint32_t timeout = channel->getConfig()->getTimeout();
         for( Frames::const_iterator i = frames.begin();
              i != frames.end(); ++i )
         {
@@ -294,7 +294,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
             {
                 ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
                                          channel );
-                frame->waitReady( );
+                frame->waitReady( timeout );
             }
 
             if( !frame->getImages().empty( ))
@@ -401,71 +401,107 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     // available, it increments the monitor which causes this code to wake up
     // and assemble it.
 
-    // register monitor with all input frames
-    Monitor<uint32_t> monitor;
-    for( Frames::const_iterator i = frames.begin();
-         i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->addListener( monitor );
-    }
-
-    uint32_t    nUsedFrames  = 0;
-    Frames unusedFrames = frames;
-
     uint32_t count = 0;
+
     // wait and assemble frames
-    while( !unusedFrames.empty( ))
+    WaitHandle* handle = startWaitFrames( frames, channel ); 
+    for( Frame* frame = waitFrame( handle ); frame; frame = waitFrame( handle ))
     {
-        {
-            ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
-                                     channel );
-            const uint32_t timeout = channel->getConfig()->getTimeout();
+        if( frame->getImages().empty( ))
+            continue;
 
-            if( timeout == EQ_TIMEOUT_INDEFINITE )
-                monitor.waitGE( ++nUsedFrames );
-            else if( !monitor.timedWaitGE( ++nUsedFrames, timeout ))
-            {
-                // de-register the monitor
-                for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
-                {
-                    Frame* frame = *i;
-                    frame->removeListener( monitor );
-                }
-                throw Exception( Exception::TIMEOUT_INPUTFRAME );
-            }
-        }
-
-        for( Frames::iterator i = unusedFrames.begin();
-             i != unusedFrames.end(); ++i )
-        {
-            Frame* frame = *i;
-            if( !frame->isReady( ))
-                continue;
-
-            if( !frame->getImages().empty( ))
-            {
-                count = 1;
-                assembleFrame( frame, channel );
-            }
-    
-            unusedFrames.erase( i );
-            break;
-        }
-    }
-
-    // de-register the monitor
-    for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
-    {
-        Frame* frame = *i;
-        frame->removeListener( monitor );
+        count = 1;
+        assembleFrame( frame, channel );
     }
 
     return count;
 }
 
-uint32_t Compositor::assembleFramesCPU( const Frames& frames,
-                                        Channel* channel,
+class Compositor::WaitHandle
+{
+public:
+    WaitHandle( const Frames& frames, Channel* ch )
+            : left( frames ), channel( ch ), processed( 0 ) {}
+    ~WaitHandle()
+        {
+            // de-register the monitor on eventual left-overs on error/exception
+            for( FramesCIter i = left.begin(); i != left.end(); ++i )
+                (*i)->removeListener( monitor );
+            left.clear();
+        }
+
+    co::base::Monitor< uint32_t > monitor;
+    Frames left;
+    Channel* const channel;
+    uint32_t processed;
+};
+
+Compositor::WaitHandle* Compositor::startWaitFrames( const Frames& frames,
+                                                     Channel* channel )
+{
+    WaitHandle* handle = new WaitHandle( frames, channel );
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+        (*i)->addListener( handle->monitor );
+
+    return handle;
+}
+
+Frame* Compositor::waitFrame( WaitHandle* handle )
+{
+    if( handle->left.empty( ))
+    {
+        delete handle;
+        return 0;
+    }
+
+    ChannelStatistics event( Statistic::CHANNEL_FRAME_WAIT_READY,
+                             handle->channel );
+    Config* config = handle->channel->getConfig();
+    const uint32_t timeout = config->getTimeout();
+
+    ++handle->processed;
+    if( timeout == EQ_TIMEOUT_INDEFINITE )
+        handle->monitor.waitGE( handle->processed );
+    else
+    {
+        const int64_t time = config->getTime() + timeout;
+        const int64_t aliveTimeout = co::Global::getKeepaliveTimeout();
+
+        while( !handle->monitor.timedWaitGE( handle->processed, aliveTimeout ))
+        {
+            // pings timed out nodes
+            const bool pinged = config->getLocalNode()->pingIdleNodes();
+
+            // TODO: make input frames have node info (node of origin): It would
+            // be helpful to know which node was supposed to send each frame.
+            // May be we should send this info in the ChannelFrameAssemblePacket.
+            // eile: Not sure. let's discuss.
+
+            if( config->getTime() >= time || !pinged )
+            {
+                delete handle;
+                throw Exception( Exception::TIMEOUT_INPUTFRAME );
+            }
+        }
+    }
+
+    for( FramesIter i = handle->left.begin(); i != handle->left.end(); ++i )
+    {
+        Frame* frame = *i;
+        if( !frame->isReady( ))
+            continue;
+
+        frame->removeListener( handle->monitor );
+        handle->left.erase( i );
+        return frame;
+    }
+
+    EQASSERTINFO( false, "Unreachable code" );
+    delete handle;
+    return 0;
+}
+
+uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
                                         const bool blendAlpha )
 {
     if( frames.empty( ))
@@ -476,7 +512,8 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames,
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds.
 
-    const Image* result = mergeFramesCPU( frames, blendAlpha );
+    const Image* result = mergeFramesCPU( frames, blendAlpha,
+                                          channel->getConfig()->getTimeout( ));
     if( !result )
         return 0;
 
@@ -497,7 +534,8 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames,
 }
 
 const Image* Compositor::mergeFramesCPU( const Frames& frames,
-                                         const bool blendAlpha )
+                                         const bool blendAlpha,
+                                         const uint32_t timeout )
 {
     EQVERB << "Sorted CPU assembly" << std::endl;
 
@@ -514,7 +552,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
                              colorInternalFormat, colorPixelSize,
                              colorExternalFormat,
                              depthInternalFormat, depthPixelSize,
-                             depthExternalFormat ))
+                             depthExternalFormat, timeout ))
     {
         return 0;
     }
@@ -562,12 +600,12 @@ bool Compositor::_collectOutputData(
          uint32_t& colorInternalFormat, uint32_t& colorPixelSize,
          uint32_t& colorExternalFormat,
          uint32_t& depthInternalFormat, uint32_t& depthPixelSize,
-         uint32_t& depthExternalFormat )
+         uint32_t& depthExternalFormat, const uint32_t timeout )
 {
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i )
     {
         Frame* frame = *i;
-        frame->waitReady();
+        frame->waitReady( timeout );
 
         EQASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
@@ -632,7 +670,8 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
                                  const uint32_t colorBufferSize,
                                  void* depthBuffer,
                                  const uint32_t depthBufferSize,
-                                 PixelViewport& outPVP )
+                                 PixelViewport& outPVP,
+                                 const uint32_t timeout )
 {
     EQASSERT( colorBuffer );
     EQVERB << "Sorted CPU assembly" << std::endl;
@@ -649,7 +688,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     if( !_collectOutputData( frames, outPVP, colorInternalFormat,
                              colorPixelSize, colorExternalFormat,
                              depthInternalFormat,
-                             depthPixelSize, depthExternalFormat ))
+                             depthPixelSize, depthExternalFormat, timeout ))
         return false;
 
     // pre-condition check for current _merge implementations
@@ -726,7 +765,7 @@ void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha,
                 _mergeDBImage( colorBuffer, depthBuffer, destPVP,
                                image, frame->getOffset( ));
             else if( blendAlpha && image->hasAlpha( ))
-                _mergeBlendImage( colorBuffer, destPVP, 
+                _mergeBlendImage( colorBuffer, destPVP,
                                   image, frame->getOffset( ));
             else
                 _merge2DImage( colorBuffer, depthBuffer, destPVP, 
@@ -1049,14 +1088,16 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoomFilter = (operation.zoom == Zoom::NONE) ? 
-                               FILTER_NEAREST : frame->getZoomFilter();
     operation.zoom.apply( frame->getData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {
         const Image* image = *i;
-        assembleImage( image, operation );
+        ImageOp op = operation;
+        op.zoom.apply( image->getZoom() );
+        op.zoomFilter = (operation.zoom == Zoom::NONE) ? 
+                                        FILTER_NEAREST : frame->getZoomFilter();
+        assembleImage( image, op );
     }
 }
 
@@ -1188,6 +1229,7 @@ void Compositor::clearStencilBuffer( const ImageOp& op )
 void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
 {
     _drawPixels( image, op, Frame::BUFFER_COLOR );
+    declareRegion( image, op );
 #if 0
     static co::base::a_int32_t counter;
     std::ostringstream stringstream;
@@ -1204,7 +1246,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
                           << std::endl;
 
     const util::Texture* texture = 0;
-    if ( image->getStorageType() == Frame::TYPE_MEMORY )
+    if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
         EQASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
@@ -1220,7 +1262,8 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
             GL_TEXTURE_RECTANGLE_ARB );
         texture = ncTexture;
 
-        image->upload( which, ncTexture, Vector2i::ZERO, objects );
+        const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
+        image->upload( which, ncTexture, offset, objects );
     }
     else // texture image
     {
@@ -1248,11 +1291,11 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     const float startX = static_cast< float >
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x() + (pvp.x+pvp.w) * op.pixel.w*op.zoom.x() + op.pixel.x );
+        ( op.offset.x() + pvp.x + pvp.w * op.pixel.w*op.zoom.x() + op.pixel.x );
     const float startY = static_cast< float >
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-        ( op.offset.y() + (pvp.y+pvp.h) * op.pixel.h*op.zoom.y() + op.pixel.y );
+        ( op.offset.y() + pvp.y + pvp.h * op.pixel.h*op.zoom.y() + op.pixel.y );
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
@@ -1327,14 +1370,13 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
 
     glDisable( GL_STENCIL_TEST );
+    declareRegion( image, op );
 }
 
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp 
-                          << std::endl;
+    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
 
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
@@ -1353,11 +1395,10 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
                                                      GL_TEXTURE_RECTANGLE_ARB );
         util::Texture* ncTextureDepth = objects->obtainEqTexture( depthDBKey,
                                                      GL_TEXTURE_RECTANGLE_ARB );
+        const Vector2i offset( -pvp.x, -pvp.y ); // will be applied with quad
 
-        image->upload( Frame::BUFFER_COLOR, ncTextureColor, Vector2i::ZERO,
-                       objects );
-        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, Vector2i::ZERO,
-                       objects );
+        image->upload( Frame::BUFFER_COLOR, ncTextureColor, offset, objects );
+        image->upload( Frame::BUFFER_DEPTH, ncTextureDepth, offset, objects );
 
         textureColor = ncTextureColor;
         textureDepth = ncTextureDepth;
@@ -1437,16 +1478,16 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     const float startX = static_cast< float >
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
     const float endX   = static_cast< float >
-        ( op.offset.x() + (pvp.x+pvp.w) * op.pixel.w*op.zoom.x() + op.pixel.x );
+        ( op.offset.x() + pvp.getXEnd() * op.pixel.w*op.zoom.x() + op.pixel.x );
     const float startY = static_cast< float >
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
     const float endY   = static_cast< float >
-        ( op.offset.y() + (pvp.y+pvp.h) * op.pixel.h*op.zoom.y() + op.pixel.y );
+        ( op.offset.y() + pvp.getYEnd() * op.pixel.h*op.zoom.y() + op.pixel.y );
 
     const float w = static_cast< float >( pvp.w );
     const float h = static_cast< float >( pvp.h );
 
-    glBegin( GL_TRIANGLE_STRIP );
+    glBegin( GL_TRIANGLE_STRIP ); {
         glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
         glMultiTexCoord2f( GL_TEXTURE1, 0.0f, 0.0f );
         glVertex3f( startX, startY, 0.0f );
@@ -1462,7 +1503,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glMultiTexCoord2f( GL_TEXTURE0, w, h );
         glMultiTexCoord2f( GL_TEXTURE1, w, h );
         glVertex3f( endX, endY, 0.0f );
-    glEnd();
+    } glEnd();
 
     // restore state
     glDisable( GL_TEXTURE_RECTANGLE_ARB );
@@ -1472,6 +1513,16 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     if( op.pixel != Pixel::ALL )
         glPixelZoom( static_cast< float >( op.pixel.w ),
                      static_cast< float >( op.pixel.h ));
+    declareRegion( image, op );
+}
+
+void Compositor::declareRegion( const Image* image, const ImageOp& op )
+{
+    if( !op.channel )
+        return;
+
+    const eq::PixelViewport area = image->getPixelViewport() + op.offset;
+    op.channel->declareRegion( area );
 }
 
 #undef glewGetContext

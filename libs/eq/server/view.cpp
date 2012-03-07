@@ -28,6 +28,8 @@
 #include "observer.h"
 #include "segment.h"
 #include "equalizers/equalizer.h"
+#include "equalizers/tileEqualizer.h"
+#include "tileQueue.h"
 
 #include <eq/client/viewPackets.h>
 #include <eq/fabric/paths.h>
@@ -141,12 +143,12 @@ private:
 class FreezeVisitor : public ConfigVisitor
 {
 public:
-    // No need to go down on nodes.
-    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
-
     FreezeVisitor( const View* view, const bool freeze )
             : _view( view ), _freeze( freeze )
         {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
 
     virtual VisitorResult visit( Compound* compound )
     {
@@ -169,6 +171,80 @@ public:
 private:
     const View* const _view;
     const bool _freeze;
+};
+
+class UseEqualizerVisitor : public ConfigVisitor
+{
+public:
+    UseEqualizerVisitor( const View* view ) : _view( view ) {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        Equalizers equalizers = compound->getEqualizers();
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
+        {
+            Equalizer* equalizer = *i;
+            const uint32_t bitmask = _view->getEqualizers();
+            equalizer->setActive( ( equalizer->getType() & bitmask ) != 0 );
+        }
+        return TRAVERSE_CONTINUE; 
+    }
+
+
+private:
+    const View* const _view;
+};
+
+class SetTileSizeVisitor : public ConfigVisitor
+{
+public:
+
+    SetTileSizeVisitor( const View* view ) : _view( view ) {}
+
+    // No need to go down on nodes.
+    virtual VisitorResult visitPre( Node* node ) { return TRAVERSE_PRUNE; }
+
+    virtual VisitorResult visit( Compound* compound )
+    {
+        const Channel* dest = compound->getInheritChannel();
+        if( !dest )
+            return TRAVERSE_CONTINUE;
+
+        if( dest->getView() != _view )
+            return TRAVERSE_PRUNE;
+
+        const TileQueues& queues = compound->getOutputTileQueues();
+        for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
+        {
+            TileQueue* queue = *i;
+            queue->setTileSize( _view->getTileSize( ));
+        }
+
+        const Equalizers equalizers = compound->getEqualizers();
+        for( EqualizersCIter i = equalizers.begin(); i != equalizers.end(); ++i)
+        {
+            if ( (*i)->getType() == fabric::TILE_EQUALIZER )
+            {
+                TileEqualizer* tileEq = static_cast< TileEqualizer* >( *i );
+                tileEq->setTileSize( _view->getTileSize( ));
+            }
+        }
+
+        return TRAVERSE_CONTINUE;
+    }
+
+private:
+    const View* const _view;
 };
 
 }
@@ -202,8 +278,19 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     EQASSERT( isMaster( ));
     Super::deserialize( is, dirtyBits );
 
-    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW ))
+    if( dirtyBits & ( DIRTY_FRUSTUM | DIRTY_OVERDRAW | DIRTY_MODELUNIT ))
         updateFrusta();
+    if( dirtyBits & DIRTY_TILESIZE )
+    {
+        SetTileSizeVisitor visitor ( this );
+        getConfig()->accept( visitor );
+    }
+    if( dirtyBits & DIRTY_EQUALIZERS )
+    {
+        UseEqualizerVisitor visitor ( this );
+        getConfig()->accept( visitor );
+        getConfig()->postNeedsFinish(); // @bug? Why?
+    }
 }
 
 Config* View::getConfig()
@@ -356,7 +443,7 @@ float View::_computeFocusRatio( Vector3f& eye )
     if( channels.empty( ))
         return 1.f;
 
-    Vector4f view4 = Vector4f::FORWARD;
+    Vector4f view4( Vector3f::FORWARD );
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;

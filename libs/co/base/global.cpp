@@ -22,7 +22,6 @@
 
 #include <algorithm>
 
-
 namespace co
 {
 namespace base
@@ -36,19 +35,19 @@ static uint32_t _getTimeout()
 {
     const char* env = getenv( "CO_TIMEOUT" );
     if( !env )
-        return 10000; // ms
+        return 300000; // == 5min
 
     const int64_t size = atoi( env );
     if( size == 0 )
-        return 10000; // ms
+        return 300000; // == 5min
 
     return size;
 }
 
 int32_t _iAttributes[Global::IATTR_ALL] =
 {
-    1,            // IATTR_ROBUSTNESS
-    _getTimeout(),// IATTR_TIMEOUT_DEFAULT
+    1,             // IATTR_ROBUSTNESS
+    _getTimeout(), // IATTR_TIMEOUT_DEFAULT
 };
 }
 

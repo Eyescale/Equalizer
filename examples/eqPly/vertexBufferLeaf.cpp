@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2007, Tobias Wolf <twolf@access.unizh.ch>
- * Copyright (c) 2008-2009, Stefan Eilemann <eile@equalizergraphics.com>
+ *          2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,8 +34,6 @@
 #include "vertexData.h"
 #include <map>
 
-using namespace std;
-
 namespace mesh
 {
 
@@ -54,7 +52,7 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     const bool hasColors = ( data.colors.size() > 0 ); 
     
     // stores the new indices (relative to _start)
-    map< Index, ShortIndex > newIndex;
+    std::map< Index, ShortIndex > newIndex;
     
     for( Index t = 0; t < length; ++t )
     {
@@ -77,9 +75,9 @@ void VertexBufferLeaf::setupTree( VertexData& data, const Index start,
     }
     
 #ifndef NDEBUG
-    MESHINFO << "VertexBufferLeaf::setupTree"
-             << "( " << _indexStart << ", " << _indexLength << "; start " 
-             << _vertexStart << ", " << _vertexLength << " vertices)." << endl;
+    MESHINFO << "setupTree" << "( " << _indexStart << ", " << _indexLength
+             << "; start " << _vertexStart << ", " << _vertexLength
+             << " vertices)." << std::endl;
 #endif
 }
 
@@ -95,34 +93,31 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
 
 
     // 1a) initialize and compute a bounding box
-    BoundingBox boundingBox;
-    boundingBox[0] = 
-        _globalData.vertices[ _vertexStart + _globalData.indices[_indexStart] ];
-    boundingBox[1] = 
-        _globalData.vertices[ _vertexStart + _globalData.indices[_indexStart] ];
+    _boundingBox[0] = _globalData.vertices[ _vertexStart +
+                                            _globalData.indices[_indexStart] ];
+    _boundingBox[1] = _globalData.vertices[ _vertexStart + 
+                                            _globalData.indices[_indexStart] ];
 
-    for( Index offset = 1; offset < _indexLength; ++offset )
+    for( Index i = 1 + _indexStart; i < _indexStart + _indexLength; ++i )
     {
-        const Vertex& vertex = 
-            _globalData.vertices[ _vertexStart + 
-                                  _globalData.indices[_indexStart + offset] ];
-
-        boundingBox[0][0] = min( boundingBox[0][0], vertex[0] );
-        boundingBox[1][0] = max( boundingBox[1][0], vertex[0] );
-        boundingBox[0][1] = min( boundingBox[0][1], vertex[1] );
-        boundingBox[1][1] = max( boundingBox[1][1], vertex[1] );
-        boundingBox[0][2] = min( boundingBox[0][2], vertex[2] );
-        boundingBox[1][2] = max( boundingBox[1][2], vertex[2] );
+        const Vertex& vertex = _globalData.vertices[ _vertexStart + 
+                                                     _globalData.indices[ i ] ];
+        _boundingBox[0][0] = std::min( _boundingBox[0][0], vertex[0] );
+        _boundingBox[1][0] = std::max( _boundingBox[1][0], vertex[0] );
+        _boundingBox[0][1] = std::min( _boundingBox[0][1], vertex[1] );
+        _boundingBox[1][1] = std::max( _boundingBox[1][1], vertex[1] );
+        _boundingBox[0][2] = std::min( _boundingBox[0][2], vertex[2] );
+        _boundingBox[1][2] = std::max( _boundingBox[1][2], vertex[2] );
     }
     
     // 1b) get inner sphere of bounding box as an initial estimate
-    _boundingSphere.x() = ( boundingBox[0].x() + boundingBox[1].x() ) * 0.5f;
-    _boundingSphere.y() = ( boundingBox[0].y() + boundingBox[1].y() ) * 0.5f;
-    _boundingSphere.z() = ( boundingBox[0].z() + boundingBox[1].z() ) * 0.5f;
+    _boundingSphere.x() = ( _boundingBox[0].x() + _boundingBox[1].x() ) * 0.5f;
+    _boundingSphere.y() = ( _boundingBox[0].y() + _boundingBox[1].y() ) * 0.5f;
+    _boundingSphere.z() = ( _boundingBox[0].z() + _boundingBox[1].z() ) * 0.5f;
 
-    _boundingSphere.w()  = EQ_MAX( boundingBox[1].x() - boundingBox[0].x(),
-                                   boundingBox[1].y() - boundingBox[0].y() );
-    _boundingSphere.w()  = EQ_MAX( boundingBox[1].z() - boundingBox[0].z(),
+    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
+                                   _boundingBox[1].y() - _boundingBox[0].y() );
+    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
                                    _boundingSphere.w() );
     _boundingSphere.w() *= .5f;
 
@@ -153,7 +148,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         center       += normdelta;
 
         EQASSERTINFO( Vertex( vertex-center ).squared_length() <= 
-                      ( radiusSquared + 2.f* numeric_limits<float>::epsilon( )),
+                ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
     }
@@ -169,7 +164,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
         EQASSERTINFO( distanceSquared <= 
-                      ( radiusSquared + 2.f* numeric_limits<float>::epsilon( )),
+                ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
     }
@@ -183,7 +178,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
 
 #ifndef NDEBUG
     MESHINFO << "updateBoundingSphere" << "( " << _boundingSphere << " )."
-             << endl;
+             << std::endl;
 #endif
     
     return _boundingSphere;
@@ -198,7 +193,7 @@ void VertexBufferLeaf::updateRange()
     
 #ifndef NDEBUG
     MESHINFO << "updateRange" << "( " << _range[0] << ", " << _range[1]
-             << " )." << endl;
+             << " )." << std::endl;
 #endif
 }
 
@@ -268,24 +263,24 @@ void VertexBufferLeaf::setupRendering( VertexBufferState& state,
 /*  Draw the leaf.  */
 void VertexBufferLeaf::draw( VertexBufferState& state ) const
 {
-    if ( state.stopRendering( ))
+    if( state.stopRendering( ))
         return;
-    
+
+    state.updateRegion( _boundingBox );
     switch( state.getRenderMode() )
     {
-    case RENDER_MODE_IMMEDIATE:
-        renderImmediate( state );
-        return;
-    case RENDER_MODE_BUFFER_OBJECT:
-        renderBufferObject( state );
-        return;
-    case RENDER_MODE_DISPLAY_LIST:
-    default:
-        renderDisplayList( state );
-        return;
+      case RENDER_MODE_IMMEDIATE:
+          renderImmediate( state );
+          return;
+      case RENDER_MODE_BUFFER_OBJECT:
+          renderBufferObject( state );
+          return;
+      case RENDER_MODE_DISPLAY_LIST:
+      default:
+          renderDisplayList( state );
+          return;
     }
 }
-
 
 /*  Render the leaf with buffer objects.  */
 void VertexBufferLeaf::renderBufferObject( VertexBufferState& state ) const
@@ -366,6 +361,8 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
         throw MeshException( "Error reading binary file. Expected a leaf "
                              "node, but found something else instead." );
     VertexBufferBase::fromMemory( addr, globalData );
+    memRead( reinterpret_cast< char* >( &_boundingBox ), addr, 
+             sizeof( BoundingBox ) );
     memRead( reinterpret_cast< char* >( &_vertexStart ), addr, 
              sizeof( Index ) );
     memRead( reinterpret_cast< char* >( &_vertexLength ), addr, 
@@ -381,12 +378,13 @@ void VertexBufferLeaf::fromMemory( char** addr, VertexBufferData& globalData )
 void VertexBufferLeaf::toStream( std::ostream& os )
 {
     size_t nodeType = LEAF_TYPE;
-    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ) );
+    os.write( reinterpret_cast< char* >( &nodeType ), sizeof( size_t ));
     VertexBufferBase::toStream( os );
-    os.write( reinterpret_cast< char* >( &_vertexStart ), sizeof( Index ) );
+    os.write( reinterpret_cast< char* >( &_boundingBox ), sizeof( BoundingBox));
+    os.write( reinterpret_cast< char* >( &_vertexStart ), sizeof( Index ));
     os.write( reinterpret_cast< char* >( &_vertexLength ),sizeof( ShortIndex ));
-    os.write( reinterpret_cast< char* >( &_indexStart ), sizeof( Index ) );
-    os.write( reinterpret_cast< char* >( &_indexLength ), sizeof( Index ) );
+    os.write( reinterpret_cast< char* >( &_indexStart ), sizeof( Index ));
+    os.write( reinterpret_cast< char* >( &_indexLength ), sizeof( Index ));
 }
 
 }

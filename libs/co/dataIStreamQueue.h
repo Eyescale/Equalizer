@@ -44,9 +44,7 @@ namespace co
         ObjectDataIStream* pop() { return _queued.pop().second; }
         ObjectDataIStream* tryPop();
         ObjectDataIStream* pull( const uint128_t& key );
-
-        void recycle( ObjectDataIStream* stream )
-            { _iStreamCache.release( stream ); }
+        void recycle( ObjectDataIStream* stream );
 
     protected:
         typedef stde::hash_map< uint128_t, ObjectDataIStream* > PendingStreams;

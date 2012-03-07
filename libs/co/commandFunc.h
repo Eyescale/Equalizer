@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,13 +18,15 @@
 #ifndef CO_COMMANDFUNC_H
 #define CO_COMMANDFUNC_H
 
-#include <co/base/api.h>
+#include <co/types.h>
 #include <co/base/debug.h>
+
+// If you get a warning in your code, add before in including this file:
+//  #pragma warning( disable: 4407 )
+// This warning is 'fixed' by https://github.com/Eyescale/Equalizer/issues/100
 
 namespace co
 {
-    class Command;
-
     /**
      * A wrapper to register a function callback on an object instance.
      * 
@@ -34,12 +36,12 @@ namespace co
     template< typename T > class CommandFunc
     {
     public:
-        CommandFunc( T* object, 
-                     bool (T::*func)( Command& ))
+        CommandFunc( T* object, bool (T::*func)( Command& ))
             : _object( object ), _func( func ) {}
 
+
         template< typename O > CommandFunc( const CommandFunc< O >& from )
-                : _object( from._object ),
+                : _object( _convertThis< O >( from._object )),
                   _func( static_cast<bool (T::*)( Command& )>(from._func))
             {}
 
@@ -59,16 +61,27 @@ namespace co
         //private:
         T* _object;
         bool (T::*_func)( Command& );
+
+    private:
+        template< class F > T* _convertThis( F* ptr )
+        {
+#ifdef _MSC_VER
+            // https://github.com/Eyescale/Equalizer/issues/100
+            return reinterpret_cast< T* >( ptr );
+#else
+            return ptr;
+#endif
+        }
     };
 
     template< typename T >
     inline std::ostream& operator << ( std::ostream& os,
                                        const CommandFunc<T>& func )
     {
-        if( func._object && func._func )
+        if( func.isValid( ))
             os << "CommandFunc of " << base::className( func._object );
         else
-            os << "invalid CommandFunc";
+            os << "NULL CommandFunc";
         return os;
     }
 }

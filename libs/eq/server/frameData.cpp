@@ -33,15 +33,14 @@ FrameData::FrameData()
 
 void FrameData::getInstanceData( co::DataOStream& os )
 {
-    os << _data;
+    _data.serialize( os );
 }
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
     EQUNREACHABLE;
-    is >> _data;
+    _data.deserialize( is );
 }
-
 
 }
 }

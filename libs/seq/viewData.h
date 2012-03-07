@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -65,6 +65,17 @@ namespace seq
         SEQ_API void showStatistics( const bool on );
 
         /**
+         * Enable or disable orthographic rendering.
+         *
+         * The default event handler of this view toggles the orthographic
+         * rendering state when 'o' is pressed.
+         *
+         * @param on the state of the orthographic rendering.
+         * @version 1.2
+         */
+        SEQ_API void setOrtho( const bool on );
+
+        /**
          * Update the view data.
          *
          * Called once at the end of each frame to trigger animations. The
@@ -84,23 +95,30 @@ namespace seq
         bool getStatistics() const { return _statistics; }
         //@}
 
+        /** @return true when orthographic rendering is enabled. @version 1.2 */
+        bool useOrtho() const { return _ortho; }
+        //@}
+
     protected:
-        virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( co::DataIStream& is,
-                                  const uint64_t dirtyBits );
+        virtual SEQ_API void serialize( co::DataOStream& os,
+                                        const uint64_t dirtyBits );
+        virtual SEQ_API void deserialize( co::DataIStream& is,
+                                          const uint64_t dirtyBits );
 
     private:
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
         {
             DIRTY_MODELMATRIX = co::Serializable::DIRTY_CUSTOM << 0, // 1
-            DIRTY_STATISTICS = co::Serializable::DIRTY_CUSTOM << 1 // 2
+            DIRTY_STATISTICS = co::Serializable::DIRTY_CUSTOM << 1, // 2
+            DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2 // 4
         };
 
         Matrix4f _modelMatrix;
         int32_t _spinX, _spinY;
         int32_t _advance;
         bool _statistics;
+        bool _ortho;
     };
 }
 #endif // EQSEQUEL_VIEWDATA_H

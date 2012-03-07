@@ -1,4 +1,4 @@
-#Equalizer 1.1 ascii
+#Equalizer 1.2 ascii
 
 # single pipe eye decomposition demo configuration
 server
@@ -48,7 +48,7 @@ server
         {
             channel (view 0 segment 0)
             attributes{ stereo_mode ANAGLYPH }
-            eye     [ LEFT RIGHT CYCLOP ]
+
             compound  # right eye draw operation on channel1
             { 
                 channel "channel1"
@@ -63,13 +63,13 @@ server
             }
             compound
             {
-                task [ CLEAR ASSEMBLE ]
+                task [ ASSEMBLE ]
                 eye  [ RIGHT ]
                 inputframe { name "frame.channel1" }
             }
             compound
             {
-                task [ CLEAR ASSEMBLE ]
+                task [ ASSEMBLE ]
                 eye  [ LEFT ]
                 inputframe { name "frame.channel2" }
             }

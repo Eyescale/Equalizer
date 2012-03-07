@@ -67,7 +67,7 @@ class Pipe::Thread : public eq::Worker
 {
 public:
     Thread( Pipe* pipe ) : _pipe( pipe ) {}
-    
+
 protected:
     virtual void run();
     virtual bool stopRunning() { return !_pipe; }
@@ -182,11 +182,35 @@ void Pipe::_setupCommandQueue()
     EQASSERT( queue );
     EQASSERT( !queue->getMessagePump( ));
 
+    Global::enterCarbon();
     MessagePump* pump = createMessagePump();
     if( pump )
         pump->dispatchAll(); // initializes _receiverQueue
 
     queue->setMessagePump( pump );
+    Global::leaveCarbon();
+}
+
+void Pipe::_setupAffinity()
+{
+    const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
+    switch( affinity )
+    {
+        case OFF:
+            break;
+
+        case AUTO:
+            // To be implemented later
+            /*
+            const int32_t cpu = getCPU();
+            Pipe::Thread::setAffinity( cpu );
+            */
+            break;
+
+        default:
+            Pipe::Thread::setAffinity( affinity );
+            break;
+    }
 }
 
 void Pipe::_exitCommandQueue()
@@ -227,6 +251,7 @@ void Pipe::Thread::run()
     pipe->_state.waitEQ( STATE_MAPPED );
     pipe->_windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
+    pipe->_setupAffinity();
 
     Worker::run();
 
@@ -262,30 +287,30 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     {
         ClientPtr client = getClient();
         frame = new Frame();
-        
+
         EQCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     else
         frame->sync( frameVersion.version );
 
-    const co::ObjectVersion& data = frame->getDataVersion( eye );
-    EQLOG( LOG_ASSEMBLY ) << "Use " << data << std::endl;
+    const co::ObjectVersion& dataVersion = frame->getDataVersion( eye );
+    EQLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
-    FrameData* frameData = getNode()->getFrameData( data ); 
+    FrameData* frameData = getNode()->getFrameData( dataVersion );
     EQASSERT( frameData );
 
     if( isOutput )
-    {    
+    {
         if( !frameData->isAttached() )
-        { 
+        {
             ClientPtr client = getClient();
-            EQCHECK( client->mapObject( frameData, data ));
+            EQCHECK( client->mapObject( frameData, dataVersion ));
         }
-        else if( frameData->getVersion() < data.version )
-            frameData->sync( data.version );
+        else if( frameData->getVersion() < dataVersion.version )
+            frameData->sync( dataVersion.version );
 
-        _outputFrameDatas[ data.identifier ] = frameData;
+        _outputFrameDatas[ dataVersion.identifier ] = frameData;
     }
 
     frame->setData( frameData );
@@ -332,7 +357,6 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
         _queues[ queueVersion.identifier ] = queue;
     }
 
-    queue->sync( queueVersion.version );
     return queue;
 }
 
@@ -460,6 +484,20 @@ void Pipe::exitThread()
     _thread = 0;
 }
 
+void Pipe::cancelThread()
+{
+    if( !_thread )
+        return;
+
+    PipeExitThreadPacket pkg;
+    co::Command& command = getLocalNode()->allocCommand( sizeof( pkg ));
+    eq::PipeExitThreadPacket* packet = 
+        command.getModifiable< eq::PipeExitThreadPacket >();
+
+    memcpy( packet, &pkg, sizeof( pkg ));
+    dispatchCommand( command );
+}
+
 void Pipe::waitExited() const
 {
     _state.waitGE( STATE_STOPPED );
@@ -483,16 +521,18 @@ void Pipe::notifyMapped()
 
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
-    const uint32_t timeout = getConfig()->getTimeout();
-    if( !_finishedFrame.timedWaitGE( frameNumber, timeout ))
-        throw Exception( Exception::TIMEOUT_FRAMESYNC );
+    _finishedFrame.waitGE( frameNumber );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 {
-    const uint32_t timeout = getConfig()->getTimeout();
-    if( !_unlockedFrame.timedWaitGE( frameNumber, timeout ))
-        throw Exception( Exception::TIMEOUT_FRAMESYNC );
+    _unlockedFrame.waitGE( frameNumber );
+}
+
+uint32_t Pipe::getCurrentFrame() const
+{
+    EQ_TS_THREAD( _pipeThread );
+    return _currentFrame;
 }
 
 uint32_t Pipe::getFinishedFrame() const
@@ -609,7 +649,7 @@ void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         case DRAW_SYNC:  // release
-            releaseFrameLocal( frameNumber ); 
+            releaseFrameLocal( frameNumber );
             break;
 
         case LOCAL_SYNC: // release in frameFinish

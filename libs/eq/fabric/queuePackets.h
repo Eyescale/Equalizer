@@ -18,10 +18,11 @@
 #ifndef EQ_QUEUEPACKETS_H
 #define EQ_QUEUEPACKETS_H
 
-#include <co/packets.h> // 'base'
+#include <co/queuePackets.h> // 'base'
+
 #include "range.h"
 #include "pixelViewport.h"
-#include "frustum.h"
+#include "types.h"
 
 /** @cond IGNORE */
 namespace eq
@@ -49,10 +50,10 @@ struct TileTaskPacket : public co::QueueItemPacket
         size = sizeof(TileTaskPacket);
     }
 
-    uint32_t tasks;
     PixelViewport pvp;
     Viewport vp;
-    Frustum frustum;
+    Frustumf frustum;
+    Frustumf ortho;
 };
 
 } // fabric

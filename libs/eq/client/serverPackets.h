@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,7 +29,7 @@ namespace eq
     struct ServerChooseConfigPacket : public ServerPacket
     {
         ServerChooseConfigPacket()
-                : fill ( 0 )
+                : flags( 0 )
             {
                 command = fabric::CMD_SERVER_CHOOSE_CONFIG;
                 size    = sizeof( ServerChooseConfigPacket );
@@ -37,23 +37,24 @@ namespace eq
             }
 
         uint32_t requestID;
-        uint32_t fill;
+        uint32_t flags;
         EQ_ALIGN8( char rendererInfo[8] );
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
     {
-        ServerChooseConfigReplyPacket( const ServerChooseConfigPacket*
-                                       requestPacket )
+        ServerChooseConfigReplyPacket( const ServerChooseConfigPacket* req )
+                : fill( 0 )
             {
                 command   = fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY;
                 size      = sizeof( ServerChooseConfigReplyPacket );
-                requestID = requestPacket->requestID;
+                requestID = req->requestID;
                 connectionData[0] = 0;
             }
 
         co::base::UUID configID;
         uint32_t requestID;
+        const uint32_t fill;
         EQ_ALIGN8( char connectionData[8] );
     };
 

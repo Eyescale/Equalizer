@@ -21,7 +21,9 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/types.h>     // basic typedefs
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
+#include <eq/fabric/visitorResult.h> // enum
 
+#include <co/base/types.h>
 #include <co/types.h>
 
 namespace eq
@@ -29,7 +31,7 @@ namespace eq
 namespace fabric
 {
     /** Base co::Node class for a server. @sa eq::Server */
-    template< class CL, class S, class CFG, class NF, class N >
+    template< class CL, class S, class CFG, class NF, class N, class V >
     class Server : public N
     {
     public:
@@ -52,6 +54,18 @@ namespace fabric
 
         /** @return the vector of configurations. @version 1.0 */
         const Configs& getConfigs() const { return _configs; }
+
+        /** 
+         * Traverse this server and all children using a server visitor.
+         * 
+         * @param visitor the visitor.
+         * @return the result of the visitor traversal.
+         * @version 1.0
+         */
+        EQFABRIC_INL VisitorResult accept( V& visitor );
+
+        /** Const-version of accept(). @version 1.1.6 */
+        EQFABRIC_INL VisitorResult accept( V& visitor ) const;
 
         /** @internal @return the node factory. */
         NF* getNodeFactory() { return _nodeFactory; }
@@ -92,8 +106,9 @@ namespace fabric
         bool _cmdDestroyConfig( co::Command& command );
     };
 
-    template< class CL, class S, class CFG, class NF, class N > EQFABRIC_INL
-    std::ostream& operator << ( std::ostream&, const Server< CL, S, CFG, NF, N>& );
+    template< class CL, class S, class CFG, class NF, class N, class V >
+    EQFABRIC_INL std::ostream& 
+    operator << ( std::ostream&, const Server< CL, S, CFG, NF, N, V >& );
 }
 }
 
