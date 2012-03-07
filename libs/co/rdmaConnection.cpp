@@ -24,6 +24,7 @@
 
 #include <co/base/scopedMutex.h>
 #include <co/base/clock.h>
+#include <co/base/sleep.h>
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -189,6 +190,8 @@ RDMAConnection::RDMAConnection( )
 
 bool RDMAConnection::connect( )
 {
+    int attempt = 1;
+
     EQVERB << (void *)this << ".connect( )" << std::endl;
 
     EQASSERT( CONNECTIONTYPE_RDMA == _description->type );
@@ -199,6 +202,7 @@ bool RDMAConnection::connect( )
     if( 0u == _description->port )
         return false;
 
+retry:
     setState( STATE_CONNECTING );
 
     if( !_lookupAddress( false ) || ( NULL == _rai ))
@@ -228,11 +232,11 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.dst_addr );
+    _updateInfo( ::rdma_get_peer_addr( _cm_id ));
 
     _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
-    EQVERB << "Initiating connection on "
+    EQVERB << "Initiating connection on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
         << " to "
         << _addr << ":" << _serv
@@ -304,7 +308,7 @@ bool RDMAConnection::connect( )
         goto err;
     }
 
-    EQINFO << "Connection established on "
+    EQVERB << "Connection established on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
         << " to "
         << _addr << ":" << _serv
@@ -318,10 +322,17 @@ bool RDMAConnection::connect( )
     return true;
 
 err:
-    EQINFO << "Connection failed to remote address : "
+    EQINFO << "Connection try #" << attempt << " failed to remote address : "
         << _addr << ":" << _serv << std::endl;
 
     close( );
+
+    if( ++attempt <= 3 )
+    {
+        co::base::sleep( 500 );
+        goto retry;
+    }
+
     return false;
 }
 
@@ -375,7 +386,7 @@ bool RDMAConnection::listen( )
         goto err;
     }
 
-    _updateInfo( &_cm_id->route.addr.src_addr );
+    _updateInfo( ::rdma_get_local_addr( _cm_id ));
 
     if( !_listen( ))
     {
@@ -387,7 +398,7 @@ bool RDMAConnection::listen( )
     if( NULL != _cm_id->verbs )
         _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
-    EQINFO << "Listening on "
+    EQVERB << "Listening on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
         << " at "
         << _addr << ":" << _serv
@@ -475,6 +486,8 @@ void RDMAConnection::readNB( void* buffer, const uint64_t bytes ) { /* NOP */ }
 int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     const bool )
 {
+    base::ScopedWrite mutex( _poll_mutex );
+
 //    EQWARN << (void *)this << std::dec << ".read(" << bytes << ")"
 //       << std::endl;
 
@@ -546,7 +559,7 @@ retry2:
         // we no longer have any data in the buffer and need to be notified
         // when we receive more.  Take the poll mutex so another thread in
         // write() can't take events off the CQ between check and rearm.
-        base::ScopedWrite mutex( _poll_mutex );
+        //base::ScopedWrite mutex( _poll_mutex );
         if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
         {
             EQERROR << "Error while rearming receive channel." << std::endl;
@@ -571,6 +584,8 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
 
     if( STATE_CONNECTED != _state )
         return -1LL;
+
+    base::ScopedWrite mutex( _poll_mutex );
 
     base::Clock clock;
     const int64_t start = clock.getTime64( );
@@ -720,7 +735,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
     {
         // FIXME : RDMA CM appears to send up invalid addresses when receiving
         // connections that use a different protocol than what was bound.  E.g.
-        // if // an IPv6 listener gets an IPv4 connection then the sa_family
+        // if an IPv6 listener gets an IPv4 connection then the sa_family
         // will be AF_INET6 but the actual data is struct sockaddr_in.  Example:
         //
         // 0000000: 0a00 bc10 c0a8 b01a 0000 0000 0000 0000  ................
@@ -747,7 +762,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         // Make a copy since we might change it.
         //sss.storage = _cm_id->route.addr.dst_storage;
         ::memcpy( (void *)&sss.storage,
-            (const void *)&_cm_id->route.addr.dst_addr,
+            (const void *)::rdma_get_peer_addr( _cm_id ),
             sizeof(struct sockaddr_storage) );
 
         if(( AF_INET == sss.storage.ss_family ) &&
@@ -770,7 +785,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 
     _device_name = ::ibv_get_device_name( _cm_id->verbs->device );
 
-    EQVERB << "Connection initiated on "
+    EQVERB << "Connection initiated on " << std::dec
         << _device_name << ":" << (int)_cm_id->port_num
         << " from "
         << _addr << ":" << _serv
@@ -847,9 +862,12 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    EQVERB << "Connection accepted on " << _device_name << ":" 
-           << (int)_cm_id->port_num << " from " << _addr << ":" << _serv << " ("
-           << _description->toString( ) << ")" << std::endl;
+    EQVERB << "Connection accepted on " << std::dec
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " from "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
 
     // For a connected instance, the receive completion channel fd will indicate
     // on events such as new incoming data by waking up any polling operation.
@@ -858,7 +876,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
     return true;
 
 err_reject:
-    EQINFO << "Rejecting connection from remote address : "
+    EQWARN << "Rejecting connection from remote address : "
         << _addr << ":" << _serv << std::endl;
 
     if( !_reject( ))
@@ -1144,6 +1162,8 @@ bool RDMAConnection::_connect( )
         << std::dec << ntohs( _cm_id->route.path_rec->dlid ) << ") "
         << std::endl;
 
+    co::base::sleep( 500 );
+
     if( ::rdma_connect( _cm_id, &conn_param ))
     {
         EQERROR << "rdma_connect : " << base::sysError << std::endl;
@@ -1239,7 +1259,7 @@ bool RDMAConnection::_accept( )
     // Magic 3-bit value.
     accept_param.rnr_retry_count = 7;
 
-    EQVERB << "Accept on source lid : "<< std::showbase
+    EQINFO << "Accept on source lid : "<< std::showbase
            << std::hex << ntohs( _cm_id->route.path_rec->slid ) << " ("
            << std::dec << ntohs( _cm_id->route.path_rec->slid ) << ") "
            << "from dest lid : "
@@ -1438,7 +1458,7 @@ void RDMAConnection::_recvSetup( const RDMASetupPayload &setup )
 
     EQVERB << "RDMA MR: " << std::showbase
         << std::dec << setup.rlen << " @ "
-        << std::hex << setup.rbase << std::endl;
+        << std::hex << setup.rbase << std::dec << std::endl;
 }
 
 bool RDMAConnection::_postSetup( )
@@ -1508,11 +1528,16 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
 #ifndef NDEBUG
     if( ok )
-        EQVERB << (void *)this << " event : " << ::rdma_event_str( event->event )
-               << std::endl;
+        EQVERB << (void *)this
+            << " (" << _addr << ":" << _serv << ")"
+            << " event : " << ::rdma_event_str( event->event )
+            << std::endl;
     else
-        EQINFO << (void *)this << " event : " << ::rdma_event_str( event->event )
-               << " expected: " << ::rdma_event_str( expected ) << std::endl;
+        EQINFO << (void *)this
+            << " (" << _addr << ":" << _serv << ")"
+            << " event : " << ::rdma_event_str( event->event )
+            << " expected: " << ::rdma_event_str( expected )
+            << std::endl;
 #endif
 
     if( ok && ( RDMA_CM_EVENT_DISCONNECTED == event->event ))
@@ -1562,7 +1587,7 @@ bool RDMAConnection::_pollCQ( )
     uint32_t num_recvs = 0UL;
     int count;
 
-    base::ScopedWrite mutex( _poll_mutex );
+    //base::ScopedWrite mutex( _poll_mutex );
 
     /* CHECK RECEIVE COMPLETIONS */
     count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
