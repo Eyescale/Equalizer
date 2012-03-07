@@ -37,7 +37,7 @@
 # and Collage.  CMAKE_PREFIX_PATH can also be used for this
 # (see find_library() CMake documentation).
 #
-#    EQUALIZER_ROOT
+#    EQ_ROOT
 #
 # This module defines the following output variables:
 #
@@ -99,7 +99,7 @@ endif()
 
 # find and parse eq/client/version.h [new location]
 find_path(_eq_INCLUDE_DIR eq/client/version.h
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
@@ -108,7 +108,7 @@ if(_eq_INCLUDE_DIR AND EXISTS "${_eq_INCLUDE_DIR}/eq/client/version.h")
   set(_eq_Version_file "${_eq_INCLUDE_DIR}/eq/client/version.h")
 else() # find old one
   find_path(_eq_INCLUDE_DIR eq/version.h
-    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+    HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
     PATH_SUFFIXES include
     PATHS /usr /usr/local /opt/local /opt
     )
@@ -169,23 +169,23 @@ if(Equalizer_FIND_VERSION AND EQUALIZER_VERSION)
 endif()
 
 find_library(_eq_LIBRARY Equalizer PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(_eq_fabric_LIBRARY EqualizerFabric PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_SERVER_LIBRARY EqualizerServer PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_ADMIN_LIBRARY EqualizerAdmin PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 find_library(EQUALIZER_SEQUEL_LIBRARY Sequel PATH_SUFFIXES lib
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{EQ_ROOT} ${EQ_ROOT}
   PATHS /usr /usr/local /opt/local /opt
 )
 
@@ -205,7 +205,7 @@ else()
   if(Equalizer_FIND_REQUIRED)
     if(_eq_LIBRARY MATCHES "_eq_LIBRARY-NOTFOUND")
       message(FATAL_ERROR "Missing the Equalizer library.\n"
-        "Consider using CMAKE_PREFIX_PATH or the EQUALIZER_ROOT environment variable. "
+        "Consider using CMAKE_PREFIX_PATH or the EQ_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()

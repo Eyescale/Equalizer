@@ -38,7 +38,7 @@
 # documentation).
 #
 #    CO_ROOT
-#    EQUALIZER_ROOT
+#    EQ_ROOT
 #
 # This module defines the following output variables:
 #
@@ -71,7 +71,7 @@
 #
 # find and parse co/version.h
 find_path(_co_INCLUDE_DIR co/version.h
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
@@ -135,7 +135,7 @@ if(Collage_FIND_VERSION AND COLLAGE_VERSION)
 endif()
 
 find_library(_co_LIBRARY Collage
-  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT} ${EQUALIZER_ROOT}
+  HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{CO_ROOT} $ENV{EQ_ROOT} ${CO_ROOT} ${EQ_ROOT}
   PATH_SUFFIXES lib
   PATHS /usr /usr/local /opt/local /opt
 )
