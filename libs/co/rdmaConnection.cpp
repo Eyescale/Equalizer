@@ -660,7 +660,7 @@ retry:
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
-                EQERROR << "Timed out trying to drain buffer." << std::endl;
+                EQERROR << "Timed out trying to fill buffer." << std::endl;
                 goto err;
             }
         }
