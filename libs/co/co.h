@@ -69,6 +69,10 @@
 #include <co/connectionType.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#ifdef CO_USE_BOOST
+#   include <co/dataIStreamArchive.h>
+#   include <co/dataOStreamArchive.h>
+#endif
 #include <co/global.h>
 #include <co/init.h>
 #include <co/object.h>
