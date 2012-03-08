@@ -20,8 +20,8 @@
  * 
  * This file contains the logging classes for Equalizer. The macros EQERROR,
  * EQWARN, EQINFO and EQVERB output messages at their respective logging level,
- * if the level is active. They use a per-thread co::base::Log instance, which is a
- * std::ostream. EQVERB is always inactive in release builds.
+ * if the level is active. They use a per-thread co::base::Log instance, which
+ * is a std::ostream. EQVERB is always inactive in release builds.
  */
 
 #ifndef COBASE_LOG_H

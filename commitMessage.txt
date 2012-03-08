@@ -1,4 +1,4 @@
-Correcting the setAffinity function implementation. 
+Freeing the topolgy object after toplogy detection. 
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

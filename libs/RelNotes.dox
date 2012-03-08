@@ -207,6 +207,16 @@
     draw_sync thread model causes full synchronization</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/90">90</a>:
     Race condition with direct send and higher number of nodes</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
+    netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/97">97</a>:
+    Object::notifyAttach is not always called</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/98">98</a>: RSP
+    exit deadloc</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/100">100</a>:
+    CommandFunc crash with multiple inheritance and MSVC</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/101">101</a>:
+    Alternating old/new eq::View frustum update loop</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -216,12 +226,10 @@
   find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/65">65</a>: Startup
-    crash with Multi-GPU config</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/61">61</a>: VMMlib
-    static initializer issue</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
-    netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
+    assertion on interaction with multiple GPUs</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/76">76</a>:
+    7-window.DPLEX.2D.lb.eqc does not load-balance</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/49">49</a>:
     eqPixelBench crash with double free</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/19">19</a>: zoom

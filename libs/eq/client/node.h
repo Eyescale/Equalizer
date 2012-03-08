@@ -304,6 +304,7 @@ namespace eq
         bool _cmdFrameTasksFinish( co::Command& command );
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
+        bool _cmdSetAffinity( co::Command& command );
 
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );

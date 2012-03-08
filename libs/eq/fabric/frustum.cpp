@@ -61,6 +61,52 @@ void Frustum::unsetFrustum()
     _data.current = TYPE_NONE;
 }
 
+void Frustum::serialize( co::DataOStream& os )
+{
+    switch( getCurrentType( ))
+    {
+        case TYPE_WALL:
+            os << TYPE_WALL << _data.wall;
+            break;
+
+        case TYPE_PROJECTION:
+            os << TYPE_PROJECTION << _data.projection;
+            break;
+
+        case TYPE_NONE:
+            os << TYPE_NONE;
+            break;
+
+        default:
+            EQASSERT( false );
+    }
+}
+
+void Frustum::deserialize( co::DataIStream& is )
+{
+    is >> _data.current;
+
+    switch( _data.current )
+    {
+        case TYPE_WALL:
+        {
+            is >> _data.wall;
+            break;
+        }
+        case Frustum::TYPE_PROJECTION:
+        {
+            is >> _data.projection;
+            break;
+        }
+        case Frustum::TYPE_NONE:
+            break;
+
+        default:
+            EQASSERT( false );
+    }
+    updateFrustum();
+}
+
 std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
 {
     switch( frustum.getCurrentType( ))
@@ -78,59 +124,6 @@ std::ostream& operator << ( std::ostream& os, const Frustum& frustum )
             break;
     }
     return os;
-}
-
-co::DataOStream& operator << ( co::DataOStream& os, const Frustum& frustum )
-{
-    switch( frustum.getCurrentType( ))
-    {
-        case Frustum::TYPE_WALL:
-            os << Frustum::TYPE_WALL << frustum.getWall();
-            break;
-
-        case Frustum::TYPE_PROJECTION:
-            os << Frustum::TYPE_PROJECTION << frustum.getProjection();
-            break;
-
-        case Frustum::TYPE_NONE:
-            os << Frustum::TYPE_NONE;
-            break;
-
-        default:
-            EQASSERT( false );
-    }
-    return os;
-}
-
-co::DataIStream& operator >> ( co::DataIStream& is, Frustum& frustum )
-{
-    Frustum::Type type;
-    is >> type;
-
-    switch( type )
-    {
-        case Frustum::TYPE_WALL:
-        {
-            Wall wall;
-            is >> wall;
-            frustum.setWall( wall );
-            break;
-        }
-        case Frustum::TYPE_PROJECTION:
-        {
-            Projection projection;
-            is >> projection;
-            frustum.setProjection( projection );
-            break;
-        }
-        case Frustum::TYPE_NONE:
-            frustum.unsetFrustum();
-            break;
-
-        default:
-            EQASSERT( false );
-    }
-    return is;
 }
 
 }

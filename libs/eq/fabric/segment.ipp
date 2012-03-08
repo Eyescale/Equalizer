@@ -75,7 +75,7 @@ Segment< C, S, CH >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _vp;
     if( dirtyBits & DIRTY_FRUSTUM )
-        os << *static_cast< Frustum* >( this );
+        Frustum::serialize( os );
     if( dirtyBits & DIRTY_CHANNEL )
         os << co::ObjectVersion( _channel );
     if( dirtyBits & DIRTY_EYES )
@@ -90,7 +90,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _vp;
     if( dirtyBits & DIRTY_FRUSTUM )
-        is >> *static_cast< Frustum* >( this );
+        Frustum::deserialize( is );
     if( dirtyBits & DIRTY_CHANNEL )
     {
         EQASSERT( _canvas->_mapViewObjects( ))
