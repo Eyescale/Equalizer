@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,19 +28,23 @@ namespace fabric
 {
     struct PipeNewWindowPacket : public PipePacket
     {
-        PipeNewWindowPacket()
+        PipeNewWindowPacket( const uint32_t requestID_ )
+                : requestID( requestID_ )
+                , pad( 0 )
             {
                 command = CMD_PIPE_NEW_WINDOW;
                 size    = sizeof( PipeNewWindowPacket );
             }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct PipeNewWindowReplyPacket : public PipePacket
     {
         PipeNewWindowReplyPacket( const PipeNewWindowPacket* request )
                 : requestID( request->requestID )
+                , pad( 0 )
             {
                 command = CMD_PIPE_NEW_WINDOW_REPLY;
                 size    = sizeof( PipeNewWindowReplyPacket );
@@ -48,6 +52,7 @@ namespace fabric
 
         co::base::UUID windowID;
         const uint32_t requestID;
+        const uint32_t pad;
     };
 }
 }

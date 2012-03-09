@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@
 #include <co/commands.h> // used for CMD_ enums
 #include <co/types.h>
 #include <co/version.h>  // enum
+#include <co/base/uuid.h> // member
 
 namespace co
 {
@@ -74,6 +75,9 @@ namespace co
         base::UUID objectID;
         uint32_t instanceID;
         const uint32_t pad; // pad to multiple-of-eight
+
+    private:
+        ObjectPacket& operator= ( ObjectPacket const& );
     };
 
     //------------------------------------------------------------

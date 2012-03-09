@@ -132,7 +132,9 @@ namespace eqPly
         void _switchViewMode();
         void _switchModel();
         void _freezeLoadBalancing( const bool onOff );
+        void _adjustEyeBase( const float delta );
         void _adjustTileSize( const int delta );
+        void _adjustModelScale( const float factor );
         void _switchLayout( int32_t increment );
         void _toggleEqualizer();
 

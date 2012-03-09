@@ -29,6 +29,7 @@
 
 #include <co/objectVersion.h>
 #include <co/base/lock.h>
+#include <co/base/monitor.h>
 #include <co/base/refPtr.h>
 #include <co/worker.h>
 

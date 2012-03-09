@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,11 +24,7 @@
 
 namespace co
 {
-    // global defines
-
-    /** 
-     * Global parameter handling for the Equalizer network implementation. 
-     */
+    /** Global parameter handling for the Collage library. */
     class Global
     {
     public:
@@ -114,7 +110,8 @@ namespace co
             IATTR_UDP_BUFFER_SIZE,       //!< @internal send/receiver buffer
             IATTR_QUEUE_MIN_SIZE,        //!< @internal (tile) queue min size
             IATTR_QUEUE_REFILL,          //!< @internal (tile) queue refill size
-            IATTR_RDMA_RING_BUFFER_SIZE_MB, //!< @internal send/receiver buffer
+            IATTR_RDMA_RING_BUFFER_SIZE_MB, //!< @internal send/receive buffer
+            IATTR_RDMA_SEND_QUEUE_DEPTH, //!< @internal max send credits
             IATTR_RDMA_RESOLVE_TIMEOUT_MS, //!< @internal address resolution
             IATTR_ALL
         };

@@ -5,6 +5,18 @@ BUILD ?= debug
 PYTHON ?= python
 CMAKE ?= cmake
 
+ifeq ($(wildcard Makefile), Makefile)
+all:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+clean:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+.DEFAULT:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+else
+
 default: $(BUILD) RELNOTES.txt README.rst
 all: debug release RELNOTES.txt README.rst
 clobber:
@@ -54,9 +66,11 @@ package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
 	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
-xcode:
+XCode/Equalizer.xcodeproj: CMakeLists.txt
 	@mkdir -p XCode
 	@cd XCode; $(CMAKE) -G Xcode .. -DCMAKE_INSTALL_PREFIX:PATH=install
+
+xcode: XCode/Equalizer.xcodeproj
 	open XCode/Equalizer.xcodeproj
 
 tests: debug/Makefile
@@ -78,3 +92,5 @@ RELNOTES.txt: libs/RelNotes.dox
 
 README.rst: libs/RelNotes.dox
 	-$(PYTHON) CMake/html2rst.py $< > $@
+
+endif

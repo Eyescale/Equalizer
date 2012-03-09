@@ -19,7 +19,7 @@
 #define CO_TYPES_H
 
 #include <co/base/refPtr.h>
-#include <co/base/uuid.h>
+#include <co/base/types.h>
 
 #include <deque>
 #include <vector>
@@ -86,7 +86,9 @@ typedef Barriers::const_iterator BarriersCIter; //!< Barriers const iterator
 /** A vector of ConnectionPtr's. */
 typedef std::vector< ConnectionPtr >             Connections;
 /** A const iterator for a vector of ConnectionPtr's. */
-typedef Connections::const_iterator   ConnectionsCIter;
+typedef Connections::const_iterator ConnectionsCIter;
+/** An iterator for a vector of ConnectionPtr's. */
+typedef Connections::iterator   ConnectionsIter;
 
 /** A vector of ConnectionDescriptionPtr's. */
 typedef std::vector< ConnectionDescriptionPtr >  ConnectionDescriptions;

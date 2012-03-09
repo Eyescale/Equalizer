@@ -21,10 +21,7 @@
 #include <co/base/defines.h>
 #include <co/base/log.h>
 
-#ifndef _WIN32
-#  include <cxxabi.h>
-#  include <stdlib.h>
-#endif
+#include <typeinfo>
 
 // assertions
 // #define EQ_RELEASE_ASSERT

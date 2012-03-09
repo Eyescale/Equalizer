@@ -22,19 +22,21 @@
 #include <eq/client/packets.h> // base structs
 #include <eq/client/channel.h> // member Channel::RBStat
 #include <eq/client/statistic.h> // member
+#include <eq/fabric/renderContext.h> // member
 
 /** @cond IGNORE */
 namespace eq
 {
     struct ChannelConfigInitPacket : public ChannelPacket
     {
-        ChannelConfigInitPacket()
+        ChannelConfigInitPacket( const uint128_t& initID_ )
+                : initID( initID )
             {
                 command = fabric::CMD_CHANNEL_CONFIG_INIT;
                 size    = sizeof( ChannelConfigInitPacket );
             }
 
-        uint128_t        initID;
+        const uint128_t initID;
     };
 
     struct ChannelConfigInitReplyPacket : public ChannelPacket
@@ -82,7 +84,10 @@ namespace eq
         const bool result;
     };
 
-
+    struct ChannelTaskPacket : public ChannelPacket
+    {
+        RenderContext context;
+    };
 
     struct ChannelFrameStartPacket : public ChannelTaskPacket
     {
@@ -310,6 +315,12 @@ namespace eq
     {
         os << (co::ObjectPacket*)packet << " frame " << packet->frameNumber
            << " id " << packet->frameID;
+        return os;
+    }
+    inline std::ostream& operator << ( std::ostream& os, 
+                                       const ChannelTaskPacket* packet )
+    {
+        os << (co::ObjectPacket*)packet << " " << packet->context;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

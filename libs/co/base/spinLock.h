@@ -26,6 +26,8 @@ namespace co
 {
 namespace base
 {
+namespace detail { class SpinLock; }
+
     /** 
      * A fast lock for uncontended memory access.
      *
@@ -37,33 +39,18 @@ namespace base
      */
     class SpinLock : public NonCopyable
     {
-        static const long _writelocked = -1;
-        static const long _unlocked = 0;
-
     public:
         /** Construct a new lock. @version 1.0 */
-        SpinLock() : _state( _unlocked ) {}
+        COBASE_API SpinLock();
 
         /** Destruct the lock. @version 1.0 */
-        ~SpinLock() { _state = _unlocked; }
+        COBASE_API ~SpinLock();
 
         /** Acquire the lock exclusively. @version 1.0 */
-        void set()
-            {
-                while( true )
-                {
-                    if( trySet( ))
-                        return;
-                    Thread::yield();
-                }
-            }
+        COBASE_API void set();
 
         /** Release an exclusive lock. @version 1.0 */
-        void unset()
-            {
-                EQASSERT( _state == _writelocked );
-                _state = _unlocked;
-            }
+        COBASE_API void unset();
 
         /** 
          * Attempt to acquire the lock exclusively.
@@ -72,37 +59,13 @@ namespace base
          *         it was not set.
          * @version 1.0
          */
-        bool trySet()
-            {
-                if( !_state.compareAndSwap( _unlocked, _writelocked ))
-                    return false;
-                EQASSERTINFO( isSetWrite(), _state );
-                return true;
-            }
+        COBASE_API bool trySet();
 
         /** Acquire the lock shared with other readers. @version 1.1.2 */
-        void setRead()
-            {
-                while( true )
-                {
-                    if( trySetRead( ))
-                        return;
-                    Thread::yield();
-                }
-            }
+        COBASE_API void setRead();
 
         /** Release a shared read lock. @version 1.1.2 */
-        void unsetRead()
-            {
-                while( true )
-                {
-                    EQASSERT( _state > _unlocked );
-                    memoryBarrier();
-                    const int32_t expected = _state;
-                    if( _state.compareAndSwap( expected, expected-1 ))
-                        return;
-                }
-            }
+        COBASE_API void unsetRead();
 
         /** 
          * Attempt to acquire the lock shared with other readers.
@@ -111,20 +74,7 @@ namespace base
          *         it was not set.
          * @version 1.1.2
          */
-        bool trySetRead()
-            {
-                memoryBarrier();
-                const int32_t state = _state;
-                // Note: 0 used here since using _unlocked unexplicably gives
-                //       'undefined reference to co::base::SpinLock::_unlocked'
-                const int32_t expected = (state==_writelocked) ? 0 : state;
-
-                if( !_state.compareAndSwap( expected, expected+1 ))
-                    return false;
-
-                EQASSERTINFO( isSetRead(), _state << ", " << expected );
-                return true;
-            }
+        COBASE_API bool trySetRead();
 
         /**
          * Test if the lock is set.
@@ -133,7 +83,7 @@ namespace base
          *         it is not set.
          * @version 1.0
          */
-        bool isSet() { return ( _state != _unlocked ); }
+        COBASE_API bool isSet();
 
         /**
          * Test if the lock is set exclusively.
@@ -141,7 +91,7 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.1.2
          */
-        bool isSetWrite() { return ( _state == _writelocked ); }
+        COBASE_API bool isSetWrite();
 
         /**
          * Test if the lock is set shared.
@@ -149,10 +99,10 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.1.2
          */
-        bool isSetRead() { return ( _state > _unlocked ); }
+        COBASE_API bool isSetRead();
 
     private:
-        a_int32_t _state;
+        detail::SpinLock* const _impl;
     };
 }
 

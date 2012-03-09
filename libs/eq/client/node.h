@@ -24,7 +24,9 @@
 #include <eq/client/visitorResult.h>  // enum
 #include <eq/fabric/node.h>           // base class
 
+#include <co/commandQueue.h>
 #include <co/types.h>
+#include <co/base/monitor.h>          // member
 #include <co/base/mtQueue.h>          // member
 
 namespace eq
@@ -283,6 +285,8 @@ namespace eq
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
+        void _setAffinity();
+
         void _finishFrame( const uint32_t frameNumber ) const;
         void _frameFinish( const uint128_t& frameID,
                            const uint32_t frameNumber );
@@ -300,6 +304,7 @@ namespace eq
         bool _cmdFrameTasksFinish( co::Command& command );
         bool _cmdFrameDataTransmit( co::Command& command );
         bool _cmdFrameDataReady( co::Command& command );
+        bool _cmdSetAffinity( co::Command& command );
 
         EQ_TS_VAR( _nodeThread );
         EQ_TS_VAR( _commandThread );

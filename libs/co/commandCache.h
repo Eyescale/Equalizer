@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,12 +20,11 @@
 
 #include <co/types.h>
 #include <co/api.h>
-#include <co/base/atomic.h> // member
 #include <co/base/thread.h> // thread-safety checks
 
 namespace co
 {
-    class Command;
+namespace detail { class CommandCache; }
     
     /**
      * A command cache handles the reuse of allocated packets for a node.
@@ -50,31 +49,7 @@ namespace co
         void flush();
 
     private:
-        enum Cache
-        {
-            CACHE_SMALL,
-            CACHE_BIG,
-            CACHE_ALL
-        };
-
-        typedef std::vector< Command* > Data;
-        typedef Data::const_iterator DataCIter;
-
-        /** The caches. */
-        Data _cache[ CACHE_ALL ];
-
-        /** Last lookup position in each cache. */
-        DataCIter _position[ CACHE_ALL ];
-
-        /** The current number of free items in each cache */
-        base::a_int32_t _free[ CACHE_ALL ];
-
-        /** The maximum number of free items in each cache */
-        int32_t _maxFree[ CACHE_ALL ];
-
-        void _compact( const Cache which );
-        Command& _newCommand( const Cache which );
-
+        detail::CommandCache* const _impl;
         friend std::ostream& operator << ( std::ostream&, const CommandCache& );
         EQ_TS_VAR( _thread );
     };

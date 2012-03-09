@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,8 +19,7 @@
 #define COBASE_LAUNCHER_H
 
 #include <co/base/api.h>
-#include <string>
-#include <vector>
+#include <co/base/types.h>
 
 namespace co
 {
@@ -37,7 +36,7 @@ namespace base
         Launcher(){}
 #ifndef _WIN32
         static void _buildCommandLine( const std::string& command,
-                                       std::vector<std::string>& commandLine );
+                                       Strings& commandLine );
 #endif
     };
 }

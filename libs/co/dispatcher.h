@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,13 +19,13 @@
 #define CO_DISPATCHER_H
 
 #include <co/api.h>
-#include <co/commandFunc.h> // member
+#include <co/commandFunc.h> // used inline
 #include <co/types.h>
-
-#include <vector>
 
 namespace co
 {
+namespace detail { class Dispatcher; }
+
     /** 
      * A helper class providing command packet dispatch functionality to
      * networked objects.
@@ -67,10 +67,9 @@ namespace co
          * @param destinationQueue the queue to which the receiver thread
          *                         dispatches the command.
          */
-        template< typename T >
-        void registerCommand( const uint32_t command, 
-                              const CommandFunc< T >& func,
-                              CommandQueue* destinationQueue );
+        template< typename T > void
+        registerCommand( const uint32_t command, const CommandFunc< T >& func,
+                         CommandQueue* destinationQueue );
 
         
         /** 
@@ -82,26 +81,19 @@ namespace co
         CO_API bool _cmdUnknown( Command& command );
 
     private:
-        CO_API void _registerCommand( const uint32_t command, 
+        detail::Dispatcher* const _impl;
+
+        CO_API void _registerCommand( const uint32_t command,
                                       const Func& func,
                                       CommandQueue* destinationQueue );
-
-        /** The command handler function table. */
-        std::vector< Func > _fTable;
-        
-        /** Defines a queue to which commands are dispatched from the recv. */
-        std::vector< CommandQueue* > _qTable;
     };
 
     template< typename T >
     void Dispatcher::registerCommand( const uint32_t command,
-                                const CommandFunc< T >& func,
-                                CommandQueue* destinationQueue )
+                                      const CommandFunc< T >& func,
+                                      CommandQueue* queue )
     {
-        _registerCommand( command, Dispatcher::Func( func ),
-                          destinationQueue );
+        _registerCommand( command, Dispatcher::Func( func ), queue );
     }
 }
-
 #endif // CO_DISPATCHER_H
-

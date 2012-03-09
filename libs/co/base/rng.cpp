@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,15 +17,46 @@
 
 #include "rng.h"
 
+#pragma warning (push)
+#pragma warning (disable: 4985) // inconsistent decl of ceil
+
+#ifdef _WIN32
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#  include <wtypes.h>
+#  include <wincrypt.h>
+#  pragma comment(lib, "advapi32.lib")
+#endif
+
+#include <cstdlib>
+#include <fcntl.h>
+#include <limits>
+#include <stdio.h>
+#pragma warning (pop)
+
+
 namespace co
 {
 namespace base
 {
+namespace
+{
 #ifdef Linux
-int RNG::_fd = -1;
+static int _fd = -1;
 #elif defined (_WIN32)
-HCRYPTPROV RNG::_provider = 0;
+static HCRYPTPROV _provider = 0;
 #endif
+}
+
+RNG::RNG()
+        : _impl( 0 )
+{
+    _init();
+}
+
+RNG::~RNG()
+{}
 
 bool RNG::_init()
 {
@@ -82,6 +113,41 @@ void RNG::_exit()
                 << std::endl;
     _provider = 0;
 #endif
+}
+
+void RNG::reseed()
+{
+#ifdef Darwin
+    srandomdev();
+#endif
+}
+
+bool RNG::_get( void* data, const size_t size )
+{
+#ifdef Linux
+    EQASSERTINFO( _fd >= 0, "init() not called?" );
+    int read = ::read( _fd, data, size );
+    EQASSERTINFO( read == ssize_t( size ),
+                  read << " != " << size << ": " << sysError );
+    if( read != ssize_t( size ))
+    {
+        EQERROR << "random number generator not working" << std::endl;
+        return false;
+    }
+
+#elif defined (_WIN32)
+    EQASSERTINFO( _provider, "init() not called?" );
+    if( !CryptGenRandom( _provider, size, (BYTE*)data ))
+    {
+        EQERROR << "random number generator not working" << std::endl;
+        return false;
+    }
+#else // Darwin
+    uint8_t* ptr = reinterpret_cast< uint8_t* >( data );
+    for( size_t i=0; i < size; ++i )
+        ptr[i] = ( random() & 0xff );
+#endif
+    return true;
 }
 
 }

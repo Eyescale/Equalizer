@@ -28,7 +28,9 @@ namespace co
 {
 namespace base
 {
-class LockPrivate
+namespace detail
+{
+class Lock
 {
 public:
 #ifdef _WIN32
@@ -37,14 +39,15 @@ public:
     pthread_mutex_t mutex;
 #endif
 };
+}
 
 Lock::Lock()
-        : _data ( new LockPrivate )
+        : _impl ( new detail::Lock )
 {
 #ifdef _WIN32
-    InitializeCriticalSection( &_data->cs );
+    InitializeCriticalSection( &_impl->cs );
 #else
-    const int error = pthread_mutex_init( &_data->mutex, 0 );
+    const int error = pthread_mutex_init( &_impl->mutex, 0 );
     if( error )
     {
         EQERROR << "Error creating pthread mutex: "
@@ -57,38 +60,37 @@ Lock::Lock()
 Lock::~Lock()
 {
 #ifdef _WIN32
-    DeleteCriticalSection( &_data->cs ); 
+    DeleteCriticalSection( &_impl->cs ); 
 #else
-    pthread_mutex_destroy( &_data->mutex );
+    pthread_mutex_destroy( &_impl->mutex );
 #endif
-    delete _data;
-    _data = 0;
+    delete _impl;
 }
 
 void Lock::set()
 {
 #ifdef _WIN32
-    EnterCriticalSection( &_data->cs );
+    EnterCriticalSection( &_impl->cs );
 #else
-    pthread_mutex_lock( &_data->mutex );
+    pthread_mutex_lock( &_impl->mutex );
 #endif
 }
 
 void Lock::unset()
 {
 #ifdef _WIN32
-    LeaveCriticalSection( &_data->cs );
+    LeaveCriticalSection( &_impl->cs );
 #else
-    pthread_mutex_unlock( &_data->mutex );
+    pthread_mutex_unlock( &_impl->mutex );
 #endif
 }
 
 bool Lock::trySet()
 {
 #ifdef _WIN32
-    return TryEnterCriticalSection( &_data->cs );
+    return TryEnterCriticalSection( &_impl->cs );
 #else
-    return ( pthread_mutex_trylock( &_data->mutex ) == 0 );
+    return ( pthread_mutex_trylock( &_impl->mutex ) == 0 );
 #endif
 }
 

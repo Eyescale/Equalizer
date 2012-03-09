@@ -21,7 +21,6 @@
 #include <test.h>
 
 #include <eq/client/channel.h>
-#include <eq/client/channel.h>
 #include <eq/client/client.h>
 #include <eq/client/config.h>
 #include <eq/client/init.h>

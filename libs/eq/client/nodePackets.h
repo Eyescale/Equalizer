@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -153,10 +153,10 @@ namespace eq
 
         co::ObjectVersion frameData;
         PixelViewport pvp;
+        Zoom          zoom;
         uint32_t      buffers;
         uint32_t      frameNumber;
-        bool          useAlpha;
-        Zoom          zoom;
+        uint64_t useAlpha; // bool + valgrind padding
 
         EQ_ALIGN8( uint8_t data[8] );
     };
@@ -184,6 +184,17 @@ namespace eq
 
         uint128_t frameID;
         uint32_t frameNumber;
+    };
+
+    struct NodeAffinityPacket : public NodePacket
+    {
+        NodeAffinityPacket()
+              {
+                  command = fabric::CMD_NODE_SET_AFFINITY;
+                  size = sizeof(NodeAffinityPacket);
+              }
+
+        int32_t affinity;
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

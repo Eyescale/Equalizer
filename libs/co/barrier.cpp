@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,27 +27,75 @@
 #include "exception.h"
 
 #include <co/base/global.h>
+#include <co/base/monitor.h>
+#include <co/base/stdExt.h>
 
 namespace co
 {
-typedef CommandFunc<Barrier> CmdFunc;
-
-Barrier::Barrier( NodePtr master, const uint32_t height )
-        : _masterID( master->getNodeID( ))
-        , _height( height )
-        , _master( master )
+namespace
 {
-    EQASSERT( _masterID != NodeID::ZERO );
-    EQINFO << "New barrier of height " << _height << std::endl;
+struct Request
+{
+    Request() 
+            : time( 0 ), timeout( EQ_TIMEOUT_INDEFINITE ), incarnation( 0 ) {}
+    uint64_t time;
+    uint32_t timeout;
+    uint32_t incarnation;
+    Nodes nodes;
+};
+
+typedef stde::hash_map< uint128_t, Request > RequestMap;
+typedef RequestMap::iterator RequestMapIter;
 }
 
+namespace detail
+{
+class Barrier
+{
+public:
+    Barrier() : height( 0 ) {}
+    Barrier( NodePtr m, const uint32_t h )
+            : masterID( m->getNodeID( ))
+            , height( h )
+            , master( m )
+        {
+            EQASSERT( masterID != NodeID::ZERO );
+        }
+
+    /** The master barrier node. */
+    NodeID   masterID;
+
+    /** The height of the barrier, only set on the master. */
+    uint32_t height;
+
+    /** The local, connected instantiation of the master node. */
+    NodePtr master;
+
+    /** Slave nodes which have entered the barrier, index per version. */
+    RequestMap enteredNodes;
+
+    /** The monitor used for barrier leave notification. */
+    base::Monitor< uint32_t > leaveNotify;
+};
+}
+
+typedef CommandFunc<Barrier> CmdFunc;
+
 Barrier::Barrier()
+        : _impl( new detail::Barrier )
 {
     EQINFO << "Barrier instantiated" << std::endl;
 }
 
+Barrier::Barrier( NodePtr master, const uint32_t height )
+        : _impl( new detail::Barrier( master, height ))
+{
+    EQINFO << "New barrier of height " << height << std::endl;
+}
+
 Barrier::~Barrier()
 {
+    delete _impl;
 }
 
 //---------------------------------------------------------------------------
@@ -55,29 +103,44 @@ Barrier::~Barrier()
 //---------------------------------------------------------------------------
 void Barrier::getInstanceData( DataOStream& os )
 {
-    os << _height << _masterID;
-    _leaveNotify = 0;
+    os << _impl->height << _impl->masterID;
+    _impl->leaveNotify = 0;
 }
 
 void Barrier::applyInstanceData( DataIStream& is )
 {
-    is >> _height >> _masterID;
-    _leaveNotify = 0;
+    is >> _impl->height >> _impl->masterID;
+    _impl->leaveNotify = 0;
 }
 
 void Barrier::pack( DataOStream& os )
 {
-    os << _height;
-    _leaveNotify = 0;
+    os << _impl->height;
+    _impl->leaveNotify = 0;
 }
 
 void Barrier::unpack( DataIStream& is )
 {
-    is >> _height;
-    _leaveNotify = 0;
+    is >> _impl->height;
+    _impl->leaveNotify = 0;
 }
 
 //---------------------------------------------------------------------------
+void Barrier::setHeight( const uint32_t height )
+{
+    _impl->height = height;
+}
+
+void Barrier::increase()
+{
+    ++_impl->height;
+}
+
+uint32_t Barrier::getHeight() const
+{
+    return _impl->height;
+}
+
 void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -92,50 +155,52 @@ void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
 
 void Barrier::enter( const uint32_t timeout )
 {
-    EQASSERT( _height > 0 );
-    EQASSERT( _masterID != NodeID::ZERO );
+    EQASSERT( _impl->height > 0 );
+    EQASSERT( _impl->masterID != NodeID::ZERO );
 
-    if( _height == 1 ) // trivial ;)
+    if( _impl->height == 1 ) // trivial ;)
         return;
 
-    if( !_master )
+    if( !_impl->master )
     {
         LocalNodePtr localNode = getLocalNode();
-        _master = localNode->connect( _masterID );
+        _impl->master = localNode->connect( _impl->masterID );
     }
 
-    EQASSERT( _master );
-    EQASSERT( _master->isConnected( ));
-    if( !_master || !_master->isConnected( ))
+    EQASSERT( _impl->master );
+    EQASSERT( _impl->master->isConnected( ));
+    if( !_impl->master || !_impl->master->isConnected( ))
     {
-        EQWARN << "Can't connect barrier master node " << _masterID <<std::endl;
+        EQWARN << "Can't connect barrier master node " << _impl->masterID
+               << std::endl;
         return;
     }
 
     EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
-                         << ", height " << _height << std::endl;
+                         << ", height " << _impl->height << std::endl;
 
-    const uint32_t leaveVal = _leaveNotify.get() + 1;
+    const uint32_t leaveVal = _impl->leaveNotify.get() + 1;
 
     BarrierEnterPacket packet;
     packet.version = getVersion();
-    packet.incarnation = _leaveNotify.get();
+    packet.incarnation = _impl->leaveNotify.get();
     packet.timeout = timeout;
-    send( _master, packet );
+    send( _impl->master, packet );
 
     if( timeout == EQ_TIMEOUT_INDEFINITE )
-        _leaveNotify.waitEQ( leaveVal );
-    else if( !_leaveNotify.timedWaitEQ( leaveVal, timeout ))
+        _impl->leaveNotify.waitEQ( leaveVal );
+    else if( !_impl->leaveNotify.timedWaitEQ( leaveVal, timeout ))
         throw Exception( Exception::TIMEOUT_BARRIER );
 
     EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
-                         << ", height " << _height << std::endl;
+                         << ", height " << _impl->height << std::endl;
 }
 
 bool Barrier::_cmdEnter( Command& command )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( !_master || _master == getLocalNode(), _master );
+    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+                  _impl->master );
 
     BarrierEnterPacket* packet = command.getModifiable< BarrierEnterPacket >();
     if( packet->handled )
@@ -147,11 +212,11 @@ bool Barrier::_cmdEnter( Command& command )
 
     const uint128_t version = packet->version;
     const uint64_t incarnation = packet->incarnation;
-    Request& request = _enteredNodes[ version ];
+    Request& request = _impl->enteredNodes[ version ];
  
     EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
                          << ", has " << request.nodes.size() << " of " 
-                         << _height << std::endl;
+                         << _impl->height << std::endl;
 
     request.time = getLocalNode()->getTime64();
     
@@ -205,28 +270,29 @@ bool Barrier::_cmdEnter( Command& command )
     EQASSERT( version == getVersion( ));
 
     Nodes& nodes = request.nodes;
-    if( nodes.size() < _height )
+    if( nodes.size() < _impl->height )
         return true;
 
-    EQASSERT( nodes.size() == _height );
+    EQASSERT( nodes.size() == _impl->height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
 
     stde::usort( nodes );
 
-    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
         _sendNotify( version, *i );
 
     // delete node vector for version
-    std::map< uint128_t, Request >::iterator i = _enteredNodes.find( version );
-    EQASSERT( i != _enteredNodes.end( ));
-    _enteredNodes.erase( i );
+    RequestMapIter i = _impl->enteredNodes.find( version );
+    EQASSERT( i != _impl->enteredNodes.end( ));
+    _impl->enteredNodes.erase( i );
     return true;
 }
 
 void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( !_master || _master == getLocalNode(), _master );
+    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+                  _impl->master );
 
     if( node->isLocal( )) // OPT
     {
@@ -234,7 +300,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
         // the case where we receive a different version of the barrier meant
         // that previosly we have detect a timeout true negative
         if( version == getVersion() )
-            ++_leaveNotify;
+            ++_impl->leaveNotify;
     }
     else
     {
@@ -247,13 +313,14 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 void Barrier::_cleanup( const uint64_t time)
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( !_master || _master == getLocalNode(), _master );
+    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+                  _impl->master );
 
-    if( _enteredNodes.size() < 2 )
+    if( _impl->enteredNodes.size() < 2 )
         return;
 
-    for( std::map< uint128_t, Request >::iterator i = 
-                        _enteredNodes.begin(); i != _enteredNodes.end(); i++ )
+    for( RequestMapIter i = _impl->enteredNodes.begin();
+         i != _impl->enteredNodes.end(); ++i )
     {
         Request& cleanNodes = i->second;
         
@@ -267,7 +334,7 @@ void Barrier::_cleanup( const uint64_t time)
                
         if( time > cleanNodes.time + timeout )
         {
-            _enteredNodes.erase( i );
+            _impl->enteredNodes.erase( i );
             return;
         }
     }
@@ -281,8 +348,9 @@ bool Barrier::_cmdEnterReply( Command& command )
         command.get< BarrierEnterReplyPacket >();
     
     if( reply->version == getVersion( ))
-        ++_leaveNotify;
+        ++_impl->leaveNotify;
     
     return true;
 }
+
 }

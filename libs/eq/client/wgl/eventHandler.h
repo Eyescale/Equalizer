@@ -21,6 +21,8 @@
 #include <eq/client/eventHandler.h> // base class
 #include <eq/client/wgl/types.h>
 
+#include <co/base/os.h>
+
 namespace eq
 {
 namespace wgl

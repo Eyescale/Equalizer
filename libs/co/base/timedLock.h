@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,6 @@
 #define COBASE_TIMEDLOCK_H
 
 #include <co/base/api.h>
-#include <co/base/condition.h> // member
 #include <co/base/nonCopyable.h> // base class
 #include <co/base/types.h>
 
@@ -27,6 +26,8 @@ namespace co
 {
 namespace base
 {
+namespace detail { class TimedLock; }
+
     /** A mutex with timeout capabilities. */
     class TimedLock : public NonCopyable
     {
@@ -64,11 +65,10 @@ namespace base
          * @return true if the lock is set, false if it is not set.
          * @version 1.0
          */
-        bool isSet() { return _locked; }
+        COBASE_API bool isSet();
 
     private:
-        Condition _condition;
-        bool _locked;
+        detail::TimedLock* const _impl;
     };
 }
 }
