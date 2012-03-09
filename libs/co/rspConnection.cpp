@@ -357,7 +357,6 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         const DatagramData* header = reinterpret_cast< const DatagramData* >(
             _readBuffer->getData( ));
         const uint8_t* payload = reinterpret_cast< const uint8_t* >( header+1 );
-
         const size_t dataLeft = header->size - _readBufferPos;
         const size_t size = EQ_MIN( static_cast< size_t >( bytesLeft ),
                                     dataLeft );
@@ -368,8 +367,9 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         bytesLeft -= size;
 
         // if all data in the buffer has been taken
-        if( _readBufferPos == header->size )
+        if( _readBufferPos >= header->size )
         {
+            EQASSERT( _readBufferPos == header->size );
             //EQLOG( LOG_RSP ) << "reset read buffer  " << header->sequence
             //                 << std::endl;
 
@@ -390,7 +390,6 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         base::ScopedWrite mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
-
     }
 
 #ifdef EQ_INSTRUMENT_RSP
@@ -954,7 +953,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
 #ifdef EQ_INSTRUMENT_RSP
     ++nReadData;
 #endif
-    const DatagramData* datagram = 
+    const DatagramData* datagram =
         reinterpret_cast< const DatagramData* >( buffer.getData( ));
     const uint16_t writerID = datagram->writerID;
 #ifdef Darwin
@@ -1073,18 +1072,24 @@ RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
     EQASSERT( static_cast< int32_t >( inBuffer.getMaxSize( )) == _mtu );
 
     Buffer* buffer = 0;
-    if( !_threadBuffers.pop( buffer ))
+    if( _threadBuffers.pop( buffer ))
     {
-        // we do not have a free buffer, which means that the receiver is slower
-        // then our read thread. This is bad, because now we'll drop the data
-        // and will send a NAck packet upon the ack request, causing
-        // retransmission even though we'll probably drop it again
-        EQLOG( LOG_RSP ) << "Reader too slow, dropping data" << std::endl;
-        return 0;
+        buffer->swap( inBuffer );
+        return buffer;
     }
 
-    buffer->swap( inBuffer );
-    return buffer;
+    // we do not have a free buffer, which means that the receiver is slower
+    // then our read thread. This is bad, because now we'll drop the data and
+    // will send a NAck packet upon the ack request, causing retransmission even
+    // though we'll probably drop it again
+    EQLOG( LOG_RSP ) << "Reader too slow, dropping data" << std::endl;
+
+    // Set the event if there is data to read. This shouldn't be needed since
+    // the event should be set in this case, but it'll increase the robustness
+    base::ScopedWrite mutex( _mutexEvent );
+    if( !_appBuffers.isEmpty( ))
+        _event->set();
+    return 0;
 }
 
 void RSPConnection::_pushDataBuffer( Buffer* buffer )
