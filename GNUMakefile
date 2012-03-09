@@ -5,6 +5,18 @@ BUILD ?= debug
 PYTHON ?= python
 CMAKE ?= cmake
 
+ifeq ($(wildcard Makefile), Makefile)
+all:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+clean:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+.DEFAULT:
+	$(MAKE) -f Makefile $(MAKECMDGOALS)
+
+else
+
 default: $(BUILD) RELNOTES.txt README.rst
 all: debug release RELNOTES.txt README.rst
 clobber:
@@ -80,3 +92,5 @@ RELNOTES.txt: libs/RelNotes.dox
 
 README.rst: libs/RelNotes.dox
 	-$(PYTHON) CMake/html2rst.py $< > $@
+
+endif
