@@ -467,6 +467,8 @@ void RDMAConnection::close( )
                 ::rdma_disconnect( _cm_id ))
             EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
 
+        _established = false;
+
         _cleanup( );
 
         setState( STATE_CLOSED );
