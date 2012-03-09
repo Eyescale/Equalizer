@@ -626,7 +626,10 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
             sizeof(struct sockaddr_storage) );
 
         if(( AF_INET == sss.storage.ss_family ) &&
-                !IN6_IS_ADDR_UNSPECIFIED( sss.sin6.sin6_addr.s6_addr ))
+           ( sss.sin6.sin6_addr.s6_addr32[0] != 0 ||
+             sss.sin6.sin6_addr.s6_addr32[1] != 0 ||
+             sss.sin6.sin6_addr.s6_addr32[2] != 0 ||
+             sss.sin6.sin6_addr.s6_addr32[3] != 0 ))
         {
             EQWARN << "IPv6 address detected but likely invalid!" << std::endl;
             sss.storage.ss_family = AF_INET6;
@@ -719,7 +722,11 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
     {
         struct sockaddr_in6 *sin6 =
             reinterpret_cast< struct sockaddr_in6 * >( addr );
-        is_unspec = IN6_IS_ADDR_UNSPECIFIED( sin6->sin6_addr.s6_addr );
+
+        is_unspec = ( sin6->sin6_addr.s6_addr32[0] == 0 &&
+                      sin6->sin6_addr.s6_addr32[1] == 0 &&
+                      sin6->sin6_addr.s6_addr32[2] == 0 &&
+                      sin6->sin6_addr.s6_addr32[3] == 0 );
         salen = sizeof(struct sockaddr_in6);
     }
 
