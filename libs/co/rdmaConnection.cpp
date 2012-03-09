@@ -438,6 +438,7 @@ void RDMAConnection::close( )
         EQASSERT( STATE_CLOSING != _state );
         setState( STATE_CLOSING );
 
+#if 0
         base::Clock clock;
         const int64_t start = clock.getTime64( );
         const uint32_t timeout = Global::getTimeout( );
@@ -456,6 +457,7 @@ void RDMAConnection::close( )
 
             co::base::Thread::yield( );
         }
+#endif
 
         _eventThreadUnregister( );
 
@@ -567,7 +569,7 @@ retry2:
 
 
     // TODO : post FC less frequently
-    if( !_postFC( bytes_taken ))
+    if( _established && !_postFC( bytes_taken ))
         EQWARN << "Error while posting flow control message." << std::endl;
 
     {
