@@ -34,11 +34,10 @@ namespace
 co::ConnectionSet   _connectionSet;
 co::base::a_int32_t _nClients;
 co::base::Lock      _mutexPrint;
-
+uint32_t _delay = 0;
 enum
 {
     SEQUENCE,
-    SLEEP,
     DATA // must be last
 };
 
@@ -77,8 +76,8 @@ public:
             EQASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                           (int)_buffer[probe] << " != " << (probe&0xff) );
 
-            if( _buffer[ SLEEP ] > 0 )
-                co::base::sleep( _buffer[ SLEEP ] );
+            if( _delay > 0 )
+                co::base::sleep( _delay );
 
             if( time < 1000.f )
                 return true;
@@ -135,8 +134,7 @@ private:
     co::ConnectionPtr _connection;
     const float _mBytesSec;
     size_t      _nSamples;
-    size_t      _packetSize;
-    uint8_t    _lastPacket;
+    uint8_t     _lastPacket;
 };
 
 class Selector : public co::base::Thread
@@ -313,7 +311,6 @@ int main( int argc, char **argv )
     size_t packetSize = 1048576;
     size_t nPackets   = 0xffffffffu;
     uint32_t waitTime = 0;
-    uint8_t delayTime = 0;
 
     try // command line parsing
     {
@@ -337,9 +334,9 @@ int main( int argc, char **argv )
         TCLAP::ValueArg<uint32_t> waitArg( "w", "wait", 
                                    "wait time (ms) between sends (client only)",
                                          false, 0, "unsigned", command );
-        TCLAP::ValueArg<uint8_t> delayArg( "d", "delay", 
-                          "wait time (ms) between receives (server only, 0-255)",
-                                         false, 0, "unsigned", command );
+        TCLAP::ValueArg<uint32_t> delayArg( "d", "delay", 
+                                "wait time (ms) between receives (server only)",
+                                            false, 0, "unsigned", command );
 
         command.xorAdd( clientArg, serverArg );
         command.parse( argc, argv );
@@ -361,7 +358,7 @@ int main( int argc, char **argv )
         if( waitArg.isSet( ))
             waitTime = waitArg.getValue();
         if( delayArg.isSet( ))
-            delayTime = delayArg.getValue();
+            _delay = delayArg.getValue();
     }
     catch( TCLAP::ArgException& exception )
     {
@@ -396,7 +393,6 @@ int main( int argc, char **argv )
         buffer.resize( packetSize );
         for( size_t i = 0; i<packetSize; ++i )
             buffer[i] = static_cast< uint8_t >( i );
-        buffer[SLEEP] = delayTime;
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
         co::base::Clock clock;
