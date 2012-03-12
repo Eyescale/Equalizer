@@ -1,6 +1,5 @@
 
-
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -122,11 +121,12 @@ namespace co
          * state is unchanged.
          *
          * This method is one-sided, that is, the node to be connected should
-         * not initiate a connection to this node at the same time.
+         * not initiate a connection to this node at the same time. For
+         * concurrent connects use the other connect() method using node
+         * identifiers.
          *
          * @param node the remote node.
          * @return true if this node was connected, false otherwise.
-         * @sa initConnect, syncConnect
          */
         CO_API bool connect( NodePtr node );
 
@@ -134,7 +134,7 @@ namespace co
          * Create and connect a node given by an identifier.
          *
          * This method is two-sided and thread-safe, that is, it can be called
-         * by mulltiple threads on the same node with the same nodeID, or
+         * by multiple threads on the same node with the same nodeID, or
          * concurrently on two nodes with each others' nodeID.
          * 
          * @param nodeID the identifier of the node to connect.
@@ -389,7 +389,7 @@ namespace co
          *         <code>false</code> otherwise.
          * @internal
          */
-        CO_API bool _connect( NodePtr node, ConnectionPtr connection );
+        CO_API bool connect( NodePtr node, ConnectionPtr connection );
 
         /** Notify remote node disconnection */
         virtual void notifyDisconnect( NodePtr node ) { }
@@ -414,12 +414,14 @@ namespace co
         /** Needed for thread-safety during nodeID-based connect() */
         base::Lock _connectMutex;
     
-        /** The node for each connection. */
         typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
+        typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
+        /** The node for each connection. */
         ConnectionNodeHash _connectionNodes; // read and write: recv only
 
-        /** The connected nodes. */
         typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
+        typedef NodeHash::const_iterator NodeHashCIter;
+        /** The connected nodes. */
         // r: all, w: recv
         base::Lockable< NodeHash, base::SpinLock > _nodes; 
 
@@ -454,7 +456,10 @@ namespace co
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
+
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
+        uint32_t _connect( NodePtr node );
+        uint32_t _connect( NodePtr node, ConnectionPtr connection );
 
         /** 
          * @return <code>true</code> if executed from the command handler

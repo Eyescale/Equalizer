@@ -97,7 +97,7 @@ bool Client::connectServer( ServerPtr server )
     if( !connection )
         return false;
 
-    if( !_connect( server.get(), connection ))
+    if( !connect( server.get(), connection ))
         // giving up
         return false;
 
