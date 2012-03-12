@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,6 +35,13 @@ co::ConnectionSet   _connectionSet;
 co::base::a_int32_t _nClients;
 co::base::Lock      _mutexPrint;
 
+enum
+{
+    SEQUENCE,
+    SLEEP,
+    DATA // must be last
+};
+
 class Receiver : public co::base::Thread
 {
 public:
@@ -55,20 +62,23 @@ public:
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
-            const uint8_t packet = _buffer.getData()[0];
-            EQASSERTINFO( _lastPacket == 0 || _lastPacket - 1 == packet,
+            EQASSERTINFO( _lastPacket == 0 || _lastPacket - 1 ==
+                          _buffer[ SEQUENCE ],
                           static_cast< int >( _lastPacket ) << ", " <<
-                          static_cast< int >( packet ));
-            _lastPacket = packet;
+                          static_cast< int >( _buffer[ SEQUENCE ] ));
+            _lastPacket = _buffer[SEQUENCE];
 
             _connection->recvNB( _buffer.getData(), _buffer.getSize() );
             const float time = _clock.getTimef();
             ++_nSamples;
 
-            const size_t probe = (_rng.get< size_t >() % (_buffer.getSize( )-1))
-                                  + 1;
+            const size_t probe = (_rng.get< size_t >() %
+                                  ( _buffer.getSize() - DATA )) + DATA;
             EQASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                           (int)_buffer[probe] << " != " << (probe&0xff) );
+
+            if( _buffer[ SLEEP ] > 0 )
+                co::base::sleep( _buffer[ SLEEP ] );
 
             if( time < 1000.f )
                 return true;
@@ -303,6 +313,7 @@ int main( int argc, char **argv )
     size_t packetSize = 1048576;
     size_t nPackets   = 0xffffffffu;
     uint32_t waitTime = 0;
+    uint8_t delayTime = 0;
 
     try // command line parsing
     {
@@ -326,6 +337,9 @@ int main( int argc, char **argv )
         TCLAP::ValueArg<uint32_t> waitArg( "w", "wait", 
                                    "wait time (ms) between sends (client only)",
                                          false, 0, "unsigned", command );
+        TCLAP::ValueArg<uint8_t> delayArg( "d", "delay", 
+                          "wait time (ms) between receives (server only, 0-255)",
+                                         false, 0, "unsigned", command );
 
         command.xorAdd( clientArg, serverArg );
         command.parse( argc, argv );
@@ -346,6 +360,8 @@ int main( int argc, char **argv )
             nPackets = packetsArg.getValue();
         if( waitArg.isSet( ))
             waitTime = waitArg.getValue();
+        if( delayArg.isSet( ))
+            delayTime = delayArg.getValue();
     }
     catch( TCLAP::ArgException& exception )
     {
@@ -380,6 +396,7 @@ int main( int argc, char **argv )
         buffer.resize( packetSize );
         for( size_t i = 0; i<packetSize; ++i )
             buffer[i] = static_cast< uint8_t >( i );
+        buffer[SLEEP] = delayTime;
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
         co::base::Clock clock;
@@ -388,7 +405,7 @@ int main( int argc, char **argv )
         clock.reset();
         while( nPackets-- )
         {
-            buffer.getData()[0] = uint8_t( nPackets );
+            buffer[SEQUENCE] = uint8_t( nPackets );
             EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
