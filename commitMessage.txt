@@ -1,4 +1,4 @@
-Freeing the topolgy object after toplogy detection. 
+gcc 4.6 build fixes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
