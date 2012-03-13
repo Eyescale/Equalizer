@@ -19,7 +19,7 @@
 #define CO_DATAOSTREAMARCHIVE_H
 
 #include <co/base/defines.h>
-#ifdef CO_USE_BOOST
+#ifdef CO_USE_BOOST_SERIALIZATION
 
 #include <co/api.h>
 #include <co/dataOStream.h>
@@ -57,6 +57,5 @@ namespace co
 
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(co::DataOStreamArchive)
 
-#endif //CO_USE_BOOST
-
+#endif //CO_USE_BOOST_SERIALIZATION
 #endif //CO_DATAOSTREAMARCHIVE_H
