@@ -241,7 +241,9 @@ void Resources::configure( const Compounds& compounds, const Channels& channels,
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
+#ifndef NDEBUG
     const Canvas* canvas = 0;
+#endif
     for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
         const Compounds& children = (*i)->getChildren();
@@ -250,11 +252,12 @@ void Resources::configure( const Compounds& compounds, const Channels& channels,
             continue;
 
         Compound* segmentCompound = children.front();
+#ifndef NDEBUG
         const Channel* channel = segmentCompound->getChannel();
         EQASSERT( channel );
         EQASSERT( !canvas || channel->getCanvas() == canvas );
-
         canvas = channel->getCanvas();
+#endif
 
         _addMonoCompound( segmentCompound, channels, flags );
         _addStereoCompound( segmentCompound, channels, flags );

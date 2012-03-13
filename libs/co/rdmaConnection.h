@@ -22,6 +22,7 @@
 #include <co/base/thread.h>
 #include <co/base/monitor.h>
 #include <co/base/ring.h>
+#include <co/base/scopedMutex.h>
 
 #include <rdma/rdma_cma.h>
 
@@ -43,11 +44,15 @@ public:
     size_t getBufferSize( ) const { return _buffer_size; }
     void *getBuffer( )
     {
+        base::ScopedWrite mutex( _buffer_lock );
+
         return (void *)( (uintptr_t)_buffer + ( _ring.get( ) * _buffer_size ));
     }
     void freeBuffer( void *buf )
     {
-        ::memset( buf, 0, _buffer_size ); // Paranoid
+        base::ScopedWrite mutex( _buffer_lock );
+
+        ::memset( buf, 0xff, _buffer_size ); // Paranoid
 
         _ring.put((uint32_t)(( (uintptr_t)buf - (uintptr_t)_buffer ) /
             _buffer_size ));
@@ -61,6 +66,7 @@ private:
     void *_buffer;
     struct ibv_mr *_mr;
     BufferQ<uint32_t> _ring;
+    base::Lock _buffer_lock;
 }; // BufferPool
 
 /**
@@ -197,7 +203,7 @@ private:
     void _recvMessage( const RDMAMessage &message );
     bool _postMessage( const RDMAMessage &message );
     inline void _recvFC( const RDMAFCPayload &fc );
-    bool _postFC( );
+    bool _postFC( const uint32_t bytes_taken );
     void _recvSetup( const RDMASetupPayload &setup );
     bool _postSetup( );
     bool _waitRecvSetup( );
@@ -216,11 +222,12 @@ private:
     Notifier _notifier;
 
     /* Protect close( ) from multiple threads */
-    base::Lock _close_mutex;
+    base::Lock _close_lock;
 
     /* Protect _pollCQ( ) from multiple threads */
-    base::Lock _poll_mutex;
+    base::Lock _poll_lock;
 
+    /* Timeout for resolving RDMA address & route */
     const int32_t _timeout;
 
     /* Final connection info */
@@ -235,6 +242,7 @@ private:
 
     struct RDMAConnParamData _cpd;
     bool _established;
+    int32_t _depth;
     base::a_int32_t _credits;
     unsigned int _completions;
 
@@ -246,35 +254,42 @@ private:
     Ring<uint32_t, 3> _sourceptr;
         //        : initialized during connect/accept
         // HEAD   : advanced after copying buffer (fill) on local write
+        //          - write thread only
         // MIDDLE : advanced before posting RDMA write
+        //          - write thread only
         // TAIL   : advanced after completing RDMA write
+        //          - write & read threads (in pollCQ)
 
     /* sink RDMA MR */
     RingBuffer _sinkbuf;
     Ring<uint32_t, 2> _sinkptr;
         //        : initialized during connect/accept
         // HEAD   : advanced on receipt of RDMA WRITE
+        //          - write & read threads (in pollCQ)
         // TAIL   : advanced after copying buffer (drain) on local read
+        //          - read thread only
 
     /* local "view" of remote sink MR */
     Ring<uint32_t, 2> _rptr;
         //        : initialized on receipt of setup message
         // HEAD   : advanced before posting RDMA write
+        //          - write thread only
         // TAIL   : advanced on receipt of FC
+        //          - write & read threads (in pollCQ)
 
     /* remote sink MR parameters */
     uint64_t _rbase, _rkey;
 
     /* copy bytes out of the sink buffer */
-    uint32_t _drain( void *buffer, const uint32_t bytes );
+    inline uint32_t _drain( void *buffer, const uint32_t bytes );
     /* copy bytes in to the source buffer */
-    uint32_t _fill( const void *buffer, const uint32_t bytes );
+    inline uint32_t _fill( const void *buffer, const uint32_t bytes );
 
 private:
     /* Singleton channel event monitor thread */
     class ChannelEventThread;
     static ChannelEventThread *_event_thread;
-    static base::Lock _thread_mutex;
+    static base::Lock _thread_lock;
 
     bool _eventThreadRegister( );
     void _eventThreadUnregister( );

@@ -804,12 +804,12 @@ void Channel::declareRegion( const PixelViewport& region )
     if( clippedRegion.hasArea( ))
     {
         regions.push_back( clippedRegion );
-#ifdef NDEBUG
+#ifndef NDEBUG
         const PixelViewport pvpBefore = getRegion();
 #endif
         while( _removeOverlap( regions )) /* nop */ ;
 
-#ifdef NDEBUG
+#ifndef NDEBUG
         EQASSERT( !_hasOverlap( regions ));
         EQASSERT( pvpBefore == getRegion( ));
 #endif
