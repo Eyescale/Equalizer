@@ -148,7 +148,7 @@ bool Node::deserialize( std::string& data )
 NodePtr Node::createNode( const uint32_t type )
 {
     EQASSERTINFO( type == NODETYPE_CO_NODE, type );
-    return new Node();
+    return new Node;
 }
 
 std::ostream& operator << ( std::ostream& os, const Node& node )
