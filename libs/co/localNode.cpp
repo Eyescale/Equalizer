@@ -53,6 +53,7 @@ typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
 typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
 typedef ConnectionNodeHash::iterator ConnectionNodeHashIter;
 typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
+typedef NodeHash::const_iterator NodeHashCIter;
 }
 
 namespace detail
@@ -808,7 +809,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     // mutex is to register connecting nodes with this local node, and handle
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
-    base::ScopedWrite mutex( _connectMutex );
+    base::ScopedWrite mutex( _impl->connectLock );
 
     Nodes nodes;
     getNodes( nodes );
@@ -823,7 +824,8 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     EQINFO << "Connecting node " << nodeID << std::endl;
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
-        NodePtr node = _connect( nodeID, *i );
+        NodePtr peer = *i;
+        NodePtr node = _connect( nodeID, peer );
         if( node )
             return node;
     }
@@ -849,7 +851,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     NodePtr node;
     {
-        base::ScopedMutex< base::SpinLock > mutexNodes( _impl->nodes ); 
+        base::ScopedFastRead mutexNodes( _impl->nodes ); 
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
             node = i->second;
@@ -909,7 +911,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
               break; // maybe peer talks to us
         }
 
-        base::ScopedFastRead mutexNodes( _nodes );
+        base::ScopedFastRead mutexNodes( _impl->nodes );
         // connect failed - check for simultaneous connect from peer
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
@@ -1459,8 +1461,7 @@ bool LocalNode::_cmdConnect( Command& command )
                   remoteNode->_id << "!=" << nodeID );
 
     remoteNode->_outgoing = connection;
-    remoteNode->_state    = STATE_CONNECTED;
-    
+    remoteNode->_state = STATE_CONNECTED;
     {
         base::ScopedFastWrite mutex( _impl->nodes );
         _impl->connectionNodes[ connection ] = remoteNode;
@@ -1516,11 +1517,11 @@ bool LocalNode::_cmdConnectReply( Command& command )
         peer->_state = STATE_CLOSED;
         peer->_outgoing = 0;
         {
-            base::ScopedFastWrite mutex( _nodes );
-            EQASSERTINFO( _connectionNodes.find( connection ) !=
-                          _connectionNodes.end(), connection );
-            _connectionNodes.erase( connection );
-            _nodes->erase( nodeID );
+            base::ScopedFastWrite mutex( _impl->nodes );
+            EQASSERTINFO( _impl->connectionNodes.find( connection ) !=
+                          _impl->connectionNodes.end(), connection );
+            _impl->connectionNodes.erase( connection );
+            _impl->nodes->erase( nodeID );
         }
         serveRequest( packet->requestID, false );
         return true;
@@ -1554,7 +1555,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     {
         base::ScopedFastWrite mutex( _impl->nodes );
         _impl->connectionNodes[ connection ] = peer;
-        _impl->nodes.data[ remoteNode->_id ] = peer;
+        _impl->nodes.data[ peer->_id ] = peer;
     }
     EQVERB << "Added node " << nodeID << std::endl;
 
