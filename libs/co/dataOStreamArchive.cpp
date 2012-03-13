@@ -19,6 +19,17 @@
 
 #ifdef CO_USE_BOOST
 
+#include <boost/archive/detail/archive_serializer_map.hpp>
+#include <boost/archive/impl/archive_serializer_map.ipp>
+
+namespace boost
+{
+namespace archive
+{
+template class detail::archive_serializer_map<co::DataOStreamArchive>;
+}
+}
+
 namespace co
 {
 
