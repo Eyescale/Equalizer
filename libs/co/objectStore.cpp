@@ -182,7 +182,7 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
     _localNode->getNodes( nodes );
     
     // OPT: send to multiple nodes at once?
-    for( Nodes::iterator i = nodes.begin(); i != nodes.end(); i++ )
+    for( NodesIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr node = *i;
         NodeFindMasterNodeIDPacket packet;
@@ -195,6 +195,7 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
 
         NodeID masterNodeID = base::UUID::ZERO;
         _localNode->waitRequest( packet.requestID, masterNodeID );
+
         if( masterNodeID != base::UUID::ZERO )
         {
             EQLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
@@ -648,8 +649,8 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 
     NodeFindMasterNodeIDReplyPacket reply( packet );
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
-        ObjectsHash::const_iterator i = _objects->find( id );
+        base::ScopedFastWrite mutex( _objects );
+        ObjectsHashCIter i = _objects->find( id );
 
         if( i != _objects->end( ))
         {

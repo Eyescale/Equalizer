@@ -110,11 +110,12 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * state is unchanged.
          *
          * This method is one-sided, that is, the node to be connected should
-         * not initiate a connection to this node at the same time.
+         * not initiate a connection to this node at the same time. For
+         * concurrent connects use the other connect() method using node
+         * identifiers.
          *
          * @param node the remote node.
          * @return true if this node was connected, false otherwise.
-         * @sa initConnect, syncConnect
          */
         CO_API bool connect( NodePtr node );
 
@@ -122,7 +123,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * Create and connect a node given by an identifier.
          *
          * This method is two-sided and thread-safe, that is, it can be called
-         * by mulltiple threads on the same node with the same nodeID, or
+         * by multiple threads on the same node with the same nodeID, or
          * concurrently on two nodes with each others' nodeID.
          * 
          * @param nodeID the identifier of the node to connect.
@@ -383,7 +384,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
          */
-        CO_API bool _connect( NodePtr node, ConnectionPtr connection );
+        CO_API bool connect( NodePtr node, ConnectionPtr connection );
 
         /** Notify remote node disconnection */
         virtual void notifyDisconnect( NodePtr node ) { }
@@ -402,8 +403,11 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
+
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
         uint32_t _removeListenerNB( ConnectionPtr connection );
+        uint32_t _connect( NodePtr node );
+        uint32_t _connect( NodePtr node, ConnectionPtr connection );
 
         void _runReceiverThread();
         void   _handleConnect();

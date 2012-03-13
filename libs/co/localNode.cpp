@@ -37,7 +37,9 @@
 #include <co/base/lockable.h>
 #include <co/base/log.h>
 #include <co/base/requestHandler.h>
+#include <co/base/rng.h>
 #include <co/base/scopedMutex.h>
+#include <co/base/sleep.h>
 #include <co/base/spinLock.h>
 #include <co/base/types.h>   
 
@@ -471,7 +473,7 @@ void LocalNode::_cleanup()
     while( !connections.empty( ))
     {
         ConnectionPtr connection = connections.back();
-        NodePtr       node       = _impl->connectionNodes[ connection ];
+        NodePtr node = _impl->connectionNodes[ connection ];
 
         if( node.isValid( ))
         {
@@ -491,7 +493,7 @@ void LocalNode::_cleanup()
         EQINFO << _impl->connectionNodes.size() << " open connections during cleanup"
                << std::endl;
 #ifndef NDEBUG
-    for( ConnectionNodeHash::const_iterator i = _impl->connectionNodes.begin();
+    for( ConnectionNodeHashCIter i = _impl->connectionNodes.begin();
          i != _impl->connectionNodes.end(); ++i )
     {
         NodePtr node = i->second;
@@ -783,15 +785,35 @@ void LocalNode::releaseSendToken( SendToken& node )
 //----------------------------------------------------------------------
 // Connecting a node
 //----------------------------------------------------------------------
+namespace
+{
+enum ConnectResult
+{
+    CONNECT_OK,
+    CONNECT_TRY_AGAIN,
+    CONNECT_BAD_STATE,
+    CONNECT_TIMEOUT,
+    CONNECT_UNREACHABLE
+};
+}
+
 NodePtr LocalNode::connect( const NodeID& nodeID )
 {
     EQASSERT( nodeID != NodeID::ZERO );
     EQASSERT( _state == STATE_LISTENING );
 
+    // Make sure that only one connection request based on the node identifier
+    // is pending at a given time. Otherwise a node with the same id might be
+    // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
+    // mutex is to register connecting nodes with this local node, and handle
+    // all cases correctly, which is far more complex. Node connections only
+    // happen a lot during initialization, and are therefore not time-critical.
+    base::ScopedWrite mutex( _connectMutex );
+
     Nodes nodes;
     getNodes( nodes );
 
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr peer = *i;
         if( peer->getNodeID() == nodeID && peer->isConnected( )) // early out
@@ -799,12 +821,21 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     }
 
     EQINFO << "Connecting node " << nodeID << std::endl;
-    for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
+    for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
+    {
+        NodePtr node = _connect( nodeID, *i );
+        if( node )
+            return node;
+    }
+
+    // check again if node connected by itself by now
+    nodes.clear();
+    getNodes( nodes );
+    for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
         NodePtr peer = *i;
-        NodePtr node = _connect( nodeID, peer );
-        if( node.isValid( ))
-            return node;
+        if( peer->getNodeID() == nodeID && peer->isConnected( ))
+            return peer;
     }
 
     EQWARN << "Node " << nodeID << " connection failed" << std::endl;
@@ -817,14 +848,6 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
     EQASSERT( nodeID != NodeID::ZERO );
 
     NodePtr node;
-
-    // Make sure that only one connection request based on the node identifier
-    // is pending at a given time. Otherwise a node with the same id might be
-    // instantiated twice in _cmdGetNodeDataReply(). The alternative to this
-    // mutex is to register connecting nodes with this local node, and handle
-    // all cases correctly, which is far more complex. Node connections only
-    // happen a lot during initialization, and are therefore not time-critical.
-    base::ScopedWrite mutex( _impl->connectLock );
     {
         base::ScopedMutex< base::SpinLock > mutexNodes( _impl->nodes ); 
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
@@ -832,7 +855,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
             node = i->second;
     }
 
-    if( node.isValid( ))
+    if( node )
     {
         EQASSERT( node->isConnected( ));
         if( !node->isConnected( ))
@@ -863,19 +886,34 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
     if( node->isConnected( ))
         return node;
 
-    if( connect( node ))
-        return node;
-
+    size_t tries = 10;
+    while( --tries )
     {
-        base::ScopedMutex< base::SpinLock > mutexNodes( _impl->nodes );
-        // connect failed - maybe simultaneous connect from peer?
+        switch( _connect( node ))
+        {
+          case CONNECT_OK:
+              return node;
+          case CONNECT_TRY_AGAIN:
+          {
+              base::RNG rng;
+              base::sleep( rng.get< uint8_t >( )); // collision avoidance
+              break;
+          }
+          case CONNECT_BAD_STATE:
+              EQWARN << "Internal connect error" << std::endl;
+              // no break;
+          case CONNECT_TIMEOUT:
+              return 0;
+
+          case CONNECT_UNREACHABLE:
+              break; // maybe peer talks to us
+        }
+
+        base::ScopedFastRead mutexNodes( _nodes );
+        // connect failed - check for simultaneous connect from peer
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
-        {
             node = i->second;
-            if( !node->isConnected( ))
-                connect( node );
-        }
     }
 
     return node->isConnected() ? node : 0;
@@ -883,9 +921,16 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
 bool LocalNode::connect( NodePtr node )
 {
+    if( _connect( node ) == CONNECT_OK )
+        return true;
+    return false;
+}
+
+uint32_t LocalNode::_connect( NodePtr node )
+{
     EQASSERTINFO( _state == STATE_LISTENING, _state );
     if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
-        return true;
+        return CONNECT_OK;
 
     EQASSERT( node->_state == STATE_CLOSED );
     EQINFO << "Connecting " << node << std::endl;
@@ -905,18 +950,27 @@ bool LocalNode::connect( NodePtr node )
 
         return _connect( node, connection );
     }
+
+    EQWARN << "Node unreachable, all connections failed to connect" <<std::endl;
+    return CONNECT_UNREACHABLE;
+}
+
+bool LocalNode::connect( NodePtr node, ConnectionPtr connection )
+{
+    if( _connect( node, connection ) == CONNECT_OK )
+        return true;
     return false;
 }
 
-bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
+uint32_t LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 {
     EQASSERT( connection.isValid( ));
     EQASSERT( node->getNodeID() != getNodeID( ));
 
-    if( !node.isValid() || _state != STATE_LISTENING ||
+    if( !node || _state != STATE_LISTENING ||
         !connection->isConnected() || node->_state != STATE_CLOSED )
     {
-        return false;
+        return CONNECT_BAD_STATE;
     }
 
     _addConnection( connection );
@@ -929,22 +983,22 @@ bool LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     bool connected = false;
     if( !waitRequest( packet.requestID, connected, 10000 /*ms*/ ))
     {
-        EQWARN << "Node connection handshake timeout - peer not a Collage node?"
-               << std::endl;
-        return false;
+        EQWARN << "Node connection handshake timeout - " << node
+               << " not a Collage node?" << std::endl;
+        return CONNECT_TIMEOUT;
     }
     if( !connected )
-        return false;
+        return CONNECT_TRY_AGAIN;
 
     EQASSERT( node->_id != NodeID::ZERO );
     EQASSERTINFO( node->_id != _id, _id );
     EQINFO << node << " connected to " << *(Node*)this << std::endl;
-    return true;
+    return CONNECT_OK;
 }
 
 NodePtr LocalNode::getNode( const NodeID& id ) const
 {
-    base::ScopedMutex< base::SpinLock > mutex( _impl->nodes );
+    base::ScopedFastRead mutex( _impl->nodes );
     NodeHash::const_iterator i = _impl->nodes->find( id );
     if( i == _impl->nodes->end( ))
         return 0;
@@ -954,12 +1008,12 @@ NodePtr LocalNode::getNode( const NodeID& id ) const
 
 void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 {
-    base::ScopedMutex< base::SpinLock > mutex( _impl->nodes );
-    for( NodeHash::const_iterator i = _impl->nodes->begin();
-         i != _impl->nodes->end(); ++i )
+    base::ScopedFastRead mutex( _impl->nodes );
+    for( NodeHashCIter i = _impl->nodes->begin(); i != _impl->nodes->end(); ++i )
     {
-        EQASSERT( i->second->isConnected( ));
-        if( addSelf || i->second != this )
+        NodePtr node = i->second;
+        EQASSERTINFO( node->isConnected(), node );
+        if( node->isConnected() && ( addSelf || node != this ))
             nodes.push_back( i->second );
     }
 }
@@ -1108,7 +1162,6 @@ void LocalNode::_handleDisconnect()
         if( node->_outgoing == connection )
         {
             _impl->objectStore->removeInstanceData( node->_id );
-            _impl->connectionNodes.erase( i );
             node->_state    = STATE_CLOSED;
             node->_outgoing = 0;
 
@@ -1118,9 +1171,10 @@ void LocalNode::_handleDisconnect()
             node->_outMulticast = 0;
             node->_multicasts.clear();
 
-            EQINFO << node << " disconnected from " << *this << std::endl;
-            base::ScopedMutex< base::SpinLock > mutex( _impl->nodes );
+            base::ScopedFastWrite mutex( _impl->nodes );
+            _impl->connectionNodes.erase( i );
             _impl->nodes->erase( node->_id );
+            EQINFO << node << " disconnected from " << *this << std::endl;
         }
         else
         {
@@ -1153,10 +1207,10 @@ void LocalNode::_handleDisconnect()
 bool LocalNode::_handleData()
 {
     ConnectionPtr connection = _impl->incoming.getConnection();
-    EQASSERT( connection.isValid( ));
+    EQASSERT( connection );
 
     NodePtr node;
-    ConnectionNodeHash::const_iterator i = _impl->connectionNodes.find( connection );
+    ConnectionNodeHashCIter i = _impl->connectionNodes.find( connection );
     if( i != _impl->connectionNodes.end( ))
         node = i->second;
     EQASSERTINFO( !node || // unconnected node
@@ -1372,7 +1426,7 @@ bool LocalNode::_cmdConnect( Command& command )
     NodePtr remoteNode;
 
     // No locking needed, only recv thread modifies
-    NodeHash::const_iterator i = _impl->nodes->find( nodeID );
+    NodeHashCIter i = _impl->nodes->find( nodeID );
     if( i != _impl->nodes->end( ))
     {
         remoteNode = i->second;
@@ -1384,7 +1438,7 @@ bool LocalNode::_cmdConnect( Command& command )
 
             // refuse connection
             NodeConnectReplyPacket reply( packet );
-            connection->send( reply, serialize( ));
+            connection->send( reply );
 
             // NOTE: There is no close() here. The reply packet above has to be
             // received by the peer first, before closing the connection.
@@ -1407,9 +1461,9 @@ bool LocalNode::_cmdConnect( Command& command )
     remoteNode->_outgoing = connection;
     remoteNode->_state    = STATE_CONNECTED;
     
-    _impl->connectionNodes[ connection ] = remoteNode;
     {
         base::ScopedFastWrite mutex( _impl->nodes );
+        _impl->connectionNodes[ connection ] = remoteNode;
         _impl->nodes.data[ remoteNode->_id ] = remoteNode;
     }
     EQVERB << "Added node " << nodeID << std::endl;
@@ -1428,74 +1482,87 @@ bool LocalNode::_cmdConnectReply( Command& command )
     EQASSERT( !command.getNode( ));
     EQASSERT( _impl->inReceiverThread( ));
 
-    const NodeConnectReplyPacket* packet =
-        command.get< NodeConnectReplyPacket >();
+    const NodeConnectReplyPacket* packet =command.get<NodeConnectReplyPacket>();
     ConnectionPtr connection = _impl->incoming.getConnection();
-
     const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect reply " << packet << std::endl;
     EQASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
-    NodePtr remoteNode;
+    // connection refused
+    if( nodeID == NodeID::ZERO )
+    {
+        EQINFO << "Connection refused, node already connected by peer"
+               << std::endl;
+
+        _removeConnection( connection );
+        serveRequest( packet->requestID, false );
+        return true;
+    }
 
     // No locking needed, only recv thread modifies
     NodeHash::const_iterator i = _impl->nodes->find( nodeID );
+    NodePtr peer;
     if( i != _impl->nodes->end( ))
-        remoteNode = i->second;
+        peer = i->second;
 
-    if( nodeID == NodeID::ZERO || // connection refused
-        // Node exists, probably simultaneous connect
-        ( remoteNode.isValid() && remoteNode->isConnected( )))
+    if( peer && peer->isConnected( )) // simultaneous connect
     {
-        EQINFO << "ignoring connect reply, node already connected" << std::endl;
+        EQINFO << "Closing simultaneous connection from " << peer << " on "
+               << connection << std::endl;
         _removeConnection( connection );
-        
-        if( packet->requestID != EQ_UNDEFINED_UINT32 )
-            serveRequest( packet->requestID, false );
-        
+        connection = peer->getConnection(); // save actual connection for removal
+
+        peer->_state = STATE_CLOSED;
+        peer->_outgoing = 0;
+        {
+            base::ScopedFastWrite mutex( _nodes );
+            EQASSERTINFO( _connectionNodes.find( connection ) !=
+                          _connectionNodes.end(), connection );
+            _connectionNodes.erase( connection );
+            _nodes->erase( nodeID );
+        }
+        serveRequest( packet->requestID, false );
         return true;
     }
 
     // create and add node
-    if( !remoteNode )
+    if( !peer )
     {
         if( packet->requestID != EQ_UNDEFINED_UINT32 )
         {
             void* ptr = getRequestData( packet->requestID );
             EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
-            remoteNode = static_cast< Node* >( ptr );
+            peer = static_cast< Node* >( ptr );
         }
         else
-            remoteNode = createNode( packet->nodeType );
+            peer = createNode( packet->nodeType );
     }
 
-    EQASSERT( remoteNode->getType() == packet->nodeType );
-    EQASSERT( remoteNode->_state == STATE_CLOSED );
+    EQASSERT( peer->getType() == packet->nodeType );
+    EQASSERT( peer->_state == STATE_CLOSED );
 
     std::string data = packet->nodeData;
-    if( !remoteNode->deserialize( data ))
+    if( !peer->deserialize( data ))
         EQWARN << "Error during node initialization" << std::endl;
     EQASSERT( data.empty( ));
-    EQASSERT( remoteNode->_id == nodeID );
+    EQASSERT( peer->_id == nodeID );
 
-    remoteNode->_outgoing = connection;
-    remoteNode->_state    = STATE_CONNECTED;
+    peer->_outgoing = connection;
+    peer->_state    = STATE_CONNECTED;
     
-    _impl->connectionNodes[ connection ] = remoteNode;
     {
         base::ScopedFastWrite mutex( _impl->nodes );
-        _impl->nodes.data[ remoteNode->_id ] = remoteNode;
+        _impl->connectionNodes[ connection ] = peer;
+        _impl->nodes.data[ remoteNode->_id ] = peer;
     }
     EQVERB << "Added node " << nodeID << std::endl;
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
-        serveRequest( packet->requestID, true );
+    serveRequest( packet->requestID, true );
 
     NodeConnectAckPacket ack;
-    remoteNode->send( ack );
-
-    _connectMulticast( remoteNode );
+    peer->send( ack );
+    _connectMulticast( peer );
     return true;
 }
 
@@ -1619,11 +1686,12 @@ bool LocalNode::_cmdDisconnect( Command& command )
 
         _removeConnection( connection );
 
-        EQASSERT( _impl->connectionNodes.find( connection )!=_impl->connectionNodes.end( ));
+        EQASSERT( _impl->connectionNodes.find( connection ) !=
+                  _impl->connectionNodes.end( ));
         _impl->objectStore->removeInstanceData( node->_id );
-        _impl->connectionNodes.erase( connection );
         {
-            base::ScopedMutex< base::SpinLock > mutex( _impl->nodes );
+            base::ScopedFastWrite mutex( _impl->nodes );
+            _impl->connectionNodes.erase( connection );
             _impl->nodes->erase( node->_id );
         }
 

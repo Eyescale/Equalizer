@@ -318,7 +318,8 @@ ConnectionPtr RSPConnection::acceptSync()
     _children.push_back( newConnection );
     _sendDatagramCountNode();
 
-    EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
+    EQINFO << _id << " accepted RSP connection " << newConnection->_id
+           << std::endl;
 
     if( !_childrenConnecting.empty() )
         _event->set();
