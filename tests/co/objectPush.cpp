@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,8 +17,6 @@
 
 #include <test.h>
 
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
@@ -27,6 +25,9 @@
 #include <co/init.h>
 #include <co/node.h>
 #include <co/object.h>
+#include <co/base/clock.h>
+#include <co/base/monitor.h>
+#include <co/base/rng.h>
 
 #include <iostream>
 
@@ -98,12 +99,15 @@ int main( int argc, char **argv )
     co::init( argc, argv );
     co::Global::setObjectBufferSize( 600 );
 
+    co::base::RNG rng;
+    const uint16_t port = (rng.get<uint16_t>() % 60000) + 1024;
+
     co::base::RefPtr< Server > server = new Server;
     co::ConnectionDescriptionPtr connDesc = 
         new co::ConnectionDescription;
     
     connDesc->type = co::CONNECTIONTYPE_TCPIP;
-    connDesc->port = 4242;
+    connDesc->port = port;
     connDesc->setHostname( "localhost" );
 
     server->addConnectionDescription( connDesc );
