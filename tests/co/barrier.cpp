@@ -24,10 +24,12 @@
 #include <co/init.h>
 #include <co/node.h>
 #include <co/base/monitor.h>
+#include <co/base/rng.h>
 
 #include <iostream>
 
 co::base::Monitor< co::Barrier* > _barrier( 0 );
+static uint16_t _port = 0;
 
 class NodeThread : public co::base::Thread
 {
@@ -39,7 +41,7 @@ public:
             co::ConnectionDescriptionPtr description = 
                 new co::ConnectionDescription;
             description->type = co::CONNECTIONTYPE_TCPIP;
-            description->port = _master ? 4242 : 4243;
+            description->port = _master ? _port : _port+1;
 
             co::LocalNodePtr node = new co::LocalNode;
             node->addConnectionDescription( description );
@@ -64,7 +66,7 @@ public:
                 co::NodePtr server = new co::Node;
                 co::ConnectionDescriptionPtr serverDesc = 
                     new co::ConnectionDescription;
-                serverDesc->port = 4242;
+                serverDesc->port = _port;
                 server->addConnectionDescription( serverDesc );
                 TEST( node->connect( server ));
 
@@ -85,6 +87,8 @@ private:
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
+    co::base::RNG rng;
+    _port =(rng.get<uint16_t>() % 60000) + 1024;
 
     NodeThread server( true );
     NodeThread node( false );
@@ -97,4 +101,3 @@ int main( int argc, char **argv )
     co::exit();
     return EXIT_SUCCESS;
 }
-

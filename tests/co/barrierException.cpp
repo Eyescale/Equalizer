@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011, Cedric Stalder <cedric.stalder@gmail.com>> 
- *               2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -27,6 +27,7 @@
 #include <co/base/global.h>
 #include <co/exception.h>
 #include <co/base/sleep.h>
+#include <co/base/rng.h>
 #include <co/base/uuid.h>
 
 #include <iostream>
@@ -37,15 +38,14 @@ bool testNormal();
 bool testException();
 bool testSleep();
 
-class NodeThread;
-typedef std::vector< NodeThread* > NodeThreads;  
+static uint16_t _serverPort = 0;
 
 class BarrierThread : public co::base::Thread
 {
 public:
-    BarrierThread(  const uint32_t nOps, const uint32_t port ) 
+    BarrierThread( const uint32_t nOps, const uint32_t port ) 
         : _nOps( nOps )
-        , _countException( 0 )  
+        , _numExceptions( 0 )  
         , _node( new co::LocalNode )
     {
         co::ConnectionDescriptionPtr description = 
@@ -59,7 +59,7 @@ public:
 
 protected:
     const uint32_t   _nOps;
-    uint32_t         _countException;
+    uint32_t         _numExceptions;
     co::LocalNodePtr _node;
 };
 
@@ -67,7 +67,7 @@ class ServerThread : public BarrierThread
 {
 public:
     ServerThread( const uint32_t nbNode, const uint32_t nOps )
-        : BarrierThread( nOps, 4242 )
+        : BarrierThread( nOps, _serverPort )
     {
         _barrier = new co::Barrier( _node, nbNode + 1 );
         _node->registerObject( _barrier );
@@ -85,7 +85,7 @@ public:
         delete _barrier;
     }
 
-    uint32_t getNbException(){ return _countException; };
+    uint32_t getNumExceptions(){ return _numExceptions; };
 
 protected:
     virtual void run()
@@ -101,7 +101,7 @@ protected:
             catch( co::Exception& e )
             {
                 TEST( e.getType() == co::Exception::TIMEOUT_BARRIER );
-                _countException++;
+                ++_numExceptions;
             }
         }
     }
@@ -112,10 +112,8 @@ private:
 class NodeThread : public BarrierThread
 {
 public:
-    NodeThread( const co::base::UUID& barrierID, 
-                const uint32_t port,
-                const uint32_t nOps,
-                const uint32_t timeToSleep )
+    NodeThread( const co::base::UUID& barrierID, const uint32_t port,
+                const uint32_t nOps, const uint32_t timeToSleep )
          : BarrierThread( nOps, port ) 
          , _timeToSleep( timeToSleep )
          , _barrierID( barrierID ) 
@@ -123,7 +121,7 @@ public:
         _server = new co::Node;
         co::ConnectionDescriptionPtr serverDesc = 
             new co::ConnectionDescription;
-        serverDesc->port = 4242;
+        serverDesc->port = _serverPort;
         _server->addConnectionDescription( serverDesc );
         TEST( _node->connect( _server ));
 
@@ -139,7 +137,7 @@ public:
         _server = 0;
     }
     
-    uint32_t getNbException(){ return _countException; };
+    uint32_t getNumExceptions(){ return _numExceptions; };
 
 protected:
     virtual void run()
@@ -157,7 +155,7 @@ protected:
             catch( co::Exception& e )
             {
                 TEST( e.getType() == co::Exception::TIMEOUT_BARRIER );
-                _countException++;
+                ++_numExceptions;
             }
         }
     }
@@ -169,9 +167,15 @@ private:
     co::Barrier barrier;
 };
 
+typedef std::vector< NodeThread* > NodeThreads;  
+
+
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
+    static co::base::RNG rng;
+    _serverPort = (rng.get<uint16_t>() % 60000) + 1024;
+
     TEST( testNormal() );
     TEST( testException() );    
     TEST( testSleep() );    
@@ -183,8 +187,8 @@ int main( int argc, char **argv )
 /* the test perform no timeout */
 bool testNormal()
 {
-    co::base::Global::setIAttribute( 
-                co::base::Global::IATTR_TIMEOUT_DEFAULT, 10000  );
+    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
+                                     10000 );
     NodeThreads nodeThreads;
     nodeThreads.resize(NSLAVES);
  
@@ -193,7 +197,8 @@ bool testNormal()
 
     for( uint32_t i = 0; i < NSLAVES; i++ )
     {
-        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243+i, 1, 0 );
+        nodeThreads[i] = new NodeThread( server.getBarrierID(), _serverPort+i+1,
+                                         1, 0 );
         nodeThreads[i]->start();
     }
     
@@ -202,18 +207,19 @@ bool testNormal()
     for( uint32_t i = 0; i < NSLAVES; i++ )
     {
         nodeThreads[i]->join();
-        TEST( nodeThreads[i]->getNbException() == 0 );    
+        TEST( nodeThreads[i]->getNumExceptions() == 0 );    
         delete nodeThreads[i];
     }
-    TEST( server.getNbException() == 0 );
+
+    TEST( server.getNumExceptions() == 0 );
     return true;
 }
 
 /* the test perform no timeout */
 bool testException()
 {
-    co::base::Global::setIAttribute( 
-                           co::base::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
+    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
+                                     2000 );
     NodeThreads nodeThreads;
     nodeThreads.resize( NSLAVES );
 
@@ -222,16 +228,17 @@ bool testException()
 
     for( uint32_t i = 0; i < NSLAVES - 1; i++ )
     {
-        nodeThreads[i] = new NodeThread( server.getBarrierID(), 4243+i, 1, 0 );
+        nodeThreads[i] = new NodeThread( server.getBarrierID(), _serverPort+i+1,
+                                         1, 0 );
         nodeThreads[i]->start();
     }
     
     TEST( server.join() );
-    TEST( server.getNbException() == 1 );
+    TEST( server.getNumExceptions() == 1 );
     for( uint32_t i = 0; i < NSLAVES - 1; i++ )
     {
         TEST( nodeThreads[i]->join() );
-        TEST( nodeThreads[i]->getNbException() == 1 );
+        TEST( nodeThreads[i]->getNumExceptions() == 1 );
         delete nodeThreads[i];
     }
     
@@ -248,19 +255,21 @@ bool testSleep()
     ServerThread server( 5, 1 ); 
     server.start();
 
-    nodeThreads[0] = new NodeThread( server.getBarrierID(), 4243, 5, 1000 );
+    uint16_t port = _serverPort;
+
+    nodeThreads[0] = new NodeThread( server.getBarrierID(), ++port, 5, 1000 );
     nodeThreads[0]->start();
     
-    nodeThreads[1] = new NodeThread( server.getBarrierID(), 4244, 5, 1500 );
+    nodeThreads[1] = new NodeThread( server.getBarrierID(), ++port, 5, 1500 );
     nodeThreads[1]->start();
     
-    nodeThreads[2] = new NodeThread( server.getBarrierID(), 4245, 5, 2000 );
+    nodeThreads[2] = new NodeThread( server.getBarrierID(), ++port, 5, 2000 );
     nodeThreads[2]->start();
     
-    nodeThreads[3] = new NodeThread( server.getBarrierID(), 4246, 5, 2500 );
+    nodeThreads[3] = new NodeThread( server.getBarrierID(), ++port, 5, 2500 );
     nodeThreads[3]->start();
 
-    nodeThreads[4] = new NodeThread( server.getBarrierID(), 4247, 5, 3000 );
+    nodeThreads[4] = new NodeThread( server.getBarrierID(), ++port, 5, 3000 );
     nodeThreads[4]->start();
     
     TEST( server.join() );
@@ -271,10 +280,9 @@ bool testSleep()
     TEST( nodeThreads[3]->join() );
     TEST( nodeThreads[4]->join() );
     
-    // potential issues: if the first nodeThread is deleted before the
-    // the second nodeThread, the barrier send unblock will failed because
-    // it is trying to send to an unexisting connection node. 
-    // this situation can be exist on the normal equalizer running ?
+    // Bug: if the first nodeThread is deleted before the the second nodeThread,
+    // the barrier send unblock will fail because it is trying to send to an
+    // unexisting connection node. Can this happen in Equalizer ?
     delete nodeThreads[0];
     delete nodeThreads[1];
     delete nodeThreads[2];
