@@ -25,6 +25,8 @@
 #include <co/dataIStream.h>
 
 #include <boost/archive/detail/common_iarchive.hpp>
+#include <boost/archive/detail/register_archive.hpp>
+#include <boost/archive/shared_ptr_helper.hpp>
 
 namespace co
 {
@@ -33,7 +35,8 @@ namespace co
      * co::DataIStream.
      */
     class DataIStreamArchive
-                    : public boost::archive::detail::common_iarchive<DataIStreamArchive>
+            : public boost::archive::detail::common_iarchive<DataIStreamArchive>
+            , public boost::archive::detail::shared_ptr_helper
     {
     public:
         CO_API DataIStreamArchive( DataIStream& stream );
@@ -53,6 +56,8 @@ namespace co
         DataIStream& _stream;
     };
 }
+
+BOOST_SERIALIZATION_REGISTER_ARCHIVE(co::DataIStreamArchive)
 
 #endif //CO_USE_BOOST
 
