@@ -893,7 +893,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
             const InstanceCache::Data& cached = (*_instanceCache)[ id ];
             EQASSERT( cached != InstanceCache::Data::NONE );
             EQASSERT( !cached.versions.empty( ));
-            
+
             object->addInstanceDatas( cached.versions, packet->version );
             EQCHECK( _instanceCache->release( id, 2 ));
         }
