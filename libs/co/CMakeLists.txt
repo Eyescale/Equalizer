@@ -49,8 +49,6 @@ if(MSVC)
 endif(MSVC)
 
 if(Boost_FOUND)
-  list(APPEND CO_PUBLIC_HEADERS dataIStreamArchive.h dataOStreamArchive.h)
-  list(APPEND CO_HEADERS dataIStreamArchive.h dataOStreamArchive.h)
   list(APPEND CO_SOURCES dataIStreamArchive.cpp dataOStreamArchive.cpp rspConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
   if(NOT Boost_USE_STATIC_LIBS)

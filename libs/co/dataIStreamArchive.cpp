@@ -17,8 +17,6 @@
 
 #include "dataIStreamArchive.h"
 
-#ifdef CO_USE_BOOST
-
 #include <boost/archive/detail/archive_serializer_map.hpp>
 #include <boost/archive/impl/archive_serializer_map.ipp>
 
@@ -34,7 +32,7 @@ namespace co
 {
 
 DataIStreamArchive::DataIStreamArchive( DataIStream& stream )
-: _stream( stream )
+    : _stream( stream )
 {
 }
 
@@ -44,5 +42,3 @@ void DataIStreamArchive::load_binary( void* data, std::size_t size )
 }
 
 }
-
-#endif //CO_USE_BOOST

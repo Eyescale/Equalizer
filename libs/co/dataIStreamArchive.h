@@ -25,8 +25,6 @@
 #include <co/dataIStream.h>
 
 #include <boost/archive/detail/common_iarchive.hpp>
-namespace ba = boost::archive;
-
 
 namespace co
 {
@@ -35,7 +33,7 @@ namespace co
      * co::DataIStream.
      */
     class DataIStreamArchive
-                    : public ba::detail::common_iarchive<DataIStreamArchive>
+                    : public boost::archive::detail::common_iarchive<DataIStreamArchive>
     {
     public:
         CO_API DataIStreamArchive( DataIStream& stream );
@@ -44,7 +42,7 @@ namespace co
         CO_API void load_binary( void* data, std::size_t size );
 
     private:
-        friend class ba::load_access;
+        friend class boost::archive::load_access;
 
         template<class T>
         void load( T& t )

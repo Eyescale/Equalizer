@@ -25,8 +25,6 @@
 #include <co/dataOStream.h>
 
 #include <boost/archive/detail/common_oarchive.hpp>
-namespace ba = boost::archive;
-
 
 namespace co
 {
@@ -35,7 +33,7 @@ namespace co
      * co::DataOStream.
      */
     class DataOStreamArchive
-                    : public ba::detail::common_oarchive<DataOStreamArchive>
+                    : public boost::archive::detail::common_oarchive<DataOStreamArchive>
     {
     public:
         CO_API DataOStreamArchive( DataOStream& stream );
@@ -44,7 +42,7 @@ namespace co
         CO_API void save_binary( void* data, std::size_t size );
 
     private:
-        friend class ba::save_access;
+        friend class boost::archive::save_access;
 
         template<class T>
         void save( T& t )
