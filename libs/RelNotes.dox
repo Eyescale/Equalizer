@@ -209,6 +209,8 @@
     Race condition with direct send and higher number of nodes</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
     netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/96">96</a>:
+    race condition with simultaneous node connect</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/97">97</a>:
     Object::notifyAttach is not always called</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/98">98</a>: RSP
