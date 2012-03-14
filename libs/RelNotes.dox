@@ -35,7 +35,7 @@
   tile compounds.
 </p>
 <p>
-  Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
+  Equalizer 1.2 is a feature release extending the 1.0 API, distilling seven
   years of development and decades of experience into a feature-rich,
   high-performance and mature parallel rendering framework and an
   object-oriented high-level network library. It is intended for all application
@@ -66,8 +66,8 @@
     network library, a cross-platform C++ library for building heterogenous,
     distributed applications.</li>
   <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
-    both active and passive stereo rendering, as well as head tracking and
-    head-mounted displays used in immersive Virtual Reality installations.</li>
+    stereo rendering head tracking, head-mounted displays and other advanced
+    features for immersive Virtual Reality installations.</li>
 </ul>
 
 <a name="new"></a>
