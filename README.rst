@@ -32,7 +32,7 @@ scalable OpenGL applications. This release introduces major new features,
 most notably automatic configuration, the Sequel library, runtime reliability
 and tile compounds.
 
-Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
+Equalizer 1.2 is a feature release extending the 1.0 API, distilling seven
 years of development and decades of experience into a feature-rich, high-
 performance and mature parallel rendering framework and an object-oriented
 high-level network library. It is intended for all application developers
@@ -60,8 +60,8 @@ can be found on the Equalizer website.
     network library, a cross-platform C++ library for building heterogenous,
     distributed applications.
 -   **Support for Stereo and Immersive Environments:** Equalizer supports
-    both active and passive stereo rendering, as well as head tracking and
-    head-mounted displays used in immersive Virtual Reality installations.
+    stereo rendering head tracking, head-mounted displays and other advanced
+    features for immersive Virtual Reality installations.
 
 
 2. New in this release
@@ -179,6 +179,10 @@ following:
 -   `88`_: draw_sync thread model causes full synchronization
 -   `90`_: Race condition with direct send and higher number of nodes
 -   `58`_: netperf/RDMA exit deadlock
+<<<<<<< HEAD
+=======
+-   `96`_: race condition with simultaneous node connect
+>>>>>>> 1.2
 -   `97`_: Object::notifyAttach is not always called
 -   `98`_: RSP exit deadloc
 -   `100`_: CommandFunc crash with multiple inheritance and MSVC
@@ -305,6 +309,10 @@ information.
 .. _88: https://github.com/Eyescale/Equalizer/issues/88
 .. _90: https://github.com/Eyescale/Equalizer/issues/90
 .. _58: https://github.com/Eyescale/Equalizer/issues/58
+<<<<<<< HEAD
+=======
+.. _96: https://github.com/Eyescale/Equalizer/issues/96
+>>>>>>> 1.2
 .. _97: https://github.com/Eyescale/Equalizer/issues/97
 .. _98: https://github.com/Eyescale/Equalizer/issues/98
 .. _100: https://github.com/Eyescale/Equalizer/issues/100
