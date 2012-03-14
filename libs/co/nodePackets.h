@@ -63,7 +63,7 @@ namespace co
                 nodeData[0] = '\0';
             }
 
-        NodeID   nodeID;
+        NodeID nodeID;
         const uint32_t requestID;
         uint32_t nodeType;
         EQ_ALIGN8( char nodeData[8] );
