@@ -66,7 +66,7 @@ foreach(FILE ${TEST_FILES})
       target_link_libraries(${NAME} lib_Sequel_shared)
     endif()
 
-    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu_.*")
+    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu")
       get_target_property(EXECUTABLE ${NAME} LOCATION)
       STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
              EXECUTABLE "${EXECUTABLE}")

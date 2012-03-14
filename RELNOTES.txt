@@ -170,10 +170,7 @@
      * 90: Race condition with direct send and higher number
        of nodes
      * 58: netperf/RDMA exit deadlock
-<<<<<<< HEAD
-=======
      * 96: race condition with simultaneous node connect
->>>>>>> 1.2
      * 97: Object::notifyAttach is not always called
      * 98: RSP exit deadloc
      * 100: CommandFunc crash with multiple inheritance and
