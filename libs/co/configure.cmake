@@ -20,6 +20,9 @@ endif(NOT EQ_BIG_ENDIAN)
 # if Boost is considered as a required dep, this macro should be obsolete
 if(Boost_FOUND)
   list(APPEND COLLAGE_DEFINES CO_USE_BOOST)
+  if(CO_USE_BOOST_SERIALIZATION)
+    list(APPEND COLLAGE_DEFINES CO_USE_BOOST_SERIALIZATION)
+  endif()
 endif(Boost_FOUND)
 
 if(CO_OPENMP_USED)

@@ -191,7 +191,7 @@ namespace base
         const T* p = rp.get();
         if( p )
         {
-            os << disableFlush << "RP[" << *p << "]";
+            os << disableFlush << "RP[" << p->getRefCount() << ":" << *p << "]";
 #ifdef CO_REFERENCED_DEBUG
             os << std::endl;
             p->printHolders( os );
@@ -199,7 +199,7 @@ namespace base
             os << enableFlush;
         }
         else
-            os << "RP[ NULL ]";
+            os << "RP[ 0:NULL ]";
 
         return os;
     }

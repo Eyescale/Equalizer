@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,6 +25,8 @@
 #include "rng.h"
 #include "thread.h"
 
+#include <time.h>
+
 namespace co
 {
 namespace base
@@ -47,8 +49,15 @@ bool init( const int argc, char** argv )
         return true;
 
     Log::instance().setThreadName( "Main" );
+
+    const time_t now = ::time(0);
+    struct tm gmt;
+    char gmtString[32];
+    ::gmtime_r( &now, &gmt );
+    ::asctime_r( &gmt, gmtString );
+
     EQINFO << "Log level " << Log::getLogLevelString() << " topics " 
-           << Log::topics << std::endl;
+           << Log::topics << " date " << gmtString << std::endl;
 
     if( !RNG::_init( ))
     {

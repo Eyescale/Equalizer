@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer
-#               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force CMake rerun: 2
+# Change this number when adding tests to force a CMake run: 6
 
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)
@@ -44,9 +44,12 @@ foreach(FILE ${TEST_FILES})
   endif()
 
   if(THIS_BUILD)
-    string(REGEX REPLACE "[./]" "_" NAME ${FILE})
+    string(REGEX REPLACE ".cpp" "" NAME ${FILE})
+    string(REGEX REPLACE "[./]" "_" NAME ${NAME})
     source_group(\\ FILES ${FILE})
     add_executable(${NAME} ${FILE})
+    set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
+
     if(${NAME} MATCHES "co_.*")
       target_link_libraries(${NAME} Collage)
     endif()
@@ -62,13 +65,12 @@ foreach(FILE ${TEST_FILES})
     if(${NAME} MATCHES "seq_.*")
       target_link_libraries(${NAME} lib_Sequel_shared)
     endif()
-    get_target_property(EXECUTABLE ${NAME} LOCATION)
-    STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
-      EXECUTABLE "${EXECUTABLE}")
 
-    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu_.*")
+    if(EQUALIZER_RUN_GPU_TESTS OR NOT ${NAME} MATCHES ".*_gpu")
+      get_target_property(EXECUTABLE ${NAME} LOCATION)
+      STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
+             EXECUTABLE "${EXECUTABLE}")
       add_test(${NAME} ${EXECUTABLE})
-      set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
     endif()
     list(APPEND ALL_TESTS ${NAME})
   endif()

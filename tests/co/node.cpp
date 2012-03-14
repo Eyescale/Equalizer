@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,25 +17,24 @@
 
 #include <test.h>
 
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/init.h>
 #include <co/node.h>
 #include <co/packets.h>
+#include <co/base/clock.h>
+#include <co/base/monitor.h>
+#include <co/base/rng.h>
 
 #include <iostream>
-
-using namespace std;
 
 namespace
 {
 
 co::base::Monitor<bool> monitor( false ); 
 
-static const string message =
+static const std::string message =
     "Don't Panic! And now some more text to make the message bigger";
 #define NMESSAGES 1000
 }
@@ -92,22 +91,24 @@ int main( int argc, char **argv )
 {
     co::init( argc, argv );
 
-    co::base::RefPtr< Server >        server   = new Server;
-    co::ConnectionDescriptionPtr connDesc = 
-        new co::ConnectionDescription;
-    
-    connDesc->type = co::CONNECTIONTYPE_TCPIP;
-    connDesc->port = 4242;
-    connDesc->setHostname( "localhost" );
+    co::base::RNG rng;
+    const uint16_t port = (rng.get<uint16_t>() % 60000) + 1024;
 
+    co::base::RefPtr< Server > server = new Server;
+    co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
+
+    connDesc->type = co::CONNECTIONTYPE_TCPIP;
+    connDesc->port = port;
+    connDesc->setHostname( "localhost" );
     server->addConnectionDescription( connDesc );
+
     TEST( server->listen( ));
 
     co::NodePtr serverProxy = new co::Node;
     serverProxy->addConnectionDescription( connDesc );
 
     connDesc = new co::ConnectionDescription;
-    connDesc->type       = co::CONNECTIONTYPE_TCPIP;
+    connDesc->type = co::CONNECTIONTYPE_TCPIP;
     connDesc->setHostname( "localhost" );
 
     co::LocalNodePtr client = new co::LocalNode;
@@ -123,9 +124,9 @@ int main( int argc, char **argv )
     const float time = clock.getTimef();
 
     const size_t size = NMESSAGES * ( packet.size + message.length() - 7 );
-    cout << "Send " << size << " bytes using " << NMESSAGES << " packets in "
-         << time << "ms" << " (" << size / 1024. * 1000.f / time << " KB/s)" 
-         << endl;
+    std::cout << "Send " << size << " bytes using " << NMESSAGES
+              << " packets in " << time << "ms" << " (" 
+              << size / 1024. * 1000.f / time << " KB/s)" << std::endl;
 
     monitor.waitEQ( true );
 

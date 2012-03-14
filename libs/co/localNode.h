@@ -20,23 +20,12 @@
 #define CO_LOCALNODE_H
 
 #include <co/node.h>            // base class
+#include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <co/base/requestHandler.h> // base class
-
-#include <co/commandCache.h>    // member
-#include <co/commandQueue.h>    // member
-#include <co/connectionSet.h>   // member
-#include <co/objectVersion.h>   // used in inline method
-#include <co/worker.h>          // member
-
-#include <co/base/clock.h>          // member
-#include <co/base/hash.h>           // member
-#include <co/base/lockable.h>       // member
-#include <co/base/spinLock.h>       // member
-#include <co/base/types.h>          // member
 
 namespace co
 {
-    class ObjectStore;
+namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
 
     /** 
      * Specialization of a local node.
@@ -121,11 +110,12 @@ namespace co
          * state is unchanged.
          *
          * This method is one-sided, that is, the node to be connected should
-         * not initiate a connection to this node at the same time.
+         * not initiate a connection to this node at the same time. For
+         * concurrent connects use the other connect() method using node
+         * identifiers.
          *
          * @param node the remote node.
          * @return true if this node was connected, false otherwise.
-         * @sa initConnect, syncConnect
          */
         CO_API bool connect( NodePtr node );
 
@@ -133,7 +123,7 @@ namespace co
          * Create and connect a node given by an identifier.
          *
          * This method is two-sided and thread-safe, that is, it can be called
-         * by mulltiple threads on the same node with the same nodeID, or
+         * by multiple threads on the same node with the same nodeID, or
          * concurrently on two nodes with each others' nodeID.
          * 
          * @param nodeID the identifier of the node to connect.
@@ -307,25 +297,17 @@ namespace co
         /** Assemble a vector of the currently connected nodes. */
         void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
-        /**
-         * Acquire a singular send token from the given node.
-         * @return The send token to release.
-         */
-        CO_API SendToken acquireSendToken( NodePtr toNode );
-        CO_API void releaseSendToken( SendToken& token );
-
         /** Return the command queue to the command thread. */
-        CommandQueue* getCommandThreadQueue()
-            { return _commandThread->getWorkerQueue(); }
+        CO_API CommandQueue* getCommandThreadQueue();
 
         /** 
          * @return true if executed from the command handler thread, false if
          *         not.
          */
-        bool inCommandThread() const  { return _commandThread->isCurrent(); }
+        CO_API bool inCommandThread() const;
 
         /** @internal */
-        int64_t getTime64(){ return _clock.getTime64(); }
+        CO_API int64_t getTime64() const;
         //@}
 
         /** @name Operations */
@@ -348,11 +330,10 @@ namespace co
          * This causes the receiver thread to redispatch all pending commands,
          * which are normally only redispatched when a new command is received.
          */
-        void flushCommands() { _incoming.interrupt(); }
+        CO_API void flushCommands();
 
         /** @internal Clone the given command. */
-        Command& cloneCommand( Command& command )
-            { return _commandCache.clone( command ); }
+        CO_API Command& cloneCommand( Command& command );
 
         /** @internal Allocate a local command from the receiver thread. */
         CO_API Command& allocCommand( const uint64_t size );
@@ -365,6 +346,13 @@ namespace co
          * @sa Command::invoke
          */
         CO_API bool dispatchCommand( Command& command );
+
+        /**
+         * Acquire a singular send token from the given node.
+         * @return The send token to release.
+         */
+        CO_API SendToken acquireSendToken( NodePtr toNode );
+        CO_API void releaseSendToken( SendToken& token );
         //@}
 
         /** @internal Ack an operation to the sender. */
@@ -380,8 +368,11 @@ namespace co
          */
         CO_API bool pingIdleNodes();
 
+        /** Set the affinity for this, the receiver and the command thread. */
+        CO_API void setAffinity( const int32_t affinity );
+
     protected:
-        /** 
+        /**  @internal
          * Connect a node proxy to this node.
          *
          * This node has to be in the listening state. The node proxy will be
@@ -392,89 +383,36 @@ namespace co
          * @param connection the connection to the remote node.
          * @return <code>true</code> if the node was connected correctly,
          *         <code>false</code> otherwise.
-         * @internal
          */
-        CO_API bool _connect( NodePtr node, ConnectionPtr connection );
+        CO_API bool connect( NodePtr node, ConnectionPtr connection );
 
         /** Notify remote node disconnection */
         virtual void notifyDisconnect( NodePtr node ) { }
 
     private:
-        typedef std::list< Command* > CommandList;
-
-        /** Commands re-scheduled for dispatch. */
-        CommandList  _pendingCommands;
-
-        /** The command 'allocator' */
-        CommandCache _commandCache;
-
-        /** true if the send token can be granted, false otherwise. */
-        bool _hasSendToken;
-        uint64_t _lastTokenTime; //!< last used time for timeout detection
-        std::deque< Command* > _sendTokenQueue; //!< pending requests
-
-        /** Manager of distributed object */
-        ObjectStore* _objectStore;
-
-        /** Needed for thread-safety during nodeID-based connect() */
-        base::Lock _connectMutex;
-    
-        /** The node for each connection. */
-        typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
-        ConnectionNodeHash _connectionNodes; // read and write: recv only
-
-        /** The connected nodes. */
-        typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
-        // r: all, w: recv
-        base::Lockable< NodeHash, base::SpinLock > _nodes; 
-
-        /** The connection set of all connections from/to this node. */
-        ConnectionSet _incoming;
-
-        /** The process-global clock. */
-        base::Clock _clock;
-    
-        /** @name Receiver management */
-        //@{
-        /** The receiver thread. */
-        class ReceiverThread : public base::Thread
-        {
-        public:
-            ReceiverThread( LocalNode* localNode ) : _localNode( localNode ){}
-            virtual bool init()
-                {
-                    setName( std::string("Rcv ") + base::className(_localNode));
-                    return _localNode->_commandThread->start();
-                }
-            virtual void run(){ _localNode->_runReceiverThread(); }
-
-        private:
-            LocalNode* const _localNode;
-        };
-        ReceiverThread* _receiverThread;
+        detail::LocalNode* const _impl;
 
         bool _connectSelf();
         void _connectMulticast( NodePtr node );
 
+        bool _startCommandThread();
+        bool _notifyCommandThreadIdle();
+        friend class detail::ReceiverThread;
+        friend class detail::CommandThread;
+
         void _cleanup();
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
+
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
         uint32_t _removeListenerNB( ConnectionPtr connection );
-
-        /** 
-         * @return <code>true</code> if executed from the command handler
-         *         thread, <code>false</code> if not.
-         */
-        bool _inReceiverThread() const { return _receiverThread->isCurrent(); }
-
-        void _receiverThreadStart() { _receiverThread->start(); }
+        uint32_t _connect( NodePtr node );
+        uint32_t _connect( NodePtr node, ConnectionPtr connection );
 
         void _runReceiverThread();
         void   _handleConnect();
         void   _handleDisconnect();
         bool   _handleData();
-        //@}
 
         friend class ObjectStore;
         template< typename T > void
@@ -484,26 +422,6 @@ namespace co
             registerCommand( command, func, destinationQueue );
         }
 
-        /**
-         * @name Command management
-         */
-        //@{
-        /** The command handler thread. */
-        class CommandThread : public Worker
-        {
-        public:
-            CommandThread( LocalNode* localNode ) : _localNode( localNode ){}
-
-        protected:
-            virtual bool init();
-            virtual bool stopRunning() { return _localNode->isClosed(); }
-            virtual bool notifyIdle();
-
-        private:
-            LocalNode* const _localNode;
-        };
-        CommandThread* _commandThread;
-
         void _dispatchCommand( Command& command );
         void   _redispatchCommands();
 
@@ -511,6 +429,7 @@ namespace co
         bool _cmdAckRequest( Command& packet );
         bool _cmdStopRcv( Command& command );
         bool _cmdStopCmd( Command& command );
+        bool _cmdSetAffinity( Command& command );
         bool _cmdConnect( Command& command );
         bool _cmdConnectReply( Command& command );
         bool _cmdConnectAck( Command& command );

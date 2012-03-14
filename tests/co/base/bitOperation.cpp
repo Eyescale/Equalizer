@@ -15,8 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Tests the functionality of the random number generator
-
 #include <test.h>
 #include <co/base/bitOperation.h>
 

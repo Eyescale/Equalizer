@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 
 set(CO_PUBLIC_HEADERS 
     api.h
@@ -19,7 +19,9 @@ set(CO_PUBLIC_HEADERS
     connectionSet.h
     connectionType.h
     dataIStream.h
+    dataIStreamArchive.h
     dataOStream.h
+    dataOStreamArchive.h
     dispatcher.h
     error.h
     exception.h
@@ -88,7 +90,6 @@ set(CO_SOURCES
     instanceCache.cpp
     localNode.cpp
     masterCM.cpp
-    mcipConnection.cpp
     node.cpp
     object.cpp
     objectCM.cpp

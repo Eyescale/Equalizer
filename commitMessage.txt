@@ -1,9 +1,9 @@
-Added new options to the benchmark scripts ( also bugfixes )
+gcc 4.6 build fixes
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
 [x] Bugfix
-[x] New Feature
+[ ] New Feature
 [ ] Cleanup
 [ ] Optimization
 [ ] Documentation

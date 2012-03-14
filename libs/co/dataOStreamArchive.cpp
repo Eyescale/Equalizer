@@ -1,47 +1,44 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <gpusd/version.h>
-#include <sstream>
+#include "dataOStreamArchive.h"
 
-namespace gpusd
-{
+#include <boost/archive/detail/archive_serializer_map.hpp>
+#include <boost/archive/impl/archive_serializer_map.ipp>
 
-int Version::getMajor() 
+namespace boost
 {
-    return GPUSD_VERSION_MAJOR; 
+namespace archive
+{
+template class detail::archive_serializer_map<co::DataOStreamArchive>;
+}
 }
 
-int Version::getMinor()
+namespace co
 {
-    return GPUSD_VERSION_MINOR; 
+
+DataOStreamArchive::DataOStreamArchive( DataOStream& stream )
+    : _stream( stream )
+{
 }
 
-int Version::getPatch() 
+void DataOStreamArchive::save_binary( void* data, std::size_t size )
 {
-    return GPUSD_VERSION_PATCH; 
-}
-
-std::string Version::getString()
-{
-    std::ostringstream version;
-    version << GPUSD_VERSION_MAJOR << '.' << GPUSD_VERSION_MINOR << '.'
-            << GPUSD_VERSION_PATCH;
-    return version.str();
+    _stream.write( data, size );
 }
 
 }

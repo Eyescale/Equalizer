@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -28,19 +28,23 @@ namespace fabric
 {
     struct LayoutNewViewPacket : public LayoutPacket
     {
-        LayoutNewViewPacket()
+        LayoutNewViewPacket( const uint32_t requestID_ )
+                : requestID( requestID_ )
+                , pad( 0 )
             {
                 command = CMD_LAYOUT_NEW_VIEW;
                 size    = sizeof( LayoutNewViewPacket );
             }
 
-        uint32_t requestID;
+        const uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct LayoutNewViewReplyPacket : public LayoutPacket
     {
         LayoutNewViewReplyPacket( const LayoutNewViewPacket* request )
                 : requestID( request->requestID )
+                , pad( 0 )
             {
                 command = CMD_LAYOUT_NEW_VIEW_REPLY;
                 size    = sizeof( LayoutNewViewReplyPacket );
@@ -48,6 +52,7 @@ namespace fabric
 
         co::base::UUID viewID;
         const uint32_t requestID;
+        const uint32_t pad;
     };
 }
 }
