@@ -18,6 +18,10 @@
 #include <co/base/defines.h>
 #ifdef CO_USE_BOOST_SERIALIZATION
 
+// uint128_t used in archive causes this warning:
+// negative integral constant converted to unsigned type
+#pragma warning( disable: 4308 )
+
 #include <test.h>
 #include <co/co.h>
 
