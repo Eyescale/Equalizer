@@ -255,7 +255,7 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
     object->attach( id, instanceID );
 
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        base::ScopedFastWrite mutex( _objects );
         Objects& objects = _objects.data[ id ];
         EQASSERTINFO( !object->isMaster() || objects.empty(),
             "Attaching master " << *object << ", " << objects.size() <<
@@ -296,7 +296,7 @@ void ObjectStore::swapObject( Object* oldObject, Object* newObject )
     EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject ) <<std::endl;
     const base::UUID& id = oldObject->getID();
 
-    base::ScopedMutex< base::SpinLock > mutex( _objects );
+    base::ScopedFastWrite mutex( _objects );
     ObjectsHash::iterator i = _objects->find( id );
     EQASSERT( i != _objects->end( ));
     if( i == _objects->end( ))
@@ -331,7 +331,7 @@ void ObjectStore::_detachObject( Object* object )
     EQASSERT( i != objects.end( ));
 
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        base::ScopedFastWrite mutex( _objects );
         objects.erase( i );
         if( objects.empty( ))
             _objects->erase( id );
@@ -649,7 +649,7 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
 
     NodeFindMasterNodeIDReplyPacket reply( packet );
     {
-        base::ScopedFastWrite mutex( _objects );
+        base::ScopedFastRead mutex( _objects );
         ObjectsHashCIter i = _objects->find( id );
 
         if( i != _objects->end( ))
@@ -790,7 +790,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
     const base::UUID& id = packet->objectID;
     Object* master = 0;
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        base::ScopedFastRead mutex( _objects );
         ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
@@ -925,14 +925,13 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
     const base::UUID& id = packet->objectID;
 
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        base::ScopedFastWrite mutex( _objects );
         ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
             const Objects& objects = i->second;
 
-            for( Objects::const_iterator j = objects.begin();
-                 j != objects.end(); ++j )
+            for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
             {
                 Object* object = *j;
                 if( object->isMaster() && 
@@ -966,7 +965,7 @@ bool ObjectStore::_cmdUnmapObject( Command& command )
 
     const Objects objects = i->second;
     {
-        base::ScopedMutex< base::SpinLock > mutex( _objects );
+        base::ScopedFastWrite mutex( _objects );
         _objects->erase( i );
     }
 
@@ -1064,10 +1063,10 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     EQ_TS_THREAD( _commandThread );
     const NodeRemoveNodePacket* packet = command.get< NodeRemoveNodePacket >();
 
-    EQLOG( LOG_OBJECTS ) << "Cmd  object  " << packet << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Cmd object  " << packet << std::endl;
 
-    base::ScopedMutex< base::SpinLock > mutex( _objects );
-    for ( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
+    base::ScopedFastWrite mutex( _objects );
+    for( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
     {
         const Objects& objects = i->second;
         for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
