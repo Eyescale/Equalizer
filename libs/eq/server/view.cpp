@@ -437,13 +437,13 @@ float View::_computeFocusRatio( Vector3f& eye )
     const Observer* observer = getObserver();
     const FocusMode mode = observer ? observer->getFocusMode() :FOCUSMODE_FIXED;
     if( mode == FOCUSMODE_FIXED )
-        return getModelUnit();
+        return 1.f;
 
     const Channels& channels = getChannels();
     if( channels.empty( ))
-        return getModelUnit();
+        return 1.f;
 
-    Vector4f view4 = Vector4f::FORWARD;
+    Vector4f view4( Vector3f::FORWARD );
     if( mode == FOCUSMODE_RELATIVE_TO_OBSERVER )
     {
         view4 = observer->getHeadMatrix() * view4;
@@ -511,7 +511,7 @@ float View::_computeFocusRatio( Vector3f& eye )
 
     if( distance == std::numeric_limits< float >::max( ))
         return 1.f;
-    return (focusDistance / distance) * getModelUnit();
+    return focusDistance / distance;
 }
 
 bool View::_cmdFreezeLoadBalancing( co::Command& command ) 

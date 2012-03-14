@@ -64,8 +64,9 @@ enum ThreadState
 }
 namespace detail
 {
-struct ThreadID
+class ThreadID
 {
+public:
     pthread_t pthread;
 };
 
@@ -340,11 +341,11 @@ void Thread::setName( const std::string& name )
 }
 
 #ifdef CO_USE_HWLOC
-static hwloc_cpuset_t _getCpuSet( const int32_t affinity,
+static hwloc_bitmap_t _getCpuSet( const int32_t affinity,
                                   hwloc_topology_t topology )
 {
-    hwloc_cpuset_t cpuSet = hwloc_cpuset_alloc(); // HWloc CPU set
-    hwloc_cpuset_zero( cpuSet ); // Initialize to zeros
+    hwloc_bitmap_t cpuSet = hwloc_bitmap_alloc(); // HWloc CPU set
+    hwloc_bitmap_zero( cpuSet ); // Initialize to zeros
 
     if( affinity >= Thread::CORE )
     {
@@ -395,15 +396,28 @@ void Thread::setAffinity(const int32_t affinity)
     hwloc_topology_t topology;
     hwloc_topology_init( &topology ); // Allocate & initialize the topology
     hwloc_topology_load( topology );  // Perform HW topology detection
-    const hwloc_cpuset_t cpuSet = _getCpuSet( affinity, topology );
-    const int affinityFlag = hwloc_set_cpubind( topology, cpuSet, 0);
+    const hwloc_bitmap_t cpuSet = _getCpuSet( affinity, topology );
+    const int result = hwloc_set_cpubind( topology, cpuSet,
+                                                HWLOC_CPUBIND_THREAD );
+    char* cpuSetString;
+    hwloc_bitmap_asprintf( &cpuSetString, cpuSet );
 
     if( affinityFlag == 0 )
-        EQINFO << "Bound thread to " /* << cpuSet */ << std::endl;
+    {
+        EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
+    }
     else
-        EQWARN << "Error binding thread to " /* << cpuSet */ << std::endl;
+    {
+        EQWARN << "Error binding thread to cpu set " << cpuSetString
+               << std::endl;
+    }
+    ::free( cpuSetString );
+
+    hwloc_topology_destroy(topology);
+
 #else
-    EQWARN << "Ignoring setAffinity, no hwloc library support" << std::endl;
+    EQWARN << "Thread::setAffinity not implemented, hwloc library missing"
+           << std::endl;
 #endif
 }
 

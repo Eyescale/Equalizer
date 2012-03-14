@@ -27,7 +27,7 @@
 
 co::base::MTQueue< uint64_t > queue;
 
-#if 0 //EQ_GCC_4_5_OR_LATER
+#ifdef EQ_GCC_4_6_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 class ReadThread : public co::base::Thread

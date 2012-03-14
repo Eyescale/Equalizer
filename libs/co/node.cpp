@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -55,7 +55,7 @@ ConnectionDescriptions Node::getConnectionDescriptions() const
     return _connectionDescriptions.data;
 }
 
-ConnectionPtr Node::getMulticast()
+ConnectionPtr Node::useMulticast()
 {
     if( !isConnected( ))
         return 0;
@@ -148,7 +148,7 @@ bool Node::deserialize( std::string& data )
 NodePtr Node::createNode( const uint32_t type )
 {
     EQASSERTINFO( type == NODETYPE_CO_NODE, type );
-    return new Node();
+    return new Node;
 }
 
 std::ostream& operator << ( std::ostream& os, const Node& node )

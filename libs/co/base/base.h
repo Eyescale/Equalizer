@@ -29,6 +29,7 @@
 
 #include <co/base/api.h>
 #include <co/base/atomic.h>
+#include <co/base/clock.h>
 #include <co/base/debug.h>
 #include <co/base/errorRegistry.h>
 #include <co/base/file.h>

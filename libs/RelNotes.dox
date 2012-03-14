@@ -35,7 +35,7 @@
   tile compounds.
 </p>
 <p>
-  Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
+  Equalizer 1.2 is a feature release extending the 1.0 API, distilling seven
   years of development and decades of experience into a feature-rich,
   high-performance and mature parallel rendering framework and an
   object-oriented high-level network library. It is intended for all application
@@ -66,8 +66,8 @@
     network library, a cross-platform C++ library for building heterogenous,
     distributed applications.</li>
   <li><b>Support for Stereo and Immersive Environments:</b> Equalizer supports
-    both active and passive stereo rendering, as well as head tracking and
-    head-mounted displays used in immersive Virtual Reality installations.</li>
+    stereo rendering head tracking, head-mounted displays and other advanced
+    features for immersive Virtual Reality installations.</li>
 </ul>
 
 <a name="new"></a>
@@ -207,6 +207,18 @@
     draw_sync thread model causes full synchronization</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/90">90</a>:
     Race condition with direct send and higher number of nodes</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
+    netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/96">96</a>:
+    race condition with simultaneous node connect</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/97">97</a>:
+    Object::notifyAttach is not always called</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/98">98</a>: RSP
+    exit deadloc</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/100">100</a>:
+    CommandFunc crash with multiple inheritance and MSVC</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/101">101</a>:
+    Alternating old/new eq::View frustum update loop</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -216,12 +228,10 @@
   find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/65">65</a>: Startup
-    crash with Multi-GPU config</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/61">61</a>: VMMlib
-    static initializer issue</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
-    netperf/RDMA exit deadlock</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
+    assertion on interaction with multiple GPUs</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/76">76</a>:
+    7-window.DPLEX.2D.lb.eqc does not load-balance</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/49">49</a>:
     eqPixelBench crash with double free</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/19">19</a>: zoom

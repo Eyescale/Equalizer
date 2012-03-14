@@ -658,7 +658,7 @@ void Window::_initSwapSync()
     }
     else
         EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
-               << "swapsync hint " << swapSync << std::endl;
+               << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }   
 
 

@@ -66,7 +66,7 @@ inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
     if( passiveStereo )
     {
         window->setName( "Passive stereo window" );
-        window->setPixelViewport( 
+        window->setPixelViewport(
             eq::fabric::PixelViewport( 500, 100, 400, 300 ));
         segment->setEyes( eq::fabric::EYE_CYCLOP ); // Mono
         view->changeMode( eq::admin::View::MODE_MONO );
@@ -93,11 +93,12 @@ inline bool addWindow( eq::admin::ServerPtr server, const bool passiveStereo )
         window->setName( "Active stereo window" );
 
     view->setObserver( observer );
+    view->setWall( eq::fabric::Wall( eq::fabric::Vector3f(-.4f,-.3f,-1.f ),
+                                     eq::fabric::Vector3f( .4f,-.3f,-1.f ),
+                                     eq::fabric::Vector3f(-.4f, .3f,-1.f )));
     segment->setChannel( channel );
     canvas->addLayout( layout );
-    canvas->setWall( eq::fabric::Wall( eq::fabric::Vector3f(-.4f,-.3f,-1.f ),
-                                       eq::fabric::Vector3f( .4f,-.3f,-1.f ),
-                                       eq::fabric::Vector3f(-.4f, .3f,-1.f )));
+
     config->commit();
     return true;
 }

@@ -809,12 +809,12 @@ void Channel::declareRegion( const PixelViewport& region )
     if( clippedRegion.hasArea( ))
     {
         regions.push_back( clippedRegion );
-#ifdef NDEBUG
+#ifndef NDEBUG
         const PixelViewport pvpBefore = getRegion();
 #endif
         while( _removeOverlap( regions )) /* nop */ ;
 
-#ifdef NDEBUG
+#ifndef NDEBUG
         EQASSERT( !_hasOverlap( regions ));
         EQASSERT( pvpBefore == getRegion( ));
 #endif
@@ -935,7 +935,7 @@ void Channel::drawStatistics()
 
     glMatrixMode( GL_MODELVIEW );
     glDisable( GL_LIGHTING );
-    
+
     Window* window = getWindow();
     const Window::Font* font = window->getSmallFont();
 
@@ -1153,6 +1153,9 @@ void Channel::drawStatistics()
         dim += .1f;
     }
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
+
     //----- Entitity names
     for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
          i != entities.end(); ++i )
@@ -1213,6 +1216,7 @@ void Channel::drawStatistics()
     glRasterPos3f( x+1.f, nextY-12.f, 0.f );
     glColor3f( 1.f, 1.f, 1.f );
     font->draw( "channel" );
+    glDisable( GL_COLOR_LOGIC_OP );
 
     for( size_t i = 1; i < Statistic::CONFIG_START_FRAME; ++i )
     {
@@ -1239,7 +1243,9 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
+            glEnable( GL_COLOR_LOGIC_OP );
             font->draw( "window" );
+            glDisable( GL_COLOR_LOGIC_OP );
             break;
 
           case Statistic::NODE_FRAME_DECOMPRESS:
@@ -1248,7 +1254,9 @@ void Channel::drawStatistics()
 
             glColor3f( 1.f, 1.f, 1.f );
             glRasterPos3f( x+1.f, nextY-12.f, 0.f );
+            glEnable( GL_COLOR_LOGIC_OP );
             font->draw( "node" );
+            glDisable( GL_COLOR_LOGIC_OP );
             break;
 
           default:

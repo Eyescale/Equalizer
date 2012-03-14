@@ -69,7 +69,7 @@ void View< L, V, O >::serialize( co::DataOStream& os, const uint64_t dirtyBits)
     if( dirtyBits & DIRTY_OBSERVER )
         os << co::ObjectVersion( _observer );
     if( dirtyBits & DIRTY_FRUSTUM )
-        os << *static_cast< Frustum* >( this );
+        Frustum::serialize( os );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
@@ -129,7 +129,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         }
     }
     if( dirtyBits & DIRTY_FRUSTUM )
-        is >> *static_cast< Frustum* >( this );
+        Frustum::deserialize( is );
     if( dirtyBits & DIRTY_VIEWPORT )
         is >> _data.viewport;
     if( dirtyBits & DIRTY_OVERDRAW )
@@ -154,7 +154,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
         is >> _data.equalizers;
-    if( dirtyBits & DIRTY_MODELUNIT)
+    if( dirtyBits & DIRTY_MODELUNIT )
         is >> _data.modelUnit;
 }
 
@@ -185,13 +185,20 @@ bool View< L, V, O >::isActive() const
 template< class L, class V, class O >
 void View< L, V, O >::setModelUnit( const float modelUnit )
 {
-    if( modelUnit > std::numeric_limits< float >::epsilon() &&
+    if( modelUnit < std::numeric_limits< float >::epsilon() ||
         _data.modelUnit == modelUnit )
     {
         return;
     }
     _data.modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
+}
+
+template< class L, class V, class O >
+float View< L, V, O >::getModelUnit() const
+{
+    EQASSERT( _data.modelUnit > 0.f );
+    return _data.modelUnit;
 }
 
 template< class L, class V, class O > 
@@ -398,21 +405,9 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
             os << observer->getPath() << std::endl;
     } 
 
-    switch( view.getCurrentType( ))
-    {
-        case View< L, V, O >::TYPE_WALL:
-            os << view.getWall() << std::endl;
-            break;
-        case View< L, V, O >::TYPE_PROJECTION:
-            os << view.getProjection() << std::endl;
-            break;
-        default: 
-            break;
-    }
-
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
-    return os;
+    return os << static_cast< const Frustum& >( view )
+              << co::base::exdent << "}" << std::endl << co::base::enableHeader
+              << co::base::enableFlush;
 }
 
 }
