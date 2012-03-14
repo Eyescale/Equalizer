@@ -59,35 +59,13 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     const eq::Pipe* pipe = wnd->getPipe();
     EQASSERT( pipe );
 
-    eq::SystemWindow* sharedContextWindow = 0;
+    eq::SystemWindow* sharedContextWindow =
+        pipe->getWindowSystem().createWindow( wnd );
 
-    const std::string& __attribute__ ((unused)) ws = pipe->getWindowSystem().getName();
-
-#ifdef GLX
-    if( ws == "GLX" )
-    {
-        EQINFO << "Using GLXWindow" << std::endl;
-        sharedContextWindow = new GLXWindowShared( wnd );
-    }
-#endif
-#ifdef AGL
-    if( ws == "AGL" )
-    {
-        EQINFO << "Using AGLWindow" << std::endl;
-        sharedContextWindow = new AGLWindowShared( wnd );
-    }
-#endif
-#ifdef WGL
-    if( ws == "WGL" )
-    {
-        EQINFO << "Using WGLWindow" << std::endl;
-        sharedContextWindow = new eq::wgl::Window( wnd );
-    }
-#endif
     if( !sharedContextWindow )
     {
-        EQERROR << "Window system " << pipe->getWindowSystem()
-                << " not implemented or supported" << std::endl;
+        EQERROR << "Failed to create shared context window for "
+                << pipe->getWindowSystem() << std::endl;
         return 0;
     }
 
