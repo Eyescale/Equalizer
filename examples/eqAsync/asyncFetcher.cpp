@@ -61,7 +61,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 
     eq::SystemWindow* sharedContextWindow = 0;
 
-    const std::string& ws = pipe->getWindowSystem().getName();
+    const std::string& __attribute__ ((unused)) ws = pipe->getWindowSystem().getName();
 
 #ifdef GLX
     if( ws == "GLX" )
