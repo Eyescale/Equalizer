@@ -32,7 +32,8 @@ namespace co
 {
 
 DataIStreamArchive::DataIStreamArchive( DataIStream& stream )
-    : _stream( stream )
+    : Super( 0 )
+    , _stream( stream )
 {
 }
 

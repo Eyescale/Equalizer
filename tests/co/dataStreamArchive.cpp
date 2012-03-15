@@ -81,7 +81,6 @@ int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ) );
 
-    co::LocalNodePtr server = new co::LocalNode;
     co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
 
     co::base::RNG rng;
@@ -89,6 +88,7 @@ int main( int argc, char **argv )
     connDesc->port = (rng.get<uint16_t>() % 60000) + 1024;
     connDesc->setHostname( "localhost" );
 
+    co::LocalNodePtr server = new co::LocalNode;
     server->addConnectionDescription( connDesc );
     TEST( server->listen( ));
 

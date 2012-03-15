@@ -32,7 +32,8 @@ namespace co
 {
 
 DataOStreamArchive::DataOStreamArchive( DataOStream& stream )
-    : _stream( stream )
+    : Super( 0 )
+    , _stream( stream )
 {
 }
 
