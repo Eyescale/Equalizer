@@ -402,7 +402,7 @@ void Thread::setAffinity(const int32_t affinity)
     char* cpuSetString;
     hwloc_bitmap_asprintf( &cpuSetString, cpuSet );
 
-    if( affinityFlag == 0 )
+    if( result == 0 )
     {
         EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
     }

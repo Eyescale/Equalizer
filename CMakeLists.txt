@@ -168,7 +168,7 @@ if(UDT_FOUND)
   include_directories(SYSTEM ${UDT_INCLUDE_DIRS})
 endif()
 
-if(EQ_USE_HWLOC)
+if(EQUALIZER_USE_HWLOC)
   find_package(HWLOC)
 endif()
 if(HWLOC_FOUND)
