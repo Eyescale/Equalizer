@@ -36,7 +36,7 @@
 // Experimental Win32 thread pinning
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
-#  pragma message ("Thread affinity  not supported on WIN32")
+#  pragma message ("Thread affinity not supported on WIN32")
 #endif
 
 #ifdef Linux

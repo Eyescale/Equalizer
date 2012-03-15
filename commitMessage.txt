@@ -1,4 +1,4 @@
-gcc 4.6 build fixes
+Fix Windows build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

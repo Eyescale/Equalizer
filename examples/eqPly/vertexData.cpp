@@ -256,7 +256,7 @@ void VertexData::calculateNormals()
     
     // iterate over all triangles and add their normals to adjacent vertices
 #pragma omp parallel for
-    for( size_t i = 0; i < triangles.size(); ++i )
+    for( ssize_t i = 0; i < ssize_t( triangles.size( )); ++i )
     {
         const Index i0 = triangles[i][0];
         const Index i1 = triangles[i][1];
@@ -276,7 +276,7 @@ void VertexData::calculateNormals()
     
     // normalize all the normals
 #pragma omp parallel for
-    for( size_t i = 0; i < vertices.size(); ++i )
+    for( ssize_t i = 0; i < ssize_t( vertices.size( )); ++i )
         normals[i].normalize();
     
 #ifndef NDEBUG
@@ -360,7 +360,7 @@ void VertexData::scale( const float baseSize )
     
     // scale the data
 #pragma omp parallel for
-    for( size_t v = 0; v < vertices.size(); ++v )
+    for( ssize_t v = 0; v < ssize_t( vertices.size( )); ++v )
         for( size_t i = 0; i < 3; ++i )
         {
             vertices[v][i] -= offset[i];
