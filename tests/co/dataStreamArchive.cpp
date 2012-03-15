@@ -16,17 +16,16 @@
  */
 
 #include <co/base/defines.h>
+#include <test.h>
+
 #ifdef CO_USE_BOOST_SERIALIZATION
 
 // uint128_t used in archive causes this warning:
 // negative integral constant converted to unsigned type
 #pragma warning( disable: 4308 )
 
-#include <test.h>
 #include <co/co.h>
-
 #include <boost/serialization/string.hpp>
-
 
 template< typename T >
 class Object : public co::Object
@@ -129,4 +128,6 @@ int main( int argc, char **argv )
     return EXIT_SUCCESS;
 }
 
+#else
+int main( int argc, char **argv ) { return EXIT_SUCCESS; }
 #endif // CO_USE_BOOST_SERIALIZATION
