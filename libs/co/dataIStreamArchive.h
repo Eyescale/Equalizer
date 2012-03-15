@@ -24,7 +24,10 @@
 #include <co/api.h>
 #include <co/dataIStream.h>
 
+#pragma warning( push )
+#pragma warning( disable: 4800 )
 #include <boost/archive/basic_binary_iarchive.hpp>
+#pragma warning( push )
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/archive/shared_ptr_helper.hpp>
 

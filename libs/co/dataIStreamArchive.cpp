@@ -24,7 +24,7 @@ namespace boost
 {
 namespace archive
 {
-template class detail::archive_serializer_map<co::DataIStreamArchive>;
+template class CO_API detail::archive_serializer_map<co::DataIStreamArchive>;
 }
 }
 
