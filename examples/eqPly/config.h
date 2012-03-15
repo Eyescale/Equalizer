@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
 #ifndef EQ_PLY_CONFIG_H
 #define EQ_PLY_CONFIG_H
 
-#include <eq/eq.h>
-#include <eq/admin/base.h>
-
 // members
 #include "localInitData.h"
 #include "frameData.h"
 #include "tracker.h"
 #include "cameraAnimation.h"
+
+#include <eq/eq.h>
+#include <eq/admin/base.h>
 
 namespace eqPly
 {
