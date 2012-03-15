@@ -24,7 +24,7 @@
 #include <co/api.h>
 #include <co/dataOStream.h>
 
-#include <boost/archive/detail/common_oarchive.hpp>
+#include <boost/archive/basic_binary_oarchive.hpp>
 #include <boost/archive/detail/register_archive.hpp>
 
 namespace co
@@ -34,8 +34,9 @@ namespace co
      * co::DataOStream.
      */
     class DataOStreamArchive
-            : public boost::archive::detail::common_oarchive<DataOStreamArchive>
+              : public boost::archive::basic_binary_oarchive<DataOStreamArchive>
     {
+        typedef boost::archive::basic_binary_oarchive<DataOStreamArchive> Super;
     public:
         CO_API DataOStreamArchive( DataOStream& stream );
 
