@@ -1,9 +1,9 @@
+
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 #               2010-2011 Cedric Stalder <cedric.stalder@gmail.com>
 
 include(PurpleAddLibrary)
-include(PurpleAddAmalgamation)
 
 option(EQUALIZER_BUILD_STATIC_LIBS "Build static Equalizer libraries" OFF)
 mark_as_advanced(EQUALIZER_BUILD_STATIC_LIBS)

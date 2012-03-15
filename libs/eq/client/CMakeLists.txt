@@ -1,9 +1,8 @@
-##
+
 # Path : libs/client/CMakeLists.txt
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
-##
 
 find_package(MAGELLAN)
 
