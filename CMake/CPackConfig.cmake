@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
@@ -9,7 +9,11 @@ configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec
 set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
 mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
 
-set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
+else()
+  set(CPACK_PACKAGE_NAME "Equalizer")
+endif()
 
 if(APPLE)
   set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
