@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 

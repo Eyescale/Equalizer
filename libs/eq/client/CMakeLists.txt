@@ -4,7 +4,9 @@
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 #               2011 Cedric Stalder <cedric.stalder@gmail.ch>
 
-find_package(MAGELLAN)
+if(EQUALIZER_USE_MAGELLAN)
+  find_package(MAGELLAN)
+endif()
 
 # TODO: resolve two-way dependency between client and util!
 include(configure.cmake)
