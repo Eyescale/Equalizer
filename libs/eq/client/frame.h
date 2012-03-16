@@ -220,7 +220,7 @@ namespace server
          * @param regions the areas to read back.
          * @version 1.0
          */
-        EQ_API void readback( util::ObjectManager< const void* >* glObjects,
+        EQ_API void readback( ObjectManager* glObjects,
                               const DrawableConfig& config,
                               const PixelViewports& regions );
 
