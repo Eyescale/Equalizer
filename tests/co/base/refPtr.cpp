@@ -27,6 +27,12 @@
 #  include <boost/shared_ptr.hpp>
 #endif
 
+#ifdef CO_USE_BOOST_SERIALIZATION
+#  include <boost/serialization/access.hpp>
+#  include <boost/archive/text_oarchive.hpp>
+#  include <boost/archive/text_iarchive.hpp>
+#endif
+
 #define NTHREADS 24
 #define NREFS    300000
 
@@ -34,7 +40,15 @@ class Foo : public co::base::Referenced
 {
 public:
     Foo() {}
+
 private:
+#ifdef CO_USE_BOOST_SERIALIZATION
+    friend class boost::serialization::access;
+    template< class Archive >
+    void serialize( Archive& ar, unsigned int version )
+    {
+    }
+#endif
     virtual ~Foo() {}
 };
 
@@ -159,6 +173,22 @@ int main( int argc, char **argv )
 #endif
 
     foo = 0;
+
+#ifdef CO_USE_BOOST_SERIALIZATION
+    FooPtr inFoo1 = new Foo;
+    TEST( inFoo1->getRefCount() == 1 );
+    FooPtr inFoo2 = inFoo1;
+    TEST( inFoo2->getRefCount() == 2 );
+    FooPtr outFoo1;
+    std::stringstream stream;
+    boost::archive::text_oarchive oar( stream );
+    oar & inFoo1;
+    boost::archive::text_iarchive iar( stream );
+    iar & outFoo1;
+    TEST( outFoo1->getRefCount() == 1 );
+    FooPtr outFoo2 = outFoo1;
+    TEST( outFoo2->getRefCount() == 2 );
+#endif
 
     return EXIT_SUCCESS;
 }
