@@ -84,7 +84,7 @@ if(EQUALIZER_USE_GPUSD)
   include(GPUSD)
 endif()
 
-set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
+set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
@@ -301,7 +301,11 @@ if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
-message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+if(MSVC)
+  message(STATUS "Configured with${EQ_FEATURES}")
+else()
+  message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+endif()
 
 include(CPackConfig)
 include(copyScript)
