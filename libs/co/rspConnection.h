@@ -39,7 +39,8 @@
 
 namespace co
 {
-    class ConnectionDescription;
+    class RSPConnection;
+    typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
 
     /**
      * A reliable multicast connection.
@@ -87,8 +88,6 @@ namespace co
         virtual ~RSPConnection();
     
     private:
-        typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
-
         /** Thread managing network IO and RSP protocol. */
         class Thread : public base::Thread
         {
@@ -193,7 +192,7 @@ namespace co
         RSPConnections _children;
 
         // a link for all connection in the connecting state 
-        RSPConnections _childrenConnecting;
+        RSPConnections _newChildren;
 
         uint16_t _id; //!< The identifier used to demultiplex multipe writers
         bool     _idAccepted;
@@ -291,7 +290,7 @@ namespace co
         void _waitWritable( const uint64_t bytes );
 
         /** format and send a datagram count node */
-        void _sendDatagramCountNode();
+        void _sendCountNode();
 
         void _addRepeat( const Nack* nacks, const uint16_t num );
 
@@ -311,7 +310,7 @@ namespace co
         void _checkNewID( const uint16_t id );
 
         /* add a new connection detected in the multicast network */
-        bool _addNewConnection( const uint16_t id );
+        bool _addConnection( const uint16_t id );
         void _removeConnection( const uint16_t id );
 
         void _setTimeout( const int32_t timeOut );
