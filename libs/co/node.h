@@ -46,11 +46,11 @@ namespace detail { class Node; }
         //@{
         bool operator == ( const Node* n ) const;
 
-        bool isReachable() const;
-        bool isConnected() const;
-        bool isClosed() const;
-        bool isClosing() const;
-        bool isListening() const;
+        CO_API bool isReachable() const;
+        CO_API bool isConnected() const;
+        CO_API bool isClosed() const;
+        CO_API bool isClosing() const;
+        CO_API bool isListening() const;
         //@}
 
         /** @name Connectivity information. */
@@ -205,7 +205,7 @@ namespace detail { class Node; }
 
     private:
         detail::Node* const _impl;
-        friend std::ostream& operator << ( std::ostream& os, const Node& node );
+        friend CO_API std::ostream& operator << ( std::ostream&, const Node& );
 
         /** Ensures the connectivity of this node. */
         CO_API ConnectionPtr _getConnection();
