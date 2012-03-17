@@ -95,7 +95,8 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
     512,    // RDMA_SEND_QUEUE_DEPTH
     5000,   // RDMA_RESOLVE_TIMEOUT_MS
     1,      // IATTR_ROBUSTNESS
-    _getTimeout() // IATTR_TIMEOUT_DEFAULT
+    _getTimeout(), // IATTR_TIMEOUT_DEFAULT
+    1023    // IATTR_OBJECT_COMPRESSION
 };
 }
 

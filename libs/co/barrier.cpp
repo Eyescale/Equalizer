@@ -55,12 +55,10 @@ class Barrier
 public:
     Barrier() : height( 0 ) {}
     Barrier( NodePtr m, const uint32_t h )
-            : masterID( m->getNodeID( ))
+            : masterID( m ? m->getNodeID() : NodeID::ZERO )
             , height( h )
             , master( m )
-        {
-            LBASSERT( masterID != NodeID::ZERO );
-        }
+        {}
 
     /** The master barrier node. */
     NodeID   masterID;
@@ -81,17 +79,9 @@ public:
 
 typedef CommandFunc<Barrier> CmdFunc;
 
-Barrier::Barrier()
-        : _impl( new detail::Barrier )
-{
-    LBINFO << "Barrier instantiated" << std::endl;
-}
-
 Barrier::Barrier( NodePtr master, const uint32_t height )
         : _impl( new detail::Barrier( master, height ))
-{
-    LBINFO << "New barrier of height " << height << std::endl;
-}
+{}
 
 Barrier::~Barrier()
 {
@@ -103,6 +93,7 @@ Barrier::~Barrier()
 //---------------------------------------------------------------------------
 void Barrier::getInstanceData( DataOStream& os )
 {
+    LBASSERT( _impl->masterID != NodeID::ZERO );
     os << _impl->height << _impl->masterID;
     _impl->leaveNotify = 0;
 }
@@ -145,12 +136,16 @@ void Barrier::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
-    CommandQueue* queue = getLocalNode()->getCommandThreadQueue();
+    LocalNodePtr node = getLocalNode();
+    CommandQueue* queue = node->getCommandThreadQueue();
 
     registerCommand( CMD_BARRIER_ENTER,
                      CmdFunc( this, &Barrier::_cmdEnter ), queue );
     registerCommand( CMD_BARRIER_ENTER_REPLY, 
                      CmdFunc( this, &Barrier::_cmdEnterReply ), queue );
+
+    if( _impl->masterID == NodeID::ZERO )
+        _impl->masterID = node->getNodeID();
 }
 
 void Barrier::enter( const uint32_t timeout )

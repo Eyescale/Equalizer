@@ -72,13 +72,13 @@ namespace detail { class Node; }
          * @return true if the connection description was removed, false
          *         otherwise.
          */
-        CO_API bool removeConnectionDescription(ConnectionDescriptionPtr cd);
+        CO_API bool removeConnectionDescription( ConnectionDescriptionPtr cd );
 
         /** @return the number of stored connection descriptions. */
         CO_API ConnectionDescriptions getConnectionDescriptions() const;
 
         /** @return the connection to this node. */
-        ConnectionPtr getConnection() const;
+        CO_API ConnectionPtr getConnection() const;
 
         /** @return the established multicast connection to this node. */
         ConnectionPtr getMulticast() const;
@@ -205,7 +205,7 @@ namespace detail { class Node; }
 
     private:
         detail::Node* const _impl;
-        friend CO_API std::ostream& operator << ( std::ostream&, const Node& );
+        CO_API friend std::ostream& operator << ( std::ostream&, const Node& );
 
         /** Ensures the connectivity of this node. */
         CO_API ConnectionPtr _getConnection();

@@ -138,6 +138,7 @@ set(CO_SOURCES
   
 set(CO_COMPRESSOR_HEADERS
     compressor/compressor.h
+    compressor/compressorFastLZ.h
     compressor/compressorRLE4B.h
     compressor/compressorRLE4BU.h
     compressor/compressorRLE4HF.h
@@ -146,11 +147,13 @@ set(CO_COMPRESSOR_HEADERS
     compressor/compressorRLEB.h
     compressor/compressorRLEYUV.h
     compressor/compressorLZF.h
+    compressor/fastlz/fastlz.h
     compressor/liblzf/lzf.h
 )
   
 set(CO_COMPRESSOR_SOURCES
     compressor/compressor.cpp
+    compressor/compressorFastLZ.cpp
     compressor/compressorRLE.ipp
     compressor/compressorRLE4B.cpp
     compressor/compressorRLE4BU.cpp
@@ -160,6 +163,7 @@ set(CO_COMPRESSOR_SOURCES
     compressor/compressorRLEB.cpp
     compressor/compressorRLEYUV.cpp
     compressor/compressorLZF.cpp
+    compressor/fastlz/fastlz.c
     compressor/liblzf/lzf_c.c
     compressor/liblzf/lzf_d.c
 )
