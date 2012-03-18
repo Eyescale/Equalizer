@@ -314,4 +314,7 @@
 
 <a name="errata"></a>
 <h2>4. Errata</h2>
-<p></p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
+    Sequel missing from packages</li>
+</ul>
