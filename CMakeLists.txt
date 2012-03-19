@@ -9,6 +9,7 @@ option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
+option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
 option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
@@ -34,7 +35,7 @@ include(revision)
 set(EQUALIZER_RELEASE 120) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "2")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
@@ -63,11 +64,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT MSVC)
-  if(APPLE)
-    set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation prefix" FORCE)
-  else()
-    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Installation prefix" FORCE)
-  endif()
+  set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Installation prefix" FORCE)
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/bin)
@@ -84,7 +81,7 @@ if(EQUALIZER_USE_GPUSD)
   include(GPUSD)
 endif()
 
-set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
+set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
@@ -108,6 +105,7 @@ if(MSVC)
   include(UseGnuWin32)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
+    /D_SCL_SECURE_NO_WARNINGS
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
@@ -301,7 +299,11 @@ if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
-message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+if(MSVC)
+  message(STATUS "Configured with${EQ_FEATURES}")
+else()
+  message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+endif()
 
 include(CPackConfig)
 include(copyScript)

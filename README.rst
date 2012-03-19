@@ -32,7 +32,7 @@ scalable OpenGL applications. This release introduces major new features,
 most notably automatic configuration, the Sequel library, runtime reliability
 and tile compounds.
 
-Equalizer 1.2 is a feature release extending the 1.0 API, distilling over 6
+Equalizer 1.2 is a feature release extending the 1.0 API, distilling seven
 years of development and decades of experience into a feature-rich, high-
 performance and mature parallel rendering framework and an object-oriented
 high-level network library. It is intended for all application developers
@@ -60,8 +60,8 @@ can be found on the Equalizer website.
     network library, a cross-platform C++ library for building heterogenous,
     distributed applications.
 -   **Support for Stereo and Immersive Environments:** Equalizer supports
-    both active and passive stereo rendering, as well as head tracking and
-    head-mounted displays used in immersive Virtual Reality installations.
+    stereo rendering head tracking, head-mounted displays and other advanced
+    features for immersive Virtual Reality installations.
 
 
 2. New in this release
@@ -178,6 +178,12 @@ following:
 -   `87`_: Debian packages broken
 -   `88`_: draw_sync thread model causes full synchronization
 -   `90`_: Race condition with direct send and higher number of nodes
+-   `58`_: netperf/RDMA exit deadlock
+-   `96`_: race condition with simultaneous node connect
+-   `97`_: Object::notifyAttach is not always called
+-   `98`_: RSP exit deadloc
+-   `100`_: CommandFunc crash with multiple inheritance and MSVC
+-   `101`_: Alternating old/new eq::View frustum update loop
 
 
 2.9. Known Bugs
@@ -186,9 +192,8 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `65`_: Startup crash with Multi-GPU config
--   `61`_: VMMlib static initializer issue
--   `58`_: netperf/RDMA exit deadlock
+-   `78`_: AGL: assertion on interaction with multiple GPUs
+-   `76`_: 7-window.DPLEX.2D.lb.eqc does not load-balance
 -   `49`_: eqPixelBench crash with double free
 -   `19`_: zoom readback with FBO
 -   `18`_: zoom: depth readback does not work
@@ -300,10 +305,15 @@ information.
 .. _87: https://github.com/Eyescale/Equalizer/issues/87
 .. _88: https://github.com/Eyescale/Equalizer/issues/88
 .. _90: https://github.com/Eyescale/Equalizer/issues/90
-.. _Bug Report: https://github.com/Eyescale/Equalizer/issues
-.. _65: https://github.com/Eyescale/Equalizer/issues/65
-.. _61: https://github.com/Eyescale/Equalizer/issues/61
 .. _58: https://github.com/Eyescale/Equalizer/issues/58
+.. _96: https://github.com/Eyescale/Equalizer/issues/96
+.. _97: https://github.com/Eyescale/Equalizer/issues/97
+.. _98: https://github.com/Eyescale/Equalizer/issues/98
+.. _100: https://github.com/Eyescale/Equalizer/issues/100
+.. _101: https://github.com/Eyescale/Equalizer/issues/101
+.. _Bug Report: https://github.com/Eyescale/Equalizer/issues
+.. _78: https://github.com/Eyescale/Equalizer/issues/78
+.. _76: https://github.com/Eyescale/Equalizer/issues/76
 .. _49: https://github.com/Eyescale/Equalizer/issues/49
 .. _19: https://github.com/Eyescale/Equalizer/issues/19
 .. _18: https://github.com/Eyescale/Equalizer/issues/18
@@ -311,8 +321,7 @@ information.
 .. _compatibility   matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
-.. _hard-copy: http://www.lulu.com/product/paperback/equalizer-10
-    -programming-and-user-guide/15165632
+.. _hard-copy: https://www.createspace.com/3800793
 .. _online: http://www.equalizergraphics.com/survey.html
 .. _API     documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html
