@@ -256,9 +256,7 @@ namespace co
         bool _handleAck( const DatagramAck* ack );
         bool _handleNack( const DatagramNack* nack );
         bool _handleAckRequest( const DatagramAckRequest* ackRequest );
-
-        /** @return true if we knew the correct number of connections. */
-        bool _handleCountNode();
+        void _handleCountNode();
 
         Buffer* _newDataBuffer( Buffer& inBuffer );
         void _pushDataBuffer( Buffer* buffer );
