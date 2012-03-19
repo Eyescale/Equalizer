@@ -428,7 +428,6 @@ void RSPConnection::_handleAcceptIDTimeout( )
     else 
     {
         EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
-        EQINFO << "opened RSP connection " << _id << std::endl;
         _sendSimpleDatagram( ID_CONFIRM, _id );
         _addConnection( _id );
         _idAccepted = true;
@@ -449,9 +448,9 @@ void RSPConnection::_handleInitTimeout( )
     else
     {
         _state = STATE_LISTENING;
+        EQINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
-        if( _children.empty() )
-            _ioService.stop();
+        _ioService.stop(); // thread initialized, run restarts
     } 
     _setTimeout( 10 );
 }
@@ -486,7 +485,7 @@ bool RSPConnection::_initThread()
     EQLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
  
-   // send a first datagram for announce me and discover other connection 
+   // send a first datagram to announce me and discover other connections
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     _sendSimpleDatagram( ID_HELLO, _id );
     _setTimeout( 10 ); 
@@ -1396,6 +1395,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
     if( _findConnection( id ))
         return false;
 
+    EQINFO << "add connection " << id << std::endl;
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
