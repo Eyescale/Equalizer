@@ -458,7 +458,7 @@ void RSPConnection::_handleInitTimeout( )
     _setTimeout( 10 );
 }
 
-void RSPConnection::_handleConnectedTimeout( )
+void RSPConnection::_handleConnectedTimeout()
 {
     if( _state != STATE_LISTENING )
     {
@@ -867,8 +867,7 @@ void RSPConnection::_handleInitData( const void* data)
             return;
 
         case COUNTNODE:
-            if( _handleCountNode( ))
-                _state = STATE_LISTENING;
+            _handleCountNode();
             break;
     
         case ID_EXIT:
@@ -1360,19 +1359,15 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     return true;
 }
 
-bool RSPConnection::_handleCountNode()
+void RSPConnection::_handleCountNode()
 {
     const DatagramCount* countConn = 
         reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
     EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
-    // we know all connections
-    if( _children.size() == countConn->numConnections ) 
-        return true;
 
     _addNewConnection( countConn->clientID );
-    return false;
 }
 
 void RSPConnection::_checkNewID( uint16_t id )
