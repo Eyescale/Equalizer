@@ -40,83 +40,84 @@
 #define EQ_COMPRESSOR_INVALID               0x0u
 /** No Compressor */
 #define EQ_COMPRESSOR_NONE                  0x1u
-/** RLE Compression of 4-byte tokens. */
+/** RLE compression of 4-byte tokens. */
 #define EQ_COMPRESSOR_RLE_UNSIGNED          0x2u
-/** RLE Compression of 1-byte tokens. */
+/** RLE compression of 1-byte tokens. */
 #define EQ_COMPRESSOR_RLE_BYTE              0x3u
-/** RLE Compression of three 1-byte tokens. */
+/** RLE compression of three 1-byte tokens. */
 #define EQ_COMPRESSOR_RLE_3_BYTE            0x4u
-/** RLE Compression of four 1-byte tokens. */
+/** RLE compression of four 1-byte tokens. */
 #define EQ_COMPRESSOR_RLE_4_BYTE            0x5u
-/** RLE Compression of four float32 tokens. */
+/** RLE compression of four float32 tokens. */
 #define EQ_COMPRESSOR_RLE_4_FLOAT           0x6u
-/** RLE Compression of four float16 tokens. */
+/** RLE compression of four float16 tokens. */
 #define EQ_COMPRESSOR_RLE_4_HALF_FLOAT      0x7u
-/** Differential RLE Compression of three 1-byte tokens. */
+/** Differential RLE compression of three 1-byte tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_3_BYTE       0x8u
-/** Differential RLE Compression of four 1-byte tokens. */
+/** Differential RLE compression of four 1-byte tokens. */
 #define EQ_COMPRESSOR_DIFF_RLE_4_BYTE       0x9u
-/** RLE Compression of one 4-byte token. */
+/** RLE compression of one 4-byte token. */
 #define EQ_COMPRESSOR_RLE_4_BYTE_UNSIGNED   0xau
-/** Lossy Differential RLE Compression. */
+/** Lossy Differential RLE compression. */
 #define EQ_COMPRESSOR_RLE_DIFF_565          0xbu
-/** RLE Compression of three token of 10-bits and one toke of 2-bits */
+/** RLE compression of three token of 10-bits and one toke of 2-bits */
 #define EQ_COMPRESSOR_RLE_DIFF_BGR10_A2     0xcu
-/** RLE Compression of four float16 tokens. */
+/** RLE compression of four float16 tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_4_HALF_FLOAT 0xdu
-/** Differential RLE Compression of YUV tokens. */
+/** Differential RLE compression of YUV tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_YUVA_50P     0xeu
-/** RLE Compression of YUV tokens. */
+/** RLE compression of YUV tokens. */
 #define EQ_COMPRESSOR_RLE_YUVA_50P          0xfu
 
-/** Differential RLE Compression of RGBA bytes tokens. */
+/** Differential RLE compression of RGBA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_RGBA                                 0x10u
-/** Differential RLE Compression of BGRA bytes tokens. */
+/** Differential RLE compression of BGRA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_BGRA                                 0x11u
-/** Differential RLE Compression of RGBA UINT_8_8_8_8_REV tokens. */
+/** Differential RLE compression of RGBA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_RGBA_UINT_8_8_8_8_REV                0x12u
-/** Differential RLE Compression of BGRA  UINT_8_8_8_8_REV tokens. */
+/** Differential RLE compression of BGRA  UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_BGRA_UINT_8_8_8_8_REV                0x13u
-/** Differential RLE Compression of DEPTH UNSIGNED INT tokens. */
+/** Differential RLE compression of DEPTH UNSIGNED INT tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_DEPTH_UNSIGNED_INT                   0x16u
-/** RLE Compression of RGBA half float tokens. */
+/** RLE compression of RGBA half float tokens. */
 #define EQ_COMPRESSOR_RLE_RGBA16F                                   0x17u
-/** RLE Compression of BGRA half float tokens. */
+/** RLE compression of BGRA half float tokens. */
 #define EQ_COMPRESSOR_RLE_BGRA16F                                   0x18u
-/** Differential RLE Compression of RGBA half float tokens. */
+/** Differential RLE compression of RGBA half float tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_RGBA16F                              0x19u
-/** Differential RLE Compression of BGRA half float tokens. */
+/** Differential RLE compression of BGRA half float tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_BGRA16F                              0x1au
-/** Lossy Differential RLE Compression of RGBA bytes tokens. */
+/** Lossy Differential RLE compression of RGBA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_565_RGBA                             0x1bu
-/** Lossy Differential RLE Compression of RGBA bytes tokens. */
+/** Lossy Differential RLE compression of RGBA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_565_BGRA                             0x1cu
-/** Lossy Differential RLE Compression of RGBA UINT_8_8_8_8_REV tokens. */
+/** Lossy Differential RLE compression of RGBA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_565_RGBA_UINT_8_8_8_8_REV            0x1du
-/** Lossy Differential RLE Compression of BGRA UINT_8_8_8_8_REV tokens. */
+/** Lossy Differential RLE compression of BGRA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_565_BGRA_UINT_8_8_8_8_REV            0x1eu
-/** RLE Compression of RGBA bytes tokens. */
+/** RLE compression of RGBA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_RGBA                                      0x21u
-/** RLE Compression of BGRA bytes tokens. */
+/** RLE compression of BGRA bytes tokens. */
 #define EQ_COMPRESSOR_RLE_BGRA                                      0x22u
-/** RLE Compression of RGBA UINT_8_8_8_8_REV tokens. */
+/** RLE compression of RGBA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_RGBA_UINT_8_8_8_8_REV                     0x23u
-/** RLE Compression of BGRA UINT_8_8_8_8_REV tokens. */
+/** RLE compression of BGRA UINT_8_8_8_8_REV tokens. */
 #define EQ_COMPRESSOR_RLE_BGRA_UINT_8_8_8_8_REV                     0x24u
-/** RLE Compression of RGBA 10_10_10_2 tokens. */
+/** RLE compression of RGBA 10_10_10_2 tokens. */
 #define EQ_COMPRESSOR_RLE_RGB10_A2                                  0x25u
-/** RLE Compression of BGRA 10_10_10_2 tokens. */
+/** RLE compression of BGRA 10_10_10_2 tokens. */
 #define EQ_COMPRESSOR_RLE_BGR10_A2                                  0x26u
-/** RLE Compression of depth unsigned int tokens. */
+/** RLE compression of depth unsigned int tokens. */
 #define EQ_COMPRESSOR_RLE_DEPTH_UNSIGNED_INT                        0x27u
-/** RLE Compression of unsigned tokens. */
+/** RLE compression of unsigned tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_UNSIGNED                             0x28u
 
-/** LZF Compression of bytes. */
+/** LZF compression of bytes. */
 #define EQ_COMPRESSOR_LZF_BYTE      0x30u
-
-/** LZF Compression of bytes. */
+/** LZF compression of bytes. */
 #define EQ_COMPRESSOR_FASTLZ_BYTE   0x31u
+/** Snappy compression of bytes. */
+#define EQ_COMPRESSOR_SNAPPY_BYTE   0x32u
 
 // Equalizer GPU<->CPU transfer plugins
 /* Transfer data from internal RGBA to external RGBA format with a data type

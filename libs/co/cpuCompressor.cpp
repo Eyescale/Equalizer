@@ -84,11 +84,11 @@ bool CPUCompressor::initCompressor( const uint32_t dataType,
 
 uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType, 
                                           const float minQuality,
-                                          const bool ignoreALPHA )
+                                          const bool ignoreAlpha )
 {
     CompressorInfo candidate;
     candidate.name = EQ_COMPRESSOR_NONE;
-    candidate.ratio = 1.0f;
+    candidate.ratingAlpha = 1.0f;
     candidate.quality = 1.0f;
     candidate.speed = 1.0f;
 
@@ -109,38 +109,14 @@ uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType,
                 continue;
             }
 
-            float ratio = info.ratio;
-            if( ignoreALPHA && ( info.capabilities&EQ_COMPRESSOR_IGNORE_ALPHA ))
+            const float rating = ignoreAlpha ? info.ratingNoAlpha :
+                                               info.ratingAlpha;
+
+            if( rating > candidate.ratingAlpha )
             {
-                switch( tokenType )
-                {
-                    default:
-                        break;
-                    case EQ_COMPRESSOR_DATATYPE_4_BYTE:
-                    case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
-                    case EQ_COMPRESSOR_DATATYPE_4_FLOAT:
-                        ratio *= .75f;
-                        break;
-
-                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-                        ratio *= .9375f; // 30/32
-                        break;
-                }
+                candidate = info;
+                candidate.ratingAlpha = rating;
             }
-            
-            if( ratio > candidate.ratio )
-                continue;
-
-            if( (ratio == candidate.ratio) &&
-                ( candidate.quality > info.quality ||
-                  candidate.speed > info.speed ))
-            {
-                // keep candidate with same ratio but better quality|speed
-                continue;
-            }
-
-            candidate = info;
-            candidate.ratio = ratio;
         }
     }
 

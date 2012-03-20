@@ -41,11 +41,10 @@ public:
 
         for( CommandsCIter i = commands.begin(); i != commands.end(); ++i )
         {
-            Command* item = *i;
+            CommandPtr item = *i;
             ObjectPacket* reply = item->getModifiable< ObjectPacket >();
             reply->instanceID = packet->slaveInstanceID;
             command.getNode()->send( *reply );
-            item->release();
         }
 
         if( packet->itemsRequested > commands.size( ))
@@ -56,7 +55,7 @@ public:
         return true;
     }
 
-    typedef lunchbox::MTQueue< Command* > PacketQueue;
+    typedef lunchbox::MTQueue< CommandPtr > PacketQueue;
 
     PacketQueue queue;
     co::CommandCache cache;
@@ -86,8 +85,7 @@ void QueueMaster::attach( const UUID& id, const uint32_t instanceID )
 
 void QueueMaster::clear()
 {
-    while( !_impl->queue.isEmpty( ))
-        _impl->queue.pop()->release();
+    _impl->queue.clear();
     _impl->cache.flush();
 }
 
@@ -101,14 +99,13 @@ void QueueMaster::push( const QueueItemPacket& packet )
     LBASSERT( packet.size >= sizeof( QueueItemPacket ));
     LBASSERT( packet.command == CMD_QUEUE_ITEM );
 
-    Command& command = _impl->cache.alloc( getLocalNode(), getLocalNode(),
-                                           packet.size );
-    QueueItemPacket* queuePacket = command.getModifiable< QueueItemPacket >();
+    CommandPtr command = _impl->cache.alloc( getLocalNode(), getLocalNode(),
+                                             packet.size );
+    QueueItemPacket* queuePacket = command->getModifiable< QueueItemPacket >();
 
     memcpy( queuePacket, &packet, packet.size );
     queuePacket->objectID = getID();
-    command.retain();
-    _impl->queue.push( &command );
+    _impl->queue.push( command );
 }
 
 } // co

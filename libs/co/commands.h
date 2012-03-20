@@ -20,75 +20,12 @@
 
 namespace co
 {
-    enum NodeCommand
+    enum
     {
-        CMD_NODE_STOP_RCV,
-        CMD_NODE_STOP_CMD,
-        CMD_NODE_SET_AFFINITY_RCV,
-        CMD_NODE_SET_AFFINITY_CMD,
-        CMD_NODE_MESSAGE,
-        CMD_NODE_CONNECT,
-        CMD_NODE_CONNECT_REPLY,
-        CMD_NODE_CONNECT_ACK,
-        CMD_NODE_ID,
-        CMD_NODE_DISCONNECT,
-        CMD_NODE_GET_NODE_DATA,
-        CMD_NODE_GET_NODE_DATA_REPLY,
-        CMD_NODE_ACQUIRE_SEND_TOKEN,
-        CMD_NODE_ACQUIRE_SEND_TOKEN_REPLY,
-        CMD_NODE_RELEASE_SEND_TOKEN,
-        CMD_NODE_ADD_LISTENER,
-        CMD_NODE_REMOVE_LISTENER,
-        CMD_NODE_ACK_REQUEST,
-        CMD_NODE_FIND_MASTER_NODE_ID,
-        CMD_NODE_FIND_MASTER_NODE_ID_REPLY,
-        CMD_NODE_ATTACH_OBJECT,
-        CMD_NODE_DETACH_OBJECT,
-        CMD_NODE_REGISTER_OBJECT,
-        CMD_NODE_DEREGISTER_OBJECT,
-        CMD_NODE_MAP_OBJECT,
-        CMD_NODE_MAP_OBJECT_SUCCESS,
-        CMD_NODE_MAP_OBJECT_REPLY,
-        CMD_NODE_UNMAP_OBJECT,
-        CMD_NODE_UNSUBSCRIBE_OBJECT,
-        CMD_NODE_OBJECT_INSTANCE,
-        CMD_NODE_OBJECT_INSTANCE_MAP,
-        CMD_NODE_OBJECT_INSTANCE_COMMIT,
-        CMD_NODE_OBJECT_INSTANCE_PUSH,
-        CMD_NODE_DISABLE_SEND_ON_REGISTER,
-        CMD_NODE_REMOVE_NODE,
-        CMD_NODE_OBJECT_PUSH,
-        CMD_NODE_PING,
-        CMD_NODE_PING_REPLY,
-        CMD_NODE_COMMAND,
-        CMD_NODE_CUSTOM = 50  // some buffer for binary-compatible patches
-    };
-
-    enum ObjectCommand
-    {
-        CMD_OBJECT_INSTANCE,
-        CMD_OBJECT_DELTA,
-        CMD_OBJECT_SLAVE_DELTA,
-        CMD_OBJECT_COMMIT,
-        CMD_OBJECT_PUSH,
-        CMD_OBJECT_OBSOLETE,
-        CMD_OBJECT_MAX_VERSION,
-        CMD_OBJECT_CUSTOM = 10 // some buffer for binary-compatible patches
-    };
-
-    enum BarrierCommand
-    {
-        CMD_BARRIER_ENTER = CMD_OBJECT_CUSTOM,
-        CMD_BARRIER_ENTER_REPLY,
-        CMD_BARRIER_CUSTOM = 20 // some buffer for binary-compatible patches
-    };
-
-    enum QueueCommand
-    {
-        CMD_QUEUE_GET_ITEM = CMD_OBJECT_CUSTOM,
-        CMD_QUEUE_EMPTY,
-        CMD_QUEUE_ITEM,
-        CMD_QUEUE_CUSTOM = 20 // some buffer for binary-compatible patches
+        CMD_NODE_COMMAND, //!< A custom node command (NodeCommandPacket)
+        CMD_NODE_INTERNAL, //!< @internal
+        CMD_NODE_CUSTOM = 50,  //!< Commands for subclasses of Node start here
+        CMD_OBJECT_CUSTOM = 10 //!< Commands for subclasses of Object start here
     };
 }
 

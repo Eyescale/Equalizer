@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -80,10 +80,17 @@ typedef lunchbox::RefPtr< const Node >            ConstNodePtr;
 typedef lunchbox::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for const LocalNode pointers. */
 typedef lunchbox::RefPtr< const LocalNode >       ConstLocalNodePtr;
+/** A reference pointer for Commands. */
+typedef lunchbox::RefPtr< Command >               CommandPtr;
 /** A reference pointer for Connection pointers. */
 typedef lunchbox::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
 typedef lunchbox::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+/** A reference pointer for const ConnectionDescription pointers. */
+typedef lunchbox::RefPtr< const ConnectionDescription >
+                                                  ConstConnectionDescriptionPtr;
+/** A vector of ConnectionListener */
+typedef std::vector< ConnectionListener* > ConnectionListeners;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -118,8 +125,8 @@ typedef ConnectionDescriptions::iterator         ConnectionDescriptionsIter;
 typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 
 /** @cond IGNORE */
-typedef std::vector< Command* > Commands;
-typedef std::deque< Command* > CommandDeque;
+typedef std::vector< CommandPtr > Commands;
+typedef std::deque< CommandPtr > CommandDeque;
 typedef CommandDeque::const_iterator CommandDequeCIter;
 
 typedef std::vector< ObjectVersion > ObjectVersions;

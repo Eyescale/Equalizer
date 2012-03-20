@@ -52,7 +52,7 @@ namespace detail { class Dispatcher; }
          * @return true if the command was dispatched, false if not.
          * @sa registerCommand
          */
-        CO_API virtual bool dispatchCommand( Command& command );
+        CO_API virtual bool dispatchCommand( CommandPtr command );
 
     protected:
         /** 

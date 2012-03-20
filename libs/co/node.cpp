@@ -330,7 +330,7 @@ void Node::_connectMulticast( NodePtr node )
                       k != _impl->multicasts.end(); ++k )
             {
                 const MCData& data = *k;
-                ConnectionDescriptionPtr dataDesc =
+                ConstConnectionDescriptionPtr dataDesc =
                     data.connection->getDescription();
                 if( !description->isSameMulticastGroup( dataDesc ))
                     continue;

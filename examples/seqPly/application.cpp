@@ -113,6 +113,7 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
 #  else
     filenames.push_back( std::string( EQ_INSTALL_DIR ) +
                          std::string( "share/Equalizer/data" ));
+    filenames.push_back( std::string( "/usr/share/Equalizer/data" ));
 #  endif
 #else
     filenames.push_back( std::string( EQ_SOURCE_DIR ) +
@@ -120,7 +121,10 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
 #endif
 
     if( modelArg.isSet( ))
+    {
+        filenames.clear();
         filenames.push_back( modelArg.getValue( ));
+    }
     return filenames;
 }
 

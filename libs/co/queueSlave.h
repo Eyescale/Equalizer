@@ -59,16 +59,11 @@ public:
     /** Destruct this new queue consumer. @version 1.1.6 */
     virtual CO_API ~QueueSlave();
 
-    /** 
-     * Pop an item from the distributed queue.
-     * 
-     * If the queue is empty, 0 is returned. Otherwise the returned command has
-     * to be released by the caller.
-     *
-     * @return the popped command, or 0 if the queue was empty.
+    /**
+     * @return an item from the distributed queue, or 0 if the queue is empty.
      * @version 1.1.6
      */
-    CO_API Command* pop();
+    CO_API CommandPtr pop();
 
 private:
     detail::QueueSlave* const _impl;

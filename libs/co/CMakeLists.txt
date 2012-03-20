@@ -31,9 +31,6 @@ set(CO_ADD_LINKLIB ${PTHREAD_LIBRARIES} ${LUNCHBOX_LIBRARIES})
 if(WIN32)
   list(APPEND CO_ADD_LINKLIB ws2_32 mswsock)
 endif(WIN32)
-if(MSVC)
-  list(APPEND CO_SOURCES pgmConnection.cpp)
-endif(MSVC)
 if(LINUX)
   list(APPEND CO_ADD_LINKLIB dl rt)
 endif()
@@ -46,6 +43,7 @@ if(Boost_FOUND)
   if(NOT Boost_USE_STATIC_LIBS)
     list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
   endif()
+  add_definitions(-DBOOST_ARCHIVE_SOURCE)
 endif(Boost_FOUND)
 
 if(OFED_FOUND)
@@ -65,13 +63,12 @@ endif()
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(collage FILES ${CO_PUBLIC_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
-source_group(compressor FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
+source_group(compressor FILES ${CO_COMPRESSORS})
 
 purple_add_library(Collage SHARED
   HEADERS_PREFIX "co/"
   HEADERS ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
-  SOURCES ${CO_HEADERS} ${CO_SOURCES} ${CO_COMPRESSOR_HEADERS}
-          ${CO_COMPRESSOR_SOURCES}
+  SOURCES ${CO_HEADERS} ${CO_SOURCES} ${CO_COMPRESSORS}
   LINK_LIBRARIES ${CO_ADD_LINKLIB}
   )
 

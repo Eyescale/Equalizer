@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -33,9 +33,6 @@
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
 #endif
-#ifdef EQ_PGM
-#  include "pgmConnection.h"
-#endif
 #ifdef CO_USE_OFED
 #  include "rdmaConnection.h"
 #endif
@@ -48,26 +45,62 @@
 
 namespace co
 {
+namespace detail
+{
+class Connection
+{
+public:
+    co::Connection::State state; //!< The connection state
+    ConnectionDescriptionPtr description; //!< The connection parameters
+
+    /** The lock used to protect concurrent write calls. */
+    mutable lunchbox::Lock sendLock;
+
+    void*         aioBuffer;
+    uint64_t      aioBytes;
+
+    /** The listeners on state changes */
+    ConnectionListeners listeners;
+
+    Connection()
+            : state( co::Connection::STATE_CLOSED )
+            , description( new ConnectionDescription )
+            , aioBuffer( 0 )
+            , aioBytes( 0 )
+    {
+        description->type = CONNECTIONTYPE_NONE;
+    }
+
+    ~Connection()
+    {
+        LBASSERT( state == co::Connection::STATE_CLOSED );
+        state = co::Connection::STATE_CLOSED;
+        description = 0;
+
+        // LBASSERTINFO( !aioBytes && aioBytes == 0,
+        //               "Pending IO operation during connection destruction" );
+    }
+
+    void fireStateChanged( co::Connection* connection )
+    {
+        for( ConnectionListeners::const_iterator i= listeners.begin();
+             i != listeners.end(); ++i )
+        {
+            (*i)->notifyStateChanged( connection );
+        }
+    }
+};
+}
 
 Connection::Connection()
-        : _state( STATE_CLOSED )
-        , _description( new ConnectionDescription )
-        , _aioBuffer( 0 )
-        , _aioBytes( 0 )
+        : _impl( new detail::Connection )
 {
-    _description->type = CONNECTIONTYPE_NONE;
     LBVERB << "New Connection @" << (void*)this << std::endl;
 }
 
 Connection::~Connection()
 {
-    LBASSERT( isClosed( ));
-    _state = STATE_CLOSED;
-    _description = 0;
-
-//    LBASSERTINFO( !_aioBytes && _aioBytes == 0,
-//                  "Pending IO operation during connection destruction" );
-
+    delete _impl;
     LBVERB << "Delete Connection @" << (void*)this << std::endl;
 }
 
@@ -75,10 +108,9 @@ bool Connection::operator == ( const Connection& rhs ) const
 {
     if( this == &rhs )
         return true;
-    if( _description->type != CONNECTIONTYPE_PIPE )
+    if( _impl->description->type != CONNECTIONTYPE_PIPE )
         return false;
-    PipeConnection* pipe = LBSAFECAST( PipeConnection*, 
-                                       const_cast< Connection* >( this ));
+    Connection* pipe = const_cast< Connection* >( this );
     return pipe->acceptSync().get() == &rhs;
 }
 
@@ -95,7 +127,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
         case CONNECTIONTYPE_PIPE:
             connection = new PipeConnection;
             break;
-            
+
 #ifdef _WIN32
         case CONNECTIONTYPE_NAMEDPIPE:
             connection = new NamedPipeConnection;
@@ -106,12 +138,6 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
         case CONNECTIONTYPE_IB:
             connection = new IBConnection;
             break;
-#endif
-#ifdef EQ_PGM
-        case CONNECTIONTYPE_PGM:
-            connection = new PGMConnection;
-            break;
-
 #endif
         case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
@@ -137,45 +163,67 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
     if( description->bandwidth == 0 )
         description->bandwidth = connection->getDescription()->bandwidth;
 
-    connection->setDescription( description );
+    connection->_setDescription( description );
     return connection;
+}
+
+Connection::State Connection::getState() const
+{
+    return _impl->state;
+}
+
+void Connection::_setDescription( ConnectionDescriptionPtr description )
+{
+    LBASSERT( description.isValid( ));
+    LBASSERTINFO( _impl->description->type == description->type,
+                  "Wrong connection type in description" );
+    _impl->description = description;
+    LBASSERT( description->bandwidth > 0 );
+}
+
+void Connection::_setState( const State state )
+{
+    if( _impl->state == state )
+        return;
+    _impl->state = state;
+    _impl->fireStateChanged( this );
+}
+
+void Connection::lockSend() const
+{
+    _impl->sendLock.set();
+}
+
+void Connection::unlockSend() const
+{
+    _impl->sendLock.unset();
 }
 
 void Connection::addListener( ConnectionListener* listener )
 {
-    _listeners.push_back( listener );
+    _impl->listeners.push_back( listener );
 }
 
 void Connection::removeListener( ConnectionListener* listener )
 {
-    std::vector< ConnectionListener* >::iterator i = find( _listeners.begin(),
-                                                           _listeners.end(),
-                                                           listener );
-    if( i != _listeners.end( ))
-        _listeners.erase( i );
+    ConnectionListeners::iterator i = find( _impl->listeners.begin(),
+                                            _impl->listeners.end(), listener );
+    if( i != _impl->listeners.end( ))
+        _impl->listeners.erase( i );
 }
-
-void Connection::_fireStateChanged()
-{
-    for( std::vector<ConnectionListener*>::const_iterator i= _listeners.begin();
-         i != _listeners.end(); ++i )
-
-        (*i)->notifyStateChanged( this );
-}
-
 
 //----------------------------------------------------------------------
 // read
 //----------------------------------------------------------------------
 void Connection::recvNB( void* buffer, const uint64_t bytes )
 {
-    LBASSERT( !_aioBuffer );
-    LBASSERT( !_aioBytes );
+    LBASSERT( !_impl->aioBuffer );
+    LBASSERT( !_impl->aioBytes );
     LBASSERT( buffer );
     LBASSERT( bytes );
 
-    _aioBuffer = buffer;
-    _aioBytes  = bytes;
+    _impl->aioBuffer = buffer;
+    _impl->aioBytes  = bytes;
     readNB( buffer, bytes );
 }
 
@@ -183,20 +231,20 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                            const bool block )
 {
     // set up async IO data
-    LBASSERT( _aioBuffer );
-    LBASSERT( _aioBytes );
+    LBASSERT( _impl->aioBuffer );
+    LBASSERT( _impl->aioBytes );
 
     if( outBuffer )
-        *outBuffer = _aioBuffer;
+        *outBuffer = _impl->aioBuffer;
     if( outBytes )
-        *outBytes = _aioBytes;
+        *outBytes = _impl->aioBytes;
 
-    void* buffer( _aioBuffer );
-    const uint64_t bytes( _aioBytes );
-    _aioBuffer = 0;
-    _aioBytes  = 0;
+    void* buffer( _impl->aioBuffer );
+    const uint64_t bytes( _impl->aioBytes );
+    _impl->aioBuffer = 0;
+    _impl->aioBytes  = 0;
 
-    if( _state != STATE_CONNECTED || !buffer || !bytes )
+    if( _impl->state != STATE_CONNECTED || !buffer || !bytes )
         return false;
 
     // 'Iterator' data for receive loop
@@ -214,8 +262,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
         if( outBytes )
             *outBytes = 0;
 
-        _aioBuffer = buffer;
-        _aioBytes  = bytes;
+        _impl->aioBuffer = buffer;
+        _impl->aioBytes  = bytes;
         return true;
     }
 
@@ -230,7 +278,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                 LBINFO << "Read on dead connection" << std::endl;
             else
                 LBERROR << "Error during read after " << bytes - bytesLeft
-                        << " bytes on " << _description << std::endl;
+                        << " bytes on " << _impl->description << std::endl;
             return false;
         }
         else if( got == 0 )
@@ -288,16 +336,16 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
 
 void Connection::resetRecvData( void** buffer, uint64_t* bytes )
 {
-    *buffer = _aioBuffer;
-    *bytes = _aioBytes;
-    _aioBuffer = 0;
-    _aioBytes = 0;
+    *buffer = _impl->aioBuffer;
+    *bytes = _impl->aioBytes;
+    _impl->aioBuffer = 0;
+    _impl->aioBytes = 0;
 }
 
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
-bool Connection::send( const void* buffer, const uint64_t bytes, 
+bool Connection::send( const void* buffer, const uint64_t bytes,
                        const bool isLocked )
 {
     LBASSERT( bytes > 0 );
@@ -311,7 +359,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    lunchbox::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
+    lunchbox::ScopedMutex<> mutex( isLocked ? 0 : &_impl->sendLock );
 
 #ifndef NDEBUG
     if( bytes <= 1024 && ( lunchbox::Log::topics & LOG_PACKETS ))
@@ -340,7 +388,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             const int64_t wrote = this->write( ptr, bytesLeft );
             if( wrote == -1 ) // error
             {
-                LBERROR << "Error during write after " << bytes - bytesLeft 
+                LBERROR << "Error during write after " << bytes - bytesLeft
                         << " bytes, closing connection" << std::endl;
                 close();
                 return false;
@@ -353,7 +401,7 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
         }
         catch( const co::Exception& e )
         {
-            LBERROR << e.what() << " after " << bytes - bytesLeft 
+            LBERROR << e.what() << " after " << bytes - bytesLeft
                     << " bytes, closing connection" << std::endl;
             close();
             return false;
@@ -410,9 +458,9 @@ bool Connection::send( const Connections& connections,
         return true;
 
     bool success = true;
-    for( Connections::const_iterator i= connections.begin(); 
+    for( Connections::const_iterator i= connections.begin();
          i<connections.end(); ++i )
-    {        
+    {
         ConnectionPtr connection = *i;
         if( !connection->send( &packet, packet.size, isLocked ))
             success = false;
@@ -443,9 +491,9 @@ bool Connection::send( const Connections& connections, Packet& packet,
         packet.size = size;
         bool success = true;
 
-        for( Connections::const_iterator i= connections.begin(); 
+        for( Connections::const_iterator i= connections.begin();
              i<connections.end(); ++i )
-        {        
+        {
             ConnectionPtr connection = *i;
 
             if( !isLocked )
@@ -457,7 +505,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
                 success = false;
             }
             if( !isLocked )
-                connection->unlockSend();    
+                connection->unlockSend();
         }
         return success;
     }
@@ -469,9 +517,9 @@ bool Connection::send( const Connections& connections, Packet& packet,
     ((Packet*)buffer)->size = size;
 
     bool success = true;
-    for( Connections::const_iterator i = connections.begin(); 
+    for( Connections::const_iterator i = connections.begin();
          i < connections.end(); ++i )
-    {        
+    {
         ConnectionPtr connection = *i;
         if( !connection->send( buffer, size, isLocked ))
             success = false;
@@ -481,7 +529,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
 }
 
 bool Connection::send( const Connections& connections, Packet& packet,
-                       const void* const* items, const uint64_t* sizes, 
+                       const void* const* items, const uint64_t* sizes,
                        const size_t nItems )
 {
     if( connections.empty( ))
@@ -496,12 +544,12 @@ bool Connection::send( const Connections& connections, Packet& packet,
     }
 
     bool success = true;
-    for( Connections::const_iterator i = connections.begin(); 
+    for( Connections::const_iterator i = connections.begin();
          i < connections.end(); ++i )
-    {        
+    {
         ConnectionPtr connection = *i;
         connection->lockSend();
-            
+
         if( !connection->send( &packet, headerSize, true ))
             success = false;
 
@@ -517,24 +565,20 @@ bool Connection::send( const Connections& connections, Packet& packet,
     return success;
 }
 
-ConnectionDescriptionPtr Connection::getDescription() const
+ConstConnectionDescriptionPtr Connection::getDescription() const
 {
-    return _description;
+    return _impl->description;
 }
 
-void Connection::setDescription( ConnectionDescriptionPtr description )
+ConnectionDescriptionPtr Connection::_getDescription()
 {
-    LBASSERT( description.isValid( ));
-    LBASSERTINFO( _description->type == description->type,
-                  "Wrong connection type in description" );
-    _description = description;
-    LBASSERT( description->bandwidth > 0 );
+    return _impl->description;
 }
 
 std::ostream& operator << ( std::ostream& os, const Connection& connection )
 {
     Connection::State        state = connection.getState();
-    ConnectionDescriptionPtr desc  = connection.getDescription();
+    ConstConnectionDescriptionPtr desc  = connection.getDescription();
 
     os << "Connection " << (void*)&connection << " type "
        << typeid( connection ).name() << " state "

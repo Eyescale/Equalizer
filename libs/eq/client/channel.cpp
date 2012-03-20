@@ -1401,7 +1401,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
     LBASSERT( queue );
-    for( co::Command* queuePacket = queue->pop(); queuePacket;
+    for( co::CommandPtr queuePacket = queue->pop(); queuePacket;
          queuePacket = queue->pop( ))
     {
         const TileTaskPacket* tilePacket = queuePacket->get<TileTaskPacket>();
@@ -1463,7 +1463,6 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
             if( _asyncFinishReadback( nImages ))
                 hasAsyncReadback = true;
         }
-        queuePacket->release();
     }
 
     if( packet->tasks & fabric::TASK_CLEAR )
@@ -1714,7 +1713,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     }
 
     co::ConnectionPtr connection = toNode->getConnection();
-    co::ConnectionDescriptionPtr description = connection->getDescription();
+    co::ConstConnectionDescriptionPtr description =connection->getDescription();
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );

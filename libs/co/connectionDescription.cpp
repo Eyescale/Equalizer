@@ -57,8 +57,6 @@ static ConnectionType _getConnectionType( const std::string& string )
         return CONNECTIONTYPE_NAMEDPIPE;
     if( string == "IB" )
         return CONNECTIONTYPE_IB;
-    if( string == "PGM" )
-        return CONNECTIONTYPE_PGM;
     if( string == "RSP" )
         return CONNECTIONTYPE_RSP;
     if( string == "RDMA" )
@@ -234,7 +232,8 @@ const std::string& ConnectionDescription::getInterface() const
     return _interface;
 }
 
-bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
+bool ConnectionDescription::isSameMulticastGroup(
+    ConstConnectionDescriptionPtr rhs )
 {
     return( type == rhs->type && _hostname == rhs->_hostname &&
             port == rhs->port );

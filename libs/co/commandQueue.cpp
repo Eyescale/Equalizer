@@ -31,7 +31,7 @@ class CommandQueue
 {
 public:
     /** Thread-safe command queue. */
-    lunchbox::MTQueue< Command* > commands;
+    lunchbox::MTQueue< CommandPtr > commands;
 };
 }
 
@@ -51,13 +51,7 @@ void CommandQueue::flush()
     if( !isEmpty( ))
         LBWARN << "Flushing non-empty command queue" << std::endl;
 
-    Command* command( 0 );
-    while( _impl->commands.tryPop( command ))
-    {
-        LBWARN << *command << std::endl;
-        LBASSERT( command );
-        command->release();
-    }
+    _impl->commands.clear();
 }
 
 bool CommandQueue::isEmpty() const
@@ -70,40 +64,32 @@ size_t CommandQueue::getSize() const
     return _impl->commands.getSize();
 }
 
-void CommandQueue::push( Command& command )
+void CommandQueue::push( CommandPtr command )
 {
-    LBASSERT( command.isValid( ));
-    command.retain();
-    _impl->commands.push( &command );
+    _impl->commands.push( command );
 }
 
-void CommandQueue::pushFront( Command& command )
+void CommandQueue::pushFront( CommandPtr command )
 {
-    LBASSERT( command.isValid( ));
-    command.retain();
-    _impl->commands.pushFront( &command );
+    LBASSERT( command->isValid( ));
+    _impl->commands.pushFront( command );
 }
 
-void CommandQueue::wakeup()
-{
-    _impl->commands.push( static_cast< Command* >( 0 ));
-}
-
-Command* CommandQueue::pop( const uint32_t timeout )
+CommandPtr CommandQueue::pop( const uint32_t timeout )
 {
     LB_TS_THREAD( _thread );
 
-    Command* command;
+    CommandPtr command;
     if( !_impl->commands.timedPop( timeout, command ))
         throw Exception( Exception::TIMEOUT_COMMANDQUEUE );
 
     return command;
 }
 
-Command* CommandQueue::tryPop()
+CommandPtr CommandQueue::tryPop()
 {
     LB_TS_THREAD( _thread );
-    Command* command = 0;
+    CommandPtr command;
     _impl->commands.tryPop( command );
     return command;
 }

@@ -45,6 +45,8 @@ namespace co
 {
 namespace
 {
+typedef lunchbox::RefPtr< UDTConnection > UDTConnectionPtr;
+
 template< class T > inline std::string to_string( const T &t )
 {
     std::stringstream ss; ss << t; return ss.str( );
@@ -290,8 +292,9 @@ UDTConnection::UDTConnection( )
     UDT::startup( );
 #endif
 
-    _description->type = CONNECTIONTYPE_UDT;
-    _description->bandwidth = 102400000; // 1Gbps
+    ConnectionDescriptionPtr description = _getDescription();
+    description->type = CONNECTIONTYPE_UDT;
+    description->bandwidth = 102400000; // 1Gbps
 
     LBVERB << "New UDTConnection @" << (void *)this << std::endl;
 }
@@ -303,14 +306,14 @@ bool UDTConnection::connect( )
     CCC *cc = NULL;
     int len;
 
-    LBASSERT( CONNECTIONTYPE_UDT == _description->type );
-    if( STATE_CLOSED != _state )
+    ConstConnectionDescriptionPtr description = getDescription();
+    LBASSERT( CONNECTIONTYPE_UDT == description->type );
+    if( !isClosed( ))
         return false;
 
-    _state = STATE_CONNECTING;
-    _fireStateChanged( );
+    _setState( STATE_CONNECTING );
 
-    if( !_parseAddress( _description, address, false ))
+    if( !_parseAddress( description, address, false ))
         goto err;
 
     LBASSERT( UDT::INVALID_SOCK == _udt );
@@ -342,14 +345,13 @@ bool UDTConnection::connect( )
         {
             CUDPBlast *ccblast = dynamic_cast<CUDPBlast *>( cc );
             if( NULL != ccblast )
-                ccblast->setRate( _description->bandwidth / 1000. );
+                ccblast->setRate( description->bandwidth / 1000. );
         }
     }
 
     if( initialize( ))
     {
-        _state = STATE_CONNECTED;
-        _fireStateChanged( );
+        _setState( STATE_CONNECTED );
         return true;
     }
 err:
@@ -361,14 +363,14 @@ bool UDTConnection::listen( )
 {
     struct sockaddr address;
 
-    LBASSERT( CONNECTIONTYPE_UDT == _description->type );
-    if( STATE_CLOSED != _state )
+    ConstConnectionDescriptionPtr description = getDescription();
+    LBASSERT( CONNECTIONTYPE_UDT == description->type );
+    if( !isClosed( ))
         return false;
 
-    _state = STATE_CONNECTING;
-    _fireStateChanged( );
+    _setState( STATE_CONNECTING );
 
-    if( !_parseAddress( _description, address, true ))
+    if( !_parseAddress( description, address, true ))
         goto err;
 
     LBASSERT( UDT::INVALID_SOCK == _udt );
@@ -396,8 +398,7 @@ bool UDTConnection::listen( )
 
     if( initialize( ))
     {
-        _state = STATE_LISTENING;
-        _fireStateChanged( );
+        _setState( STATE_LISTENING );
         return true;
     }
 err:
@@ -412,10 +413,9 @@ void UDTConnection::close( )
     {
         lunchbox::ScopedMutex<> mutex( _app_mutex );
 
-        if( STATE_CLOSED != _state )
+        if( !isClosed( ))
         {
-            _state = STATE_CLOSING;
-            _fireStateChanged( );
+            _setState( STATE_CLOSING );
 
             // Let the event thread proceed if its blocked
             _app_block.set( true );
@@ -433,8 +433,7 @@ void UDTConnection::close( )
             poller = _poller;
             _poller = NULL;
 
-            _state = STATE_CLOSED;
-            _fireStateChanged( );
+            _setState( STATE_CLOSED );
         }
     }
 
@@ -460,9 +459,9 @@ ConnectionPtr UDTConnection::acceptSync( )
 {
     struct sockaddr address;
     int addrlen;
-    UDTConnection *newConnection = NULL;
 
     UDTSOCKET newSocket = UDT::accept( _udt, &address, &addrlen );
+    UDTConnectionPtr newConnection = new UDTConnection;
 
     if( UDT::INVALID_SOCK == newSocket )
     {
@@ -473,33 +472,28 @@ ConnectionPtr UDTConnection::acceptSync( )
 
     acknowledge( _notifier );
 
-    newConnection = new UDTConnection( );
     newConnection->_udt = newSocket;
 
     // Do this after accept, otherwise accept itself becomes non-blocking
     static const bool OFF = false;
-    if( !newConnection->setSockOpt( UDT_RCVSYN,
-        static_cast<const void *>( &OFF ), sizeof(OFF) ))
-        goto err;
-
-    newConnection->_description->setHostname(
-        ::inet_ntoa( ((struct sockaddr_in *)&address)->sin_addr ));
-    newConnection->_description->port =
-        ntohs( ((struct sockaddr_in *)&address)->sin_port );
-    newConnection->_description->bandwidth = _description->bandwidth;
-    if( newConnection->initialize( ))
+    if( newConnection->setSockOpt( UDT_RCVSYN,
+                                   static_cast<const void *>( &OFF ),
+                                   sizeof(OFF) ))
     {
-        newConnection->_state = STATE_CONNECTED;
-        newConnection->_fireStateChanged( );
-        goto out;
+        ConnectionDescriptionPtr desc = newConnection->_getDescription();
+        desc->setHostname( ::inet_ntoa(
+                                  ((struct sockaddr_in *)&address)->sin_addr ));
+        desc->port = ntohs( ((struct sockaddr_in *)&address)->sin_port );
+        desc->bandwidth = getDescription()->bandwidth;
+        if( newConnection->initialize( ))
+        {
+            newConnection->_setState( STATE_CONNECTED );
+            goto out;
+        }
     }
-
+    // else goto err;
 err:
-    if( NULL != newConnection )
-    {
-        delete newConnection;
-        newConnection = NULL;
-    }
+    newConnection = 0;
 
 out:
     // Let the event thread continue polling
@@ -610,10 +604,9 @@ void UDTConnection::wake( )
         lunchbox::ScopedMutex<> mutex( _app_mutex );
 
         // Only block if we're not shutting down
-        if(( STATE_LISTENING == _state ) || ( STATE_CONNECTED == _state ))
+        if( isListening() || isConnected( ))
         {
             notifyAndWait = true;
-
             _app_block.set( false );
         }
     }
@@ -763,8 +756,8 @@ void UDTConnection::UDTConnectionThread::run( )
         // Otherwise, poll for status changes
         else if( _running )
         {
-            Connection::State state = _connection->_state;
-            UDTSTATUS status = UDT::getsockstate( _connection->_udt );
+            const Connection::State state = _connection->getState();
+            const UDTSTATUS status = UDT::getsockstate( _connection->_udt );
 
             // readSync/acceptSync will hopefully return errors
             if(( STATE_LISTENING == state ) && ( LISTENING != status ))

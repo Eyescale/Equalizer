@@ -22,53 +22,65 @@
 #include <co/localNode.h> // NodePtr members
 
 #include <lunchbox/atomic.h> // member
-#include <lunchbox/refPtr.h> // NodePtr
+#include <lunchbox/refPtr.h> // NodePtr member
 
 namespace co
 {    
     /**
-     * @internal
-     * A class managing command packets.
+     * A class managing received command packets.
      *
-     * A RefPtr<Packet> can't be used, since Packets are plain C structs send
-     * over the network.
+     * This class is used by the LocalNode to pass received packets to the
+     * Dispatcher and ultimately command handler functions. It is not intended
+     * to be instantiated by applications. It is the applications responsible to
+     * provide the correct packet type to the templated get methods.
      */
-    class Command 
+    class Command : public lunchbox::Referenced
     {
     public:
+        explicit Command( lunchbox::a_int32_t& freeCounter ); //!< @internal
+        ~Command(); //!< @internal
+
         /** @name Data Access */
         //@{
-        template< class P > P* getModifiable()
-            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
+        /** @return a const pointer to the packet. @version 1.0 */
         template< class P > const P* get() const
             { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
 
-        NodePtr getNode()      const { return _node; }
+        /** @return a modifiable pointer to the packet. @version 1.0 */
+        template< class P > P* getModifiable()
+            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
+
+        /** @return the sending node proxy instance. @version 1.0 */
+        NodePtr getNode() const { return _node; }
+
+        /** @return the receiving node. @version 1.0 */
         LocalNodePtr getLocalNode() const { return _localNode; }
 
-        bool          operator ! () const { return ( _packet==0 ); }
-        Packet*       operator->()       { LBASSERT(_packet); return _packet; }
+        /** Access the packet directly. @version 1.0 */
+        Packet* operator->() { LBASSERT(_packet); return _packet; }
+
+        /** Access the packet directly. @version 1.0 */
         const Packet* operator->() const { LBASSERT(_packet); return _packet; }
 
+        /** @internal @return true if the command has a valid packet. */
         bool isValid() const { return ( _packet!=0 ); }
-        uint64_t getAllocationSize() const { return _dataSize; }
 
+        /** @internal @return the amount of memory currently allocated. */
+        uint64_t getAllocationSize() const { return _dataSize; }
+        //@}
+
+        /** @internal @name Dispatch command functions.. */
+        //@{
+        /** @internal Set the function to which the packet is dispatched. */
         void setDispatchFunction( const Dispatcher::Func& func )
             { LBASSERT( !_func.isValid( )); _func = func; }
-        //@}
-
-        /** @name Usage tracking. */
-        //@{
-        bool isFree() const { return ( _refCount==0 ); }
-        CO_API void retain();
-        CO_API void release();
-        //@}
 
         /** Invoke and clear the command function of a dispatched command. */
         CO_API bool operator()();
+        //@}
 
-        explicit Command( lunchbox::a_int32_t& freeCounter ); //!< @internal
-        ~Command(); //!< @internal
+        /** @internal @return true if the packet is no longer in use. */
+        bool isFree() const { return getRefCount() == 0; }
 
         /** @internal @return the number of newly allocated bytes. */
         size_t alloc_( NodePtr node, LocalNodePtr localNode,
@@ -79,10 +91,10 @@ namespace co
          * 
          * The command will share all data but the dispatch function. The
          * command's allocation size will be 0 and it will never delete the
-         * shared data. The command will (de)reference the from command on each
-         * retain/release.
+         * shared data. The command will release its reference to the from
+         * command when it is released.
          */
-        void clone_( Command& from );
+        void clone_( CommandPtr from );
 
     private:
         Command& operator = ( Command& rhs ); // disable assignment
@@ -98,12 +110,13 @@ namespace co
         Packet*  _data;     //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
-        lunchbox::a_int32_t* _refCountMaster;
-        lunchbox::a_int32_t  _refCount;
+        CommandPtr _master;
         lunchbox::a_int32_t& _freeCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);
+
+        virtual void deleteReferenced( const Referenced* object ) const;
 
         LB_TS_VAR( _writeThread );
     };

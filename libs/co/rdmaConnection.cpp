@@ -191,24 +191,22 @@ RDMAConnection::RDMAConnection( )
 
     ::memset( (void *)&_cpd, 0, sizeof(struct RDMAConnParamData) );
 
-    _description->type = CONNECTIONTYPE_RDMA;
-    _description->bandwidth = // QDR default, report "actual" 8b/10b bandwidth
+    ConnectionDescriptionPtr description = _getDescription();
+    description->type = CONNECTIONTYPE_RDMA;
+    description->bandwidth = // QDR default, report "actual" 8b/10b bandwidth
         ( ::ibv_rate_to_mult( IBV_RATE_40_GBPS ) * 2.5 * 1024000 / 8 ) * 0.8;
 }
 
 bool RDMAConnection::connect( )
 {
-    LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
+    ConstConnectionDescriptionPtr description = getDescription();
+    LBASSERT( CONNECTIONTYPE_RDMA == description->type );
 
-    if( STATE_CLOSED != _state )
-        return false;
-
-    if( 0u == _description->port )
+    if( !isClosed() || 0u == description->port )
         return false;
 
     _cleanup( );
-
-    setState( STATE_CONNECTING );
+    _setState( STATE_CONNECTING );
 
     if( !_lookupAddress( false ) || ( NULL == _rai ))
     {
@@ -251,7 +249,7 @@ bool RDMAConnection::connect( )
         << _device_name << ":" << (int)_cm_id->port_num
         << " to "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << description->toString( ) << ")"
         << std::endl;
 
     if( !_initProtocol( Global::getIAttribute(
@@ -331,11 +329,10 @@ bool RDMAConnection::connect( )
         << _device_name << ":" << (int)_cm_id->port_num
         << " to "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << description->toString( ) << ")"
         << std::endl;
 
-    setState( STATE_CONNECTED );
-
+    _setState( STATE_CONNECTED );
     return true;
 
 err:
@@ -343,7 +340,7 @@ err:
         << _device_name << ":" << (int)_cm_id->port_num
         << " to "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << description->toString( ) << ")"
         << std::endl;
 
     close( );
@@ -353,14 +350,14 @@ err:
 
 bool RDMAConnection::listen( )
 {
-    LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
+    ConstConnectionDescriptionPtr description = getDescription();
+    LBASSERT( CONNECTIONTYPE_RDMA == description->type );
 
-    if( STATE_CLOSED != _state )
+    if( !isClosed() )
         return false;
 
     _cleanup( );
-
-    setState( STATE_CONNECTING );
+    _setState( STATE_CONNECTING );
 
     if( !_lookupAddress( true ))
     {
@@ -423,16 +420,14 @@ bool RDMAConnection::listen( )
         << _device_name << ":" << (int)_cm_id->port_num
         << " at "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << description->toString( ) << ")"
         << std::endl;
 
-    setState( STATE_LISTENING );
-
+    _setState( STATE_LISTENING );
     return true;
 
 err:
-    close( );
-
+    close();
     return false;
 }
 
@@ -442,7 +437,7 @@ ConnectionPtr RDMAConnection::acceptSync( )
 {
     RDMAConnection *newConnection = NULL;
 
-    if( STATE_LISTENING != _state )
+    if( !isListening() )
     {
         LBERROR << "Connection not in listening state." << std::endl;
         goto out;
@@ -483,7 +478,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     uint32_t bytes_taken = 0UL;
     bool extra_event = false;
 
-    if( STATE_CONNECTED != _state )
+    if( !isConnected() )
         goto err;
 
 //    LBWARN << (void *)this << std::dec << ".read(" << bytes << ")"
@@ -611,7 +606,7 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     const uint32_t can_put = std::min( bytes, MAX_BS );
     uint32_t bytes_put;
 
-    if( STATE_CONNECTED != _state )
+    if( !isConnected() )
         goto err;
 
 //    LBWARN << (void *)this << std::dec << ".write(" << bytes << ")"
@@ -700,30 +695,21 @@ RDMAConnection::~RDMAConnection( )
     _close( );
 }
 
-void RDMAConnection::setState( const State state )
-{
-    if( state != _state )
-    {
-        _state = state;
-        _fireStateChanged( );
-    }
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 void RDMAConnection::_close( )
 {
     lunchbox::ScopedWrite close_mutex( _poll_lock );
 
-    if( STATE_CLOSED != _state )
+    if( !isClosed() )
     {
-        LBASSERT( STATE_CLOSING != _state );
-        setState( STATE_CLOSING );
+        LBASSERT( !isClosing() );
+        _setState( STATE_CLOSING );
 
         if( _established && ::rdma_disconnect( _cm_id ))
             LBWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
 
-        setState( STATE_CLOSED );
+        _setState( STATE_CLOSED );
 
         _cleanup( );
     }
@@ -731,7 +717,7 @@ void RDMAConnection::_close( )
 
 void RDMAConnection::_cleanup( )
 {
-    LBASSERT( STATE_CLOSED == _state );
+    LBASSERT( isClosed() );
 
     _sourcebuf.clear( );
     _sinkbuf.clear( );
@@ -783,8 +769,8 @@ void RDMAConnection::_cleanup( )
 bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         const RDMAConnParamData &cpd )
 {
-    LBASSERT( STATE_CLOSED == _state );
-    setState( STATE_CONNECTING );
+    LBASSERT( isClosed() );
+    _setState( STATE_CONNECTING );
 
     LBASSERT( NULL != new_cm_id );
 
@@ -847,7 +833,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         << _device_name << ":" << (int)_cm_id->port_num
         << " from "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << getDescription()->toString( ) << ")"
         << std::endl;
 
     if(( RDMA_PROTOCOL_MAGIC != cpd.magic ) ||
@@ -937,10 +923,10 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         << _device_name << ":" << (int)_cm_id->port_num
         << " from "
         << _addr << ":" << _serv
-        << " (" << _description->toString( ) << ")"
+        << " (" << getDescription()->toString( ) << ")"
         << std::endl;
 
-    setState( STATE_CONNECTED );
+    _setState( STATE_CONNECTED );
 
     return true;
 
@@ -968,14 +954,15 @@ bool RDMAConnection::_lookupAddress( const bool passive )
     if( passive )
         hints.ai_flags |= RAI_PASSIVE;
 
-    const std::string &hostname = _description->getHostname( );
+    ConstConnectionDescriptionPtr description = getDescription();
+    const std::string &hostname = description->getHostname( );
     if( !hostname.empty( ))
         node = const_cast< char * >( hostname.c_str( ));
 
-    if( 0u != _description->port )
+    if( 0u != description->port )
     {
         std::stringstream ss;
-        ss << _description->port;
+        ss << description->port;
         s = ss.str( );
         service = const_cast< char * >( s.c_str( ));
     }
@@ -1030,10 +1017,11 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
     if( is_unspec )
         ::gethostname( _addr, NI_MAXHOST );
 
-    if( _description->getHostname( ).empty( ))
-        _description->setHostname( _addr );
-    if( 0u == _description->port )
-        _description->port = atoi( _serv );
+    ConnectionDescriptionPtr description = _getDescription();
+    if( description->getHostname( ).empty( ))
+        description->setHostname( _addr );
+    if( 0u == description->port )
+        description->port = atoi( _serv );
 }
 
 bool RDMAConnection::_createEventChannel( )
@@ -1329,18 +1317,19 @@ err:
 bool RDMAConnection::_bindAddress( )
 {
     LBASSERT( NULL != _cm_id );
+    ConstConnectionDescriptionPtr description = getDescription();
 
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
     memset( (void *)&sin, 0, sizeof(struct sockaddr_in6) );
     sin.sin6_family = AF_INET6;
-    sin.sin6_port = htons( _description->port );
+    sin.sin6_port = htons( description->port );
     sin.sin6_addr = in6addr_any;
 #else
     struct sockaddr_in sin;
     memset( (void *)&sin, 0, sizeof(struct sockaddr_in) );
     sin.sin_family = AF_INET;
-    sin.sin_port = htons( _description->port );
+    sin.sin_port = htons( description->port );
     sin.sin_addr.s_addr = INADDR_ANY;
 #endif
 

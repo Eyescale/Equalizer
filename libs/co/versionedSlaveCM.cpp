@@ -18,7 +18,6 @@
 #include "versionedSlaveCM.h"
 
 #include "command.h"
-#include "commands.h"
 #include "log.h"
 #include "object.h"
 #include "objectDataIStream.h"
@@ -324,7 +323,7 @@ bool VersionedSlaveCM::_cmdData( Command& command )
     if( !_currentIStream )
         _currentIStream = _iStreamCache.alloc();
 
-    _currentIStream->addDataPacket( command );
+    _currentIStream->addDataPacket( &command );
     if( _currentIStream->isReady( ))
     {
         const uint128_t& version = _currentIStream->getVersion();

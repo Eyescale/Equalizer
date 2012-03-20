@@ -688,9 +688,9 @@ void Pipe::cancelThread()
         return;
 
     PipeExitThreadPacket pkg;
-    co::Command& command = getLocalNode()->allocCommand( sizeof( pkg ));
+    co::CommandPtr command = getLocalNode()->allocCommand( sizeof( pkg ));
     eq::PipeExitThreadPacket* packet =
-        command.getModifiable< eq::PipeExitThreadPacket >();
+        command->getModifiable< eq::PipeExitThreadPacket >();
 
     memcpy( packet, &pkg, sizeof( pkg ));
     dispatchCommand( command );
