@@ -211,6 +211,8 @@ bool RDMAConnection::connect( )
 retry:
     bool retry = false;
 
+    _cleanup( );
+
     setState( STATE_CONNECTING );
 
     if( !_lookupAddress( false ) || ( NULL == _rai ))
@@ -355,6 +357,8 @@ bool RDMAConnection::listen( )
     if( STATE_CLOSED != _state )
         return false;
 
+    _cleanup( );
+
     setState( STATE_CONNECTING );
 
     if( !_lookupAddress( true ))
@@ -431,7 +435,7 @@ void RDMAConnection::close( )
 {
     EQVERB << (void *)this << ".close( )" << std::endl;
 
-    base::ScopedMutex<> close_mutex( _close_lock );
+    base::ScopedMutex<> close_mutex( _poll_lock );
 
     if( STATE_CLOSED != _state )
     {
@@ -468,8 +472,6 @@ void RDMAConnection::close( )
             EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
 
         _established = false;
-
-        _cleanup( );
 
         setState( STATE_CLOSED );
     }
@@ -525,7 +527,8 @@ retry2:
     {
         if( _sinkptr.isEmpty( ) && !_established )
         {
-            EQINFO << "Got EOF, closing connection." << std::endl;
+            EQINFO << "Got EOF, closing " << getDescription( )->toString( )
+                   << std::endl;
             close( );
             goto err;
         }
@@ -631,8 +634,7 @@ retry:
 
     if( !_established )
     {
-        EQINFO << "Got EOF, closing connection." << std::endl;
-        close( );
+        EQWARN << "Disconnected during write." << std::endl;
         goto err;
     }
 
@@ -708,6 +710,8 @@ RDMAConnection::~RDMAConnection( )
     EQVERB << (void *)this << ".delete" << std::endl;
 
     close( );
+
+    _cleanup( );
 }
 
 void RDMAConnection::setState( const State state )
@@ -723,7 +727,7 @@ void RDMAConnection::setState( const State state )
 
 void RDMAConnection::_cleanup( )
 {
-    EQASSERT( STATE_CLOSING == _state );
+    EQASSERT( STATE_CLOSED == _state );
 
     _sourcebuf.clear( );
     _sinkbuf.clear( );
@@ -1581,19 +1585,19 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     ok = ( event->event == expected );
 
-#ifndef NDEBUG
+//#ifndef NDEBUG
     if( ok )
-        EQVERB << (void *)this
+        EQINFO << (void *)this
             << " (" << _addr << ":" << _serv << ")"
             << " event : " << ::rdma_event_str( event->event )
             << std::endl;
     else
-        EQINFO << (void *)this
+        EQWARN << (void *)this
             << " (" << _addr << ":" << _serv << ")"
             << " event : " << ::rdma_event_str( event->event )
             << " expected: " << ::rdma_event_str( expected )
             << std::endl;
-#endif
+//#endif
 
     if( ok && ( RDMA_CM_EVENT_DISCONNECTED == event->event ))
         _established = false;
@@ -1643,6 +1647,9 @@ bool RDMAConnection::_pollCQ( )
     int count;
 
     base::ScopedWrite poll_mutex( _poll_lock );
+
+    if( !_cm_id )
+        return true;
 
     /* CHECK RECEIVE COMPLETIONS */
     count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
@@ -1936,7 +1943,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 RDMAConnection *to_add = _to_add;
                 _to_add = NULL;
 
-                evctl.events = EPOLLIN /*| EPOLLONESHOT*/;
+                evctl.events = EPOLLIN | EPOLLONESHOT;
                 evctl.data.ptr =
                     reinterpret_cast< void * >( &to_add->_context );
                 if( ::epoll_ctl( _epoll_fd, EPOLL_CTL_ADD, to_add->_cm->fd,

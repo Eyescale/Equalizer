@@ -221,10 +221,7 @@ private:
     /* _cm->fd (listener) or _cm_id->recv_cq_channel->fd (connection) */
     Notifier _notifier;
 
-    /* Protect close( ) from multiple threads */
-    base::Lock _close_lock;
-
-    /* Protect _pollCQ( ) from multiple threads */
+    /* Protect RDMA/Verbs vars from multiple threads */
     base::Lock _poll_lock;
 
     /* Timeout for resolving RDMA address & route */
