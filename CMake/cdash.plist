@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>equalizer.cdash</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/eile/Equalizer</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>env</string>
+    <string>CTEST_DROP_SITE=66.194.253.26</string>
+    <string>/usr/bin/make</string>
+    <string>-j2</string>
+    <string>CTEST=/opt/local/bin/ctest</string>
+    <string>cdash</string>
+  </array>
+  <key>StartInterval</key>
+  <integer>7200</integer>
+</dict>
+</plist>
