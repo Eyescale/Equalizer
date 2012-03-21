@@ -82,6 +82,8 @@ documentation changes:
 -   Runtime failure tolerance detecting hardware and software failures
 -   Tile compounds for fill-limited rendering such as direct volume
     rendering and interactive raytracing
+-   Support for `dynamic focus distance`_ with stereo rendering and
+    immersive environments
 
 -   Distributed single-producer, multi-consumer queue
 -   RDMA-based connection class for InfiniBand (Linux only)
@@ -257,6 +259,8 @@ information.
 4. Errata
 ---------
 
+-   `105`_: Sequel missing from packages
+
 .. _1. Introduction: #introduction
 .. _1.1. Features: #features
 .. _2. New in this release: #new
@@ -285,6 +289,8 @@ information.
 .. _GPU-SD       library: http://www.equalizergraphics.com/gpu-sd
 .. _Sequel: http://www.equalizergraphics.com/documents/Developer/API-1.2/
     sequel/namespaceseq.html
+.. _dynamic       focus distance:
+    http://www.equalizergraphics.com/documents/design/immersive.html#focal
 .. _push-based object       distribution:
     https://github.com/Eyescale/Equalizer/issues/28
 .. _Per-segment or       per-canvas swap barriers:
@@ -336,3 +342,4 @@ information.
     mailto:info@equalizergraphics.com?subject=Equalizer%20question
 .. _Eyescale: http://www.eyescale.ch
 .. _info@eyescale.ch: mailto:info@eyescale.ch?subject=Equalizer%20support
+.. _105: https://github.com/Eyescale/Equalizer/issues/105
