@@ -77,6 +77,8 @@
        software failures
      * Tile compounds for fill-limited rendering such as
        direct volume rendering and interactive raytracing
+     * Support for dynamic focus distance with stereo
+       rendering and immersive environments
      * Distributed single-producer, multi-consumer queue
      * RDMA-based connection class for InfiniBand (Linux only)
      * Support push-based object distribution
@@ -240,3 +242,5 @@
    info@eyescale.ch for further information.
 
 4. Errata
+
+     * 105: Sequel missing from packages
