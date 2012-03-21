@@ -18,7 +18,7 @@
 #include "connectionSet.h"
 
 #include "connection.h"
-#include "node.h"
+#include "connectionListener.h"
 #include "eventConnection.h"
 
 #include <lunchbox/buffer.h>
@@ -46,8 +46,8 @@ namespace co
 {
 namespace
 {
-#ifdef _WIN32
 
+#ifdef _WIN32
 /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
 class Thread : public lunchbox::Thread
 {
@@ -103,45 +103,20 @@ union Result
 {
     Connection* connection;
 };
-
 #endif // _WIN32
 
 }
 
 namespace detail
 {
-class ConnectionSet
+class ConnectionSet : public ConnectionListener
 {
 public:
-    ConnectionSet()
-           : selfConnection( new EventConnection )
-#ifdef _WIN32
-           , thread( 0 )
-#endif
-           , error( 0 )
-           , dirty( true )
-        {
-            // Whenever another threads modifies the connection list while the
-            // connection set is waiting in a select, the select is interrupted
-            // using this connection.
-            LBCHECK( selfConnection->connect( ));
-        }
-
-    ~ConnectionSet()
-        {
-            connection = 0;
-            selfConnection->close();
-            selfConnection = 0;
-        }
-
     /** Mutex protecting changes to the set. */
     lunchbox::Lock lock;
 
     /** The connections of this set */
     Connections allConnections;
-
-    /** The connections to handle */
-    Connections connections;
 
     // Note: std::vector had to much overhead here
 #ifdef _WIN32
@@ -156,12 +131,14 @@ public:
     lunchbox::RefPtr< EventConnection > selfConnection;
 
 #ifdef _WIN32
+    /** The connections to handle */
+    Connections connections;
+
     /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
     Threads threads;
 
     /** Result thread. */
     Thread* thread;
-
 #endif
 
     // result values
@@ -170,6 +147,41 @@ public:
 
     /** FD sets need rebuild. */
     bool dirty;
+
+    ConnectionSet()
+           : selfConnection( new EventConnection )
+#ifdef _WIN32
+           , thread( 0 )
+#endif
+           , error( 0 )
+           , dirty( true )
+    {
+        // Whenever another threads modifies the connection list while the
+        // connection set is waiting in a select, the select is interrupted
+        // using this connection.
+        LBCHECK( selfConnection->connect( ));
+    }
+
+    ~ConnectionSet()
+     {
+         connection = 0;
+         selfConnection->close();
+         selfConnection = 0;
+     }
+
+    void setDirty()
+    {
+        if( dirty )
+            return;
+
+        LBVERB << "FD set modified, restarting select" << std::endl;
+        dirty = true;
+        interrupt();
+    }
+
+    void interrupt() { selfConnection->set(); }
+private:
+    virtual void notifyStateChanged( Connection* ) { setDirty(); }
 };
 }
 
@@ -184,12 +196,12 @@ ConnectionSet::~ConnectionSet()
 
 size_t ConnectionSet::getSize() const
 {
-    return _impl->connections.size();
+    return _impl->allConnections.size();
 }
 
 bool ConnectionSet::isEmpty() const
 {
-    return _impl->connections.empty();
+    return _impl->allConnections.empty();
 }
 
 const Connections& ConnectionSet::getConnections() const
@@ -209,22 +221,12 @@ ConnectionPtr ConnectionSet::getConnection()
 
 void ConnectionSet::setDirty()
 {
-    if( _impl->dirty )
-        return;
-
-    LBVERB << "FD set modified, restarting select" << std::endl;
-    _impl->dirty = true;
-    interrupt();
-}
-
-void ConnectionSet::notifyStateChanged( Connection* )
-{
-    _impl->dirty = true;
+    _impl->setDirty();
 }
 
 void ConnectionSet::interrupt()
 {
-    _impl->selfConnection->set();
+    _impl->interrupt();
 }
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
@@ -242,7 +244,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         {
             // can handle it ourself
             _impl->connections.push_back( connection );
-            connection->addListener( this );
+            connection->addListener( _impl );
         }
         else
         {
@@ -251,7 +253,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
                  i != _impl->threads.end(); ++i )
             {
                 Thread* thread = *i;
-                if( thread->set->getSize() > MAX_CONNECTIONS )
+                if( thread->set->_impl.connection.size() > MAX_CONNECTIONS )
                     continue;
 
                 thread->set->addConnection( connection );
@@ -268,10 +270,9 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
             thread->start();
         }
 #else
-        _impl->connections.push_back( connection );
-        connection->addListener( this );
+        connection->addListener( _impl );
 
-        LBASSERT( _impl->connections.size() < MAX_CONNECTIONS );
+        LBASSERT( _impl->allConnections.size() < MAX_CONNECTIONS );
 #endif // _WIN32
     }
 
@@ -289,10 +290,10 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
         if( _impl->connection == connection )
             _impl->connection = 0;
 
+#ifdef _WIN32
         ConnectionsIter j = stde::find( _impl->connections, connection );
         if( j == _impl->connections.end( ))
         {
-#ifdef _WIN32
             Threads::iterator k = _impl->threads.begin();
             for( ; k != _impl->threads.end(); ++k )
             {
@@ -314,15 +315,15 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
 
             LBASSERT( k != _impl->threads.end( ));
             _impl->threads.erase( k );
-#else
-            LBUNREACHABLE;
-#endif
         }
         else
         {
+            connection->removeListener( _impl );
             _impl->connections.erase( j );
-            connection->removeListener( this );
         }
+#else
+        connection->removeListener( _impl );
+#endif
 
         _impl->allConnections.erase( i );
     }
@@ -345,16 +346,18 @@ void ConnectionSet::clear()
         delete thread;
     }
     _impl->threads.clear();
-#endif
 
-    for( ConnectionsIter i = _impl->connections.begin();
-         i != _impl->connections.end(); ++i )
-    {
-        (*i)->removeListener( this );
-    }
+    Connections& connections = _impl->connections;
+#else
+    Connections& connections = _impl->allConnections;
+#endif
+    for( ConnectionsIter i = connections.begin(); i != connections.end(); ++i )
+        (*i)->removeListener( _impl );
 
     _impl->allConnections.clear();
+#ifdef _WIN32
     _impl->connections.clear();
+#endif
     setDirty();
     _impl->fdSet.clear();
     _impl->fdSetResult.clear();
@@ -573,7 +576,7 @@ bool ConnectionSet::_setupFDSet()
         _impl->fdSetResult.append( result );
     }
     _impl->lock.unset();
-#else
+#else // _WIN32
     pollfd fd;
     fd.events = POLLIN; // | POLLPRI;
 
@@ -589,8 +592,8 @@ bool ConnectionSet::_setupFDSet()
 
     // add regular connections
     _impl->lock.set();
-    for( ConnectionsCIter i = _impl->connections.begin();
-         i != _impl->connections.end(); ++i )
+    for( ConnectionsCIter i = _impl->allConnections.begin();
+         i != _impl->allConnections.end(); ++i )
     {
         ConnectionPtr connection = *i;
         fd.fd = connection->getNotifier();
