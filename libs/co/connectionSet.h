@@ -92,7 +92,7 @@ namespace detail { class ConnectionSet; }
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, 
-                                       const ConnectionSet* set );
+                                       const ConnectionSet& set );
     CO_API std::ostream& operator << ( std::ostream& os, 
                                        const ConnectionSet::Event event );
 }
