@@ -42,6 +42,15 @@ Application::~Application()
     EQASSERT( !_impl );
 }
 
+co::NodePtr Application::getMasterNode()
+{
+    eq::Config* config = getConfig();
+    EQASSERT( config );
+    if( !config )
+        return 0;
+    return config->getApplicationNode();
+}
+
 eq::Config* Application::getConfig()
 {
     EQASSERT( _impl );

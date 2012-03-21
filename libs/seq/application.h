@@ -34,6 +34,12 @@ namespace seq
         /** Destruct this application instance. @version 1.0 */
         SEQ_API virtual ~Application();
 
+        /** @name Data Access */
+        //@{
+        /** @return the node running the main instance. @version 1.3.1 */
+        SEQ_API co::NodePtr getMasterNode();
+        //@}
+
         /** @name Operations */
         //@{
         /** 
