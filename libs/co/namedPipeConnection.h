@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
@@ -22,6 +22,7 @@
 #include <co/connection.h> // base class
 
 #include <lunchbox/buffer.h> // member
+#include <lunchbox/os.h>
 #include <lunchbox/thread.h> // for LB_TS_VAR
 
 #ifndef _WIN32
@@ -61,8 +62,6 @@ namespace co
     private:
         HANDLE _fd;
 
-        bool _connectToNewClient( HANDLE hPipe ) ;
-
         // overlapped data structures
         OVERLAPPED _read;
         DWORD      _readDone;
@@ -70,11 +69,13 @@ namespace co
 
         LB_TS_VAR( _recvThread );
 
+        bool _connectToNewClient( HANDLE hPipe ) ;
         std::string _getFilename() const;
         bool _createNamedPipe();
         bool _connectNamedPipe();
         void _close();
     };
+    typedef lunchbox::RefPtr< NamedPipeConnection > NamedPipeConnectionPtr;
 }
 
 #endif //CO_NAMEDPIPECONNECTION_H 

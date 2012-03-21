@@ -209,12 +209,12 @@ void _testFile()
 
 void _testRandom()
 {
-    size_t size = LB_10MB;
+    ssize_t size = LB_10MB;
     uint8_t* data = new uint8_t[size];
     lunchbox::RNG rng;
 #pragma omp parallel for
-    for( size_t k = 0; k<size; ++k )
-        data[k] = rng.get< uint8_t >();
+    for( ssize_t i = 0; i < size; ++i )
+        data[i] = rng.get< uint8_t >();
 
     std::vector< uint32_t >compressorNames =
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
@@ -246,7 +246,7 @@ void _testRandom()
 void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes )
 {
 #pragma omp parallel for
-    for( uint64_t i = 0; i < nbytes; ++i )
+    for( int64_t i = 0; i < int64_t( nbytes ); ++i )
     {
         TESTINFO( dst[i] == src[i],
                   int( dst[i] ) << " != " << int( src[i] ) << " @ " << i );

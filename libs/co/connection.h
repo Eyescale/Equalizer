@@ -339,7 +339,7 @@ namespace detail { class Connection; }
          * Connection.
          */
 #ifdef _WIN32
-        typedef HANDLE Notifier;
+        typedef void* Notifier;
 #else
         typedef int Notifier;
 #endif

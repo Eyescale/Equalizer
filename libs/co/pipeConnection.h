@@ -19,7 +19,7 @@
 #define CO_PIPE_CONNECTION_H
 
 #ifdef _WIN32
-#  include <co/connection.h>
+#  include <co/namedPipeConnection.h>
 #else
 #  include "fdConnection.h"
 #endif
@@ -77,7 +77,7 @@ namespace co
         PipeConnectionPtr _sibling;
 
 #ifdef _WIN32
-        co::ConnectionPtr _namedPipe;
+        NamedPipeConnectionPtr _namedPipe;
 
         LB_TS_VAR( _recvThread );
 #endif
