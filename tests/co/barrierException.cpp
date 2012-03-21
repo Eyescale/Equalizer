@@ -22,10 +22,10 @@
 #include <co/barrier.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
+#include <co/exception.h>
+#include <co/global.h>
 #include <co/init.h>
 #include <co/node.h>
-#include <co/base/global.h>
-#include <co/exception.h>
 #include <co/base/sleep.h>
 #include <co/base/rng.h>
 #include <co/base/uuid.h>
@@ -92,8 +92,8 @@ protected:
     {
         for( uint32_t i = 0; i < _nOps; i++ )
         {
-            const uint32_t timeout = co::base::Global::getIAttribute( 
-                     co::base::Global::IATTR_TIMEOUT_DEFAULT );
+            const uint32_t timeout = co::Global::getIAttribute( 
+                     co::Global::IATTR_TIMEOUT_DEFAULT );
             try
             {
                 _barrier->enter( timeout );
@@ -145,8 +145,8 @@ protected:
         for( uint32_t i = 0; i < _nOps; ++i )
         {
             co::base::sleep( _timeToSleep );
-            const uint32_t timeout = co::base::Global::getIAttribute( 
-                     co::base::Global::IATTR_TIMEOUT_DEFAULT );
+            const uint32_t timeout = co::Global::getIAttribute( 
+                     co::Global::IATTR_TIMEOUT_DEFAULT );
             try
             {
                 
@@ -187,8 +187,7 @@ int main( int argc, char **argv )
 /* the test perform no timeout */
 bool testNormal()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     10000 );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 10000 );
     NodeThreads nodeThreads;
     nodeThreads.resize(NSLAVES);
  
@@ -218,8 +217,7 @@ bool testNormal()
 /* the test perform no timeout */
 bool testException()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     2000 );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
     NodeThreads nodeThreads;
     nodeThreads.resize( NSLAVES );
 
@@ -247,8 +245,7 @@ bool testException()
 
 bool testSleep()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     2000 /*ms*/ );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
     NodeThreads nodeThreads( 5 );
     nodeThreads.resize( 5 );
 

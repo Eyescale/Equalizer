@@ -29,7 +29,6 @@
 #endif
 
 #include <co/exception.h>
-#include <co/base/global.h>
 
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"

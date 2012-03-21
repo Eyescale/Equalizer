@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,14 +19,11 @@
 #include "cpuCompressor.h"
 
 #include "compressorInfo.h"
-#include "debug.h"
 #include "global.h"
 #include "plugin.h"
 #include "pluginRegistry.h"
 
 namespace co
-{
-namespace base
 {
 
 void CPUCompressor::compress( void* const in, const uint64_t pvpIn[4],
@@ -60,25 +57,22 @@ void CPUCompressor::getResult( const unsigned i,
     return _plugin->getResult( _instance, _name, i, out, outSize ); 
 }
 
-void CPUCompressor::decompress( const void* const* in, 
-                                    const uint64_t* const inSizes,
-                                    const unsigned numInputs,
-                                    void* const out,
-                                    uint64_t pvpOut[4],
-                                    const uint64_t flags )
+void CPUCompressor::decompress( const void* const* in,
+                                const uint64_t* const inSizes,
+                                const unsigned numInputs, void* const out,
+                                uint64_t pvpOut[4], const uint64_t flags )
 { 
-    _plugin->decompress( _instance, _name, in, inSizes,
-                         numInputs, out, pvpOut, flags );
+    _plugin->decompress( _instance, _name, in, inSizes, numInputs, out, pvpOut,
+                         flags );
 }
 
 void CPUCompressor::decompress( const void* const* in, 
-                                    const uint64_t* const inSizes,
-                                    const unsigned numInputs,
-                                    void* const out,
-                                    uint64_t outDim[2])
+                                const uint64_t* const inSizes,
+                                const unsigned numInputs, void* const out,
+                                uint64_t outDim[2])
 {
-    _plugin->decompress( _instance, _name, in, inSizes,
-                         numInputs, out, outDim, EQ_COMPRESSOR_DATA_1D );
+    _plugin->decompress( _instance, _name, in, inSizes, numInputs, out, outDim,
+                         EQ_COMPRESSOR_DATA_1D );
 }
 
 bool CPUCompressor::initCompressor( const uint32_t dataType,
@@ -146,6 +140,4 @@ uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType,
     return name;
 }
 
-
-}
 }

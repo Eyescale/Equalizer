@@ -16,16 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_COMPRESSOR_H
-#define COBASE_COMPRESSOR_H
+#ifndef CO_COMPRESSOR_H
+#define CO_COMPRESSOR_H
 
+#include <co/api.h>
+#include <co/types.h>
 #include <co/base/thread.h>         // thread-safety macros
-#include <co/base/types.h>
-#include <co/plugins/compressor.h>  // used inline
 
 namespace co
-{
-namespace base
 {
     /** @internal A C++ class to handle one (de)compressor instance. */
     class Compressor
@@ -33,10 +31,10 @@ namespace base
     public:
 
         /** Construct a new compressor. */
-        COBASE_API Compressor();
+        CO_API Compressor();
 
         /** Destruct the compressor. */
-        COBASE_API virtual ~Compressor();
+        CO_API virtual ~Compressor();
 
         /**
          * Initialize the specified compressor or downloader.
@@ -44,7 +42,7 @@ namespace base
          * @param name the name of the compressor
          * @return true on success, false otherwise.
          */
-        COBASE_API bool initCompressor( uint32_t name );
+        CO_API bool initCompressor( uint32_t name );
 
         /**
          * Initialize the specified decompressor or uploader. 
@@ -52,7 +50,7 @@ namespace base
          * @param name the name of the compressor
          * @return true on success, false otherwise.
          */
-        COBASE_API bool initDecompressor( uint32_t name );
+        CO_API bool initDecompressor( uint32_t name );
 
         /** @return the plugin for the current compressor. */
         Plugin* getPlugin() { return _plugin; }
@@ -62,13 +60,13 @@ namespace base
 
         /** @return true if the compressor is ready for the 
          *          current compressor name. */
-        virtual COBASE_API bool isValid( uint32_t name ) const;
+        virtual CO_API bool isValid( uint32_t name ) const;
 
         /** Remove all information about the current compressor. */
-        COBASE_API void reset();
+        CO_API void reset();
 
         /** @return the quality produced by the current compressor instance. */
-        COBASE_API float getQuality() const;
+        CO_API float getQuality() const;
 
         /** @return the information about the current compressor instance. */
         const CompressorInfo& getInfo() const
@@ -105,5 +103,4 @@ namespace base
         EQ_TS_VAR( _thread );
     };
 }
-}
-#endif  // COBASE_COMPRESSOR_H
+#endif  // CO_COMPRESSOR_H

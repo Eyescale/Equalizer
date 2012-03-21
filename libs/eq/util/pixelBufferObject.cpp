@@ -178,7 +178,7 @@ public:
     void unlock() const { if( lock_ ) lock_->unset(); }
 
     mutable co::base::Lock* lock_;
-    mutable co::base::Error error;   //!< The reason for the last error
+    mutable co::Error error;   //!< The reason for the last error
     GLuint  pboID; //!< the PBO GL name
     ssize_t size;  //!< size of the allocated PBO buffer
 
@@ -186,7 +186,7 @@ private:
     const GLEWContext* const _glewContext;
     GLuint _type; //!< GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
 
-    void _setError( const int32_t e ) const { error = co::base::Error( e ); }
+    void _setError( const int32_t e ) const { error = co::Error( e ); }
 
     GLuint _getName() const
         {
@@ -263,7 +263,7 @@ ssize_t PixelBufferObject::getSize() const
     return _impl->size;
 }
 
-const co::base::Error& PixelBufferObject::getError() const
+const co::Error& PixelBufferObject::getError() const
 {
     return _impl->error;
 }

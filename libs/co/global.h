@@ -19,7 +19,7 @@
 #define CO_GLOBAL_H
 
 #include <co/api.h>
-#include <co/base/types.h>
+#include <co/types.h>
 #include <string>
 
 namespace co
@@ -89,6 +89,12 @@ namespace co
         /** Write global variables to data in the format for fromString(). */
         CO_API static void toString( std::string& data );
 
+        /** @return the plugin registry. @version 1.0 */
+        CO_API static PluginRegistry& getPluginRegistry();
+
+        /** @return the error registry. @version 1.0 */
+        CO_API static ErrorRegistry& getErrorRegistry();
+
         /** @name Attributes */
         //@{
         // Note: also update string array initialization in global.cpp
@@ -113,12 +119,14 @@ namespace co
             IATTR_RDMA_RING_BUFFER_SIZE_MB, //!< @internal send/receive buffer
             IATTR_RDMA_SEND_QUEUE_DEPTH, //!< @internal max send credits
             IATTR_RDMA_RESOLVE_TIMEOUT_MS, //!< @internal address resolution
+            IATTR_ROBUSTNESS,            //!< @internal use robustness
+            IATTR_TIMEOUT_DEFAULT,       //!< @internal default timeout
             IATTR_ALL
         };
 
         /** Set an integer attribute. */
         CO_API static void setIAttribute( const IAttribute attr,
-                                             const int32_t value );
+                                          const int32_t value );
 
         /** @return the value of an integer attribute. */
         CO_API static int32_t getIAttribute( const IAttribute attr );

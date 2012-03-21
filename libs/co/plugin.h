@@ -16,22 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_PLUGIN_H
-#define COBASE_PLUGIN_H
+#ifndef CO_PLUGIN_H
+#define CO_PLUGIN_H
 
 #include <co/plugins/compressor.h> // member
+#include <co/types.h>
 #include <co/base/dso.h>           // member
-#include <co/base/types.h>
 
 namespace co
-{
-namespace base
 {
     /**
      * @internal
      * A class holding all functions and information for one compressor plugin.
      */
-    class Plugin : public NonCopyable
+class Plugin : public base::NonCopyable
     {
     public:
         typedef size_t ( *GetNumCompressors_t ) ();
@@ -134,9 +132,8 @@ namespace base
 
     private:
         CompressorInfos _infos;
-        DSO _dso;   
+        base::DSO _dso;   
     };
 }
-}
 
-#endif //COBASE_PLUGIN_H
+#endif //CO_PLUGIN_H

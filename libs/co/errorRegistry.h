@@ -15,16 +15,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_ERRORREGISTRY_H
-#define COBASE_ERRORREGISTRY_H
+#ifndef CO_ERRORREGISTRY_H
+#define CO_ERRORREGISTRY_H
 
-#include <co/base/api.h>
+#include <co/api.h>
+#include <co/types.h>
 #include <co/base/nonCopyable.h> // base class
-#include <co/base/types.h>
 
 namespace co 
-{
-namespace base
 {
 namespace detail { class ErrorRegistry; }
 
@@ -37,9 +35,9 @@ namespace detail { class ErrorRegistry; }
      * strongly advised to register application-specific errors before
      * eq::init() and erase them after eq::exit().
      *
-     * @sa co::base::Error, eq::Error
+     * @sa co::Error, eq::Error
      */
-    class ErrorRegistry : public NonCopyable
+    class ErrorRegistry : public base::NonCopyable
     {
     public:
         /** @internal Construct an error registry. */
@@ -48,20 +46,18 @@ namespace detail { class ErrorRegistry; }
         ~ErrorRegistry(); //!< @internal
 
         /** @return the error string for the given error code. @version 1.0 */
-        COBASE_API const std::string& getString( const uint32_t error ) const;
+        CO_API const std::string& getString( const uint32_t error ) const;
 
         /** Set an error string for the given error code. @version 1.0 */
-        COBASE_API void setString( const uint32_t error,
-                                   const std::string& text );
+        CO_API void setString( const uint32_t error, const std::string& text );
 
         /** Clear a given error code string. @version 1.0 */
-        COBASE_API void eraseString( const uint32_t error );
+        CO_API void eraseString( const uint32_t error );
 
-        COBASE_API bool isEmpty() const; //!< @internal
+        CO_API bool isEmpty() const; //!< @internal
 
     private:
         detail::ErrorRegistry* const _impl;
     };
 }
-}
-#endif // COBASE_ERRORREGISTRY_H
+#endif // CO_ERRORREGISTRY_H

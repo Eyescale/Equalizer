@@ -22,7 +22,7 @@
 #include <co/base/lock.h>
 
 #include <eq/client/gl.h>   // for GLEW
-#include <co/base/error.h>  // member
+#include <eq/client/types.h>
 
 namespace eq
 {
@@ -104,7 +104,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API ssize_t getSize() const;
 
         /** @return the reason for the last failed operation. @version 1.3 */
-        EQ_API const co::base::Error& getError() const;
+        EQ_API const co::Error& getError() const;
 
         /** @return true if the pbo is intialized. @version 1.3 */
         EQ_API bool isInitialized() const;

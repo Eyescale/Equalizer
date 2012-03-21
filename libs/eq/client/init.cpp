@@ -29,9 +29,8 @@
 #include <eq/client/version.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
+#include <co/pluginRegistry.h>
 #include <co/base/file.h>
-#include <co/base/global.h>
-#include <co/base/pluginRegistry.h>
 
 #include <fstream>
 
@@ -198,7 +197,7 @@ void _parseArguments( const int argc, char** argv )
 
 void _initPlugins()
 {
-    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
     plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
@@ -248,7 +247,7 @@ void _initPlugins()
 
 void _exitPlugins()
 {
-    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.removeDirectory( "../share/Equalizer/plugins" );

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,13 +19,13 @@
 #define EQ_TEST_RUNTIME 300 // seconds
 #include <test.h>
 
+#include <co/global.h>
 #include <co/init.h>
+#include <co/pluginRegistry.h>
 #include <co/base/buffer.h>
 #include <co/base/clock.h>
 #include <co/base/file.h>
-#include <co/base/global.h>
 #include <co/base/memoryMap.h>
-#include <co/base/pluginRegistry.h>
 #include <co/base/rng.h>
 #include <co/base/types.h>
 
@@ -35,9 +35,9 @@
 #include <sstream>
 #include <string>
 
-#include <co/base/compressorInfo.h> // private header
-#include <co/base/cpuCompressor.h> // private header
-#include <co/base/plugin.h> // private header
+#include <co/compressorInfo.h> // private header
+#include <co/cpuCompressor.h> // private header
+#include <co/plugin.h> // private header
 
 void _testFile();
 void _testRandom();
@@ -68,16 +68,14 @@ int main( int argc, char **argv )
 
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 {
-    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( co::base::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const co::base::CompressorInfos& infos = (*i)->getInfos();
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        const co::CompressorInfos& infos = (*i)->getInfos();
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
             if ( (*j).tokenType == tokenType )
                 names.push_back( (*j).name );
@@ -90,10 +88,10 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
 void _testData( const uint32_t compressorName, const std::string& name,
                        const uint8_t* data, const uint64_t size )
 {
-    co::base::CPUCompressor compressor;
-    co::base::CPUCompressor decompressor;
-    compressor.co::base::Compressor::initCompressor( compressorName );
-    decompressor.co::base::Compressor::initDecompressor( compressorName );
+    co::CPUCompressor compressor;
+    co::CPUCompressor decompressor;
+    compressor.co::Compressor::initCompressor( compressorName );
+    decompressor.co::Compressor::initDecompressor( compressorName );
 
     const uint64_t flags = EQ_COMPRESSOR_DATA_1D;    
     uint64_t inDims[2]  = { 0, size };
@@ -245,7 +243,7 @@ std::vector< std::string > getFiles( const std::string path,
                                      std::vector< std::string >& files, 
                                      const std::string& ext )
 {
-    const co::base::PluginRegistry& reg = co::base::Global::getPluginRegistry();
+    const co::PluginRegistry& reg = co::Global::getPluginRegistry();
     co::base::Strings paths = reg.getDirectories();
     if( !path.empty( ))
         paths.push_back( path );

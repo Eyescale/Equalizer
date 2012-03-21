@@ -49,7 +49,7 @@ ErrorData _errors[] = {
 
 void initErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -57,7 +57,7 @@ void initErrors()
 
 void exitErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

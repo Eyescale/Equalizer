@@ -77,7 +77,7 @@ namespace fabric
         EQFABRIC_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
-        co::base::Error getError() const { return _error; }
+        co::Error getError() const { return _error; }
         //@}
 
         /** @name Data Access */
@@ -224,7 +224,7 @@ namespace fabric
         uint32_t _tasks;
 
         /** The reason for the last error. */
-        co::base::Error _error;
+        co::Error _error;
 
         /** Server-unique serial number. */
         uint32_t _serial;

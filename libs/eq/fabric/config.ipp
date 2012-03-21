@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,7 +24,7 @@
 #include "nameFinder.h"
 
 #include <co/command.h>
-#include <co/base/global.h>
+#include <co/global.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 
@@ -372,8 +372,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 {
     if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
         return EQ_TIMEOUT_INDEFINITE;
-    return co::base::Global::getIAttribute( 
-        co::base::Global::IATTR_TIMEOUT_DEFAULT );
+    return co::Global::getIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT );
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >

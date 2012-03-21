@@ -19,13 +19,11 @@
 #include "plugin.h"
 
 #include "compressorInfo.h"
-#include "debug.h"
 #include "global.h"
+#include "log.h"
 #include "pluginRegistry.h"
 
 namespace co
-{
-namespace base
 {
 bool Plugin::init( const std::string& libraryName )
 {
@@ -167,7 +165,7 @@ void Plugin::initChildren()
     for( CompressorInfos::iterator i = _infos.begin(); i != _infos.end(); ++i )
     {
         CompressorInfo& info = *i;
-        EQLOG( LOG_PLUGIN ) << disableFlush << "Engine 0x" << std::hex
+        EQLOG( LOG_PLUGIN ) << base::disableFlush << "Engine 0x" << std::hex
                             << info.name;
 
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
@@ -220,7 +218,7 @@ void Plugin::initChildren()
                 }
             }
         }
-        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << enableFlush;
+        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << base::enableFlush;
     }
 }
 
@@ -250,5 +248,4 @@ const CompressorInfo& Plugin::findInfo( const uint32_t name ) const
     return _infos.front();
 }
 
-}
 }

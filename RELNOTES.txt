@@ -240,3 +240,5 @@
    info@eyescale.ch for further information.
 
 4. Errata
+
+     * 105: Sequel missing from packages

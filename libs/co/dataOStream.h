@@ -152,7 +152,7 @@ namespace DataStreamTest
         friend class DataStreamTest::Sender;
 
         /** The compressor instance. */
-        base::CPUCompressor* const _compressor;
+        CPUCompressor* const _compressor;
 
         /** The output stream is enabled for writing */
         bool _enabled;

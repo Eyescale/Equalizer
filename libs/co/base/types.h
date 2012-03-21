@@ -129,28 +129,14 @@ namespace co
 namespace base
 {
 /** A vector of std::strings @version 1.0 */
-typedef std::vector< std::string >   Strings;
+typedef std::vector< std::string > Strings;
 typedef Strings::const_iterator StringsCIter;
 
-class CPUCompressor; //!< @internal
-class Plugin;        //!< @internal
 class Clock;
-class ErrorRegistry;
 class Lock;
-class PluginRegistry;
 class SpinLock;
 class UUID;
 class uint128_t;
-struct CompressorInfo; //!< @internal
-
-/** @internal A vector of compressor information structures. */
-typedef std::vector< CompressorInfo > CompressorInfos;
-
-/** @internal A vector of pointers to compressor information. */
-typedef std::vector< const CompressorInfo* > CompressorInfoPtrs;
-
-/** @internal A vector of compression DSO interfaces. */
-typedef std::vector< Plugin* > Plugins;
 
 }
 }

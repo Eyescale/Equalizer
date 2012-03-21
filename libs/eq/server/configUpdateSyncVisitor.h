@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -67,13 +67,13 @@ public:
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
-    co::base::Error getError() const
+    co::Error getError() const
         { EQASSERTINFO( _error != ERROR_NONE, _error ); return _error; }
 
 private:
     bool _result; // success or failure
     bool _sync;   // call again after init failure
-    co::base::Error _error; // error message
+    co::Error _error; // error message
 
     template< class T > VisitorResult _updateDown( T* entity ) const
         {

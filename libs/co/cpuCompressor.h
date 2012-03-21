@@ -16,14 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_CPUCOMPRESSOR_H
-#define COBASE_CPUCOMPRESSOR_H
+#ifndef CO_CPUCOMPRESSOR_H
+#define CO_CPUCOMPRESSOR_H
 
-#include <co/base/compressor.h>
+#include "co/compressor.h"
+#include <co/plugins/compressor.h>
 
 namespace co
-{
-namespace base
 {
     /** @internal A C++ class to handle one CPU (de)compressor instance. */
     class CPUCompressor : public Compressor
@@ -39,7 +38,7 @@ namespace base
          * @param in the pointer to the input data. 
          * @param inDims the dimensions of the input data
          */
-        COBASE_API void compress( void* const in, const uint64_t inDims[2] );
+        CO_API void compress( void* const in, const uint64_t inDims[2] );
 
         /**
          * Compress two-dimensional data.
@@ -48,11 +47,11 @@ namespace base
          * @param pvp the dimensions of the input data
          * @param flags capability flags for the compression
          */
-        COBASE_API void compress( void* const in, const uint64_t  pvp[4],
-                                  const eq_uint64_t flags );
+        CO_API void compress( void* const in, const uint64_t  pvp[4],
+                              const eq_uint64_t flags );
 
         /** @return the number of compressed chunks. */
-        COBASE_API unsigned getNumResults() const;
+        CO_API unsigned getNumResults() const;
 
         /**
          * Get one compressed chunk.
@@ -61,7 +60,7 @@ namespace base
          * @param out the return value to store the result pointer
          * @param outSize the return value to store the result size in bytes
          */
-        COBASE_API void getResult( const unsigned i, void** const out, 
+        CO_API void getResult( const unsigned i, void** const out, 
                                    uint64_t* const outSize ) const;
 
         /**
@@ -74,10 +73,10 @@ namespace base
          *            uncompressed output result.
          * @param outDim the dimensions of the output data.
          */
-        COBASE_API void decompress( const void* const* in,
-                                    const uint64_t* const inSizes,
-                                    const unsigned numInputs, void* const out,
-                                    uint64_t outDim[2] );
+        CO_API void decompress( const void* const* in,
+                                const uint64_t* const inSizes,
+                                const unsigned numInputs, void* const out,
+                                uint64_t outDim[2] );
 
         /**
          * Decompress two-dimensional data.
@@ -90,10 +89,10 @@ namespace base
          * @param pvpOut the dimensions of the output data.
          * @param flags capability flags for the decompression.
          */
-        COBASE_API void decompress( const void* const* in,
-                                    const uint64_t* const inSizes,
-                                    const unsigned numInputs, void* const out,
-                                    uint64_t pvpOut[4], const uint64_t flags );
+        CO_API void decompress( const void* const* in,
+                                const uint64_t* const inSizes,
+                                const unsigned numInputs, void* const out,
+                                uint64_t pvpOut[4], const uint64_t flags );
         
         /**
          * Find the best compressor in all plugins for the given parameters.
@@ -107,10 +106,9 @@ namespace base
          * @param ignoreMSE the most-significant element of each token can be
          *                  ignored, typically the alpha channel of an image.
          */
-        static COBASE_API uint32_t chooseCompressor( 
-                                                const uint32_t tokenType,
-                                                const float minQuality = 1.0f,
-                                                const bool ignoreMSE = false );
+        static CO_API uint32_t chooseCompressor( const uint32_t tokenType,
+                                                 const float minQuality = 1.0f,
+                                                 const bool ignoreMSE = false );
 
         /**
          * Find and init the best compressor in all plugins for the given
@@ -123,10 +121,9 @@ namespace base
          *                  ignored, typically the alpha channel of an image.
          * @return true if a compressor was found, false otherwise.
          */
-        COBASE_API bool initCompressor( const uint32_t dataType, 
-                                        const float quality,
-                                        const bool ignoreMSE = false );
+        CO_API bool initCompressor( const uint32_t dataType, 
+                                    const float quality,
+                                    const bool ignoreMSE = false );
     };
 }
-}
-#endif  // COBASE_CPUCOMPRESSOR_H
+#endif  // CO_CPUCOMPRESSOR_H
