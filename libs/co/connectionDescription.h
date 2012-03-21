@@ -39,12 +39,21 @@ namespace co
         /** The listening port (TCPIP, SDP, IB, MCIP, RDMA). */
         uint16_t port;
 
+        /** The host name. */
+        std::string hostname;
+
+        /** The host name of the interface (multicast). */
+        std::string interfacename;
+
+        /** The name file using for a pipe. */
+        std::string filename;
+
         /** Construct a new, default description. @version 1.0 */
         ConnectionDescription() 
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
                 , port( 0 )
-                , _filename( "default" )
+                , filename( "default" )
             {}
 
         /**
@@ -105,16 +114,6 @@ namespace co
 
     protected:
         virtual ~ConnectionDescription() {}
-
-    private:
-        /** The host name. */
-        std::string _hostname;
-
-        /** The host name of the interface (multicast). */
-        std::string _interface;
-
-        /** The name file using for a pipe. */
-        std::string _filename;
     };
 
     CO_API std::ostream& operator << ( std::ostream&,
