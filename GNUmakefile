@@ -7,13 +7,13 @@ CMAKE ?= cmake
 
 ifeq ($(wildcard Makefile), Makefile)
 all:
-	$(MAKE) -f Makefile $(MAKECMDGOALS)
+	@$(MAKE) -f Makefile $(MAKECMDGOALS)
 
 clean:
-	$(MAKE) -f Makefile $(MAKECMDGOALS)
+	@$(MAKE) -f Makefile $(MAKECMDGOALS)
 
 .DEFAULT:
-	$(MAKE) -f Makefile $(MAKECMDGOALS)
+	@$(MAKE) -f Makefile $(MAKECMDGOALS)
 
 else
 
