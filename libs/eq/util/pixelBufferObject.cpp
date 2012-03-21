@@ -278,5 +278,10 @@ bool PixelBufferObject::isThreadSafe() const
     return _impl->lock_ != 0;
 }
 
+GLuint PixelBufferObject::getID() const
+{
+    return _impl->pboID;
+}
+
 }
 }
