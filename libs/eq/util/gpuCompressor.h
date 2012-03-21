@@ -1,5 +1,5 @@
 
-/* Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
  *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -189,13 +189,13 @@ namespace util
          *                       context compatibility should be omitted.
          * @param result the output result vector.
          */
-        static EQ_API void findTransferers(const uint32_t internalFormat,
-                                           const uint32_t externalFormat,
-                                           const uint64_t capabilities,
-                                           const float minQuality,
-                                           const bool ignoreAlpha,
-                                           const GLEWContext* glewContext,
-                                           co::base::CompressorInfos& result );
+        static EQ_API void findTransferers( const uint32_t internalFormat,
+                                            const uint32_t externalFormat,
+                                            const uint64_t capabilities,
+                                            const float minQuality,
+                                            const bool ignoreAlpha,
+                                            const GLEWContext* glewContext,
+                                            co::base::CompressorInfos& result );
 
     private:
         /** the initialized GLEW context describing corresponding

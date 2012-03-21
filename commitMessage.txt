@@ -1,4 +1,4 @@
-Freeing the topolgy object after toplogy detection. 
+Fix Windows build
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

@@ -34,17 +34,6 @@ namespace base
         virtual ~CPUCompressor() {}
 
         /**
-         * Compress two-dimensional data.
-         *
-         * @param in the pointer to the input data. 
-         * @param pvpIn the dimensions of the input data
-         * @param flags capability flags for the compression
-         */
-        COBASE_API void compress( void* const in, 
-                                 const uint64_t  pvpIn[4],
-                                 const eq_uint64_t flags );
-
-        /**
          * Compress one-dimensional data.
          *
          * @param in the pointer to the input data. 
@@ -52,35 +41,28 @@ namespace base
          */
         COBASE_API void compress( void* const in, const uint64_t inDims[2] );
 
-        /** get the number of compressed chunks. */
+        /**
+         * Compress two-dimensional data.
+         *
+         * @param in the pointer to the input data. 
+         * @param pvp the dimensions of the input data
+         * @param flags capability flags for the compression
+         */
+        COBASE_API void compress( void* const in, const uint64_t  pvp[4],
+                                  const eq_uint64_t flags );
+
+        /** @return the number of compressed chunks. */
         COBASE_API unsigned getNumResults() const;
 
         /**
-         * get the compressed Data for the specified chunk 
+         * Get one compressed chunk.
          *
          * @param i the result index to return. 
          * @param out the return value to store the result pointer
          * @param outSize the return value to store the result size in bytes
          */
-        COBASE_API void getResult( const unsigned i, 
-                                     void** const out, 
-                                     uint64_t* const outSize ) const ;
-
-        /**
-         * Decompress two-dimensional data.
-         *
-         * @param in the pointer to an array of input data pointers
-         * @param inSizes the array of input data sizes in bytes
-         * @param numInputs the number of input data elements
-         * @param out the pointer to a pre-allocated buffer for the 
-         *            uncompressed output result.
-         * @param pvpOut the dimensions of the output data.
-         * @param flags capability flags for the decompression.
-         */
-        COBASE_API void decompress( const void* const* in,
-                                    const uint64_t* const inSizes,
-                                    const unsigned numInputs, void* const out,
-                                    uint64_t pvpOut[4], const uint64_t flags );
+        COBASE_API void getResult( const unsigned i, void** const out, 
+                                   uint64_t* const outSize ) const;
 
         /**
          * Decompress one-dimensional data.
@@ -97,6 +79,21 @@ namespace base
                                     const unsigned numInputs, void* const out,
                                     uint64_t outDim[2] );
 
+        /**
+         * Decompress two-dimensional data.
+         *
+         * @param in the pointer to an array of input data pointers
+         * @param inSizes the array of input data sizes in bytes
+         * @param numInputs the number of input data elements
+         * @param out the pointer to a pre-allocated buffer for the 
+         *            uncompressed output result.
+         * @param pvpOut the dimensions of the output data.
+         * @param flags capability flags for the decompression.
+         */
+        COBASE_API void decompress( const void* const* in,
+                                    const uint64_t* const inSizes,
+                                    const unsigned numInputs, void* const out,
+                                    uint64_t pvpOut[4], const uint64_t flags );
         
         /**
          * Find the best compressor in all plugins for the given parameters.

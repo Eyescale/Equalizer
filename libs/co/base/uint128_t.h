@@ -179,6 +179,14 @@ namespace base
                     str.substr( str.length() - 3, std::string::npos );
             }
 
+        /** Serialize this object to a boost archive. @version 1.3.1 */
+        template< class Archive >
+        void serialize( Archive& ar, const unsigned int version )
+        {
+            ar & low();
+            ar & high();
+        }
+
         /** The NULL value. @version 1.1.1 */
         static COBASE_API const uint128_t ZERO;
 

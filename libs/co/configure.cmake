@@ -20,6 +20,9 @@ endif(NOT EQ_BIG_ENDIAN)
 # if Boost is considered as a required dep, this macro should be obsolete
 if(Boost_FOUND)
   list(APPEND COLLAGE_DEFINES CO_USE_BOOST)
+  if(CO_USE_BOOST_SERIALIZATION)
+    list(APPEND COLLAGE_DEFINES CO_USE_BOOST_SERIALIZATION)
+  endif()
 endif(Boost_FOUND)
 
 if(CO_OPENMP_USED)
@@ -64,24 +67,22 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/co/base/defines${ARCH}.h)
-set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines.h.in)
 
-file(WRITE ${DEFINES_FILE_IN}
+file(WRITE ${DEFINES_FILE}
   "#ifndef COBASE_DEFINES_${ARCH}_H\n"
   "#define COBASE_DEFINES_${ARCH}_H\n\n"
   )
 
 foreach(DEF ${COLLAGE_DEFINES})
-  file(APPEND ${DEFINES_FILE_IN}
+  file(APPEND ${DEFINES_FILE}
     "#ifndef ${DEF}\n"
     "#  define ${DEF}\n"
     "#endif\n"
     )
 endforeach(DEF ${COLLAGE_DEFINES})
 
-file(APPEND ${DEFINES_FILE_IN}
+file(APPEND ${DEFINES_FILE}
   "\n#endif /* COBASE_DEFINES_${ARCH}_H */\n"
   )
 
-configure_file(${DEFINES_FILE_IN} ${DEFINES_FILE} COPYONLY)
 install(FILES ${DEFINES_FILE} DESTINATION include/co/base/ COMPONENT codev)

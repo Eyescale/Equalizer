@@ -33,9 +33,9 @@
 #  define EQ_DLLIMPORT
 #endif // _MSC_VER
 
-#if defined(CO_BASE_STATIC)
+#if defined(COLLAGE_STATIC)
 #  define COBASE_API
-#elif defined(CO_BASE_SHARED)
+#elif defined(COLLAGE_SHARED)
 #  define COBASE_API EQ_DLLEXPORT
 #else
 #  define COBASE_API EQ_DLLIMPORT

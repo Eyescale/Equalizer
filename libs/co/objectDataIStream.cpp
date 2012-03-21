@@ -101,14 +101,23 @@ void ObjectDataIStream::addDataPacket( Command& command )
 
 bool ObjectDataIStream::hasInstanceData() const
 {
-    if( _commands.empty( ))
+    if( !_usedCommand && _commands.empty( ))
     {
         EQUNREACHABLE;
         return false;
     }
 
-    const Command* command = _commands.front();
+    const Command* command = _usedCommand ? _usedCommand : _commands.front();
     return( (*command)->command == CMD_OBJECT_INSTANCE );
+}
+
+NodePtr ObjectDataIStream::getMaster()
+{
+    if( !_usedCommand && _commands.empty( ))
+        return 0;
+
+    const Command* command = _usedCommand ? _usedCommand : _commands.front();
+    return command->getNode();
 }
 
 size_t ObjectDataIStream::getDataSize() const

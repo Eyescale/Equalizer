@@ -191,7 +191,7 @@ namespace base
         const T* p = rp.get();
         if( p )
         {
-            os << disableFlush << "RP[" << *p << "]";
+            os << disableFlush << "RP[" << p->getRefCount() << ":" << *p << "]";
 #ifdef CO_REFERENCED_DEBUG
             os << std::endl;
             p->printHolders( os );
@@ -199,7 +199,7 @@ namespace base
             os << enableFlush;
         }
         else
-            os << "RP[ NULL ]";
+            os << "RP[ 0:NULL ]";
 
         return os;
     }
@@ -209,4 +209,43 @@ namespace base
 }
 
 }
+
+#ifdef CO_USE_BOOST_SERIALIZATION
+
+#include <boost/serialization/split_free.hpp>
+
+namespace boost
+{
+namespace serialization
+{
+
+template< class Archive, class T >
+inline void save( Archive& ar, const co::base::RefPtr< T >& t,
+                  const unsigned int /*version*/ )
+{
+    const T* ptr = t.get();
+    ar << ptr;
+}
+
+template< class Archive, class T >
+inline void load( Archive& ar, co::base::RefPtr< T >& t,
+                  const unsigned int /*version*/ )
+{
+    T* obj;
+    ar >> obj;
+    t = obj;
+}
+
+template< class Archive, class T >
+inline void serialize( Archive& ar, co::base::RefPtr< T >& t,
+                       const unsigned int version )
+{
+    boost::serialization::split_free( ar, t, version );
+}
+
+}
+}
+
+#endif // CO_USE_BOOST_SERIALIZATION
+
 #endif //COBASE_REFPTR_H

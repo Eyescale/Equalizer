@@ -26,7 +26,7 @@
    tile compounds.
 
    Equalizer 1.2 is a feature release extending the 1.0 API,
-   distilling over 6 years of development and decades of
+   distilling seven years of development and decades of
    experience into a feature-rich, high-performance and mature
    parallel rendering framework and an object-oriented
    high-level network library. It is intended for all
@@ -57,10 +57,9 @@
        cross-platform C++ library for building heterogenous,
        distributed applications.
      * Support for Stereo and Immersive Environments:
-       Equalizer supports both active and passive stereo
-       rendering, as well as head tracking and head-mounted
-       displays used in immersive Virtual Reality
-       installations.
+       Equalizer supports stereo rendering head tracking,
+       head-mounted displays and other advanced features for
+       immersive Virtual Reality installations.
 
 2. New in this release
 
@@ -171,6 +170,7 @@
      * 90: Race condition with direct send and higher number
        of nodes
      * 58: netperf/RDMA exit deadlock
+     * 96: race condition with simultaneous node connect
      * 97: Object::notifyAttach is not always called
      * 98: RSP exit deadloc
      * 100: CommandFunc crash with multiple inheritance and

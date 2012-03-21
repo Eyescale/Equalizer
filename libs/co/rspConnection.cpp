@@ -156,7 +156,7 @@ void RSPConnection::_close()
         }
 
         _children.clear();
-        _childrenConnecting.clear();
+        _newChildren.clear();
     }
 
     _parent = 0;
@@ -307,23 +307,22 @@ ConnectionPtr RSPConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
         
-    // protect event->set, _children and _childrenConnecting
     base::ScopedWrite mutex( _mutexConnection );
-    EQASSERT( !_childrenConnecting.empty( ));
-    if( _childrenConnecting.empty( ))
+    EQASSERT( !_newChildren.empty( ));
+    if( _newChildren.empty( ))
         return 0;
 
-    RSPConnectionPtr newConnection = _childrenConnecting.back();
-    _childrenConnecting.pop_back();
-    _children.push_back( newConnection );
-    _sendDatagramCountNode();
+    RSPConnectionPtr newConnection = _newChildren.back();
+    _newChildren.pop_back();
 
-    EQINFO << "accepted RSP connection " << newConnection->_id << std::endl;
+    EQINFO << _id << " accepted RSP connection " << newConnection->_id
+           << std::endl;
 
-    if( !_childrenConnecting.empty() )
-        _event->set();
-    else 
+    base::ScopedWrite mutex2( _mutexEvent );
+    if( _newChildren.empty() )
         _event->reset();
+    else
+        _event->set();
 
     ConnectionPtr connection = newConnection.get();
     return connection;
@@ -429,14 +428,13 @@ void RSPConnection::_handleAcceptIDTimeout( )
     else 
     {
         EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
-        EQINFO << "opened RSP connection " << _id << std::endl;
         _sendSimpleDatagram( ID_CONFIRM, _id );
-        _addNewConnection( _id );
+        _addConnection( _id );
         _idAccepted = true;
         _timeouts = 0;
         // send a first datagram to announce me and discover all other
         // connections
-        _sendDatagramCountNode();
+        _sendCountNode();
     }
     _setTimeout( 10 );
 }
@@ -446,18 +444,18 @@ void RSPConnection::_handleInitTimeout( )
     EQASSERT( _state != STATE_LISTENING );
     ++_timeouts;
     if( _timeouts < 20 )
-        _sendDatagramCountNode();
+        _sendCountNode();
     else
     {
         _state = STATE_LISTENING;
+        EQINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
-        if( _children.empty() )
-            _ioService.stop();
+        _ioService.stop(); // thread initialized, run restarts
     } 
     _setTimeout( 10 );
 }
 
-void RSPConnection::_handleConnectedTimeout( )
+void RSPConnection::_handleConnectedTimeout()
 {
     if( _state != STATE_LISTENING )
     {
@@ -472,7 +470,7 @@ void RSPConnection::_handleConnectedTimeout( )
         EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
         _appBuffers.pushFront( 0 ); // unlock write function
-        for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i )
+        for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
         {
             RSPConnectionPtr child = *i;
             child->_state = STATE_CLOSING;
@@ -487,7 +485,7 @@ bool RSPConnection::_initThread()
     EQLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
  
-   // send a first datagram for announce me and discover other connection 
+   // send a first datagram to announce me and discover other connections
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     _sendSimpleDatagram( ID_HELLO, _id );
     _setTimeout( 10 ); 
@@ -862,12 +860,11 @@ void RSPConnection::_handleInitData( const void* data)
 
         case ID_CONFIRM:
             _timeouts = 0;
-            _addNewConnection( node->connectionID );
+            _addConnection( node->connectionID );
             return;
 
         case COUNTNODE:
-            if( _handleCountNode( ))
-                _state = STATE_LISTENING;
+            _handleCountNode();
             break;
     
         case ID_EXIT:
@@ -915,7 +912,7 @@ void RSPConnection::_handleConnectedData( const void* data )
         {
             const DatagramNode* node =
                 reinterpret_cast< const DatagramNode* >( data );
-            _addNewConnection( node->connectionID );
+            _addConnection( node->connectionID );
             break;
         }
 
@@ -1359,19 +1356,15 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     return true;
 }
 
-bool RSPConnection::_handleCountNode()
+void RSPConnection::_handleCountNode()
 {
     const DatagramCount* countConn = 
         reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
     EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
-    // we know all connections
-    if( _children.size() == countConn->numConnections ) 
-        return true;
 
-    _addNewConnection( countConn->clientID );
-    return false;
+    _addConnection( countConn->clientID );
 }
 
 void RSPConnection::_checkNewID( uint16_t id )
@@ -1384,8 +1377,7 @@ void RSPConnection::_checkNewID( uint16_t id )
     }
 }
 
-RSPConnection::RSPConnectionPtr RSPConnection::_findConnection( 
-    const uint16_t id )
+RSPConnectionPtr RSPConnection::_findConnection( const uint16_t id )
 {
     for( RSPConnectionsCIter i = _children.begin(); i != _children.end(); ++i )
         if( (*i)->_id == id )
@@ -1393,23 +1385,12 @@ RSPConnection::RSPConnectionPtr RSPConnection::_findConnection(
     return 0;
 }
 
-
-bool RSPConnection::_addNewConnection( const uint16_t id )
+bool RSPConnection::_addConnection( const uint16_t id )
 {
-    if( _findConnection( id ).isValid() )
+    if( _findConnection( id ))
         return false;
 
-    base::ScopedWrite mutex( _mutexConnection );
-    if( _findConnection( id ).isValid( ))
-        return false;
-
-    for( RSPConnectionsCIter i = _childrenConnecting.begin();
-         i != _childrenConnecting.end(); ++i )
-    {
-        if( (*i)->_id == id )
-            return false;
-    }
-
+    EQINFO << "add connection " << id << std::endl;
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
@@ -1425,7 +1406,13 @@ bool RSPConnection::_addNewConnection( const uint16_t id )
         EQCHECK( connection->_threadBuffers.push( buffer ));
     }
 
-    _childrenConnecting.push_back( connection );
+    _children.push_back( connection );
+    _sendCountNode();
+
+    base::ScopedWrite mutex( _mutexConnection );
+    _newChildren.push_back( connection );
+
+    base::ScopedWrite mutex2( _mutexEvent ); 
     _event->set();
     return true;
 }
@@ -1441,10 +1428,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         RSPConnectionPtr child = *i;
         if( child->_id == id )
         {
-            {
-                base::ScopedWrite mutex( _mutexConnection ); 
-                _children.erase( i );
-            }
+            _children.erase( i );
 
             base::ScopedWrite mutex( child->_mutexEvent ); 
             child->_appBuffers.push( 0 );
@@ -1453,7 +1437,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         }
     }
     
-    _sendDatagramCountNode();
+    _sendCountNode();
 }
 
 int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
@@ -1518,14 +1502,13 @@ void RSPConnection::finish()
     _appBuffers.waitSize( _buffers.size( ));
 }
 
-void RSPConnection::_sendDatagramCountNode()
+void RSPConnection::_sendCountNode()
 {
     if( !_findConnection( _id ))
         return;
 
     EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
-    const DatagramCount count = { COUNTNODE, _id,
-                                  uint16_t( _children.size( ))};
+    const DatagramCount count = { COUNTNODE, _id, uint16_t( _children.size( ))};
     _write->send( buffer( &count, sizeof( count )) );
 }
 

@@ -1,16 +1,15 @@
-##
-# Path : libs/collage/CMakeLists.txt
-# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
-#               2010 Cedric Stalder <cedric.stalder@gmail.ch>
-##
 
-include(files.cmake)
+# Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#               2010 Cedric Stalder <cedric.stalder@gmail.ch>
+
 include(configure.cmake)
 
+include(base/files.cmake)
+include(files.cmake)
+
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
-option(COLLAGE_BUILD_STATIC_LIBS "Build static Collage libraries" OFF)
-option(COLLAGE_BUILD_MODULARIZED "Build intermediate Collage libraries" OFF)
+mark_as_advanced(COLLAGE_AGGRESSIVE_CACHING)
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
@@ -25,20 +24,9 @@ if(APPLE)
   message(STATUS "Building Collage for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
-mark_as_advanced(COLLAGE_AGGRESSIVE_CACHING)
-mark_as_advanced(COLLAGE_BUILD_STATIC_LIBS)
-mark_as_advanced(COLLAGE_BUILD_MODULARIZED)
-
-if(NOT COLLAGE_BUILD_STATIC_LIBS)
-  set(CO_LIB_VARIANT SHARED)
-endif()
-if(NOT COLLAGE_BUILD_MODULARIZED)
-  list(APPEND CO_LIB_VARIANT EXCLUDE_FROM_ALL)
-endif(NOT COLLAGE_BUILD_MODULARIZED)
-
 add_definitions(-DEQ_PLUGIN_BUILD)
-add_subdirectory( base )
 
+set(VERSION ${CO_VERSION})
 set(CO_ADD_LINKLIB)
 
 if(WIN32)
@@ -47,10 +35,17 @@ endif(WIN32)
 if(MSVC)
   list(APPEND CO_SOURCES pgmConnection.cpp)
 endif(MSVC)
+if(LINUX)
+  list(APPEND CO_ADD_LINKLIB dl rt)
+endif()
 
 if(Boost_FOUND)
   list(APPEND CO_SOURCES rspConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY})
+  if(CO_USE_BOOST_SERIALIZATION)
+    list(APPEND CO_SOURCES dataIStreamArchive.cpp dataOStreamArchive.cpp)
+    list(APPEND CO_ADD_LINKLIB ${Boost_SERIALIZATION_LIBRARY})
+  endif()
   if(NOT Boost_USE_STATIC_LIBS)
     list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
   endif()
@@ -69,27 +64,22 @@ if(UDT_FOUND)
 endif()
 
 if(HWLOC_FOUND)
-  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIB})
+  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
 endif(HWLOC_FOUND)
 
-source_group(base REGULAR_EXPRESSION .*)
+source_group(base FILES ${COBASE_PUBLIC_HEADERS} ${COBASE_HEADERS}
+  ${COBASE_SOURCES})
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(collage FILES ${CO_PUBLIC_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
 source_group(compressor FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
 
-purple_add_library(co ${CO_LIB_VARIANT}
+purple_add_library(Collage SHARED
   HEADERS_PREFIX "co/"
-  HEADERS ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
-  PRECOMPILE_HEADERS precompile.h
-  SOURCES ${CO_HEADERS} ${CO_SOURCES}
+  HEADERS ${COBASE_PUBLIC_HEADERS} ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
+  SOURCES ${COBASE_SOURCES} ${COBASE_HEADERS} ${CO_HEADERS} ${CO_SOURCES}
           ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES}
-  LINK_LIBRARIES shared co_base ${CO_ADD_LINKLIB}
-  )
-set_target_properties(lib_co_shared PROPERTIES FOLDER "Transitional")
-
-purple_add_amalgamation(Collage co ${CO_VERSION} ${VERSION_ABI}
-    shared co_base shared co
+  LINK_LIBRARIES ${PTHREAD_LIBRARIES} ${CO_ADD_LINKLIB}
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

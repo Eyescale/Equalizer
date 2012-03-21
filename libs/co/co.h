@@ -68,7 +68,9 @@
 #include <co/connectionSet.h>
 #include <co/connectionType.h>
 #include <co/dataIStream.h>
+#include <co/dataIStreamArchive.h>
 #include <co/dataOStream.h>
+#include <co/dataOStreamArchive.h>
 #include <co/global.h>
 #include <co/init.h>
 #include <co/object.h>

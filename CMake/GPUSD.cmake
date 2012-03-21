@@ -10,4 +10,4 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_INSTALL_PREFIX}/share/gpu-sd/CMake")
 list(APPEND CMAKE_MODULE_PATH /usr/share/gpu-sd/CMake)
 list(APPEND CMAKE_MODULE_PATH /usr/local/share/gpu-sd/CMake)
 
-find_package(GPUSD 1.0.3)
+find_package(GPUSD 1.0.3 QUIET)
