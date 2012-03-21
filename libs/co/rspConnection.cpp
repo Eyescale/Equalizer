@@ -428,7 +428,6 @@ void RSPConnection::_handleAcceptIDTimeout( )
     else 
     {
         EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
-        EQINFO << "opened RSP connection " << _id << std::endl;
         _sendSimpleDatagram( ID_CONFIRM, _id );
         _addConnection( _id );
         _idAccepted = true;
@@ -449,14 +448,14 @@ void RSPConnection::_handleInitTimeout( )
     else
     {
         _state = STATE_LISTENING;
+        EQINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
-        if( _children.empty() )
-            _ioService.stop();
+        _ioService.stop(); // thread initialized, run restarts
     } 
     _setTimeout( 10 );
 }
 
-void RSPConnection::_handleConnectedTimeout( )
+void RSPConnection::_handleConnectedTimeout()
 {
     if( _state != STATE_LISTENING )
     {
@@ -486,7 +485,7 @@ bool RSPConnection::_initThread()
     EQLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
  
-   // send a first datagram for announce me and discover other connection 
+   // send a first datagram to announce me and discover other connections
     EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     _sendSimpleDatagram( ID_HELLO, _id );
     _setTimeout( 10 ); 
@@ -865,8 +864,7 @@ void RSPConnection::_handleInitData( const void* data)
             return;
 
         case COUNTNODE:
-            if( _handleCountNode( ))
-                _state = STATE_LISTENING;
+            _handleCountNode();
             break;
     
         case ID_EXIT:
@@ -1358,7 +1356,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     return true;
 }
 
-bool RSPConnection::_handleCountNode()
+void RSPConnection::_handleCountNode()
 {
     const DatagramCount* countConn = 
         reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
@@ -1366,11 +1364,7 @@ bool RSPConnection::_handleCountNode()
     EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
 
-    if( _addConnection( countConn->clientID ))
-        return false;
-
-    // we know all connections ?
-    return ( _children.size() == countConn->numConnections ) ;
+    _addConnection( countConn->clientID );
 }
 
 void RSPConnection::_checkNewID( uint16_t id )
@@ -1396,6 +1390,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
     if( _findConnection( id ))
         return false;
 
+    EQINFO << "add connection " << id << std::endl;
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
