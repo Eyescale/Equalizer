@@ -178,7 +178,7 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
 
     EQASSERT( !_modelDist );
     _modelDist = new ModelDist;
-    Model* model = _modelDist->mapModel( this, modelID );
+    Model* model = _modelDist->loadModel( getMasterNode(), this, modelID );
     EQASSERT( model );
     _model = model;
 

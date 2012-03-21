@@ -81,6 +81,7 @@ public:
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
     virtual co::base::uint128_t getVersion() const { return co::VERSION_NONE;}
+    virtual co::NodePtr getMaster() { return 0; }
 
 protected:
     virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,

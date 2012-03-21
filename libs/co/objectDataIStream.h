@@ -49,6 +49,7 @@ namespace co
         virtual void reset();
 
         bool hasInstanceData() const;
+        CO_API virtual NodePtr getMaster();
 
     protected:
         const Command* getNextCommand();
