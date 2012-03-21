@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -24,7 +24,6 @@
 
 #include <co/base/buffer.h> // member
 #include <co/base/types.h>
-
 
 #include <iostream>
 #include <vector>
@@ -108,7 +107,10 @@ namespace co
         /** @return true if not all data has been read. */
         bool hasData() { return _checkBuffer(); }
         //@}
- 
+
+        /** @return the provider of the istream. */
+        CO_API virtual NodePtr getMaster() = 0;
+
     protected:
         virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
                                     const void** chunkData, uint64_t* size )=0;
