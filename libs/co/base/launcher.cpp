@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2005-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,6 +28,8 @@
 
 #ifndef _WIN32
 #  include <sys/wait.h>
+#else
+#  include <unistd.h>
 #endif
 
 namespace co

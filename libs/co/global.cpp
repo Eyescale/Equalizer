@@ -52,14 +52,14 @@ static uint32_t _getObjectBufferSize()
     return 60000;
 }
 
-static uint32_t _getTimeout()
+static int32_t _getTimeout()
 {
     const char* env = getenv( "CO_TIMEOUT" );
     if( !env )
         return 300000; // == 5min
 
-    const int64_t size = atoi( env );
-    if( size == 0 )
+    const int32_t size = atoi( env );
+    if( size <= 0 )
         return 300000; // == 5min
 
     return size;
