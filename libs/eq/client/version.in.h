@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,19 +26,19 @@ namespace eq
 {
     // Equalizer version macros and functions
     /** The current major version. @version 1.0 */
-#   define EQ_VERSION_MAJOR ${VERSION_MAJOR}
+#   define EQ_VERSION_MAJOR @VERSION_MAJOR@
 
     /** The current minor version. @version 1.0 */
-#   define EQ_VERSION_MINOR ${VERSION_MINOR}
+#   define EQ_VERSION_MINOR @VERSION_MINOR@
 
     /** The current patch level. @version 1.0 */
-#   define EQ_VERSION_PATCH ${VERSION_PATCH}
+#   define EQ_VERSION_PATCH @VERSION_PATCH@
 
     /** The git wc hash revision, may be 0. @version 1.0 */
-#   define EQ_VERSION_REVISION ${EQ_REVISION}
+#   define EQ_VERSION_REVISION @EQ_REVISION@
 
     /** The current DSO binary revision. @version 1.0 */
-#   define EQ_VERSION_ABI ${VERSION_ABI}
+#   define EQ_VERSION_ABI @VERSION_ABI@
 
 /** True if the current version is newer than the given one. @version 1.0 */
 #   define EQ_VERSION_GT( MAJOR, MINOR, PATCH )                         \

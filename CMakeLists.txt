@@ -89,6 +89,7 @@ if(DOXYGEN_FOUND)
 endif()
 
 include(configure)
+include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 

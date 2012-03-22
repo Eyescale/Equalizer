@@ -1,11 +1,11 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2010-2011 Stefan Eilemann <eile@eyescale.ch>
+#               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 #                    2011 Maxim Makhinya <maxmah@gmail.com>
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 
 if(Equalizer_BINARY_DIR) # in-source build
-  configure_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt @ONLY)
+  update_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt)
 
   set(EQUALIZER_LIBRARIES lib_Equalizer_shared)
   set(EQUALIZER_ADMIN_LIBRARY lib_EqualizerAdmin_shared)
