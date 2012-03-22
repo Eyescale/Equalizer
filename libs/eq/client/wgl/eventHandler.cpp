@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/os.h>      // first get windows.h
+#include <lunchbox/os.h>      // first get windows.h
 #include <pthread.h>           // then get pthreads
-#include <co/base/perThread.h> // then get perThread to have template code
+#include <lunchbox/perThread.h> // then get perThread to have template code
 
 #include "eventHandler.h"
 
@@ -32,7 +32,7 @@
 #include "../node.h"
 #include "../window.h"
 
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 #include <algorithm>
 #include <windowsx.h>

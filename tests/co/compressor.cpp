@@ -22,12 +22,12 @@
 #include <co/global.h>
 #include <co/init.h>
 #include <co/pluginRegistry.h>
-#include <co/base/buffer.h>
-#include <co/base/clock.h>
-#include <co/base/file.h>
-#include <co/base/memoryMap.h>
-#include <co/base/rng.h>
-#include <co/base/types.h>
+#include <lunchbox/buffer.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/file.h>
+#include <lunchbox/memoryMap.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/types.h>
 
 #include <iostream>  // for std::cerr
 #include <numeric>

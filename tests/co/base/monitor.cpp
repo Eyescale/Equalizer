@@ -18,9 +18,9 @@
 #define EQ_TEST_RUNTIME 300 // seconds
 #include "test.h"
 
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
-#include <co/base/thread.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 #define NLOOPS 200000

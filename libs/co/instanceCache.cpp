@@ -21,8 +21,8 @@
 #include "objectDataIStream.h"
 #include "objectVersion.h"
 
-#include <co/base/debug.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {

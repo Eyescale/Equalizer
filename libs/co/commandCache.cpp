@@ -19,7 +19,7 @@
 
 #include "command.h"
 #include "node.h"
-#include <co/base/atomic.h>
+#include <lunchbox/atomic.h>
 
 #define COMPACT
 //#define PROFILE

@@ -17,7 +17,7 @@
 
 #include <test.h>
 
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 #include <co/init.h>
 
 #include <iostream>

@@ -21,7 +21,7 @@
 
 #include <co/node.h>            // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
-#include <co/base/requestHandler.h> // base class
+#include <lunchbox/requestHandler.h> // base class
 
 namespace co
 {

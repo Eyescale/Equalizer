@@ -18,8 +18,8 @@
 #ifndef EQSERVER_STATE_H
 #define EQSERVER_STATE_H
 
-#include <co/base/log.h>
-#include <co/base/types.h>
+#include <lunchbox/log.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {

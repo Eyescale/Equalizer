@@ -19,10 +19,10 @@
 
 #include <co/connection.h>
 
-#include <co/base/thread.h>
-#include <co/base/monitor.h>
-#include <co/base/ring.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/thread.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/ring.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <rdma/rdma_cma.h>
 

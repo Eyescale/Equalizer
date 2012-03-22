@@ -32,16 +32,16 @@
 #include "pipeConnection.h"
 #include "worker.h"
 
-#include <co/base/clock.h>   
-#include <co/base/hash.h>    
-#include <co/base/lockable.h>
-#include <co/base/log.h>
-#include <co/base/requestHandler.h>
-#include <co/base/rng.h>
-#include <co/base/scopedMutex.h>
-#include <co/base/sleep.h>
-#include <co/base/spinLock.h>
-#include <co/base/types.h>   
+#include <lunchbox/clock.h>   
+#include <lunchbox/hash.h>    
+#include <lunchbox/lockable.h>
+#include <lunchbox/log.h>
+#include <lunchbox/requestHandler.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/sleep.h>
+#include <lunchbox/spinLock.h>
+#include <lunchbox/types.h>   
 
 namespace co
 {

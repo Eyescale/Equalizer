@@ -21,7 +21,7 @@
 
 #include <co/plugins/compressor.h>
 
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <vector>
 #ifdef _WIN32
 #  include <malloc.h>

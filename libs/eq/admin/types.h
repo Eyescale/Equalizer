@@ -19,8 +19,8 @@
 #define EQADMIN_TYPES_H
 
 #include <eq/admin/api.h>
-#include <co/base/refPtr.h>
-#include <co/base/uint128_t.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/uint128_t.h>
 #include <vector>
 
 namespace eq

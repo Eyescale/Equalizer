@@ -21,9 +21,9 @@
 #include "exception.h"
 #include "global.h"
 
-#include <co/base/os.h>
-#include <co/base/log.h>
-#include <co/base/sleep.h>
+#include <lunchbox/os.h>
+#include <lunchbox/log.h>
+#include <lunchbox/sleep.h>
 #include <co/exception.h>
 
 #include <limits>

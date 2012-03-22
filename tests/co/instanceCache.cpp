@@ -27,8 +27,8 @@
 #include <co/instanceCache.h>
 #include <co/objectVersion.h>
 
-#include <co/base/rng.h>
-#include <co/base/thread.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/thread.h>
 
 #include <co/objectPackets.h> // private header
 

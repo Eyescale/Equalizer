@@ -21,8 +21,8 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/buffer.h> // member
-#include <co/base/nonCopyable.h> // base class
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/nonCopyable.h> // base class
 
 #include <iostream>
 #include <vector>

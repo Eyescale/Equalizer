@@ -27,7 +27,7 @@
 #include "types.h"
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-#  include <co/base/clock.h>
+#  include <lunchbox/clock.h>
 #endif
 
 namespace co

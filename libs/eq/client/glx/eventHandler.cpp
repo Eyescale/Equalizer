@@ -29,7 +29,7 @@
 #include "../pipe.h"
 #include "../window.h"
 
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include <X11/keysym.h>
 

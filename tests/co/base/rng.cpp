@@ -19,10 +19,10 @@
 
 #include <test.h>
 
-#include <co/base/clock.h>
-#include <co/base/init.h>
-#include <co/base/rng.h>
-#include <co/base/uint128_t.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/init.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/uint128_t.h>
 
 #define MAXLOOPS 100000
 

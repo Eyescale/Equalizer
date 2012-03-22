@@ -24,7 +24,7 @@
 
 #include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {

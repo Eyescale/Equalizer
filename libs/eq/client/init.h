@@ -21,7 +21,7 @@
 #include <eq/client/api.h>
 #include <eq/client/types.h>
 #include <eq/client/version.h>    // used inline
-#include <co/base/log.h>   // used inline
+#include <lunchbox/log.h>   // used inline
 
 namespace eq
 {

@@ -22,9 +22,9 @@
 #include "objectDataIStream.h"      // member
 #include "objectSlaveDataOStream.h" // member
 
-#include <co/base/mtQueue.h>     // member
-#include <co/base/pool.h>        // member
-#include <co/base/thread.h>      // thread-safety macro
+#include <lunchbox/mtQueue.h>     // member
+#include <lunchbox/pool.h>        // member
+#include <lunchbox/thread.h>      // thread-safety macro
 
 namespace co
 {

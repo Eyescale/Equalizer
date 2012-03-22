@@ -16,7 +16,7 @@
  */
 
 #include <test.h>
-#include <co/base/bitOperation.h>
+#include <lunchbox/bitOperation.h>
 
 int main( int argc, char **argv )
 {

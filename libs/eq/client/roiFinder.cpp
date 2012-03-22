@@ -34,7 +34,7 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 #include <co/plugins/compressor.h>
 
 

@@ -24,7 +24,7 @@
 
 #include <eq/fabric/observer.h>   // base class
 #include <eq/fabric/eye.h>        // enum
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
+#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 
 #include <string>
 

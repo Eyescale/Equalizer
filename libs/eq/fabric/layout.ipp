@@ -27,7 +27,7 @@
 #include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/stdExt.h>
 
 namespace eq
 {

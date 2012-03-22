@@ -25,7 +25,7 @@
 #include <co/commandQueue.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
-#include <co/base/dso.h>
+#include <lunchbox/dso.h>
 
 namespace eq
 {

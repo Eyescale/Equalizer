@@ -21,7 +21,7 @@
 #include "commandQueue.h"
 #include "node.h"
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace co
 {

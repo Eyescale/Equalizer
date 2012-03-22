@@ -44,7 +44,7 @@
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {

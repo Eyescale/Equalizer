@@ -28,8 +28,8 @@
 
 #include <co/global.h>
 #include <co/pluginRegistry.h>
-#include <co/base/memoryMap.h>
-#include <co/base/omp.h>
+#include <lunchbox/memoryMap.h>
+#include <lunchbox/omp.h>
 
 // Internal headers
 #include "../../co/plugin.h"

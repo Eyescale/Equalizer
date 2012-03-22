@@ -27,8 +27,8 @@
 
 #include <co/global.h>
 #include <co/pluginRegistry.h>
-#include <co/base/clock.h>
-#include <co/base/file.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/file.h>
 
 #include <numeric>
 #include <fstream>

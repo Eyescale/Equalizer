@@ -24,9 +24,9 @@
 #include "global.h"
 #include "log.h"
 
-#include <co/base/rng.h>
-#include <co/base/scopedMutex.h>
-#include <co/base/sleep.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/sleep.h>
 
 #include <boost/bind.hpp>
 

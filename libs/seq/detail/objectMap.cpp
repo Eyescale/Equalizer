@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include <seq/objectFactory.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace seq
 {

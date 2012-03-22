@@ -17,7 +17,7 @@
 
 #include "bufferConnection.h"
 
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <string.h>
 
 namespace co

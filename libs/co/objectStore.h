@@ -22,9 +22,9 @@
 #include <co/dispatcher.h>    // base class
 #include <co/version.h>       // enum
 
-#include <co/base/lockable.h>  // member
-#include <co/base/spinLock.h>  // member
-#include <co/base/stdExt.h>    // member
+#include <lunchbox/lockable.h>  // member
+#include <lunchbox/spinLock.h>  // member
+#include <lunchbox/stdExt.h>    // member
 
 #include "dataIStreamQueue.h"  // member
 

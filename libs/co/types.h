@@ -19,8 +19,8 @@
 #define CO_TYPES_H
 
 #include <co/error.h>
-#include <co/base/refPtr.h>
-#include <co/base/types.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/types.h>
 
 #include <deque>
 #include <vector>

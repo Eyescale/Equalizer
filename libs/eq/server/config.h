@@ -26,7 +26,7 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/config.h> // base class
-#include <co/base/monitor.h> // member
+#include <lunchbox/monitor.h> // member
 
 #include <iostream>
 #include <vector>

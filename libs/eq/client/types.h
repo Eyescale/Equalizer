@@ -24,7 +24,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
-#include <co/base/atomic.h>
+#include <lunchbox/atomic.h>
 
 #include <map>
 #include <vector>

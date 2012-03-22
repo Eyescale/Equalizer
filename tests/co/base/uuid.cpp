@@ -18,12 +18,12 @@
 // Tests the functionality of universally unique identifiers
 
 #include <test.h>
-#include <co/base/clock.h>
-#include <co/base/init.h>
-#include <co/base/rng.h>
-#include <co/base/stdExt.h>
-#include <co/base/thread.h>
-#include <co/base/uuid.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/init.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/stdExt.h>
+#include <lunchbox/thread.h>
+#include <lunchbox/uuid.h>
 
 #define N_UUIDS 10000
 #define N_THREADS 10

@@ -24,7 +24,7 @@
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
 
-#include <co/base/buffer.h>          // member
+#include <lunchbox/buffer.h>          // member
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
 
 namespace eq

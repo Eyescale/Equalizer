@@ -21,12 +21,12 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <co/base/clock.h>     // member
-#include <co/base/lock.h>      // member
-#include <co/base/lockable.h>  // member
-#include <co/base/stdExt.h>    // member
-#include <co/base/thread.h>    // member
-#include <co/base/uuid.h>      // member
+#include <lunchbox/clock.h>     // member
+#include <lunchbox/lock.h>      // member
+#include <lunchbox/lockable.h>  // member
+#include <lunchbox/stdExt.h>    // member
+#include <lunchbox/thread.h>    // member
+#include <lunchbox/uuid.h>      // member
 
 #include <iostream>
 

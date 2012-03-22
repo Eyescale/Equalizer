@@ -18,7 +18,7 @@
 #include "commandQueue.h"
 
 #include "messagePump.h"
-#include <co/base/clock.h>
+#include <lunchbox/clock.h>
 
 namespace eq
 {

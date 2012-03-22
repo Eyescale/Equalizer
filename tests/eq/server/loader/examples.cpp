@@ -21,8 +21,8 @@
 #include <eq/server/loader.h>
 #include <eq/server/server.h>
 
-#include <co/base/file.h>
-#include <co/base/init.h>
+#include <lunchbox/file.h>
+#include <lunchbox/init.h>
 
 #include <locale.h>
 

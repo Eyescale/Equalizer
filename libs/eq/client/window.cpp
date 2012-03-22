@@ -43,7 +43,7 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/exception.h>
-#include <co/base/sleep.h>
+#include <lunchbox/sleep.h>
 
 namespace eq
 {

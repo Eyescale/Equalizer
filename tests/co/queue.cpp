@@ -25,7 +25,7 @@
 #include <co/queueMaster.h>
 #include <co/queuePackets.h>
 #include <co/queueSlave.h>
-#include <co/base/sleep.h>
+#include <lunchbox/sleep.h>
 
 
 int main( int argc, char **argv )

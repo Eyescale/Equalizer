@@ -20,7 +20,7 @@
 
 #include "compoundVisitor.h" // base class
 
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {

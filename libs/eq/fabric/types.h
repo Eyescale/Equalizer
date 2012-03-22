@@ -22,8 +22,8 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
-#include <co/base/refPtr.h>
-#include <co/base/uint128_t.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/uint128_t.h>
 
 namespace eq
 {

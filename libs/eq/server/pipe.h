@@ -27,7 +27,7 @@
 #include <eq/fabric/iAttribute.h>       // eq::OFF enum
 #include <eq/fabric/pipe.h>             // parent
 #include <eq/fabric/pixelViewport.h>    // member
-#include <co/base/monitor.h>            // member
+#include <lunchbox/monitor.h>            // member
 
 #include <ostream>
 #include <vector>

@@ -21,7 +21,7 @@
 #include "exception.h"
 #include "node.h"
 
-#include <co/base/mtQueue.h>
+#include <lunchbox/mtQueue.h>
 
 namespace co
 {

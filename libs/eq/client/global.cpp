@@ -20,7 +20,7 @@
 
 #include "configParams.h"
 #include "nodeFactory.h"
-#include <co/base/lock.h>
+#include <lunchbox/lock.h>
 
 namespace eq
 {

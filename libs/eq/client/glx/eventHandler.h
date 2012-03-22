@@ -22,7 +22,7 @@
 #include <eq/client/glXTypes.h>     // XEvent type
 #include <eq/client/types.h>        // basic typedefs
 
-#include <co/base/thread.h> // thread-safety macro
+#include <lunchbox/thread.h> // thread-safety macro
 
 namespace eq
 {

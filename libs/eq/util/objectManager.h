@@ -21,11 +21,11 @@
 #include <eq/util/types.h>
 
 #include <eq/client/gl.h>              // OpenGL/GLEW types
-#include <co/base/api.h>              // EQ_API definition
-#include <co/base/debug.h>            // EQASSERT definition
-#include <co/base/hash.h>             // member
-#include <co/base/nonCopyable.h>      // base class
-#include <co/base/referenced.h>       // base class
+#include <lunchbox/api.h>              // EQ_API definition
+#include <lunchbox/debug.h>            // EQASSERT definition
+#include <lunchbox/hash.h>             // member
+#include <lunchbox/nonCopyable.h>      // base class
+#include <lunchbox/referenced.h>       // base class
 
 namespace eq
 {

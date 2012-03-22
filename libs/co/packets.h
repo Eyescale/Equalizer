@@ -22,7 +22,7 @@
 #include <co/commands.h> // used for CMD_ enums
 #include <co/types.h>
 #include <co/version.h>  // enum
-#include <co/base/uuid.h> // member
+#include <lunchbox/uuid.h> // member
 
 namespace co
 {

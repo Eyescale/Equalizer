@@ -24,7 +24,7 @@
 
 //#define EQ_INSTRUMENT_MULTICAST
 #ifdef EQ_INSTRUMENT_MULTICAST
-#  include <co/base/atomic.h>
+#  include <lunchbox/atomic.h>
 #endif
 
 namespace co

@@ -24,8 +24,8 @@
 #include "global.h"
 #include "node.h"
 
-#include <co/base/os.h>
-#include <co/base/log.h>
+#include <lunchbox/os.h>
+#include <lunchbox/log.h>
 
 #include <errno.h>
 #include <sstream>

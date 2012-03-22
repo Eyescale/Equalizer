@@ -24,7 +24,7 @@
 #  include "fdConnection.h"
 #endif
 
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 namespace co
 {

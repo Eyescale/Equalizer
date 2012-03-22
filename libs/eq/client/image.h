@@ -28,7 +28,7 @@
 #include <eq/fabric/viewport.h>      // member
 
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
-#include <co/base/buffer.h>          // member
+#include <lunchbox/buffer.h>          // member
 
 
 namespace eq

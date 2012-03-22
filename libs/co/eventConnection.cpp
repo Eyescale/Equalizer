@@ -18,7 +18,7 @@
 #include "eventConnection.h"
 #include "pipeConnection.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {

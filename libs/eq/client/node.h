@@ -26,8 +26,8 @@
 
 #include <co/commandQueue.h>
 #include <co/types.h>
-#include <co/base/monitor.h>          // member
-#include <co/base/mtQueue.h>          // member
+#include <lunchbox/monitor.h>          // member
+#include <lunchbox/mtQueue.h>          // member
 
 namespace eq
 {

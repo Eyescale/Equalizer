@@ -23,8 +23,8 @@
 #  include "namedPipeConnection.h"
 #endif
 
-#include <co/base/log.h>
-#include <co/base/thread.h>
+#include <lunchbox/log.h>
+#include <lunchbox/thread.h>
 
 #include <errno.h>
 

@@ -21,8 +21,8 @@
 #include <co/api.h>
 #include <co/localNode.h> // NodePtr members
 
-#include <co/base/atomic.h> // member
-#include <co/base/refPtr.h> // NodePtr
+#include <lunchbox/atomic.h> // member
+#include <lunchbox/refPtr.h> // NodePtr
 
 namespace co
 {    

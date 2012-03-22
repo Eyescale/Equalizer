@@ -18,9 +18,9 @@
 #ifndef EQTEST_TEST_H
 #define EQTEST_TEST_H
 
-#include <co/base/log.h>
-#include <co/base/sleep.h>
-#include <co/base/thread.h>
+#include <lunchbox/log.h>
+#include <lunchbox/sleep.h>
+#include <lunchbox/thread.h>
 
 #include <cstdlib>
 #include <fstream>

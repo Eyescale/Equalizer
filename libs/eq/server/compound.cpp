@@ -40,8 +40,8 @@
 
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
-#include <co/base/os.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/os.h>
+#include <lunchbox/stdExt.h>
 
 #include <algorithm>
 #include <math.h>

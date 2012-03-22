@@ -33,7 +33,7 @@
 #include "unbufferedMasterCM.h"
 #include "versionedSlaveCM.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <iostream>
 
 namespace co

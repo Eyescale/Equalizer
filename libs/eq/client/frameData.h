@@ -27,8 +27,8 @@
 #include <eq/fabric/subPixel.h>      // member
 
 #include <co/object.h>               // base class
-#include <co/base/monitor.h>         // member
-#include <co/base/spinLock.h>        // member
+#include <lunchbox/monitor.h>         // member
+#include <lunchbox/spinLock.h>        // member
 
 namespace eq
 {

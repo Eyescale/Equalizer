@@ -27,8 +27,8 @@
 #include "barrierPackets.h"
 #include "exception.h"
 
-#include <co/base/monitor.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/stdExt.h>
 
 namespace co
 {

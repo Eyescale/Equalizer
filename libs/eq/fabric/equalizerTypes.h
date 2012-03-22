@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_EQUALIZERTYPES_H
 #define EQFABRIC_EQUALIZERTYPES_H
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 
 namespace eq
 {

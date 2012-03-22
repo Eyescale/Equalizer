@@ -26,9 +26,9 @@
 #include <co/global.h>
 #include <co/init.h>
 #include <co/node.h>
-#include <co/base/sleep.h>
-#include <co/base/rng.h>
-#include <co/base/uuid.h>
+#include <lunchbox/sleep.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/uuid.h>
 
 #include <iostream>
 #define EQ_TEST_RUNTIME 6000

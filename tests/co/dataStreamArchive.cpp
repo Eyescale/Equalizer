@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 #include <test.h>
 
 #ifdef CO_USE_BOOST_SERIALIZATION

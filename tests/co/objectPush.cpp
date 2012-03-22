@@ -25,9 +25,9 @@
 #include <co/init.h>
 #include <co/node.h>
 #include <co/object.h>
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
-#include <co/base/rng.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/rng.h>
 
 #include <iostream>
 

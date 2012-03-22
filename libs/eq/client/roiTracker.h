@@ -22,7 +22,7 @@
 #include <eq/fabric/pixelViewport.h> // member
 
 #include <co/types.h>
-#include <co/base/stdExt.h>          // member
+#include <lunchbox/stdExt.h>          // member
 
 #include <vector>
 #include <string>

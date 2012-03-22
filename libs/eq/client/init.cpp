@@ -30,7 +30,7 @@
 #include <eq/fabric/init.h>
 #include <co/global.h>
 #include <co/pluginRegistry.h>
-#include <co/base/file.h>
+#include <lunchbox/file.h>
 
 #include <fstream>
 

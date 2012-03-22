@@ -19,7 +19,7 @@
 #define EQFABRIC_SWAPBARRIER_H
 
 #include <eq/fabric/api.h>
-#include <co/base/referenced.h> // base class
+#include <lunchbox/referenced.h> // base class
 #include <iostream>
 
 namespace eq

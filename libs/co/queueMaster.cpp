@@ -23,7 +23,7 @@
 #include "dataOStream.h"
 #include "queuePackets.h"
 
-#include <co/base/mtQueue.h>
+#include <lunchbox/mtQueue.h>
 
 namespace co
 {

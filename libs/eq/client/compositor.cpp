@@ -17,7 +17,7 @@
  */
 
 #include <pthread.h>
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include "channel.h"
 #include "channelStatistics.h"
@@ -37,8 +37,8 @@
 #include <eq/util/objectManager.h>
 
 #include <co/global.h>
-#include <co/base/debug.h>
-#include <co/base/monitor.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/monitor.h>
 
 #include <co/plugins/compressor.h>
 

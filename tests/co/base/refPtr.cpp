@@ -16,10 +16,10 @@
  */
 
 #include <test.h>
-#include <co/base/clock.h>
-#include <co/base/refPtr.h>
-#include <co/base/referenced.h>
-#include <co/base/thread.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/referenced.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 #ifdef CO_USE_BOOST
@@ -27,7 +27,7 @@
 #  include <boost/shared_ptr.hpp>
 #endif
 
-#ifdef CO_USE_BOOST_SERIALIZATION
+#ifdef LUNCHBOX_USE_BOOST_SERIALIZATION
 #  include <boost/serialization/access.hpp>
 #  include <boost/archive/text_oarchive.hpp>
 #  include <boost/archive/text_iarchive.hpp>
@@ -42,7 +42,7 @@ public:
     Foo() {}
 
 private:
-#ifdef CO_USE_BOOST_SERIALIZATION
+#ifdef LUNCHBOX_USE_BOOST_SERIALIZATION
     friend class boost::serialization::access;
     template< class Archive >
     void serialize( Archive& ar, unsigned int version )
@@ -174,7 +174,7 @@ int main( int argc, char **argv )
 
     foo = 0;
 
-#ifdef CO_USE_BOOST_SERIALIZATION
+#ifdef LUNCHBOX_USE_BOOST_SERIALIZATION
     FooPtr inFoo1 = new Foo;
     TEST( inFoo1->getRefCount() == 1 );
     FooPtr inFoo2 = inFoo1;

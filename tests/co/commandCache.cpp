@@ -23,7 +23,7 @@
 #include <co/commandQueue.h>
 #include <co/dispatcher.h>
 #include <co/init.h>
-#include <co/base/clock.h>
+#include <lunchbox/clock.h>
 
 // Tests the functionality of the network packet cache
 

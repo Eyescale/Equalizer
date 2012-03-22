@@ -18,7 +18,7 @@
 #ifndef EQ_WGL_TYPES_H
 #define EQ_WGL_TYPES_H
 
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {

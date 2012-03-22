@@ -19,7 +19,7 @@
 #define EQFABRIC_IATTRIBUTE_H
 
 #include <eq/fabric/api.h>
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 namespace eq

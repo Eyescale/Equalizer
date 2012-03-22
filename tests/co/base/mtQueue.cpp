@@ -17,10 +17,10 @@
 
 #include <pthread.h>
 #include <test.h>
-#include <co/base/clock.h>
-#include <co/base/compiler.h>
-#include <co/base/mtQueue.h>
-#include <co/base/thread.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/compiler.h>
+#include <lunchbox/mtQueue.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 #define NOPS 100000

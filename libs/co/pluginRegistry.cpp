@@ -22,9 +22,9 @@
 #include "log.h"
 #include "plugin.h"
 
-#include <co/base/dso.h>
-#include <co/base/file.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/dso.h>
+#include <lunchbox/file.h>
+#include <lunchbox/stdExt.h>
 
 #include <vector>
 #include <typeinfo>

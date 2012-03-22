@@ -22,8 +22,8 @@
 #include "connectionDescription.h"
 #include "global.h"
 
-#include <co/base/clock.h>
-#include <co/base/sleep.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/sleep.h>
 
 #include <arpa/inet.h>
 #include <errno.h>

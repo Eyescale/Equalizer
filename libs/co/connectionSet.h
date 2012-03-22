@@ -19,7 +19,7 @@
 #define CO_CONNECTION_SET_H
 
 #include <co/connectionListener.h> // base class
-#include <co/base/thread.h> // for EQ_TS_VAR
+#include <lunchbox/thread.h> // for EQ_TS_VAR
 
 namespace co
 {

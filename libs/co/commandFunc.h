@@ -19,7 +19,7 @@
 #define CO_COMMANDFUNC_H
 
 #include <co/types.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 // If you get a warning in your code, add before in including this file:
 //  #pragma warning( disable: 4407 )

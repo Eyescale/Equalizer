@@ -23,7 +23,7 @@
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 #include <eq/fabric/visitorResult.h> // enum
 
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 #include <co/types.h>
 
 namespace eq

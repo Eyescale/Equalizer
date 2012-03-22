@@ -25,7 +25,7 @@
 #include <eq/client/global.h>
 #include <eq/client/pipe.h>
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace eq
 {

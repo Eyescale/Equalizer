@@ -22,10 +22,10 @@
 #include "dataIStreamQueue.h" // member
 #include <co/types.h>
 
-#include <co/base/mtQueue.h> // member
-#include <co/base/pool.h>    // member
-#include <co/base/stdExt.h>  // member
-#include <co/base/thread.h>  // thread-safety check
+#include <lunchbox/mtQueue.h> // member
+#include <lunchbox/pool.h>    // member
+#include <lunchbox/stdExt.h>  // member
+#include <lunchbox/thread.h>  // thread-safety check
 
 namespace co
 {

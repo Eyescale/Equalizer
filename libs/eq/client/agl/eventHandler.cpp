@@ -30,7 +30,7 @@
 #include <eq/client/window.h>
 
 #include <co/global.h>
-#include <co/base/file.h>
+#include <lunchbox/file.h>
 
 #ifdef EQ_USE_MAGELLAN
 #  include <eq/client/node.h>

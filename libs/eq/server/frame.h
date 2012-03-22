@@ -23,7 +23,7 @@
 #include "types.h"
 
 #include <eq/client/frame.h>
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
+#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {

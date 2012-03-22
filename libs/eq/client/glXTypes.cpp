@@ -20,7 +20,7 @@
 
 #include "glXTypes.h"
 
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 namespace eq
 {

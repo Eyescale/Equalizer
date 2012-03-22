@@ -4,14 +4,14 @@
 
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 
-if(Equalizer_BINARY_DIR) # in-source build
+if(Equalizer_BINARY_DIR) # in-repository build
   update_file(CMakeLists.txt ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt)
 
   set(EQUALIZER_LIBRARIES lib_Equalizer_shared)
   set(EQUALIZER_ADMIN_LIBRARY lib_EqualizerAdmin_shared)
   set(EQUALIZER_SERVER_LIBRARY lib_EqualizerServer_shared)
   set(EQUALIZER_SEQUEL_LIBRARY lib_Sequel_shared)
-else()
+else() # installed examples
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/../CMake)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
   find_package(Equalizer @VERSION@ REQUIRED)

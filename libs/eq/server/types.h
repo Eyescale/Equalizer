@@ -22,8 +22,8 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
-#include <co/base/refPtr.h>
-#include <co/base/uuid.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/uuid.h>
 #include <vector>
 
 namespace eq

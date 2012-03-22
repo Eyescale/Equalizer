@@ -49,8 +49,8 @@
 #include <co/connectionDescription.h>
 #include <co/exception.h>
 #include <co/queueSlave.h>
-#include <co/base/rng.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <set>
 

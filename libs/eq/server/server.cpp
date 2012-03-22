@@ -40,8 +40,8 @@
 #include <co/global.h>
 #include <co/init.h>
 #include <co/localNode.h>
-#include <co/base/refPtr.h>
-#include <co/base/sleep.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/sleep.h>
 
 #include <sstream>
 

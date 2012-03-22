@@ -19,7 +19,7 @@
 #ifndef CO_DATAOSTREAMARCHIVE_H
 #define CO_DATAOSTREAMARCHIVE_H
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 #ifdef CO_USE_BOOST_SERIALIZATION
 
 #include <co/api.h>

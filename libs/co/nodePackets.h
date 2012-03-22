@@ -22,7 +22,7 @@
 #include <co/packets.h> // base structs
 #include <co/localNode.h> // used inline
 #include <co/objectVersion.h> // VERSION_FOO values
-#include <co/base/compiler.h> // align macros
+#include <lunchbox/compiler.h> // align macros
 
 /** @cond IGNORE */
 namespace co

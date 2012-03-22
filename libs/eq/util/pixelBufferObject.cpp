@@ -19,8 +19,8 @@
 #include "pixelBufferObject.h"
 
 #include <eq/client/error.h>
-#include <co/base/debug.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {

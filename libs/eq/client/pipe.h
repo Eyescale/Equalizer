@@ -28,9 +28,9 @@
 #include <eq/fabric/pipe.h>           // base class
 
 #include <co/objectVersion.h>
-#include <co/base/lock.h>
-#include <co/base/monitor.h>
-#include <co/base/refPtr.h>
+#include <lunchbox/lock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/refPtr.h>
 #include <co/worker.h>
 
 namespace eq

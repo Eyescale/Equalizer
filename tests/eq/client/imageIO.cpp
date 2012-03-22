@@ -22,8 +22,8 @@
 #include <eq/client/nodeFactory.h>
 #include <eq/client/image.h>
 #include <eq/client/init.h>
-#include <co/base/file.h>
-#include <co/base/memoryMap.h>
+#include <lunchbox/file.h>
+#include <lunchbox/memoryMap.h>
 
 int main( int argc, char **argv )
 {

@@ -26,8 +26,8 @@
 
 #include <eq/fabric/window.h> // base class
 #include <co/barrier.h>
-#include <co/base/monitor.h>   // member
-#include <co/base/uint128_t.h> // member
+#include <lunchbox/monitor.h>   // member
+#include <lunchbox/uint128_t.h> // member
 #include <iostream>
 #include <vector>
 

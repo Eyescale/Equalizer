@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 namespace co
 {

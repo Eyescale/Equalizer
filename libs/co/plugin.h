@@ -21,7 +21,7 @@
 
 #include <co/plugins/compressor.h> // member
 #include <co/types.h>
-#include <co/base/dso.h>           // member
+#include <lunchbox/dso.h>           // member
 
 namespace co
 {

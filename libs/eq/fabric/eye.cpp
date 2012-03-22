@@ -18,8 +18,8 @@
 
 #include "eye.h"
 
-#include <co/base/bitOperation.h>
-#include <co/base/debug.h>   // for EQABORT
+#include <lunchbox/bitOperation.h>
+#include <lunchbox/debug.h>   // for EQABORT
 
 namespace eq
 {

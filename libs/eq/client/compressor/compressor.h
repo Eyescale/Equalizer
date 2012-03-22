@@ -20,7 +20,7 @@
 #define EQ_PLUGIN_COMPRESSOR 
 
 #include <co/plugins/compressor.h>
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <vector>
 
 /**

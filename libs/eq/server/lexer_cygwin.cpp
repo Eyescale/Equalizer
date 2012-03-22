@@ -18,5 +18,5 @@
 // causes conflicts with winsock2.h included in Equalizer. This hack makes sure
 // that winsock2.h is included first.
 
-#include <co/base/base.h>
+#include <lunchbox/base.h>
 #include "lexer.cpp"

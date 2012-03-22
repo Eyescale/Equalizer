@@ -32,8 +32,8 @@
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/base/monitor.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>

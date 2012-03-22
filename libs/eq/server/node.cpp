@@ -35,10 +35,10 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/global.h>
-#include <co/base/clock.h>
-#include <co/base/launcher.h>
-#include <co/base/os.h>
-#include <co/base/sleep.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/launcher.h>
+#include <lunchbox/os.h>
+#include <lunchbox/sleep.h>
 
 namespace eq
 {

@@ -19,7 +19,7 @@
 #define CO_BUFFER_CONNECTION_H
 
 #include <co/connection.h>  // base class
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 namespace co
 {

@@ -43,8 +43,8 @@
 #  include "udtConnection.h"
 #endif
 
-#include <co/base/scopedMutex.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/stdExt.h>
 
 namespace co
 {

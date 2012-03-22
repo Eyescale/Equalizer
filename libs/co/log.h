@@ -18,7 +18,7 @@
 #ifndef CO_LOG_H
 #define CO_LOG_H
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace co
 {

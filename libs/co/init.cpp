@@ -22,8 +22,8 @@
 #include "pluginRegistry.h"
 #include "socketConnection.h"
 
-#include <co/base/init.h>
-#include <co/base/os.h>
+#include <lunchbox/init.h>
+#include <lunchbox/os.h>
 
 #ifdef _MSC_VER
 #  include <direct.h>

@@ -22,8 +22,8 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <co/base/api.h>
-#include <co/base/referenced.h>
+#include <lunchbox/api.h>
+#include <lunchbox/referenced.h>
 
 namespace co
 {

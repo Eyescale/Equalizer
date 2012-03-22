@@ -19,7 +19,7 @@
 #define CO_ERROR_H
 
 #include <co/api.h>
-#include <co/base/types.h> // EQ_KB definitions
+#include <lunchbox/types.h> // EQ_KB definitions
 
 namespace co
 {

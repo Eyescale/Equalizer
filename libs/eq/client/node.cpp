@@ -39,7 +39,7 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/connection.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {

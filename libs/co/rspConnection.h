@@ -26,11 +26,11 @@
 #include <co/types.h>
 #include "eventConnection.h" // member
 
-#include <co/base/api.h>
-#include <co/base/buffer.h>  // member
-#include <co/base/clock.h>   // member
-#include <co/base/lfQueue.h> // member
-#include <co/base/mtQueue.h> // member
+#include <lunchbox/api.h>
+#include <lunchbox/buffer.h>  // member
+#include <lunchbox/clock.h>   // member
+#include <lunchbox/lfQueue.h> // member
+#include <lunchbox/mtQueue.h> // member
 
 #pragma warning(push)
 #pragma warning(disable: 4267)

@@ -22,7 +22,7 @@
 #include "../channelListener.h" // nested base class
 
 #include <eq/client/types.h>
-#include <co/base/hash.h>
+#include <lunchbox/hash.h>
 #include <deque>
 #include <map>
 

@@ -16,9 +16,9 @@
  */
 
 #include <test.h>
-#include <co/base/clock.h>
-#include <co/base/sleep.h>
-#include <co/base/thread.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/sleep.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 #define NTHREADS 256

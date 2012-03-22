@@ -23,7 +23,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <limits>
 
 namespace co

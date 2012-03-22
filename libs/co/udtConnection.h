@@ -18,7 +18,7 @@
 #pragma once
 
 #include <co/connection.h>
-#include <co/base/monitor.h>
+#include <lunchbox/monitor.h>
 
 #include <udt.h>
 

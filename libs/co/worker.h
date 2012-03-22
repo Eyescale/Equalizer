@@ -20,7 +20,7 @@
 
 #include <co/api.h>          // CO_API definition
 #include <co/types.h>
-#include <co/base/thread.h>  // base class
+#include <lunchbox/thread.h>  // base class
 
 namespace co
 {

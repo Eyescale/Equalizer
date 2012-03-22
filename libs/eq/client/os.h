@@ -20,8 +20,8 @@
 
 #include <eq/client/api.h>
 #include <eq/client/gl.h>
-#include <co/base/os.h>
-#include <co/base/types.h>
+#include <lunchbox/os.h>
+#include <lunchbox/types.h>
 
 #include <string>
 

@@ -21,17 +21,17 @@
 #include "node.h"
 #include "eventConnection.h"
 
-#include <co/base/buffer.h>
-#include <co/base/os.h>
-#include <co/base/scopedMutex.h>
-#include <co/base/stdExt.h>
-#include <co/base/thread.h>
+#include <lunchbox/buffer.h>
+#include <lunchbox/os.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/stdExt.h>
+#include <lunchbox/thread.h>
 
 #include <algorithm>
 #include <errno.h>
 
 #ifdef _WIN32
-#  include <co/base/monitor.h>
+#  include <lunchbox/monitor.h>
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
 #  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)

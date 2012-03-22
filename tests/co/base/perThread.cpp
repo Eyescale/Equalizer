@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <test.h>
 
-#include <co/base/base.h>
+#include <lunchbox/base.h>
 
 #define NTHREADS 1024
 

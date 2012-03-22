@@ -29,7 +29,7 @@
 #include <co/packets.h>
 #include <co/types.h>
 
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 #include <co/dataOStream.ipp>      // private impl
 #include <co/cpuCompressor.h> // private header

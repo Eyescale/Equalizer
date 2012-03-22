@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/nonCopyable.h> // base class
+#include <lunchbox/nonCopyable.h> // base class
 
 namespace co 
 {
