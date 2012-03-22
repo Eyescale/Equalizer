@@ -12,4 +12,4 @@ Integration into another project:
 Update:
 
     git pull -s subtree CMake master
-    git commit -am Update CMake subtree'
+    git commit -am 'Update CMake subtree'
