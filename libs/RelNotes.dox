@@ -320,4 +320,6 @@
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
     Sequel missing from packages</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/107">107</a>:
+    Installed examples CMake build does not work</li>
 </ul>

@@ -64,16 +64,16 @@ if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()
 
-install(DIRECTORY configs DESTINATION share/Equalizer
-        COMPONENT data PATTERN ".svn" EXCLUDE)
+install(DIRECTORY configs DESTINATION share/Equalizer COMPONENT data)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
-        COMPONENT examples PATTERN ".svn" EXCLUDE)
+        COMPONENT examples)
 install(FILES ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
               ${CMAKE_SOURCE_DIR}/CMake/PurpleExpandLibraries.cmake
               ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
 if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")
