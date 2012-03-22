@@ -24,6 +24,7 @@
 
 #include <co/base/dso.h>
 #include <co/base/file.h>
+#include <co/base/os.h>
 #include <co/base/stdExt.h>
 
 #include <vector>
@@ -58,7 +59,7 @@ Strings _initPluginDirectories()
 
 #ifdef _WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
-            pluginDirectories.push_back( getDirname( cwd ));
+            pluginDirectories.push_back( base::getDirname( cwd ));
 #endif
 
 #ifdef Darwin
