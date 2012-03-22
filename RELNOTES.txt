@@ -244,3 +244,4 @@
 4. Errata
 
      * 105: Sequel missing from packages
+     * 107: Installed examples CMake build does not work

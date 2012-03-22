@@ -260,6 +260,7 @@ information.
 ---------
 
 -   `105`_: Sequel missing from packages
+-   `107`_: Installed examples CMake build does not work
 
 .. _1. Introduction: #introduction
 .. _1.1. Features: #features
@@ -343,3 +344,4 @@ information.
 .. _Eyescale: http://www.eyescale.ch
 .. _info@eyescale.ch: mailto:info@eyescale.ch?subject=Equalizer%20support
 .. _105: https://github.com/Eyescale/Equalizer/issues/105
+.. _107: https://github.com/Eyescale/Equalizer/issues/107
