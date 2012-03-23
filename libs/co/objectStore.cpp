@@ -30,7 +30,7 @@
 #include "objectDataIStream.h"
 #include "objectPackets.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <limits>
 
@@ -111,7 +111,7 @@ ObjectStore::~ObjectStore()
                  j != objects.end(); ++j )
             {
                 const Object* object = *j;
-                EQINFO << "    object type " << base::className( object )
+                EQINFO << "    object type " << lunchbox::className( object )
                        << std::endl;
             }
         }
@@ -173,7 +173,7 @@ void ObjectStore::disableSendOnRegister()
 //---------------------------------------------------------------------------
 // identifier master node mapping
 //---------------------------------------------------------------------------
-NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
+NodeID ObjectStore::_findMasterNodeID( const UUID& identifier )
 {
     EQ_TS_NOT_THREAD( _commandThread );
 
@@ -193,10 +193,10 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
                              << " req " << packet.requestID << std::endl;
         node->send( packet );
 
-        NodeID masterNodeID = base::UUID::ZERO;
+        NodeID masterNodeID = UUID::ZERO;
         _localNode->waitRequest( packet.requestID, masterNodeID );
 
-        if( masterNodeID != base::UUID::ZERO )
+        if( masterNodeID != UUID::ZERO )
         {
             EQLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
                                  << masterNodeID << std::endl;
@@ -204,13 +204,13 @@ NodeID ObjectStore::_findMasterNodeID( const base::UUID& identifier )
         }
     }
 
-    return base::UUID::ZERO;
+    return UUID::ZERO;
 }
 
 //---------------------------------------------------------------------------
 // object mapping
 //---------------------------------------------------------------------------
-void ObjectStore::attachObject( Object* object, const base::UUID& id, 
+void ObjectStore::attachObject( Object* object, const UUID& id, 
                                 const uint32_t instanceID )
 {
     EQASSERT( object );
@@ -227,7 +227,7 @@ void ObjectStore::attachObject( Object* object, const base::UUID& id,
 
 namespace
 {
-uint32_t _genNextID( base::a_int32_t& val )
+uint32_t _genNextID( lunchbox::a_int32_t& val )
 {
     uint32_t result;
     do
@@ -242,7 +242,7 @@ uint32_t _genNextID( base::a_int32_t& val )
 }
 }
 
-void ObjectStore::_attachObject( Object* object, const base::UUID& id, 
+void ObjectStore::_attachObject( Object* object, const UUID& id, 
                                  const uint32_t inInstanceID )
 {
     EQASSERT( object );
@@ -255,7 +255,7 @@ void ObjectStore::_attachObject( Object* object, const base::UUID& id,
     object->attach( id, instanceID );
 
     {
-        base::ScopedFastWrite mutex( _objects );
+        lunchbox::ScopedFastWrite mutex( _objects );
         Objects& objects = _objects.data[ id ];
         EQASSERTINFO( !object->isMaster() || objects.empty(),
             "Attaching master " << *object << ", " << objects.size() <<
@@ -293,10 +293,10 @@ void ObjectStore::swapObject( Object* oldObject, Object* newObject )
     if( !oldObject->isAttached() )
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Swap " << base::className( oldObject ) <<std::endl;
-    const base::UUID& id = oldObject->getID();
+    EQLOG( LOG_OBJECTS ) << "Swap " << lunchbox::className( oldObject ) <<std::endl;
+    const UUID& id = oldObject->getID();
 
-    base::ScopedFastWrite mutex( _objects );
+    lunchbox::ScopedFastWrite mutex( _objects );
     ObjectsHash::iterator i = _objects->find( id );
     EQASSERT( i != _objects->end( ));
     if( i == _objects->end( ))
@@ -321,7 +321,7 @@ void ObjectStore::_detachObject( Object* object )
     if( !object->isAttached() )
         return;
 
-    const base::UUID& id = object->getID();
+    const UUID& id = object->getID();
 
     EQASSERT( _objects->find( id ) != _objects->end( ));
     EQLOG( LOG_OBJECTS ) << "Detach " << *object << std::endl;
@@ -331,7 +331,7 @@ void ObjectStore::_detachObject( Object* object )
     EQASSERT( i != objects.end( ));
 
     {
-        base::ScopedFastWrite mutex( _objects );
+        lunchbox::ScopedFastWrite mutex( _objects );
         objects.erase( i );
         if( objects.empty( ))
             _objects->erase( id );
@@ -342,7 +342,7 @@ void ObjectStore::_detachObject( Object* object )
     return;
 }
 
-uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
+uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
                                    const uint128_t& version )
 {
     EQASSERTINFO( id.isGenerated(), id );
@@ -354,12 +354,12 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id,
     return mapObjectNB( object, id, version, master );
 }
 
-uint32_t ObjectStore::mapObjectNB( Object* object, const base::UUID& id, 
+uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id, 
                                    const uint128_t& version, NodePtr master )
 {
     EQ_TS_NOT_THREAD( _commandThread );
     EQ_TS_NOT_THREAD( _receiverThread );
-    EQLOG( LOG_OBJECTS ) << "Mapping " << base::className( object ) << " to id "
+    EQLOG( LOG_OBJECTS ) << "Mapping " << lunchbox::className( object ) << " to id "
                          << id << " version " << version << std::endl;
     EQASSERT( object );
     EQASSERTINFO( id.isGenerated(), id );
@@ -434,7 +434,7 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
         object->applyMapData( version ); // apply initial instance data
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << base::className( object ) << std::endl;
+    EQLOG( LOG_OBJECTS ) << "Mapped " << lunchbox::className( object ) << std::endl;
     return mapped;
 }
 
@@ -444,7 +444,7 @@ void ObjectStore::unmapObject( Object* object )
     if( !object->isAttached( )) // not registered
         return;
 
-    const base::UUID& id = object->getID();
+    const UUID& id = object->getID();
     
     EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
 
@@ -488,7 +488,7 @@ bool ObjectStore::registerObject( Object* object )
     EQASSERT( object );
     EQASSERT( !object->isAttached() );
 
-    const base::UUID& id = object->getID( );
+    const UUID& id = object->getID( );
     EQASSERTINFO( id.isGenerated(), id );
 
     object->notifyAttach();
@@ -529,7 +529,7 @@ void ObjectStore::deregisterObject( Object* object )
         _localNode->waitRequest( packet.requestID );
     }
 
-    const base::UUID id = object->getID();
+    const UUID id = object->getID();
     detachObject( object );
     object->setupChangeManager( Object::NONE, true, 0, EQ_INSTANCE_INVALID );
     if( _instanceCache )
@@ -537,10 +537,10 @@ void ObjectStore::deregisterObject( Object* object )
     object->notifyDetached();
 }
 
-NodePtr ObjectStore::_connectMaster( const base::UUID& id )
+NodePtr ObjectStore::_connectMaster( const UUID& id )
 {
     const NodeID masterNodeID = _findMasterNodeID( id );
-    if( masterNodeID == base::UUID::ZERO )
+    if( masterNodeID == UUID::ZERO )
     {
         EQWARN << "Can't find master node for object id " << id <<std::endl;
         return 0;
@@ -570,7 +570,7 @@ bool ObjectStore::notifyCommandThreadIdle()
         _localNode->getNodes( nodes, false );
         if( nodes.empty( ))
         {
-            base::Thread::yield();
+            lunchbox::Thread::yield();
             return !_sendQueue.empty();
         }
 
@@ -596,7 +596,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
 {
     EQ_TS_THREAD( _receiverThread );
     const ObjectPacket* packet = command.get< ObjectPacket >();
-    const base::UUID& id = packet->objectID;
+    const UUID& id = packet->objectID;
     const uint32_t instanceID = packet->instanceID;
 
     ObjectsHash::const_iterator i = _objects->find( id );
@@ -644,12 +644,12 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
     const NodeFindMasterNodeIDPacket* packet = 
           command.get<NodeFindMasterNodeIDPacket>();
 
-    const base::UUID& id = packet->identifier;
+    const UUID& id = packet->identifier;
     EQASSERT( id.isGenerated() );
 
     NodeFindMasterNodeIDReplyPacket reply( packet );
     {
-        base::ScopedFastRead mutex( _objects );
+        lunchbox::ScopedFastRead mutex( _objects );
         ObjectsHashCIter i = _objects->find( id );
 
         if( i != _objects->end( ))
@@ -668,7 +668,7 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
                     if( master.isValid( ))
                         reply.masterNodeID = master->getNodeID();
                 }
-                if( reply.masterNodeID != base::UUID::ZERO )
+                if( reply.masterNodeID != UUID::ZERO )
                     break;
             }
         }
@@ -709,7 +709,7 @@ bool ObjectStore::_cmdDetachObject( Command& command )
         command.get< NodeDetachObjectPacket >();
     EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
-    const base::UUID& id = packet->objectID;
+    const UUID& id = packet->objectID;
     ObjectsHash::const_iterator i = _objects->find( id );
     if( i != _objects->end( ))
     {
@@ -787,10 +787,10 @@ bool ObjectStore::_cmdMapObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr node = command.getNode();
-    const base::UUID& id = packet->objectID;
+    const UUID& id = packet->objectID;
     Object* master = 0;
     {
-        base::ScopedFastRead mutex( _objects );
+        lunchbox::ScopedFastRead mutex( _objects );
         ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
@@ -889,7 +889,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
             EQASSERT( packet->releaseCache );
             EQASSERT( _instanceCache );
 
-            const base::UUID& id = packet->objectID;
+            const UUID& id = packet->objectID;
             const InstanceCache::Data& cached = (*_instanceCache)[ id ];
             EQASSERT( cached != InstanceCache::Data::NONE );
             EQASSERT( !cached.versions.empty( ));
@@ -922,10 +922,10 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
     EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
     NodePtr node = command.getNode();
-    const base::UUID& id = packet->objectID;
+    const UUID& id = packet->objectID;
 
     {
-        base::ScopedFastWrite mutex( _objects );
+        lunchbox::ScopedFastWrite mutex( _objects );
         ObjectsHash::const_iterator i = _objects->find( id );
         if( i != _objects->end( ))
         {
@@ -965,7 +965,7 @@ bool ObjectStore::_cmdUnmapObject( Command& command )
 
     const Objects objects = i->second;
     {
-        base::ScopedFastWrite mutex( _objects );
+        lunchbox::ScopedFastWrite mutex( _objects );
         _objects->erase( i );
     }
 
@@ -1065,7 +1065,7 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
 
     EQLOG( LOG_OBJECTS ) << "Cmd object  " << packet << std::endl;
 
-    base::ScopedFastWrite mutex( _objects );
+    lunchbox::ScopedFastWrite mutex( _objects );
     for( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )
     {
         const Objects& objects = i->second;

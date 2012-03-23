@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/stdExt.h>
 
 #include <iostream>
 
@@ -40,13 +40,13 @@ namespace co
      * A helper struct bundling an object identifier and version.
      *
      * The struct either contains the object's identifier and version (if it is
-     * registered or mapped), base::UUID::ZERO and VERSION_NONE if it is
+     * registered or mapped), UUID::ZERO and VERSION_NONE if it is
      * unmapped or if no object was given.
      */
     struct ObjectVersion
     {
         CO_API ObjectVersion();
-        CO_API ObjectVersion( const base::UUID& identifier,
+        CO_API ObjectVersion( const UUID& identifier,
                                  const uint128_t& version );
         CO_API ObjectVersion( const Object* object );
         CO_API ObjectVersion& operator = ( const Object* object );

@@ -238,11 +238,11 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
     Global reference;
     reference._setupDefaults(); // ignore environment variables
 
-    os << co::base::disableFlush << co::base::disableHeader
+    os << lunchbox::disableFlush << lunchbox::disableHeader
        << "#Equalizer " << global->getConfigFAttribute( Config::FATTR_VERSION )
        << " ascii" << std::endl << std::endl
        << "global" << std::endl
-       << '{' << co::base::indent << std::endl;
+       << '{' << lunchbox::indent << std::endl;
 
     for( uint32_t i=0; i<ConnectionDescription::IATTR_ALL; ++i )
     {
@@ -402,8 +402,8 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
         }
     }
 
-    os << co::base::exdent << '}' << std::endl
-       << co::base::enableHeader << co::base::enableFlush;
+    os << lunchbox::exdent << '}' << std::endl
+       << lunchbox::enableHeader << lunchbox::enableFlush;
     return os;
 }
 

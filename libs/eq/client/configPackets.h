@@ -32,19 +32,19 @@ namespace eq
                 size    = sizeof( ConfigCreateNodePacket );
             }
 
-        co::base::UUID nodeID;
+        UUID nodeID;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
     {
-        ConfigDestroyNodePacket( const co::base::UUID& id )
+        ConfigDestroyNodePacket( const UUID& id )
                 : nodeID( id )
             {
                 command = fabric::CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
             }
 
-        const co::base::UUID nodeID;
+        const UUID nodeID;
     };
 
     struct ConfigInitPacket : public ConfigPacket

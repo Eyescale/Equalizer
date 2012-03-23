@@ -18,7 +18,7 @@
 #ifndef EQ_DEFINES_H
 #define EQ_DEFINES_H
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 
 #ifdef __APPLE__
 #  include <eq/client/definesDarwin.h>

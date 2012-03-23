@@ -20,7 +20,7 @@
 
 #include "objectCM.h"     // base class
 #include <co/objectVersion.h> // VERSION_FOO values
-#include <co/base/thread.h>  // thread-safety check
+#include <lunchbox/thread.h>  // thread-safety check
 
 namespace co
 {

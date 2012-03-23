@@ -19,7 +19,7 @@
 #define CO_VERSION_H
 
 #include <co/api.h>
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 #include <string>
 
 namespace co

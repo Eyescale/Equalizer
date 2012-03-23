@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/version.h>  // used inline
-#include <co/base/log.h> // used inline
+#include <lunchbox/log.h> // used inline
 
 namespace co
 {

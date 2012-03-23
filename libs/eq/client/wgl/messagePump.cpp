@@ -17,9 +17,9 @@
 
 #include "messagePump.h"
 
-#include <co/base/debug.h>
-#include <co/base/log.h>
-#include <co/base/os.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/log.h>
+#include <lunchbox/os.h>
 
 namespace eq
 {

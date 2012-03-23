@@ -54,7 +54,7 @@ namespace server
 {
 namespace config
 {
-static co::base::a_int32_t _frameCounter;
+static lunchbox::a_int32_t _frameCounter;
 
 bool Resources::discover( Config* config, const std::string& session,
                           const uint32_t flags )

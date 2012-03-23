@@ -23,7 +23,7 @@
 #ifndef EQADMIN_API_H
 #define EQADMIN_API_H
 
-#include <co/base/api.h>
+#include <lunchbox/api.h>
 
 #if defined(EQUALIZERADMIN_STATIC)
 #  define EQADMIN_API

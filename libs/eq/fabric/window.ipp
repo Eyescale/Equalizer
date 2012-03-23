@@ -61,7 +61,7 @@ Window< P, W, C >::Window( P* parent )
 {
     EQASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class P, class W, class C >
@@ -74,7 +74,7 @@ Window< P, W, C >::BackupData::BackupData()
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
         C* channel = _channels.back();
@@ -94,7 +94,7 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attach( const co::base::UUID& id,
+void Window< P, W, C >::attach( const UUID& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -271,7 +271,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 }
 
 template< class P, class W, class C >
-C* Window< P, W, C >::_findChannel( const co::base::UUID& id )
+C* Window< P, W, C >::_findChannel( const UUID& id )
 {
     for( typename Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -472,9 +472,9 @@ bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 template< class P, class W, class C >
 std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
 {
-    os << co::base::disableFlush << co::base::disableHeader
+    os << lunchbox::disableFlush << lunchbox::disableHeader
        << "window" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = window.getName();
     if( !name.empty( ))
@@ -504,8 +504,8 @@ std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
         os << **i;
     }
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

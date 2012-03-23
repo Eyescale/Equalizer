@@ -17,12 +17,12 @@
 
 #include <test.h>
 
-#include <co/base/clock.h>
-#include <co/base/timedLock.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/timedLock.h>
 
 #include <iostream>
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 int main( int argc, char **argv )

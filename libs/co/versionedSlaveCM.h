@@ -22,9 +22,9 @@
 #include "objectDataIStream.h"      // member
 #include "objectSlaveDataOStream.h" // member
 
-#include <co/base/mtQueue.h>     // member
-#include <co/base/pool.h>        // member
-#include <co/base/thread.h>      // thread-safety macro
+#include <lunchbox/mtQueue.h>     // member
+#include <lunchbox/pool.h>        // member
+#include <lunchbox/thread.h>      // thread-safety macro
 
 namespace co
 {
@@ -71,10 +71,10 @@ namespace co
         ObjectDataIStream* _currentIStream;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedVersions;
+        lunchbox::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        lunchbox::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;

@@ -20,13 +20,13 @@
 #include "config.h"
 
 #include <seq/objectFactory.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace seq
 {
 namespace detail
 {
-typedef co::base::ScopedMutex< co::base::SpinLock> ScopedMutex;
+typedef lunchbox::ScopedMutex< lunchbox::SpinLock> ScopedMutex;
 
 ObjectMap::ObjectMap( ObjectFactory& factory )
         : _factory( factory )

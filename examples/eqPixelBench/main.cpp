@@ -90,7 +90,7 @@ int main( int argc, char** argv )
     }
 
     // 4. init config
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     if( !config->init( 0 ))
     {

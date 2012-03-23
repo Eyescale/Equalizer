@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,9 +42,9 @@ namespace eVolve
         InitData();
         virtual ~InitData();
 
-        void setFrameDataID( const co::base::UUID& id )   { _frameDataID = id; }
+        void setFrameDataID( const co::UUID& id )   { _frameDataID = id; }
 
-        co::base::UUID     getFrameDataID()  const { return _frameDataID;  }
+        lunchbox::UUID     getFrameDataID()  const { return _frameDataID;  }
         eq::WindowSystem   getWindowSystem() const { return _windowSystem; }
         uint32_t           getPrecision()    const { return _precision;    }
         float              getBrightness()   const { return _brightness;   }
@@ -63,7 +63,7 @@ namespace eVolve
         void setFilename( const std::string& filename ) { _filename = filename;}
 
     private:
-        co::base::UUID   _frameDataID;
+        lunchbox::UUID   _frameDataID;
         eq::WindowSystem _windowSystem;
         uint32_t         _precision;
         float            _brightness;

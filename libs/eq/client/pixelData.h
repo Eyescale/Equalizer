@@ -24,13 +24,13 @@
 #include <eq/util/texture.h>         // member
 #include <eq/util/types.h>
 
-#include <co/base/buffer.h>          // member
+#include <lunchbox/buffer.h>          // member
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
 
 namespace eq
 {
     /** The pixel data structure manages the pixel information for images. */
-    struct PixelData : public co::base::NonCopyable
+    struct PixelData : public lunchbox::NonCopyable
     {
         /** Construct new pixel data. @version 1.0 */
         EQ_API PixelData();

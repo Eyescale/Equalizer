@@ -20,14 +20,14 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 namespace co
 {
 namespace detail { class CommandQueue; }
 
     /** A CommandQueue is a thread-safe queue for command packets. */
-    class CommandQueue : public base::NonCopyable
+    class CommandQueue : public lunchbox::NonCopyable
     {
     public:
         CO_API CommandQueue();

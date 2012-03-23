@@ -30,7 +30,7 @@
 #include <eq/client/window.h>
 
 #include <co/global.h>
-#include <co/base/file.h>
+#include <lunchbox/file.h>
 
 #ifdef EQ_USE_MAGELLAN
 #  include <eq/client/node.h>
@@ -618,7 +618,7 @@ void EventHandler::initMagellan( Node* node )
         EQWARN << "Can't install Space Mouse connexion handlers" << std::endl;
     else
     {
-        std::string program( '\0' + co::base::getFilename(
+        std::string program( '\0' + lunchbox::getFilename(
                                         co::Global::getProgramName( )));
         program[0] = program.length() - 1;
 

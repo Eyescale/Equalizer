@@ -22,7 +22,7 @@
 #include <co/packets.h> // base structs
 #include <co/localNode.h> // used inline
 #include <co/objectVersion.h> // VERSION_FOO values
-#include <co/base/compiler.h> // align macros
+#include <lunchbox/compiler.h> // align macros
 
 /** @cond IGNORE */
 namespace co
@@ -234,7 +234,7 @@ namespace co
                 size      = sizeof( NodeFindMasterNodeIDPacket ); 
             }
         
-        base::UUID identifier;
+        UUID identifier;
         uint32_t   requestID;
         const uint32_t fill;
     };
@@ -262,7 +262,7 @@ namespace co
                 size    = sizeof( NodeAttachObjectPacket ); 
             }
         
-        base::UUID  objectID;
+        UUID  objectID;
         uint32_t    requestID;
         uint32_t    objectInstanceID;
     };
@@ -282,7 +282,7 @@ namespace co
         uint128_t requestedVersion;
         uint128_t minCachedVersion;
         uint128_t maxCachedVersion;
-        base::UUID objectID;
+        UUID objectID;
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;
@@ -303,7 +303,7 @@ namespace co
             }
         
         NodeID nodeID;
-        base::UUID objectID;
+        UUID objectID;
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t changeType;
@@ -326,7 +326,7 @@ namespace co
             }
         
         NodeID nodeID;
-        const base::UUID objectID;
+        const UUID objectID;
         uint128_t version;
         const uint32_t requestID;
         
@@ -343,7 +343,7 @@ namespace co
                 size    = sizeof( NodeUnmapObjectPacket ); 
             }
         
-        base::UUID objectID;
+        UUID objectID;
     };
 
     struct NodeRemoveNodePacket : public NodePacket
@@ -366,7 +366,7 @@ namespace co
                 size    = sizeof( NodeUnsubscribeObjectPacket ); 
             }
        
-        base::UUID      objectID;
+        UUID      objectID;
         uint32_t        requestID;
         uint32_t        masterInstanceID;
         uint32_t        slaveInstanceID;
@@ -412,7 +412,7 @@ namespace co
             objectInstanceID = request->slaveInstanceID;
         }
 
-        base::UUID      objectID;
+        UUID      objectID;
         uint32_t        requestID;
         uint32_t        objectInstanceID;
     };

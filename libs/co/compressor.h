@@ -21,7 +21,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/thread.h>         // thread-safety macros
+#include <lunchbox/thread.h>         // thread-safety macros
 
 namespace co
 {

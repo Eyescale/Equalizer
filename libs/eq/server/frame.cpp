@@ -193,7 +193,7 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
 
 co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
 {
-    return co::ObjectVersion( _frameData[ co::base::getIndexOfLastBit( eye )]);
+    return co::ObjectVersion( _frameData[ lunchbox::getIndexOfLastBit( eye )]);
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )
@@ -201,8 +201,8 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     if( !frame )
         return os;
     
-    os << co::base::disableFlush << "frame" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << lunchbox::disableFlush << "frame" << std::endl;
+    os << "{" << std::endl << lunchbox::indent;
       
     const std::string& name = frame->getName();
     os << "name     \"" << name << "\"" << std::endl;
@@ -228,7 +228,7 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
     if( zoom.isValid() && zoom != eq::Zoom::NONE )
         os << zoom << std::endl;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
 

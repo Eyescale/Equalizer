@@ -33,7 +33,7 @@ namespace co
 namespace
 {
 #ifdef EQ_INSTRUMENT
-base::a_int32_t _bytesBuffered;
+lunchbox::a_int32_t _bytesBuffered;
 #endif
 }
 
@@ -156,7 +156,7 @@ void FullMasterCM::_obsolete()
         EQINFO
             << "Remove v" << data->os.getVersion() << " c" << data->commitCount
             << "@" << _commitCount << "/" << _nVersions << " from "
-            << base::className( _object ) << " " << ObjectVersion( _object )
+            << lunchbox::className( _object ) << " " << ObjectVersion( _object )
             << std::endl;
 #endif
         _releaseInstanceData( data );

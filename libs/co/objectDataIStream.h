@@ -20,8 +20,8 @@
 
 #include <co/dataIStream.h>   // base class
 #include <co/version.h>       // enum
-#include <co/base/monitor.h>      // member
-#include <co/base/thread.h>       // member
+#include <lunchbox/monitor.h>      // member
+#include <lunchbox/thread.h>       // member
 
 #include <deque>
 
@@ -63,7 +63,7 @@ namespace co
         Command* _usedCommand; //!< Currently used buffer
 
         /** The object version associated with this input stream. */
-        base::Monitor< uint128_t > _version;
+        lunchbox::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
         void _reset();

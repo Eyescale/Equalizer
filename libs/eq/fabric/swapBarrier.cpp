@@ -25,16 +25,16 @@ namespace fabric
 std::ostream& operator << ( std::ostream& os, const SwapBarrier& swapBarrier )
 {
     if( swapBarrier.isNvSwapBarrier( ))
-        return os << co::base::disableFlush << "swapbarrier" << std::endl 
+        return os << lunchbox::disableFlush << "swapbarrier" << std::endl 
                   << "{"<< std::endl 
                   << "    name \"" << swapBarrier.getName() << "\"" << std::endl
                   << "    NV_group " << swapBarrier.getNVSwapGroup() <<std::endl
                   << "    NV_barrier " << swapBarrier.getNVSwapBarrier()
                   << std::endl
-                  << "}"  << co::base::enableFlush << std::endl; 
+                  << "}"  << lunchbox::enableFlush << std::endl; 
 
-    return os << co::base::disableFlush << "swapbarrier { name \"" 
-              << swapBarrier.getName() << "\" }" << co::base::enableFlush
+    return os << lunchbox::disableFlush << "swapbarrier { name \"" 
+              << swapBarrier.getName() << "\" }" << lunchbox::enableFlush
               << std::endl;
 }
 

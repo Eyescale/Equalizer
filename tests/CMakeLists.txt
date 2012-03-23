@@ -70,7 +70,13 @@ foreach(FILE ${TEST_FILES})
       get_target_property(EXECUTABLE ${NAME} LOCATION)
       STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
              EXECUTABLE "${EXECUTABLE}")
+
       add_test(${NAME} ${EXECUTABLE})
+      if(APPLE)
+        set_property(TEST ${NAME} PROPERTY ENVIRONMENT
+          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIR}:$ENV{DYLD_LIBRARY_PATH}"
+          )
+      endif()
     endif()
     list(APPEND ALL_TESTS ${NAME})
   endif()

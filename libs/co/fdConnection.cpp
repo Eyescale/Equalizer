@@ -24,7 +24,7 @@
 #include "global.h"
 #include "log.h"
 
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 
 #include <errno.h>
 #include <poll.h>

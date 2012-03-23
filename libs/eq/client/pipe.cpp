@@ -124,7 +124,7 @@ ServerPtr Pipe::getServer()
     return ( node ? node->getServer() : 0);
 }
 
-void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Pipe::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
@@ -344,7 +344,7 @@ void Pipe::flushFrames()
 co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( queueVersion.identifier == co::base::UUID::ZERO )
+    if( queueVersion.identifier == UUID::ZERO )
         return 0;
 
     co::QueueSlave* queue = _queues[ queueVersion.identifier ];
@@ -384,7 +384,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
     EQ_TS_THREAD( _pipeThread );
-    if( viewVersion.identifier == co::base::UUID::ZERO )
+    if( viewVersion.identifier == UUID::ZERO )
         return 0;
 
     View* view = _views[ viewVersion.identifier ];

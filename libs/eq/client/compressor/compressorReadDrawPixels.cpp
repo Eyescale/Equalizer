@@ -20,7 +20,7 @@
 
 #include <eq/util/texture.h>
 #include <eq/util/pixelBufferObject.h>
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 
 #define glewGetContext() glewContext
 #define EQ_ASYNC_PBO // remove to use textures for async RB instead of PBOs

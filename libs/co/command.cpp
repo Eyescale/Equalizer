@@ -22,7 +22,7 @@
 namespace co
 {
 
-Command::Command( base::a_int32_t& freeCounter ) 
+Command::Command( lunchbox::a_int32_t& freeCounter ) 
         : _packet( 0 )
         , _data( 0 )
         , _dataSize( 0 )
@@ -143,7 +143,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
 {
     if( command.isValid( ))
     {
-        os << base::disableFlush << "command< ";
+        os << lunchbox::disableFlush << "command< ";
         const Packet* packet = command.get< Packet >() ;
         switch( packet->type )
         {
@@ -160,7 +160,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
         }
 
         os << ", " << command.getNode() << ", r" << command._refCount << " >"
-           << base::enableFlush;
+           << lunchbox::enableFlush;
     }
     else
         os << "command< empty >";

@@ -28,8 +28,8 @@
 co::ObjectCM* co::ObjectCM::ZERO = new co::NullCM;
 
 #ifdef EQ_INSTRUMENT_MULTICAST
-co::base::a_int32_t co::ObjectCM::_hit( 0 );
-co::base::a_int32_t co::ObjectCM::_miss( 0 );
+lunchbox::a_int32_t co::ObjectCM::_hit( 0 );
+lunchbox::a_int32_t co::ObjectCM::_miss( 0 );
 #endif
 
 namespace co

@@ -22,10 +22,10 @@
 #include "dataIStreamQueue.h" // member
 #include <co/types.h>
 
-#include <co/base/mtQueue.h> // member
-#include <co/base/pool.h>    // member
-#include <co/base/stdExt.h>  // member
-#include <co/base/thread.h>  // thread-safety check
+#include <lunchbox/mtQueue.h> // member
+#include <lunchbox/pool.h>    // member
+#include <lunchbox/stdExt.h>  // member
+#include <lunchbox/thread.h>  // thread-safety check
 
 namespace co
 {
@@ -36,7 +36,7 @@ namespace co
     class MasterCM : public ObjectCM
     {
     protected:
-        typedef base::ScopedWrite Mutex;
+        typedef lunchbox::ScopedWrite Mutex;
 
     public:
         MasterCM( Object* object );
@@ -65,7 +65,7 @@ namespace co
 
     protected:
         /** The list of subscribed slave nodes. */
-        base::Lockable< Nodes > _slaves;
+        lunchbox::Lockable< Nodes > _slaves;
 
         typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
 

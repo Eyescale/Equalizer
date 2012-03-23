@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #include "init.h"
 
 #include <co/init.h>
-#include <co/base/atomic.h>
+#include <lunchbox/atomic.h>
 
 namespace eq
 {
@@ -26,7 +26,7 @@ namespace fabric
 {
 namespace
 {
-static co::base::a_int32_t _initialized;
+static lunchbox::a_int32_t _initialized;
 }
 extern void _initErrors();
 extern void _exitErrors();

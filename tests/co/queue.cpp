@@ -25,7 +25,7 @@
 #include <co/queueMaster.h>
 #include <co/queuePackets.h>
 #include <co/queueSlave.h>
-#include <co/base/sleep.h>
+#include <lunchbox/sleep.h>
 
 
 int main( int argc, char **argv )
@@ -64,7 +64,7 @@ int main( int argc, char **argv )
     c3->release();
     c4->release();
 
-    co::base::sleep(1000);
+    lunchbox::sleep(1000);
 
     node->unmapObject( qs );
     node->deregisterObject( qm );

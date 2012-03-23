@@ -35,10 +35,10 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/global.h>
-#include <co/base/clock.h>
-#include <co/base/launcher.h>
-#include <co/base/os.h>
-#include <co/base/sleep.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/launcher.h>
+#include <lunchbox/os.h>
+#include <lunchbox/sleep.h>
 
 namespace eq
 {
@@ -87,7 +87,7 @@ Node::~Node()
 {
 }
 
-void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Node::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -263,7 +263,7 @@ bool Node::launch()
     return false;
 }
 
-bool Node::syncLaunch( const co::base::Clock& clock )
+bool Node::syncLaunch( const lunchbox::Clock& clock )
 {
     EQASSERT( isActive( ));
 
@@ -289,7 +289,7 @@ bool Node::syncLaunch( const co::base::Clock& clock )
             return true;
         }
         
-        co::base::sleep( 100 /*ms*/ );
+        lunchbox::sleep( 100 /*ms*/ );
         if( clock.getTime64() > timeOut )
         {
             EQASSERT( _node->getRefCount() == 1 );
@@ -373,7 +373,7 @@ bool Node::_launch( const std::string& hostname ) const
         cmd += " " + _createRemoteCommand();
 
     EQVERB << "Launch command: " << cmd << std::endl;
-    if( co::base::Launcher::run( cmd ))
+    if( lunchbox::Launcher::run( cmd ))
         return true;
 
     EQWARN << "Could not launch node using '" << cmd << "'" << std::endl;
@@ -401,9 +401,9 @@ std::string Node::_createRemoteCommand() const
         if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
             stringStream << quote << environ[i] << quote << " ";
 
-    stringStream << "EQ_LOG_LEVEL=" <<co::base::Log::getLogLevelString() << " ";
-    if( co::base::Log::topics != 0 )
-        stringStream << "EQ_LOG_TOPICS=" <<co::base::Log::topics << " ";
+    stringStream << "EQ_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
+    if( lunchbox::Log::topics != 0 )
+        stringStream << "EQ_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
 #endif // WIN32
 
     //----- program + args
@@ -768,7 +768,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -788,7 +788,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -808,7 +808,7 @@ void Node::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -820,7 +820,7 @@ void Node::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 }
 
 }

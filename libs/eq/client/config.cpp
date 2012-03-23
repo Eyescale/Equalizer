@@ -44,7 +44,7 @@
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {
@@ -60,7 +60,7 @@ Config::Config( ServerPtr server )
         , _finishedFrame( 0 )
         , _running( false )
 {
-    co::base::Log::setClock( &_clock );
+    lunchbox::Log::setClock( &_clock );
 }
 
 Config::~Config()
@@ -77,7 +77,7 @@ Config::~Config()
     _eventQueue.flush();
     _lastEvent = 0;
     _appNode   = 0;
-    co::base::Log::setClock( 0 );
+    lunchbox::Log::setClock( 0 );
 }
 
 void Config::attach( const UUID& id, const uint32_t instanceID )
@@ -127,7 +127,7 @@ void Config::notifyDetach()
 {
     {
         ClientPtr client = getClient();
-        co::base::ScopedFastWrite mutex( _latencyObjects );
+        lunchbox::ScopedFastWrite mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
             LatencyObject* latencyObject = _latencyObjects->back();
@@ -315,7 +315,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     send( getServer(), packet );
 
     ++_currentFrame;
-    EQLOG( co::base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
+    EQLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                                << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
@@ -394,7 +394,7 @@ uint32_t Config::finishFrame()
     _updateStatistics( frameToFinish );
     _releaseObjects();
 
-    EQLOG( co::base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+    EQLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
                                << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
@@ -404,7 +404,7 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
-    EQLOG( co::base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
+    EQLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
     send( getServer(), packet );
 
@@ -425,7 +425,7 @@ uint32_t Config::finishAllFrames()
     handleEvents();
     _updateStatistics( _currentFrame );
     _releaseObjects();
-    EQLOG( co::base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
+    EQLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
 
@@ -564,7 +564,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+            lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
 
             for( std::deque<FrameStatistics>::iterator i =_statistics->begin();
                  i != _statistics->end(); ++i )
@@ -637,7 +637,7 @@ bool Config::_needsLocalSync() const
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
     // keep statistics for three frames
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
     while( !_statistics->empty() &&
            finishedFrame - _statistics->front().first > 2 )
     {
@@ -647,7 +647,7 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
 
 void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
 
     for( std::deque<FrameStatistics>::const_iterator i = _statistics->begin();
          i != _statistics->end(); ++i )
@@ -672,8 +672,8 @@ void Config::setupMessagePump( Pipe* pipe )
         return;
 
     // called from pipe threads - but only during init
-    static co::base::Lock _lock;
-    co::base::ScopedWrite mutex( _lock );
+    static lunchbox::Lock _lock;
+    lunchbox::ScopedWrite mutex( _lock );
 
     if( _eventQueue.getMessagePump( )) // Already done
         return;
@@ -809,7 +809,7 @@ void Config::_releaseObjects()
 {
     ClientPtr client = getClient();
 
-    co::base::ScopedFastWrite mutex( _latencyObjects );
+    lunchbox::ScopedFastWrite mutex( _latencyObjects );
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
@@ -953,7 +953,7 @@ bool Config::_cmdSwapObject( co::Command& command )
                                              _currentFrame + getLatency() + 1 );
     getLocalNode()->swapObject( object, latencyObject  );
     {
-        co::base::ScopedFastWrite mutex( _latencyObjects );
+        lunchbox::ScopedFastWrite mutex( _latencyObjects );
         _latencyObjects->push_back( latencyObject );
     }
     EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );

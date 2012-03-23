@@ -22,7 +22,7 @@
 #include "log.h"
 #include "node.h"
 
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 #include <co/plugins/compressor.h>
 
 #include <string.h>

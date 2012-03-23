@@ -19,7 +19,7 @@
 #ifndef EQUTIL_PIXELBUFFEROBJECT_H
 #define EQUTIL_PIXELBUFFEROBJECT_H
 
-#include <co/base/lock.h>
+#include <lunchbox/lock.h>
 
 #include <eq/client/gl.h>   // for GLEW
 #include <eq/client/types.h>

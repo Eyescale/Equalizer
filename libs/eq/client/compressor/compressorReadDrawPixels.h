@@ -73,7 +73,7 @@ public:
                                  void**             out );
 
 protected:
-    co::base::Bufferb _buffer;
+    lunchbox::Bufferb _buffer;
     util::Texture*    _texture;
     util::Texture*    _asyncTexture;
     util::PixelBufferObject* _pbo;

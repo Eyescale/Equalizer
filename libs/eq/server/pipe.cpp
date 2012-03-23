@@ -58,7 +58,7 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Pipe::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -71,7 +71,7 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
 }
 
-void Pipe::removeChild( const co::base::UUID& id )
+void Pipe::removeChild( const UUID& id )
 {
     EQASSERT( getConfig()->isRunning( ));
 
@@ -336,7 +336,7 @@ void Pipe::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -348,7 +348,7 @@ void Pipe::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl;
+        os << lunchbox::exdent << "}" << std::endl;
 }
 
 }

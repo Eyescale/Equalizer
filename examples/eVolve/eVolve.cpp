@@ -86,7 +86,7 @@ int EVolve::run()
     }
 
     // 3. init config
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     config->setInitData( _initData );
     if( !config->init( ))

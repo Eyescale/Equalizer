@@ -24,7 +24,7 @@
 
 #include <eq/client/statistic.h>
 #include <eq/fabric/zoom.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {
@@ -159,7 +159,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( !lb )
         return os;
 
-    os << co::base::disableFlush
+    os << lunchbox::disableFlush
        << "DFR_equalizer " << std::endl
        << '{' << std::endl
        << "    framerate " << lb->getFrameRate() << std::endl;
@@ -167,7 +167,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
     
-    os << '}' << std::endl << co::base::enableFlush;
+    os << '}' << std::endl << lunchbox::enableFlush;
     return os;
 }
 

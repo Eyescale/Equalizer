@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,18 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_DEFINES_H
-#define COBASE_DEFINES_H
+#ifndef CO_DEFINES_H
+#define CO_DEFINES_H
 
 #ifdef __APPLE__
-#  include <co/base/definesDarwin.h>
+#  include <co/definesDarwin.h>
 #endif
 #ifdef __linux
-#  include <co/base/definesLinux.h>
+#  include <co/definesLinux.h>
 #endif
 #ifdef _WIN32 //_MSC_VER
-#  include <co/base/definesWin32.h>
+#  include <co/definesWin32.h>
 #endif
+#include <lunchbox/defines.h>
 
 // Defining our own min/max macros seems to be the only sane way to get this
 // functionality across platforms thanks to some screwup in the MS header files.
@@ -51,4 +52,4 @@
 #  define CO_UNLIKELY(x)     x
 #endif
 
-#endif // COBASE_DEFINES_H
+#endif // CO_DEFINES_H

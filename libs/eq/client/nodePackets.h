@@ -79,20 +79,20 @@ namespace eq
                 size    = sizeof( NodeCreatePipePacket );
             }
 
-        co::base::UUID pipeID;
+        UUID pipeID;
         bool     threaded;
     };
 
     struct NodeDestroyPipePacket : public NodePacket
     {
-        NodeDestroyPipePacket( const co::base::UUID& id )
+        NodeDestroyPipePacket( const UUID& id )
                 : pipeID( id )
             {
                 command = fabric::CMD_NODE_DESTROY_PIPE;
                 size    = sizeof( NodeDestroyPipePacket );
             }
 
-        const co::base::UUID pipeID;
+        const UUID pipeID;
     };
     
     struct NodeFrameStartPacket : public NodePacket

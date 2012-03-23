@@ -21,8 +21,8 @@
 
 #include <co/connection.h> // base class
 
-#include <co/base/buffer.h> // member
-#include <co/base/thread.h> // for EQ_TS_VAR
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/thread.h> // for EQ_TS_VAR
 
 #ifndef _WIN32
 #  error NamedPipeConnection only supported on Windows

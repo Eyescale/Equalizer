@@ -152,7 +152,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
     EQVERB << "Handle choose config reply " << packet << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();
-    if( packet->configID == co::base::UUID::ZERO )
+    if( packet->configID == UUID::ZERO )
     {
         localNode->serveRequest( packet->requestID, (void*)0 );
         return true;

@@ -24,7 +24,7 @@
 #include <eq/fabric/focusMode.h>
 #include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
-#include <co/base/atomic.h>
+#include <lunchbox/atomic.h>
 
 #include <map>
 #include <vector>
@@ -198,11 +198,11 @@ typedef PixelViewports::const_iterator PixelViewportsCIter;
 typedef Statistics::const_iterator StatisticsCIter;
 
 /** A reference-counted pointer to an eq::Client */
-typedef co::base::RefPtr< Client >        ClientPtr;
+typedef lunchbox::RefPtr< Client >        ClientPtr;
 /** A reference-counted pointer to a const eq::Client */
-typedef co::base::RefPtr< const Client >  ConstClientPtr;
+typedef lunchbox::RefPtr< const Client >  ConstClientPtr;
 /** A reference-counted pointer to an eq::Server */
-typedef co::base::RefPtr< Server >        ServerPtr;
+typedef lunchbox::RefPtr< Server >        ServerPtr;
 
 namespace util
 {
@@ -249,9 +249,9 @@ typedef std::vector< uint16_t >   Vectorus;
 /** A const_iterator over a std::string vector */
 typedef Strings::const_iterator StringsCIter;
 
-using co::base::a_int32_t;
-using co::base::uint128_t;
-using co::base::UUID;
+using lunchbox::a_int32_t;
+using lunchbox::uint128_t;
+using lunchbox::UUID;
 
 /** @cond IGNORE */
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp

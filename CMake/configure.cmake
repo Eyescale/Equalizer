@@ -6,7 +6,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 find_package(OpenGL REQUIRED)
+find_package(Lunchbox 0.9 REQUIRED)
 find_package(GLEW_MX)
+
+include_directories(${LUNCHBOX_INCLUDE_DIRS})
 
 # CUDA
 option(EQUALIZER_USE_CUDA "Test for CUDA support" ON)

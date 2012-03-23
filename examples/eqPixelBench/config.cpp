@@ -49,7 +49,7 @@ Config::~Config()
 uint32_t Config::startFrame( const eq::uint128_t& frameID )
 {
     if( !_clock )
-        _clock = new co::base::Clock;
+        _clock = new lunchbox::Clock;
 
     _clock->reset();
     return eq::Config::startFrame( frameID );

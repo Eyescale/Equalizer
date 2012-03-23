@@ -22,7 +22,7 @@
 
 #include "parser.hpp"
 
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 #include <stdlib.h>
 
 #define yyerror eqLoader_error
@@ -42,7 +42,7 @@ void yyerror( const char *errmsg );
 void yyerror( const char *errmsg )
 {
     EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
-            << " at '" << yytext << "' from" << co::base::backtrace <<std::endl;
+            << " at '" << yytext << "' from" << lunchbox::backtrace <<std::endl;
     YY_FLUSH_BUFFER;
 }
 

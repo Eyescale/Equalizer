@@ -36,7 +36,7 @@ namespace co
                                const bool last );
 
     private:
-        base::UUID _commit;
+        UUID _commit;
     };
 }
 #endif //CO_OBJECTSLAVEDATAOSTREAM_H

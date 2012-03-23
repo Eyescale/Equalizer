@@ -115,7 +115,7 @@ static void deleteSharedContextWindow( eq::Window* wnd,
 
 
 AsyncFetcher::AsyncFetcher()
-    : co::base::Thread()
+    : lunchbox::Thread()
     , _wnd( 0 )
     , _objectManager( 0 )
     , _sharedContextWindow( 0 )
@@ -157,7 +157,7 @@ void AsyncFetcher::run()
 
     uint8_t* i = 0;
     bool running = true;
-    co::base::sleep( 1000 ); // imitate loading of the first texture
+    lunchbox::sleep( 1000 ); // imitate loading of the first texture
     while( running )
     {
         // generate new texture
@@ -166,7 +166,7 @@ void AsyncFetcher::run()
         tx->init( GL_RGBA8, 64, 64 );
 
         int j = 0;
-        co::base::RNG rng;
+        lunchbox::RNG rng;
         for( int y = 0; y < 64; ++y )
         {
             for( int x = 0; x < 64; ++x )
@@ -186,7 +186,7 @@ void AsyncFetcher::run()
         _outQueue.push( TextureId( tx->getName(), i ));
 
         // imitate hard work of loading something else
-        co::base::sleep( rng.get< uint32_t >() % 5000u );
+        lunchbox::sleep( rng.get< uint32_t >() % 5000u );
 
         // clean unused textures
         const void* keyToDelete = 0;

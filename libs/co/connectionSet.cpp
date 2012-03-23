@@ -21,17 +21,17 @@
 #include "node.h"
 #include "eventConnection.h"
 
-#include <co/base/buffer.h>
-#include <co/base/os.h>
-#include <co/base/scopedMutex.h>
-#include <co/base/stdExt.h>
-#include <co/base/thread.h>
+#include <lunchbox/buffer.h>
+#include <lunchbox/os.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/stdExt.h>
+#include <lunchbox/thread.h>
 
 #include <algorithm>
 #include <errno.h>
 
 #ifdef _WIN32
-#  include <co/base/monitor.h>
+#  include <lunchbox/monitor.h>
 #  define SELECT_TIMEOUT WAIT_TIMEOUT
 #  define SELECT_ERROR   WAIT_FAILED
 #  define MAX_CONNECTIONS (MAXIMUM_WAIT_OBJECTS - 1)
@@ -49,7 +49,7 @@ namespace
 #ifdef _WIN32
 
 /** Handles connections exceeding MAXIMUM_WAIT_OBJECTS */
-class Thread : public base::Thread
+class Thread : public lunchbox::Thread
 {
 public:
     Thread( ConnectionSet* parent )
@@ -68,7 +68,7 @@ public:
     ConnectionSet* set;
     HANDLE         notifier;
 
-    base::Monitor< ConnectionSet::Event > event;
+    lunchbox::Monitor< ConnectionSet::Event > event;
 
 protected:
     virtual void run()
@@ -135,7 +135,7 @@ public:
         }
 
     /** Mutex protecting changes to the set. */
-    base::Lock lock;
+    lunchbox::Lock lock;
 
     /** The connections of this set */
     Connections allConnections;
@@ -145,15 +145,15 @@ public:
 
     // Note: std::vector had to much overhead here
 #ifdef _WIN32
-    base::Buffer< HANDLE > fdSet;
+    lunchbox::Buffer< HANDLE > fdSet;
 #else
-    base::Buffer< pollfd > fdSetCopy; // 'const' set
-    base::Buffer< pollfd > fdSet;     // copy of _fdSetCopy used to poll
+    lunchbox::Buffer< pollfd > fdSetCopy; // 'const' set
+    lunchbox::Buffer< pollfd > fdSet;     // copy of _fdSetCopy used to poll
 #endif
-    base::Buffer< Result > fdSetResult;
+    lunchbox::Buffer< Result > fdSetResult;
 
     /** The connection to reset a running select, see constructor. */
-    base::RefPtr< EventConnection > selfConnection;
+    lunchbox::RefPtr< EventConnection > selfConnection;
 
 #ifdef _WIN32
     /** Threads used to handle more than MAXIMUM_WAIT_OBJECTS connections */
@@ -232,7 +232,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
     EQASSERT( connection->isConnected() || connection->isListening( ));
 
     { 
-        base::ScopedWrite mutex( _impl->lock );
+        lunchbox::ScopedWrite mutex( _impl->lock );
         _impl->allConnections.push_back( connection );
 
 #ifdef _WIN32
@@ -281,7 +281,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 bool ConnectionSet::removeConnection( ConnectionPtr connection )
 {
     {
-        base::ScopedWrite mutex( _impl->lock );
+        lunchbox::ScopedWrite mutex( _impl->lock );
         ConnectionsIter i = stde::find( _impl->allConnections, connection );
         if( i == _impl->allConnections.end( ))
             return false;
@@ -412,7 +412,7 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
                 _impl->error = errno;
 #endif
 
-                EQERROR << "Error during select: " << base::sysError
+                EQERROR << "Error during select: " << lunchbox::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 
@@ -487,7 +487,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
 
         if( pollEvents & POLLERR )
         {
-            EQINFO << "Error during poll(): " << base::sysError << std::endl;
+            EQINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
             return EVENT_ERROR;
         }
 

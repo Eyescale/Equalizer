@@ -52,7 +52,7 @@ namespace eq
                 connectionData[0] = 0;
             }
 
-        co::base::UUID configID;
+        UUID configID;
         uint32_t requestID;
         const uint32_t fill;
         EQ_ALIGN8( char connectionData[8] );
@@ -66,7 +66,7 @@ namespace eq
                 size    = sizeof( ServerReleaseConfigPacket );
             }
 
-        co::base::UUID configID;
+        UUID configID;
         uint32_t requestID;
     };
 

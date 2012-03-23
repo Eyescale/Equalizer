@@ -19,8 +19,8 @@
 #include "pixelBufferObject.h"
 
 #include <eq/client/error.h>
-#include <co/base/debug.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {
@@ -33,7 +33,7 @@ class PixelBufferObject
 public:
     PixelBufferObject( const GLEWContext* glewContext,
                        const bool threadSafe )
-            : lock_( threadSafe ? new co::base::Lock : 0 )
+            : lock_( threadSafe ? new lunchbox::Lock : 0 )
             , pboID( 0 )
             , size( 0 )
             , _glewContext( glewContext )
@@ -177,7 +177,7 @@ public:
     void lock()   const { if( lock_ ) lock_->set();   }
     void unlock() const { if( lock_ ) lock_->unset(); }
 
-    mutable co::base::Lock* lock_;
+    mutable lunchbox::Lock* lock_;
     mutable co::Error error;   //!< The reason for the last error
     GLuint  pboID; //!< the PBO GL name
     ssize_t size;  //!< size of the allocated PBO buffer
@@ -218,13 +218,13 @@ PixelBufferObject::~PixelBufferObject()
 
 bool PixelBufferObject::setup( const ssize_t size, const GLuint type )
 {
-    co::base::ScopedWrite mutex( _impl->lock_ );
+    lunchbox::ScopedWrite mutex( _impl->lock_ );
     return _impl->setup( size, type );
 }
 
 void PixelBufferObject::destroy()
 {
-    co::base::ScopedWrite mutex( _impl->lock_ );
+    lunchbox::ScopedWrite mutex( _impl->lock_ );
     _impl->destroy();
 }
 

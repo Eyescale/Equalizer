@@ -20,8 +20,8 @@
 namespace co
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-CO_API extern base::a_int32_t nBytesSaved;
-CO_API extern base::a_int32_t nBytesSent;
+CO_API extern lunchbox::a_int32_t nBytesSaved;
+CO_API extern lunchbox::a_int32_t nBytesSent;
 #endif
 
     template< typename P >

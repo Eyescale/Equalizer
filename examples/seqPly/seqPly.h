@@ -67,13 +67,13 @@ namespace seqPly
         FrameData _frameData;
         Model* _model;
         ModelDist* _modelDist;
-        co::base::Lock _modelLock;
+        lunchbox::Lock _modelLock;
 
         void _loadModel( const int argc, char** argv );
         void _unloadModel();
     };
 
-    typedef co::base::RefPtr< Application > ApplicationPtr;
+    typedef lunchbox::RefPtr< Application > ApplicationPtr;
 }
 
 #endif // SEQ_PLY_H

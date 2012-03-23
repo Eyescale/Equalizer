@@ -29,7 +29,7 @@
 #include "../pipe.h"
 #include "../window.h"
 
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include <X11/keysym.h>
 
@@ -40,7 +40,7 @@ namespace glx
 namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
-static co::base::PerThread< EventHandlers > _eventHandlers;
+static lunchbox::PerThread< EventHandlers > _eventHandlers;
 }
 
 EventHandler::EventHandler( WindowIF* window )

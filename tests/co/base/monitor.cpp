@@ -18,16 +18,16 @@
 #define EQ_TEST_RUNTIME 300 // seconds
 #include "test.h"
 
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
-#include <co/base/thread.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 
 #define NLOOPS 200000
 
-co::base::Monitor< int64_t > monitor;
+lunchbox::Monitor< int64_t > monitor;
 
-class Thread : public co::base::Thread
+class Thread : public lunchbox::Thread
 {
 public:
     virtual ~Thread() {}
@@ -35,7 +35,7 @@ public:
         {
             int64_t nOps = NLOOPS;
 
-            co::base::Clock clock;
+            lunchbox::Clock clock;
             while( nOps-- )
             {
                 monitor.waitEQ( nOps );
@@ -53,7 +53,7 @@ int main( int argc, char **argv )
     int64_t nOps = NLOOPS;
     
     TEST( waiter.start( ));
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     while( nOps-- )
     {

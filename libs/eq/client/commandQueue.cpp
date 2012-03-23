@@ -18,13 +18,13 @@
 #include "commandQueue.h"
 
 #include "messagePump.h"
-#include <co/base/clock.h>
+#include <lunchbox/clock.h>
 
 namespace eq
 {
 namespace
 {
-static co::base::Clock _clock;
+static lunchbox::Clock _clock;
 }
 
 CommandQueue::CommandQueue()

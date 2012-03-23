@@ -40,13 +40,13 @@ Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::~Server()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
@@ -200,9 +200,9 @@ template< class CL, class S, class CFG, class NF, class N, class V >
 std::ostream& operator << ( std::ostream& os, 
                             const Server< CL, S, CFG, NF, N, V >& server )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "server "
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "server "
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
     
     const co::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
@@ -221,8 +221,8 @@ std::ostream& operator << ( std::ostream& os,
         os << *config;
     }
 
-    os << co::base::exdent << "}"  << co::base::enableHeader 
-       << co::base::enableFlush << std::endl;
+    os << lunchbox::exdent << "}"  << lunchbox::enableHeader 
+       << lunchbox::enableFlush << std::endl;
 
     return os;
 }

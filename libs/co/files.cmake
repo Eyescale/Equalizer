@@ -22,6 +22,7 @@ set(CO_PUBLIC_HEADERS
     dataIStreamArchive.h
     dataOStream.h
     dataOStreamArchive.h
+    defines.h
     dispatcher.h
     error.h
     errorRegistry.h

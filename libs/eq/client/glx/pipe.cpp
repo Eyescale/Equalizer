@@ -62,7 +62,7 @@ bool Pipe::configInit()
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
         EQWARN << getError() << " " << XDisplayName( displayName.c_str( ))
-               << ": " << co::base::sysError << std::endl;
+               << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -245,9 +245,9 @@ bool Pipe::_configInitGLXEW()
 #ifndef NDEBUG
 int XErrorHandler( Display* display, XErrorEvent* event )
 {
-    EQWARN << co::base::disableFlush;
-    EQWARN << "X Error occured: " << co::base::disableHeader 
-           << co::base::indent;
+    EQWARN << lunchbox::disableFlush;
+    EQWARN << "X Error occured: " << lunchbox::disableHeader 
+           << lunchbox::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
@@ -273,8 +273,8 @@ int XErrorHandler( Display* display, XErrorEvent* event )
             EQWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQWARN << co::base::enableFlush << co::base::exdent 
-           << co::base::enableHeader;
+    EQWARN << lunchbox::enableFlush << lunchbox::exdent 
+           << lunchbox::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))

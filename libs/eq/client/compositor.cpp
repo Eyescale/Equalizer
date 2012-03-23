@@ -17,7 +17,7 @@
  */
 
 #include <pthread.h>
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include "channel.h"
 #include "channelStatistics.h"
@@ -37,8 +37,8 @@
 #include <eq/util/objectManager.h>
 
 #include <co/global.h>
-#include <co/base/debug.h>
-#include <co/base/monitor.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/monitor.h>
 
 #include <co/plugins/compressor.h>
 
@@ -50,7 +50,7 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-using co::base::Monitor;
+using lunchbox::Monitor;
 
 namespace eq
 {
@@ -66,7 +66,7 @@ static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
 
 // Image used for CPU-based assembly
-static co::base::PerThread< Image > _resultImage;
+static lunchbox::PerThread< Image > _resultImage;
 
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
@@ -429,7 +429,7 @@ public:
             left.clear();
         }
 
-    co::base::Monitor< uint32_t > monitor;
+    lunchbox::Monitor< uint32_t > monitor;
     Frames left;
     Channel* const channel;
     uint32_t processed;
@@ -1230,7 +1230,7 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
     declareRegion( image, op );
 #if 0
-    static co::base::a_int32_t counter;
+    static lunchbox::a_int32_t counter;
     std::ostringstream stringstream;
     stringstream << "Image_" << ++counter;
     image->writeImages( stringstream.str( ));

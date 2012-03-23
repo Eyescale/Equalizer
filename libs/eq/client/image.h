@@ -28,7 +28,7 @@
 #include <eq/fabric/viewport.h>      // member
 
 #include <co/plugins/compressor.h> // EqCompressorInfos typedef
-#include <co/base/buffer.h>          // member
+#include <lunchbox/buffer.h>          // member
 
 
 namespace eq
@@ -381,7 +381,7 @@ namespace eq
 
             /** During the call of setPixelData or writeImage, we have to 
                 manage an internal buffer to copy the data */
-            co::base::Bufferb localBuffer;
+            lunchbox::Bufferb localBuffer;
 
             bool hasAlpha; //!< The uncompressed pixels contain alpha
         };

@@ -23,7 +23,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <limits>
 
 namespace co
@@ -96,7 +96,7 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
     EQASSERTINFO( version.high() == 0, "Not a master version: " << version )
     EQASSERTINFO( _version <= version,
                   "can't sync to older version of object " << 
-                  base::className( _object ) << " " << _object->getID() <<
+                  lunchbox::className( _object ) << " " << _object->getID() <<
                   " (" << _version << ", " << version <<")" );
 
     while( _version < version )
@@ -188,7 +188,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             EQASSERT( _version != VERSION_INVALID );
             EQASSERTINFO( !is->hasData(),
-                          base::className( _object ) <<
+                          lunchbox::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
@@ -223,7 +223,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 {
     EQ_TS_THREAD( _rcvThread );
 #if 0
-    EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
+    EQLOG( LOG_OBJECTS ) << lunchbox::disableFlush << "Adding data front ";
 #endif
 
     uint128_t oldest = VERSION_NONE;
@@ -298,7 +298,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 #endif
     }
 #if 0
-    EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+    EQLOG( LOG_OBJECTS ) << std::endl << lunchbox::enableFlush;
 #endif
 }
 

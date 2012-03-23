@@ -31,7 +31,7 @@
 
 namespace
 {
-class ServerThread : public co::base::Thread
+class ServerThread : public lunchbox::Thread
 {
 public:
     ServerThread() {}

@@ -165,7 +165,7 @@ void Plugin::initChildren()
     for( CompressorInfos::iterator i = _infos.begin(); i != _infos.end(); ++i )
     {
         CompressorInfo& info = *i;
-        EQLOG( LOG_PLUGIN ) << base::disableFlush << "Engine 0x" << std::hex
+        EQLOG( LOG_PLUGIN ) << lunchbox::disableFlush << "Engine 0x" << std::hex
                             << info.name;
 
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
@@ -218,7 +218,7 @@ void Plugin::initChildren()
                 }
             }
         }
-        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << base::enableFlush;
+        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << lunchbox::enableFlush;
     }
 }
 

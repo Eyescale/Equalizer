@@ -21,7 +21,7 @@
 #include "exception.h"
 #include "node.h"
 
-#include <co/base/mtQueue.h>
+#include <lunchbox/mtQueue.h>
 
 namespace co
 {
@@ -31,7 +31,7 @@ class CommandQueue
 {
 public:
     /** Thread-safe command queue. */
-    base::MTQueue< Command* > commands;
+    lunchbox::MTQueue< Command* > commands;
 };
 }
 

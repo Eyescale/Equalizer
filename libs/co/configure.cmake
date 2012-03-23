@@ -66,7 +66,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/co/base/defines${ARCH}.h)
+set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/co/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines${ARCH}.h.in)
 
 file(WRITE ${DEFINES_FILE_IN}
@@ -87,4 +87,4 @@ file(APPEND ${DEFINES_FILE_IN}
   )
 
 update_file(${DEFINES_FILE_IN} ${DEFINES_FILE})
-install(FILES ${DEFINES_FILE} DESTINATION include/co/base/ COMPONENT codev)
+install(FILES ${DEFINES_FILE} DESTINATION include/co/ COMPONENT codev)

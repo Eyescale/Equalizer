@@ -19,7 +19,7 @@
 #ifndef CO_API_H
 #define CO_API_H
 
-#include <co/base/api.h>
+#include <lunchbox/api.h>
 
 #if defined(COLLAGE_STATIC)
 #  define CO_API

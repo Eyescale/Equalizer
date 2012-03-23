@@ -21,7 +21,7 @@
 #include "commandQueue.h"
 #include "node.h"
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace co
 {
@@ -83,7 +83,7 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 bool Dispatcher::dispatchCommand( Command& command )
 {
     EQASSERT( command.isValid( ));
-    EQVERB << "dispatch " << command << " on " << base::className( this )
+    EQVERB << "dispatch " << command << " on " << lunchbox::className( this )
            << std::endl;
 
     const uint32_t which = command->command;
@@ -93,7 +93,7 @@ bool Dispatcher::dispatchCommand( Command& command )
         EQABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _impl->qTable.size() << ") for object of type "
-                 << base::className( this ) << std::endl );
+                 << lunchbox::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -113,8 +113,8 @@ bool Dispatcher::dispatchCommand( Command& command )
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << base::className( this )
-            << base::backtrace << std::endl;
+    EQERROR << "Unknown " << command << " for " << lunchbox::className( this )
+            << lunchbox::backtrace << std::endl;
     EQUNREACHABLE;
     return false;
 }

@@ -90,13 +90,13 @@ private:
     uint64_t                _guid;
     ib_send_wr_t            _wr;
     ib_recv_wr_t            _rwr;
-    eq::base::Buffer< IBDest > _dests;
+    eq::lunchbox::Buffer< IBDest > _dests;
     ib_local_ds_t           _list;
     ib_local_ds_t           _recvList;
     uint32_t                _posReadInBuffer;
     bool                    _firstTimeWrite;
-    eq::base::Buffer< bool >     _writePoll;
-    eq::base::Buffer< int32_t >  _readPoll;
+    eq::lunchbox::Buffer< bool >     _writePoll;
+    eq::lunchbox::Buffer< int32_t >  _readPoll;
     uint32_t                _numBufRead;
     uint32_t                _numBufWrite;
     uint32_t                _countWrite;

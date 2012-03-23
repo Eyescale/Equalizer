@@ -24,7 +24,7 @@
 
 #include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {
@@ -76,8 +76,8 @@ static class : WindowSystemIF
 
         // X11 font initialization is not thread safe. Using a mutex here is not
         // performance-critical
-        static co::base::Lock lock;
-        co::base::ScopedMutex<> mutex( lock );
+        static lunchbox::Lock lock;
+        lunchbox::ScopedMutex<> mutex( lock );
 
         XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
         if( !fontStruct )

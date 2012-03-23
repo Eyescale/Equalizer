@@ -43,7 +43,7 @@
 #include <eq/fabric/paths.h>
 #include <eq/fabric/serverPackets.h>
 #include <co/command.h>
-#include <co/base/sleep.h>
+#include <lunchbox/sleep.h>
 
 #include "channelStopFrameVisitor.h"
 #include "configDeregistrator.h"
@@ -343,7 +343,7 @@ void Config::releaseCanvas( Canvas* canvas )
     delete canvas;
 }
 
-template< class T > bool Config::_postDelete( const co::base::UUID& id )
+template< class T > bool Config::_postDelete( const UUID& id )
 {
     T* child = find< T >( id );
     if( !child )
@@ -353,7 +353,7 @@ template< class T > bool Config::_postDelete( const co::base::UUID& id )
     return true;
 }
 
-void Config::removeChild( const co::base::UUID& id )
+void Config::removeChild( const UUID& id )
 {
     EQASSERT( isRunning( ));
 
@@ -550,7 +550,7 @@ bool Config::_updateRunning()
 bool Config::_connectNodes()
 {
     bool success = true;
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
@@ -666,7 +666,7 @@ void Config::_stopNodes()
 
         if( nSleeps )
             while( netNode->isConnected() && --nSleeps )
-                co::base::sleep( 100 ); // ms
+                lunchbox::sleep( 100 ); // ms
 
         if( netNode->isConnected( ))
         {
@@ -841,7 +841,7 @@ void Config::_startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     ++_incarnation;
-    EQLOG( co::base::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
+    EQLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                                << std::endl;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
@@ -932,7 +932,7 @@ void Config::_flushAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    EQLOG( co::base::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
+    EQLOG( lunchbox::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
 }
 
 void Config::changeLatency( const uint32_t latency )
@@ -1092,7 +1092,7 @@ bool Config::_cmdCreateReply( co::Command& command )
 
 void Config::output( std::ostream& os ) const
 {
-    os << std::endl << co::base::disableFlush << co::base::disableHeader;
+    os << std::endl << lunchbox::disableFlush << lunchbox::disableHeader;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
          i != _compounds.end(); ++i )
@@ -1100,7 +1100,7 @@ void Config::output( std::ostream& os ) const
         os << **i;
     }
 
-    os << co::base::enableHeader << co::base::enableFlush;
+    os << lunchbox::enableHeader << lunchbox::enableFlush;
 }
 
 }

@@ -20,7 +20,7 @@
 
 #include <co/types.h>
 #include <co/api.h>
-#include <co/base/thread.h> // thread-safety checks
+#include <lunchbox/thread.h> // thread-safety checks
 
 namespace co
 {

@@ -43,7 +43,7 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/exception.h>
-#include <co/base/sleep.h>
+#include <lunchbox/sleep.h>
 
 namespace eq
 {
@@ -91,7 +91,7 @@ Window::~Window()
     _objectManager = 0;
 }
 
-void Window::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Window::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -615,7 +615,7 @@ bool Window::processEvent( const Event& event )
                     EQUNIMPLEMENTED;
                 }
 
-                EQASSERT( channel->getID() != co::base::UUID::ZERO );
+                EQASSERT( channel->getID() != UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.serial = channel->getSerial();
                 channelEvent.pointer.x -= channelPVP.x;
@@ -808,7 +808,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
     if( timeLeft >= 1.f )
     {
         WindowStatistics stat( Statistic::WINDOW_THROTTLE_FRAMERATE, this );   
-        co::base::sleep( static_cast< uint32_t >( timeLeft ));
+        lunchbox::sleep( static_cast< uint32_t >( timeLeft ));
     }
 
     _lastSwapTime = getConfig()->getTime();

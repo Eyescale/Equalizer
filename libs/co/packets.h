@@ -22,7 +22,7 @@
 #include <co/commands.h> // used for CMD_ enums
 #include <co/types.h>
 #include <co/version.h>  // enum
-#include <co/base/uuid.h> // member
+#include <lunchbox/uuid.h> // member
 
 namespace co
 {
@@ -72,7 +72,7 @@ namespace co
             {
                 type = PACKETTYPE_CO_OBJECT; 
             }
-        base::UUID objectID;
+        UUID objectID;
         uint32_t instanceID;
         const uint32_t pad; // pad to multiple-of-eight
 

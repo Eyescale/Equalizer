@@ -69,7 +69,7 @@ set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines${ARCH}.h.in)
 file(WRITE ${DEFINES_FILE_IN}
   "#ifndef EQ_DEFINES_${ARCH}_H\n"
   "#define EQ_DEFINES_${ARCH}_H\n\n"
-  "#include <co/base/defines.h>\n\n"
+  "#include <co/defines.h>\n\n"
   )
 
 foreach(DEF ${EQUALIZER_DEFINES})

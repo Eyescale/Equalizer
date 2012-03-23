@@ -21,10 +21,10 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <co/base/lock.h>
-#include <co/base/debug.h>
+#include <lunchbox/lock.h>
+#include <lunchbox/debug.h>
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eq

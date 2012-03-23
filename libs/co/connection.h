@@ -23,9 +23,9 @@
 #include <co/types.h>                 // Connections type
 #include <co/api.h>
 
-#include <co/base/refPtr.h>
-#include <co/base/referenced.h>   // base class
-#include <co/base/lock.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/referenced.h>   // base class
+#include <lunchbox/lock.h>
 
 #include <sys/types.h>
 #include <string.h>
@@ -34,7 +34,7 @@
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
 #  include <malloc.h>
-#  include <co/base/os.h>
+#  include <lunchbox/os.h>
 #else
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif
@@ -58,7 +58,7 @@ namespace co
      * The Connection is used reference-counted in co, since it has
      * multiple owners, such as the ConnectionSet and Node.
      */
-    class Connection : public base::Referenced, public base::NonCopyable
+    class Connection : public lunchbox::Referenced, public lunchbox::NonCopyable
     {
     public:
         enum State //! The current state of the Connection
@@ -392,7 +392,7 @@ namespace co
         ConnectionDescriptionPtr _description; //!< The connection parameters
 
         /** The lock used to protect multiple write calls. */
-        mutable base::Lock _sendLock;
+        mutable lunchbox::Lock _sendLock;
 
         enum ReadStatus
         {

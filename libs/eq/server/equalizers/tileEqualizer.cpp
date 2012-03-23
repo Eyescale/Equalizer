@@ -173,12 +173,12 @@ std::ostream& operator << ( std::ostream& os, const TileEqualizer* lb )
 {
     if( lb )
     {
-        os << co::base::disableFlush
+        os << lunchbox::disableFlush
            << "tile_equalizer" << std::endl
            << "{" << std::endl
            << "    name \"" << lb->getName() << "\"" << std::endl
            << "    size " << lb->getTileSize() << std::endl
-           << "}" << std::endl << co::base::enableFlush;
+           << "}" << std::endl << lunchbox::enableFlush;
     }
     return os;
 }
