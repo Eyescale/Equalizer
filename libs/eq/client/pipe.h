@@ -388,20 +388,20 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        co::base::Monitor<uint32_t> _unlockedFrame;
+        lunchbox::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        co::base::Lock _frameTimeMutex;
+        lunchbox::Lock _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;

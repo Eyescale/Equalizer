@@ -41,7 +41,7 @@ namespace eqPly
 {
 
 InitData::InitData()
-        : _frameDataID( co::base::UUID::ZERO )
+        : _frameDataID( lunchbox::UUID::ZERO )
 #ifdef AGL
         , _windowSystem( "AGL" ) // prefer over GLX
 #else
@@ -60,7 +60,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( co::base::UUID::ZERO );
+    setFrameDataID( lunchbox::UUID::ZERO );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )

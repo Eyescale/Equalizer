@@ -62,7 +62,7 @@ bool Tracker::init( const std::string& port )
    _fd = open( port.c_str(), O_RDWR | O_EXCL );
    if( _fd < 0 )
    {
-       EQERROR << "Failed to open " << port << ": " << co::base::sysError
+       EQERROR << "Failed to open " << port << ": " << lunchbox::sysError
                << std::endl;
       return false;
    }
@@ -71,7 +71,7 @@ bool Tracker::init( const std::string& port )
    struct termios termio;
    if( tcgetattr( _fd, &termio ) != 0 )
    {
-      EQERROR << "tcgetattr failed: " << co::base::sysError << std::endl;
+      EQERROR << "tcgetattr failed: " << lunchbox::sysError << std::endl;
       close( _fd );
       return false;
    }
@@ -102,7 +102,7 @@ bool Tracker::init( const std::string& port )
 
    if( tcsetattr( _fd, TCSANOW, &termio ) != 0)
    {
-      EQERROR << "tcsetattr failed: " << co::base::sysError << std::endl;
+      EQERROR << "tcsetattr failed: " << lunchbox::sysError << std::endl;
       close( _fd );
       return false;
    }
@@ -110,7 +110,7 @@ bool Tracker::init( const std::string& port )
    // tell the tracker what kind of data to prepare
    int k = write( _fd, COMMAND_POS_ANG, 1 ); //take data
    if( k==-1 )
-      EQERROR << "Write error: " << co::base::sysError << std::endl;
+      EQERROR << "Write error: " << lunchbox::sysError << std::endl;
 
    usleep( 10000 ); //give enough time for initializing
    
@@ -143,7 +143,7 @@ bool Tracker::_update()
     const ssize_t wrote = write( _fd, COMMAND_POINT, 1 ); // send data
    if( wrote==-1 )
    {
-      EQERROR << "Write error: " << co::base::sysError << std::endl;
+      EQERROR << "Write error: " << lunchbox::sysError << std::endl;
       return false;
    }
 
@@ -229,7 +229,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       }
       if( errCode == -1 )
       {
-         EQERROR << "Select error: " << co::base::sysError << std::endl;
+         EQERROR << "Select error: " << lunchbox::sysError << std::endl;
          return false;
       }
 
@@ -237,7 +237,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
       const ssize_t received = read( _fd, &buffer[size-remaining], remaining );
       if( received == -1 )
       {
-         EQERROR << "Read error: " << co::base::sysError << std::endl;
+         EQERROR << "Read error: " << lunchbox::sysError << std::endl;
          return false;
       }
 

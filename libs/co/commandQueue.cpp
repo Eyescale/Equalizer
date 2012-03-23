@@ -31,7 +31,7 @@ class CommandQueue
 {
 public:
     /** Thread-safe command queue. */
-    base::MTQueue< Command* > commands;
+    lunchbox::MTQueue< Command* > commands;
 };
 }
 

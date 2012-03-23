@@ -77,7 +77,7 @@ namespace server
 
         void setOutputQueue( TileQueue* queue, const Compound* compound );
         const TileQueue* getOutputQueue( const eq::Eye eye ) const
-            { return _outputQueue[ co::base::getIndexOfLastBit( eye ) ]; }
+            { return _outputQueue[ lunchbox::getIndexOfLastBit( eye ) ]; }
 
         /**
          * @name Operations

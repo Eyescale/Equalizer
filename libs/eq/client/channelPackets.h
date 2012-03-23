@@ -60,7 +60,7 @@ namespace eq
 
     struct ChannelConfigExitReplyPacket : public ChannelPacket
     {
-        ChannelConfigExitReplyPacket( const co::base::UUID& channelID, const bool res )
+        ChannelConfigExitReplyPacket( const UUID& channelID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY;

@@ -72,7 +72,7 @@ int main( const int argc, char** argv )
     initData.parseArguments( argc, argv );
 
     // 3. initialization of local client node
-    co::base::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
+    lunchbox::RefPtr< eqPly::EqPly > client = new eqPly::EqPly( initData );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;

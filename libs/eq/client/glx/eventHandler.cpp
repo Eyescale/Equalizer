@@ -40,7 +40,7 @@ namespace glx
 namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
-static co::base::PerThread< EventHandlers > _eventHandlers;
+static lunchbox::PerThread< EventHandlers > _eventHandlers;
 }
 
 EventHandler::EventHandler( WindowIF* window )

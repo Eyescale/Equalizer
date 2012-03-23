@@ -49,7 +49,7 @@ public:
     uintptr_t getVaddr( ) const 
            { return ( uintptr_t ) buf.getData(); }
 
-    eq::base::Buffer<void *> buf;
+    eq::lunchbox::Buffer<void *> buf;
 
 private:
     // Collection of memory pages within the local HCA's memory

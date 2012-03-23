@@ -1089,7 +1089,7 @@ bool Image::writeImage( const std::string& filename,
 
 bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 {
-    co::base::MemoryMap image;
+    lunchbox::MemoryMap image;
     const uint8_t* addr = static_cast< const uint8_t* >( image.map( filename ));
 
     if( !addr )

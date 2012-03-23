@@ -30,7 +30,7 @@
 namespace eq
 {
     /** The pixel data structure manages the pixel information for images. */
-    struct PixelData : public co::base::NonCopyable
+    struct PixelData : public lunchbox::NonCopyable
     {
         /** Construct new pixel data. @version 1.0 */
         EQ_API PixelData();

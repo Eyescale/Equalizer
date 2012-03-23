@@ -32,7 +32,7 @@ namespace co
      *
      * @sa Node
      */
-    class ConnectionDescription : public base::Referenced
+    class ConnectionDescription : public lunchbox::Referenced
     {
     public:
         ConnectionDescription() 

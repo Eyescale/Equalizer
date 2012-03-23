@@ -26,7 +26,7 @@ namespace seq
 {
 namespace detail
 {
-typedef co::base::ScopedMutex< co::base::SpinLock> ScopedMutex;
+typedef lunchbox::ScopedMutex< lunchbox::SpinLock> ScopedMutex;
 
 ObjectMap::ObjectMap( ObjectFactory& factory )
         : _factory( factory )

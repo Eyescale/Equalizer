@@ -49,7 +49,7 @@ namespace
 {
 typedef CommandFunc<LocalNode> CmdFunc;
 typedef std::list< Command* > CommandList;
-typedef base::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
+typedef lunchbox::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
 typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
 typedef ConnectionNodeHash::iterator ConnectionNodeHashIter;
 typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
@@ -58,13 +58,13 @@ typedef NodeHash::const_iterator NodeHashCIter;
 
 namespace detail
 {
-class ReceiverThread : public base::Thread
+class ReceiverThread : public lunchbox::Thread
 {
 public:
     ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ){}
     virtual bool init()
         {
-            setName( std::string("R ") + base::className(_localNode));
+            setName( std::string("R ") + lunchbox::className(_localNode));
             return _localNode->_startCommandThread();
         }
     virtual void run(){ _localNode->_runReceiverThread(); }
@@ -81,7 +81,7 @@ public:
 protected:
     virtual bool init()
         {
-            setName( std::string( "C " ) + base::className( _localNode ));
+            setName( std::string( "C " ) + lunchbox::className( _localNode ));
             return true;
         }
 
@@ -138,19 +138,19 @@ public:
     ObjectStore* objectStore;
 
     /** Needed for thread-safety during nodeID-based connect() */
-    base::Lock connectLock;
+    lunchbox::Lock connectLock;
     
     /** The node for each connection. */
     ConnectionNodeHash connectionNodes; // read and write: recv only
 
     /** The connected nodes. */
-    base::Lockable< NodeHash, base::SpinLock > nodes; // r: all, w: recv
+    lunchbox::Lockable< NodeHash, lunchbox::SpinLock > nodes; // r: all, w: recv
 
     /** The connection set of all connections from/to this node. */
     co::ConnectionSet incoming;
 
     /** The process-global clock. */
-    base::Clock clock;
+    lunchbox::Clock clock;
     
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
@@ -214,10 +214,10 @@ LocalNode::~LocalNode( )
 bool LocalNode::initLocal( const int argc, char** argv )
 {
 #ifndef NDEBUG
-    EQVERB << base::disableFlush << "args: ";
+    EQVERB << lunchbox::disableFlush << "args: ";
     for( int i=0; i<argc; i++ )
          EQVERB << argv[i] << ", ";
-    EQVERB << std::endl << base::enableFlush;
+    EQVERB << std::endl << lunchbox::enableFlush;
 #endif
 
     // We do not use getopt_long because it really does not work due to the
@@ -312,7 +312,7 @@ bool LocalNode::listen()
     
     _state = STATE_LISTENING;
     
-    EQVERB << base::className( this ) << " start command and receiver thread "
+    EQVERB << lunchbox::className( this ) << " start command and receiver thread "
            << std::endl;
     _impl->receiverThread->start();
 
@@ -351,7 +351,7 @@ bool LocalNode::close()
 #endif
 
     EQASSERTINFO( !hasPendingRequests(),
-                  *static_cast< base::RequestHandler* >( this ));
+                  *static_cast< lunchbox::RequestHandler* >( this ));
     return true;
 }
 
@@ -364,7 +364,7 @@ void LocalNode::setAffinity( const int32_t affinity )
     packet.command = CMD_NODE_SET_AFFINITY_CMD;
     send( packet );
 
-    base::Thread::setAffinity( affinity );
+    lunchbox::Thread::setAffinity( affinity );
 }
 
 ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
@@ -552,7 +552,7 @@ bool LocalNode::_connectSelf()
 void LocalNode::_connectMulticast( NodePtr node )
 {
     EQASSERT( _impl->inReceiverThread( ));
-    base::ScopedMutex<> mutex( _outMulticast );
+    lunchbox::ScopedMutex<> mutex( _outMulticast );
 
     if( node->_outMulticast.data.isValid( ))
         // multicast already connected by previous _cmdID
@@ -699,20 +699,20 @@ void LocalNode::deregisterObject( Object* object )
 {
     _impl->objectStore->deregisterObject( object );
 }
-bool LocalNode::mapObject( Object* object, const base::UUID& id,
+bool LocalNode::mapObject( Object* object, const UUID& id,
                            const uint128_t& version )
 {
     const uint32_t requestID = mapObjectNB( object, id, version );
     return mapObjectSync( requestID );
 }
 
-uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
+uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id, 
                                  const uint128_t& version )
 {
     return _impl->objectStore->mapObjectNB( object, id, version );
 }
 
-uint32_t LocalNode::mapObjectNB( Object* object, const base::UUID& id, 
+uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id, 
                                  const uint128_t& version, NodePtr master )
 {
     return _impl->objectStore->mapObjectNB( object, id, version, master );
@@ -809,7 +809,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     // mutex is to register connecting nodes with this local node, and handle
     // all cases correctly, which is far more complex. Node connections only
     // happen a lot during initialization, and are therefore not time-critical.
-    base::ScopedWrite mutex( _impl->connectLock );
+    lunchbox::ScopedWrite mutex( _impl->connectLock );
 
     Nodes nodes;
     getNodes( nodes );
@@ -851,7 +851,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     NodePtr node;
     {
-        base::ScopedFastRead mutexNodes( _impl->nodes ); 
+        lunchbox::ScopedFastRead mutexNodes( _impl->nodes ); 
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
             node = i->second;
@@ -897,8 +897,8 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
               return node;
           case CONNECT_TRY_AGAIN:
           {
-              base::RNG rng;
-              base::sleep( rng.get< uint8_t >( )); // collision avoidance
+              lunchbox::RNG rng;
+              lunchbox::sleep( rng.get< uint8_t >( )); // collision avoidance
               break;
           }
           case CONNECT_BAD_STATE:
@@ -911,7 +911,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
               break; // maybe peer talks to us
         }
 
-        base::ScopedFastRead mutexNodes( _impl->nodes );
+        lunchbox::ScopedFastRead mutexNodes( _impl->nodes );
         // connect failed - check for simultaneous connect from peer
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
@@ -1000,7 +1000,7 @@ uint32_t LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 
 NodePtr LocalNode::getNode( const NodeID& id ) const
 {
-    base::ScopedFastRead mutex( _impl->nodes );
+    lunchbox::ScopedFastRead mutex( _impl->nodes );
     NodeHash::const_iterator i = _impl->nodes->find( id );
     if( i == _impl->nodes->end( ))
         return 0;
@@ -1010,7 +1010,7 @@ NodePtr LocalNode::getNode( const NodeID& id ) const
 
 void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
 {
-    base::ScopedFastRead mutex( _impl->nodes );
+    lunchbox::ScopedFastRead mutex( _impl->nodes );
     for( NodeHashCIter i = _impl->nodes->begin(); i != _impl->nodes->end(); ++i )
     {
         NodePtr node = i->second;
@@ -1125,7 +1125,7 @@ void LocalNode::_runReceiverThread()
     _impl->pendingCommands.clear();
     _impl->commandCache.flush();
 
-    EQINFO << "Leaving receiver thread of " << base::className( this )
+    EQINFO << "Leaving receiver thread of " << lunchbox::className( this )
            << std::endl;
 }
 
@@ -1173,7 +1173,7 @@ void LocalNode::_handleDisconnect()
             node->_outMulticast = 0;
             node->_multicasts.clear();
 
-            base::ScopedFastWrite mutex( _impl->nodes );
+            lunchbox::ScopedFastWrite mutex( _impl->nodes );
             _impl->connectionNodes.erase( i );
             _impl->nodes->erase( node->_id );
             EQINFO << node << " disconnected from " << *this << std::endl;
@@ -1183,7 +1183,7 @@ void LocalNode::_handleDisconnect()
             EQASSERT( connection->getDescription()->type >= 
                       CONNECTIONTYPE_MULTICAST );
 
-            base::ScopedMutex<> mutex( _outMulticast );
+            lunchbox::ScopedMutex<> mutex( _outMulticast );
             if( node->_outMulticast == connection )
                 node->_outMulticast = 0;
             else
@@ -1218,7 +1218,7 @@ bool LocalNode::_handleData()
     EQASSERTINFO( !node || // unconnected node
                   *(node->_outgoing) == *connection || // correct UC connection
                   connection->getDescription()->type>=CONNECTIONTYPE_MULTICAST,
-                  base::className( node ));
+                  lunchbox::className( node ));
 
     EQVERB << "Handle data from " << node << std::endl;
 
@@ -1408,7 +1408,7 @@ bool LocalNode::_cmdSetAffinity( Command& command )
 {
     const NodeAffinityPacket* packet = command.get< NodeAffinityPacket >();
 
-    base::Thread::setAffinity( packet->affinity );
+    lunchbox::Thread::setAffinity( packet->affinity );
     return true;
 }
 
@@ -1463,7 +1463,7 @@ bool LocalNode::_cmdConnect( Command& command )
     remoteNode->_outgoing = connection;
     remoteNode->_state = STATE_CONNECTED;
     {
-        base::ScopedFastWrite mutex( _impl->nodes );
+        lunchbox::ScopedFastWrite mutex( _impl->nodes );
         _impl->connectionNodes[ connection ] = remoteNode;
         _impl->nodes.data[ remoteNode->_id ] = remoteNode;
     }
@@ -1517,7 +1517,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
         peer->_state = STATE_CLOSED;
         peer->_outgoing = 0;
         {
-            base::ScopedFastWrite mutex( _impl->nodes );
+            lunchbox::ScopedFastWrite mutex( _impl->nodes );
             EQASSERTINFO( _impl->connectionNodes.find( connection ) !=
                           _impl->connectionNodes.end(), connection );
             _impl->connectionNodes.erase( connection );
@@ -1553,7 +1553,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     peer->_state    = STATE_CONNECTED;
     
     {
-        base::ScopedFastWrite mutex( _impl->nodes );
+        lunchbox::ScopedFastWrite mutex( _impl->nodes );
         _impl->connectionNodes[ connection ] = peer;
         _impl->nodes.data[ peer->_id ] = peer;
     }
@@ -1617,7 +1617,7 @@ bool LocalNode::_cmdID( Command& command )
             EQASSERTINFO( data.empty(), data );
 
             {
-                base::ScopedFastWrite mutex( _impl->nodes );
+                lunchbox::ScopedFastWrite mutex( _impl->nodes );
                 _impl->nodes.data[ nodeID ] = node;
             }
             EQVERB << "Added node " << nodeID << " with multicast "
@@ -1629,7 +1629,7 @@ bool LocalNode::_cmdID( Command& command )
     EQASSERT( node.isValid( ));
     EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
 
-    base::ScopedMutex<> mutex( _outMulticast );
+    lunchbox::ScopedMutex<> mutex( _outMulticast );
     MCDatas::iterator i = node->_multicasts.begin();
     for( ; i != node->_multicasts.end(); ++i )
     {
@@ -1691,7 +1691,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
                   _impl->connectionNodes.end( ));
         _impl->objectStore->removeInstanceData( node->_id );
         {
-            base::ScopedFastWrite mutex( _impl->nodes );
+            lunchbox::ScopedFastWrite mutex( _impl->nodes );
             _impl->connectionNodes.erase( connection );
             _impl->nodes->erase( node->_id );
         }
@@ -1861,7 +1861,7 @@ bool LocalNode::_cmdAddListener( Command& command )
         data.connection = connection;
         data.node = this;
 
-        base::ScopedMutex<> mutex( _outMulticast );
+        lunchbox::ScopedMutex<> mutex( _outMulticast );
         _multicasts.push_back( data );
     }
 
@@ -1888,7 +1888,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
     if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
     {
-        base::ScopedMutex<> mutex( _outMulticast );
+        lunchbox::ScopedMutex<> mutex( _outMulticast );
         for( MCDatas::iterator i = _multicasts.begin();
              i != _multicasts.end(); ++i )
         {

@@ -42,9 +42,9 @@
 #  define PACKET_SIZE 2048
 #endif
 
-co::base::Clock _clock;
+lunchbox::Clock _clock;
 
-class Reader : public co::base::Thread
+class Reader : public lunchbox::Thread
 {
 public:
     Reader( co::InstanceCache& cache )
@@ -60,7 +60,7 @@ protected:
             size_t ops = 0;
             while( _clock.getTime64() < RUNTIME )
             {
-                const co::base::UUID key( _rng.get< uint16_t >(), 0 );
+                const lunchbox::UUID key( _rng.get< uint16_t >(), 0 );
                 if( _cache[ key ] != co::InstanceCache::Data::NONE )
                 {
                     ++hits;
@@ -75,7 +75,7 @@ protected:
 
 private:
     co::InstanceCache& _cache;
-    co::base::RNG _rng;
+    lunchbox::RNG _rng;
 };
 
 int main( int argc, char **argv )
@@ -99,12 +99,12 @@ int main( int argc, char **argv )
         alloca( N_READER * sizeof( Reader* )));
 
     co::InstanceCache cache;
-    co::base::RNG rng;
+    lunchbox::RNG rng;
 
     size_t hits = 0;
     size_t ops = 0;
 
-    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( lunchbox::UUID key; key.low() < 65536; ++key ) // Fill cache
         if( !cache.add( co::ObjectVersion( key, 1 ), 1, command ))
             break;
 
@@ -117,7 +117,7 @@ int main( int argc, char **argv )
 
     while( _clock.getTime64() < RUNTIME )
     {
-        const co::base::UUID id( 0, rng.get< uint16_t >( ));
+        const lunchbox::UUID id( 0, rng.get< uint16_t >( ));
         const co::ObjectVersion key( id, 1 );
         if( cache[ key.identifier ] != co::InstanceCache::Data::NONE )
         {
@@ -147,7 +147,7 @@ int main( int argc, char **argv )
 
     std::cout << cache << std::endl;
 
-    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( lunchbox::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
         if( cache[ key ] != co::InstanceCache::Data::NONE )
         {
@@ -156,7 +156,7 @@ int main( int argc, char **argv )
         }
     }
 
-    for( co::base::UUID key; key.low() < 65536; ++key ) // Fill cache
+    for( lunchbox::UUID key; key.low() < 65536; ++key ) // Fill cache
     {
         TEST( cache[ key ] == co::InstanceCache::Data::NONE );
     }

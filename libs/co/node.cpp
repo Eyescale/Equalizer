@@ -51,7 +51,7 @@ bool Node::operator == ( const Node* node ) const
 
 ConnectionDescriptions Node::getConnectionDescriptions() const
 {
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _connectionDescriptions );
     return _connectionDescriptions.data;
 }
 
@@ -64,7 +64,7 @@ ConnectionPtr Node::useMulticast()
     if( connection.isValid() && !connection->isClosed( ))
         return connection;
 
-    base::ScopedMutex<> mutex( _outMulticast );
+    lunchbox::ScopedMutex<> mutex( _outMulticast );
     if( _multicasts.empty( ))
         return 0;
 
@@ -90,14 +90,14 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
         cd->port = EQ_DEFAULT_PORT;
 
-    base::ScopedMutex< base::SpinLock > 
+    lunchbox::ScopedMutex< lunchbox::SpinLock > 
                        mutex( _connectionDescriptions );
     _connectionDescriptions->push_back( cd ); 
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    base::ScopedMutex< base::SpinLock > 
+    lunchbox::ScopedMutex< lunchbox::SpinLock > 
                        mutex( _connectionDescriptions );
 
     // Don't use std::find, RefPtr::operator== compares pointers, not values.
@@ -117,7 +117,7 @@ std::string Node::serialize() const
 {
     std::ostringstream data;
     {
-        base::ScopedMutex< base::SpinLock >
+        lunchbox::ScopedMutex< lunchbox::SpinLock >
                                             mutex( _connectionDescriptions );
         data << _id << CO_SEPARATOR
              << co::serialize( _connectionDescriptions.data );
@@ -140,7 +140,7 @@ bool Node::deserialize( std::string& data )
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
 
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _connectionDescriptions );
     _connectionDescriptions->clear();
     return co::deserialize( data, _connectionDescriptions.data );
 }

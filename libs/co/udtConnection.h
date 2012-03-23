@@ -78,7 +78,7 @@ private:
     class UDTConnectionThread;
     UDTConnectionThread *_poller;
 
-    base::Monitor<bool> _app_block;
-    base::Lock _app_mutex; // Blocks connection thread until app handles event
+    lunchbox::Monitor<bool> _app_block;
+    lunchbox::Lock _app_mutex; // Blocks connection thread until app handles event
 }; // UDTConnection
 } // namespace co

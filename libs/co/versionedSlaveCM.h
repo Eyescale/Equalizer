@@ -71,10 +71,10 @@ namespace co
         ObjectDataIStream* _currentIStream;
 
         /** The change queue. */
-        base::MTQueue< ObjectDataIStream* > _queuedVersions;
+        lunchbox::MTQueue< ObjectDataIStream* > _queuedVersions;
 
         /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        lunchbox::Pool< ObjectDataIStream, true > _iStreamCache;
 
         /** The instance identifier of the master object. */
         uint32_t _masterInstanceID;

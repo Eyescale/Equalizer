@@ -33,7 +33,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
      * Local nodes listen on network connections, manage connections to other
      * nodes and provide session registration, mapping and command dispatch.
      */
-    class LocalNode : public base::RequestHandler, public Node
+    class LocalNode : public lunchbox::RequestHandler, public Node
     {
     public:
         CO_API LocalNode( );
@@ -223,7 +223,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          *         available.
          * @sa registerObject
          */
-        CO_API bool mapObject( Object* object, const base::UUID& id, 
+        CO_API bool mapObject( Object* object, const UUID& id, 
                                const uint128_t& version = VERSION_OLDEST );
 
         /** Convenience wrapper for mapObject(). */
@@ -231,14 +231,14 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
             { return mapObject( object, v.identifier, v.version ); }
 
         /** Start mapping a distributed object. @sa mapObject() */
-        CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+        CO_API uint32_t mapObjectNB( Object* object, const UUID& id, 
                                     const uint128_t& version = VERSION_OLDEST );
 
         /**
          * Start mapping a distributed object from a known master.
          * @sa mapObject()
          */
-        CO_API uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+        CO_API uint32_t mapObjectNB( Object* object, const UUID& id, 
                                      const uint128_t& version, NodePtr master );
 
         /** Finalize the mapping of a distributed object. */

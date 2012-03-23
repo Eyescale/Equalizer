@@ -27,7 +27,7 @@ namespace detail
 class BufferConnection
 {
 public:
-    base::Bufferb buffer;
+    lunchbox::Bufferb buffer;
 };
 }
 

@@ -73,7 +73,7 @@ namespace plugin
                                const eq_uint64_t nPixels, 
                                const bool useAlpha ) { EQDONTCALL; };
 
-        typedef co::base::Bufferb Result;
+        typedef lunchbox::Bufferb Result;
         typedef std::vector< Result* > Results;
 
         /** @return the vector containing the result data. */

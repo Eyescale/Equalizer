@@ -32,10 +32,10 @@
 #define MAXTHREADS 256
 #define TIME       500  // ms
 
-co::base::Clock _clock;
+lunchbox::Clock _clock;
 bool _running = false;
 
-template< class T > class Thread : public co::base::Thread
+template< class T > class Thread : public lunchbox::Thread
 {
 public:
     Thread() : ops( 0 ) {}
@@ -64,7 +64,7 @@ template< class T > void _test()
     lock->set();
 
 #ifdef CO_USE_OPENMP
-    const size_t nThreads = EQ_MIN( co::base::OMP::getNThreads()*3, MAXTHREADS );
+    const size_t nThreads = EQ_MIN( lunchbox::OMP::getNThreads()*3, MAXTHREADS );
 #else
     const size_t nThreads = 16;
 #endif
@@ -78,11 +78,11 @@ template< class T > void _test()
             threads[j].lock = lock;
             TEST( threads[j].start( ));
         }
-        co::base::sleep( 10 ); // let threads initialize
+        lunchbox::sleep( 10 ); // let threads initialize
 
         _clock.reset();
         lock->unset();
-        co::base::sleep( TIME ); // let threads run
+        lunchbox::sleep( TIME ); // let threads run
         _running = false;
 
         for( size_t j = 0; j < i; ++j )
@@ -96,7 +96,7 @@ template< class T > void _test()
         for( size_t j = 0; j < nThreads; ++j )
             ops += threads[j].ops;
 
-        std::cout << std::setw(20) << co::base::className( lock ) << ", "
+        std::cout << std::setw(20) << lunchbox::className( lock ) << ", "
                   << std::setw(12) << /*set, test, unset*/ 3 * ops / time
                   << ", " << std::setw(3) << i << std::endl;
     }
@@ -106,17 +106,17 @@ template< class T > void _test()
 
 int main( int argc, char **argv )
 {
-    TEST( co::base::init( argc, argv ));
+    TEST( lunchbox::init( argc, argv ));
 
     std::cout << "               Class,       ops/ms, threads" << std::endl;
-    _test< co::base::SpinLock >();
+    _test< lunchbox::SpinLock >();
     std::cout << std::endl;
 
-    _test< co::base::Lock >();
+    _test< lunchbox::Lock >();
     std::cout << std::endl;
 
-    _test< co::base::TimedLock >();
-    TEST( co::base::exit( ));
+    _test< lunchbox::TimedLock >();
+    TEST( lunchbox::exit( ));
 
     return EXIT_SUCCESS;
 }

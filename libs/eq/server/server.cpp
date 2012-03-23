@@ -65,7 +65,7 @@ Server::Server()
         : Super( &_nf )
         , _running( false )
 {
-    co::base::Log::setClock( &_clock );
+    lunchbox::Log::setClock( &_clock );
     disableInstanceCache();
 
     registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG,
@@ -90,12 +90,12 @@ Server::~Server()
 {
     EQASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
     deleteConfigs();
-    co::base::Log::setClock( 0 );
+    lunchbox::Log::setClock( 0 );
 }
 
 void Server::init()
 {
-    co::base::Thread::setName( co::base::className( this ));
+    lunchbox::Thread::setName( lunchbox::className( this ));
     EQASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
@@ -104,9 +104,9 @@ void Server::init()
         EQWARN << "No configurations loaded" << std::endl;
 #endif
 
-    EQINFO << co::base::disableFlush << "Running server: " << std::endl
-           << co::base::indent << Global::instance() << *this
-           << co::base::exdent << co::base::enableFlush << std::endl;
+    EQINFO << lunchbox::disableFlush << "Running server: " << std::endl
+           << lunchbox::indent << Global::instance() << *this
+           << lunchbox::exdent << lunchbox::enableFlush << std::endl;
 
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
         (*i)->register_();
@@ -308,7 +308,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     }
 
     node->send( reply );
-    EQLOG( co::base::LOG_ANY ) << "----- Released Config -----" << std::endl;
+    EQLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
     return true;
 }
 
@@ -360,7 +360,7 @@ bool Server::_cmdShutdown( co::Command& command )
 
 #ifndef WIN32
     // WAR for 2874188: Lockup at shutdown
-    co::base::sleep( 100 );
+    lunchbox::sleep( 100 );
 #endif
 
     return true;

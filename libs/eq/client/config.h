@@ -106,7 +106,7 @@ namespace eq
          * The clock in all processes of the config is synchronized to the
          * Server clock. The precision of this synchronization is typically
          * about 1 ms. The clock of the last instantiated config is used as the
-         *co::base::Log clock.
+         *lunchbox::Log clock.
          *
          * @return the global time in ms.
          * @version 1.0
@@ -403,7 +403,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attach( const co::base::UUID& id,
+        EQ_API virtual void attach( const UUID& id,
                                     const uint32_t instanceID );
 
         EQ_API virtual void notifyAttached(); //!< @internal
@@ -426,7 +426,7 @@ namespace eq
         co::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
-        co::base::Lockable< std::deque< FrameStatistics >, co::base::SpinLock >
+        lunchbox::Lockable< std::deque< FrameStatistics >, lunchbox::SpinLock >
             _statistics;
         
         /** The last started frame. */
@@ -434,10 +434,10 @@ namespace eq
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
 
         std::deque< int64_t > _frameTimes; //!< Start time of last frames
 
@@ -470,7 +470,7 @@ namespace eq
         typedef std::vector< LatencyObject* > LatencyObjects;
 
         /** protected list of the current latency object */
-       co::base::Lockable< LatencyObjects,co::base::SpinLock > _latencyObjects;
+       lunchbox::Lockable< LatencyObjects,lunchbox::SpinLock > _latencyObjects;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

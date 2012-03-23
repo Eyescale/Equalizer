@@ -56,7 +56,7 @@ public:
         return true;
     }
 
-    typedef co::base::MTQueue< Command* > PacketQueue;
+    typedef lunchbox::MTQueue< Command* > PacketQueue;
 
     PacketQueue queue;
     co::CommandCache cache;
@@ -74,7 +74,7 @@ QueueMaster::~QueueMaster()
     delete _impl;
 }
 
-void QueueMaster::attach( const base::UUID& id, const uint32_t instanceID )
+void QueueMaster::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 

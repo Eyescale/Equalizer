@@ -75,7 +75,7 @@ public:
     RequestMap enteredNodes;
 
     /** The monitor used for barrier leave notification. */
-    base::Monitor< uint32_t > leaveNotify;
+    lunchbox::Monitor< uint32_t > leaveNotify;
 };
 }
 
@@ -141,7 +141,7 @@ uint32_t Barrier::getHeight() const
     return _impl->height;
 }
 
-void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
+void Barrier::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 

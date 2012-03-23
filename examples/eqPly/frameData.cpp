@@ -35,7 +35,7 @@ FrameData::FrameData()
         : _rotation( eq::Matrix4f::ZERO )
         , _modelRotation( eq::Matrix4f::ZERO )
         , _position( eq::Vector3f::ZERO )
-        , _modelID( co::base::UUID::ZERO )
+        , _modelID( lunchbox::UUID::ZERO )
         , _renderMode( mesh::RENDER_MODE_DISPLAY_LIST )
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
@@ -46,7 +46,7 @@ FrameData::FrameData()
         , _pilotMode( false )
         , _idle( false )
         , _compression( true )
-        , _currentViewID( co::base::UUID::ZERO )
+        , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;

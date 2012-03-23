@@ -72,7 +72,7 @@ namespace co
             {
                 type = PACKETTYPE_CO_OBJECT; 
             }
-        base::UUID objectID;
+        UUID objectID;
         uint32_t instanceID;
         const uint32_t pad; // pad to multiple-of-eight
 

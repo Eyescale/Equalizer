@@ -39,13 +39,13 @@ Layout< C, L, V >::Layout( C* config )
 {
     EQASSERT( config );
     static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_views.empty( ))
     {
         V* view = _views.back();
@@ -57,7 +57,7 @@ Layout< C, L, V >::~Layout()
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::attach( const co::base::UUID& id,
+void Layout< C, L, V >::attach( const UUID& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
@@ -225,9 +225,9 @@ template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
         V* view = *i;
         if( view->getObserver() == observer )
         {
-            EQINFO << "Removing " << co::base::disableHeader << *observer
+            EQINFO << "Removing " << lunchbox::disableHeader << *observer
                    << " used by " << *view << std::endl
-                   << co::base::enableHeader;
+                   << lunchbox::enableHeader;
             view->setObserver( 0 );
         }
     }
@@ -318,9 +318,9 @@ Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 template< class C, class L, class V >
 std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "layout"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "layout"
        << std::endl;
-    os << "{" << std::endl << co::base::indent; 
+    os << "{" << std::endl << lunchbox::indent; 
 
     const std::string& name = layout.getName();
     if( !name.empty( ))
@@ -332,8 +332,8 @@ std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
     {
         os << **i;
     }
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

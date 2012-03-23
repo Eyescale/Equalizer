@@ -40,7 +40,7 @@ bool testSleep();
 
 static uint16_t _serverPort = 0;
 
-class BarrierThread : public co::base::Thread
+class BarrierThread : public lunchbox::Thread
 {
 public:
     BarrierThread( const uint32_t nOps, const uint32_t port ) 
@@ -75,7 +75,7 @@ public:
     }
 
     /** @return the barrier unique identifier. */
-    const co::base::UUID& getBarrierID() const { return _barrier->getID(); }
+    const lunchbox::UUID& getBarrierID() const { return _barrier->getID(); }
     ~ServerThread( )
     {
         _node->releaseObject( _barrier );
@@ -112,7 +112,7 @@ private:
 class NodeThread : public BarrierThread
 {
 public:
-    NodeThread( const co::base::UUID& barrierID, const uint32_t port,
+    NodeThread( const lunchbox::UUID& barrierID, const uint32_t port,
                 const uint32_t nOps, const uint32_t timeToSleep )
          : BarrierThread( nOps, port ) 
          , _timeToSleep( timeToSleep )
@@ -144,7 +144,7 @@ protected:
     {
         for( uint32_t i = 0; i < _nOps; ++i )
         {
-            co::base::sleep( _timeToSleep );
+            lunchbox::sleep( _timeToSleep );
             const uint32_t timeout = co::Global::getIAttribute( 
                      co::Global::IATTR_TIMEOUT_DEFAULT );
             try
@@ -162,7 +162,7 @@ protected:
             
 private:
     const uint32_t _timeToSleep;
-    const co::base::UUID& _barrierID;
+    const lunchbox::UUID& _barrierID;
     co::NodePtr _server;
     co::Barrier barrier;
 };
@@ -173,7 +173,7 @@ typedef std::vector< NodeThread* > NodeThreads;
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
-    static co::base::RNG rng;
+    static lunchbox::RNG rng;
     _serverPort = (rng.get<uint16_t>() % 60000) + 1024;
 
     TEST( testNormal() );

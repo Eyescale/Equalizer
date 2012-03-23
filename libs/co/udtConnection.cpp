@@ -249,7 +249,7 @@ public:
  * For more info, see thread "threading model and real socket integration" on
  * the UDT open discussion list.
  */
-class UDTConnection::UDTConnectionThread : public base::Thread
+class UDTConnection::UDTConnectionThread : public lunchbox::Thread
 {
 public:
     UDTConnectionThread( UDTConnection *connection )
@@ -409,7 +409,7 @@ void UDTConnection::close( )
     UDTConnectionThread *poller = NULL;
 
     {
-        base::ScopedMutex<> mutex( _app_mutex );
+        lunchbox::ScopedMutex<> mutex( _app_mutex );
 
         if( STATE_CLOSED != _state )
         {
@@ -421,11 +421,11 @@ void UDTConnection::close( )
 
 #ifdef _WIN32
             if(( NULL != _notifier ) && ( 0 == CloseHandle( _notifier )))
-                EQWARN << "CloseHandle : " << base::sysError << std::endl;
+                EQWARN << "CloseHandle : " << lunchbox::sysError << std::endl;
             _notifier = NULL;
 #else
             if(( 0 <= _notifier ) && ( 0 != ::close( _notifier )))
-                EQWARN << "close : " << base::sysError << std::endl;
+                EQWARN << "close : " << lunchbox::sysError << std::endl;
             _notifier = -1;
 #endif
 
@@ -502,7 +502,7 @@ err:
 
 out:
     // Let the event thread continue polling
-    base::ScopedMutex<> mutex( _app_mutex );
+    lunchbox::ScopedMutex<> mutex( _app_mutex );
 
     _app_block.set( true );
 
@@ -542,7 +542,7 @@ int64_t UDTConnection::readSync( void* buffer, const uint64_t bytes,
     else
     {
         // Let the event thread continue polling
-        base::ScopedMutex<> mutex( _app_mutex );
+        lunchbox::ScopedMutex<> mutex( _app_mutex );
 
         _app_block.set( true );
     }
@@ -581,14 +581,14 @@ bool UDTConnection::initialize( )
     _notifier = CreateEvent( 0, TRUE, FALSE, 0 );
     if( NULL == _notifier )
     {
-        EQERROR << "CreateEvent : " << base::sysError << std::endl;
+        EQERROR << "CreateEvent : " << lunchbox::sysError << std::endl;
         goto err;
     }
 #else
     _notifier = ::eventfd( 0, 0 );
     if( 0 > _notifier )
     {
-        EQERROR << "eventfd : " << base::sysError << std::endl;
+        EQERROR << "eventfd : " << lunchbox::sysError << std::endl;
         goto err;
     }
 #endif
@@ -606,7 +606,7 @@ void UDTConnection::wake( )
     bool notifyAndWait = false;
 
     {
-        base::ScopedMutex<> mutex( _app_mutex );
+        lunchbox::ScopedMutex<> mutex( _app_mutex );
 
         // Only block if we're not shutting down
         if(( STATE_LISTENING == _state ) || ( STATE_CONNECTED == _state ))

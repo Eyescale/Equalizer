@@ -28,10 +28,10 @@
 
 #include <iostream>
 
-co::base::Monitor< co::Barrier* > _barrier( 0 );
+lunchbox::Monitor< co::Barrier* > _barrier( 0 );
 static uint16_t _port = 0;
 
-class NodeThread : public co::base::Thread
+class NodeThread : public lunchbox::Thread
 {
 public:
     NodeThread( const bool master ) : _master(master) {}
@@ -87,7 +87,7 @@ private:
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     _port =(rng.get<uint16_t>() % 60000) + 1024;
 
     NodeThread server( true );

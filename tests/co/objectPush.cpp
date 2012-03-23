@@ -36,7 +36,7 @@ using co::uint128_t;
 namespace
 {
 
-co::base::Monitor< co::Object::ChangeType > monitor( co::Object::NONE ); 
+lunchbox::Monitor< co::Object::ChangeType > monitor( co::Object::NONE ); 
 
 static const std::string message =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget felis sed leo tincidunt dictum eu eu felis. Aenean aliquam augue nec elit tristique tempus. Pellentesque dignissim adipiscing tellus, ut porttitor nisl lacinia vel. Donec malesuada lobortis velit, nec lobortis metus consequat ac. Ut dictum rutrum dui. Pellentesque quis risus at lectus bibendum laoreet. Suspendisse tristique urna quis urna faucibus et auctor risus ultricies. Morbi vitae mi vitae nisi adipiscing ultricies ac in nulla. Nam mattis venenatis nulla, non posuere felis tempus eget. Cras dapibus ultrices arcu vel dapibus. Nam hendrerit lacinia consectetur. Donec ullamcorper nibh nisl, id aliquam nisl. Nunc at tortor a lacus tincidunt gravida vitae nec risus. Suspendisse potenti. Fusce tristique dapibus ipsum, sit amet posuere turpis fermentum nec. Nam nec ante dolor.";
@@ -99,10 +99,10 @@ int main( int argc, char **argv )
     co::init( argc, argv );
     co::Global::setObjectBufferSize( 600 );
 
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     const uint16_t port = (rng.get<uint16_t>() % 60000) + 1024;
 
-    co::base::RefPtr< Server > server = new Server;
+    lunchbox::RefPtr< Server > server = new Server;
     co::ConnectionDescriptionPtr connDesc = 
         new co::ConnectionDescription;
     
@@ -128,7 +128,7 @@ int main( int argc, char **argv )
     co::Nodes nodes;
     nodes.push_back( serverProxy );
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     for( unsigned i = co::Object::NONE+1; i <= co::Object::UNBUFFERED; ++i )
     {
         const co::Object::ChangeType type = co::Object::ChangeType( i );

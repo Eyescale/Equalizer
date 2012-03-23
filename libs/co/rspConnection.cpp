@@ -45,23 +45,23 @@ namespace co
 namespace
 {
 #ifdef EQ_INSTRUMENT_RSP
-base::a_int32_t nReadData;
-base::a_int32_t nBytesRead;
-base::a_int32_t nBytesWritten;
-base::a_int32_t nDatagrams;
-base::a_int32_t nRepeated;
-base::a_int32_t nMergedDatagrams;
-base::a_int32_t nAckRequests;
-base::a_int32_t nAcksSend;
-base::a_int32_t nAcksSendTotal;
-base::a_int32_t nAcksRead;
-base::a_int32_t nAcksAccepted;
-base::a_int32_t nNAcksSend;
-base::a_int32_t nNAcksRead;
-base::a_int32_t nNAcksResend;
+lunchbox::a_int32_t nReadData;
+lunchbox::a_int32_t nBytesRead;
+lunchbox::a_int32_t nBytesWritten;
+lunchbox::a_int32_t nDatagrams;
+lunchbox::a_int32_t nRepeated;
+lunchbox::a_int32_t nMergedDatagrams;
+lunchbox::a_int32_t nAckRequests;
+lunchbox::a_int32_t nAcksSend;
+lunchbox::a_int32_t nAcksSendTotal;
+lunchbox::a_int32_t nAcksRead;
+lunchbox::a_int32_t nAcksAccepted;
+lunchbox::a_int32_t nNAcksSend;
+lunchbox::a_int32_t nNAcksRead;
+lunchbox::a_int32_t nNAcksResend;
 
 float writeWaitTime = 0.f;
-base::Clock instrumentClock;
+lunchbox::Clock instrumentClock;
 #endif
 
 static uint16_t _numBuffers = 0;
@@ -125,7 +125,7 @@ void RSPConnection::_close()
 
     while(( !_parent && _isWriting() ))
     {
-        base::sleep( 10 );
+        lunchbox::sleep( 10 );
     }
 
     if( _state == STATE_CLOSED )
@@ -140,7 +140,7 @@ void RSPConnection::_close()
         delete _thread;
     }
 
-    base::ScopedWrite mutex( _mutexEvent );
+    lunchbox::ScopedWrite mutex( _mutexEvent );
     _state = STATE_CLOSING;
     if( _thread )
     {
@@ -150,7 +150,7 @@ void RSPConnection::_close()
         for( RSPConnectionsCIter i=_children.begin(); i !=_children.end(); ++i )
         {
             RSPConnectionPtr child = *i;
-            base::ScopedWrite mutexChild( child->_mutexEvent );
+            lunchbox::ScopedWrite mutexChild( child->_mutexEvent );
             child->_appBuffers.push( 0 );
             child->_event->set();
         }
@@ -186,7 +186,7 @@ void RSPConnection::_close()
 //----------------------------------------------------------------------
 uint16_t RSPConnection::_buildNewID()
 {
-    base::RNG rng;
+    lunchbox::RNG rng;
     _id = rng.get< uint16_t >();
     return _id;
 }
@@ -307,7 +307,7 @@ ConnectionPtr RSPConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
         
-    base::ScopedWrite mutex( _mutexConnection );
+    lunchbox::ScopedWrite mutex( _mutexConnection );
     EQASSERT( !_newChildren.empty( ));
     if( _newChildren.empty( ))
         return 0;
@@ -318,7 +318,7 @@ ConnectionPtr RSPConnection::acceptSync()
     EQINFO << _id << " accepted RSP connection " << newConnection->_id
            << std::endl;
 
-    base::ScopedWrite mutex2( _mutexEvent );
+    lunchbox::ScopedWrite mutex2( _mutexEvent );
     if( _newChildren.empty() )
         _event->reset();
     else
@@ -386,7 +386,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         _event->set();
     else
     {
-        base::ScopedWrite mutex( _mutexEvent );
+        lunchbox::ScopedWrite mutex( _mutexEvent );
         if( _appBuffers.isEmpty( ))
             _event->reset();
     }
@@ -633,7 +633,7 @@ void RSPConnection::_writeData()
 void RSPConnection::_waitWritable( const uint64_t bytes )
 {
 #ifdef EQ_INSTRUMENT_RSP
-    base::Clock clock;
+    lunchbox::Clock clock;
 #endif
 
     _bucketSize += static_cast< uint64_t >( _clock.resetTimef() * _sendRate );
@@ -643,12 +643,12 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
     while( _bucketSize < size )
     {
-        base::Thread::yield();
+        lunchbox::Thread::yield();
         float time = _clock.resetTimef();
 
         while( time == 0.f )
         {
-            base::Thread::yield();
+            lunchbox::Thread::yield();
             time = _clock.resetTimef();
         }
 
@@ -751,7 +751,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
-            base::ScopedWrite mutex( connection->_mutexEvent );
+            lunchbox::ScopedWrite mutex( connection->_mutexEvent );
             EQLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequence << std::endl;
@@ -765,7 +765,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
         while( !newBuffer ) // no more data buffers, wait for app to drain
         {
             newBuffer = connection->_newDataBuffer( *buffer );
-            base::Thread::yield();
+            lunchbox::Thread::yield();
         }
 
         freeBuffers.push_back( buffer );
@@ -775,7 +775,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     _appBuffers.push( freeBuffers );
     if( !readBuffers.empty( ))
     {
-        base::ScopedWrite mutex( connection->_mutexEvent );
+        lunchbox::ScopedWrite mutex( connection->_mutexEvent );
 #if 0
         EQLOG( LOG_RSP ) 
             << "post " << readBuffers.size() << " buffers starting at "
@@ -980,7 +980,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
         if( !newBuffer ) // no more data buffers, drop packet
             return true;
 
-        base::ScopedWrite mutex( connection->_mutexEvent );
+        lunchbox::ScopedWrite mutex( connection->_mutexEvent );
         connection->_pushDataBuffer( newBuffer );
             
         while( !connection->_recvBuffers.empty( )) // enqueue ready pending data
@@ -1083,7 +1083,7 @@ RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
 
     // Set the event if there is data to read. This shouldn't be needed since
     // the event should be set in this case, but it'll increase the robustness
-    base::ScopedWrite mutex( _mutexEvent );
+    lunchbox::ScopedWrite mutex( _mutexEvent );
     if( !_appBuffers.isEmpty( ))
         _event->set();
     return 0;
@@ -1193,7 +1193,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
 void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 {
-    EQLOG( LOG_RSP ) << base::disableFlush << "Queue repeat requests ";
+    EQLOG( LOG_RSP ) << lunchbox::disableFlush << "Queue repeat requests ";
     size_t lost = 0;
 
     for( size_t i = 0; i < num; ++i )
@@ -1247,10 +1247,10 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down " << downScale * 100.f
             << "% to " << _sendRate << " KB/s" << std::endl 
-            << base::enableFlush;
+            << lunchbox::enableFlush;
     }
     else
-        EQLOG( LOG_RSP ) << std::endl << base::enableFlush;
+        EQLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush;
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
@@ -1293,7 +1293,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     uint16_t i = 0;
 
     nacks[ i ].start = connection->_sequence;
-    EQLOG( LOG_RSP ) << base::disableFlush << "nacks: " 
+    EQLOG( LOG_RSP ) << lunchbox::disableFlush << "nacks: " 
                      << nacks[i].start << "..";
     
     std::deque<Buffer*>::const_iterator j = connection->_recvBuffers.begin();
@@ -1348,7 +1348,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         ++i;
     }
 
-    EQLOG( LOG_RSP ) << std::endl << base::enableFlush << "send " << i
+    EQLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush << "send " << i
                      << " nacks to " << connection->_id << std::endl;
 
     EQASSERT( i > 0 );
@@ -1409,10 +1409,10 @@ bool RSPConnection::_addConnection( const uint16_t id )
     _children.push_back( connection );
     _sendCountNode();
 
-    base::ScopedWrite mutex( _mutexConnection );
+    lunchbox::ScopedWrite mutex( _mutexConnection );
     _newChildren.push_back( connection );
 
-    base::ScopedWrite mutex2( _mutexEvent ); 
+    lunchbox::ScopedWrite mutex2( _mutexEvent ); 
     _event->set();
     return true;
 }
@@ -1430,7 +1430,7 @@ void RSPConnection::_removeConnection( const uint16_t id )
         {
             _children.erase( i );
 
-            base::ScopedWrite mutex( child->_mutexEvent ); 
+            lunchbox::ScopedWrite mutex( child->_mutexEvent ); 
             child->_appBuffers.push( 0 );
             child->_event->set();
             break;
@@ -1570,7 +1570,7 @@ void RSPConnection::_sendAckRequest()
 std::ostream& operator << ( std::ostream& os,
                             const RSPConnection& connection )
 {
-    os << base::disableFlush << base::disableHeader 
+    os << lunchbox::disableFlush << lunchbox::disableHeader 
        << "RSPConnection id " << connection.getID() << " send rate " 
        << connection.getSendRate();
 
@@ -1580,7 +1580,7 @@ std::ostream& operator << ( std::ostream& os,
 
     const float time = instrumentClock.getTimef();
     const float mbps = 1048.576f * time;
-    os << ": " << base::indent << std::endl
+    os << ": " << lunchbox::indent << std::endl
        << float( nBytesRead ) / mbps << " / " << float( nBytesWritten ) / mbps
        <<  " MB/s r/w using " << nDatagrams << " dgrams " << nRepeated
        << " repeats " << nMergedDatagrams
@@ -1593,7 +1593,7 @@ std::ostream& operator << ( std::ostream& os,
        << writeWaitTime << " ms"
        << std::endl
        << "receiver: " << nAcksSend << " acks " << nNAcksSend << " nacks"
-       << base::exdent;
+       << lunchbox::exdent;
 
     nReadData = 0;
     nBytesRead = 0;
@@ -1609,7 +1609,7 @@ std::ostream& operator << ( std::ostream& os,
     nNAcksRead = 0;
     writeWaitTime = 0.f;
 #endif
-    os << std::endl << base::enableHeader << base::enableFlush;
+    os << std::endl << lunchbox::enableHeader << lunchbox::enableFlush;
 
     return os;
 }

@@ -63,7 +63,7 @@ public:
 
 protected:
     GLuint   _program;
-    co::base::Bufferb buffer;
+    lunchbox::Bufferb buffer;
 
 private:
     void _initShader( const GLEWContext* glewContext, const char* fShaderPtr );

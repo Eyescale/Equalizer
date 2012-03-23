@@ -52,7 +52,7 @@ int main( int argc, char **argv )
     TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
     
     eq::Frames frames;
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     float time;
     const size_t size = image->getPixelDataSize( eq::Frame::BUFFER_COLOR ) * 3;
     frames.push_back( &frame );

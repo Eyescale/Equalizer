@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,7 +24,7 @@ namespace eq
 void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line )
 {                                                                 
-    EQWARN << co::base::disableFlush << "Got ";
+    EQWARN << lunchbox::disableFlush << "Got ";
     switch( error )
     {
         case GL_INVALID_ENUM:
@@ -44,6 +44,6 @@ void debugGLError( const std::string& when, const GLenum error,
     }
     
     EQWARN << ' ' << when << " in " << file << ':' << line << std::endl
-           << co::base::backtrace << std::endl << co::base::enableFlush;
+           << lunchbox::backtrace << std::endl << lunchbox::enableFlush;
 }                                 
 }

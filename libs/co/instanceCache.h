@@ -81,7 +81,7 @@ namespace co
          *         is cached for this object.
          */
 
-        CO_API const Data& operator[]( const base::UUID& id );
+        CO_API const Data& operator[]( const UUID& id );
 
         /** 
          * Release the retrieved instance data of the given object.
@@ -91,7 +91,7 @@ namespace co
          * @return true if the element was unpinned, false if it is not in the
          *         instance cache.
          */
-        CO_API bool release( const base::UUID& id, const uint32_t count );
+        CO_API bool release( const UUID& id, const uint32_t count );
 
         /** 
          * Erase all the data for the given object.
@@ -101,7 +101,7 @@ namespace co
          *
          * @return true if the element was erased, false otherwise.
          */
-        CO_API bool erase( const base::UUID& id );
+        CO_API bool erase( const UUID& id );
 
         /** @return the number of bytes used by the instance cache. */
         uint64_t getSize() const { return _size; }
@@ -127,14 +127,14 @@ namespace co
             TimeDeque times;
         };
 
-        typedef stde::hash_map< base::uint128_t, Item > ItemHash;
+        typedef stde::hash_map< lunchbox::uint128_t, Item > ItemHash;
         typedef ItemHash::iterator ItemHashIter;
-        base::Lockable< ItemHash > _items;
+        lunchbox::Lockable< ItemHash > _items;
 
         const uint64_t _maxSize; //!<high-water mark to start releasing commands
         uint64_t _size;          //!< Current number of bytes stored
 
-        const base::Clock _clock;  //!< Clock for item expiration
+        const lunchbox::Clock _clock;  //!< Clock for item expiration
 
         void _releaseItems( const uint32_t minUsage );
         void _releaseStreams( InstanceCache::Item& item );

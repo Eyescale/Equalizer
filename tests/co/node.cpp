@@ -32,7 +32,7 @@
 namespace
 {
 
-co::base::Monitor<bool> monitor( false ); 
+lunchbox::Monitor<bool> monitor( false ); 
 
 static const std::string message =
     "Don't Panic! And now some more text to make the message bigger";
@@ -91,10 +91,10 @@ int main( int argc, char **argv )
 {
     co::init( argc, argv );
 
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     const uint16_t port = (rng.get<uint16_t>() % 60000) + 1024;
 
-    co::base::RefPtr< Server > server = new Server;
+    lunchbox::RefPtr< Server > server = new Server;
     co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
 
     connDesc->type = co::CONNECTIONTYPE_TCPIP;
@@ -118,7 +118,7 @@ int main( int argc, char **argv )
 
     DataPacket packet;
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     for( unsigned i = 0; i < NMESSAGES; ++i )
         serverProxy->send( packet, message );
     const float time = clock.getTimef();

@@ -59,7 +59,7 @@ int main( int argc, char** argv )
     if( !configTool.parseArguments( argc, argv ))
         ::exit( EXIT_FAILURE );
 
-    co::base::Log::setOutput( std::cout );
+    lunchbox::Log::setOutput( std::cout );
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
@@ -244,9 +244,9 @@ void ConfigTool::writeConfig() const
     _writeResources( config, nodeNames );
     _writeCompound( config );
 
-    co::base::Log::instance( "", 0 )
-        << co::base::disableHeader << global << *server << std::endl
-        << co::base::enableHeader << co::base::disableFlush;
+    lunchbox::Log::instance( "", 0 )
+        << lunchbox::disableHeader << global << *server << std::endl
+        << lunchbox::enableHeader << lunchbox::disableFlush;
 }
 
 void ConfigTool::_writeResources( Config* config,

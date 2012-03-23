@@ -20,13 +20,13 @@
 
 int main( int argc, char **argv )
 {
-    TESTINFO( co::base::getIndexOfLastBit( 0u ) == -1,
-              co::base::getIndexOfLastBit( 0u ));
-    TESTINFO( co::base::getIndexOfLastBit( 42u ) == 5,
-              co::base::getIndexOfLastBit( 42u ));
-    TESTINFO( co::base::getIndexOfLastBit( EQ_BIT12 ) == 11,
-              co::base::getIndexOfLastBit( EQ_BIT12 ));
-    TESTINFO( co::base::getIndexOfLastBit( EQ_BIT48 ) == 47,
-              co::base::getIndexOfLastBit( EQ_BIT48 ));
+    TESTINFO( lunchbox::getIndexOfLastBit( 0u ) == -1,
+              lunchbox::getIndexOfLastBit( 0u ));
+    TESTINFO( lunchbox::getIndexOfLastBit( 42u ) == 5,
+              lunchbox::getIndexOfLastBit( 42u ));
+    TESTINFO( lunchbox::getIndexOfLastBit( EQ_BIT12 ) == 11,
+              lunchbox::getIndexOfLastBit( EQ_BIT12 ));
+    TESTINFO( lunchbox::getIndexOfLastBit( EQ_BIT48 ) == 47,
+              lunchbox::getIndexOfLastBit( EQ_BIT48 ));
     return EXIT_SUCCESS;
 }

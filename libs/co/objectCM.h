@@ -158,8 +158,8 @@ namespace co
         Object* _object;
 
 #ifdef EQ_INSTRUMENT_MULTICAST
-        static base::a_int32_t _hit;
-        static base::a_int32_t _miss;
+        static lunchbox::a_int32_t _hit;
+        static lunchbox::a_int32_t _miss;
 #endif
     };
 }

@@ -97,7 +97,7 @@ void _testData( const uint32_t compressorName, const std::string& name,
     uint64_t inDims[2]  = { 0, size };
     
     compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
     const float compressTime = clock.getTimef();
 
@@ -116,7 +116,7 @@ void _testData( const uint32_t compressorName, const std::string& name,
         compressedSize += vectorSize[i];
     }
         
-    co::base::Bufferb result;
+    lunchbox::Bufferb result;
     result.resize( size );
     uint8_t* outData = result.getData();
         
@@ -170,7 +170,7 @@ void _testFile()
         for ( std::vector< std::string >::const_iterator j = files.begin();
               j != files.end(); ++j )
         {
-            co::base::MemoryMap file;
+            lunchbox::MemoryMap file;
             const uint8_t* data = static_cast<const uint8_t*>( file.map( *j ));
 
             if( !data )
@@ -180,7 +180,7 @@ void _testFile()
             }
 
             const size_t size = file.getSize();    
-            const std::string name = co::base::getFilename( *j );
+            const std::string name = lunchbox::getFilename( *j );
             
             _testData( *i, name, data, size );
         }
@@ -197,7 +197,7 @@ void _testRandom()
 {
     size_t size = EQ_10MB;
     uint8_t* data = new uint8_t[size];
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     for( size_t k = 0; k<size; ++k )
         data[k] = rng.get< uint8_t >();
 
@@ -244,15 +244,15 @@ std::vector< std::string > getFiles( const std::string path,
                                      const std::string& ext )
 {
     const co::PluginRegistry& reg = co::Global::getPluginRegistry();
-    co::base::Strings paths = reg.getDirectories();
+    lunchbox::Strings paths = reg.getDirectories();
     if( !path.empty( ))
         paths.push_back( path );
 
     for ( uint64_t j = 0; j < paths.size(); j++)
     {
-        co::base::Strings candidates = 
-            co::base::searchDirectory( paths[j], ext.c_str() );
-        for( co::base::Strings::const_iterator i = candidates.begin();
+        lunchbox::Strings candidates = 
+            lunchbox::searchDirectory( paths[j], ext.c_str() );
+        for( lunchbox::Strings::const_iterator i = candidates.begin();
                 i != candidates.end(); ++i )
         {
             const std::string& filename = *i;

@@ -60,7 +60,8 @@ typedef vmml::vector< 4, float > Vector4f; //!< A four-component float vector
 typedef vmml::vector< 3, unsigned char > Vector3ub;
 typedef vmml::frustum< float >  Frustumf; //!< A frustum definition
 
-using co::base::uint128_t;
+using lunchbox::uint128_t;
+using lunchbox::UUID;
 
 class Client;
 template< class, class > class Channel;
@@ -78,10 +79,10 @@ template< class, class > class ElementVisitor;
 template< class > class LeafVisitor;
 template< class, class, class, class, class> class ConfigVisitor;
 
-typedef co::base::RefPtr< Client > ClientPtr;
-typedef co::base::RefPtr< const Client > ConstClientPtr;
-typedef co::base::RefPtr< SwapBarrier > SwapBarrierPtr;
-typedef co::base::RefPtr< const SwapBarrier > SwapBarrierConstPtr;
+typedef lunchbox::RefPtr< Client > ClientPtr;
+typedef lunchbox::RefPtr< const Client > ConstClientPtr;
+typedef lunchbox::RefPtr< SwapBarrier > SwapBarrierPtr;
+typedef lunchbox::RefPtr< const SwapBarrier > SwapBarrierConstPtr;
 
 struct CanvasPath;
 struct ChannelPath;

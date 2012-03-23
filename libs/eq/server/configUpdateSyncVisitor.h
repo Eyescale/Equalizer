@@ -112,7 +112,7 @@ private:
                         _error = entity->getError();
                         _result = false;
                         _sync = true;
-                        EQWARN << co::base::className( entity )
+                        EQWARN << lunchbox::className( entity )
                                << " initialization failed: " << _error
                                << std::endl;
                     }

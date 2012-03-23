@@ -57,10 +57,10 @@ namespace co
         typedef std::vector< QueuedStream > QueuedStreams;
 
         /** The change queue. */
-        base::MTQueue< QueuedStream > _queued;
+        lunchbox::MTQueue< QueuedStream > _queued;
 
         /** Cached input streams (+decompressor) */
-        base::Pool< ObjectDataIStream, true > _iStreamCache;
+        lunchbox::Pool< ObjectDataIStream, true > _iStreamCache;
 
         EQ_TS_VAR( _thread );
     };

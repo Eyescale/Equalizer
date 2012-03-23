@@ -36,7 +36,7 @@ namespace co
     class MasterCM : public ObjectCM
     {
     protected:
-        typedef base::ScopedWrite Mutex;
+        typedef lunchbox::ScopedWrite Mutex;
 
     public:
         MasterCM( Object* object );
@@ -65,7 +65,7 @@ namespace co
 
     protected:
         /** The list of subscribed slave nodes. */
-        base::Lockable< Nodes > _slaves;
+        lunchbox::Lockable< Nodes > _slaves;
 
         typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
 

@@ -555,7 +555,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* node )
     if( !node )
         return os;
 
-    os << co::base::disableFlush;
+    os << lunchbox::disableFlush;
 
     if( node->compound )
         os << node->compound->getChannel()->getName() << " resources " 
@@ -563,9 +563,9 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* node )
     else
         os << "split " << node->mode << " @ " << node->split << " resources "
            << node->resources << " max size " << node->maxSize  << std::endl
-           << co::base::indent << node->left << node->right << co::base::exdent;
+           << lunchbox::indent << node->left << node->right << lunchbox::exdent;
 
-    os << co::base::enableFlush;
+    os << lunchbox::enableFlush;
     return os;
 }
 
@@ -584,7 +584,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer* lb )
     if( !lb )
         return os;
 
-    os << co::base::disableFlush
+    os << lunchbox::disableFlush
        << "tree_equalizer" << std::endl
        << '{' << std::endl
        << "    mode    " << lb->getMode() << std::endl;
@@ -599,7 +599,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer* lb )
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )
         os << "    boundary " << lb->getBoundaryf() << std::endl;
 
-    os << '}' << std::endl << co::base::enableFlush;
+    os << '}' << std::endl << lunchbox::enableFlush;
     return os;
 }
 

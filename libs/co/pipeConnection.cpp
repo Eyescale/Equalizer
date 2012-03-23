@@ -81,7 +81,7 @@ Connection::Notifier PipeConnection::getNotifier() const
 bool PipeConnection::_createPipes()
 {
     std::stringstream pipeName;
-    pipeName << "\\\\.\\pipe\\Collage." << co::base::UUID( true );
+    pipeName << "\\\\.\\pipe\\Collage." << UUID( true );
 
     _namedPipe = new NamedPipeConnection;
     _namedPipe->getDescription()->setFilename( pipeName.str() );

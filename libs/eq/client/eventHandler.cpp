@@ -24,7 +24,7 @@
 #include <lunchbox/lock.h>
 #include <lunchbox/debug.h>
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eq

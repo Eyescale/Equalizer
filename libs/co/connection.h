@@ -58,7 +58,7 @@ namespace co
      * The Connection is used reference-counted in co, since it has
      * multiple owners, such as the ConnectionSet and Node.
      */
-    class Connection : public base::Referenced, public base::NonCopyable
+    class Connection : public lunchbox::Referenced, public lunchbox::NonCopyable
     {
     public:
         enum State //! The current state of the Connection
@@ -392,7 +392,7 @@ namespace co
         ConnectionDescriptionPtr _description; //!< The connection parameters
 
         /** The lock used to protect multiple write calls. */
-        mutable base::Lock _sendLock;
+        mutable lunchbox::Lock _sendLock;
 
         enum ReadStatus
         {

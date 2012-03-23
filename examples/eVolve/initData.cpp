@@ -40,7 +40,7 @@ namespace eVolve
 {
 
 InitData::InitData()
-        : _frameDataID( co::base::UUID::ZERO )
+        : _frameDataID( lunchbox::UUID::ZERO )
 #ifdef AGL
         , _windowSystem( "AGL" ) // prefer over GLX
 #else
@@ -64,7 +64,7 @@ InitData::InitData()
 
 InitData::~InitData()
 {
-    setFrameDataID( co::base::UUID::ZERO );
+    setFrameDataID( lunchbox::UUID::ZERO );
 }
 
 void InitData::getInstanceData( co::DataOStream& os )
@@ -78,6 +78,6 @@ void InitData::applyInstanceData( co::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    EQASSERT( _frameDataID != co::base::UUID::ZERO );
+    EQASSERT( _frameDataID != lunchbox::UUID::ZERO );
 }
 }

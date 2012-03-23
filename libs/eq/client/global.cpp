@@ -29,7 +29,7 @@ std::string Global::_configFile = "local";
 uint32_t Global::_flags = ConfigParams::FLAG_NONE;
 
 #ifdef AGL
-static co::base::Lock _carbonLock;
+static lunchbox::Lock _carbonLock;
 #endif
 
 void Global::setConfigFile( const std::string& configFile )

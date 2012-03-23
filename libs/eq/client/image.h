@@ -381,7 +381,7 @@ namespace eq
 
             /** During the call of setPixelData or writeImage, we have to 
                 manage an internal buffer to copy the data */
-            co::base::Bufferb localBuffer;
+            lunchbox::Bufferb localBuffer;
 
             bool hasAlpha; //!< The uncompressed pixels contain alpha
         };

@@ -44,7 +44,7 @@ FrameData::FrameData()
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
-    , _currentViewID( co::base::UUID::ZERO )
+    , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;

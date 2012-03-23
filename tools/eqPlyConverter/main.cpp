@@ -67,13 +67,13 @@ int main( const int argc, char** argv )
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
             const eq::Strings& subFiles =
-                co::base::searchDirectory( filename, "*" );
+                lunchbox::searchDirectory( filename, "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
                 filenames.push_back( filename + '/' + *i );

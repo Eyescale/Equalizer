@@ -84,7 +84,7 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
     _object->unpack( *is );
     EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
                   is->nRemainingBuffers()==0,
-                  "Object " << base::className( _object ) <<
+                  "Object " << lunchbox::className( _object ) <<
                   " did not unpack all data" );
 
     const uint128_t version = is->getVersion();
@@ -112,7 +112,7 @@ void MasterCM::removeSlave( NodePtr node )
 
     Mutex mutex( _slaves );
     // remove from subscribers
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, base::className( _object ));
+    EQASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )

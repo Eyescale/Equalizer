@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,9 +47,9 @@ class Server;
 class View;
 class Window;
 
-typedef co::base::RefPtr< Client > ClientPtr;
-typedef co::base::RefPtr< const Client > ConstClientPtr;
-typedef co::base::RefPtr< Server > ServerPtr;
+typedef lunchbox::RefPtr< Client > ClientPtr;
+typedef lunchbox::RefPtr< const Client > ConstClientPtr;
+typedef lunchbox::RefPtr< Server > ServerPtr;
 
 /** A visitor to traverse segments. @sa  Segment::accept() */
 typedef fabric::LeafVisitor< Segment > SegmentVisitor;
@@ -107,7 +107,7 @@ typedef std::vector< Segment* >  Segments;
 /** A vector of pointers to eq::admin::View */
 typedef std::vector< View* >     Views;
 
-typedef co::base::uint128_t uint128_t;
+typedef lunchbox::uint128_t uint128_t;
 }
 }
 #endif // EQADMIN_TYPES_H

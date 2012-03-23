@@ -151,7 +151,7 @@ bool SocketConnection::connect()
     if( !connected )
     {
         EQINFO << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError << std::endl;
+               << _description->port << "': " << lunchbox::sysError << std::endl;
         close();
         return false;
     }
@@ -186,7 +186,7 @@ void SocketConnection::_close()
 #endif
 
     if( !closed )
-        EQWARN << "Could not close socket: " << base::sysError 
+        EQWARN << "Could not close socket: " << lunchbox::sysError 
                << std::endl;
 
     _readFD  = INVALID_SOCKET;
@@ -207,7 +207,7 @@ void SocketConnection::_initAIORead()
     EQASSERT( _overlappedWrite.hEvent );
     if( !_overlappedRead.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
-                << base::sysError << std::endl;
+                << lunchbox::sysError << std::endl;
 }
 
 void SocketConnection::_initAIOAccept()
@@ -267,7 +267,7 @@ void SocketConnection::acceptNB()
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << base::sysError
+        EQERROR << "Could not create accept socket: " << lunchbox::sysError
                 << ", closing listening socket" << std::endl;
         close();
         return;
@@ -286,7 +286,7 @@ void SocketConnection::acceptNB()
         GetLastError() != WSA_IO_PENDING )
     {
         EQERROR << "Could not start accept operation: " 
-                << base::sysError << ", closing connection" << std::endl;
+                << lunchbox::sysError << ", closing connection" << std::endl;
         close();
     }
 }
@@ -309,7 +309,7 @@ ConnectionPtr SocketConnection::acceptSync()
     if( !WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, TRUE,
                                  &flags ))
     {
-        EQWARN << "Accept completion failed: " << base::sysError 
+        EQWARN << "Accept completion failed: " << lunchbox::sysError 
                << ", closing socket" << std::endl;
         close();
         return 0;
@@ -367,7 +367,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     if( fd == INVALID_SOCKET )
     {
-      EQWARN << "accept failed: " << base::sysError << std::endl;
+      EQWARN << "accept failed: " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -420,7 +420,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << base::sysError
+        EQWARN << "Could not start overlapped receive: " << lunchbox::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -453,7 +453,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
         const int err = WSAGetLastError();
         if( err == ERROR_SUCCESS || got > 0 )
         {
-            EQWARN << "Got " << base::sysError << " with " << got
+            EQWARN << "Got " << lunchbox::sysError << " with " << got
                    << " bytes on " << _description << std::endl;
             return got;
         }
@@ -476,11 +476,11 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
                 EQWARN << "WSAGetOverlappedResult error loop"
                        << std::endl;
-                base::sleep( 1 ); // one millisecond to recover
+                lunchbox::sleep( 1 ); // one millisecond to recover
                 break;
 
             default:
-                EQWARN << "Got " << base::sysError 
+                EQWARN << "Got " << lunchbox::sysError 
                        << ", closing connection" << std::endl;
                 close();
                 return READ_ERROR;
@@ -517,7 +517,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
       case WAIT_FAILED:
       case WAIT_ABANDONED:
         {
-            EQWARN << "Write error" << base::sysError << std::endl;
+            EQWARN << "Write error" << lunchbox::sysError << std::endl;
             return -1;
         }
       default:
@@ -539,7 +539,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
 
       default:
       {
-          EQWARN << "Write error : " << base::sysError << std::endl;
+          EQWARN << "Write error : " << lunchbox::sysError << std::endl;
           return -1;
       }
     }
@@ -571,7 +571,7 @@ bool SocketConnection::_createSocket()
     if( fd == INVALID_SOCKET )
     {
         EQERROR << "Could not create socket: " 
-                << base::sysError << std::endl;
+                << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -635,7 +635,7 @@ bool SocketConnection::listen()
     if( !bound )
     {
         EQWARN << "Could not bind socket " << _readFD << ": " 
-               << base::sysError << " to " << inet_ntoa( address.sin_addr )
+               << lunchbox::sysError << " to " << inet_ntoa( address.sin_addr )
                << ":" << ntohs( address.sin_port ) << " AF "
                << (int)address.sin_family << std::endl;
 
@@ -649,7 +649,7 @@ bool SocketConnection::listen()
 
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << base::sysError << std::endl;
+        EQWARN << "Could not listen on socket: " << lunchbox::sysError << std::endl;
         close();
         return false;
     }

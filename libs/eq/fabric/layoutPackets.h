@@ -50,7 +50,7 @@ namespace fabric
                 size    = sizeof( LayoutNewViewReplyPacket );
             }
 
-        co::base::UUID viewID;
+        UUID viewID;
         const uint32_t requestID;
         const uint32_t pad;
     };

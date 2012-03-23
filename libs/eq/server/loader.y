@@ -83,7 +83,7 @@
     }
     }
 
-    using namespace co::base;
+    using namespace lunchbox;
     using namespace eq::loader;
 
     int eqLoader_lex();

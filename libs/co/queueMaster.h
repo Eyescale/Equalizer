@@ -61,7 +61,7 @@ public:
 private:
     detail::QueueMaster* const _impl;
 
-    CO_API virtual void attach(const base::UUID& id, const uint32_t instanceID);
+    CO_API virtual void attach(const UUID& id, const uint32_t instanceID);
 
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& os );

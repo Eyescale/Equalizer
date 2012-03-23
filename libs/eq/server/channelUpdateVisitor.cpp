@@ -63,9 +63,9 @@ static uint32_t _drawBuffer[2][2][NUM_EYES];
 static bool _drawBufferInit = _setDrawBuffers();
 bool _setDrawBuffers()
 {
-    const int32_t cyclop = co::base::getIndexOfLastBit( EYE_CYCLOP );
-    const int32_t left = co::base::getIndexOfLastBit( EYE_LEFT );
-    const int32_t right = co::base::getIndexOfLastBit( EYE_RIGHT );
+    const int32_t cyclop = lunchbox::getIndexOfLastBit( EYE_CYCLOP );
+    const int32_t left = lunchbox::getIndexOfLastBit( EYE_LEFT );
+    const int32_t right = lunchbox::getIndexOfLastBit( EYE_RIGHT );
 
     // [stereo][doublebuffered][eye]
     _drawBuffer[0][0][ cyclop ] = GL_FRONT;
@@ -258,7 +258,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const TileQueue* inputQueue = *i;
         const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
         const UUID& id = outputQueue->getQueueMasterID( context.eye );
-        EQASSERT( id != co::base::UUID::ZERO );
+        EQASSERT( id != UUID::ZERO );
 
         ChannelFrameTilesPacket tilesPacket;
         tilesPacket.isLocal = (_channel == destChannel);
@@ -374,7 +374,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
 {
     const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
-    const int32_t eye = co::base::getIndexOfLastBit( _eye );
+    const int32_t eye = lunchbox::getIndexOfLastBit( _eye );
 
     if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == QUAD )
         return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];

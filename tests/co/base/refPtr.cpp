@@ -36,7 +36,7 @@
 #define NTHREADS 24
 #define NREFS    300000
 
-class Foo : public co::base::Referenced
+class Foo : public lunchbox::Referenced
 {
 public:
     Foo() {}
@@ -52,10 +52,10 @@ private:
     virtual ~Foo() {}
 };
 
-typedef co::base::RefPtr<Foo> FooPtr;
+typedef lunchbox::RefPtr<Foo> FooPtr;
 FooPtr foo;
 
-class TestThread : public co::base::Thread
+class TestThread : public lunchbox::Thread
 {
 public:
     virtual void run()
@@ -74,7 +74,7 @@ public:
 typedef boost::intrusive_ptr<Foo> BoostPtr;
 BoostPtr bFoo;
 
-class BThread : public co::base::Thread
+class BThread : public lunchbox::Thread
 {
 public:
     virtual void run()
@@ -89,7 +89,7 @@ public:
         }
 };
 
-class Bar : public co::base::Referenced
+class Bar : public lunchbox::Referenced
 {
 public:
     Bar() {}
@@ -99,7 +99,7 @@ public:
 typedef boost::shared_ptr<Bar> BarPtr;
 BarPtr bBar;
 
-class BarThread : public co::base::Thread
+class BarThread : public lunchbox::Thread
 {
 public:
     virtual void run()
@@ -120,7 +120,7 @@ int main( int argc, char **argv )
     foo = new Foo;
 
     TestThread threads[NTHREADS];
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( threads[i].start( ));
 

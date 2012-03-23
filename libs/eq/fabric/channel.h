@@ -64,7 +64,7 @@ namespace fabric
 
         /** @internal @return the native view identifier and version. */
         bool isDestination() const
-            { return _data.nativeContext.view.identifier!=co::base::UUID::ZERO;}
+            { return _data.nativeContext.view.identifier!=UUID::ZERO;}
 
         /** @internal Update the native view identifier and version. */
         void setViewVersion( const co::ObjectVersion& view );

@@ -25,12 +25,12 @@
 
 #define NOPS 100000
 
-co::base::MTQueue< uint64_t > queue;
+lunchbox::MTQueue< uint64_t > queue;
 
 #ifdef EQ_GCC_4_6_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-class ReadThread : public co::base::Thread
+class ReadThread : public lunchbox::Thread
 {
 public:
     virtual ~ReadThread() {}
@@ -38,7 +38,7 @@ public:
         {
             uint64_t item = 0xffffffffffffffffull;
 
-            co::base::Clock clock;
+            lunchbox::Clock clock;
             for( size_t i = 0 ; i < NOPS; ++i )
             {
                 item = queue.pop();
@@ -58,7 +58,7 @@ int main( int argc, char **argv )
     ReadThread reader;
     TEST( reader.start( ));
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     for( size_t i = 0 ; i < NOPS; ++i )
     {
         queue.push( i );

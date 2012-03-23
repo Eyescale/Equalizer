@@ -37,10 +37,10 @@
 #define MAXTHREADS 256
 #define TIME       500  // ms
 
-co::base::Clock _clock;
+lunchbox::Clock _clock;
 bool _running = false;
 
-template< class T, uint32_t hold > class WriteThread : public co::base::Thread
+template< class T, uint32_t hold > class WriteThread : public lunchbox::Thread
 {
 public:
     WriteThread() : ops( 0 ) {}
@@ -60,7 +60,7 @@ public:
                 if( hold > 0 ) // static, optimized out
                 {
                     const double begin = _clock.getTimed();
-                    co::base::sleep( hold );
+                    lunchbox::sleep( hold );
                     sTime += _clock.getTimef() - begin;
                 }
                 lock->unset();
@@ -70,7 +70,7 @@ public:
         }
 };
 
-template< class T, uint32_t hold > class ReadThread : public co::base::Thread
+template< class T, uint32_t hold > class ReadThread : public lunchbox::Thread
 {
 public:
     ReadThread() : ops( 0 ) {}
@@ -90,7 +90,7 @@ public:
                 if( hold > 0 ) // static, optimized out
                 {
                     const double begin = _clock.getTimed();
-                    co::base::sleep( hold );
+                    lunchbox::sleep( hold );
                     sTime += _clock.getTimef() - begin;
                 }
                 lock->unsetRead();
@@ -106,7 +106,7 @@ template< class T, uint32_t hold > void _test()
     lock->set();
 
 #ifdef CO_USE_OPENMP
-    const size_t nThreads = EQ_MIN( co::base::OMP::getNThreads()*3, MAXTHREADS );
+    const size_t nThreads = EQ_MIN( lunchbox::OMP::getNThreads()*3, MAXTHREADS );
 #else
     const size_t nThreads = 16;
 #endif
@@ -136,11 +136,11 @@ template< class T, uint32_t hold > void _test()
                 readers[j].lock = lock;
                 TESTINFO( readers[j].start(), j );
             }
-            co::base::sleep( 10 ); // let threads initialize
+            lunchbox::sleep( 10 ); // let threads initialize
 
             _clock.reset();
             lock->unset();
-            co::base::sleep( TIME ); // let threads run
+            lunchbox::sleep( TIME ); // let threads run
             _running = false;
 
             for( size_t j = 0; j < nWrite; ++j )
@@ -177,7 +177,7 @@ template< class T, uint32_t hold > void _test()
             if( rTime == 0.f )
                 rTime = std::numeric_limits< double >::epsilon();
 
-            std::cout << std::setw(20)<< co::base::className( lock ) << ", "
+            std::cout << std::setw(20)<< lunchbox::className( lock ) << ", "
                       << std::setw(12) << 3 * nWriteOps / wTime << ", "
                       << std::setw(12) << 3 * nReadOps / rTime << ", " 
                       << std::setw(9) << nWrite << ", " << std::setw(9) << nRead
@@ -190,20 +190,20 @@ template< class T, uint32_t hold > void _test()
 
 int main( int argc, char **argv )
 {
-    TEST( co::base::init( argc, argv ));
-//    co::base::sleep( 5000 );
+    TEST( lunchbox::init( argc, argv ));
+//    lunchbox::sleep( 5000 );
 
     std::cerr << "0 ms in locked region" << std::endl;
-    _test< co::base::SpinLock, 0 >();
+    _test< lunchbox::SpinLock, 0 >();
 #if 0 // time collection not yet correct
     std::cerr << "1 ms in locked region" << std::endl;
-    _test< co::base::SpinLock, 1 >();
+    _test< lunchbox::SpinLock, 1 >();
     std::cerr << "2 ms in locked region" << std::endl;
-    _test< co::base::SpinLock, 2 >();
+    _test< lunchbox::SpinLock, 2 >();
     std::cerr << "4 ms in locked region" << std::endl;
-    _test< co::base::SpinLock, 4 >();
+    _test< lunchbox::SpinLock, 4 >();
 #endif
 
-    TEST( co::base::exit( ));
+    TEST( lunchbox::exit( ));
     return EXIT_SUCCESS;
 }

@@ -77,10 +77,10 @@ namespace co
          * overwritten with the identifier of the master object.
          * @version 1.1.5
          */
-        CO_API void setID( const base::UUID& identifier );
+        CO_API void setID( const UUID& identifier );
 
         /** @return the object's unique identifier. */
-        const base::UUID& getID() const { return _id; }
+        const UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -377,7 +377,7 @@ namespace co
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        CO_API virtual void attach( const base::UUID& id, 
+        CO_API virtual void attach( const UUID& id, 
                                     const uint32_t instanceID );
         /**
          * @internal
@@ -411,7 +411,7 @@ namespace co
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        base::UUID _id;
+        UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;

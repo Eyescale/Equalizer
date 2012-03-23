@@ -177,12 +177,12 @@ void Config::_loadModels()
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
-            const eq::Strings subFiles = co::base::searchDirectory( filename,
+            const eq::Strings subFiles = lunchbox::searchDirectory( filename,
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
@@ -270,7 +270,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     // Protect if accessed concurrently from multiple pipe threads
     const eq::Node* node = getNodes().front();
     const bool needModelLock = (node->getPipes().size() > 1);
-    co::base::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
+    lunchbox::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
     EQASSERT( _modelDist.size() == nModels );
@@ -566,7 +566,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'k':
         {
-            co::base::RNG rng;
+            lunchbox::RNG rng;
             if( rng.get< bool >( ))
                 _frameData.toggleOrtho();
             if( rng.get< bool >( ))
@@ -891,7 +891,7 @@ void Config::_switchModel()
     if( view )
     {
         const Model* model = getModel( modelID );
-        _setMessage( "Using " + co::base::getFilename( model->getName( )));
+        _setMessage( "Using " + lunchbox::getFilename( model->getName( )));
     }
 }
 

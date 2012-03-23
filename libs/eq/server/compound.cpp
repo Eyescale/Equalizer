@@ -280,7 +280,7 @@ void Compound::addEqualizer( Equalizer* equalizer )
 
 bool Compound::isInheritActive( const Eye eye ) const
 {
-    const int32_t index = co::base::getIndexOfLastBit( eye );
+    const int32_t index = lunchbox::getIndexOfLastBit( eye );
     EQASSERT( index >= 0 );
     EQASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
@@ -288,7 +288,7 @@ bool Compound::isInheritActive( const Eye eye ) const
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
-    int32_t index = co::base::getIndexOfLastBit( eye );
+    int32_t index = lunchbox::getIndexOfLastBit( eye );
     EQASSERT( index >= 0 );
 
     while( ++index < NUM_EYES )
@@ -1478,8 +1478,8 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)
 {
-    os << co::base::disableFlush << "compound" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << lunchbox::disableFlush << "compound" << std::endl;
+    os << "{" << std::endl << lunchbox::indent;
       
     const std::string& name = compound.getName();
     if( !name.empty( ))
@@ -1637,7 +1637,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -1665,7 +1665,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 
     switch( compound.getFrustumType( ))
     {
@@ -1710,7 +1710,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
 

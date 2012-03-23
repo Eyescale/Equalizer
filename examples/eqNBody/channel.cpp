@@ -36,7 +36,7 @@
 #include "controller.h"
 #include "sharedData.h"
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eqNbody

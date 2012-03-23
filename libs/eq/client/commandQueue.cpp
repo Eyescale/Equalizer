@@ -24,7 +24,7 @@ namespace eq
 {
 namespace
 {
-static co::base::Clock _clock;
+static lunchbox::Clock _clock;
 }
 
 CommandQueue::CommandQueue()

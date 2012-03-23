@@ -37,7 +37,7 @@ namespace detail { class ErrorRegistry; }
      *
      * @sa co::Error, eq::Error
      */
-    class ErrorRegistry : public base::NonCopyable
+    class ErrorRegistry : public lunchbox::NonCopyable
     {
     public:
         /** @internal Construct an error registry. */

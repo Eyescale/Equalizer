@@ -319,7 +319,7 @@ bool IBInterface::_ibPostRecv( uint32_t numBuffer )
     _rwr.ds_array   = &_recvList;
     
     _completionQueue->resetEventRead();
-    eq::base::ScopedMutex mutex( _completionQueue->_mutex );
+    eq::lunchbox::ScopedMutex mutex( _completionQueue->_mutex );
     ib_api_status_t ibStatus = ib_post_recv( _queuePair, &_rwr, 0);
     if ( ibStatus != IB_SUCCESS )
     {
@@ -333,7 +333,7 @@ bool IBInterface::_ibPostRecv( uint32_t numBuffer )
 void IBInterface::readNB( void* buffer, const uint64_t bytes )
 {
 #ifdef EQ_MEASURE_TIME
-    eq::base::Clock       clock;
+    eq::lunchbox::Clock       clock;
     clock.reset();
 #endif
 
@@ -347,7 +347,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
 {
 
 #ifdef EQ_MEASURE_TIME
-    eq::base::Clock       clock;
+    eq::lunchbox::Clock       clock;
     clock.reset();
 #endif
 
@@ -357,7 +357,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
     // if no data in buffer, we ask for a receive operation
     while ( sizebuf < 1 )
 #ifdef EQ_MEASURE_TIME
-        eq::base::Clock       clockWait;
+        eq::lunchbox::Clock       clockWait;
         clockWait.reset();
 #endif
         
@@ -370,7 +370,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
     if ( sizebuf > _posReadInBuffer )
     {
 #ifdef EQ_MEASURE_TIME
-        eq::base::Clock       clockCopy;
+        eq::lunchbox::Clock       clockCopy;
         clockCopy.reset();
 #endif
         // find a better memcpy or a system that we don't need to use memcpy
@@ -381,7 +381,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
                                  ( _readBlocks[_numBufRead]->buf.getData()) + 
                                    _posReadInBuffer, nbRead );*/
         
-        eq::base::fastCopy( reinterpret_cast<char*>( buffer ) + comptRead, 
+        eq::lunchbox::fastCopy( reinterpret_cast<char*>( buffer ) + comptRead, 
                                  reinterpret_cast<char*>
                                  ( _readBlocks[_numBufRead]->buf.getData() ) + 
                                    _posReadInBuffer, nbRead );
@@ -466,7 +466,7 @@ int64_t IBInterface::_waitPollCQ( uint32_t numBuffer )
 int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
 {
 #ifdef EQ_MEASURE_TIME
-    eq::base::Clock       clock;
+    eq::lunchbox::Clock       clock;
     clock.reset();
 #endif
     ib_api_status_t    ibStatus;
@@ -478,7 +478,7 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
     wcFree->p_next = 0;
     wcDone = 0;
 #ifdef EQ_MEASURE_TIME
-    eq::base::Clock       clockWait;
+    eq::lunchbox::Clock       clockWait;
     clockWait.reset();
 #endif
     // validation of the send job
@@ -512,13 +512,13 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
     size = EQ_MIN( numBytes, EQ_MAXBLOCKBUFFER );
     ib_local_ds_t    list;
 #ifdef EQ_MEASURE_TIME
-    eq::base::Clock       clockCopy;
+    eq::lunchbox::Clock       clockCopy;
     clockCopy.reset();
 #endif
     
     //memcpy( _writeBlocks[ _numBufWrite ]->buf.getData(), 
     //                      buffer , size );
-    eq::base::fastCopy( _writeBlocks[ _numBufWrite ]->buf.getData(), 
+    eq::lunchbox::fastCopy( _writeBlocks[ _numBufWrite ]->buf.getData(), 
                              buffer , size );
     list.vaddr   = _writeBlocks[ _numBufWrite ]->getVaddr();
 #ifdef EQ_MEASURE_TIME

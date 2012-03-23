@@ -268,7 +268,7 @@ namespace server { class FrameData; }
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( co::base::Monitor<uint32_t>& listener );
+        void addListener( lunchbox::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -276,7 +276,7 @@ namespace server { class FrameData; }
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( co::base::Monitor<uint32_t>& listener );
+        void removeListener( lunchbox::Monitor<uint32_t>& listener );
         
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -324,7 +324,7 @@ namespace server { class FrameData; }
 
         Images _images;
         Images _imageCache;
-        co::base::Lock _imageCacheLock;
+        lunchbox::Lock _imageCacheLock;
 
         ROIFinder* _roiFinder;
 
@@ -332,15 +332,15 @@ namespace server { class FrameData; }
 
         uint64_t _version; //!< The current version
 
-        typedef co::base::Monitor< uint64_t > Monitor;
+        typedef lunchbox::Monitor< uint64_t > Monitor;
 
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 
-        typedef co::base::Monitor< uint32_t > Listener;
+        typedef lunchbox::Monitor< uint32_t > Listener;
         typedef std::vector< Listener* > Listeners;
         /** External monitors for readiness synchronization. */
-        co::base::Lockable< Listeners, co::base::SpinLock > _listeners;
+        lunchbox::Lockable< Listeners, lunchbox::SpinLock > _listeners;
 
         bool _useAlpha;
         float _colorQuality;

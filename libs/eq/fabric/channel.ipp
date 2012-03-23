@@ -46,7 +46,7 @@ Channel< W, C >::Channel( W* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
@@ -62,13 +62,13 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -279,7 +279,7 @@ void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    EQASSERTINFO( view.identifier != co::base::UUID::ZERO ||
+    EQASSERTINFO( view.identifier != UUID::ZERO ||
                   _data.nativeContext.view.version <= view.version,
                   _data.nativeContext.view << " != " << view );
 
@@ -355,9 +355,9 @@ std::ostream& operator << ( std::ostream& os,
     if( channel.omitOutput( ))
         return os;
 
-    os << co::base::disableFlush << co::base::disableHeader << "channel"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "channel"
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = channel.getName();
     if( !name.empty( ))
@@ -400,8 +400,8 @@ std::ostream& operator << ( std::ostream& os,
         
         os << " ]" << std::endl;
     }
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
 
     return os;
 }

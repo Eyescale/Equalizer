@@ -53,7 +53,7 @@ namespace util
      *
      * @sa http://www.equalizergraphics.com/documents/design/objectManager.html
      */
-    template< class T > class ObjectManager : public co::base::NonCopyable
+    template< class T > class ObjectManager : public lunchbox::NonCopyable
     {
     public:
         enum
@@ -160,7 +160,7 @@ namespace util
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
 
-        struct SharedData : public co::base::Referenced
+        struct SharedData : public lunchbox::Referenced
         {
             SharedData( const GLEWContext* glewContext );
             virtual ~SharedData();
@@ -185,7 +185,7 @@ namespace util
             };
         };
 
-        typedef co::base::RefPtr< SharedData > SharedDataPtr;
+        typedef lunchbox::RefPtr< SharedData > SharedDataPtr;
         SharedDataPtr _data;
 
         struct Private;

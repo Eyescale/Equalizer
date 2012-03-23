@@ -43,7 +43,7 @@ namespace eq
 namespace
 {
 static std::ofstream* _logFile = 0;
-static co::base::a_int32_t _initialized;
+static lunchbox::a_int32_t _initialized;
 }
 
 static void _parseArguments( const int argc, char** argv );
@@ -54,7 +54,7 @@ static void _exitPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
-    co::base::Log::instance().setThreadName( "Main" );
+    lunchbox::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
@@ -110,9 +110,9 @@ bool exit()
     if( _logFile )
     {
 #ifdef NDEBUG
-        co::base::Log::setOutput( std::cout );
+        lunchbox::Log::setOutput( std::cout );
 #else
-        co::base::Log::setOutput( std::cerr );
+        lunchbox::Log::setOutput( std::cerr );
 #endif
         _logFile->close();
         delete _logFile;
@@ -140,7 +140,7 @@ void _parseArguments( const int argc, char** argv )
                 if( newLog->is_open( ))
                 {
                     _logFile = newLog;
-                    co::base::Log::setOutput( *newLog );
+                    lunchbox::Log::setOutput( *newLog );
 
                     if( oldLog )
                     {
@@ -152,7 +152,7 @@ void _parseArguments( const int argc, char** argv )
                 else
                 {
                     EQWARN << "Can't open log file " << argv[i] << ": "
-                           << co::base::sysError << std::endl;
+                           << lunchbox::sysError << std::endl;
                     delete newLog;
                     newLog = 0;
                 }
@@ -189,7 +189,7 @@ void _parseArguments( const int argc, char** argv )
             if( i<argc )
             {
                 co::Global::setProgramName( argv[i] );
-                co::Global::setWorkDir( co::base::getDirname( argv[i] ));
+                co::Global::setWorkDir( lunchbox::getDirname( argv[i] ));
             }
         }
     }

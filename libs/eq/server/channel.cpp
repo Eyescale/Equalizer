@@ -106,7 +106,7 @@ Channel::Channel( const Channel& from )
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
-void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Channel::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
@@ -510,7 +510,7 @@ void Channel::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -522,7 +522,7 @@ void Channel::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 }
 
 void Channel::updateCapabilities()

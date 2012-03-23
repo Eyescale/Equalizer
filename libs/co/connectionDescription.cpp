@@ -243,9 +243,9 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 std::ostream& operator << ( std::ostream& os, 
                             const ConnectionDescription& desc)
 {
-    os << base::disableFlush << base::disableHeader << "connection"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "connection"
        << std::endl
-       << "{" << std::endl << base::indent
+       << "{" << std::endl << lunchbox::indent
        << "type          " << desc.type << std::endl
        << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
 
@@ -261,7 +261,7 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    return os << base::exdent << "}" << base::enableHeader << base::enableFlush
+    return os << lunchbox::exdent << "}" << lunchbox::enableHeader << lunchbox::enableFlush
               << std::endl;
 }
 

@@ -80,7 +80,7 @@ public:
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
-    virtual co::base::uint128_t getVersion() const { return co::VERSION_NONE;}
+    virtual lunchbox::uint128_t getVersion() const { return co::VERSION_NONE;}
     virtual co::NodePtr getMaster() { return 0; }
 
 protected:
@@ -111,10 +111,10 @@ namespace co
 {
 namespace DataStreamTest
 {
-class Sender : public co::base::Thread
+class Sender : public lunchbox::Thread
 {
 public:
-    Sender( co::base::RefPtr< co::Connection > connection )
+    Sender( lunchbox::RefPtr< co::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -144,7 +144,7 @@ protected:
         }
 
 private:
-    co::base::RefPtr< co::Connection > _connection;
+    lunchbox::RefPtr< co::Connection > _connection;
 };
 }
 }

@@ -84,7 +84,7 @@ class SelfAssigner : public CompoundVisitor
 {
 public:
     SelfAssigner( const Pipe* self, float& nResources, 
-                  co::base::PtrHash< Pipe*, float >& pipeUsage )
+                  lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _self( self ), _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 ) {}
     
@@ -150,7 +150,7 @@ public:
 private:
     const Pipe* const _self;
     float& _nResources;
-    co::base::PtrHash< Pipe*, float >& _pipeUsage;
+    lunchbox::PtrHash< Pipe*, float >& _pipeUsage;
     uint32_t _numChannels;
 };
 
@@ -158,7 +158,7 @@ class PreviousAssigner : public CompoundVisitor
 {
 public:
     PreviousAssigner( const Pipe* self, float& nResources,
-                      co::base::PtrHash< Pipe*, float >& pipeUsage )
+                      lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _self( self ), _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 ) {}
     
@@ -209,7 +209,7 @@ public:
 private:
     const Pipe* const _self;
     float& _nResources;
-    co::base::PtrHash< Pipe*, float >& _pipeUsage;
+    lunchbox::PtrHash< Pipe*, float >& _pipeUsage;
     uint32_t _numChannels;
 };
 
@@ -217,7 +217,7 @@ class NewAssigner : public CompoundVisitor
 {
 public:
     NewAssigner( float& nResources, 
-                 co::base::PtrHash< Pipe*, float >& pipeUsage )
+                 lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 )
             , _fallback( 0 ) {}
@@ -286,7 +286,7 @@ public:
 
 private:
     float& _nResources;
-    co::base::PtrHash< Pipe*, float >& _pipeUsage;
+    lunchbox::PtrHash< Pipe*, float >& _pipeUsage;
     uint32_t _numChannels;
     Compound* _fallback;
 };
@@ -328,7 +328,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     const Compounds& children = compound->getChildren();
     const size_t size( _listeners.size( ));
     EQASSERT( children.size() == size );
-    co::base::PtrHash< Pipe*, float > pipeUsage;
+    lunchbox::PtrHash< Pipe*, float > pipeUsage;
     float* leftOvers = static_cast< float* >( alloca( size * sizeof( float )));
 
     // use self
@@ -464,11 +464,11 @@ void ViewEqualizer::_updateListeners()
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        EQLOG( LOG_LB1 ) << co::base::disableFlush << "Tasks for view " << i
+        EQLOG( LOG_LB1 ) << lunchbox::disableFlush << "Tasks for view " << i
                          << ": ";
         Listener& listener = _listeners[ i ];        
         listener.update( children[i] );
-        EQLOG(LOG_LB1) << std::endl << co::base::enableFlush;
+        EQLOG(LOG_LB1) << std::endl << lunchbox::enableFlush;
     }
 }
 
@@ -515,7 +515,7 @@ class LoadSubscriber : public CompoundVisitor
 {
 public:
     LoadSubscriber( ChannelListener* listener, 
-                    co::base::PtrHash< Channel*, uint32_t >& taskIDs ) 
+                    lunchbox::PtrHash< Channel*, uint32_t >& taskIDs ) 
             : _listener( listener )
             , _taskIDs( taskIDs ) {}
 
@@ -542,7 +542,7 @@ public:
 
 private:
     ChannelListener* const _listener;
-    co::base::PtrHash< Channel*, uint32_t >& _taskIDs;
+    lunchbox::PtrHash< Channel*, uint32_t >& _taskIDs;
 };
 }
 
@@ -707,14 +707,14 @@ std::ostream& operator << ( std::ostream& os, const ViewEqualizer* equalizer )
 std::ostream& operator << ( std::ostream& os,
                             const ViewEqualizer::Listener& listener )
 {
-    os << co::base::disableFlush << "Listener" << std::endl
-       << co::base::indent;
+    os << lunchbox::disableFlush << "Listener" << std::endl
+       << lunchbox::indent;
     for( ViewEqualizer::Listener::LoadDeque::const_iterator i = 
              listener._loads.begin(); i != listener._loads.end(); ++i )
     {
         os << *i << std::endl;
     }
-    os << co::base::exdent << co::base::enableFlush;
+    os << lunchbox::exdent << lunchbox::enableFlush;
     return os; 
 }
 

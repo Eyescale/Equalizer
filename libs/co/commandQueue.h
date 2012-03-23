@@ -27,7 +27,7 @@ namespace co
 namespace detail { class CommandQueue; }
 
     /** A CommandQueue is a thread-safe queue for command packets. */
-    class CommandQueue : public base::NonCopyable
+    class CommandQueue : public lunchbox::NonCopyable
     {
     public:
         CO_API CommandQueue();

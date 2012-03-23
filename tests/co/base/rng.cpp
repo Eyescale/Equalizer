@@ -51,8 +51,8 @@
 
 template< class T > void testSpeed()
 {
-    co::base::RNG rng;
-    co::base::Clock clock;
+    lunchbox::RNG rng;
+    lunchbox::Clock clock;
     for( size_t i = 0; i < MAXLOOPS; ++i )
         rng.get< T >();
     std::cout << float( MAXLOOPS ) * sizeof( T ) / clock.getTimef()
@@ -61,9 +61,9 @@ template< class T > void testSpeed()
 
 int main( int argc, char **argv )
 {
-    TEST( co::base::init( argc, argv ));
+    TEST( lunchbox::init( argc, argv ));
 
-    co::base::RNG rng;
+    lunchbox::RNG rng;
 
     TESTLOOP( uint8_t,  0,        255 );
     TESTLOOP( uint16_t, 50,       65000 );
@@ -82,8 +82,8 @@ int main( int argc, char **argv )
     testSpeed< uint16_t >();
     testSpeed< uint32_t >();
     testSpeed< uint64_t >();
-    testSpeed< co::base::uint128_t >();
+    testSpeed< lunchbox::uint128_t >();
 
-    TEST( co::base::exit( ));
+    TEST( lunchbox::exit( ));
     return EXIT_SUCCESS;
 }

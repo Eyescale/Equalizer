@@ -34,12 +34,12 @@ namespace co
 {
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-base::a_int32_t nBytes;
-base::a_int32_t nBytesIn;
-base::a_int32_t nBytesOut;
-CO_API base::a_int32_t nBytesSaved;
-CO_API base::a_int32_t nBytesSent;
-base::a_int32_t compressionTime;
+lunchbox::a_int32_t nBytes;
+lunchbox::a_int32_t nBytesIn;
+lunchbox::a_int32_t nBytesOut;
+CO_API lunchbox::a_int32_t nBytesSaved;
+CO_API lunchbox::a_int32_t nBytesSent;
+lunchbox::a_int32_t compressionTime;
 #endif
 
 DataOStream::DataOStream()
@@ -259,7 +259,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
     const uint64_t inDims[2] = { 0, size };
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    base::Clock clock;
+    lunchbox::Clock clock;
 #endif
     _compressor->compress( src, inDims );
 #ifdef EQ_INSTRUMENT_DATAOSTREAM

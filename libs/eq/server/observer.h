@@ -51,7 +51,7 @@ namespace server
 
         /** @return the position of an eye in world-space coordinates. */
         const fabric::Vector3f& getEyePosition( const fabric::Eye eye ) const
-        { return _eyes[ co::base::getIndexOfLastBit( eye ) ]; }
+        { return _eyes[ lunchbox::getIndexOfLastBit( eye ) ]; }
 
         /** @return the inverse of the current head matrix. */
         const fabric::Matrix4f& getInverseHeadMatrix() const

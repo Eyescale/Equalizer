@@ -67,7 +67,7 @@ namespace co
         /** Invoke and clear the command function of a dispatched command. */
         CO_API bool operator()();
 
-        explicit Command( base::a_int32_t& freeCounter ); //!< @internal
+        explicit Command( lunchbox::a_int32_t& freeCounter ); //!< @internal
         ~Command(); //!< @internal
 
         /** @internal @return the number of newly allocated bytes. */
@@ -98,9 +98,9 @@ namespace co
         Packet*  _data;     //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
-        base::a_int32_t* _refCountMaster;
-        base::a_int32_t  _refCount;
-        base::a_int32_t& _freeCount;
+        lunchbox::a_int32_t* _refCountMaster;
+        lunchbox::a_int32_t  _refCount;
+        lunchbox::a_int32_t& _freeCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);

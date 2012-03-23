@@ -77,7 +77,7 @@ Channel::~Channel()
     delete _impl;
 }
 
-void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Channel::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     co::CommandQueue* queue = getPipeThreadQueue();
@@ -306,7 +306,7 @@ void Channel::notifyViewportChanged()
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
     event.serial     = getSerial();
-    EQASSERT( event.originator != co::base::UUID::ZERO );
+    EQASSERT( event.originator != UUID::ZERO );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -324,7 +324,7 @@ void Channel::addStatistic( Event& event )
         EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
                       frameNumber );
 
-        co::base::ScopedFastWrite mutex( _impl->statistics );
+        lunchbox::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
         statistics.push_back( event.statistic );
     }
@@ -696,7 +696,7 @@ Vector2f Channel::getJitter() const
     Vector2f jitter;
     if( !table )
     {
-        static co::base::RNG rng;
+        static lunchbox::RNG rng;
         jitter.x() = rng.get< float >();
         jitter.y() = rng.get< float >();
     }
@@ -850,8 +850,8 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const co::base::UUID& viewID = getNativeContext().view.identifier;
-            if( viewID == co::base::UUID::ZERO )
+            const UUID& viewID = getNativeContext().view.identifier;
+            if( viewID == UUID::ZERO )
                 return true;
 
             // transform to view event, which is meaningful for the config 

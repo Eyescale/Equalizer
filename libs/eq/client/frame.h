@@ -187,7 +187,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameDataVersion[co::base::getIndexOfLastBit(eye)]; }
+            { return _data.frameDataVersion[lunchbox::getIndexOfLastBit(eye)]; }
         //@}
 
         /** @name Operations */
@@ -251,7 +251,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( co::base::Monitor<uint32_t>& listener );
+        void addListener( lunchbox::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -259,16 +259,16 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( co::base::Monitor<uint32_t>& listener );
+        void removeListener( lunchbox::Monitor<uint32_t>& listener );
         //@}
 
         /** @internal @return the receiving eq::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
-        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
+        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNodes; }
 
         /** @internal @return the receiving co::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
-        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
+        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNetNodes; }
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }

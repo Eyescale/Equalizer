@@ -101,9 +101,9 @@ void Observer::_updateEyes()
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
-    const int32_t cyclop = co::base::getIndexOfLastBit( eq::EYE_CYCLOP );
-    const int32_t right  = co::base::getIndexOfLastBit( eq::EYE_RIGHT );
-    const int32_t left   = co::base::getIndexOfLastBit( eq::EYE_LEFT );
+    const int32_t cyclop = lunchbox::getIndexOfLastBit( eq::EYE_CYCLOP );
+    const int32_t right  = lunchbox::getIndexOfLastBit( eq::EYE_RIGHT );
+    const int32_t left   = lunchbox::getIndexOfLastBit( eq::EYE_LEFT );
 
     _eyes[ cyclop ].x() = head.at( 0, 3 );
     _eyes[ cyclop ].y() = head.at( 1, 3 );

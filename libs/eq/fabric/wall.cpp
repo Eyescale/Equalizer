@@ -228,16 +228,16 @@ std::ostream& operator << ( std::ostream& os, const Wall& wall )
     const std::ios::fmtflags flags = os.flags();
     os.setf( std::ios::fixed, std::ios::floatfield );
 
-    os << co::base::disableHeader << co::base::disableFlush
+    os << lunchbox::disableHeader << lunchbox::disableFlush
        << "wall" << std::endl
-       << "{" << std::endl << co::base::indent
+       << "{" << std::endl << lunchbox::indent
        << "bottom_left  " << wall.bottomLeft << std::endl
        << "bottom_right " << wall.bottomRight << std::endl
        << "top_left     " << wall.topLeft << std::endl;
     if( wall.type != Wall::TYPE_FIXED )
         os << "type         " << wall.type << std::endl;
-    os << co::base::exdent << "}"
-       << co::base::enableFlush << co::base::enableHeader << std::endl;
+    os << lunchbox::exdent << "}"
+       << lunchbox::enableFlush << lunchbox::enableHeader << std::endl;
 
     os.setf( flags );
     return os;

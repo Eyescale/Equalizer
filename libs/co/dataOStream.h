@@ -41,7 +41,7 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public base::NonCopyable
+    class DataOStream : public lunchbox::NonCopyable
     {
     public:
         /** @name Internal */
@@ -139,7 +139,7 @@ namespace DataStreamTest
         CompressorState _compressorState;
         
         /** The buffer used for saving and buffering */
-        base::Bufferb  _buffer;
+        lunchbox::Bufferb  _buffer;
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;

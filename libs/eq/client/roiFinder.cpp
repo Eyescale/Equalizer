@@ -688,7 +688,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 #endif
 
 #ifdef EQ_ROI_TEST_SPEED
-    co::base::Clock clock; 
+    lunchbox::Clock clock; 
     clock.reset();
 for( int i = 0; i < 100; i++ ) {
 #endif

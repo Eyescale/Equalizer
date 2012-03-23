@@ -23,7 +23,7 @@
 
 #define NTHREADS 256
 
-class LoadThread : public co::base::Thread
+class LoadThread : public lunchbox::Thread
 {
 public:
     virtual ~LoadThread() {}
@@ -38,7 +38,7 @@ public:
 
     virtual bool init()
         {
-            co::base::sleep( 10 );
+            lunchbox::sleep( 10 );
             initLeft = true;
             return true;
         }
@@ -60,7 +60,7 @@ public:
 int main( int argc, char **argv )
 {
     LoadThread loadThreads[NTHREADS];
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     for( size_t i=0; i<NTHREADS; ++i )
         TEST( loadThreads[i].start( ));

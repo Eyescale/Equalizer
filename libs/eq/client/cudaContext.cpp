@@ -98,7 +98,7 @@ namespace eq
 
         if( !wglEnumGpusNV( device, &handle ))
         {
-           EQWARN << "wglEnumGpusNV failed : " << co::base::sysError << std::endl;
+           EQWARN << "wglEnumGpusNV failed : " << lunchbox::sysError << std::endl;
             return false;
         }
 

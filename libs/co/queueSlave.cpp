@@ -64,7 +64,7 @@ QueueSlave::~QueueSlave()
     delete _impl;
 }
 
-void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
+void QueueSlave::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
     registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_impl->queue );
@@ -84,7 +84,7 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
 
 Command* QueueSlave::pop()
 {
-    static base::a_int32_t _request;
+    static lunchbox::a_int32_t _request;
     const int32_t request = ++_request;
 
     while( true )

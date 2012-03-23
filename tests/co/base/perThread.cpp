@@ -22,16 +22,16 @@
 
 #define NTHREADS 1024
 
-co::base::a_int32_t _threads;
+lunchbox::a_int32_t _threads;
 
 void destructor( size_t* data ) { --_threads; }
 
-co::base::PerThread< size_t, destructor > _tls1;
-co::base::PerThread< size_t > _tls2;
-co::base::PerThread< size_t, destructor > _tls3;
+lunchbox::PerThread< size_t, destructor > _tls1;
+lunchbox::PerThread< size_t > _tls2;
+lunchbox::PerThread< size_t, destructor > _tls3;
 
 
-class Thread : public co::base::Thread
+class Thread : public lunchbox::Thread
 {
 public:
     virtual ~Thread() {}
@@ -39,7 +39,7 @@ public:
     virtual void run()
         {
             ++_threads;
-            co::base::RNG rng;
+            lunchbox::RNG rng;
 
             size_t i = rng.get< size_t >();
             size_t* data = new size_t( i );
@@ -62,7 +62,7 @@ public:
 
 int main( int argc, char **argv )
 {
-    TEST( co::base::init( argc, argv ));
+    TEST( lunchbox::init( argc, argv ));
 
     Thread threads[NTHREADS];
 
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
         TEST( threads[i].join( ));
 
     TEST( _threads == 0 );
-    TEST( co::base::exit( ));
+    TEST( lunchbox::exit( ));
     return EXIT_SUCCESS;
 }
 

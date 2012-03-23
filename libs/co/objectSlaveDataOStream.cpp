@@ -36,7 +36,7 @@ ObjectSlaveDataOStream::~ObjectSlaveDataOStream()
 
 void ObjectSlaveDataOStream::enableCommit( NodePtr node )
 {
-    _version = base::UUID( true );
+    _version = UUID( true );
     _setupConnection( node, false /* useMulticast */ );
     _enable();
 }
@@ -50,7 +50,7 @@ void ObjectSlaveDataOStream::sendData( const void* buffer, const uint64_t size,
     ObjectDataOStream::sendData( packet, buffer, size, last );
 
     if( last )
-        _commit = base::UUID( true /* generate */ );
+        _commit = UUID( true /* generate */ );
 }
 
 }

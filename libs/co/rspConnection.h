@@ -40,7 +40,7 @@
 namespace co
 {
     class RSPConnection;
-    typedef base::RefPtr< RSPConnection > RSPConnectionPtr;
+    typedef lunchbox::RefPtr< RSPConnection > RSPConnectionPtr;
 
     /**
      * A reliable multicast connection.
@@ -89,7 +89,7 @@ namespace co
     
     private:
         /** Thread managing network IO and RSP protocol. */
-        class Thread : public base::Thread
+        class Thread : public lunchbox::Thread
         {
         public: 
             Thread( RSPConnectionPtr connection )
@@ -201,7 +201,7 @@ namespace co
         uint32_t _payloadSize;
         int32_t  _timeouts;
 
-        typedef base::RefPtr< EventConnection > EventConnectionPtr;
+        typedef lunchbox::RefPtr< EventConnection > EventConnectionPtr;
         EventConnectionPtr _event;
 
         boost::asio::io_service        _ioService;
@@ -211,26 +211,26 @@ namespace co
         boost::asio::deadline_timer    _timeout;
         boost::asio::deadline_timer    _wakeup;
         
-        base::Clock _clock;
+        lunchbox::Clock _clock;
         uint64_t        _maxBucketSize;
         size_t          _bucketSize;
         int64_t         _sendRate;
 
         Thread*      _thread;
-        base::Lock   _mutexConnection;
-        base::Lock   _mutexEvent;
+        lunchbox::Lock   _mutexConnection;
+        lunchbox::Lock   _mutexEvent;
         uint16_t     _acked;        // sequence ID of last confirmed ack
 
-        typedef base::Bufferb Buffer;
+        typedef lunchbox::Bufferb Buffer;
         typedef std::vector< Buffer* > Buffers;
         typedef Buffers::iterator BuffersIter;
         typedef Buffers::const_iterator BuffersCIter;
 
         Buffers _buffers;                   //!< Data buffers
         /** Empty read buffers (connected) or write buffers (listening) */
-        base::LFQueue< Buffer* > _threadBuffers;
+        lunchbox::LFQueue< Buffer* > _threadBuffers;
         /** Ready data buffers (connected) or empty write buffers (listening) */
-        base::MTQueue< Buffer* > _appBuffers;
+        lunchbox::MTQueue< Buffer* > _appBuffers;
 
         Buffer _recvBuffer;                      //!< Receive (thread) buffer
         std::deque< Buffer* > _recvBuffers;      //!< out-of-order buffers

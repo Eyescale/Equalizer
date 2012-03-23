@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 int main( int argc, char **argv )

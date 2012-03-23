@@ -45,11 +45,11 @@ static const int32_t _minFree[ CACHE_ALL ] = { 200, 20 };
 static const uint32_t _freeShift = 1; // 'size >> shift' packets can be free
 
 #ifdef PROFILE
-static base::a_int32_t _hits;
-static base::a_int32_t _misses;
-static base::a_int32_t _lookups;
-static base::a_int32_t _allocs;
-static base::a_int32_t _frees;
+static lunchbox::a_int32_t _hits;
+static lunchbox::a_int32_t _misses;
+static lunchbox::a_int32_t _lookups;
+static lunchbox::a_int32_t _allocs;
+static lunchbox::a_int32_t _frees;
 #endif
 }
 namespace detail
@@ -110,7 +110,7 @@ public:
 
             Data& cache_ = cache[ which ];
             const uint32_t cacheSize = uint32_t( cache_.size( ));
-            base::a_int32_t& freeCounter = free[ which ];
+            lunchbox::a_int32_t& freeCounter = free[ which ];
             EQASSERTINFO( size_t( freeCounter ) <= cacheSize,
                           freeCounter << " > " << cacheSize );
 
@@ -186,7 +186,7 @@ public:
     DataCIter position[ CACHE_ALL ];
 
     /** The current number of free items in each cache */
-    base::a_int32_t free[ CACHE_ALL ];
+    lunchbox::a_int32_t free[ CACHE_ALL ];
 
     /** The maximum number of free items in each cache */
     int32_t maxFree[ CACHE_ALL ];
@@ -195,7 +195,7 @@ private:
     void _compact( const Cache which )
         {
 #ifdef COMPACT
-            base::a_int32_t& currentFree = free[ which ];
+            lunchbox::a_int32_t& currentFree = free[ which ];
             int32_t& maxFree_ = maxFree[ which ];
             if( currentFree <= maxFree_ )
                 return;
@@ -272,10 +272,10 @@ Command& CommandCache::clone( Command& from )
 std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
 {
     const Data& commands = cache._impl->cache[ CACHE_SMALL ];
-    os << base::disableFlush << "Cache has "
+    os << lunchbox::disableFlush << "Cache has "
        << commands.size() - cache._impl->free[ CACHE_SMALL ]
        << " used small packets:" << std::endl
-       << base::indent << base::disableHeader;
+       << lunchbox::indent << lunchbox::disableHeader;
 
     for( DataCIter i = commands.begin(); i != commands.end(); ++i )
     {
@@ -283,7 +283,7 @@ std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
         if( !command->isFree( ))
             os << *command << std::endl;
     }
-    return os << base::enableHeader << base::exdent << base::enableFlush ;
+    return os << lunchbox::enableHeader << lunchbox::exdent << lunchbox::enableFlush ;
 }
 
 }

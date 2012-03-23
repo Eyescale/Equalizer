@@ -99,7 +99,7 @@ namespace server
             size_t getNLoads() const { return _loads.size(); }
 
         private:
-            typedef co::base::PtrHash< Channel*, uint32_t > TaskIDHash;
+            typedef lunchbox::PtrHash< Channel*, uint32_t > TaskIDHash;
             TaskIDHash _taskIDs;
 
             typedef std::deque< Load > LoadDeque;

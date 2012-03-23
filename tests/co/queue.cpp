@@ -64,7 +64,7 @@ int main( int argc, char **argv )
     c3->release();
     c4->release();
 
-    co::base::sleep(1000);
+    lunchbox::sleep(1000);
 
     node->unmapObject( qs );
     node->deregisterObject( qm );

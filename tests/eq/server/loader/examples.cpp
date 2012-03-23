@@ -32,13 +32,13 @@ int main( int argc, char **argv )
     // Test for: https://github.com/Eyescale/Equalizer/issues/56
     setlocale( LC_ALL, "de_DE.UTF-8" ); 
 
-    TEST( co::base::init( argc, argv ));
+    TEST( lunchbox::init( argc, argv ));
 
     eq::server::Loader loader;
-    co::base::Strings configs = co::base::searchDirectory( "configs", "*.eqc" );
+    lunchbox::Strings configs = lunchbox::searchDirectory( "configs", "*.eqc" );
     TESTINFO( configs.size() > 20, configs.size( ));
 
-    for( co::base::StringsCIter i = configs.begin(); i != configs.end(); ++i )
+    for( lunchbox::StringsCIter i = configs.begin(); i != configs.end(); ++i )
     {
         const std::string& filename = "configs/" + *i;
         eq::server::Global* global = eq::server::Global::instance();
@@ -64,12 +64,12 @@ int main( int argc, char **argv )
         std::ofstream logFile( "testOutput.eqc" );
         TEST( logFile.is_open( ));
 
-        std::ostream& oldOut = co::base::Log::getOutput();
-        co::base::Log::setOutput( logFile );
+        std::ostream& oldOut = lunchbox::Log::getOutput();
+        lunchbox::Log::setOutput( logFile );
         OUTPUT << eq::server::Global::instance() << *server
-               << co::base::forceFlush;
-        co::base::Log::setOutput( oldOut );
-        OUTPUT << co::base::enableHeader << std::endl;
+               << lunchbox::forceFlush;
+        lunchbox::Log::setOutput( oldOut );
+        OUTPUT << lunchbox::enableHeader << std::endl;
         logFile.close();
 
         // cleanup
@@ -89,6 +89,6 @@ int main( int argc, char **argv )
                   server->getRefCount() << ": " << server );
     }
 
-    TEST( co::base::exit( ));
+    TEST( lunchbox::exit( ));
     return EXIT_SUCCESS;
 }

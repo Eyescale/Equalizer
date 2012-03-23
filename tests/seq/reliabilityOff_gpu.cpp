@@ -33,7 +33,7 @@ public:
 protected:
     virtual void draw( co::Object* frameData )
         {
-            co::base::sleep( 20000 );
+            lunchbox::sleep( 20000 );
             getApplication().stopRunning();
         }
 };
@@ -46,14 +46,14 @@ public:
     virtual co::Object * createObject( const uint32_t type )
         { EQUNIMPLEMENTED; return 0; }
 };
-typedef co::base::RefPtr< Application > ApplicationPtr;
+typedef lunchbox::RefPtr< Application > ApplicationPtr;
 
 int main( const int argc, char** argv )
 {
     setenv( "EQ_CONFIG_IATTR_ROBUSTNESS", "0", 1 /* overwrite */ );
     setenv( "CO_TIMEOUT", "1000", 1 /* overwrite */ );
     ApplicationPtr app = new Application;
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     if( app->init( argc, argv, 0 ) && app->run( 0 ) && app->exit( ))
         return EXIT_SUCCESS;

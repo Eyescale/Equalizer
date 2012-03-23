@@ -79,7 +79,7 @@ namespace co
                                        const CommandFunc<T>& func )
     {
         if( func.isValid( ))
-            os << "CommandFunc of " << base::className( func._object );
+            os << "CommandFunc of " << lunchbox::className( func._object );
         else
             os << "NULL CommandFunc";
         return os;

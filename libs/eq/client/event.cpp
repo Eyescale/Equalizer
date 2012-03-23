@@ -76,7 +76,7 @@ static EventTypeNames _eventTypeNames;
 Event::Event()
         : type( UNKNOWN )
         , serial( 0 )
-        , originator( co::base::UUID::ZERO )
+        , originator( UUID::ZERO )
 {
     bzero( &user, sizeof( user ));
 }

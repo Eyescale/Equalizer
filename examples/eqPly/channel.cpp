@@ -60,7 +60,7 @@ namespace eqPly
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
         , _model(0)
-        , _modelID( co::base::UUID::ZERO )
+        , _modelID( lunchbox::UUID::ZERO )
         , _frameRestart( 0 )
 {
 }
@@ -72,7 +72,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
 
     setNearFar( 0.1f, 10.0f );
     _model = 0;
-    _modelID = co::base::UUID::ZERO;
+    _modelID = lunchbox::UUID::ZERO;
     return true;
 }
 
@@ -96,7 +96,7 @@ void Channel::frameClear( const eq::uint128_t& frameID )
     resetRegions();
 
     const FrameData& frameData = _getFrameData();
-    const int32_t eyeIndex = co::base::getIndexOfLastBit( getEye() );
+    const int32_t eyeIndex = lunchbox::getIndexOfLastBit( getEye() );
     if( _isDone() && !_accum[ eyeIndex ].transfer )
         return;
 
@@ -186,7 +186,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     }
 
     state.setFrustumCulling( true );
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
     accum.stepsDone = EQ_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
@@ -200,7 +200,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     if( _isDone( ))
         return;
 
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
 
     if( getPixelViewport() != _currentPVP )
     {
@@ -327,7 +327,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     applyBuffer();
 
     const FrameData& frameData = _getFrameData();
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
 
     if( accum.buffer )
     {
@@ -401,7 +401,7 @@ bool Channel::_isDone() const
         return false;
 
     const eq::SubPixel& subpixel = getSubPixel();
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
     return int32_t( subpixel.index ) >= accum.step;
 }
 
@@ -423,7 +423,7 @@ void Channel::_initJitter()
         return;
 
     // ready for the next FSAA
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
     if( accum.buffer )
         accum.buffer->clear();
     accum.step = idleSteps;
@@ -436,7 +436,7 @@ bool Channel::_initAccum()
         return true;
 
     const eq::Eye eye = getEye();
-    Accum& accum = _accum[ co::base::getIndexOfLastBit( eye ) ];
+    Accum& accum = _accum[ lunchbox::getIndexOfLastBit( eye ) ];
 
     if( accum.buffer ) // already done
         return true;
@@ -501,7 +501,7 @@ bool Channel::stopRendering() const
 eq::Vector2f Channel::getJitter() const
 {
     const FrameData& frameData = _getFrameData();
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
 
     if( !frameData.isIdle() || accum.step <= 0 )
         return eq::Channel::getJitter();
@@ -528,7 +528,7 @@ eq::Vector2f Channel::getJitter() const
     const float subpixel_h = pixel_h / sampleSize;
 
     // Sample value randomly computed within the subpixel
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     const eq::Pixel& pixel = getPixel();
 
     const float i = ( rng.get< float >() * subpixel_w +
@@ -561,7 +561,7 @@ eq::Vector2i Channel::_getJitterStep() const
     if( totalSteps != 256 )
         return eq::Vector2i::ZERO;
 
-    const Accum& accum = _accum[ co::base::getIndexOfLastBit( getEye()) ];
+    const Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
     const uint32_t subset = totalSteps / getSubPixel().size;
     const uint32_t index = ( accum.step * _primes[ channelID % 100 ] )%subset +
                            ( channelID * subset );
@@ -580,7 +580,7 @@ const Model* Channel::_getModel()
     EQASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
-    if( id == co::base::UUID::ZERO )
+    if( id == lunchbox::UUID::ZERO )
         id = frameData.getModelID();
     if( id != _modelID )
     {

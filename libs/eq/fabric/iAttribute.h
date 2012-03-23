@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,9 +30,9 @@ namespace fabric
     enum IAttribute
     {
         UNDEFINED  = -0xfffffff, //!< Undefined value
-        SOCKET = co::base::Thread::SOCKET, //!< CPU thread affinity: -64k..-1024
-        CORE = co::base::Thread::CORE, //!< Core thread affinity: 1..oo
-        SOCKET_MAX = co::base::Thread::SOCKET_MAX, //!< Highes bindable CPU
+        SOCKET = lunchbox::Thread::SOCKET, //!< CPU thread affinity: -64k..-1024
+        CORE = lunchbox::Thread::CORE, //!< Core thread affinity: 1..oo
+        SOCKET_MAX = lunchbox::Thread::SOCKET_MAX, //!< Highes bindable CPU
         RELATIVE_TO_OBSERVER = -17, //!< focal convergence relative to observer
         RELATIVE_TO_ORIGIN   = -16, //!< focal convergence relative to origin
         FIXED      = -15, //!< config or observer focus fixed on wall/projection

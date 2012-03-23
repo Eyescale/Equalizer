@@ -84,7 +84,7 @@ namespace server
         co::CommandQueue _mainThreadQueue;
 
         /** The global clock. */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
 
         co::Nodes _admins; //!< connected admin clients
 

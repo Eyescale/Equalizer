@@ -63,7 +63,7 @@ namespace co
         Command* _usedCommand; //!< Currently used buffer
 
         /** The object version associated with this input stream. */
-        base::Monitor< uint128_t > _version;
+        lunchbox::Monitor< uint128_t > _version;
 
         void _setReady() { _version = getPendingVersion(); }
         void _reset();

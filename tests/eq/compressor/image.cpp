@@ -123,7 +123,7 @@ int main( int argc, char **argv )
     TEST( eq::init( argc, argv, &nodeFactory ));
 
     eq::Strings images;
-    eq::Strings candidates = co::base::searchDirectory( "images", "*.rgb");
+    eq::Strings candidates = lunchbox::searchDirectory( "images", "*.rgb");
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -134,7 +134,7 @@ int main( int argc, char **argv )
             images.push_back( "images/" + filename );
     }
 
-    candidates = co::base::searchDirectory( "../compositor", "Result*.rgb" );
+    candidates = lunchbox::searchDirectory( "../compositor", "Result*.rgb" );
     stde::usort( candidates ); // have a predictable order
     for( eq::Strings::const_iterator i = candidates.begin();
         i != candidates.end(); ++i )
@@ -146,7 +146,7 @@ int main( int argc, char **argv )
     }
     TEST( !images.empty( ));
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     eq::Image image;
     eq::Image destImage;
     
@@ -274,9 +274,9 @@ int main( int argc, char **argv )
                 totalDecompressTime += decompressTime;
 
 #ifdef WRITE_DECOMPRESSED
-                destImage.writeImage( co::base::getDirname( filename ) +
+                destImage.writeImage( lunchbox::getDirname( filename ) +
                                       "/out_" + 
-                                      co::base::getFilename( filename ),
+                                      lunchbox::getFilename( filename ),
                                       buffer );
 #endif
 

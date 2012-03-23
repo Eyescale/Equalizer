@@ -30,8 +30,8 @@ namespace co
 {
     class NamedPipeConnection;
     class PipeConnection;
-    typedef base::RefPtr< PipeConnection > PipeConnectionPtr;
-    typedef base::RefPtr< const PipeConnection > ConstPipeConnectionPtr;
+    typedef lunchbox::RefPtr< PipeConnection > PipeConnectionPtr;
+    typedef lunchbox::RefPtr< const PipeConnection > ConstPipeConnectionPtr;
 
     /**
      * An inter-thread, bi-directional connection using anonymous pipes.

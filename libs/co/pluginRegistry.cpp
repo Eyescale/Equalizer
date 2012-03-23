@@ -128,19 +128,19 @@ void PluginRegistry::init()
         EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
 #ifdef _WIN32
-        Strings files = base::searchDirectory( dir, "EqualizerCompressor*.dll");
+        Strings files = lunchbox::searchDirectory( dir, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        Strings files = base::searchDirectory( dir,
+        Strings files = lunchbox::searchDirectory( dir,
                                                "libEqualizerCompressor*.dylib");
-        Strings oldFiles = base::searchDirectory( dir,
+        Strings oldFiles = lunchbox::searchDirectory( dir,
                                                   "libeqCompressor*.dylib" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #else
-        Strings files = base::searchDirectory( dir,
+        Strings files = lunchbox::searchDirectory( dir,
                                                "libEqualizerCompressor*.so" );
-        Strings oldFiles = base::searchDirectory( dir, "libeqCompressor*.so" );
+        Strings oldFiles = lunchbox::searchDirectory( dir, "libeqCompressor*.so" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #endif
