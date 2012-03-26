@@ -18,10 +18,10 @@
 #pragma once
 
 #include <co/connection.h>
+#include "ring.h"
 
 #include <lunchbox/thread.h>
 #include <lunchbox/monitor.h>
-#include <lunchbox/ring.h>
 #include <lunchbox/scopedMutex.h>
 
 #include <rdma/rdma_cma.h>
