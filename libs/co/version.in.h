@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,19 +26,19 @@ namespace co
 {
     // Collage version macros and functions
     /** The current major version. @version 0.4 */
-#   define CO_VERSION_MAJOR ${CO_VERSION_MAJOR}
+#   define CO_VERSION_MAJOR @CO_VERSION_MAJOR@
 
     /** The current minor version. @version 0.4 */
-#   define CO_VERSION_MINOR ${CO_VERSION_MINOR}
+#   define CO_VERSION_MINOR @CO_VERSION_MINOR@
 
     /** The current patch level. @version 0.4 */
-#   define CO_VERSION_PATCH ${CO_VERSION_PATCH}
+#   define CO_VERSION_PATCH @CO_VERSION_PATCH@
 
     /** The git wc hash revision, may be 0. @version 0.4 */
-#   define CO_VERSION_REVISION ${EQ_REVISION}
+#   define CO_VERSION_REVISION @EQ_REVISION@
 
     /** The current DSO binary revision. @version 0.4 */
-#   define CO_VERSION_ABI ${VERSION_ABI}
+#   define CO_VERSION_ABI @VERSION_ABI@
 
 /** True if the current version is newer than the given one. @version 0.4 */
 #   define CO_VERSION_GT( MAJOR, MINOR, PATCH )                         \

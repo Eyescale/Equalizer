@@ -1,5 +1,5 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
@@ -28,7 +28,7 @@ else()
 
   set(GLEW_INCLUDES GL/glew.h GL/glxew.h GL/wglew.h)
   foreach(file ${GLEW_INCLUDES})
-    configure_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file} COPYONLY)
+    update_file(${GLEW_DIR}/include/${file} ${OUTPUT_INCLUDE_DIR}/eq/${file})
     install(FILES ${OUTPUT_INCLUDE_DIR}/eq/${file} DESTINATION include/eq/GL COMPONENT eqdev)
   endforeach()
 

@@ -17,8 +17,6 @@
 
 #include "condition.h"
 
-#include <co/base/global.h>
-
 #include <cstring>
 #include <errno.h>
 
@@ -114,7 +112,7 @@ bool Condition::timedWait( const uint32_t timeout )
     }
 
     const uint32_t time = timeout == EQ_TIMEOUT_DEFAULT ?
-        Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT ) : timeout;
+        300000 /* 5 min */ : timeout;
 
 #ifdef _WIN32
     int error = pthread_cond_timedwait_w32_np( &_impl->cond, &_impl->mutex,

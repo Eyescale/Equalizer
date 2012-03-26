@@ -15,25 +15,25 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_ERROR_H
-#define COBASE_ERROR_H
+#include "error.h"
 
-#include <co/base/api.h>
-#include <co/base/types.h> // EQ_KB definitions
+#include <co/errorRegistry.h>
+#include <co/global.h>
+
+#include <iostream>
 
 namespace co
 {
-namespace base
+std::ostream& operator << ( std::ostream& os, const Error& error )
 {
-    /** Defines errors produced by Collage base classes. */
-    enum Error
-    {
-        ERROR_NONE = 0,
-        ERROR_CUSTOM = EQ_16KB,  // 0x4000
-    };
+    const ErrorRegistry& registry = Global::getErrorRegistry();
+    const std::string& text = registry.getString( error );
+    if( text.empty( ))
+        os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
+    else
+        os << text << " (0x" << std::hex << uint32_t(error) << std::dec << ")";
 
-    /** Print the error in a human-readable format. @version 1.0 */
-    COBASE_API std::ostream& operator << ( std::ostream& os, const Error& );
+    return os;
 }
+
 }
-#endif // COBASE_ERROR_H

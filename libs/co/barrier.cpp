@@ -22,11 +22,11 @@
 #include "connection.h"
 #include "dataIStream.h"
 #include "dataOStream.h"
+#include "global.h"
 #include "log.h"
 #include "barrierPackets.h"
 #include "exception.h"
 
-#include <co/base/global.h>
 #include <co/base/monitor.h>
 #include <co/base/stdExt.h>
 
@@ -329,8 +329,8 @@ void Barrier::_cleanup( const uint64_t time)
 
         const uint32_t timeout = cleanNodes.timeout != EQ_TIMEOUT_DEFAULT ? 
                         cleanNodes.timeout :
-                        base::Global::getIAttribute( 
-                            base::Global::IATTR_TIMEOUT_DEFAULT );
+                        Global::getIAttribute( 
+                            Global::IATTR_TIMEOUT_DEFAULT );
                
         if( time > cleanNodes.time + timeout )
         {

@@ -1,4 +1,4 @@
-Fix Windows build
+Fix packaging typo
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)

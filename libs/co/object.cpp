@@ -18,11 +18,11 @@
 #include "object.h"
 
 #include "command.h"
+#include "cpuCompressor.h"
 #include "dataIStream.h"
 #include "dataOStream.h"
 #include "deltaMasterCM.h"
 #include "fullMasterCM.h"
-#include "versionedSlaveCM.h"
 #include "log.h"
 #include "nodePackets.h"
 #include "nullCM.h"
@@ -31,8 +31,8 @@
 #include "staticSlaveCM.h"
 #include "types.h"
 #include "unbufferedMasterCM.h"
+#include "versionedSlaveCM.h"
 
-#include "base/cpuCompressor.h"
 #include <co/base/scopedMutex.h>
 #include <iostream>
 
@@ -320,7 +320,7 @@ void Object::notifyNewHeadVersion( const uint128_t& version )
 
 uint32_t Object::chooseCompressor() const
 {
-    return base::CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
+    return CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
 }
 
 uint32_t Object::getMasterInstanceID() const

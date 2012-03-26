@@ -17,13 +17,11 @@
 
 #include "errorRegistry.h"
 
-#include "debug.h"
 #include "error.h"
-#include "stdExt.h"
+
+#include <co/base/stdExt.h>
 
 namespace co 
-{
-namespace base
 {
 namespace
 {
@@ -76,5 +74,4 @@ bool ErrorRegistry::isEmpty() const
     return _impl->errors.empty();
 }
 
-}
 }

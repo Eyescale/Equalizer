@@ -19,16 +19,16 @@
 #ifndef EQUTIL_GPUCOMPRESSOR_H
 #define EQUTIL_GPUCOMPRESSOR_H
 
-#include "../../co/base/compressor.h" // internal base class
+#include "../../co/compressor.h" // internal base class
 #include <eq/client/api.h>
-#include <eq/fabric/types.h>
+#include <eq/client/types.h>
 
 namespace eq
 {
 namespace util
 {
     /** A C++ class to abstract a GPU compressor instance. */
-    class GPUCompressor : public co::base::Compressor
+    class GPUCompressor : public co::Compressor
     {
     public:
         /** Construct a new compressorData */
@@ -184,7 +184,7 @@ namespace util
                                             const float minQuality,
                                             const bool ignoreAlpha,
                                             const GLEWContext* glewContext,
-                                            co::base::CompressorInfos& result );
+                                            co::CompressorInfos& result );
 
     private:
         /** the initialized GLEW context describing corresponding

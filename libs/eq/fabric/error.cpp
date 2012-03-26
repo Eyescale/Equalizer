@@ -17,8 +17,8 @@
 
 #include "error.h"
 
-#include <co/base/errorRegistry.h>
-#include <co/base/global.h>
+#include <co/errorRegistry.h>
+#include <co/global.h>
 
 namespace eq
 {
@@ -143,7 +143,7 @@ ErrorData _errors[] = {
 
 void _initErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -151,7 +151,7 @@ void _initErrors()
 
 void _exitErrors()
 {
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

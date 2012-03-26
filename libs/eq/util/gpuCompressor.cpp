@@ -1,6 +1,6 @@
 
 /* Copyright (c)      2010, Cedric Stalder <cedric.stalder@gmail.com>
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,10 +21,10 @@
 #include <eq/client/gl.h>
 #include <eq/fabric/pixelViewport.h>
 
-#include <co/base/compressorInfo.h>
-#include <co/base/global.h>
-#include <co/base/plugin.h>
-#include <co/base/pluginRegistry.h>
+#include <co/compressorInfo.h>
+#include <co/global.h>
+#include <co/plugin.h>
+#include <co/pluginRegistry.h>
 
 namespace eq
 {
@@ -59,14 +59,13 @@ bool GPUCompressor::initDownloader( const uint32_t internalFormat,
     float speed = 0;
     uint32_t name = EQ_COMPRESSOR_NONE;
     
-    co::base::CompressorInfos infos;
+    co::CompressorInfos infos;
     findTransferers( internalFormat, 0, capabilities, minQuality, 
                      ignoreAlpha, _glewContext, infos );
     
-    for( co::base::CompressorInfos::const_iterator i = infos.begin();
-         i != infos.end(); ++i )
+    for( co::CompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
-        const co::base::CompressorInfo& info = *i;
+        const co::CompressorInfo& info = *i;
 
         if( ratio > info.ratio || 
             ( ratio == info.ratio && speed < info.speed))
@@ -97,21 +96,19 @@ bool GPUCompressor::initUploader( const uint32_t externalFormat,
                                   const uint32_t internalFormat,
                                   const uint64_t capabilities )
 {
-    co::base::PluginRegistry& registry = co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
 
     uint32_t name = EQ_COMPRESSOR_NONE;
     float speed = 0.0f;
-    for( co::base::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const co::base::Plugin* plugin = *i;
-        const co::base::CompressorInfos& infos = plugin->getInfos();
+        const co::Plugin* plugin = *i;
+        const co::CompressorInfos& infos = plugin->getInfos();
 
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
-            const co::base::CompressorInfo& info = *j;
+            const co::CompressorInfo& info = *j;
             
             if( (info.capabilities & capabilities) != capabilities ||
                 info.outputTokenType != externalFormat ||
@@ -272,22 +269,19 @@ void GPUCompressor::findTransferers( const uint32_t internalFormat,
                                      const float    minQuality,
                                      const bool     ignoreAlpha,
                                      const GLEWContext* glewContext,
-                                     co::base::CompressorInfos& result )
+                                     co::CompressorInfos& result )
 {
-    const co::base::PluginRegistry& registry =
-                                        co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
     const uint64_t caps = capabilities | EQ_COMPRESSOR_TRANSFER;
 
-    for( co::base::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const co::base::Plugin* plugin = *i;
-        const co::base::CompressorInfos& infos = plugin->getInfos();
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        const co::Plugin* plugin = *i;
+        const co::CompressorInfos& infos = plugin->getInfos();
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
-            const co::base::CompressorInfo& info = *j;
+            const co::CompressorInfo& info = *j;
             if(( (info.capabilities & caps) == caps )  &&
                ( internalFormat == EQ_COMPRESSOR_DATATYPE_NONE ||
                  info.tokenType == internalFormat )                    &&

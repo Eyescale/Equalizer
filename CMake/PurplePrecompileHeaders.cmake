@@ -1,10 +1,12 @@
-##
+
 # Copyright (c) 2010 Daniel Pfeifer, All rights reserved.
+#               2012 Stefan Eilemann <eile@eyescale.ch>
 #
 # This file is freely distributable without licensing fees and
 # is provided without guarantee or warrantee expressed or implied.
 # This file is -not- in the public domain.
-##
+
+include(UpdateFile)
 
 macro(_PURPLE_PCH_FILES PCH_HEADER PCH_SOURCE NAME)
   set(${PCH_HEADER} "${CMAKE_CURRENT_BINARY_DIR}/${NAME}_pch.hxx")
@@ -17,7 +19,7 @@ macro(_PURPLE_PRECOMPILE_HEADER_GCC NAME TARGET)
   set(PCH_HEADER "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_pch.hxx")
   set(PCH_BINARY "${PCH_HEADER}.gch")
 
-  configure_file(${PCH_INPUT} ${PCH_HEADER} COPYONLY)
+  update_file(${PCH_INPUT} ${PCH_HEADER})
 
   string(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" VARIANT)
   set(COMPILE_FLAGS ${${VARIANT}} )
@@ -89,10 +91,10 @@ macro(PURPLE_PCH_PREPARE NAME SOURCE_VAR)
       file(APPEND ${PCH_HEADER}.in "#include \"${HEADER_REL}\"\n")
     endif()
   endforeach(HEADER ${ARGN})
-  configure_file(${PCH_HEADER}.in ${PCH_HEADER} COPYONLY)
+  update_file(${PCH_HEADER}.in ${PCH_HEADER} COPYONLY)
 
   file(WRITE ${PCH_SOURCE}.in "#include \"${PCH_HEADER}\"\n")
-  configure_file(${PCH_SOURCE}.in ${PCH_SOURCE} COPYONLY)
+  update_file(${PCH_SOURCE}.in ${PCH_SOURCE} COPYONLY)
 
   if(MSVC)
     list(APPEND ${SOURCE_VAR} ${PCH_SOURCE})

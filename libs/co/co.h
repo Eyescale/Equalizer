@@ -71,6 +71,7 @@
 #include <co/dataIStreamArchive.h>
 #include <co/dataOStream.h>
 #include <co/dataOStreamArchive.h>
+#include <co/errorRegistry.h>
 #include <co/global.h>
 #include <co/init.h>
 #include <co/object.h>

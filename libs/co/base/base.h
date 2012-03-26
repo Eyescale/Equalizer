@@ -31,9 +31,7 @@
 #include <co/base/atomic.h>
 #include <co/base/clock.h>
 #include <co/base/debug.h>
-#include <co/base/errorRegistry.h>
 #include <co/base/file.h>
-#include <co/base/global.h>
 #include <co/base/monitor.h>
 #include <co/base/perThread.h>
 #include <co/base/rng.h>

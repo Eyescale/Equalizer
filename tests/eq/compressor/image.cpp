@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,17 +25,16 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 
+#include <co/global.h>
+#include <co/pluginRegistry.h>
 #include <co/base/clock.h>
 #include <co/base/file.h>
-#include <co/base/global.h>
-#include <co/base/pluginRegistry.h>
-
 
 #include <numeric>
 #include <fstream>
 
-#include <co/base/compressorInfo.h> // private header
-#include <co/base/plugin.h> // private header
+#include <co/compressorInfo.h> // private header
+#include <co/plugin.h> // private header
 
 
 // Tests the functionality and speed of the image compression.
@@ -50,17 +49,14 @@ namespace
 {
 static std::vector< uint32_t > _getCompressorNames()
 {
-    const co::base::PluginRegistry& registry = 
-        co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
 
     std::vector< uint32_t > names;
-    for( co::base::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const co::base::CompressorInfos& infos = (*i)->getInfos();
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        const co::CompressorInfos& infos = (*i)->getInfos();
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
             const EqCompressorInfo& info = *j;
             if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
@@ -75,17 +71,14 @@ static std::vector< uint32_t > _getCompressorNames()
 #ifdef COMPARE_RESULT
 static float _getCompressorQuality( const uint32_t name )
 {
-    const co::base::PluginRegistry& registry = 
-        co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
 
     float quality = 1.0f;
-    for( co::base::Plugins::const_iterator i = plugins.begin();
-         i != plugins.end(); ++i )
+    for( co::PluginsCIter i = plugins.begin(); i != plugins.end(); ++i )
     {
-        const co::base::CompressorInfos& infos = (*i)->getInfos();
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        const co::CompressorInfos& infos = (*i)->getInfos();
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
             if( name != (*j).name )
                 continue;

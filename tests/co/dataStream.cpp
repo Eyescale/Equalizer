@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,7 +20,6 @@
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
-#include <co/base/thread.h>
 #include <co/connectionDescription.h>
 #include <co/command.h>
 #include <co/commandCache.h>
@@ -30,8 +29,10 @@
 #include <co/packets.h>
 #include <co/types.h>
 
+#include <co/base/thread.h>
+
 #include <co/dataOStream.ipp>      // private impl
-#include <co/base/cpuCompressor.h> // private header
+#include <co/cpuCompressor.h> // private header
 
 // Tests the functionality of the DataOStream and DataIStream
 

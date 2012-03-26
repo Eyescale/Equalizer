@@ -317,8 +317,9 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     return compound;
 }
 
-Compound* Resources::_addStereoCompound(Compound* root, const Channels& channels,
-                                        const uint32_t flags )
+Compound* Resources::_addStereoCompound( Compound* root,
+                                         const Channels& channels,
+                                         const uint32_t flags )
 {
     const Channel* channel = root->getChannel();
     const Layout* layout = channel->getLayout();

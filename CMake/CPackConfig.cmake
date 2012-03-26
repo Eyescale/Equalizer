@@ -62,7 +62,7 @@ set(CPACK_COMPONENT_SEQLIB_DEPENDS eqlib colib)
 
 set(CPACK_COMPONENT_SEQDEV_DISPLAY_NAME "Sequel Development Files")
 set(CPACK_COMPONENT_SEQDEV_DESCRIPTION "Header and Library Files for Sequel Development, a simple interface for Equalizer")
-set(CPACK_COMPONENT_EQDEV_DEPENDS eqdev codev)
+set(CPACK_COMPONENT_SEQDEV_DEPENDS eqdev codev)
 
 set(CPACK_COMPONENT_MAN_DISPLAY_NAME "Man Pages")
 set(CPACK_COMPONENT_MAN_DESCRIPTION "Manual Pages")

@@ -91,6 +91,9 @@
   <li>Runtime failure tolerance detecting hardware and software failures</li>
   <li>Tile compounds for fill-limited rendering such as direct volume rendering
     and interactive raytracing</li>
+  <li>Support
+    for <a href="http://www.equalizergraphics.com/documents/design/immersive.html#focal">dynamic
+      focus distance</a> with stereo rendering and immersive environments</li>
 </ul>
 <ul>
   <li>Distributed single-producer, multi-consumer queue</li>
@@ -317,4 +320,6 @@
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
     Sequel missing from packages</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/107">107</a>:
+    Installed examples CMake build does not work</li>
 </ul>

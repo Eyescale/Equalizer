@@ -27,6 +27,8 @@
 #  include <wtypes.h>
 #  include <wincrypt.h>
 #  pragma comment(lib, "advapi32.lib")
+#else
+#  include <unistd.h>
 #endif
 
 #include <cstdlib>

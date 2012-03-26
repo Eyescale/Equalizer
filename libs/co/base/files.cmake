@@ -16,10 +16,7 @@ set(COBASE_PUBLIC_HEADERS
     base/debug.h
     base/defines.h
     base/dso.h
-    base/error.h
-    base/errorRegistry.h
     base/file.h
-    base/global.h
     base/hash.h
     base/init.h
     base/launcher.h
@@ -35,7 +32,6 @@ set(COBASE_PUBLIC_HEADERS
     base/os.h
     base/perThread.h
     base/perThreadRef.h
-    base/pluginRegistry.h
     base/pool.h
     base/refPtr.h
     base/referenced.h
@@ -54,34 +50,23 @@ set(COBASE_PUBLIC_HEADERS
   )
 
 set(COBASE_HEADERS 
-    base/compressor.h
-    base/compressorInfo.h
-    base/cpuCompressor.h
     base/memcpy.h
-    base/plugin.h
   )
 
  set(COBASE_SOURCES
     base/atomic.cpp
     base/clock.cpp
-    base/compressor.cpp
     base/condition.cpp
     base/condition_w32.ipp
-    base/cpuCompressor.cpp
     base/debug.cpp
     base/dso.cpp
-    base/error.cpp
-    base/errorRegistry.cpp
     base/file.cpp
-    base/global.cpp
     base/init.cpp
     base/launcher.cpp
     base/lock.cpp
     base/log.cpp
     base/memoryMap.cpp
     base/omp.cpp
-    base/plugin.cpp
-    base/pluginRegistry.cpp
     base/referenced.cpp
     base/requestHandler.cpp
     base/rng.cpp

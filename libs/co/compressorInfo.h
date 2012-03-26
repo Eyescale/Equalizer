@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,19 +15,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef COBASE_COMPRESSORINFO_H
-#define COBASE_COMPRESSORINFO_H
+#ifndef CO_COMPRESSORINFO_H
+#define CO_COMPRESSORINFO_H
 
-#include <co/base/types.h>
+#include <co/types.h>
 #include <co/plugins/compressor.h> // base struct
 
 #include <iostream>
 
 namespace co
 {
-namespace base
-{
-
 /** @internal Augment the plugin information with additional data. */
 struct CompressorInfo : public EqCompressorInfo
 {
@@ -46,6 +43,5 @@ inline std::ostream& operator << ( std::ostream& os, const CompressorInfo& info)
 }
 
 }
-}
 
-#endif //COBASE_COMPRESSORINFO_H
+#endif //CO_COMPRESSORINFO_H

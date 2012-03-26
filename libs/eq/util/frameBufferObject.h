@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
-                 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+                 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,7 +23,7 @@
 #include <eq/util/types.h>
 
 #include <eq/client/gl.h>           // for GLEW
-#include <co/base/error.h>
+#include <co/error.h>
 
 #include <vector>
 
@@ -120,7 +120,7 @@ namespace util
         const Texture& getDepthTexture() const { return _depth; }
 
         /** @return the reason for the last failed operation. @version 1.0 */
-        const co::base::Error& getError() { return _error; }
+        const co::Error& getError() { return _error; }
 
         /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -137,7 +137,7 @@ namespace util
         const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
-        co::base::Error _error;
+        co::Error _error;
 
         bool _valid;
 

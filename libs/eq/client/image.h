@@ -399,13 +399,13 @@ namespace eq
             ~Attachment();
 
             void flush();
-            co::base::CPUCompressor* const fullCompressor;
-            co::base::CPUCompressor* const lossyCompressor;
+            co::CPUCompressor* const fullCompressor;
+            co::CPUCompressor* const lossyCompressor;
 
             util::GPUCompressor* const fullTransfer;
             util::GPUCompressor* const lossyTransfer;
 
-            co::base::CPUCompressor* compressor; //!< current CPU (de)compressor
+            co::CPUCompressor* compressor; //!< current CPU (de)compressor
             util::GPUCompressor* transfer;   //!< current up/download engine
 
             float quality; //!< the minimum quality
@@ -439,7 +439,7 @@ namespace eq
 
         void _findTransferers( const Frame::Buffer buffer,
                                const GLEWContext* glewContext,
-                               co::base::CompressorInfos& result );
+                               co::CompressorInfos& result );
 
         /** @return a unique key for the frame buffer attachment. */
         const void* _getBufferKey( const Frame::Buffer buffer ) const;

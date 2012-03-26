@@ -19,9 +19,6 @@
 #include "init.h"
 
 #include "atomic.h"
-#include "errorRegistry.h"
-#include "global.h"
-#include "pluginRegistry.h"
 #include "rng.h"
 #include "thread.h"
 
@@ -70,35 +67,6 @@ bool init( const int argc, char** argv )
         return false;
     }
 
-    // init all available plugins
-    PluginRegistry& plugins = Global::getPluginRegistry();
-#ifdef COLLAGE_DSO_NAME
-    if( !plugins.addPlugin( COLLAGE_DSO_NAME ) && // Found by LDD
-        // Hard-coded compile locations as backup:
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/" + 
-                            COLLAGE_DSO_NAME ) &&
-#  ifdef NDEBUG
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Release/" +
-                            COLLAGE_DSO_NAME )
-#  else
-        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Debug/"
-                            + COLLAGE_DSO_NAME )
-#  endif
-        )
-    {
-        EQWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
-               << " not in library search path and hardcoded locations not "
-               << "found" << std::endl;
-    }
-#else
-#  ifndef NDEBUG
-#    error "COLLAGE_DSO_NAME not defined"
-#  endif
-    EQWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
-           << std::endl;
-#endif
-    plugins.init();
-
     Thread::pinCurrentThread();
     return true;
 }
@@ -109,9 +77,6 @@ bool exit()
         return true;
     EQASSERT( _initialized == 0 );
 
-    // de-initialize registered plugins
-    PluginRegistry& plugins = Global::getPluginRegistry();
-    plugins.exit();
     Log::exit();
     return true;
 }

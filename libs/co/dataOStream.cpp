@@ -20,13 +20,11 @@
 
 #include "connectionDescription.h"
 #include "connections.h"
+#include "cpuCompressor.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
 #include "types.h"
-
-#include "base/cpuCompressor.h" // internal header
-#include <co/base/global.h>
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
 #  include <co/base/clock.h>
@@ -48,7 +46,7 @@ DataOStream::DataOStream()
         : _compressorState( STATE_UNCOMPRESSED )
         , _bufferStart( 0 )
         , _dataSize( 0 )
-        , _compressor( new base::CPUCompressor )
+        , _compressor( new CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
@@ -64,7 +62,7 @@ DataOStream::~DataOStream()
 
 void DataOStream::_initCompressor( const uint32_t compressor )
 {
-    EQCHECK( _compressor->base::Compressor::initCompressor( compressor ));
+    EQCHECK( _compressor->Compressor::initCompressor( compressor ));
     EQ_TS_RESET( _compressor->_thread );
 }
 
@@ -290,7 +288,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifndef CO_AGGRESSIVE_CACHING
         const uint32_t name = _compressor->getName();
         _compressor->reset();
-        EQCHECK( _compressor->base::Compressor::initCompressor( name ));
+        EQCHECK( _compressor->Compressor::initCompressor( name ));
 
         if( result == STATE_COMPLETE )
             _buffer.pack();

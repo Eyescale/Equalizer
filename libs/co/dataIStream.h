@@ -123,7 +123,7 @@ namespace co
         /** The current read position in the buffer */
         uint64_t  _position;
 
-        base::CPUCompressor* const _decompressor; //!< current decompressor
+        CPUCompressor* const _decompressor; //!< current decompressor
         base::Bufferb _data; //!< decompressed buffer
 
         /**

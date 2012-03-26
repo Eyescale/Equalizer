@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2010-2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,13 +19,13 @@
 #include "pluginRegistry.h"
 
 #include "compressorInfo.h"
-#include "debug.h"
-#include "dso.h"
-#include "file.h"
-#include "global.h"
-#include "os.h"
+#include "log.h"
 #include "plugin.h"
-#include "stdExt.h"
+
+#include <co/base/dso.h>
+#include <co/base/file.h>
+#include <co/base/os.h>
+#include <co/base/stdExt.h>
 
 #include <vector>
 #include <typeinfo>
@@ -43,8 +43,6 @@
 
 namespace co
 {
-namespace base
-{
 namespace
 {
 Strings _initPluginDirectories()
@@ -61,7 +59,7 @@ Strings _initPluginDirectories()
 
 #ifdef _WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
-            pluginDirectories.push_back( getDirname( cwd ));
+            pluginDirectories.push_back( base::getDirname( cwd ));
 #endif
 
 #ifdef Darwin
@@ -131,16 +129,19 @@ void PluginRegistry::init()
         EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
 #ifdef _WIN32
-        Strings files = searchDirectory( dir, "EqualizerCompressor*.dll");
+        Strings files = base::searchDirectory( dir, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        Strings files = searchDirectory( dir, "libEqualizerCompressor*.dylib" );
-        Strings oldFiles = searchDirectory( dir, "libeqCompressor*.dylib" );
+        Strings files = base::searchDirectory( dir,
+                                               "libEqualizerCompressor*.dylib");
+        Strings oldFiles = base::searchDirectory( dir,
+                                                  "libeqCompressor*.dylib" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #else
-        Strings files = searchDirectory( dir, "libEqualizerCompressor*.so" );
-        Strings oldFiles = searchDirectory( dir, "libeqCompressor*.so" );
+        Strings files = base::searchDirectory( dir,
+                                               "libEqualizerCompressor*.so" );
+        Strings oldFiles = base::searchDirectory( dir, "libeqCompressor*.so" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #endif
@@ -220,5 +221,4 @@ const Plugins& PluginRegistry::getPlugins() const
     return _plugins;
 }
 
-}
 }

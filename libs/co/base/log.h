@@ -57,7 +57,6 @@ namespace base
      */
     enum LogTopic
     {
-        LOG_PLUGIN = 0x1,        //!< Plugin usage (1)
         LOG_CUSTOM = 0x10,       //!< Log topics for other namespaces start here
         LOG_ANY    = 0xffffu     //!< Log all Equalizer topics
     };

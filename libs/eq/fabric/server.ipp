@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@
 
 #include <co/command.h>
 #include <co/connectionDescription.h>
-#include <co/base/global.h>
+#include <co/global.h>
 
 namespace eq
 {
@@ -153,8 +153,8 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
-    co::base::Global::setIAttribute( co::base::Global::IATTR_ROBUSTNESS, 
-                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
+    co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS, 
+                               config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
     if( packet->requestID != EQ_UNDEFINED_UINT32 )
     {
         ConfigCreateReplyPacket reply( packet );

@@ -18,6 +18,7 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
+#include <co/error.h>
 #include <co/base/refPtr.h>
 #include <co/base/types.h>
 
@@ -35,6 +36,7 @@ namespace co
 #define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
 
 class Barrier;
+class CPUCompressor; //!< @internal
 class Command;
 class CommandQueue;
 class Connection;
@@ -42,13 +44,18 @@ class ConnectionDescription;
 class ConnectionListener;
 class DataIStream;
 class DataOStream;
+class ErrorRegistry;
+class Global;
 class LocalNode;
 class Node;
 class Object;
 class ObjectDataIStream;
-class Serializable;
+class Plugin;        //!< @internal
+class PluginRegistry;
 class QueueMaster;
 class QueueSlave;
+class Serializable;
+struct CompressorInfo; //!< @internal
 template< class Q > class WorkerThread;
 struct ObjectVersion;
 struct Packet;
@@ -56,7 +63,8 @@ struct QueueItemPacket;
 
 typedef base::UUID NodeID; //!< A unique identifier for nodes.
 
-typedef base::uint128_t uint128_t;
+using base::uint128_t;
+using base::Strings;
 
 /** A reference pointer for Node pointers. */
 typedef base::RefPtr< Node >                  NodePtr;
@@ -108,15 +116,23 @@ typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
 
 typedef Commands::const_iterator CommandsCIter;
+
+typedef std::vector< CompressorInfo > CompressorInfos;
+typedef std::vector< const CompressorInfo* > CompressorInfoPtrs;
+typedef std::vector< Plugin* > Plugins;
+
+typedef CompressorInfos::const_iterator CompressorInfosCIter;
+typedef Plugins::const_iterator PluginsCIter;
 /** @endcond */
 
-#ifdef EQ_USE_DEPRECATED
-typedef Nodes NodeVector;
-typedef Objects ObjectVector;
-typedef Barriers BarrierVector;
-typedef Connections ConnectionVector;
-typedef ConnectionDescriptions ConnectionDescriptionVector;
-typedef ObjectVersions ObjectVersionVector;
+#ifndef EQ_2_0_API
+namespace base
+{
+typedef co::Error Error;
+typedef co::ErrorRegistry ErrorRegistry;
+typedef co::PluginRegistry PluginRegistry;
+typedef co::Global Global;
+}
 #endif
 }
 
