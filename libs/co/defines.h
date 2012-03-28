@@ -44,12 +44,4 @@
 /** Constant defining use global default in methods with wait parameters. */
 #define EQ_TIMEOUT_DEFAULT 0xfffffffeu
 
-#ifdef __GNUC__
-#  define CO_LIKELY(x)       __builtin_expect( (x), 1 )
-#  define CO_UNLIKELY(x)     __builtin_expect( (x), 0 )
-#else
-#  define CO_LIKELY(x)       x
-#  define CO_UNLIKELY(x)     x
-#endif
-
 #endif // CO_DEFINES_H

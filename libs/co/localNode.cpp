@@ -386,7 +386,7 @@ void LocalNode::addListener( ConnectionPtr connection )
     EQASSERT( isListening( ));
     EQASSERT( connection->isListening( ));
 
-    connection->ref( CO_REFERENCED_PARAM );
+    connection->ref( this );
     NodeAddListenerPacket packet( connection );
 
     // Update everybody's description list of me
@@ -424,7 +424,7 @@ uint32_t LocalNode::_removeListenerNB( ConnectionPtr connection )
     EQASSERT( isListening( ));
     EQASSERTINFO( !connection->isConnected(), connection );
 
-    connection->ref( CO_REFERENCED_PARAM );
+    connection->ref( this );
     NodeRemoveListenerPacket packet( connection, registerRequest( ));
     Nodes nodes;
     getNodes( nodes );
@@ -883,7 +883,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
     node = static_cast< Node* >( result );
-    node->unref( CO_REFERENCED_PARAM ); // ref'd before serveRequest()
+    node->unref( this ); // ref'd before serveRequest()
 
     if( node->isConnected( ))
         return node;
@@ -1751,7 +1751,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
         // Requested node connected to us in the meantime
         NodePtr node = i->second;
         
-        node->ref( CO_REFERENCED_PARAM );
+        node->ref( this );
         serveRequest( requestID, node.get( ));
         return true;
     }
@@ -1771,7 +1771,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
         EQWARN << "Failed to initialize node data" << std::endl;
     EQASSERT( data.empty( ));
 
-    node->ref( CO_REFERENCED_PARAM );
+    node->ref( this );
     serveRequest( requestID, node.get( ));
     return true;
 }
@@ -1851,7 +1851,7 @@ bool LocalNode::_cmdAddListener( Command& command )
     EQASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
-    connection->unref( CO_REFERENCED_PARAM );
+    connection->unref( this );
 
     _impl->connectionNodes[ connection ] = this;
     _impl->incoming.addConnection( connection );
@@ -1884,7 +1884,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     EQASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
-    connection->unref( CO_REFERENCED_PARAM );
+    connection->unref( this );
 
     if( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST )
     {
