@@ -5,8 +5,10 @@ function(INSTALL_SYMLINK FROM TO COMPONENT)
     install(CODE
       "get_filename_component(FROM_ABSOLUTE ${CMAKE_INSTALL_PREFIX}/${FROM}
          ABSOLUTE)
-       execute_process(COMMAND mlink \${FROM_ABSOLUTE}
-         ${CMAKE_INSTALL_PREFIX}/${TO})"
+       file(TO_NATIVE_PATH \${FROM_ABSOLUTE} FROM_ABSOLUTE)
+       file(TO_NATIVE_PATH \${CMAKE_INSTALL_PREFIX}/${TO} TO)
+       message(\"mklink /j \${TO} \${FROM_ABSOLUTE}\")
+       execute_process(COMMAND mklink /j \${TO} \${FROM_ABSOLUTE})"
       COMPONENT "${COMPONENT}")
   else()
     install(CODE
