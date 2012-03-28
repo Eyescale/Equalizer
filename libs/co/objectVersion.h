@@ -90,8 +90,8 @@ namespace co
 
 }
 
-CO_STDEXT_NAMESPACE_OPEN
-#ifdef CO_STDEXT_MSVC
+LB_STDEXT_NAMESPACE_OPEN
+#ifdef LB_STDEXT_MSVC
     /** ObjectVersion hash function. */
     template<>
     inline size_t hash_compare< co::ObjectVersion >::operator()
@@ -113,6 +113,6 @@ CO_STDEXT_NAMESPACE_OPEN
         }
     };
 #endif
-CO_STDEXT_NAMESPACE_CLOSE
+LB_STDEXT_NAMESPACE_CLOSE
 
 #endif // CO_OBJECT_H
