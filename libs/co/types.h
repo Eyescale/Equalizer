@@ -134,8 +134,6 @@ using co::Error;
 using co::ErrorRegistry;
 using co::PluginRegistry;
 using co::Global;
-#define CO_STDEXT_NAMESPACE_OPEN  LB_STDEXT_NAMESPACE_OPEN 
-#define CO_STDEXT_NAMESPACE_CLOSE LB_STDEXT_NAMESPACE_CLOSE
 }
 #endif
 }

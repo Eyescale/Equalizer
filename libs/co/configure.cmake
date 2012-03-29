@@ -11,13 +11,16 @@ endif()
 update_file(${CMAKE_CURRENT_SOURCE_DIR}/version.in.h ${OUTPUT_INCLUDE_DIR}/co/version.h)
 install(FILES ${OUTPUT_INCLUDE_DIR}/co/version.h DESTINATION include/co/ COMPONENT codev)
 
+# Legacy API definitions
+set(LB_CO_DEFINES STDEXT_NAMESPACE_OPEN STDEXT_NAMESPACE_CLOSE)
+
+# Compile definitions
 set(COLLAGE_DEFINES)
 
 if(NOT EQ_BIG_ENDIAN)
   list(APPEND COLLAGE_DEFINES LITTLE_ENDIAN)
 endif(NOT EQ_BIG_ENDIAN)
 
-# if Boost is considered as a required dep, this macro should be obsolete
 if(Boost_FOUND)
   list(APPEND COLLAGE_DEFINES CO_USE_BOOST)
   if(CO_USE_BOOST_SERIALIZATION)
@@ -47,10 +50,7 @@ endif()
 
 # maybe use BOOST_WINDOWS instead?
 if(WIN32)
-  list(APPEND COLLAGE_DEFINES
-    WIN32
-    WIN32_API
-    WIN32_LEAN_AND_MEAN
+  list(APPEND COLLAGE_DEFINES WIN32 WIN32_API WIN32_LEAN_AND_MEAN
     #EQ_INFINIBAND #Enable for IB builds (needs WinOF 2.0 installed)
     )
   set(ARCH Win32)
@@ -66,6 +66,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
+# Write defines file
 set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/co/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines${ARCH}.h.in)
 
@@ -82,7 +83,16 @@ foreach(DEF ${COLLAGE_DEFINES})
     )
 endforeach(DEF ${COLLAGE_DEFINES})
 
+file(APPEND ${DEFINES_FILE_IN} "\n#ifndef EQ_2_0_API\n")
+foreach(DEF ${LB_CO_DEFINES})
+  file(APPEND ${DEFINES_FILE_IN} "#  define CO_${DEF} LB_${DEF}\n")
+endforeach()
+foreach(DEF ${LB_EQ_DEFINES})
+  file(APPEND ${DEFINES_FILE_IN} "#  define EQ_${DEF} LB_${DEF}\n")
+endforeach()
+
 file(APPEND ${DEFINES_FILE_IN}
+  "#endif // EQ_2_0_API\n"
   "\n#endif /* COBASE_DEFINES_${ARCH}_H */\n"
   )
 
