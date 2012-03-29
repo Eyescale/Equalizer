@@ -59,9 +59,9 @@ public:
         if( _findQueue( _name, compound->getInputTileQueues( )))
             return TRAVERSE_CONTINUE;
 
-        //Reset compound Viewport to (0, 0, 1, 1)
+        // reset compound viewport to (0, 0, 1, 1) (#108)
         if( !compound->getViewport().hasArea() )
-            compound->setViewport( Viewport( ) );
+            compound->setViewport( Viewport( ));
 
         TileQueue* input = new TileQueue;
         ServerPtr server = compound->getServer();
