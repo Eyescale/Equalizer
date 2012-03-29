@@ -58,7 +58,7 @@ Strings _initPluginDirectories()
 
 #ifdef _WIN32
         if( GetModuleFileName( 0, cwd, MAXPATHLEN ) > 0 )
-            pluginDirectories.push_back( getDirname( cwd ));
+            pluginDirectories.push_back( base::getDirname( cwd ));
 #endif
 
 #ifdef Darwin
