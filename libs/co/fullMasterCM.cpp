@@ -219,7 +219,7 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
         }
         else if( packet->maxCachedVersion == end )
         {
-            end = EQ_MAX( start, packet->minCachedVersion - 1 );
+            end = LB_MAX( start, packet->minCachedVersion - 1 );
 #ifdef EQ_INSTRUMENT_MULTICAST
             _hit += _version - end;
 #endif

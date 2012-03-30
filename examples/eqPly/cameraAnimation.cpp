@@ -109,7 +109,7 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
         if( count == 7 )
         {
             count = 0;
-            frameNum += EQ_MAX( static_cast<int>( v[0] ), 1 );
+            frameNum += LB_MAX( static_cast<int>( v[0] ), 1 );
 
             _steps.push_back( Step( frameNum,
                              eq::Vector3f(  v[1]  , v[2]  , v[3]   ),

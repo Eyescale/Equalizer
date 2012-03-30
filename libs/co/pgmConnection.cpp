@@ -429,7 +429,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     if( _state == STATE_CLOSED || _readFD == INVALID_SOCKET )
         return;
 
-    WSABUF wsaBuffer = { EQ_MIN( bytes, 65535 ),
+    WSABUF wsaBuffer = { LB_MIN( bytes, 65535 ),
                          reinterpret_cast< char* >( buffer ) };
     DWORD  got   = 0;
     DWORD  flags = 0;
@@ -493,7 +493,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 
     DWORD  wrote;
     WSABUF wsaBuffer = 
-        {   EQ_MIN( bytes, 65535 ),
+        {   LB_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
 

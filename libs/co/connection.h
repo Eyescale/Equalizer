@@ -23,9 +23,9 @@
 #include <co/types.h>                 // Connections type
 #include <co/api.h>
 
+#include <lunchbox/lock.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/referenced.h>   // base class
-#include <lunchbox/lock.h>
 
 #include <sys/types.h>
 #include <string.h>

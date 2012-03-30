@@ -56,7 +56,7 @@ void yyerror( const char *errmsg )
 #define YY_INPUT( buf, result, max_size )                      \
     if( yyinString )                                           \
     {                                                          \
-        result = EQ_MIN( (size_t)(max_size), strlen( yyinString )); \
+        result = LB_MIN( (size_t)(max_size), strlen( yyinString )); \
         if( result )                                           \
             memcpy( buf, yyinString, result );                 \
         yyinString += result;                                  \

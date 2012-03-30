@@ -148,7 +148,7 @@ void ROITracker::updateDelay( const PixelViewports& pvps,
     {
         // disable ROI for next frames, if it was failing before, 
         // increase number of frames to skip
-        area.lastSkip = EQ_MIN( area.lastSkip*2 + 1, 64 );
+        area.lastSkip = LB_MIN( area.lastSkip*2 + 1, 64 );
         area.skip     = area.lastSkip;
     }
     _needsUpdate = false;

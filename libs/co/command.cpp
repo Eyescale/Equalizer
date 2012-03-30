@@ -79,14 +79,14 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
     size_t allocated = 0;
     if( !_data )
     {
-        _dataSize = EQ_MAX( Packet::minSize, size );
+        _dataSize = LB_MAX( Packet::minSize, size );
         _data = static_cast< Packet* >( malloc( _dataSize ));
         allocated = _dataSize;
     }
     else if( size > _dataSize )
     {
         allocated =  size - _dataSize;
-        _dataSize = EQ_MAX( Packet::minSize, size );
+        _dataSize = LB_MAX( Packet::minSize, size );
         free( _data );
         _data = static_cast< Packet* >( malloc( _dataSize ));
     }

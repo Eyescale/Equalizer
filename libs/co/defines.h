@@ -29,15 +29,8 @@
 #endif
 #include <lunchbox/defines.h>
 
-// Defining our own min/max macros seems to be the only sane way to get this
-// functionality across platforms thanks to some screwup in the MS header files.
-#define EQ_MAX(a,b) ((a)>(b)?(a):(b)) //!< returns the maximum of two values
-#define EQ_MIN(a,b) ((a)<(b)?(a):(b)) //!< returns the minimum of two values
-
 /** A 'NULL' value for an uint32.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
-/** The biggest usable value when using special uint32 values.*/
-#define EQ_MAX_UINT32         (0xfffffff0u)
 
 /** Constant defining 'wait forever' in methods with wait parameters. */
 #define EQ_TIMEOUT_INDEFINITE 0xffffffffu // Attn: identical to Win32 INFINITE!

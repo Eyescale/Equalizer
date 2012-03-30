@@ -357,7 +357,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
             _readBuffer->getData( ));
         const uint8_t* payload = reinterpret_cast< const uint8_t* >( header+1 );
         const size_t dataLeft = header->size - _readBufferPos;
-        const size_t size = EQ_MIN( static_cast< size_t >( bytesLeft ),
+        const size_t size = LB_MIN( static_cast< size_t >( bytesLeft ),
                                     dataLeft );
 
         memcpy( ptr, payload + _readBufferPos, size );
@@ -638,9 +638,9 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
 
     _bucketSize += static_cast< uint64_t >( _clock.resetTimef() * _sendRate );
                                                      // opt omit: * 1024 / 1000;
-    _bucketSize = EQ_MIN( _bucketSize, _maxBucketSize );
+    _bucketSize = LB_MIN( _bucketSize, _maxBucketSize );
 
-    const uint64_t size = EQ_MIN( bytes, static_cast< uint64_t >( _mtu ));
+    const uint64_t size = LB_MIN( bytes, static_cast< uint64_t >( _mtu ));
     while( _bucketSize < size )
     {
         lunchbox::Thread::yield();
@@ -653,7 +653,7 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
         }
 
         _bucketSize += static_cast< int64_t >( time * _sendRate );
-        _bucketSize = EQ_MIN( _bucketSize, _maxBucketSize );
+        _bucketSize = LB_MIN( _bucketSize, _maxBucketSize );
     }
     _bucketSize -= size;
 
@@ -1242,7 +1242,7 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
                      Global::getIAttribute( Global::IATTR_RSP_ERROR_DOWNSCALE );
         const float maxDelta = .01f *
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAXSCALE ));
-        const float downScale = EQ_MIN( delta, maxDelta );
+        const float downScale = LB_MIN( delta, maxDelta );
         _sendRate -= 1 + int64_t( _sendRate * downScale );
         EQLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down " << downScale * 100.f
@@ -1460,7 +1460,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
     for( uint64_t i = 0; i < nDatagrams; ++i )
     {
         size_t packetSize = end - data;
-        packetSize = EQ_MIN( packetSize, _payloadSize );
+        packetSize = LB_MIN( packetSize, _payloadSize );
 
         if( _appBuffers.isEmpty( ))
             // trigger processing

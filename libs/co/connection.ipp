@@ -10,7 +10,7 @@ bool Connection::send( Packet &packet, const std::vector<T>& data )
     if( data.size() == 0 )
         return send( packet );
 
-    size_t       packetStorage = EQ_MAX( 8, sizeof( T ));
+    size_t       packetStorage = LB_MAX( 8, sizeof( T ));
     const size_t offset        = packetStorage % 8;
     if( offset )
         packetStorage += 8 - offset;

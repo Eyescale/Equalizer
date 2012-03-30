@@ -212,8 +212,8 @@ void TreeEqualizer::_notifyLoadData( Node* node, Channel* channel,
         case Statistic::CHANNEL_CLEAR:
         case Statistic::CHANNEL_DRAW:
         case Statistic::CHANNEL_READBACK:
-            startTime = EQ_MIN( startTime, stat.startTime );
-            endTime   = EQ_MAX( endTime, stat.endTime );
+            startTime = LB_MIN( startTime, stat.startTime );
+            endTime   = LB_MAX( endTime, stat.endTime );
             break;
 
         case Statistic::CHANNEL_FRAME_TRANSMIT:
@@ -234,8 +234,8 @@ void TreeEqualizer::_notifyLoadData( Node* node, Channel* channel,
         return;
 
     node->time = endTime - startTime;
-    node->time = EQ_MAX( node->time, 1 );
-    node->time = EQ_MAX( node->time, timeTransmit );
+    node->time = LB_MAX( node->time, 1 );
+    node->time = LB_MAX( node->time, timeTransmit );
 }
 
 void TreeEqualizer::_update( Node* node )
@@ -288,31 +288,31 @@ void TreeEqualizer::_update( Node* node )
         case MODE_VERTICAL:
             node->maxSize.x() = node->left->maxSize.x() +
                                 node->right->maxSize.x();  
-            node->maxSize.y() = EQ_MIN( node->left->maxSize.y(), 
+            node->maxSize.y() = LB_MIN( node->left->maxSize.y(), 
                                         node->right->maxSize.y() ); 
             node->boundary2i.x() = node->left->boundary2i.x() +
                                    node->right->boundary2i.x();
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(), 
                                            node->right->boundary2i.y());
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
+            node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
             break;
         case MODE_HORIZONTAL:
-            node->maxSize.x() = EQ_MIN( node->left->maxSize.x(), 
+            node->maxSize.x() = LB_MIN( node->left->maxSize.x(), 
                                         node->right->maxSize.x() );  
             node->maxSize.y() = node->left->maxSize.y() +
                                 node->right->maxSize.y(); 
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(), 
                                            node->right->boundary2i.x() );
             node->boundary2i.y() = node->left->boundary2i.y() +
                                    node->right->boundary2i.y();
-            node->boundaryf = EQ_MAX( node->left->boundaryf,
+            node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
             break;
         case MODE_DB:
-            node->boundary2i.x() = EQ_MAX( node->left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(), 
                                            node->right->boundary2i.x() );
-            node->boundary2i.y() = EQ_MAX( node->left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(), 
                                            node->right->boundary2i.y() );
             node->boundaryf = node->left->boundaryf +node->right->boundaryf;
             break;
@@ -428,8 +428,8 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
             absoluteSplit = ratio * boundary;
         }
 
-        absoluteSplit = EQ_MAX( absoluteSplit, vp.x );
-        absoluteSplit = EQ_MIN( absoluteSplit, end);
+        absoluteSplit = LB_MAX( absoluteSplit, vp.x );
+        absoluteSplit = LB_MIN( absoluteSplit, end);
 
         node->split = (absoluteSplit - vp.x ) / vp.w;
         EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
@@ -487,8 +487,8 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
             absoluteSplit = ratio * boundary;
         }
 
-        absoluteSplit = EQ_MAX( absoluteSplit, vp.y );
-        absoluteSplit = EQ_MIN( absoluteSplit, end);
+        absoluteSplit = LB_MAX( absoluteSplit, vp.y );
+        absoluteSplit = LB_MIN( absoluteSplit, end);
 
         node->split = (absoluteSplit - vp.y ) / vp.h;
         EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "

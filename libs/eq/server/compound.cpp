@@ -1383,15 +1383,15 @@ void Compound::_updateInheritOverdraw()
     _inherit.overdraw.z() -= parentPVP.getXEnd() - pvp.getXEnd();
     _inherit.overdraw.w() -= parentPVP.getYEnd() - pvp.getYEnd();
 
-    _inherit.overdraw.x() = EQ_MAX( _inherit.overdraw.x(), 0 );
-    _inherit.overdraw.y() = EQ_MAX( _inherit.overdraw.y(), 0 );
-    _inherit.overdraw.z() = EQ_MAX( _inherit.overdraw.z(), 0 );
-    _inherit.overdraw.w() = EQ_MAX( _inherit.overdraw.w(), 0 );
+    _inherit.overdraw.x() = LB_MAX( _inherit.overdraw.x(), 0 );
+    _inherit.overdraw.y() = LB_MAX( _inherit.overdraw.y(), 0 );
+    _inherit.overdraw.z() = LB_MAX( _inherit.overdraw.z(), 0 );
+    _inherit.overdraw.w() = LB_MAX( _inherit.overdraw.w(), 0 );
 
-    _inherit.overdraw.x() = EQ_MIN( _inherit.overdraw.x(), pvp.w );
-    _inherit.overdraw.y() = EQ_MIN( _inherit.overdraw.y(), pvp.h );
-    _inherit.overdraw.z() = EQ_MIN( _inherit.overdraw.z(), pvp.w );
-    _inherit.overdraw.w() = EQ_MIN( _inherit.overdraw.w(), pvp.h );
+    _inherit.overdraw.x() = LB_MIN( _inherit.overdraw.x(), pvp.w );
+    _inherit.overdraw.y() = LB_MIN( _inherit.overdraw.y(), pvp.h );
+    _inherit.overdraw.z() = LB_MIN( _inherit.overdraw.z(), pvp.w );
+    _inherit.overdraw.w() = LB_MIN( _inherit.overdraw.w(), pvp.h );
 
     EQASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
                   pvp.w << " < " << 

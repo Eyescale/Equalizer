@@ -316,7 +316,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
         return;
 
     ResetEvent( _read.hEvent );
-    DWORD use = EQ_MIN( bytes, EQ_READ_BUFFER_SIZE );
+    DWORD use = LB_MIN( bytes, EQ_READ_BUFFER_SIZE );
     
 
     if( ReadFile( _fd, buffer, use, &_readDone, &_read ) )
@@ -368,7 +368,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
         return -1;
 
     DWORD wrote;
-    const DWORD use = EQ_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
+    const DWORD use = LB_MIN( bytes, EQ_WRITE_BUFFER_SIZE );
 
     ResetEvent( _write.hEvent );
     if( WriteFile( _fd, buffer, use, &wrote, &_write ))

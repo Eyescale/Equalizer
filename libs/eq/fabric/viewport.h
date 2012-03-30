@@ -142,19 +142,19 @@ namespace fabric
                 const float dEx = static_cast< float >( rhs.x + rhs.w );
                 const float dEy = static_cast< float >( rhs.y + rhs.h );
                     
-                x = EQ_MAX( x, rhs.x );
-                y = EQ_MAX( y, rhs.y );
-                w = EQ_MIN( sEx, dEx ) - x;
-                h = EQ_MIN( sEy, dEy ) - y;
+                x = LB_MAX( x, rhs.x );
+                y = LB_MAX( y, rhs.y );
+                w = LB_MIN( sEx, dEx ) - x;
+                h = LB_MIN( sEy, dEy ) - y;
             }
 
         /** Create the union of the two viewports. @version 1.0 */
         void unite( const Viewport& rhs )
             {
-                const float xEnd = EQ_MAX( getXEnd(), rhs.getXEnd( ));
-                const float yEnd = EQ_MAX( getYEnd(), rhs.getYEnd( ));
-                x = EQ_MIN( x, rhs.x );
-                y = EQ_MIN( y, rhs.y );
+                const float xEnd = LB_MAX( getXEnd(), rhs.getXEnd( ));
+                const float yEnd = LB_MAX( getYEnd(), rhs.getYEnd( ));
+                x = LB_MIN( x, rhs.x );
+                y = LB_MIN( y, rhs.y );
                 w = xEnd - x;
                 h = yEnd - y;
             }

@@ -925,9 +925,9 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
 
         for( int32_t x = 0; x < pvp.w; ++x )
         {
-            dst[0] = EQ_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
-            dst[1] = EQ_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
-            dst[2] = EQ_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
+            dst[0] = LB_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
+            dst[1] = LB_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
+            dst[2] = LB_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
             dst[3] =                   src[3]*dst[3] >> 8;
 
             src += step;

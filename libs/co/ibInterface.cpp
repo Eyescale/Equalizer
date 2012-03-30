@@ -375,7 +375,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
 #endif
         // find a better memcpy or a system that we don't need to use memcpy
         // copy buffer
-        uint32_t nbRead = EQ_MIN( bytes, sizebuf - _posReadInBuffer);
+        uint32_t nbRead = LB_MIN( bytes, sizebuf - _posReadInBuffer);
      /*   memcpy(reinterpret_cast<char*>( buffer ) + comptRead, 
                                  reinterpret_cast<char*>
                                  ( _readBlocks[_numBufRead]->buf.getData()) + 
@@ -509,7 +509,7 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
     uint32_t incBytes = 0;
     uint32_t compt = 0;
     uint32_t size;
-    size = EQ_MIN( numBytes, EQ_MAXBLOCKBUFFER );
+    size = LB_MIN( numBytes, EQ_MAXBLOCKBUFFER );
     ib_local_ds_t    list;
 #ifdef EQ_MEASURE_TIME
     eq::lunchbox::Clock       clockCopy;
