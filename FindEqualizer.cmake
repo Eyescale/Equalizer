@@ -119,9 +119,13 @@ else() # find old one
 endif()
 
 if(Equalizer_FIND_REQUIRED)
-    set(_eq_version_output_type FATAL_ERROR)
+  set(_eq_version_output_type FATAL_ERROR)
+  set(_eq_output 1)
 else()
-    set(_eq_version_output_type STATUS)
+  set(_eq_version_output_type STATUS)
+  if(NOT Equalizer_FIND_QUIETLY)
+    set(_eq_output 1)
+  endif()
 endif()
 
 if(_eq_Version_file)
@@ -148,6 +152,7 @@ if(_eq_Version_file)
     CACHE INTERNAL "The version of Equalizer which was detected")
 else()
   set(_eq_EPIC_FAIL TRUE)
+  if(_eq_output)
   message(${_eq_version_output_type}
     "Can't find Equalizer header file version.h.")
 endif()
