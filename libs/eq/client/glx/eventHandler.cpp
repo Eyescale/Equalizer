@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -32,6 +32,7 @@
 #include <lunchbox/perThread.h>
 
 #include <X11/keysym.h>
+#include <X11/XKBlib.h>
 
 namespace eq
 {
@@ -322,8 +323,8 @@ uint32_t EventHandler::_getKey( XEvent& event )
     if( event.xkey.state & ShiftMask )
         index = 1;
 
-    const KeySym key = XKeycodeToKeysym( event.xany.display, 
-                                         event.xkey.keycode, index );
+    const KeySym key = XkbKeycodeToKeysym( event.xany.display, 
+                                           event.xkey.keycode, 0, index );
     switch( key )
     {
         case XK_Escape:    return KC_ESCAPE;    
