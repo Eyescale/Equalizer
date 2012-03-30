@@ -40,23 +40,23 @@ public:
                                 uint8_t& two, uint8_t& three, uint8_t& four ) 
     {
         
-        one = ( input & 0xf ) | (( input &( EQ_BIT14 | EQ_BIT13 )) >> 8 ) |
-                                (( input &( EQ_BIT24 | EQ_BIT23 )) >> 16 );
+        one = ( input & 0xf ) | (( input &( LB_BIT14 | LB_BIT13 )) >> 8 ) |
+                                (( input &( LB_BIT24 | LB_BIT23 )) >> 16 );
 
-        two = (( input &( EQ_BIT26 | EQ_BIT25 )) >> 24 ) |
-               ( input &( EQ_BIT6 | EQ_BIT5 )) |
-              (( input &( EQ_BIT16 | EQ_BIT15 )) >> 12 ) |
-              (( input &( EQ_BIT12 | EQ_BIT11 )) >> 4 );
+        two = (( input &( LB_BIT26 | LB_BIT25 )) >> 24 ) |
+               ( input &( LB_BIT6 | LB_BIT5 )) |
+              (( input &( LB_BIT16 | LB_BIT15 )) >> 12 ) |
+              (( input &( LB_BIT12 | LB_BIT11 )) >> 4 );
 
-        three = (( input &( EQ_BIT28 | EQ_BIT27 )) >> 22 ) |
-                (( input &( EQ_BIT18 | EQ_BIT17 )) >> 14 ) |
-                 ( input &( EQ_BIT8 | EQ_BIT7 )) |
-                (( input &( EQ_BIT22 | EQ_BIT21 )) >> 20 );
+        three = (( input &( LB_BIT28 | LB_BIT27 )) >> 22 ) |
+                (( input &( LB_BIT18 | LB_BIT17 )) >> 14 ) |
+                 ( input &( LB_BIT8 | LB_BIT7 )) |
+                (( input &( LB_BIT22 | LB_BIT21 )) >> 20 );
         
-        four  = (( input &( EQ_BIT32 | EQ_BIT31 | 
-                            EQ_BIT30 | EQ_BIT29 )) >> 24 ) |
-                (( input &( EQ_BIT20 | EQ_BIT19 )) >> 16 ) |
-                (( input &( EQ_BIT10 | EQ_BIT9 )) >> 8 );
+        four  = (( input &( LB_BIT32 | LB_BIT31 | 
+                            LB_BIT30 | LB_BIT29 )) >> 24 ) |
+                (( input &( LB_BIT20 | LB_BIT19 )) >> 16 ) |
+                (( input &( LB_BIT10 | LB_BIT9 )) >> 8 );
     }
 
     static inline void swizzle( const uint32_t input, uint8_t& one,
@@ -67,19 +67,19 @@ public:
                                       const uint8_t three, const uint8_t four )
     {
         return ( one & 0xf ) | 
-               (( one &( EQ_BIT5 | EQ_BIT6 )) << 8 ) |
-               (( one &( EQ_BIT7 | EQ_BIT8 )) << 16 ) |
-               (( two &( EQ_BIT1 | EQ_BIT2 )) << 24 ) |
-               (( two &( EQ_BIT3 | EQ_BIT4 )) << 12 ) |
+               (( one &( LB_BIT5 | LB_BIT6 )) << 8 ) |
+               (( one &( LB_BIT7 | LB_BIT8 )) << 16 ) |
+               (( two &( LB_BIT1 | LB_BIT2 )) << 24 ) |
+               (( two &( LB_BIT3 | LB_BIT4 )) << 12 ) |
                 ( two & 0x30 ) |
-               (( two &( EQ_BIT7 | EQ_BIT8 )) << 4 )|
+               (( two &( LB_BIT7 | LB_BIT8 )) << 4 )|
                ( three & 0xc0) |
-               (( three &( EQ_BIT6 | EQ_BIT5 )) << 22 ) |
-               (( three &( EQ_BIT4 | EQ_BIT3 )) << 14 ) |
-               (( three &( EQ_BIT2 | EQ_BIT1 )) << 20 )|
+               (( three &( LB_BIT6 | LB_BIT5 )) << 22 ) |
+               (( three &( LB_BIT4 | LB_BIT3 )) << 14 ) |
+               (( three &( LB_BIT2 | LB_BIT1 )) << 20 )|
                (( four & 0xf0 ) << 24 ) |
-               (( four &( EQ_BIT4 | EQ_BIT3 )) << 16 ) |
-               (( four &( EQ_BIT2 | EQ_BIT1 )) << 8 );
+               (( four &( LB_BIT4 | LB_BIT3 )) << 16 ) |
+               (( four &( LB_BIT2 | LB_BIT1 )) << 8 );
     }
 
     static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,

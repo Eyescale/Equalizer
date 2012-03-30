@@ -452,8 +452,8 @@ uint32_t EventHandler::_getButtonState()
     
     // swap button 2&3
     return ( (buttons & 0xfffffff9u) +
-             ((buttons & EQ_BIT3) >> 1) +
-             ((buttons & EQ_BIT2) << 1) );
+             ((buttons & LB_BIT3) >> 1) +
+             ((buttons & LB_BIT2) << 1) );
 }
 
 

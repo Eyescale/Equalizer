@@ -57,11 +57,11 @@ namespace server
          */
         enum Buffer
         {
-            BUFFER_NONE      = EQ_BIT_NONE,
-            BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
-            BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
-            BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
-            BUFFER_ALL       = EQ_BIT_ALL_32
+            BUFFER_NONE      = LB_BIT_NONE,
+            BUFFER_UNDEFINED = LB_BIT1,  //!< Inherit, only if no others are set
+            BUFFER_COLOR     = LB_BIT5,  //!< Use color images
+            BUFFER_DEPTH     = LB_BIT9,  //!< Use depth images
+            BUFFER_ALL       = LB_BIT_ALL_32
         };
 
         /** The storage type for pixel data. @version 1.0 */

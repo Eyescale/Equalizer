@@ -248,7 +248,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
                               const uint64_t size )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( size < EQ_BIT48,
+    EQASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;

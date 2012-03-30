@@ -37,9 +37,9 @@ namespace detail { class ConfigParams; }
          */
         enum Flags
         {
-            FLAG_NONE = EQ_BIT_NONE, //!< Unset all flags
-            FLAG_MULTIPROCESS = EQ_BIT1, //!< Auto-config: one node per pipe
-            FLAG_MULTIPROCESS_DB = EQ_BIT2, //!< one node per DB decomposition
+            FLAG_NONE = LB_BIT_NONE, //!< Unset all flags
+            FLAG_MULTIPROCESS = LB_BIT1, //!< Auto-config: one node per pipe
+            FLAG_MULTIPROCESS_DB = LB_BIT2, //!< one node per DB decomposition
         };
 
         /** Construct new configuration parameters. @version 1.0 */

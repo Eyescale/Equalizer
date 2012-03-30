@@ -34,15 +34,15 @@ namespace fabric
      */
     enum Task
     {
-        TASK_NONE     = EQ_BIT_NONE,
-        TASK_DEFAULT  = EQ_BIT1,   //!< leaf: all, other ASSEMBLE|READBACK|VIEW
-        TASK_VIEW     = EQ_BIT2,   //!< View start/finish
-        TASK_CLEAR    = EQ_BIT5,   //!< Clear the framebuffer
-        TASK_CULL     = EQ_BIT9,   //!< Cull data [unused]
-        TASK_DRAW     = EQ_BIT13,  //!< Draw data to the framebuffer
-        TASK_ASSEMBLE = EQ_BIT17,  //!< Combine input frames
-        TASK_READBACK = EQ_BIT21,  //!< Read results to output frames
-        TASK_ALL      = EQ_BIT_ALL_32
+        TASK_NONE     = LB_BIT_NONE,
+        TASK_DEFAULT  = LB_BIT1,   //!< leaf: all, other ASSEMBLE|READBACK|VIEW
+        TASK_VIEW     = LB_BIT2,   //!< View start/finish
+        TASK_CLEAR    = LB_BIT5,   //!< Clear the framebuffer
+        TASK_CULL     = LB_BIT9,   //!< Cull data [unused]
+        TASK_DRAW     = LB_BIT13,  //!< Draw data to the framebuffer
+        TASK_ASSEMBLE = LB_BIT17,  //!< Combine input frames
+        TASK_READBACK = LB_BIT21,  //!< Read results to output frames
+        TASK_ALL      = LB_BIT_ALL_32
     };
 }
 }
