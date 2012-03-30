@@ -153,8 +153,9 @@ if(_eq_Version_file)
 else()
   set(_eq_EPIC_FAIL TRUE)
   if(_eq_output)
-  message(${_eq_version_output_type}
-    "Can't find Equalizer header file version.h.")
+    message(${_eq_version_output_type}
+      "Can't find Equalizer header file version.h.")
+  endif()
 endif()
 
 # Version checking
