@@ -188,8 +188,6 @@ else()
   endif()
 endif()
 
-endif()
-
 if(_co_EPIC_FAIL)
   # Zero out everything, we didn't meet version requirements
   set(COLLAGE_FOUND FALSE)
