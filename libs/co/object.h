@@ -26,7 +26,6 @@
 namespace co
 {
     class ObjectCM;
-    struct NodeMapObjectReplyPacket;
 
 #  define CO_COMMIT_NEXT LB_UNDEFINED_UINT32 //!< the next commit incarnation
 
@@ -353,7 +352,7 @@ namespace co
         NodePtr getMasterNode();
 
         /** @internal */
-        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
+        void addSlave( Command& command );
         CO_API void removeSlave( NodePtr node ); //!< @internal
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal

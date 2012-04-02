@@ -119,7 +119,6 @@ set(CO_SOURCES
     queueMaster.cpp
     queueSlave.cpp
     socketConnection.cpp
-    staticMasterCM.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
     version.cpp

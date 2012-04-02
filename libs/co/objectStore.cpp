@@ -807,32 +807,17 @@ bool ObjectStore::_cmdMapObject( Command& command )
             }
         }
     }
-    
-    NodeMapObjectReplyPacket reply( packet );
-    reply.nodeID = node->getNodeID();
 
     if( master )
-    {
-        // Check requested version
-        NodeMapObjectSuccessPacket successPacket( packet );
-        successPacket.changeType       = master->getChangeType();
-        successPacket.masterInstanceID = master->getInstanceID();
-        successPacket.nodeID = node->getNodeID();
-
-        // Prefer multicast connection, since this will be used by the CM as
-        // well. If we send the packet on another connection, it might arrive
-        // after the packets below
-        if( !node->multicast( successPacket ))
-            node->send( successPacket );
-        
-        master->addSlave( command, reply );
-        reply.result = true;
-    }
+        master->addSlave( command );
     else
+    {
         EQWARN << "Can't find master object to map " << id << std::endl;
 
-    if( !node->multicast( reply ))
+        NodeMapObjectReplyPacket reply( packet );
+        reply.nodeID = node->getNodeID();
         node->send( reply );
+    }
     return true;
 }
 

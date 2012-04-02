@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -58,6 +58,7 @@ namespace co
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
 
+        virtual void addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
         virtual void removeSlaves( NodePtr node );
         virtual const Nodes getSlaveNodes() const
@@ -78,9 +79,9 @@ namespace co
         /** Slave commit queue. */
         DataIStreamQueue _slaveCommits;
 
+        virtual void _addSlave( NodePtr node );
+
         uint128_t _apply( ObjectDataIStream* is );
-        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID,
-                                const uint128_t& version );
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
