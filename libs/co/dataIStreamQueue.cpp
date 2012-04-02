@@ -75,7 +75,7 @@ void DataIStreamQueue::recycle( ObjectDataIStream* stream )
 
 bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERTINFO( _pending.size() < 100, "More than 100 pending commits");
 
     ObjectDataIStream* istream = 0;

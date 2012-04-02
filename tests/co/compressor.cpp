@@ -195,7 +195,7 @@ void _testFile()
 
 void _testRandom()
 {
-    size_t size = EQ_10MB;
+    size_t size = LB_10MB;
     uint8_t* data = new uint8_t[size];
     lunchbox::RNG rng;
     for( size_t k = 0; k<size; ++k )
@@ -211,7 +211,7 @@ void _testRandom()
     for( std::vector<uint32_t>::const_iterator i = compressorNames.begin();
          i != compressorNames.end(); ++i )
     {
-        size = EQ_10MB;
+        size = LB_10MB;
         for( size_t j = 0; j<8; ++j ) // test all granularities between mod 8..1
         {
             _testData( *i, "Random data", data, size );

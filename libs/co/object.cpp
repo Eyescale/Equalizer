@@ -258,9 +258,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
+void Object::addSlave( Command& command )
 {
-    _cm->addSlave( command, reply );
+    _cm->addSlave( command );
 }
 
 void Object::removeSlave( NodePtr node )

@@ -24,7 +24,7 @@ namespace eq
 {
 namespace fabric
 {
-    /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
+    /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
         LOG_INIT     = co::LOG_CUSTOM << 0,   //!< Log initialization (512)

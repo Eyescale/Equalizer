@@ -446,7 +446,7 @@ void RDMAConnection::close( )
         // Wait for outstanding acks.
         while( !_rptr.isEmpty( ) && _established && _pollCQ( ))
         {
-            if( EQ_TIMEOUT_INDEFINITE != timeout )
+            if( LB_TIMEOUT_INDEFINITE != timeout )
             {
                 if(( clock.getTime64( ) - start ) > timeout )
                 {
@@ -530,7 +530,7 @@ retry2:
             goto err;
         }
 
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -554,7 +554,7 @@ retry2:
 
     if(( 0L == _credits ) && _established )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -640,7 +640,7 @@ retry:
 
     if( 0L == _credits )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -660,7 +660,7 @@ retry:
 
     if( 0UL == bytes_put )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -1546,7 +1546,7 @@ retry:
 
     if(( 0ULL == _rkey ) && _established )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {

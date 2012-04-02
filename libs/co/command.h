@@ -105,7 +105,7 @@ namespace co
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);
 
-        EQ_TS_VAR( _writeThread );
+        LB_TS_VAR( _writeThread );
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, const Command& );

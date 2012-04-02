@@ -51,7 +51,7 @@ namespace co
     {
         NodeConnectPacket( const LocalNodePtr node )
                 : nodeID( node->getNodeID( ))
-                , requestID( EQ_UNDEFINED_UINT32 )
+                , requestID( LB_UNDEFINED_UINT32 )
                 , nodeType( node->getType( ))
             {
                 command = CMD_NODE_CONNECT;
@@ -61,7 +61,7 @@ namespace co
         const NodeID nodeID;
         uint32_t requestID;
         const uint32_t nodeType;
-        EQ_ALIGN8( char nodeData[8] );
+        LB_ALIGN8( char nodeData[8] );
     };
 
     struct NodeConnectReplyPacket : public NodePacket
@@ -77,7 +77,7 @@ namespace co
         NodeID nodeID;
         const uint32_t requestID;
         uint32_t nodeType;
-        EQ_ALIGN8( char nodeData[8] );
+        LB_ALIGN8( char nodeData[8] );
     };
 
     struct NodeConnectAckPacket : public NodePacket
@@ -100,7 +100,7 @@ namespace co
 
         NodeID   id;
         uint32_t nodeType;
-        EQ_ALIGN8( char data[8] );
+        LB_ALIGN8( char data[8] );
     };
 
     struct NodeDisconnectPacket : public NodePacket
@@ -143,7 +143,7 @@ namespace co
         NodeID   nodeID;
         uint32_t requestID;
         uint32_t nodeType; 
-        EQ_ALIGN8( char nodeData[8] );
+        LB_ALIGN8( char nodeData[8] );
     };
 
     struct NodeAcquireSendTokenPacket : public NodePacket
@@ -191,7 +191,7 @@ namespace co
             }
 
         Connection* connection;
-        EQ_ALIGN8( char connectionData[8] );
+        LB_ALIGN8( char connectionData[8] );
     };
 
     struct NodeRemoveListenerPacket : public NodePacket
@@ -209,7 +209,7 @@ namespace co
         const uint32_t requestID;
         const uint32_t pad;
         Connection* connection; // Don't reorder! (32/64 bit interop)
-        EQ_ALIGN8( char connectionData[8] );
+        LB_ALIGN8( char connectionData[8] );
     };
 
     struct NodeAckRequestPacket : public NodePacket
@@ -227,7 +227,7 @@ namespace co
     struct NodeFindMasterNodeIDPacket : public NodePacket
     {
         NodeFindMasterNodeIDPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
                 , fill( 0 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID;
@@ -349,7 +349,7 @@ namespace co
     struct NodeRemoveNodePacket : public NodePacket
     {
         NodeRemoveNodePacket()
-             : requestID( EQ_UNDEFINED_UINT32 )
+             : requestID( LB_UNDEFINED_UINT32 )
             {
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
@@ -397,7 +397,7 @@ namespace co
     struct NodeDetachObjectPacket : public NodePacket
     {
         NodeDetachObjectPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
         {
             command   = CMD_NODE_DETACH_OBJECT;
             size      = sizeof( NodeDetachObjectPacket ); 

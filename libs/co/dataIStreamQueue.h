@@ -62,7 +62,7 @@ namespace co
         /** Cached input streams (+decompressor) */
         lunchbox::Pool< ObjectDataIStream, true > _iStreamCache;
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 

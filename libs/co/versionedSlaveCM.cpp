@@ -221,7 +221,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                          const uint128_t& startVersion )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
 #if 0
     EQLOG( LOG_OBJECTS ) << lunchbox::disableFlush << "Adding data front ";
 #endif
@@ -307,7 +307,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 bool VersionedSlaveCM::_cmdData( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     EQASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )

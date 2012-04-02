@@ -57,7 +57,7 @@ namespace glx
         uint32_t _getButtonAction( XEvent& event );
         uint32_t _getKey( XEvent& event );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 }

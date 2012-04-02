@@ -27,14 +27,6 @@
 #ifdef _WIN32 //_MSC_VER
 #  include <co/definesWin32.h>
 #endif
-#include <lunchbox/defines.h>
-
-/** A 'NULL' value for an uint32.*/
-#define EQ_UNDEFINED_UINT32   (0xffffffffu)
-
-/** Constant defining 'wait forever' in methods with wait parameters. */
-#define EQ_TIMEOUT_INDEFINITE 0xffffffffu // Attn: identical to Win32 INFINITE!
-/** Constant defining use global default in methods with wait parameters. */
-#define EQ_TIMEOUT_DEFAULT 0xfffffffeu
+#include <lunchbox/api.h>
 
 #endif // CO_DEFINES_H

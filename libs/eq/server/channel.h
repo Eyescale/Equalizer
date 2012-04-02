@@ -211,7 +211,7 @@ namespace server
         typedef std::vector< ChannelListener* > ChannelListeners;
         ChannelListeners _listeners;
 
-        EQ_TS_VAR( _serverThread );
+        LB_TS_VAR( _serverThread );
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

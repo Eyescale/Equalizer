@@ -91,7 +91,7 @@ void CommandQueue::wakeup()
 
 Command* CommandQueue::pop( const uint32_t timeout )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     Command* command;
     if( !_impl->commands.timedPop( timeout, command ))
@@ -102,7 +102,7 @@ Command* CommandQueue::pop( const uint32_t timeout )
 
 Command* CommandQueue::tryPop()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     Command* command = 0;
     _impl->commands.tryPop( command );
     return command;

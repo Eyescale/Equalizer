@@ -54,6 +54,14 @@ static void _exitPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
+    const char *env = getenv( "EQ_LOG_LEVEL" );
+    if( env )
+        lunchbox::Log::level = lunchbox::Log::getLogLevel( env );
+
+    env = getenv( "EQ_LOG_TOPICS" );
+    if( env )
+        lunchbox::Log::topics |= atoll( env );
+
     lunchbox::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
     EQINFO << "Equalizer v" << Version::getString() << " initializing"

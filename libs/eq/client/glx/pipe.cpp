@@ -100,14 +100,14 @@ std::string Pipe::getXDisplayString()
     const uint32_t port   = getPipe()->getPort();
     const uint32_t device = getPipe()->getDevice();
 
-    if( port != EQ_UNDEFINED_UINT32 )
+    if( port != LB_UNDEFINED_UINT32 )
     { 
-        if( device == EQ_UNDEFINED_UINT32 )
+        if( device == LB_UNDEFINED_UINT32 )
             stringStream << ":" << port;
         else
             stringStream << ":" << port << "." << device;
     }
-    else if( device != EQ_UNDEFINED_UINT32 )
+    else if( device != LB_UNDEFINED_UINT32 )
         stringStream << ":0." << device;
     else if( !getenv( "DISPLAY" ))
         stringStream <<  ":0";
@@ -134,12 +134,12 @@ void Pipe::setXDisplay( Display* display )
         const uint32_t port = getPipe()->getPort();
         const uint32_t device = getPipe()->getDevice();
 
-        if( port != EQ_UNDEFINED_UINT32 && info.port != port )
+        if( port != LB_UNDEFINED_UINT32 && info.port != port )
             EQWARN << "Display mismatch: provided display connection uses"
                    << " display " << info.port << ", but pipe has port " << port
                    << std::endl;
 
-        if( device != EQ_UNDEFINED_UINT32 && info.device != device )
+        if( device != LB_UNDEFINED_UINT32 && info.device != device )
             EQWARN << "Screen mismatch: provided display connection uses "
                    << "default screen " << info.device
                    << ", but pipe has screen " << device << std::endl;

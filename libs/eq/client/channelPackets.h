@@ -120,7 +120,7 @@ namespace eq
         Viewport region;
         uint32_t frameNumber;
         uint32_t nStatistics;
-        EQ_ALIGN8( Statistic statistics[1] );
+        LB_ALIGN8( Statistic statistics[1] );
     };
         
 
@@ -165,7 +165,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameReadbackPacket : public ChannelTaskPacket
@@ -177,7 +177,7 @@ namespace eq
             }
 
         uint32_t             nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
@@ -236,7 +236,7 @@ namespace eq
         co::ObjectVersion queueVersion;
         uint32_t          tasks;
         uint32_t          nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

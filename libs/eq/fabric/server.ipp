@@ -155,7 +155,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
     localNode->mapObject( config, packet->configVersion );
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS, 
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ConfigCreateReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -188,7 +188,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
     localNode->unmapObject( config );
     _nodeFactory->releaseConfig( config );
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );

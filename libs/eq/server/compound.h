@@ -598,7 +598,7 @@ namespace server
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQ_TS_VAR( _serverThread );
+        LB_TS_VAR( _serverThread );
 
         //-------------------- Methods --------------------
         void _addChild( Compound* child );

@@ -19,14 +19,14 @@
 #ifndef CO_API_H
 #define CO_API_H
 
-#include <lunchbox/api.h>
+#include <co/defines.h>
 
 #if defined(COLLAGE_STATIC)
 #  define CO_API
 #elif defined(COLLAGE_SHARED)
-#  define CO_API EQ_DLLEXPORT
+#  define CO_API LB_DLLEXPORT
 #else
-#  define CO_API EQ_DLLIMPORT
+#  define CO_API LB_DLLIMPORT
 #endif
 
 #endif //CO_API_H

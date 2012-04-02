@@ -470,35 +470,35 @@ util::FrameBufferObject* Channel::getFrameBufferObject()
 
 View* Channel::getView()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getView( getContext().view );
 }
 
 const View* Channel::getView() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Pipe* pipe = getPipe();
     return pipe->getView( getContext().view );
 }
 
 co::QueueSlave* Channel::_getQueue( const co::ObjectVersion& queueVersion )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getQueue( queueVersion );
 }
 
 View* Channel::getNativeView()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getView( getNativeContext().view );
 }
 
 const View* Channel::getNativeView() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Pipe* pipe = getPipe();
     return pipe->getView( getNativeContext().view );
 }
@@ -520,7 +520,7 @@ void Channel::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 void Channel::applyFrameBufferObject()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( _impl->fbo )
     {
         const PixelViewport& pvp = getNativePixelViewport();
@@ -533,7 +533,7 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Window* window = getWindow();
     if( !_impl->fbo && window->getSystemWindow()->getFrameBufferObject() == 0 )
     {
@@ -546,7 +546,7 @@ void Channel::applyBuffer()
 
 void Channel::bindFrameBuffer()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Window* window = getWindow();
     if( !window->getSystemWindow( ))
        return;
@@ -559,14 +559,14 @@ void Channel::bindFrameBuffer()
 
 void Channel::applyColorMask() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const ColorMask& colorMask = getDrawBufferMask();
     glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
 }
 
 void Channel::applyViewport() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PixelViewport& pvp = getPixelViewport();
     // TODO: OPT return if vp unchanged
 
@@ -582,7 +582,7 @@ void Channel::applyViewport() const
 
 void Channel::applyFrustum() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( useOrtho( ))
         applyOrtho();
     else
@@ -591,7 +591,7 @@ void Channel::applyFrustum() const
 
 void Channel::applyPerspective() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Frustumf frustum = getPerspective();
     const Vector2f jitter = getJitter();
 
@@ -603,7 +603,7 @@ void Channel::applyPerspective() const
 
 void Channel::applyOrtho() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Frustumf ortho = getOrtho();
     const Vector2f jitter = getJitter();
 
@@ -615,7 +615,7 @@ void Channel::applyOrtho() const
 
 void Channel::applyScreenFrustum() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Frustumf frustum = getScreenFrustum();
     EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
                          frustum.bottom(), frustum.top(),
@@ -624,7 +624,7 @@ void Channel::applyScreenFrustum() const
 
 void Channel::applyHeadTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( useOrtho( ))
         applyOrthoTransform();
     else
@@ -633,14 +633,14 @@ void Channel::applyHeadTransform() const
 
 void Channel::applyPerspectiveTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Matrix4f& xfm = getPerspectiveTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
 
 void Channel::applyOrthoTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Matrix4f& xfm = getOrthoTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
@@ -714,13 +714,13 @@ bool Channel::isStopped() const { return _impl->state == STATE_STOPPED; }
 
 const Frames& Channel::getInputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     return _impl->inputFrames;
 }
 
 const Frames& Channel::getOutputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     return _impl->outputFrames;
 }
 
@@ -1609,7 +1609,7 @@ void Channel::_sendFrameDataReady( const ChannelFrameSetReadyPacket* req )
 void Channel::_transmitImages( const RenderContext& context, Frame* frame,
                                const size_t startPos )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     const Eye eye = getEye();
     const std::vector<uint128_t>& toNodes = frame->getInputNodes( eye );
@@ -1639,7 +1639,7 @@ void Channel::_transmitImages( const RenderContext& context, Frame* frame,
 void Channel::_setOutputFrames( const uint32_t nFrames,
                                 const co::ObjectVersion* frames )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     for( uint32_t i=0; i<nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
@@ -1650,7 +1650,7 @@ void Channel::_setOutputFrames( const uint32_t nFrames,
 
 void Channel::_resetOutputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     _setOutputFramesReady();
     _impl->outputFrames.clear();
 }

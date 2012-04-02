@@ -340,7 +340,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     if( _size <= _maxSize )
         return;
 
-    EQ_TS_SCOPED( _thread );
+    LB_TS_SCOPED( _thread );
 
     std::vector< lunchbox::uint128_t > keys;
     const uint64_t target = uint64_t( float( _maxSize ) * 0.8f );

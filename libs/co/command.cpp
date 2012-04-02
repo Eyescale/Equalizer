@@ -39,7 +39,7 @@ Command::~Command()
 
 void Command::retain()
 {
-    //EQ_TS_THREAD( _writeThread );
+    //LB_TS_THREAD( _writeThread );
     if( ++_refCount == 1 ) // first reference
     {
         EQASSERT( _refCount == 1 ); // ought to be single-threaded in recv
@@ -72,7 +72,7 @@ void Command::release()
 size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
                         const uint64_t size )
 {
-    EQ_TS_THREAD( _writeThread );
+    LB_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
     EQASSERTINFO( !_func.isValid(), *this );
 
@@ -103,7 +103,7 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
 
 void Command::clone_( Command& from )
 {
-    EQ_TS_THREAD( _writeThread );
+    LB_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
     EQASSERT( !_func.isValid( ));
 
@@ -116,7 +116,7 @@ void Command::clone_( Command& from )
 
 void Command::_free()
 {
-    EQ_TS_THREAD( _writeThread );
+    LB_TS_THREAD( _writeThread );
     EQASSERT( _refCount == 0 );
     EQASSERT( !_func.isValid( ));
 

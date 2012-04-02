@@ -144,7 +144,7 @@ namespace util
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
 
         /** Check the result after changes to an FBO and set the _valid flag. */
         bool _checkStatus();

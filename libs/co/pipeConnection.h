@@ -79,7 +79,7 @@ namespace co
 #ifdef _WIN32
         co::ConnectionPtr _namedPipe;
 
-        EQ_TS_VAR( _recvThread );
+        LB_TS_VAR( _recvThread );
 #endif
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

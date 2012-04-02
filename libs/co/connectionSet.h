@@ -19,7 +19,7 @@
 #define CO_CONNECTION_SET_H
 
 #include <co/connectionListener.h> // base class
-#include <lunchbox/thread.h> // for EQ_TS_VAR
+#include <lunchbox/thread.h> // for LB_TS_VAR
 
 namespace co
 {
@@ -60,11 +60,11 @@ namespace detail { class ConnectionSet; }
          * Depending on the event, the error number and connection are set.
          * 
          * @param timeout the timeout to wait for an event in milliseconds,
-         *                or EQ_TIMEOUT_INDEFINITE if the call should block
+         *                or LB_TIMEOUT_INDEFINITE if the call should block
          *                forever.
          * @return The event occured during selection.
          */
-        CO_API Event select( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        CO_API Event select( const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
 
         /**
          * Interrupt the current or next select call.
@@ -85,7 +85,7 @@ namespace detail { class ConnectionSet; }
         virtual void notifyStateChanged( Connection* );
 
         Event _getSelectResult( const uint32_t index );
-        EQ_TS_VAR( _selectThread );
+        LB_TS_VAR( _selectThread );
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, 

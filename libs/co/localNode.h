@@ -19,6 +19,7 @@
 #ifndef CO_LOCALNODE_H
 #define CO_LOCALNODE_H
 
+#include <co/defines.h>
 #include <co/node.h>            // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <lunchbox/requestHandler.h> // base class
@@ -446,8 +447,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdDiscard( Command& ) { return true; }
         //@}
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _rcvThread );
     };
     inline std::ostream& operator << ( std::ostream& os, const LocalNode& node )
     {

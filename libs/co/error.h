@@ -27,7 +27,7 @@ namespace co
     enum Error
     {
         ERROR_NONE = 0,
-        ERROR_CUSTOM = EQ_16KB,  // 0x4000
+        ERROR_CUSTOM = LB_16KB,  // 0x4000
     };
 
     /** Print the error in a human-readable format. @version 1.0 */

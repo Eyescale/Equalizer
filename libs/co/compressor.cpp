@@ -80,7 +80,7 @@ Plugin* Compressor::_findPlugin( uint32_t name )
 
 bool Compressor::isValid( uint32_t name ) const
 {
-    EQ_TS_SCOPED( _thread );
+    LB_TS_SCOPED( _thread );
     if( _name == EQ_COMPRESSOR_INVALID || _state == STATE_FREE )
         return false;
     if( _name == EQ_COMPRESSOR_NONE )
@@ -96,8 +96,8 @@ bool Compressor::isValid( uint32_t name ) const
 
 bool Compressor::initCompressor( uint32_t name )
 {
-    EQ_TS_SCOPED( _thread );
-    EQ_TS_THREAD( _thread );
+    LB_TS_SCOPED( _thread );
+    LB_TS_THREAD( _thread );
 
     if( name == _name )
     {
@@ -131,8 +131,8 @@ bool Compressor::initCompressor( uint32_t name )
 
 bool Compressor::initDecompressor( uint32_t name )
 {
-    EQ_TS_SCOPED( _thread );
-    EQ_TS_THREAD( _thread );
+    LB_TS_SCOPED( _thread );
+    LB_TS_THREAD( _thread );
 
     if( name == _name )
     {

@@ -37,7 +37,7 @@ namespace co
     {
     public:
         /** Construct a new instance cache. */
-        CO_API InstanceCache( const uint64_t maxSize = EQ_100MB );
+        CO_API InstanceCache( const uint64_t maxSize = LB_100MB );
 
         /** Destruct this instance cache. */
         CO_API ~InstanceCache();
@@ -143,7 +143,7 @@ namespace co
         void _releaseFirstStream( InstanceCache::Item& item );
         void _deleteStream( ObjectDataIStream* iStream );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 
     CO_API std::ostream& operator << ( std::ostream&, const InstanceCache& );

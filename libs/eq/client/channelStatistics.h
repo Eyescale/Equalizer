@@ -34,7 +34,7 @@ namespace eq
          */
         explicit EQ_API ChannelStatistics( const Statistic::Type type,
                                            Channel* channel,
-                                     const uint32_t frame = EQ_UNDEFINED_UINT32,
+                                     const uint32_t frame = LB_UNDEFINED_UINT32,
                                            const int32_t hint = AUTO );
 
         /**

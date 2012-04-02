@@ -371,7 +371,7 @@ template< class S, class C, class O, class L, class CV, class N, class V >
 uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 {
     if( getIAttribute( IATTR_ROBUSTNESS ) == OFF )
-        return EQ_TIMEOUT_INDEFINITE;
+        return LB_TIMEOUT_INDEFINITE;
     return co::Global::getIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT );
 }
 

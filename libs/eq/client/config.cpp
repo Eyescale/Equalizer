@@ -281,7 +281,7 @@ bool Config::update()
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
 
-    if( finishID == EQ_UNDEFINED_UINT32 )
+    if( finishID == LB_UNDEFINED_UINT32 )
     {
         sync( version );
         client->unregisterRequest( packet.requestID );
@@ -369,7 +369,7 @@ uint32_t Config::finishFrame()
 
         // global sync
         const uint32_t timeout = getTimeout();
-        if( timeout == EQ_TIMEOUT_INDEFINITE )
+        if( timeout == LB_TIMEOUT_INDEFINITE )
             _finishedFrame.waitGE( frameToFinish );
         else
         {
@@ -956,7 +956,7 @@ bool Config::_cmdSwapObject( co::Command& command )
         lunchbox::ScopedFastWrite mutex( _latencyObjects );
         _latencyObjects->push_back( latencyObject );
     }
-    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
+    EQASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
     getLocalNode()->serveRequest( packet->requestID );
     return true;
 }

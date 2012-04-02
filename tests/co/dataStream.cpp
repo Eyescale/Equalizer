@@ -36,7 +36,7 @@
 
 // Tests the functionality of the DataOStream and DataIStream
 
-#define CONTAINER_SIZE EQ_64KB
+#define CONTAINER_SIZE LB_64KB
 
 static std::string _message( "So long, and thanks for all the fish" );
 
@@ -52,8 +52,8 @@ struct DataPacket : public co::Packet
     uint64_t dataSize;
     uint32_t compressorName;
     uint32_t nChunks;
-    EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
-    EQ_ALIGN8( uint8_t data[8] );
+    LB_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
+    LB_ALIGN8( uint8_t data[8] );
 };
 
 class DataOStream : public co::DataOStream

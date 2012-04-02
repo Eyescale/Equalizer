@@ -26,9 +26,8 @@
 namespace co
 {
     class ObjectCM;
-    struct NodeMapObjectReplyPacket;
 
-#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
+#  define CO_COMMIT_NEXT LB_UNDEFINED_UINT32 //!< the next commit incarnation
 
     /** 
      * A generic, distributed object.
@@ -353,7 +352,7 @@ namespace co
         NodePtr getMasterNode();
 
         /** @internal */
-        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
+        void addSlave( Command& command );
         CO_API void removeSlave( NodePtr node ); //!< @internal
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
@@ -424,7 +423,7 @@ namespace co
 
         void _setChangeManager( ObjectCM* cm );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
     CO_API std::ostream& operator << ( std::ostream&, const Object& );
 

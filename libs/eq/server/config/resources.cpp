@@ -128,7 +128,7 @@ bool Resources::discover( Config* config, const std::string& session,
         }
 
         std::stringstream name;
-        if( info.device == EQ_UNDEFINED_UINT32 )
+        if( info.device == LB_UNDEFINED_UINT32 )
             name << "display";
         else
             name << "GPU" << ++gpuCounter;
@@ -231,7 +231,7 @@ Channels Resources::configureSourceChannels( Config* config )
     return addSources.getChannels();
 }
 
-#if 0 // EQ_GCC_4_5_OR_LATER
+#if 0 // LB_GCC_4_5_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 void Resources::configure( const Compounds& compounds, const Channels& channels,
