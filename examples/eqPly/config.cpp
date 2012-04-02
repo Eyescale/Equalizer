@@ -507,7 +507,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 const ConfigEvent* idleEvent = 
                     static_cast< const ConfigEvent* >( event );
-                _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+                _numFramesAA = LB_MAX( _numFramesAA, idleEvent->steps );
             }
             else
                 _numFramesAA = 0;

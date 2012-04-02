@@ -18,6 +18,7 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
+#include <co/defines.h>
 #include <co/error.h>
 #include <lunchbox/refPtr.h>
 #include <lunchbox/types.h>
@@ -30,7 +31,7 @@ namespace co
 
 #define CO_SEPARATOR '#'
 
-#define EQ_INSTANCE_MAX     EQ_MAX_UINT32 //!< The biggest instance id possible
+#define EQ_INSTANCE_MAX     LB_MAX_UINT32 //!< The biggest instance id possible
 #define EQ_INSTANCE_NONE    0xfffffffdu   //!< None/NULL identifier
 #define EQ_INSTANCE_INVALID 0xfffffffeu   //!< Invalid/unset instance identifier
 #define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
@@ -134,8 +135,6 @@ using co::Error;
 using co::ErrorRegistry;
 using co::PluginRegistry;
 using co::Global;
-#define CO_STDEXT_NAMESPACE_OPEN  LB_STDEXT_NAMESPACE_OPEN 
-#define CO_STDEXT_NAMESPACE_CLOSE LB_STDEXT_NAMESPACE_CLOSE
 }
 #endif
 }

@@ -114,7 +114,7 @@ public:
                 EQASSERT( pipeUsage < 1.0f );
 
                 float use = 1.0f - pipeUsage;
-                use = EQ_MAX( use, MIN_USAGE );
+                use = LB_MAX( use, MIN_USAGE );
 
                 compound->setUsage( use );
                 _nResources -= use;
@@ -129,7 +129,7 @@ public:
             {
                 EQASSERT( pipeUsage == 0.0f );
 
-                float use = EQ_MIN( 1.0f, _nResources );
+                float use = LB_MIN( 1.0f, _nResources );
 
                 compound->setUsage( use );
                 _nResources -= use;
@@ -187,7 +187,7 @@ public:
             if( pipeUsage > 0.0f ) // pipe already partly used
                 return TRAVERSE_CONTINUE;
 
-            float use = EQ_MIN( 1.0f, _nResources );
+            float use = LB_MIN( 1.0f, _nResources );
             if( use + MIN_USAGE > 1.0f )
                 use = 1.0f;
 
@@ -248,7 +248,7 @@ public:
                 EQASSERT( pipeUsage < 1.0f );
 
                 float use = 1.0f - pipeUsage;
-                use = EQ_MAX( use, MIN_USAGE );
+                use = LB_MAX( use, MIN_USAGE );
 
                 compound->setUsage( use );
                 _nResources -= use;
@@ -263,7 +263,7 @@ public:
             {
                 EQASSERT( pipeUsage == 0.0f );
 
-                float use = EQ_MIN( 1.0f, _nResources );
+                float use = LB_MIN( 1.0f, _nResources );
 
                 compound->setUsage( use );
                 _nResources -= use;
@@ -604,8 +604,8 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
         case eq::Statistic::CHANNEL_CLEAR:
         case eq::Statistic::CHANNEL_DRAW:
         case eq::Statistic::CHANNEL_READBACK:
-            startTime = EQ_MIN( startTime, data.startTime );
-            endTime   = EQ_MAX( endTime, data.endTime );
+            startTime = LB_MIN( startTime, data.startTime );
+            endTime   = LB_MAX( endTime, data.endTime );
             break;
 
         case Statistic::CHANNEL_FRAME_TRANSMIT:
@@ -630,7 +630,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     
     EQASSERTINFO( load.missing > 0, load );
 
-    const int64_t time = EQ_MAX(endTime - startTime, transmitTime );
+    const int64_t time = LB_MAX(endTime - startTime, transmitTime );
     load.time += time;
     --load.missing;
 

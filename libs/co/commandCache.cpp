@@ -169,7 +169,7 @@ public:
 
             freeCounter += add;
             const int32_t num = int32_t( cache_.size() >> _freeShift );
-            maxFree[ which ] = EQ_MAX( _minFree[ which ], num );
+            maxFree[ which ] = LB_MAX( _minFree[ which ], num );
             position[ which ] = cache_.begin();
 
 #ifdef PROFILE
@@ -223,7 +223,7 @@ private:
             }
 
             const int32_t num = int32_t( cache_.size() >> _freeShift );
-            maxFree_ = EQ_MAX( _minFree[ which ] , num );
+            maxFree_ = LB_MAX( _minFree[ which ] , num );
             position[ which ] = cache_.begin();
 #endif // COMPACT
         }
@@ -248,7 +248,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
                               const uint64_t size )
 {
     EQ_TS_THREAD( _thread );
-    EQASSERTINFO( size < EQ_BIT48,
+    EQASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;

@@ -113,7 +113,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         item.used = usage;
     }
     else
-        item.used = EQ_MAX( item.used, usage );
+        item.used = LB_MAX( item.used, usage );
 
     if( item.data.versions.empty( ))
     {

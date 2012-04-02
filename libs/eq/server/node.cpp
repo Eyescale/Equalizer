@@ -576,7 +576,7 @@ uint32_t Node::_getFinishLatency() const
                 const Config* config = getConfig();
                 const uint32_t latency = config->getLatency();
 
-                return EQ_MIN( latency, 1 );
+                return LB_MIN( latency, 1 );
             }
             break;
 

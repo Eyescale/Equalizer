@@ -89,7 +89,7 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
     if( !readDimensionsAndScaling( header.f, _w, _h, _d, _volScaling ) )
         return false;
 
-    _resolution = EQ_MAX( _w, EQ_MAX( _h, _d ) );
+    _resolution = LB_MAX( _w, LB_MAX( _h, _d ) );
 
     if( !readTransferFunction( header.f, _TF ))
         return false;
@@ -325,14 +325,14 @@ static void normalizeScaling
 )
 {
 //Correct proportions according to real size of volume
-    float maxS = float( EQ_MAX( w, EQ_MAX( h, d ) ));
+    float maxS = float( LB_MAX( w, LB_MAX( h, d ) ));
 
     scaling.W *= w / maxS;
     scaling.H *= h / maxS;
     scaling.D *= d / maxS;
 
 //Make maximum proportion equal to 1.0
-    maxS = EQ_MAX( scaling.W, EQ_MAX( scaling.H, scaling.D ) );
+    maxS = LB_MAX( scaling.W, LB_MAX( scaling.H, scaling.D ) );
 
     scaling.W /= maxS;
     scaling.H /= maxS;

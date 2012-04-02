@@ -982,8 +982,8 @@ void Channel::drawStatistics()
                     break;
                 }
 
-                xMax = EQ_MAX( xMax, stat.endTime );
-                xMin = EQ_MIN( xMin, stat.startTime );
+                xMax = LB_MAX( xMax, stat.endTime );
+                xMin = LB_MIN( xMin, stat.startTime );
 
                 if( entities.find( id ) == entities.end( ))
                 {
@@ -1065,8 +1065,8 @@ void Channel::drawStatistics()
                 const int64_t startTime = stat.startTime / scale;
                 const int64_t endTime   = stat.endTime   / scale;
 
-                frameMin = EQ_MIN( frameMin, startTime );
-                frameMax = EQ_MAX( frameMax, endTime   );
+                frameMin = LB_MIN( frameMin, startTime );
+                frameMax = LB_MAX( frameMax, endTime   );
 
                 if( endTime < xStart || endTime == startTime )
                     continue;

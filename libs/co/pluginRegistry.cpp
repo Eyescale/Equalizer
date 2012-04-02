@@ -30,6 +30,7 @@
 #include <typeinfo>
 
 #ifdef _MSC_VER
+#  include <lunchbox/os.h> // GetModuleFileName
 #  include <direct.h>
 #  define getcwd _getcwd
 #else

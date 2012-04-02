@@ -31,7 +31,7 @@
 #include "renderer.h"
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 

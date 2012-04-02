@@ -45,10 +45,10 @@ namespace fabric
          */
         enum Drawable
         {
-            FB_WINDOW   = EQ_BIT_NONE, //!< Use the window's frame buffer
-            FBO_COLOR   = EQ_BIT1,     //!< Use an FBO for color values
-            FBO_DEPTH   = EQ_BIT2,     //!< Use an FBO for depth values
-            FBO_STENCIL = EQ_BIT3      //!< Use an FBO for stencil values
+            FB_WINDOW   = LB_BIT_NONE, //!< Use the window's frame buffer
+            FBO_COLOR   = LB_BIT1,     //!< Use an FBO for color values
+            FBO_DEPTH   = LB_BIT2,     //!< Use an FBO for depth values
+            FBO_STENCIL = LB_BIT3      //!< Use an FBO for stencil values
         };
         
         /** @name Data Access */
@@ -395,7 +395,7 @@ namespace fabric
 
         struct BackupData
         {
-            BackupData() : capabilities( EQ_BIT_ALL_64 ), fixedVP( true ) {}
+            BackupData() : capabilities( LB_BIT_ALL_64 ), fixedVP( true ) {}
 
             /** The native render context parameters of this channel. */
             RenderContext nativeContext;

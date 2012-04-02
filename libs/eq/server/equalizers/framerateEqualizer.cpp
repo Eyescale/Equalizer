@@ -128,10 +128,10 @@ void FramerateEqualizer::_init()
         LoadSubscriber subscriber( &loadListener );
         child->accept( subscriber );
         
-        _nSamples = EQ_MAX( _nSamples, period );
+        _nSamples = LB_MAX( _nSamples, period );
     }
 
-    _nSamples = EQ_MIN( _nSamples, 100 );
+    _nSamples = LB_MIN( _nSamples, 100 );
 }
 
 void FramerateEqualizer::_exit()
@@ -196,7 +196,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #ifdef USE_AVERAGE
         sumTime += time.second;
 #else
-        maxTime = EQ_MAX( maxTime, time.second );
+        maxTime = LB_MAX( maxTime, time.second );
 #endif
         EQLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second
                          << "ms" << std::endl;
@@ -255,8 +255,8 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
-                startTime = EQ_MIN( startTime, data.startTime );
-                endTime   = EQ_MAX( endTime, data.endTime );
+                startTime = LB_MIN( startTime, data.startTime );
+                endTime   = LB_MAX( endTime, data.endTime );
                 break;
                 
             default:
@@ -278,7 +278,7 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
             continue;
 
         const float time = static_cast< float >( endTime - startTime ) / period;
-        frameTime.second = EQ_MAX( frameTime.second, time );
+        frameTime.second = LB_MAX( frameTime.second, time );
         EQLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
                         << " period " << period << std::endl;

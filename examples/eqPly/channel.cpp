@@ -187,7 +187,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     state.setFrustumCulling( true );
     Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
-    accum.stepsDone = EQ_MAX( accum.stepsDone, 
+    accum.stepsDone = LB_MAX( accum.stepsDone, 
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
 }
@@ -229,7 +229,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         if( curSubPixel != eq::SubPixel::ALL )
             accum.transfer = false;
 
-        accum.stepsDone = EQ_MAX( accum.stepsDone, 
+        accum.stepsDone = LB_MAX( accum.stepsDone, 
                                   frame->getSubPixel().size*frame->getPeriod( ));
     }
 
@@ -368,7 +368,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     {
         event.steps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
-            event.steps = EQ_MAX( event.steps, _accum[i].step );
+            event.steps = LB_MAX( event.steps, _accum[i].step );
     }
     else
     {
@@ -833,11 +833,11 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
         const eq::Frustumf& frustum = getFrustum();
         const float width  = fabs( frustum.right() - frustum.left() );
         const float height = fabs( frustum.top() - frustum.bottom() );
-        const float size   = EQ_MIN( width, height );
+        const float size   = LB_MIN( width, height );
         const float minNear = frustum.near_plane() / size * .001f;
 
-        const float zNear = EQ_MAX( minNear, -nearPoint.z() );
-        const float zFar  = EQ_MAX( zNear * 2.f, -farPoint.z() );
+        const float zNear = LB_MAX( minNear, -nearPoint.z() );
+        const float zFar  = LB_MAX( zNear * 2.f, -farPoint.z() );
 
         setNearFar( zNear, zFar );
     }

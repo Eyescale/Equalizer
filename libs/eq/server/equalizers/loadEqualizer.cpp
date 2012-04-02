@@ -258,8 +258,8 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                 case Statistic::CHANNEL_CLEAR:
                 case Statistic::CHANNEL_DRAW:
                 case Statistic::CHANNEL_READBACK:
-                    startTime = EQ_MIN( startTime, stat.startTime );
-                    endTime   = EQ_MAX( endTime, stat.endTime );
+                    startTime = LB_MIN( startTime, stat.startTime );
+                    endTime   = LB_MAX( endTime, stat.endTime );
                     break;
 
                 case Statistic::CHANNEL_FRAME_TRANSMIT:
@@ -284,9 +284,9 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
 
             data.vp.apply( region ); // Update ROI
             data.time = endTime - startTime;
-            data.time = EQ_MAX( data.time, 1 );
-            data.time = EQ_MAX( data.time, transmitTime );
-            data.assembleTime = EQ_MAX( data.assembleTime, 0 );
+            data.time = LB_MAX( data.time, 1 );
+            data.time = LB_MAX( data.time, transmitTime );
+            data.assembleTime = LB_MAX( data.assembleTime, 0 );
             EQLOG( LOG_LB2 ) << "Added time " << data.time << " (+"
                              << data.assembleTime << ") for "
                              << channel->getName() << " " << data.vp << ", "
@@ -418,7 +418,7 @@ void LoadEqualizer::_updateLeaf( Node* node )
     const float timePerResource = time / ( nResources - node->resources );
     const float renderTime = timePerResource * node->resources ;
 
-    const float clampedAssembleTime = EQ_MIN( assembleTime, renderTime );
+    const float clampedAssembleTime = LB_MIN( assembleTime, renderTime );
     const float newTimePerResource = (time + clampedAssembleTime) / nResources;
     node->resources -= ( clampedAssembleTime / newTimePerResource );
     if( node->resources < 0.f ) // may happen due to fp rounding
@@ -456,24 +456,24 @@ void LoadEqualizer::_updateNode( Node* node )
         {
         case MODE_VERTICAL:
             node->maxSize.x() = left->maxSize.x() + right->maxSize.x();  
-            node->maxSize.y() = EQ_MIN( left->maxSize.y(), right->maxSize.y());
+            node->maxSize.y() = LB_MIN( left->maxSize.y(), right->maxSize.y());
             node->boundary2i.x() = left->boundary2i.x()+ right->boundary2i.x();
-            node->boundary2i.y() = EQ_MAX( left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( left->boundary2i.y(), 
                                            right->boundary2i.y());
-            node->boundaryf = EQ_MAX( left->boundaryf, right->boundaryf );
+            node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
             break;
         case MODE_HORIZONTAL:
-            node->maxSize.x() = EQ_MIN( left->maxSize.x(), right->maxSize.x());
+            node->maxSize.x() = LB_MIN( left->maxSize.x(), right->maxSize.x());
             node->maxSize.y() = left->maxSize.y() + right->maxSize.y(); 
-            node->boundary2i.x() = EQ_MAX( left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( left->boundary2i.x(), 
                                            right->boundary2i.x() );
             node->boundary2i.y() = left->boundary2i.y()+ right->boundary2i.y();
-            node->boundaryf = EQ_MAX( left->boundaryf, right->boundaryf );
+            node->boundaryf = LB_MAX( left->boundaryf, right->boundaryf );
             break;
         case MODE_DB:
-            node->boundary2i.x() = EQ_MAX( left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( left->boundary2i.x(), 
                                            right->boundary2i.x() );
-            node->boundary2i.y() = EQ_MAX( left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( left->boundary2i.y(), 
                                            right->boundary2i.y() );
             node->boundaryf = left->boundaryf + right->boundaryf;
             break;
@@ -599,7 +599,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
     LBDatas workingSet = datas[ node->mode ];
     const float leftTime = node->resources > 0 ?
                            time * node->left->resources / node->resources : 0.f;
-    float timeLeft = EQ_MIN( leftTime, time ); // correct for fp rounding error
+    float timeLeft = LB_MIN( leftTime, time ); // correct for fp rounding error
 
     switch( node->mode )
     {
@@ -741,8 +741,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 splitPos = ratio * boundary;
             }
 
-            splitPos = EQ_MAX( splitPos, vp.x );
-            splitPos = EQ_MIN( splitPos, end);
+            splitPos = LB_MAX( splitPos, vp.x );
+            splitPos = LB_MIN( splitPos, end);
 
             EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                              << splitPos << std::endl;
@@ -900,8 +900,8 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 splitPos = ratio * boundary;
             }
 
-            splitPos = EQ_MAX( splitPos, vp.y );
-            splitPos = EQ_MIN( splitPos, end );
+            splitPos = LB_MAX( splitPos, vp.y );
+            splitPos = LB_MIN( splitPos, end );
 
             EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at Y "
                              << splitPos << std::endl;
@@ -950,7 +950,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                      i != workingSet.end(); ++i )
                 {
                     const Data& data = *i;                        
-                    currentPos = EQ_MIN( currentPos, data.range.end );
+                    currentPos = LB_MIN( currentPos, data.range.end );
                 }
 
                 const float size = currentPos - splitPos;
