@@ -61,7 +61,7 @@ namespace eq
         uint32_t device = getPipe()->getDevice();
 
         // Setup the CUDA device
-        if( device == EQ_UNDEFINED_UINT32 )
+        if( device == LB_UNDEFINED_UINT32 )
         {
             device = _getFastestDeviceID();
             EQWARN << "No CUDA device, using the fastest device: " << device

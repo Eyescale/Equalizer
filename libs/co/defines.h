@@ -29,7 +29,4 @@
 #endif
 #include <lunchbox/api.h>
 
-/** A 'NULL' value for an uint32.*/
-#define EQ_UNDEFINED_UINT32   (0xffffffffu)
-
 #endif // CO_DEFINES_H

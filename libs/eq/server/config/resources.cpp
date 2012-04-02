@@ -128,7 +128,7 @@ bool Resources::discover( Config* config, const std::string& session,
         }
 
         std::stringstream name;
-        if( info.device == EQ_UNDEFINED_UINT32 )
+        if( info.device == LB_UNDEFINED_UINT32 )
             name << "display";
         else
             name << "GPU" << ++gpuCounter;

@@ -206,7 +206,7 @@ namespace eq
     struct ConfigSwapObjectPacket : public ConfigPacket
     {
         ConfigSwapObjectPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
         {
             command   = fabric::CMD_CONFIG_SWAP_OBJECT;
             size      = sizeof( ConfigSwapObjectPacket ); 

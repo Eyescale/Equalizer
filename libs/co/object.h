@@ -28,7 +28,7 @@ namespace co
     class ObjectCM;
     struct NodeMapObjectReplyPacket;
 
-#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
+#  define CO_COMMIT_NEXT LB_UNDEFINED_UINT32 //!< the next commit incarnation
 
     /** 
      * A generic, distributed object.

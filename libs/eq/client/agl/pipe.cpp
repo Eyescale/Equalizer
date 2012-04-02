@@ -47,7 +47,7 @@ bool Pipe::configInit()
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
 
-    if( device != EQ_UNDEFINED_UINT32 )
+    if( device != LB_UNDEFINED_UINT32 )
     {
         CGDirectDisplayID displayIDs[device+1];
         CGDisplayCount    nDisplays;

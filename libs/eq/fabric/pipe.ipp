@@ -47,8 +47,8 @@ std::string _iPipeAttributeStrings[] = {
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::Pipe( N* parent )
         : _node( parent )
-        , _port( EQ_UNDEFINED_UINT32 )
-        , _device( EQ_UNDEFINED_UINT32 )
+        , _port( LB_UNDEFINED_UINT32 )
+        , _device( LB_UNDEFINED_UINT32 )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
@@ -420,10 +420,10 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    if( pipe.getPort() != EQ_UNDEFINED_UINT32 )
+    if( pipe.getPort() != LB_UNDEFINED_UINT32 )
         os << "port     " << pipe.getPort() << std::endl;
         
-    if( pipe.getDevice() != EQ_UNDEFINED_UINT32 )
+    if( pipe.getDevice() != LB_UNDEFINED_UINT32 )
         os << "device   " << pipe.getDevice() << std::endl;
     
     const PixelViewport& pvp = pipe.getPixelViewport();

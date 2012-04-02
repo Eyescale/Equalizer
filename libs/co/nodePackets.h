@@ -51,7 +51,7 @@ namespace co
     {
         NodeConnectPacket( const LocalNodePtr node )
                 : nodeID( node->getNodeID( ))
-                , requestID( EQ_UNDEFINED_UINT32 )
+                , requestID( LB_UNDEFINED_UINT32 )
                 , nodeType( node->getType( ))
             {
                 command = CMD_NODE_CONNECT;
@@ -227,7 +227,7 @@ namespace co
     struct NodeFindMasterNodeIDPacket : public NodePacket
     {
         NodeFindMasterNodeIDPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
                 , fill( 0 )
             {
                 command   = CMD_NODE_FIND_MASTER_NODE_ID;
@@ -349,7 +349,7 @@ namespace co
     struct NodeRemoveNodePacket : public NodePacket
     {
         NodeRemoveNodePacket()
-             : requestID( EQ_UNDEFINED_UINT32 )
+             : requestID( LB_UNDEFINED_UINT32 )
             {
                 command = CMD_NODE_REMOVE_NODE;
                 size    = sizeof( NodeRemoveNodePacket ); 
@@ -397,7 +397,7 @@ namespace co
     struct NodeDetachObjectPacket : public NodePacket
     {
         NodeDetachObjectPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
         {
             command   = CMD_NODE_DETACH_OBJECT;
             size      = sizeof( NodeDetachObjectPacket ); 

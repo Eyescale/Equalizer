@@ -625,7 +625,7 @@ bool LocalNode::disconnect( NodePtr node )
 
 void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
 {
-    if( requestID == EQ_UNDEFINED_UINT32 ) // no need to ack operation
+    if( requestID == LB_UNDEFINED_UINT32 ) // no need to ack operation
         return;
 
     if( node == this ) // OPT
@@ -1375,7 +1375,7 @@ bool LocalNode::_notifyCommandThreadIdle()
 bool LocalNode::_cmdAckRequest( Command& command )
 {
     const NodeAckRequestPacket* packet = command.get< NodeAckRequestPacket >();
-    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
+    EQASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
 
     serveRequest( packet->requestID );
     return true;
@@ -1530,7 +1530,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
     // create and add node
     if( !peer )
     {
-        if( packet->requestID != EQ_UNDEFINED_UINT32 )
+        if( packet->requestID != LB_UNDEFINED_UINT32 )
         {
             void* ptr = getRequestData( packet->requestID );
             EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));

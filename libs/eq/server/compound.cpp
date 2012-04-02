@@ -145,8 +145,8 @@ Compound::InheritData::InheritData()
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( fabric::EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
-        , period( EQ_UNDEFINED_UINT32 )
-        , phase( EQ_UNDEFINED_UINT32 )
+        , period( LB_UNDEFINED_UINT32 )
+        , phase( LB_UNDEFINED_UINT32 )
         , maxFPS( std::numeric_limits< float >::max( ))
 {
     const Global* global = Global::instance();
@@ -1255,10 +1255,10 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
 
-    if( _inherit.period == EQ_UNDEFINED_UINT32 )
+    if( _inherit.period == LB_UNDEFINED_UINT32 )
         _inherit.period = 1;
 
-    if( _inherit.phase == EQ_UNDEFINED_UINT32 )
+    if( _inherit.phase == LB_UNDEFINED_UINT32 )
         _inherit.phase = 0;
 
     if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
@@ -1318,10 +1318,10 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
         
-    if( _data.period != EQ_UNDEFINED_UINT32 )
+    if( _data.period != LB_UNDEFINED_UINT32 )
         _inherit.period = _data.period;
 
-    if( _data.phase != EQ_UNDEFINED_UINT32 )
+    if( _data.phase != LB_UNDEFINED_UINT32 )
         _inherit.phase = _data.phase;
 
     _inherit.maxFPS = _data.maxFPS;
@@ -1614,13 +1614,13 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     const uint32_t period = compound.getPeriod();
     const uint32_t phase  = compound.getPhase();
-    if( period != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 )
         os << "period " << period << "  ";
 
-    if( phase != EQ_UNDEFINED_UINT32 )
+    if( phase != LB_UNDEFINED_UINT32 )
         os << "phase " << phase;
 
-    if( period != EQ_UNDEFINED_UINT32 || phase != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 || phase != LB_UNDEFINED_UINT32 )
         os << std::endl;
 
     // attributes

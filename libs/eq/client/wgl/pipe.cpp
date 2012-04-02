@@ -138,7 +138,7 @@ bool Pipe::createWGLAffinityDC( HDC& affinityDC )
 HDC Pipe::createWGLDisplayDC()
 {
     uint32_t device = getPipe()->getDevice();
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         device = 0;
 
     DISPLAY_DEVICE devInfo;
@@ -167,7 +167,7 @@ bool Pipe::_getGPUHandle( HGPUNV& handle )
     handle = 0;
 
     const uint32_t device = getPipe()->getDevice();
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         return true;
 
     if( !WGLEW_NV_gpu_affinity )

@@ -347,7 +347,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
 {
     EQASSERTINFO( id.isGenerated(), id );
     if( !id.isGenerated( ))
-        return EQ_UNDEFINED_UINT32;
+        return LB_UNDEFINED_UINT32;
 
     NodePtr master = _connectMaster( id );
     EQASSERT( master );
@@ -367,7 +367,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     if( !object || !id.isGenerated( ))
     {
         EQWARN << "Invalid object " << object << " or id " << id << std::endl;
-        return EQ_UNDEFINED_UINT32;
+        return LB_UNDEFINED_UINT32;
     }
 
     const bool isAttached = object->isAttached();
@@ -378,14 +378,14 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     {
         EQWARN << "Invalid object state: attached " << isAttached << " master "
                << isMaster << std::endl;
-        return EQ_UNDEFINED_UINT32;
+        return LB_UNDEFINED_UINT32;
     }
 
     if( !master || !master->isConnected( ))
     {
         EQWARN << "Mapping of object " << id << " failed, invalid master node"
                << std::endl;
-        return EQ_UNDEFINED_UINT32;
+        return LB_UNDEFINED_UINT32;
     }
 
     NodeMapObjectPacket packet;
@@ -418,7 +418,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
 
 bool ObjectStore::mapObjectSync( const uint32_t requestID )
 {
-    if( requestID == EQ_UNDEFINED_UINT32 )
+    if( requestID == LB_UNDEFINED_UINT32 )
         return false;
 
     void* data = _localNode->getRequestData( requestID );    
@@ -727,7 +727,7 @@ bool ObjectStore::_cmdDetachObject( Command& command )
         }
     }
 
-    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
+    EQASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
     _localNode->serveRequest( packet->requestID );
     return true;
 }
@@ -1073,7 +1073,7 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
             (*j)->removeSlaves( packet->node );
     }
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
         _localNode->serveRequest( packet->requestID );
 
     return true;

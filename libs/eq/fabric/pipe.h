@@ -55,7 +55,7 @@ namespace fabric
           * :<strong>&lt;port&gt;</strong>.&lt;screen&gt; of the DISPLAY
           * name. It currently has no meaning on all other systems.
           *
-          * @return the port number of this pipe, or EQ_UNDEFINED_UINT32.
+          * @return the port number of this pipe, or LB_UNDEFINED_UINT32.
           * @version 1.0
           */
         uint32_t getPort() const { return _port; }
@@ -70,7 +70,7 @@ namespace fabric
          * AGL window system. On Windows systems it identifies the graphics
          * adapter. Normally the device identifies a GPU.
          *
-         * @return the device number of this pipe, or EQ_UNDEFINED_UINT32.
+         * @return the device number of this pipe, or LB_UNDEFINED_UINT32.
          * @version 1.0
          */
         uint32_t getDevice() const { return _device; }

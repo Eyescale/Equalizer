@@ -1010,7 +1010,7 @@ bool Config::_cmdUpdate( co::Command& command )
     if( !_needsFinish )
     {
         ConfigUpdateVersionPacket reply( packet, getVersion(),
-                                         EQ_UNDEFINED_UINT32 );
+                                         LB_UNDEFINED_UINT32 );
         send( node, reply );
         return true;
     }
