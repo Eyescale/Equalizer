@@ -27,7 +27,7 @@
 #ifdef _WIN32 //_MSC_VER
 #  include <co/definesWin32.h>
 #endif
-#include <lunchbox/defines.h>
+#include <lunchbox/api.h>
 
 /** A 'NULL' value for an uint32.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)

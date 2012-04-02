@@ -28,9 +28,9 @@
 #if defined(SEQUEL_STATIC)
 #  define SEQ_API
 #elif defined(SEQUEL_SHARED)
-#  define SEQ_API EQ_DLLEXPORT
+#  define SEQ_API LB_DLLEXPORT
 #else
-#  define SEQ_API EQ_DLLIMPORT
+#  define SEQ_API LB_DLLIMPORT
 #endif
 
 #endif //SEQUEL_API_H
