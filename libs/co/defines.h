@@ -32,7 +32,4 @@
 /** A 'NULL' value for an uint32.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
 
-/** Constant defining use global default in methods with wait parameters. */
-#define EQ_TIMEOUT_DEFAULT 0xfffffffeu
-
 #endif // CO_DEFINES_H

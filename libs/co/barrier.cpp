@@ -327,7 +327,7 @@ void Barrier::_cleanup( const uint64_t time )
         if( cleanNodes.timeout == LB_TIMEOUT_INDEFINITE )
             continue;
 
-        const uint32_t timeout = cleanNodes.timeout != EQ_TIMEOUT_DEFAULT ? 
+        const uint32_t timeout = cleanNodes.timeout != LB_TIMEOUT_DEFAULT ? 
                         cleanNodes.timeout :
                         Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT );
                
