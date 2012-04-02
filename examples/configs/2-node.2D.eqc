@@ -8,12 +8,12 @@ global
 
 server
 {
-    connection { hostname "10.1.1.36" }
+    connection { hostname "localhost" }
     config
     {
         appNode
         {
-            connection { hostname "10.1.1.36" }
+            connection { hostname "localhost" }
             pipe 
             {
                 window
@@ -26,8 +26,8 @@ server
         }
         node
         {
-            host "10.1.1.43"
-            connection { hostname "10.1.1.43" port 12345 }
+            host "localhost"
+            connection { hostname "localhost" port 12345 }
             pipe { window { channel { name "channel2" }}}
         }
 

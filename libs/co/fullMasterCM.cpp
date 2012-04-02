@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -165,48 +165,25 @@ void FullMasterCM::_obsolete()
     _checkConsistency();
 }
 
-void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
+void FullMasterCM::_initSlave( NodePtr node, const uint128_t& version,
+                               const NodeMapObjectPacket* packet,
+                               NodeMapObjectSuccessPacket& success,
+                               NodeMapObjectReplyPacket& reply )
 {
-    LB_TS_THREAD( _cmdThread );
-    EQASSERT( command->type == PACKETTYPE_CO_NODE );
-    EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
-
-    NodePtr node = command.getNode();
-    const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
-    const uint128_t requested  = packet->requestedVersion;
-    const uint32_t instanceID = packet->instanceID;
-
-    Mutex mutex( _slaves );
-    EQASSERT( _version != VERSION_NONE );
     _checkConsistency();
 
-    // add to subscribers
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves->push_back( node );
-    stde::usort( *_slaves );
-
-    if( requested == VERSION_NONE ) // no data to send
-    {
-        _sendEmptyVersion( node, instanceID, _version );
-        reply.version = _version;
-        return;
-    }
-
     const uint128_t oldest = _instanceDatas.front()->os.getVersion();
-    uint128_t start = (requested == VERSION_OLDEST || requested < oldest ) ?
-                          oldest : requested;
+    uint128_t start = (version == VERSION_OLDEST || version < oldest ) ?
+                          oldest : version;
     uint128_t end = _version;
-    const bool useCache = packet->masterInstanceID == _object->getInstanceID();
 
 #ifndef NDEBUG
-    if( requested != VERSION_OLDEST && requested < start )
-        EQINFO << "Mapping version " << start
-               << " instead of requested version " << requested << std::endl;
+    if( version != VERSION_OLDEST && version < start )
+        EQINFO << "Mapping version " << start << " instead of requested "
+               << version << std::endl;
 #endif
 
     reply.version = start;
-    reply.useCache = packet->useCache && useCache;
-
     if( reply.useCache )
     {
         if( packet->minCachedVersion <= start && 
@@ -237,6 +214,8 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 #endif
     EQASSERT( start >= oldest );
 
+    bool dataSent = false;
+
     // send all instance datas from start..end
     InstanceDataDeque::iterator i = _instanceDatas.begin();
     while( i != _instanceDatas.end() && (*i)->os.getVersion() < start )
@@ -244,14 +223,29 @@ void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 
     for( ; i != _instanceDatas.end() && (*i)->os.getVersion() <= end; ++i )
     {
+        if( !dataSent )
+        {
+            if( !node->multicast( success ))
+                node->send( success );
+            dataSent = true;
+        }
+
         InstanceData* data = *i;
         EQASSERT( data );
-        data->os.sendMapData( node, instanceID );
+        data->os.sendMapData( node, packet->instanceID );
 
 #ifdef EQ_INSTRUMENT_MULTICAST
         ++_miss;
 #endif
     }
+
+    if( !dataSent )
+    {
+        node->send( success );
+        node->send( reply );
+    }
+    else if( !node->multicast( reply ))
+        node->send( reply );
 
 #ifdef EQ_INSTRUMENT_MULTICAST
     if( _miss % 100 == 0 )
