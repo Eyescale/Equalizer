@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -49,9 +49,6 @@ namespace co
         virtual uint32_t getAutoObsolete() const { return _nVersions; }
         //@}
 
-        virtual void addSlave( Command& command,
-                               NodeMapObjectReplyPacket& reply );
-
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes );
     
@@ -65,6 +62,11 @@ namespace co
             uint32_t commitCount;
         };
         
+        virtual void _initSlave( NodePtr node, const uint128_t& version,
+                                 const NodeMapObjectPacket* packet,
+                                 NodeMapObjectSuccessPacket& success,
+                                 NodeMapObjectReplyPacket& reply );
+
         InstanceData* _newInstanceData();
         void _addInstanceData( InstanceData* data );
         void _releaseInstanceData( InstanceData* data );

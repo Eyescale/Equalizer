@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -259,9 +259,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
+void Object::addSlave( Command& command )
 {
-    _cm->addSlave( command, reply );
+    _cm->addSlave( command );
 }
 
 void Object::removeSlave( NodePtr node )

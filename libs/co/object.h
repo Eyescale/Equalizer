@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,6 @@
 namespace co
 {
     class ObjectCM;
-    struct NodeMapObjectReplyPacket;
 
 #  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
 
@@ -349,7 +348,7 @@ namespace co
         NodePtr getMasterNode();
 
         /** @internal */
-        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
+        void addSlave( Command& command );
         CO_API void removeSlave( NodePtr node ); //!< @internal
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal

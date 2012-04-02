@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,21 +29,18 @@ namespace co
 {
     class Node;
 
-    /** 
+    /** @internal
      * An object change manager handling a static master instance.
-     * @internal
      */
     class StaticMasterCM : public ObjectCM
     {
     public:
-        StaticMasterCM( Object* object );
-        virtual ~StaticMasterCM();
+        StaticMasterCM( Object* object ) : ObjectCM( object ) {}
+        virtual ~StaticMasterCM() {}
 
         virtual void init(){}
 
-        /**
-         * @name Versioning
-         */
+        /** @name Versioning */
         //@{
         virtual void setAutoObsolete( const uint32_t ) {}
         virtual uint32_t getAutoObsolete() const { return 0; }
@@ -55,11 +52,13 @@ namespace co
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
             { EQDONTCALL; return EQ_INSTANCE_INVALID; }
-        virtual void addSlave( Command& command,
-                               NodeMapObjectReplyPacket& reply );
-        virtual void removeSlaves( NodePtr ) {}
+
+        virtual void addSlave( Command& command )
+            { ObjectCM::_addSlave( command, VERSION_FIRST ); }
+        virtual void removeSlaves( NodePtr ) { /* NOP */}
 
     private:
+        virtual void _addSlave( NodePtr node ) { /* NOP */ }
     };
 }
 

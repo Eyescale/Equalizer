@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -93,16 +93,19 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
     return version;
 }
 
-void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID,
-                                  const uint128_t& version )
+void MasterCM::addSlave( Command& command )
 {
-    ObjectInstancePacket packet( NodeID::ZERO, _object->getInstanceID( ));
-    packet.type = PACKETTYPE_CO_OBJECT;
-    packet.command = CMD_OBJECT_INSTANCE;
-    packet.last = true;
-    packet.version = version;
-    packet.instanceID = instanceID;
-    _object->send( node, packet );
+    EQ_TS_THREAD( _cmdThread );
+    Mutex mutex( _slaves );
+    ObjectCM::_addSlave( command, _version );
+}
+
+void MasterCM::_addSlave( NodePtr node )
+{
+    // OPT: use tr1::unordered_set
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves->push_back( node );
+    stde::usort( *_slaves );
 }
 
 void MasterCM::removeSlave( NodePtr node )

@@ -1,6 +1,6 @@
 
 # Copyright (c) 2010 Cedric Stalder <cedric.stalder@gmail.ch>
-#               2011 Stefan Eilemann <eile@eyescale.ch>
+#               2011-2012 Stefan Eilemann <eile@eyescale.ch>
 
 set(CO_PUBLIC_HEADERS 
     api.h
@@ -105,7 +105,6 @@ set(CO_SOURCES
     queueMaster.cpp
     queueSlave.cpp
     socketConnection.cpp
-    staticMasterCM.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
     version.cpp
