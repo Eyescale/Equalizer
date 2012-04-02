@@ -397,13 +397,20 @@ std::string Node::_createRemoteCommand() const
     char* env = getenv( libPath );
     if( env )
         stringStream << libPath << "=" << env << " ";
-    for( int i=0; environ[i] != 0; i++ )
-        if( strlen( environ[i] ) > 2 && strncmp( environ[i], "EQ_", 3 ) == 0 )
+    for( int i=0; environ[i] != 0; ++i )
+    {
+        if( strlen( environ[i] ) > 2 && 
+            ( strncmp( environ[i], "LB_", 3 ) == 0 ||
+              strncmp( environ[i], "CO_", 3 ) == 0 ||
+              strncmp( environ[i], "EQ_", 3 ) == 0 ))
+        {
             stringStream << quote << environ[i] << quote << " ";
+        }
+    }
 
-    stringStream << "EQ_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
+    stringStream << "LB_LOG_LEVEL=" <<lunchbox::Log::getLogLevelString() << " ";
     if( lunchbox::Log::topics != 0 )
-        stringStream << "EQ_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
+        stringStream << "LB_LOG_TOPICS=" <<lunchbox::Log::topics << " ";
 #endif // WIN32
 
     //----- program + args
