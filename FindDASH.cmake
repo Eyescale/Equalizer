@@ -77,8 +77,12 @@ find_path(_dash_INCLUDE_DIR dash/Version.h
 
 if(Dash_FIND_REQUIRED)
   set(_dash_version_output_type FATAL_ERROR)
+  set(_dash_output 1)
 else()
   set(_dash_version_output_type STATUS)
+  if(NOT Dash_FIND_QUIETLY)
+    set(_dash_output 1)
+  endif()
 endif()
 
 # Try to ascertain the version...
@@ -106,8 +110,9 @@ if(_dash_INCLUDE_DIR)
   endif()
 else()
   set(_dash_EPIC_FAIL TRUE)
-  message(${_dash_version_output_type}
-    "Can't find DASH header file version.h.")
+  if(_dash_output)
+    message(${_dash_version_output_type} "Can't find DASH header version.h.")
+  endif()
 endif()
 
 #
@@ -137,14 +142,18 @@ find_library(_dash_LIBRARY dash
 # have vs. what version was required.
 if(_dash_version_not_high_enough)
   set(_dash_EPIC_FAIL TRUE)
-  message(${_dash_version_output_type}
-    "Version ${Dash_FIND_VERSION} or higher of DASH is required. "
-    "Version ${DASH_VERSION} was found in ${_dash_INCLUDE_DIR}.")
+  if(_dash_output)
+    message(${_dash_version_output_type}
+      "Version ${Dash_FIND_VERSION} or higher of DASH is required. "
+      "Version ${DASH_VERSION} was found in ${_dash_INCLUDE_DIR}.")
+  endif()
 elseif(_dash_version_not_exact)
   set(_dash_EPIC_FAIL TRUE)
-  message(${_dash_version_output_type}
-    "Version ${Dash_FIND_VERSION} of DASH is required exactly. "
-    "Version ${DASH_VERSION} was found.")
+  if(_dash_output)
+    message(${_dash_version_output_type}
+      "Version ${Dash_FIND_VERSION} of DASH is required exactly. "
+      "Version ${DASH_VERSION} was found.")
+  endif()
 else()
   if(Dash_FIND_REQUIRED)
     if(_dash_LIBRARY MATCHES "_dash_LIBRARY-NOTFOUND")
@@ -169,7 +178,7 @@ set(DASH_INCLUDE_DIRS ${_dash_INCLUDE_DIR})
 set(DASH_LIBRARIES ${_dash_LIBRARY})
 get_filename_component(DASH_LIBRARY_DIR ${_dash_LIBRARY} PATH)
 
-if(DASH_FOUND)
+if(DASH_FOUND AND _dash_output)
   message(STATUS "Found DASH ${DASH_VERSION} in "
     "${DASH_INCLUDE_DIRS};${DASH_LIBRARIES}")
 endif()
