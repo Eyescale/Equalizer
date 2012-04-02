@@ -64,7 +64,7 @@ FullMasterCM::~FullMasterCM()
 
 void FullMasterCM::sendInstanceData( Nodes& nodes )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
     if( !_slaves->empty( ))
         return;
@@ -167,7 +167,7 @@ void FullMasterCM::_obsolete()
 
 void FullMasterCM::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 

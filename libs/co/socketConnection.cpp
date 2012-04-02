@@ -293,7 +293,7 @@ void SocketConnection::acceptNB()
     
 ConnectionPtr SocketConnection::acceptSync()
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
 
@@ -429,7 +429,7 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
                                     const bool block )
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {
@@ -604,7 +604,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
 //----------------------------------------------------------------------
 // listen
 //----------------------------------------------------------------------
-#ifdef EQ_GCC_4_5_OR_LATER
+#ifdef LB_GCC_4_5_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-result"
 #endif
 bool SocketConnection::listen()

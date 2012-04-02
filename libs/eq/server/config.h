@@ -263,8 +263,8 @@ namespace server
         bool _cmdCreateReply( co::Command& command );
         bool _cmdFreezeLoadBalancing( co::Command& command );
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _mainThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _mainThread );
     };
 }
 }

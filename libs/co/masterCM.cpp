@@ -107,7 +107,7 @@ void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID,
 
 void MasterCM::removeSlave( NodePtr node )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     const NodeID& nodeID = node->getNodeID();
 
     Mutex mutex( _slaves );
@@ -126,7 +126,7 @@ void MasterCM::removeSlave( NodePtr node )
 
 void MasterCM::removeSlaves( NodePtr node )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
 
     const NodeID& nodeID = node->getNodeID();
 
@@ -146,7 +146,7 @@ void MasterCM::removeSlaves( NodePtr node )
 //---------------------------------------------------------------------------
 bool MasterCM::_cmdSlaveDelta( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     const ObjectSlaveDeltaPacket* packet = 
         command.get< ObjectSlaveDeltaPacket >();
 

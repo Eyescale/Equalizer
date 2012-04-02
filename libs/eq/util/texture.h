@@ -238,7 +238,7 @@ namespace util
         /** Set the size of the texture, updating the _defined flag. */
         void _grow( const int32_t width, const int32_t height );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 }

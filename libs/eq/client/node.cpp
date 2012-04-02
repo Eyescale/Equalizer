@@ -420,7 +420,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
     const NodeCreatePipePacket* packet = 
         command.get<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     EQASSERT( _state >= STATE_INIT_FAILED );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
@@ -436,7 +436,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
 
 bool Node::_cmdDestroyPipe( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
 
     const NodeDestroyPipePacket* packet = 
         command.get< NodeDestroyPipePacket >();
@@ -458,7 +458,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
 bool Node::_cmdConfigInit( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
 
     const NodeConfigInitPacket* packet = 
         command.get<NodeConfigInitPacket>();
@@ -488,7 +488,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 
 bool Node::_cmdConfigExit( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     EQLOG( LOG_INIT ) << "Node exit " 
                       << command.get<NodeConfigExitPacket>() << std::endl;
 
@@ -511,7 +511,7 @@ bool Node::_cmdConfigExit( co::Command& command )
 
 bool Node::_cmdFrameStart( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.get<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << std::endl;
@@ -538,7 +538,7 @@ bool Node::_cmdFrameStart( co::Command& command )
 
 bool Node::_cmdFrameFinish( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.get<NodeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet

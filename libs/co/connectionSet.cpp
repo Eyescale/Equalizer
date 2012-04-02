@@ -362,7 +362,7 @@ void ConnectionSet::clear()
 
 ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
 {
-    EQ_TS_SCOPED( _selectThread );
+    LB_TS_SCOPED( _selectThread );
     while( true )
     {
         _impl->connection = 0;
@@ -380,12 +380,12 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
 
         // poll for a result
 #ifdef _WIN32
-        EQASSERT( EQ_TIMEOUT_INDEFINITE == INFINITE );
+        EQASSERT( LB_TIMEOUT_INDEFINITE == INFINITE );
         const DWORD ret = WaitForMultipleObjectsEx( _impl->fdSet.getSize(),
                                                     _impl->fdSet.getData(),
                                                     FALSE, timeout, TRUE );
 #else
-        const int pollTimeout = timeout == EQ_TIMEOUT_INDEFINITE ?
+        const int pollTimeout = timeout == LB_TIMEOUT_INDEFINITE ?
                                 -1 : int( timeout );
         const int ret = poll( _impl->fdSet.getData(), _impl->fdSet.getSize(),
                               pollTimeout );

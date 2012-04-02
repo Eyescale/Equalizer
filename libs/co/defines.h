@@ -32,8 +32,6 @@
 /** A 'NULL' value for an uint32.*/
 #define EQ_UNDEFINED_UINT32   (0xffffffffu)
 
-/** Constant defining 'wait forever' in methods with wait parameters. */
-#define EQ_TIMEOUT_INDEFINITE 0xffffffffu // Attn: identical to Win32 INFINITE!
 /** Constant defining use global default in methods with wait parameters. */
 #define EQ_TIMEOUT_DEFAULT 0xfffffffeu
 

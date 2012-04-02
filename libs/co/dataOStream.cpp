@@ -63,7 +63,7 @@ DataOStream::~DataOStream()
 void DataOStream::_initCompressor( const uint32_t compressor )
 {
     EQCHECK( _compressor->Compressor::initCompressor( compressor ));
-    EQ_TS_RESET( _compressor->_thread );
+    LB_TS_RESET( _compressor->_thread );
 }
 
 void DataOStream::_enable()

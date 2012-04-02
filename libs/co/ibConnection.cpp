@@ -373,7 +373,7 @@ void IBConnection::readNB( void* buffer, const uint64_t bytes ){ /* NOB */ }
 int64_t IBConnection::readSync( void* buffer, const uint64_t bytes,
                                 const bool ignored )
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
     int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );
     if ( result < 0 ) 
         close();

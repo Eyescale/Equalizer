@@ -1050,7 +1050,7 @@ Command& LocalNode::cloneCommand( Command& command )
 //----------------------------------------------------------------------
 void LocalNode::_runReceiverThread()
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -1383,7 +1383,7 @@ bool LocalNode::_cmdAckRequest( Command& command )
 
 bool LocalNode::_cmdStopRcv( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     EQASSERT( _state == STATE_LISTENING );
     EQINFO << "Cmd stop receiver " << this << std::endl;
 
@@ -1396,7 +1396,7 @@ bool LocalNode::_cmdStopRcv( Command& command )
 
 bool LocalNode::_cmdStopCmd( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     EQASSERT( _state == STATE_CLOSING );
     EQINFO << "Cmd stop command " << this << std::endl;
 
@@ -1782,7 +1782,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
     if( !_impl->sendToken == 0 ) // enqueue command if no token available
     {
         const uint32_t timeout = Global::getTimeout();
-        if( timeout == EQ_TIMEOUT_INDEFINITE ||
+        if( timeout == LB_TIMEOUT_INDEFINITE ||
             ( getTime64() - _impl->lastSendToken <= timeout ))
         {
             command.retain();

@@ -369,7 +369,7 @@ uint32_t Config::finishFrame()
 
         // global sync
         const uint32_t timeout = getTimeout();
-        if( timeout == EQ_TIMEOUT_INDEFINITE )
+        if( timeout == LB_TIMEOUT_INDEFINITE )
             _finishedFrame.waitGE( frameToFinish );
         else
         {

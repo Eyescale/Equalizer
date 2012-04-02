@@ -158,7 +158,7 @@ namespace eq
         uint32_t      frameNumber;
         uint64_t useAlpha; // bool + valgrind padding
 
-        EQ_ALIGN8( uint8_t data[8] );
+        LB_ALIGN8( uint8_t data[8] );
     };
 
     struct NodeFrameDataReadyPacket : public NodePacket

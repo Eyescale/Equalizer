@@ -51,7 +51,7 @@ namespace detail { class CommandCache; }
     private:
         detail::CommandCache* const _impl;
         friend std::ostream& operator << ( std::ostream&, const CommandCache& );
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 
     std::ostream& operator << ( std::ostream&, const CommandCache& );

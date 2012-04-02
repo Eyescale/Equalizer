@@ -59,7 +59,7 @@ namespace co
     private:
         /* The command handlers. */
         bool _cmdInstance( Command& command );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _rcvThread );
     };
 }
 

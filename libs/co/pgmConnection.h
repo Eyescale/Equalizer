@@ -23,7 +23,7 @@
 
 #include <co/connection.h>
 #include <lunchbox/buffer.h> // member
-#include <lunchbox/thread.h> // for EQ_TS_VAR
+#include <lunchbox/thread.h> // for LB_TS_VAR
 
 namespace co
 {
@@ -93,7 +93,7 @@ namespace co
         void*      _overlappedAcceptData;
         SOCKET     _overlappedSocket;
 
-        EQ_TS_VAR( _recvThread );
+        LB_TS_VAR( _recvThread );
     };
 }
 

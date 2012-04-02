@@ -56,7 +56,7 @@ void Texture::flush()
     if( _name == 0 )
         return;
 
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     glDeleteTextures( 1, &_name );
     _name = 0;
     _defined = false;
@@ -64,7 +64,7 @@ void Texture::flush()
 
 void Texture::flushNoDelete()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     _name = 0;
     _defined = false;
 }
@@ -148,7 +148,7 @@ void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 
 void Texture::_generate()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     if( _name != 0 )
         return;
 
@@ -217,7 +217,7 @@ void Texture::copyFromFrameBuffer( const GLuint internalFormat,
                                    const fabric::PixelViewport& pvp )
 {
     EQ_GL_ERROR( "before Texture::copyFromFrameBuffer" );
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     _generate();
     _setInternalFormat( internalFormat );
@@ -248,7 +248,7 @@ void Texture::upload( const int32_t width, const int32_t height,
 
 void Texture::download( void* buffer ) const
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _name ));
     EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
@@ -263,7 +263,7 @@ void Texture::bind() const
 void Texture::bindToFBO( const GLenum target, const int32_t width, 
                          const int32_t height )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERT( _internalFormat );
     EQASSERT( _glewContext );
 
@@ -281,7 +281,7 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
 
 void Texture::resize( const int32_t width, const int32_t height )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERT( _name );
     EQASSERT( _internalFormat );
     EQASSERT( width > 0 && height > 0 );

@@ -100,7 +100,7 @@ namespace co
          */
         Plugin* _findPlugin( uint32_t name );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 #endif  // CO_COMPRESSOR_H

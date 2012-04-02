@@ -234,7 +234,7 @@ MessagePump* Pipe::createMessagePump()
 
 MessagePump* Pipe::getMessagePump()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( !_thread )
         return 0;
 
@@ -244,7 +244,7 @@ MessagePump* Pipe::getMessagePump()
 
 void Pipe::Thread::run()
 {
-    EQ_TS_THREAD( _pipe->_pipeThread );
+    LB_TS_THREAD( _pipe->_pipeThread );
     EQINFO << "Entered pipe thread" << std::endl;
 
     Pipe* pipe = _pipe; // _pipe gets cleared on exit
@@ -280,7 +280,7 @@ co::CommandQueue* Pipe::getCommandThreadQueue()
 Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
                        const bool isOutput )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Frame* frame = _frames[ frameVersion.identifier ];
 
     if( !frame )
@@ -319,7 +319,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
 
 void Pipe::flushFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     ClientPtr client = getClient();
     for( FrameHash::const_iterator i = _frames.begin(); i != _frames.end(); ++i)
     {
@@ -343,7 +343,7 @@ void Pipe::flushFrames()
 
 co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( queueVersion.identifier == UUID::ZERO )
         return 0;
 
@@ -362,7 +362,7 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
 
 void Pipe::_flushQueues()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     ClientPtr client = getClient();
 
     for( QueueHash::const_iterator i = _queues.begin(); i != _queues.end(); ++i)
@@ -383,7 +383,7 @@ const View* Pipe::getView( const co::ObjectVersion& viewVersion ) const
 
 View* Pipe::getView( const co::ObjectVersion& viewVersion )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( viewVersion.identifier == UUID::ZERO )
         return 0;
 
@@ -406,7 +406,7 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
 
 void Pipe::_releaseViews()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     for( bool changed = true; changed; )
     {
         changed = false;
@@ -435,7 +435,7 @@ void Pipe::_releaseViews()
 
 void Pipe::_flushViews()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     NodeFactory* nodeFactory = Global::getNodeFactory();
     ClientPtr client = getClient();
 
@@ -531,7 +531,7 @@ void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
 
 uint32_t Pipe::getCurrentFrame() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     return _currentFrame;
 }
 
@@ -546,7 +546,7 @@ uint32_t Pipe::getFinishedFrame() const
 //---------------------------------------------------------------------------
 bool Pipe::configInit( const uint128_t& initID )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     EQASSERT( !_systemPipe );
 
@@ -598,7 +598,7 @@ bool Pipe::configInitSystemPipe( const uint128_t& )
 
 bool Pipe::configExit()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     if( _computeContext )
     {
@@ -619,7 +619,7 @@ bool Pipe::configExit()
 
 void Pipe::frameStart( const uint128_t&, const uint32_t frameNumber ) 
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     const Node* node = getNode();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
@@ -685,21 +685,21 @@ void Pipe::frameFinish( const uint128_t&, const uint32_t frameNumber )
 
 void Pipe::startFrame( const uint32_t frameNumber )
 { 
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
     EQLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     EQASSERTINFO( _unlockedFrame + 1 == frameNumber,
                   _unlockedFrame << ", " << frameNumber );
 
@@ -771,7 +771,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 
 bool Pipe::_cmdConfigInit( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.get<PipeConfigInitPacket>();
     EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
@@ -818,7 +818,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
 
 bool Pipe::_cmdConfigExit( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.get<PipeConfigExitPacket>();
     EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
@@ -856,7 +856,7 @@ bool Pipe::_cmdFrameStartClock( co::Command& )
 
 bool Pipe::_cmdFrameStart( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.get<PipeFrameStartPacket>();
     EQVERB << "handle pipe frame start " << packet << std::endl;
@@ -889,7 +889,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
 
 bool Pipe::_cmdFrameFinish( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.get<PipeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
@@ -931,7 +931,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
 bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
     EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
@@ -943,7 +943,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
 
 bool Pipe::_cmdDetachView( co::Command& command )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PipeDetachViewPacket* packet = command.get< PipeDetachViewPacket >();
 
     ViewHash::iterator i = _views.find( packet->viewID );

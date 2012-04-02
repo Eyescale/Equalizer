@@ -94,7 +94,7 @@ private:
     bool _preRegister();
 
     void _close();
-    EQ_TS_VAR( _recvThread );
+    LB_TS_VAR( _recvThread );
 };
 }
 #endif //EQ_INFINIBAND

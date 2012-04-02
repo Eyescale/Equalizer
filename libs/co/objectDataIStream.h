@@ -68,7 +68,7 @@ namespace co
         void _setReady() { _version = getPendingVersion(); }
         void _reset();
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 #endif //CO_OBJECTDATAISTREAM_H

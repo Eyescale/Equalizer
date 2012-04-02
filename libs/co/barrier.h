@@ -75,7 +75,7 @@ namespace detail { class Barrier; }
          * also enters the barrier. If a timeout happens a timeout exception is
          * thrown.
          */
-        CO_API void enter( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        CO_API void enter( const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
         //@}
 
     protected:
@@ -99,7 +99,7 @@ namespace detail { class Barrier; }
         bool _cmdEnter( Command& command );
         bool _cmdEnterReply( Command& command );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 

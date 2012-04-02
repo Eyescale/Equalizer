@@ -18,7 +18,7 @@
 // Tests network throughput
 // Usage: see 'netPerf -h'
 
-#define EQ_RELEASE_ASSERT
+#define LB_RELEASE_ASSERT
 
 #include <co/co.h>
 

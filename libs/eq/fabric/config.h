@@ -57,7 +57,7 @@ namespace fabric
 
         /**
          * @internal
-         * @return the timeout in ms or EQ_TIMEOUT_INDEFINITE for failures.
+         * @return the timeout in ms or LB_TIMEOUT_INDEFINITE for failures.
          */
         EQFABRIC_INL uint32_t getTimeout() const;
 

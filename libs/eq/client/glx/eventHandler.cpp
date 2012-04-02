@@ -149,7 +149,7 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 
 void EventHandler::_processEvent( WindowEvent& event )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     XEvent& xEvent = event.xEvent;
     XID drawable = xEvent.xany.window;

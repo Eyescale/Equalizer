@@ -459,7 +459,7 @@ Frame* Compositor::waitFrame( WaitHandle* handle )
     const uint32_t timeout = config->getTimeout();
 
     ++handle->processed;
-    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    if( timeout == LB_TIMEOUT_INDEFINITE )
         handle->monitor.waitGE( handle->processed );
     else
     {

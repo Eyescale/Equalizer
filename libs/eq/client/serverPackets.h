@@ -38,7 +38,7 @@ namespace eq
 
         uint32_t requestID;
         uint32_t flags;
-        EQ_ALIGN8( char rendererInfo[8] );
+        LB_ALIGN8( char rendererInfo[8] );
     };
 
     struct ServerChooseConfigReplyPacket : public ServerPacket
@@ -55,7 +55,7 @@ namespace eq
         UUID configID;
         uint32_t requestID;
         const uint32_t fill;
-        EQ_ALIGN8( char connectionData[8] );
+        LB_ALIGN8( char connectionData[8] );
     };
 
     struct ServerReleaseConfigPacket : public ServerPacket

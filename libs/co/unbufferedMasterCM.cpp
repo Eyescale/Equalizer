@@ -46,7 +46,7 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 void UnbufferedMasterCM::addSlave( Command& command, 
                                    NodeMapObjectReplyPacket& reply )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     EQASSERT( command->type == PACKETTYPE_CO_NODE );
     EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
 

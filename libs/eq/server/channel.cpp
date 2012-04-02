@@ -424,7 +424,7 @@ void Channel::send( co::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 void Channel::addListener( ChannelListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
     EQASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
               _listeners.end( ));
 
@@ -444,7 +444,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
                              const Statistic* statistics,
                              const Viewport& region )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( ChannelListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )

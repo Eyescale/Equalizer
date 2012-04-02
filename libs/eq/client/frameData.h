@@ -254,7 +254,7 @@ namespace server { class FrameData; }
         bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE ) const;
+        void waitReady( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) const;
         
         /** @internal */
         void setVersion( const uint64_t version );
@@ -363,7 +363,7 @@ namespace server { class FrameData; }
         /** Set a specific version ready. */
         void _setReady( const uint64_t version );
 
-        EQ_TS_VAR( _commandThread );
+        LB_TS_VAR( _commandThread );
     };
 
     /** Print the frame data to the given output stream. @version 1.0 */

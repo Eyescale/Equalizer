@@ -464,7 +464,7 @@ namespace eq
         bool _cmdExitThread( co::Command& command );
         bool _cmdDetachView( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

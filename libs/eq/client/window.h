@@ -475,7 +475,7 @@ namespace eq
         bool _cmdSwap( co::Command& command );
         bool _cmdFrameDrawFinish( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

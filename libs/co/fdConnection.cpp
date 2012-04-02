@@ -39,7 +39,7 @@ FDConnection::FDConnection()
 int FDConnection::_getTimeOut()
 {
     const uint32_t timeout = Global::getTimeout();
-    return timeout == EQ_TIMEOUT_INDEFINITE ? -1 : int( timeout );
+    return timeout == LB_TIMEOUT_INDEFINITE ? -1 : int( timeout );
 }
 
 //----------------------------------------------------------------------

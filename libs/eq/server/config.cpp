@@ -953,7 +953,7 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 bool Config::_cmdInit( co::Command& command )
 {
-    EQ_TS_THREAD( _mainThread );
+    LB_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
         command.get<ConfigInitPacket>();
     EQVERB << "handle config start init " << packet << std::endl;
@@ -1081,8 +1081,8 @@ bool Config::_cmdStopFrames( co::Command& command )
 
 bool Config::_cmdCreateReply( co::Command& command ) 
 {
-    EQ_TS_THREAD( _cmdThread );
-    EQ_TS_NOT_THREAD( _mainThread );
+    LB_TS_THREAD( _cmdThread );
+    LB_TS_NOT_THREAD( _mainThread );
     const fabric::ConfigCreateReplyPacket* packet = 
         command.get< fabric::ConfigCreateReplyPacket >();
 

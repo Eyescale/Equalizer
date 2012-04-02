@@ -94,8 +94,8 @@ namespace co
         /* The command handlers. */
         bool _cmdData( Command& command );
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _rcvThread );
     };
 }
 

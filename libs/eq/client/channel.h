@@ -625,7 +625,7 @@ namespace detail { class Channel; }
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

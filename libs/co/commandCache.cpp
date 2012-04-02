@@ -247,7 +247,7 @@ void CommandCache::flush()
 Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode, 
                               const uint64_t size )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
@@ -260,7 +260,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
 
 Command& CommandCache::clone( Command& from )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     const Cache which = (from->size>Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
     Command& command = _impl->newCommand( which );

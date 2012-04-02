@@ -424,7 +424,7 @@ namespace co
 
         void _setChangeManager( ObjectCM* cm );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
     CO_API std::ostream& operator << ( std::ostream&, const Object& );
 

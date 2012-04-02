@@ -94,7 +94,7 @@ namespace co
         uint32_t compressorName;
         uint32_t nChunks;
         uint32_t fill;
-        EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
+        LB_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
     };
 
     struct ObjectInstancePacket : public ObjectDataPacket
@@ -114,7 +114,7 @@ namespace co
         const NodeID nodeID;
         const uint32_t masterInstanceID;
         const uint32_t fill;
-        EQ_ALIGN8( uint8_t data[8] );
+        LB_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectDeltaPacket : public ObjectDataPacket
@@ -125,7 +125,7 @@ namespace co
                 size       = sizeof( ObjectDeltaPacket ); 
                 instanceID = EQ_INSTANCE_NONE; // multicasted
             }
-        EQ_ALIGN8( uint8_t data[8] );
+        LB_ALIGN8( uint8_t data[8] );
     };
 
     struct ObjectSlaveDeltaPacket : public ObjectDataPacket
@@ -137,7 +137,7 @@ namespace co
             }
 
         UUID commit;
-        EQ_ALIGN8( uint8_t data[8] );
+        LB_ALIGN8( uint8_t data[8] );
     };
 
     //------------------------------------------------------------

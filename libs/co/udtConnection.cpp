@@ -91,7 +91,7 @@ out:
     return ok;
 }
 
-#ifdef EQ_GCC_4_5_OR_LATER
+#ifdef LB_GCC_4_5_OR_LATER
 #  pragma GCC diagnostic ignored "-Wunused-result"
 #endif
 
@@ -106,7 +106,7 @@ static void notify( co::Connection::Notifier n )
 
     EQASSERT( 0 <= n );
 
-#   ifdef EQ_RELEASE_ASSERT
+#   ifdef LB_RELEASE_ASSERT
     EQCHECK( ::write( n, (const void *)&ONE, sizeof(ONE) ) == sizeof(ONE) );
 #   else
     ::write( n, (const void *)&ONE, sizeof(ONE) );
@@ -125,7 +125,7 @@ static void acknowledge( co::Connection::Notifier n )
 
     uint64_t dummy;
 
-#   ifdef EQ_RELEASE_ASSERT
+#   ifdef LB_RELEASE_ASSERT
     EQCHECK( ::read( n, (void *)&dummy, sizeof(dummy) ) == sizeof(dummy) );
 #   else
     ::read( n, (void *)&dummy, sizeof(dummy) );
@@ -283,7 +283,7 @@ UDTConnection::UDTConnection( )
 #endif
     , _poller( NULL )
 {
-#ifdef EQ_RELEASE_ASSERT
+#ifdef LB_RELEASE_ASSERT
     EQCHECK( UDT::ERROR != UDT::startup( ));
 #else
     UDT::startup( );

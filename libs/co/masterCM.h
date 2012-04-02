@@ -86,8 +86,8 @@ namespace co
         bool _cmdSlaveDelta( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _rcvThread );
     };
 }
 
