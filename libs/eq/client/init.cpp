@@ -38,6 +38,10 @@
 #  include <pcapi.h>
 #endif
 
+#ifdef _WIN32
+#  define atoll _atoi64
+#endif
+
 namespace eq
 {
 namespace
