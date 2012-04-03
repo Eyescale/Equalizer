@@ -57,7 +57,7 @@ Window::~Window()
 {
 }
 
-void Window::configExit( )
+void Window::configExit()
 {
     WindowRef window = getCarbonWindow();
     setCarbonWindow( 0 );
@@ -169,8 +169,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
     attributes.push_back( GL_TRUE );
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON && 
-       (getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )   == WINDOW ||
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )   == FBO ))
+        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER )
     {
         attributes.push_back( AGL_FULLSCREEN );
     }
@@ -384,8 +383,10 @@ bool Window::configInitAGLDrawable()
         case WINDOW:
             if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
                 return configInitAGLFullscreen();
-            else
-                return configInitAGLWindow();
+            return configInitAGLWindow();
+
+        case OFF:
+            return true;
     }
 }
 
@@ -399,8 +400,8 @@ bool Window::configInitAGLPBuffer()
     }
 
     // PBuffer
-    const PixelViewport pvp = getWindow()->getPixelViewport();
-          AGLPbuffer    pbuffer;
+    const PixelViewport& pvp = getWindow()->getPixelViewport();
+    AGLPbuffer pbuffer;
     if( !aglCreatePBuffer( pvp.w, pvp.h, GL_TEXTURE_RECTANGLE_EXT, GL_RGBA,
                            0, &pbuffer ))
     {
@@ -449,7 +450,9 @@ bool Window::configInitAGLFullscreen()
     Global::leaveCarbon();
 
     getWindow()->setPixelViewport( pvp );
-    initEventHandler();
+
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != OFF )
+        initEventHandler();
     return true;
 }
 
@@ -473,12 +476,11 @@ bool Window::configInitAGLWindow()
         kWindowStandardHandlerAttribute | kWindowInWindowMenuAttribute;
 
     // top, left, bottom, right
-    const PixelViewport   pvp = getWindow()->getPixelViewport();
-    const int32_t  menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
-    Rect           windowRect = { pvp.y + menuHeight, pvp.x, 
-                                  pvp.y + pvp.h + menuHeight,
-                                  pvp.x + pvp.w };
-    WindowRef      windowRef;
+    const PixelViewport pvp = getWindow()->getPixelViewport();
+    const int32_t menuHeight = decoration ? EQ_AGL_MENUBARHEIGHT : 0 ;
+    Rect windowRect = { pvp.y + menuHeight, pvp.x,
+                        pvp.y + pvp.h + menuHeight, pvp.x + pvp.w };
+    WindowRef windowRef;
 
     Global::enterCarbon();
     const OSStatus status = CreateNewWindow( kDocumentWindowClass,
@@ -545,6 +547,9 @@ void Window::setCarbonWindow( WindowRef window )
     _carbonWindow = window;
 
     if( !window )
+        return;
+
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
         return;
 
     initEventHandler();

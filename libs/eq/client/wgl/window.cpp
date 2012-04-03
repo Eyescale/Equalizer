@@ -43,7 +43,6 @@ Window::Window( eq::Window* parent )
     , _wglEventHandler( 0 )
     , _wglNVSwapGroup( 0 )
 {
-    
 }
 
 Window::~Window( )
@@ -87,6 +86,9 @@ void Window::setWGLWindowHandle( HWND handle )
 
     _wglWindow = handle;
     setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
+
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
 
     initEventHandler();
 
@@ -231,6 +233,7 @@ bool Window::configInitWGLDrawable( int pixelFormat )
             return configInitWGLPBuffer( pixelFormat );
 
         case FBO:
+        case OFF:
             return configInitWGLFBO( pixelFormat );
 
         default:
@@ -261,7 +264,6 @@ bool Window::configInitWGLFBO( int pixelFormat )
             return false;
 
         const HDC dc = GetDC( _wglWindow );
-        
         if( !dc )
             return false;
         
@@ -716,8 +718,8 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
     }
 
     if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_STEREO )   == AUTO && 
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
+        ( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO && 
+          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
@@ -725,7 +727,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
     if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
         ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
+          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
         attributes.push_back( 1 );
