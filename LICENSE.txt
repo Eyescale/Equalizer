@@ -3,7 +3,7 @@ Collage - a cross-platform C++ library for building heterogenous, distributed ap
 
 Equalizer and Collage are licensed under the LGPL, unless noted otherwise, e.g., for external dependencies. See file LGPL for the full license. The examples are licensed under the BSD license. External dependencies are either LGPL or BSD-licensed. See file ACKNOWLEDGEMENTS and AUTHORS for further details.
 
-Copyright (C) 2005-2011, Stefan Eilemann <eile@eyescale.ch>
+Copyright (C) 2005-2012, Eyescale Software GmbH and AUTHORS
 
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.
 

@@ -279,7 +279,7 @@
 <h3>3.3. Documentation</h3>
 <p>
   The Programming and User Guide is available as a 
-  <a href="http://www.lulu.com/product/paperback/equalizer-10-programming-and-user-guide/15165632">hard-copy</a>
+  <a href="https://www.createspace.com/3800793">hard-copy</a>
   and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
   The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html">API
     documentation</a> can be found on the Equalizer website.
@@ -314,4 +314,7 @@
 
 <a name="errata"></a>
 <h2>4. Errata</h2>
-<p></p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
+    Sequel missing from packages</li>
+</ul>

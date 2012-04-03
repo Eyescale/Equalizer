@@ -36,12 +36,10 @@
 #  define getpid _getpid
 #endif
 
-
 namespace co
 {
 namespace base
 {
-
 static int      getLogLevel();
 static unsigned getLogTopics();
 

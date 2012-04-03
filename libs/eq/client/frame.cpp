@@ -156,8 +156,7 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
 
-void Frame::readback( ObjectManager* glObjects,
-                      const DrawableConfig& config,
+void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
     EQASSERT( _frameData );

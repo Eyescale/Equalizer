@@ -51,7 +51,7 @@ foreach(FILE ${TEST_FILES})
     set_target_properties(${NAME} PROPERTIES FOLDER "Tests")
 
     if(${NAME} MATCHES "co_.*")
-      target_link_libraries(${NAME} Collage)
+      target_link_libraries(${NAME} lib_Collage_shared)
     endif()
     if(${NAME} MATCHES "eq_.*")
       target_link_libraries(${NAME} lib_Equalizer_shared)

@@ -62,7 +62,7 @@ eq_add_tool(eqPlyConverter
     ../examples/eqPly/vertexBufferRoot.cpp
     ../examples/eqPly/vertexBufferState.cpp
     ../examples/eqPly/vertexData.cpp
-    LINK_LIBRARIES shared Equalizer
+  LINK_LIBRARIES shared Equalizer
   )
 
 eq_add_tool(eVolveConverter
@@ -78,12 +78,12 @@ eq_add_tool(eVolveConverter
 
 eq_add_tool(netperf
   SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES Collage
+  LINK_LIBRARIES shared Collage
   )
 
 eq_add_tool(netproxy
   SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES Collage
+  LINK_LIBRARIES shared Collage
   )
 
 eq_add_tool(windowAdmin

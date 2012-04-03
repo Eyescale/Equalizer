@@ -8,18 +8,16 @@ project(Equalizer)
 option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_BOOST "Test for Boost support" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
+option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
 option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
-option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
-option(EQUALIZER_NIGHTLY "Package nightly builds" OFF)
-option(EQUALIZER_USE_SOLUTION_FOLDERS "Enable project grouping in IDE" ON)
+option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
 option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
-mark_as_advanced(EQUALIZER_USE_SOLUTION_FOLDERS)
 mark_as_advanced(EQUALIZER_FORCE_OPENMP)
 mark_as_advanced(EQUALIZER_PREFER_AGL)
 
@@ -63,28 +61,19 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT AND NOT MSVC)
-  if(APPLE)
-    set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "Installation prefix" FORCE)
-  else()
-    set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Installation prefix" FORCE)
-  endif()
+  set(CMAKE_INSTALL_PREFIX "/usr" CACHE PATH "Installation prefix" FORCE)
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${Equalizer_BINARY_DIR}/lib)
-
-if(EQUALIZER_USE_SOLUTION_FOLDERS)
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-else()
-  set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
-endif()
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(EQUALIZER_USE_GPUSD)
   include(GPUSD)
 endif()
 
-set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR})
+set(OUTPUT_INCLUDE_DIR ${Equalizer_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs ${OUTPUT_INCLUDE_DIR})
 
@@ -108,11 +97,16 @@ if(MSVC)
   include(UseGnuWin32)
   add_definitions(
     /D_CRT_SECURE_NO_WARNINGS
+    /D_SCL_SECURE_NO_WARNINGS
     /wd4244 # conversion from X to Y, possible loss of data
     /wd4800 # forcing value to bool 'true' or 'false' (performance warning)
     )
   # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
-  set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
+  if(EQUALIZER_RELEASE)
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
+  else()
+    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
+  endif()
 endif(MSVC)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -121,6 +115,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
+  if(NOT WIN32 AND NOT XCODE_VERSION AND NOT EQUALIZER_RELEASE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+  endif()
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if(EQUALIZER_USE_BOOST)
@@ -128,7 +127,10 @@ if(EQUALIZER_USE_BOOST)
     option(Boost_USE_STATIC_LIBS "Use boost static libs" ON)
   endif()
   set(Boost_USE_MULTITHREADED ON)
-  #set(Boost_DEBUG ON)
+  if(BOOST_ROOT)
+    set(Boost_NO_SYSTEM_PATHS TRUE)
+  endif()
+
   find_package(Boost 1.36 COMPONENTS system regex date_time serialization)
   if(Boost_FOUND)
     if(Boost_VERSION GREATER 103999)
@@ -168,7 +170,7 @@ if(UDT_FOUND)
   include_directories(SYSTEM ${UDT_INCLUDE_DIRS})
 endif()
 
-if(EQ_USE_HWLOC)
+if(EQUALIZER_USE_HWLOC)
   find_package(HWLOC)
 endif()
 if(HWLOC_FOUND)
@@ -180,13 +182,6 @@ if(APPLE)
   # WAR otherwise MacPorts X11 (/opt/local) is preferred
   LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
   LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-else()
-  if(CMAKE_SIZEOF_VOID_P MATCHES "8")
-    set(EQUALIZER_BUILD_ARCH "64" CACHE STRING "Build Architecture")
-  else()
-    set(EQUALIZER_BUILD_ARCH "32" CACHE STRING "Build Architecture")
-  endif()
-  mark_as_advanced(EQUALIZER_BUILD_ARCH)
 endif()
 
 find_package(X11)
@@ -226,14 +221,6 @@ endif(EQ_AGL_USED)
 if(GPUSD_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
 endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Winvalid-pch -Wnon-virtual-dtor -Wsign-promo -Wshadow -Winit-self -Wno-unknown-pragmas -Wno-unused-parameter -Wno-write-strings")
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wuninitialized")
-  if(NOT WIN32 AND NOT XCODE_VERSION AND NOT EQUALIZER_RELEASE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
-  endif()
-endif(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
   SET(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
@@ -308,16 +295,20 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
-  COMPONENT codev)
-install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
-  COMPONENT eqdev)
+install(FILES CMake/FindCollage.cmake CMake/FindHWLOC.cmake CMake/FindUDT.cmake
+  CMake/FindOFED.cmake DESTINATION share/Equalizer/CMake COMPONENT codev)
+install(FILES CMake/FindEqualizer.cmake CMake/FindGLEW_MX.cmake
+  CMake/FindMAGELLAN.cmake DESTINATION share/Equalizer/CMake COMPONENT eqdev)
 
 if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
 
-message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+if(MSVC)
+  message(STATUS "Configured with${EQ_FEATURES}")
+else()
+  message(STATUS "Configured with ${CMAKE_BUILD_TYPE}${EQ_FEATURES}")
+endif()
 
 include(CPackConfig)
 include(copyScript)

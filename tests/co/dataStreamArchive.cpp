@@ -16,13 +16,16 @@
  */
 
 #include <co/base/defines.h>
+#include <test.h>
+
 #ifdef CO_USE_BOOST_SERIALIZATION
 
-#include <test.h>
+// uint128_t used in archive causes this warning:
+// negative integral constant converted to unsigned type
+#pragma warning( disable: 4308 )
+
 #include <co/co.h>
-
 #include <boost/serialization/string.hpp>
-
 
 template< typename T >
 class Object : public co::Object
@@ -78,7 +81,6 @@ int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ) );
 
-    co::LocalNodePtr server = new co::LocalNode;
     co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
 
     co::base::RNG rng;
@@ -86,6 +88,7 @@ int main( int argc, char **argv )
     connDesc->port = (rng.get<uint16_t>() % 60000) + 1024;
     connDesc->setHostname( "localhost" );
 
+    co::LocalNodePtr server = new co::LocalNode;
     server->addConnectionDescription( connDesc );
     TEST( server->listen( ));
 
@@ -125,4 +128,6 @@ int main( int argc, char **argv )
     return EXIT_SUCCESS;
 }
 
+#else
+int main( int argc, char **argv ) { return EXIT_SUCCESS; }
 #endif // CO_USE_BOOST_SERIALIZATION

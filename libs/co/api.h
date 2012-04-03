@@ -21,9 +21,9 @@
 
 #include <co/base/api.h>
 
-#if defined(CO_STATIC)
+#if defined(COLLAGE_STATIC)
 #  define CO_API
-#elif defined(CO_SHARED)
+#elif defined(COLLAGE_SHARED)
 #  define CO_API EQ_DLLEXPORT
 #else
 #  define CO_API EQ_DLLIMPORT

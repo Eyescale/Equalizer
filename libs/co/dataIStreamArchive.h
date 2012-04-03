@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,24 +25,27 @@
 #include <co/api.h>
 #include <co/dataIStream.h>
 
-#include <boost/archive/detail/common_iarchive.hpp>
+#pragma warning( push )
+#pragma warning( disable: 4800 )
+#include <boost/archive/basic_binary_iarchive.hpp>
+#pragma warning( pop )
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/archive/shared_ptr_helper.hpp>
 
 namespace co
 {
-    /**
-     * An implemenation of a boost.serialization archive for loading data from a
-     * co::DataIStream.
-     */
+    /** A boost.serialization archive for a co::DataIStream. */
     class DataIStreamArchive
-            : public boost::archive::detail::common_iarchive<DataIStreamArchive>
-            , public boost::archive::detail::shared_ptr_helper
+        : public boost::archive::basic_binary_iarchive< DataIStreamArchive >
+        , public boost::archive::detail::shared_ptr_helper
     {
+        typedef boost::archive::basic_binary_iarchive<DataIStreamArchive> Super;
+
     public:
+        /** Construct a new deserialization archive. */
         CO_API DataIStreamArchive( DataIStream& stream );
 
-        // archives are expected to support this function
+        /** @internal archives are expected to support this function */
         CO_API void load_binary( void* data, std::size_t size );
 
     private:
@@ -56,6 +60,9 @@ namespace co
         DataIStream& _stream;
     };
 }
+
+// contains load_override impl for class_name_type
+#include <boost/archive/impl/basic_binary_iarchive.ipp>
 
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(co::DataIStreamArchive)
 

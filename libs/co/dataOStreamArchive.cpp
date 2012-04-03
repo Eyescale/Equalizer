@@ -24,7 +24,7 @@ namespace boost
 {
 namespace archive
 {
-template class detail::archive_serializer_map<co::DataOStreamArchive>;
+template class CO_API detail::archive_serializer_map<co::DataOStreamArchive>;
 }
 }
 
@@ -32,7 +32,8 @@ namespace co
 {
 
 DataOStreamArchive::DataOStreamArchive( DataOStream& stream )
-    : _stream( stream )
+    : Super( 0 )
+    , _stream( stream )
 {
 }
 

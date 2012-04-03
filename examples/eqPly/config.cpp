@@ -55,9 +55,7 @@ Config::Config( eq::ServerPtr parent )
 Config::~Config()
 {
     for( ModelsCIter i = _models.begin(); i != _models.end(); ++i )
-    {
         delete *i;
-    }
     _models.clear();
 
     for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
@@ -246,7 +244,7 @@ void Config::_deregisterData()
     _frameData.setModelID( eq::UUID::ZERO );
 }
 
-bool Config::mapData( const eq::uint128_t& initDataID )
+bool Config::loadData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached( ))
     {
@@ -262,19 +260,6 @@ bool Config::mapData( const eq::uint128_t& initDataID )
         EQASSERT( _initData.getID() == initDataID );
     }
     return true;
-}
-
-void Config::unmapData()
-{
-    for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
-    {
-        ModelDist* modelDist = *i;
-        if( !modelDist->isAttached( )) // already done
-            continue;
-
-        if( !modelDist->isMaster( )) // leave registered on appNode
-            modelDist->unmapTree();
-    }
 }
 
 const Model* Config::getModel( const eq::uint128_t& modelID )
@@ -298,7 +283,8 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     }
     
     _modelDist.push_back( new ModelDist );
-    Model* model = _modelDist.back()->mapModel( getClient(), modelID );
+    Model* model = _modelDist.back()->loadModel( getApplicationNode(),
+                                                 getClient(), modelID );
     EQASSERT( model );
     _models.push_back( model );
 

@@ -36,7 +36,7 @@
 // Experimental Win32 thread pinning
 #ifdef _WIN32
 //#  define EQ_WIN32_THREAD_AFFINITY
-#  pragma message ("Thread affinity  not supported on WIN32")
+#  pragma message ("Thread affinity not supported on WIN32")
 #endif
 
 #ifdef Linux
@@ -402,7 +402,7 @@ void Thread::setAffinity(const int32_t affinity)
     char* cpuSetString;
     hwloc_bitmap_asprintf( &cpuSetString, cpuSet );
 
-    if( affinityFlag == 0 )
+    if( result == 0 )
     {
         EQINFO << "Bound thread to cpu set "  << cpuSetString << std::endl;
     }
