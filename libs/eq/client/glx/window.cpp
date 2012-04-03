@@ -132,6 +132,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
                << ", using window" << std::endl;
         // no break;
       case UNDEFINED:
+      case OFF: // needs fbConfig with visual for dummy window
       case FBO: // No typo - FBO needs fbConfig with visual for dummy window
       case WINDOW:
         attributes.push_back( GLX_X_RENDERABLE );
@@ -348,9 +349,9 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
             attributes.push_back( GLX_RED_SIZE );
             attributes.push_back( 1 );
             attributes.push_back( GLX_ALPHA_SIZE );
-            attributes.push_back(  1 );
+            attributes.push_back( 1 );
             attributes.push_back( GLX_DEPTH_SIZE );
-            attributes.push_back(  1 );
+            attributes.push_back( 1 );
             attributes.push_back( GLX_DOUBLEBUFFER );
             attributes.push_back( None );
 
@@ -384,10 +385,11 @@ bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
             return configInitGLXPBuffer( fbConfig );
 
         case FBO:
+        case OFF:
         {
             const PixelViewport pvp( 0, 0, 1, 1 );
             setXDrawable( _createGLXWindow( fbConfig, pvp ));
-            return (_xDrawable != 0 );
+            return _xDrawable != 0;
         }
 
         default:
@@ -447,8 +449,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     return true;
 }
     
-XID Window::_createGLXWindow( GLXFBConfig* fbConfig, 
-                                 const PixelViewport& pvp )
+XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
     EQASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
 
@@ -501,14 +502,13 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig,
           break;
     }
 
-    XID drawable = XCreateWindow( _xDisplay, parent, 
-                                  pvp.x, pvp.y, pvp.w, pvp.h,
+    XID drawable = XCreateWindow( _xDisplay, parent, pvp.x, pvp.y, pvp.w, pvp.h,
                                   0, visInfo->depth, InputOutput,
                                   visInfo->visual, 
                                   CWBackPixmap | CWBorderPixel | CWEventMask |
                                   CWColormap | CWOverrideRedirect, &wa );
     XFree( visInfo );
-    if ( !drawable )
+    if( !drawable )
     {
         setError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
         return 0;
@@ -581,6 +581,8 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
 
 void Window::setXDrawable( XID drawable )
 {
+    EQASSERT( _xDisplay );
+
     if( _xDrawable == drawable )
         return;
 
@@ -592,12 +594,12 @@ void Window::setXDrawable( XID drawable )
     if( !drawable )
         return;
 
-    initEventHandler();
+    const int32_t drawableType = getIAttribute(eq::Window::IATTR_HINT_DRAWABLE);
+    if( drawableType != OFF )
+        initEventHandler();
 
     // query pixel viewport of window
-    EQASSERT( _xDisplay );
-
-    switch( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ))
+    switch( drawableType )
     {
         case PBUFFER:
         {
@@ -635,6 +637,7 @@ void Window::setXDrawable( XID drawable )
         }
         default:
             EQUNIMPLEMENTED;
+        case OFF:
         case FBO:
             EQASSERT( getWindow()->getPixelViewport().hasArea( ));
     }
@@ -673,8 +676,8 @@ void Window::configExit()
 
     glXMakeCurrent( _xDisplay, None, 0 );
 
-    GLXContext context  = getGLXContext();
-    XID        drawable = getXDrawable();
+    GLXContext context = getGLXContext();
+    XID drawable = getXDrawable();
 
     setGLXContext( 0 );
     setXDrawable( 0 );
