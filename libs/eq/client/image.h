@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -272,8 +272,7 @@ namespace eq
          * @version 1.0
          */
         EQ_API bool readback( const uint32_t buffers, const PixelViewport& pvp,
-                              const Zoom& zoom,
-                              util::ObjectManager< const void* >* glObjects );
+                              const Zoom& zoom, ObjectManager* glObjects );
 
         /**
          * @internal
@@ -463,9 +462,9 @@ namespace eq
                                  const bool hasAlpha );
 
         bool _readback( const Frame::Buffer buffer, const Zoom& zoom,
-                        util::ObjectManager< const void* >* glObjects );
+                        ObjectManager* glObjects );
         bool _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                            util::ObjectManager< const void* >* glObjects );
+                            ObjectManager* glObjects );
     };
 };
 #endif // EQ_IMAGE_H

@@ -209,7 +209,7 @@ namespace server { class FrameData; }
         /** Clear the frame by recycling the attached images. @version 1.0 */
         EQ_API void clear();
 
-        /** 
+        /**
          * Read back an image for this frame data.
          * 
          * The newly read image is added to the data using newImage(). Existing
@@ -220,8 +220,7 @@ namespace server { class FrameData; }
          * @param config the configuration of the source frame buffer.
          * @version 1.0
          */
-        void readback( const Frame& frame, 
-                       util::ObjectManager< const void* >* glObjects,
+        void readback( const Frame& frame, ObjectManager* glObjects,
                        const DrawableConfig& config );
 
         /** 
@@ -237,7 +236,7 @@ namespace server { class FrameData; }
          * @version 1.0
          */
         void readback( const Frame& frame, 
-                       util::ObjectManager< const void* >* glObjects,
+                       ObjectManager* glObjects,
                        const DrawableConfig& config,
                        const PixelViewports& regions );
 

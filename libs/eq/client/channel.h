@@ -128,6 +128,9 @@ namespace detail { class Channel; }
         /** @return the FBO used as an alternate frame buffer. @version 1.0*/
         EQ_API util::FrameBufferObject* getFrameBufferObject();
 
+        /** @return a fixed unique color for this channel. @version 1.0 */
+        EQ_API const Vector3ub& getUniqueColor() const;
+
         /** @internal Add a new statistics event for the current frame. */
         EQ_API void addStatistic( Event& event );
         //@}
@@ -361,9 +364,6 @@ namespace detail { class Channel; }
           */
         void changeLatency( const uint32_t latency );
 
-        /** @return a fixed unique color for this channel. @version 1.0 */
-        EQ_API const Vector3ub& getUniqueColor() const;
-
     protected:
         /** @internal */
         EQ_API void attach( const UUID& id, const uint32_t instanceID );
@@ -502,10 +502,10 @@ namespace detail { class Channel; }
         EQ_API virtual void frameAssemble( const uint128_t& frameID );
 
         /** 
-         * Read back the rendered frame buffer into all output frames.
+         * Read back the rendered frame buffer into the output frames.
          * 
          * Called 0 to n times during one frame.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @sa getOutputFrames()
          * @version 1.0

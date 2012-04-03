@@ -47,7 +47,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     EQASSERT( wnd );
 
     // store old drawable of window and set window's drawable to FBO,
-    // create another (shared) osWindow and restore original drowable
+    // create another (shared) osWindow and restore original drawable
     const int32_t drawable =
         wnd->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
     wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::FBO );
