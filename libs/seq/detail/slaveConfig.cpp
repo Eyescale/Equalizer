@@ -30,7 +30,7 @@ bool SlaveConfig::mapData( const uint128_t& initID )
 {
     EQASSERT( !_objects );
 
-    _objects = new ObjectMap( *getApplication( ));
+    _objects = new ObjectMap( getClient(), *getApplication( ));
     const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
                                           getApplicationNode( ));
     if( !mapObjectSync( request ))

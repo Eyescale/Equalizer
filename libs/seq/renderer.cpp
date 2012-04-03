@@ -35,11 +35,6 @@ Renderer::~Renderer()
     _impl = 0;
 }
 
-eq::Config* Renderer::getConfig()
-{
-    return _app.getConfig();
-}
-
 co::Object* Renderer::getFrameData()
 {
     return _impl->getFrameData();

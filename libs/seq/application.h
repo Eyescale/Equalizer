@@ -18,14 +18,14 @@
 #ifndef EQSEQUEL_APPLICATION_H
 #define EQSEQUEL_APPLICATION_H
 
-#include <seq/objectFactory.h> // interface
+#include <co/objectFactory.h> // interface
 #include <seq/types.h>
 #include <eq/client/client.h>               // base class
 
 namespace seq
 {
     /** The main application object. */
-    class Application : public eq::Client, public seq::ObjectFactory
+    class Application : public eq::Client, public co::ObjectFactory
     {
     public:
         /** Construct a new application instance. @version 1.0 */
