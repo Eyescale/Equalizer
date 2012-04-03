@@ -48,7 +48,6 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
-#include <co/base/sleep.h>
 #include <sstream>
 
 namespace eq

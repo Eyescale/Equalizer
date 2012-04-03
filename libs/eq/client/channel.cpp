@@ -1322,8 +1322,8 @@ struct Channel::RBStat
     size_t uncompressed;
     size_t compressed;
 
-    void ref() { ++_refCount; }
-    void unref()
+    void ref( void* ) { ++_refCount; }
+    void unref( void* )
         {
             if( --_refCount > 0 )
                 return;
@@ -1851,7 +1851,7 @@ void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
-    stat->ref();
+    stat->ref( 0 );
     std::vector< uint128_t > ids = nodes;
     ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
 
@@ -1871,7 +1871,7 @@ void Channel::_setReady( const ChannelFrameSetReadyPacket* packet )
 
     EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
    _setReady( frameData, packet->stat, nodes, netNodes );
-   packet->stat->unref();
+   packet->stat->unref( 0 );
 }
 
 void Channel::_setReady( FrameData* frame, RBStat* stat,

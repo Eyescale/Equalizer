@@ -221,7 +221,7 @@ namespace eq
         const co::ObjectVersion frameData;
         Channel::RBStat* stat;
         const uint32_t nNodes;
-        EQ_ALIGN8( uint128_t IDs[1] );
+        LB_ALIGN8( uint128_t IDs[1] );
     };
 
     struct ChannelFrameSetReadyNodePacket : public ChannelPacket
@@ -254,7 +254,7 @@ namespace eq
         uint32_t           frameNumber;
         uint32_t           taskID;
         uint32_t           nNodes;
-        EQ_ALIGN8( uint128_t IDs[1] );
+        LB_ALIGN8( uint128_t IDs[1] );
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
