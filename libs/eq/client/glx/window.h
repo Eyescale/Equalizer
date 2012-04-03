@@ -145,7 +145,6 @@ namespace glx
          */
         EQ_API virtual void exitEventHandler();
 
-        EQ_API virtual void ignoreEventHandler(){ _useEventHandler = false; };
         //@}
 
         /** @name Data Access. */
@@ -217,9 +216,6 @@ namespace glx
 
         /** The glX extension pointer table. */
         GLXEWContext* _glxewContext;
-
-        /** whether glX window has event handler or not */
-        bool _useEventHandler;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

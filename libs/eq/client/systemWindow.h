@@ -176,8 +176,6 @@ namespace eq
         /** Process an event. @version 1.0 */
         EQ_API virtual bool processEvent( const Event& event );
 
-        /** Will ignore event handler initialization if called after constructor */
-        EQ_API virtual void ignoreEventHandler(){};
     private:
         /** The parent eq::Window. */
         Window* const _window;

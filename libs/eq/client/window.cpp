@@ -480,13 +480,9 @@ const SystemWindow* Window::getAsyncSystemWindow()
 
     EQASSERT( _systemWindow );
 
-    // store old drawable of window and set window's drawable to FBO,
-    // create another (shared) osWindow and restore original drawable
+    // create another (shared) osWindow with no drawable, restore original
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, FBO );
-
-    const int32_t stencil = getIAttribute( IATTR_PLANES_STENCIL );
-    setIAttribute( IATTR_PLANES_STENCIL, OFF );
+    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
 
     const Pipe* pipe = getPipe();
     _asyncSystemWindow = pipe->getWindowSystem().createWindow( this );
@@ -497,7 +493,6 @@ const SystemWindow* Window::getAsyncSystemWindow()
                 << " not implemented or supported" << std::endl;
         return 0;
     }
-    _asyncSystemWindow->ignoreEventHandler();
 
     if( !_asyncSystemWindow->configInit( ))
     {
@@ -508,11 +503,10 @@ const SystemWindow* Window::getAsyncSystemWindow()
     }
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
-    setIAttribute( IATTR_PLANES_STENCIL, stencil );
 
     _asyncSystemWindow->makeCurrent();
 
-    EQWARN << "Async fetcher initialization finished" << std::endl;
+    EQWARN << "Async window initialization finished" << std::endl;
     return _asyncSystemWindow;
 }
 
@@ -639,7 +633,7 @@ bool Window::processEvent( const Event& event )
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:
             if( event.key.key == KC_VOID )
-                return true; //ignore
+                return true; // ignore
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:

@@ -37,7 +37,6 @@ Window::Window( eq::Window* parent, Display* xDisplay,
     , _glXNVSwapGroup( 0 )
     , _glXEventHandler( 0 )
     , _glxewContext( glxewContext )
-    , _useEventHandler( true )
 {
     if( !_xDisplay )
     {
@@ -790,9 +789,6 @@ void Window::leaveNVSwapBarrier()
 
 void Window::initEventHandler()
 {
-    if( !_useEventHandler )
-        return;
-
     EQASSERT( !_glXEventHandler );
     _glXEventHandler = new EventHandler( this );
 }
