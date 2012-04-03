@@ -147,7 +147,7 @@ namespace eq
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
         void notifyMapped(); //!< @internal
-        
+
         /**
          * @internal
          * Wait for a frame to be finished.

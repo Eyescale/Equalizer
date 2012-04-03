@@ -134,7 +134,7 @@ namespace fabric
             IATTR_HINT_FULLSCREEN,       //!< Fullscreen drawable
             IATTR_HINT_DECORATION,       //!< Window decorations
             IATTR_HINT_SWAPSYNC,         //!< Swap sync on vertical retrace
-            IATTR_HINT_DRAWABLE,         //!< Window, pbuffer or FBO
+            IATTR_HINT_DRAWABLE,         //!< Window, pbuffer, FBO or OFF
             IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
             IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
             IATTR_PLANES_COLOR,          //!< No of per-component color planes
@@ -149,8 +149,7 @@ namespace fabric
         };
 
         /** Set a window attribute. @version 1.0 */
-        void setIAttribute( const IAttribute attr,
-                                      const int32_t value )
+        void setIAttribute( const IAttribute attr, const int32_t value )
             { _data.iAttributes[attr] = value; }
 
         /** @return the value of a window attribute. @version 1.0 */
@@ -158,8 +157,8 @@ namespace fabric
             { return _data.iAttributes[attr]; }
 
         /** @internal @return the name of a window attribute. */
-        EQFABRIC_INL static const std::string& getIAttributeString(
-                                                      const IAttribute attr );
+        EQFABRIC_INL static 
+        const std::string& getIAttributeString( const IAttribute attr );
         //@}
 
         /** @internal @return the index path to this window. */

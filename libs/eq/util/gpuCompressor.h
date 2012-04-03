@@ -33,7 +33,7 @@ namespace util
     public:
         /** Construct a new compressorData */
         GPUCompressor( const GLEWContext* glewContext = 0 )
-            : Compressor(), _glewContext( glewContext ){}
+            : Compressor(), _glewContext( glewContext ) {}
 
         /** Set a valid glewContext */
         void setGLEWContext( const GLEWContext* glewContext )
@@ -168,7 +168,7 @@ namespace util
          * @param internalFormat consider only plugins with this tokenType, if
          *                       set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
-         * @param externalFormat consider only plugins with this outpuTokentype,
+         * @param externalFormat consider only plugins with this outputTokentype,
                                  if set to EQ_COMPRESSOR_DATATYPE_NONE consider
          *                       all.
          * @param capabilities the capabilities required by the transferer.
@@ -190,7 +190,6 @@ namespace util
         /** the initialized GLEW context describing corresponding
             to the current OpenGL context. */
         const GLEWContext* _glewContext;
-
     };
 }
 }

@@ -405,7 +405,6 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
     return _pbo->setup( size, GL_READ_ONLY_ARB );
 }
 
-
 void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
                                                  const eq_uint64_t w,
                                                  const eq_uint64_t h )

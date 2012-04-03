@@ -278,8 +278,7 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
 }
 
 void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
-                    const Vector2i& position,
-                    ObjectManager* glObjects ) const
+                    const Vector2i& position, ObjectManager* glObjects ) const
 {
     EQASSERT( glObjects );
 
@@ -307,8 +306,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 }
 
 bool Image::readback( const uint32_t buffers, const PixelViewport& pvp,
-                      const Zoom& zoom,
-                      util::ObjectManager< const void* >* glObjects )
+                      const Zoom& zoom, ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
     EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
@@ -416,7 +414,7 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
 }
 
 bool Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
-                       util::ObjectManager< const void* >* glObjects )
+                       ObjectManager* glObjects )
 {
     Attachment& attachment = _getAttachment( buffer );
     attachment.memory.isCompressed = false;
@@ -438,7 +436,7 @@ bool Image::_readback( const Frame::Buffer buffer, const Zoom& zoom,
 }
 
 bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
-                           util::ObjectManager< const void* >* glObjects )
+                           ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
     EQASSERT( glObjects->supportsEqTexture( ));

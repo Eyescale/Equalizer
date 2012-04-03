@@ -164,7 +164,7 @@ namespace eq
                 size          = sizeof( ChannelFrameAssemblePacket );
             }
 
-        uint32_t             nFrames;
+        uint32_t nFrames;
         LB_ALIGN8( co::ObjectVersion frames[1] );
     };
         
@@ -176,7 +176,7 @@ namespace eq
                 size          = sizeof( ChannelFrameReadbackPacket );
             }
 
-        uint32_t             nFrames;
+        uint32_t nFrames;
         LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
@@ -278,7 +278,7 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ChannelFrameTransmitImagePacket* packet )
+                                 const ChannelFrameTransmitImagePacket* packet )
     {
         os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
            << " receiver " << packet->clientNodeID << " on "

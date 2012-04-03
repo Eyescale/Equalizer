@@ -210,7 +210,7 @@ void Channel::_testFormats( float applyZoom )
             event.area.y() = pixels.pvp.h;
             event.dataSizeGPU = pixels.pvp.getArea() * _enums[i].pixelSize;
             event.dataSizeCPU = 
-	        image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
+            image->getPixelDataSize( eq::Frame::BUFFER_COLOR );
 
             GLenum error = glGetError();
             if( error != GL_NO_ERROR )

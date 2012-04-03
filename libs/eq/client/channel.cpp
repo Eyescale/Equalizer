@@ -321,8 +321,7 @@ void Channel::addStatistic( Event& event )
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
         EQASSERT( index < _impl->statistics->size( ));
-        EQASSERTINFO( _impl->statistics.data[ index ].used > 0,
-                      frameNumber );
+        EQASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
         lunchbox::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -1359,6 +1358,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 nImages[i] = frames[i]->getImages().size();
                 frames[i]->getData()->setPixelViewport( getPixelViewport() );
             }
+
             frameReadback( packet->context.frameID );
             readbackTime += getConfig()->getTime() - time;
 

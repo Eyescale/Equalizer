@@ -225,7 +225,7 @@ namespace eq
          * @internal
          * Make the window's drawable and context current.
          *
-         * GL drivers tend to be behave sub-optimally if two many makeCurrent
+         * GL drivers tend to behave sub-optimally if too many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
          * this method will only call SystemWindow::makeCurrent if it has not
          * been done before for this window on this pipe.
