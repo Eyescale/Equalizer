@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2009-2011, Maxim Makhinya <maxmah@gmail.com>
+ *                    2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,12 +33,6 @@
 
 #include <eq/eq.h>
 #include <eq/client/system.h>
-#ifdef AGL
-#  include "aglWindowShared.h"
-#endif
-#ifdef GLX
-#  include "glXWindowShared.h"
-#endif
 
 namespace eqAsync
 {
@@ -46,15 +41,11 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
 {
     EQASSERT( wnd );
 
-    // store old drawable of window and set window's drawable to FBO,
+    // store old drawable of window and set window's drawable to OFF,
     // create another (shared) osWindow and restore original drawable
     const int32_t drawable =
         wnd->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
-    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::FBO );
-
-    const int32_t stencil =
-        wnd->getIAttribute( eq::Window::IATTR_PLANES_STENCIL );
-    wnd->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, eq::OFF );
+    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::OFF );
 
     const eq::Pipe* pipe = wnd->getPipe();
     EQASSERT( pipe );
@@ -77,8 +68,6 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     }
 
     wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
-    wnd->setIAttribute( eq::Window::IATTR_PLANES_STENCIL, stencil );
-
     sharedContextWindow->makeCurrent();
 
     EQWARN << "Async fetcher initialization finished" << std::endl;
@@ -101,16 +90,10 @@ static void deleteSharedContextWindow( eq::Window* wnd,
         *objectManager = 0;
     }
 
-    const int32_t drawable =
-        wnd->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
-    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::FBO );
-
     (*sharedContextWindow)->configExit(); // mb set window to 0 before that?
 
     delete *sharedContextWindow;
     *sharedContextWindow = 0;
-
-    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
 }
 
 
