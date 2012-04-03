@@ -97,10 +97,16 @@ endforeach(DEF ${COLLAGE_DEFINES})
 
 file(APPEND ${DEFINES_FILE_IN} "\n#ifndef EQ_2_0_API\n")
 foreach(DEF ${LB_CO_DEFINES})
-  file(APPEND ${DEFINES_FILE_IN} "#  define CO_${DEF} LB_${DEF}\n")
+  file(APPEND ${DEFINES_FILE_IN}
+    "#  ifdef LB_${DEF}\n"
+    "#    define CO_${DEF} LB_${DEF}\n"
+    "#  endif\n")
 endforeach()
 foreach(DEF ${LB_EQ_DEFINES})
-  file(APPEND ${DEFINES_FILE_IN} "#  define EQ_${DEF} LB_${DEF}\n")
+  file(APPEND ${DEFINES_FILE_IN}
+    "#  ifdef LB_${DEF}\n"
+    "#    define EQ_${DEF} LB_${DEF}\n"
+    "#  endif\n")
 endforeach()
 
 file(APPEND ${DEFINES_FILE_IN}
