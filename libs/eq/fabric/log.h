@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,10 +24,10 @@ namespace eq
 {
 namespace fabric
 {
-    /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
+    /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_INIT     = co::LOG_CUSTOM << 0,   //!< Log initialization (256)
+        LOG_INIT     = co::LOG_CUSTOM << 0,   //!< Log initialization (512)
         LOG_CUSTOM   = 0x400 //!< 1024
     };
 }

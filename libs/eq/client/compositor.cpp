@@ -17,7 +17,7 @@
  */
 
 #include <pthread.h>
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include "channel.h"
 #include "channelStatistics.h"
@@ -37,9 +37,8 @@
 #include <eq/util/objectManager.h>
 
 #include <co/global.h>
-#include <co/base/debug.h>
-#include <co/base/global.h>
-#include <co/base/monitor.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/monitor.h>
 
 #include <co/plugins/compressor.h>
 
@@ -51,7 +50,7 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-using co::base::Monitor;
+using lunchbox::Monitor;
 
 namespace eq
 {
@@ -67,7 +66,7 @@ static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
 
 // Image used for CPU-based assembly
-static co::base::PerThread< Image > _resultImage;
+static lunchbox::PerThread< Image > _resultImage;
 
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
@@ -430,7 +429,7 @@ public:
             left.clear();
         }
 
-    co::base::Monitor< uint32_t > monitor;
+    lunchbox::Monitor< uint32_t > monitor;
     Frames left;
     Channel* const channel;
     uint32_t processed;
@@ -460,7 +459,7 @@ Frame* Compositor::waitFrame( WaitHandle* handle )
     const uint32_t timeout = config->getTimeout();
 
     ++handle->processed;
-    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    if( timeout == LB_TIMEOUT_INDEFINITE )
         handle->monitor.waitGE( handle->processed );
     else
     {
@@ -926,9 +925,9 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
 
         for( int32_t x = 0; x < pvp.w; ++x )
         {
-            dst[0] = EQ_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
-            dst[1] = EQ_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
-            dst[2] = EQ_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
+            dst[0] = LB_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
+            dst[1] = LB_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
+            dst[2] = LB_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
             dst[3] =                   src[3]*dst[3] >> 8;
 
             src += step;
@@ -1231,7 +1230,7 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
     declareRegion( image, op );
 #if 0
-    static co::base::a_int32_t counter;
+    static lunchbox::a_int32_t counter;
     std::ostringstream stringstream;
     stringstream << "Image_" << ++counter;
     image->writeImages( stringstream.str( ));

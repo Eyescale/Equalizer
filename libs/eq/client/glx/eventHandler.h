@@ -22,7 +22,7 @@
 #include <eq/client/glXTypes.h>     // XEvent type
 #include <eq/client/types.h>        // basic typedefs
 
-#include <co/base/thread.h> // thread-safety macro
+#include <lunchbox/thread.h> // thread-safety macro
 
 namespace eq
 {
@@ -57,7 +57,7 @@ namespace glx
         uint32_t _getButtonAction( XEvent& event );
         uint32_t _getKey( XEvent& event );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 }

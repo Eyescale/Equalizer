@@ -27,8 +27,8 @@
 #include <eq/fabric/subPixel.h>      // member
 
 #include <co/object.h>               // base class
-#include <co/base/monitor.h>         // member
-#include <co/base/spinLock.h>        // member
+#include <lunchbox/monitor.h>         // member
+#include <lunchbox/spinLock.h>        // member
 
 namespace eq
 {
@@ -255,7 +255,7 @@ namespace server { class FrameData; }
         bool isReady() const   { return _readyVersion.get() >= _version; }
 
         /** Wait for the frame data to become available. @version 1.0 */
-        void waitReady( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE ) const;
+        void waitReady( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) const;
         
         /** @internal */
         void setVersion( const uint64_t version );
@@ -269,7 +269,7 @@ namespace server { class FrameData; }
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( co::base::Monitor<uint32_t>& listener );
+        void addListener( lunchbox::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -277,7 +277,7 @@ namespace server { class FrameData; }
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( co::base::Monitor<uint32_t>& listener );
+        void removeListener( lunchbox::Monitor<uint32_t>& listener );
         
         /** 
          * Disable the usage of a frame buffer attachment for all images.
@@ -325,7 +325,7 @@ namespace server { class FrameData; }
 
         Images _images;
         Images _imageCache;
-        co::base::Lock _imageCacheLock;
+        lunchbox::Lock _imageCacheLock;
 
         ROIFinder* _roiFinder;
 
@@ -333,15 +333,15 @@ namespace server { class FrameData; }
 
         uint64_t _version; //!< The current version
 
-        typedef co::base::Monitor< uint64_t > Monitor;
+        typedef lunchbox::Monitor< uint64_t > Monitor;
 
         /** Data ready monitor synchronization primitive. */
         Monitor _readyVersion;
 
-        typedef co::base::Monitor< uint32_t > Listener;
+        typedef lunchbox::Monitor< uint32_t > Listener;
         typedef std::vector< Listener* > Listeners;
         /** External monitors for readiness synchronization. */
-        co::base::Lockable< Listeners, co::base::SpinLock > _listeners;
+        lunchbox::Lockable< Listeners, lunchbox::SpinLock > _listeners;
 
         bool _useAlpha;
         float _colorQuality;
@@ -364,7 +364,7 @@ namespace server { class FrameData; }
         /** Set a specific version ready. */
         void _setReady( const uint64_t version );
 
-        EQ_TS_VAR( _commandThread );
+        LB_TS_VAR( _commandThread );
     };
 
     /** Print the frame data to the given output stream. @version 1.0 */

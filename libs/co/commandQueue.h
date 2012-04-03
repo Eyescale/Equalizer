@@ -20,14 +20,14 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 namespace co
 {
 namespace detail { class CommandQueue; }
 
     /** A CommandQueue is a thread-safe queue for command packets. */
-    class CommandQueue : public base::NonCopyable
+    class CommandQueue : public lunchbox::NonCopyable
     {
     public:
         CO_API CommandQueue();
@@ -56,7 +56,7 @@ namespace detail { class CommandQueue; }
          * @throws Exception on timeout.
          */
         CO_API virtual Command* pop( const uint32_t timeout =
-                                     EQ_TIMEOUT_INDEFINITE );
+                                     LB_TIMEOUT_INDEFINITE );
 
         /** 
          * Try to pop a command from the queue.
@@ -79,7 +79,7 @@ namespace detail { class CommandQueue; }
         /** @return the size of the queue. */
         CO_API size_t getSize() const;
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
 
     private:
         detail::CommandQueue* const _impl;

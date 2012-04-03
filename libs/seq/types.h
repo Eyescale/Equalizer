@@ -33,7 +33,7 @@ class ObjectFactory;
 class Renderer;
 class ViewData;
 
-typedef co::base::RefPtr< Application > ApplicationPtr;
+typedef lunchbox::RefPtr< Application > ApplicationPtr;
 
 /** @cond IGNORE */
 namespace detail

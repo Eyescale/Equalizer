@@ -40,8 +40,8 @@
 
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
-#include <co/base/os.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/os.h>
+#include <lunchbox/stdExt.h>
 
 #include <algorithm>
 #include <math.h>
@@ -145,8 +145,8 @@ Compound::InheritData::InheritData()
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( fabric::EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
-        , period( EQ_UNDEFINED_UINT32 )
-        , phase( EQ_UNDEFINED_UINT32 )
+        , period( LB_UNDEFINED_UINT32 )
+        , phase( LB_UNDEFINED_UINT32 )
         , maxFPS( std::numeric_limits< float >::max( ))
 {
     const Global* global = Global::instance();
@@ -280,7 +280,7 @@ void Compound::addEqualizer( Equalizer* equalizer )
 
 bool Compound::isInheritActive( const Eye eye ) const
 {
-    const int32_t index = co::base::getIndexOfLastBit( eye );
+    const int32_t index = lunchbox::getIndexOfLastBit( eye );
     EQASSERT( index >= 0 );
     EQASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
@@ -288,7 +288,7 @@ bool Compound::isInheritActive( const Eye eye ) const
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
-    int32_t index = co::base::getIndexOfLastBit( eye );
+    int32_t index = lunchbox::getIndexOfLastBit( eye );
     EQASSERT( index >= 0 );
 
     while( ++index < NUM_EYES )
@@ -323,13 +323,13 @@ bool Compound::isRunning() const
 //---------------------------------------------------------------------------
 void Compound::addListener( CompoundListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
     _listeners.push_back( listener );
 }
 
 void Compound::removeListener(  CompoundListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
     CompoundListeners::iterator i = find( _listeners.begin(), _listeners.end(),
                                           listener );
     if( i != _listeners.end( ))
@@ -338,7 +338,7 @@ void Compound::removeListener(  CompoundListener* listener )
 
 void Compound::fireUpdatePre( const uint32_t frameNumber )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -348,7 +348,7 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
 
 void Compound::_fireChildAdded( Compound* child )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -358,7 +358,7 @@ void Compound::_fireChildAdded( Compound* child )
 
 void Compound::_fireChildRemove( Compound* child )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -1255,10 +1255,10 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
 
-    if( _inherit.period == EQ_UNDEFINED_UINT32 )
+    if( _inherit.period == LB_UNDEFINED_UINT32 )
         _inherit.period = 1;
 
-    if( _inherit.phase == EQ_UNDEFINED_UINT32 )
+    if( _inherit.phase == LB_UNDEFINED_UINT32 )
         _inherit.phase = 0;
 
     if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
@@ -1318,10 +1318,10 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
         
-    if( _data.period != EQ_UNDEFINED_UINT32 )
+    if( _data.period != LB_UNDEFINED_UINT32 )
         _inherit.period = _data.period;
 
-    if( _data.phase != EQ_UNDEFINED_UINT32 )
+    if( _data.phase != LB_UNDEFINED_UINT32 )
         _inherit.phase = _data.phase;
 
     _inherit.maxFPS = _data.maxFPS;
@@ -1383,15 +1383,15 @@ void Compound::_updateInheritOverdraw()
     _inherit.overdraw.z() -= parentPVP.getXEnd() - pvp.getXEnd();
     _inherit.overdraw.w() -= parentPVP.getYEnd() - pvp.getYEnd();
 
-    _inherit.overdraw.x() = EQ_MAX( _inherit.overdraw.x(), 0 );
-    _inherit.overdraw.y() = EQ_MAX( _inherit.overdraw.y(), 0 );
-    _inherit.overdraw.z() = EQ_MAX( _inherit.overdraw.z(), 0 );
-    _inherit.overdraw.w() = EQ_MAX( _inherit.overdraw.w(), 0 );
+    _inherit.overdraw.x() = LB_MAX( _inherit.overdraw.x(), 0 );
+    _inherit.overdraw.y() = LB_MAX( _inherit.overdraw.y(), 0 );
+    _inherit.overdraw.z() = LB_MAX( _inherit.overdraw.z(), 0 );
+    _inherit.overdraw.w() = LB_MAX( _inherit.overdraw.w(), 0 );
 
-    _inherit.overdraw.x() = EQ_MIN( _inherit.overdraw.x(), pvp.w );
-    _inherit.overdraw.y() = EQ_MIN( _inherit.overdraw.y(), pvp.h );
-    _inherit.overdraw.z() = EQ_MIN( _inherit.overdraw.z(), pvp.w );
-    _inherit.overdraw.w() = EQ_MIN( _inherit.overdraw.w(), pvp.h );
+    _inherit.overdraw.x() = LB_MIN( _inherit.overdraw.x(), pvp.w );
+    _inherit.overdraw.y() = LB_MIN( _inherit.overdraw.y(), pvp.h );
+    _inherit.overdraw.z() = LB_MIN( _inherit.overdraw.z(), pvp.w );
+    _inherit.overdraw.w() = LB_MIN( _inherit.overdraw.w(), pvp.h );
 
     EQASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
                   pvp.w << " < " << 
@@ -1478,8 +1478,8 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)
 {
-    os << co::base::disableFlush << "compound" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << lunchbox::disableFlush << "compound" << std::endl;
+    os << "{" << std::endl << lunchbox::indent;
       
     const std::string& name = compound.getName();
     if( !name.empty( ))
@@ -1614,13 +1614,13 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     const uint32_t period = compound.getPeriod();
     const uint32_t phase  = compound.getPhase();
-    if( period != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 )
         os << "period " << period << "  ";
 
-    if( phase != EQ_UNDEFINED_UINT32 )
+    if( phase != LB_UNDEFINED_UINT32 )
         os << "phase " << phase;
 
-    if( period != EQ_UNDEFINED_UINT32 || phase != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 || phase != LB_UNDEFINED_UINT32 )
         os << std::endl;
 
     // attributes
@@ -1637,7 +1637,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -1665,7 +1665,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 
     switch( compound.getFrustumType( ))
     {
@@ -1710,7 +1710,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
 

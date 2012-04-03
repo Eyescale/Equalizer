@@ -72,8 +72,7 @@ namespace eq
 
     struct ChannelConfigExitReplyPacket : public ChannelPacket
     {
-        ChannelConfigExitReplyPacket( const co::base::UUID& channelID,
-                                      const bool res )
+        ChannelConfigExitReplyPacket( const UUID& channelID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY;
@@ -133,7 +132,7 @@ namespace eq
         Viewport region;
         uint32_t frameNumber;
         uint32_t nStatistics;
-        EQ_ALIGN8( Statistic statistics[1] );
+        LB_ALIGN8( Statistic statistics[1] );
     };
         
 
@@ -178,7 +177,7 @@ namespace eq
             }
 
         uint32_t nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameReadbackPacket : public ChannelTaskPacket
@@ -190,7 +189,7 @@ namespace eq
             }
 
         uint32_t nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     struct ChannelFrameTransmitImagePacket : public ChannelPacket
@@ -288,7 +287,7 @@ namespace eq
         co::ObjectVersion queueVersion;
         uint32_t          tasks;
         uint32_t          nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     inline std::ostream& operator << ( std::ostream& os, 

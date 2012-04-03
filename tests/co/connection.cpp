@@ -17,7 +17,7 @@
 
 // Tests basic connection functionality
 #include <test.h>
-#include <co/base/monitor.h>
+#include <lunchbox/monitor.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/connectionSet.h>

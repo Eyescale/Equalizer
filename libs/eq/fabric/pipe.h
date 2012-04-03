@@ -55,7 +55,7 @@ namespace fabric
           * :<strong>&lt;port&gt;</strong>.&lt;screen&gt; of the DISPLAY
           * name. It currently has no meaning on all other systems.
           *
-          * @return the port number of this pipe, or EQ_UNDEFINED_UINT32.
+          * @return the port number of this pipe, or LB_UNDEFINED_UINT32.
           * @version 1.0
           */
         uint32_t getPort() const { return _port; }
@@ -70,7 +70,7 @@ namespace fabric
          * AGL window system. On Windows systems it identifies the graphics
          * adapter. Normally the device identifies a GPU.
          *
-         * @return the device number of this pipe, or EQ_UNDEFINED_UINT32.
+         * @return the device number of this pipe, or LB_UNDEFINED_UINT32.
          * @version 1.0
          */
         uint32_t getDevice() const { return _device; }
@@ -159,7 +159,7 @@ namespace fabric
         Pipe( N* parent );
         EQFABRIC_INL virtual ~Pipe( ); //!< @internal
 
-        virtual void attach( const co::base::UUID& id,
+        virtual void attach( const UUID& id,
                              const uint32_t instanceID ); //!< @internal
         /** @internal */
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
@@ -176,7 +176,7 @@ namespace fabric
         /** @internal */
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 
-        W* _findWindow( const co::base::UUID& id ); //!< @internal
+        W* _findWindow( const UUID& id ); //!< @internal
 
         enum DirtyBits
         {

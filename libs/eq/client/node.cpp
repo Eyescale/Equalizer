@@ -39,7 +39,7 @@
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/connection.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {
@@ -65,7 +65,7 @@ Node::~Node()
     EQASSERT( getPipes().empty( ));
 }
 
-void Node::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Node::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -130,7 +130,7 @@ co::CommandQueue* Node::getCommandThreadQueue()
 
 co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 {
-    co::base::ScopedMutex<> mutex( _barriers );
+    lunchbox::ScopedMutex<> mutex( _barriers );
     co::Barrier* netBarrier = _barriers.data[ barrier.identifier ];
 
     if( netBarrier )
@@ -150,7 +150,7 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 
 FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
-    co::base::ScopedMutex<> mutex( _frameDatas );
+    lunchbox::ScopedMutex<> mutex( _frameDatas );
     FrameData* data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
@@ -363,7 +363,7 @@ void Node::_flushObjects()
 {
     ClientPtr client = getClient();
     {
-        co::base::ScopedMutex<> mutex( _barriers );
+        lunchbox::ScopedMutex<> mutex( _barriers );
         for( BarrierHash::const_iterator i =_barriers->begin();
              i != _barriers->end(); ++ i )
         {
@@ -374,7 +374,7 @@ void Node::_flushObjects()
         _barriers->clear();
     }
 
-    co::base::ScopedMutex<> mutex( _frameDatas );
+    lunchbox::ScopedMutex<> mutex( _frameDatas );
     for( FrameDataHash::const_iterator i = _frameDatas->begin(); 
          i != _frameDatas->end(); ++ i )
     {
@@ -387,8 +387,8 @@ void Node::_flushObjects()
 
 void Node::TransmitThread::run()
 {
-    co::base::Thread::setName( std::string( "Trm " ) +
-                               co::base::className( _node ));
+    lunchbox::Thread::setName( std::string( "Trm " ) +
+                               lunchbox::className( _node ));
     while( true )
     {
         co::Command* command = _queue.pop();
@@ -420,7 +420,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
     const NodeCreatePipePacket* packet = 
         command.get<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     EQASSERT( _state >= STATE_INIT_FAILED );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
@@ -436,7 +436,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
 
 bool Node::_cmdDestroyPipe( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
 
     const NodeDestroyPipePacket* packet = 
         command.get< NodeDestroyPipePacket >();
@@ -458,7 +458,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
 bool Node::_cmdConfigInit( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
 
     const NodeConfigInitPacket* packet = 
         command.get<NodeConfigInitPacket>();
@@ -488,7 +488,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 
 bool Node::_cmdConfigExit( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     EQLOG( LOG_INIT ) << "Node exit " 
                       << command.get<NodeConfigExitPacket>() << std::endl;
 
@@ -511,7 +511,7 @@ bool Node::_cmdConfigExit( co::Command& command )
 
 bool Node::_cmdFrameStart( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.get<NodeFrameStartPacket>();
     EQVERB << "handle node frame start " << packet << std::endl;
@@ -538,7 +538,7 @@ bool Node::_cmdFrameStart( co::Command& command )
 
 bool Node::_cmdFrameFinish( co::Command& command )
 {
-    EQ_TS_THREAD( _nodeThread );
+    LB_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.get<NodeFrameFinishPacket>();
     EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
@@ -618,7 +618,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 bool Node::_cmdSetAffinity( co::Command& command )
 {
     const NodeAffinityPacket* packet = command.get <NodeAffinityPacket>();
-    co::base::Thread::setAffinity( packet->affinity );
+    lunchbox::Thread::setAffinity( packet->affinity );
     return true;
 }
 }

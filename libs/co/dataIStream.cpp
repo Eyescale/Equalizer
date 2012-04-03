@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -18,11 +18,11 @@
 
 #include "dataIStream.h"
 
+#include "cpuCompressor.h"
 #include "log.h"
 #include "node.h"
 
-#include "base/cpuCompressor.h" // internal header
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 #include <co/plugins/compressor.h>
 
 #include <string.h>
@@ -34,14 +34,14 @@ DataIStream::DataIStream()
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new base::CPUCompressor )
+        , _decompressor( new CPUCompressor )
 {}
 
 DataIStream::DataIStream( const DataIStream& )
         : _input( 0 )
         , _inputSize( 0 )
         , _position( 0 )
-        , _decompressor( new base::CPUCompressor )
+        , _decompressor( new CPUCompressor )
 {}
 
 DataIStream::~DataIStream()

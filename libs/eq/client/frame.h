@@ -28,8 +28,8 @@
 #include <co/object.h>
 #include <co/objectVersion.h>
 #include <co/types.h>
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
-#include <co/base/monitor.h>
+#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
+#include <lunchbox/monitor.h>
 
 namespace eq
 {
@@ -57,11 +57,11 @@ namespace server
          */
         enum Buffer
         {
-            BUFFER_NONE      = EQ_BIT_NONE,
-            BUFFER_UNDEFINED = EQ_BIT1,  //!< Inherit, only if no others are set
-            BUFFER_COLOR     = EQ_BIT5,  //!< Use color images
-            BUFFER_DEPTH     = EQ_BIT9,  //!< Use depth images
-            BUFFER_ALL       = EQ_BIT_ALL_32
+            BUFFER_NONE      = LB_BIT_NONE,
+            BUFFER_UNDEFINED = LB_BIT1,  //!< Inherit, only if no others are set
+            BUFFER_COLOR     = LB_BIT5,  //!< Use color images
+            BUFFER_DEPTH     = LB_BIT9,  //!< Use depth images
+            BUFFER_ALL       = LB_BIT_ALL_32
         };
 
         /** The storage type for pixel data. @version 1.0 */
@@ -187,7 +187,7 @@ namespace server
 
         /** @internal */
         const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameDataVersion[co::base::getIndexOfLastBit(eye)]; }
+            { return _data.frameDataVersion[lunchbox::getIndexOfLastBit(eye)]; }
         //@}
 
         /** @name Operations */
@@ -260,7 +260,7 @@ namespace server
 
         /** Wait for the frame to become available. @version 1.0 */
         EQ_API void waitReady( const uint32_t timeout =
-                               EQ_TIMEOUT_INDEFINITE ) const;
+                               LB_TIMEOUT_INDEFINITE ) const;
 
         /** 
          * Add a listener which will be incremented when the frame is ready.
@@ -268,7 +268,7 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void addListener( co::base::Monitor<uint32_t>& listener );
+        void addListener( lunchbox::Monitor<uint32_t>& listener );
 
         /** 
          * Remove a frame listener.
@@ -276,16 +276,16 @@ namespace server
          * @param listener the listener.
          * @version 1.0
          */
-        void removeListener( co::base::Monitor<uint32_t>& listener );
+        void removeListener( lunchbox::Monitor<uint32_t>& listener );
         //@}
 
         /** @internal @return the receiving eq::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
-        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNodes; }
+        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNodes; }
 
         /** @internal @return the receiving co::Node IDs of an output frame */
         const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
-        { return _data.toNodes[co::base::getIndexOfLastBit(eye)].inputNetNodes; }
+        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNetNodes; }
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }

@@ -42,8 +42,8 @@
 #include "window.h"
 
 #include <eq/fabric/paths.h>
-#include <co/base/os.h>
-#include <co/base/file.h>
+#include <lunchbox/os.h>
+#include <lunchbox/file.h>
 
 #include <locale.h>
 #include <string>
@@ -83,7 +83,7 @@
     }
     }
 
-    using namespace co::base;
+    using namespace lunchbox;
     using namespace eq::loader;
 
     int eqLoader_lex();

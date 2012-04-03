@@ -63,7 +63,7 @@ int main( const int argc, char** argv )
     }
     
     eqNbody::InitData id;
-    co::base::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
+    lunchbox::RefPtr< eqNbody::Client > client = new eqNbody::Client( id );
     if( !client->initLocal( argc, argv ))
     {
         EQERROR << "Can't init client" << std::endl;

@@ -22,13 +22,13 @@
 #include "connection.h"
 #include "dataIStream.h"
 #include "dataOStream.h"
+#include "global.h"
 #include "log.h"
 #include "barrierPackets.h"
 #include "exception.h"
 
-#include <co/base/global.h>
-#include <co/base/monitor.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/stdExt.h>
 
 namespace co
 {
@@ -37,7 +37,7 @@ namespace
 struct Request
 {
     Request() 
-            : time( 0 ), timeout( EQ_TIMEOUT_INDEFINITE ), incarnation( 0 ) {}
+            : time( 0 ), timeout( LB_TIMEOUT_INDEFINITE ), incarnation( 0 ) {}
     uint64_t time;
     uint32_t timeout;
     uint32_t incarnation;
@@ -75,7 +75,7 @@ public:
     RequestMap enteredNodes;
 
     /** The monitor used for barrier leave notification. */
-    base::Monitor< uint32_t > leaveNotify;
+    lunchbox::Monitor< uint32_t > leaveNotify;
 };
 }
 
@@ -141,7 +141,7 @@ uint32_t Barrier::getHeight() const
     return _impl->height;
 }
 
-void Barrier::attach( const base::UUID& id, const uint32_t instanceID )
+void Barrier::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
@@ -187,7 +187,7 @@ void Barrier::enter( const uint32_t timeout )
     packet.timeout = timeout;
     send( _impl->master, packet );
 
-    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    if( timeout == LB_TIMEOUT_INDEFINITE )
         _impl->leaveNotify.waitEQ( leaveVal );
     else if( !_impl->leaveNotify.timedWaitEQ( leaveVal, timeout ))
         throw Exception( Exception::TIMEOUT_BARRIER );
@@ -198,7 +198,7 @@ void Barrier::enter( const uint32_t timeout )
 
 bool Barrier::_cmdEnter( Command& command )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
@@ -226,7 +226,7 @@ bool Barrier::_cmdEnter( Command& command )
         request.incarnation = incarnation;
         request.timeout = packet->timeout;
     }
-    else if( request.timeout != EQ_TIMEOUT_INDEFINITE )
+    else if( request.timeout != LB_TIMEOUT_INDEFINITE )
     {
         // the incarnation belongs to an older barrier
         if( request.incarnation < incarnation )
@@ -246,7 +246,7 @@ bool Barrier::_cmdEnter( Command& command )
     request.nodes.push_back( command.getNode( ));
 
     // clean older data which was not removed during older synchronization
-    if( request.timeout != EQ_TIMEOUT_INDEFINITE )
+    if( request.timeout != LB_TIMEOUT_INDEFINITE )
         _cleanup( request.time );
 
     // If we got early entry requests for this barrier, just note their
@@ -260,7 +260,7 @@ bool Barrier::_cmdEnter( Command& command )
     
     // if it's an older version a timeout has been handled
     // for performance, send directly the order to unblock the caller.
-    if( packet->timeout != EQ_TIMEOUT_INDEFINITE && version < getVersion( ))
+    if( packet->timeout != LB_TIMEOUT_INDEFINITE && version < getVersion( ))
     {
         EQASSERT( incarnation == 0 );
         _sendNotify( version, command.getNode( ) );
@@ -290,7 +290,7 @@ bool Barrier::_cmdEnter( Command& command )
 
 void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
@@ -310,9 +310,9 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
     }
 }
 
-void Barrier::_cleanup( const uint64_t time)
+void Barrier::_cleanup( const uint64_t time )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
@@ -324,13 +324,12 @@ void Barrier::_cleanup( const uint64_t time)
     {
         Request& cleanNodes = i->second;
         
-        if( cleanNodes.timeout == EQ_TIMEOUT_INDEFINITE )
+        if( cleanNodes.timeout == LB_TIMEOUT_INDEFINITE )
             continue;
 
-        const uint32_t timeout = cleanNodes.timeout != EQ_TIMEOUT_DEFAULT ? 
+        const uint32_t timeout = cleanNodes.timeout != LB_TIMEOUT_DEFAULT ? 
                         cleanNodes.timeout :
-                        base::Global::getIAttribute( 
-                            base::Global::IATTR_TIMEOUT_DEFAULT );
+                        Global::getIAttribute( Global::IATTR_TIMEOUT_DEFAULT );
                
         if( time > cleanNodes.time + timeout )
         {
@@ -342,7 +341,7 @@ void Barrier::_cleanup( const uint64_t time)
 
 bool Barrier::_cmdEnterReply( Command& command )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
     const BarrierEnterReplyPacket* reply =
         command.get< BarrierEnterReplyPacket >();

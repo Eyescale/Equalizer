@@ -81,7 +81,7 @@ namespace detail
         typedef Map::iterator MapIter;
         typedef Map::const_iterator MapCIter;
 
-        mutable co::base::SpinLock _mutex;
+        mutable lunchbox::SpinLock _mutex;
 
         Map _map; //!< the actual map
         co::Objects _masters; //!< Master objects registered with this instance

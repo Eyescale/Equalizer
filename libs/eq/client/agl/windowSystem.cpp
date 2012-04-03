@@ -32,7 +32,7 @@
 
 #include <eq/client/os.h>
 #include <eq/fabric/gpuInfo.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 #define MAX_GPUS 32
 

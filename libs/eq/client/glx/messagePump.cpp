@@ -20,8 +20,8 @@
 #include "eventHandler.h"
 #include "X11Connection.h"
 
-#include <co/base/debug.h>
-#include <co/base/log.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/log.h>
 
 namespace eq
 {

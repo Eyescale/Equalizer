@@ -16,9 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/os.h>      // first get windows.h
+#include <lunchbox/os.h>      // first get windows.h
 #include <pthread.h>           // then get pthreads
-#include <co/base/perThread.h> // then get perThread to have template code
+#include <lunchbox/perThread.h> // then get perThread to have template code
 
 #include "eventHandler.h"
 
@@ -32,7 +32,7 @@
 #include "../node.h"
 #include "../window.h"
 
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 #include <algorithm>
 #include <windowsx.h>
@@ -70,7 +70,7 @@ namespace
     typedef stde::hash_map< void*, EventHandler* > HandlerMap;
 #endif
 
-static co::base::PerThread< HandlerMap > _handlers;
+static lunchbox::PerThread< HandlerMap > _handlers;
 
 static void registerHandler( HWND hWnd, EventHandler* handler )
 {
@@ -427,7 +427,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
     
-    EQASSERT( window->getID() != co::base::UUID::ZERO );
+    EQASSERT( window->getID() != UUID::ZERO );
     event.originator = window->getID();
     event.serial = window->getSerial();
 
@@ -596,7 +596,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
+            EQASSERT( _magellanNode->getID() != UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_BUTTON;
@@ -621,7 +621,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         if (_magellanGotTranslation && _magellanGotRotation)
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != co::base::UUID::ZERO );
+            EQASSERT( _magellanNode->getID() != UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_AXIS;

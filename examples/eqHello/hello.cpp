@@ -52,7 +52,7 @@ public:
     virtual co::Object * createObject( const uint32_t type )
         { EQUNIMPLEMENTED; return 0; }
 };
-typedef co::base::RefPtr< Application > ApplicationPtr;
+typedef lunchbox::RefPtr< Application > ApplicationPtr;
 }
 
 int main( const int argc, char** argv )

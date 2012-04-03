@@ -134,7 +134,7 @@ ib_api_status_t IBCompletionQueue::pollCQRead(
                             IN   OUT    ib_wc_t** const freeWclist,
                             OUT         ib_wc_t** const doneWclist)
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     return ib_poll_cq( getReadHandle(), freeWclist, doneWclist);
 }
 
@@ -158,7 +158,7 @@ void AL_API IBCompletionQueue::pp_cq_comp_cb(
     
     IBCompletionQueue* cq = reinterpret_cast<IBCompletionQueue*>
                             ( cq_context );
-    eq::base::ScopedMutex mutex( cq->_mutex );
+    eq::lunchbox::ScopedMutex mutex( cq->_mutex );
     
     cq->_myConnection->addEvent();
 
@@ -166,13 +166,13 @@ void AL_API IBCompletionQueue::pp_cq_comp_cb(
 }
 void IBCompletionQueue::removeEventRead()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     _myConnection->removeEvent();
 }
 
 void IBCompletionQueue::resetEventRead()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     triggerRead();
     ResetEvent( getReadNotifier() );
 }

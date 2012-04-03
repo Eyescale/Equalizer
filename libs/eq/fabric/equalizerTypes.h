@@ -18,7 +18,7 @@
 #ifndef EQFABRIC_EQUALIZERTYPES_H
 #define EQFABRIC_EQUALIZERTYPES_H
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 
 namespace eq
 {
@@ -32,7 +32,7 @@ static const uint32_t TILE_EQUALIZER        = LOAD_EQUALIZER << 3;
 static const uint32_t MONITOR_EQUALIZER     = LOAD_EQUALIZER << 4;
 static const uint32_t DFR_EQUALIZER         = LOAD_EQUALIZER << 5;
 static const uint32_t FRAMERATE_EQUALIZER   = LOAD_EQUALIZER << 6;
-static const uint32_t EQUALIZER_ALL         = EQ_BIT_ALL_32;
+static const uint32_t EQUALIZER_ALL         = LB_BIT_ALL_32;
 
 }
 }

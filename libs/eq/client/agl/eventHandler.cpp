@@ -30,7 +30,7 @@
 #include <eq/client/window.h>
 
 #include <co/global.h>
-#include <co/base/file.h>
+#include <lunchbox/file.h>
 
 #ifdef EQ_USE_MAGELLAN
 #  include <eq/client/node.h>
@@ -452,8 +452,8 @@ uint32_t EventHandler::_getButtonState()
     
     // swap button 2&3
     return ( (buttons & 0xfffffff9u) +
-             ((buttons & EQ_BIT3) >> 1) +
-             ((buttons & EQ_BIT2) << 1) );
+             ((buttons & LB_BIT3) >> 1) +
+             ((buttons & LB_BIT2) << 1) );
 }
 
 
@@ -618,7 +618,7 @@ void EventHandler::initMagellan( Node* node )
         EQWARN << "Can't install Space Mouse connexion handlers" << std::endl;
     else
     {
-        std::string program( '\0' + co::base::getFilename(
+        std::string program( '\0' + lunchbox::getFilename(
                                         co::Global::getProgramName( )));
         program[0] = program.length() - 1;
 

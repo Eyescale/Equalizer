@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,9 +19,9 @@
 #include <eq/eq.h>
 #include <eq/server/global.h>
 
-co::base::a_int32_t drawCalls;
-co::base::a_int32_t readbackCalls;
-co::base::a_int32_t assembleCalls;
+lunchbox::a_int32_t drawCalls;
+lunchbox::a_int32_t readbackCalls;
+lunchbox::a_int32_t assembleCalls;
 
 enum Error
 {
@@ -75,7 +75,7 @@ public:
 
 protected:
     virtual void frameDraw( const eq::uint128_t& frameID )
-        { eq::Channel::frameDraw( frameID ); ++drawCalls; co::base::sleep(10); }
+        { eq::Channel::frameDraw( frameID ); ++drawCalls; lunchbox::sleep(10); }
     virtual void frameReadback( const eq::uint128_t& frameID )
         { eq::Channel::frameReadback( frameID ); ++readbackCalls; }
     virtual void frameAssemble( const eq::uint128_t& frameID )
@@ -105,7 +105,7 @@ int main( const int argc, char** argv )
         return EXIT_FAILURE;
     }
 
-    co::base::ErrorRegistry& registry = co::base::Global::getErrorRegistry();
+    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
     registry.setString( ERROR_NODE_INIT, "Node init failed" );
     registry.setString( ERROR_PIPE_INIT, "Pipe init failed" );
 
@@ -117,7 +117,7 @@ int main( const int argc, char** argv )
     client->addConnectionDescription( desc );
     TEST( client->initLocal( argc, argv ));
 
-    co::base::Strings configs = co::base::searchDirectory( ".", "*.eqc" );
+    lunchbox::Strings configs = lunchbox::searchDirectory( ".", "*.eqc" );
     stde::usort( configs ); // have a predictable order
 
     if( argc == 2 )
@@ -126,7 +126,7 @@ int main( const int argc, char** argv )
         configs.push_back( argv[1] );
     }
 
-    for( co::base::Strings::const_iterator i = configs.begin();
+    for( lunchbox::Strings::const_iterator i = configs.begin();
         i != configs.end(); ++i )
     {
         const std::string config = "./" + *i;

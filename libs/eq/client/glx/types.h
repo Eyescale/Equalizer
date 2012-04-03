@@ -18,7 +18,7 @@
 #ifndef EQ_GLX_TYPES_H
 #define EQ_GLX_TYPES_H
 
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {

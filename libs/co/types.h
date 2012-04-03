@@ -18,8 +18,10 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
-#include <co/base/refPtr.h>
-#include <co/base/types.h>
+#include <co/defines.h>
+#include <co/error.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/types.h>
 
 #include <deque>
 #include <vector>
@@ -29,12 +31,13 @@ namespace co
 
 #define CO_SEPARATOR '#'
 
-#define EQ_INSTANCE_MAX     EQ_MAX_UINT32 //!< The biggest instance id possible
+#define EQ_INSTANCE_MAX     LB_MAX_UINT32 //!< The biggest instance id possible
 #define EQ_INSTANCE_NONE    0xfffffffdu   //!< None/NULL identifier
 #define EQ_INSTANCE_INVALID 0xfffffffeu   //!< Invalid/unset instance identifier
 #define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
 
 class Barrier;
+class CPUCompressor; //!< @internal
 class Command;
 class CommandQueue;
 class Connection;
@@ -42,30 +45,37 @@ class ConnectionDescription;
 class ConnectionListener;
 class DataIStream;
 class DataOStream;
+class ErrorRegistry;
+class Global;
 class LocalNode;
 class Node;
 class Object;
 class ObjectDataIStream;
-class Serializable;
+class Plugin;        //!< @internal
+class PluginRegistry;
 class QueueMaster;
 class QueueSlave;
+class Serializable;
+struct CompressorInfo; //!< @internal
 template< class Q > class WorkerThread;
 struct ObjectVersion;
 struct Packet;
 struct QueueItemPacket;
 
-typedef base::UUID NodeID; //!< A unique identifier for nodes.
+using lunchbox::UUID;
+using lunchbox::uint128_t;
+using lunchbox::Strings;
 
-typedef base::uint128_t uint128_t;
+typedef UUID NodeID; //!< A unique identifier for nodes.
 
 /** A reference pointer for Node pointers. */
-typedef base::RefPtr< Node >                  NodePtr;
+typedef lunchbox::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */
-typedef base::RefPtr< LocalNode >             LocalNodePtr;
+typedef lunchbox::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
-typedef base::RefPtr< Connection >            ConnectionPtr;
+typedef lunchbox::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
-typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef lunchbox::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -108,15 +118,24 @@ typedef std::deque< ObjectDataIStream* > ObjectDataIStreamDeque;
 typedef std::vector< ObjectDataIStream* > ObjectDataIStreams;
 
 typedef Commands::const_iterator CommandsCIter;
+
+typedef std::vector< CompressorInfo > CompressorInfos;
+typedef std::vector< const CompressorInfo* > CompressorInfoPtrs;
+typedef std::vector< Plugin* > Plugins;
+
+typedef CompressorInfos::const_iterator CompressorInfosCIter;
+typedef Plugins::const_iterator PluginsCIter;
 /** @endcond */
 
-#ifdef EQ_USE_DEPRECATED
-typedef Nodes NodeVector;
-typedef Objects ObjectVector;
-typedef Barriers BarrierVector;
-typedef Connections ConnectionVector;
-typedef ConnectionDescriptions ConnectionDescriptionVector;
-typedef ObjectVersions ObjectVersionVector;
+#ifndef EQ_2_0_API
+namespace base
+{
+using namespace lunchbox;
+using co::Error;
+using co::ErrorRegistry;
+using co::PluginRegistry;
+using co::Global;
+}
 #endif
 }
 

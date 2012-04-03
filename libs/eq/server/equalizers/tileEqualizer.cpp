@@ -59,6 +59,10 @@ public:
         if( _findQueue( _name, compound->getInputTileQueues( )))
             return TRAVERSE_CONTINUE;
 
+        // reset compound viewport to (0, 0, 1, 1) (#108)
+        if( !compound->getViewport().hasArea() )
+            compound->setViewport( Viewport( ));
+
         TileQueue* input = new TileQueue;
         ServerPtr server = compound->getServer();
         server->registerObject( input );
@@ -173,12 +177,12 @@ std::ostream& operator << ( std::ostream& os, const TileEqualizer* lb )
 {
     if( lb )
     {
-        os << co::base::disableFlush
+        os << lunchbox::disableFlush
            << "tile_equalizer" << std::endl
            << "{" << std::endl
            << "    name \"" << lb->getName() << "\"" << std::endl
            << "    size " << lb->getTileSize() << std::endl
-           << "}" << std::endl << co::base::enableFlush;
+           << "}" << std::endl << lunchbox::enableFlush;
     }
     return os;
 }

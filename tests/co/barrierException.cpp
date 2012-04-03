@@ -22,13 +22,13 @@
 #include <co/barrier.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
+#include <co/exception.h>
+#include <co/global.h>
 #include <co/init.h>
 #include <co/node.h>
-#include <co/base/global.h>
-#include <co/exception.h>
-#include <co/base/sleep.h>
-#include <co/base/rng.h>
-#include <co/base/uuid.h>
+#include <lunchbox/sleep.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/uuid.h>
 
 #include <iostream>
 #define EQ_TEST_RUNTIME 6000
@@ -40,7 +40,7 @@ bool testSleep();
 
 static uint16_t _serverPort = 0;
 
-class BarrierThread : public co::base::Thread
+class BarrierThread : public lunchbox::Thread
 {
 public:
     BarrierThread( const uint32_t nOps, const uint32_t port ) 
@@ -75,7 +75,7 @@ public:
     }
 
     /** @return the barrier unique identifier. */
-    const co::base::UUID& getBarrierID() const { return _barrier->getID(); }
+    const lunchbox::UUID& getBarrierID() const { return _barrier->getID(); }
     ~ServerThread( )
     {
         _node->releaseObject( _barrier );
@@ -92,8 +92,8 @@ protected:
     {
         for( uint32_t i = 0; i < _nOps; i++ )
         {
-            const uint32_t timeout = co::base::Global::getIAttribute( 
-                     co::base::Global::IATTR_TIMEOUT_DEFAULT );
+            const uint32_t timeout = co::Global::getIAttribute( 
+                     co::Global::IATTR_TIMEOUT_DEFAULT );
             try
             {
                 _barrier->enter( timeout );
@@ -112,7 +112,7 @@ private:
 class NodeThread : public BarrierThread
 {
 public:
-    NodeThread( const co::base::UUID& barrierID, const uint32_t port,
+    NodeThread( const lunchbox::UUID& barrierID, const uint32_t port,
                 const uint32_t nOps, const uint32_t timeToSleep )
          : BarrierThread( nOps, port ) 
          , _timeToSleep( timeToSleep )
@@ -144,9 +144,9 @@ protected:
     {
         for( uint32_t i = 0; i < _nOps; ++i )
         {
-            co::base::sleep( _timeToSleep );
-            const uint32_t timeout = co::base::Global::getIAttribute( 
-                     co::base::Global::IATTR_TIMEOUT_DEFAULT );
+            lunchbox::sleep( _timeToSleep );
+            const uint32_t timeout = co::Global::getIAttribute( 
+                     co::Global::IATTR_TIMEOUT_DEFAULT );
             try
             {
                 
@@ -162,7 +162,7 @@ protected:
             
 private:
     const uint32_t _timeToSleep;
-    const co::base::UUID& _barrierID;
+    const lunchbox::UUID& _barrierID;
     co::NodePtr _server;
     co::Barrier barrier;
 };
@@ -173,7 +173,7 @@ typedef std::vector< NodeThread* > NodeThreads;
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
-    static co::base::RNG rng;
+    static lunchbox::RNG rng;
     _serverPort = (rng.get<uint16_t>() % 60000) + 1024;
 
     TEST( testNormal() );
@@ -187,8 +187,7 @@ int main( int argc, char **argv )
 /* the test perform no timeout */
 bool testNormal()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     10000 );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 10000 );
     NodeThreads nodeThreads;
     nodeThreads.resize(NSLAVES);
  
@@ -218,8 +217,7 @@ bool testNormal()
 /* the test perform no timeout */
 bool testException()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     2000 );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
     NodeThreads nodeThreads;
     nodeThreads.resize( NSLAVES );
 
@@ -247,8 +245,7 @@ bool testException()
 
 bool testSleep()
 {
-    co::base::Global::setIAttribute( co::base::Global::IATTR_TIMEOUT_DEFAULT,
-                                     2000 /*ms*/ );
+    co::Global::setIAttribute( co::Global::IATTR_TIMEOUT_DEFAULT, 2000 );
     NodeThreads nodeThreads( 5 );
     nodeThreads.resize( 5 );
 

@@ -30,18 +30,16 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. This release introduces major new features, most
-  notably automatic configuration, the Sequel library, runtime reliability and
-  tile compounds.
+  scalable OpenGL applications. This release is a bugfix release for Equalizer
+  1.2.
 </p>
 <p>
-  Equalizer 1.2 is a feature release extending the 1.0 API, distilling seven
-  years of development and decades of experience into a feature-rich,
-  high-performance and mature parallel rendering framework and an
-  object-oriented high-level network library. It is intended for all application
-  developers creating parallel, interactive OpenGL applications. Equalizer 1.2
-  can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.2.tar.gz">source
+  Equalizer 1.2 culminates over seven years of development and decades of
+  experience into a feature-rich, high-performance and mature parallel rendering
+  framework and an object-oriented high-level network library. It is intended
+  for all application developers creating parallel, interactive OpenGL
+  applications. Equalizer 1.2.1 can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.2.1.tar.gz">source
     code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html#1.2">precompiled packages</a>.
 </p>
 
@@ -73,152 +71,52 @@
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 1.2 contains the following features, enhancements, bug fixes
+  Equalizer 1.2.1 contains the following features, enhancements, bug fixes
   and documentation changes:
 </p>
 
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
-<ul>
-  <li><a href="http://www.equalizergraphics.com/build/documentation/user/configuration.html">Automatic
-      local and remote configuration</a> using
-      the <a href="http://www.equalizergraphics.com/gpu-sd">GPU-SD
-      library</a></li>
-  <li>Initial release
-    of <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/sequel/namespaceseq.html">Sequel</a>,
-    a simplification and utility layer on top of Equalizer, enabling rapid
-    development of clustered multi-GPU applications</li>
-  <li>Runtime failure tolerance detecting hardware and software failures</li>
-  <li>Tile compounds for fill-limited rendering such as direct volume rendering
-    and interactive raytracing</li>
-</ul>
-<ul>
-  <li>Distributed single-producer, multi-consumer queue</li>
-  <li>RDMA-based connection class for InfiniBand (Linux only)</li>
-  <li>Support
-    <a href="https://github.com/Eyescale/Equalizer/issues/28">push-based object
-      distribution</a></li>
-</ul>
+<p>No new features</p>
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
-<ul>
-  <li>Added FindEqualizer.cmake and FindCollage.cmake for integration of
-    Equalizer and Collage in CMake build environments</li>
-  <li>Support for render clients without listening sockets</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/24">Per-segment or
-      per-canvas swap barriers</a></li>
-  <li>Allow the image compressor to be chosen by the application</li>
-  <li>Allow and prefer external GLEW installation during compilation</li>
-  <li>Upgrade internal GLEW version to 1.7.0</li>
-  <li>Implement EQ_WINDOW_IATTR_HINT_SWAPSYNC for GLX</li>
-  <li>Add time member to eq::Event recording time when the event was received
-    from the operating system</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/43">43</a>: Add
-    View::isActive and Layout::isActive</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make RNG
-    functional without co::base::init</li>
-  <li>Implement maximum size of multi-threaded queue, resulting in blocking push
-    operations</li>
-  <li>Extend co::base::SpinLock and ScopedMutex with read-write semantics</li>
-  <li>Make Collage usable from multiple libraries by allowing init and exit to
-    be called multiple times</li>
-</ul>
+<p>No enhancements</p>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li>Make LocalNode::registerObject and Object::commit parallelizable by
-    executing object serialization from calling thread</li>
+  <li>109</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
-<ul>
-  <li>Provide CMake files for installed examples</li>
-  <li>seqPly: An new example similar to eqPly, but using the Sequel API</li>
-  <li>eqAsync: A new example demonstrating OpenGL context sharing for
-    asynchronously texture uploads</li>
-  <li>eqHello: Ported to Sequel</li>
-</ul>
+<p>No example changes</p>
 
 <a name="tools"></a>
 <h3>2.5. Tools</h3>
-<ul>
-  <li>No Changes</li>
-</ul>
+<p>No tool changes</p>
 
 <a name="changes"></a>
 <h3>2.6. API Changes</h3>
-<p>
-  The following API changes may impact existing applications:
-</p>
-<ul>
-  <li>Removed co::Object::commitNB and commitSync since the commit request is no
-    longer dispatched to command thread. Use commit instead.</li>
-  <li>Moved installed client headers to eq/client. Applications should
-    always use eq/eq.h instead of individual headers.</li>
-  <li>Added a return value and timeout to co::LocalNode::acquireSendToken(),
-    see method documentation.</li>
-  <li>Changed 'uint32_t eq::Version::getRevision()' to 'std::string
-    eq::Version::getRevision()'</li>
-</ul>
+<p>No API changes</p>
 
 <a name="documentation"></a>
 <h3>2.7. Documentation</h3>
-<p>
-  The following documentation has been added or substantially improved since the
-  last release:
-</p>
-<ul>
-  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html">API
-      documentation</a> for the public Equalizer API.</li>
-  <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
-      User Guide</a> has been extended to 107 pages and 60 figures.</li>
-  <li><a href="/documents/design/tileCompounds.html">Tile compounds</a>
-    using a pull-based task distribution for volume rendering and interactive
-    raytracing.</li>
-</ul>
+<p>No documentation changes</p>
 
 <a name="bugfixes"></a>
 <h3>2.8. Bug Fixes</h3>
 <p>
-  Equalizer 1.2 includes various bugfixes over the 1.0 release, including the
-  following:
+  Equalizer 1.2.1 includes the following bugfixes over the 1.2 release:
 </p>
 <ul>
-  <li>RSP: Fix scattered ack implementation</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/29">29</a>: NV swap
-    barrier with affinity context does not work</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/45">45</a>: Make
-    co::base::RNG function without init()</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/56">56</a>: 
-    Parsing configuration files is locale-dependent and fails in some
-    locales</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/66">66</a>:
-    Assertion when using the server for more than one session</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/73">73</a>:
-    Missing space mouse support on Windows</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/82">82</a>:
-    Excessive memory usage with object push</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/87">87</a>:
-    Debian packages broken</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/88">88</a>:
-    draw_sync thread model causes full synchronization</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/90">90</a>:
-    Race condition with direct send and higher number of nodes</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/58">58</a>:
-    netperf/RDMA exit deadlock</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/96">96</a>:
-    race condition with simultaneous node connect</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/97">97</a>:
-    Object::notifyAttach is not always called</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/98">98</a>: RSP
-    exit deadloc</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/100">100</a>:
-    CommandFunc crash with multiple inheritance and MSVC</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/101">101</a>:
-    Alternating old/new eq::View frustum update loop</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
+    Sequel missing from packages</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/107">107</a>:
+    Installed examples CMake build does not work</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/10">10</a>:
+    </li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -287,7 +185,7 @@
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="https://github.com/Eyescale/Equalizer/tree/1.2/examples">examples</a>
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.2.1/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features. XCode users can
@@ -314,7 +212,4 @@
 
 <a name="errata"></a>
 <h2>4. Errata</h2>
-<ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
-    Sequel missing from packages</li>
-</ul>
+<p></p>

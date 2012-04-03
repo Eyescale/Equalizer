@@ -115,9 +115,9 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.y() = ( _boundingBox[0].y() + _boundingBox[1].y() ) * 0.5f;
     _boundingSphere.z() = ( _boundingBox[0].z() + _boundingBox[1].z() ) * 0.5f;
 
-    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
+    _boundingSphere.w()  = LB_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
                                    _boundingBox[1].y() - _boundingBox[0].y() );
-    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
+    _boundingSphere.w()  = LB_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
                                    _boundingSphere.w() );
     _boundingSphere.w() *= .5f;
 

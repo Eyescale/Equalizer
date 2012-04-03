@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -76,8 +76,8 @@ uint128_t Object::commit( const uint32_t incarnation )
         const uint128_t& version = _userData->commit( incarnation );
         EQASSERT( version != co::VERSION_NONE );
 //        EQINFO << "Committed " << _userData->getID() << " v" << version
-//               << " of " << co::base::className( _userData ) << " @"
-//               << (void*)_userData << co::base::backtrace << std::endl;
+//               << " of " << lunchbox::className( _userData ) << " @"
+//               << (void*)_userData << lunchbox::backtrace << std::endl;
 
         EQASSERT( !_userData->isDirty( ));
         EQASSERT( _data.userData.identifier != _userData->getID() ||
@@ -163,12 +163,12 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
-        std::vector< co::base::UUID > removed;
+        std::vector< UUID > removed;
         is >> removed;
         if( !removed.empty( ))
         {
             EQASSERT( isMaster( ));
-            std::vector< co::base::UUID >::const_iterator i = removed.begin();
+            std::vector< UUID >::const_iterator i = removed.begin();
             for( ; i != removed.end(); ++i )
             {
                 removeChild( *i );
@@ -191,7 +191,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
                   "Incompatible version, new " << _data.userData << " old " <<
                   co::ObjectVersion( _userData ));
 
-    if( _data.userData.identifier == co::base::UUID::ZERO )
+    if( _data.userData.identifier == UUID::ZERO )
     {
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
@@ -202,14 +202,14 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     }
 
     if( !_userData->isAttached() &&
-        _data.userData.identifier != co::base::UUID::ZERO )
+        _data.userData.identifier != UUID::ZERO )
     {
         EQASSERT( !hasMasterUserData( ));
-        //EQINFO << "Map " << _data.userData << co::base::backtrace
+        //EQINFO << "Map " << _data.userData << lunchbox::backtrace
         //       << std::endl;
         if( !getLocalNode()->mapObject( _userData, _data.userData ))
         {
-            EQWARN << "Mapping of " << co::base::className( _userData )
+            EQWARN << "Mapping of " << lunchbox::className( _userData )
                    << " user data failed" << std::endl;
             EQUNREACHABLE;
             return;
@@ -222,7 +222,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
                       _userData->getID() << " != " << _data.userData.identifier );
 #if 0
         if( _userData->getVersion() < _data.userData.version )
-            EQINFO << "Sync " << _data.userData << co::base::backtrace
+            EQINFO << "Sync " << _data.userData << lunchbox::backtrace
                    << std::endl;
 #endif
         _userData->sync( _data.userData.version );
@@ -254,7 +254,7 @@ void Object::setUserData( co::Object* userData )
 
     if( hasMasterUserData( ))
         setDirty( DIRTY_USERDATA );
-    else if( _data.userData.identifier != co::base::UUID::ZERO )
+    else if( _data.userData.identifier != UUID::ZERO )
     {
         co::LocalNodePtr node = getLocalNode();
         if( node.isValid() )
@@ -279,7 +279,7 @@ void Object::setError( const int32_t error )
 {
     if( _error == error )
         return;
-    _error = co::base::Error( error );
+    _error = co::Error( error );
     setDirty( DIRTY_ERROR );
 }
 

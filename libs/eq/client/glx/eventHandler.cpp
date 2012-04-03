@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -29,9 +29,10 @@
 #include "../pipe.h"
 #include "../window.h"
 
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include <X11/keysym.h>
+#include <X11/XKBlib.h>
 
 namespace eq
 {
@@ -40,7 +41,7 @@ namespace glx
 namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
-static co::base::PerThread< EventHandlers > _eventHandlers;
+static lunchbox::PerThread< EventHandlers > _eventHandlers;
 }
 
 EventHandler::EventHandler( WindowIF* window )
@@ -148,7 +149,7 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 
 void EventHandler::_processEvent( WindowEvent& event )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     XEvent& xEvent = event.xEvent;
     XID drawable = xEvent.xany.window;
@@ -322,8 +323,8 @@ uint32_t EventHandler::_getKey( XEvent& event )
     if( event.xkey.state & ShiftMask )
         index = 1;
 
-    const KeySym key = XKeycodeToKeysym( event.xany.display, 
-                                         event.xkey.keycode, index );
+    const KeySym key = XkbKeycodeToKeysym( event.xany.display, 
+                                           event.xkey.keycode, 0, index );
     switch( key )
     {
         case XK_Escape:    return KC_ESCAPE;    

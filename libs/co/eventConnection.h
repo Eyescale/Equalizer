@@ -57,7 +57,7 @@ namespace co
         HANDLE _event;
 #else
         PipeConnectionPtr _connection;
-        base::Lock _lock;
+        lunchbox::Lock _lock;
         bool _set;
 #endif
 

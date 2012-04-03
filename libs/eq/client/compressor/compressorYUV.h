@@ -18,7 +18,7 @@
 #ifndef EQ_PLUGIN_COMPRESSORYUV
 #define EQ_PLUGIN_COMPRESSORYUV
 #include "compressor.h"
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <eq/util/texture.h>
 namespace eq
 {
@@ -63,7 +63,7 @@ public:
 
 protected:
     GLuint   _program;
-    co::base::Bufferb buffer;
+    lunchbox::Bufferb buffer;
 
 private:
     void _initShader( const GLEWContext* glewContext, const char* fShaderPtr );

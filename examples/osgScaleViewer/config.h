@@ -135,7 +135,7 @@ namespace osgScaleViewer
          * Clock used to measure the amount of time the last frame took,
          * to make it possible to have a framerate-independent rotation.
          */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
     };
 }
 #endif

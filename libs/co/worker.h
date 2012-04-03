@@ -20,12 +20,12 @@
 
 #include <co/api.h>          // CO_API definition
 #include <co/types.h>
-#include <co/base/thread.h>  // base class
+#include <lunchbox/thread.h>  // base class
 
 namespace co
 {
     /** A worker thread. */
-    template< class Q > class WorkerThread : public base::Thread
+    template< class Q > class WorkerThread : public lunchbox::Thread
     {
     public:
         /** Construct a new worker thread. @version 1.1.5 */
@@ -38,14 +38,14 @@ namespace co
         Q* getWorkerQueue() { return &_commands; }
 
     protected:
-        /** @sa base::Thread::init() */
+        /** @sa lunchbox::Thread::init() */
         virtual bool init()
             {
-                setName( base::className( this ));
+                setName( lunchbox::className( this ));
                 return true;
             }
 
-        /** @sa base::Thread::run() */
+        /** @sa lunchbox::Thread::run() */
         virtual void run();
 
         /** @return true to stop the worker thread. @version 1.1.5 */

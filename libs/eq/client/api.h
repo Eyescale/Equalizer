@@ -24,9 +24,9 @@
 #if defined(EQUALIZER_STATIC)
 #  define EQ_API
 #elif defined(EQUALIZER_SHARED)
-#  define EQ_API EQ_DLLEXPORT
+#  define EQ_API LB_DLLEXPORT
 #else
-#  define EQ_API EQ_DLLIMPORT
+#  define EQ_API LB_DLLIMPORT
 #endif
 
 #endif /* EQCLIENT_API_H */

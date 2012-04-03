@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/defines.h>
+#include <co/defines.h>
 #include <test.h>
 
 #ifdef CO_USE_BOOST_SERIALIZATION
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
 
     co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
 
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     connDesc->type = co::CONNECTIONTYPE_TCPIP;
     connDesc->port = (rng.get<uint16_t>() % 60000) + 1024;
     connDesc->setHostname( "localhost" );

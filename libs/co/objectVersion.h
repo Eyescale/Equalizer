@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,8 +20,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/stdExt.h>
-
+#include <lunchbox/stdExt.h>
 #include <iostream>
 
 namespace co
@@ -40,13 +39,13 @@ namespace co
      * A helper struct bundling an object identifier and version.
      *
      * The struct either contains the object's identifier and version (if it is
-     * registered or mapped), base::UUID::ZERO and VERSION_NONE if it is
+     * registered or mapped), UUID::ZERO and VERSION_NONE if it is
      * unmapped or if no object was given.
      */
     struct ObjectVersion
     {
         CO_API ObjectVersion();
-        CO_API ObjectVersion( const base::UUID& identifier,
+        CO_API ObjectVersion( const UUID& identifier,
                                  const uint128_t& version );
         CO_API ObjectVersion( const Object* object );
         CO_API ObjectVersion& operator = ( const Object* object );
@@ -90,8 +89,8 @@ namespace co
 
 }
 
-CO_STDEXT_NAMESPACE_OPEN
-#ifdef CO_STDEXT_MSVC
+LB_STDEXT_NAMESPACE_OPEN
+#ifdef LB_STDEXT_MSVC
     /** ObjectVersion hash function. */
     template<>
     inline size_t hash_compare< co::ObjectVersion >::operator()
@@ -113,6 +112,6 @@ CO_STDEXT_NAMESPACE_OPEN
         }
     };
 #endif
-CO_STDEXT_NAMESPACE_CLOSE
+LB_STDEXT_NAMESPACE_CLOSE
 
 #endif // CO_OBJECT_H

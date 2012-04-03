@@ -29,7 +29,7 @@ namespace fabric
     struct ServerCreateConfigPacket : public ServerPacket
     {
         ServerCreateConfigPacket( const Object* config,
-                                  const uint32_t req = EQ_UNDEFINED_UINT32 )
+                                  const uint32_t req = LB_UNDEFINED_UINT32 )
                 : configVersion( config )
                 , requestID( req )
                 , fill( 0 )
@@ -46,13 +46,13 @@ namespace fabric
     struct ServerDestroyConfigPacket : public ServerPacket
     {
         ServerDestroyConfigPacket()
-                : requestID ( EQ_UNDEFINED_UINT32 )
+                : requestID ( LB_UNDEFINED_UINT32 )
             {
                 command = CMD_SERVER_DESTROY_CONFIG;
                 size    = sizeof( ServerDestroyConfigPacket );
             }
 
-        co::base::UUID configID;
+        UUID configID;
         uint32_t requestID;
     };
 

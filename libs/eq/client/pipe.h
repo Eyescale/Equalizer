@@ -28,9 +28,9 @@
 #include <eq/fabric/pipe.h>           // base class
 
 #include <co/objectVersion.h>
-#include <co/base/lock.h>
-#include <co/base/monitor.h>
-#include <co/base/refPtr.h>
+#include <lunchbox/lock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/refPtr.h>
 #include <co/worker.h>
 
 namespace eq
@@ -398,20 +398,20 @@ namespace detail { class AsyncRBThread; }
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        co::base::Monitor<uint32_t> _unlockedFrame;
+        lunchbox::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        co::base::Lock _frameTimeMutex;
+        lunchbox::Lock _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -479,7 +479,7 @@ namespace detail { class AsyncRBThread; }
         bool _cmdDetachView( co::Command& command );
         bool _cmdExitAsyncRBThread( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

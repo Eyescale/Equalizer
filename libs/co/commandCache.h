@@ -20,7 +20,7 @@
 
 #include <co/types.h>
 #include <co/api.h>
-#include <co/base/thread.h> // thread-safety checks
+#include <lunchbox/thread.h> // thread-safety checks
 
 namespace co
 {
@@ -51,7 +51,7 @@ namespace detail { class CommandCache; }
     private:
         detail::CommandCache* const _impl;
         friend std::ostream& operator << ( std::ostream&, const CommandCache& );
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 
     std::ostream& operator << ( std::ostream&, const CommandCache& );

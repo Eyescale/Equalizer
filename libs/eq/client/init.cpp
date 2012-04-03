@@ -29,9 +29,8 @@
 #include <eq/client/version.h>
 #include <eq/fabric/init.h>
 #include <co/global.h>
-#include <co/base/file.h>
-#include <co/base/global.h>
-#include <co/base/pluginRegistry.h>
+#include <co/pluginRegistry.h>
+#include <lunchbox/file.h>
 
 #include <fstream>
 
@@ -39,12 +38,16 @@
 #  include <pcapi.h>
 #endif
 
+#ifdef _WIN32
+#  define atoll _atoi64
+#endif
+
 namespace eq
 {
 namespace
 {
 static std::ofstream* _logFile = 0;
-static co::base::a_int32_t _initialized;
+static lunchbox::a_int32_t _initialized;
 }
 
 static void _parseArguments( const int argc, char** argv );
@@ -55,7 +58,15 @@ static void _exitPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
-    co::base::Log::instance().setThreadName( "Main" );
+    const char *env = getenv( "EQ_LOG_LEVEL" );
+    if( env )
+        lunchbox::Log::level = lunchbox::Log::getLogLevel( env );
+
+    env = getenv( "EQ_LOG_TOPICS" );
+    if( env )
+        lunchbox::Log::topics |= atoll( env );
+
+    lunchbox::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
     EQINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
@@ -111,9 +122,9 @@ bool exit()
     if( _logFile )
     {
 #ifdef NDEBUG
-        co::base::Log::setOutput( std::cout );
+        lunchbox::Log::setOutput( std::cout );
 #else
-        co::base::Log::setOutput( std::cerr );
+        lunchbox::Log::setOutput( std::cerr );
 #endif
         _logFile->close();
         delete _logFile;
@@ -141,7 +152,7 @@ void _parseArguments( const int argc, char** argv )
                 if( newLog->is_open( ))
                 {
                     _logFile = newLog;
-                    co::base::Log::setOutput( *newLog );
+                    lunchbox::Log::setOutput( *newLog );
 
                     if( oldLog )
                     {
@@ -153,7 +164,7 @@ void _parseArguments( const int argc, char** argv )
                 else
                 {
                     EQWARN << "Can't open log file " << argv[i] << ": "
-                           << co::base::sysError << std::endl;
+                           << lunchbox::sysError << std::endl;
                     delete newLog;
                     newLog = 0;
                 }
@@ -190,7 +201,7 @@ void _parseArguments( const int argc, char** argv )
             if( i<argc )
             {
                 co::Global::setProgramName( argv[i] );
-                co::Global::setWorkDir( co::base::getDirname( argv[i] ));
+                co::Global::setWorkDir( lunchbox::getDirname( argv[i] ));
             }
         }
     }
@@ -198,7 +209,7 @@ void _parseArguments( const int argc, char** argv )
 
 void _initPlugins()
 {
-    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
     plugins.addDirectory( "/usr/share/Equalizer/plugins" );
     plugins.addDirectory( "/usr/local/share/Equalizer/plugins" );
@@ -248,7 +259,7 @@ void _initPlugins()
 
 void _exitPlugins()
 {
-    co::base::PluginRegistry& plugins = co::base::Global::getPluginRegistry();
+    co::PluginRegistry& plugins = co::Global::getPluginRegistry();
 
 #ifdef _WIN32 // final INSTALL_DIR is not known at compile time
     plugins.removeDirectory( "../share/Equalizer/plugins" );

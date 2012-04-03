@@ -29,7 +29,6 @@
 #endif
 
 #include <co/exception.h>
-#include <co/base/global.h>
 
 #ifdef EQ_INFINIBAND
 #  include "IBConnection.h"
@@ -44,8 +43,8 @@
 #  include "udtConnection.h"
 #endif
 
-#include <co/base/scopedMutex.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/stdExt.h>
 
 namespace co
 {
@@ -262,11 +261,11 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                           got << " != " << bytesLeft );
 
 #ifndef NDEBUG
-            if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+            if( bytes <= 1024 && ( lunchbox::Log::topics & LOG_PACKETS ))
             {
                 ptr = static_cast< uint8_t* >( buffer );
-                EQINFO << "recv:" << std::hex << base::disableFlush
-                       << base::disableHeader;
+                EQINFO << "recv:" << std::hex << lunchbox::disableFlush
+                       << lunchbox::disableHeader;
                 for( size_t i = 0; i < bytes; ++i )
                 {
                     if( (i % 16) == 0 )
@@ -276,8 +275,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                     EQINFO << std::setfill( '0' ) << std::setw(2)
                            << static_cast< unsigned >( ptr[ i ] );
                 }
-                EQINFO << std::dec << base::enableFlush
-                       << std::endl << base::enableHeader;
+                EQINFO << std::dec << lunchbox::enableFlush
+                       << std::endl << lunchbox::enableHeader;
             }
 #endif
             return true;
@@ -305,13 +304,13 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    base::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
+    lunchbox::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
 #ifndef NDEBUG
-    if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+    if( bytes <= 1024 && ( lunchbox::Log::topics & LOG_PACKETS ))
     {
-        EQINFO << "send:" << std::hex << base::disableFlush
-               << base::disableHeader << std::endl;
+        EQINFO << "send:" << std::hex << lunchbox::disableFlush
+               << lunchbox::disableHeader << std::endl;
         for( size_t i = 0; i < bytes; ++i )
         {
             if( (i % 16) == 0 )
@@ -321,8 +320,8 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             EQINFO << std::setfill( '0' ) << std::setw(2)
                    << static_cast< unsigned >( ptr[ i ] );
         }
-        EQINFO << std::dec << base::enableFlush << std::endl
-               << base::enableHeader;
+        EQINFO << std::dec << lunchbox::enableFlush << std::endl
+               << lunchbox::enableHeader;
     }
 #endif
 

@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,14 +23,14 @@
 #ifndef EQADMIN_API_H
 #define EQADMIN_API_H
 
-#include <co/base/api.h>
+#include <eq/fabric/api.h>
 
 #if defined(EQUALIZERADMIN_STATIC)
 #  define EQADMIN_API
 #elif defined(EQUALIZERADMIN_SHARED)
-#  define EQADMIN_API EQ_DLLEXPORT
+#  define EQADMIN_API LB_DLLEXPORT
 #else
-#  define EQADMIN_API EQ_DLLIMPORT
+#  define EQADMIN_API LB_DLLIMPORT
 #endif
 
 #endif //EQADMIN_API_H

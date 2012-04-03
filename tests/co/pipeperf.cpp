@@ -21,8 +21,8 @@
 
 #define EQ_TEST_RUNTIME 600 // seconds, needed for NighlyMemoryCheck
 #include <test.h>
-#include <co/base/clock.h>
-#include <co/base/monitor.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/monitor.h>
 #include <co/connectionSet.h>
 #include <co/init.h>
 
@@ -30,15 +30,15 @@
 
 #include <co/pipeConnection.h> // private header
 
-#define MAXPACKETSIZE EQ_64MB
+#define MAXPACKETSIZE LB_64MB
 
-static co::base::Monitor< unsigned > _nextStage;
+static lunchbox::Monitor< unsigned > _nextStage;
 
-class Sender : public co::base::Thread
+class Sender : public lunchbox::Thread
 {
 public:
     Sender( co::ConnectionPtr connection )
-            : co::base::Thread()
+            : lunchbox::Thread()
             , _connection( connection )
         {}
     virtual ~Sender(){}
@@ -83,7 +83,7 @@ int main( int argc, char **argv )
     TEST( sender.start( ));
 
     void* buffer = calloc( 1, MAXPACKETSIZE );
-    co::base::Clock clock;
+    lunchbox::Clock clock;
 
     unsigned stage = 2;
     for( uint64_t packetSize = MAXPACKETSIZE; packetSize > 0;

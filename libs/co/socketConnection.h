@@ -19,9 +19,9 @@
 #define CO_SOCKETCONNECTION_H
 
 #include <co/connectionType.h> // enum
-#include <co/base/api.h>
-#include <co/base/buffer.h> // member
-#include <co/base/thread.h> // for EQ_TS_VAR
+#include <lunchbox/api.h>
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/thread.h> // for LB_TS_VAR
 
 
 #ifdef WIN32
@@ -107,7 +107,7 @@ namespace co
         Socket     _overlappedSocket;
         DWORD      _overlappedDone;
 
-        EQ_TS_VAR( _recvThread );
+        LB_TS_VAR( _recvThread );
 #endif
 
         void _close();

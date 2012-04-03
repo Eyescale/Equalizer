@@ -20,35 +20,33 @@
 
 #include "connectionDescription.h"
 #include "connections.h"
+#include "cpuCompressor.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
 #include "types.h"
 
-#include "base/cpuCompressor.h" // internal header
-#include <co/base/global.h>
-
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-#  include <co/base/clock.h>
+#  include <lunchbox/clock.h>
 #endif
 
 namespace co
 {
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-base::a_int32_t nBytes;
-base::a_int32_t nBytesIn;
-base::a_int32_t nBytesOut;
-CO_API base::a_int32_t nBytesSaved;
-CO_API base::a_int32_t nBytesSent;
-base::a_int32_t compressionTime;
+lunchbox::a_int32_t nBytes;
+lunchbox::a_int32_t nBytesIn;
+lunchbox::a_int32_t nBytesOut;
+CO_API lunchbox::a_int32_t nBytesSaved;
+CO_API lunchbox::a_int32_t nBytesSent;
+lunchbox::a_int32_t compressionTime;
 #endif
 
 DataOStream::DataOStream()
         : _compressorState( STATE_UNCOMPRESSED )
         , _bufferStart( 0 )
         , _dataSize( 0 )
-        , _compressor( new base::CPUCompressor )
+        , _compressor( new CPUCompressor )
         , _enabled( false )
         , _dataSent( false )
         , _save( false )
@@ -64,8 +62,8 @@ DataOStream::~DataOStream()
 
 void DataOStream::_initCompressor( const uint32_t compressor )
 {
-    EQCHECK( _compressor->base::Compressor::initCompressor( compressor ));
-    EQ_TS_RESET( _compressor->_thread );
+    EQCHECK( _compressor->Compressor::initCompressor( compressor ));
+    LB_TS_RESET( _compressor->_thread );
 }
 
 void DataOStream::_enable()
@@ -261,7 +259,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
     const uint64_t inDims[2] = { 0, size };
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-    base::Clock clock;
+    lunchbox::Clock clock;
 #endif
     _compressor->compress( src, inDims );
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
@@ -290,7 +288,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifndef CO_AGGRESSIVE_CACHING
         const uint32_t name = _compressor->getName();
         _compressor->reset();
-        EQCHECK( _compressor->base::Compressor::initCompressor( name ));
+        EQCHECK( _compressor->Compressor::initCompressor( name ));
 
         if( result == STATE_COMPLETE )
             _buffer.pack();

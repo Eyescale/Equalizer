@@ -25,7 +25,7 @@
 #include <eq/fabric/server.h>    // base class
 #include <co/command.h>      // used in inline method
 #include <co/commandQueue.h> // member
-#include <co/base/clock.h>   // member
+#include <lunchbox/clock.h>   // member
 
 namespace eq
 {
@@ -84,7 +84,7 @@ namespace server
         co::CommandQueue _mainThreadQueue;
 
         /** The global clock. */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
 
         co::Nodes _admins; //!< connected admin clients
 

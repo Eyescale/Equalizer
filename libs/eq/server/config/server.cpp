@@ -74,13 +74,13 @@ Config* Server::configure( ServerPtr server, const std::string& session,
     configFile.open( filename.c_str( ));
     if( configFile.is_open( ))
     {
-        std::ostream& previous = co::base::Log::getOutput();
+        std::ostream& previous = lunchbox::Log::getOutput();
 
-        co::base::Log::setOutput( configFile );
-        co::base::Log::instance( __FILE__, __LINE__ )
-            << co::base::disableHeader << Global::instance() << *server
-            << std::endl << co::base::enableHeader;
-        co::base::Log::setOutput( previous );
+        lunchbox::Log::setOutput( configFile );
+        lunchbox::Log::instance( __FILE__, __LINE__ )
+            << lunchbox::disableHeader << Global::instance() << *server
+            << std::endl << lunchbox::enableHeader;
+        lunchbox::Log::setOutput( previous );
 
         configFile.close();
     }

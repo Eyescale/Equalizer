@@ -27,7 +27,7 @@
 
 #include <eq/fabric/viewport.h>
 #include <eq/fabric/zoom.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {

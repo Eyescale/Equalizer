@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -171,7 +171,7 @@ namespace eq
         EQ_API void setError( const int32_t error );
 
         /** @return the error from the last failed operation. @version 1.0 */
-        EQ_API co::base::Error getError() const;
+        EQ_API co::Error getError() const;
 
         /** Process an event. @version 1.0 */
         EQ_API virtual bool processEvent( const Event& event );

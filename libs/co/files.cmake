@@ -22,8 +22,10 @@ set(CO_PUBLIC_HEADERS
     dataIStreamArchive.h
     dataOStream.h
     dataOStreamArchive.h
+    defines.h
     dispatcher.h
     error.h
+    errorRegistry.h
     exception.h
     global.h
     init.h
@@ -35,6 +37,7 @@ set(CO_PUBLIC_HEADERS
     object.h
     objectVersion.h
     packets.h
+    pluginRegistry.h
     queueMaster.h
     queuePackets.h
     queueSlave.h
@@ -45,9 +48,14 @@ set(CO_PUBLIC_HEADERS
 
 set(CO_HEADERS 
     barrierPackets.h
+    compressor.h
+    compressorInfo.h
+    cpuCompressor.h
     dataIStreamQueue.h
     dataOStream.ipp
     deltaMasterCM.h
+    error.cpp
+    errorRegistry.cpp
     eventConnection.h
     fullMasterCM.h
     masterCM.h
@@ -59,8 +67,9 @@ set(CO_HEADERS
     objectDeltaDataOStream.h
     objectInstanceDataOStream.h
     objectSlaveDataOStream.h
-    pipeConnection.h
     pgmConnection.h
+    pipeConnection.h
+    plugin.h
     rspConnection.h
     socketConnection.h
     staticMasterCM.h
@@ -75,9 +84,11 @@ set(CO_SOURCES
     command.cpp
     commandCache.cpp
     commandQueue.cpp
+    compressor.cpp
     connection.cpp
     connectionDescription.cpp
     connectionSet.cpp
+    cpuCompressor.cpp
     dataIStream.cpp
     dataIStreamQueue.cpp
     dataOStream.cpp
@@ -103,10 +114,11 @@ set(CO_SOURCES
     packets.cpp
     pgmConnection.cpp
     pipeConnection.cpp
+    plugin.cpp
+    pluginRegistry.cpp
     queueMaster.cpp
     queueSlave.cpp
     socketConnection.cpp
-    staticMasterCM.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
     version.cpp

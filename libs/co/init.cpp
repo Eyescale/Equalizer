@@ -19,10 +19,11 @@
 
 #include "global.h"
 #include "node.h"
+#include "pluginRegistry.h"
 #include "socketConnection.h"
 
-#include <co/base/init.h>
-#include <co/base/os.h>
+#include <lunchbox/init.h>
+#include <lunchbox/os.h>
 
 #ifdef _MSC_VER
 #  include <direct.h>
@@ -37,7 +38,7 @@ namespace co
 {
 namespace
 {
-    static co::base::a_int32_t _initialized;
+    static lunchbox::a_int32_t _initialized;
 }
 
 bool _init( const int argc, char** argv )
@@ -45,8 +46,38 @@ bool _init( const int argc, char** argv )
     if( ++_initialized > 1 ) // not first
         return true;
 
-    if( !base::init( argc, argv ))
+    if( !lunchbox::init( argc, argv ))
         return false;
+
+    // init all available plugins
+    PluginRegistry& plugins = Global::getPluginRegistry();
+#ifdef COLLAGE_DSO_NAME
+    if( !plugins.addPlugin( COLLAGE_DSO_NAME ) && // Found by LDD
+        // Hard-coded compile locations as backup:
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/" + 
+                            COLLAGE_DSO_NAME ) &&
+#  ifdef NDEBUG
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Release/" +
+                            COLLAGE_DSO_NAME )
+#  else
+        !plugins.addPlugin( std::string( EQ_BUILD_DIR ) + "lib/Debug/"
+                            + COLLAGE_DSO_NAME )
+#  endif
+        )
+    {
+        EQWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
+               << " not in library search path and hardcoded locations not "
+               << "found" << std::endl;
+    }
+
+#else
+#  ifndef NDEBUG
+#    error "COLLAGE_DSO_NAME not defined"
+#  endif
+    EQWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
+           << std::endl;
+#endif
+    plugins.init();
 
 #ifdef _WIN32
     WORD    wsVersion = MAKEWORD( 2, 0 );
@@ -54,7 +85,7 @@ bool _init( const int argc, char** argv )
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
         EQERROR << "Initialization of Windows Sockets failed" 
-                << base::sysError << std::endl;
+                << lunchbox::sysError << std::endl;
         return false;
     }
 #endif
@@ -82,11 +113,16 @@ bool exit()
     if( WSACleanup() != 0 )
     {
         EQERROR << "Cleanup of Windows Sockets failed" 
-                << base::sysError << std::endl;
+                << lunchbox::sysError << std::endl;
         return false;
     }
 #endif
-    return base::exit();
+
+    // de-initialize registered plugins
+    PluginRegistry& plugins = Global::getPluginRegistry();
+    plugins.exit();
+
+    return lunchbox::exit();
 }
 
 }

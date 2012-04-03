@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/omp.h>
+#include <lunchbox/omp.h>
 
 #include <limits>
 
@@ -292,7 +292,7 @@ static unsigned _setupResults( const unsigned nChannels,
 {
     // determine number of chunks and set up output data structure
 #ifdef CO_USE_OPENMP
-    const unsigned cpuChunks = nChannels * co::base::OMP::getNThreads() * 4;
+    const unsigned cpuChunks = nChannels * lunchbox::OMP::getNThreads() * 4;
     const size_t sizeChunks = inSize / 4096 * nChannels;
     const unsigned minChunks = unsigned( nChannels > sizeChunks ?
                                          nChannels : sizeChunks );

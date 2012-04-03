@@ -41,10 +41,10 @@ namespace fabric
         /** @name Data Access */
         //@{
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_INL co::base::RefPtr< S > getServer();
+        EQFABRIC_INL lunchbox::RefPtr< S > getServer();
 
         /** @return the local server proxy. @version 1.0 */
-        EQFABRIC_INL co::base::RefPtr< const S > getServer() const;
+        EQFABRIC_INL lunchbox::RefPtr< const S > getServer() const;
 
         /** @return the vector of observers, app-node only. @version 1.0 */
         const Observers& getObservers() const { return _observers; }
@@ -57,7 +57,7 @@ namespace fabric
 
         /**
          * @internal
-         * @return the timeout in ms or EQ_TIMEOUT_INDEFINITE for failures.
+         * @return the timeout in ms or LB_TIMEOUT_INDEFINITE for failures.
          */
         EQFABRIC_INL uint32_t getTimeout() const;
 
@@ -197,13 +197,13 @@ namespace fabric
 
     protected:
         /** @internal Construct a new config. */
-        EQFABRIC_INL Config( co::base::RefPtr< S > parent );
+        EQFABRIC_INL Config( lunchbox::RefPtr< S > parent );
 
         /** @internal Destruct a config. */
         EQFABRIC_INL virtual ~Config();
 
         /** @internal */
-        EQFABRIC_INL virtual void attach( const co::base::UUID& id,
+        EQFABRIC_INL virtual void attach( const UUID& id,
                                           const uint32_t instanceID );
 
         /** @internal */
@@ -214,7 +214,7 @@ namespace fabric
         EQFABRIC_INL virtual void notifyDetach();
 
         /** @internal Execute the slave remove request. */
-        virtual void _removeChild( const co::base::UUID& )
+        virtual void _removeChild( const UUID& )
             { EQUNIMPLEMENTED; }
 
         template< class, class, class, class, class, class >
@@ -247,7 +247,7 @@ namespace fabric
     private:
 
         /** The parent server. */
-        co::base::RefPtr< S > _server;
+        lunchbox::RefPtr< S > _server;
         
         /** Float attributes. */
         float _fAttributes[FATTR_ALL];

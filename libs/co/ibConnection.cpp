@@ -285,7 +285,7 @@ bool IBConnection::_writeKeys( const struct IBDest *myDest )
 bool IBConnection::_readKeys( struct IBDest *remDest)
 {
     int parsed;
-    eq::base::Buffer<void*> buf;
+    eq::lunchbox::Buffer<void*> buf;
     buf.resize( KEY_MSG_SIZE );
     uint64_t size = KEY_MSG_SIZE;
     WSABUF wsaBuffer = { KEY_MSG_SIZE,
@@ -337,7 +337,7 @@ bool IBConnection::_clientExchDest( const struct IBDest *myDest,
 
 void IBConnection::addEvent()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     
     _comptEvent++;
 
@@ -346,7 +346,7 @@ void IBConnection::addEvent()
 }
 void IBConnection::removeEvent()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     _comptEvent--;
     if( _comptEvent  < 1 ) 
     {
@@ -373,7 +373,7 @@ void IBConnection::readNB( void* buffer, const uint64_t bytes ){ /* NOB */ }
 int64_t IBConnection::readSync( void* buffer, const uint64_t bytes,
                                 const bool ignored )
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
     int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );
     if ( result < 0 ) 
         close();

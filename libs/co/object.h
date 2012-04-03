@@ -26,9 +26,8 @@
 namespace co
 {
     class ObjectCM;
-    struct NodeMapObjectReplyPacket;
 
-#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
+#  define CO_COMMIT_NEXT LB_UNDEFINED_UINT32 //!< the next commit incarnation
 
     /** 
      * A generic, distributed object.
@@ -77,10 +76,10 @@ namespace co
          * overwritten with the identifier of the master object.
          * @version 1.1.5
          */
-        CO_API void setID( const base::UUID& identifier );
+        CO_API void setID( const UUID& identifier );
 
         /** @return the object's unique identifier. */
-        const base::UUID& getID() const { return _id; }
+        const UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -353,7 +352,7 @@ namespace co
         NodePtr getMasterNode();
 
         /** @internal */
-        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
+        void addSlave( Command& command );
         CO_API void removeSlave( NodePtr node ); //!< @internal
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
@@ -377,7 +376,7 @@ namespace co
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        CO_API virtual void attach( const base::UUID& id, 
+        CO_API virtual void attach( const UUID& id, 
                                     const uint32_t instanceID );
         /**
          * @internal
@@ -411,7 +410,7 @@ namespace co
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        base::UUID _id;
+        UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;
@@ -424,7 +423,7 @@ namespace co
 
         void _setChangeManager( ObjectCM* cm );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
     CO_API std::ostream& operator << ( std::ostream&, const Object& );
 

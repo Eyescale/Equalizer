@@ -20,7 +20,7 @@
 #define EQ_PLUGIN_COMPRESSOR 
 
 #include <co/plugins/compressor.h>
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <vector>
 
 /**
@@ -73,7 +73,7 @@ namespace plugin
                                const eq_uint64_t nPixels, 
                                const bool useAlpha ) { EQDONTCALL; };
 
-        typedef co::base::Bufferb Result;
+        typedef lunchbox::Bufferb Result;
         typedef std::vector< Result* > Results;
 
         /** @return the vector containing the result data. */

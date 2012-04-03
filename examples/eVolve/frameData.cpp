@@ -44,7 +44,7 @@ FrameData::FrameData()
     , _statistics(    false )
     , _help(          false )
     , _quality( 1.0f )
-    , _currentViewID( co::base::UUID::ZERO )
+    , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
     EQINFO << "New FrameData " << std::endl;
@@ -146,8 +146,8 @@ void FrameData::setCurrentViewID( const eq::uint128_t& id )
 void FrameData::adjustQuality( const float delta )
 {
     _quality += delta;
-    _quality = EQ_MAX( _quality, 0.1f );
-    _quality = EQ_MIN( _quality, 1.0f );
+    _quality = LB_MAX( _quality, 0.1f );
+    _quality = LB_MIN( _quality, 1.0f );
     setDirty( DIRTY_FLAGS );
     EQINFO << "Set non-idle image quality to " << _quality << std::endl;
 }

@@ -18,12 +18,12 @@
 // Tests network throughput
 // Usage: see 'netPerf -h'
 
-#define EQ_RELEASE_ASSERT
+#define LB_RELEASE_ASSERT
 
 #include <co/co.h>
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -32,8 +32,8 @@
 namespace
 {
 co::ConnectionSet   _connectionSet;
-co::base::a_int32_t _nClients;
-co::base::Lock      _mutexPrint;
+lunchbox::a_int32_t _nClients;
+lunchbox::Lock      _mutexPrint;
 uint32_t _delay = 0;
 enum
 {
@@ -41,7 +41,7 @@ enum
     DATA // must be last
 };
 
-class Receiver : public co::base::Thread
+class Receiver : public lunchbox::Thread
 {
 public:
     Receiver( const size_t packetSize, co::ConnectionPtr connection )
@@ -77,7 +77,7 @@ public:
                           (int)_buffer[probe] << " != " << (probe&0xff) );
 
             if( _delay > 0 )
-                co::base::sleep( _delay );
+                lunchbox::sleep( _delay );
 
             if( time < 1000.f )
                 return true;
@@ -85,7 +85,7 @@ public:
             _clock.reset();
             co::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            const co::base::ScopedMutex<> mutex( _mutexPrint );
+            const lunchbox::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
                       << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                       << desc->toString() << std::endl;
@@ -126,18 +126,18 @@ public:
         }
         
 private:
-    co::base::Clock _clock;
-    co::base::RNG _rng;
+    lunchbox::Clock _clock;
+    lunchbox::RNG _rng;
 
-    co::base::Bufferb _buffer;
-    co::base::Monitor< bool > _hasConnection;
+    lunchbox::Bufferb _buffer;
+    lunchbox::Monitor< bool > _hasConnection;
     co::ConnectionPtr _connection;
     const float _mBytesSec;
     size_t      _nSamples;
     uint8_t     _lastPacket;
 };
 
-class Selector : public co::base::Thread
+class Selector : public lunchbox::Thread
 {
 public:
     Selector( co::ConnectionPtr connection, const size_t packetSize,
@@ -293,7 +293,7 @@ private:
     std::vector< RecvConn > _receivers;
     size_t _packetSize;
     bool _useThreads;
-    co::base::Bufferb _buffer;
+    lunchbox::Bufferb _buffer;
 };
 
 }
@@ -389,13 +389,13 @@ int main( int argc, char **argv )
         else if( !connection->connect( ))
             ::exit( EXIT_FAILURE );
 
-        co::base::Buffer< uint8_t > buffer;
+        lunchbox::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
         for( size_t i = 0; i<packetSize; ++i )
             buffer[i] = static_cast< uint8_t >( i );
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
-        co::base::Clock clock;
+        lunchbox::Clock clock;
         size_t lastOutput = nPackets;
 
         clock.reset();
@@ -406,7 +406,7 @@ int main( int argc, char **argv )
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
-                const co::base::ScopedMutex<> mutex( _mutexPrint );
+                const lunchbox::ScopedMutex<> mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
                 std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                           << "MB/s (" << nSamples / time * 1000.f  << "pps)"
@@ -416,13 +416,13 @@ int main( int argc, char **argv )
                 clock.reset();
             }
             if( waitTime > 0 )
-                co::base::sleep( waitTime );
+                lunchbox::sleep( waitTime );
         }
         const float time = clock.getTimef();
         const size_t nSamples = lastOutput - nPackets;
         if( nSamples != 0 )
         {
-            const co::base::ScopedMutex<> mutex( _mutexPrint );
+            const lunchbox::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;

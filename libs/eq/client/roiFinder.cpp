@@ -34,7 +34,7 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 #include <co/plugins/compressor.h>
 
 
@@ -542,8 +542,8 @@ void ROIFinder::_readbackInfo( )
 
     PixelViewport pvp = _pvp;
     pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
-    pvp.w = EQ_MIN( pvp.w+pvp.x, _pvpOriginal.w+_pvpOriginal.x ) - pvp.x;
-    pvp.h = EQ_MIN( pvp.h+pvp.y, _pvpOriginal.h+_pvpOriginal.y ) - pvp.y;
+    pvp.w = LB_MIN( pvp.w+pvp.x, _pvpOriginal.w+_pvpOriginal.x ) - pvp.x;
+    pvp.h = LB_MIN( pvp.h+pvp.y, _pvpOriginal.h+_pvpOriginal.y ) - pvp.y;
 
     EQASSERT( pvp.isValid());
 
@@ -688,7 +688,7 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 #endif
 
 #ifdef EQ_ROI_TEST_SPEED
-    co::base::Clock clock; 
+    lunchbox::Clock clock; 
     clock.reset();
 for( int i = 0; i < 100; i++ ) {
 #endif
@@ -742,8 +742,8 @@ for( int i = 0; i < 100; i++ ) {
     const float time = clock.getTimef() / 100;
     const float fps  = 1000.f / time;
 
-    static float minFPS = 10000;    minFPS = EQ_MIN( fps, minFPS );
-    static float maxFPS = 0;        maxFPS = EQ_MAX( fps, maxFPS );
+    static float minFPS = 10000;    minFPS = LB_MIN( fps, minFPS );
+    static float maxFPS = 0;        maxFPS = LB_MAX( fps, maxFPS );
     static float sumFPS = 0;        sumFPS += fps;
     static float frames = 0;        frames++;
 

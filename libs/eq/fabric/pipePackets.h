@@ -50,7 +50,7 @@ namespace fabric
                 size    = sizeof( PipeNewWindowReplyPacket );
             }
 
-        co::base::UUID windowID;
+        UUID windowID;
         const uint32_t requestID;
         const uint32_t pad;
     };

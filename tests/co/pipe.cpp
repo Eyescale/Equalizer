@@ -17,20 +17,20 @@
 
 #include <test.h>
 
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 #include <co/init.h>
 
 #include <iostream>
 
 #include <co/pipeConnection.h> // private header
 
-class Server : public co::base::Thread
+class Server : public lunchbox::Thread
 {
 public:
     void start( co::ConnectionPtr connection )
         {
             _connection = connection;
-            co::base::Thread::start();
+            lunchbox::Thread::start();
         }
 
 protected:

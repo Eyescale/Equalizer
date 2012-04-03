@@ -35,7 +35,7 @@ public:
             , fbo( 0 )
             , initialSize( Vector2i::ZERO )
         {
-            co::base::RNG rng;
+            lunchbox::RNG rng;
             color.r() = rng.get< uint8_t >();
             color.g() = rng.get< uint8_t >();
             color.b() = rng.get< uint8_t >();
@@ -71,14 +71,14 @@ public:
         Statistics data; //!< all events for one frame
         eq::Viewport region; //!< from draw for equalizers
         /** reference count by pipe and transmit thread */
-        co::base::a_int32_t used;
+        lunchbox::a_int32_t used;
     };
 
     typedef std::vector< FrameStatistics > StatisticsRB;
     typedef StatisticsRB::const_iterator StatisticsRBCIter;
 
     /** Global statistics events, index per frame and channel. */
-    co::base::Lockable< StatisticsRB, co::base::SpinLock > statistics;
+    lunchbox::Lockable< StatisticsRB, lunchbox::SpinLock > statistics;
 
     /** The initial channel size, used for view resize events. */
     Vector2i initialSize;

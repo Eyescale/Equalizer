@@ -18,12 +18,12 @@
 #ifndef CO_PGMCONNECTION_H
 #define CO_PGMCONNECTION_H
 
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 #ifdef EQ_PGM
 
 #include <co/connection.h>
-#include <co/base/buffer.h> // member
-#include <co/base/thread.h> // for EQ_TS_VAR
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/thread.h> // for LB_TS_VAR
 
 namespace co
 {
@@ -93,7 +93,7 @@ namespace co
         void*      _overlappedAcceptData;
         SOCKET     _overlappedSocket;
 
-        EQ_TS_VAR( _recvThread );
+        LB_TS_VAR( _recvThread );
     };
 }
 

@@ -49,8 +49,8 @@
 #include <co/connectionDescription.h>
 #include <co/exception.h>
 #include <co/queueSlave.h>
-#include <co/base/rng.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/rng.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <set>
 
@@ -77,7 +77,7 @@ Channel::~Channel()
     delete _impl;
 }
 
-void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Channel::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     co::CommandQueue* queue = getPipeThreadQueue();
@@ -312,7 +312,7 @@ void Channel::notifyViewportChanged()
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
     event.serial     = getSerial();
-    EQASSERT( event.originator != co::base::UUID::ZERO );
+    EQASSERT( event.originator != UUID::ZERO );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -329,7 +329,7 @@ void Channel::addStatistic( Event& event )
         EQASSERT( index < _impl->statistics->size( ));
         EQASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
-        co::base::ScopedFastWrite mutex( _impl->statistics );
+        lunchbox::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
         statistics.push_back( event.statistic );
     }
@@ -475,35 +475,35 @@ util::FrameBufferObject* Channel::getFrameBufferObject()
 
 View* Channel::getView()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getView( getContext().view );
 }
 
 const View* Channel::getView() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Pipe* pipe = getPipe();
     return pipe->getView( getContext().view );
 }
 
 co::QueueSlave* Channel::_getQueue( const co::ObjectVersion& queueVersion )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getQueue( queueVersion );
 }
 
 View* Channel::getNativeView()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
     return pipe->getView( getNativeContext().view );
 }
 
 const View* Channel::getNativeView() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Pipe* pipe = getPipe();
     return pipe->getView( getNativeContext().view );
 }
@@ -525,7 +525,7 @@ void Channel::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 void Channel::applyFrameBufferObject()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( _impl->fbo )
     {
         const PixelViewport& pvp = getNativePixelViewport();
@@ -538,7 +538,7 @@ void Channel::applyFrameBufferObject()
 
 void Channel::applyBuffer()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Window* window = getWindow();
     if( !_impl->fbo && window->getSystemWindow()->getFrameBufferObject() == 0 )
     {
@@ -551,7 +551,7 @@ void Channel::applyBuffer()
 
 void Channel::bindFrameBuffer()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Window* window = getWindow();
     if( !window->getSystemWindow( ))
        return;
@@ -564,14 +564,14 @@ void Channel::bindFrameBuffer()
 
 void Channel::applyColorMask() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const ColorMask& colorMask = getDrawBufferMask();
     glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
 }
 
 void Channel::applyViewport() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const PixelViewport& pvp = getPixelViewport();
     // TODO: OPT return if vp unchanged
 
@@ -587,7 +587,7 @@ void Channel::applyViewport() const
 
 void Channel::applyFrustum() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( useOrtho( ))
         applyOrtho();
     else
@@ -596,7 +596,7 @@ void Channel::applyFrustum() const
 
 void Channel::applyPerspective() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Frustumf frustum = getPerspective();
     const Vector2f jitter = getJitter();
 
@@ -608,7 +608,7 @@ void Channel::applyPerspective() const
 
 void Channel::applyOrtho() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     Frustumf ortho = getOrtho();
     const Vector2f jitter = getJitter();
 
@@ -620,7 +620,7 @@ void Channel::applyOrtho() const
 
 void Channel::applyScreenFrustum() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Frustumf frustum = getScreenFrustum();
     EQ_GL_CALL( glOrtho( frustum.left(), frustum.right(),
                          frustum.bottom(), frustum.top(),
@@ -629,7 +629,7 @@ void Channel::applyScreenFrustum() const
 
 void Channel::applyHeadTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     if( useOrtho( ))
         applyOrthoTransform();
     else
@@ -638,14 +638,14 @@ void Channel::applyHeadTransform() const
 
 void Channel::applyPerspectiveTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Matrix4f& xfm = getPerspectiveTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
 
 void Channel::applyOrthoTransform() const
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     const Matrix4f& xfm = getOrthoTransform();
     EQ_GL_CALL( glMultMatrixf( xfm.array ));
 }
@@ -701,7 +701,7 @@ Vector2f Channel::getJitter() const
     Vector2f jitter;
     if( !table )
     {
-        static co::base::RNG rng;
+        static lunchbox::RNG rng;
         jitter.x() = rng.get< float >();
         jitter.y() = rng.get< float >();
     }
@@ -719,13 +719,13 @@ bool Channel::isStopped() const { return _impl->state == STATE_STOPPED; }
 
 const Frames& Channel::getInputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     return _impl->inputFrames;
 }
 
 const Frames& Channel::getOutputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     return _impl->outputFrames;
 }
 
@@ -855,8 +855,8 @@ bool Channel::processEvent( const Event& event )
 
         case Event::CHANNEL_RESIZE:
         {
-            const co::base::UUID& viewID = getNativeContext().view.identifier;
-            if( viewID == co::base::UUID::ZERO )
+            const UUID& viewID = getNativeContext().view.identifier;
+            if( viewID == UUID::ZERO )
                 return true;
 
             // transform to view event, which is meaningful for the config 
@@ -987,8 +987,8 @@ void Channel::drawStatistics()
                     break;
                 }
 
-                xMax = EQ_MAX( xMax, stat.endTime );
-                xMin = EQ_MIN( xMin, stat.startTime );
+                xMax = LB_MAX( xMax, stat.endTime );
+                xMin = LB_MIN( xMin, stat.startTime );
 
                 if( entities.find( id ) == entities.end( ))
                 {
@@ -1070,8 +1070,8 @@ void Channel::drawStatistics()
                 const int64_t startTime = stat.startTime / scale;
                 const int64_t endTime   = stat.endTime   / scale;
 
-                frameMin = EQ_MIN( frameMin, startTime );
-                frameMax = EQ_MAX( frameMax, endTime   );
+                frameMin = LB_MIN( frameMin, startTime );
+                frameMax = LB_MAX( frameMax, endTime   );
 
                 if( endTime < xStart || endTime == startTime )
                     continue;

@@ -22,8 +22,8 @@
 #include "connectionDescription.h"
 #include "global.h"
 
-#include <co/base/clock.h>
-#include <co/base/sleep.h>
+#include <lunchbox/clock.h>
+#include <lunchbox/sleep.h>
 
 #include <arpa/inet.h>
 #include <errno.h>
@@ -339,7 +339,7 @@ err:
 
     if( retry && ( ++attempt <= RDMA_CONNECT_ATTEMPTS ))
     {
-        co::base::sleep( RDMA_CONNECT_RETRY_SLEEP );
+        lunchbox::sleep( RDMA_CONNECT_RETRY_SLEEP );
         goto retry;
     }
 
@@ -381,7 +381,7 @@ bool RDMAConnection::listen( )
     if( ::rdma_set_option( _cm_id, RDMA_OPTION_ID, RDMA_OPTION_ID_REUSEADDR,
             (void *)&ONE, sizeof(ONE) ))
     {
-        EQERROR << "rdma_set_option : " << base::sysError << std::endl;
+        EQERROR << "rdma_set_option : " << lunchbox::sysError << std::endl;
         goto err;
     }
 #endif
@@ -431,7 +431,7 @@ void RDMAConnection::close( )
 {
     EQVERB << (void *)this << ".close( )" << std::endl;
 
-    base::ScopedMutex<> close_mutex( _close_lock );
+    lunchbox::ScopedMutex<> close_mutex( _close_lock );
 
     if( STATE_CLOSED != _state )
     {
@@ -439,14 +439,14 @@ void RDMAConnection::close( )
         setState( STATE_CLOSING );
 
 #if 0
-        base::Clock clock;
+        lunchbox::Clock clock;
         const int64_t start = clock.getTime64( );
         const uint32_t timeout = Global::getTimeout( );
 
         // Wait for outstanding acks.
         while( !_rptr.isEmpty( ) && _established && _pollCQ( ))
         {
-            if( EQ_TIMEOUT_INDEFINITE != timeout )
+            if( LB_TIMEOUT_INDEFINITE != timeout )
             {
                 if(( clock.getTime64( ) - start ) > timeout )
                 {
@@ -455,7 +455,7 @@ void RDMAConnection::close( )
                 }
             }
 
-            co::base::Thread::yield( );
+            lunchbox::Thread::yield( );
         }
 #endif
 
@@ -465,7 +465,7 @@ void RDMAConnection::close( )
         // without getting a error (and spitting out a unnecessary warning).
         if( _cm_id && _cm_id->qp && ( _cm_id->qp->state > IBV_QPS_INIT ) &&
                 ::rdma_disconnect( _cm_id ))
-            EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
+            EQWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
 
         _established = false;
 
@@ -503,7 +503,7 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
 //    EQWARN << (void *)this << std::dec << ".read(" << bytes << ")"
 //       << std::endl;
 
-    base::Clock clock;
+    lunchbox::Clock clock;
     const int64_t start = clock.getTime64( );
     const uint32_t timeout = Global::getTimeout( );
 
@@ -530,7 +530,7 @@ retry2:
             goto err;
         }
 
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -540,7 +540,7 @@ retry2:
         }
 
         //EQWARN << "Sink buffer empty." << std::endl;
-        co::base::Thread::yield( );
+        lunchbox::Thread::yield( );
         if( _sinkptr.isEmpty( ))
         {
             _stats.buffer_empty++;
@@ -554,7 +554,7 @@ retry2:
 
     if(( 0L == _credits ) && _established )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -564,7 +564,7 @@ retry2:
         }
 
         //EQWARN << "No credit for flow control." << std::endl;
-        co::base::Thread::yield( );
+        lunchbox::Thread::yield( );
         _stats.no_credits_fc++;
         goto retry2;
     }
@@ -580,7 +580,7 @@ retry2:
         // when we receive more.  Take the poll mutex so another thread in
         // write() can't take events off the CQ (or modify _sinkptr) between
         // check and rearm.
-        base::ScopedWrite poll_mutex( _poll_lock );
+        lunchbox::ScopedWrite poll_mutex( _poll_lock );
 
         if( _sinkptr.isEmpty( ) && !_rearmCQ( ))
         {
@@ -610,7 +610,7 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     if( STATE_CONNECTED != _state )
         return -1LL;
 
-    base::Clock clock;
+    lunchbox::Clock clock;
     const int64_t start = clock.getTime64( );
     const uint32_t timeout = Global::getTimeout( );
 
@@ -640,7 +640,7 @@ retry:
 
     if( 0L == _credits )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -650,7 +650,7 @@ retry:
         }
 
         //EQWARN << "No credits for RDMA." << std::endl;
-        co::base::Thread::yield( );
+        lunchbox::Thread::yield( );
         _stats.no_credits_rdma++;
         goto retry;
     }
@@ -660,7 +660,7 @@ retry:
 
     if( 0UL == bytes_put )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -670,7 +670,7 @@ retry:
         }
 
         //EQWARN << "Source buffer full." << std::endl;
-        co::base::Thread::yield( );
+        lunchbox::Thread::yield( );
         if( _sourceptr.isFull( ) || _rptr.isFull( ))
         {
             _stats.buffer_full++;
@@ -740,7 +740,7 @@ void RDMAConnection::_cleanup( )
     _cm_id = NULL;
 
     if(( NULL != _pd ) && ::rdma_seterrno( ::ibv_dealloc_pd( _pd )))
-        EQWARN << "ibv_dealloc_pd : " << base::sysError << std::endl;
+        EQWARN << "ibv_dealloc_pd : " << lunchbox::sysError << std::endl;
     _pd = NULL;
 
     if( NULL != _cm )
@@ -950,7 +950,7 @@ bool RDMAConnection::_lookupAddress( const bool passive )
 
     if(( NULL != node ) && ::rdma_getaddrinfo( node, service, &hints, &_rai ))
     {
-        EQERROR << "rdma_getaddrinfo : " << base::sysError << std::endl;
+        EQERROR << "rdma_getaddrinfo : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1011,7 +1011,7 @@ bool RDMAConnection::_createEventChannel( )
     _cm = ::rdma_create_event_channel( );
     if( NULL == _cm )
     {
-        EQERROR << "rdma_create_event_channel : " << base::sysError <<
+        EQERROR << "rdma_create_event_channel : " << lunchbox::sysError <<
             std::endl;
         goto err;
     }
@@ -1028,7 +1028,7 @@ bool RDMAConnection::_createId( )
 
     if( ::rdma_create_id( _cm, &_cm_id, NULL, RDMA_PS_TCP ))
     {
-        EQERROR << "rdma_create_id : " << base::sysError << std::endl;
+        EQERROR << "rdma_create_id : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1046,7 +1046,7 @@ bool RDMAConnection::_createQP( )
     _pd = ::ibv_alloc_pd( _cm_id->verbs );
     if( NULL == _pd )
     {
-        EQERROR << "ibv_alloc_pd : " << base::sysError << std::endl;
+        EQERROR << "ibv_alloc_pd : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1061,28 +1061,28 @@ bool RDMAConnection::_createQP( )
 
     if( ::rdma_create_qp( _cm_id, _pd, &init_attr ))
     {
-        EQERROR << "rdma_create_qp : " << base::sysError << std::endl;
+        EQERROR << "rdma_create_qp : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
     flags = ::fcntl( _cm_id->recv_cq_channel->fd, F_GETFL );
     if( -1 == flags )
     {
-        EQERROR << "fcntl : " << base::sysError << std::endl;
+        EQERROR << "fcntl : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
     flags |= O_NONBLOCK;
     if( ::fcntl( _cm_id->recv_cq_channel->fd, F_SETFL, flags ))
     {
-        EQERROR << "fcntl : " << base::sysError << std::endl;
+        EQERROR << "fcntl : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
     // Request only solicited events (i.e. don't wake up Collage on ACKs).
     if( ::rdma_seterrno( ::ibv_req_notify_cq( _cm_id->recv_cq, 1 )))
     {
-        EQERROR << "ibv_req_notify_cq : " << base::sysError << std::endl;
+        EQERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1136,7 +1136,7 @@ bool RDMAConnection::_resolveAddress( )
     if( ::rdma_resolve_addr( _cm_id, _rai->ai_src_addr, _rai->ai_dst_addr,
             _timeout ))
     {
-        EQERROR << "rdma_resolve_addr : " << base::sysError << std::endl;
+        EQERROR << "rdma_resolve_addr : " << lunchbox::sysError << std::endl;
         goto err;
     }
     // Block for RDMA_CM_EVENT_ADDR_RESOLVED.
@@ -1157,7 +1157,7 @@ bool RDMAConnection::_resolveRoute( )
         if( ::rdma_set_option( _cm_id, RDMA_OPTION_IB, RDMA_OPTION_IB_PATH,
                 _rai->ai_route, _rai->ai_route_len ))
         {
-            EQERROR << "rdma_set_option : " << base::sysError << std::endl;
+            EQERROR << "rdma_set_option : " << lunchbox::sysError << std::endl;
             goto err;
         }
 
@@ -1167,7 +1167,7 @@ bool RDMAConnection::_resolveRoute( )
 
     if( ::rdma_resolve_route( _cm_id, _timeout ))
     {
-        EQERROR << "rdma_resolve_route : " << base::sysError << std::endl;
+        EQERROR << "rdma_resolve_route : " << lunchbox::sysError << std::endl;
         goto err;
     }
     // Block for RDMA_CM_EVENT_ROUTE_RESOLVED.
@@ -1188,7 +1188,7 @@ bool RDMAConnection::_connect( )
     if( ::rdma_set_option( _cm_id, RDMA_OPTION_ID, RDMA_OPTION_ID_TOS,
             (void *)&DSCP, sizeof(DSCP) ))
     {
-        EQERROR << "rdma_set_option : " << base::sysError << std::endl;
+        EQERROR << "rdma_set_option : " << lunchbox::sysError << std::endl;
         goto err;
     }
 #endif
@@ -1218,7 +1218,7 @@ bool RDMAConnection::_connect( )
 
     if( ::rdma_connect( _cm_id, &conn_param ))
     {
-        EQERROR << "rdma_connect : " << base::sysError << std::endl;
+        EQERROR << "rdma_connect : " << lunchbox::sysError << std::endl;
         goto err;
     }
     // Block for RDMA_CM_EVENT_ESTABLISHED (TODO : timeout).
@@ -1249,7 +1249,7 @@ bool RDMAConnection::_bindAddress( )
     if( ::rdma_bind_addr( _cm_id, ( NULL != _rai ) ? _rai->ai_src_addr :
             reinterpret_cast< struct sockaddr * >( &sin )))
     {
-        EQERROR << "rdma_bind_addr : " << base::sysError << std::endl;
+        EQERROR << "rdma_bind_addr : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1265,7 +1265,7 @@ bool RDMAConnection::_listen( )
 
     if( ::rdma_listen( _cm_id, SOMAXCONN ))
     {
-        EQERROR << "rdma_listen : " << base::sysError << std::endl;
+        EQERROR << "rdma_listen : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1282,7 +1282,7 @@ bool RDMAConnection::_migrateId( )
 
     if( ::rdma_migrate_id( _cm_id, _cm ))
     {
-        EQERROR << "rdma_migrate_id : " << base::sysError << std::endl;
+        EQERROR << "rdma_migrate_id : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1321,7 +1321,7 @@ bool RDMAConnection::_accept( )
 
     if( ::rdma_accept( _cm_id, &accept_param ))
     {
-        EQERROR << "rdma_accept : " << base::sysError << std::endl;
+        EQERROR << "rdma_accept : " << lunchbox::sysError << std::endl;
         goto err;
     }
     // Block for RDMA_CM_EVENT_ESTABLISHED (TODO : timeout).
@@ -1335,7 +1335,7 @@ bool RDMAConnection::_reject( )
 {
     if( ::rdma_reject( _cm_id, NULL, 0 ))
     {
-        EQERROR << "rdma_reject : " << base::sysError << std::endl;
+        EQERROR << "rdma_reject : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1369,7 +1369,7 @@ bool RDMAConnection::_postReceives( const uint32_t count )
     struct ibv_recv_wr *bad_wr;
     if( ::rdma_seterrno( ::ibv_post_recv( _cm_id->qp, wrs, &bad_wr )))
     {
-        EQERROR << "ibv_post_recv : "  << base::sysError << std::endl;
+        EQERROR << "ibv_post_recv : "  << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1422,7 +1422,7 @@ bool RDMAConnection::_postRDMAWrite( )
     struct ibv_send_wr *bad_wr;
     if( ::rdma_seterrno( ::ibv_post_send( _cm_id->qp, &wr, &bad_wr )))
     {
-        EQERROR << "ibv_post_send : "  << base::sysError << std::endl;
+        EQERROR << "ibv_post_send : "  << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1478,7 +1478,7 @@ bool RDMAConnection::_postMessage( const RDMAMessage &message )
             offsetof( RDMAMessage, payload ) + message.length, _msgbuf.getMR( ),
             0 /*IBV_SEND_INLINE*/ ))
     {
-        EQERROR << "rdma_post_send : "  << base::sysError << std::endl;
+        EQERROR << "rdma_post_send : "  << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1533,7 +1533,7 @@ bool RDMAConnection::_postSetup( )
 
 bool RDMAConnection::_waitRecvSetup( )
 {
-    base::Clock clock;
+    lunchbox::Clock clock;
     const int64_t start = clock.getTime64( );
     const uint32_t timeout = Global::getTimeout( );
 
@@ -1546,7 +1546,7 @@ retry:
 
     if(( 0ULL == _rkey ) && _established )
     {
-        if( EQ_TIMEOUT_INDEFINITE != timeout )
+        if( LB_TIMEOUT_INDEFINITE != timeout )
         {
             if(( clock.getTime64( ) - start ) > timeout )
             {
@@ -1555,7 +1555,7 @@ retry:
             }
         }
 
-        co::base::Thread::yield( );
+        lunchbox::Thread::yield( );
         goto retry;
     }
 
@@ -1575,7 +1575,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
 
     if( ::rdma_get_cm_event( channel, &event ))
     {
-        EQERROR << "rdma_get_cm_event : " << base::sysError << std::endl;
+        EQERROR << "rdma_get_cm_event : " << lunchbox::sysError << std::endl;
         goto out;
     }
 
@@ -1630,7 +1630,7 @@ bool RDMAConnection::_doCMEvent( struct rdma_event_channel *channel,
         EQINFO << "Connection reject status : " << event->status << std::endl;
 
     if( ::rdma_ack_cm_event( event ))
-        EQWARN << "rdma_ack_cm_event : "  << base::sysError << std::endl;
+        EQWARN << "rdma_ack_cm_event : "  << lunchbox::sysError << std::endl;
 
 out:
     return ok;
@@ -1642,13 +1642,13 @@ bool RDMAConnection::_pollCQ( )
     uint32_t num_recvs = 0UL;
     int count;
 
-    base::ScopedWrite poll_mutex( _poll_lock );
+    lunchbox::ScopedWrite poll_mutex( _poll_lock );
 
     /* CHECK RECEIVE COMPLETIONS */
     count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
     if( count < 0 )
     {
-        EQERROR << "ibv_poll_cq : " << base::sysError << std::endl;
+        EQERROR << "ibv_poll_cq : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1696,7 +1696,7 @@ bool RDMAConnection::_pollCQ( )
     count = ::ibv_poll_cq( _cm_id->send_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
     if( count < 0 )
     {
-        EQERROR << "ibv_poll_cq : " << base::sysError << std::endl;
+        EQERROR << "ibv_poll_cq : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1759,7 +1759,7 @@ bool RDMAConnection::_rearmCQ( )
         if( EAGAIN == errno )
             goto rearm;
 
-        EQERROR << "ibv_get_cq_event : " << base::sysError << std::endl;
+        EQERROR << "ibv_get_cq_event : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1775,7 +1775,7 @@ rearm:
     // Solicited only!
     if( ::rdma_seterrno( ::ibv_req_notify_cq( _cm_id->recv_cq, 1 )))
     {
-        EQERROR << "ibv_req_notify_cq : " << base::sysError << std::endl;
+        EQERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1809,9 +1809,9 @@ uint32_t RDMAConnection::_fill( const void *buffer, const uint32_t bytes )
 //////////////////////////////////////////////////////////////////////////////
 
 RDMAConnection::ChannelEventThread *RDMAConnection::_event_thread = NULL;
-base::Lock RDMAConnection::_thread_lock;
+lunchbox::Lock RDMAConnection::_thread_lock;
 
-class RDMAConnection::ChannelEventThread : public base::Thread
+class RDMAConnection::ChannelEventThread : public lunchbox::Thread
 {
 public:
     ChannelEventThread( );
@@ -1848,15 +1848,15 @@ RDMAConnection::ChannelEventThread::~ChannelEventThread( )
 
         ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
         if( ::epoll_ctl( _epoll_fd, EPOLL_CTL_DEL, _event_fd, &evctl ))
-            EQWARN << "epoll_ctl : " << base::sysError << std::endl;
+            EQWARN << "epoll_ctl : " << lunchbox::sysError << std::endl;
     }
 
     if(( _epoll_fd >= 0 ) && TEMP_FAILURE_RETRY( ::close( _epoll_fd )))
-        EQWARN << "close : " << base::sysError << std::endl;
+        EQWARN << "close : " << lunchbox::sysError << std::endl;
     _epoll_fd = -1;
 
     if(( _event_fd >= 0 ) && TEMP_FAILURE_RETRY( ::close( _event_fd )))
-        EQWARN << "close : " << base::sysError << std::endl;
+        EQWARN << "close : " << lunchbox::sysError << std::endl;
     _event_fd = -1;
 }
 
@@ -1867,14 +1867,14 @@ bool RDMAConnection::ChannelEventThread::init( )
     _event_fd = ::eventfd( 0, 0 );
     if( _event_fd < 0 )
     {
-        EQERROR << "eventfd : " << base::sysError << std::endl;
+        EQERROR << "eventfd : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
     _epoll_fd = ::epoll_create1( 0 );
     if( _epoll_fd < 0 )
     {
-        EQERROR << "epoll_create1 : " << base::sysError << std::endl;
+        EQERROR << "epoll_create1 : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1883,7 +1883,7 @@ bool RDMAConnection::ChannelEventThread::init( )
     evctl.data.ptr = reinterpret_cast< void * >( &_context );
     if( ::epoll_ctl( _epoll_fd, EPOLL_CTL_ADD, _event_fd, &evctl ))
     {
-        EQERROR << "epoll_ctl : " << base::sysError << std::endl;
+        EQERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1906,7 +1906,7 @@ void RDMAConnection::ChannelEventThread::run( )
         int n = TEMP_FAILURE_RETRY( ::epoll_wait( _epoll_fd, &event, 1, -1 ));
         if( n < 0 )
         {
-            EQERROR << "epoll_wait : " << base::sysError << std::endl;
+            EQERROR << "epoll_wait : " << lunchbox::sysError << std::endl;
             break;
         }
 
@@ -1922,7 +1922,7 @@ void RDMAConnection::ChannelEventThread::run( )
 
             if( ::read( _event_fd, (void *)&one, sizeof(one) ) != sizeof(one) )
             {
-                EQERROR << "read : " << base::sysError << std::endl;
+                EQERROR << "read : " << lunchbox::sysError << std::endl;
                 break;
             }
 
@@ -1942,7 +1942,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 if( ::epoll_ctl( _epoll_fd, EPOLL_CTL_ADD, to_add->_cm->fd,
                         &evctl ))
                 {
-                    EQERROR << "epoll_ctl : " << base::sysError << std::endl;
+                    EQERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
                     to_add->_cmd_block.set( CMD_FAIL );
                 }
                 else
@@ -1962,7 +1962,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 if( ::epoll_ctl( _epoll_fd, EPOLL_CTL_DEL, to_remove->_cm->fd,
                         &evctl ))
                 {
-                    EQWARN << "epoll_ctl : " << base::sysError << std::endl;
+                    EQWARN << "epoll_ctl : " << lunchbox::sysError << std::endl;
                     to_remove->_cmd_block.set( CMD_FAIL );
                 }
                 else
@@ -1989,7 +1989,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 EQWARN << "Unexpected event on connection." << std::endl;
             // TODO : should we rdma_disconnect on *any* event?
             else if( ::rdma_disconnect( conn->_cm_id ))
-                EQWARN << "rdma_disconnect : " << base::sysError << std::endl;
+                EQWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
         }
         else
             EQUNREACHABLE;
@@ -2001,7 +2001,7 @@ bool RDMAConnection::ChannelEventThread::_wake( )
 {
     if( ::write( _event_fd, (const void *)&ONE, sizeof(ONE) ) != sizeof(ONE) )
     {
-        EQERROR << "write : " << base::sysError << std::endl;
+        EQERROR << "write : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -2053,7 +2053,7 @@ bool RDMAConnection::ChannelEventThread::remove( RDMAConnection *conn )
 
 bool RDMAConnection::_eventThreadRegister( )
 {
-    base::ScopedMutex<> thread_mutex( RDMAConnection::_thread_lock );
+    lunchbox::ScopedMutex<> thread_mutex( RDMAConnection::_thread_lock );
 
     if( NULL == RDMAConnection::_event_thread )
     {
@@ -2076,7 +2076,7 @@ err:
 
 void RDMAConnection::_eventThreadUnregister( )
 {
-    base::ScopedMutex<> thread_mutex( RDMAConnection::_thread_lock );
+    lunchbox::ScopedMutex<> thread_mutex( RDMAConnection::_thread_lock );
 
     if( _registered )
     {
@@ -2127,7 +2127,7 @@ void BufferPool::clear( )
     _ring.clear( _num_bufs );
 
     if(( NULL != _mr ) && ::rdma_dereg_mr( _mr ))
-        EQWARN << "rdma_dereg_mr : " << base::sysError << std::endl;
+        EQWARN << "rdma_dereg_mr : " << lunchbox::sysError << std::endl;
     _mr = NULL;
 
     if( NULL != _buffer )
@@ -2147,7 +2147,7 @@ bool BufferPool::resize( ibv_pd *pd, uint32_t num_bufs )
         if( ::posix_memalign( &_buffer, (size_t)::getpagesize( ),
                 (size_t)( _num_bufs * _buffer_size )))
         {
-            EQERROR << "posix_memalign : " << base::sysError << std::endl;
+            EQERROR << "posix_memalign : " << lunchbox::sysError << std::endl;
             goto err;
         }
 
@@ -2156,7 +2156,7 @@ bool BufferPool::resize( ibv_pd *pd, uint32_t num_bufs )
             IBV_ACCESS_LOCAL_WRITE );
         if( NULL == _mr )
         {
-            EQERROR << "ibv_reg_mr : " << base::sysError << std::endl;
+            EQERROR << "ibv_reg_mr : " << lunchbox::sysError << std::endl;
             goto err;
         }
 
@@ -2188,11 +2188,11 @@ RingBuffer::~RingBuffer( )
 void RingBuffer::clear( )
 {
     if(( NULL != _mr ) && ::rdma_dereg_mr( _mr ))
-        EQWARN << "rdma_dereg_mr : " << base::sysError << std::endl;
+        EQWARN << "rdma_dereg_mr : " << lunchbox::sysError << std::endl;
     _mr = NULL;
 
     if(( MAP_FAILED != _map ) && ::munmap( _map, _size << 1 ))
-        EQWARN << "munmap : " << base::sysError << std::endl;
+        EQWARN << "munmap : " << lunchbox::sysError << std::endl;
     _map = MAP_FAILED;
 
     _size = 0;
@@ -2215,19 +2215,19 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
         fd = ::mkstemp( path );
         if( fd < 0 )
         {
-            EQERROR << "mkstemp : " << base::sysError << std::endl;
+            EQERROR << "mkstemp : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
         if( ::unlink( path ))
         {
-            EQERROR << "unlink : " << base::sysError << std::endl;
+            EQERROR << "unlink : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
         if( ::ftruncate( fd, _size ))
         {
-            EQERROR << "ftruncate : " << base::sysError << std::endl;
+            EQERROR << "ftruncate : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
@@ -2236,7 +2236,7 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
             MAP_ANONYMOUS | MAP_PRIVATE, -1, 0 );
         if( MAP_FAILED == _map )
         {
-            EQERROR << "mmap : " << base::sysError << std::endl;
+            EQERROR << "mmap : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
@@ -2245,7 +2245,7 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
             MAP_FIXED | MAP_SHARED, fd, 0 );
         if( MAP_FAILED == addr1 )
         {
-            EQERROR << "mmap : " << base::sysError << std::endl;
+            EQERROR << "mmap : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
@@ -2254,14 +2254,14 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
             MAP_FIXED | MAP_SHARED, fd, 0 );
         if( MAP_FAILED == addr2 )
         {
-            EQERROR << "mmap : " << base::sysError << std::endl;
+            EQERROR << "mmap : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
         _mr = ::ibv_reg_mr( pd, _map, _size << 1, _access );
         if( NULL == _mr )
         {
-            EQERROR << "ibv_reg_mr : " << base::sysError << std::endl;
+            EQERROR << "ibv_reg_mr : " << lunchbox::sysError << std::endl;
             goto out;
         }
 
@@ -2278,7 +2278,7 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
 
 out:
     if(( fd >= 0 ) && TEMP_FAILURE_RETRY( ::close( fd )))
-        EQWARN << "close : " << base::sysError << std::endl;
+        EQWARN << "close : " << lunchbox::sysError << std::endl;
 
     return ok;
 }

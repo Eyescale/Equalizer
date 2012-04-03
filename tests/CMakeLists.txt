@@ -1,7 +1,7 @@
 # Copyright (c) 2010 Daniel Pfeifer
 #               2010-2012, Stefan Eilemann <eile@eyescale.ch>
 #
-# Change this number when adding tests to force a CMake run: 6
+# Change this number when adding tests to force a CMake run: 7
 
 option(EQUALIZER_BUILD_TESTS "Build Equalizer unit tests." ON)
 option(EQUALIZER_RUN_GPU_TESTS "Run Equalizer unit tests using a GPU." OFF)
@@ -70,7 +70,13 @@ foreach(FILE ${TEST_FILES})
       get_target_property(EXECUTABLE ${NAME} LOCATION)
       STRING(REGEX REPLACE "\\$\\(.*\\)" "\${CTEST_CONFIGURATION_TYPE}"
              EXECUTABLE "${EXECUTABLE}")
+
       add_test(${NAME} ${EXECUTABLE})
+      if(APPLE)
+        set_property(TEST ${NAME} PROPERTY ENVIRONMENT
+          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIR}:$ENV{DYLD_LIBRARY_PATH}"
+          )
+      endif()
     endif()
     list(APPEND ALL_TESTS ${NAME})
   endif()

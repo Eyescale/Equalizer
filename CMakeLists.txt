@@ -37,7 +37,7 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "5")
-set(CO_VERSION_PATCH "0")
+set(CO_VERSION_PATCH "1")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
@@ -89,6 +89,7 @@ if(DOXYGEN_FOUND)
 endif()
 
 include(configure)
+include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 

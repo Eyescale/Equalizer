@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2008-2009, Cedric Stalder <cedric.stalder@gmail.com>
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,7 +35,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     : _fboID( 0 )
     , _depth( textureTarget, glewContext )
     , _glewContext( glewContext )
-    , _error( co::base::ERROR_NONE )
+    , _error( co::ERROR_NONE )
     , _valid( false )
 {
     EQASSERT( GLEW_EXT_framebuffer_object );
@@ -54,7 +54,7 @@ FrameBufferObject::~FrameBufferObject()
 
 void FrameBufferObject::_setError( const int32_t error )
 {
-    _error = co::base::Error( error );
+    _error = co::Error( error );
 }
 
 bool FrameBufferObject::addColorTexture()
@@ -77,7 +77,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
                               const int32_t depthSize,
                               const int32_t stencilSize )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     if( _fboID )
     {
@@ -117,7 +117,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
 
 void FrameBufferObject::exit()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     if( _fboID )
     {
         glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
@@ -173,7 +173,7 @@ bool FrameBufferObject::_checkStatus()
 
 void FrameBufferObject::bind()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERT( _fboID );
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 }
@@ -185,7 +185,7 @@ void FrameBufferObject::unbind()
 
 bool FrameBufferObject::resize( const int32_t width, const int32_t height )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     EQASSERT( width > 0 && height > 0 );
 
     EQASSERT( !_colors.empty( ));

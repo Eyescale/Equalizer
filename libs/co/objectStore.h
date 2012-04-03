@@ -22,9 +22,9 @@
 #include <co/dispatcher.h>    // base class
 #include <co/version.h>       // enum
 
-#include <co/base/lockable.h>  // member
-#include <co/base/spinLock.h>  // member
-#include <co/base/stdExt.h>    // member
+#include <lunchbox/lockable.h>  // member
+#include <lunchbox/spinLock.h>  // member
+#include <lunchbox/stdExt.h>    // member
 
 #include "dataIStreamQueue.h"  // member
 
@@ -83,11 +83,11 @@ namespace co
         virtual void deregisterObject( Object* object );
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+        uint32_t mapObjectNB( Object* object, const UUID& id, 
                               const uint128_t& version );
 
         /** Start mapping a distributed object. */
-        uint32_t mapObjectNB( Object* object, const base::UUID& id, 
+        uint32_t mapObjectNB( Object* object, const UUID& id, 
                               const uint128_t& version, NodePtr master );
 
         /** Finalize the mapping of a distributed object. */
@@ -112,7 +112,7 @@ namespace co
          * @param instanceID the node-local instance identifier, or
          *                   EQ_ID_INVALID if this method should generate one.
          */
-        void attachObject( Object* object, const base::UUID& id, 
+        void attachObject( Object* object, const UUID& id, 
                            const uint32_t instanceID );
 
         /** 
@@ -170,12 +170,12 @@ namespace co
         LocalNode* const _localNode;
 
         /** The identifiers for node-local instance identifiers. */
-        base::a_int32_t _instanceIDs;
+        lunchbox::a_int32_t _instanceIDs;
 
         /** enableSendOnRegister() invocations. */
-        base::a_int32_t _sendOnRegister;
+        lunchbox::a_int32_t _sendOnRegister;
 
-        typedef stde::hash_map< base::uint128_t, Objects > ObjectsHash;
+        typedef stde::hash_map< lunchbox::uint128_t, Objects > ObjectsHash;
         typedef ObjectsHash::const_iterator ObjectsHashCIter;
 
         /** All registered and mapped objects. 
@@ -183,7 +183,7 @@ namespace co
          *   - read unlocked in receiver thread 
          *   - read locked in all other threads
          */
-        base::Lockable< ObjectsHash, base::SpinLock > _objects;
+        lunchbox::Lockable< ObjectsHash, lunchbox::SpinLock > _objects;
 
         struct SendQueueItem
         {
@@ -204,11 +204,11 @@ namespace co
          * @return the master node, or UUID::ZERO if no master node is
          *         found for the identifier.
          */
-        NodeID _findMasterNodeID( const base::UUID& id );
+        NodeID _findMasterNodeID( const UUID& id );
  
-        NodePtr _connectMaster( const base::UUID& id );
+        NodePtr _connectMaster( const UUID& id );
 
-        void _attachObject( Object* object, const base::UUID& id, 
+        void _attachObject( Object* object, const UUID& id, 
                             const uint32_t instanceID );
         void _detachObject( Object* object );
 
@@ -229,8 +229,8 @@ namespace co
         bool _cmdRemoveNode( Command& command );
         bool _cmdObjectPush( Command& command );
 
-        EQ_TS_VAR( _receiverThread );
-        EQ_TS_VAR( _commandThread );
+        LB_TS_VAR( _receiverThread );
+        LB_TS_VAR( _commandThread );
     };
 
     std::ostream& operator << ( std::ostream& os, ObjectStore* objectStore );

@@ -18,11 +18,11 @@
 #include "object.h"
 
 #include "command.h"
+#include "cpuCompressor.h"
 #include "dataIStream.h"
 #include "dataOStream.h"
 #include "deltaMasterCM.h"
 #include "fullMasterCM.h"
-#include "versionedSlaveCM.h"
 #include "log.h"
 #include "nodePackets.h"
 #include "nullCM.h"
@@ -31,9 +31,9 @@
 #include "staticSlaveCM.h"
 #include "types.h"
 #include "unbufferedMasterCM.h"
+#include "versionedSlaveCM.h"
 
-#include "base/cpuCompressor.h"
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <iostream>
 
 namespace co
@@ -69,7 +69,7 @@ Object::~Object()
 
 typedef CommandFunc<Object> CmdFunc;
 
-void Object::attach( const base::UUID& id, const uint32_t instanceID )
+void Object::attach( const UUID& id, const uint32_t instanceID )
 {
     EQASSERT( !isAttached() );
     EQASSERT( _localNode );
@@ -78,7 +78,7 @@ void Object::attach( const base::UUID& id, const uint32_t instanceID )
     _id         = id;
     _instanceID = instanceID;
     EQLOG( LOG_OBJECTS )
-        << _id << '.' << _instanceID << ": " << base::className( this )
+        << _id << '.' << _instanceID << ": " << lunchbox::className( this )
         << (isMaster() ? " master" : " slave") << std::endl;
 }
 
@@ -99,7 +99,7 @@ void Object::notifyDetach()
         return;
 
     EQWARN << slaves.size() << " slaves subscribed during deregisterObject of "
-           << base::className( this ) << " id " << _id << std::endl;
+           << lunchbox::className( this ) << " id " << _id << std::endl;
 
     NodeUnmapObjectPacket packet;
     packet.objectID = _id;
@@ -130,19 +130,19 @@ void Object::_setChangeManager( ObjectCM* cm )
     {
         EQVERB
             << "Overriding existing object change manager, obj "
-            << base::className( this ) << ", old cm " << base::className( _cm )
-            << ", new cm " << base::className( cm ) << std::endl;
+            << lunchbox::className( this ) << ", old cm " << lunchbox::className( _cm )
+            << ", new cm " << lunchbox::className( cm ) << std::endl;
         delete _cm;
     }
 
     _cm = cm;
     cm->init();
-    EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
-                         << " for " << base::className( this ) 
+    EQLOG( LOG_OBJECTS ) << "set new change manager " << lunchbox::className( cm )
+                         << " for " << lunchbox::className( this ) 
                          << std::endl;
 }
 
-void Object::setID( const base::UUID& identifier )
+void Object::setID( const UUID& identifier )
 {
     EQASSERT( !isAttached( ));
     EQASSERT( identifier.isGenerated( ));
@@ -258,9 +258,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
+void Object::addSlave( Command& command )
 {
-    _cm->addSlave( command, reply );
+    _cm->addSlave( command );
 }
 
 void Object::removeSlave( NodePtr node )
@@ -315,12 +315,12 @@ void Object::notifyNewHeadVersion( const uint128_t& version )
 { 
     EQASSERTINFO( getVersion() == VERSION_NONE || 
                   version < getVersion() + 100, 
-                  base::className( this ));
+                  lunchbox::className( this ));
 }
 
 uint32_t Object::chooseCompressor() const
 {
-    return base::CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
+    return CPUCompressor::chooseCompressor( EQ_COMPRESSOR_DATATYPE_BYTE );
 }
 
 uint32_t Object::getMasterInstanceID() const
@@ -335,7 +335,7 @@ NodePtr Object::getMasterNode()
 
 std::ostream& operator << ( std::ostream& os, const Object& object )
 {
-    os << base::className( &object ) << " " << object.getID() << "."
+    os << lunchbox::className( &object ) << " " << object.getID() << "."
        << object.getInstanceID() << " v" << object.getVersion();
     return os;
 }

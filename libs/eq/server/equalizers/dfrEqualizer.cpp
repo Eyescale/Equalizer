@@ -24,7 +24,7 @@
 
 #include <eq/client/statistic.h>
 #include <eq/fabric/zoom.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {
@@ -102,15 +102,15 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     const Channel*           channel    = compound->getChannel();
     const eq::PixelViewport& channelPVP = channel->getPixelViewport();
    
-    const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
+    const float minZoom = 128.f / LB_MIN( static_cast< float >( pvp.h ),
                                           static_cast< float >( pvp.w ));
-    const float maxZoom = EQ_MIN( static_cast< float >( channelPVP.w ) /
+    const float maxZoom = LB_MIN( static_cast< float >( channelPVP.w ) /
                                   static_cast< float >( pvp.w ),
                                   static_cast< float >( channelPVP.h ) /
                                   static_cast< float >( pvp.h ));
    
-    newZoom.x() = EQ_MAX( newZoom.x(), minZoom ); 
-    newZoom.x() = EQ_MIN( newZoom.x(), maxZoom );
+    newZoom.x() = LB_MAX( newZoom.x(), minZoom ); 
+    newZoom.x() = LB_MIN( newZoom.x(), maxZoom );
     newZoom.y() = newZoom.x(); 
 
     compound->setZoom( newZoom );
@@ -132,7 +132,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
-                endTime = EQ_MAX( endTime, data.endTime );
+                endTime = LB_MAX( endTime, data.endTime );
                 break;
                 
             default:
@@ -159,7 +159,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( !lb )
         return os;
 
-    os << co::base::disableFlush
+    os << lunchbox::disableFlush
        << "DFR_equalizer " << std::endl
        << '{' << std::endl
        << "    framerate " << lb->getFrameRate() << std::endl;
@@ -167,7 +167,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
     
-    os << '}' << std::endl << co::base::enableFlush;
+    os << '}' << std::endl << lunchbox::enableFlush;
     return os;
 }
 

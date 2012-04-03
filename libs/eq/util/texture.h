@@ -22,8 +22,8 @@
 #include <eq/client/gl.h>           // GLEW
 #include <eq/client/frame.h>        // Frame::Buffer enum
 
-#include <co/base/thread.h>         // thread debug macro
-#include <co/base/nonCopyable.h>    // base class
+#include <lunchbox/thread.h>         // thread debug macro
+#include <lunchbox/nonCopyable.h>    // base class
 
 namespace eq
 {
@@ -37,7 +37,7 @@ namespace util
      * So far used by the Image and Compositor. The target is assumed to be
      * GL_TEXTURE_RECTANGLE_ARB or GL_TEXTURE_2D.
      */
-    class Texture : public co::base::NonCopyable
+    class Texture : public lunchbox::NonCopyable
     {
     public:
         /**
@@ -238,7 +238,7 @@ namespace util
         /** Set the size of the texture, updating the _defined flag. */
         void _grow( const int32_t width, const int32_t height );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 }

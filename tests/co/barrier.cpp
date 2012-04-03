@@ -23,15 +23,15 @@
 #include <co/connectionDescription.h>
 #include <co/init.h>
 #include <co/node.h>
-#include <co/base/monitor.h>
-#include <co/base/rng.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/rng.h>
 
 #include <iostream>
 
-co::base::Monitor< co::Barrier* > _barrier( 0 );
+lunchbox::Monitor< co::Barrier* > _barrier( 0 );
 static uint16_t _port = 0;
 
-class NodeThread : public co::base::Thread
+class NodeThread : public lunchbox::Thread
 {
 public:
     NodeThread( const bool master ) : _master(master) {}
@@ -87,7 +87,7 @@ private:
 int main( int argc, char **argv )
 {
     TEST( co::init( argc, argv ));
-    co::base::RNG rng;
+    lunchbox::RNG rng;
     _port =(rng.get<uint16_t>() % 60000) + 1024;
 
     NodeThread server( true );

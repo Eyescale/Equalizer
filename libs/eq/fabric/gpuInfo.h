@@ -29,7 +29,7 @@ namespace fabric
     struct GPUInfo
     {
         /** Default constructor pointing to default display. */
-        GPUInfo() : port( EQ_UNDEFINED_UINT32 ), device( EQ_UNDEFINED_UINT32 )
+        GPUInfo() : port( LB_UNDEFINED_UINT32 ), device( LB_UNDEFINED_UINT32 )
             {}
 
         /** @return true if both infos are identical. @version 1.0 */
@@ -56,9 +56,9 @@ namespace fabric
     {
         if( !info.hostname.empty( ))
             os << "hostname " << info.hostname << std::endl;
-        if( info.port != EQ_UNDEFINED_UINT32 )
+        if( info.port != LB_UNDEFINED_UINT32 )
             os << "port     " << info.port << std::endl;
-        if( info.device != EQ_UNDEFINED_UINT32 )
+        if( info.device != LB_UNDEFINED_UINT32 )
             os << "device   " << info.device << std::endl;
         if( info.pvp.isValid( ))
             os << "viewport " << info.pvp << std::endl;

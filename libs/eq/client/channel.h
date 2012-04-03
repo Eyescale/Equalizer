@@ -650,7 +650,7 @@ namespace detail { class Channel; }
         bool _cmdFrameTiles( co::Command& command );
         bool _cmdDeleteAsyncContext( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

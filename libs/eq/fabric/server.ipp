@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,7 @@
 
 #include <co/command.h>
 #include <co/connectionDescription.h>
-#include <co/base/global.h>
+#include <co/global.h>
 
 namespace eq
 {
@@ -40,13 +40,13 @@ Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     EQASSERT( nodeFactory );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::~Server()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _client = 0;
     EQASSERT( _configs.empty( ));
 }
@@ -153,9 +153,9 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
-    co::base::Global::setIAttribute( co::base::Global::IATTR_ROBUSTNESS, 
-                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS, 
+                               config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ConfigCreateReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -188,7 +188,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
     localNode->unmapObject( config );
     _nodeFactory->releaseConfig( config );
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -200,9 +200,9 @@ template< class CL, class S, class CFG, class NF, class N, class V >
 std::ostream& operator << ( std::ostream& os, 
                             const Server< CL, S, CFG, NF, N, V >& server )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "server "
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "server "
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
     
     const co::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
@@ -221,8 +221,8 @@ std::ostream& operator << ( std::ostream& os,
         os << *config;
     }
 
-    os << co::base::exdent << "}"  << co::base::enableHeader 
-       << co::base::enableFlush << std::endl;
+    os << lunchbox::exdent << "}"  << lunchbox::enableHeader 
+       << lunchbox::enableFlush << std::endl;
 
     return os;
 }

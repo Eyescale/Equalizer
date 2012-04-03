@@ -32,19 +32,19 @@ namespace eq
                 size    = sizeof( PipeCreateWindowPacket );
             }
 
-        co::base::UUID windowID;
+        UUID windowID;
     };
 
     struct PipeDestroyWindowPacket : public co::ObjectPacket
     {
-        PipeDestroyWindowPacket( const co::base::UUID& id )
+        PipeDestroyWindowPacket( const UUID& id )
                 : windowID( id )
             {
                 command = fabric::CMD_PIPE_DESTROY_WINDOW;
                 size    = sizeof( PipeDestroyWindowPacket );
             }
 
-        const co::base::UUID windowID;
+        const UUID windowID;
     };
 
     struct PipeConfigInitPacket : public co::ObjectPacket

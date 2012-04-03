@@ -26,15 +26,15 @@
 
 #include <eq/fabric/colorMask.h>
 
-#include <co/base/global.h>
-#include <co/base/memoryMap.h>
-#include <co/base/omp.h>
-#include <co/base/pluginRegistry.h>
+#include <co/global.h>
+#include <co/pluginRegistry.h>
+#include <lunchbox/memoryMap.h>
+#include <lunchbox/omp.h>
 
 // Internal headers
-#include "../../co/base/plugin.h"
-#include "../../co/base/compressorInfo.h"
-#include "../../co/base/cpuCompressor.h"
+#include "../../co/plugin.h"
+#include "../../co/compressorInfo.h"
+#include "../../co/cpuCompressor.h"
 #include "../util/gpuCompressor.h"
 
 #include <fstream>
@@ -71,8 +71,8 @@ void Image::flush()
 }
 
 Image::Attachment::Attachment()
-        : fullCompressor( new co::base::CPUCompressor )
-        , lossyCompressor( new co::base::CPUCompressor )
+        : fullCompressor( new co::CPUCompressor )
+        , lossyCompressor( new co::CPUCompressor )
         , fullTransfer( new util::GPUCompressor )
         , lossyTransfer( new util::GPUCompressor )
         , compressor( fullCompressor )
@@ -143,22 +143,20 @@ uint32_t Image::getInternalFormat( const Frame::Buffer buffer ) const
 std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
     const
 {
-    const co::base::PluginRegistry& registry =
-        co::base::Global::getPluginRegistry();
-    const co::base::Plugins& plugins = registry.getPlugins();
+    const co::PluginRegistry& registry = co::Global::getPluginRegistry();
+    const co::Plugins& plugins = registry.getPlugins();
     const uint32_t tokenType = getExternalFormat( buffer );
 
     std::vector< uint32_t > names;
-    for( co::base::Plugins::const_iterator i = plugins.begin();
+    for( co::Plugins::const_iterator i = plugins.begin();
          i != plugins.end(); ++i )
     {
-        const co::base::Plugin* plugin = *i;
-        const co::base::CompressorInfos& infos = plugin->getInfos();
+        const co::Plugin* plugin = *i;
+        const co::CompressorInfos& infos = plugin->getInfos();
 
-        for( co::base::CompressorInfos::const_iterator j = infos.begin();
-             j != infos.end(); ++j )
+        for( co::CompressorInfosCIter j = infos.begin(); j != infos.end(); ++j )
         {
-            const co::base::CompressorInfo& info = *j;
+            const co::CompressorInfo& info = *j;
 
             if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
                 continue;
@@ -178,18 +176,15 @@ void Image::findTransferers( const Frame::Buffer buffer,
                              const GLEWContext* glewContext,
                              std::vector< uint32_t >& names )
 { 
-    co::base::CompressorInfos infos;
+    co::CompressorInfos infos;
     _findTransferers( buffer, glewContext, infos );
-    for( co::base::CompressorInfos::const_iterator i = infos.begin();
-         i != infos.end(); ++i )
-    {
+    for( co::CompressorInfosCIter i = infos.begin(); i != infos.end(); ++i )
         names.push_back( i->name );
-    }
 }
 
 void Image::_findTransferers( const Frame::Buffer buffer,
-                             const GLEWContext* glewContext,
-                             co::base::CompressorInfos& result )
+                              const GLEWContext* glewContext,
+                              co::CompressorInfos& result )
 { 
     util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), getExternalFormat( buffer ),
@@ -207,8 +202,7 @@ uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
     const float quality = attachment.quality /
                           attachment.lossyTransfer->getQuality();
 
-    return co::base::CPUCompressor::chooseCompressor( tokenType, quality,
-                                                  _ignoreAlpha );
+    return co::CPUCompressor::chooseCompressor(tokenType, quality,_ignoreAlpha);
 }
 
 bool Image::hasAlpha() const
@@ -697,7 +691,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     memory.isCompressed = false;
     memory.hasAlpha = false;
 
-    co::base::CompressorInfos transferrers;
+    co::CompressorInfos transferrers;
     _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
 
     if( transferrers.empty( ))
@@ -707,7 +701,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         memory.hasAlpha =
             transferrers.front().capabilities & EQ_COMPRESSOR_IGNORE_ALPHA;
 #ifndef NDEBUG
-        for( co::base::CompressorInfos::const_iterator i = transferrers.begin();
+        for( co::CompressorInfosCIter i = transferrers.begin();
              i != transferrers.end(); ++i )
         {
             EQASSERTINFO( memory.hasAlpha == 
@@ -751,7 +745,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
         return;
     }
 
-    const co::base::CompressorInfo& info = attachment.compressor->getInfo();
+    const co::CompressorInfo& info = attachment.compressor->getInfo();
     if( memory.externalFormat != info.outputTokenType )
     {
         // decompressor output differs from compressor input
@@ -814,7 +808,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
     if( !attachment.compressor->isValid( name ) )
     {
         attachment.memory.isCompressed = false;
-        if( !attachment.compressor->co::base::Compressor::initCompressor(name))
+        if( !attachment.compressor->co::Compressor::initCompressor( name ))
             return false;
 
         EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
@@ -917,7 +911,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         return memory;
     }
 
-    const co::base::CPUCompressor* compressor = attachment.compressor;
+    const co::CPUCompressor* compressor = attachment.compressor;
 
     if( compressor->isValid( attachment.compressor->getName( )) && 
         compressor->getInfo().tokenType == getExternalFormat( buffer ) &&
@@ -1187,7 +1181,7 @@ bool Image::writeImage( const std::string& filename,
 
 bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 {
-    co::base::MemoryMap image;
+    lunchbox::MemoryMap image;
     const uint8_t* addr = static_cast< const uint8_t* >( image.map( filename ));
 
     if( !addr )

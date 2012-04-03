@@ -62,7 +62,7 @@ bool Pipe::configInit()
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
         EQWARN << getError() << " " << XDisplayName( displayName.c_str( ))
-               << ": " << co::base::sysError << std::endl;
+               << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -100,14 +100,14 @@ std::string Pipe::getXDisplayString()
     const uint32_t port   = getPipe()->getPort();
     const uint32_t device = getPipe()->getDevice();
 
-    if( port != EQ_UNDEFINED_UINT32 )
+    if( port != LB_UNDEFINED_UINT32 )
     { 
-        if( device == EQ_UNDEFINED_UINT32 )
+        if( device == LB_UNDEFINED_UINT32 )
             stringStream << ":" << port;
         else
             stringStream << ":" << port << "." << device;
     }
-    else if( device != EQ_UNDEFINED_UINT32 )
+    else if( device != LB_UNDEFINED_UINT32 )
         stringStream << ":0." << device;
     else if( !getenv( "DISPLAY" ))
         stringStream <<  ":0";
@@ -134,12 +134,12 @@ void Pipe::setXDisplay( Display* display )
         const uint32_t port = getPipe()->getPort();
         const uint32_t device = getPipe()->getDevice();
 
-        if( port != EQ_UNDEFINED_UINT32 && info.port != port )
+        if( port != LB_UNDEFINED_UINT32 && info.port != port )
             EQWARN << "Display mismatch: provided display connection uses"
                    << " display " << info.port << ", but pipe has port " << port
                    << std::endl;
 
-        if( device != EQ_UNDEFINED_UINT32 && info.device != device )
+        if( device != LB_UNDEFINED_UINT32 && info.device != device )
             EQWARN << "Screen mismatch: provided display connection uses "
                    << "default screen " << info.device
                    << ", but pipe has screen " << device << std::endl;
@@ -245,9 +245,9 @@ bool Pipe::_configInitGLXEW()
 #ifndef NDEBUG
 int XErrorHandler( Display* display, XErrorEvent* event )
 {
-    EQWARN << co::base::disableFlush;
-    EQWARN << "X Error occured: " << co::base::disableHeader 
-           << co::base::indent;
+    EQWARN << lunchbox::disableFlush;
+    EQWARN << "X Error occured: " << lunchbox::disableHeader 
+           << lunchbox::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
@@ -273,8 +273,8 @@ int XErrorHandler( Display* display, XErrorEvent* event )
             EQWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQWARN << co::base::enableFlush << co::base::exdent 
-           << co::base::enableHeader;
+    EQWARN << lunchbox::enableFlush << lunchbox::exdent 
+           << lunchbox::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))

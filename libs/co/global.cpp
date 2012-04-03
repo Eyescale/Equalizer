@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,7 +17,8 @@
 
 #include "global.h"
 
-#include <co/base/global.h>
+#include "errorRegistry.h"
+#include "pluginRegistry.h"
 
 #include <limits>
 #include <stdlib.h>
@@ -35,9 +36,12 @@ namespace co
 
 namespace
 {
+static PluginRegistry _pluginRegistry;
+static ErrorRegistry _errorRegistry;
+
 static uint32_t _getObjectBufferSize()
 {
-    const char* env = getenv( "EQ_NET_OBJECT_BUFFER_SIZE" );
+    const char* env = getenv( "CO_OBJECT_BUFFER_SIZE" );
     if( !env )
         return 60000;
 
@@ -46,6 +50,19 @@ static uint32_t _getObjectBufferSize()
         return size;
 
     return 60000;
+}
+
+static int32_t _getTimeout()
+{
+    const char* env = getenv( "CO_TIMEOUT" );
+    if( !env )
+        return 300000; // == 5min
+
+    const int32_t size = atoi( env );
+    if( size <= 0 )
+        return 300000; // == 5min
+
+    return size;
 }
 
 std::string _programName;
@@ -77,6 +94,8 @@ int32_t     _iAttributes[Global::IATTR_ALL] =
     8,      // RDMA_RING_BUFFER_SIZE_MB
     256,    // RDMA_SEND_QUEUE_DEPTH
     5000,   // RDMA_RESOLVE_TIMEOUT_MS
+    1,      // IATTR_ROBUSTNESS
+    _getTimeout() // IATTR_TIMEOUT_DEFAULT
 };
 }
 
@@ -163,6 +182,16 @@ uint32_t Global::getObjectBufferSize()
     return  _objectBufferSize;
 }
 
+PluginRegistry& Global::getPluginRegistry()
+{
+    return _pluginRegistry;
+}
+
+ErrorRegistry& Global::getErrorRegistry()
+{
+    return _errorRegistry;
+}
+
 void Global::setIAttribute( const IAttribute attr, const int32_t value )
 {
     _iAttributes[ attr ] = value;
@@ -174,9 +203,8 @@ int32_t Global::getIAttribute( const IAttribute attr )
 
 uint32_t Global::getTimeout()
 {
-    return base::Global::getIAttribute( base::Global::IATTR_ROBUSTNESS ) ? 
-           base::Global::getIAttribute( base::Global::IATTR_TIMEOUT_DEFAULT ) :
-           EQ_TIMEOUT_INDEFINITE;
+    return getIAttribute( IATTR_ROBUSTNESS ) ? 
+        getIAttribute( IATTR_TIMEOUT_DEFAULT ) : LB_TIMEOUT_INDEFINITE;
 }
 
 uint32_t Global::getKeepaliveTimeout()

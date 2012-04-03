@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -59,7 +59,7 @@ namespace eq
         const Pipe* getPipe() const { return _pipe; }
 
         /** @return the last error. @version 1.0 */
-        EQ_API co::base::Error getError() const;
+        EQ_API co::Error getError() const;
 
     protected:
         /** @name Error information. */

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,11 +22,11 @@
 
 namespace eq
 {
-    /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
+    /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
-        LOG_PLUGIN   = co::base::LOG_PLUGIN,       //!< Plugin usage (1)
-        LOG_INIT     = fabric::LOG_INIT,       //!< Initialization (256)
+        LOG_PLUGIN   = co::LOG_PLUGIN,         //!< Plugin usage (256)
+        LOG_INIT     = fabric::LOG_INIT,       //!< Initialization (512)
 
         LOG_ASSEMBLY = fabric::LOG_CUSTOM << 0,   //!< Compositing tasks (1024)
         LOG_TASKS    = fabric::LOG_CUSTOM << 1,   //!< Rendering tasks (2048)

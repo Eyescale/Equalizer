@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,13 +15,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "base/cpuCompressor.h" // used inline
+#include "cpuCompressor.h" // used inline
 
 namespace co
 {
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
-CO_API extern base::a_int32_t nBytesSaved;
-CO_API extern base::a_int32_t nBytesSent;
+CO_API extern lunchbox::a_int32_t nBytesSaved;
+CO_API extern lunchbox::a_int32_t nBytesSent;
 #endif
 
     template< typename P >

@@ -23,7 +23,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {
@@ -74,7 +74,7 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
 void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                       const uint128_t& /* start */ )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     EQASSERT( _currentIStream );
     EQASSERT( _currentIStream->getDataSize() == 0 );
     EQASSERT( cache.size() == 1 );
@@ -99,7 +99,7 @@ void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 bool StaticSlaveCM::_cmdInstance( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     EQASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
 

@@ -36,7 +36,7 @@
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/base/dso.h>
+#include <lunchbox/dso.h>
 
 #ifdef WIN32_API
 #  include <direct.h>  // for chdir
@@ -111,7 +111,7 @@ bool Client::connectServer( ServerPtr server )
 /** @cond IGNORE */
 namespace
 {
-    co::base::DSO _libeqserver;
+    lunchbox::DSO _libeqserver;
 }
 
 co::ConnectionPtr _startLocalServer()
@@ -326,7 +326,7 @@ bool Client::exitLocal()
 void Client::exitClient()
 {
     bool ret = exitLocal();
-    EQINFO << "Exit " << co::base::className( this ) << " process used "
+    EQINFO << "Exit " << lunchbox::className( this ) << " process used "
            << getRefCount() << std::endl;
 
     if( !eq::exit( ))

@@ -78,7 +78,7 @@ Channel::Channel( eq::Window* parent )
 void Channel::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber ) 
 {
     Config* config = static_cast< Config* >( getConfig( ));
-    const co::base::Clock* clock  = config->getClock();
+    const lunchbox::Clock* clock  = config->getClock();
 
     if( clock )
     {
@@ -156,7 +156,7 @@ void Channel::_testFormats( float applyZoom )
     const eq::Vector2i offset( pvp.x, pvp.y );
     const eq::Zoom zoom( applyZoom, applyZoom );
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
 
     //----- test all default format/type combinations
@@ -263,7 +263,7 @@ void Channel::_testTiledOperations()
     ConfigEvent event = _createConfigEvent();
     event.area.x() = pvp.w;
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
     const GLEWContext* glewContext = glewGetContext();
 
@@ -386,7 +386,7 @@ void Channel::_testDepthAssemble()
     ConfigEvent event = _createConfigEvent();
     event.area.x() = pvp.w;
 
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     eq::Window::ObjectManager* glObjects = getObjectManager();
     const GLEWContext* glewContext = glewGetContext();
 

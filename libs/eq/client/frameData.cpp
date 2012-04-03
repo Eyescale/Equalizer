@@ -33,9 +33,8 @@
 #include <co/connectionDescription.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
-#include <co/base/global.h>
-#include <co/base/monitor.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <co/plugins/compressor.h>
 #include <algorithm>
@@ -349,7 +348,7 @@ void FrameData::_setReady( const uint64_t version )
                   "v" << _version << " ready " << _readyVersion << " new "
                       << version );
 
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _listeners );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _listeners );
     if( _readyVersion >= version )
         return;
 
@@ -365,18 +364,18 @@ void FrameData::_setReady( const uint64_t version )
     }
 }
 
-void FrameData::addListener( co::base::Monitor<uint32_t>& listener )
+void FrameData::addListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _listeners );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _listeners );
 
     _listeners->push_back( &listener );
     if( _readyVersion >= _version )
         ++listener;
 }
 
-void FrameData::removeListener( co::base::Monitor<uint32_t>& listener )
+void FrameData::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _listeners );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _listeners );
 
     Listeners::iterator i = std::find( _listeners->begin(), _listeners->end(),
                                       &listener );
