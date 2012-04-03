@@ -47,7 +47,7 @@ ObjectStore::ObjectStore( LocalNode* localNode )
         : _localNode( localNode )
         , _instanceIDs( -0x7FFFFFFF )
         , _instanceCache( new InstanceCache( Global::getIAttribute( 
-                              Global::IATTR_INSTANCE_CACHE_SIZE ) * EQ_1MB ) )
+                              Global::IATTR_INSTANCE_CACHE_SIZE ) * LB_1MB ) )
 {
     EQASSERT( localNode );
     CommandQueue* queue = localNode->getCommandThreadQueue();

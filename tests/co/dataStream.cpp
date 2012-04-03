@@ -36,7 +36,7 @@
 
 // Tests the functionality of the DataOStream and DataIStream
 
-#define CONTAINER_SIZE EQ_64KB
+#define CONTAINER_SIZE LB_64KB
 
 static std::string _message( "So long, and thanks for all the fish" );
 

@@ -100,7 +100,7 @@ namespace fabric
         ERROR_PBO_SIZE_TOO_SMALL,
         ERROR_PBO_TYPE_UNSUPPORTED,
 
-        ERROR_CUSTOM = EQ_64KB, // 0x10000
+        ERROR_CUSTOM = LB_64KB, // 0x10000
     };
 
     /** Print the error in a human-readable format. @version 1.0 */
