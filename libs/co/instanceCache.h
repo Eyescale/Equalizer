@@ -37,7 +37,7 @@ namespace co
     {
     public:
         /** Construct a new instance cache. */
-        CO_API InstanceCache( const uint64_t maxSize = EQ_100MB );
+        CO_API InstanceCache( const uint64_t maxSize = LB_100MB );
 
         /** Destruct this instance cache. */
         CO_API ~InstanceCache();

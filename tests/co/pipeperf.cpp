@@ -30,7 +30,7 @@
 
 #include <co/pipeConnection.h> // private header
 
-#define MAXPACKETSIZE EQ_64MB
+#define MAXPACKETSIZE LB_64MB
 
 static lunchbox::Monitor< unsigned > _nextStage;
 
