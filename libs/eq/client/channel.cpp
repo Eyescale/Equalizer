@@ -1307,9 +1307,11 @@ void Channel::outlineViewport()
     resetAssemblyState();
 }
 
-struct Channel::RBStat
+namespace detail
 {
-    RBStat( Channel* channel )
+struct RBStat
+{
+    RBStat( eq::Channel* channel )
             : event( Statistic::CHANNEL_READBACK, channel ), uncompressed( 0 )
             , compressed( 0 )
         {
@@ -1318,7 +1320,7 @@ struct Channel::RBStat
             EQASSERT( event.event.data.statistic.frameNumber > 0 );
         }
 
-    co::base::SpinLock lock;
+    lunchbox::SpinLock lock;
     ChannelStatistics event;
     size_t uncompressed;
     size_t compressed;
@@ -1338,11 +1340,13 @@ struct Channel::RBStat
         }
 
     int32_t getRefCount() const { return _refCount; }
+
 private:
     a_int32_t _refCount;
 };
+}
 
-typedef co::base::RefPtr< Channel::RBStat > RBStatPtr;
+typedef co::base::RefPtr< detail::RBStat > RBStatPtr;
 
 void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 {
@@ -1355,7 +1359,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
     if( packet->tasks & fabric::TASK_READBACK )
     {
         _setOutputFrames( packet->nFrames, packet->frames );
-        stat = new RBStat( this );
+        stat = new detail::RBStat( this );
     }
 
     int64_t startTime = getConfig()->getTime();
@@ -1524,7 +1528,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 {
     EQ_TS_THREAD( _pipeThread );
 
-    RBStatPtr stat = new RBStat( this );
+    RBStatPtr stat = new detail::RBStat( this );
     _setOutputFrames( nFrames, frames );
 
     std::vector< size_t > nImages( nFrames, 0 );
@@ -1537,7 +1541,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
     _resetOutputFrames();
 }
 
-bool Channel::_asyncFinishReadback( RBStat* stat,
+bool Channel::_asyncFinishReadback( detail::RBStat* stat,
                                     const std::vector< size_t >& imagePos,
                                     const bool ready )
 {
@@ -1849,7 +1853,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_asyncSetReady( const FrameData* frame, RBStat* stat,
+void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
@@ -1862,7 +1866,7 @@ void Channel::_asyncSetReady( const FrameData* frame, RBStat* stat,
     send( getLocalNode(), packet, ids );
 }
 
-void Channel::_setReady( FrameData* frame, RBStat* stat,
+void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const std::vector< uint128_t >& netNodes )
 {

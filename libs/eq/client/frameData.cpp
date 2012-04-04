@@ -262,17 +262,6 @@ Images FrameData::startReadback( const Frame& frame,
         return images;
     }
 
-// TODO: issue #85: move automatic ROI detection to eq::Channel
-#if 0
-    PixelViewports pvps;
-    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
-        pvps = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
-//                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
-                                        0, 0, glObjects );
-    else
-        pvps.push_back( absPVP );
-#endif
-
     // readback the whole screen when using textures
     if( getType() == eq::Frame::TYPE_TEXTURE )
     {
@@ -282,10 +271,20 @@ Images FrameData::startReadback( const Frame& frame,
         image->setOffset( 0, 0 );
         return images;
     }
-
     //else read only required regions
-    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
 
+// TODO: issue #85: move automatic ROI detection to eq::Channel
+#if 0
+    PixelViewports regions;
+    if( _data.buffers & Frame::BUFFER_DEPTH && zoom == Zoom::NONE )
+        regions = _roiFinder->findRegions( _data.buffers, absPVP, zoom,
+//                    frame.getAssemblyStage(), frame.getFrameID(), glObjects );
+                                        0, 0, glObjects );
+    else
+        regions.push_back( absPVP );
+#endif
+
+    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
     const eq::Pixel& pixel = getPixel();
 
     for( uint32_t i = 0; i < regions.size(); ++i )

@@ -20,13 +20,14 @@
 #define EQ_CHANNELPACKETS_H
 
 #include <eq/client/packets.h> // base structs
-#include <eq/client/channel.h> // member Channel::RBStat
 #include <eq/client/statistic.h> // member
 #include <eq/fabric/renderContext.h> // member
 
 /** @cond IGNORE */
 namespace eq
 {
+namespace detail { struct RBStat; }
+
     struct ChannelConfigInitPacket : public ChannelPacket
     {
         ChannelConfigInitPacket( const uint128_t& initID_ )
@@ -211,7 +212,7 @@ namespace eq
     struct ChannelFrameSetReadyPacket : public ChannelPacket
     {
         ChannelFrameSetReadyPacket( const co::ObjectVersion& fd,
-                                    Channel::RBStat* s, const uint32_t n )
+                                    detail::RBStat* s, const uint32_t n )
                 : frameData( fd ), stat( s ), nNodes( n )
             {
                 command = fabric::CMD_CHANNEL_FRAME_SET_READY;
@@ -219,7 +220,7 @@ namespace eq
             }
 
         const co::ObjectVersion frameData;
-        Channel::RBStat* stat;
+        detail::RBStat* stat;
         const uint32_t nNodes;
         LB_ALIGN8( uint128_t IDs[1] );
     };

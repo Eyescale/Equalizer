@@ -28,7 +28,7 @@
 
 namespace eq
 {
-namespace detail { class Channel; }
+namespace detail { class Channel; struct RBStat; }
 
     struct ChannelFinishReadbackPacket;
     struct ChannelFrameSetReadyNodePacket;
@@ -366,7 +366,6 @@ namespace detail { class Channel; }
           */
         void changeLatency( const uint32_t latency );
 
-        struct RBStat; //!< @internal
 
     protected:
         /** @internal */
@@ -597,7 +596,7 @@ namespace detail { class Channel; }
                              co::ObjectVersion* frames );
         void _finishReadback( const ChannelFinishReadbackPacket* packet );
 
-        bool _asyncFinishReadback( RBStat* stat,
+        bool _asyncFinishReadback( detail::RBStat* stat,
                                    const std::vector< size_t >& imagePos,
                                    const bool ready );
 
@@ -607,11 +606,11 @@ namespace detail { class Channel; }
                              const std::vector< uint128_t >& netNodes,
                              const uint32_t taskID );
 
-        void _asyncSetReady( const FrameData* frame, RBStat* stat,
+        void _asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                              const std::vector< uint128_t >& nodes,
                              const std::vector< uint128_t >& netNodes );
 
-        void _setReady( FrameData* frame, RBStat* stat,
+        void _setReady( FrameData* frame, detail::RBStat* stat,
                         const std::vector< uint128_t >& nodes =
                             std::vector< uint128_t >(),
                         const std::vector< uint128_t >& netNodes =

@@ -308,7 +308,6 @@ void CompressorReadDrawPixels::_resizeBuffer( const eq_uint64_t size )
     //       The other crashes occasionally with KERN_BAD_ADDRESS
     //       Seems to be only with GL_RGB. Radar #8261726.
 #if 1
-
     _buffer.reserve( size );
     _buffer.setSize( size );
 #else
