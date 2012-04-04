@@ -367,7 +367,7 @@ namespace eq
             Memory() : state( INVALID ) {}
 
             void resize( const uint32_t size );
-            void flush();            
+            void flush();
             void useLocalBuffer();
 
             enum State

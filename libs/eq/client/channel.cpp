@@ -1746,7 +1746,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 //---------------------------------------------------------------------------
 bool Channel::_cmdConfigInit( co::Command& command )
 {
-    const ChannelConfigInitPacket* packet = 
+    const ChannelConfigInitPacket* packet =
         command.get<ChannelConfigInitPacket>();
     EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
@@ -1863,13 +1863,14 @@ bool Channel::_cmdFrameDraw( co::Command& command )
                        << std::endl;
 
     _setRenderContext( packet->context );
-    ChannelStatistics event( Statistic::CHANNEL_DRAW, this, getCurrentFrame(),
+    const uint32_t frameNumber = getCurrentFrame();
+    ChannelStatistics event( Statistic::CHANNEL_DRAW, this, frameNumber,
                              packet->finish ? NICEST : AUTO );
+
     frameDraw( packet->context.frameID );
     // Update ROI for server equalizers
     if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
-    const uint32_t frameNumber = getCurrentFrame();
     const size_t index = frameNumber % _impl->statistics->size();
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
@@ -1896,7 +1897,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
     ChannelFrameAssemblePacket* packet = 
         command.getModifiable< ChannelFrameAssemblePacket >();
     EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
-                                       << packet << std::endl;
+                                      << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
@@ -1930,8 +1931,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
-    _frameReadback( packet->context.frameID, packet->nFrames,
-                    packet->frames );
+    _frameReadback( packet->context.frameID, packet->nFrames, packet->frames );
     resetRenderContext();
     return true;
 }
@@ -1973,8 +1973,8 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
         command.getModifiable< ChannelFrameViewStartPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view start " << getName() <<  " "
-                                       << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
+                       << std::endl;
 
     _setRenderContext( packet->context );
     frameViewStart( packet->context.frameID );
@@ -1987,8 +1987,8 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getModifiable< ChannelFrameViewFinishPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK view finish " << getName()
-                                      <<  " " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
+                       << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
@@ -2002,8 +2002,8 @@ bool Channel::_cmdStopFrame( co::Command& command )
 {
     const ChannelStopFramePacket* packet = 
         command.get<ChannelStopFramePacket>();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK channel stop frame " << getName()
-                                      <<  " " << packet << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
+                       << packet << std::endl;
     
     notifyStopFrame( packet->lastFrameNumber );
     return true;
@@ -2013,9 +2013,8 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY )
-        << "TASK channel frame tiles " << getName() <<  " " << packet
-        << std::endl;
+    EQLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
+                       << packet << std::endl;
 
     _frameTiles( packet );
     return true;

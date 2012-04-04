@@ -342,7 +342,7 @@ void Window::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
     releaseFrameLocal( frameNumber );
 
     // https://github.com/Eyescale/Equalizer/issues/95
-    if( getNode()->getPipes()->size() > 1 )
+    if( getNode()->getPipes().size() > 1 )
         finish();
 }
 
@@ -571,7 +571,7 @@ bool Window::processEvent( const Event& event )
         case Event::KEY_PRESS:
         case Event::KEY_RELEASE:
             if( event.key.key == KC_VOID )
-                return true; //ignore
+                return true; // ignore
             // else fall through
         case Event::WINDOW_EXPOSE:
         case Event::WINDOW_CLOSE:

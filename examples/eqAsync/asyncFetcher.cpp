@@ -64,13 +64,15 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
     {
         EQWARN << "OS Window initialization failed: " << std::endl;
         delete sharedContextWindow;
-        return 0;
+        sharedContextWindow = 0;
     }
 
     wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
-    sharedContextWindow->makeCurrent();
 
-    EQWARN << "Async fetcher initialization finished" << std::endl;
+    if( sharedContextWindow )
+        sharedContextWindow->makeCurrent();
+
+    EQINFO << "Async fetcher initialization finished" << std::endl;
     return sharedContextWindow;
 }
 
