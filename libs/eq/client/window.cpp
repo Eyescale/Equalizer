@@ -341,6 +341,10 @@ void Window::frameStart( const uint128_t&, const uint32_t frameNumber )
 void Window::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrameLocal( frameNumber );
+
+    // https://github.com/Eyescale/Equalizer/issues/95
+    if( getNode()->getPipes().size() > 1 )
+        finish();
 }
 
 void Window::frameFinish( const uint128_t&, const uint32_t frameNumber )
