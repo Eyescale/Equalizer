@@ -375,9 +375,9 @@ bool Image::startReadback( const Frame::Buffer buffer,
                            const GLEWContext* glewContext )
 {
     Attachment& attachment = _getAttachment( buffer );
+    util::GPUCompressor* downloader = attachment.transfer;
     Memory& memory = attachment.memory;
     const uint32_t inputToken = memory.internalFormat;
-    util::GPUCompressor* downloader = attachment.transfer;
 
     downloader->setGLEWContext( glewContext );
 

@@ -1573,7 +1573,7 @@ bool Channel::_asyncFinishReadback( detail::RBStat* stat,
         bool asyncRB = false;
         for( size_t j = imagePos[i]; j < nImages; ++j )
         {
-            if( images[j]->hasAsyncReadback( )) // finish readback asynchron
+            if( images[j]->hasAsyncReadback( )) // finish async readback
             {
                 EQCHECK( getPipe()->startTransferThread( ));
 

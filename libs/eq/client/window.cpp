@@ -492,13 +492,10 @@ const SystemWindow* Window::getTransferSystemWindow()
     _transferWindow = pipe->getWindowSystem().createWindow( this );
 
     if( !_transferWindow )
-    {
         EQERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
-        return 0;
-    }
 
-    if( !_transferWindow->configInit( ))
+    if( _transferWindow && !_transferWindow->configInit( ))
     {
         EQWARN << "Transfer window initialization failed: " << std::endl;
         delete _transferWindow;

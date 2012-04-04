@@ -37,52 +37,49 @@
 namespace eqAsync
 {
 
-static eq::SystemWindow* initSharedContextWindow( eq::Window* wnd )
+static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 {
-    EQASSERT( wnd );
+    EQASSERT( window );
 
     // store old drawable of window and set window's drawable to OFF,
     // create another (shared) osWindow and restore original drawable
     const int32_t drawable =
-        wnd->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
-    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::OFF );
+        window->getIAttribute( eq::Window::IATTR_HINT_DRAWABLE );
+    window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::OFF );
 
-    const eq::Pipe* pipe = wnd->getPipe();
+    const eq::Pipe* pipe = window->getPipe();
     EQASSERT( pipe );
 
-    eq::SystemWindow* sharedContextWindow =
-        pipe->getWindowSystem().createWindow( wnd );
+    eq::SystemWindow* sharedWindow =
+        pipe->getWindowSystem().createWindow( window );
 
-    if( !sharedContextWindow )
-    {
+    if( !sharedWindow )
         EQERROR << "Failed to create shared context window for "
                 << pipe->getWindowSystem() << std::endl;
-        return 0;
-    }
 
-    if( !sharedContextWindow->configInit( ))
+    if( sharedWindow && !sharedWindow->configInit( ))
     {
         EQWARN << "OS Window initialization failed: " << std::endl;
-        delete sharedContextWindow;
-        sharedContextWindow = 0;
+        delete sharedWindow;
+        sharedWindow = 0;
     }
 
-    wnd->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
+    window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
 
-    if( sharedContextWindow )
-        sharedContextWindow->makeCurrent();
+    if( sharedWindow )
+        sharedWindow->makeCurrent();
 
     EQINFO << "Async fetcher initialization finished" << std::endl;
-    return sharedContextWindow;
+    return sharedWindow;
 }
 
 
-static void deleteSharedContextWindow( eq::Window* wnd,
-                                       eq::SystemWindow** sharedContextWindow,
+static void deleteSharedContextWindow( eq::Window* window,
+                                       eq::SystemWindow** sharedWindow,
                                        eq::ObjectManager** objectManager )
 {
     EQWARN << "Deleting shared context" << std::endl;
-    if( !sharedContextWindow || !*sharedContextWindow )
+    if( !sharedWindow || !*sharedWindow )
         return;
 
     if( *objectManager )
@@ -92,18 +89,18 @@ static void deleteSharedContextWindow( eq::Window* wnd,
         *objectManager = 0;
     }
 
-    (*sharedContextWindow)->configExit(); // mb set window to 0 before that?
+    (*sharedWindow)->configExit(); // mb set window to 0 before that?
 
-    delete *sharedContextWindow;
-    *sharedContextWindow = 0;
+    delete *sharedWindow;
+    *sharedWindow = 0;
 }
 
 
 AsyncFetcher::AsyncFetcher()
     : lunchbox::Thread()
-    , _wnd( 0 )
+    , _window( 0 )
     , _objectManager( 0 )
-    , _sharedContextWindow( 0 )
+    , _sharedWindow( 0 )
 {
     _tmpTexture = new GLbyte[ 64*64*4 ];
 }
@@ -111,9 +108,8 @@ AsyncFetcher::AsyncFetcher()
 
 AsyncFetcher::~AsyncFetcher()
 {
-    if( _wnd && _sharedContextWindow )
-        deleteSharedContextWindow( _wnd, &_sharedContextWindow,
-                                   &_objectManager );
+    if( _window && _sharedWindow )
+        deleteSharedContextWindow( _window, &_sharedWindow, &_objectManager );
 
     delete [] _tmpTexture;
 }
@@ -121,7 +117,7 @@ AsyncFetcher::~AsyncFetcher()
 
 const GLEWContext* AsyncFetcher::glewGetContext() const
 {
-    return _sharedContextWindow->glewGetContext();
+    return _sharedWindow->glewGetContext();
 }
 
 
@@ -131,14 +127,14 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
  */
 void AsyncFetcher::run()
 {
-    EQASSERT( !_sharedContextWindow );
-    _sharedContextWindow = initSharedContextWindow( _wnd );
+    EQASSERT( !_sharedWindow );
+    _sharedWindow = initSharedContextWindow( _window );
     _outQueue.push( TextureId( )); // unlock pipe thread
-    if( !_sharedContextWindow )
+    if( !_sharedWindow )
         return;
 
     _objectManager = new eq::ObjectManager( glewGetContext( ));
-    EQINFO << "async fetcher initialized: " << _wnd << std::endl;
+    EQINFO << "async fetcher initialized: " << _window << std::endl;
 
     uint8_t* i = 0;
     bool running = true;
@@ -186,7 +182,7 @@ void AsyncFetcher::run()
                 running = false;
         }
     }
-    deleteSharedContextWindow( _wnd, &_sharedContextWindow, &_objectManager );
+    deleteSharedContextWindow( _window, &_sharedWindow, &_objectManager );
 }
 
 } //namespace eqAsync

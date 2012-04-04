@@ -112,7 +112,7 @@ namespace detail { class PixelBufferObject; }
         /** @return true if the access to pbo is blocking. @version 1.3 */
         EQ_API bool isThreadSafe() const;
 
-        /** @return OpenGL ID @version 1.3 */
+        /** @return OpenGL ID @version 1.3.2 */
         GLuint getID() const;
 
     private:

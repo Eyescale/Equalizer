@@ -190,17 +190,16 @@ namespace eq
             { return _getAttachment( buffer ).memory.state == Memory::VALID; }
 
         /**
-         * @return true if the image has valid pixel data for either of buffers.
+         * @return true if an async readback for a buffer is in progress.
+         * @version 1.3.2
          */
-        bool hasPixelData() const
-            { return hasPixelData( Frame::BUFFER_COLOR ) ||
-                     hasPixelData( Frame::BUFFER_DEPTH ); }
-
-        /** @return true if async readback for a buffer is in progress. */
         bool hasAsyncReadback( const Frame::Buffer buffer ) const
             { return _getAttachment(buffer).memory.state == Memory::DOWNLOAD; }
 
-        /**@return true if async readback was started but not finished. */
+        /**
+         * @return true if an async readback for any buffer is in progress.
+         * @version 1.3.2
+         */
         bool hasAsyncReadback() const
             { return hasAsyncReadback( Frame::BUFFER_COLOR ) ||
                      hasAsyncReadback( Frame::BUFFER_DEPTH ); }
@@ -301,7 +300,7 @@ namespace eq
          * @param zoom the scale factor to apply during readback.
          * @param glObjects the GL object manager for the current GL context.
          * @return true when the operation requires a finishReadback().
-         * @version 1.3
+         * @version 1.3.2
          */
         EQ_API bool startReadback( const uint32_t buffers,
                                    const PixelViewport& pvp, const Zoom& zoom,
@@ -317,7 +316,7 @@ namespace eq
          * 
          * @param zoom the scale factor to apply during readback.
          * @param glObjects the GL object manager for the current GL context.
-         * @version 1.3
+         * @version 1.3.2
          */
         EQ_API void finishReadback( const Zoom& zoom,
                                     const GLEWContext* glewContext );

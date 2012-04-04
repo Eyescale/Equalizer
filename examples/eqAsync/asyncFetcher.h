@@ -61,7 +61,7 @@ public:
     ~AsyncFetcher();
 
     virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
+    void setup( Window* window ) { _window = window; }
 
     TextureId getTextureId()               { return _outQueue.pop().id;      }
     bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
@@ -70,11 +70,11 @@ public:
     const GLEWContext* glewGetContext() const;
 
 private:
-    Window*                        _wnd;
+    Window*                        _window;
     lunchbox::MTQueue<const void*> _inQueue;       // textures to delete
     lunchbox::MTQueue<TextureId>   _outQueue;      // generated textures
     eq::ObjectManager*             _objectManager;
-    eq::SystemWindow*              _sharedContextWindow;
+    eq::SystemWindow*              _sharedWindow;
     GLbyte*                        _tmpTexture;    // temporal texture storage
 };
 
