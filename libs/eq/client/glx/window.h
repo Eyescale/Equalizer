@@ -144,7 +144,6 @@ namespace glx
          * @version 1.0
          */
         EQ_API virtual void exitEventHandler();
-
         //@}
 
         /** @name Data Access. */
