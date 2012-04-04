@@ -63,7 +63,7 @@ const char* _mediumFontKey = "eq_medium_font";
 Window::Window( Pipe* parent )
         : Super( parent )
         , _sharedContextWindow( 0 ) // default set below
-        , _asyncSystemWindow( 0 )
+        , _transferWindow( 0 )
         , _systemWindow( 0 )
         , _state( STATE_STOPPED )
         , _objectManager( 0 )
@@ -473,10 +473,10 @@ bool Window::configInitGL( const uint128_t& )
     return true;
 }
 
-const SystemWindow* Window::getAsyncSystemWindow()
+const SystemWindow* Window::getTransferSystemWindow()
 {
-    if( _asyncSystemWindow )
-        return _asyncSystemWindow;
+    if( _transferWindow )
+        return _transferWindow;
 
     EQASSERT( _systemWindow );
 
@@ -485,51 +485,51 @@ const SystemWindow* Window::getAsyncSystemWindow()
     setIAttribute( IATTR_HINT_DRAWABLE, OFF );
 
     const Pipe* pipe = getPipe();
-    _asyncSystemWindow = pipe->getWindowSystem().createWindow( this );
+    _transferWindow = pipe->getWindowSystem().createWindow( this );
 
-    if( !_asyncSystemWindow )
+    if( !_transferWindow )
     {
         EQERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
         return 0;
     }
 
-    if( !_asyncSystemWindow->configInit( ))
+    if( !_transferWindow->configInit( ))
     {
-        EQWARN << "OS Window initialization failed: " << std::endl;
-        delete _asyncSystemWindow;
-        _asyncSystemWindow = 0;
-        return 0;
+        EQWARN << "Transfer window initialization failed: " << std::endl;
+        delete _transferWindow;
+        _transferWindow = 0;
     }
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 
-    _asyncSystemWindow->makeCurrent();
+    if( _transferWindow )
+        _transferWindow->makeCurrent();
 
-    EQWARN << "Async window initialization finished" << std::endl;
-    return _asyncSystemWindow;
+    EQINFO << "Transfer window initialization finished" << std::endl;
+    return _transferWindow;
 }
 
-const GLEWContext* Window::getAsyncGlewContext()
+const GLEWContext* Window::getTransferGlewContext()
 {
-    const SystemWindow* asyncWnd = getAsyncSystemWindow();
-    if( asyncWnd )
-        return asyncWnd->glewGetContext();
+    const SystemWindow* transferWindow = getTransferSystemWindow();
+    if( transferWindow )
+        return transferWindow->glewGetContext();
     return 0;
 }
 
-void Window::deleteAsyncSystemWindow()
+void Window::deleteTransferSystemWindow()
 {
-    if( !_asyncSystemWindow )
+    if( !_transferWindow )
         return;
 
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
-    setIAttribute( IATTR_HINT_DRAWABLE, FBO );
+    setIAttribute( IATTR_HINT_DRAWABLE, OFF );
 
-    _asyncSystemWindow->configExit();
+    _transferWindow->configExit();
 
-    delete _asyncSystemWindow;
-    _asyncSystemWindow = 0;
+    delete _transferWindow;
+    _transferWindow = 0;
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 }
@@ -545,9 +545,9 @@ bool Window::configExit()
 
 bool Window::configExitSystemWindow()
 {
-    // _asyncSystemWindow has to be deleted from the same thread it was
+    // _transferWindow has to be deleted from the same thread it was
     // initialized
-    EQASSERT( !_asyncSystemWindow );
+    EQASSERT( !_transferWindow );
 
     _releaseObjectManager();
 

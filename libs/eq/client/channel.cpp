@@ -83,7 +83,7 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* queue = getPipeThreadQueue();
     co::CommandQueue* commandQ = getCommandThreadQueue();
     co::CommandQueue* tmitQ = &getNode()->transmitter.getQueue();
-    co::CommandQueue* asyncRBQ = getPipe()->getAsyncRBThreadQueue();
+    co::CommandQueue* transferQ = getPipe()->getTransferThreadQueue();
 
     registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT, 
                      CmdFunc( this, &Channel::_cmdConfigInit ), queue );
@@ -116,11 +116,12 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
     registerCommand( fabric::CMD_CHANNEL_FRAME_TILES,
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
     registerCommand( fabric::CMD_CHANNEL_FINISH_READBACK,
-                     CmdFunc( this, &Channel::_cmdFinishReadback ), asyncRBQ );
+                     CmdFunc( this, &Channel::_cmdFinishReadback ), transferQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
-                     CmdFunc( this, &Channel::_cmdFrameSetReady ), asyncRBQ );
-    registerCommand( fabric::CMD_CHANNEL_DELETE_ASYNC_CONTEXT,
-                     CmdFunc( this,&Channel::_cmdDeleteAsyncContext), asyncRBQ);
+                     CmdFunc( this, &Channel::_cmdFrameSetReady ), transferQ );
+    registerCommand( fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT,
+                     CmdFunc( this,&Channel::_cmdDeleteTransferContext ),
+                     transferQ );
 }
 
 co::CommandQueue* Channel::getPipeThreadQueue()
@@ -1423,7 +1424,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 }
             }
 
-            if( _startFinishReadback( stat.get(), nImages, false ))
+            if( _asyncFinishReadback( stat.get(), nImages, false ))
                 hasAsyncReadback = true;
         }
         queuePacket->release();
@@ -1461,7 +1462,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 frame->getInputNetNodes( eye );
 
             if( hasAsyncReadback )
-                _startSetReady( frame->getData(), stat.get(), nodes, netNodes );
+                _asyncSetReady( frame->getData(), stat.get(), nodes, netNodes );
             else
                 _setReady( frame->getData(), stat.get(), nodes, netNodes );
         }
@@ -1532,11 +1533,11 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     frameReadback( frameID );
     EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
-    _startFinishReadback( stat.get(), nImages, true );
+    _asyncFinishReadback( stat.get(), nImages, true );
     _resetOutputFrames();
 }
 
-bool Channel::_startFinishReadback( RBStat* stat,
+bool Channel::_asyncFinishReadback( RBStat* stat,
                                     const std::vector< size_t >& imagePos,
                                     const bool ready )
 {
@@ -1570,7 +1571,7 @@ bool Channel::_startFinishReadback( RBStat* stat,
         {
             if( images[j]->hasAsyncReadback( )) // finish readback asynchron
             {
-                EQCHECK( getPipe()->startAsyncRBThread( ));
+                EQCHECK( getPipe()->startTransferThread( ));
 
                 asyncRB = true;
                 _refFrame( frameNumber );
@@ -1587,7 +1588,7 @@ bool Channel::_startFinishReadback( RBStat* stat,
                 send( getLocalNode(), packet, ids );
             }
             else // transmit images asynchronously
-                _startTransmit( frameData, frameNumber, j, nodes, netNodes,
+                _asyncTransmit( frameData, frameNumber, j, nodes, netNodes,
                                 getTaskID( ));
         }
 
@@ -1598,7 +1599,7 @@ bool Channel::_startFinishReadback( RBStat* stat,
             if( asyncRB )
             {
                 hasAsyncReadback = true;
-                _startSetReady( frameData, stat, nodes, netNodes );
+                _asyncSetReady( frameData, stat, nodes, netNodes );
             }
             else
                 _setReady( frameData, stat, nodes, netNodes );
@@ -1609,12 +1610,13 @@ bool Channel::_startFinishReadback( RBStat* stat,
 
 void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet << std::endl;
+    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
+                                    << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
     const Images& images = frameData->getImages();
     Image* image = images[ packet->imageIndex ];
-    const GLEWContext* glewContext = getWindow()->getAsyncGlewContext();
+    const GLEWContext* glewContext = getWindow()->getTransferGlewContext();
 
     EQASSERT( frameData );
     EQASSERT( images.size() > packet->imageIndex );
@@ -1630,11 +1632,11 @@ void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
     netNodes.insert( netNodes.end(), packet->IDs + packet->nNodes,
                      packet->IDs + 2 * packet->nNodes );
 
-    _startTransmit( frameData, packet->frameNumber, packet->imageIndex, nodes,
+    _asyncTransmit( frameData, packet->frameNumber, packet->imageIndex, nodes,
                     netNodes, packet->taskID );
 }
 
-void Channel::_startTransmit( FrameData* frame, const uint32_t frameNumber,
+void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
                               const size_t image,
                               const std::vector<uint128_t>& nodes,
                               const std::vector< uint128_t >& netNodes,
@@ -1847,7 +1849,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     getLocalNode()->releaseSendToken( token );
 }
 
-void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
+void Channel::_asyncSetReady( const FrameData* frame, RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
@@ -1860,25 +1862,11 @@ void Channel::_startSetReady( const FrameData* frame, RBStat* stat,
     send( getLocalNode(), packet, ids );
 }
 
-void Channel::_setReady( const ChannelFrameSetReadyPacket* packet )
-{
-    FrameData* frameData = getNode()->getFrameData( packet->frameData );
-    std::vector< uint128_t > nodes;
-    std::vector< uint128_t > netNodes;
-    nodes.insert( nodes.end(), packet->IDs, packet->IDs + packet->nNodes );
-    netNodes.insert( netNodes.end(), packet->IDs + packet->nNodes,
-                     packet->IDs + 2 * packet->nNodes );
-
-    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
-   _setReady( frameData, packet->stat, nodes, netNodes );
-   packet->stat->unref( 0 );
-}
-
 void Channel::_setReady( FrameData* frame, RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const std::vector< uint128_t >& netNodes )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion( frame )
+    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion(frame)
                                     << std::endl;
     frame->setReady();
 
@@ -1922,24 +1910,13 @@ void Channel::_setReady( FrameData* frame, RBStat* stat,
     }
 }
 
-void Channel::_setReadyNode( const ChannelFrameSetReadyNodePacket* packet )
+void Channel::_deleteTransferContext()
 {
-    co::LocalNodePtr localNode = getLocalNode();
-    co::NodePtr toNode = localNode->connect( packet->netNodeID );
-    const FrameData* frameData = getNode()->getFrameData( packet->frameData );
-
-    NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID = packet->nodeID;
-    toNode->send( readyPacket );
-}
-
-void Channel::_deleteAsyncContext()
-{
-    if( !getPipe()->hasAsyncRBThread( ))
+    if( !getPipe()->hasTransferThread( ))
         return;
 
     co::LocalNodePtr localNode = getLocalNode();
-    ChannelDeleteAsyncContextPacket packet( localNode->registerRequest( ));
+    ChannelDeleteTransferContextPacket packet( localNode->registerRequest( ));
     send( localNode, packet );
     localNode->waitRequest( packet.requestID );
 }
@@ -1996,7 +1973,7 @@ bool Channel::_cmdConfigExit( co::Command& command )
         command.get<ChannelConfigExitPacket>();
     EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
-    _deleteAsyncContext();
+    _deleteTransferContext();
 
     if( _impl->state != STATE_STOPPED )
         _impl->state = configExit() ? STATE_STOPPED : STATE_FAILED;
@@ -2152,7 +2129,19 @@ bool Channel::_cmdFinishReadback( co::Command& command )
 
 bool Channel::_cmdFrameSetReady( co::Command& command )
 {
-    _setReady( command.get<ChannelFrameSetReadyPacket>( ));
+    const ChannelFrameSetReadyPacket* packet = 
+        command.get<ChannelFrameSetReadyPacket>();
+
+    FrameData* frameData = getNode()->getFrameData( packet->frameData );
+    std::vector< uint128_t > nodes;
+    std::vector< uint128_t > netNodes;
+    nodes.insert( nodes.end(), packet->IDs, packet->IDs + packet->nNodes );
+    netNodes.insert( netNodes.end(), packet->IDs + packet->nNodes,
+                     packet->IDs + 2 * packet->nNodes );
+
+    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
+    _setReady( frameData, packet->stat, nodes, netNodes );
+    packet->stat->unref( 0 );
     return true;
 }
 
@@ -2169,7 +2158,15 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& command )
 {
     const ChannelFrameSetReadyNodePacket* packet =
         command.get<ChannelFrameSetReadyNodePacket>();
-    _setReadyNode( packet );
+
+    co::LocalNodePtr localNode = getLocalNode();
+    co::NodePtr toNode = localNode->connect( packet->netNodeID );
+    const FrameData* frameData = getNode()->getFrameData( packet->frameData );
+
+    NodeFrameDataReadyPacket readyPacket( frameData );
+    readyPacket.objectID = packet->nodeID;
+    toNode->send( readyPacket );
+
     _unrefFrame( packet->frameNumber );
     return true;
 }
@@ -2225,13 +2222,13 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdDeleteAsyncContext( co::Command& command )
+bool Channel::_cmdDeleteTransferContext( co::Command& command )
 {
-    const ChannelDeleteAsyncContextPacket* packet =
-        command.get<ChannelDeleteAsyncContextPacket>();
-    EQLOG( LOG_INIT ) << "Delete async context " << packet << std::endl;
+    const ChannelDeleteTransferContextPacket* packet =
+        command.get<ChannelDeleteTransferContextPacket>();
+    EQLOG( LOG_INIT ) << "Delete transfer context " << packet << std::endl;
 
-    getWindow()->deleteAsyncSystemWindow();
+    getWindow()->deleteTransferSystemWindow();
     getLocalNode()->serveRequest( packet->requestID );
     return true;
 }

@@ -59,13 +59,13 @@ namespace eq
             }
     };
 
-    struct ChannelDeleteAsyncContextPacket: public ChannelPacket
+    struct ChannelDeleteTransferContextPacket: public ChannelPacket
     {
-        ChannelDeleteAsyncContextPacket( const uint32_t req )
+        ChannelDeleteTransferContextPacket( const uint32_t req )
                 : requestID( req )
             {
-                command = fabric::CMD_CHANNEL_DELETE_ASYNC_CONTEXT;
-                size    = sizeof( ChannelDeleteAsyncContextPacket );
+                command = fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT;
+                size    = sizeof( ChannelDeleteTransferContextPacket );
             }
         const uint32_t requestID;
     };

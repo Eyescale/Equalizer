@@ -597,29 +597,25 @@ namespace detail { class Channel; }
                              co::ObjectVersion* frames );
         void _finishReadback( const ChannelFinishReadbackPacket* packet );
 
-        bool _startFinishReadback( RBStat* stat,
+        bool _asyncFinishReadback( RBStat* stat,
                                    const std::vector< size_t >& imagePos,
                                    const bool ready );
 
-        void _startTransmit( FrameData* frame, const uint32_t frameNumber,
+        void _asyncTransmit( FrameData* frame, const uint32_t frameNumber,
                              const size_t image,
                              const std::vector<uint128_t>& nodes,
                              const std::vector< uint128_t >& netNodes,
                              const uint32_t taskID );
 
-        void _startSetReady( const FrameData* frame, RBStat* stat,
+        void _asyncSetReady( const FrameData* frame, RBStat* stat,
                              const std::vector< uint128_t >& nodes,
                              const std::vector< uint128_t >& netNodes );
 
-        void _setReady( const ChannelFrameSetReadyPacket* packet );
         void _setReady( FrameData* frame, RBStat* stat,
                         const std::vector< uint128_t >& nodes =
                             std::vector< uint128_t >(),
                         const std::vector< uint128_t >& netNodes =
                             std::vector< uint128_t >() );
-
-        /** Send the ready signal of a frame to one node. */
-        void _setReadyNode( const ChannelFrameSetReadyNodePacket* packet );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
@@ -628,7 +624,7 @@ namespace detail { class Channel; }
                                const co::ObjectVersion* frames );
         void _resetOutputFrames();
 
-        void _deleteAsyncContext();
+        void _deleteTransferContext();
 
         /* The command handler functions. */
         bool _cmdConfigInit( co::Command& command );
@@ -648,7 +644,7 @@ namespace detail { class Channel; }
         bool _cmdFrameViewFinish( co::Command& command );
         bool _cmdStopFrame( co::Command& command );
         bool _cmdFrameTiles( co::Command& command );
-        bool _cmdDeleteAsyncContext( co::Command& command );
+        bool _cmdDeleteTransferContext( co::Command& command );
 
         LB_TS_VAR( _pipeThread );
     };

@@ -81,17 +81,17 @@ namespace detail
 {
 
 /** Asynchronous, per-pipe readback thread. */
-class AsyncRBThread : public eq::Worker
+class TransferThread : public eq::Worker
 {
 public:
-    AsyncRBThread() : eq::Worker(), _running( true ){}
+    TransferThread() : eq::Worker(), _running( true ){}
 
     virtual bool start(){ if(isRunning()) return true; return Worker::start(); }
     virtual bool stopRunning() { return !_running; }
     void postStop() { _running = false; }
 
 private:
-    bool _running; // Async thread will exit if this is false
+    bool _running; // thread will exit if this is false
 };
 }
 
@@ -103,7 +103,7 @@ Pipe::Pipe( Node* parent )
         , _currentFrame( 0 )
         , _frameTime( 0 )
         , _thread( 0 )
-        , _asyncRBThread( new detail::AsyncRBThread( ))
+        , _transferThread( new detail::TransferThread( ))
         , _currentWindow( 0 )
         , _computeContext( 0 )
 {
@@ -115,7 +115,7 @@ Pipe::~Pipe()
     delete _thread;
     _thread = 0;
 
-    delete _asyncRBThread;
+    delete _transferThread;
 }
 
 Config* Pipe::getConfig()
@@ -151,7 +151,7 @@ void Pipe::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
     
     co::CommandQueue* queue = getPipeThreadQueue();
-    co::CommandQueue* readbackQ = getAsyncRBThreadQueue();
+    co::CommandQueue* transferQ = getTransferThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT, 
                      PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
@@ -173,8 +173,9 @@ void Pipe::attach( const UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
     registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
                      PipeFunc( this, &Pipe::_cmdDetachView ), queue );
-    registerCommand( fabric::CMD_PIPE_EXIT_ASYNC_RB_THREAD,
-                     PipeFunc( this, &Pipe::_cmdExitAsyncRBThread ), readbackQ );
+    registerCommand( fabric::CMD_PIPE_EXIT_TRANSFER_THREAD,
+                     PipeFunc( this, &Pipe::_cmdExitTransferThread ),
+                     transferQ );
 }
 
 void Pipe::setDirty( const uint64_t bits )
@@ -292,9 +293,9 @@ co::CommandQueue* Pipe::getPipeThreadQueue()
     return getNode()->getMainThreadQueue();
 }
 
-co::CommandQueue* Pipe::getAsyncRBThreadQueue()
+co::CommandQueue* Pipe::getTransferThreadQueue()
 {
-    return _asyncRBThread->getWorkerQueue();
+    return _transferThread->getWorkerQueue();
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
@@ -503,7 +504,7 @@ void Pipe::startThread()
 
 void Pipe::exitThread()
 {
-    _stopAsyncRBThread();
+    _stopTransferThread();
 
     if( !_thread )
         return;
@@ -518,7 +519,7 @@ void Pipe::exitThread()
 
 void Pipe::cancelThread()
 {
-    _stopAsyncRBThread();
+    _stopTransferThread();
 
     if( !_thread )
         return;
@@ -742,31 +743,31 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                        << std::endl;
 }
 
-bool Pipe::startAsyncRBThread()
+bool Pipe::startTransferThread()
 {
-    if( _asyncRBThread->isRunning( ))
+    if( _transferThread->isRunning( ))
         return true;
 
-    return _asyncRBThread->start();
+    return _transferThread->start();
 }
 
-bool Pipe::hasAsyncRBThread() const
+bool Pipe::hasTransferThread() const
 {
-    if( _asyncRBThread && _asyncRBThread->isRunning( ))
+    if( _transferThread && _transferThread->isRunning( ))
         return true;
 
     return false;
 }
 
-void Pipe::_stopAsyncRBThread()
+void Pipe::_stopTransferThread()
 {
-    if( !_asyncRBThread || _asyncRBThread->isStopped( ))
+    if( !_transferThread || _transferThread->isStopped( ))
         return;
 
-    PipeExitAsyncRBThreadPacket packet;
+    PipeExitTransferThreadPacket packet;
     send( getLocalNode(), packet );
 
-    _asyncRBThread->join();
+    _transferThread->join();
 }
 
 //---------------------------------------------------------------------------
@@ -906,10 +907,10 @@ bool Pipe::_cmdExitThread( co::Command& command )
     return true;
 }
 
-bool Pipe::_cmdExitAsyncRBThread( co::Command& )
+bool Pipe::_cmdExitTransferThread( co::Command& )
 {
-    EQASSERT( _asyncRBThread );
-    _asyncRBThread->postStop();
+    EQASSERT( _transferThread );
+    _transferThread->postStop();
     return true;
 }
 

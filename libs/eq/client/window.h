@@ -185,13 +185,13 @@ namespace eq
         EQ_API const GLEWContext* glewGetContext() const;
 
         /** @internal
-         * Creates async window if necessary and returns its context.
+         * Creates second system window if necessary and returns its context.
          * 
-         * Should be called from a separate thread.
+         * Should be called from the pipe transfer thread.
          * 
-         * @return shared context to use in asyncronous thread.
+         * @return shared context for use in the transfer thread.
          */
-        EQ_API const GLEWContext* getAsyncGlewContext();
+        EQ_API const GLEWContext* getTransferGlewContext();
 
         /**
          * @internal
@@ -274,13 +274,13 @@ namespace eq
         SystemPipe* getSystemPipe(); 
 
         /** @internal
-         * Creates shared context window for asynchronious context usage.
+         * Creates shared context window for asynchronuous context usage.
          *
          * Should be called from separate thread.
          *
-         * @return the OS-specific async window implementation.
+         * @return the OS-specific transfer window implementation.
          */
-        const eq::SystemWindow* getAsyncSystemWindow();
+        const eq::SystemWindow* getTransferSystemWindow();
 
         /** @internal
          * Creates shared context window for asynchronious context usage.
@@ -288,7 +288,7 @@ namespace eq
          * Should be called from the same thread getAsyncSystemWindow 
          * was called.
          */
-        void deleteAsyncSystemWindow();
+        void deleteTransferSystemWindow();
         //@}
 
         /**
@@ -442,8 +442,8 @@ namespace eq
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
 
-        /** Async window */
-        SystemWindow* _asyncSystemWindow;
+        /** Transfer window */
+        SystemWindow* _transferWindow;
 
         /** Window-system specific functions class */
         SystemWindow* _systemWindow;
