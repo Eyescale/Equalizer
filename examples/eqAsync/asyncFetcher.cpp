@@ -53,21 +53,24 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
     eq::SystemWindow* sharedWindow =
         pipe->getWindowSystem().createWindow( window );
 
-    if( !sharedWindow )
+    if( sharedWindow )
+    {
+        if( sharedWindow->configInit( ))
+            sharedWindow->makeCurrent();
+        else
+        {
+            EQWARN << "OS Window initialization failed: " << std::endl;
+            delete sharedWindow;
+            sharedWindow = 0;
+        }
+    }
+    else
+    {
         EQERROR << "Failed to create shared context window for "
                 << pipe->getWindowSystem() << std::endl;
-
-    if( sharedWindow && !sharedWindow->configInit( ))
-    {
-        EQWARN << "OS Window initialization failed: " << std::endl;
-        delete sharedWindow;
-        sharedWindow = 0;
     }
 
     window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
-
-    if( sharedWindow )
-        sharedWindow->makeCurrent();
 
     EQINFO << "Async fetcher initialization finished" << std::endl;
     return sharedWindow;
