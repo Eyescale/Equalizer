@@ -48,6 +48,7 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
+#include <lunchbox/perThread.h>
 #include <sstream>
 
 namespace eq
@@ -56,7 +57,8 @@ namespace eq
 
 namespace
 {
-static const Window* _ntCurrentWindow = 0;
+static
+lunchbox::PerThread< const Window, lunchbox::perThreadNoDelete > _currentWindow;
 }
 
 /** @cond IGNORE */
@@ -81,12 +83,11 @@ namespace detail
 {
 
 /** Asynchronous, per-pipe readback thread. */
-class TransferThread : public eq::Worker
+class TransferThread : public co::Worker
 {
 public:
-    TransferThread() : eq::Worker(), _running( true ){}
+    TransferThread() : co::Worker(), _running( true ){}
 
-    virtual bool start(){ if(isRunning()) return true; return Worker::start(); }
     virtual bool stopRunning() { return !_running; }
     void postStop() { _running = false; }
 
@@ -94,7 +95,6 @@ private:
     bool _running; // thread will exit if this is false
 };
 }
-
 
 Pipe::Pipe( Node* parent )
         : Super( parent )
@@ -104,7 +104,6 @@ Pipe::Pipe( Node* parent )
         , _frameTime( 0 )
         , _thread( 0 )
         , _transferThread( new detail::TransferThread( ))
-        , _currentWindow( 0 )
         , _computeContext( 0 )
 {
 }
@@ -483,17 +482,12 @@ void Pipe::_flushViews()
 
 bool Pipe::isCurrent( const Window* window ) const
 {
-    if( isThreaded( ))
-        return ( window == _currentWindow );
-    return ( window == _ntCurrentWindow );
+    return _currentWindow == window;
 }
 
 void Pipe::setCurrent( const Window* window ) const
 {
-    if( isThreaded( ))
-        _currentWindow = window;
-    else
-        _ntCurrentWindow = window;
+    _currentWindow = window;
 }
 
 void Pipe::startThread()
@@ -753,15 +747,12 @@ bool Pipe::startTransferThread()
 
 bool Pipe::hasTransferThread() const
 {
-    if( _transferThread && _transferThread->isRunning( ))
-        return true;
-
-    return false;
+    return _transferThread->isRunning();
 }
 
 void Pipe::_stopTransferThread()
 {
-    if( !_transferThread || _transferThread->isStopped( ))
+    if( _transferThread->isStopped( ))
         return;
 
     PipeExitTransferThreadPacket packet;

@@ -225,6 +225,7 @@ namespace server { class FrameData; }
         void readback( const Frame& frame, ObjectManager* glObjects,
                        const DrawableConfig& config );
 #endif
+
         /** 
          * Start reading back a set of images for this frame data.
          * 

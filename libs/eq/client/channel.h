@@ -366,7 +366,6 @@ namespace detail { class Channel; struct RBStat; }
           */
         void changeLatency( const uint32_t latency );
 
-
     protected:
         /** @internal */
         EQ_API void attach( const UUID& id, const uint32_t instanceID );
@@ -597,8 +596,7 @@ namespace detail { class Channel; struct RBStat; }
         void _finishReadback( const ChannelFinishReadbackPacket* packet );
 
         bool _asyncFinishReadback( detail::RBStat* stat,
-                                   const std::vector< size_t >& imagePos,
-                                   const bool ready );
+                                   const std::vector< size_t >& imagePos );
 
         void _asyncTransmit( FrameData* frame, const uint32_t frameNumber,
                              const size_t image,
@@ -606,15 +604,14 @@ namespace detail { class Channel; struct RBStat; }
                              const std::vector< uint128_t >& netNodes,
                              const uint32_t taskID );
 
+        void _setReady( const bool async, detail::RBStat* stat );
         void _asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                              const std::vector< uint128_t >& nodes,
                              const std::vector< uint128_t >& netNodes );
 
         void _setReady( FrameData* frame, detail::RBStat* stat,
-                        const std::vector< uint128_t >& nodes =
-                            std::vector< uint128_t >(),
-                        const std::vector< uint128_t >& netNodes =
-                            std::vector< uint128_t >() );
+                        const std::vector< uint128_t >& nodes,
+                        const std::vector< uint128_t >& netNodes );
 
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );

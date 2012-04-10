@@ -105,8 +105,6 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImage ), tmitQ );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY_NODE,
-                     CmdFunc( this, &Channel::_cmdFrameSetReadyNode ), tmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
@@ -574,7 +572,6 @@ void Channel::applyViewport() const
 {
     LB_TS_THREAD( _pipeThread );
     const PixelViewport& pvp = getPixelViewport();
-    // TODO: OPT return if vp unchanged
 
     if( !pvp.hasArea( ))
     {
@@ -1428,7 +1425,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 }
             }
 
-            if( _asyncFinishReadback( stat.get(), nImages, false ))
+            if( _asyncFinishReadback( stat.get(), nImages ))
                 hasAsyncReadback = true;
         }
         queuePacket->release();
@@ -1456,20 +1453,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
         startTime += readbackTime;
         stat->event.event.data.statistic.endTime = startTime;
 
-        const Frames& frames = getOutputFrames();
-        for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
-        {
-            Frame* frame = *i;
-            const Eye eye = getEye();
-            const std::vector< uint128_t >& nodes = frame->getInputNodes( eye );
-            const std::vector< uint128_t >& netNodes =
-                frame->getInputNetNodes( eye );
-
-            if( hasAsyncReadback )
-                _asyncSetReady( frame->getData(), stat.get(), nodes, netNodes );
-            else
-                _setReady( frame->getData(), stat.get(), nodes, netNodes );
-        }
+        _setReady( hasAsyncReadback, stat.get( ));
     }
 
     frameTilesFinish( packet->context.frameID );
@@ -1537,13 +1521,13 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     frameReadback( frameID );
     EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
-    _asyncFinishReadback( stat.get(), nImages, true );
+    const bool async = _asyncFinishReadback( stat.get(), nImages );
+    _setReady( async, stat.get( ));
     _resetOutputFrames();
 }
 
 bool Channel::_asyncFinishReadback( detail::RBStat* stat,
-                                    const std::vector< size_t >& imagePos,
-                                    const bool ready )
+                                    const std::vector< size_t >& imagePos )
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -1558,11 +1542,7 @@ bool Channel::_asyncFinishReadback( detail::RBStat* stat,
         const uint32_t frameNumber = getCurrentFrame();
 
         if( frameData->getBuffers() == 0 )
-        {
-            if( ready )
-                _setReady( frameData, stat );
             continue;
-        }
 
         const Images& images = frameData->getImages();
         const size_t nImages = images.size();
@@ -1570,14 +1550,13 @@ bool Channel::_asyncFinishReadback( detail::RBStat* stat,
         const std::vector< uint128_t >& nodes = frame->getInputNodes( eye );
         const std::vector< uint128_t >& netNodes = frame->getInputNetNodes(eye);
 
-        bool asyncRB = false;
         for( size_t j = imagePos[i]; j < nImages; ++j )
         {
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
                 EQCHECK( getPipe()->startTransferThread( ));
 
-                asyncRB = true;
+                hasAsyncReadback = true;
                 _refFrame( frameNumber );
 
                 ChannelFinishReadbackPacket packet;
@@ -1594,19 +1573,6 @@ bool Channel::_asyncFinishReadback( detail::RBStat* stat,
             else // transmit images asynchronously
                 _asyncTransmit( frameData, frameNumber, j, nodes, netNodes,
                                 getTaskID( ));
-        }
-
-        EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "Frame readback async " << asyncRB
-                                          <<  " ready "  << ready << std::endl;
-        if( ready )
-        {
-            if( asyncRB )
-            {
-                hasAsyncReadback = true;
-                _asyncSetReady( frameData, stat, nodes, netNodes );
-            }
-            else
-                _setReady( frameData, stat, nodes, netNodes );
         }
     }
     return hasAsyncReadback;
@@ -1853,15 +1819,34 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     getLocalNode()->releaseSendToken( token );
 }
 
+void Channel::_setReady( const bool async, detail::RBStat* stat )
+{
+    const Frames& frames = getOutputFrames();
+    for( FramesCIter i = frames.begin(); i != frames.end(); ++i )
+    {
+        Frame* frame = *i;
+        const Eye eye = getEye();
+        const std::vector< uint128_t >& nodes = frame->getInputNodes( eye );
+        const std::vector< uint128_t >& netNodes = frame->getInputNetNodes(eye);
+
+        if( async )
+            _asyncSetReady( frame->getData(), stat, nodes, netNodes );
+        else
+            _setReady( frame->getData(), stat, nodes, netNodes );
+    }
+}
+
 void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
+    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    _refFrame( stat->event.event.data.statistic.frameNumber );
     stat->ref( 0 );
+
     std::vector< uint128_t > ids = nodes;
     ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
 
-    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
     ChannelFrameSetReadyPacket packet( frame, stat, nodes.size( ));
     send( getLocalNode(), packet, ids );
 }
@@ -2126,6 +2111,8 @@ bool Channel::_cmdFinishReadback( co::Command& command )
 {
     const ChannelFinishReadbackPacket* packet = 
         command.get< ChannelFinishReadbackPacket >();
+
+    getWindow()->makeCurrentTransfer();
     _finishReadback( packet );
     _unrefFrame( packet->frameNumber );
     return true;
@@ -2135,6 +2122,7 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
 {
     const ChannelFrameSetReadyPacket* packet = 
         command.get<ChannelFrameSetReadyPacket>();
+    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
 
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
     std::vector< uint128_t > nodes;
@@ -2143,9 +2131,9 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
     netNodes.insert( netNodes.end(), packet->IDs + packet->nNodes,
                      packet->IDs + 2 * packet->nNodes );
 
-    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
     _setReady( frameData, packet->stat, nodes, netNodes );
     packet->stat->unref( 0 );
+    _unrefFrame( packet->stat->event.event.data.statistic.frameNumber );
     return true;
 }
 

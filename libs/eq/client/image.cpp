@@ -330,7 +330,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
     _depth.memory.state = Memory::INVALID;
 
     bool needFinish = (buffers & Frame::BUFFER_COLOR) &&
-                          _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
+                         _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
     if( (buffers & Frame::BUFFER_DEPTH) &&
         _startReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
     {
@@ -363,11 +363,7 @@ bool Image::_startReadback( const Frame::Buffer buffer, const Zoom& zoom,
         return startReadback( buffer, 0, glewGetContext( ));
 
     // else copy to texture, draw zoomed quad into FBO, (read FBO texture)
-    const util::Texture* texture = _readbackZoom( buffer, zoom, glObjects );
-    if( texture == 0 )
-        return false;
-
-    return startReadback( buffer, texture, glewGetContext( ));
+    return _readbackZoom( buffer, zoom, glObjects );
 }
 
 bool Image::startReadback( const Frame::Buffer buffer,
@@ -482,12 +478,10 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
 
     downloader->setGLEWContext( 0 );
     memory.state = Memory::VALID;
-    return;
 }
 
-const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
-                                           const Zoom& zoom,
-                                           ObjectManager* glObjects )
+bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
+                           ObjectManager* glObjects )
 {
     EQASSERT( glObjects );
     EQASSERT( glObjects->supportsEqTexture( ));
@@ -496,7 +490,7 @@ const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
     PixelViewport pvp = _pvp;
     pvp.apply( zoom );
     if( !pvp.hasArea( ))
-        return 0;
+        return false;
 
     // copy frame buffer to texture
     const void* bufferKey = _getBufferKey( buffer );
@@ -581,7 +575,7 @@ const util::Texture* Image::_readbackZoom( const Frame::Buffer buffer,
 
     EQLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
-    return zoomedTexture;
+    return startReadback( buffer, zoomedTexture, glewGetContext( ));
 }
 
 const void* Image::_getBufferKey( const Frame::Buffer buffer ) const

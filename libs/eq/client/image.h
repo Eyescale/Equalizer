@@ -337,8 +337,7 @@ namespace eq
          */
         EQ_API void upload( const Frame::Buffer buffer, util::Texture* texture,
                             const Vector2i& position,
-                            ObjectManager* glObjects )
-            const;
+                            ObjectManager* glObjects ) const;
 
         /** Write the pixel data as rgb image file. @version 1.0 */
         EQ_API bool writeImage( const std::string& filename,
@@ -503,8 +502,8 @@ namespace eq
         void _finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
                               const GLEWContext* glewContext );
 
-        const util::Texture* _readbackZoom( const Frame::Buffer buffer,
-                        const Zoom& zoom, ObjectManager* glObjects );
+        bool _readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
+                            ObjectManager* glObjects );
     };
 };
 #endif // EQ_IMAGE_H

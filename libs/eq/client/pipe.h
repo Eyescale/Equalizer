@@ -439,9 +439,6 @@ namespace detail { class TransferThread; }
 
         detail::TransferThread* const _transferThread;
 
-        /** The last window made current. */
-        const mutable Window* _currentWindow;
-
         /** GPU Computing context */
         ComputeContext *_computeContext;
 

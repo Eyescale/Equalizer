@@ -491,21 +491,21 @@ const SystemWindow* Window::getTransferSystemWindow()
     const Pipe* pipe = getPipe();
     _transferWindow = pipe->getWindowSystem().createWindow( this );
 
-    if( !_transferWindow )
+    if( _transferWindow )
+    {
+        if( !_transferWindow->configInit( ))
+        {
+            EQWARN << "Transfer window initialization failed: " << std::endl;
+            delete _transferWindow;
+            _transferWindow = 0;
+        }
+    }
+    else
         EQERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
 
-    if( _transferWindow && !_transferWindow->configInit( ))
-    {
-        EQWARN << "Transfer window initialization failed: " << std::endl;
-        delete _transferWindow;
-        _transferWindow = 0;
-    }
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
-
-    if( _transferWindow )
-        _transferWindow->makeCurrent();
 
     EQINFO << "Transfer window initialization finished" << std::endl;
     return _transferWindow;
@@ -518,6 +518,18 @@ const GLEWContext* Window::getTransferGlewContext()
         return transferWindow->glewGetContext();
     return 0;
 }
+
+void Window::makeCurrentTransfer( const bool useCache ) const
+{
+    if( useCache && getPipe()->isCurrent( this ))
+        return;
+
+    EQASSERT( _transferWindow );
+    if( _transferWindow )
+        _transferWindow->makeCurrent();
+    // _pipe->setCurrent done by SystemWindow::makeCurrent
+}
+
 
 void Window::deleteTransferSystemWindow()
 {
