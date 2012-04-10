@@ -34,7 +34,7 @@ endif()
 if(WIN32)
   eq_add_tool(affinityCheck
     SOURCES affinityCheck/affinityCheck.cpp
-    LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_LIBRARIES}
+    LINK_LIBRARIES ${GLEW_LIBRARY} ${OPENGL_gl_LIBRARY}
     )
 endif(WIN32)
 
