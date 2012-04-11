@@ -39,13 +39,13 @@ View< L, V, O >::View( L* layout )
     // client views are multi-buffered (once per pipe) and do not have a parent
     if( layout )
         layout->_addChild( static_cast< V* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     if( _layout )
         _layout->_removeChild( static_cast< V* >( this ));
 }
@@ -111,16 +111,16 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
             if( !_observer && _layout ) // don't map render client observers yet
             {
                 L* layout = getLayout();
-                EQASSERT( layout && layout->getConfig( ));
+                LBASSERT( layout && layout->getConfig( ));
                 layout->getConfig()->find( observer.identifier, &_observer );
                 if( _observer )
                     _observer->addView( static_cast< V* >( this ));
-                EQASSERT( _observer );
-                EQASSERT( _observer->getID() == observer.identifier );
+                LBASSERT( _observer );
+                LBASSERT( _observer->getID() == observer.identifier );
             }
             if( _observer )
             {
-                EQASSERT( _observer->getID() == observer.identifier );
+                LBASSERT( _observer->getID() == observer.identifier );
                 if( _observer->isMaster( ))
                     _observer->sync();
                 else
@@ -197,7 +197,7 @@ void View< L, V, O >::setModelUnit( const float modelUnit )
 template< class L, class V, class O >
 float View< L, V, O >::getModelUnit() const
 {
-    EQASSERT( _data.modelUnit > 0.f );
+    LBASSERT( _data.modelUnit > 0.f );
     return _data.modelUnit;
 }
 

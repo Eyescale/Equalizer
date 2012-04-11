@@ -47,7 +47,7 @@ bool EventConnection::connect()
     _event = CreateEvent( 0, TRUE, FALSE, 0 );
 #else
     _connection = new PipeConnection;
-    EQCHECK( _connection->connect( ));
+    LBCHECK( _connection->connect( ));
     _set = false;
 #endif
 

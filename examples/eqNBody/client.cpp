@@ -44,13 +44,13 @@ Client::Client( const InitData& initData )
     
 int Client::init()
 {
-    EQASSERT( !_config );
+    LBASSERT( !_config );
 
     // 1. connect to server
     _server = new eq::Server;
     if( !connectServer( _server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -60,7 +60,7 @@ int Client::init()
 
     if( !_config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         disconnectServer( _server );
         return EXIT_FAILURE;
     }
@@ -74,7 +74,7 @@ int Client::init()
         return EXIT_FAILURE;
     }
     else if( _config->getError( ))
-        EQWARN << "Error during initialization: " << _config->getError()
+        LBWARN << "Error during initialization: " << _config->getError()
                << std::endl;
 
     return EXIT_SUCCESS;
@@ -82,7 +82,7 @@ int Client::init()
 
 int Client::exit()
 {
-    EQASSERT( _config );
+    LBASSERT( _config );
 
     // Exit config
     _config->exit();
@@ -90,7 +90,7 @@ int Client::exit()
     // Cleanup
     _server->releaseConfig( _config );
     if( !disconnectServer( _server )) {
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
         return EXIT_FAILURE;
     }
         

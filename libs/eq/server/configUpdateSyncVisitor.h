@@ -68,7 +68,7 @@ public:
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
     co::Error getError() const
-        { EQASSERTINFO( _error != ERROR_NONE, _error ); return _error; }
+        { LBASSERTINFO( _error != ERROR_NONE, _error ); return _error; }
 
 private:
     bool _result; // success or failure
@@ -93,7 +93,7 @@ private:
                 case STATE_FAILED:
                     return TRAVERSE_PRUNE;
             }
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
         }
 
@@ -112,7 +112,7 @@ private:
                         _error = entity->getError();
                         _result = false;
                         _sync = true;
-                        EQWARN << lunchbox::className( entity )
+                        LBWARN << lunchbox::className( entity )
                                << " initialization failed: " << _error
                                << std::endl;
                     }
@@ -138,7 +138,7 @@ private:
                 case STATE_FAILED:
                     return TRAVERSE_CONTINUE;
             }
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
         }
 };

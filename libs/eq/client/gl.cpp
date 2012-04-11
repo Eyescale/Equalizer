@@ -24,26 +24,26 @@ namespace eq
 void debugGLError( const std::string& when, const GLenum error, 
                    const char* file, const int line )
 {                                                                 
-    EQWARN << lunchbox::disableFlush << "Got ";
+    LBWARN << lunchbox::disableFlush << "Got ";
     switch( error )
     {
         case GL_INVALID_ENUM:
-            EQWARN << "GL_INVALID_ENUM"; break;
+            LBWARN << "GL_INVALID_ENUM"; break;
         case GL_INVALID_VALUE:
-            EQWARN << "GL_INVALID_VALUE"; break;
+            LBWARN << "GL_INVALID_VALUE"; break;
         case GL_INVALID_OPERATION:
-            EQWARN << "GL_INVALID_OPERATION"; break;
+            LBWARN << "GL_INVALID_OPERATION"; break;
         case GL_STACK_OVERFLOW:
-            EQWARN << "GL_STACK_OVERFLOW"; break;
+            LBWARN << "GL_STACK_OVERFLOW"; break;
         case GL_STACK_UNDERFLOW:
-            EQWARN << "GL_STACK_UNDERFLOW"; break;
+            LBWARN << "GL_STACK_UNDERFLOW"; break;
         case GL_OUT_OF_MEMORY:
-            EQWARN << "GL_OUT_OF_MEMORY"; break;
+            LBWARN << "GL_OUT_OF_MEMORY"; break;
         default:
-            EQWARN << "GL error 0x" << std::hex << error << std::dec; break;
+            LBWARN << "GL error 0x" << std::hex << error << std::dec; break;
     }
     
-    EQWARN << ' ' << when << " in " << file << ':' << line << std::endl
+    LBWARN << ' ' << when << " in " << file << ':' << line << std::endl
            << lunchbox::backtrace << std::endl << lunchbox::enableFlush;
 }                                 
 }

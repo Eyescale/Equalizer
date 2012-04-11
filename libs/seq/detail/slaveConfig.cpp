@@ -28,7 +28,7 @@ namespace detail
 
 bool SlaveConfig::mapData( const uint128_t& initID )
 {
-    EQASSERT( !_objects );
+    LBASSERT( !_objects );
 
     _objects = new ObjectMap( *this, *getApplication( ));
     const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
@@ -40,13 +40,13 @@ bool SlaveConfig::mapData( const uint128_t& initID )
 
 void SlaveConfig::syncData( const uint128_t& version )
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
     _objects->sync( version );
 }
 
 void SlaveConfig::unmapData()
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
     unmapObject( _objects );
     delete _objects;
     _objects = 0;

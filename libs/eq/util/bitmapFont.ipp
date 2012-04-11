@@ -37,7 +37,7 @@ BitmapFont< OMT >::~BitmapFont()
 {
     const GLuint lists = _gl.getList( _key );
     if( lists != ObjectManager< OMT >::INVALID )
-        EQWARN << "OpenGL BitmapFont was not freed" << std::endl;
+        LBWARN << "OpenGL BitmapFont was not freed" << std::endl;
 }
 
 template< class OMT >
@@ -59,7 +59,7 @@ template< class OMT >
 void BitmapFont< OMT >::draw( const std::string& text ) const
 {
     const GLuint lists = _gl.getList( _key );
-    EQASSERTINFO( lists != ObjectManager< OMT >::INVALID, 
+    LBASSERTINFO( lists != ObjectManager< OMT >::INVALID, 
                   "Font not initialized" );
 
     if( lists != ObjectManager< OMT >::INVALID )

@@ -38,21 +38,21 @@ View::~View()
 Config* View::getConfig()
 {
     Layout* layout = getLayout();
-    EQASSERT( layout );
+    LBASSERT( layout );
     return layout ? layout->getConfig() : 0;
 }
 
 const Config* View::getConfig() const
 {
     const Layout* layout = getLayout();
-    EQASSERT( layout );
+    LBASSERT( layout );
     return layout ? layout->getConfig() : 0;
 }
 
 ServerPtr View::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 

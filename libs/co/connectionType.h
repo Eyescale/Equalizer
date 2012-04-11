@@ -56,7 +56,7 @@ namespace co
             case CONNECTIONTYPE_UDT: return os << "UDT";
                 
             default:
-                EQASSERTINFO( false, "Not implemented" );
+                LBASSERTINFO( false, "Not implemented" );
                 return os << "ERROR";
         }
         return os;

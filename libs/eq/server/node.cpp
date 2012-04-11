@@ -125,7 +125,7 @@ co::CommandQueue* Node::getCommandThreadQueue()
 Channel* Node::getChannel( const ChannelPath& path )
 {
     const Pipes& pipes = getPipes();
-    EQASSERT( pipes.size() > path.pipeIndex );
+    LBASSERT( pipes.size() > path.pipeIndex );
 
     if( pipes.size() <= path.pipeIndex )
         return 0;
@@ -141,14 +141,14 @@ void Node::addTasks( const uint32_t tasks )
 void Node::activate()
 {   
     ++_active;
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Node::deactivate()
 { 
-    EQASSERT( _active != 0 );
+    LBASSERT( _active != 0 );
     --_active; 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Node::setSAttribute( const SAttribute attr, const std::string& value )
@@ -208,34 +208,34 @@ static co::NodePtr _createNetNode( Node* node )
 
 bool Node::connect()
 {
-    EQASSERT( isActive( ));
+    LBASSERT( isActive( ));
 
     if( _node.isValid( ))
         return _node->isConnected();
 
     if( !isStopped( ))
     {
-        EQASSERT( _state == STATE_FAILED );
+        LBASSERT( _state == STATE_FAILED );
         return true;
     }
 
     co::LocalNodePtr localNode = getLocalNode();
-    EQASSERT( localNode.isValid( ));
+    LBASSERT( localNode.isValid( ));
     
     if( !_node )
     {
-        EQASSERT( !isApplicationNode( ));
+        LBASSERT( !isApplicationNode( ));
         _node = _createNetNode( this );
     }
     else
     {
-        EQASSERT( isApplicationNode( ));
+        LBASSERT( isApplicationNode( ));
     }
 
-    EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
+    LBLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->connect( _node ) && !launch( ))
     {
-        EQWARN << "Connection to " << _node->getNodeID() << " failed"
+        LBWARN << "Connection to " << _node->getNodeID() << " failed"
                << std::endl;
         _state = STATE_FAILED;
         _node = 0;
@@ -265,7 +265,7 @@ bool Node::launch()
 
 bool Node::syncLaunch( const lunchbox::Clock& clock )
 {
-    EQASSERT( isActive( ));
+    LBASSERT( isActive( ));
 
     if( !_node )
         return false;
@@ -273,9 +273,9 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
     if( _node->isConnected( ))
         return true;
 
-    EQASSERT( !isApplicationNode( ));
+    LBASSERT( !isApplicationNode( ));
     co::LocalNodePtr localNode = getLocalNode();
-    EQASSERT( localNode.isValid( ));
+    LBASSERT( localNode.isValid( ));
 
     const int32_t timeOut = getIAttribute( IATTR_LAUNCH_TIMEOUT );
 
@@ -284,7 +284,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         co::NodePtr node = localNode->getNode( _node->getNodeID( ));
         if( node.isValid() && node->isConnected( ))
         {
-            EQASSERT( _node->getRefCount() == 1 );
+            LBASSERT( _node->getRefCount() == 1 );
             _node = node; // Use co::Node already connected
             return true;
         }
@@ -292,7 +292,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
         lunchbox::sleep( 100 /*ms*/ );
         if( clock.getTime64() > timeOut )
         {
-            EQASSERT( _node->getRefCount() == 1 );
+            LBASSERT( _node->getRefCount() == 1 );
             _node = 0;
             std::ostringstream data;
 
@@ -304,7 +304,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
                 data << desc->getHostname() << ' ';
             }
             setError( ERROR_NODE_CONNECT );
-            EQWARN << getError() << std::endl;
+            LBWARN << getError() << std::endl;
 
             _state = STATE_FAILED;
             return false;
@@ -355,7 +355,7 @@ bool Node::_launch( const std::string& hostname ) const
                 break;
 
             default:
-                EQWARN << "Unknown token " << command[percentPos+1] 
+                LBWARN << "Unknown token " << command[percentPos+1] 
                        << std::endl;
                 replacement << '%' << command[percentPos+1];
         }
@@ -372,11 +372,11 @@ bool Node::_launch( const std::string& hostname ) const
     if( !commandFound )
         cmd += " " + _createRemoteCommand();
 
-    EQVERB << "Launch command: " << cmd << std::endl;
+    LBVERB << "Launch command: " << cmd << std::endl;
     if( lunchbox::Launcher::run( cmd ))
         return true;
 
-    EQWARN << "Could not launch node using '" << cmd << "'" << std::endl;
+    LBWARN << "Could not launch node using '" << cmd << "'" << std::endl;
     return false;
 }
 
@@ -418,7 +418,7 @@ std::string Node::_createRemoteCommand() const
     std::string program = config->getRenderClient();
     const std::string& workDir = config->getWorkDir();
 #ifdef WIN32
-    EQASSERT( program.length() > 2 );
+    LBASSERT( program.length() > 2 );
     if( !( program[1] == ':' && (program[2] == '/' || program[2] == '\\' )) &&
         // !( drive letter and full path present )
         !( program[0] == '/' || program[0] == '\\' ))
@@ -449,7 +449,7 @@ std::string Node::_createRemoteCommand() const
 //---------------------------------------------------------------------------
 void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
     const Config* config = getConfig();
@@ -457,12 +457,12 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     _finishedFrame = config->getFinishedFrame();
     _frameIDs.clear();
 
-    EQLOG( LOG_INIT ) << "Create node" << std::endl;
+    LBLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
     getConfig()->send( _node, createNodePacket );
 
-    EQLOG( LOG_INIT ) << "Init node" << std::endl;
+    LBLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
     packet.initID      = initID;
     packet.frameNumber = frameNumber;
@@ -472,7 +472,7 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
 
 bool Node::syncConfigInit()
 {
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
@@ -483,7 +483,7 @@ bool Node::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Node initialization failed: " << getError() << std::endl;
+    LBWARN << "Node initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }
@@ -496,10 +496,10 @@ void Node::configExit()
     if( _state == STATE_EXITING )
         return;
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit node" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit node" << std::endl;
     NodeConfigExitPacket packet;
     _send( packet );
     flushSendBuffer();
@@ -507,12 +507,12 @@ void Node::configExit()
 
 bool Node::syncConfigExit()
 {
-    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
 
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state == STATE_EXIT_FAILED );
+    LBASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     setTasks( fabric::TASK_NONE );
@@ -529,8 +529,8 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return;
 
-    EQVERB << "Start frame " << frameNumber << std::endl;
-    EQASSERT( isActive( ));
+    LBVERB << "Start frame " << frameNumber << std::endl;
+    LBASSERT( isActive( ));
 
     _frameIDs[ frameNumber ] = frameID;
     
@@ -542,7 +542,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
         startPacket.configVersion = getConfig()->getVersion();
 
     _send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -554,7 +554,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         _send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
     _lastDrawPipe = 0;
@@ -563,7 +563,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
                            << std::endl;
 
     _finish( frameNumber );
@@ -596,7 +596,7 @@ uint32_t Node::_getFinishLatency() const
         case fabric::ASYNC:
             break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     const Config* config = getConfig();
@@ -624,7 +624,7 @@ void Node::_finish( const uint32_t currentFrame )
 
 void Node::flushFrames( const uint32_t frameNumber )
 {
-    EQLOG( LOG_TASKS ) << "Flush frames including " << frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "Flush frames including " << frameNumber << std::endl;
 
     while( _flushedFrame < frameNumber )
     {
@@ -647,7 +647,7 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 
     _send( packet );
     _frameIDs.erase( i );
-    EQLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -719,8 +719,8 @@ bool Node::_cmdConfigInitReply( co::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
         command.get<NodeConfigInitReplyPacket>();
-    EQVERB << "handle configInit reply " << packet << std::endl;
-    EQASSERT( _state == STATE_INITIALIZING );
+    LBVERB << "handle configInit reply " << packet << std::endl;
+    LBASSERT( _state == STATE_INITIALIZING );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
     return true;
@@ -730,8 +730,8 @@ bool Node::_cmdConfigExitReply( co::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
         command.get<NodeConfigExitReplyPacket>();
-    EQVERB << "handle configExit reply " << packet << std::endl;
-    EQASSERT( _state == STATE_EXITING );
+    LBVERB << "handle configExit reply " << packet << std::endl;
+    LBASSERT( _state == STATE_EXITING );
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
@@ -741,7 +741,7 @@ bool Node::_cmdFrameFinishReply( co::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
         command.get<NodeFrameFinishReplyPacket>();
-    EQVERB << "handle frame finish reply " << packet << std::endl;
+    LBVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );

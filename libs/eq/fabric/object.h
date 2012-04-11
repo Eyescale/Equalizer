@@ -165,7 +165,7 @@ namespace fabric
         EQFABRIC_API void postRemove( Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
-        virtual void removeChild( const UUID& ) { EQUNIMPLEMENTED; }
+        virtual void removeChild( const UUID& ) { LBUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >
@@ -175,7 +175,7 @@ namespace fabric
         template< class C > inline 
         void commitChild( C* child, const uint32_t incarnation )
             {
-                EQASSERT( child->isAttached( ));
+                LBASSERT( child->isAttached( ));
                 child->commit( incarnation );
             }
 
@@ -242,7 +242,7 @@ namespace fabric
     {
         if( !child->isAttached( ))
         {
-            EQASSERT( !isMaster( ));
+            LBASSERT( !isMaster( ));
             co::LocalNodePtr localNode = child->getConfig()->getLocalNode();
             PKG packet( localNode->registerRequest( ));
 
@@ -251,7 +251,7 @@ namespace fabric
 
             uint128_t identifier;
             localNode->waitRequest( packet.requestID, identifier );
-            EQCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
+            LBCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
         }
         child->commit( incarnation );
     }
@@ -278,7 +278,7 @@ namespace fabric
              i != children.end(); ++i )
         {
             C* child = *i;
-            EQASSERT( child->isAttached( ));
+            LBASSERT( child->isAttached( ));
             child->commit( incarnation );
         }
     }
@@ -290,7 +290,7 @@ namespace fabric
              i != children.end(); ++i )
         {
             C* child = *i;
-            EQASSERT( child->isMaster( )); // slaves are synced using version
+            LBASSERT( child->isMaster( )); // slaves are synced using version
             child->sync();
         }
     }
@@ -313,7 +313,7 @@ namespace fabric
             }
             else
             {
-                EQASSERT( isMaster( ));
+                LBASSERT( isMaster( ));
             }
         }
     }

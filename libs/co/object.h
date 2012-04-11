@@ -430,7 +430,7 @@ namespace co
     template< class T > inline bool
     Object::send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
     {
-        EQASSERT( isAttached() );
+        LBASSERT( isAttached() );
         packet.objectID  = _id;
         return node->send( packet, v );
     }

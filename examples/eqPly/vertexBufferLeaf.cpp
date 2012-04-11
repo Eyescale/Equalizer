@@ -147,7 +147,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
   
         center       += normdelta;
 
-        EQASSERTINFO( Vertex( vertex-center ).squared_length() <= 
+        LBASSERTINFO( Vertex( vertex-center ).squared_length() <= 
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
@@ -163,7 +163,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
-        EQASSERTINFO( distanceSquared <= 
+        LBASSERTINFO( distanceSquared <= 
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );

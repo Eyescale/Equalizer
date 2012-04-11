@@ -48,7 +48,7 @@ void Pipe::startAsyncFetcher( Window* wnd )
     if( _initialized )
         return;
     _initialized = true;
-    EQINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
+    LBINFO << "initialize async fetcher: " << this << ", " << wnd << std::endl;
     _asyncFetcher.setup( wnd );
     _asyncFetcher.start();
     _asyncFetcher.getTextureId(); // wait for initialization to finish
@@ -65,14 +65,14 @@ void Pipe::frameStart( const eq::uint128_t& frameID, const uint32_t frameNumber)
         if( oldKey != 0 )
             _asyncFetcher.deleteTexture( oldKey );
 
-        EQINFO << "new texture generated " << _txId.key << std::endl;
+        LBINFO << "new texture generated " << _txId.key << std::endl;
     }
 }
 
 
 bool Pipe::configExit()
 {
-    EQINFO << "exit async fetcher: " << this << std::endl;
+    LBINFO << "exit async fetcher: " << this << std::endl;
     _asyncFetcher.deleteTexture( 0 ); //exit async fetcher
     _asyncFetcher.join();
 

@@ -50,7 +50,7 @@ public:
     virtual ~Application() {}
     virtual seq::Renderer* createRenderer() { return new Renderer( *this ); }
     virtual co::Object * createObject( const uint32_t type )
-        { EQUNIMPLEMENTED; return 0; }
+        { LBUNIMPLEMENTED; return 0; }
 };
 typedef lunchbox::RefPtr< Application > ApplicationPtr;
 }

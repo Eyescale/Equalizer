@@ -49,7 +49,7 @@ void MessagePump::dispatchOne()
         {
             co::ConnectionPtr connection = _connections.getConnection();
             _connections.removeConnection( connection );
-            EQERROR << "Display connection shut down" << std::endl;
+            LBERROR << "Display connection shut down" << std::endl;
             break;
         }
             
@@ -63,7 +63,7 @@ void MessagePump::dispatchOne()
         case co::ConnectionSet::EVENT_CONNECT:
         case co::ConnectionSet::EVENT_ERROR:      
         default:
-            EQWARN << "Error during select" << std::endl;
+            LBWARN << "Error during select" << std::endl;
             break;
 
         case co::ConnectionSet::EVENT_TIMEOUT:

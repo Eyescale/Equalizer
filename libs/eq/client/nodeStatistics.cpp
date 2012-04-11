@@ -46,7 +46,7 @@ NodeStatistics::NodeStatistics( const Statistic::Type type, Node* node,
     event.data.statistic.resourceName[31] = 0;
 
     co::LocalNodePtr localNode = node->getLocalNode();
-    EQASSERT( localNode );
+    LBASSERT( localNode );
     if( !localNode )
     {
         event.data.statistic.frameNumber = 0;
@@ -55,7 +55,7 @@ NodeStatistics::NodeStatistics( const Statistic::Type type, Node* node,
 
     Config* config = _owner->getConfig();
     event.data.statistic.startTime = config->getTime();
-    EQASSERT( _owner->getID() != UUID::ZERO );
+    LBASSERT( _owner->getID() != UUID::ZERO );
     event.data.originator = _owner->getID();
     event.data.serial = _owner->getSerial();
 }
@@ -67,7 +67,7 @@ NodeStatistics::~NodeStatistics()
         return;
 
     co::LocalNodePtr localNode = _owner->getLocalNode();
-    EQASSERT( localNode );
+    LBASSERT( localNode );
     if( !localNode )
         return;
 

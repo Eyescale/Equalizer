@@ -48,8 +48,8 @@ namespace eqNbody
         if( dirtyBits & DIRTY_DATA ) {
             os << _offset << _numBytes;
 
-            EQASSERT(_hPos != NULL);
-            EQASSERT(_hVel != NULL);
+            LBASSERT(_hPos != NULL);
+            LBASSERT(_hVel != NULL);
 
             os.write(_hPos+_offset, _numBytes);
             os.write(_hVel+_offset, _numBytes);
@@ -65,8 +65,8 @@ namespace eqNbody
         if( dirtyBits & DIRTY_DATA ) {
             is >> _offset >> _numBytes;
 
-            EQASSERT(_hPos != NULL);
-            EQASSERT(_hVel != NULL);
+            LBASSERT(_hPos != NULL);
+            LBASSERT(_hVel != NULL);
 
             is.read(_hPos+_offset, _numBytes);
             is.read(_hVel+_offset, _numBytes);

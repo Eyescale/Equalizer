@@ -46,7 +46,7 @@ Channel< W, C >::Channel( W* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
@@ -62,13 +62,13 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }
@@ -110,7 +110,7 @@ void Channel< W, C >::restore()
 template< class W, class C >
 void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
-    EQASSERT( dirtyBits == DIRTY_ALL || 
+    LBASSERT( dirtyBits == DIRTY_ALL || 
               getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
@@ -173,7 +173,7 @@ void Channel< W, C >::setDirty( const uint64_t dirtyBits )
 template< class W, class C >
 void Channel< W, C >::setPixelViewport( const PixelViewport& pvp )
 {
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
     if( !pvp.isValid( ))
         return;
 
@@ -236,14 +236,14 @@ void Channel< W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
+    LBVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
            << _data.nativeContext.pvp << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::setNearFar( const float nearPlane, const float farPlane )
 {
-    EQASSERT( _context );
+    LBASSERT( _context );
     if( _data.nativeContext.frustum.near_plane() != nearPlane ||
         _data.nativeContext.frustum.far_plane() != farPlane )
     {
@@ -279,7 +279,7 @@ void Channel< W, C >::setViewVersion( const co::ObjectVersion& view )
 {
     if( _data.nativeContext.view == view )
         return;
-    EQASSERTINFO( view.identifier != UUID::ZERO ||
+    LBASSERTINFO( view.identifier != UUID::ZERO ||
                   _data.nativeContext.view.version <= view.version,
                   _data.nativeContext.view << " != " << view );
 
@@ -323,13 +323,13 @@ template< class W, class C >
 ChannelPath Channel< W, C >::getPath() const
 {
     const W* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     ChannelPath path( window->getPath( ));
 
     const typename W::Channels& channels = window->getChannels();
     typename W::Channels::const_iterator i = std::find( channels.begin(),
                                                         channels.end(), this );
-    EQASSERT( i != channels.end( ));
+    LBASSERT( i != channels.end( ));
     path.channelIndex = std::distance( channels.begin(), i );
     return path;
 }
@@ -338,7 +338,7 @@ ChannelPath Channel< W, C >::getPath() const
 template< class W, class C >
 int32_t Channel< W, C >::getIAttribute( const IAttribute attr ) const
 {
-    EQASSERT( attr < IATTR_ALL );
+    LBASSERT( attr < IATTR_ALL );
     return _iAttributes[ attr ];
 }
 

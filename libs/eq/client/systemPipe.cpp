@@ -25,7 +25,7 @@ namespace eq
 SystemPipe::SystemPipe( Pipe* parent )
     : _pipe( parent )
 {
-    EQASSERT( _pipe ); 
+    LBASSERT( _pipe ); 
 }
 
 SystemPipe::~SystemPipe()

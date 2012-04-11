@@ -39,22 +39,22 @@ namespace co
         /** @name Data Access */
         //@{
         template< class P > P* getModifiable()
-            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
+            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
         template< class P > const P* get() const
-            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
+            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }
         LocalNodePtr getLocalNode() const { return _localNode; }
 
         bool          operator ! () const { return ( _packet==0 ); }
-        Packet*       operator->()       { EQASSERT(_packet); return _packet; }
-        const Packet* operator->() const { EQASSERT(_packet); return _packet; }
+        Packet*       operator->()       { LBASSERT(_packet); return _packet; }
+        const Packet* operator->() const { LBASSERT(_packet); return _packet; }
 
         bool isValid() const { return ( _packet!=0 ); }
         uint64_t getAllocationSize() const { return _dataSize; }
 
         void setDispatchFunction( const Dispatcher::Func& func )
-            { EQASSERT( !_func.isValid( )); _func = func; }
+            { LBASSERT( !_func.isValid( )); _func = func; }
         //@}
 
         /** @name Usage tracking. */

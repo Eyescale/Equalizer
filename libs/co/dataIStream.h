@@ -143,7 +143,7 @@ namespace co
         {
             uint64_t nElems = 0;
             read( &nElems, sizeof( nElems ));
-            EQASSERTINFO( nElems < LB_BIT48,
+            LBASSERTINFO( nElems < LB_BIT48,
                   "Out-of-sync co::DataIStream: " << nElems << " elements?" );
             value.resize( size_t( nElems ));
             if( nElems > 0 )
@@ -165,7 +165,7 @@ namespace co{
     { 
         uint64_t nElems = 0;
         read( &nElems, sizeof( nElems ));
-        EQASSERTINFO( nElems <= getRemainingBufferSize(),
+        LBASSERTINFO( nElems <= getRemainingBufferSize(),
                       nElems << " > " << getRemainingBufferSize( ));
         if( nElems == 0 )
             str.clear();
@@ -183,7 +183,7 @@ namespace co{
     {
         ObjectVersion data;
         (*this) >> data;
-        EQASSERT( object->getID() == data.identifier );
+        LBASSERT( object->getID() == data.identifier );
         object->sync( data.version );
         return *this;
     }
@@ -232,10 +232,10 @@ namespace co{
                 C* child = 0;
                 object->create( &child );
                 LocalNodePtr localNode = object->getLocalNode();
-                EQASSERT( child );
-                EQASSERT( !object->isMaster( ));
+                LBASSERT( child );
+                LBASSERT( !object->isMaster( ));
 
-                EQCHECK( localNode->mapObject( child, version ));
+                LBCHECK( localNode->mapObject( child, version ));
                 result.push_back( child );
             }
             else

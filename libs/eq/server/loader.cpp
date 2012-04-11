@@ -165,7 +165,7 @@ static void _addDestinationViews( Compound* compound )
         config->activateCanvas( canvas );
         
         Channel* newChannel = config->findChannel( segment, view );
-        EQASSERT( newChannel );
+        LBASSERT( newChannel );
         
         compound->setChannel( newChannel );
         compound->setViewport( Viewport::FULL );
@@ -218,7 +218,7 @@ static void _addDestinationViews( Compound* compound )
     {
         Segment* segment = canvas->getSegments()[ i ];
         Channel* newChannel = config->findChannel( segment, view );
-        EQASSERT( newChannel );
+        LBASSERT( newChannel );
         
         segments[i]->setChannel( newChannel );
         segments[i]->setViewport( Viewport::FULL );
@@ -267,7 +267,7 @@ class AddObserverVisitor : public ServerVisitor
     virtual VisitorResult visit( View* view )
         {
             const Observers& observers = view->getConfig()->getObservers();
-            EQASSERT( observers.size() == 1 );
+            LBASSERT( observers.size() == 1 );
 
             view->setObserver( observers.front( ));
             return TRAVERSE_CONTINUE; 

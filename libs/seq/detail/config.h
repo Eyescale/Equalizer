@@ -35,12 +35,12 @@ namespace detail
         seq::Application* getApplication();
         detail::Application* getApplicationImpl();
 
-        virtual bool init() { EQDONTCALL; return false; }
-        virtual bool run( co::Object* ) { EQDONTCALL; return false; }
-        virtual bool exit() { EQDONTCALL; return false; }
+        virtual bool init() { LBDONTCALL; return false; }
+        virtual bool run( co::Object* ) { LBDONTCALL; return false; }
+        virtual bool exit() { LBDONTCALL; return false; }
 
-        virtual bool needRedraw() { EQDONTCALL; return false; }
-        virtual uint32_t startFrame() { EQDONTCALL; return 0; }
+        virtual bool needRedraw() { LBDONTCALL; return false; }
+        virtual uint32_t startFrame() { LBDONTCALL; return 0; }
 
         virtual bool mapData( const uint128_t& initID ) { return true; }
         virtual void syncData( const uint128_t& version ) { /* nop */ }

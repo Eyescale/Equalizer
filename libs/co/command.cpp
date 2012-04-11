@@ -33,7 +33,7 @@ Command::Command( lunchbox::a_int32_t& freeCounter )
 
 Command::~Command() 
 {
-    EQASSERTINFO( _refCount == 0, _refCount << ", " << *this );
+    LBASSERTINFO( _refCount == 0, _refCount << ", " << *this );
     _free(); 
 }
 
@@ -42,8 +42,8 @@ void Command::retain()
     //LB_TS_THREAD( _writeThread );
     if( ++_refCount == 1 ) // first reference
     {
-        EQASSERT( _refCount == 1 ); // ought to be single-threaded in recv
-        EQASSERT( _freeCount > 0 );
+        LBASSERT( _refCount == 1 ); // ought to be single-threaded in recv
+        LBASSERT( _freeCount > 0 );
         --_freeCount;
     }
 
@@ -51,7 +51,7 @@ void Command::retain()
     {
         if( ++( *_refCountMaster ) == 1 )
             --_freeCount;
-        EQASSERT( *_refCountMaster >= _refCount );
+        LBASSERT( *_refCountMaster >= _refCount );
     }
 }
 
@@ -59,12 +59,12 @@ void Command::release()
 {
     if( _refCountMaster ) // do it before self - otherwise race!
     {
-        EQASSERT( *_refCountMaster != 0 );
+        LBASSERT( *_refCountMaster != 0 );
         if( --( *_refCountMaster ) == 0 ) // last reference
             ++_freeCount;
     }
 
-    EQASSERT( _refCount != 0 );
+    LBASSERT( _refCount != 0 );
     if( --_refCount == 0 ) // last reference
         ++_freeCount;
 }
@@ -73,8 +73,8 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
                         const uint64_t size )
 {
     LB_TS_THREAD( _writeThread );
-    EQASSERT( _refCount == 0 );
-    EQASSERTINFO( !_func.isValid(), *this );
+    LBASSERT( _refCount == 0 );
+    LBASSERTINFO( !_func.isValid(), *this );
 
     size_t allocated = 0;
     if( !_data )
@@ -104,8 +104,8 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
 void Command::clone_( Command& from )
 {
     LB_TS_THREAD( _writeThread );
-    EQASSERT( _refCount == 0 );
-    EQASSERT( !_func.isValid( ));
+    LBASSERT( _refCount == 0 );
+    LBASSERT( !_func.isValid( ));
 
     _node = from._node;
     _localNode = from._localNode;
@@ -117,8 +117,8 @@ void Command::clone_( Command& from )
 void Command::_free()
 {
     LB_TS_THREAD( _writeThread );
-    EQASSERT( _refCount == 0 );
-    EQASSERT( !_func.isValid( ));
+    LBASSERT( _refCount == 0 );
+    LBASSERT( !_func.isValid( ));
 
     if( _data )
         free( _data );
@@ -133,7 +133,7 @@ void Command::_free()
 
 bool Command::operator()()
 {
-    EQASSERT( _func.isValid( ));
+    LBASSERT( _func.isValid( ));
     Dispatcher::Func func = _func;
     _func.clear();
     return func( *this );

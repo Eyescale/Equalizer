@@ -27,8 +27,8 @@ DataIStreamQueue::DataIStreamQueue()
 
 DataIStreamQueue::~DataIStreamQueue()
 {
-    EQASSERTINFO( _pending.empty(), "Incomplete commits pending" );
-    EQASSERTINFO( _queued.isEmpty(), _queued.getSize() << " unapplied commits" )
+    LBASSERTINFO( _pending.empty(), "Incomplete commits pending" );
+    LBASSERTINFO( _queued.isEmpty(), _queued.getSize() << " unapplied commits" )
 
     for( PendingStreamsCIter i = _pending.begin(); i != _pending.end(); ++i )
         delete i->second;
@@ -76,7 +76,7 @@ void DataIStreamQueue::recycle( ObjectDataIStream* stream )
 bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( _pending.size() < 100, "More than 100 pending commits");
+    LBASSERTINFO( _pending.size() < 100, "More than 100 pending commits");
 
     ObjectDataIStream* istream = 0;
     PendingStreams::iterator i = _pending.find( key );
@@ -92,18 +92,18 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
             _pending.erase( i );
 
         _queued.push( QueuedStream( key, istream ));
-        //EQLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
+        //LBLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
         return true;
     }
 
     if( i == _pending.end( ))
     {
         _pending[ key ] = istream;
-        //EQLOG( LOG_OBJECTS ) << "New incomplete commit " << key << std::endl;
+        //LBLOG( LOG_OBJECTS ) << "New incomplete commit " << key << std::endl;
         return false;
     }
 
-    //EQLOG(LOG_OBJECTS) << "Add data to incomplete commit " << key <<std::endl;
+    //LBLOG(LOG_OBJECTS) << "Add data to incomplete commit " << key <<std::endl;
     return false;
 }
 

@@ -32,8 +32,8 @@ MasterCM::MasterCM( Object* object )
         : ObjectCM( object )
         , _version( VERSION_NONE )
 {
-    EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
+    LBASSERT( object );
+    LBASSERT( object->getLocalNode( ));
 
     // sync commands are send to all instances, even the master gets it
     object->registerCommand( CMD_OBJECT_INSTANCE,
@@ -52,10 +52,10 @@ MasterCM::~MasterCM()
 
 uint128_t MasterCM::sync( const uint128_t& inVersion )
 {
-    EQASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
+    LBASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
                   inVersion == VERSION_HEAD, inVersion );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
+    LBLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
@@ -80,9 +80,9 @@ uint128_t MasterCM::sync( const uint128_t& inVersion )
 
 uint128_t MasterCM::_apply( ObjectDataIStream* is )
 {
-    EQASSERT( !is->hasInstanceData( ));
+    LBASSERT( !is->hasInstanceData( ));
     _object->unpack( *is );
-    EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
+    LBASSERTINFO( is->getRemainingBufferSize() == 0 && 
                   is->nRemainingBuffers()==0,
                   "Object " << lunchbox::className( _object ) <<
                   " did not unpack all data" );
@@ -115,13 +115,13 @@ void MasterCM::removeSlave( NodePtr node )
 
     Mutex mutex( _slaves );
     // remove from subscribers
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
+    LBASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )
     {
         Nodes::iterator i = find( _slaves->begin(), _slaves->end(), node );
-        EQASSERT( i != _slaves->end( ));
+        LBASSERT( i != _slaves->end( ));
         _slaves->erase( i );
         _slavesCount.erase( nodeID );
     }
@@ -139,7 +139,7 @@ void MasterCM::removeSlaves( NodePtr node )
         return;
 
     NodesIter j = stde::find( *_slaves, node );
-    EQASSERT( j != _slaves->end( ));
+    LBASSERT( j != _slaves->end( ));
     _slaves->erase( j );
     _slavesCount.erase( i );
 }

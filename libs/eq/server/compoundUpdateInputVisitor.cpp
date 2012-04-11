@@ -59,13 +59,13 @@ void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
 
         if( j == _outputQueues.end( ))
         {
-            EQVERB << "Can't find matching output queue, ignoring input queue "
+            LBVERB << "Can't find matching output queue, ignoring input queue "
                    << name << std::endl;
             queue->unsetData();
             continue;
         }
 
-        EQASSERT( queue->isAttached( ));
+        LBASSERT( queue->isAttached( ));
 
         TileQueue* outputQueue = j->second;
         queue->setOutputQueue( outputQueue, compound );
@@ -95,7 +95,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
 
         if( j == _outputFrames.end( ))
         {
-            EQVERB << "Can't find matching output frame, ignoring input frame "
+            LBVERB << "Can't find matching output frame, ignoring input frame "
                    << name << std::endl;
             frame->unsetData();
             continue;
@@ -146,7 +146,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
                 outputFrame->hasData( eye ))         // output data for eye pass
             {
                 frame->commit();
-                EQLOG( LOG_ASSEMBLY )
+                LBLOG( LOG_ASSEMBLY )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
                     << frame->getVersion() << "\" tile pos "

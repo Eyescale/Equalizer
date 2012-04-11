@@ -306,7 +306,7 @@ Axis VertexData::getLongestAxis( const size_t start,
 {
     if( start + elements > triangles.size() )
     {
-        EQERROR << "incorrect request to getLongestAxis" << endl
+        LBERROR << "incorrect request to getLongestAxis" << endl
                 << "start:     " << start                << endl
                 << "elements:  " << elements             << endl
                 << "sum:       " << start+elements       << endl

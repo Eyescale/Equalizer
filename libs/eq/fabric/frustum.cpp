@@ -78,7 +78,7 @@ void Frustum::serialize( co::DataOStream& os )
             break;
 
         default:
-            EQASSERT( false );
+            LBASSERT( false );
     }
 }
 
@@ -102,7 +102,7 @@ void Frustum::deserialize( co::DataIStream& is )
             break;
 
         default:
-            EQASSERT( false );
+            LBASSERT( false );
     }
     updateFrustum();
 }

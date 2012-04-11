@@ -44,9 +44,9 @@ namespace eq
                           const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
                 : _owner( owner )
             {
-                EQASSERT( owner );
-                EQASSERT( owner->getID() != UUID::ZERO );
-                EQASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
+                LBASSERT( owner );
+                LBASSERT( owner->getID() != UUID::ZERO );
+                LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
                 event.data.type                  = Event::STATISTIC;
                 event.data.serial                = owner->getSerial();
                 event.data.originator            = owner->getID();

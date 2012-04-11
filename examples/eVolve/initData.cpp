@@ -78,6 +78,6 @@ void InitData::applyInstanceData( co::DataIStream& is )
     is >> _frameDataID >> _windowSystem >> _precision >> _brightness >> _alpha
        >> _filename;
 
-    EQASSERT( _frameDataID != lunchbox::UUID::ZERO );
+    LBASSERT( _frameDataID != lunchbox::UUID::ZERO );
 }
 }

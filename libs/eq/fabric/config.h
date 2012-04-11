@@ -215,7 +215,7 @@ namespace fabric
 
         /** @internal Execute the slave remove request. */
         virtual void _removeChild( const UUID& )
-            { EQUNIMPLEMENTED; }
+            { LBUNIMPLEMENTED; }
 
         template< class, class, class, class, class, class >
         friend class Server;

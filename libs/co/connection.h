@@ -160,14 +160,14 @@ namespace co
          * 
          * @sa acceptSync()
          */
-        virtual void acceptNB() { EQUNIMPLEMENTED; }
+        virtual void acceptNB() { LBUNIMPLEMENTED; }
 
         /** 
          * Complete an accept operation.
          *
          * @return the new connection, 0 on error.
          */        
-        virtual ConnectionPtr acceptSync() { EQUNIMPLEMENTED; return 0; }
+        virtual ConnectionPtr acceptSync() { LBUNIMPLEMENTED; return 0; }
         //@}
 
 
@@ -367,7 +367,7 @@ namespace co
         virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
 
         /** @internal Finish all pending send operations. */
-        virtual void finish() { EQUNIMPLEMENTED; }
+        virtual void finish() { LBUNIMPLEMENTED; }
         //@}
 
         /**

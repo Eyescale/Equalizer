@@ -224,7 +224,7 @@ namespace co
     template<> inline DataOStream& 
     DataOStream::operator << ( const Object* const& object )
     {
-        EQASSERT( !object || object->isAttached( ));
+        LBASSERT( !object || object->isAttached( ));
         (*this) << ObjectVersion( object );
         return *this;
     }
@@ -252,7 +252,7 @@ namespace co
         {
             C* child = *i;
             (*this) << ObjectVersion( child );
-            EQASSERTINFO( !child || child->isAttached(),
+            LBASSERTINFO( !child || child->isAttached(),
                           "Found unmapped object during serialization" );
         }
     }

@@ -62,12 +62,12 @@ SocketConnection::SocketConnection( const ConnectionType type )
     memset( &_overlappedWrite, 0, sizeof( _overlappedWrite ));
 #endif
 
-    EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
+    LBASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description->type = type;
     _description->bandwidth = (type == CONNECTIONTYPE_TCPIP) ?
                                   102400 : 819200; // 100MB : 800 MB
 
-    EQVERB << "New SocketConnection @" << (void*)this << std::endl;
+    LBVERB << "New SocketConnection @" << (void*)this << std::endl;
 }
 
 SocketConnection::~SocketConnection()
@@ -93,12 +93,12 @@ static bool _parseAddress( ConnectionDescriptionPtr description,
             memcpy( &address.sin_addr.s_addr, hptr->h_addr, hptr->h_length );
         else
         {
-            EQWARN << "Can't resolve host " << hostname << std::endl;
+            LBWARN << "Can't resolve host " << hostname << std::endl;
             return false;
         }
     }
 
-    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
+    LBVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
            << ntohs( address.sin_port ) << std::endl;
     return true;
 }
@@ -109,7 +109,7 @@ static bool _parseAddress( ConnectionDescriptionPtr description,
 //----------------------------------------------------------------------
 bool SocketConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
+    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
               _description->type == CONNECTIONTYPE_SDP );
     if( _state != STATE_CLOSED )
         return false;
@@ -126,7 +126,7 @@ bool SocketConnection::connect()
     sockaddr_in address;
     if( !_parseAddress( _description, address ))
     {
-        EQWARN << "Can't parse connection parameters" << std::endl;
+        LBWARN << "Can't parse connection parameters" << std::endl;
         return false;
     }
 
@@ -135,7 +135,7 @@ bool SocketConnection::connect()
 
     if( address.sin_addr.s_addr == 0 )
     {
-        EQWARN << "Refuse to connect to 0.0.0.0" << std::endl;
+        LBWARN << "Refuse to connect to 0.0.0.0" << std::endl;
         close();
         return false;
     }
@@ -150,7 +150,7 @@ bool SocketConnection::connect()
 
     if( !connected )
     {
-        EQINFO << "Could not connect to '" << _description->getHostname() << ":"
+        LBINFO << "Could not connect to '" << _description->getHostname() << ":"
                << _description->port << "': " << lunchbox::sysError << std::endl;
         close();
         return false;
@@ -162,7 +162,7 @@ bool SocketConnection::connect()
     _initAIORead();
     _state = STATE_CONNECTED;
     _fireStateChanged();
-    EQINFO << "Connected " << _description->toString() << std::endl;
+    LBINFO << "Connected " << _description->toString() << std::endl;
     return true;
 }
 
@@ -177,7 +177,7 @@ void SocketConnection::_close()
         _exitAIORead();
 
     _state = STATE_CLOSED;
-    EQASSERT( _readFD > 0 ); 
+    LBASSERT( _readFD > 0 ); 
 
 #ifdef _WIN32
     const bool closed = ( ::closesocket(_readFD) == 0 );
@@ -186,7 +186,7 @@ void SocketConnection::_close()
 #endif
 
     if( !closed )
-        EQWARN << "Could not close socket: " << lunchbox::sysError 
+        LBWARN << "Could not close socket: " << lunchbox::sysError 
                << std::endl;
 
     _readFD  = INVALID_SOCKET;
@@ -201,12 +201,12 @@ void SocketConnection::_close()
 void SocketConnection::_initAIORead()
 {
     _overlappedRead.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlappedRead.hEvent );
+    LBASSERT( _overlappedRead.hEvent );
 
     _overlappedWrite.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlappedWrite.hEvent );
+    LBASSERT( _overlappedWrite.hEvent );
     if( !_overlappedRead.hEvent )
-        EQERROR << "Can't create event for AIO notification: " 
+        LBERROR << "Can't create event for AIO notification: " 
                 << lunchbox::sysError << std::endl;
 }
 
@@ -253,21 +253,21 @@ void SocketConnection::_exitAIORead(){ /* NOP */ }
 #ifdef _WIN32
 void SocketConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
 
     // Create new accept socket
     const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket == INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket == INVALID_SOCKET );
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
                                    flags );
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << lunchbox::sysError
+        LBERROR << "Could not create accept socket: " << lunchbox::sysError
                 << ", closing listening socket" << std::endl;
         close();
         return;
@@ -285,7 +285,7 @@ void SocketConnection::acceptNB()
                    &got, &_overlappedRead ) &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQERROR << "Could not start accept operation: " 
+        LBERROR << "Could not start accept operation: " 
                 << lunchbox::sysError << ", closing connection" << std::endl;
         close();
     }
@@ -297,8 +297,8 @@ ConnectionPtr SocketConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket != INVALID_SOCKET );
     if( _overlappedSocket == INVALID_SOCKET )
         return 0;
 
@@ -309,7 +309,7 @@ ConnectionPtr SocketConnection::acceptSync()
     if( !WSAGetOverlappedResult( _readFD, &_overlappedRead, &got, TRUE,
                                  &flags ))
     {
-        EQWARN << "Accept completion failed: " << lunchbox::sysError 
+        LBWARN << "Accept completion failed: " << lunchbox::sysError 
                << ", closing socket" << std::endl;
         close();
         return 0;
@@ -342,7 +342,7 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_description->port      = ntohs( remote->sin_port );
     newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
 
-    EQINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
+    LBINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
     return connection;
 }
@@ -367,7 +367,7 @@ ConnectionPtr SocketConnection::acceptSync()
 
     if( fd == INVALID_SOCKET )
     {
-      EQWARN << "accept failed: " << lunchbox::sysError << std::endl;
+      LBWARN << "accept failed: " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -382,7 +382,7 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
     newConnection->_description->port      = ntohs( newAddress.sin_port );
 
-    EQVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
+    LBVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
            << ":" << ntohs( newAddress.sin_port ) << std::endl;
 
     return newConnection;
@@ -413,14 +413,14 @@ void SocketConnection::readNB( void* buffer, const uint64_t bytes )
     {
         if( _overlappedDone == 0 ) // socket closed
         {
-            EQINFO << "Got EOF, closing connection" << std::endl;
+            LBINFO << "Got EOF, closing connection" << std::endl;
             close();
         }
         SetEvent( _overlappedRead.hEvent );
     }
     else if( GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << lunchbox::sysError
+        LBWARN << "Could not start overlapped receive: " << lunchbox::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -433,7 +433,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
     if( _readFD == INVALID_SOCKET )
     {
-        EQERROR << "Invalid read handle" << std::endl;
+        LBERROR << "Invalid read handle" << std::endl;
         return READ_ERROR;
     }
 
@@ -453,7 +453,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
         const int err = WSAGetLastError();
         if( err == ERROR_SUCCESS || got > 0 )
         {
-            EQWARN << "Got " << lunchbox::sysError << " with " << got
+            LBWARN << "Got " << lunchbox::sysError << " with " << got
                    << " bytes on " << _description << std::endl;
             return got;
         }
@@ -470,17 +470,17 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
             case WSA_IO_PENDING:
                 if( GetTickCount() - startTime > EQ_RECV_TIMEOUT ) // timeout   
                 {
-                    EQWARN << "Error timeout " << std::endl;
+                    LBWARN << "Error timeout " << std::endl;
                     return READ_ERROR;
                 }
 
-                EQWARN << "WSAGetOverlappedResult error loop"
+                LBWARN << "WSAGetOverlappedResult error loop"
                        << std::endl;
                 lunchbox::sleep( 1 ); // one millisecond to recover
                 break;
 
             default:
-                EQWARN << "Got " << lunchbox::sysError 
+                LBWARN << "Got " << lunchbox::sysError 
                        << ", closing connection" << std::endl;
                 close();
                 return READ_ERROR;
@@ -517,7 +517,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
       case WAIT_FAILED:
       case WAIT_ABANDONED:
         {
-            EQWARN << "Write error" << lunchbox::sysError << std::endl;
+            LBWARN << "Write error" << lunchbox::sysError << std::endl;
             return -1;
         }
       default:
@@ -539,12 +539,12 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
 
       default:
       {
-          EQWARN << "Write error : " << lunchbox::sysError << std::endl;
+          LBWARN << "Write error : " << lunchbox::sysError << std::endl;
           return -1;
       }
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return -1;
 }
 #endif // _WIN32
@@ -559,7 +559,7 @@ bool SocketConnection::_createSocket()
     const SOCKET fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0,0,flags );
 
     if( _description->type == CONNECTIONTYPE_SDP )
-        EQINFO << "Created SDP socket" << std::endl;
+        LBINFO << "Created SDP socket" << std::endl;
 #else
     Socket fd;
     if( _description->type == CONNECTIONTYPE_SDP )
@@ -570,7 +570,7 @@ bool SocketConnection::_createSocket()
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " 
+        LBERROR << "Could not create socket: " 
                 << lunchbox::sysError << std::endl;
         return false;
     }
@@ -609,7 +609,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
 #endif
 bool SocketConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
+    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
               _description->type == CONNECTIONTYPE_SDP );
 
     if( _state != STATE_CLOSED )
@@ -623,7 +623,7 @@ bool SocketConnection::listen()
 
     if( !_parseAddress( _description, address ))
     {
-        EQWARN << "Can't parse connection parameters" << std::endl;
+        LBWARN << "Can't parse connection parameters" << std::endl;
         return false;
     }
 
@@ -634,7 +634,7 @@ bool SocketConnection::listen()
 
     if( !bound )
     {
-        EQWARN << "Could not bind socket " << _readFD << ": " 
+        LBWARN << "Could not bind socket " << _readFD << ": " 
                << lunchbox::sysError << " to " << inet_ntoa( address.sin_addr )
                << ":" << ntohs( address.sin_port ) << " AF "
                << (int)address.sin_family << std::endl;
@@ -643,13 +643,13 @@ bool SocketConnection::listen()
         return false;
     }
     else if( address.sin_port == 0 )
-        EQINFO << "Bound to port " << _getPort() << std::endl;
+        LBINFO << "Bound to port " << _getPort() << std::endl;
 
     const bool listening = (::listen( _readFD, SOMAXCONN ) == 0);
 
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << lunchbox::sysError << std::endl;
+        LBWARN << "Could not listen on socket: " << lunchbox::sysError << std::endl;
         close();
         return false;
     }
@@ -690,7 +690,7 @@ bool SocketConnection::listen()
     _state = STATE_LISTENING;
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description->getHostname() << "["
+    LBINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( address.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
 

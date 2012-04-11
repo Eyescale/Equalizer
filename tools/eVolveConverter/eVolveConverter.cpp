@@ -47,12 +47,12 @@ using hlpFuncs::min;
 using hlpFuncs::hFile;
 
 
-#define EQERROR cerr
-#define EQWARN  cout
+#define LBERROR cerr
+#define LBWARN  cout
 
 
 static int lFailed( const char* msg, int result=1 ) 
-{ EQERROR << msg << endl; return result; }
+{ LBERROR << msg << endl; return result; }
 
 
 int RawConverter::parseArguments( int argc, char** argv )
@@ -170,11 +170,11 @@ int RawConverter::parseArguments( int argc, char** argv )
                         scaleX, scaleY, scaleZ                  );
 
 
-        EQERROR << "Converter options were not specified completely." << endl;
+        LBERROR << "Converter options were not specified completely." << endl;
     }
     catch( TCLAP::ArgException& exception )
     {
-        EQERROR << " Command line parse error: " << exception.error()
+        LBERROR << " Command line parse error: " << exception.error()
                 << " for argument " << exception.argId() << endl;
     }
     return 1;
@@ -267,7 +267,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         ::exit( EXIT_FAILURE );
 
     if( TFSize!=256  )
-        EQWARN << "Wrong size of transfer function, should be 256" << endl;
+        LBWARN << "Wrong size of transfer function, should be 256" << endl;
         
     TFSize = clip<int>( TFSize, 1, 256 );
 
@@ -285,7 +285,7 @@ static int readTransferFunction( FILE* file,  vector<unsigned char>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            EQERROR << "Failed to read entity #" << i 
+            LBERROR << "Failed to read entity #" << i 
                     << " of TF from first header file" << endl;
             return i;
         }
@@ -341,7 +341,7 @@ static int writeVHF( const string&  filename,
 int RawConverter::CompareTwoRawDerVhf( const string& src1,
                                        const string& src2 )
 {
-    EQWARN << "Comparing two raw+derivatives+vhf" << endl;
+    LBWARN << "Comparing two raw+derivatives+vhf" << endl;
     unsigned  w1,  h1,  d1;
     unsigned  w2,  h2,  d2;
     float    sw1, sh1, sd1;
@@ -383,13 +383,13 @@ int RawConverter::CompareTwoRawDerVhf( const string& src1,
     if( h1!=h2 ) return lFailed(" Heights are not equal ");
     if( d1!=d2 ) return lFailed(" Depths are not equal ");
 
-    if( sw1!=sw2 ) EQWARN << " Widths'  scales are not equal " << endl;
-    if( sh1!=sh2 ) EQWARN << " Heights' scales are not equal " << endl;
-    if( sd1!=sd2 ) EQWARN << " Depths'  scales are not equal " << endl;
+    if( sw1!=sw2 ) LBWARN << " Widths'  scales are not equal " << endl;
+    if( sh1!=sh2 ) LBWARN << " Heights' scales are not equal " << endl;
+    if( sd1!=sd2 ) LBWARN << " Depths'  scales are not equal " << endl;
     
-    if( tfSize1!=tfSize2 ) EQWARN << " TF sizes are not equal" << endl;
+    if( tfSize1!=tfSize2 ) LBWARN << " TF sizes are not equal" << endl;
     
-    EQWARN << "done" << endl;
+    LBWARN << "done" << endl;
     return 0;
 }
 
@@ -408,13 +408,13 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Dropping derivatives from raw+derivatives model: " 
+    LBWARN << "Dropping derivatives from raw+derivatives model: " 
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model    
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -456,7 +456,7 @@ int RawConverter::RawPlusDerivativesToRawConverter( const string& src,
 
         file.close();
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl; 
     return 0;
 }
 
@@ -475,13 +475,13 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Creating derivatives for raw model: " 
+    LBWARN << "Creating derivatives for raw model: " 
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model
     vector<unsigned char> volume( w*h*d, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(), 
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -505,7 +505,7 @@ int RawConverter::RawToRawPlusDerivativesConverter( const string& src,
 
         if( result ) return result;
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl; 
     return 0;
 }
 
@@ -524,13 +524,13 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         readDimensionsFromSav( file, w, h, d );
     }
-    EQWARN << "Creating derivatives for raw model: " 
+    LBWARN << "Creating derivatives for raw model: " 
            << src << " " << w << " x " << h << " x " << d << endl;
 
 //read model    
     vector<unsigned char> volume( w*h*d*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(),
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -566,7 +566,7 @@ int RawConverter::RecalculateDerivatives( const string& src,
 
         if( result ) return result;
     }
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl; 
     return 0;
 }
 
@@ -601,7 +601,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     
         if( file==NULL ) 
         {   
-            EQWARN << "Can't open source sav file." << endl
+            LBWARN << "Can't open source sav file." << endl
                    << "Using predefined transfer functions and parameters." 
                    << endl;
                    
@@ -673,7 +673,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
                     ::exit( EXIT_FAILURE );
                 if( fscanf( file, "ba=%f\n", &tga ) !=1 )
                 {
-                    EQERROR << "Failed to read entity #" 
+                    LBERROR << "Failed to read entity #" 
                             << i << " of sav file" << endl;
                     return 1;
                 }
@@ -687,7 +687,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
     int result = writeVHF( dst, w, h, d, wScale, hScale, dScale, TF );
     if( result ) return result;
 
-    EQWARN << "file " << src.c_str() << " > " << dst.c_str() 
+    LBWARN << "file " << src.c_str() << " > " << dst.c_str() 
            << " converted" << endl;
 
     return 0;
@@ -696,7 +696,7 @@ int RawConverter::SavToVhfConverter( const string& src, const string& dst )
 
 int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 {
-    EQWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
+    LBWARN << "converting " << src.c_str() << " > " << dst.c_str() << " .. ";
     
     //Read Description file
     unsigned w=1;
@@ -740,7 +740,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
         writeDimensionsToSav( file, w, h, d );
         writeScalesToSav( file, wScale, hScale, dScale );
     }
-    EQWARN << "succeed" << endl;
+    LBWARN << "succeed" << endl;
     return 0;
 }
 
@@ -748,7 +748,7 @@ int RawConverter::DscToVhfConverter( const string& src, const string& dst )
 int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
                                                   const string& dst  )
 {
-    EQWARN << "Converting " << src << " -> " << dst << endl;
+    LBWARN << "Converting " << src << " -> " << dst << endl;
 
     // reading pvm volume
     unsigned char*  volume = 0;
@@ -765,7 +765,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     if( components != 1 )
         return lFailed( "The only 8-bits models are supported" );
 
-    EQWARN  << "dimensions: " 
+    LBWARN  << "dimensions: " 
             << width << " x " << height << " x " << depth << endl
             << "scales: " << scaleX << " x " << scaleY << " x " << scaleZ
             << endl;
@@ -780,7 +780,7 @@ int RawConverter::PvmSavToRawDerVhfConverter(     const string& src,
     //converting transfer function
     SavToVhfConverter( src+".sav", dst+".vhf" );
 
-    EQWARN << "done" << endl; 
+    LBWARN << "done" << endl; 
 
     return 0;
 }
@@ -792,15 +792,15 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                                                           double scaleY,
                                                           double scaleZ  )
 {
-    EQWARN << "scaleW: " << scaleX << endl;
-    EQWARN << "scaleH: " << scaleY << endl;
-    EQWARN << "scaleD: " << scaleZ << endl;
+    LBWARN << "scaleW: " << scaleX << endl;
+    LBWARN << "scaleH: " << scaleY << endl;
+    LBWARN << "scaleD: " << scaleZ << endl;
     
     if( scaleX < 0.0001 ) lFailed( "Scale for width  is too small" );
     if( scaleY < 0.0001 ) lFailed( "Scale for height is too small" );
     if( scaleZ < 0.0001 ) lFailed( "Scale for depth  is too small" );
 
-    EQWARN << "Scaling raw+derivatives+vhf" << endl;
+    LBWARN << "Scaling raw+derivatives+vhf" << endl;
     unsigned wS, hS, dS;
     float    sw, sh, sd;
 
@@ -831,13 +831,13 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
                                                      sw, sh, sd, TF );
         if( result ) return result;
     }
-    EQWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
-    EQWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
+    LBWARN << "old dimensions: " << wS << " x " << hS << " x " << dS << endl;
+    LBWARN << "new dimensions: " << wD << " x " << hD << " x " << dD << endl;
     
     //read volume
     vector<unsigned char> sVol( wS*hS*dS*4, 0 );
 
-    EQWARN << "Reading model" << endl;
+    LBWARN << "Reading model" << endl;
     {
         ifstream file( src.c_str(), 
                        ifstream::in | ifstream::binary | ifstream::ate );
@@ -854,7 +854,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
 
         file.close();
     }
-    EQWARN << "Scaling model" << endl;
+    LBWARN << "Scaling model" << endl;
     //scale volume
     vector<unsigned char> dVol( wD*hD*dD*4, 0 );
     {
@@ -930,7 +930,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
     }
     
     //write new volume
-    EQWARN << "Writing model" << endl;
+    LBWARN << "Writing model" << endl;
     {
         ofstream file ( dst.c_str(),
                         ifstream::out | ifstream::binary | ifstream::trunc );
@@ -942,7 +942,7 @@ int RawConverter::ScaleRawDerFile(                  const string& src,
         file.close();
     }
 
-    EQWARN << "Done" << endl;
+    LBWARN << "Done" << endl;
     return 0;
 }
 
@@ -953,7 +953,7 @@ static int calculateAndSaveDerivatives( const string& dst,
                                         const unsigned h,
                                         const unsigned d  )
 {
-    EQWARN << "Calculating derivatives" << endl;
+    LBWARN << "Calculating derivatives" << endl;
     ofstream file ( dst.c_str(),
                     ifstream::out | ifstream::binary | ifstream::trunc );
 
@@ -1023,7 +1023,7 @@ static int calculateAndSaveDerivatives( const string& dst,
         }
     }
 
-    EQWARN << "Writing derivatives: " 
+    LBWARN << "Writing derivatives: " 
            << dst.c_str() << " " << GxGyGzA.size() << " bytes" <<endl;
 
     file.write( (char*)( &GxGyGzA[0] ), GxGyGzA.size() );
@@ -1080,7 +1080,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
     {
         case 0:  //spheres
 
-            EQWARN << "transfer: spheres" << endl;
+            LBWARN << "transfer: spheres" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]   = 115;
                 transfer[(i*4)+1] = 186;
@@ -1091,7 +1091,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 1:// fuel
             
-            EQWARN << "transfer: fuel" << endl;
+            LBWARN << "transfer: fuel" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 255;
@@ -1121,7 +1121,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
             
         case 2: //neghip
 
-            EQWARN << "transfer: neghip" << endl;
+            LBWARN << "transfer: neghip" << endl;
             for (i=0; i<65; i++) {
                 transfer[(i*4)] = 255;
                 transfer[(i*4)+1] = 0;
@@ -1148,7 +1148,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 3: //bucky
 
-            EQWARN << "transfer: bucky" << endl;
+            LBWARN << "transfer: bucky" << endl;
             for (i=20; i<99; i++) {
                 transfer[(i*4)]  =  200;
                 transfer[(i*4)+1] = 200;
@@ -1174,7 +1174,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 4: //hydrogen
 
-            EQWARN << "transfer: hydrogen" << endl;
+            LBWARN << "transfer: hydrogen" << endl;
             for (i=4; i<20; i++) {
                 transfer[(i*4)] = 137;
                 transfer[(i*4)+1] = 187;
@@ -1192,7 +1192,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 5: //engine
 
-            EQWARN << "transfer: engine" << endl;
+            LBWARN << "transfer: engine" << endl;
             for (i=100; i<200; i++) {
                 transfer[(i*4)] =     44;
                 transfer[(i*4)+1] = 44;
@@ -1215,7 +1215,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 6: //skull
 
-            EQWARN << "transfer: skull" << endl;
+            LBWARN << "transfer: skull" << endl;
             for (i=40; i<255; i++) {
                 transfer[(i*4)]  =  128;
                 transfer[(i*4)+1] = 128;
@@ -1226,7 +1226,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
 
         case 7: //vertebra
 
-            EQWARN << "transfer: vertebra" << endl;
+            LBWARN << "transfer: vertebra" << endl;
             for (i=40; i<255; i++) {
                 int k = i*2;
                 if (k > 255) k = 255;
@@ -1238,7 +1238,7 @@ static void CreateTransferFunc( int t, unsigned char *transfer )
             break;
             
         default:
-        EQWARN << "transfer: linear (default)" << endl;
+        LBWARN << "transfer: linear (default)" << endl;
             for (i=0; i<255; i++) {
                 transfer[(i*4)]   = i;
                 transfer[(i*4)+1] = i;

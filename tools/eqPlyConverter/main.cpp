@@ -61,7 +61,7 @@ int main( const int argc, char** argv )
         {
             mesh::VertexBufferRoot* model = new mesh::VertexBufferRoot;
             if( !model->readFromFile( filename.c_str( )))
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
 
             delete model;
         }

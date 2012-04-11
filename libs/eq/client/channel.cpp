@@ -143,61 +143,61 @@ uint32_t Channel::getCurrentFrame() const
 Pipe* Channel::getPipe()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getPipe() : 0 );
 }
 
 const Pipe* Channel::getPipe() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getPipe() : 0 );
 }
 
 Node* Channel::getNode()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getNode() : 0 );
 }
 const Node* Channel::getNode() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getNode() : 0 );
 }
 
 Config* Channel::getConfig()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getConfig() : 0 );
 }
 const Config* Channel::getConfig() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getConfig() : 0 );
 }
 
 ServerPtr Channel::getServer()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getServer() : 0 );
 }
 
 Window::ObjectManager* Channel::getObjectManager()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->getObjectManager();
 }
 
 const DrawableConfig& Channel::getDrawableConfig() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     if( _impl->fbo )
         return _impl->drawableConfig;
 
@@ -207,7 +207,7 @@ const DrawableConfig& Channel::getDrawableConfig() const
 const GLEWContext* Channel::glewGetContext() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->glewGetContext();
 }
 
@@ -292,7 +292,7 @@ void Channel::_initDrawableConfig()
                 break;
 
             default:
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
             case GL_UNSIGNED_BYTE:
                 _impl->drawableConfig.colorBits = 8;
                 break;
@@ -314,7 +314,7 @@ void Channel::notifyViewportChanged()
     event.type       = Event::CHANNEL_RESIZE;
     event.originator = getID();
     event.serial     = getSerial();
-    EQASSERT( event.originator != UUID::ZERO );
+    LBASSERT( event.originator != UUID::ZERO );
     event.resize.x   = newPVP.x;
     event.resize.y   = newPVP.y;
     event.resize.w   = newPVP.w;
@@ -328,8 +328,8 @@ void Channel::addStatistic( Event& event )
     {
         const uint32_t frameNumber = event.statistic.frameNumber;
         const size_t index = frameNumber % _impl->statistics->size();
-        EQASSERT( index < _impl->statistics->size( ));
-        EQASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
+        LBASSERT( index < _impl->statistics->size( ));
+        LBASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
         lunchbox::ScopedFastWrite mutex( _impl->statistics );
         Statistics& statistics = _impl->statistics.data[ index ].data;
@@ -386,7 +386,7 @@ void Channel::frameAssemble( const uint128_t& )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << std::endl;
+        LBWARN << e.what() << std::endl;
     }
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -516,7 +516,7 @@ void Channel::changeLatency( const uint32_t latency )
     for( detail::Channel::StatisticsRBCIter i = _impl->statistics->begin();
          i != _impl->statistics->end(); ++i )
     {
-        EQASSERT( (*i).used == 0 );
+        LBASSERT( (*i).used == 0 );
     }
 #endif //NDEBUG
     _impl->statistics->resize( latency + 1 );
@@ -578,7 +578,7 @@ void Channel::applyViewport() const
 
     if( !pvp.hasArea( ))
     {
-        EQERROR << "Can't apply viewport " << pvp << std::endl;
+        LBERROR << "Can't apply viewport " << pvp << std::endl;
         return;
     }
 
@@ -816,8 +816,8 @@ void Channel::declareRegion( const PixelViewport& region )
         while( _removeOverlap( regions )) /* nop */ ;
 
 #ifndef NDEBUG
-        EQASSERT( !_hasOverlap( regions ));
-        EQASSERT( pvpBefore == getRegion( ));
+        LBASSERT( !_hasOverlap( regions ));
+        LBASSERT( pvpBefore == getRegion( ));
 #endif
         return;
     }
@@ -871,9 +871,9 @@ bool Channel::processEvent( const Event& event )
         }
 
         default:
-            EQWARN << "Unhandled channel event of type " << event.type
+            LBWARN << "Unhandled channel event of type " << event.type
                    << std::endl;
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     Config* config = getConfig();
@@ -919,12 +919,12 @@ static bool _compare( const Statistic& stat1, const Statistic& stat2 )
 void Channel::drawStatistics()
 {
     const PixelViewport& pvp = getPixelViewport();
-    EQASSERT( pvp.hasArea( ));
+    LBASSERT( pvp.hasArea( ));
     if( !pvp.hasArea( ))
         return;
 
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
 
     std::vector< eq::FrameStatistics > statistics;
     config->getStatistics( statistics );
@@ -1228,7 +1228,7 @@ void Channel::drawStatistics()
          i != idles.end(); ++i )
     {
         const IdleData& data = i->second;
-        EQASSERT( data.nIdle > 0 );
+        LBASSERT( data.nIdle > 0 );
 
         text << " " << data.name << ":" << data.idle / data.nIdle << "%";
     }
@@ -1343,7 +1343,7 @@ struct RBStat
         {
             event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
             event.event.data.statistic.plugins[1] = EQ_COMPRESSOR_NONE;
-            EQASSERT( event.event.data.statistic.frameNumber > 0 );
+            LBASSERT( event.event.data.statistic.frameNumber > 0 );
         }
 
     lunchbox::SpinLock lock;
@@ -1395,7 +1395,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
     bool hasAsyncReadback = false;
 
     co::QueueSlave* queue = _getQueue( packet->queueVersion );
-    EQASSERT( queue );
+    LBASSERT( queue );
     for( co::Command* queuePacket = queue->pop(); queuePacket;
          queuePacket = queue->pop( ))
     {
@@ -1493,7 +1493,7 @@ void Channel::_refFrame( const uint32_t frameNumber )
 {
     const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
-    EQASSERTINFO( stats.used > 0, frameNumber );
+    LBASSERTINFO( stats.used > 0, frameNumber );
     ++stats.used;
 }
 
@@ -1549,7 +1549,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
         nImages[i] = _impl->outputFrames[i]->getImages().size();
 
     frameReadback( frameID );
-    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
     const bool async = _asyncFinishReadback( nImages );
     _setReady( async, stat.get( ));
     _resetOutputFrames();
@@ -1561,7 +1561,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
 
     bool hasAsyncReadback = false;
     const Frames& frames = getOutputFrames();
-    EQASSERT( frames.size() == imagePos.size( ));
+    LBASSERT( frames.size() == imagePos.size( ));
 
     for( size_t i = 0; i < frames.size(); ++i )
     {
@@ -1582,7 +1582,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
         {
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
-                EQCHECK( getPipe()->startTransferThread( ));
+                LBCHECK( getPipe()->startTransferThread( ));
 
                 hasAsyncReadback = true;
                 _refFrame( frameNumber );
@@ -1608,7 +1608,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
 
 void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
                                     << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
@@ -1616,12 +1616,12 @@ void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
     Image* image = images[ packet->imageIndex ];
     const GLEWContext* glewContext = getWindow()->getTransferGlewContext();
 
-    EQASSERT( frameData );
-    EQASSERT( images.size() > packet->imageIndex );
-    EQASSERT( image->hasAsyncReadback( ));
+    LBASSERT( frameData );
+    LBASSERT( images.size() > packet->imageIndex );
+    LBASSERT( image->hasAsyncReadback( ));
 
     image->finishReadback( frameData->getZoom(), glewContext );
-    EQASSERT( !image->hasAsyncReadback( ));
+    LBASSERT( !image->hasAsyncReadback( ));
 
     // schedule async image tranmission
     std::vector< uint128_t > nodes;
@@ -1640,7 +1640,7 @@ void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
                               const std::vector< uint128_t >& netNodes,
                               const uint32_t taskID )
 {
-    EQASSERT( nodes.size() == netNodes.size( ));
+    LBASSERT( nodes.size() == netNodes.size( ));
     std::vector< uint128_t >::const_iterator j = netNodes.begin();
     for( std::vector< uint128_t >::const_iterator i = nodes.begin();
          i != nodes.end(); ++i, ++j )
@@ -1655,7 +1655,7 @@ void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
         packet.imageIndex = image;
         packet.taskID = taskID;
 
-        EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Start transmit " << &packet
+        LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Start transmit " << &packet
                                         << std::endl;
         send( getNode()->getLocalNode(), packet );
     }
@@ -1663,14 +1663,14 @@ void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
 
 void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( request->frameData ); 
-    EQASSERT( frameData );
+    LBASSERT( frameData );
 
     if( frameData->getBuffers() == 0 )
     {
-        EQWARN << "No buffers for frame data" << std::endl;
+        LBWARN << "No buffers for frame data" << std::endl;
         return;
     }
 
@@ -1680,12 +1680,12 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 
     const Images& images = frameData->getImages();
     Image* image = images[ request->imageIndex ];
-    EQASSERT( images.size() > request->imageIndex );
+    LBASSERT( images.size() > request->imageIndex );
 
     if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
-        EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
-        EQUNIMPLEMENTED;
+        LBWARN << "Can't transmit image of type TEXTURE" << std::endl;
+        LBUNIMPLEMENTED;
         return;
     }
 
@@ -1693,7 +1693,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     co::NodePtr toNode = localNode->connect( request->netNodeID );
     if( !toNode || !toNode->isConnected( ))
     {
-        EQWARN << "Can't connect node " << request->netNodeID
+        LBWARN << "Can't connect node " << request->netNodeID
                << " to send image data" << std::endl;
         return;
     }
@@ -1719,7 +1719,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     packet.pvp = image->getPixelViewport();
     packet.useAlpha = image->getAlphaUsage();
     packet.zoom = image->getZoom();
-    EQASSERT( packet.pvp.isValid( ));
+    LBASSERT( packet.pvp.isValid( ));
 
     {
         uint64_t rawSize( 0 );
@@ -1839,7 +1839,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
         }
     }
 #ifndef NDEBUG
-    EQASSERTINFO( sentBytes == packet.size,
+    LBASSERTINFO( sentBytes == packet.size,
         sentBytes << " != " << packet.size );
 #endif
 
@@ -1868,7 +1868,7 @@ void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
-    EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( stat->event.event.data.statistic.frameNumber > 0 );
 
     stat->event.event.data.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
 
@@ -1886,7 +1886,7 @@ void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const std::vector< uint128_t >& netNodes )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion(frame)
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion(frame)
                                     << std::endl;
     frame->setReady();
 
@@ -1948,7 +1948,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet =
         command.get<ChannelConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
     const Config* config = getConfig();
     changeLatency( config->getLatency( ));
@@ -1962,7 +1962,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
         _impl->state = STATE_INITIALIZING;
 
         const PixelViewport& pvp = getPixelViewport();
-        EQASSERT( pvp.hasArea( ));
+        LBASSERT( pvp.hasArea( ));
         _impl->initialSize.x() = pvp.w;
         _impl->initialSize.y() = pvp.h;
 
@@ -1980,7 +1980,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
         reply.result = false;
     }
 
-    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
+    LBLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
                       << std::endl;
     commit();
     send( command.getNode(), reply );
@@ -1991,7 +1991,7 @@ bool Channel::_cmdConfigExit( co::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.get<ChannelConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
     _deleteTransferContext();
 
@@ -2007,7 +2007,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
 {
     ChannelFrameStartPacket* packet = 
         command.getModifiable< ChannelFrameStartPacket >();
-    EQVERB << "handle channel frame start " << packet << std::endl;
+    LBVERB << "handle channel frame start " << packet << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
     sync( packet->version );
@@ -2018,9 +2018,9 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
-    EQASSERTINFO( statistic.used == 0,
+    LBASSERTINFO( statistic.used == 0,
                   "Frame " << packet->frameNumber << " used " <<statistic.used);
-    EQASSERT( statistic.data.empty( ));
+    LBASSERT( statistic.data.empty( ));
     statistic.used = 1;
 
     resetRenderContext();
@@ -2031,7 +2031,7 @@ bool Channel::_cmdFrameFinish( co::Command& command )
 {
     ChannelFrameFinishPacket* packet =
         command.getModifiable< ChannelFrameFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
     overrideContext( packet->context );
@@ -2044,10 +2044,10 @@ bool Channel::_cmdFrameFinish( co::Command& command )
 
 bool Channel::_cmdFrameClear( co::Command& command )
 {
-    EQASSERT( _impl->state == STATE_RUNNING );
+    LBASSERT( _impl->state == STATE_RUNNING );
     ChannelFrameClearPacket* packet = 
         command.getModifiable< ChannelFrameClearPacket >();
-    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2062,7 +2062,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getModifiable< ChannelFrameDrawPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2086,7 +2086,7 @@ bool Channel::_cmdFrameDrawFinish( co::Command& command )
 {
     const ChannelFrameDrawFinishPacket* packet = 
         command.get< ChannelFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
@@ -2099,7 +2099,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getModifiable< ChannelFrameAssemblePacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
@@ -2130,7 +2130,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
@@ -2154,7 +2154,7 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
 {
     const ChannelFrameSetReadyPacket* packet = 
         command.get<ChannelFrameSetReadyPacket>();
-    EQASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
+    LBASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
 
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
     std::vector< uint128_t > nodes;
@@ -2201,7 +2201,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
         command.getModifiable< ChannelFrameViewStartPacket >();
-    EQLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2215,7 +2215,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getModifiable< ChannelFrameViewFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2230,7 +2230,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
 {
     const ChannelStopFramePacket* packet = 
         command.get<ChannelStopFramePacket>();
-    EQLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << packet << std::endl;
     
     notifyStopFrame( packet->lastFrameNumber );
@@ -2241,7 +2241,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    EQLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
                        << packet << std::endl;
 
     _frameTiles( packet );
@@ -2252,7 +2252,7 @@ bool Channel::_cmdDeleteTransferContext( co::Command& command )
 {
     const ChannelDeleteTransferContextPacket* packet =
         command.get<ChannelDeleteTransferContextPacket>();
-    EQLOG( LOG_INIT ) << "Delete transfer context " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Delete transfer context " << packet << std::endl;
 
     getWindow()->deleteTransferSystemWindow();
     getLocalNode()->serveRequest( packet->requestID );

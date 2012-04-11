@@ -87,13 +87,13 @@ static StatisticData _statisticData[] =
 
 const std::string& Statistic::getName( const Type type )
 {
-    EQASSERTINFO( _statisticData[ type ].type == type, int( type ));
+    LBASSERTINFO( _statisticData[ type ].type == type, int( type ));
     return _statisticData[ type ].name;
 }
 
 const Vector3f& Statistic::getColor( const Type type )
 {
-    EQASSERTINFO( _statisticData[ type ].type == type, type );
+    LBASSERTINFO( _statisticData[ type ].type == type, type );
     return _statisticData[ type ].color;
 }
 

@@ -49,13 +49,13 @@ CommandQueue::~CommandQueue()
 void CommandQueue::flush()
 {
     if( !isEmpty( ))
-        EQWARN << "Flushing non-empty command queue" << std::endl;
+        LBWARN << "Flushing non-empty command queue" << std::endl;
 
     Command* command( 0 );
     while( _impl->commands.tryPop( command ))
     {
-        EQWARN << *command << std::endl;
-        EQASSERT( command );
+        LBWARN << *command << std::endl;
+        LBASSERT( command );
         command->release();
     }
 }
@@ -72,14 +72,14 @@ size_t CommandQueue::getSize() const
 
 void CommandQueue::push( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.push( &command );
 }
 
 void CommandQueue::pushFront( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.pushFront( &command );
 }

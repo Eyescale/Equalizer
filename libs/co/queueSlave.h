@@ -76,7 +76,7 @@ private:
     CO_API virtual void attach(const UUID& id, const uint32_t instanceID);
 
     virtual ChangeType getChangeType() const { return STATIC; }
-    virtual void getInstanceData( co::DataOStream& ) { EQDONTCALL }
+    virtual void getInstanceData( co::DataOStream& ) { LBDONTCALL }
     virtual void applyInstanceData( co::DataIStream& is );
 };
 

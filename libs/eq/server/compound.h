@@ -234,7 +234,7 @@ namespace server
         float getMaxFPS() const                    { return _data.maxFPS; }
 
         void setUsage( const float usage )         
-            { EQASSERT( usage >= 0.f ); _usage = usage; }
+            { LBASSERT( usage >= 0.f ); _usage = usage; }
         float getUsage() const                     { return _usage; }
 
         void setTaskID( const uint32_t id )        { _taskID = id; }
