@@ -519,14 +519,16 @@ const GLEWContext* Window::getTransferGlewContext()
     return 0;
 }
 
-void Window::makeCurrentTransfer( const bool useCache ) const
+void Window::makeCurrentTransfer( const bool useCache )
 {
     if( useCache && getPipe()->isCurrent( this ))
         return;
 
-    EQASSERT( _transferWindow );
-    if( _transferWindow )
-        _transferWindow->makeCurrent();
+    const SystemWindow* window = getTransferSystemWindow();
+    EQASSERT( window );
+
+    if( window )
+        window->makeCurrent();
     // _pipe->setCurrent done by SystemWindow::makeCurrent
 }
 

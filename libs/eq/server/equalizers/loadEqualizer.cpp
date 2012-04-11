@@ -262,6 +262,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                     endTime   = LB_MAX( endTime, stat.endTime );
                     break;
 
+                case Statistic::CHANNEL_ASYNC_READBACK:
                 case Statistic::CHANNEL_FRAME_TRANSMIT:
                     transmitTime += stat.endTime - stat.startTime;
                     break;

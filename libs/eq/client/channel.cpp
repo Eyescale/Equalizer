@@ -52,6 +52,7 @@
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
 
+#include <bitset>
 #include <set>
 
 #include "detail/channel.ipp"
@@ -105,6 +106,10 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameReadback ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
                      CmdFunc( this, &Channel::_cmdFrameTransmitImage ), tmitQ );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
+                     CmdFunc( this, &Channel::_cmdFrameSetReady ), transferQ );
+    registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY_NODE,
+                     CmdFunc( this, &Channel::_cmdFrameSetReadyNode ), tmitQ );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_START, 
                      CmdFunc( this, &Channel::_cmdFrameViewStart ), queue );
     registerCommand( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH, 
@@ -115,8 +120,6 @@ void Channel::attach( const UUID& id, const uint32_t instanceID )
                      CmdFunc( this, &Channel::_cmdFrameTiles ), queue );
     registerCommand( fabric::CMD_CHANNEL_FINISH_READBACK,
                      CmdFunc( this, &Channel::_cmdFinishReadback ), transferQ );
-    registerCommand( fabric::CMD_CHANNEL_FRAME_SET_READY,
-                     CmdFunc( this, &Channel::_cmdFrameSetReady ), transferQ );
     registerCommand( fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT,
                      CmdFunc( this,&Channel::_cmdDeleteTransferContext ),
                      transferQ );
@@ -883,11 +886,18 @@ namespace
 #define HEIGHT 12
 #define SPACE  2
 
+enum
+{
+    THREAD_MAIN,
+    THREAD_ASYNC1,
+    THREAD_ASYNC2,
+};
+
 struct EntityData
 {
-    EntityData() : yPos( 0 ), doubleHeight( false ) {}
+    EntityData() : yPos( 0 ), threads( 1 ) {}
     uint32_t yPos;
-    bool doubleHeight;
+    std::bitset<32> threads;
     std::string name;
     std::set< uint32_t > downloaders;
     std::set< uint32_t > compressors;
@@ -976,11 +986,14 @@ void Channel::drawStatistics()
                   case Statistic::WINDOW_FPS:
                     continue;
 
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    entities[ id ].doubleHeight = true;
+                  case Statistic::CHANNEL_ASYNC_READBACK:
+                    entities[ id ].threads.set( THREAD_ASYNC1 );
                     break;
+
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                    entities[ id ].threads.set( THREAD_ASYNC2 );
+                    break;
+
                   default:
                     break;
                 }
@@ -1038,9 +1051,7 @@ void Channel::drawStatistics()
             if( data.yPos == 0 )
             {
                 data.yPos = nextY;
-                nextY -= (HEIGHT + SPACE);
-                if( data.doubleHeight )
-                    nextY -= (HEIGHT + SPACE);
+                nextY -= data.threads.count() * (HEIGHT + SPACE);
             }
 
             uint32_t y = data.yPos;
@@ -1056,10 +1067,15 @@ void Channel::drawStatistics()
                   case Statistic::WINDOW_FPS:
                     continue;
 
+                  case Statistic::CHANNEL_ASYNC_READBACK:
+                    y = data.yPos - (HEIGHT + SPACE);
+                    break;
+
                   case Statistic::CHANNEL_FRAME_TRANSMIT:
                   case Statistic::CHANNEL_FRAME_COMPRESS:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    y = data.yPos - (HEIGHT + SPACE);
+                    y = data.yPos -
+                        (data.threads.count() - 1) * (HEIGHT + SPACE);
                     break;
                 default:
                     break;
@@ -1100,6 +1116,7 @@ void Channel::drawStatistics()
                     break;
 
                   case Statistic::CHANNEL_READBACK:
+                  case Statistic::CHANNEL_ASYNC_READBACK:
                     text << unsigned( 100.f * stat.ratio ) << '%';
                     if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
                         data.downloaders.insert( stat.plugins[0] );
@@ -1161,7 +1178,7 @@ void Channel::drawStatistics()
         const EntityData& data = i->second;
 
         glColor3f( 1.f, 1.f, 1.f );
-        glRasterPos3f( 60.f, data.yPos-SPACE-12.0f, 0.99f );
+        glRasterPos3f( 60.f, data.yPos - (HEIGHT + SPACE), 0.99f );
         font->draw( data.name );
 
         std::stringstream downloaders;
@@ -1171,7 +1188,17 @@ void Channel::drawStatistics()
             downloaders << " 0x" << std::hex << *j << std::dec;
         }
         if( !downloaders.str().empty( ))
-            font->draw( std::string( ", r" ) + downloaders.str( ));
+        {
+            if( data.threads[THREAD_ASYNC1] )
+            {
+                glRasterPos3f( 80.f, data.yPos - 2 * (HEIGHT + SPACE), 0.99f );
+                font->draw( "read" );
+            }
+            else
+                font->draw( std::string( ", r" ) + downloaders.str( ));
+
+            font->draw( downloaders.str( ));
+        }
 
         std::stringstream compressors;
         for( std::set<uint32_t>::const_iterator j = data.compressors.begin();
@@ -1181,8 +1208,9 @@ void Channel::drawStatistics()
         }
         if( !compressors.str().empty( ))
         {
-            glRasterPos3f( 80.f, data.yPos - HEIGHT - 2*SPACE - 12.0f, 0.99f );
-            font->draw( std::string( "compressors" ) + compressors.str( ));
+            const float y = data.yPos - data.threads.count() * (HEIGHT + SPACE);
+            glRasterPos3f( 80.f, y, 0.99f );
+            font->draw( std::string( "compress" ) + compressors.str( ));
         }
     }
 
@@ -1220,7 +1248,8 @@ void Channel::drawStatistics()
     {
         const Statistic::Type type = static_cast< Statistic::Type >( i );
         if( type == Statistic::CHANNEL_DRAW_FINISH ||
-            type == Statistic::PIPE_IDLE || type == Statistic::WINDOW_FPS )
+            type == Statistic::PIPE_IDLE || type == Statistic::WINDOW_FPS ||
+            type == Statistic::CHANNEL_ASYNC_READBACK )
         {
             continue;
         }
@@ -1278,7 +1307,6 @@ void Channel::drawStatistics()
         glRasterPos3f( x+1.f, nextY-12.f, 0.f );
         font->draw( Statistic::getName( type ));
     }
-    // nextY -= (HEIGHT + SPACE);
     
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();
@@ -1309,7 +1337,8 @@ namespace detail
 struct RBStat
 {
     RBStat( eq::Channel* channel )
-            : event( Statistic::CHANNEL_READBACK, channel ), uncompressed( 0 )
+            : event( Statistic::CHANNEL_READBACK, channel )
+            , uncompressed( 0 )
             , compressed( 0 )
         {
             event.event.data.statistic.plugins[0] = EQ_COMPRESSOR_NONE;
@@ -1425,7 +1454,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
                 }
             }
 
-            if( _asyncFinishReadback( stat.get(), nImages ))
+            if( _asyncFinishReadback( nImages ))
                 hasAsyncReadback = true;
         }
         queuePacket->release();
@@ -1521,13 +1550,12 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
     frameReadback( frameID );
     EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
-    const bool async = _asyncFinishReadback( stat.get(), nImages );
+    const bool async = _asyncFinishReadback( nImages );
     _setReady( async, stat.get( ));
     _resetOutputFrames();
 }
 
-bool Channel::_asyncFinishReadback( detail::RBStat* stat,
-                                    const std::vector< size_t >& imagePos )
+bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
 {
     EQ_TS_THREAD( _pipeThread );
 
@@ -1841,6 +1869,9 @@ void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& netNodes )
 {
     EQASSERT( stat->event.event.data.statistic.frameNumber > 0 );
+
+    stat->event.event.data.statistic.type = Statistic::CHANNEL_ASYNC_READBACK;
+
     _refFrame( stat->event.event.data.statistic.frameNumber );
     stat->ref( 0 );
 
@@ -1886,14 +1917,14 @@ void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
                 stat->compressed +=
                     image->getPixelDataSize( Frame::BUFFER_COLOR );
                 stat->event.event.data.statistic.plugins[0] =
-                                 image->getDownloaderName( Frame::BUFFER_COLOR );
+                                image->getDownloaderName( Frame::BUFFER_COLOR );
             }
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
                 stat->uncompressed += 4 * image->getPixelViewport().getArea();
-                stat->compressed += image->getPixelDataSize(Frame::BUFFER_DEPTH);
+                stat->compressed +=image->getPixelDataSize(Frame::BUFFER_DEPTH);
                 stat->event.event.data.statistic.plugins[1] =
-                                 image->getDownloaderName( Frame::BUFFER_DEPTH );
+                                image->getDownloaderName( Frame::BUFFER_DEPTH );
             }
         }
     }
@@ -1987,7 +2018,8 @@ bool Channel::_cmdFrameStart( co::Command& command )
 
     const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
-    EQASSERTINFO( statistic.used == 0, packet->frameNumber );
+    EQASSERTINFO( statistic.used == 0,
+                  "Frame " << packet->frameNumber << " used " <<statistic.used);
     EQASSERT( statistic.data.empty( ));
     statistic.used = 1;
 
@@ -2132,8 +2164,10 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
                      packet->IDs + 2 * packet->nNodes );
 
     _setReady( frameData, packet->stat, nodes, netNodes );
+
+    const uint32_t frame = packet->stat->event.event.data.statistic.frameNumber;
     packet->stat->unref( 0 );
-    _unrefFrame( packet->stat->event.event.data.statistic.frameNumber );
+    _unrefFrame( frame );
     return true;
 }
 

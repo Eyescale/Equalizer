@@ -595,8 +595,7 @@ namespace detail { class Channel; struct RBStat; }
                              co::ObjectVersion* frames );
         void _finishReadback( const ChannelFinishReadbackPacket* packet );
 
-        bool _asyncFinishReadback( detail::RBStat* stat,
-                                   const std::vector< size_t >& imagePos );
+        bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
         void _asyncTransmit( FrameData* frame, const uint32_t frameNumber,
                              const size_t image,

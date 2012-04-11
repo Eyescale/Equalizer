@@ -608,6 +608,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
             endTime   = LB_MAX( endTime, data.endTime );
             break;
 
+        case Statistic::CHANNEL_ASYNC_READBACK:
         case Statistic::CHANNEL_FRAME_TRANSMIT:
             transmitTime += data.startTime - data.endTime;
             break;
