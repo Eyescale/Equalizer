@@ -16,11 +16,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_OBJECTREGISTRY_H
-#define CO_OBJECTREGISTRY_H
+#ifndef CO_OBJECTMAP_H
+#define CO_OBJECTMAP_H
 
 #include <co/serializable.h>      // base class
-#include <co/objectFactory.h>
 
 namespace co
 {
@@ -33,11 +32,11 @@ namespace detail { class ObjectMap; }
         /**
          * Construct a new ObjectMap.
          *
-         * @param localNode used for object registering and mapping
+         * @param handler used for object registration and mapping
          * @param factory to create & destroy slave objects
          * @version 0.5.1
          */
-        ObjectMap( LocalNodePtr localNode, ObjectFactory& factory );
+        ObjectMap( ObjectHandler& handler, ObjectFactory& factory );
 
         /**
          * Destroy an ObjectMap.
@@ -51,12 +50,12 @@ namespace detail { class ObjectMap; }
         /**
          * Add and register a new object as master instance to this objectMap.
          *
-         * Upon registering in the localNode, this object will be remembered for
-         * serialization on the next call to commit.
+         * Upon registering using the object handler, this object will be
+         * remembered for serialization on the next call to commit.
          *
          * @param object the new object to add and register
          * @param type unique object type to create object via slave factory
-         * @return false on failed registerObject in localNode, true otherwise
+         * @return false on failed ObjectHandler::registerObject, true otherwise
          * @version 0.5.1
          */
         bool register_( Object* object, const uint32_t type );
@@ -102,4 +101,4 @@ namespace detail { class ObjectMap; }
         void _commitMasters( const uint32_t incarnation );
     };
 }
-#endif // CO_OBJECTREGISTRY_H
+#endif // CO_OBJECTMAP_H

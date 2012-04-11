@@ -18,6 +18,8 @@
 
 #include "objectMap.h"
 
+#include "objectFactory.h"
+
 #include <lunchbox/scopedMutex.h>
 
 namespace co
@@ -45,8 +47,8 @@ namespace detail
 class ObjectMap
 {
 public:
-    ObjectMap( LocalNodePtr ln, ObjectFactory& f )
-            : localNode( ln ) , factory( f ) {}
+    ObjectMap( ObjectHandler& h, ObjectFactory& f )
+            : handler( h ) , factory( f ) {}
 
     ~ObjectMap()
         {
@@ -54,7 +56,7 @@ public:
             {
                 Object* object = *i;
                 map.erase( object->getID( ));
-                localNode->deregisterObject( object );
+                handler.deregisterObject( object );
             }
             masters.clear();
 
@@ -64,13 +66,13 @@ public:
                 if( !entry.instance )
                     continue;
 
-                localNode->unmapObject( entry.instance );
+                handler.unmapObject( entry.instance );
                 factory.destroyObject( entry.instance, entry.type );
             }
             map.clear();
         }
 
-    LocalNodePtr localNode;
+    ObjectHandler& handler;
     ObjectFactory& factory; //!< The 'parent' user
 
     mutable lunchbox::SpinLock mutex;
@@ -86,8 +88,8 @@ public:
 };
 }
 
-ObjectMap::ObjectMap( LocalNodePtr localNode, ObjectFactory& factory )
-        : _impl( new detail::ObjectMap( localNode, factory ))
+ObjectMap::ObjectMap( ObjectHandler& handler, ObjectFactory& factory )
+        : _impl( new detail::ObjectMap( handler, factory ))
 {}
 
 ObjectMap::~ObjectMap()
@@ -222,7 +224,7 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
 bool ObjectMap::register_( Object* object, const uint32_t type )
 {
     EQASSERT( object );
-    if( !object || !_impl->localNode->registerObject( object ))
+    if( !object || !_impl->handler.registerObject( object ))
         return false;
 
     const Entry entry( object->getVersion(), object, type );
@@ -270,7 +272,9 @@ Object* ObjectMap::get( const uint128_t& identifier, Object* instance )
     if( !object )
         return 0;
 
-    if( !_impl->localNode->mapObject( object, identifier, entry.version ))
+    const uint32_t req =
+        _impl->handler.mapObjectNB( object, identifier, entry.version, 0 );
+    if( !_impl->handler.mapObjectSync( req ))
     {
         if( !instance )
             _impl->factory.destroyObject( object, entry.type );
