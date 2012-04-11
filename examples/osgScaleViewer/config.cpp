@@ -162,7 +162,7 @@ bool Config::mapData( const eq::uint128_t& initDataID )
     }
     else
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }

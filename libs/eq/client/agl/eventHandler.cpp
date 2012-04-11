@@ -99,7 +99,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
     const eq::Pipe* pipe = window->getPipe();
     if( pipe->isThreaded( ))
     {
-        EQASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
+        LBASSERT( GetCurrentEventQueue() != GetMainEventQueue( ));
 
         // dispatches to pipe thread queue
         EventHandlerUPP eventDispatcher = NewEventHandlerUPP(_dispatchEventUPP);
@@ -149,7 +149,7 @@ OSStatus _dispatchEventUPP(EventHandlerCallRef nextHandler, EventRef event,
     if( GetCurrentEventQueue() != target )
     {
 #if 0 // some events pop up on pipe thread queues...
-        EQASSERTINFO( GetCurrentEventQueue() == GetMainEventQueue(),
+        LBASSERTINFO( GetCurrentEventQueue() == GetMainEventQueue(),
                       "target " << target << " current " << 
                       GetCurrentEventQueue() << " main " << 
                       GetMainEventQueue( ));
@@ -590,7 +590,7 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                         break; 
                         
                     default:
-                        EQASSERTINFO( 0, "Unimplemented space mouse command " <<
+                        LBASSERTINFO( 0, "Unimplemented space mouse command " <<
                                       state->command );
                 }                 
                         

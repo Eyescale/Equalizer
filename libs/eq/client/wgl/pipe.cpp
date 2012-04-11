@@ -62,7 +62,7 @@ bool Pipe::configInit()
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
         const bool found = wglEnumGpuDevicesNV( hGPU, 0, &gpuDevice );
-        EQASSERT( found );
+        LBASSERT( found );
 
         if( gpuDevice.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
         {

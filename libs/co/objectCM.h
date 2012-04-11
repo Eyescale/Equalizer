@@ -147,7 +147,7 @@ namespace co
 
         /** @internal Swap the object. */
         void setObject( Object* object )
-            { EQASSERT( object ); _object = object; }
+            { LBASSERT( object ); _object = object; }
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;

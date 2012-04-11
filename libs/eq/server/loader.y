@@ -582,7 +582,7 @@ renderNode: EQTOKEN_NODE '{' {
 appNode: EQTOKEN_APPNODE '{' 
             {
                 node = config->findApplicationNode();
-                EQASSERT( node );
+                LBASSERT( node );
             }
             nodeFields
             '}' { node = 0; }
@@ -1401,7 +1401,7 @@ void Loader::_parseString( const char* data )
 
 void Loader::_parse()
 {
-    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
+    LBASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
 
     loader::server = 0;

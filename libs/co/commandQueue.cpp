@@ -55,7 +55,7 @@ void CommandQueue::flush()
     while( _impl->commands.tryPop( command ))
     {
         EQWARN << *command << std::endl;
-        EQASSERT( command );
+        LBASSERT( command );
         command->release();
     }
 }
@@ -72,14 +72,14 @@ size_t CommandQueue::getSize() const
 
 void CommandQueue::push( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.push( &command );
 }
 
 void CommandQueue::pushFront( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.pushFront( &command );
 }

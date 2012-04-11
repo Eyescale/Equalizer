@@ -78,7 +78,7 @@ static void registerHandler( HWND hWnd, EventHandler* handler )
         _handlers = new HandlerMap;
 
     HandlerMap* map = _handlers.get();
-    EQASSERT( map->find( hWnd ) == map->end( ));
+    LBASSERT( map->find( hWnd ) == map->end( ));
 
     (*map)[hWnd] = handler;
 }
@@ -86,8 +86,8 @@ static void registerHandler( HWND hWnd, EventHandler* handler )
 static void deregisterHandler( HWND hWnd )
 {
     HandlerMap* map = _handlers.get();
-    EQASSERT( map )
-    EQASSERT( map->find( hWnd ) != map->end( ));
+    LBASSERT( map )
+    LBASSERT( map->find( hWnd ) != map->end( ));
 
     map->erase( hWnd );
 }
@@ -427,7 +427,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
     }
     
-    EQASSERT( window->getID() != UUID::ZERO );
+    LBASSERT( window->getID() != UUID::ZERO );
     event.originator = window->getID();
     event.serial = window->getSerial();
 
@@ -596,7 +596,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != UUID::ZERO );
+            LBASSERT( _magellanNode->getID() != UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_BUTTON;
@@ -614,14 +614,14 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         }
         else
         {
-            EQASSERTINFO( 0, "Unimplemented space mouse command " <<
+            LBASSERTINFO( 0, "Unimplemented space mouse command " <<
                           pRawHid->bRawData[0] );
         }
 
         if (_magellanGotTranslation && _magellanGotRotation)
         {
             ConfigEvent event;
-            EQASSERT( _magellanNode->getID() != UUID::ZERO );
+            LBASSERT( _magellanNode->getID() != UUID::ZERO );
             event.data.originator = _magellanNode->getID();
             event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_AXIS;

@@ -39,13 +39,13 @@ Application::Application()
 
 Application::~Application()
 {
-    EQASSERT( !_impl );
+    LBASSERT( !_impl );
 }
 
 co::NodePtr Application::getMasterNode()
 {
     eq::Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     if( !config )
         return 0;
     return config->getApplicationNode();
@@ -53,7 +53,7 @@ co::NodePtr Application::getMasterNode()
 
 eq::Config* Application::getConfig()
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     if( !_impl )
         return 0;
     return _impl->getConfig();
@@ -76,7 +76,7 @@ void Application::destroyViewData( ViewData* viewData )
 
 bool Application::init( const int argc, char** argv, co::Object* initData )
 {
-    EQASSERT( !_impl );
+    LBASSERT( !_impl );
     if( _impl )
     {
         EQERROR << "Already initialized" << std::endl;
@@ -128,7 +128,7 @@ bool Application::exit()
     delete _impl;
     _impl = 0;
 
-    EQASSERTINFO( getRefCount() == 1, this->getRefCount( ));
+    LBASSERTINFO( getRefCount() == 1, this->getRefCount( ));
     return retVal;
 }
 

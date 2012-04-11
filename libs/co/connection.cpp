@@ -61,11 +61,11 @@ Connection::Connection()
 
 Connection::~Connection()
 {
-    EQASSERT( isClosed( ));
+    LBASSERT( isClosed( ));
     _state = STATE_CLOSED;
     _description = 0;
 
-//    EQASSERTINFO( !_aioBytes && _aioBytes == 0,
+//    LBASSERTINFO( !_aioBytes && _aioBytes == 0,
 //                  "Pending IO operation during connection destruction" );
 
     EQVERB << "Delete Connection @" << (void*)this << std::endl;
@@ -170,10 +170,10 @@ void Connection::_fireStateChanged()
 //----------------------------------------------------------------------
 void Connection::recvNB( void* buffer, const uint64_t bytes )
 {
-    EQASSERT( !_aioBuffer );
-    EQASSERT( !_aioBytes );
-    EQASSERT( buffer );
-    EQASSERT( bytes );
+    LBASSERT( !_aioBuffer );
+    LBASSERT( !_aioBytes );
+    LBASSERT( buffer );
+    LBASSERT( bytes );
 
     _aioBuffer = buffer;
     _aioBytes  = bytes;
@@ -184,8 +184,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                            const bool block )
 {
     // set up async IO data
-    EQASSERT( _aioBuffer );
-    EQASSERT( _aioBytes );
+    LBASSERT( _aioBuffer );
+    LBASSERT( _aioBytes );
 
     if( outBuffer )
         *outBuffer = _aioBuffer;
@@ -211,7 +211,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
     int64_t got = readSync( ptr, bytesLeft, block );
     if( got == READ_TIMEOUT ) // fluke notification
     {
-        EQASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
+        LBASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
         if( outBytes )
             *outBytes = 0;
 
@@ -257,7 +257,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
         }
         else
         {
-            EQASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
+            LBASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
                           got << " != " << bytesLeft );
 
 #ifndef NDEBUG
@@ -293,7 +293,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
 bool Connection::send( const void* buffer, const uint64_t bytes, 
                        const bool isLocked )
 {
-    EQASSERT( bytes > 0 );
+    LBASSERT( bytes > 0 );
     if( bytes == 0 )
         return true;
 
@@ -484,7 +484,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {
-        EQASSERT( sizes[i] > 0 );
+        LBASSERT( sizes[i] > 0 );
         packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 
@@ -517,11 +517,11 @@ ConnectionDescriptionPtr Connection::getDescription() const
 
 void Connection::setDescription( ConnectionDescriptionPtr description )
 {
-    EQASSERT( description.isValid( ));
-    EQASSERTINFO( _description->type == description->type,
+    LBASSERT( description.isValid( ));
+    LBASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
-    EQASSERT( description->bandwidth > 0 );
+    LBASSERT( description->bandwidth > 0 );
 }
 
 std::ostream& operator << ( std::ostream& os, const Connection& connection )

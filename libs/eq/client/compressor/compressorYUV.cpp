@@ -113,7 +113,7 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
 
     GLint status;
     glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
-    EQASSERT( status );
+    LBASSERT( status );
 
     _program = glCreateProgram( );
 
@@ -121,7 +121,7 @@ void CompressorYUV::_initShader( const GLEWContext* glewContext,
     EQ_GL_CALL( glLinkProgram( _program ));
 
     glGetProgramiv( _program, GL_LINK_STATUS, &status );
-    EQASSERT( status );
+    LBASSERT( status );
 
     // use fragment shader and setup uniforms
     EQ_GL_CALL( glUseProgram( _program ));
@@ -181,8 +181,8 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 void CompressorYUV::_download( void* data )
 {
     util::Texture* texture = _fbo->getColorTextures()[0];
-    EQASSERT( texture->getFormat() == GL_RGBA );
-    EQASSERT( texture->getType() == GL_UNSIGNED_BYTE );
+    LBASSERT( texture->getFormat() == GL_RGBA );
+    LBASSERT( texture->getType() == GL_UNSIGNED_BYTE );
     texture->download( data );
 }
 
@@ -328,7 +328,7 @@ void CompressorYUV::upload( const GLEWContext* glewContext,
     }
     else
     {
-        EQASSERT( 0 );
+        LBASSERT( 0 );
     }
     glPopAttrib();
 }

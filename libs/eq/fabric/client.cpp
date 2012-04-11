@@ -38,7 +38,7 @@ Client::Client()
 
 Client::~Client()
 {
-    EQASSERT( isClosed( ));
+    LBASSERT( isClosed( ));
 }
 
 bool Client::connectServer( co::NodePtr server )
@@ -59,7 +59,7 @@ bool Client::connectServer( co::NodePtr server )
 
         if( !connDesc->fromString( address ))
             EQWARN << "Can't parse server address " << address << std::endl;
-        EQASSERT( address.empty( ));
+        LBASSERT( address.empty( ));
         EQINFO << "Connecting to " << connDesc->toString() << std::endl;
 
         server->addConnectionDescription( connDesc );
@@ -92,7 +92,7 @@ bool Client::disconnectServer( co::NodePtr server )
 void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
     co::Command* command = queue->pop( timeout );
     if( !command ) // just a wakeup()
         return;

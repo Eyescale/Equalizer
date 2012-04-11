@@ -200,7 +200,7 @@ bool RDMAConnection::connect( )
 
     EQVERB << (void *)this << ".connect( )" << std::endl;
 
-    EQASSERT( CONNECTIONTYPE_RDMA == _description->type );
+    LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
 
     if( STATE_CLOSED != _state )
         return false;
@@ -350,7 +350,7 @@ bool RDMAConnection::listen( )
 {
     EQVERB << (void *)this << ".listen( )" << std::endl;
 
-    EQASSERT( CONNECTIONTYPE_RDMA == _description->type );
+    LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
 
     if( STATE_CLOSED != _state )
         return false;
@@ -435,7 +435,7 @@ void RDMAConnection::close( )
 
     if( STATE_CLOSED != _state )
     {
-        EQASSERT( STATE_CLOSING != _state );
+        LBASSERT( STATE_CLOSING != _state );
         setState( STATE_CLOSING );
 
 #if 0
@@ -550,7 +550,7 @@ retry2:
         goto retry1;
     }
 
-    EQASSERT( _credits >= 0L );
+    LBASSERT( _credits >= 0L );
 
     if(( 0L == _credits ) && _established )
     {
@@ -636,7 +636,7 @@ retry:
         goto err;
     }
 
-    EQASSERT( _credits >= 0L );
+    LBASSERT( _credits >= 0L );
 
     if( 0L == _credits )
     {
@@ -723,7 +723,7 @@ void RDMAConnection::setState( const State state )
 
 void RDMAConnection::_cleanup( )
 {
-    EQASSERT( STATE_CLOSING == _state );
+    LBASSERT( STATE_CLOSING == _state );
 
     _sourcebuf.clear( );
     _sinkbuf.clear( );
@@ -759,7 +759,7 @@ void RDMAConnection::_cleanup( )
 
 bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
 {
-    EQASSERT( STATE_CLOSED == _state );
+    LBASSERT( STATE_CLOSED == _state );
     setState( STATE_CONNECTING );
 
     if( !_doCMEvent( listen_channel, RDMA_CM_EVENT_CONNECT_REQUEST ))
@@ -768,7 +768,7 @@ bool RDMAConnection::_finishAccept( struct rdma_event_channel *listen_channel )
         goto err;
     }
 
-    EQASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _cm_id );
 
     {
         // FIXME : RDMA CM appears to send up invalid addresses when receiving
@@ -1006,7 +1006,7 @@ void RDMAConnection::_updateInfo( struct sockaddr *addr )
 
 bool RDMAConnection::_createEventChannel( )
 {
-    EQASSERT( NULL == _cm );
+    LBASSERT( NULL == _cm );
 
     _cm = ::rdma_create_event_channel( );
     if( NULL == _cm )
@@ -1024,7 +1024,7 @@ err:
 
 bool RDMAConnection::_createId( )
 {
-    EQASSERT( NULL != _cm );
+    LBASSERT( NULL != _cm );
 
     if( ::rdma_create_id( _cm, &_cm_id, NULL, RDMA_PS_TCP ))
     {
@@ -1130,8 +1130,8 @@ err:
 
 bool RDMAConnection::_resolveAddress( )
 {
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( NULL != _rai );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _rai );
 
     if( ::rdma_resolve_addr( _cm_id, _rai->ai_src_addr, _rai->ai_dst_addr,
             _timeout ))
@@ -1148,8 +1148,8 @@ err:
 
 bool RDMAConnection::_resolveRoute( )
 {
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( NULL != _rai );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _rai );
 
     if(( IBV_TRANSPORT_IB == _cm_id->verbs->device->transport_type ) &&
             ( _rai->ai_route_len > 0 ))
@@ -1179,8 +1179,8 @@ err:
 
 bool RDMAConnection::_connect( )
 {
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( !_established );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( !_established );
 
 #if 0 // TODO
     static const uint8_t DSCP = 0;
@@ -1230,7 +1230,7 @@ err:
 
 bool RDMAConnection::_bindAddress( )
 {
-    EQASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _cm_id );
 
 #if IPV6_DEFAULT
     struct sockaddr_in6 sin;
@@ -1261,7 +1261,7 @@ err:
 
 bool RDMAConnection::_listen( )
 {
-    EQASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _cm_id );
 
     if( ::rdma_listen( _cm_id, SOMAXCONN ))
     {
@@ -1277,8 +1277,8 @@ err:
 
 bool RDMAConnection::_migrateId( )
 {
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( NULL != _cm );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _cm );
 
     if( ::rdma_migrate_id( _cm_id, _cm ))
     {
@@ -1294,8 +1294,8 @@ err:
 
 bool RDMAConnection::_accept( )
 {
-    EQASSERT( NULL != _cm_id );
-    EQASSERT( !_established );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( !_established );
 
     struct rdma_conn_param accept_param;
 
@@ -1347,8 +1347,8 @@ err:
 
 bool RDMAConnection::_postReceives( const uint32_t count )
 {
-    EQASSERT( NULL != _cm_id->qp );
-    EQASSERT( count > 0UL );
+    LBASSERT( NULL != _cm_id->qp );
+    LBASSERT( count > 0UL );
 
     struct ibv_sge sge[count];
     struct ibv_recv_wr wrs[count];
@@ -1417,7 +1417,7 @@ bool RDMAConnection::_postRDMAWrite( )
 
     _credits--;
 
-    EQASSERT( _credits >= 0L );
+    LBASSERT( _credits >= 0L );
 
     struct ibv_send_wr *bad_wr;
     if( ::rdma_seterrno( ::ibv_post_send( _cm_id->qp, &wr, &bad_wr )))
@@ -1472,7 +1472,7 @@ bool RDMAConnection::_postMessage( const RDMAMessage &message )
 {
     _credits--;
 
-    EQASSERT( _credits >= 0L );
+    LBASSERT( _credits >= 0L );
 
     if( ::rdma_post_send( _cm_id, (void *)&message, (void *)&message,
             offsetof( RDMAMessage, payload ) + message.length, _msgbuf.getMR( ),
@@ -1673,8 +1673,8 @@ bool RDMAConnection::_pollCQ( )
             goto err;
         }
 
-        EQASSERT( IBV_WC_SUCCESS == wc.status );
-        EQASSERT( IBV_WC_RECV & wc.opcode );
+        LBASSERT( IBV_WC_SUCCESS == wc.status );
+        LBASSERT( IBV_WC_RECV & wc.opcode );
 
         // All receive completions need to be reposted.
         num_recvs++;
@@ -1726,7 +1726,7 @@ bool RDMAConnection::_pollCQ( )
             goto err;
         }
 
-        EQASSERT( IBV_WC_SUCCESS == wc.status );
+        LBASSERT( IBV_WC_SUCCESS == wc.status );
 
         if( IBV_WC_SEND == wc.opcode )
             _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
@@ -1738,7 +1738,7 @@ bool RDMAConnection::_pollCQ( )
         // All send completions replenish credit.
         _credits++;
 
-        EQASSERTINFO( _credits <= _depth, _credits << " > " << _depth );
+        LBASSERTINFO( _credits <= _depth, _credits << " > " << _depth );
     }
 
     return true;
@@ -1910,7 +1910,7 @@ void RDMAConnection::ChannelEventThread::run( )
             break;
         }
 
-        EQASSERT( 1 == n );
+        LBASSERT( 1 == n );
 
         context = reinterpret_cast< struct epoll_context * >( event.data.ptr );
         if( EVENT_FD == context->type )
@@ -1918,7 +1918,7 @@ void RDMAConnection::ChannelEventThread::run( )
             uint64_t one;
             struct epoll_event evctl;
 
-            EQASSERT( context->ctx.thread == this );
+            LBASSERT( context->ctx.thread == this );
 
             if( ::read( _event_fd, (void *)&one, sizeof(one) ) != sizeof(one) )
             {
@@ -1926,12 +1926,12 @@ void RDMAConnection::ChannelEventThread::run( )
                 break;
             }
 
-            EQASSERT( ONE == one );
+            LBASSERT( ONE == one );
 
             ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
             if( NULL != _to_add )
             {
-                EQASSERT( NULL == _to_remove );
+                LBASSERT( NULL == _to_remove );
 
                 RDMAConnection *to_add = _to_add;
                 _to_add = NULL;
@@ -1954,7 +1954,7 @@ void RDMAConnection::ChannelEventThread::run( )
             }
             else if( NULL != _to_remove )
             {
-                EQASSERT( NULL == _to_add );
+                LBASSERT( NULL == _to_add );
 
                 RDMAConnection *to_remove = _to_remove;
                 _to_remove = NULL;
@@ -2015,7 +2015,7 @@ bool RDMAConnection::ChannelEventThread::add( RDMAConnection *conn )
 {
     conn->_cmd_block.set( CMD_WAIT );
 
-    EQASSERT( NULL == _to_add );
+    LBASSERT( NULL == _to_add );
     _to_add = conn;
 
     if( !_wake( ) || ( CMD_DONE != conn->_cmd_block.waitNE( CMD_WAIT )))
@@ -2038,7 +2038,7 @@ bool RDMAConnection::ChannelEventThread::remove( RDMAConnection *conn )
 
     conn->_cmd_block.set( CMD_WAIT );
 
-    EQASSERT( NULL == _to_remove );
+    LBASSERT( NULL == _to_remove );
     _to_remove = conn;
 
     if( _wake( ) && ( CMD_DONE & conn->_cmd_block.waitNE( CMD_WAIT )))
@@ -2080,7 +2080,7 @@ void RDMAConnection::_eventThreadUnregister( )
 
     if( _registered )
     {
-        EQASSERT( NULL != RDMAConnection::_event_thread );
+        LBASSERT( NULL != RDMAConnection::_event_thread );
 
         if( RDMAConnection::_event_thread->remove( this ))
         {
@@ -2265,12 +2265,12 @@ bool RingBuffer::resize( ibv_pd *pd, size_t size )
             goto out;
         }
 
-        EQASSERT( addr1 == _map );
-        EQASSERT( addr2 == (void *)( (uintptr_t)_map + _size ));
+        LBASSERT( addr1 == _map );
+        LBASSERT( addr2 == (void *)( (uintptr_t)_map + _size ));
 
         ::memset( _map, 0, _size );
         *reinterpret_cast< uint8_t * >( _map ) = 0x45;
-        EQASSERT( 0x45 ==
+        LBASSERT( 0x45 ==
             *reinterpret_cast< uint8_t * >( (uintptr_t)_map + _size ));
     }
 

@@ -69,20 +69,20 @@ void Observer::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 ServerPtr Observer::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
 void Observer::addView( View* view )
 {
-    EQASSERT( stde::find( _views, view ) == _views.end( ));
+    LBASSERT( stde::find( _views, view ) == _views.end( ));
     _views.push_back( view );
 }
 
 void Observer::removeView( View* view )
 {
     ViewsIter i = stde::find( _views, view );
-    EQASSERT( i != _views.end( ));
+    LBASSERT( i != _views.end( ));
     if( i != _views.end( ))
         _views.erase( i );
 }

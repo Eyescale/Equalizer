@@ -36,13 +36,13 @@ Node::Node()
 Node::~Node()
 {
     EQVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
-    EQASSERT( _outgoing == 0 );
+    LBASSERT( _outgoing == 0 );
     _connectionDescriptions->clear();
 }
 
 bool Node::operator == ( const Node* node ) const
 { 
-    EQASSERTINFO( _id != node->_id || this == node,
+    LBASSERTINFO( _id != node->_id || this == node,
                   "Two node instances with the same ID found "
                   << (void*)this << " and " << (void*)node );
 
@@ -127,7 +127,7 @@ std::string Node::serialize() const
  
 bool Node::deserialize( std::string& data )
 {
-    EQASSERT( _state == STATE_CLOSED );
+    LBASSERT( _state == STATE_CLOSED );
 
     // node id
     size_t nextPos = data.find( CO_SEPARATOR );
@@ -147,7 +147,7 @@ bool Node::deserialize( std::string& data )
 
 NodePtr Node::createNode( const uint32_t type )
 {
-    EQASSERTINFO( type == NODETYPE_CO_NODE, type );
+    LBASSERTINFO( type == NODETYPE_CO_NODE, type );
     return new Node;
 }
 

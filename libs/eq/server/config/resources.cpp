@@ -121,7 +121,7 @@ bool Resources::discover( Config* config, const std::string& session,
             mpNode->setName( info.hostname );
             mpNode->setHost( info.hostname );
 
-            EQASSERT( multiNode );
+            LBASSERT( multiNode );
             co::ConnectionDescriptionPtr desc = new ConnectionDescription;
             desc->setHostname( info.hostname );
             mpNode->addConnectionDescription( desc );
@@ -207,12 +207,12 @@ private:
 Channels Resources::configureSourceChannels( Config* config )
 {
     const Node* node = config->findAppNode();
-    EQASSERT( node );
+    LBASSERT( node );
     if( !node )
         return Channels();
 
     const Pipes& pipes = node->getPipes();
-    EQASSERT( !pipes.empty( ));
+    LBASSERT( !pipes.empty( ));
     if( pipes.empty( ))
         return Channels();
 
@@ -237,7 +237,7 @@ Channels Resources::configureSourceChannels( Config* config )
 void Resources::configure( const Compounds& compounds, const Channels& channels,
                            const uint32_t flags )
 {
-    EQASSERT( !compounds.empty( ));
+    LBASSERT( !compounds.empty( ));
     if( compounds.empty() || channels.empty()) // No additional resources
         return;
 
@@ -247,15 +247,15 @@ void Resources::configure( const Compounds& compounds, const Channels& channels,
     for( CompoundsCIter i = compounds.begin(); i != compounds.end(); ++i )
     {
         const Compounds& children = (*i)->getChildren();
-        EQASSERT( children.size() == 1 );
+        LBASSERT( children.size() == 1 );
         if( children.size() != 1 )
             continue;
 
         Compound* segmentCompound = children.front();
 #ifndef NDEBUG
         const Channel* channel = segmentCompound->getChannel();
-        EQASSERT( channel );
-        EQASSERT( !canvas || channel->getCanvas() == canvas );
+        LBASSERT( channel );
+        LBASSERT( !canvas || channel->getCanvas() == canvas );
         canvas = channel->getCanvas();
 #endif
 
@@ -302,12 +302,12 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
         compound = _addDSCompound( root, active );
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )
     {
-        EQASSERT( multiProcess );
+        LBASSERT( multiProcess );
         compound = _addDB2DCompound( root, channels );
     }
     else
     {
-        EQASSERTINFO( false, "Unimplemented mode " << name );
+        LBASSERTINFO( false, "Unimplemented mode " << name );
     }
 
     if( !compound )

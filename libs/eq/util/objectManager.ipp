@@ -40,14 +40,14 @@ template< class T >
 ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
         : _data( new SharedData( glewContext ))
 {
-    EQASSERT( glewContext );
+    LBASSERT( glewContext );
 }
 
 template< class T >
 ObjectManager< T >::ObjectManager( ObjectManager* shared )
         : _data( shared->_data )
 {
-    EQASSERT( shared );
+    LBASSERT( shared );
 }
 
 template< class T >
@@ -60,7 +60,7 @@ template< class T >
 ObjectManager<T>::SharedData::SharedData( const GLEWContext* gl )
         : glewContext( new GLEWContext )
 {
-    EQASSERT( gl );
+    LBASSERT( gl );
     memcpy( glewContext, gl, sizeof( GLEWContext ));
 }
 

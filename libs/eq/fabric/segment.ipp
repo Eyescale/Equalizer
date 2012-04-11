@@ -38,7 +38,7 @@ Segment< C, S, CH >::Segment( C* canvas )
         , _eyes( EYES_ALL )
         , _swapBarrier( canvas->getSwapBarrier( ))
 {
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
     EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
@@ -93,7 +93,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         Frustum::deserialize( is );
     if( dirtyBits & DIRTY_CHANNEL )
     {
-        EQASSERT( _canvas->_mapViewObjects( ))
+        LBASSERT( _canvas->_mapViewObjects( ))
 
         co::ObjectVersion ov;
         is >> ov;
@@ -102,7 +102,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         if( ov.identifier != UUID::ZERO )
         {
             _canvas->getConfig()->find( ov.identifier, &_channel );
-            EQASSERT( !isMaster() || _channel );
+            LBASSERT( !isMaster() || _channel );
         }
     }
     if( dirtyBits & DIRTY_EYES )

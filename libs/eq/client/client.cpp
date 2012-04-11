@@ -76,7 +76,7 @@ Client::Client()
 Client::~Client()
 {
     EQINFO << "Delete client at " << (void*)this << std::endl;
-    EQASSERT( isClosed( ));
+    LBASSERT( isClosed( ));
     close();
 }
 
@@ -187,12 +187,12 @@ bool Client::disconnectServer( ServerPtr server )
     // shut down process-local server (see _startLocalServer)
     if( server->_localServer )
     {
-        EQASSERT( server->isConnected( ));
+        LBASSERT( server->isConnected( ));
         EQCHECK( server->shutdown( ));
         _joinLocalServer();
         server->_localServer = false;
         server->setClient( 0 );
-        EQASSERT( !server->isConnected( ))
+        LBASSERT( !server->isConnected( ))
     }
     else
     {
@@ -221,7 +221,7 @@ bool Client::initLocal( const int argc, char** argv )
                 if( !deserialize( clientOpts ))
                     EQWARN << "Failed to parse client listen port parameters"
                            << std::endl;
-                EQASSERT( !clientOpts.empty( ));
+                LBASSERT( !clientOpts.empty( ));
             }
         }
         else if( std::string( "--eq-layout" ) == argv[i] &&
@@ -263,7 +263,7 @@ bool Client::initLocal( const int argc, char** argv )
 
 bool Client::_setupClient( const std::string& clientArgs )
 {
-    EQASSERT( isListening( ));
+    LBASSERT( isListening( ));
     if( clientArgs.empty( ))
         return true;
 
@@ -295,7 +295,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     if( !server->deserialize( description ))
         EQWARN << "Can't parse server data" << std::endl;
 
-    EQASSERTINFO( description.empty(), description );
+    LBASSERTINFO( description.empty(), description );
     if( !connect( server ))
     {
         EQERROR << "Can't connect server node using " << *server << std::endl;

@@ -44,8 +44,8 @@ Window::Window( eq::Window* parent, CGDirectDisplayID displayID )
     if( displayID == kCGNullDirectDisplay )
     {
         const eq::Pipe* pipe = getPipe();
-        EQASSERT( pipe );
-        EQASSERT( pipe->getSystemPipe( ));
+        LBASSERT( pipe );
+        LBASSERT( pipe->getSystemPipe( ));
 
         const Pipe* aglPipe = dynamic_cast<const Pipe*>( pipe->getSystemPipe());
         if( aglPipe )
@@ -69,7 +69,7 @@ void Window::configExit()
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
-        EQASSERT( !window );
+        LBASSERT( !window );
         exitEventHandler();
     }
     else if( window )
@@ -294,7 +294,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
 
         std::vector<GLint>::iterator iter = find( attributes.begin(), 
                                              attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+2 ); // remove two item (attr, value)
     }
@@ -595,7 +595,7 @@ void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 
     if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
     {
-        EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
+        LBASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
 
         const PixelViewport pvp( 0, 0, w, h );
         getWindow()->setPixelViewport( pvp );
@@ -604,7 +604,7 @@ void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_eventHandler );
+    LBASSERT( !_eventHandler );
     _eventHandler = new EventHandler( this );
 }
 

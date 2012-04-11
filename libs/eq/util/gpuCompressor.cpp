@@ -54,7 +54,7 @@ bool GPUCompressor::initDownloader( const uint32_t internalFormat,
                                     const bool     ignoreAlpha, 
                                     const uint64_t capabilities )
 {
-    EQASSERT( _glewContext );
+    LBASSERT( _glewContext );
     float ratio = std::numeric_limits< float >::max();
     float speed = 0;
     uint32_t name = EQ_COMPRESSOR_NONE;
@@ -88,7 +88,7 @@ bool GPUCompressor::initDownloader( const uint32_t internalFormat,
 
 bool GPUCompressor::initDownloader( const uint32_t name )
 {
-    EQASSERT( name > EQ_COMPRESSOR_NONE );
+    LBASSERT( name > EQ_COMPRESSOR_NONE );
     return initCompressor( name );
 }
 
@@ -127,7 +127,7 @@ bool GPUCompressor::initUploader( const uint32_t externalFormat,
         }
     }
 
-    EQASSERT( name != EQ_COMPRESSOR_NONE );
+    LBASSERT( name != EQ_COMPRESSOR_NONE );
     if( name == EQ_COMPRESSOR_NONE )
     {
         reset();
@@ -142,8 +142,8 @@ bool GPUCompressor::startDownload( const fabric::PixelViewport& pvpIn,
                                    const unsigned source, const uint64_t flags,
                                    fabric::PixelViewport& pvpOut, void** out )
 {
-    EQASSERT( _plugin );
-    EQASSERT( _glewContext );
+    LBASSERT( _plugin );
+    LBASSERT( _glewContext );
 
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
 
@@ -169,8 +169,8 @@ void GPUCompressor::finishDownload( const fabric::PixelViewport& pvpIn,
                                     const uint64_t flags,
                                     fabric::PixelViewport& pvpOut, void** out )
 {
-    EQASSERT( _plugin );
-    EQASSERT( _glewContext );
+    LBASSERT( _plugin );
+    LBASSERT( _glewContext );
 
     if( _info->capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD )
     {
@@ -192,8 +192,8 @@ void GPUCompressor::upload( const void*                  buffer,
                             const fabric::PixelViewport& pvpOut,  
                             const unsigned               destination )
 {
-    EQASSERT( _plugin );
-    EQASSERT( _glewContext );
+    LBASSERT( _plugin );
+    LBASSERT( _glewContext );
 
     const uint64_t inDims[4] = { pvpIn.x, pvpIn.w, pvpIn.y, pvpIn.h }; 
     uint64_t outDims[4] = { pvpOut.x, pvpOut.w, pvpOut.y, pvpOut.h };
@@ -289,7 +289,7 @@ uint32_t GPUCompressor::getExternalFormat( const uint32_t format,
             }
     }
 
-    EQASSERTINFO( false, "Not implemented" );
+    LBASSERTINFO( false, "Not implemented" );
     return 0;
 }
 

@@ -36,8 +36,8 @@ namespace eqPly
 
 CameraAnimation::Step CameraAnimation::getNextStep()
 {
-    EQASSERT( _steps.size() > 0 );
-    EQASSERT( _curStep < _steps.size() );
+    LBASSERT( _steps.size() > 0 );
+    LBASSERT( _curStep < _steps.size() );
 
     if( _steps.size() == 0 )
         return Step();
@@ -45,7 +45,7 @@ CameraAnimation::Step CameraAnimation::getNextStep()
     if( _steps.size() == 1 )
         return _steps[ _curStep ];
 
-    EQASSERT( _curStep < _steps.size()-1 );
+    LBASSERT( _curStep < _steps.size()-1 );
 
     ++_curFrame;
     if( _curFrame > _steps[_curStep+1].frame )

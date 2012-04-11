@@ -241,7 +241,7 @@ bool Tracker::_read( unsigned char* buffer, const size_t size,
          return false;
       }
 
-      EQASSERT( remaining >= (size_t)received );
+      LBASSERT( remaining >= (size_t)received );
       remaining -= received;
    }
    return true;

@@ -57,10 +57,10 @@ void MessagePump::_initReceiverQueue()
     {
         _receiverQueue = GetCurrentEventQueue();
         _needGlobalLock = ( _receiverQueue == GetMainEventQueue( ));
-        EQASSERT( _receiverQueue );
+        LBASSERT( _receiverQueue );
     }
 
-    EQASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
+    LBASSERTINFO( _receiverQueue == GetCurrentEventQueue(),
                   "MessagePump::dispatch() called from two different threads" );
 }
 

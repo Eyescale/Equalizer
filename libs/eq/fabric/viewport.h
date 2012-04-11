@@ -57,8 +57,8 @@ namespace fabric
         /** Apply (accumulate) another viewport. @internal */
         void apply( const Viewport& rhs )
             {
-                EQASSERTINFO( isValid(), *this);
-                EQASSERTINFO( rhs.isValid(), rhs );                
+                LBASSERTINFO( isValid(), *this);
+                LBASSERTINFO( rhs.isValid(), rhs );                
                 x += rhs.x * w;
                 y += rhs.y * h;
                 w *= rhs.w;

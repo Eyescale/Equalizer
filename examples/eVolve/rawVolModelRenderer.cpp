@@ -72,10 +72,10 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
         const eq::Vector4f& taintColor,
         const int           normalsQuality )
 {
-    EQASSERT( _glewContext );
+    LBASSERT( _glewContext );
 
     GLhandleARB shader = _shaders.getProgram();
-    EQASSERT( shader );
+    LBASSERT( shader );
 
     const DataInTextureDimensions& TD = volumeInfo.TD; 
 

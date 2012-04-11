@@ -62,7 +62,7 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {
-    EQASSERT( getPipes().empty( ));
+    LBASSERT( getPipes().empty( ));
 }
 
 void Node::attach( const UUID& id, const uint32_t instanceID )
@@ -107,14 +107,14 @@ void Node::setDirty( const uint64_t bits )
 ClientPtr Node::getClient()
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getClient() : 0 );
 }
 
 ServerPtr Node::getServer()
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
@@ -160,7 +160,7 @@ FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
         _frameDatas.data[ frameDataVersion.identifier ] = data;
     }
 
-    EQASSERT( frameDataVersion.version.high() == 0 );
+    LBASSERT( frameDataVersion.version.high() == 0 );
     data->setVersion( frameDataVersion.version.low( ));
     return data;
 }
@@ -225,7 +225,7 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
-        EQASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
+        LBASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
 
         pipe->waitFrameLocal( frameNumber );
         pipe->waitFrameFinished( frameNumber );
@@ -256,7 +256,7 @@ void Node::_frameFinish( const uint128_t& frameID,
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "current " << _currentFrame << " release " << frameNumber );
 
     if( _finishedFrame >= frameNumber )
@@ -274,12 +274,12 @@ void Node::releaseFrame( const uint32_t frameNumber )
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
 {
-    EQASSERT( _unlockedFrame <= frameNumber );
+    LBASSERT( _unlockedFrame <= frameNumber );
     _unlockedFrame = frameNumber;
     
     Config* config = getConfig();
-    EQASSERT( config->getNodes().size() == 1 );
-    EQASSERT( config->getNodes()[0] == this );
+    LBASSERT( config->getNodes().size() == 1 );
+    LBASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
     EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
@@ -421,7 +421,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
         command.get<NodeCreatePipePacket>();
     EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
     LB_TS_THREAD( _nodeThread );
-    EQASSERT( _state >= STATE_INIT_FAILED );
+    LBASSERT( _state >= STATE_INIT_FAILED );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
     if( packet->threaded )
@@ -443,7 +443,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     Pipe* pipe = findPipe( packet->pipeID );
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     pipe->exitThread();
 
     PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
@@ -517,7 +517,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     EQVERB << "handle node frame start " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERT( _currentFrame == frameNumber-1 );
+    LBASSERT( _currentFrame == frameNumber-1 );
 
     EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
@@ -531,7 +531,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     config->_frameStart();
     frameStart( packet->frameID, frameNumber );
 
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );
     return true;
 }
@@ -589,10 +589,10 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
         << "received image data for " << packet->frameData << ", buffers "
         << packet->buffers << " pvp " << packet->pvp << std::endl;
 
-    EQASSERT( packet->pvp.isValid( ));
+    LBASSERT( packet->pvp.isValid( ));
 
     FrameData* frameData = getFrameData( packet->frameData );
-    EQASSERT( !frameData->isReady() );
+    LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
                           packet->frameNumber );
@@ -608,10 +608,10 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     EQLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
     FrameData* frameData = getFrameData( packet->frameData );
-    EQASSERT( frameData );
-    EQASSERT( !frameData->isReady() );
+    LBASSERT( frameData );
+    LBASSERT( !frameData->isReady() );
     frameData->setReady( packet );
-    EQASSERT( frameData->isReady() );
+    LBASSERT( frameData->isReady() );
     return true;
 }
 

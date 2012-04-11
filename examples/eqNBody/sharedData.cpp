@@ -37,7 +37,7 @@ namespace eqNbody
 {
 SharedData::SharedData( Config *cfg ) : _cfg( cfg )
 {
-    EQASSERT( _cfg );
+    LBASSERT( _cfg );
 }
     
 SharedData::~SharedData()

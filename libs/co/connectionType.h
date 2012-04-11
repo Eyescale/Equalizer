@@ -18,7 +18,7 @@
 #ifndef CO_CONNECTIONTYPE_H
 #define CO_CONNECTIONTYPE_H
 
-#include <lunchbox/debug.h>
+#include <co/defines.h>
 #include <iostream>
 
 namespace co
@@ -56,7 +56,7 @@ namespace co
             case CONNECTIONTYPE_UDT: return os << "UDT";
                 
             default:
-                EQASSERTINFO( false, "Not implemented" );
+                LBASSERTINFO( false, "Not implemented" );
                 return os << "ERROR";
         }
         return os;

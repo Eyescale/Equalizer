@@ -39,7 +39,7 @@
 
 #ifdef EQUALIZER
 #  include <eq/eq.h>
-#  define MESHASSERT  EQASSERT
+#  define MESHASSERT  LBASSERT
 #  define MESHERROR   EQERROR
 #  define MESHWARN    EQWARN
 #  define MESHINFO    EQINFO

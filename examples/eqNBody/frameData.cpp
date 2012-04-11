@@ -105,7 +105,7 @@ void FrameData::deserialize( co::DataIStream& is,
     
 void FrameData::addProxyID( const eq::uint128_t& pid, const float *range )
 {
-    EQASSERT(_numDataProxies < MAX_NGPUS);
+    LBASSERT(_numDataProxies < MAX_NGPUS);
         
     _dataProxyID[_numDataProxies].identifier = pid;  
     _dataProxyID[_numDataProxies].version = co::VERSION_NONE;

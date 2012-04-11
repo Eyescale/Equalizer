@@ -107,7 +107,7 @@ private:
                     return TRAVERSE_CONTINUE;
 
                 case STATE_FAILED:
-                    EQASSERT( !entity->isActive( ));
+                    LBASSERT( !entity->isActive( ));
                     if( !entity->isActive( ))
                     {
                         entity->setState( STATE_STOPPED );
@@ -115,7 +115,7 @@ private:
                     }
                     return TRAVERSE_CONTINUE;
             }
-            EQASSERTINFO( false, State( state ));
+            LBASSERTINFO( false, State( state ));
             return TRAVERSE_PRUNE;
         }
 };

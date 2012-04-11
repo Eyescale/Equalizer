@@ -57,7 +57,7 @@ int main( const int argc, char** argv )
 
     client->exitLocal();
 
-    // TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    // TODO LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
     client = 0;
     eq::admin::exit();
     return EXIT_SUCCESS;

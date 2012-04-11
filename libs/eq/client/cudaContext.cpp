@@ -71,7 +71,7 @@ namespace eq
         int device_count = 0;
         cudaGetDeviceCount( &device_count );
         EQINFO << "CUDA devices found: " << device_count << std::endl;
-        EQASSERT( static_cast< uint32_t >( device_count ) > device );
+        LBASSERT( static_cast< uint32_t >( device_count ) > device );
         if( static_cast< uint32_t >( device_count ) <= device )
         {
             EQWARN << "Not enough cuda devices, requested device " << device
@@ -106,7 +106,7 @@ namespace eq
 #else
         cudaGetDevice( &usedDevice );
 #endif
-        EQASSERT( device == static_cast< uint32_t >( device ));
+        LBASSERT( device == static_cast< uint32_t >( device ));
         cudaGetDeviceProperties( &props, usedDevice );
 
         cudaError_t err = cudaGetLastError();

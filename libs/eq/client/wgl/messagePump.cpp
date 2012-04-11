@@ -48,9 +48,9 @@ void MessagePump::_initReceiverQueue()
         MSG msg;
         PeekMessage( &msg, 0, WM_USER, WM_USER, PM_NOREMOVE );
         _win32ThreadID = GetCurrentThreadId();
-        EQASSERT( _win32ThreadID );
+        LBASSERT( _win32ThreadID );
     }
-    EQASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
+    LBASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
                   "wgl::MessagePump::pop() called from two different threads" );
 }
 

@@ -39,7 +39,7 @@ detail::Application* Config::getApplicationImpl()
 
 co::Object* Config::getInitData()
 {
-    EQASSERT( _objects );
+    LBASSERT( _objects );
     if( !_objects )
         return 0;
 

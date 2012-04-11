@@ -59,7 +59,7 @@ bool Renderer::exit()
 
 void Renderer::draw( co::Object* frameDataObj )
 {
-    EQASSERT( _state );
+    LBASSERT( _state );
 
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
@@ -106,7 +106,7 @@ co::Object* Renderer::createObject( const uint32_t type )
           return new eqPly::FrameData;
 
       default:
-          EQASSERTINFO( false, "Object type " << type << " unknown" );
+          LBASSERTINFO( false, "Object type " << type << " unknown" );
           return 0;
     }
 }

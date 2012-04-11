@@ -147,24 +147,24 @@ void Window::setWGLDC( HDC dc, const WGLDCType type )
             break;
 
         case WGL_DC_WINDOW:
-            EQASSERT( _wglWindow );
-            EQASSERT( _wglDC );
+            LBASSERT( _wglWindow );
+            LBASSERT( _wglDC );
             ReleaseDC( _wglWindow, _wglDC );
             break;
             
         case WGL_DC_PBUFFER:
-            EQASSERT( _wglPBuffer );
-            EQASSERT( _wglDC );
+            LBASSERT( _wglPBuffer );
+            LBASSERT( _wglDC );
             wglReleasePbufferDCARB( _wglPBuffer, _wglDC );
             break;
 
         case WGL_DC_AFFINITY:
-            EQASSERT( _wglDC );
+            LBASSERT( _wglDC );
             wglDeleteDCNV( _wglDC );
             break;
                 
         case WGL_DC_DISPLAY:
-            EQASSERT( _wglDC );
+            LBASSERT( _wglDC );
             DeleteDC( _wglDC );
             break;
 
@@ -413,7 +413,7 @@ bool Window::configInitWGLPBuffer( int pf )
     }
 
     const eq::PixelViewport& pvp = getWindow()->getPixelViewport();
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
     HPBUFFERARB pBuffer = 0;
     const int attr[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
@@ -630,7 +630,7 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
 
 int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 {
-    EQASSERT( WGLEW_ARB_pixel_format );
+    LBASSERT( WGLEW_ARB_pixel_format );
 
     std::vector< int > attributes;
     attributes.push_back( WGL_SUPPORT_OPENGL_ARB );
@@ -788,7 +788,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
         std::vector<GLint>::iterator iter = find( attributes.begin(), 
             attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+2 ); // remove two items (attr, value)
     }
@@ -798,7 +798,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
 HGLRC Window::createWGLContext()
 {
-    EQASSERT( _wglDC );
+    LBASSERT( _wglDC );
 
     // create context
     HGLRC context = wglCreateContext( _wglAffinityDC ? _wglAffinityDC :_wglDC );
@@ -815,7 +815,7 @@ HGLRC Window::createWGLContext()
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
     {
-        EQASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
+        LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
         const WindowIF* shareWGLWindow = 
             static_cast< const WindowIF* >( sysWindow );
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
@@ -830,13 +830,13 @@ HGLRC Window::createWGLContext()
 
 void Window::destroyWGLContext( HGLRC context )
 {
-    EQASSERT( context );
+    LBASSERT( context );
     wglDeleteContext( context );
 }
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_wglEventHandler );
+    LBASSERT( !_wglEventHandler );
     _wglEventHandler = new EventHandler( this );
 }
 
@@ -850,7 +850,7 @@ bool Window::processEvent( const WindowEvent& event )
 {
     if( event.type == Event::WINDOW_EXPOSE )
     {
-        EQASSERT( _wglWindow ); // PBuffers should not generate paint events
+        LBASSERT( _wglWindow ); // PBuffers should not generate paint events
 
         // Invalidate update rectangle
         PAINTSTRUCT ps;
@@ -931,9 +931,9 @@ WGLEWContext* Window::wglewGetContext()
 Pipe* Window::getWGLPipe()
 {
     eq::Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getSystemPipe( ));
-    EQASSERT( dynamic_cast< Pipe* >( pipe->getSystemPipe( )));
+    LBASSERT( pipe );
+    LBASSERT( pipe->getSystemPipe( ));
+    LBASSERT( dynamic_cast< Pipe* >( pipe->getSystemPipe( )));
 
     return static_cast< Pipe* >( pipe->getSystemPipe( ) );
 }

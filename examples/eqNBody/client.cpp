@@ -44,7 +44,7 @@ Client::Client( const InitData& initData )
     
 int Client::init()
 {
-    EQASSERT( !_config );
+    LBASSERT( !_config );
 
     // 1. connect to server
     _server = new eq::Server;
@@ -82,7 +82,7 @@ int Client::init()
 
 int Client::exit()
 {
-    EQASSERT( _config );
+    LBASSERT( _config );
 
     // Exit config
     _config->exit();

@@ -80,10 +80,10 @@ Window::Window( Pipe* parent )
 
 Window::~Window()
 {
-    EQASSERT( getChannels().empty( ));
+    LBASSERT( getChannels().empty( ));
 
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
 
     if( pipe->isCurrent( this ))
         pipe->setCurrent( 0 );
@@ -214,40 +214,40 @@ uint32_t Window::getCurrentFrame() const
 const Node* Window::getNode() const 
 {
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 Node* Window::getNode()
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 
 const Config* Window::getConfig() const
 {
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0 );
 }
 Config* Window::getConfig() 
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0 );
 }
 
 ClientPtr Window::getClient()
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getClient() : 0 );
 }
 
 ServerPtr Window::getServer() 
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getServer() : 0 );
 }
 
@@ -322,14 +322,14 @@ void Window::setSystemWindow( SystemWindow* window )
 const SystemPipe* Window::getSystemPipe() const
 {
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return pipe->getSystemPipe();
 }
 
 SystemPipe* Window::getSystemPipe()
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return pipe->getSystemPipe();
 }
 
@@ -369,7 +369,7 @@ bool Window::configInit( const uint128_t& initID )
         return false;
     }
 
-    EQASSERT( !_systemWindow );
+    LBASSERT( !_systemWindow );
 
     if( !configInitSystemWindow( initID )) return false;
     if( !configInitGL( initID ))       return false;
@@ -382,7 +382,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
     const Pipe* pipe = getPipe();
     SystemWindow* systemWindow = pipe->getWindowSystem().createWindow( this );
 
-    EQASSERT( systemWindow );
+    LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
     {
         EQWARN << "System window initialization failed: " << getError()
@@ -427,7 +427,7 @@ void Window::_releaseObjectManager()
 
 const Window::Font* Window::getSmallFont()
 {
-    EQASSERT( _objectManager );
+    LBASSERT( _objectManager );
     if( !_objectManager )
         return 0;
 
@@ -442,7 +442,7 @@ const Window::Font* Window::getSmallFont()
 
 const Window::Font* Window::getMediumFont()
 {
-    EQASSERT( _objectManager );
+    LBASSERT( _objectManager );
     if( !_objectManager )
         return 0;
 
@@ -482,7 +482,7 @@ const SystemWindow* Window::getTransferSystemWindow()
     if( _transferWindow )
         return _transferWindow;
 
-    EQASSERT( _systemWindow );
+    LBASSERT( _systemWindow );
 
     // create another (shared) osWindow with no drawable, restore original
     const int32_t drawable = getIAttribute( IATTR_HINT_DRAWABLE );
@@ -525,7 +525,7 @@ void Window::makeCurrentTransfer( const bool useCache )
         return;
 
     const SystemWindow* window = getTransferSystemWindow();
-    EQASSERT( window );
+    LBASSERT( window );
 
     if( window )
         window->makeCurrent();
@@ -562,7 +562,7 @@ bool Window::configExitSystemWindow()
 {
     // _transferWindow has to be deleted from the same thread it was
     // initialized
-    EQASSERT( !_transferWindow );
+    LBASSERT( !_transferWindow );
 
     _releaseObjectManager();
 
@@ -696,7 +696,7 @@ bool Window::processEvent( const Event& event )
                     EQUNIMPLEMENTED;
                 }
 
-                EQASSERT( channel->getID() != UUID::ZERO );
+                LBASSERT( channel->getID() != UUID::ZERO );
                 channelEvent.originator = channel->getID();
                 channelEvent.serial = channel->getSerial();
                 channelEvent.pointer.x -= channelPVP.x;
@@ -753,7 +753,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
 
     Config* config = getConfig();
     EQCHECK( config->mapObject( channel, packet->channelID ));
-    EQASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
+    LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;
 }
@@ -765,7 +765,7 @@ bool Window::_cmdDestroyChannel( co::Command& command )
     EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
     Channel* channel = _findChannel( packet->channelID );
-    EQASSERT( channel );
+    LBASSERT( channel );
 
     ChannelConfigExitReplyPacket reply( packet->channelID,
                                         channel->isStopped( ));
@@ -910,7 +910,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
 {
     const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
     EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
-    EQASSERT( _systemWindow );
+    LBASSERT( _systemWindow );
     
     makeCurrent();
     _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );

@@ -98,8 +98,8 @@ void QueueMaster::getInstanceData( co::DataOStream& os )
 
 void QueueMaster::push( const QueueItemPacket& packet )
 {
-    EQASSERT( packet.size >= sizeof( QueueItemPacket ));
-    EQASSERT( packet.command == CMD_QUEUE_ITEM );
+    LBASSERT( packet.size >= sizeof( QueueItemPacket ));
+    LBASSERT( packet.command == CMD_QUEUE_ITEM );
 
     Command& command = _impl->cache.alloc( getLocalNode(), getLocalNode(),
                                            packet.size );

@@ -92,7 +92,7 @@ void Pipe< N, P, W, V >::attach( const UUID& id,
     Object::attach( id, instanceID );
 
     co::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_PIPE_NEW_WINDOW, 
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindow ),
@@ -148,7 +148,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
                 Windows result;
                 is.deserializeChildren( this, _windows, result );
                 _windows.swap( result );
-                EQASSERT( _windows.size() == result.size( ));
+                LBASSERT( _windows.size() == result.size( ));
             }
             else // consume unused ObjectVersions
             {
@@ -183,11 +183,11 @@ void Pipe< N, P, W, V >::notifyDetach()
         W* window = _windows.back();
         if( !window->isAttached()  )
         {
-            EQASSERT( isMaster( ));
+            LBASSERT( isMaster( ));
             return;
         }
 
-        EQASSERT( !isMaster( ));
+        LBASSERT( !isMaster( ));
 
         getLocalNode()->unmapObject( window );
         _removeWindow( window );
@@ -270,14 +270,14 @@ template< class N, class P, class W, class V >
 PipePath Pipe< N, P, W, V >::getPath() const
 {
     const N* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     PipePath path( node->getPath( ));
     
     const typename std::vector< P* >& pipes = node->getPipes();
     typename std::vector< P* >::const_iterator i = std::find( pipes.begin(),
                                                               pipes.end(),
                                                               this );
-    EQASSERT( i != pipes.end( ));
+    LBASSERT( i != pipes.end( ));
     path.pipeIndex = std::distance( pipes.begin(), i );
     return path;
 }
@@ -310,7 +310,7 @@ void Pipe< N, P, W, V >::setPort( const uint32_t port )
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::_addWindow( W* window )
 {
-    EQASSERT( window->getPipe() == this );
+    LBASSERT( window->getPipe() == this );
     _windows.push_back( window );
     setDirty( DIRTY_WINDOWS );
 }
@@ -387,10 +387,10 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
     
     W* window = 0;
     create( &window );
-    EQASSERT( window );
+    LBASSERT( window );
 
     getLocalNode()->registerObject( window );
-    EQASSERT( window->isAttached() );
+    LBASSERT( window->isAttached() );
 
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();

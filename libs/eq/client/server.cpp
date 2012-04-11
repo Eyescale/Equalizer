@@ -107,7 +107,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
 void Server::releaseConfig( Config* config )
 {
-    EQASSERT( isConnected( ));
+    LBASSERT( isConnected( ));
     ClientPtr client = getClient();
     ServerReleaseConfigPacket packet;
     packet.requestID = client->registerRequest();

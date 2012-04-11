@@ -98,13 +98,13 @@ out:
 static void notify( co::Connection::Notifier n )
 {
 #ifdef _WIN32
-    EQASSERT( NULL != n );
+    LBASSERT( NULL != n );
 
     SetEvent( n );
 #else
     static const uint64_t ONE = 1ULL;
 
-    EQASSERT( 0 <= n );
+    LBASSERT( 0 <= n );
 
 #   ifdef LB_RELEASE_ASSERT
     EQCHECK( ::write( n, (const void *)&ONE, sizeof(ONE) ) == sizeof(ONE) );
@@ -117,11 +117,11 @@ static void notify( co::Connection::Notifier n )
 static void acknowledge( co::Connection::Notifier n )
 {
 #ifdef _WIN32
-    EQASSERT( NULL != n );
+    LBASSERT( NULL != n );
 
     ResetEvent( n );
 #else
-    EQASSERT( 0 <= n );
+    LBASSERT( 0 <= n );
 
     uint64_t dummy;
 
@@ -257,7 +257,7 @@ public:
         , _connection( connection )
         , _eid( UDT::ERROR )
     {
-        EQASSERT( _connection );
+        LBASSERT( _connection );
     }
     virtual ~UDTConnectionThread( );
 
@@ -302,7 +302,7 @@ bool UDTConnection::connect( )
     CCC *cc = NULL;
     int len;
 
-    EQASSERT( CONNECTIONTYPE_UDT == _description->type );
+    LBASSERT( CONNECTIONTYPE_UDT == _description->type );
     if( STATE_CLOSED != _state )
         return false;
 
@@ -312,7 +312,7 @@ bool UDTConnection::connect( )
     if( !_parseAddress( _description, address, false ))
         goto err;
 
-    EQASSERT( UDT::INVALID_SOCK == _udt );
+    LBASSERT( UDT::INVALID_SOCK == _udt );
     _udt = UDT::socket( AF_INET, SOCK_STREAM, 0 );
     if( UDT::INVALID_SOCK == _udt )
     {
@@ -360,7 +360,7 @@ bool UDTConnection::listen( )
 {
     struct sockaddr address;
 
-    EQASSERT( CONNECTIONTYPE_UDT == _description->type );
+    LBASSERT( CONNECTIONTYPE_UDT == _description->type );
     if( STATE_CLOSED != _state )
         return false;
 
@@ -370,7 +370,7 @@ bool UDTConnection::listen( )
     if( !_parseAddress( _description, address, true ))
         goto err;
 
-    EQASSERT( UDT::INVALID_SOCK == _udt );
+    LBASSERT( UDT::INVALID_SOCK == _udt );
     _udt = UDT::socket( AF_INET, SOCK_STREAM, 0 );
     if( UDT::INVALID_SOCK == _udt )
     {
@@ -694,11 +694,11 @@ bool UDTConnection::setSockOpt( UDT::SOCKOPT optname, const void *optval,
 // caller: application
 UDTConnection::UDTConnectionThread::~UDTConnectionThread( )
 {
-    EQASSERT( !_running );
+    LBASSERT( !_running );
 
     if( UDT::ERROR != _eid )
     {
-        EQASSERT( UDT::INVALID_SOCK != _connection->_udt );
+        LBASSERT( UDT::INVALID_SOCK != _connection->_udt );
         if( UDT::ERROR == UDT::epoll_remove_usock( _eid, _connection->_udt ))
             EQWARN << UDTLASTERROR( "UDT::epoll_remove_usock" ) << std::endl;
 
@@ -711,7 +711,7 @@ UDTConnection::UDTConnectionThread::~UDTConnectionThread( )
 // caller: application
 bool UDTConnection::UDTConnectionThread::init( )
 {
-    EQASSERT( !_running );
+    LBASSERT( !_running );
 
     // Create the UDT epoll identifier
     _eid = UDT::epoll_create( );
@@ -722,7 +722,7 @@ bool UDTConnection::UDTConnectionThread::init( )
     }
 
     // Add the connection's UDT socket to the UDT udtsock poll
-    EQASSERT( UDT::INVALID_SOCK != _connection->_udt );
+    LBASSERT( UDT::INVALID_SOCK != _connection->_udt );
     if( UDT::ERROR == UDT::epoll_add_usock( _eid, _connection->_udt ))
     {
         EQERROR << UDTLASTERROR( "UDT::epoll_add_usock" ) << std::endl;
@@ -754,8 +754,8 @@ void UDTConnection::UDTConnectionThread::run( )
         // UDT indicating ready-to-read
         if( !udtfds.empty( ))
         {
-            EQASSERT( 1 == udtfds.size( ));
-            EQASSERT( *(udtfds.begin( )) == _connection->_udt );
+            LBASSERT( 1 == udtfds.size( ));
+            LBASSERT( *(udtfds.begin( )) == _connection->_udt );
 
             _connection->wake( );
         }

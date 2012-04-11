@@ -39,7 +39,7 @@ MasterConfig::~MasterConfig()
 
 bool MasterConfig::init()
 {
-    EQASSERT( !_objects );
+    LBASSERT( !_objects );
     _objects = new ObjectMap( *getApplication( ));
 
     co::Object* initData = getInitData();
@@ -76,7 +76,7 @@ bool MasterConfig::exit()
 
 bool MasterConfig::run( co::Object* frameData )
 {
-    EQASSERT( _objects );
+    LBASSERT( _objects );
     if( frameData )
         EQCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
     _objects->setFrameData( frameData );

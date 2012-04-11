@@ -77,7 +77,7 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
 {
     if( buffer != Frame::BUFFER_COLOR )
     {
-        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::BUFFER_DEPTH );
         _depthQuality = quality;
         return;
     }
@@ -89,7 +89,7 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
     if( buffer != Frame::BUFFER_COLOR )
     {
-        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::BUFFER_DEPTH );
         _depthCompressor = name;
         return;
     }
@@ -284,7 +284,7 @@ Images FrameData::startReadback( const Frame& frame,
         regions.push_back( absPVP );
 #endif
 
-    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
+    LBASSERT( getType() == eq::Frame::TYPE_MEMORY );
     const eq::Pixel& pixel = getPixel();
 
     for( uint32_t i = 0; i < regions.size(); ++i )
@@ -307,7 +307,7 @@ Images FrameData::startReadback( const Frame& frame,
 
 void FrameData::setVersion( const uint64_t version )
 {
-    EQASSERTINFO( _version <= version, _version << " > " << version );
+    LBASSERTINFO( _version <= version, _version << " > " << version );
     _version = version;
     EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
@@ -326,11 +326,11 @@ void FrameData::setReady()
 void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
 {
     clear();
-    EQASSERT(  packet->frameData.version.high() == 0 );
-    EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _readyVersion == 0 ||
+    LBASSERT(  packet->frameData.version.high() == 0 );
+    LBASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT( _readyVersion == 0 ||
               _readyVersion + 1 == packet->frameData.version.low( ));
-    EQASSERT( _version == packet->frameData.version.low( ));
+    LBASSERT( _version == packet->frameData.version.low( ));
 
     _images.swap( _pendingImages );
     _data = packet->data;
@@ -343,7 +343,7 @@ void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
 void FrameData::_setReady( const uint64_t version )
 {
     
-    EQASSERTINFO( _readyVersion <= version,
+    LBASSERTINFO( _readyVersion <= version,
                   "v" << _version << " ready " << _readyVersion << " new "
                       << version );
 
@@ -378,7 +378,7 @@ void FrameData::removeListener( lunchbox::Monitor<uint32_t>& listener )
 
     Listeners::iterator i = std::find( _listeners->begin(), _listeners->end(),
                                       &listener );
-    EQASSERT( i != _listeners->end( ));
+    LBASSERT( i != _listeners->end( ));
     _listeners->erase( i );
 }
 
@@ -437,7 +437,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 data += sizeof( uint64_t );
                 pixelData.pixels = data;
                 data += size;
-                EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
+                LBASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
             image->setZoom( packet->zoom );
@@ -446,7 +446,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
         }
     }
 
-    EQASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT( _readyVersion < packet->frameData.version.low( ));
     _pendingImages.push_back( image );
     return true;
 }

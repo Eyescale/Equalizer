@@ -52,7 +52,7 @@ void DFREqualizer::attach( Compound* compound )
     if( oldCompound )
     {
         Channel*  channel   = oldCompound->getChannel();
-        EQASSERT( channel );
+        LBASSERT( channel );
 
         // Unsubscribe to channel load notification
         channel->removeListener( this );
@@ -63,7 +63,7 @@ void DFREqualizer::attach( Compound* compound )
     if( compound )
     {
         Channel* channel = compound->getChannel();
-        EQASSERT( channel );
+        LBASSERT( channel );
     
         // Subscribe to channel load notification
         if( compound->getParent() && channel )
@@ -74,7 +74,7 @@ void DFREqualizer::attach( Compound* compound )
 void DFREqualizer::notifyUpdatePre( Compound* compound, 
                                     const uint32_t frameNumber )
 {
-    EQASSERT( compound == getCompound( ));
+    LBASSERT( compound == getCompound( ));
 
     if( isFrozen() || !compound->isRunning() || !isActive( ))
     {
@@ -82,8 +82,8 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
         return;    
     }
    
-    EQASSERT( _damping >= 0.f );
-    EQASSERT( _damping <= 1.f );
+    LBASSERT( _damping >= 0.f );
+    LBASSERT( _damping <= 1.f );
 
     const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
         _damping + 1.0f;

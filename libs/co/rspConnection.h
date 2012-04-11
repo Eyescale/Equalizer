@@ -61,7 +61,7 @@ namespace co
         /** Identical to listen() for multicast connections. */
         bool connect(){ return listen(); }
 
-        virtual void acceptNB(){ EQASSERT( _state == STATE_LISTENING ); }
+        virtual void acceptNB(){ LBASSERT( _state == STATE_LISTENING ); }
 
         virtual ConnectionPtr acceptSync();
         virtual void readNB( void*, const uint64_t ) {/* NOP */}

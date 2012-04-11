@@ -62,7 +62,7 @@ SocketConnection::SocketConnection( const ConnectionType type )
     memset( &_overlappedWrite, 0, sizeof( _overlappedWrite ));
 #endif
 
-    EQASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
+    LBASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
     _description->type = type;
     _description->bandwidth = (type == CONNECTIONTYPE_TCPIP) ?
                                   102400 : 819200; // 100MB : 800 MB
@@ -109,7 +109,7 @@ static bool _parseAddress( ConnectionDescriptionPtr description,
 //----------------------------------------------------------------------
 bool SocketConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
+    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
               _description->type == CONNECTIONTYPE_SDP );
     if( _state != STATE_CLOSED )
         return false;
@@ -177,7 +177,7 @@ void SocketConnection::_close()
         _exitAIORead();
 
     _state = STATE_CLOSED;
-    EQASSERT( _readFD > 0 ); 
+    LBASSERT( _readFD > 0 ); 
 
 #ifdef _WIN32
     const bool closed = ( ::closesocket(_readFD) == 0 );
@@ -201,10 +201,10 @@ void SocketConnection::_close()
 void SocketConnection::_initAIORead()
 {
     _overlappedRead.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlappedRead.hEvent );
+    LBASSERT( _overlappedRead.hEvent );
 
     _overlappedWrite.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlappedWrite.hEvent );
+    LBASSERT( _overlappedWrite.hEvent );
     if( !_overlappedRead.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
                 << lunchbox::sysError << std::endl;
@@ -253,15 +253,15 @@ void SocketConnection::_exitAIORead(){ /* NOP */ }
 #ifdef _WIN32
 void SocketConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
 
     // Create new accept socket
     const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket == INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket == INVALID_SOCKET );
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0, 0,
                                    flags );
 
@@ -297,8 +297,8 @@ ConnectionPtr SocketConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket != INVALID_SOCKET );
     if( _overlappedSocket == INVALID_SOCKET )
         return 0;
 
@@ -609,7 +609,7 @@ void SocketConnection::_tuneSocket( const Socket fd )
 #endif
 bool SocketConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
+    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
               _description->type == CONNECTIONTYPE_SDP );
 
     if( _state != STATE_CLOSED )

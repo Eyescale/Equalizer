@@ -165,7 +165,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
             break;
         }
 
-        EQASSERT( colorSize > 0 );
+        LBASSERT( colorSize > 0 );
         attributes.push_back( GLX_RED_SIZE );
         attributes.push_back( colorSize );
         attributes.push_back( GLX_GREEN_SIZE );
@@ -187,7 +187,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
               break;
 
           default:
-            EQASSERT( alphaSize > 0 );
+            LBASSERT( alphaSize > 0 );
             attributes.push_back( GLX_ALPHA_SIZE );
             attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
         }
@@ -290,7 +290,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 
         std::vector<int>::iterator iter = find( attributes.begin(),
                                                 attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
         attributes.erase( iter, iter+2 );
         configs = chooseFBConfig( _xDisplay, screen, &attributes[0], &nConfigs);
     }
@@ -450,7 +450,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     
 XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
-    EQASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
+    LBASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
 
     if( !_xDisplay )
     {
@@ -580,7 +580,7 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
 
 void Window::setXDrawable( XID drawable )
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
 
     if( _xDrawable == drawable )
         return;
@@ -638,7 +638,7 @@ void Window::setXDrawable( XID drawable )
             EQUNIMPLEMENTED;
         case OFF:
         case FBO:
-            EQASSERT( getWindow()->getPixelViewport().hasArea( ));
+            LBASSERT( getWindow()->getPixelViewport().hasArea( ));
     }
 }
 
@@ -701,7 +701,7 @@ void Window::configExit()
 
 void Window::makeCurrent() const
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
 
     glXMakeCurrent( _xDisplay, _xDrawable, _glXContext );
     WindowIF::makeCurrent();
@@ -713,7 +713,7 @@ void Window::makeCurrent() const
 
 void Window::swapBuffers()
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
     glXSwapBuffers( _xDisplay, _xDrawable );
 }
 
@@ -792,7 +792,7 @@ void Window::leaveNVSwapBarrier()
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_glXEventHandler );
+    LBASSERT( !_glXEventHandler );
     _glXEventHandler = new EventHandler( this );
 }
 

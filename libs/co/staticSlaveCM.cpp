@@ -33,8 +33,8 @@ StaticSlaveCM::StaticSlaveCM( Object* object )
         : ObjectCM( object )
         , _currentIStream( new ObjectDataIStream )
 {
-    EQASSERT( _object );
-    EQASSERT( object->getLocalNode( ));
+    LBASSERT( _object );
+    LBASSERT( object->getLocalNode( ));
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
                              CmdFunc( this, &StaticSlaveCM::_cmdInstance ), 0 );
@@ -48,18 +48,18 @@ StaticSlaveCM::~StaticSlaveCM()
 
 void StaticSlaveCM::applyMapData( const uint128_t& version )
 {
-    EQASSERT( _currentIStream );
-    EQASSERT( version == VERSION_FIRST );
+    LBASSERT( _currentIStream );
+    LBASSERT( version == VERSION_FIRST );
     _currentIStream->waitReady();
 
-    EQASSERT( _object );
-    EQASSERT( _currentIStream->getVersion() == VERSION_FIRST );
-    EQASSERT( _currentIStream->hasInstanceData( ));
+    LBASSERT( _object );
+    LBASSERT( _currentIStream->getVersion() == VERSION_FIRST );
+    LBASSERT( _currentIStream->hasInstanceData( ));
 
     if( _currentIStream->hasData( )) // not VERSION_NONE
         _object->applyInstanceData( *_currentIStream );
 
-    EQASSERTINFO( !_currentIStream->hasData(),
+    LBASSERTINFO( !_currentIStream->hasData(),
                   "Object " << typeid( *_object ).name() <<
                   " did not unpack all data" );
 
@@ -75,16 +75,16 @@ void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                       const uint128_t& /* start */ )
 {
     LB_TS_THREAD( _rcvThread );
-    EQASSERT( _currentIStream );
-    EQASSERT( _currentIStream->getDataSize() == 0 );
-    EQASSERT( cache.size() == 1 );
+    LBASSERT( _currentIStream );
+    LBASSERT( _currentIStream->getDataSize() == 0 );
+    LBASSERT( cache.size() == 1 );
     if( cache.empty( ))
         return;
 
     ObjectDataIStream* stream = cache.front();
-    EQASSERT( stream );
-    EQASSERT( stream->isReady( ));
-    EQASSERT( stream->getVersion() == VERSION_FIRST );
+    LBASSERT( stream );
+    LBASSERT( stream->isReady( ));
+    LBASSERT( stream->getVersion() == VERSION_FIRST );
 
     if( !stream->isReady() || stream->getVersion() != VERSION_FIRST )
         return;
@@ -100,7 +100,7 @@ void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 bool StaticSlaveCM::_cmdInstance( Command& command )
 {
     LB_TS_THREAD( _rcvThread );
-    EQASSERT( _currentIStream );
+    LBASSERT( _currentIStream );
     _currentIStream->addDataPacket( command );
 
     if( _currentIStream->isReady( ))

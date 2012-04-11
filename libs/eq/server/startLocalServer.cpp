@@ -39,7 +39,7 @@ public:
 
     bool start( eq::server::ServerPtr server )
         {
-            EQASSERT( !_server );
+            LBASSERT( !_server );
             _server = server;
             return Thread::start();
         }
@@ -54,7 +54,7 @@ protected:
 
             EQINFO << "Server thread done, still referenced by " 
                    << _server->getRefCount() - 1 << std::endl;
-            EQASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
+            LBASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
             _server = 0;
             eq::server::Global::clear();

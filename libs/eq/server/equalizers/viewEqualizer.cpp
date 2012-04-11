@@ -71,7 +71,7 @@ void ViewEqualizer::attach( Compound* compound )
 void ViewEqualizer::notifyUpdatePre( Compound* compound, 
                                      const uint32_t frameNumber )
 {
-    EQASSERT( compound == getCompound( ));
+    LBASSERT( compound == getCompound( ));
 
     _updateListeners();
     _updateResources();
@@ -94,7 +94,7 @@ public:
                 return TRAVERSE_CONTINUE;
 
             Pipe* pipe = compound->getPipe();
-            EQASSERT( pipe );
+            LBASSERT( pipe );
 
             if( pipe != _self )
                 return TRAVERSE_CONTINUE;
@@ -111,7 +111,7 @@ public:
 
             if( pipeUsage > 0.0f ) // pipe already partly used
             {
-                EQASSERT( pipeUsage < 1.0f );
+                LBASSERT( pipeUsage < 1.0f );
 
                 float use = 1.0f - pipeUsage;
                 use = LB_MAX( use, MIN_USAGE );
@@ -127,7 +127,7 @@ public:
             }
             else
             {
-                EQASSERT( pipeUsage == 0.0f );
+                LBASSERT( pipeUsage == 0.0f );
 
                 float use = LB_MIN( 1.0f, _nResources );
 
@@ -168,7 +168,7 @@ public:
                 return TRAVERSE_CONTINUE;
 
             Pipe* pipe = compound->getPipe();
-            EQASSERT( pipe );
+            LBASSERT( pipe );
             
             if( compound->getUsage() == 0.0f || // not previously used
                 pipe == _self)                  // already assigned above
@@ -234,7 +234,7 @@ public:
                 return TRAVERSE_CONTINUE;
 
             Pipe* pipe = compound->getPipe();
-            EQASSERT( pipe );
+            LBASSERT( pipe );
             
             if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
                 _pipeUsage[ pipe ] = 0.0f;
@@ -245,7 +245,7 @@ public:
 
             if( pipeUsage > 0.0f ) // pipe already partly used
             {
-                EQASSERT( pipeUsage < 1.0f );
+                LBASSERT( pipeUsage < 1.0f );
 
                 float use = 1.0f - pipeUsage;
                 use = LB_MAX( use, MIN_USAGE );
@@ -261,7 +261,7 @@ public:
             }
             else
             {
-                EQASSERT( pipeUsage == 0.0f );
+                LBASSERT( pipeUsage == 0.0f );
 
                 float use = LB_MIN( 1.0f, _nResources );
 
@@ -327,7 +327,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     //----- Assign new resource usage
     const Compounds& children = compound->getChildren();
     const size_t size( _listeners.size( ));
-    EQASSERT( children.size() == size );
+    LBASSERT( children.size() == size );
     lunchbox::PtrHash< Pipe*, float > pipeUsage;
     float* leftOvers = static_cast< float* >( alloca( size * sizeof( float )));
 
@@ -335,7 +335,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     for( size_t i = 0; i < size; ++i )
     {
         Listener::Load& load = loads[ i ];
-        EQASSERT( load.missing == 0 );
+        LBASSERT( load.missing == 0 );
 
         Compound* child = children[ i ];
         if( !child->isRunning( ))
@@ -375,7 +375,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     for( size_t i = 0; i < size; ++i )
     {
         Listener& listener = _listeners[ i ];
-        EQASSERTINFO( listener.getNLoads() <= getConfig()->getLatency() + 3,
+        LBASSERTINFO( listener.getNLoads() <= getConfig()->getLatency() + 3,
                       listener );
 
         float& leftOver = leftOvers[i];
@@ -398,8 +398,8 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
             if( load.missing == 0 ) // assign at least one resource
             {
                 Compound* fallback = assigner.getFallback();
-                EQASSERT( fallback );
-                EQASSERT( leftOver > 0 );
+                LBASSERT( fallback );
+                LBASSERT( leftOver > 0 );
 
                 fallback->setUsage( leftOver );
                 load.missing = 1;
@@ -417,13 +417,13 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
 uint32_t ViewEqualizer::_findInputFrameNumber() const
 {
-    EQASSERT( !_listeners.empty( ));
+    LBASSERT( !_listeners.empty( ));
 
     uint32_t frame = std::numeric_limits< uint32_t >::max();
     const Compound* compound = getCompound();
     const Compounds& children = compound->getChildren();
     const size_t nChildren = children.size();
-    EQASSERT( nChildren == _listeners.size( ));
+    LBASSERT( nChildren == _listeners.size( ));
 
     bool change = true;
     while( change )
@@ -453,7 +453,7 @@ void ViewEqualizer::_updateListeners()
 {
     if( !_listeners.empty( ))
     {
-        EQASSERT( getCompound()->getChildren().size() == _listeners.size( ));
+        LBASSERT( getCompound()->getChildren().size() == _listeners.size( ));
         return;
     }
 
@@ -486,7 +486,7 @@ public:
                 return TRAVERSE_PRUNE;
 
             const Pipe* pipe = compound->getPipe();
-            EQASSERT( pipe );
+            LBASSERT( pipe );
             _pipes.insert( pipe );
             return TRAVERSE_CONTINUE; 
         }
@@ -522,7 +522,7 @@ public:
     virtual VisitorResult visitLeaf( Compound* compound )
         {
             Channel* channel = compound->getChannel();
-            EQASSERT( channel );
+            LBASSERT( channel );
 
             if( _taskIDs.find( channel ) == _taskIDs.end( ))
             {
@@ -532,7 +532,7 @@ public:
             }
             else
             {
-                EQASSERTINFO( 0, 
+                LBASSERTINFO( 0, 
                               "View equalizer does not support using channel "<<
                               channel->getName() <<
                               " multiple times in one branch" );
@@ -548,7 +548,7 @@ private:
 
 void ViewEqualizer::Listener::update( Compound* compound )
 {
-    EQASSERT( _taskIDs.empty( ));
+    LBASSERT( _taskIDs.empty( ));
     LoadSubscriber subscriber( this, _taskIDs );
     compound->accept( subscriber );
 }
@@ -585,7 +585,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     if( load == Load::NONE )
         return;
 
-    EQASSERT( _taskIDs.find( channel ) != _taskIDs.end( ));
+    LBASSERT( _taskIDs.find( channel ) != _taskIDs.end( ));
     const uint32_t taskID = _taskIDs[ channel ];
     
     // gather relevant load data
@@ -629,7 +629,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     if( startTime == std::numeric_limits< int64_t >::max( ))
         return;
     
-    EQASSERTINFO( load.missing > 0, load );
+    LBASSERTINFO( load.missing > 0, load );
 
     const int64_t time = LB_MAX(endTime - startTime, transmitTime );
     load.time += time;
@@ -665,7 +665,7 @@ ViewEqualizer::Listener::useLoad( const uint32_t frame )
         Load& load = *i;
         if( load.frame == frame )
         {
-            EQASSERT( load.missing == 0 );
+            LBASSERT( load.missing == 0 );
             if( load.time == 0 )
                 load.time = 1;
 
@@ -694,7 +694,7 @@ ViewEqualizer::Listener::_getLoad( const uint32_t frame )
 void ViewEqualizer::Listener::newLoad( const uint32_t frameNumber, 
                                        const uint32_t nChannels )
 {
-    EQASSERT( nChannels > 0 );
+    LBASSERT( nChannels > 0 );
     _loads.push_front( Load( frameNumber, nChannels, 0 ));
 }
 

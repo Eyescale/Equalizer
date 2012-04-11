@@ -147,9 +147,9 @@ void MonitorEqualizer::_updateZoomAndOffset()
 
     const Frames& inputFrames( compound->getInputFrames( ));
     const size_t size( inputFrames.size( ));
-    EQASSERTINFO( size == _outputFrames.size(), 
+    LBASSERTINFO( size == _outputFrames.size(), 
                   size << " != " << _outputFrames.size( ));
-    EQASSERT( size == _viewports.size( ));
+    LBASSERT( size == _viewports.size( ));
 
     for( size_t i = 0; i < size; ++i )
     {

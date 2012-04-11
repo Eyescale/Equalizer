@@ -67,7 +67,7 @@ static class : WindowSystemIF
                     const uint32_t size ) const
     {
         AGLContext context = aglGetCurrentContext();
-        EQASSERT( context );
+        LBASSERT( context );
         if( !context )
         {
             EQWARN << "No AGL context current" << std::endl;
@@ -96,7 +96,7 @@ static class : WindowSystemIF
                                               kATSOptionFlagsDefault );
             CFRelease( cfFontName );
         }
-        EQASSERT( font );
+        LBASSERT( font );
 
         const GLuint lists = _setupLists( gl, key, 256 );
         if( aglUseFont( context, font, normal, size, 0, 256, (long)lists ))

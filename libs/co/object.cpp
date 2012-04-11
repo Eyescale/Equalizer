@@ -54,7 +54,7 @@ Object::Object( const Object& object )
 
 Object::~Object()
 {
-    EQASSERTINFO( !isAttached(),
+    LBASSERTINFO( !isAttached(),
                   "Object " << _id << " is still attached to node " <<
                   _localNode->getNodeID());
     
@@ -71,9 +71,9 @@ typedef CommandFunc<Object> CmdFunc;
 
 void Object::attach( const UUID& id, const uint32_t instanceID )
 {
-    EQASSERT( !isAttached() );
-    EQASSERT( _localNode );
-    EQASSERT( instanceID <= EQ_INSTANCE_MAX );
+    LBASSERT( !isAttached() );
+    LBASSERT( _localNode );
+    LBASSERT( instanceID <= EQ_INSTANCE_MAX );
 
     _id         = id;
     _instanceID = instanceID;
@@ -144,21 +144,21 @@ void Object::_setChangeManager( ObjectCM* cm )
 
 void Object::setID( const UUID& identifier )
 {
-    EQASSERT( !isAttached( ));
-    EQASSERT( identifier.isGenerated( ));
+    LBASSERT( !isAttached( ));
+    LBASSERT( identifier.isGenerated( ));
     _id = identifier;
 }
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
-    EQASSERT( isAttached( ));
+    LBASSERT( isAttached( ));
     packet.objectID = _id;
     return node->send( packet );
 }
 
 bool Object::send( NodePtr node, ObjectPacket& packet, const std::string& string)
 {
-    EQASSERT( isAttached() );
+    LBASSERT( isAttached() );
     packet.objectID  = _id;
     return node->send( packet, string );
 }
@@ -166,7 +166,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet, const std::string& string
 bool Object::send( NodePtr node, ObjectPacket& packet, const void* data,
                    const uint64_t size )
 {
-    EQASSERT( isAttached() );
+    LBASSERT( isAttached() );
     packet.objectID  = _id;
     return node->send( packet, data, size );
 }
@@ -192,12 +192,12 @@ void Object::setupChangeManager( const Object::ChangeType type,
     switch( type )
     {
         case Object::NONE:
-            EQASSERT( !_localNode );
+            LBASSERT( !_localNode );
             _setChangeManager( ObjectCM::ZERO );
             break;
 
         case Object::STATIC:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new StaticMasterCM( this ));
             else
@@ -205,7 +205,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::INSTANCE:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
@@ -214,7 +214,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::DELTA:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
@@ -223,7 +223,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::UNBUFFERED:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
@@ -313,7 +313,7 @@ uint128_t Object::getVersion() const
 
 void Object::notifyNewHeadVersion( const uint128_t& version )
 { 
-    EQASSERTINFO( getVersion() == VERSION_NONE || 
+    LBASSERTINFO( getVersion() == VERSION_NONE || 
                   version < getVersion() + 100, 
                   lunchbox::className( this ));
 }

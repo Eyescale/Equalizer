@@ -32,7 +32,7 @@ Accum::Accum( const GLEWContext* const glewContext )
     , _numSteps( 0 )
     , _totalSteps( 0 )
 {
-    EQASSERT( glewContext );
+    LBASSERT( glewContext );
 }
 
 Accum::~Accum()
@@ -100,7 +100,7 @@ bool Accum::resize( const int width, const int height )
 
 void Accum::accum()
 {
-    EQASSERT( _numSteps < _totalSteps );
+    LBASSERT( _numSteps < _totalSteps );
 
     if( _abo )
     {
@@ -132,7 +132,7 @@ void Accum::accum()
 
 void Accum::display()
 {
-    EQASSERT( _numSteps <= _totalSteps );
+    LBASSERT( _numSteps <= _totalSteps );
 
     if( _abo )
     {

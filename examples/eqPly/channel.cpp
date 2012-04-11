@@ -470,7 +470,7 @@ bool Channel::_initAccum()
     // set up accumulation buffer
     accum.buffer = new eq::util::Accum( glewGetContext( ));
     const eq::PixelViewport& pvp = getPixelViewport();
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
     if( !accum.buffer->init( pvp, getWindow()->getColorFormat( )) ||
         accum.buffer->getMaxSteps() < 256 )
@@ -577,7 +577,7 @@ const Model* Channel::_getModel()
     Config* config = static_cast< Config* >( getConfig( ));
     const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
-    EQASSERT( !view || dynamic_cast< const View* >( getView( )));
+    LBASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
     if( id == lunchbox::UUID::ZERO )
@@ -822,7 +822,7 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 
     if( useOrtho( ))
     {
-        EQASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
+        LBASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
                       std::numeric_limits< float >::epsilon(),
                       nearPoint << " == " << farPoint );
         setNearFar( -nearPoint.z(), -farPoint.z() );

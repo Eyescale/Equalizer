@@ -47,7 +47,7 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 bool PipeConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_PIPE );
+    LBASSERT( _description->type == CONNECTIONTYPE_PIPE );
 
     if( _state != STATE_CLOSED )
         return false;

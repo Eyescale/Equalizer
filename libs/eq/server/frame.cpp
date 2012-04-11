@@ -57,7 +57,7 @@ Frame::Frame( const Frame& from )
 
 Frame::~Frame()
 {
-    EQASSERT( _datas.empty());
+    LBASSERT( _datas.empty());
     _compound = 0;
     _masterFrameData = 0;
 }

@@ -93,7 +93,7 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
     }
 #endif
 
-    EQASSERT( nodeFactory );
+    LBASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
     _initPlugins();
@@ -314,17 +314,17 @@ void releaseConfig( Config* config )
         return;
 
     ServerPtr server = config->getServer();
-    EQASSERT( server.isValid( ));
+    LBASSERT( server.isValid( ));
     server->releaseConfig( config );
 
     ClientPtr client = server->getClient();
-    EQASSERT( client.isValid( ));
+    LBASSERT( client.isValid( ));
 
     client->disconnectServer( server );
     client->exitLocal();
 
-    EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
-    EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    LBASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
 }
 
 }

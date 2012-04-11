@@ -386,13 +386,13 @@ eq::server::Compound* ConfigTool::_addSingleSegment( Config* config ) const
     config->activateCanvas( canvas );
 
     const Compounds compounds = Loader::addOutputCompounds(config->getServer());
-    EQASSERT( compounds.size() == 1 );
+    LBASSERT( compounds.size() == 1 );
     if( compounds.empty( ))
         return 0;
 
     Compound* root = compounds.front();
     const Compounds& children = root->getChildren();
-    EQASSERT( children.size() == 1 );
+    LBASSERT( children.size() == 1 );
     return children.empty() ? 0 : children.front();
 }
 

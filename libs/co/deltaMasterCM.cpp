@@ -50,7 +50,7 @@ uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
                          << std::endl;
 #endif
 
-    EQASSERT( _version != VERSION_NONE );
+    LBASSERT( _version != VERSION_NONE );
 
     _updateCommitCount( incarnation );
 
@@ -76,7 +76,7 @@ uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
             if( _deltaData.hasSentData() || instanceData->os.hasSentData( ))
             {
                 ++_version;
-                EQASSERT( _version != VERSION_NONE );
+                LBASSERT( _version != VERSION_NONE );
 
                 _addInstanceData( instanceData );
             }

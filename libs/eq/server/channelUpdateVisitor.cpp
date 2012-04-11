@@ -164,7 +164,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 RenderContext& context )
 {
     const Channel* destChannel = compound->getInheritChannel();
-    EQASSERT( destChannel );
+    LBASSERT( destChannel );
 
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
@@ -185,13 +185,13 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.taskID        = compound->getTaskID();
 
     const View* view = destChannel->getView();
-    EQASSERT( context.view == view );
+    LBASSERT( context.view == view );
 
     if( view )
     {
         // compute inherit vp (part of view covered by segment/view channel)
         const Segment* segment = destChannel->getSegment();
-        EQASSERT( segment );
+        LBASSERT( segment );
 
         const PixelViewport& pvp = destChannel->getPixelViewport();
         if( pvp.hasArea( ))
@@ -258,7 +258,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const TileQueue* inputQueue = *i;
         const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
         const UUID& id = outputQueue->getQueueMasterID( context.eye );
-        EQASSERT( id != UUID::ZERO );
+        LBASSERT( id != UUID::ZERO );
 
         ChannelFrameTilesPacket tilesPacket;
         tilesPacket.isLocal = (_channel == destChannel);
@@ -420,7 +420,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         return;
 
     const Frames& inputFrames = compound->getInputFrames();
-    EQASSERT( !inputFrames.empty( ));
+    LBASSERT( !inputFrames.empty( ));
 
     std::vector< co::ObjectVersion > frameIDs;
     for( Frames::const_iterator iter = inputFrames.begin(); 
@@ -459,7 +459,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     }
 
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    EQASSERT( !outputFrames.empty( ));
+    LBASSERT( !outputFrames.empty( ));
 
     Frames frames;
     std::vector< co::ObjectVersion > frameIDs;
@@ -492,7 +492,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
                                              const RenderContext& context )
 {
-    EQASSERT( !_skipCompound( compound ));
+    LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     
@@ -508,7 +508,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
                                               const RenderContext& context )
 {
-    EQASSERT( !_skipCompound( compound ));
+    LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     

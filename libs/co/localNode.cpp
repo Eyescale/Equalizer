@@ -106,18 +106,18 @@ public:
 
     ~LocalNode()
         {
-            EQASSERT( incoming.isEmpty( ));
-            EQASSERT( connectionNodes.empty( ));
-            EQASSERT( pendingCommands.empty( ));
-            EQASSERT( nodes->empty( ));
+            LBASSERT( incoming.isEmpty( ));
+            LBASSERT( connectionNodes.empty( ));
+            LBASSERT( pendingCommands.empty( ));
+            LBASSERT( nodes->empty( ));
 
             delete objectStore;
             objectStore = 0;
-            EQASSERT( !commandThread->isRunning( ));
+            LBASSERT( !commandThread->isRunning( ));
             delete commandThread;
             commandThread = 0;
 
-            EQASSERT( !receiverThread->isRunning( ));
+            LBASSERT( !receiverThread->isRunning( ));
             delete receiverThread;
             receiverThread = 0;
         }
@@ -207,7 +207,7 @@ LocalNode::LocalNode( )
 
 LocalNode::~LocalNode( )
 {
-    EQASSERT( !hasPendingRequests( ));
+    LBASSERT( !hasPendingRequests( ));
     delete _impl;
 }
 
@@ -238,7 +238,7 @@ bool LocalNode::initLocal( const int argc, char** argv )
                 if( desc->fromString( data ))
                 {
                     addConnectionDescription( desc );
-                    EQASSERTINFO( data.empty(), data );
+                    LBASSERTINFO( data.empty(), data );
                 }
                 else
                     EQWARN << "Ignoring listen option: " << argv[i] <<std::endl;
@@ -350,7 +350,7 @@ bool LocalNode::close()
     }
 #endif
 
-    EQASSERTINFO( !hasPendingRequests(),
+    LBASSERTINFO( !hasPendingRequests(),
                   *static_cast< lunchbox::RequestHandler* >( this ));
     return true;
 }
@@ -369,7 +369,7 @@ void LocalNode::setAffinity( const int32_t affinity )
 
 ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
 {
-    EQASSERT( isListening( ));
+    LBASSERT( isListening( ));
 
     ConnectionPtr connection = Connection::create( desc );
 
@@ -383,8 +383,8 @@ ConnectionPtr LocalNode::addListener( ConnectionDescriptionPtr desc )
 
 void LocalNode::addListener( ConnectionPtr connection )
 {
-    EQASSERT( isListening( ));
-    EQASSERT( connection->isListening( ));
+    LBASSERT( isListening( ));
+    LBASSERT( connection->isListening( ));
 
     connection->ref( this );
     NodeAddListenerPacket packet( connection );
@@ -413,7 +413,7 @@ void LocalNode::removeListeners( const Connections& connections )
         waitRequest( requests[ i ] );
         connection->close();
         // connection and connections hold a reference
-        EQASSERTINFO( connection->getRefCount()==2 ||
+        LBASSERTINFO( connection->getRefCount()==2 ||
               connection->getDescription()->type >= co::CONNECTIONTYPE_MULTICAST,
                       connection->getRefCount() << ": " << *connection );
     }
@@ -421,8 +421,8 @@ void LocalNode::removeListeners( const Connections& connections )
 
 uint32_t LocalNode::_removeListenerNB( ConnectionPtr connection )
 {
-    EQASSERT( isListening( ));
-    EQASSERTINFO( !connection->isConnected(), connection );
+    LBASSERT( isListening( ));
+    LBASSERTINFO( !connection->isConnected(), connection );
 
     connection->ref( this );
     NodeRemoveListenerPacket packet( connection, registerRequest( ));
@@ -443,15 +443,15 @@ void LocalNode::_addConnection( ConnectionPtr connection )
 
 void LocalNode::_removeConnection( ConnectionPtr connection )
 {
-    EQASSERT( connection.isValid( ));
+    LBASSERT( connection.isValid( ));
 
     _impl->incoming.removeConnection( connection );
 
     void* buffer( 0 );
     uint64_t bytes( 0 );
     connection->getRecvData( &buffer, &bytes );
-    EQASSERTINFO( !connection->isConnected() || buffer, *connection );
-    EQASSERT( !buffer || bytes == sizeof( uint64_t ));
+    LBASSERTINFO( !connection->isConnected() || buffer, *connection );
+    LBASSERT( !buffer || bytes == sizeof( uint64_t ));
 
     if( !connection->isClosed( ))
         connection->close(); // cancels pending IO's
@@ -461,7 +461,7 @@ void LocalNode::_removeConnection( ConnectionPtr connection )
 void LocalNode::_cleanup()
 {
     EQVERB << "Clean up stopped node" << std::endl;
-    EQASSERTINFO( _state == STATE_CLOSED, _state );
+    LBASSERTINFO( _state == STATE_CLOSED, _state );
 
     _multicasts.clear();
     PipeConnectionPtr pipe = EQSAFECAST( PipeConnection*, _outgoing.get( ));
@@ -538,8 +538,8 @@ bool LocalNode::_connectSelf()
     _outgoing = connection->acceptSync();
 
     // add to connection set
-    EQASSERT( connection->getDescription().isValid( )); 
-    EQASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
+    LBASSERT( connection->getDescription().isValid( )); 
+    LBASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
     _impl->connectionNodes[ connection ] = this;
     _impl->nodes.data[ _id ] = this;
@@ -551,7 +551,7 @@ bool LocalNode::_connectSelf()
 
 void LocalNode::_connectMulticast( NodePtr node )
 {
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( _impl->inReceiverThread( ));
     lunchbox::ScopedMutex<> mutex( _outMulticast );
 
     if( node->_outMulticast.data.isValid( ))
@@ -576,8 +576,8 @@ void LocalNode::_connectMulticast( NodePtr node )
             if( !description->isSameMulticastGroup( fromDescription ))
                 continue;
             
-            EQASSERT( !node->_outMulticast.data );
-            EQASSERT( node->_multicasts.empty( ));
+            LBASSERT( !node->_outMulticast.data );
+            LBASSERT( node->_multicasts.empty( ));
 
             if( _outMulticast->isValid() && 
                 _outMulticast.data->getDescription() == description )
@@ -612,7 +612,7 @@ bool LocalNode::disconnect( NodePtr node )
     if( node->_state != STATE_CONNECTED )
         return true;
 
-    EQASSERT( !inCommandThread( ));
+    LBASSERT( !inCommandThread( ));
 
     NodeDisconnectPacket packet;
     packet.requestID = registerRequest( node.get( ));
@@ -639,14 +639,14 @@ void LocalNode::ackRequest( NodePtr node, const uint32_t requestID )
 
 void LocalNode::ping( NodePtr remoteNode )
 {
-    EQASSERT( !_impl->inReceiverThread( ) );
+    LBASSERT( !_impl->inReceiverThread( ) );
     NodePingPacket packet;
     remoteNode->send( packet );
 }
 
 bool LocalNode::pingIdleNodes()
 {
-    EQASSERT( !_impl->inReceiverThread( ) );
+    LBASSERT( !_impl->inReceiverThread( ) );
     const int64_t timeout = co::Global::getKeepaliveTimeout();
     Nodes nodes;
     getNodes( nodes, false );
@@ -736,7 +736,7 @@ void LocalNode::swapObject( Object* oldObject, Object* newObject )
 
 void LocalNode::releaseObject( Object* object )
 {
-    EQASSERT( object );
+    LBASSERT( object );
     if( !object || !object->isAttached( ))
         return;
 
@@ -756,8 +756,8 @@ void LocalNode::objectPush( const uint128_t& groupID, const uint128_t& typeID,
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
 {
-    EQASSERT( !inCommandThread( ));
-    EQASSERT( !_impl->inReceiverThread( ));
+    LBASSERT( !inCommandThread( ));
+    LBASSERT( !_impl->inReceiverThread( ));
 
     NodeAcquireSendTokenPacket packet;
     packet.requestID = registerRequest();
@@ -774,7 +774,7 @@ LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
 
 void LocalNode::releaseSendToken( SendToken& node )
 {
-    EQASSERT( !_impl->inReceiverThread( ));
+    LBASSERT( !_impl->inReceiverThread( ));
     if( !node )
         return;
 
@@ -800,8 +800,8 @@ enum ConnectResult
 
 NodePtr LocalNode::connect( const NodeID& nodeID )
 {
-    EQASSERT( nodeID != NodeID::ZERO );
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( nodeID != NodeID::ZERO );
+    LBASSERT( _state == STATE_LISTENING );
 
     // Make sure that only one connection request based on the node identifier
     // is pending at a given time. Otherwise a node with the same id might be
@@ -847,7 +847,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
 
 NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 {
-    EQASSERT( nodeID != NodeID::ZERO );
+    LBASSERT( nodeID != NodeID::ZERO );
 
     NodePtr node;
     {
@@ -859,12 +859,12 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     if( node )
     {
-        EQASSERT( node->isConnected( ));
+        LBASSERT( node->isConnected( ));
         if( !node->isConnected( ))
             connect( node );
         return node->isConnected() ? node : 0;
     }
-    EQASSERT( _id != nodeID );
+    LBASSERT( _id != nodeID );
 
     NodeGetNodeDataPacket packet;
     packet.requestID = registerRequest();
@@ -881,7 +881,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
         return 0;
     }
 
-    EQASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
+    LBASSERT( dynamic_cast< Node* >( (Dispatcher*)result ));
     node = static_cast< Node* >( result );
     node->unref( this ); // ref'd before serveRequest()
 
@@ -930,11 +930,11 @@ bool LocalNode::connect( NodePtr node )
 
 uint32_t LocalNode::_connect( NodePtr node )
 {
-    EQASSERTINFO( _state == STATE_LISTENING, _state );
+    LBASSERTINFO( _state == STATE_LISTENING, _state );
     if( node->_state == STATE_CONNECTED || node->_state == STATE_LISTENING )
         return CONNECT_OK;
 
-    EQASSERT( node->_state == STATE_CLOSED );
+    LBASSERT( node->_state == STATE_CLOSED );
     EQINFO << "Connecting " << node << std::endl;
 
     // try connecting using the given descriptions
@@ -966,8 +966,8 @@ bool LocalNode::connect( NodePtr node, ConnectionPtr connection )
 
 uint32_t LocalNode::_connect( NodePtr node, ConnectionPtr connection )
 {
-    EQASSERT( connection.isValid( ));
-    EQASSERT( node->getNodeID() != getNodeID( ));
+    LBASSERT( connection.isValid( ));
+    LBASSERT( node->getNodeID() != getNodeID( ));
 
     if( !node || _state != STATE_LISTENING ||
         !connection->isConnected() || node->_state != STATE_CLOSED )
@@ -992,8 +992,8 @@ uint32_t LocalNode::_connect( NodePtr node, ConnectionPtr connection )
     if( !connected )
         return CONNECT_TRY_AGAIN;
 
-    EQASSERT( node->_id != NodeID::ZERO );
-    EQASSERTINFO( node->_id != _id, _id );
+    LBASSERT( node->_id != NodeID::ZERO );
+    LBASSERTINFO( node->_id != _id, _id );
     EQINFO << node << " connected to " << *(Node*)this << std::endl;
     return CONNECT_OK;
 }
@@ -1004,7 +1004,7 @@ NodePtr LocalNode::getNode( const NodeID& id ) const
     NodeHash::const_iterator i = _impl->nodes->find( id );
     if( i == _impl->nodes->end( ))
         return 0;
-    EQASSERT( i->second->isConnected( ));
+    LBASSERT( i->second->isConnected( ));
     return i->second;
 }
 
@@ -1014,7 +1014,7 @@ void LocalNode::getNodes( Nodes& nodes, const bool addSelf ) const
     for( NodeHashCIter i = _impl->nodes->begin(); i != _impl->nodes->end(); ++i )
     {
         NodePtr node = i->second;
-        EQASSERTINFO( node->isConnected(), node );
+        LBASSERTINFO( node->isConnected(), node );
         if( node->isConnected() && ( addSelf || node != this ))
             nodes.push_back( i->second );
     }
@@ -1180,7 +1180,7 @@ void LocalNode::_handleDisconnect()
         }
         else
         {
-            EQASSERT( connection->getDescription()->type >= 
+            LBASSERT( connection->getDescription()->type >= 
                       CONNECTIONTYPE_MULTICAST );
 
             lunchbox::ScopedMutex<> mutex( _outMulticast );
@@ -1209,13 +1209,13 @@ void LocalNode::_handleDisconnect()
 bool LocalNode::_handleData()
 {
     ConnectionPtr connection = _impl->incoming.getConnection();
-    EQASSERT( connection );
+    LBASSERT( connection );
 
     NodePtr node;
     ConnectionNodeHashCIter i = _impl->connectionNodes.find( connection );
     if( i != _impl->connectionNodes.end( ))
         node = i->second;
-    EQASSERTINFO( !node || // unconnected node
+    LBASSERTINFO( !node || // unconnected node
                   *(node->_outgoing) == *connection || // correct UC connection
                   connection->getDescription()->type>=CONNECTIONTYPE_MULTICAST,
                   lunchbox::className( node ));
@@ -1232,7 +1232,7 @@ bool LocalNode::_handleData()
         return false;
     }
 
-    EQASSERT( sizePtr );
+    LBASSERT( sizePtr );
     const uint64_t size = *reinterpret_cast< uint64_t* >( sizePtr );
     if( bytes == 0 ) // fluke signal
     {
@@ -1242,9 +1242,9 @@ bool LocalNode::_handleData()
         return false;
     }
 
-    EQASSERT( size );
-    EQASSERTINFO( bytes == sizeof( uint64_t ), bytes );
-    EQASSERT( size > sizeof( size ));
+    LBASSERT( size );
+    LBASSERTINFO( bytes == sizeof( uint64_t ), bytes );
+    LBASSERT( size > sizeof( size ));
 
     if( node )
         node->_lastReceive = getTime64();
@@ -1256,9 +1256,9 @@ bool LocalNode::_handleData()
     connection->recvNB( ptr, size - sizeof( uint64_t ));
     const bool gotData = connection->recvSync( 0, 0 );
 
-    EQASSERT( gotData );
-    EQASSERT( command.isValid( ));
-    EQASSERT( command.isFree( ));
+    LBASSERT( gotData );
+    LBASSERT( command.isValid( ));
+    LBASSERT( command.isFree( ));
 
     // start next receive
     connection->recvNB( sizePtr, sizeof( uint64_t ));
@@ -1271,7 +1271,7 @@ bool LocalNode::_handleData()
 
     // This is one of the initial packets during the connection handshake, at
     // this point the remote node is not yet available.
-    EQASSERTINFO( node.isValid() ||
+    LBASSERTINFO( node.isValid() ||
                  ( command->type == PACKETTYPE_CO_NODE &&
                   ( command->command == CMD_NODE_CONNECT  || 
                     command->command == CMD_NODE_CONNECT_REPLY ||
@@ -1284,13 +1284,13 @@ bool LocalNode::_handleData()
 
 Command& LocalNode::allocCommand( const uint64_t size )
 {
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( _impl->inReceiverThread( ));
     return _impl->commandCache.alloc( this, this, size );
 }
 
 void LocalNode::_dispatchCommand( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
 
     if( dispatchCommand( command ))
@@ -1308,7 +1308,7 @@ void LocalNode::_dispatchCommand( Command& command )
 bool LocalNode::dispatchCommand( Command& command )
 {
     EQVERB << "dispatch " << command << " by " << _id << std::endl;
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
 
     const uint32_t type = command->type;
     switch( type )
@@ -1339,7 +1339,7 @@ void LocalNode::_redispatchCommands()
              i != _impl->pendingCommands.end(); ++i )
         {
             Command* command = *i;
-            EQASSERT( command->isValid( ));
+            LBASSERT( command->isValid( ));
 
             if( dispatchCommand( *command ))
             {
@@ -1355,7 +1355,7 @@ void LocalNode::_redispatchCommands()
     if( !_impl->pendingCommands.empty( ))
         EQVERB << _impl->pendingCommands.size() << " undispatched commands" 
                << std::endl;
-    EQASSERT( _impl->pendingCommands.size() < 200 );
+    LBASSERT( _impl->pendingCommands.size() < 200 );
 #endif
 }
 
@@ -1375,7 +1375,7 @@ bool LocalNode::_notifyCommandThreadIdle()
 bool LocalNode::_cmdAckRequest( Command& command )
 {
     const NodeAckRequestPacket* packet = command.get< NodeAckRequestPacket >();
-    EQASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
+    LBASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
 
     serveRequest( packet->requestID );
     return true;
@@ -1384,7 +1384,7 @@ bool LocalNode::_cmdAckRequest( Command& command )
 bool LocalNode::_cmdStopRcv( Command& command )
 {
     LB_TS_THREAD( _rcvThread );
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
     EQINFO << "Cmd stop receiver " << this << std::endl;
 
     _state = STATE_CLOSING; // causes rcv thread exit
@@ -1397,7 +1397,7 @@ bool LocalNode::_cmdStopRcv( Command& command )
 bool LocalNode::_cmdStopCmd( Command& command )
 {
     LB_TS_THREAD( _cmdThread );
-    EQASSERT( _state == STATE_CLOSING );
+    LBASSERT( _state == STATE_CLOSING );
     EQINFO << "Cmd stop command " << this << std::endl;
 
     _state = STATE_CLOSED;
@@ -1414,16 +1414,16 @@ bool LocalNode::_cmdSetAffinity( Command& command )
 
 bool LocalNode::_cmdConnect( Command& command )
 {
-    EQASSERT( !command.getNode().isValid( ));
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( !command.getNode().isValid( ));
+    LBASSERT( _impl->inReceiverThread( ));
 
     const NodeConnectPacket* packet = command.get< NodeConnectPacket >();
     ConnectionPtr connection = _impl->incoming.getConnection();
     const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect " << packet << std::endl;
-    EQASSERT( nodeID != _id );
-    EQASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
+    LBASSERT( nodeID != _id );
+    LBASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
     NodePtr remoteNode;
 
@@ -1456,8 +1456,8 @@ bool LocalNode::_cmdConnect( Command& command )
     std::string data = packet->nodeData;
     if( !remoteNode->deserialize( data ))
         EQWARN << "Error during node initialization" << std::endl;
-    EQASSERTINFO( data.empty(), data );
-    EQASSERTINFO( remoteNode->_id == nodeID,
+    LBASSERTINFO( data.empty(), data );
+    LBASSERTINFO( remoteNode->_id == nodeID,
                   remoteNode->_id << "!=" << nodeID );
 
     remoteNode->_outgoing = connection;
@@ -1480,15 +1480,15 @@ bool LocalNode::_cmdConnect( Command& command )
 
 bool LocalNode::_cmdConnectReply( Command& command )
 {
-    EQASSERT( !command.getNode( ));
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( !command.getNode( ));
+    LBASSERT( _impl->inReceiverThread( ));
 
     const NodeConnectReplyPacket* packet =command.get<NodeConnectReplyPacket>();
     ConnectionPtr connection = _impl->incoming.getConnection();
     const NodeID& nodeID = packet->nodeID;
 
     EQVERB << "handle connect reply " << packet << std::endl;
-    EQASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
+    LBASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
     // connection refused
     if( nodeID == NodeID::ZERO )
@@ -1518,7 +1518,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
         peer->_outgoing = 0;
         {
             lunchbox::ScopedFastWrite mutex( _impl->nodes );
-            EQASSERTINFO( _impl->connectionNodes.find( connection ) !=
+            LBASSERTINFO( _impl->connectionNodes.find( connection ) !=
                           _impl->connectionNodes.end(), connection );
             _impl->connectionNodes.erase( connection );
             _impl->nodes->erase( nodeID );
@@ -1533,21 +1533,21 @@ bool LocalNode::_cmdConnectReply( Command& command )
         if( packet->requestID != LB_UNDEFINED_UINT32 )
         {
             void* ptr = getRequestData( packet->requestID );
-            EQASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
+            LBASSERT( dynamic_cast< Node* >( (Dispatcher*)ptr ));
             peer = static_cast< Node* >( ptr );
         }
         else
             peer = createNode( packet->nodeType );
     }
 
-    EQASSERT( peer->getType() == packet->nodeType );
-    EQASSERT( peer->_state == STATE_CLOSED );
+    LBASSERT( peer->getType() == packet->nodeType );
+    LBASSERT( peer->_state == STATE_CLOSED );
 
     std::string data = packet->nodeData;
     if( !peer->deserialize( data ))
         EQWARN << "Error during node initialization" << std::endl;
-    EQASSERT( data.empty( ));
-    EQASSERT( peer->_id == nodeID );
+    LBASSERT( data.empty( ));
+    LBASSERT( peer->_id == nodeID );
 
     peer->_outgoing = connection;
     peer->_state    = STATE_CONNECTED;
@@ -1570,8 +1570,8 @@ bool LocalNode::_cmdConnectReply( Command& command )
 bool LocalNode::_cmdConnectAck( Command& command )
 {
     NodePtr node = command.getNode();
-    EQASSERT( node.isValid( ));
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( node.isValid( ));
+    LBASSERT( _impl->inReceiverThread( ));
     EQVERB << "handle connect ack" << std::endl;
     
     _connectMulticast( node );
@@ -1580,23 +1580,23 @@ bool LocalNode::_cmdConnectAck( Command& command )
 
 bool LocalNode::_cmdID( Command& command )
 {
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( _impl->inReceiverThread( ));
 
     const NodeIDPacket* packet = command.get< NodeIDPacket >();
     NodeID nodeID = packet->id;
 
     if( command.getNode().isValid( ))
     {
-        EQASSERT( nodeID == command.getNode()->getNodeID( ));
-        EQASSERT( command.getNode()->_outMulticast->isValid( ));
+        LBASSERT( nodeID == command.getNode()->getNodeID( ));
+        LBASSERT( command.getNode()->_outMulticast->isValid( ));
         return true;
     }
 
     EQINFO << "handle ID " << packet << " node " << nodeID << std::endl;
 
     ConnectionPtr connection = _impl->incoming.getConnection();
-    EQASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
-    EQASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
+    LBASSERT( connection->getDescription()->type >= CONNECTIONTYPE_MULTICAST );
+    LBASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
     NodePtr node;
     if( nodeID == _id ) // 'self' multicast connection
@@ -1614,7 +1614,7 @@ bool LocalNode::_cmdID( Command& command )
 
             if( !node->deserialize( data ))
                 EQWARN << "Error during node initialization" << std::endl;
-            EQASSERTINFO( data.empty(), data );
+            LBASSERTINFO( data.empty(), data );
 
             {
                 lunchbox::ScopedFastWrite mutex( _impl->nodes );
@@ -1626,8 +1626,8 @@ bool LocalNode::_cmdID( Command& command )
         else
             node = i->second;
     }
-    EQASSERT( node.isValid( ));
-    EQASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
+    LBASSERT( node.isValid( ));
+    LBASSERTINFO( node->_id == nodeID, node->_id << "!=" << nodeID );
 
     lunchbox::ScopedMutex<> mutex( _outMulticast );
     MCDatas::iterator i = node->_multicasts.begin();
@@ -1642,13 +1642,13 @@ bool LocalNode::_cmdID( Command& command )
         if( node->_outMulticast.data == connection ) // connection already used
         {
             // nop
-            EQASSERT( i == node->_multicasts.end( ));
+            LBASSERT( i == node->_multicasts.end( ));
         }
         else // another connection is used as multicast connection, save this
         {
             if( i == node->_multicasts.end( ))
             {
-                EQASSERT( _state == STATE_LISTENING );
+                LBASSERT( _state == STATE_LISTENING );
                 MCData data;
                 data.connection = connection;
                 data.node = this;
@@ -1672,12 +1672,12 @@ bool LocalNode::_cmdID( Command& command )
 
 bool LocalNode::_cmdDisconnect( Command& command )
 {
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( _impl->inReceiverThread( ));
 
     const NodeDisconnectPacket* packet = command.get< NodeDisconnectPacket >();
 
     NodePtr node = static_cast<Node*>( getRequestData( packet->requestID ));
-    EQASSERT( node.isValid( ));
+    LBASSERT( node.isValid( ));
 
     ConnectionPtr connection = node->_outgoing;
     if( connection.isValid( ))
@@ -1687,7 +1687,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
 
         _removeConnection( connection );
 
-        EQASSERT( _impl->connectionNodes.find( connection ) !=
+        LBASSERT( _impl->connectionNodes.find( connection ) !=
                   _impl->connectionNodes.end( ));
         _impl->objectStore->removeInstanceData( node->_id );
         {
@@ -1700,7 +1700,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
                << connection->getRefCount() << std::endl;
     }
 
-    EQASSERT( node->_state == STATE_CLOSED );
+    LBASSERT( node->_state == STATE_CLOSED );
     serveRequest( packet->requestID );
     return true;
 }
@@ -1735,7 +1735,7 @@ bool LocalNode::_cmdGetNodeData( Command& command)
 
 bool LocalNode::_cmdGetNodeDataReply( Command& command )
 {
-    EQASSERT( _impl->inReceiverThread( ));
+    LBASSERT( _impl->inReceiverThread( ));
 
     const NodeGetNodeDataReplyPacket* packet = 
         command.get< NodeGetNodeDataReplyPacket >();
@@ -1764,12 +1764,12 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
 
     // new node: create and add unconnected node
     NodePtr node = createNode( packet->nodeType );
-    EQASSERT( node.isValid( ));
+    LBASSERT( node.isValid( ));
 
     std::string data = packet->nodeData;
     if( !node->deserialize( data ))
         EQWARN << "Failed to initialize node data" << std::endl;
-    EQASSERT( data.empty( ));
+    LBASSERT( data.empty( ));
 
     node->ref( this );
     serveRequest( requestID, node.get( ));
@@ -1778,7 +1778,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
 
 bool LocalNode::_cmdAcquireSendToken( Command& command )
 {
-    EQASSERT( inCommandThread( ));
+    LBASSERT( inCommandThread( ));
     if( !_impl->sendToken == 0 ) // enqueue command if no token available
     {
         const uint32_t timeout = Global::getTimeout();
@@ -1814,7 +1814,7 @@ bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 
 bool LocalNode::_cmdReleaseSendToken( Command& )
 {
-    EQASSERT( inCommandThread( ));
+    LBASSERT( inCommandThread( ));
     _impl->lastSendToken = getTime64();
 
     if( _impl->sendToken )
@@ -1848,7 +1848,7 @@ bool LocalNode::_cmdAddListener( Command& command )
     if( command.getNode() != this )
         return true;
 
-    EQASSERT( packet->connection );
+    LBASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
     connection->unref( this );
@@ -1881,7 +1881,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     if( command.getNode() != this )
         return true;
 
-    EQASSERT( packet->connection );
+    LBASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;
     packet->connection = 0;
     connection->unref( this );
@@ -1901,7 +1901,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     }
 
     _impl->incoming.removeConnection( connection );
-    EQASSERT( _impl->connectionNodes.find( connection ) !=
+    LBASSERT( _impl->connectionNodes.find( connection ) !=
               _impl->connectionNodes.end( ));
     _impl->connectionNodes.erase( connection );
     serveRequest( packet->requestID );
@@ -1910,7 +1910,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
 bool LocalNode::_cmdPing( Command& command )
 {
-    EQASSERT( inCommandThread( ));
+    LBASSERT( inCommandThread( ));
     NodePingReplyPacket reply;
     command.getNode()->send( reply );
     return true;

@@ -79,14 +79,14 @@ namespace server
         /** Set a boundary for 2D tiles. */
         void setBoundary( const Vector2i& boundary )
         {
-            EQASSERT( boundary.x() > 0 && boundary.y() > 0 );
+            LBASSERT( boundary.x() > 0 && boundary.y() > 0 );
             _boundary2i = boundary; 
         }
 
         /** Set a boundary for DB ranges. */
         void setBoundary( const float boundary )
         { 
-            EQASSERT( boundary > 0.0f );
+            LBASSERT( boundary > 0.0f );
             _boundaryf = boundary; 
         }
 
@@ -100,9 +100,9 @@ namespace server
 
     protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
-            { EQASSERT( !_tree ); }
+            { LBASSERT( !_tree ); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
-            { EQASSERT( !_tree ); }
+            { LBASSERT( !_tree ); }
 
     private:
         Mode  _mode;    //!< The current adaptation mode

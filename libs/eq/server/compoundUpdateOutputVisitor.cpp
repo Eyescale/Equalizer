@@ -125,7 +125,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //      data is set only on master frame data (will copy to all others)
         frame->cycleData( _frameNumber, compound );
         FrameData* frameData = frame->getMasterData();
-        EQASSERT( frameData );
+        LBASSERT( frameData );
 
         EQLOG( LOG_ASSEMBLY )
             << lunchbox::disableFlush << "Output frame \"" << name << "\" id " 
@@ -260,7 +260,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
     {
         zoom_1 = compound->getInheritZoom();
-        EQASSERT( zoom_1.isValid( ));
+        LBASSERT( zoom_1.isValid( ));
         zoom.x() = 1.0f / zoom_1.x();
         zoom.y() = 1.0f / zoom_1.y();
     }
@@ -305,7 +305,7 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         return;
 
     Window* window = compound->getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     if( !window )
         return;
 

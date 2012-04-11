@@ -123,7 +123,7 @@ void Window::_loadLogo()
 
     _logoTexture = om->newEqTexture( _logoTextureName.c_str(),
                                      GL_TEXTURE_RECTANGLE_ARB );
-    EQASSERT( _logoTexture );
+    LBASSERT( _logoTexture );
     
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
     EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"

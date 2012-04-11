@@ -165,7 +165,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
     Renderer* renderer = pipe->getRenderer();
-    EQASSERT( renderer );
+    LBASSERT( renderer );
 
     eq::Matrix4f  modelviewM;     // modelview matrix
     eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix

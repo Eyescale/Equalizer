@@ -37,8 +37,8 @@ Object::Object()
 
 Object::~Object()
 {
-    EQASSERTINFO( !isAttached(), "Object " << getID() << " is still attached" );
-    EQASSERTINFO( !_userData,
+    LBASSERTINFO( !isAttached(), "Object " << getID() << " is still attached" );
+    LBASSERTINFO( !_userData,
                   "Unset user data before destruction to allow clean release" )
     co::LocalNodePtr node = getLocalNode();
     if( node.isValid() )
@@ -74,18 +74,18 @@ uint128_t Object::commit( const uint32_t incarnation )
     if( _userData->isDirty() && _userData->isAttached( ))
     {
         const uint128_t& version = _userData->commit( incarnation );
-        EQASSERT( version != co::VERSION_NONE );
+        LBASSERT( version != co::VERSION_NONE );
 //        EQINFO << "Committed " << _userData->getID() << " v" << version
 //               << " of " << lunchbox::className( _userData ) << " @"
 //               << (void*)_userData << lunchbox::backtrace << std::endl;
 
-        EQASSERT( !_userData->isDirty( ));
-        EQASSERT( _data.userData.identifier != _userData->getID() ||
+        LBASSERT( !_userData->isDirty( ));
+        LBASSERT( _data.userData.identifier != _userData->getID() ||
                   _data.userData.version <= version );
 
         if( _userData->isMaster() && _data.userData != _userData )
         {
-            EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+            LBASSERTINFO( _data.userData.identifier != _userData->getID() ||
                           _data.userData.version < _userData->getVersion(),
                           _data.userData << " >= " <<
                           co::ObjectVersion( _userData ));
@@ -105,7 +105,7 @@ void Object::notifyDetach()
     if( !_userData )
         return;
 
-    EQASSERT( !_userData->isAttached() ||
+    LBASSERT( !_userData->isAttached() ||
               _userData->isMaster() == hasMasterUserData( ));
 
     if( _userData->isMaster( ))
@@ -116,13 +116,13 @@ void Object::notifyDetach()
 
 void Object::backup()
 {
-    EQASSERT( !_userData );
+    LBASSERT( !_userData );
     _backup = _data;
 }
 
 void Object::restore()
 {
-    EQASSERT( !_userData );
+    LBASSERT( !_userData );
     _data = _backup;
     setDirty( DIRTY_NAME | DIRTY_USERDATA );
 }
@@ -139,7 +139,7 @@ void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         os << _error;
     if( dirtyBits & DIRTY_REMOVED )
     {
-        EQASSERT( !isMaster() || 
+        LBASSERT( !isMaster() || 
                   ( _removedChildren.empty() && dirtyBits == DIRTY_ALL ))
         os << _removedChildren;
         _removedChildren.clear();
@@ -167,7 +167,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         is >> removed;
         if( !removed.empty( ))
         {
-            EQASSERT( isMaster( ));
+            LBASSERT( isMaster( ));
             std::vector< UUID >::const_iterator i = removed.begin();
             for( ; i != removed.end(); ++i )
             {
@@ -185,7 +185,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( !(dirtyBits & DIRTY_USERDATA) || !_userData )
         return;
 
-    EQASSERTINFO( _data.userData.identifier != _userData->getID() ||
+    LBASSERTINFO( _data.userData.identifier != _userData->getID() ||
                   _data.userData.version >= _userData->getVersion() ||
                   _userData->isMaster(),
                   "Incompatible version, new " << _data.userData << " old " <<
@@ -195,7 +195,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     {
         if( _userData->isAttached() && !_userData->isMaster( ))
         {
-            EQASSERT( !hasMasterUserData( ));
+            LBASSERT( !hasMasterUserData( ));
             getLocalNode()->unmapObject( _userData );
         }
         return;
@@ -204,7 +204,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( !_userData->isAttached() &&
         _data.userData.identifier != UUID::ZERO )
     {
-        EQASSERT( !hasMasterUserData( ));
+        LBASSERT( !hasMasterUserData( ));
         //EQINFO << "Map " << _data.userData << lunchbox::backtrace
         //       << std::endl;
         if( !getLocalNode()->mapObject( _userData, _data.userData ))
@@ -218,7 +218,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
     if( !_userData->isMaster() && _userData->isAttached( ))
     {
-        EQASSERTINFO( _userData->getID() == _data.userData.identifier,
+        LBASSERTINFO( _userData->getID() == _data.userData.identifier,
                       _userData->getID() << " != " << _data.userData.identifier );
 #if 0
         if( _userData->getVersion() < _data.userData.version )
@@ -239,14 +239,14 @@ void Object::setName( const std::string& name )
 
 void Object::setUserData( co::Object* userData )
 {
-    EQASSERT( !userData || !userData->isAttached() );
+    LBASSERT( !userData || !userData->isAttached() );
 
     if( _userData == userData )
         return;
 
     if( _userData && _userData->isAttached( ))
     {
-        EQASSERT( _userData->isMaster() == hasMasterUserData( ));
+        LBASSERT( _userData->isMaster() == hasMasterUserData( ));
         _userData->getLocalNode()->releaseObject( _userData );
     }
 
@@ -285,12 +285,12 @@ void Object::setError( const int32_t error )
 
 void Object::postRemove( Object* child )
 {
-    EQASSERT( child );
+    LBASSERT( child );
     if( !child->isAttached( ))
         return;
 
-    EQASSERT( !child->isMaster( ));
-    EQASSERT( !isMaster( ));
+    LBASSERT( !child->isMaster( ));
+    LBASSERT( !isMaster( ));
 
     _removedChildren.push_back( child->getID( ));
     setDirty( DIRTY_REMOVED );
@@ -301,7 +301,7 @@ void Object::postRemove( Object* child )
 
 bool Object::_cmdSync( co::Command& command )
 {
-    EQASSERT( isMaster( ));
+    LBASSERT( isMaster( ));
     sync( co::VERSION_HEAD );
     return true;
 }

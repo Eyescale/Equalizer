@@ -88,7 +88,7 @@ Server::Server()
 
 Server::~Server()
 {
-    EQASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
+    LBASSERT( getConfigs().empty( )); // not possible - config RefPtr's myself
     deleteConfigs();
     lunchbox::Log::setClock( 0 );
 }
@@ -96,7 +96,7 @@ Server::~Server()
 void Server::init()
 {
     lunchbox::Thread::setName( lunchbox::className( this ));
-    EQASSERT( isListening( ));
+    LBASSERT( isListening( ));
 
     const Configs& configs = getConfigs();
 #ifndef EQ_USE_GPUSD
@@ -182,7 +182,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     {
         Config* candidate = *i;
         const float version = candidate->getFAttribute( Config::FATTR_VERSION );
-        EQASSERT( version == 1.2f );
+        LBASSERT( version == 1.2f );
         if( !candidate->isUsed() && version == 1.2f )
             config = candidate;
     }
@@ -295,7 +295,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 #ifdef EQ_USE_GPUSD
     if( config->isAutoConfig( ))
     {
-        EQASSERT( _admins.empty( ));
+        LBASSERT( _admins.empty( ));
         config->deregister();
         delete config;
     }
@@ -391,7 +391,7 @@ bool Server::_cmdUnmap( co::Command& command )
     co::NodePtr node = command.getNode();
     co::Nodes::iterator i = stde::find( _admins, node );
 
-    EQASSERT( i != _admins.end( ));
+    LBASSERT( i != _admins.end( ));
     if( i != _admins.end( ))
     {
         _admins.erase( i );

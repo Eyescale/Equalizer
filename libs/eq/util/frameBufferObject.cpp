@@ -38,7 +38,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     , _error( co::ERROR_NONE )
     , _valid( false )
 {
-    EQASSERT( GLEW_EXT_framebuffer_object );
+    LBASSERT( GLEW_EXT_framebuffer_object );
     _colors.push_back( new Texture( textureTarget, glewContext ));
 }
 
@@ -174,7 +174,7 @@ bool FrameBufferObject::_checkStatus()
 void FrameBufferObject::bind()
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( _fboID );
+    LBASSERT( _fboID );
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 }
 
@@ -186,9 +186,9 @@ void FrameBufferObject::unbind()
 bool FrameBufferObject::resize( const int32_t width, const int32_t height )
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( width > 0 && height > 0 );
+    LBASSERT( width > 0 && height > 0 );
 
-    EQASSERT( !_colors.empty( ));
+    LBASSERT( !_colors.empty( ));
     Texture* color = _colors.front();
 
     if( color->getWidth() == width && color->getHeight() == height && _valid )

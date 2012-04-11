@@ -44,7 +44,7 @@ public:
     virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
-            EQASSERT( channel );
+            LBASSERT( channel );
             channel->addListener( _listener );
 
             return TRAVERSE_CONTINUE; 
@@ -62,7 +62,7 @@ public:
     virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
-            EQASSERT( channel );
+            LBASSERT( channel );
             channel->removeListener( _listener );
 
             return TRAVERSE_CONTINUE; 
@@ -113,7 +113,7 @@ void FramerateEqualizer::_init()
     // Subscribe to child channel load events
     const Compounds& children = compound->getChildren();
     
-    EQASSERT( _loadListeners.empty( ));
+    LBASSERT( _loadListeners.empty( ));
     _loadListeners.resize( children.size( ));
     
     for( size_t i = 0; i < children.size(); ++i )
@@ -142,7 +142,7 @@ void FramerateEqualizer::_exit()
 
     const Compounds& children = compound->getChildren();
 
-    EQASSERT( _loadListeners.size() == children.size( ));
+    LBASSERT( _loadListeners.size() == children.size( ));
     for( size_t i = 0; i < children.size(); ++i )
     {
         Compound*      child        = children[i];
@@ -189,8 +189,8 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     for( ++from; from < size && nSamples < _nSamples; ++from )
     {
         const FrameTime& time = _times[from];
-        EQASSERT( time.first > 0 );
-        EQASSERT( time.second != 0.f );
+        LBASSERT( time.first > 0 );
+        LBASSERT( time.second != 0.f );
 
         ++nSamples;
 #ifdef USE_AVERAGE
@@ -236,7 +236,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     }
 
     _times.push_front( FrameTime( frameNumber, 0.f ));
-    EQASSERT( _times.size() < 210 );
+    LBASSERT( _times.size() < 210 );
 }
 
 void FramerateEqualizer::LoadListener::notifyLoadData( 

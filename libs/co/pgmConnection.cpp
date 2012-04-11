@@ -79,7 +79,7 @@ bool PGMConnection::connect()
 //----------------------------------------------------------------------
 bool PGMConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_PGM );
+    LBASSERT( _description->type == CONNECTIONTYPE_PGM );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -194,7 +194,7 @@ void PGMConnection::_close()
         _exitAIORead();
 
     _state = STATE_CLOSED;
-    EQASSERT( _readFD > 0 ); 
+    LBASSERT( _readFD > 0 ); 
 
     if( _readFD > 0 )
     {
@@ -246,7 +246,7 @@ void PGMConnection::_close()
 void PGMConnection::_initAIORead()
 {
     _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlapped.hEvent );
+    LBASSERT( _overlapped.hEvent );
 
     if( !_overlapped.hEvent )
         EQERROR << "Can't create event for AIO notification: " 
@@ -290,13 +290,13 @@ void PGMConnection::_exitAIORead(){ /* NOP */ }
 #ifdef _WIN32
 void PGMConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
 
     // Create new accept socket
     const DWORD flags = WSA_FLAG_OVERLAPPED;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket == INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket == INVALID_SOCKET );
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_RM, 0, 0,
                                    flags );
 
@@ -332,8 +332,8 @@ ConnectionPtr PGMConnection::acceptSync()
     if( _state != STATE_LISTENING )
         return 0;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket != INVALID_SOCKET );
     if( _overlappedSocket == INVALID_SOCKET )
         return 0;
 
@@ -596,7 +596,7 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
     if( _description->getHostname().empty( ))
         _description->setHostname( "239.255.42.42" );
 
-    EQASSERT( _description->port != 0 );
+    LBASSERT( _description->port != 0 );
 
     address.sin_family      = AF_INET;
     address.sin_port        = htons( _description->port );
@@ -630,7 +630,7 @@ bool PGMConnection::_parseHostname( const std::string& hostname,
 
 bool PGMConnection::_setSendBufferSize( const int newSize )
 {
-    EQASSERT(newSize >= 0);
+    LBASSERT(newSize >= 0);
     
     if ( ::setsockopt( _writeFD, SOL_SOCKET, SO_SNDBUF, 
                        ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 

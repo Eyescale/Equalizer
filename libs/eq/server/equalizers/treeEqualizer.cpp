@@ -71,7 +71,7 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
 
     if( !_tree )
     {
-        EQASSERT( compound == getCompound( ));
+        LBASSERT( compound == getCompound( ));
         const Compounds& children = compound->getChildren();
         switch( children.size( ))
         {
@@ -108,7 +108,7 @@ TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
         node->mode = _mode;
 
         Channel* channel = compound->getChannel();
-        EQASSERT( channel );
+        LBASSERT( channel );
         channel->addListener( this );
         return node;
     }
@@ -134,7 +134,7 @@ void TreeEqualizer::_init( Node* node )
 {
     if( node->compound )
     {
-        EQASSERT( node->mode != MODE_2D );
+        LBASSERT( node->mode != MODE_2D );
         return;
     }
     // else
@@ -144,7 +144,7 @@ void TreeEqualizer::_init( Node* node )
 
     if( node->left->mode == MODE_2D )
     {
-        EQASSERT( node->right->mode == MODE_2D );
+        LBASSERT( node->right->mode == MODE_2D );
 
         node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL : 
                                                            MODE_VERTICAL;
@@ -163,7 +163,7 @@ void TreeEqualizer::_clearTree( Node* node )
     if( node->compound )
     {
         Channel* channel = node->compound->getChannel();
-        EQASSERTINFO( channel, node->compound );
+        LBASSERTINFO( channel, node->compound );
         channel->removeListener( this );
     }
     else
@@ -249,7 +249,7 @@ void TreeEqualizer::_update( Node* node )
     {
         const Channel* channel = compound->getChannel();
         const PixelViewport& pvp = channel->getPixelViewport();
-        EQASSERT( channel );
+        LBASSERT( channel );
 
         node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
         node->maxSize.x() = pvp.w; 
@@ -260,8 +260,8 @@ void TreeEqualizer::_update( Node* node )
     }
     // else
 
-    EQASSERT( node->left );
-    EQASSERT( node->right );
+    LBASSERT( node->left );
+    LBASSERT( node->right );
 
     _update( node->left );
     _update( node->right );
@@ -329,7 +329,7 @@ void TreeEqualizer::_split( Node* node )
 {
     if( node->compound )
         return;
-    EQASSERT( node->left && node->right );
+    LBASSERT( node->left && node->right );
 
     Node* left = node->left;
     Node* right = node->right;
@@ -375,15 +375,15 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
 {
     EQLOG( LOG_LB2 ) << "assign " << vp << ", " << range << " time "
                      << node->time << " split " << node->split << std::endl;
-    EQASSERTINFO( vp.isValid(), vp );
-    EQASSERTINFO( range.isValid(), range );
-    EQASSERTINFO( node->resources > 0.f || !vp.hasArea() || !range.hasData(),
+    LBASSERTINFO( vp.isValid(), vp );
+    LBASSERTINFO( range.isValid(), range );
+    LBASSERTINFO( node->resources > 0.f || !vp.hasArea() || !range.hasData(),
                   "Assigning work to unused compound: " << vp << ", " << range);
 
     Compound* compound = node->compound;
     if( compound )
     {
-        EQASSERTINFO( vp == Viewport::FULL || range == Range::ALL,
+        LBASSERTINFO( vp == Viewport::FULL || range == Range::ALL,
                       "Mixed 2D/DB load-balancing not implemented" );
 
         compound->setViewport( vp );
@@ -515,7 +515,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
 
     case MODE_DB:
     {
-        EQASSERT( vp == Viewport::FULL );
+        LBASSERT( vp == Viewport::FULL );
         const float end = range.end;
         float absoluteSplit = range.start + (range.end-range.start)*node->split;
 

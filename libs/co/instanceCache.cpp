@@ -103,7 +103,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     Item& item = _items.data[ rev.identifier ] ;
     if( item.data.masterInstanceID != instanceID || item.from != nodeID )
     {
-        EQASSERT( !item.access ); // same master with different instance ID?!
+        LBASSERT( !item.access ); // same master with different instance ID?!
         if( item.access != 0 ) // are accessed - don't add
             return false;
         // trash data from different master mapping
@@ -134,7 +134,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     else
     {
         const ObjectDataIStream* previous = item.data.versions.back();
-        EQASSERT( previous->isReady( ));
+        LBASSERT( previous->isReady( ));
 
         const uint128_t previousVersion = previous->getPendingVersion();
         if( previousVersion > rev.version )
@@ -146,7 +146,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         }
         if( ( previousVersion + 1 ) != rev.version ) // hole
         {
-            EQASSERT( previousVersion < rev.version );
+            LBASSERT( previousVersion < rev.version );
 
             if( item.access != 0 ) // are accessed - don't add
                 return false;
@@ -155,13 +155,13 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         }
         else
         {
-            EQASSERT( previous->isReady( ));
+            LBASSERT( previous->isReady( ));
         }
         item.data.versions.push_back( new ObjectDataIStream ); 
         item.times.push_back( _clock.getTime64( ));
     }
 
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( !item.data.versions.empty( ));
     ObjectDataIStream* stream = item.data.versions.back();
 
     stream->addDataPacket( command );
@@ -192,7 +192,7 @@ void InstanceCache::remove( const NodeID& nodeID )
         if( item.from != nodeID )
             continue;
 
-        EQASSERT( !item.access );
+        LBASSERT( !item.access );
         if( item.access != 0 )
             continue;
 
@@ -219,7 +219,7 @@ const InstanceCache::Data& InstanceCache::operator[]( const UUID& id )
         return Data::NONE;
 
     Item& item = i->second;
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( !item.data.versions.empty( ));
     ++item.access;
     ++item.used;
 
@@ -237,8 +237,8 @@ bool InstanceCache::release( const UUID& id, const uint32_t count )
         return false;
 
     Item& item = i->second;
-    EQASSERT( !item.data.versions.empty( ));
-    EQASSERT( item.access >= count );
+    LBASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access >= count );
 
     item.access -= count;
     _releaseItems( 1 );
@@ -291,7 +291,7 @@ void InstanceCache::expire( const int64_t timeout )
 void InstanceCache::_releaseStreams( InstanceCache::Item& item, 
                                      const int64_t minTime )
 {
-    EQASSERT( item.access == 0 );
+    LBASSERT( item.access == 0 );
     while( !item.data.versions.empty() && item.times.front() <= minTime &&
            item.data.versions.front()->isReady( ))
     {
@@ -301,8 +301,8 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item,
 
 void InstanceCache::_releaseStreams( InstanceCache::Item& item )
 {
-    EQASSERT( item.access == 0 );
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access == 0 );
+    LBASSERT( !item.data.versions.empty( ));
 
     while( !item.data.versions.empty( ))
     {
@@ -315,8 +315,8 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item )
 
 void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
 {
-    EQASSERT( item.access == 0 );
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access == 0 );
+    LBASSERT( !item.data.versions.empty( ));
     if( item.data.versions.empty( ))
         return;
 
@@ -328,8 +328,8 @@ void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
 
 void InstanceCache::_deleteStream( ObjectDataIStream* stream )
 {
-    EQASSERT( stream->isReady( ));
-    EQASSERT( _size >= stream->getDataSize( ));
+    LBASSERT( stream->isReady( ));
+    LBASSERT( _size >= stream->getDataSize( ));
 
     _size -= stream->getDataSize();
     delete stream;
@@ -351,7 +351,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
          i != _items->end() && _size > target; ++i )
     {
         Item& item = i->second;
-        EQASSERT( !item.data.versions.empty( ));
+        LBASSERT( !item.data.versions.empty( ));
 
         if( item.access == 0 && item.used >= minUsage )
         {

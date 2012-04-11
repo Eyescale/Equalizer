@@ -83,7 +83,7 @@ bool Window::configInitGL( const eq::uint128_t& initID )
     glEnable( GL_CULL_FACE ); // OPT - produces sparser images in DB mode
     glCullFace( GL_BACK );
 
-    EQASSERT( !_state );
+    LBASSERT( !_state );
     _state = new VertexBufferState( getObjectManager( ));
 
     const Config*   config   = static_cast< const Config* >( getConfig( ));
@@ -148,7 +148,7 @@ void Window::_loadLogo()
 
     _logoTexture = om->newEqTexture( _logoTextureName.c_str(),
                                      GL_TEXTURE_RECTANGLE_ARB );
-    EQASSERT( _logoTexture );
+    LBASSERT( _logoTexture );
     
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
     EQVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
@@ -174,7 +174,7 @@ void Window::_loadShaders()
 
     const GLuint vShader = _state->newShader( vertexShader_glsl,
                                               GL_VERTEX_SHADER );
-    EQASSERT( vShader != VertexBufferState::INVALID );
+    LBASSERT( vShader != VertexBufferState::INVALID );
     const GLchar* vShaderPtr = vertexShader_glsl;
     glShaderSource( vShader, 1, &vShaderPtr, 0 );
     glCompileShader( vShader );
@@ -189,7 +189,7 @@ void Window::_loadShaders()
     
     const GLuint fShader = 
         _state->newShader( fragmentShader_glsl, GL_FRAGMENT_SHADER );
-    EQASSERT( fShader != VertexBufferState::INVALID );
+    LBASSERT( fShader != VertexBufferState::INVALID );
     const GLchar* fShaderPtr = fragmentShader_glsl;
     glShaderSource( fShader, 1, &fShaderPtr, 0 );
     glCompileShader( fShader );
@@ -201,7 +201,7 @@ void Window::_loadShaders()
     }
     
     const GLuint program = _state->newProgram( getPipe() );
-    EQASSERT( program != VertexBufferState::INVALID );
+    LBASSERT( program != VertexBufferState::INVALID );
     glAttachShader( program, vShader );
     glAttachShader( program, fShader );
     glLinkProgram( program );

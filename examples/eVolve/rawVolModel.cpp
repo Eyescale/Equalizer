@@ -66,9 +66,9 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
 
 bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 {
-    EQASSERT( !_headerLoaded );
-    EQASSERT( brightness > 0.0f );
-    EQASSERT( alpha > 0.0f );
+    LBASSERT( !_headerLoaded );
+    LBASSERT( brightness > 0.0f );
+    LBASSERT( alpha > 0.0f );
     EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
                             << std::endl << "model: " << _filename;
 
@@ -284,7 +284,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     file.close();
 
-    EQASSERT( _glewContext );
+    LBASSERT( _glewContext );
     // create 3D texture
     glGenTextures( 1, &volume );
     EQLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;

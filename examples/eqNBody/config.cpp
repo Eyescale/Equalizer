@@ -83,7 +83,7 @@ void Config::mapData( const eq::uint128_t& initDataID )
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
 }
     

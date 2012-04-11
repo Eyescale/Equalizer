@@ -176,10 +176,10 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
     // Accessed concurrently from render threads
     lunchbox::ScopedMutex<> mutex( _modelLock );
 
-    EQASSERT( !_modelDist );
+    LBASSERT( !_modelDist );
     _modelDist = new ModelDist;
     Model* model = _modelDist->loadModel( getMasterNode(), this, modelID );
-    EQASSERT( model );
+    LBASSERT( model );
     _model = model;
 
     return model;

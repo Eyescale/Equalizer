@@ -174,7 +174,7 @@ bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
 
 bool Pipe::_configInitGLXEW()
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
 
     //----- Create and make current a temporary GL context to initialize GLXEW
     // visual

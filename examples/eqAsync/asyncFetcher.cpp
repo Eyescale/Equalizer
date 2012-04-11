@@ -39,7 +39,7 @@ namespace eqAsync
 
 static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
 {
-    EQASSERT( window );
+    LBASSERT( window );
 
     // store old drawable of window and set window's drawable to OFF,
     // create another (shared) osWindow and restore original drawable
@@ -48,7 +48,7 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
     window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, eq::OFF );
 
     const eq::Pipe* pipe = window->getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
 
     eq::SystemWindow* sharedWindow =
         pipe->getWindowSystem().createWindow( window );
@@ -130,7 +130,7 @@ const GLEWContext* AsyncFetcher::glewGetContext() const
  */
 void AsyncFetcher::run()
 {
-    EQASSERT( !_sharedWindow );
+    LBASSERT( !_sharedWindow );
     _sharedWindow = initSharedContextWindow( _window );
     _outQueue.push( TextureId( )); // unlock pipe thread
     if( !_sharedWindow )

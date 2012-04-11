@@ -107,7 +107,7 @@ bool exit()
 {
     if( --_initialized > 0 ) // not last
         return true;
-    EQASSERT( _initialized == 0 );
+    LBASSERT( _initialized == 0 );
 
 #ifdef _WIN32
     if( WSACleanup() != 0 )

@@ -65,7 +65,7 @@ void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
             continue;
         }
 
-        EQASSERT( queue->isAttached( ));
+        LBASSERT( queue->isAttached( ));
 
         TileQueue* outputQueue = j->second;
         queue->setOutputQueue( outputQueue, compound );

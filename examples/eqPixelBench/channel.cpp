@@ -149,7 +149,7 @@ void Channel::_testFormats( float applyZoom )
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
     eq::Image*        image  = images[ 0 ];
-    EQASSERT( image );
+    LBASSERT( image );
 
     Config* config = static_cast< Config* >( getConfig( ));
     const eq::PixelViewport& pvp = getPixelViewport();
@@ -254,7 +254,7 @@ void Channel::_testTiledOperations()
 {
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
-    EQASSERT( images[0] );
+    LBASSERT( images[0] );
 
     eq::Config* config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
@@ -273,7 +273,7 @@ void Channel::_testTiledOperations()
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
-        EQASSERT( images[ i ] );
+        LBASSERT( images[ i ] );
         images[ i ]->setPixelViewport( subPVP );
     }
 
@@ -377,7 +377,7 @@ void Channel::_testDepthAssemble()
     //----- setup constant data
     const eq::Images& images = _frame.getImages();
     eq::Image* image  = images[ 0 ];
-    EQASSERT( image );
+    LBASSERT( image );
 
     eq::Config* config = getConfig();
     const eq::PixelViewport& pvp    = getPixelViewport();
@@ -394,7 +394,7 @@ void Channel::_testDepthAssemble()
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
     {
         image = images[ i ];
-        EQASSERT( image );
+        LBASSERT( image );
         image->setPixelViewport( pvp );
     }
 

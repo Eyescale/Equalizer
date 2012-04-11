@@ -88,7 +88,7 @@ static inline void _write( const T token, const T numTokens, T*& out )
         ++out;
         break;
 
-      case 0: EQASSERT( false ); break;
+      case 0: LBASSERT( false ); break;
 
       default:
         out[0] = _rleMarker;

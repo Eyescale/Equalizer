@@ -63,7 +63,7 @@ static class : WindowSystemIF
                     const uint32_t size ) const
     {
         Display* display = XGetCurrentDisplay();
-        EQASSERT( display );
+        LBASSERT( display );
         if( !display )
         {
             EQWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
@@ -94,7 +94,7 @@ static class : WindowSystemIF
             fontStruct = XLoadQueryFont( display, "fixed" ); 
         }
 
-        EQASSERT( fontStruct );
+        LBASSERT( fontStruct );
 
         const GLuint lists = _setupLists( gl, key, 127 );
         glXUseXFont( fontStruct->fid, 0, 127, lists );

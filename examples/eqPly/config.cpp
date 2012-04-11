@@ -60,7 +60,7 @@ Config::~Config()
 
     for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
     {
-        EQASSERT( !(*i)->isAttached() );
+        LBASSERT( !(*i)->isAttached() );
         delete *i;
     }
     _modelDist.clear();
@@ -196,7 +196,7 @@ void Config::_registerModels()
     // Register distribution helpers on each config run
     const bool createDist = _modelDist.empty(); //first run, create distributors
     const size_t  nModels = _models.size();
-    EQASSERT( createDist || _modelDist.size() == nModels );
+    LBASSERT( createDist || _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -211,12 +211,12 @@ void Config::_registerModels()
             modelDist = _modelDist[i];
 
         modelDist->registerTree( getClient( ));
-        EQASSERT( modelDist->isAttached() );
+        LBASSERT( modelDist->isAttached() );
 
         _frameData.setModelID( modelDist->getID( ));
     }
 
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     if( !_modelDist.empty( ))
     {
@@ -233,7 +233,7 @@ void Config::_deregisterData()
         if( !modelDist->isAttached() ) // already done
             continue;
 
-        EQASSERT( modelDist->isMaster( ));
+        LBASSERT( modelDist->isMaster( ));
         modelDist->deregisterTree();
     }
 
@@ -257,7 +257,7 @@ bool Config::loadData( const eq::uint128_t& initDataID )
     }
     else // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }
@@ -273,7 +273,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     lunchbox::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -285,7 +285,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     _modelDist.push_back( new ModelDist );
     Model* model = _modelDist.back()->loadModel( getApplicationNode(),
                                                  getClient(), modelID );
-    EQASSERT( model );
+    LBASSERT( model );
     _models.push_back( model );
 
     return model;
@@ -333,7 +333,7 @@ void Config::_updateData()
     // idle mode
     if( isIdleAA( ))
     {
-        EQASSERT( _numFramesAA > 0 );
+        LBASSERT( _numFramesAA > 0 );
         _frameData.setIdle( true );
     }
     else
@@ -672,7 +672,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'x':
             eqAdmin::removeWindow( _getAdminServer( ));
             _currentCanvas = 0;
-            EQASSERT( update() );
+            LBASSERT( update() );
             return false;
 
         // Head Tracking Emulation
@@ -817,7 +817,7 @@ void Config::_switchCanvas()
     }
 
     eq::CanvasesCIter i = stde::find( canvases, _currentCanvas );
-    EQASSERT( i != canvases.end( ));
+    LBASSERT( i != canvases.end( ));
 
     ++i;
     if( i == canvases.end( ))
@@ -842,7 +842,7 @@ void Config::_switchView()
 
     const View* view = _getCurrentView();
     const eq::Views& views = layout->getViews();
-    EQASSERT( !views.empty( ));
+    LBASSERT( !views.empty( ));
 
     if( !view )
     {
@@ -971,7 +971,7 @@ void Config::_switchLayout( int32_t increment )
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ));
+    LBASSERT( !layouts.empty( ));
 
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));
@@ -1089,8 +1089,8 @@ void Config::_closeAdminServer()
     eq::admin::ClientPtr client = _admin->getClient();
     client->disconnectServer( _admin );
     client->exitLocal();
-    EQASSERT( client->getRefCount() == 1 );
-    EQASSERT( _admin->getRefCount() == 1 );
+    LBASSERT( client->getRefCount() == 1 );
+    LBASSERT( _admin->getRefCount() == 1 );
     
     _admin = 0;
     eq::admin::exit();

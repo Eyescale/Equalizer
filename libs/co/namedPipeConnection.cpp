@@ -68,7 +68,7 @@ std::string NamedPipeConnection::_getFilename() const
 //----------------------------------------------------------------------
 bool NamedPipeConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
+    LBASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -99,7 +99,7 @@ void NamedPipeConnection::_close()
     if( _state == STATE_CLOSED )
         return;
 
-    EQASSERT( _fd > 0 ); 
+    LBASSERT( _fd > 0 ); 
 
     if( isListening( ))
     {
@@ -178,7 +178,7 @@ bool NamedPipeConnection::_connectNamedPipe()
 //----------------------------------------------------------------------
 bool NamedPipeConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
+    LBASSERT( _description->type == CONNECTIONTYPE_NAMEDPIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -199,7 +199,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 { 
    // Start an overlapped connection for this pipe instance. 
    const bool fConnected = ConnectNamedPipe( hPipe, &_read ); 
-   EQASSERT( !fConnected );
+   LBASSERT( !fConnected );
  
    switch( GetLastError() ) 
    { 
@@ -227,9 +227,9 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
 void NamedPipeConnection::_initAIORead()
 {
     _read.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _read.hEvent );
+    LBASSERT( _read.hEvent );
     _write.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _write.hEvent );
+    LBASSERT( _write.hEvent );
 
     if( !_read.hEvent || !_write.hEvent )
         EQERROR << "Can't create events for AIO notification: " 
@@ -264,7 +264,7 @@ void NamedPipeConnection::_exitAIORead()
 //----------------------------------------------------------------------
 void NamedPipeConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
     ResetEvent( _read.hEvent );
 
     if( _createNamedPipe( ))
@@ -321,7 +321,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
 
     if( ReadFile( _fd, buffer, use, &_readDone, &_read ) )
     {
-        EQASSERT( _readDone > 0 );
+        LBASSERT( _readDone > 0 );
         SetEvent( _read.hEvent );
     }
     else if( GetLastError() != ERROR_IO_PENDING )

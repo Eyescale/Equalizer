@@ -74,7 +74,7 @@ eq::net::Connection::Notifier IBConnection::getNotifier() const
 
 bool IBConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_IB );
+    LBASSERT( _description->type == CONNECTIONTYPE_IB );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -126,7 +126,7 @@ void IBConnection::_close()
 
 bool IBConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_IB );
+    LBASSERT( _description->type == CONNECTIONTYPE_IB );
 
     _socketConnection = new SocketConnection();  
 
@@ -148,7 +148,7 @@ bool IBConnection::listen()
 
 void IBConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
     _socketConnection->acceptNB();
 }
 

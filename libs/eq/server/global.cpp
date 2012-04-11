@@ -398,7 +398,7 @@ std::ostream& operator << ( std::ostream& os, const Global* global )
                 break;
 
             default:
-                EQASSERTINFO( 0, "unimplemented" );
+                LBASSERTINFO( 0, "unimplemented" );
         }
     }
 

@@ -65,11 +65,11 @@ Config::Config( ServerPtr server )
 
 Config::~Config()
 {
-    EQASSERT( getObservers().empty( ));
-    EQASSERT( getLayouts().empty( ));
-    EQASSERT( getCanvases().empty( ));
-    EQASSERT( getNodes().empty( ));
-    EQASSERT( _latencyObjects->empty() );
+    LBASSERT( getObservers().empty( ));
+    LBASSERT( getLayouts().empty( ));
+    LBASSERT( getCanvases().empty( ));
+    LBASSERT( getNodes().empty( ));
+    LBASSERT( _latencyObjects->empty() );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )
@@ -114,8 +114,8 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
 void Config::notifyAttached()
 {
     fabric::Object::notifyAttached();
-    EQASSERT( !_appNode )
-    EQASSERT( getAppNodeID().isGenerated() )
+    LBASSERT( !_appNode )
+    LBASSERT( getAppNodeID().isGenerated() )
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
@@ -204,7 +204,7 @@ private:
 
 bool Config::init( const uint128_t& initID )
 {
-    EQASSERT( !_running );
+    LBASSERT( !_running );
     _currentFrame = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
@@ -358,7 +358,7 @@ uint32_t Config::finishFrame()
         const Nodes& nodes = getNodes();
         if( !nodes.empty( ))
         {
-            EQASSERT( nodes.size() == 1 );
+            LBASSERT( nodes.size() == 1 );
             const Node* node = nodes.front();
 
             while( node->getFinishedFrame() < frameToFinish )
@@ -483,10 +483,10 @@ void Config::changeLatency( const uint32_t latency )
 
 void Config::sendEvent( ConfigEvent& event )
 {
-    EQASSERT( event.data.type != Event::STATISTIC ||
+    LBASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    EQASSERT( getAppNodeID() != co::NodeID::ZERO );
-    EQASSERT( _appNode.isValid( ));
+    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( _appNode.isValid( ));
 
     if( _appNode.isValid( ))
         send( _appNode, event );
@@ -550,13 +550,13 @@ bool Config::handleEvent( const ConfigEvent* event )
             EQLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint32_t originator = event->data.serial;
-            EQASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
+            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
             if( originator == 0 )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
-            EQASSERT( statistic.type != Statistic::NONE )
+            LBASSERT( statistic.type != Statistic::NONE )
 
             if( frame == 0 ||      // Not a frame-related stat event or
                 statistic.type == Statistic::NONE ) // No event-type set
@@ -592,7 +592,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            EQASSERT( event->data.originator != UUID::ZERO );
+            LBASSERT( event->data.originator != UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -609,7 +609,7 @@ bool Config::_needsLocalSync() const
     if( nodes.empty( ))
         return true; // server sends unlock command - process it
 
-    EQASSERT( nodes.size() == 1 );
+    LBASSERT( nodes.size() == 1 );
     const Node* node = nodes.front();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
@@ -684,8 +684,8 @@ void Config::setupMessagePump( Pipe* pipe )
     ClientPtr client = getClient();
     CommandQueue* queue = EQSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
-    EQASSERT( queue );
-    EQASSERT( !queue->getMessagePump( ));
+    LBASSERT( queue );
+    LBASSERT( !queue->getMessagePump( ));
 
     queue->setMessagePump( pump );
 }
@@ -699,8 +699,8 @@ void Config::_exitMessagePump()
     ClientPtr client = getClient();
     CommandQueue* queue = EQSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
-    EQASSERT( queue );
-    EQASSERT( queue->getMessagePump() == pump );
+    LBASSERT( queue );
+    LBASSERT( queue->getMessagePump() == pump );
 
     queue->setMessagePump( 0 );
     delete pump;
@@ -721,7 +721,7 @@ void Config::setupServerConnections( const char* connectionData )
     std::string data = connectionData;
     co::ConnectionDescriptions descriptions;
     EQCHECK( co::deserialize( data, descriptions ));
-    EQASSERTINFO( data.empty(), data << " left from " << connectionData );
+    LBASSERTINFO( data.empty(), data << " left from " << connectionData );
 
     for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
@@ -742,8 +742,8 @@ bool Config::registerObject( co::Object* object )
 
 void Config::deregisterObject( co::Object* object )
 {
-    EQASSERT( object )
-    EQASSERT( object->isMaster( ));
+    LBASSERT( object )
+    LBASSERT( object->isMaster( ));
 
     if( !object->isAttached( )) // not registered
         return;
@@ -844,13 +844,13 @@ bool Config::_cmdDestroyNode( co::Command& command )
     EQVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
-    EQASSERT( node );
+    LBASSERT( node );
     if( !node )
         return true;
 
     NodeConfigExitReplyPacket reply( packet->nodeID, node->isStopped( ));
 
-    EQASSERT( node->getPipes().empty( ));
+    LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
@@ -956,7 +956,7 @@ bool Config::_cmdSwapObject( co::Command& command )
         lunchbox::ScopedFastWrite mutex( _latencyObjects );
         _latencyObjects->push_back( latencyObject );
     }
-    EQASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
+    LBASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
     getLocalNode()->serveRequest( packet->requestID );
     return true;
 }

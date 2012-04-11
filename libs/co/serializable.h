@@ -143,7 +143,7 @@ namespace co
 
         virtual void unpack( co::DataIStream& is )
             {
-                EQASSERT( is.hasData( ));
+                LBASSERT( is.hasData( ));
                 if( !is.hasData( ))
                     return;
 

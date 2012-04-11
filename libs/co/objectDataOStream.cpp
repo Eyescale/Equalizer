@@ -59,7 +59,7 @@ void ObjectDataOStream::enableCommit( const uint128_t& version,
 void ObjectDataOStream::sendData( ObjectDataPacket& packet, const void* buffer,
                                   const uint64_t size, const bool last )
 {
-    EQASSERT( _version != VERSION_INVALID );
+    LBASSERT( _version != VERSION_INVALID );
     packet.version = _version;
     packet.sequence = _sequence++;
     packet.objectID  = _cm->getObject()->getID();

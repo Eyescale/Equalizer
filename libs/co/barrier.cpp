@@ -59,7 +59,7 @@ public:
             , height( h )
             , master( m )
         {
-            EQASSERT( masterID != NodeID::ZERO );
+            LBASSERT( masterID != NodeID::ZERO );
         }
 
     /** The master barrier node. */
@@ -155,8 +155,8 @@ void Barrier::attach( const UUID& id, const uint32_t instanceID )
 
 void Barrier::enter( const uint32_t timeout )
 {
-    EQASSERT( _impl->height > 0 );
-    EQASSERT( _impl->masterID != NodeID::ZERO );
+    LBASSERT( _impl->height > 0 );
+    LBASSERT( _impl->masterID != NodeID::ZERO );
 
     if( _impl->height == 1 ) // trivial ;)
         return;
@@ -167,8 +167,8 @@ void Barrier::enter( const uint32_t timeout )
         _impl->master = localNode->connect( _impl->masterID );
     }
 
-    EQASSERT( _impl->master );
-    EQASSERT( _impl->master->isConnected( ));
+    LBASSERT( _impl->master );
+    LBASSERT( _impl->master->isConnected( ));
     if( !_impl->master || !_impl->master->isConnected( ))
     {
         EQWARN << "Can't connect barrier master node " << _impl->masterID
@@ -199,7 +199,7 @@ void Barrier::enter( const uint32_t timeout )
 bool Barrier::_cmdEnter( Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     BarrierEnterPacket* packet = command.getModifiable< BarrierEnterPacket >();
@@ -262,18 +262,18 @@ bool Barrier::_cmdEnter( Command& command )
     // for performance, send directly the order to unblock the caller.
     if( packet->timeout != LB_TIMEOUT_INDEFINITE && version < getVersion( ))
     {
-        EQASSERT( incarnation == 0 );
+        LBASSERT( incarnation == 0 );
         _sendNotify( version, command.getNode( ) );
         return true;
     }
 
-    EQASSERT( version == getVersion( ));
+    LBASSERT( version == getVersion( ));
 
     Nodes& nodes = request.nodes;
     if( nodes.size() < _impl->height )
         return true;
 
-    EQASSERT( nodes.size() == _impl->height );
+    LBASSERT( nodes.size() == _impl->height );
     EQLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
 
     stde::usort( nodes );
@@ -283,7 +283,7 @@ bool Barrier::_cmdEnter( Command& command )
 
     // delete node vector for version
     RequestMapIter i = _impl->enteredNodes.find( version );
-    EQASSERT( i != _impl->enteredNodes.end( ));
+    LBASSERT( i != _impl->enteredNodes.end( ));
     _impl->enteredNodes.erase( i );
     return true;
 }
@@ -291,7 +291,7 @@ bool Barrier::_cmdEnter( Command& command )
 void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     if( node->isLocal( )) // OPT
@@ -313,7 +313,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 void Barrier::_cleanup( const uint64_t time )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     if( _impl->enteredNodes.size() < 2 )

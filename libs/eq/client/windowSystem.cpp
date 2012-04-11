@@ -45,7 +45,7 @@ uint32_t WindowSystemIF::_setupLists( ObjectManager& gl, const void* key,
     else
     {
         lists = gl.newList( key, num );
-        EQASSERT( lists != ObjectManager::INVALID );
+        LBASSERT( lists != ObjectManager::INVALID );
     }
     return lists;
 }
@@ -53,7 +53,7 @@ uint32_t WindowSystemIF::_setupLists( ObjectManager& gl, const void* key,
 WindowSystem::WindowSystem()
         : _impl( _stack )
 {
-    EQASSERTINFO( _stack, "no window system available" );
+    LBASSERTINFO( _stack, "no window system available" );
 }
 
 WindowSystem::WindowSystem( std::string const& type )
@@ -87,19 +87,19 @@ WindowSystem::WindowSystem( const WindowSystemEnum type )
 
 bool WindowSystem::operator == ( const WindowSystemEnum other) const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->getName() == _getName( other );
 }
 
 bool WindowSystem::operator != ( const WindowSystemEnum other ) const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->getName() != _getName( other );
 }
 
 WindowSystem::operator WindowSystemEnum() const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     if( _impl->getName() == "AGL" )
         return WINDOW_SYSTEM_AGL;
     if( _impl->getName() == "GLX" )
@@ -112,7 +112,7 @@ WindowSystem::operator WindowSystemEnum() const
 
 void WindowSystem::_chooseImpl( const std::string& name )
 {
-    EQASSERTINFO( _stack, "no window system available" );
+    LBASSERTINFO( _stack, "no window system available" );
 
     for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
     {
@@ -155,32 +155,32 @@ void WindowSystem::configExit( Node* node )
 
 std::string WindowSystem::getName() const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->getName();
 }
 
 SystemWindow* WindowSystem::createWindow( Window* window ) const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->createWindow(window );
 }
 
 SystemPipe* WindowSystem::createPipe( Pipe* pipe ) const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->createPipe(pipe );
 }
 
 MessagePump* WindowSystem::createMessagePump() const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->createMessagePump();
 }
 
 bool WindowSystem::setupFont( ObjectManager& gl, const void* key,
                             const std::string& name, const uint32_t size ) const
 {
-    EQASSERT( _impl );
+    LBASSERT( _impl );
     return _impl->setupFont( gl, key, name, size );
 }
 

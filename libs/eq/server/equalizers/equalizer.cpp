@@ -67,7 +67,7 @@ void Equalizer::attach( Compound* compound )
 
 const Config* Equalizer::getConfig() const
 {
-    EQASSERT( _compound );
+    LBASSERT( _compound );
     return _compound->getConfig();
 }
 

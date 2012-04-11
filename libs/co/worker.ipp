@@ -26,7 +26,7 @@ template< class Q > void WorkerThread< Q >::run()
     while( !stopRunning( ))
     {
         Command& command = *(_commands.pop( ));
-        EQASSERT( command.isValid( ));
+        LBASSERT( command.isValid( ));
 
         if( !command( ))
         {

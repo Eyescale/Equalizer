@@ -110,7 +110,7 @@ Pipe::Pipe( Node* parent )
 
 Pipe::~Pipe()
 {
-    EQASSERT( getWindows().empty( ));
+    LBASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
 
@@ -120,28 +120,28 @@ Pipe::~Pipe()
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 ClientPtr Pipe::getClient()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getClient() : 0);
 }
 
 ServerPtr Pipe::getServer()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getServer() : 0);
 }
 
@@ -204,8 +204,8 @@ void Pipe::_setupCommandQueue()
         return;
     
     CommandQueue* queue = _thread->getWorkerQueue();
-    EQASSERT( queue );
-    EQASSERT( !queue->getMessagePump( ));
+    LBASSERT( queue );
+    LBASSERT( !queue->getMessagePump( ));
 
     Global::enterCarbon();
     MessagePump* pump = createMessagePump();
@@ -245,7 +245,7 @@ void Pipe::_exitCommandQueue()
         return;
     
     CommandQueue* queue = _thread->getWorkerQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     MessagePump* pump = queue->getMessagePump();
     queue->setMessagePump( 0 );
@@ -328,7 +328,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     EQLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( dataVersion );
-    EQASSERT( frameData );
+    LBASSERT( frameData );
 
     if( isOutput )
     {
@@ -422,7 +422,7 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
-        EQASSERT( view );
+        LBASSERT( view );
         view->_pipe = this;        
         ClientPtr client = getClient();
         EQCHECK( client->mapObject( view, viewVersion ));
@@ -544,7 +544,7 @@ bool Pipe::isStopped() const
 
 void Pipe::notifyMapped()
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_MAPPED;
 }
 
@@ -577,13 +577,13 @@ bool Pipe::configInit( const uint128_t& initID )
 {
     LB_TS_THREAD( _pipeThread );
 
-    EQASSERT( !_systemPipe );
+    LBASSERT( !_systemPipe );
 
     if ( !configInitSystemPipe( initID ))
         return false;   
 
     // -------------------------------------------------------------------------
-    EQASSERT(!_computeContext);
+    LBASSERT(!_computeContext);
 
     // for now we only support CUDA
 #ifdef EQ_USE_CUDA
@@ -594,7 +594,7 @@ bool Pipe::configInit( const uint128_t& initID )
 
         if( !computeCtx->configInit() )
         {
-            EQASSERT( getError() != ERROR_NONE );
+            LBASSERT( getError() != ERROR_NONE );
             EQWARN << "GPU Computing context initialization failed: "
                    << getError() << std::endl;
             delete computeCtx;
@@ -610,11 +610,11 @@ bool Pipe::configInit( const uint128_t& initID )
 bool Pipe::configInitSystemPipe( const uint128_t& )
 {
     SystemPipe* systemPipe = _windowSystem.createPipe( this );
-    EQASSERT( systemPipe );
+    LBASSERT( systemPipe );
 
     if( !systemPipe->configInit( ))
     {
-        EQASSERT( getError() != ERROR_NONE );
+        LBASSERT( getError() != ERROR_NONE );
         EQERROR << "System pipe context initialization failed: "
                 << getError() << std::endl;
         delete systemPipe;
@@ -729,7 +729,7 @@ void Pipe::releaseFrame( const uint32_t frameNumber )
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
-    EQASSERTINFO( _unlockedFrame + 1 == frameNumber,
+    LBASSERTINFO( _unlockedFrame + 1 == frameNumber,
                   _unlockedFrame << ", " << frameNumber );
 
     _unlockedFrame = frameNumber;
@@ -786,7 +786,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
     EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
-    EQASSERT( window );
+    LBASSERT( window );
 
     // re-set shared windows accordingly
     Window* newSharedWindow = 0;
@@ -809,7 +809,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
             }
         }
 
-        EQASSERT( candidate->getSharedContextWindow() != window );
+        LBASSERT( candidate->getSharedContextWindow() != window );
     }
 
     WindowConfigExitReplyPacket reply( packet->windowID, window->isStopped( ));
@@ -839,7 +839,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
     setError( ERROR_NONE );
 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     node->waitInitialized();
 
     if( node->isRunning( ))
@@ -893,14 +893,14 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 
 bool Pipe::_cmdExitThread( co::Command& command )
 {
-    EQASSERT( _thread );
+    LBASSERT( _thread );
     _thread->_pipe = 0;
     return true;
 }
 
 bool Pipe::_cmdExitTransferThread( co::Command& )
 {
-    EQASSERT( _transferThread );
+    LBASSERT( _transferThread );
     _transferThread->postStop();
     return true;
 }
@@ -925,7 +925,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     const int64_t lastFrameTime = _frameTime;
 
     _frameTimeMutex.set();
-    EQASSERT( !_frameTimes.empty( ));
+    LBASSERT( !_frameTimes.empty( ));
 
     _frameTime = _frameTimes.front();
     _frameTimes.pop_front();
@@ -940,7 +940,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     }
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _currentFrame + 1 == frameNumber,
+    LBASSERTINFO( _currentFrame + 1 == frameNumber,
                   "current " << _currentFrame << " start " << frameNumber );
 
     frameStart( packet->frameID, frameNumber );
@@ -955,12 +955,12 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "current " << _currentFrame << " finish " << frameNumber );
 
     frameFinish( packet->frameID, frameNumber );
     
-    EQASSERTINFO( _finishedFrame >= frameNumber, 
+    LBASSERTINFO( _finishedFrame >= frameNumber, 
                   "Pipe::frameFinish() did not release frame " << frameNumber );
 
     if( _unlockedFrame < frameNumber )

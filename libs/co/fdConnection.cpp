@@ -86,7 +86,7 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
         return -1;
     }
 
-    EQASSERT( bytesRead == -1 ); // error
+    LBASSERT( bytesRead == -1 ); // error
 
     if( errno == EINTR ) // if interrupted, try again
         return 0;

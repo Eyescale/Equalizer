@@ -71,7 +71,7 @@ Compound::Compound( Config* parent )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
 {
-    EQASSERT( parent );
+    LBASSERT( parent );
     parent->addCompound( this );
     EQLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
 }
@@ -83,7 +83,7 @@ Compound::Compound( Compound* parent )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
 {
-    EQASSERT( parent );
+    LBASSERT( parent );
     parent->_addChild( this );
     EQLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
 }
@@ -112,7 +112,7 @@ Compound::~Compound()
         _config->removeCompound( this );
     else
     {
-        EQASSERT( _parent );
+        LBASSERT( _parent );
         _parent->_removeChild( this );
     }
 
@@ -159,7 +159,7 @@ Compound::InheritData::InheritData()
 
 void Compound::_addChild( Compound* child )
 {
-    EQASSERT( child->_parent == this );
+    LBASSERT( child->_parent == this );
     _children.push_back( child );
     _fireChildAdded( child );
 }
@@ -281,15 +281,15 @@ void Compound::addEqualizer( Equalizer* equalizer )
 bool Compound::isInheritActive( const Eye eye ) const
 {
     const int32_t index = lunchbox::getIndexOfLastBit( eye );
-    EQASSERT( index >= 0 );
-    EQASSERT( index < NUM_EYES );
+    LBASSERT( index >= 0 );
+    LBASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
 }
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
     int32_t index = lunchbox::getIndexOfLastBit( eye );
-    EQASSERT( index >= 0 );
+    LBASSERT( index >= 0 );
 
     while( ++index < NUM_EYES )
         if( _inherit.active[ index ] )
@@ -313,7 +313,7 @@ bool Compound::isRunning() const
     if( !channel->isRunning( ))
         return false;
 
-    EQASSERT( _inherit.channel );
+    LBASSERT( _inherit.channel );
     const View* view = _inherit.channel->getView();
     return channel->supportsView( view );
 }
@@ -386,7 +386,7 @@ void Compound::setSwapBarrier( SwapBarrierPtr barrier )
 
 void Compound::addInputFrame( Frame* frame )
 { 
-    EQASSERT( frame );
+    LBASSERT( frame );
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _inputFrames.push_back( frame ); 
@@ -403,7 +403,7 @@ void Compound::addOutputFrame( Frame* frame )
 
 void Compound::addInputTileQueue( TileQueue* tileQueue )
 {
-    EQASSERT( tileQueue );
+    LBASSERT( tileQueue );
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _inputTileQueues.push_back( tileQueue ); 
@@ -483,7 +483,7 @@ void Compound::adopt( Compound* child )
     }
     else
     {
-        EQASSERT( child->_parent );
+        LBASSERT( child->_parent );
         child->_parent->_removeChild( child );
     }
 
@@ -578,14 +578,14 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
 
     if( segment->getCurrentType() == Frustum::TYPE_NONE )
     {
-        EQASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
+        LBASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
         segment->notifyFrustumChanged();
     }
 
     // set compound frustum =
     //         segment frustum X channel/segment coverage
     const Channel* outputChannel = segment->getChannel();
-    EQASSERT( outputChannel );
+    LBASSERT( outputChannel );
 
     const Viewport& outputVP  = outputChannel->getViewport();
     const Viewport& channelVP = channel->getViewport();
@@ -816,13 +816,13 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 void Compound::_updateOverdraw( Wall& wall )
 {
     Channel* channel = getChannel();
-    EQASSERT( channel );
+    LBASSERT( channel );
     if( !channel )
         return;
 
     const Segment* segment = channel->getSegment();
     const View*    view    = channel->getView();
-    EQASSERT( segment && view );
+    LBASSERT( segment && view );
     if( !segment || !view )
         return;
 
@@ -953,7 +953,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
         } 
         else // node
@@ -973,7 +973,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
         }
 
@@ -999,7 +999,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
             
             if ( current == compound ) 
@@ -1051,7 +1051,7 @@ void Compound::deactivate( const uint32_t eyes )
         if( !(eyes & eye) )
             continue;
 
-        EQASSERT( _data.active[ i ] );
+        LBASSERT( _data.active[ i ] );
         --_data.active[ i ];
         if( !getChannel( )) // non-dest root compound
             continue;
@@ -1241,7 +1241,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
 void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
 {
-    EQASSERT( !_parent );
+    LBASSERT( !_parent );
     _inherit = _data;
     _inherit.zoom = Zoom::NONE; // will be reapplied below
     _updateInheritPVP( oldPVP );
@@ -1277,7 +1277,7 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
 
 void Compound::_updateInheritNode( const PixelViewport& oldPVP )
 {
-    EQASSERT( _parent );
+    LBASSERT( _parent );
     _inherit = _parent->_inherit;
 
     if( !_inherit.channel )
@@ -1287,7 +1287,7 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
     }
     else if( _inherit.pvp.isValid( ))
     {
-        EQASSERT( _data.vp.isValid( ));
+        LBASSERT( _data.vp.isValid( ));
         _inherit.pvp.apply( _data.vp );
 
         // Compute the inherit viewport to be pixel-correct with the integer-
@@ -1299,7 +1299,7 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
     }
     else
     {
-        EQASSERT( !_inherit.channel->isRunning( ));
+        LBASSERT( !_inherit.channel->isRunning( ));
     }
 
     if( _data.frustumData.isValid( ))
@@ -1354,10 +1354,10 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
     View* view = channel->getView();
     if( !view || !_inherit.pvp.isValid( ))
     {
-        EQASSERT( channel->getOverdraw() == Vector4i::ZERO );
+        LBASSERT( channel->getOverdraw() == Vector4i::ZERO );
         return;
     }
-    EQASSERT( channel == getChannel( ));
+    LBASSERT( channel == getChannel( ));
 
     // enlarge pvp by overdraw
     const Vector4i& overdraw = channel->getOverdraw();
@@ -1367,7 +1367,7 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
     if( oldPVP != _inherit.pvp ) // channel PVP changed
     {
         view->updateFrusta();
-        EQASSERT( overdraw == channel->getOverdraw( ));
+        LBASSERT( overdraw == channel->getOverdraw( ));
     }
 
     _inherit.overdraw = overdraw;
@@ -1393,10 +1393,10 @@ void Compound::_updateInheritOverdraw()
     _inherit.overdraw.z() = LB_MIN( _inherit.overdraw.z(), pvp.w );
     _inherit.overdraw.w() = LB_MIN( _inherit.overdraw.w(), pvp.h );
 
-    EQASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
+    LBASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
                   pvp.w << " < " << 
                   _inherit.overdraw.x() + _inherit.overdraw.z( ));
-    EQASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
+    LBASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
                   pvp.h << " < " <<
                   _inherit.overdraw.y() + _inherit.overdraw.w( ));
 }
@@ -1493,7 +1493,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         {
             const std::string& channelName = channel->getName();
             const Config*      config      = compound.getConfig();
-            EQASSERT( config );
+            LBASSERT( config );
 
             if( !channelName.empty() && 
                 config->find< Channel >( channelName ) == channel )
@@ -1660,7 +1660,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
                 break;
 
             default:
-                EQASSERTINFO( 0, "unimplemented" );
+                LBASSERTINFO( 0, "unimplemented" );
         }
     }
     

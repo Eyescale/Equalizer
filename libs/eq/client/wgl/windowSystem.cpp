@@ -92,7 +92,7 @@ static class : WindowSystemIF
             strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );
             newFont = CreateFontIndirect( &font );
         }
-        EQASSERT( newFont );
+        LBASSERT( newFont );
 
         HFONT oldFont = static_cast< HFONT >( SelectObject( dc, newFont ));
 

@@ -136,49 +136,49 @@ void Channel::postDelete()
 Config* Channel::getConfig()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getConfig() : 0; 
 }
 
 const Config* Channel::getConfig() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getConfig() : 0;
 }
 
 Node* Channel::getNode() 
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
 const Node* Channel::getNode() const
 { 
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
 Pipe* Channel::getPipe() 
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getPipe() : 0;
 }
 
 const Pipe* Channel::getPipe() const
 { 
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getPipe() : 0;
 }
 
 ServerPtr Channel::getServer()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getServer() : 0 );
 }
 
@@ -197,14 +197,14 @@ const Compounds& Channel::getCompounds() const
 co::CommandQueue* Channel::getMainThreadQueue()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->getMainThreadQueue(); 
 }
 
 co::CommandQueue* Channel::getCommandThreadQueue()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->getCommandThreadQueue(); 
 }
 
@@ -221,7 +221,7 @@ bool Channel::supportsView( const View* view ) const
 void Channel::activate()
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
 
     ++_active;
     window->activate();
@@ -233,8 +233,8 @@ void Channel::activate()
 void Channel::deactivate()
 { 
     Window* window = getWindow();
-    EQASSERT( _active != 0 );
-    EQASSERT( window );
+    LBASSERT( _active != 0 );
+    LBASSERT( window );
 
     --_active; 
     window->deactivate(); 
@@ -245,8 +245,8 @@ void Channel::deactivate()
 
 void Channel::setOutput( View* view, Segment* segment )
 {
-    EQASSERT( !_view && !_segment );
-    EQASSERT( view && segment );
+    LBASSERT( !_view && !_segment );
+    LBASSERT( view && segment );
 
     _view = view;
     _segment = segment;
@@ -263,7 +263,7 @@ void Channel::setOutput( View* view, Segment* segment )
 
 void Channel::unsetOutput()
 {
-    EQASSERT( _view && _segment );
+    LBASSERT( _view && _segment );
 
     EQCHECK( _view->removeChannel( this ));
     EQCHECK( _segment->removeDestinationChannel( this ));
@@ -274,14 +274,14 @@ void Channel::unsetOutput()
 
 const Layout* Channel::getLayout() const
 {
-    EQASSERT( _view );
+    LBASSERT( _view );
     return _view ? _view->getLayout() : 0;
 }
 
 void Channel::addTasks( const uint32_t tasks )
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     setTasks( getTasks() | tasks );
     window->addTasks( tasks );
 }
@@ -295,7 +295,7 @@ void Channel::addTasks( const uint32_t tasks )
 //---------------------------------------------------------------------------
 void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
     WindowCreateChannelPacket createChannelPacket( getID( ));
@@ -308,7 +308,7 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
 
 bool Channel::syncConfigInit()
 {
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
@@ -328,7 +328,7 @@ bool Channel::syncConfigInit()
 //---------------------------------------------------------------------------
 void Channel::configExit()
 {
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
     EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
@@ -338,12 +338,12 @@ void Channel::configExit()
 
 bool Channel::syncConfigExit()
 {
-    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
     
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state == STATE_EXIT_FAILED );
+    LBASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     return success;
@@ -359,7 +359,7 @@ void Channel::_setupRenderContext( const uint128_t& frameID,
     context.pvp = getPixelViewport();
     context.view = _view;
     context.vp = getViewport();
-    EQASSERTINFO( getNativeContext().view == context.view, 
+    LBASSERTINFO( getNativeContext().view == context.view, 
                   getNativeContext().view << " != " << context.view << " " <<
                   getName( ));
 }
@@ -369,8 +369,8 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return false; // not updated
 
-    EQASSERT( isActive( ))
-    EQASSERT( getWindow()->isActive( ));
+    LBASSERT( isActive( ))
+    LBASSERT( getWindow()->isActive( ));
 
     ChannelFrameStartPacket startPacket;
     startPacket.frameNumber = frameNumber;
@@ -425,7 +425,7 @@ void Channel::send( co::ObjectPacket& packet )
 void Channel::addListener( ChannelListener* listener )
 {
     LB_TS_SCOPED( _serverThread );
-    EQASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
+    LBASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
               _listeners.end( ));
 
     _listeners.push_back( listener );

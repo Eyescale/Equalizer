@@ -119,17 +119,17 @@ bool Plugin::init( const std::string& libraryName )
             {
                 // Set up CPU compressor output to be input type
                 info.outputTokenType = info.tokenType;
-                EQASSERT( info.outputTokenSize == 0 );
+                LBASSERT( info.outputTokenSize == 0 );
             }
             else
             {
-                EQASSERT( info.outputTokenSize != 0 );
+                LBASSERT( info.outputTokenSize != 0 );
             }
         }
 #ifndef NDEBUG // Check that each compressor exist once
         for( size_t j = 0; j < i; ++j )
         {
-            EQASSERTINFO( info.name != _infos[j].name,
+            LBASSERTINFO( info.name != _infos[j].name,
                           "Compressors " << i << " and " << j << " in '" <<
                           libraryName << "' use the same name" );
         }

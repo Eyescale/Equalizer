@@ -76,7 +76,7 @@ namespace co
             break;
         default:
             {
-                EQASSERT( false );
+                LBASSERT( false );
             }
         }
         return os;

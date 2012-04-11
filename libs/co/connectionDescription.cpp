@@ -66,7 +66,7 @@ static ConnectionType _getConnectionType( const std::string& string )
     if( string == "UDT" )
         return CONNECTIONTYPE_UDT;
     
-    EQASSERTINFO( false, "Unknown type: " << string );
+    LBASSERTINFO( false, "Unknown type: " << string );
     return CONNECTIONTYPE_NONE;
 }
 }
@@ -79,7 +79,7 @@ ConnectionDescription::ConnectionDescription( const char* data )
 {
     std::string string( data );
     fromString( string );
-    EQASSERTINFO( string.empty(), data << " -> " << string );
+    LBASSERTINFO( string.empty(), data << " -> " << string );
 }
 
 const std::string& ConnectionDescription::getSAttributeString(

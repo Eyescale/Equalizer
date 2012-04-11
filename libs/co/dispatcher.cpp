@@ -57,7 +57,7 @@ Dispatcher::~Dispatcher()
 void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
                                    CommandQueue* destinationQueue )
 {
-    EQASSERT( _impl->fTable.size() == _impl->qTable.size( ));
+    LBASSERT( _impl->fTable.size() == _impl->qTable.size( ));
 
     if( _impl->fTable.size() <= command )
     {
@@ -70,7 +70,7 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
         _impl->fTable.push_back( func );
         _impl->qTable.push_back( destinationQueue );
 
-        EQASSERT( _impl->fTable.size() == command + 1 );
+        LBASSERT( _impl->fTable.size() == command + 1 );
     }
     else
     {
@@ -82,7 +82,7 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 
 bool Dispatcher::dispatchCommand( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     EQVERB << "dispatch " << command << " on " << lunchbox::className( this )
            << std::endl;
 

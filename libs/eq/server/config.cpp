@@ -173,14 +173,14 @@ Node* Config::findApplicationNode()
 co::NodePtr Config::findApplicationNetNode()
 {
     Node* node = findApplicationNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return node ? node->getNode() : 0;
 }
 
 void Config::activateCanvas( Canvas* canvas )
 {
-    EQASSERT( canvas->isStopped( ));
-    EQASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
+    LBASSERT( canvas->isStopped( ));
+    LBASSERT( stde::find( getCanvases(), canvas ) != getCanvases().end( ));
 
     const Layouts& layouts = canvas->getLayouts();
     const Segments& segments = canvas->getSegments();
@@ -224,7 +224,7 @@ void Config::activateCanvas( Canvas* canvas )
                 }
 
                 // create and add new channel
-                EQASSERT( !findChannel( segment, view ));
+                LBASSERT( !findChannel( segment, view ));
                 Channel* channel = new Channel( *segmentChannel );
                 channel->init(); // not in ctor, virtual method
                 channel->setOutput( view, segment );
@@ -239,7 +239,7 @@ void Config::activateCanvas( Canvas* canvas )
                 if( segmentChannel->hasFixedViewport( ))
                 {
                     Viewport subViewport = segmentChannel->getViewport();
-                    EQASSERT( subViewport.isValid( ));
+                    LBASSERT( subViewport.isValid( ));
                     if( !subViewport.isValid( ))
                         subViewport = eq::fabric::Viewport::FULL;
 
@@ -255,7 +255,7 @@ void Config::activateCanvas( Canvas* canvas )
                 else
                 {
                     PixelViewport pvp = segmentChannel->getPixelViewport();
-                    EQASSERT( pvp.isValid( ));
+                    LBASSERT( pvp.isValid( ));
                     pvp.apply( contribution );
                     channel->setPixelViewport( pvp );
                     EQLOG( LOG_VIEW ) 
@@ -298,7 +298,7 @@ void Config::updateCanvas( Canvas* canvas )
             for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )
             {
                 Channel* channel = *k;
-                EQASSERT( !channel->isActive( ));
+                LBASSERT( !channel->isActive( ));
 
                 Compound* compound = new Compound( group );
                 compound->setIAttribute( Compound::IATTR_STEREO_MODE,
@@ -355,7 +355,7 @@ template< class T > bool Config::_postDelete( const UUID& id )
 
 void Config::removeChild( const UUID& id )
 {
-    EQASSERT( isRunning( ));
+    LBASSERT( isRunning( ));
 
     if( _postDelete< Observer >( id ) || _postDelete< Layout >( id ) ||
         _postDelete< Canvas >( id ))
@@ -367,13 +367,13 @@ void Config::removeChild( const UUID& id )
 
 void Config::addCompound( Compound* compound )
 {
-    EQASSERT( compound->_config == this );
+    LBASSERT( compound->_config == this );
     _compounds.push_back( compound );
 }
 
 bool Config::removeCompound( Compound* compound )
 {
-    EQASSERT( compound->_config == this );
+    LBASSERT( compound->_config == this );
     Compounds::iterator i = stde::find( _compounds, compound );
     if( i == _compounds.end( ))
         return false;
@@ -386,19 +386,19 @@ void Config::setApplicationNetNode( co::NodePtr netNode )
 {
     if( netNode.isValid( ))
     {
-        EQASSERT( _state == STATE_UNUSED );
+        LBASSERT( _state == STATE_UNUSED );
         _state = STATE_STOPPED;
         setAppNodeID( netNode->getNodeID( ));
     }
     else
     {
-        EQASSERT( _state == STATE_STOPPED );
+        LBASSERT( _state == STATE_STOPPED );
         _state = STATE_UNUSED;
         setAppNodeID( co::NodeID::ZERO );
     }
 
     Node* node = findApplicationNode();
-    EQASSERT( node );
+    LBASSERT( node );
     if( node )
         node->setNode( netNode );
 }
@@ -406,7 +406,7 @@ void Config::setApplicationNetNode( co::NodePtr netNode )
 Channel* Config::getChannel( const ChannelPath& path )
 {
     Nodes nodes = getNodes();
-    EQASSERTINFO( nodes.size() > path.nodeIndex,
+    LBASSERTINFO( nodes.size() > path.nodeIndex,
                   nodes.size() << " <= " << path.nodeIndex );
 
     if( nodes.size() <= path.nodeIndex )
@@ -418,7 +418,7 @@ Channel* Config::getChannel( const ChannelPath& path )
 Segment* Config::getSegment( const SegmentPath& path )
 {
     Canvas* canvas = getCanvas( path );
-    EQASSERT( canvas );
+    LBASSERT( canvas );
 
     if( canvas )
         return canvas->getSegment( path );
@@ -429,7 +429,7 @@ Segment* Config::getSegment( const SegmentPath& path )
 View* Config::getView( const ViewPath& path )
 {
     Layout* layout = getLayout( path );
-    EQASSERT( layout );
+    LBASSERT( layout );
 
     if( layout )
         return layout->getView( path );
@@ -518,7 +518,7 @@ bool Config::_updateRunning()
 
     const bool canFail = (getIAttribute( IATTR_ROBUSTNESS ) != OFF);
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING ||
               _state == STATE_EXITING );
 
     if( !_connectNodes() && !canFail )
@@ -595,7 +595,7 @@ void Config::_startNodes()
         }
         else
         {
-            EQASSERT( !node->isActive() || node->getState() == STATE_FAILED ||
+            LBASSERT( !node->isActive() || node->getState() == STATE_FAILED ||
                       node->getState() == STATE_RUNNING );
         }
     }
@@ -631,7 +631,7 @@ void Config::_stopNodes()
         if( state != STATE_STOPPED && state != STATE_FAILED )
             continue;
 
-        EQASSERT( !node->isActive() || state == STATE_FAILED );
+        LBASSERT( !node->isActive() || state == STATE_FAILED );
         if( node->isApplicationNode( ))
             continue;
 
@@ -645,7 +645,7 @@ void Config::_stopNodes()
             node->setState( STATE_STOPPED );
 
         stoppingNodes.push_back( node );
-        EQASSERT( netNode.isValid( ));
+        LBASSERT( netNode.isValid( ));
 
         fabric::ServerDestroyConfigPacket destroyConfigPacket;
         destroyConfigPacket.configID = getID();
@@ -671,7 +671,7 @@ void Config::_stopNodes()
         if( netNode->isConnected( ))
         {
             co::LocalNodePtr localNode = getLocalNode();
-            EQASSERT( localNode.isValid( ));
+            LBASSERT( localNode.isValid( ));
 
             EQWARN << "Forcefully disconnecting exited render client node"
                    << std::endl;
@@ -696,11 +696,11 @@ bool Config::_updateNodes()
 
     if( syncUpdate.needsSync( )) // init failure, call again (exit pending)
     {
-        EQASSERT( !result );
+        LBASSERT( !result );
         accept( syncUpdate );
         if( !syncUpdate.getResult( ))
             setError( syncUpdate.getError( ));
-        EQASSERT( !syncUpdate.needsSync( ));
+        LBASSERT( !syncUpdate.needsSync( ));
     }
 
     return result;
@@ -714,7 +714,7 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
         T* entity = entities[ i ];
         if( entity->needsDelete( ))
         {
-            EQASSERT( entity->isAttached( ));
+            LBASSERT( entity->isAttached( ));
             getServer()->deregisterObject( entity );
             delete entity;
         }
@@ -725,8 +725,8 @@ void Config::_deleteEntities( const std::vector< T* >& entities )
 
 uint32_t Config::_createConfig( Node* node )
 {
-    EQASSERT( !node->isApplicationNode( ));
-    EQASSERT( node->isActive( ));
+    LBASSERT( !node->isApplicationNode( ));
+    LBASSERT( node->isActive( ));
 
     // create config on each non-app node
     //   app-node already has config from chooseConfig
@@ -750,9 +750,9 @@ void Config::_syncClock()
         Node* node = *i;
         if( node->isRunning() || node->isApplicationNode( ))
         {
-            EQASSERT( node->isApplicationNode() || node->isActive( ));
+            LBASSERT( node->isApplicationNode() || node->isActive( ));
             co::NodePtr netNode = node->getNode();
-            EQASSERT( netNode->isConnected( ));
+            LBASSERT( netNode->isConnected( ));
 
             send( netNode, packet );
         }
@@ -764,7 +764,7 @@ void Config::_syncClock()
 //---------------------------------------------------------------------------
 bool Config::_init( const uint128_t& initID )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
     _currentFrame  = 0;
     _finishedFrame = 0;
@@ -801,7 +801,7 @@ bool Config::exit()
     if( _state != STATE_RUNNING )
         EQWARN << "Exiting non-initialized config" << std::endl;
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
     _state = STATE_EXITING;
 
     const Canvases& canvases = getCanvases();
@@ -835,7 +835,7 @@ bool Config::exit()
 //---------------------------------------------------------------------------
 void Config::_startFrame( const uint128_t& frameID )
 {
-    EQASSERT( _state == STATE_RUNNING );
+    LBASSERT( _state == STATE_RUNNING );
     _verifyFrameFinished( _currentFrame );
     _syncClock();
 
@@ -901,7 +901,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
         const Node* node = *i;
         if( node->isRunning() && node->getFinishedFrame() < frameNumber )
         {
-            EQASSERT( _needsFinish || node->isActive( ));
+            LBASSERT( _needsFinish || node->isActive( ));
             return;
         }
     }
