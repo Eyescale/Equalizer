@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -23,6 +24,8 @@
 
 namespace co
 {
+namespace detail { class ObjectMap; }
+
     /** Central distributed object registry. */
     class ObjectMap : public Serializable
     {
@@ -93,33 +96,7 @@ namespace co
         };        
 
     private:
-        LocalNodePtr _localNode;
-        ObjectFactory& _factory; //!< The 'parent' user
-
-        struct Entry //!< One object map item
-        {
-            Entry() : instance( 0 ), type( OBJECTTYPE_NONE ) {}
-            Entry( const uint128_t& v, Object* i, const uint32_t t );
-
-            uint128_t version;    //!< The current version of the object
-            Object* instance; //!< The object instance, if attached
-            uint32_t type;        //!< The object class id
-        };
-
-        typedef stde::hash_map< uint128_t, Entry > Map;
-        typedef Map::iterator MapIter;
-        typedef Map::const_iterator MapCIter;
-
-        mutable lunchbox::SpinLock _mutex;
-
-        Map _map; //!< the actual map
-        Objects _masters; //!< Master objects registered with this instance
-
-        /** Added master objects since the last commit. */
-        std::vector< uint128_t > _added;
-
-        /** Changed master objects since the last commit. */
-        ObjectVersions _changed;
+        detail::ObjectMap* const _impl;
 
         /** Commit and note new master versions. */
         void _commitMasters( const uint32_t incarnation );
