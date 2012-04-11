@@ -21,6 +21,7 @@
 
 #include <co/defines.h>
 #include <co/node.h>            // base class
+#include <co/objectHandler.h>   // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <lunchbox/requestHandler.h> // base class
 #include <boost/function/function4.hpp>
@@ -35,7 +36,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
      * Local nodes listen on network connections, manage connections to other
      * nodes and provide session registration, mapping and command dispatch.
      */
-    class LocalNode : public lunchbox::RequestHandler, public Node
+    class LocalNode : public lunchbox::RequestHandler, public Node,
+                      public ObjectHandler
     {
     public:
         CO_API LocalNode( );
@@ -189,7 +191,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * @param object the object instance.
          * @return true if the object was registered, false otherwise.
          */
-        CO_API bool registerObject( Object* object );
+        CO_API virtual bool registerObject( Object* object );
 
         /**
          * Deregister a distributed object.
@@ -246,18 +248,19 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * Start mapping a distributed object from a known master.
          * @sa mapObject()
          */
-        CO_API uint32_t mapObjectNB( Object* object, const UUID& id,
-                                     const uint128_t& version, NodePtr master );
+        CO_API virtual uint32_t mapObjectNB( Object* object, const UUID& id,
+                                             const uint128_t& version,
+                                             NodePtr master );
 
         /** Finalize the mapping of a distributed object. */
-        CO_API bool mapObjectSync( const uint32_t requestID );
+        CO_API virtual bool mapObjectSync( const uint32_t requestID );
 
         /**
          * Unmap a mapped object.
          *
          * @param object the mapped object.
          */
-        CO_API void unmapObject( Object* object );
+        CO_API virtual void unmapObject( Object* object );
 
         /** Convenience method to deregister or unmap an object. */
         CO_API void releaseObject( Object* object );
