@@ -1372,7 +1372,7 @@ private:
 };
 }
 
-typedef co::base::RefPtr< detail::RBStat > RBStatPtr;
+typedef lunchbox::RefPtr< detail::RBStat > RBStatPtr;
 
 void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 {
@@ -1518,7 +1518,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 void Channel::_setOutputFrames( const uint32_t nFrames,
                                 const co::ObjectVersion* frames )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     for( uint32_t i=0; i<nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
@@ -1529,7 +1529,7 @@ void Channel::_setOutputFrames( const uint32_t nFrames,
 
 void Channel::_resetOutputFrames()
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
     _impl->outputFrames.clear();
 }
 
@@ -1539,7 +1539,7 @@ void Channel::_resetOutputFrames()
 void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
                               co::ObjectVersion* frames )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     RBStatPtr stat = new detail::RBStat( this );
     _setOutputFrames( nFrames, frames );
@@ -1557,7 +1557,7 @@ void Channel::_frameReadback( const uint128_t& frameID, uint32_t nFrames,
 
 bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
 {
-    EQ_TS_THREAD( _pipeThread );
+    LB_TS_THREAD( _pipeThread );
 
     bool hasAsyncReadback = false;
     const Frames& frames = getOutputFrames();
@@ -1905,7 +1905,7 @@ void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
     const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
 
     {
-        co::base::ScopedFastWrite mutex( stat->lock );
+        lunchbox::ScopedFastWrite mutex( stat->lock );
         const Images& images = frame->getImages();
         for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         {

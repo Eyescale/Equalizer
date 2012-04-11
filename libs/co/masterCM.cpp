@@ -95,7 +95,7 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
 
 void MasterCM::addSlave( Command& command )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
     ObjectCM::_addSlave( command, _version );
 }
