@@ -148,7 +148,7 @@ public:
 
     virtual bool init()
         {
-            EQCHECK( _connection->listen( ));
+            LBCHECK( _connection->listen( ));
             _connection->acceptNB();
             _connectionSet.addConnection( _connection );
 
@@ -300,7 +300,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    EQCHECK( co::init( argc, argv ));
+    LBCHECK( co::init( argc, argv ));
 
     co::ConnectionDescriptionPtr description = new co::ConnectionDescription;
     description->type = co::CONNECTIONTYPE_TCPIP;
@@ -402,7 +402,7 @@ int main( int argc, char **argv )
         while( nPackets-- )
         {
             buffer[SEQUENCE] = uint8_t( nPackets );
-            EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
+            LBCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
@@ -448,7 +448,7 @@ int main( int argc, char **argv )
     delete selector;
     LBASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection = 0;
-    EQCHECK( co::exit( ));
+    LBCHECK( co::exit( ));
     return EXIT_SUCCESS;
 }
 

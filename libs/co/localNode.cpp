@@ -336,7 +336,7 @@ bool LocalNode::close()
     NodeStopPacket packet;
     send( packet );
 
-    EQCHECK( _impl->receiverThread->join( ));
+    LBCHECK( _impl->receiverThread->join( ));
     _cleanup();
 
     LBINFO << _impl->incoming.getSize() << " connections open after close"
@@ -1120,7 +1120,7 @@ void LocalNode::_runReceiverThread()
         command->release();
     }
 
-    EQCHECK( _impl->commandThread->join( ));
+    LBCHECK( _impl->commandThread->join( ));
     _impl->objectStore->clear();
     _impl->pendingCommands.clear();
     _impl->commandCache.flush();
@@ -1314,7 +1314,7 @@ bool LocalNode::dispatchCommand( Command& command )
     switch( type )
     {
         case PACKETTYPE_CO_NODE:
-            EQCHECK( Dispatcher::dispatchCommand( command ));
+            LBCHECK( Dispatcher::dispatchCommand( command ));
             return true;
 
         case PACKETTYPE_CO_OBJECT:
@@ -1876,7 +1876,7 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
     ConnectionDescriptionPtr description =
         new ConnectionDescription( packet->connectionData );
-    EQCHECK( command.getNode()->removeConnectionDescription( description ));
+    LBCHECK( command.getNode()->removeConnectionDescription( description ));
 
     if( command.getNode() != this )
         return true;

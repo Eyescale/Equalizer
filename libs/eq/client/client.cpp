@@ -188,7 +188,7 @@ bool Client::disconnectServer( ServerPtr server )
     if( server->_localServer )
     {
         LBASSERT( server->isConnected( ));
-        EQCHECK( server->shutdown( ));
+        LBCHECK( server->shutdown( ));
         _joinLocalServer();
         server->_localServer = false;
         server->setClient( 0 );

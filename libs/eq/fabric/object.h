@@ -251,7 +251,7 @@ namespace fabric
 
             uint128_t identifier;
             localNode->waitRequest( packet.requestID, identifier );
-            EQCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
+            LBCHECK( localNode->mapObject( child,identifier,co::VERSION_NONE ));
         }
         child->commit( incarnation );
     }

@@ -68,7 +68,7 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
         return;
     }
 
-    EQCHECK( connection->send( _impl->buffer.getData(),
+    LBCHECK( connection->send( _impl->buffer.getData(),
                                _impl->buffer.getSize() ));
     _impl->buffer.setSize( 0 );
 }

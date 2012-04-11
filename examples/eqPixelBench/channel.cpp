@@ -292,7 +292,7 @@ void Channel::_testTiledOperations()
         {
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
-            EQCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                              glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_DEPTH );
@@ -323,7 +323,7 @@ void Channel::_testTiledOperations()
             subPVP.y = pvp.y + j * subPVP.h;
             eq::Image* image = images[ j ];
 
-            EQCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
+            LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
                                             EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
                                               glewContext ));
             image->clearPixelData( eq::Frame::BUFFER_COLOR );
@@ -407,11 +407,11 @@ void Channel::_testDepthAssemble()
         // fill depth & color image
         image = images[ i ];
 
-        EQCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
+        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_COLOR, 
                                          EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA, 
                                          glewContext ));
 
-        EQCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
+        LBCHECK( image->allocDownloader( eq::Frame::BUFFER_DEPTH, 
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
                                          glewContext ));
 

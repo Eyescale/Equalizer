@@ -622,7 +622,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
             Object* object = *j;
             if( instanceID == object->getInstanceID( ))
             {
-                EQCHECK( object->dispatchCommand( command ));
+                LBCHECK( object->dispatchCommand( command ));
                 return true;
             }
         }
@@ -632,13 +632,13 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
 
     Objects::const_iterator j = objects.begin();
     Object* object = *j;
-    EQCHECK( object->dispatchCommand( command ));
+    LBCHECK( object->dispatchCommand( command ));
 
     for( ++j; j != objects.end(); ++j )
     {
         object = *j;
         Command& clone = _localNode->cloneCommand( command );
-        EQCHECK( object->dispatchCommand( clone ));
+        LBCHECK( object->dispatchCommand( clone ));
     }
     return true;
 }
@@ -886,11 +886,11 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
             LBASSERT( !cached.versions.empty( ));
 
             object->addInstanceDatas( cached.versions, packet->version );
-            EQCHECK( _instanceCache->release( id, 2 ));
+            LBCHECK( _instanceCache->release( id, 2 ));
         }
         else if( packet->releaseCache )
         {
-            EQCHECK( _instanceCache->release( packet->objectID, 1 ));
+            LBCHECK( _instanceCache->release( packet->objectID, 1 ));
         }
     }
     else

@@ -232,10 +232,10 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
     {
         ObjectDataIStream* is = 0;
 
-        EQCHECK( _queuedVersions.getFront( is ));
+        LBCHECK( _queuedVersions.getFront( is ));
         oldest = is->getVersion();
 
-        EQCHECK( _queuedVersions.getBack( is ));
+        LBCHECK( _queuedVersions.getBack( is ));
         newest = is->getVersion();
     }
 

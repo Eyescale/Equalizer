@@ -44,10 +44,10 @@ bool MasterConfig::init()
 
     co::Object* initData = getInitData();
     if( initData )
-        EQCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
+        LBCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
     _objects->setInitData( initData );
 
-    EQCHECK( registerObject( _objects ));
+    LBCHECK( registerObject( _objects ));
 
     if( !eq::Config::init( _objects->getID( )))
     {
@@ -78,7 +78,7 @@ bool MasterConfig::run( co::Object* frameData )
 {
     LBASSERT( _objects );
     if( frameData )
-        EQCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
+        LBCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
     _objects->setFrameData( frameData );
 
     seq::Application* const app = getApplication();

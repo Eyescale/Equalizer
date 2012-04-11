@@ -107,7 +107,7 @@ static void notify( co::Connection::Notifier n )
     LBASSERT( 0 <= n );
 
 #   ifdef LB_RELEASE_ASSERT
-    EQCHECK( ::write( n, (const void *)&ONE, sizeof(ONE) ) == sizeof(ONE) );
+    LBCHECK( ::write( n, (const void *)&ONE, sizeof(ONE) ) == sizeof(ONE) );
 #   else
     ::write( n, (const void *)&ONE, sizeof(ONE) );
 #   endif
@@ -126,7 +126,7 @@ static void acknowledge( co::Connection::Notifier n )
     uint64_t dummy;
 
 #   ifdef LB_RELEASE_ASSERT
-    EQCHECK( ::read( n, (void *)&dummy, sizeof(dummy) ) == sizeof(dummy) );
+    LBCHECK( ::read( n, (void *)&dummy, sizeof(dummy) ) == sizeof(dummy) );
 #   else
     ::read( n, (void *)&dummy, sizeof(dummy) );
 #   endif
@@ -284,7 +284,7 @@ UDTConnection::UDTConnection( )
     , _poller( NULL )
 {
 #ifdef LB_RELEASE_ASSERT
-    EQCHECK( UDT::ERROR != UDT::startup( ));
+    LBCHECK( UDT::ERROR != UDT::startup( ));
 #else
     UDT::startup( );
 #endif

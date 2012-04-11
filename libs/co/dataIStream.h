@@ -235,7 +235,7 @@ namespace co{
                 LBASSERT( child );
                 LBASSERT( !object->isMaster( ));
 
-                EQCHECK( localNode->mapObject( child, version ));
+                LBCHECK( localNode->mapObject( child, version ));
                 result.push_back( child );
             }
             else

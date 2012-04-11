@@ -45,14 +45,14 @@ Config::~Config(){}
 bool Config::init()
 {
     // init distributed objects
-    EQCHECK( registerObject( &_frameData ));
+    LBCHECK( registerObject( &_frameData ));
 
     _frameData.setOrtho( _initData.getOrtho( ));
     _initData.setFrameDataID( _frameData.getID( ));
 
     _frameData.setAutoObsolete( getLatency( ));
 
-    EQCHECK( registerObject( &_initData ));
+    LBCHECK( registerObject( &_initData ));
 
     // init config
     if( !eq::Config::init( _initData.getID( )))

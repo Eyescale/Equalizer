@@ -107,7 +107,7 @@ bool Dispatcher::dispatchCommand( Command& command )
     }
     // else
 
-    EQCHECK( _impl->fTable[which]( command ));
+    LBCHECK( _impl->fTable[which]( command ));
     return true;
 }
 

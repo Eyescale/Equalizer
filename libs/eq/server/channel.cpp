@@ -265,8 +265,8 @@ void Channel::unsetOutput()
 {
     LBASSERT( _view && _segment );
 
-    EQCHECK( _view->removeChannel( this ));
-    EQCHECK( _segment->removeDestinationChannel( this ));
+    LBCHECK( _view->removeChannel( this ));
+    LBCHECK( _segment->removeDestinationChannel( this ));
 
     _view    = 0;
     _segment = 0;

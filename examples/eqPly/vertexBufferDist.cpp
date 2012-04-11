@@ -88,7 +88,7 @@ VertexBufferDist::~VertexBufferDist()
 void VertexBufferDist::registerTree( co::LocalNodePtr node )
 {
     LBASSERT( !isAttached() );
-    EQCHECK( node->registerObject( this ));
+    LBCHECK( node->registerObject( this ));
 
     if( _left )
         _left->registerTree( node );
@@ -214,8 +214,8 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         const uint32_t sync2 = to->mapObjectNB( _right, rightID,
                                                 co::VERSION_OLDEST, from );
 
-        EQCHECK( to->mapObjectSync( sync1 ));
-        EQCHECK( to->mapObjectSync( sync2 ));
+        LBCHECK( to->mapObjectSync( sync1 ));
+        LBCHECK( to->mapObjectSync( sync2 ));
 
         node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
         node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );

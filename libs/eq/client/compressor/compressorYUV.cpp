@@ -139,13 +139,13 @@ void CompressorYUV::_compress( const GLEWContext* glewContext,
 
     if ( _fbo )
     {
-        EQCHECK( _fbo->resize( outDims[1], outDims[3] ));
+        LBCHECK( _fbo->resize( outDims[1], outDims[3] ));
         _fbo->bind();
     }
     else
     {
         _fbo = new util::FrameBufferObject( glewContext );
-        EQCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
+        LBCHECK( _fbo->init( outDims[1], outDims[3], GL_RGBA, 0, 0 ));
     }
 
     _texture->bind();

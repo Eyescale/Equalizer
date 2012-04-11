@@ -157,7 +157,7 @@ bool Config::mapData( const eq::uint128_t& initDataID )
 {
     if( !_initData.isAttached( ))
     {
-        EQCHECK( mapObject( &_initData, initDataID ) );
+        LBCHECK( mapObject( &_initData, initDataID ) );
         unmapObject( &_initData );
     }
     else

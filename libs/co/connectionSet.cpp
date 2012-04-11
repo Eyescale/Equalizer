@@ -124,7 +124,7 @@ public:
             // Whenever another threads modifies the connection list while the
             // connection set is waiting in a select, the select is interrupted
             // using this connection.
-            EQCHECK( selfConnection->connect( ));
+            LBCHECK( selfConnection->connect( ));
         }
 
     ~ConnectionSet()

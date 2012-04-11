@@ -318,7 +318,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         ClientPtr client = getClient();
         frame = new Frame();
 
-        EQCHECK( client->mapObject( frame, frameVersion ));
+        LBCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     else
@@ -335,7 +335,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         if( !frameData->isAttached() )
         {
             ClientPtr client = getClient();
-            EQCHECK( client->mapObject( frameData, dataVersion ));
+            LBCHECK( client->mapObject( frameData, dataVersion ));
         }
         else if( frameData->getVersion() < dataVersion.version )
             frameData->sync( dataVersion.version );
@@ -382,7 +382,7 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
     {
         queue = new co::QueueSlave;
         ClientPtr client = getClient();
-        EQCHECK( client->mapObject( queue, queueVersion ));
+        LBCHECK( client->mapObject( queue, queueVersion ));
 
         _queues[ queueVersion.identifier ] = queue;
     }
@@ -425,7 +425,7 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
         LBASSERT( view );
         view->_pipe = this;        
         ClientPtr client = getClient();
-        EQCHECK( client->mapObject( view, viewVersion ));
+        LBCHECK( client->mapObject( view, viewVersion ));
 
         _views[ viewVersion.identifier ] = view;
     }
@@ -774,7 +774,7 @@ bool Pipe::_cmdCreateWindow( co::Command& command )
     window->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    EQCHECK( config->mapObject( window, packet->windowID ));
+    LBCHECK( config->mapObject( window, packet->windowID ));
     
     return true;
 }

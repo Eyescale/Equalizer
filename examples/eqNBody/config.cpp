@@ -78,7 +78,7 @@ void Config::mapData( const eq::uint128_t& initDataID )
 {       
     if( !_initData.isAttached( ))
     {
-        EQCHECK( mapObject( &_initData, initDataID ));
+        LBCHECK( mapObject( &_initData, initDataID ));
         releaseData(); // data was retrieved, unmap immediately
     }
     else  // appNode, _initData is registered already

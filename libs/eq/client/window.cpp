@@ -752,7 +752,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
     channel->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    EQCHECK( config->mapObject( channel, packet->channelID ));
+    LBCHECK( config->mapObject( channel, packet->channelID ));
     LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;

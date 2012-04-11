@@ -1582,7 +1582,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
         {
             if( images[j]->hasAsyncReadback( )) // finish async readback
             {
-                EQCHECK( getPipe()->startTransferThread( ));
+                LBCHECK( getPipe()->startTransferThread( ));
 
                 hasAsyncReadback = true;
                 _refFrame( frameNumber );

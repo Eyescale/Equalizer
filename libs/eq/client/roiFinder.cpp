@@ -564,12 +564,12 @@ void ROIFinder::_readbackInfo( )
 
     if( fbo )
     {
-        EQCHECK( fbo->resize( _pvp.w, _pvp.h ));
+        LBCHECK( fbo->resize( _pvp.w, _pvp.h ));
     }
     else
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
-        EQCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
+        LBCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
     }
     fbo->bind();
 

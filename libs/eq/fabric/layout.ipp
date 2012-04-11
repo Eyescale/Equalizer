@@ -49,7 +49,7 @@ Layout< C, L, V >::~Layout()
     while( !_views.empty( ))
     {
         V* view = _views.back();
-        EQCHECK( _removeChild( view ));
+        LBCHECK( _removeChild( view ));
         release( view );
     }
 

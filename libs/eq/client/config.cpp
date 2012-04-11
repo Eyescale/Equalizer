@@ -720,7 +720,7 @@ void Config::setupServerConnections( const char* connectionData )
 {
     std::string data = connectionData;
     co::ConnectionDescriptions descriptions;
-    EQCHECK( co::deserialize( data, descriptions ));
+    LBCHECK( co::deserialize( data, descriptions ));
     LBASSERTINFO( data.empty(), data << " left from " << connectionData );
 
     for( co::ConnectionDescriptionsCIter i = descriptions.begin();
@@ -833,7 +833,7 @@ bool Config::_cmdCreateNode( co::Command& command )
     LBVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    EQCHECK( mapObject( node, packet->nodeID ));
+    LBCHECK( mapObject( node, packet->nodeID ));
     return true;
 }
 

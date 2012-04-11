@@ -51,7 +51,7 @@ Window::~Window( )
 
 void Window::makeCurrent() const
 {
-    EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
+    LBCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     WindowIF::makeCurrent();
     if( _wglContext )
     {

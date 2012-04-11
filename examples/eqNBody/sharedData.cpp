@@ -90,7 +90,7 @@ void SharedData::mapMemory()
                            _frameData.getCol() );
             _proxies.push_back( readMem );
                 
-            EQCHECK( _cfg->mapObject( readMem, pid ));
+            LBCHECK( _cfg->mapObject( readMem, pid ));
         }
     }           
 }

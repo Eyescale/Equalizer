@@ -62,7 +62,7 @@ DataOStream::~DataOStream()
 
 void DataOStream::_initCompressor( const uint32_t compressor )
 {
-    EQCHECK( _compressor->Compressor::initCompressor( compressor ));
+    LBCHECK( _compressor->Compressor::initCompressor( compressor ));
     LB_TS_RESET( _compressor->_thread );
 }
 
@@ -288,7 +288,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifndef CO_AGGRESSIVE_CACHING
         const uint32_t name = _compressor->getName();
         _compressor->reset();
-        EQCHECK( _compressor->Compressor::initCompressor( name ));
+        LBCHECK( _compressor->Compressor::initCompressor( name ));
 
         if( result == STATE_COMPLETE )
             _buffer.pack();

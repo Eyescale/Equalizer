@@ -94,7 +94,7 @@ RSPConnection::RSPConnection()
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
 
-    EQCHECK( _event->connect( ));
+    LBCHECK( _event->connect( ));
 
     _buffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
     while( static_cast< int32_t >( _buffers.size( )) <
@@ -372,7 +372,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
             //EQLOG( LOG_RSP ) << "reset read buffer  " << header->sequence
             //                 << std::endl;
 
-            EQCHECK( _threadBuffers.push( _readBuffer ));
+            LBCHECK( _threadBuffers.push( _readBuffer ));
             _readBuffer = 0;
             _readBufferPos = 0;
         }
@@ -582,7 +582,7 @@ void RSPConnection::_writeData()
         while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
         {
             Buffer* buffer2 = 0;
-            EQCHECK( _threadBuffers.getFront( buffer2 ));
+            LBCHECK( _threadBuffers.getFront( buffer2 ));
             LBASSERT( buffer2 );
             DatagramData* header2 = 
                 reinterpret_cast<DatagramData*>( buffer2->getData( ));
@@ -593,7 +593,7 @@ void RSPConnection::_writeData()
             memcpy( reinterpret_cast<uint8_t*>( header + 1 ) + header->size,
                     header2 + 1, header2->size );
             header->size += header2->size;
-            EQCHECK( _threadBuffers.pop( buffer2 ));
+            LBCHECK( _threadBuffers.pop( buffer2 ));
             appBuffers.push_back( buffer2 );
 #ifdef EQ_INSTRUMENT_RSP
             ++nMergedDatagrams;
@@ -882,21 +882,21 @@ void RSPConnection::_handleConnectedData( const void* data )
     switch( type )
     {
         case DATA:
-            EQCHECK( _handleData( _recvBuffer ));
+            LBCHECK( _handleData( _recvBuffer ));
             break;
 
         case ACK:
-            EQCHECK( _handleAck( 
+            LBCHECK( _handleAck( 
                       reinterpret_cast< const DatagramAck* >( data )));
             break;
 
         case NACK:
-            EQCHECK( _handleNack(
+            LBCHECK( _handleNack(
                       reinterpret_cast< const DatagramNack* >( data )));
             break;
 
         case ACKREQ: // The writer asks for an ack/nack
-            EQCHECK( _handleAckRequest(
+            LBCHECK( _handleAckRequest(
                 reinterpret_cast< const DatagramAckRequest* >( data )));
             break;
 
@@ -1403,7 +1403,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
          i != connection->_buffers.end(); ++i )
     {
         Buffer* buffer = *i;
-        EQCHECK( connection->_threadBuffers.push( buffer ));
+        LBCHECK( connection->_threadBuffers.push( buffer ));
     }
 
     _children.push_back( connection );
@@ -1483,7 +1483,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         memcpy( header + 1, data, packetSize );
         data += packetSize;
 
-        EQCHECK( _threadBuffers.push( buffer ));
+        LBCHECK( _threadBuffers.push( buffer ));
     }
     _postWakeup();
     EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 

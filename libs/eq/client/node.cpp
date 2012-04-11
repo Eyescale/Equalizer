@@ -140,7 +140,7 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
         ClientPtr client = getClient();
 
         netBarrier = new co::Barrier;
-        EQCHECK( client->mapObject( netBarrier, barrier ));
+        LBCHECK( client->mapObject( netBarrier, barrier ));
 
         _barriers.data[ barrier.identifier ] = netBarrier;
     }
@@ -395,7 +395,7 @@ void Node::TransmitThread::run()
         if( !command )
             return; // exit thread
 
-        EQCHECK( (*command)( ));
+        LBCHECK( (*command)( ));
         command->release();
     }
 }
@@ -428,7 +428,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
         pipe->startThread();
 
     Config* config = getConfig();
-    EQCHECK( config->mapObject( pipe, packet->pipeID ));
+    LBCHECK( config->mapObject( pipe, packet->pipeID ));
     pipe->notifyMapped();
 
     return true;
@@ -596,7 +596,7 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
                           packet->frameNumber );
-    EQCHECK( frameData->addImage( packet ));
+    LBCHECK( frameData->addImage( packet ));
     return true;
 }
 
