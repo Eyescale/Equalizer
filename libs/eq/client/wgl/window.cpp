@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
-                      2010, Maxim Makhinya
+ *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -460,6 +460,9 @@ bool Window::initWGLAffinityDC()
 
 void Window::_initSwapSync()
 {
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
     const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
     if( swapSync == AUTO ) // leave it alone
         return;

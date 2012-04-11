@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
-                      2010, Maxim Makhinya
+ *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -345,15 +345,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         return 0;
     }
 
-    // set vsync on/off
-    int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
-    if( swapSync != AUTO )
-    {
-        if( swapSync < 0 )
-            swapSync = 1;
-        aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
-    }
-
+    _initSwapSync()
     aglSetCurrentContext( context );
 
     Global::leaveCarbon();
@@ -533,6 +525,20 @@ bool Window::configInitAGLWindow()
     setCarbonWindow( windowRef );
 
     return true;
+}
+
+void Window::_initSwapSync()
+{
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
+    int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync == AUTO )
+        return;
+
+    if( swapSync < 0 )
+        swapSync = 1;
+    aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
 }
 
 void Window::setCarbonWindow( WindowRef window )

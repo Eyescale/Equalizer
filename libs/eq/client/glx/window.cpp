@@ -650,6 +650,9 @@ void Window::setGLXContext( GLXContext context )
 
 void Window::_initSwapSync()
 {
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
     const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
     if( swapSync == AUTO ) // leave it alone
         return;
