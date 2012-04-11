@@ -1684,7 +1684,7 @@ bool RDMAConnection::_pollCQ( )
         else if( IBV_WC_RECV == wc.opcode )
             _recvMessage( *reinterpret_cast< RDMAMessage * >( wc.wr_id ));
         else
-            EQUNREACHABLE;
+            LBUNREACHABLE;
 
         _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
     }
@@ -1733,7 +1733,7 @@ bool RDMAConnection::_pollCQ( )
         else if( IBV_WC_RDMA_WRITE == wc.opcode )
             _sourceptr.incrTail( (uint32_t)wc.wr_id );
         else
-            EQUNREACHABLE;
+            LBUNREACHABLE;
 
         // All send completions replenish credit.
         _credits++;
@@ -1979,7 +1979,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 }
             }
             else
-                EQUNREACHABLE;
+                LBUNREACHABLE;
         }
         else if( CONNECTION_FD == context->type )
         {
@@ -1992,7 +1992,7 @@ void RDMAConnection::ChannelEventThread::run( )
                 LBWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
         }
         else
-            EQUNREACHABLE;
+            LBUNREACHABLE;
     }
     while( running );
 }

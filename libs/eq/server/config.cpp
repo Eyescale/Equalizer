@@ -362,7 +362,7 @@ void Config::removeChild( const UUID& id )
     {
         return;
     }
-    EQUNIMPLEMENTED;
+    LBUNIMPLEMENTED;
 }
 
 void Config::addCompound( Compound* compound )

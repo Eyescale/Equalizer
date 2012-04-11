@@ -69,7 +69,7 @@ void Frame::getInstanceData( co::DataOStream& os )
 
 void Frame::applyInstanceData( co::DataIStream& is )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _inherit.deserialize( is );
 }
 

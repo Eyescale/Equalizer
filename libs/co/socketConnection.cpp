@@ -544,7 +544,7 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
       }
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return -1;
 }
 #endif // _WIN32

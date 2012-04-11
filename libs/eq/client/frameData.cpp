@@ -99,7 +99,7 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 
 void FrameData::getInstanceData( co::DataOStream& os )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _data.serialize( os );
 }
 

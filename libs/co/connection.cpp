@@ -283,7 +283,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
         }
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return true;
 }
 

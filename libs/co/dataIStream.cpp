@@ -61,7 +61,7 @@ void DataIStream::read( void* data, uint64_t size )
 {
     if( !_checkBuffer( ))
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         LBERROR << "No more input data" << std::endl;
         return;
     }
@@ -72,7 +72,7 @@ void DataIStream::read( void* data, uint64_t size )
     {
         LBERROR << "Not enough data in input buffer: need " << size 
                 << " bytes, " << _inputSize - _position << " left "<< std::endl;
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         // TODO: Allow reads which are asymmetric to writes by reading from
         // multiple blocks here?
         return;

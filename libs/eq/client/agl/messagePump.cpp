@@ -36,7 +36,7 @@ MessagePump::MessagePump()
     if( status != noErr )
     {
         LBWARN << "CreateEvent failed: " << status << std::endl;
-        EQUNREACHABLE;
+        LBUNREACHABLE;
     }
 }
 

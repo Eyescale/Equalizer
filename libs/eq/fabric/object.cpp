@@ -211,7 +211,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         {
             LBWARN << "Mapping of " << lunchbox::className( _userData )
                    << " user data failed" << std::endl;
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return;
         }
     }

@@ -63,7 +63,7 @@ co::Object* Application::createObject( const uint32_t type )
 //    switch( type )
     {
 //      default:
-          EQUNIMPLEMENTED;
+          LBUNIMPLEMENTED;
           return 0;
     }
 }

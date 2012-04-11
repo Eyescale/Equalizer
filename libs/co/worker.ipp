@@ -30,7 +30,7 @@ template< class Q > void WorkerThread< Q >::run()
 
         if( !command( ))
         {
-            EQABORT( "Error handling " << command );
+            LBABORT( "Error handling " << command );
         }
         command.release();
 

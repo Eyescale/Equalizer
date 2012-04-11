@@ -161,7 +161,7 @@ void Server::handleCommands()
         co::Command& command = *(_mainThreadQueue.pop( ));
         if( !command( ))
         {
-            EQABORT( "Error handling command " << command );
+            LBABORT( "Error handling command " << command );
         }
 
         command.release();

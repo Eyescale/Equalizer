@@ -77,7 +77,7 @@ namespace plugin
          */
         virtual void compress( const void* const inData,
                                const eq_uint64_t nPixels, 
-                               const bool useAlpha ) { EQDONTCALL; };
+                               const bool useAlpha ) { LBDONTCALL; };
 
         typedef lunchbox::Bufferb Result;
         typedef std::vector< Result* > ResultVector;
@@ -104,7 +104,7 @@ namespace plugin
                                const unsigned     source,
                                const eq_uint64_t  flags,
                                eq_uint64_t        outDims[4],
-                               void**             out ) { EQDONTCALL; }
+                               void**             out ) { LBDONTCALL; }
 
         /**
          * Transfer data from main memory into GPU memory.
@@ -122,7 +122,7 @@ namespace plugin
                              const eq_uint64_t  inDims[4],
                              const eq_uint64_t  flags,
                              const eq_uint64_t  outDims[4],  
-                             const unsigned     destination ) { EQDONTCALL; }
+                             const unsigned     destination ) { LBDONTCALL; }
 
         /**
          * Start transferring frame buffer data into main memory.
@@ -138,7 +138,7 @@ namespace plugin
         virtual void startDownload( const GLEWContext* glewContext,
                                     const eq_uint64_t  inDims[4],
                                     const unsigned     source,
-                                    const eq_uint64_t  flags ) { EQDONTCALL; }
+                                    const eq_uint64_t  flags ) { LBDONTCALL; }
 
 
         /**
@@ -159,7 +159,7 @@ namespace plugin
                                      const unsigned     source,
                                      const eq_uint64_t  flags,
                                      eq_uint64_t        outDims[4],
-                                     void**             out ) { EQDONTCALL; }
+                                     void**             out ) { LBDONTCALL; }
 
         /** @internal Register a new plugin engine. */
         static void registerEngine( const Functions& functions );

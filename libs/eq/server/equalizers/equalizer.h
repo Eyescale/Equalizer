@@ -67,9 +67,9 @@ namespace server
     private:
         // override in sub-classes to handle dynamic compounds.
         virtual void notifyChildAdded( Compound* compound, Compound* child )
-            { EQUNIMPLEMENTED }
+            { LBUNIMPLEMENTED }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
-            { EQUNIMPLEMENTED }
+            { LBUNIMPLEMENTED }
 
         Compound* _compound;       //!< The attached compound
         bool      _frozen;

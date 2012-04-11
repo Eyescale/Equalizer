@@ -531,7 +531,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 #endif
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return -1;
 }
 #endif // _WIN32

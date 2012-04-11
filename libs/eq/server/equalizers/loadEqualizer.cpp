@@ -165,7 +165,7 @@ void LoadEqualizer::_init( Node* node, const Viewport& vp, const Range& range )
     switch( node->mode )
     {
       default:
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
 
       case MODE_VERTICAL:
         leftVP.w = vp.w * .5f;
@@ -479,7 +479,7 @@ void LoadEqualizer::_updateNode( Node* node )
             node->boundaryf = left->boundaryf + right->boundaryf;
             break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         }
     }
 }
@@ -1029,7 +1029,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
         }
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 

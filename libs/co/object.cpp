@@ -231,7 +231,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
                                                          masterInstanceID ));
             break;
 
-        default: EQUNIMPLEMENTED;
+        default: LBUNIMPLEMENTED;
     }
 }
 

@@ -626,7 +626,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
                 return true;
             }
         }
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
@@ -1018,7 +1018,7 @@ bool ObjectStore::_cmdInstance( Command& command )
         return true;
 
       default:
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 }

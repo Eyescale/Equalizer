@@ -171,7 +171,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
         }
     }
 
-    EQUNIMPLEMENTED
+    LBUNIMPLEMENTED
     return true;
 }
 

@@ -459,8 +459,8 @@ namespace eq
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
-            virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
-            virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
+            virtual void getInstanceData( co::DataOStream& os ){ LBDONTCALL }
+            virtual void applyInstanceData( co::DataIStream& is ){ LBDONTCALL }
             virtual uint32_t chooseCompressor() const { return _compressor; }
 
         private:

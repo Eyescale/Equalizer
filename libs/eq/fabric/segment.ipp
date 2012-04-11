@@ -197,7 +197,7 @@ void Segment< C, S, CH >::notifyFrustumChanged()
             break;
         }
         default: 
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case TYPE_NONE:
             break; 
     }

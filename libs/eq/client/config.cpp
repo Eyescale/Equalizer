@@ -628,7 +628,7 @@ bool Config::_needsLocalSync() const
             break;
                 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     return true;

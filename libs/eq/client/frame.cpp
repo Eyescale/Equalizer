@@ -42,7 +42,7 @@ Frame::~Frame()
 
 void Frame::getInstanceData( co::DataOStream& os )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _data.serialize( os );
 }
 

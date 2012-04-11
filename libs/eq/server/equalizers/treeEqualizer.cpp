@@ -318,7 +318,7 @@ void TreeEqualizer::_update( Node* node )
             node->boundaryf = node->left->boundaryf +node->right->boundaryf;
             break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         }
 
         node->time = node->left->time + node->right->time;
@@ -547,7 +547,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
     }
 
     default:
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
     }
 }
 

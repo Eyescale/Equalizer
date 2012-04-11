@@ -103,7 +103,7 @@ bool ObjectDataIStream::hasInstanceData() const
 {
     if( !_usedCommand && _commands.empty( ))
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 

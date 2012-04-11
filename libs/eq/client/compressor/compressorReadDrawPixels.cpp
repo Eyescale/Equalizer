@@ -334,7 +334,7 @@ void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
         target = GL_TEXTURE_RECTANGLE_ARB;
     else
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
     }
 
     if ( !_texture || _texture->getTarget( ) != target )

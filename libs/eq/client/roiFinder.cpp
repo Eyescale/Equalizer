@@ -244,7 +244,7 @@ void ROIFinder::_updateSubArea( const uint8_t type )
         case 15: pvp = PixelViewport( _dim.x1,_dim.y3,_dim.w6,_dim.h3 ); break;
         case 16: pvp = PixelViewport( _dim.x1,_dim.y1,_dim.w6,_dim.h1 ); break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     LBASSERT( pvp.hasArea( ));

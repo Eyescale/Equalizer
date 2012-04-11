@@ -77,7 +77,7 @@ uint32_t Texture::getCompressorTarget() const
             return EQ_COMPRESSOR_USE_TEXTURE_RECT;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case GL_TEXTURE_2D:
             return EQ_COMPRESSOR_USE_TEXTURE_2D;
     }
@@ -131,11 +131,11 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
             if( GLEW_EXT_texture_integer )
                 setExternalFormat( GL_RGBA_INTEGER_EXT, GL_UNSIGNED_INT );
             else
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             setExternalFormat( internalFormat, GL_UNSIGNED_BYTE );
     }
 }
@@ -362,7 +362,7 @@ void Texture::writeRGB( const std::string& filename ) const
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             return;
     }
 

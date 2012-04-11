@@ -165,7 +165,7 @@ namespace fabric
         EQFABRIC_API void postRemove( Object* child );
 
         /** @internal Execute the slave remove request. @sa postRemove */
-        virtual void removeChild( const UUID& ) { EQUNIMPLEMENTED; }
+        virtual void removeChild( const UUID& ) { LBUNIMPLEMENTED; }
 
         /** @internal commit, register child slave instance with the server. */
         template< class C, class PKG, class S >

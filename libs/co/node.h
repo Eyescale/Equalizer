@@ -267,7 +267,7 @@ namespace co
                 ConnectionPtr connection = _outgoing;
                 if( _state != STATE_CLOSED )
                     return connection;
-                EQUNREACHABLE;
+                LBUNREACHABLE;
                 return 0;
             }
 

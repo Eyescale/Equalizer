@@ -51,7 +51,7 @@ namespace co
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
-            { EQDONTCALL; return EQ_INSTANCE_INVALID; }
+            { LBDONTCALL; return EQ_INSTANCE_INVALID; }
 
         virtual void addSlave( Command& command )
             { ObjectCM::_addSlave( command, VERSION_FIRST ); }

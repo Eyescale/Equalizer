@@ -596,7 +596,7 @@ uint32_t Node::_getFinishLatency() const
         case fabric::ASYNC:
             break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     const Config* config = getConfig();

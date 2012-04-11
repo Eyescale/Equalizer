@@ -90,7 +90,7 @@ bool Dispatcher::dispatchCommand( Command& command )
 #ifndef NDEBUG
     if( which >= _impl->qTable.size( ))
     {
-        EQABORT( "Command " << command
+        LBABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _impl->qTable.size() << ") for object of type "
                  << lunchbox::className( this ) << std::endl );
@@ -115,7 +115,7 @@ bool Dispatcher::_cmdUnknown( Command& command )
 {
     LBERROR << "Unknown " << command << " for " << lunchbox::className( this )
             << lunchbox::backtrace << std::endl;
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return false;
 }
 

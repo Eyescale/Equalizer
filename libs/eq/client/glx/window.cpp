@@ -635,7 +635,7 @@ void Window::setXDrawable( XID drawable )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case OFF:
         case FBO:
             LBASSERT( getWindow()->getPixelViewport().hasArea( ));
@@ -771,7 +771,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
     LBINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
-    EQUNIMPLEMENTED;
+    LBUNIMPLEMENTED;
 #endif
 }
 
@@ -786,7 +786,7 @@ void Window::leaveNVSwapBarrier()
     
     _glXNVSwapGroup = 0;
 #else
-    EQUNIMPLEMENTED;
+    LBUNIMPLEMENTED;
 #endif
 }
 

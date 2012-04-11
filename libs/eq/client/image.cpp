@@ -587,7 +587,7 @@ const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
         case Frame::BUFFER_DEPTH:
             return ( reinterpret_cast< const char* >( this ) + 1 );
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             return ( reinterpret_cast< const char* >( this ) + 2 );
     }
 }
@@ -609,7 +609,7 @@ const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
             else
                 return ( reinterpret_cast< const char* >( this ) + 3 );
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             return ( reinterpret_cast< const char* >( this ) + 0 );
     }
 }
@@ -767,7 +767,7 @@ Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
        case Frame::BUFFER_DEPTH:
            return _depth;
        default:
-           EQUNIMPLEMENTED;
+           LBUNIMPLEMENTED;
    }
    return _color;
 }
@@ -782,7 +782,7 @@ const Image::Attachment& Image::_getAttachment( const Frame::Buffer buffer )
        case Frame::BUFFER_DEPTH:
            return _depth;
        default:
-           EQUNIMPLEMENTED;
+           LBUNIMPLEMENTED;
    }
    return _color;
 }
@@ -1335,7 +1335,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
             break;
 
         default:
-            EQUNREACHABLE;
+            LBUNREACHABLE;
     }
     Memory& memory = _getMemory( buffer );
     const PixelViewport pvp( 0, 0, header.width, header.height );

@@ -410,7 +410,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
                     event.pointerWheel.yAxis = delta;
                     return true;
                 default:
-                    EQUNIMPLEMENTED;
+                    LBUNIMPLEMENTED;
             }
             return true;
         }

@@ -315,7 +315,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
             LBASSERT( k != _impl->threads.end( ));
             _impl->threads.erase( k );
 #else
-            EQUNREACHABLE;
+            LBUNREACHABLE;
 #endif
         }
         else

@@ -292,7 +292,7 @@ void Channel::_initDrawableConfig()
                 break;
 
             default:
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
             case GL_UNSIGNED_BYTE:
                 _impl->drawableConfig.colorBits = 8;
                 break;
@@ -873,7 +873,7 @@ bool Channel::processEvent( const Event& event )
         default:
             LBWARN << "Unhandled channel event of type " << event.type
                    << std::endl;
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     Config* config = getConfig();
@@ -1685,7 +1685,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
         LBWARN << "Can't transmit image of type TEXTURE" << std::endl;
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
         return;
     }
 

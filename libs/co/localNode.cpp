@@ -841,7 +841,7 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
     }
 
     LBWARN << "Node " << nodeID << " connection failed" << std::endl;
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return 0;
 }
 
@@ -1092,7 +1092,7 @@ void LocalNode::_runReceiverThread()
                 if( nErrors > 10 )
                 {
                     LBWARN << "Too many errors in a row" << std::endl;
-                    EQUNIMPLEMENTED;
+                    LBUNIMPLEMENTED;
                 }
                 break;
 
@@ -1101,7 +1101,7 @@ void LocalNode::_runReceiverThread()
                 break;
 
             default:
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
         }
         if( result != ConnectionSet::EVENT_ERROR && 
             result != ConnectionSet::EVENT_SELECT_ERROR )
@@ -1323,7 +1323,7 @@ bool LocalNode::dispatchCommand( Command& command )
         }
 
         default:
-            EQABORT( "Unknown packet type " << type << " for " << command );
+            LBABORT( "Unknown packet type " << type << " for " << command );
             return true;
     }
 }

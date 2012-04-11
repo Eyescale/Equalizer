@@ -93,7 +93,7 @@ private:
                 case STATE_FAILED:
                     return TRAVERSE_PRUNE;
             }
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
         }
 
@@ -138,7 +138,7 @@ private:
                 case STATE_FAILED:
                     return TRAVERSE_CONTINUE;
             }
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
         }
 };

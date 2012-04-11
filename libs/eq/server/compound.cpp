@@ -571,7 +571,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
             }
 
             default:
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
         }
     }
     // else frustum from segment
@@ -618,7 +618,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
             return;
         }
         default: 
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -722,7 +722,7 @@ Vector3f Compound::_getEyePosition( const fabric::Eye eye ) const
         return Vector3f( eyeBase_2, 0.f, 0.f );
 
     default:
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
     case EYE_CYCLOP:
         return Vector3f::ZERO;
     }

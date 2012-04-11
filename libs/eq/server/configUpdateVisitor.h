@@ -87,7 +87,7 @@ private:
                         return TRAVERSE_PRUNE;
                     return TRAVERSE_CONTINUE;
             }
-            EQUNREACHABLE;
+            LBUNREACHABLE;
             return TRAVERSE_PRUNE;
         }
 

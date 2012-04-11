@@ -693,7 +693,7 @@ bool Window::processEvent( const Event& event )
                   default:
                     LBWARN << "Unhandled window event of type " << event.type
                            << std::endl;
-                    EQUNIMPLEMENTED;
+                    LBUNIMPLEMENTED;
                 }
 
                 LBASSERT( channel->getID() != UUID::ZERO );
@@ -729,7 +729,7 @@ bool Window::processEvent( const Event& event )
         default:
             LBWARN << "Unhandled window event of type " << event.type
                    << std::endl;
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     configEvent.data = event;

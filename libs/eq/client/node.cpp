@@ -302,7 +302,7 @@ void Node::frameStart( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -329,7 +329,7 @@ void Node::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -355,7 +355,7 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 

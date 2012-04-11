@@ -234,7 +234,7 @@ void CompressorYUV::download( const GLEWContext* glewContext,
     }
     else
     {
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
     }
     out[0] = buffer.getData();
     glPopAttrib();

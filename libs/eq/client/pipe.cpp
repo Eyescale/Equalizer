@@ -663,7 +663,7 @@ void Pipe::frameStart( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     startFrame( frameNumber );
@@ -685,7 +685,7 @@ void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -705,7 +705,7 @@ void Pipe::frameFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     // Global release

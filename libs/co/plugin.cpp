@@ -244,7 +244,7 @@ const CompressorInfo& Plugin::findInfo( const uint32_t name ) const
             return (*i);
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return _infos.front();
 }
 

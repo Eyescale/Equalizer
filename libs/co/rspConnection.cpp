@@ -872,7 +872,7 @@ void RSPConnection::_handleInitData( const void* data)
             return;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             break;
     }
 }
@@ -1121,7 +1121,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     RSPConnectionPtr connection = _findConnection( ack->readerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
@@ -1181,7 +1181,7 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
     RSPConnectionPtr connection = _findConnection( nack->readerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
         // it's an unknown connection, TODO add this connection?
     }
@@ -1267,7 +1267,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     RSPConnectionPtr connection = _findConnection( writerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
