@@ -54,6 +54,8 @@ typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
 typedef ConnectionNodeHash::iterator ConnectionNodeHashIter;
 typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
 typedef NodeHash::const_iterator NodeHashCIter;
+typedef stde::hash_map< uint128_t, LocalNode::HandlerFunc > HandlerHash;
+typedef HandlerHash::const_iterator HandlerHashCIter;
 }
 
 namespace detail
@@ -151,6 +153,9 @@ public:
 
     /** The process-global clock. */
     lunchbox::Clock clock;
+
+    /** The registered push handlers. */
+    HandlerHash pushHandlers;
     
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
@@ -746,12 +751,23 @@ void LocalNode::releaseObject( Object* object )
         _impl->objectStore->unmapObject( object );
 }
 
-void LocalNode::objectPush( const uint128_t& groupID, const uint128_t& typeID,
+void LocalNode::objectPush( const uint128_t& groupID,
+                            const uint128_t& objectType,
                             const uint128_t& objectID, DataIStream& istream )
 {
+    HandlerHashCIter i = _impl->pushHandlers.find( groupID );
+    if( i != _impl->pushHandlers.end( ))
+        i->second( groupID, objectType, objectID, istream );
+
     if( istream.hasData( ))
         EQWARN << "Incomplete Object::push for group " << groupID << " type "
-               << typeID << " object " << objectID << std::endl;
+               << objectType << " object " << objectID << std::endl;
+}
+
+void LocalNode::registerPushHandler( const uint128_t& groupID,
+                                     const HandlerFunc& handler )
+{
+    _impl->pushHandlers[ groupID ] = handler;
 }
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )

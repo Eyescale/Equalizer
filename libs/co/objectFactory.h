@@ -15,15 +15,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQSEQUEL_OBJECTFACTORY_H
-#define EQSEQUEL_OBJECTFACTORY_H
+#ifndef CO_OBJECTFACTORY_H
+#define CO_OBJECTFACTORY_H
 
-#include <seq/types.h>
 #include <co/object.h>       // deleted inline
 
-namespace seq
+namespace co
 {
-    /** The interface to create objects, used by Application and Renderer. */
+    enum ObjectType
+    {
+        OBJECTTYPE_NONE,
+        OBJECTTYPE_CUSTOM = 16
+    };
+
+    /** The interface to create objects, used by objectMap. */
     class ObjectFactory
     {
     public:
@@ -33,18 +38,15 @@ namespace seq
         /** @internal Destruct this object factory. */
         virtual ~ObjectFactory(){}
 
-        /** @internal @return the Equalizer config. */
-        virtual eq::Config* getConfig() = 0;
-
         /**
          * @return a new object instance of the given type.
-         * @version 1.0
+         * @version 0.5.1
          * @sa ObjectType, Config::getObject(), Renderer::getObject() */
         virtual co::Object* createObject( const uint32_t type ) = 0;
 
-        /** Delete the given object of the given type. @version 1.0 */
+        /** Delete the given object of the given type. @version 0.5.1 */
         virtual void destroyObject( co::Object* object, const uint32_t type )
             { delete object; }
     };
 }
-#endif // EQSEQUEL_OBJECTFACTORY_H
+#endif // CO_OBJECTFACTORY_H

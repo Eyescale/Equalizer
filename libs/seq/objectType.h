@@ -18,16 +18,16 @@
 #ifndef EQSEQUEL_OBJECTTYPE_H
 #define EQSEQUEL_OBJECTTYPE_H
 
-#include <seq/types.h>
+#include <co/objectFactory.h>
 
 namespace seq
 {
     /** Built-in object types. @version 1.0 */
     enum ObjectType
     {
-        OBJECTTYPE_NONE,      //!< Unused object type
-        OBJECTTYPE_INITDATA,  //!< The object passed to Application::init()
-        OBJECTTYPE_FRAMEDATA, //!< The object passed to Application::run()
+        /** The object passed to Application::init() */
+        OBJECTTYPE_INITDATA = co::OBJECTTYPE_CUSTOM,
+        OBJECTTYPE_FRAMEDATA,   //!< The object passed to Application::run()
         OBJECTTYPE_MODELMATRIX, //!< Per-view global model transformation
         OBJECTTYPE_CUSTOM = 100 //!< Application-specific objects
     };

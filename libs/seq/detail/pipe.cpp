@@ -120,8 +120,8 @@ bool Pipe::_mapData( const uint128_t& initID )
     EQASSERT( !_objects );
     EQASSERT( _renderer );
 
-    _objects = new ObjectMap( *_renderer );
     Config* config = getConfig();
+    _objects = new ObjectMap( config->getClient(), *_renderer );
     const uint32_t request = config->mapObjectNB( _objects, initID,
                                                   co::VERSION_OLDEST,
                                                   config->getApplicationNode());

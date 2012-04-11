@@ -40,7 +40,7 @@ MasterConfig::~MasterConfig()
 bool MasterConfig::init()
 {
     EQASSERT( !_objects );
-    _objects = new ObjectMap( *getApplication( ));
+    _objects = new ObjectMap( getClient(), *getApplication( ));
 
     co::Object* initData = getInitData();
     if( initData )
