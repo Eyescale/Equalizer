@@ -351,16 +351,22 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
 
     NodePtr master = _connectMaster( id );
     EQASSERT( master );
-    return mapObjectNB( object, id, version, master );
+    if( master )
+        return mapObjectNB( object, id, version, master );
+    return LB_UNDEFINED_UINT32;
 }
 
 uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id, 
                                    const uint128_t& version, NodePtr master )
 {
+    if( !master )
+        return mapObjectNB( object, id, version ); // will call us again
+
     LB_TS_NOT_THREAD( _commandThread );
     LB_TS_NOT_THREAD( _receiverThread );
-    EQLOG( LOG_OBJECTS ) << "Mapping " << lunchbox::className( object ) << " to id "
-                         << id << " version " << version << std::endl;
+    EQLOG( LOG_OBJECTS )
+        << "Mapping " << lunchbox::className( object ) << " to id " << id
+        << " version " << version << std::endl;
     EQASSERT( object );
     EQASSERTINFO( id.isGenerated(), id );
 
@@ -460,7 +466,7 @@ void ObjectStore::unmapObject( Object* object )
         NodePtr master = object->getMasterNode();
         EQASSERT( master )
 
-        if( master.isValid() && master->isConnected( ))
+        if( master && master->isConnected( ))
         {
             NodeUnsubscribeObjectPacket packet;
             packet.requestID = _localNode->registerRequest();

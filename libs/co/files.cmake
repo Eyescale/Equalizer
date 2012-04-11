@@ -35,6 +35,7 @@ set(CO_PUBLIC_HEADERS
     node.h
     nodeType.h
     object.h
+    objectHandler.h
     objectVersion.h
     packets.h
     pluginRegistry.h
