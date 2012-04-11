@@ -1608,7 +1608,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
 
 void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
                                     << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( packet->frameData );
@@ -1655,7 +1655,7 @@ void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
         packet.imageIndex = image;
         packet.taskID = taskID;
 
-        EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Start transmit " << &packet
+        LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Start transmit " << &packet
                                         << std::endl;
         send( getNode()->getLocalNode(), packet );
     }
@@ -1663,7 +1663,7 @@ void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
 
 void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( request->frameData ); 
     LBASSERT( frameData );
@@ -1886,7 +1886,7 @@ void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const std::vector< uint128_t >& netNodes )
 {
-    EQLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion(frame)
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Set ready " << co::ObjectVersion(frame)
                                     << std::endl;
     frame->setReady();
 
@@ -1948,7 +1948,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
 {
     const ChannelConfigInitPacket* packet =
         command.get<ChannelConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK channel config init " << packet << std::endl;
 
     const Config* config = getConfig();
     changeLatency( config->getLatency( ));
@@ -1980,7 +1980,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
         reply.result = false;
     }
 
-    EQLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
+    LBLOG( LOG_INIT ) << "TASK channel config init reply " << &reply
                       << std::endl;
     commit();
     send( command.getNode(), reply );
@@ -1991,7 +1991,7 @@ bool Channel::_cmdConfigExit( co::Command& command )
 {
     const ChannelConfigExitPacket* packet =
         command.get<ChannelConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Exit channel " << packet << std::endl;
 
     _deleteTransferContext();
 
@@ -2031,7 +2031,7 @@ bool Channel::_cmdFrameFinish( co::Command& command )
 {
     ChannelFrameFinishPacket* packet =
         command.getModifiable< ChannelFrameFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
     overrideContext( packet->context );
@@ -2047,7 +2047,7 @@ bool Channel::_cmdFrameClear( co::Command& command )
     LBASSERT( _impl->state == STATE_RUNNING );
     ChannelFrameClearPacket* packet = 
         command.getModifiable< ChannelFrameClearPacket >();
-    EQLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2062,7 +2062,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
 {
     ChannelFrameDrawPacket* packet = 
         command.getModifiable< ChannelFrameDrawPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2086,7 +2086,7 @@ bool Channel::_cmdFrameDrawFinish( co::Command& command )
 {
     const ChannelFrameDrawFinishPacket* packet = 
         command.get< ChannelFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
@@ -2099,7 +2099,7 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getModifiable< ChannelFrameAssemblePacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
@@ -2130,7 +2130,7 @@ bool Channel::_cmdFrameReadback( co::Command& command )
 {
     ChannelFrameReadbackPacket* packet = 
         command.getModifiable< ChannelFrameReadbackPacket >();
-    EQLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << packet << std::endl;
 
     _setRenderContext( packet->context );
@@ -2201,7 +2201,7 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
 {
     ChannelFrameViewStartPacket* packet = 
         command.getModifiable< ChannelFrameViewStartPacket >();
-    EQLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2215,7 +2215,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
 {
     ChannelFrameViewFinishPacket* packet = 
         command.getModifiable< ChannelFrameViewFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << packet
                        << std::endl;
 
     _setRenderContext( packet->context );
@@ -2230,7 +2230,7 @@ bool Channel::_cmdStopFrame( co::Command& command )
 {
     const ChannelStopFramePacket* packet = 
         command.get<ChannelStopFramePacket>();
-    EQLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << packet << std::endl;
     
     notifyStopFrame( packet->lastFrameNumber );
@@ -2241,7 +2241,7 @@ bool Channel::_cmdFrameTiles( co::Command& command )
 {
     ChannelFrameTilesPacket* packet =
         command.getModifiable< ChannelFrameTilesPacket >();
-    EQLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
                        << packet << std::endl;
 
     _frameTiles( packet );
@@ -2252,7 +2252,7 @@ bool Channel::_cmdDeleteTransferContext( co::Command& command )
 {
     const ChannelDeleteTransferContextPacket* packet =
         command.get<ChannelDeleteTransferContextPacket>();
-    EQLOG( LOG_INIT ) << "Delete transfer context " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Delete transfer context " << packet << std::endl;
 
     getWindow()->deleteTransferSystemWindow();
     getLocalNode()->serveRequest( packet->requestID );

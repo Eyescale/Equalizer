@@ -92,18 +92,18 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
             _pending.erase( i );
 
         _queued.push( QueuedStream( key, istream ));
-        //EQLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
+        //LBLOG( LOG_OBJECTS ) << "Queued commit " << key << std::endl;
         return true;
     }
 
     if( i == _pending.end( ))
     {
         _pending[ key ] = istream;
-        //EQLOG( LOG_OBJECTS ) << "New incomplete commit " << key << std::endl;
+        //LBLOG( LOG_OBJECTS ) << "New incomplete commit " << key << std::endl;
         return false;
     }
 
-    //EQLOG(LOG_OBJECTS) << "Add data to incomplete commit " << key <<std::endl;
+    //LBLOG(LOG_OBJECTS) << "Add data to incomplete commit " << key <<std::endl;
     return false;
 }
 

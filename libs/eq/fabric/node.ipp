@@ -45,13 +45,13 @@ Node< C, N, P, V >::Node( C* parent )
         , _isAppNode( false )
 {
     parent->_addNode( static_cast< N* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class N, class P, class V >
 Node< C, N, P, V >::~Node()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();

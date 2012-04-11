@@ -308,7 +308,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     }
 
     node->send( reply );
-    EQLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
     return true;
 }
 

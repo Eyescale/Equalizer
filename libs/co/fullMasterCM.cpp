@@ -205,7 +205,7 @@ void FullMasterCM::_initSlave( NodePtr node, const uint128_t& version,
     }
 
 #if 0
-    EQLOG( LOG_OBJECTS )
+    LBLOG( LOG_OBJECTS )
         << *_object << ", instantiate on " << node->getNodeID() << " with v"
         << ((requested == VERSION_OLDEST) ? oldest : requested) << " ("
         << requested << ") sending " << start << ".." << end << " have "
@@ -328,7 +328,7 @@ uint128_t FullMasterCM::commit( const uint32_t incarnation )
 {
     Mutex mutex( _slaves );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
     LBASSERT( _version != VERSION_NONE );

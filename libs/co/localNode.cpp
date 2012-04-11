@@ -464,7 +464,7 @@ void LocalNode::_cleanup()
     LBASSERTINFO( _state == STATE_CLOSED, _state );
 
     _multicasts.clear();
-    PipeConnectionPtr pipe = EQSAFECAST( PipeConnection*, _outgoing.get( ));
+    PipeConnectionPtr pipe = LBSAFECAST( PipeConnection*, _outgoing.get( ));
     _removeConnection( pipe->acceptSync( ));
     _impl->connectionNodes.erase( pipe->acceptSync( ));
     _outMulticast.data = 0;

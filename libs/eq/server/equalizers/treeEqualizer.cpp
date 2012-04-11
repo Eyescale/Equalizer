@@ -92,7 +92,7 @@ void TreeEqualizer::notifyUpdatePre( Compound* compound,
     _update( _tree );
     _split( _tree );
     _assign( _tree, Viewport(), Range( ));
-    EQLOG( LOG_LB2 ) << "LB tree: " << _tree;
+    LBLOG( LOG_LB2 ) << "LB tree: " << _tree;
 }
 
 TreeEqualizer::Node* TreeEqualizer::_buildTree( const Compounds& compounds )
@@ -359,12 +359,12 @@ void TreeEqualizer::_split( Node* node )
         split = node->split + timeLeft / rightTime * ( 1.f - node->split );
     }
 
-    EQLOG( LOG_LB2 )
+    LBLOG( LOG_LB2 )
         << "Should split at " << split << " (" << target << ": " << leftTime
         << " by " << left->resources << "/" << rightTime << " by "
         << right->resources << ")" << std::endl;
     node->split = (1.f - _damping) * split + _damping * node->split;
-    EQLOG( LOG_LB2 ) << "Dampened split at " << node->split << std::endl;
+    LBLOG( LOG_LB2 ) << "Dampened split at " << node->split << std::endl;
 
     _split( left );
     _split( right );
@@ -373,7 +373,7 @@ void TreeEqualizer::_split( Node* node )
 void TreeEqualizer::_assign( Node* node, const Viewport& vp,
                              const Range& range )
 {
-    EQLOG( LOG_LB2 ) << "assign " << vp << ", " << range << " time "
+    LBLOG( LOG_LB2 ) << "assign " << vp << ", " << range << " time "
                      << node->time << " split " << node->split << std::endl;
     LBASSERTINFO( vp.isValid(), vp );
     LBASSERTINFO( range.isValid(), range );
@@ -388,7 +388,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
 
         compound->setViewport( vp );
         compound->setRange( range );
-        EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
+        LBLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
                          << ", " << range << std::endl;
         return;
     }
@@ -433,7 +433,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         absoluteSplit = LB_MIN( absoluteSplit, end);
 
         node->split = (absoluteSplit - vp.x ) / vp.w;
-        EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
+        LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                          << node->split << std::endl;
 
         // traverse children
@@ -492,7 +492,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
         absoluteSplit = LB_MIN( absoluteSplit, end);
 
         node->split = (absoluteSplit - vp.y ) / vp.h;
-        EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
+        LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                          << node->split << std::endl;
 
         // traverse children
@@ -533,7 +533,7 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
             absoluteSplit = end;
 
         node->split = (absoluteSplit-range.start) / (range.end-range.start);
-        EQLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
+        LBLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
                          << node->split << std::endl;
 
         Range childRange = range;

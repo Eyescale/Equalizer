@@ -47,7 +47,7 @@ uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
 {
     Mutex mutex( _slaves );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
                          << std::endl;
 #endif
     if( !_object->isDirty() || _slaves->empty( ))
@@ -63,7 +63,7 @@ uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
         ++_version;
         LBASSERT( _version != VERSION_NONE );
 #if 0
-        EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
+        LBLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;
 #endif
     }

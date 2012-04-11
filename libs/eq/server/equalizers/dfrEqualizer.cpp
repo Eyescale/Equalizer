@@ -150,7 +150,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
         return;
          
     _current = 1000.0f / static_cast< float >( time );
-    EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
+    LBLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
                      << channel->getName() << " time " << time << std::endl;
 }
 

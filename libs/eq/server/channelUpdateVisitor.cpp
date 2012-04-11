@@ -229,7 +229,7 @@ void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
         drawPacket.finish = _channel->hasListeners(); // finish for eq stats
         _channel->send( drawPacket );
         _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+        LBLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
                            << &drawPacket << std::endl;
     }
 }
@@ -273,7 +273,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         _channel->send< co::ObjectVersion >( tilesPacket, frameIDs );
 
         _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
                            << &tilesPacket << std::endl;
     }
 }
@@ -300,7 +300,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     channelPacket.frameID     = _frameID;
 
     node->send( channelPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
+    LBLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
                        <<  " " << &channelPacket << std::endl;
 
     // Window::frameDrawFinish
@@ -317,7 +317,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     windowPacket.frameID     = _frameID;
 
     node->send( windowPacket );
-    EQLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
+    LBLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
                            <<  " " << &windowPacket << std::endl;
 
     // Pipe::frameDrawFinish
@@ -333,7 +333,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     pipePacket.frameID     = _frameID;
 
     node->send( pipePacket );
-    EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << pipe->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << pipe->getName() <<  " "
                        << &pipePacket << std::endl;
 
     // Node::frameDrawFinish
@@ -348,7 +348,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     nodePacket.frameID     = _frameID;
 
     node->send( nodePacket );
-    EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
                        << &nodePacket << std::endl;
 }
 
@@ -358,7 +358,7 @@ void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
     clearPacket.context = context;
     _channel->send( clearPacket );
     _updated = true;
-    EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                        << &clearPacket << std::endl;
 }
 
@@ -442,7 +442,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = uint32_t( frameIDs.size( ));
 
-    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet
         << std::endl;
     _channel->send< co::ObjectVersion >( packet, frameIDs );
@@ -484,7 +484,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     _channel->send<co::ObjectVersion>( packet, frameIDs );
     _updated = true;
-    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet
         << std::endl;
 }
@@ -500,7 +500,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
     ChannelFrameViewStartPacket packet;
     packet.context = context;
 
-    EQLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
                            << &packet << std::endl;
     _channel->send( packet );
 }
@@ -516,7 +516,7 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
     ChannelFrameViewFinishPacket packet;
     packet.context = context;
 
-    EQLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
                        << &packet << std::endl;
     _channel->send( packet );
 }

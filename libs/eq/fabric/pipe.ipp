@@ -52,13 +52,13 @@ Pipe< N, P, W, V >::Pipe( N* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::~Pipe()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_windows.empty() )
     {
         W* window = _windows.back();

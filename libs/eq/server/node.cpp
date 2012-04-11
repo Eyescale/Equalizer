@@ -141,14 +141,14 @@ void Node::addTasks( const uint32_t tasks )
 void Node::activate()
 {   
     ++_active;
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Node::deactivate()
 { 
     LBASSERT( _active != 0 );
     --_active; 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Node::setSAttribute( const SAttribute attr, const std::string& value )
@@ -232,7 +232,7 @@ bool Node::connect()
         LBASSERT( isApplicationNode( ));
     }
 
-    EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
+    LBLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->connect( _node ) && !launch( ))
     {
         LBWARN << "Connection to " << _node->getNodeID() << " failed"
@@ -457,12 +457,12 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     _finishedFrame = config->getFinishedFrame();
     _frameIDs.clear();
 
-    EQLOG( LOG_INIT ) << "Create node" << std::endl;
+    LBLOG( LOG_INIT ) << "Create node" << std::endl;
     ConfigCreateNodePacket createNodePacket;
     createNodePacket.nodeID = getID();
     getConfig()->send( _node, createNodePacket );
 
-    EQLOG( LOG_INIT ) << "Init node" << std::endl;
+    LBLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
     packet.initID      = initID;
     packet.frameNumber = frameNumber;
@@ -499,7 +499,7 @@ void Node::configExit()
     LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit node" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit node" << std::endl;
     NodeConfigExitPacket packet;
     _send( packet );
     flushSendBuffer();
@@ -542,7 +542,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
         startPacket.configVersion = getConfig()->getVersion();
 
     _send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -554,7 +554,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         _send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
     _lastDrawPipe = 0;
@@ -563,7 +563,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     _send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
                            << std::endl;
 
     _finish( frameNumber );
@@ -624,7 +624,7 @@ void Node::_finish( const uint32_t currentFrame )
 
 void Node::flushFrames( const uint32_t frameNumber )
 {
-    EQLOG( LOG_TASKS ) << "Flush frames including " << frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "Flush frames including " << frameNumber << std::endl;
 
     while( _flushedFrame < frameNumber )
     {
@@ -647,7 +647,7 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 
     _send( packet );
     _frameIDs.erase( i );
-    EQLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
 }
 
 //---------------------------------------------------------------------------

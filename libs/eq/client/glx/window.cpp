@@ -317,7 +317,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
                                     shareWindow->getSystemWindow() : 0;
     if( sysWindow )
     {
-        const WindowIF* shareGLXWindow = EQSAFECAST( const Window*,
+        const WindowIF* shareGLXWindow = LBSAFECAST( const Window*,
                                                         sysWindow );
         shCtx = shareGLXWindow->getGLXContext();
     }

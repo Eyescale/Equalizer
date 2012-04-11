@@ -46,7 +46,7 @@ Channel< W, C >::Channel( W* parent )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addChannel( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
@@ -62,13 +62,13 @@ Channel< W, C >::Channel( const Channel& from )
 
     for( int i = 0; i < IATTR_ALL; ++i )
         _iAttributes[i] = from._iAttributes[i];
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class W, class C >
 void Channel< W, C >::init()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     notifyViewportChanged();
     unsetDirty( DIRTY_VIEWPORT );
 }

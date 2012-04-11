@@ -166,7 +166,7 @@ void Window::activate()
     ++_active;
     pipe->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Window::deactivate()
@@ -178,7 +178,7 @@ void Window::deactivate()
     --_active; 
     pipe->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Window::addTasks( const uint32_t tasks )
@@ -302,7 +302,7 @@ void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
     LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    EQLOG( LOG_INIT ) << "Create Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Create Window" << std::endl;
     PipeCreateWindowPacket createWindowPacket;
     createWindowPacket.windowID = getID();
     getPipe()->send( createWindowPacket );
@@ -310,9 +310,9 @@ void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
     WindowConfigInitPacket packet;
     packet.initID = initID;
     
-    EQLOG( LOG_INIT ) << "Init Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Init Window" << std::endl;
     send( packet );
-    EQLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
 }
 
 bool Window::syncConfigInit()
@@ -345,7 +345,7 @@ void Window::configExit()
     _state =
         State( needsDelete() ? STATE_EXITING | STATE_DELETE : STATE_EXITING );
 
-    EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit Window" << std::endl;
     WindowConfigExitPacket packet;
     send( packet );
 }
@@ -379,7 +379,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
+    LBLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
 
     const Channels& channels = getChannels(); 
@@ -400,7 +400,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
 
@@ -408,7 +408,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     {
         WindowFlushPacket packet;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
     }
 }
 
@@ -425,7 +425,7 @@ void Window::updatePost( const uint128_t& frameID,
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << std::endl;
 }
 
@@ -435,7 +435,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     {
         WindowFinishPacket packet;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
         _swapFinish = false;
     }
 
@@ -445,7 +445,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         packetThrottle.minFrameTime = 1000.0f / _maxFPS;
         
         send( packetThrottle );
-        EQLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
+        LBLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
                                << &packetThrottle << std::endl;
 
         _maxFPS = std::numeric_limits< float >::max();
@@ -465,7 +465,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         WindowBarrierPacket packet;
         packet.barrier = barrier;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
     }
 
     if( _nvNetBarrier )
@@ -499,7 +499,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         WindowSwapPacket packet;
 
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
     }
 }
 

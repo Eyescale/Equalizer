@@ -64,7 +64,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
 uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
     if( !_object->isDirty() || !_master || !_master->isConnected( ))
@@ -80,7 +80,7 @@ uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
 uint128_t VersionedSlaveCM::sync( const uint128_t& v )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
+    LBLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
                          << "." << _object->getInstanceID() << std::endl;
 #endif
     if( _version == v )
@@ -165,7 +165,7 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
                   " did not unpack all data" );
 
 #if 0
-    EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
+    LBLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
@@ -195,7 +195,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 
             _releaseStream( is );
 #if 0
-            EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
+            LBLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
                                  << std::endl;
 #endif
             return;
@@ -223,7 +223,7 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 {
     LB_TS_THREAD( _rcvThread );
 #if 0
-    EQLOG( LOG_OBJECTS ) << lunchbox::disableFlush << "Adding data front ";
+    LBLOG( LOG_OBJECTS ) << lunchbox::disableFlush << "Adding data front ";
 #endif
 
     uint128_t oldest = VERSION_NONE;
@@ -273,12 +273,12 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 #endif
         _queuedVersions.pushFront( new ObjectDataIStream( *stream ));
 #if 0
-        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+        LBLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
     }
 
 #if 0
-    EQLOG( LOG_OBJECTS ) << " back ";
+    LBLOG( LOG_OBJECTS ) << " back ";
 #endif
     for( ObjectDataIStreams::const_iterator i = tail.begin();
          i != tail.end(); ++i )
@@ -294,11 +294,11 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 #endif
         _queuedVersions.push( new ObjectDataIStream( *stream ));
 #if 0
-        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+        LBLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
     }
 #if 0
-    EQLOG( LOG_OBJECTS ) << std::endl << lunchbox::enableFlush;
+    LBLOG( LOG_OBJECTS ) << std::endl << lunchbox::enableFlush;
 #endif
 }
 
@@ -318,7 +318,7 @@ bool VersionedSlaveCM::_cmdData( Command& command )
     {
         const uint128_t& version = _currentIStream->getVersion();
 #if 0
-        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+        LBLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
 #endif

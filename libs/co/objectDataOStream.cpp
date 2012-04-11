@@ -36,7 +36,7 @@ ObjectDataOStream::ObjectDataOStream( const ObjectCM* cm )
     const Object* object = cm->getObject();
     const uint32_t name = object->chooseCompressor();
     _initCompressor( name );
-    EQLOG( LOG_OBJECTS )
+    LBLOG( LOG_OBJECTS )
         << "Using byte compressor 0x" << std::hex << name << std::dec << " for "
         << lunchbox::className( object ) << std::endl;
 }

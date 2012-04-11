@@ -325,7 +325,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         frame->sync( frameVersion.version );
 
     const co::ObjectVersion& dataVersion = frame->getDataVersion( eye );
-    EQLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( dataVersion );
     LBASSERT( frameData );
@@ -716,14 +716,14 @@ void Pipe::startFrame( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
@@ -733,7 +733,7 @@ void Pipe::releaseFrameLocal( const uint32_t frameNumber )
                   _unlockedFrame << ", " << frameNumber );
 
     _unlockedFrame = frameNumber;
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
+    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
                        << std::endl;
 }
 
@@ -768,7 +768,7 @@ bool Pipe::_cmdCreateWindow( co::Command& command )
 {
     const PipeCreateWindowPacket* packet = 
         command.get<PipeCreateWindowPacket>();
-    EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     window->init(); // not in ctor, virtual method
@@ -783,7 +783,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.get<PipeDestroyWindowPacket>();
-    EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
     LBASSERT( window );
@@ -827,7 +827,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.get<PipeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     if( !isThreaded( ))
     {
@@ -860,7 +860,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         reply.result = false;
     }
 
-    EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
     co::NodePtr netNode = command.getNode();
 
@@ -874,7 +874,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.get<PipeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
     _state = STATE_STOPPING; // needed in View::detach (from _flushViews)
 
@@ -920,7 +920,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     const PipeFrameStartPacket* packet = 
         command.get<PipeFrameStartPacket>();
     LBVERB << "handle pipe frame start " << packet << std::endl;
-    EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
     sync( packet->version );
     const int64_t lastFrameTime = _frameTime;
 
@@ -952,7 +952,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.get<PipeFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
     LBASSERTINFO( _currentFrame >= frameNumber, 
@@ -994,7 +994,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );

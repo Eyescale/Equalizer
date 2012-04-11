@@ -315,7 +315,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     send( getServer(), packet );
 
     ++_currentFrame;
-    EQLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
+    LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                                << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
@@ -350,7 +350,7 @@ uint32_t Config::finishFrame()
         {
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
-            EQLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
+            LBLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
                                << std::endl;
         }
 
@@ -363,7 +363,7 @@ uint32_t Config::finishFrame()
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
-            EQLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
+            LBLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
                                << " @ " << _currentFrame << std::endl;
         }
 
@@ -386,7 +386,7 @@ uint32_t Config::finishFrame()
                 }
             }
         }
-        EQLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
+        LBLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
                            << _currentFrame << std::endl;
     }
 
@@ -394,7 +394,7 @@ uint32_t Config::finishFrame()
     _updateStatistics( frameToFinish );
     _releaseObjects();
 
-    EQLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+    LBLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
                                << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
@@ -404,7 +404,7 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
-    EQLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
     send( getServer(), packet );
 
@@ -425,7 +425,7 @@ uint32_t Config::finishAllFrames()
     handleEvents();
     _updateStatistics( _currentFrame );
     _releaseObjects();
-    EQLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
 
@@ -547,7 +547,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::STATISTIC:
         {
-            EQLOG( LOG_STATS ) << event->data << std::endl;
+            LBLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint32_t originator = event->data.serial;
             LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
@@ -682,7 +682,7 @@ void Config::setupMessagePump( Pipe* pipe )
     _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
     LBASSERT( queue );
     LBASSERT( !queue->getMessagePump( ));
@@ -697,7 +697,7 @@ void Config::_exitMessagePump()
     _eventQueue.setMessagePump( 0 );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
     LBASSERT( queue );
     LBASSERT( queue->getMessagePump() == pump );
@@ -709,7 +709,7 @@ void Config::_exitMessagePump()
 MessagePump* Config::getMessagePump()
 {
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
     if( queue )
         return queue->getMessagePump();
@@ -914,7 +914,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.get<ConfigFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
 
     _finishedFrame = packet->frameNumber;
 

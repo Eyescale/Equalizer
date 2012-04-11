@@ -66,7 +66,7 @@ void StaticSlaveCM::applyMapData( const uint128_t& version )
     delete _currentIStream;
     _currentIStream = 0;
 
-    EQLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
+    LBLOG( LOG_OBJECTS ) << "Mapped initial data for " << _object->getID()
                          << "." << _object->getInstanceID() << " ready" 
                          << std::endl;
 }
@@ -89,7 +89,7 @@ void StaticSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
     if( !stream->isReady() || stream->getVersion() != VERSION_FIRST )
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Adding cached instance data" << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Adding cached instance data" << std::endl;
     delete _currentIStream;
     _currentIStream = new ObjectDataIStream( *stream );
 }
@@ -104,7 +104,7 @@ bool StaticSlaveCM::_cmdInstance( Command& command )
     _currentIStream->addDataPacket( command );
 
     if( _currentIStream->isReady( ))
-        EQLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
+        LBLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 
                              << _object->getInstanceID() << " ready" 
                              << std::endl;
 

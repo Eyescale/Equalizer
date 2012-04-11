@@ -107,7 +107,7 @@ void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
     _data.deserialize( is );
-    EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
 FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
@@ -309,7 +309,7 @@ void FrameData::setVersion( const uint64_t version )
 {
     LBASSERTINFO( _version <= version, _version << " > " << version );
     _version = version;
-    EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
 void FrameData::waitReady( const uint32_t timeout ) const 
@@ -336,7 +336,7 @@ void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
     _data = packet->data;
     _setReady( packet->frameData.version.low());
 
-    EQLOG( LOG_ASSEMBLY ) << this << " applied v" 
+    LBLOG( LOG_ASSEMBLY ) << this << " applied v" 
                           << packet->frameData.version.low() << std::endl;
 }
 
@@ -352,7 +352,7 @@ void FrameData::_setReady( const uint64_t version )
         return;
 
     _readyVersion = version;
-    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
+    LBLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
                           << " monitoring" << std::endl;
 
     for( Listeners::iterator i= _listeners->begin();

@@ -176,7 +176,7 @@ void Barrier::enter( const uint32_t timeout )
         return;
     }
 
-    EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
+    LBLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _impl->height << std::endl;
 
     const uint32_t leaveVal = _impl->leaveNotify.get() + 1;
@@ -192,7 +192,7 @@ void Barrier::enter( const uint32_t timeout )
     else if( !_impl->leaveNotify.timedWaitEQ( leaveVal, timeout ))
         throw Exception( Exception::TIMEOUT_BARRIER );
 
-    EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
+    LBLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
                          << ", height " << _impl->height << std::endl;
 }
 
@@ -207,14 +207,14 @@ bool Barrier::_cmdEnter( Command& command )
         return true;
     packet->handled = true;
 
-    EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
+    LBLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << std::endl;
 
     const uint128_t version = packet->version;
     const uint64_t incarnation = packet->incarnation;
     Request& request = _impl->enteredNodes[ version ];
  
-    EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
+    LBLOG( LOG_BARRIER ) << "enter barrier v" << version 
                          << ", has " << request.nodes.size() << " of " 
                          << _impl->height << std::endl;
 
@@ -274,7 +274,7 @@ bool Barrier::_cmdEnter( Command& command )
         return true;
 
     LBASSERT( nodes.size() == _impl->height );
-    EQLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
+    LBLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
 
     stde::usort( nodes );
 
@@ -296,7 +296,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 
     if( node->isLocal( )) // OPT
     {
-        EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << std::endl;
+        LBLOG( LOG_BARRIER ) << "Unlock local user(s)" << std::endl;
         // the case where we receive a different version of the barrier meant
         // that previosly we have detect a timeout true negative
         if( version == getVersion() )
@@ -304,7 +304,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
     }
     else
     {
-        EQLOG( LOG_BARRIER ) << "Unlock " << node << std::endl;
+        LBLOG( LOG_BARRIER ) << "Unlock " << node << std::endl;
         BarrierEnterReplyPacket reply( getID(), version );
         node->send( reply );
     }
@@ -342,7 +342,7 @@ void Barrier::_cleanup( const uint64_t time )
 bool Barrier::_cmdEnterReply( Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
+    LBLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
     const BarrierEnterReplyPacket* reply =
         command.get< BarrierEnterReplyPacket >();
     

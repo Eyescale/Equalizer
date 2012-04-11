@@ -40,13 +40,13 @@ Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
     LBASSERT( nodeFactory );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::~Server()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _client = 0;
     LBASSERT( _configs.empty( ));
 }

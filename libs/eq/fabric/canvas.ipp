@@ -39,13 +39,13 @@ Canvas< CFG, C, S, L >::Canvas( CFG* config )
 {
     LBASSERT( config );
     config->_addCanvas( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::~Canvas()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_segments.empty( ))
     {
         S* segment = _segments.back();

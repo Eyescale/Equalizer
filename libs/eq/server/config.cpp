@@ -207,7 +207,7 @@ void Config::activateCanvas( Canvas* canvas )
 
                 if( !viewport.hasArea( ))
                 {
-                    EQLOG( LOG_VIEW )
+                    LBLOG( LOG_VIEW )
                         << "View " << view->getName() << view->getViewport()
                         << " doesn't intersect " << segment->getName()
                         << segment->getViewport() << std::endl;
@@ -246,7 +246,7 @@ void Config::activateCanvas( Canvas* canvas )
                     // ...our part of it
                     subViewport.apply( contribution );
                     channel->setViewport( subViewport );
-                    EQLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW ) 
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << subViewport
@@ -258,7 +258,7 @@ void Config::activateCanvas( Canvas* canvas )
                     LBASSERT( pvp.isValid( ));
                     pvp.apply( contribution );
                     channel->setPixelViewport( pvp );
-                    EQLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW ) 
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << pvp
@@ -639,7 +639,7 @@ void Config::_stopNodes()
         if( !netNode ) // already disconnected
             continue;
 
-        EQLOG( LOG_INIT ) << "Exiting node" << std::endl;
+        LBLOG( LOG_INIT ) << "Exiting node" << std::endl;
 
         if( state == STATE_FAILED )
             node->setState( STATE_STOPPED );
@@ -678,7 +678,7 @@ void Config::_stopNodes()
             localNode->disconnect( netNode );
         }
 
-        EQLOG( LOG_INIT ) << "Disconnected node" << std::endl;
+        LBLOG( LOG_INIT ) << "Disconnected node" << std::endl;
     }
 }
 
@@ -841,7 +841,7 @@ void Config::_startFrame( const uint128_t& frameID )
 
     ++_currentFrame;
     ++_incarnation;
-    EQLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
+    LBLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                                << std::endl;
 
     for( Compounds::const_iterator i = _compounds.begin(); 
@@ -915,7 +915,7 @@ void Config::notifyNodeFrameFinished( const uint32_t frameNumber )
 
     // do not use send/_bufferedTasks, not thread-safe!
     send( findApplicationNetNode(), packet );
-    EQLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
+    LBLOG( LOG_TASKS ) << "TASK config frame finished  " << &packet
                            << std::endl;
 }
 
@@ -932,7 +932,7 @@ void Config::_flushAllFrames()
             node->flushFrames( _currentFrame );
     }
 
-    EQLOG( lunchbox::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "--- Flush All Frames -- " << std::endl;
 }
 
 void Config::changeLatency( const uint32_t latency )

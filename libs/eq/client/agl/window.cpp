@@ -330,7 +330,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
     {
-        const WindowIF* aglShareWindow = EQSAFECAST(const WindowIF*, sysWindow);
+        const WindowIF* aglShareWindow = LBSAFECAST(const WindowIF*, sysWindow);
         shareCtx = aglShareWindow->getAGLContext();
     }
  

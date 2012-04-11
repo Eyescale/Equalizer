@@ -146,7 +146,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
                 outputFrame->hasData( eye ))         // output data for eye pass
             {
                 frame->commit();
-                EQLOG( LOG_ASSEMBLY )
+                LBLOG( LOG_ASSEMBLY )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
                     << frame->getVersion() << "\" tile pos "

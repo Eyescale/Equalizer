@@ -117,7 +117,7 @@ int EqPly::run()
         LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
-    EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
+    LBLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
 
     // 4. run main loop
@@ -139,7 +139,7 @@ int EqPly::run()
             const size_t nFrames = config->getFinishedFrame() - lastFrame;
             lastFrame = config->getFinishedFrame();
 
-            EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+            LBLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                                << ( nFrames / time * 1000.f) << " FPS)"
                                << std::endl;
         }
@@ -163,13 +163,13 @@ int EqPly::run()
     const uint32_t frame = config->finishAllFrames();
     const float time = clock.resetTimef();
     const size_t nFrames = frame - lastFrame;
-    EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+    LBLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                        << ( nFrames / time * 1000.f) << " FPS)" << std::endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
+    LBLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );

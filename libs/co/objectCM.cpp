@@ -98,7 +98,7 @@ void ObjectCM::_initSlave( NodePtr node, const uint128_t& version,
                            NodeMapObjectReplyPacket& reply )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
+    LBLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID()
                          << std::endl;
 #endif

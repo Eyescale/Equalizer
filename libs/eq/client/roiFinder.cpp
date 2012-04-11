@@ -695,7 +695,7 @@ for( int i = 0; i < 100; i++ ) {
 
     LBASSERT( glObjects );
     LBASSERTINFO( !_glObjects, "Another readback in progress?" );
-    EQLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
+    LBLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
                             << ", buffers " << buffers
                             << std::endl;
 

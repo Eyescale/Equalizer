@@ -166,7 +166,7 @@ std::vector< uint32_t > Image::findCompressors( const Frame::Buffer buffer )
         }
     }
 
-    EQLOG( LOG_PLUGIN )
+    LBLOG( LOG_PLUGIN )
         << "Found " << names.size() << " compressors for token type 0x"
         << std::hex << tokenType << std::dec << std::endl;
     return names;
@@ -322,7 +322,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
                            const Zoom& zoom, ObjectManager* glObjects )
 {
     LBASSERT( glObjects );
-    EQLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
+    LBLOG( LOG_ASSEMBLY ) << "startReadback " << pvp << ", buffers " << buffers
                           << std::endl;
 
     _pvp = pvp;
@@ -415,7 +415,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
 void Image::finishReadback( const Zoom& zoom, const GLEWContext* glewContext )
 {
     LBASSERT( glewContext );
-    EQLOG( LOG_ASSEMBLY ) << "finishReadback, zoom " << zoom
+    LBLOG( LOG_ASSEMBLY ) << "finishReadback, zoom " << zoom
                           << std::endl;
 
     _finishReadback( Frame::BUFFER_COLOR, zoom, glewContext );
@@ -564,7 +564,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
         zoomedTexture = &fbo->getDepthTexture();
     }
 
-    EQLOG( LOG_ASSEMBLY ) << "Scale " << _pvp << " -> " << pvp << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "Scale " << _pvp << " -> " << pvp << std::endl;
 
 // BUG:
 // TODO: this is a bug in case of color and depth buffers read-back, as _pvp
@@ -573,7 +573,7 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
 //       This should be done separately for color an depth buffers!
     _pvp = pvp;
 
-    EQLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
+    LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
     return startReadback( buffer, zoomedTexture, glewGetContext( ));
 }
@@ -804,7 +804,7 @@ bool Image::allocCompressor( const Frame::Buffer buffer, const uint32_t name )
         if( !attachment.compressor->co::Compressor::initCompressor( name ))
             return false;
 
-        EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+        LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                             << name << std::dec << std::endl;
     }
     return true;
@@ -842,7 +842,7 @@ bool Image::allocDownloader( const Frame::Buffer buffer,
         _setExternalFormat( buffer, downloader->getExternalFormat(),
                             downloader->getTokenSize(), downloader->hasAlpha());
 
-        EQLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
+        LBLOG( LOG_PLUGIN ) << "Instantiated downloader of type 0x" << std::hex
                             << name << std::dec << std::endl;
     }
     return true;

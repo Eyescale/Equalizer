@@ -61,7 +61,7 @@ Window< P, W, C >::Window( P* parent )
 {
     LBASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class P, class W, class C >
@@ -74,7 +74,7 @@ Window< P, W, C >::BackupData::BackupData()
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
         C* channel = _channels.back();

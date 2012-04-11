@@ -99,7 +99,7 @@ int EVolve::run()
         LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
-    EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
+    LBLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
 
     // 4. run main loop
@@ -116,14 +116,14 @@ int EVolve::run()
     }
     const uint32_t frame = config->finishAllFrames();
     const float    time  = clock.getTimef();
-    EQLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
+    LBLOG( LOG_STATS ) << "Rendering took " << time << " ms (" << frame
                        << " frames @ " << ( frame / time * 1000.f) << " FPS)"
                        << std::endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
+    LBLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );

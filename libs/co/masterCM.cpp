@@ -55,7 +55,7 @@ uint128_t MasterCM::sync( const uint128_t& inVersion )
     LBASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
                   inVersion == VERSION_HEAD, inVersion );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
+    LBLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif

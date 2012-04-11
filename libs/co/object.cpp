@@ -77,7 +77,7 @@ void Object::attach( const UUID& id, const uint32_t instanceID )
 
     _id         = id;
     _instanceID = instanceID;
-    EQLOG( LOG_OBJECTS )
+    LBLOG( LOG_OBJECTS )
         << _id << '.' << _instanceID << ": " << lunchbox::className( this )
         << (isMaster() ? " master" : " slave") << std::endl;
 }
@@ -137,7 +137,7 @@ void Object::_setChangeManager( ObjectCM* cm )
 
     _cm = cm;
     cm->init();
-    EQLOG( LOG_OBJECTS ) << "set new change manager " << lunchbox::className( cm )
+    LBLOG( LOG_OBJECTS ) << "set new change manager " << lunchbox::className( cm )
                          << " for " << lunchbox::className( this ) 
                          << std::endl;
 }

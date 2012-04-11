@@ -39,13 +39,13 @@ Layout< C, L, V >::Layout( C* config )
 {
     LBASSERT( config );
     static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_views.empty( ))
     {
         V* view = _views.back();

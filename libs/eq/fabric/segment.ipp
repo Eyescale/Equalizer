@@ -40,13 +40,13 @@ Segment< C, S, CH >::Segment( C* canvas )
 {
     LBASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }

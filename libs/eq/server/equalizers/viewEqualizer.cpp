@@ -119,7 +119,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = 1.0f; // Don't use more than twice
-                EQLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -134,7 +134,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = use;
-                EQLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -196,7 +196,7 @@ public:
             _nResources -= use;
             ++_numChannels;
 
-            EQLOG( LOG_LB1 ) << "  Use " 
+            LBLOG( LOG_LB1 ) << "  Use " 
                             << static_cast< unsigned >( use * 100.f + .5f )
                             << "% of " << pipe->getName() << " task "
                             << compound->getTaskID() << ", "
@@ -253,7 +253,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = 1.0f; // Don't use more than twice
-                EQLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -268,7 +268,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = use;
-                EQLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -296,7 +296,7 @@ private:
 void ViewEqualizer::_update( const uint32_t frameNumber )
 {
     const uint32_t frame = _findInputFrameNumber();
-    EQLOG( LOG_LB1 ) << "Using data from frame " << frame << std::endl;
+    LBLOG( LOG_LB1 ) << "Using data from frame " << frame << std::endl;
 
     //----- Gather data for frame
     Loads loads;
@@ -322,7 +322,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
     const float resourceTime( static_cast< float >( totalTime ) / 
                               static_cast< float >( _nPipes ));
-    EQLOG( LOG_LB1 ) << resourceTime << "ms/resource" << std::endl;
+    LBLOG( LOG_LB1 ) << resourceTime << "ms/resource" << std::endl;
 
     //----- Assign new resource usage
     const Compounds& children = compound->getChildren();
@@ -343,7 +343,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         float segmentResources( load.time / resourceTime );
 
-        EQLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " (" 
+        LBLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " (" 
                         << child->getChannel()->getName() << ") using "
                         << segmentResources << " resources" << std::endl;
         SelfAssigner assigner( child->getPipe(), segmentResources, pipeUsage );
@@ -362,7 +362,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
             continue;
 
         float& leftOver = leftOvers[i];
-        EQLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
+        LBLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
                          << child->getChannel()->getName() << ") using "
                          << leftOver << " resources" << std::endl;
         PreviousAssigner assigner( child->getPipe(), leftOver, pipeUsage );
@@ -387,7 +387,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         if( leftOver > MIN_USAGE || load.missing == 0 )
         {
-            EQLOG( LOG_LB1 ) << "----- balance step 3 for view " << i << " (" 
+            LBLOG( LOG_LB1 ) << "----- balance step 3 for view " << i << " (" 
                             << child->getChannel()->getName() << ") using "
                             << leftOver << " resources" << std::endl;
 
@@ -403,7 +403,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
                 fallback->setUsage( leftOver );
                 load.missing = 1;
-                EQLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use " 
                                 << static_cast< unsigned >( leftOver*100.f+.5f )
                                 << "% of " << fallback->getPipe()->getName()
                                 << " task " << fallback->getTaskID()
@@ -464,11 +464,11 @@ void ViewEqualizer::_updateListeners()
     _listeners.resize( nChildren );
     for( size_t i = 0; i < nChildren; ++i )
     {
-        EQLOG( LOG_LB1 ) << lunchbox::disableFlush << "Tasks for view " << i
+        LBLOG( LOG_LB1 ) << lunchbox::disableFlush << "Tasks for view " << i
                          << ": ";
         Listener& listener = _listeners[ i ];        
         listener.update( children[i] );
-        EQLOG(LOG_LB1) << std::endl << lunchbox::enableFlush;
+        LBLOG(LOG_LB1) << std::endl << lunchbox::enableFlush;
     }
 }
 
@@ -528,7 +528,7 @@ public:
             {
                 channel->addListener( _listener );
                 _taskIDs[ channel ] = compound->getTaskID();
-                EQLOG( LOG_LB1 ) << _taskIDs[ channel ] << ' ';
+                LBLOG( LOG_LB1 ) << _taskIDs[ channel ] << ' ';
             }
             else
             {
@@ -641,7 +641,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
         load.time = int64_t( rTime * sqrtf( float( load.nResources )));
     }
 
-    EQLOG( LOG_LB1 ) << "Task " << taskID << ", added time " << time << " to "
+    LBLOG( LOG_LB1 ) << "Task " << taskID << ", added time " << time << " to "
                     << load << std::endl;
 }
 

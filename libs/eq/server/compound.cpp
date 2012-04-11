@@ -73,7 +73,7 @@ Compound::Compound( Config* parent )
 {
     LBASSERT( parent );
     parent->addCompound( this );
-    EQLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
+    LBLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
 }
 
 Compound::Compound( Compound* parent )
@@ -85,7 +85,7 @@ Compound::Compound( Compound* parent )
 {
     LBASSERT( parent );
     parent->_addChild( this );
-    EQLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
+    LBLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
 }
 
 Compound::~Compound()
@@ -556,7 +556,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         {
             case Frustum::TYPE_WALL:
                 setWall( wall );
-                EQLOG( LOG_VIEW ) << "View wall for " << channel->getName() 
+                LBLOG( LOG_VIEW ) << "View wall for " << channel->getName() 
                                   << ": " << wall << std::endl;
                 return;
 
@@ -565,7 +565,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
                 Projection projection( view->getProjection( )); // keep distance
                 projection = wall;
                 setProjection( projection );
-                EQLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
+                LBLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
                                   << ": " << projection << std::endl;
                 return;
             }
@@ -602,7 +602,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         case Frustum::TYPE_WALL:
         {
             setWall( wall );
-            EQLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
+            LBLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
                               << ": " << wall << std::endl;
             return;
         }
@@ -612,7 +612,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
             Projection projection( segment->getProjection( ));
             projection = wall;
             setProjection( projection );
-            EQLOG( LOG_VIEW ) << "Segment projection for " 
+            LBLOG( LOG_VIEW ) << "Segment projection for " 
                               << channel->getName() << ": " << projection
                               << std::endl;
             return;
@@ -1084,7 +1084,7 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
     }
 
@@ -1094,7 +1094,7 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
     }
 
@@ -1104,7 +1104,7 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
 
@@ -1114,7 +1114,7 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
 }

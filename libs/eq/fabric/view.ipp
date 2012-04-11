@@ -39,13 +39,13 @@ View< L, V, O >::View( L* layout )
     // client views are multi-buffered (once per pipe) and do not have a parent
     if( layout )
         layout->_addChild( static_cast< V* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     if( _layout )
         _layout->_removeChild( static_cast< V* >( this ));
 }

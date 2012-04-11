@@ -236,7 +236,7 @@ void Node::_frameFinish( const uint128_t& frameID,
                          const uint32_t frameNumber )
 {
     frameFinish( frameID, frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
+    LBLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
                        << std::endl;
 
     if( _unlockedFrame < frameNumber )
@@ -282,7 +282,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
     LBASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
+    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
                        << std::endl;
 }
 
@@ -419,7 +419,7 @@ bool Node::_cmdCreatePipe( co::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.get<NodeCreatePipePacket>();
-    EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
 
@@ -440,7 +440,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
     const NodeDestroyPipePacket* packet = 
         command.get< NodeDestroyPipePacket >();
-    EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     Pipe* pipe = findPipe( packet->pipeID );
     LBASSERT( pipe );
@@ -462,7 +462,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 
     const NodeConfigInitPacket* packet = 
         command.get<NodeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
 
@@ -489,7 +489,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 bool Node::_cmdConfigExit( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-    EQLOG( LOG_INIT ) << "Node exit " 
+    LBLOG( LOG_INIT ) << "Node exit " 
                       << command.get<NodeConfigExitPacket>() << std::endl;
 
     const Pipes& pipes = getPipes();
@@ -519,7 +519,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     const uint32_t frameNumber = packet->frameNumber;
     LBASSERT( _currentFrame == frameNumber-1 );
 
-    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
+    LBLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
     Config* config = getConfig();
@@ -541,7 +541,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
     LB_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.get<NodeFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -562,7 +562,7 @@ bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
     const NodeFrameDrawFinishPacket* packet = 
         command.get< NodeFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
@@ -573,7 +573,7 @@ bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
     const NodeFrameTasksFinishPacket* packet = 
         command.get< NodeFrameTasksFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameTasksFinish( packet->frameID, packet->frameNumber );
@@ -585,7 +585,7 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
     const NodeFrameDataTransmitPacket* packet =
         command.get<NodeFrameDataTransmitPacket>();
 
-    EQLOG( LOG_ASSEMBLY )
+    LBLOG( LOG_ASSEMBLY )
         << "received image data for " << packet->frameData << ", buffers "
         << packet->buffers << " pvp " << packet->pvp << std::endl;
 
@@ -605,7 +605,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     const NodeFrameDataReadyPacket* packet =
         command.get<NodeFrameDataReadyPacket>();
 
-    EQLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
+    LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
     FrameData* frameData = getFrameData( packet->frameData );
     LBASSERT( frameData );

@@ -381,13 +381,13 @@ void View::trigger( const Canvas* canvas, const bool active )
             if( active )
             {
                 compound->activate( eyes );
-                EQLOG( LOG_VIEW ) << "Activate " << compound->getName()
+                LBLOG( LOG_VIEW ) << "Activate " << compound->getName()
                                   << std::endl;
             }
             else
             {
                 compound->deactivate( eyes );
-                EQLOG( LOG_VIEW ) << "Deactivate " << compound->getName()
+                LBLOG( LOG_VIEW ) << "Deactivate " << compound->getName()
                                   << std::endl;
             }
         }

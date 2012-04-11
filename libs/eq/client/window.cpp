@@ -608,7 +608,7 @@ const GLEWContext* Window::glewGetContext() const
 
 void Window::_enterBarrier( co::ObjectVersion barrier )
 {
-    EQLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName()
+    LBLOG( co::LOG_BARRIER ) << "swap barrier " << barrier << " " << getName()
                              << std::endl;
     Node* node = getNode();
     co::Barrier* netBarrier = node->getBarrier( barrier );
@@ -746,7 +746,7 @@ bool Window::_cmdCreateChannel( co::Command& command )
 {
     const WindowCreateChannelPacket* packet = 
         command.get<WindowCreateChannelPacket>();
-    EQLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     channel->init(); // not in ctor, virtual method
@@ -762,7 +762,7 @@ bool Window::_cmdDestroyChannel( co::Command& command )
 {
     const WindowDestroyChannelPacket* packet =
         command.get<WindowDestroyChannelPacket>();
-    EQLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
 
     Channel* channel = _findChannel( packet->channelID );
     LBASSERT( channel );
@@ -781,7 +781,7 @@ bool Window::_cmdConfigInit( co::Command& command )
 {
     const WindowConfigInitPacket* packet = 
         command.get<WindowConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
 
     WindowConfigInitReplyPacket reply;
     setError( ERROR_NONE );
@@ -798,7 +798,7 @@ bool Window::_cmdConfigInit( co::Command& command )
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
         reply.result = false;
     }
-    EQLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
     commit();
     send( command.getNode(), reply );
@@ -809,7 +809,7 @@ bool Window::_cmdConfigExit( co::Command& command )
 {
     const WindowConfigExitPacket* packet =
         command.get<WindowConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
 
     if( _state != STATE_STOPPED )
     {
@@ -834,7 +834,7 @@ bool Window::_cmdFrameStart( co::Command& command )
 
     const WindowFrameStartPacket* packet = 
         command.get<WindowFrameStartPacket>();
-    EQLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
                        << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
@@ -879,7 +879,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
     const WindowThrottleFramerate* packet =
         command.get< WindowThrottleFramerate >();
-    EQLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
+    LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << packet << std::endl;
 
     // throttle to given framerate
@@ -900,7 +900,7 @@ bool Window::_cmdBarrier( co::Command& command )
 {
     const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
     LBVERB << "handle barrier " << packet << std::endl;
-    EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
     _enterBarrier( packet->barrier );
     return true;
@@ -909,7 +909,7 @@ bool Window::_cmdBarrier( co::Command& command )
 bool Window::_cmdNVBarrier( co::Command& command )
 {
     const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
-    EQLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
     
     makeCurrent();
@@ -921,7 +921,7 @@ bool Window::_cmdNVBarrier( co::Command& command )
 bool Window::_cmdSwap( co::Command& command ) 
 {
     const WindowSwapPacket* packet = command.get< WindowSwapPacket >();
-    EQLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
+    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
                        << std::endl;
 
     if( getDrawableConfig().doublebuffered )
@@ -938,7 +938,7 @@ bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
     const WindowFrameDrawFinishPacket* packet = 
         command.get< WindowFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );

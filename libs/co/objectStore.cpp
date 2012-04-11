@@ -189,7 +189,7 @@ NodeID ObjectStore::_findMasterNodeID( const UUID& identifier )
         packet.requestID = _localNode->registerRequest();
         packet.identifier = identifier;
 
-        EQLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
+        LBLOG( LOG_OBJECTS ) << "Finding " << identifier << " on " << node
                              << " req " << packet.requestID << std::endl;
         node->send( packet );
 
@@ -198,7 +198,7 @@ NodeID ObjectStore::_findMasterNodeID( const UUID& identifier )
 
         if( masterNodeID != UUID::ZERO )
         {
-            EQLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
+            LBLOG( LOG_OBJECTS ) << "Found " << identifier << " on "
                                  << masterNodeID << std::endl;
             return masterNodeID;
         }
@@ -265,7 +265,7 @@ void ObjectStore::_attachObject( Object* object, const UUID& id,
 
     _localNode->flushCommands(); // redispatch pending commands
 
-    EQLOG( LOG_OBJECTS ) << "attached " << *object << " @" 
+    LBLOG( LOG_OBJECTS ) << "attached " << *object << " @" 
                          << static_cast< void* >( object ) << std::endl;
 }
 
@@ -293,7 +293,7 @@ void ObjectStore::swapObject( Object* oldObject, Object* newObject )
     if( !oldObject->isAttached() )
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Swap " << lunchbox::className( oldObject ) <<std::endl;
+    LBLOG( LOG_OBJECTS ) << "Swap " << lunchbox::className( oldObject ) <<std::endl;
     const UUID& id = oldObject->getID();
 
     lunchbox::ScopedFastWrite mutex( _objects );
@@ -324,7 +324,7 @@ void ObjectStore::_detachObject( Object* object )
     const UUID& id = object->getID();
 
     LBASSERT( _objects->find( id ) != _objects->end( ));
-    EQLOG( LOG_OBJECTS ) << "Detach " << *object << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Detach " << *object << std::endl;
 
     Objects& objects = _objects.data[ id ];
     Objects::iterator i = find( objects.begin(),objects.end(), object );
@@ -364,7 +364,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
 
     LB_TS_NOT_THREAD( _commandThread );
     LB_TS_NOT_THREAD( _receiverThread );
-    EQLOG( LOG_OBJECTS )
+    LBLOG( LOG_OBJECTS )
         << "Mapping " << lunchbox::className( object ) << " to id " << id
         << " version " << version << std::endl;
     LBASSERT( object );
@@ -411,7 +411,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
             packet.masterInstanceID = cached.masterInstanceID;
             packet.minCachedVersion = versions.front()->getVersion();
             packet.maxCachedVersion = versions.back()->getVersion();
-            EQLOG( LOG_OBJECTS ) << "Object " << id << " have v"
+            LBLOG( LOG_OBJECTS ) << "Object " << id << " have v"
                                  << packet.minCachedVersion << ".."
                                  << packet.maxCachedVersion << std::endl;
         }
@@ -431,7 +431,7 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
     if( data == 0 )
         return false;
 
-    Object* object = EQSAFECAST( Object*, data );
+    Object* object = LBSAFECAST( Object*, data );
     uint128_t version = VERSION_NONE;
     _localNode->waitRequest( requestID, version );
 
@@ -440,7 +440,7 @@ bool ObjectStore::mapObjectSync( const uint32_t requestID )
         object->applyMapData( version ); // apply initial instance data
 
     object->notifyAttached();
-    EQLOG( LOG_OBJECTS ) << "Mapped " << lunchbox::className( object ) << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Mapped " << lunchbox::className( object ) << std::endl;
     return mapped;
 }
 
@@ -452,7 +452,7 @@ void ObjectStore::unmapObject( Object* object )
 
     const UUID& id = object->getID();
     
-    EQLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Unmap " << object << std::endl;
 
     object->notifyDetach();
 
@@ -511,7 +511,7 @@ bool ObjectStore::registerObject( Object* object )
 
     object->notifyAttached();
 
-    EQLOG( LOG_OBJECTS ) << "Registered " << object << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Registered " << object << std::endl;
     return true;
 }
 
@@ -521,7 +521,7 @@ void ObjectStore::deregisterObject( Object* object )
     if( !object->isAttached( )) // not registered
         return;
 
-    EQLOG( LOG_OBJECTS ) << "Deregister " << *object << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Deregister " << *object << std::endl;
     LBASSERT( object->isMaster( ));
 
     object->notifyDetach();
@@ -680,7 +680,7 @@ bool ObjectStore::_cmdFindMasterNodeID( Command& command )
         }
     }
 
-    EQLOG( LOG_OBJECTS ) << "Object " << id << " master " << reply.masterNodeID
+    LBLOG( LOG_OBJECTS ) << "Object " << id << " master " << reply.masterNodeID
                          << " req " << reply.requestID << std::endl;
     command.getNode()->send( reply );
     return true;
@@ -699,7 +699,7 @@ bool ObjectStore::_cmdAttachObject( Command& command )
     LB_TS_THREAD( _receiverThread );
     const NodeAttachObjectPacket* packet =
         command.get< NodeAttachObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd attach object " << packet << std::endl;
 
     Object* object = static_cast< Object* >( _localNode->getRequestData( 
                                                  packet->requestID ));
@@ -713,7 +713,7 @@ bool ObjectStore::_cmdDetachObject( Command& command )
     LB_TS_THREAD( _receiverThread );
     const NodeDetachObjectPacket* packet =
         command.get< NodeDetachObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd detach object " << packet << std::endl;
 
     const UUID& id = packet->objectID;
     ObjectsHash::const_iterator i = _objects->find( id );
@@ -746,7 +746,7 @@ bool ObjectStore::_cmdRegisterObject( Command& command )
 
     const NodeRegisterObjectPacket* packet = 
         command.get< NodeRegisterObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd register object " << packet << std::endl;
 
     const int32_t age = Global::getIAttribute(
                             Global::IATTR_NODE_SEND_QUEUE_AGE );
@@ -769,7 +769,7 @@ bool ObjectStore::_cmdDeregisterObject( Command& command )
     LB_TS_THREAD( _commandThread );
     const NodeDeregisterObjectPacket* packet = 
         command.get< NodeDeregisterObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd deregister object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd deregister object " << packet << std::endl;
 
     const void* object = _localNode->getRequestData( packet->requestID ); 
 
@@ -790,7 +790,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
 {
     LB_TS_THREAD( _commandThread );
     const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd map object " << packet << std::endl;
 
     NodePtr node = command.getNode();
     const UUID& id = packet->objectID;
@@ -838,7 +838,7 @@ bool ObjectStore::_cmdMapObjectSuccess( Command& command )
     if( packet->nodeID != _localNode->getNodeID( ))
         return true;
 
-    EQLOG( LOG_OBJECTS ) << "Cmd map object success " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd map object success " << packet << std::endl;
 
     // set up change manager and attach object to dispatch table
     Object* object = static_cast<Object*>( _localNode->getRequestData( 
@@ -857,7 +857,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
     LB_TS_THREAD( _receiverThread );
     const NodeMapObjectReplyPacket* packet = 
         command.get< NodeMapObjectReplyPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd map object reply " << packet << std::endl;
 
     // Map reply packets are potentially multicasted (see above)
     // verify that we are the intended receiver
@@ -910,7 +910,7 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
     LB_TS_THREAD( _commandThread );
     const NodeUnsubscribeObjectPacket* packet =
         command.get< NodeUnsubscribeObjectPacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd unsubscribe object  " << packet << std::endl;
 
     NodePtr node = command.getNode();
     const UUID& id = packet->objectID;
@@ -946,7 +946,7 @@ bool ObjectStore::_cmdUnmapObject( Command& command )
     const NodeUnmapObjectPacket* packet = 
         command.get< NodeUnmapObjectPacket >();
 
-    EQLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd unmap object " << packet << std::endl;
     if( _instanceCache )
         _instanceCache->erase( packet->objectID );
 
@@ -976,7 +976,7 @@ bool ObjectStore::_cmdInstance( Command& command )
 
     ObjectInstancePacket* packet =
         command.getModifiable< ObjectInstancePacket >();
-    EQLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd instance " << packet << std::endl;
 
     const uint32_t type = packet->command;
 
@@ -1054,7 +1054,7 @@ bool ObjectStore::_cmdRemoveNode( Command& command )
     LB_TS_THREAD( _commandThread );
     const NodeRemoveNodePacket* packet = command.get< NodeRemoveNodePacket >();
 
-    EQLOG( LOG_OBJECTS ) << "Cmd object  " << packet << std::endl;
+    LBLOG( LOG_OBJECTS ) << "Cmd object  " << packet << std::endl;
 
     lunchbox::ScopedFastWrite mutex( _objects );
     for( ObjectsHashCIter i = _objects->begin(); i != _objects->end(); ++i )

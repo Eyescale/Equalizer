@@ -205,7 +205,7 @@ bool RawVolumeModelRenderer::loadShaders()
         return false;
     }
 
-    EQLOG( eq::LOG_CUSTOM ) << "glsl shaders loaded" << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "glsl shaders loaded" << std::endl;
     return true;
 }
 }

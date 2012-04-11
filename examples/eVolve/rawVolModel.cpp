@@ -69,7 +69,7 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
     LBASSERT( !_headerLoaded );
     LBASSERT( brightness > 0.0f );
     LBASSERT( alpha > 0.0f );
-    EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
+    LBLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
                             << std::endl << "model: " << _filename;
 
     hFile header( fopen( ( _filename + std::string( ".vhf" ) ).c_str(), "rb" ));
@@ -127,7 +127,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
 
     if( _preintName == 0 )
     {
-        EQLOG( eq::LOG_CUSTOM ) << "Creating preint" << std::endl;
+        LBLOG( eq::LOG_CUSTOM ) << "Creating preint" << std::endl;
         _preintName = createPreintegrationTable( &_TF[0] );
     }
 
@@ -237,7 +237,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     TD.Do = range.start;
     TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(_tD) : 0;
 
-    EQLOG( eq::LOG_CUSTOM )
+    LBLOG( eq::LOG_CUSTOM )
             << "==============================================="   << std::endl
             << " w: "  << w << " " << _tW
             << " h: "  << h << " " << _tH
@@ -287,7 +287,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     LBASSERT( _glewContext );
     // create 3D texture
     glGenTextures( 1, &volume );
-    EQLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
     glBindTexture(GL_TEXTURE_3D, volume);
 
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S    , GL_CLAMP_TO_EDGE );
@@ -378,7 +378,7 @@ static bool readDimensionsAndScaling
 
     normalizeScaling( w, h, d, volScaling );
 
-    EQLOG( eq::LOG_CUSTOM ) << " "  << w << "x" << h << "x" << d << std::endl
+    LBLOG( eq::LOG_CUSTOM ) << " "  << w << "x" << h << "x" << d << std::endl
                             << "( " << volScaling.W << " x "
                                     << volScaling.H << " x "
                                     << volScaling.D << " )"       << std::endl;
@@ -430,7 +430,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 
 static GLuint createPreintegrationTable( const uint8_t *Table )
 {
-    EQLOG( eq::LOG_CUSTOM ) << "Calculating preintegration table" << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "Calculating preintegration table" << std::endl;
 
     double rInt[256]; rInt[0] = 0.;
     double gInt[256]; gInt[0] = 0.;

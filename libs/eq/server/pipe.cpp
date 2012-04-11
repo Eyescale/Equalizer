@@ -144,7 +144,7 @@ void Pipe::activate()
     if( node ) 
         node->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Pipe::deactivate()
@@ -158,7 +158,7 @@ void Pipe::deactivate()
     if( node ) 
         node->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Pipe::addTasks( const uint32_t tasks )
@@ -189,14 +189,14 @@ void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
     LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    EQLOG( LOG_INIT ) << "Create pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Create pipe" << std::endl;
     NodeCreatePipePacket createPipePacket;
     createPipePacket.objectID = getNode()->getID();
     createPipePacket.pipeID   = getID();
     createPipePacket.threaded = getIAttribute( IATTR_HINT_THREAD );
     getNode()->send( createPipePacket );
 
-    EQLOG( LOG_INIT ) << "Init pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Init pipe" << std::endl;
     PipeConfigInitPacket packet;
     packet.initID = initID;
     packet.frameNumber = frameNumber;
@@ -232,7 +232,7 @@ void Pipe::configExit()
     LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     PipeConfigExitPacket packet;
     send( packet );
 }
@@ -268,7 +268,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
@@ -283,7 +283,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
     _lastDrawWindow = 0;
@@ -293,7 +293,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.frameNumber  = frameNumber;
     send( finishPacket );
 
-    EQLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                        << std::endl;
 }
 

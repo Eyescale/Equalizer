@@ -165,12 +165,12 @@ void Plugin::initChildren()
     for( CompressorInfos::iterator i = _infos.begin(); i != _infos.end(); ++i )
     {
         CompressorInfo& info = *i;
-        EQLOG( LOG_PLUGIN ) << lunchbox::disableFlush << "Engine 0x" << std::hex
+        LBLOG( LOG_PLUGIN ) << lunchbox::disableFlush << "Engine 0x" << std::hex
                             << info.name;
 
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
         {
-            EQLOG( LOG_PLUGIN ) << " compressors:";
+            LBLOG( LOG_PLUGIN ) << " compressors:";
             // Find compressors for downloader
             for( Plugins::const_iterator j = plugins.begin();
                  j != plugins.end(); ++j )
@@ -189,13 +189,13 @@ void Plugin::initChildren()
                     }
 
                     info.compressors.push_back( &child );
-                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                    LBLOG( LOG_PLUGIN ) << " 0x" << child.name;
                 }
             }
         }
         else
         {
-            EQLOG( LOG_PLUGIN ) << " uploaders:";
+            LBLOG( LOG_PLUGIN ) << " uploaders:";
             // Find uploaders for decompressor
             for( Plugins::const_iterator j = plugins.begin();
                  j != plugins.end(); ++j )
@@ -214,11 +214,11 @@ void Plugin::initChildren()
                     }
 
                     info.uploaders.push_back( &child );
-                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                    LBLOG( LOG_PLUGIN ) << " 0x" << child.name;
                 }
             }
         }
-        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << lunchbox::enableFlush;
+        LBLOG( LOG_PLUGIN ) << std::endl << std::dec << lunchbox::enableFlush;
     }
 }
 

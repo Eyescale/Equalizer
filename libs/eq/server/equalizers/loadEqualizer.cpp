@@ -217,7 +217,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
                                     const Statistic* statistics,
                                     const Viewport& region )
 {
-    EQLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
+    LBLOG( LOG_LB2 ) << nStatistics << " samples from "<< channel->getName()
                      << " @ " << frameNumber << std::endl;
     for( std::deque< LBFrameData >::iterator i = _history.begin();
          i != _history.end(); ++i )
@@ -288,7 +288,7 @@ void LoadEqualizer::notifyLoadData( Channel* channel,
             data.time = LB_MAX( data.time, 1 );
             data.time = LB_MAX( data.time, transmitTime );
             data.assembleTime = LB_MAX( data.assembleTime, 0 );
-            EQLOG( LOG_LB2 ) << "Added time " << data.time << " (+"
+            LBLOG( LOG_LB2 ) << "Added time " << data.time << " (+"
                              << data.assembleTime << ") for "
                              << channel->getName() << " " << data.vp << ", "
                              << data.range << " @ " << frameNumber << std::endl;
@@ -523,7 +523,7 @@ void LoadEqualizer::_computeSplit()
     
     const LBFrameData& frameData = _history.front();
     const Compound* compound = getCompound();
-    EQLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
+    LBLOG( LOG_LB2 ) << "----- balance " << compound->getChannel()->getName()
                     << " using frame " << frameData.first << " tree "
                      << std::endl << _tree;
 
@@ -551,14 +551,14 @@ void LoadEqualizer::_computeSplit()
              ++i )
         {  
             const Data& data = *i;
-            EQLOG( LOG_LB2 ) << "  " << data.vp << ", time " << data.time
+            LBLOG( LOG_LB2 ) << "  " << data.vp << ", time " << data.time
                              << " (+" << data.assembleTime << ")" << std::endl;
         }
 #endif
     }
 
     const float time = float( _getTotalTime( ));
-    EQLOG( LOG_LB2 ) << "Render time " << time << " for "
+    LBLOG( LOG_LB2 ) << "Render time " << time << " for "
                      << _tree->resources << " resources" << std::endl;
     _computeSplit( _tree, time, sortedData, Viewport(), Range( ));
 }
@@ -580,7 +580,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                                    LBDatas* datas, const Viewport& vp,
                                    const Range& range )
 {
-    EQLOG( LOG_LB2 ) << "_computeSplit " << vp << ", " << range << " time "
+    LBLOG( LOG_LB2 ) << "_computeSplit " << vp << ", " << range << " time "
                     << time << std::endl;
     LBASSERTINFO( vp.isValid(), vp );
     LBASSERTINFO( range.isValid(), range );
@@ -614,7 +614,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
+                LBLOG( LOG_LB2 ) << timeLeft << "ms left using "
                                 << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
@@ -648,7 +648,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 LBASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
-                EQLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
+                LBLOG( LOG_LB2 ) << "Computing load in X " << splitPos << "..."
                                  << currentPos << std::endl;
                 float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
@@ -674,7 +674,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                                                  ( yContrib / data.vp.h );
                         currentTime += ( data.time * percentage );
 
-                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
+                        LBLOG( LOG_LB2 ) << data.vp << " contributes "
                                          << yContrib << " in " << vp.h << " ("
                                          << percentage << ") with " << data.time
                                          << ": " << ( data.time * percentage )
@@ -685,7 +685,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     }
                 }
 
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                LBLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
                                  << currentTime << " of " << timeLeft
                                  << std::endl;
 
@@ -701,10 +701,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 }
             }
 
-            EQLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Should split at X " << splitPos << std::endl;
             if( _damping < 1.f )
                 splitPos = (1.f - _damping) * splitPos + _damping * node->split;
-            EQLOG( LOG_LB2 ) << "Dampened split at X " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Dampened split at X " << splitPos << std::endl;
 
             // There might be more time left due to MIN_PIXEL rounding by parent
             // LBASSERTINFO( timeLeft <= .001f, timeLeft );
@@ -745,7 +745,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.x );
             splitPos = LB_MIN( splitPos, end);
 
-            EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
+            LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at X "
                              << splitPos << std::endl;
             node->split = splitPos;
 
@@ -774,7 +774,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             while( timeLeft > std::numeric_limits< float >::epsilon() &&
                    splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
+                LBLOG( LOG_LB2 ) << timeLeft << "ms left using "
                                  << workingSet.size() << " tiles" << std::endl;
 
                 // remove all unrelevant items from working set
@@ -808,7 +808,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 LBASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
-                EQLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
+                LBLOG( LOG_LB2 ) << "Computing load in Y " << splitPos << "..."
                                 << currentPos << std::endl;
                 float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
@@ -835,7 +835,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                                                  ( xContrib / data.vp.w );
                         currentTime += ( data.time * percentage );
 
-                        EQLOG( LOG_LB2 ) << data.vp << " contributes "
+                        LBLOG( LOG_LB2 ) << data.vp << " contributes "
                                          << xContrib << " in " << vp.w << " ("
                                          << percentage << ") with " << data.time
                                          << ": " << ( data.time * percentage )
@@ -846,7 +846,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     }
                 }
 
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                LBLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
                                  << currentTime << " of " << timeLeft
                                  << std::endl;
 
@@ -862,10 +862,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 }
             }
 
-            EQLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Should split at Y " << splitPos << std::endl;
             if( _damping < 1.f )
                 splitPos = (1.f - _damping) * splitPos + _damping * node->split;
-            EQLOG( LOG_LB2 ) << "Dampened split at Y " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Dampened split at Y " << splitPos << std::endl;
 
             const Compound* root = getCompound();
             
@@ -904,7 +904,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             splitPos = LB_MAX( splitPos, vp.y );
             splitPos = LB_MIN( splitPos, end );
 
-            EQLOG( LOG_LB2 ) << "Constrained split " << vp << " at Y "
+            LBLOG( LOG_LB2 ) << "Constrained split " << vp << " at Y "
                              << splitPos << std::endl;
             node->split = splitPos;
 
@@ -929,7 +929,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             while( timeLeft > std::numeric_limits< float >::epsilon() && 
                    splitPos < end )
             {
-                EQLOG( LOG_LB2 ) << timeLeft << "ms left using "
+                LBLOG( LOG_LB2 ) << timeLeft << "ms left using "
                                  << workingSet.size() << " tiles" << std::endl;
 
                 // remove all irrelevant items from working set
@@ -959,7 +959,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                 LBASSERT( currentPos <= 1.0f );
 
                 // accumulate normalized load in splitPos...currentPos
-                EQLOG( LOG_LB2 ) << "Computing load in range " << splitPos
+                LBLOG( LOG_LB2 ) << "Computing load in range " << splitPos
                                 << "..." << currentPos << std::endl;
                 float currentTime = 0.f;
                 for( LBDatas::const_iterator i = workingSet.begin();
@@ -979,7 +979,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     currentTime += data.time * size / data.range.getSize();
                 }
 
-                EQLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
+                LBLOG( LOG_LB2 ) << splitPos << "..." << currentPos << ": t="
                                  << currentTime << " of " << timeLeft
                                  << std::endl;
 
@@ -995,10 +995,10 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
                     splitPos  = currentPos;
                 }
             }
-            EQLOG( LOG_LB2 ) << "Should split at " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Should split at " << splitPos << std::endl;
             if( _damping < 1.f )
                 splitPos = (1.f - _damping) * splitPos + _damping * node->split;
-            EQLOG( LOG_LB2 ) << "Dampened split at " << splitPos << std::endl;
+            LBLOG( LOG_LB2 ) << "Dampened split at " << splitPos << std::endl;
 
             const float boundary( node->boundaryf );
             if( node->left->resources == 0.f )
@@ -1014,7 +1014,7 @@ void LoadEqualizer::_computeSplit( Node* node, const float time,
             if( (end - splitPos) < boundary )
                 splitPos = end;
 
-            EQLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
+            LBLOG( LOG_LB2 ) << "Constrained split " << range << " at pos "
                              << splitPos << std::endl;
             node->split = splitPos;
 
@@ -1041,7 +1041,7 @@ void LoadEqualizer::_assign( Compound* compound, const Viewport& vp,
 
     compound->setViewport( vp );
     compound->setRange( range );
-    EQLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
+    LBLOG( LOG_LB2 ) << compound->getChannel()->getName() << " set " << vp
                      << ", " << range << std::endl;
 
     if( _damping >= 1.f )

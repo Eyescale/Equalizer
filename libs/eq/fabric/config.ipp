@@ -54,13 +54,13 @@ Config< S, C, O, L, CV, N, V >::Config( lunchbox::RefPtr< S > server )
         , _server( server )
 {
     server->_addConfig( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _appNodeID = co::NodeID::ZERO;
 
     while( !_canvases.empty( ))

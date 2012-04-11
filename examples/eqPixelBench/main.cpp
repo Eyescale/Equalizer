@@ -104,7 +104,7 @@ int main( int argc, char** argv )
         LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
-    EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
+    LBLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
                             << std::endl;
 
     // 5. render three frames
@@ -114,14 +114,14 @@ int main( int argc, char** argv )
         config->startFrame( 0 );
         config->finishAllFrames();
     }
-    EQLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
+    LBLOG( eq::LOG_CUSTOM ) << "Rendering took " << clock.getTimef() << " ms ("
                             << ( 1.0f / clock.getTimef() * 1000.f) << " FPS)"
                             << std::endl;
 
     // 6. exit config
     clock.reset();
     config->exit();
-    EQLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms"
+    LBLOG( eq::LOG_CUSTOM ) << "Exit took " << clock.getTimef() << " ms"
                             << std::endl;
 
     // 7. cleanup and exit

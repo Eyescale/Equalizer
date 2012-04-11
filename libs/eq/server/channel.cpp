@@ -226,7 +226,7 @@ void Channel::activate()
     ++_active;
     window->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
                       << std::endl;
 }
 
@@ -239,7 +239,7 @@ void Channel::deactivate()
     --_active; 
     window->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
                       << std::endl;
 }
 
@@ -301,7 +301,7 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     WindowCreateChannelPacket createChannelPacket( getID( ));
     getWindow()->send( createChannelPacket );
 
-    EQLOG( LOG_INIT ) << "Init channel" << std::endl;
+    LBLOG( LOG_INIT ) << "Init channel" << std::endl;
     ChannelConfigInitPacket packet( initID );    
     send( packet );
 }
@@ -331,7 +331,7 @@ void Channel::configExit()
     LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit channel" << std::endl;
     ChannelConfigExitPacket packet;
     send( packet );
 }
@@ -378,7 +378,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
+    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
                        << &startPacket << std::endl;
 
     bool updated = false;
@@ -406,7 +406,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.context = startPacket.context;
 
     send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
+    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
                            << &finishPacket << std::endl;
     _lastDrawCompound = 0;
 
@@ -461,7 +461,7 @@ bool Channel::_cmdConfigInitReply( co::Command& command )
 {
     const ChannelConfigInitReplyPacket* packet = 
         command.get<ChannelConfigInitReplyPacket>();
-    EQLOG( LOG_INIT ) << "handle channel configInit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configInit reply " << packet
                       << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -472,7 +472,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 {
     const ChannelConfigExitReplyPacket* packet = 
         command.get<ChannelConfigExitReplyPacket>();
-    EQLOG( LOG_INIT ) << "handle channel configExit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configExit reply " << packet
                       << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;

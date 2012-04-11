@@ -127,7 +127,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         FrameData* frameData = frame->getMasterData();
         LBASSERT( frameData );
 
-        EQLOG( LOG_ASSEMBLY )
+        LBLOG( LOG_ASSEMBLY )
             << lunchbox::disableFlush << "Output frame \"" << name << "\" id " 
             << frame->getID() << " v" << frame->getVersion()+1
             << " data id " << frameData->getID() << " v" 
@@ -177,7 +177,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frame->commitData();
         
         _outputFrames[name] = frame;
-        EQLOG( LOG_ASSEMBLY ) 
+        LBLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << std::endl

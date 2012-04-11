@@ -46,7 +46,7 @@ uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
 {
     Mutex mutex( _slaves );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
 
@@ -84,7 +84,7 @@ uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
                 _releaseInstanceData( instanceData );
 
 #if 0
-            EQLOG( LOG_OBJECTS ) << "Committed v" << _version << " " 
+            LBLOG( LOG_OBJECTS ) << "Committed v" << _version << " " 
                                  << *_object << std::endl;
 #endif
         }

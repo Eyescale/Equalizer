@@ -1241,7 +1241,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
                               const Frame::Buffer which )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
+    LBLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
 
     const util::Texture* texture = 0;
@@ -1336,7 +1336,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
                           << std::endl;
 
     // Z-Based sort-last assembly
@@ -1375,7 +1375,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
 
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
