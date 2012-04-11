@@ -156,7 +156,7 @@ public:
 
     /** The registered push handlers. */
     HandlerHash pushHandlers;
-    
+
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
 };

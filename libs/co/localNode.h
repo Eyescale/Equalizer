@@ -292,7 +292,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * Register a custom handler for Object::push operations
          *
          * The registered handler function will be called automatically for an
-         * incoming object push.
+         * incoming object push. Not threadsafe with itself and objectPush().
          *
          * @param groupID The group identifier given to Object::push()
          * @param handler The handler function called for a registered groupID
