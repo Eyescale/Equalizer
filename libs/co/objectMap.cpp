@@ -174,13 +174,13 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
     lunchbox::ScopedFastWrite mutex( _impl->mutex );
     if( dirtyBits == DIRTY_ALL )
     {
-        EQASSERT( _impl->map.empty( ));
+        LBASSERT( _impl->map.empty( ));
         
         ObjectVersion ov;
         is >> ov;
         while( ov != ObjectVersion::NONE )
         {
-            EQASSERT( _impl->map.find( ov.identifier ) == _impl->map.end( ));
+            LBASSERT( _impl->map.find( ov.identifier ) == _impl->map.end( ));
             Entry& entry = _impl->map[ ov.identifier ];
             entry.version = ov.version;
             is >> entry.type >> ov;
@@ -196,7 +196,7 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
         for( std::vector< uint128_t >::const_iterator i = added.begin();
              i != added.end(); ++i )
         {
-            EQASSERT( _impl->map.find( *i ) == _impl->map.end( ));
+            LBASSERT( _impl->map.find( *i ) == _impl->map.end( ));
             Entry& entry = _impl->map[ *i ];
             is >> entry.version >> entry.type;
         }
@@ -209,11 +209,11 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
         for( ObjectVersionsCIter i = changed.begin(); i!=changed.end(); ++i)
         {
             const ObjectVersion& ov = *i;
-            EQASSERT( _impl->map.find( ov.identifier ) != _impl->map.end( ));
+            LBASSERT( _impl->map.find( ov.identifier ) != _impl->map.end( ));
 
             Entry& entry = _impl->map[ ov.identifier ];
             entry.version = ov.version;
-            EQASSERT( !entry.instance || entry.instance->isAttached( ));
+            LBASSERT( !entry.instance || entry.instance->isAttached( ));
 
             if( entry.instance && !entry.instance->isMaster( ))
                 entry.instance->sync( ov.version );
@@ -223,13 +223,13 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
 
 bool ObjectMap::register_( Object* object, const uint32_t type )
 {
-    EQASSERT( object );
+    LBASSERT( object );
     if( !object || !_impl->handler.registerObject( object ))
         return false;
 
     const Entry entry( object->getVersion(), object, type );
     lunchbox::ScopedFastWrite mutex( _impl->mutex );
-    EQASSERT( _impl->map.find( object->getID( )) == _impl->map.end( ));
+    LBASSERT( _impl->map.find( object->getID( )) == _impl->map.end( ));
 
     _impl->map[ object->getID() ] = entry;
     _impl->masters.push_back( object );
@@ -245,30 +245,30 @@ Object* ObjectMap::get( const uint128_t& identifier, Object* instance )
 
     lunchbox::ScopedFastWrite mutex( _impl->mutex );
     MapIter i = _impl->map.find( identifier );
-    EQASSERT( i != _impl->map.end( ));
+    LBASSERT( i != _impl->map.end( ));
     if( i == _impl->map.end( ))
     {
-        EQWARN << "Object mapping failed, no master registered" << std::endl;
+        LBWARN << "Object mapping failed, no master registered" << std::endl;
         return 0;
     }
 
     Entry& entry = i->second;
     if( entry.instance )
     {
-        EQASSERTINFO( !instance || entry.instance == instance,
+        LBASSERTINFO( !instance || entry.instance == instance,
                       entry.instance << " != " << instance )
         if( !instance || entry.instance == instance )
             return entry.instance;
 
-        EQWARN << "Object mapping failed, different instance registered"
+        LBWARN << "Object mapping failed, different instance registered"
                << std::endl;
         return 0;
     }
-    EQASSERT( entry.type != OBJECTTYPE_NONE );
+    LBASSERT( entry.type != OBJECTTYPE_NONE );
 
     Object* object = instance ?
                          instance : _impl->factory.createObject( entry.type );
-    EQASSERT( object );
+    LBASSERT( object );
     if( !object )
         return 0;
 
@@ -281,7 +281,7 @@ Object* ObjectMap::get( const uint128_t& identifier, Object* instance )
         return 0;
     }
 
-    EQASSERT( object->getVersion() == entry.version );
+    LBASSERT( object->getVersion() == entry.version );
     entry.instance = object;
     return object;
 }
