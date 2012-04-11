@@ -27,13 +27,13 @@
 #
 #==================================
 #
-# - Find LunchBox
-# This module searches for the LunchBox library
-#    See http://www.liblunchBox.net
+# - Find Lunchbox
+# This module searches for the Lunchbox library
+#    See https://github.com/Eyescale/Lunchbox
 #
 #==================================
 #
-# The following environment variables are respected for finding LunchBox.
+# The following environment variables are respected for finding Lunchbox.
 # CMAKE_PREFIX_PATH can also be used for this (see find_library() CMake
 # documentation).
 #
@@ -42,20 +42,20 @@
 #
 # This module defines the following output variables:
 #
-#    LUNCHBOX_FOUND - Was LunchBox and all of the specified components found?
+#    LUNCHBOX_FOUND - Was Lunchbox and all of the specified components found?
 #
-#    LUNCHBOX_VERSION - The version of LunchBox which was found
+#    LUNCHBOX_VERSION - The version of Lunchbox which was found
 #
-#    LUNCHBOX_VERSION_ABI - The DSO version of LunchBox which was found
+#    LUNCHBOX_VERSION_ABI - The DSO version of Lunchbox which was found
 #
 #    LUNCHBOX_INCLUDE_DIRS - Where to find the headers
 #
-#    LUNCHBOX_LIBRARIES - The LunchBox libraries
+#    LUNCHBOX_LIBRARIES - The Lunchbox libraries
 #
 #==================================
 # Example Usage:
 #
-#  find_package(LunchBox 0.3.0 REQUIRED)
+#  find_package(Lunchbox 0.3.0 REQUIRED)
 #  include_directories(${LUNCHBOX_INCLUDE_DIRS})
 #
 #  add_executable(foo foo.cc)
@@ -63,75 +63,81 @@
 #
 #==================================
 # Naming convention:
-#  Local variables of the form _lunchBox_foo
-#  Input variables of the form LunchBox_FOO
+#  Local variables of the form _lunchbox_foo
+#  Input variables of the form Lunchbox_FOO
 #  Output variables of the form LUNCHBOX_FOO
 #
 
 #
 # find and parse lunchbox/version.h
-find_path(_lunchBox_INCLUDE_DIR lunchbox/version.h
+find_path(_lunchbox_INCLUDE_DIR lunchbox/version.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{LUNCHBOX_ROOT} ${LUNCHBOX_ROOT}
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
   )
 
-if(LunchBox_FIND_REQUIRED)
-  set(_lunchBox_version_output_type FATAL_ERROR)
+if(Lunchbox_FIND_REQUIRED)
+  set(_lunchbox_version_output_type FATAL_ERROR)
+  set(_lunchbox_output 1)
 else()
-  set(_lunchBox_version_output_type STATUS)
+  set(_lunchbox_version_output_type STATUS)
+  if(NOT Lunchbox_FIND_QUIETLY)
+    set(_lunchbox_output 1)
+  endif()
 endif()
 
 # Try to ascertain the version...
-if(_lunchBox_INCLUDE_DIR)
-  set(_lunchBox_Version_file "${_lunchBox_INCLUDE_DIR}/lunchbox/version.h")
-  if("${_lunchBox_INCLUDE_DIR}" MATCHES "\\.framework$" AND
-      NOT EXISTS "${_lunchBox_Version_file}")
-    set(_lunchBox_Version_file "${_lunchBox_INCLUDE_DIR}/Headers/version.h")
+if(_lunchbox_INCLUDE_DIR)
+  set(_lunchbox_Version_file "${_lunchbox_INCLUDE_DIR}/lunchbox/version.h")
+  if("${_lunchbox_INCLUDE_DIR}" MATCHES "\\.framework$" AND
+      NOT EXISTS "${_lunchbox_Version_file}")
+    set(_lunchbox_Version_file "${_lunchbox_INCLUDE_DIR}/Headers/version.h")
   endif()
 
-  if(EXISTS "${_lunchBox_Version_file}")
-    file(READ "${_lunchBox_Version_file}" _lunchBox_Version_contents)
+  if(EXISTS "${_lunchbox_Version_file}")
+    file(READ "${_lunchbox_Version_file}" _lunchbox_Version_contents)
   else()
-    set(_lunchBox_Version_contents "unknown")
+    set(_lunchbox_Version_contents "unknown")
   endif()
 
-  if(_lunchBox_Version_contents MATCHES ".*define LUNCHBOX_VERSION_MAJOR[ \t]+([0-9]+).*")
+  if(_lunchbox_Version_contents MATCHES ".*define LUNCHBOX_VERSION_MAJOR[ \t]+([0-9]+).*")
     string(REGEX REPLACE ".*define LUNCHBOX_VERSION_MAJOR[ \t]+([0-9]+).*"
-      "\\1" LUNCHBOX_VERSION_MAJOR ${_lunchBox_Version_contents})
+      "\\1" LUNCHBOX_VERSION_MAJOR ${_lunchbox_Version_contents})
     string(REGEX REPLACE ".*define LUNCHBOX_VERSION_MINOR[ \t]+([0-9]+).*"
-      "\\1" LUNCHBOX_VERSION_MINOR ${_lunchBox_Version_contents})
+      "\\1" LUNCHBOX_VERSION_MINOR ${_lunchbox_Version_contents})
     string(REGEX REPLACE ".*define LUNCHBOX_VERSION_PATCH[ \t]+([0-9]+).*"
-      "\\1" LUNCHBOX_VERSION_PATCH ${_lunchBox_Version_contents})
+      "\\1" LUNCHBOX_VERSION_PATCH ${_lunchbox_Version_contents})
     string(REGEX REPLACE ".*define LUNCHBOX_VERSION_ABI[ \t]+([0-9]+).*"
-      "\\1" LUNCHBOX_VERSION_ABI ${_lunchBox_Version_contents})
+      "\\1" LUNCHBOX_VERSION_ABI ${_lunchbox_Version_contents})
     set(LUNCHBOX_VERSION "${LUNCHBOX_VERSION_MAJOR}.${LUNCHBOX_VERSION_MINOR}.${LUNCHBOX_VERSION_PATCH}"
-      CACHE INTERNAL "The version of LunchBox which was detected")
+      CACHE INTERNAL "The version of Lunchbox which was detected")
   endif()
 else()
-  set(_lunchBox_EPIC_FAIL TRUE)
-  message(${_lunchBox_version_output_type}
-    "Can't find LunchBox header file version.h.")
+  set(_lunchbox_EPIC_FAIL TRUE)
+  if(_lunchbox_output)
+    message(${_lunchbox_version_output_type}
+      "Can't find Lunchbox header file version.h.")
+  endif()
 endif()
 
 #
 # Version checking
 #
-if(LunchBox_FIND_VERSION AND LUNCHBOX_VERSION)
-  if(LunchBox_FIND_VERSION_EXACT)
-    if(NOT LUNCHBOX_VERSION VERSION_EQUAL ${LunchBox_FIND_VERSION})
-      set(_lunchBox_version_not_exact TRUE)
+if(Lunchbox_FIND_VERSION AND LUNCHBOX_VERSION)
+  if(Lunchbox_FIND_VERSION_EXACT)
+    if(NOT LUNCHBOX_VERSION VERSION_EQUAL ${Lunchbox_FIND_VERSION})
+      set(_lunchbox_version_not_exact TRUE)
     endif()
   else()
     # version is too low
-    if(NOT LUNCHBOX_VERSION VERSION_EQUAL ${LunchBox_FIND_VERSION} AND 
-        NOT LUNCHBOX_VERSION VERSION_GREATER ${LunchBox_FIND_VERSION})
-      set(_lunchBox_version_not_high_enough TRUE)
+    if(NOT LUNCHBOX_VERSION VERSION_EQUAL ${Lunchbox_FIND_VERSION} AND 
+        NOT LUNCHBOX_VERSION VERSION_GREATER ${Lunchbox_FIND_VERSION})
+      set(_lunchbox_version_not_high_enough TRUE)
     endif()
   endif()
 endif()
 
-find_library(_lunchBox_LIBRARY lunchbox
+find_library(_lunchbox_LIBRARY lunchbox
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{LUNCHBOX_ROOT} ${LUNCHBOX_ROOT}
   PATH_SUFFIXES lib
   PATHS /usr /usr/local /opt/local /opt
@@ -139,42 +145,48 @@ find_library(_lunchBox_LIBRARY lunchbox
         
 # Inform the users with an error message based on what version they
 # have vs. what version was required.
-if(_lunchBox_version_not_high_enough)
-  set(_lunchBox_EPIC_FAIL TRUE)
-  message(${_lunchBox_version_output_type}
-    "Version ${LunchBox_FIND_VERSION} or higher of LunchBox is required. "
-    "Version ${LUNCHBOX_VERSION} was found in ${_lunchBox_INCLUDE_DIR}.")
-elseif(_lunchBox_version_not_exact)
-  set(_lunchBox_EPIC_FAIL TRUE)
-  message(${_lunchBox_version_output_type}
-    "Version ${LunchBox_FIND_VERSION} of LunchBox is required exactly. "
-    "Version ${LUNCHBOX_VERSION} was found.")
+if(_lunchbox_version_not_high_enough)
+  set(_lunchbox_EPIC_FAIL TRUE)
+  if(_lunchbox_output)
+    message(${_lunchbox_version_output_type}
+      "Version ${Lunchbox_FIND_VERSION} or higher of Lunchbox is required. "
+      "Version ${LUNCHBOX_VERSION} was found in ${_lunchbox_INCLUDE_DIR}.")
+  endif()
+elseif(_lunchbox_version_not_exact)
+  set(_lunchbox_EPIC_FAIL TRUE)
+  if(_lunchbox_output)
+    message(${_lunchbox_version_output_type}
+      "Version ${Lunchbox_FIND_VERSION} of Lunchbox is required exactly. "
+      "Version ${LUNCHBOX_VERSION} was found.")
+  endif()
 else()
-  if(LunchBox_FIND_REQUIRED)
-    if(_lunchBox_LIBRARY MATCHES "_lunchBox_LIBRARY-NOTFOUND")
-      message(FATAL_ERROR "Missing the LunchBox library.\n"
+  if(Lunchbox_FIND_REQUIRED)
+    if(_lunchbox_LIBRARY MATCHES "_lunchbox_LIBRARY-NOTFOUND")
+      message(FATAL_ERROR "Missing the Lunchbox library.\n"
         "Consider using CMAKE_PREFIX_PATH or the LUNCHBOX_ROOT environment variable. "
         "See the ${CMAKE_CURRENT_LIST_FILE} for more details.")
     endif()
   endif()
   include(FindPackageHandleStandardArgs)
-  FIND_PACKAGE_HANDLE_STANDARD_ARGS(LunchBox DEFAULT_MSG
-                                    _lunchBox_LIBRARY _lunchBox_INCLUDE_DIR)
+  FIND_PACKAGE_HANDLE_STANDARD_ARGS(Lunchbox DEFAULT_MSG
+                                    _lunchbox_LIBRARY _lunchbox_INCLUDE_DIR)
 endif()
 
-if(_lunchBox_EPIC_FAIL)
+if(_lunchbox_EPIC_FAIL)
     # Zero out everything, we didn't meet version requirements
     set(LUNCHBOX_FOUND FALSE)
-    set(_lunchBox_LIBRARY)
-    set(_lunchBox_INCLUDE_DIR)
+    set(_lunchbox_LIBRARY)
+    set(_lunchbox_INCLUDE_DIR)
 endif()
 
-set(LUNCHBOX_INCLUDE_DIRS ${_lunchBox_INCLUDE_DIR})
-set(LUNCHBOX_LIBRARIES ${_lunchBox_LIBRARY})
-get_filename_component(LUNCHBOX_LIBRARY_DIR ${_lunchBox_LIBRARY} PATH)
+set(LUNCHBOX_INCLUDE_DIRS ${_lunchbox_INCLUDE_DIR})
+set(LUNCHBOX_LIBRARIES ${_lunchbox_LIBRARY})
+get_filename_component(LUNCHBOX_LIBRARY_DIR ${_lunchbox_LIBRARY} PATH)
 
 if(LUNCHBOX_FOUND)
-  message(STATUS "Found LunchBox ${LUNCHBOX_VERSION}/${LUNCHBOX_VERSION_ABI} in "
-    "${LUNCHBOX_INCLUDE_DIRS};${LUNCHBOX_LIBRARIES}")
+  if(_lunchbox_output)
+    message(STATUS "Found Lunchbox ${LUNCHBOX_VERSION}/${LUNCHBOX_VERSION_ABI}"
+      " in ${LUNCHBOX_INCLUDE_DIRS};${LUNCHBOX_LIBRARIES}")
+  endif()
 endif()
 

@@ -78,8 +78,16 @@ find_path(_co_INCLUDE_DIR co/version.h
 
 if(Collage_FIND_REQUIRED)
   set(_co_version_output_type FATAL_ERROR)
+  set(_co_output 1)
+  set(_co_required REQUIRED)
 else()
   set(_co_version_output_type STATUS)
+  if(NOT Collage_FIND_QUIETLY)
+    set(_co_output 1)
+  endif()
+endif()
+if(Collage_FIND_QUIETLY)
+  set(_co_quiet QUIET)
 endif()
 
 # Try to ascertain the version...
@@ -113,8 +121,10 @@ if(_co_INCLUDE_DIR)
   endif()
 else()
   set(_co_EPIC_FAIL TRUE)
-  message(${_co_version_output_type}
-    "Can't find Collage header file version.h.")
+  if(_co_output)
+    message(${_co_version_output_type}
+      "Can't find Collage header file version.h.")
+  endif()
 endif()
 
 #
@@ -144,14 +154,18 @@ find_library(_co_LIBRARY Collage
 # have vs. what version was required.
 if(_co_version_not_high_enough)
   set(_co_EPIC_FAIL TRUE)
-  message(${_co_version_output_type}
-    "Version ${Collage_FIND_VERSION} or higher of Collage is required. "
-    "Version ${COLLAGE_VERSION} was found in ${_co_INCLUDE_DIR}.")
+  if(_co_output)
+    message(${_co_version_output_type}
+      "Version ${Collage_FIND_VERSION} or higher of Collage is required. "
+      "Version ${COLLAGE_VERSION} was found in ${_co_INCLUDE_DIR}.")
+  endif()
 elseif(_co_version_not_exact)
   set(_co_EPIC_FAIL TRUE)
-  message(${_co_version_output_type}
-    "Version ${Collage_FIND_VERSION} of Collage is required exactly. "
-    "Version ${COLLAGE_VERSION} was found.")
+  if(_co_output)
+    message(${_co_version_output_type}
+      "Version ${Collage_FIND_VERSION} of Collage is required exactly. "
+      "Version ${COLLAGE_VERSION} was found.")
+  endif()
 else()
   if(Collage_FIND_REQUIRED)
     if(_co_LIBRARY MATCHES "_co_LIBRARY-NOTFOUND")
@@ -163,20 +177,34 @@ else()
   include(FindPackageHandleStandardArgs)
   FIND_PACKAGE_HANDLE_STANDARD_ARGS(Collage DEFAULT_MSG
                                     _co_LIBRARY _co_INCLUDE_DIR)
+
+  if(COLLAGE_VERSION VERSION_GREATER 0.5) # need Lunchbox
+    set(_co_lbVersion_0.5.1 "0.9.0")
+    find_package(Lunchbox "${_co_lbVersion_${COLLAGE_VERSION}}" EXACT
+      ${_co_required} ${_co_quiet})
+    if(NOT LUNCHBOX_FOUND)
+      set(_co_EPIC_FAIL 1)
+    endif()
+  endif()
 endif()
 
 if(_co_EPIC_FAIL)
-    # Zero out everything, we didn't meet version requirements
-    set(COLLAGE_FOUND FALSE)
-    set(_co_LIBRARY)
-    set(_co_INCLUDE_DIR)
+  # Zero out everything, we didn't meet version requirements
+  set(COLLAGE_FOUND FALSE)
+  set(_co_LIBRARY)
+  set(_co_INCLUDE_DIR)
 endif()
 
-set(COLLAGE_INCLUDE_DIRS ${_co_INCLUDE_DIR})
-set(COLLAGE_LIBRARIES ${_co_LIBRARY})
+set(COLLAGE_INCLUDE_DIRS ${_co_INCLUDE_DIR} ${LUNCHBOX_INCLUDE_DIRS})
+set(COLLAGE_LIBRARIES ${_co_LIBRARY} ${LUNCHBOX_LIBRARIES})
 get_filename_component(COLLAGE_LIBRARY_DIR ${_co_LIBRARY} PATH)
 
-if(COLLAGE_FOUND)
+if(LUNCHBOX_FOUND)
+  list(APPEND COLLAGE_INCLUDE_DIRS ${LUNCHBOX_INCLUDE_DIRS})
+  list(APPEND COLLAGE_LIBRARIES  ${LUNCHBOX_LIBRARIES})
+endif()
+
+if(COLLAGE_FOUND AND _co_output)
   message(STATUS "Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in "
     "${COLLAGE_INCLUDE_DIRS};${COLLAGE_LIBRARIES}")
 endif()
