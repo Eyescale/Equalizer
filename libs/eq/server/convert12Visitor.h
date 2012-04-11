@@ -35,7 +35,7 @@ class ConvertTo12Visitor : public ServerVisitor
     {
         if( !node->getHost().empty( ))
         {
-            EQWARN << "Pre-1.2 configurations should not have a node host name "
+            LBWARN << "Pre-1.2 configurations should not have a node host name "
                    << "set: " << node->getHost() << std::endl;
             return TRAVERSE_PRUNE;
         }

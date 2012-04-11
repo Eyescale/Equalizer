@@ -37,13 +37,13 @@ DFREqualizer::DFREqualizer()
         , _current ( _target )
         , _lastTime( 0 )
 {    
-    EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
+    LBINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
 
 DFREqualizer::~DFREqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete DFREqualizer @" << (void*)this << std::endl;
+    LBINFO << "Delete DFREqualizer @" << (void*)this << std::endl;
 }
 
 void DFREqualizer::attach( Compound* compound )
@@ -91,7 +91,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     Zoom newZoom( compound->getZoom( ));
     newZoom *= factor;
 
-    //EQINFO << _current << ": " << factor << " = " << newZoom 
+    //LBINFO << _current << ": " << factor << " = " << newZoom 
     //       << std::endl;
 
     // clip zoom factor to min( 128px ), max( channel pvp )

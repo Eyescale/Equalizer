@@ -37,7 +37,7 @@ static class : WindowSystemIF
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {
-        EQINFO << "Using glx::Window" << std::endl;
+        LBINFO << "Using glx::Window" << std::endl;
         return new Window(window);
     }
 
@@ -50,7 +50,7 @@ static class : WindowSystemIF
             threadInit = true;
         }
 
-        EQINFO << "Using glx::Pipe" << std::endl;
+        LBINFO << "Using glx::Pipe" << std::endl;
         return new Pipe(pipe);
     }
 
@@ -66,7 +66,7 @@ static class : WindowSystemIF
         LBASSERT( display );
         if( !display )
         {
-            EQWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
+            LBWARN << "No current X11 display, use eq::XSetCurrentDisplay()"
                    << std::endl;
             return false;
         }
@@ -89,7 +89,7 @@ static class : WindowSystemIF
         XFontStruct* fontStruct = XLoadQueryFont( display, font.str().c_str( ));
         if( !fontStruct )
         {
-            EQWARN << "Can't load font " << font.str() << ", using fixed"
+            LBWARN << "Can't load font " << font.str() << ", using fixed"
                    << std::endl;
             fontStruct = XLoadQueryFont( display, "fixed" ); 
         }

@@ -131,7 +131,7 @@ void ROITracker::updateDelay( const PixelViewports& pvps,
 
     if( ticket != _ticket )
     {
-        EQERROR << "Wrong ticket" << std::endl;
+        LBERROR << "Wrong ticket" << std::endl;
         return;
     }
 

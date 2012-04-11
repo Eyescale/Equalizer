@@ -59,20 +59,20 @@ static eq::SystemWindow* initSharedContextWindow( eq::Window* window )
             sharedWindow->makeCurrent();
         else
         {
-            EQWARN << "OS Window initialization failed: " << std::endl;
+            LBWARN << "OS Window initialization failed: " << std::endl;
             delete sharedWindow;
             sharedWindow = 0;
         }
     }
     else
     {
-        EQERROR << "Failed to create shared context window for "
+        LBERROR << "Failed to create shared context window for "
                 << pipe->getWindowSystem() << std::endl;
     }
 
     window->setIAttribute( eq::Window::IATTR_HINT_DRAWABLE, drawable );
 
-    EQINFO << "Async fetcher initialization finished" << std::endl;
+    LBINFO << "Async fetcher initialization finished" << std::endl;
     return sharedWindow;
 }
 
@@ -81,7 +81,7 @@ static void deleteSharedContextWindow( eq::Window* window,
                                        eq::SystemWindow** sharedWindow,
                                        eq::ObjectManager** objectManager )
 {
-    EQWARN << "Deleting shared context" << std::endl;
+    LBWARN << "Deleting shared context" << std::endl;
     if( !sharedWindow || !*sharedWindow )
         return;
 
@@ -137,7 +137,7 @@ void AsyncFetcher::run()
         return;
 
     _objectManager = new eq::ObjectManager( glewGetContext( ));
-    EQINFO << "async fetcher initialized: " << _window << std::endl;
+    LBINFO << "async fetcher initialized: " << _window << std::endl;
 
     uint8_t* i = 0;
     bool running = true;
@@ -178,7 +178,7 @@ void AsyncFetcher::run()
         {
             if( keyToDelete )
             {
-                EQWARN << "Deleting eq texture " << keyToDelete << std::endl;
+                LBWARN << "Deleting eq texture " << keyToDelete << std::endl;
                 _objectManager->deleteEqTexture( keyToDelete );
             }
             else

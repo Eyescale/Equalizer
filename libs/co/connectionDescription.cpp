@@ -200,7 +200,7 @@ bool ConnectionDescription::fromString( std::string& data )
     return true;
 
   error:
-    EQWARN << "Could not parse connection description: " << data << std::endl;
+    LBWARN << "Could not parse connection description: " << data << std::endl;
     return false;
 }
 
@@ -291,14 +291,14 @@ std::string serialize( const ConnectionDescriptions& descriptions )
 bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
 {
     if( !descriptions.empty( ))
-        EQWARN << "Connection descriptions already hold data before deserialize"
+        LBWARN << "Connection descriptions already hold data before deserialize"
                << std::endl;
 
     // num connection descriptions
     size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
-        EQERROR << "Could not parse number of connection descriptions"
+        LBERROR << "Could not parse number of connection descriptions"
                 << std::endl;
         return false;
     }
@@ -306,7 +306,7 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
     const std::string sizeStr = data.substr( 0, nextPos );
     if( !isdigit( sizeStr[0] ))
     {
-        EQERROR << "Could not parse number of connection descriptions"
+        LBERROR << "Could not parse number of connection descriptions"
                 << std::endl;
         return false;
     }
@@ -320,7 +320,7 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
         ConnectionDescriptionPtr desc = new ConnectionDescription;
         if( !desc->fromString( data ))
         {
-            EQERROR << "Error during connection description parsing"
+            LBERROR << "Error during connection description parsing"
                     << std::endl;
             return false;
         }

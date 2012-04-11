@@ -490,7 +490,7 @@ float View::_computeFocusRatio( Vector3f& eye )
                 continue;
 
             distance = d;
-            //EQINFO << "Eye " << eye << " is " << d << " from " << wall
+            //LBINFO << "Eye " << eye << " is " << d << " from " << wall
             // << std::endl;
         }
     }

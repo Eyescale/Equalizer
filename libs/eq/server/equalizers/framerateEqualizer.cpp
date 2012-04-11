@@ -80,7 +80,7 @@ private:
 FramerateEqualizer::FramerateEqualizer()
         : _nSamples( 0 )
 {
-    EQINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
+    LBINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
 }
 
 FramerateEqualizer::FramerateEqualizer( const FramerateEqualizer& from )

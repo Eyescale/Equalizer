@@ -61,7 +61,7 @@ void GLWindow::initGLEW()
 
     const GLenum result = glewInit();
     if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed: " << std::endl;
+        LBWARN << "GLEW initialization failed: " << std::endl;
     else
         _glewInitialized = true;
 }
@@ -140,7 +140,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     const char* glVersion = (const char*)glGetString( GL_VERSION );
     if( !glVersion ) // most likely no context - fail
     {
-        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+        LBWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
                << std::endl;
         drawableConfig.glVersion = 1.1f;
     }
@@ -171,7 +171,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
     drawableConfig.accumBits = accumBits * 4;
         
-    EQINFO << "Window drawable config: " << drawableConfig << std::endl;
+    LBINFO << "Window drawable config: " << drawableConfig << std::endl;
 }
     
 }

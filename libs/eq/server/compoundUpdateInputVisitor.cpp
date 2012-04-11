@@ -59,7 +59,7 @@ void CompoundUpdateInputVisitor::_updateQueues( const Compound* compound )
 
         if( j == _outputQueues.end( ))
         {
-            EQVERB << "Can't find matching output queue, ignoring input queue "
+            LBVERB << "Can't find matching output queue, ignoring input queue "
                    << name << std::endl;
             queue->unsetData();
             continue;
@@ -95,7 +95,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
 
         if( j == _outputFrames.end( ))
         {
-            EQVERB << "Can't find matching output frame, ignoring input frame "
+            LBVERB << "Can't find matching output frame, ignoring input frame "
                    << name << std::endl;
             frame->unsetData();
             continue;

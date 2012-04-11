@@ -76,7 +76,7 @@ bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 
     if( header.f==0 )
     {
-        EQERROR << "Can't open header file" << std::endl;
+        LBERROR << "Can't open header file" << std::endl;
         return false;
     }
 
@@ -257,7 +257,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     if( !file.is_open() )
     {
-        EQERROR << "Can't open model data file";
+        LBERROR << "Can't open model data file";
         return false;
     }
 
@@ -353,7 +353,7 @@ static bool readDimensionsAndScaling
         return false;
     if( fscanf( file, "d=%u\n", &d ) != 1 )
     {
-        EQERROR << "Can't read dimensions from header file" << std::endl;
+        LBERROR << "Can't read dimensions from header file" << std::endl;
         return false;
     }
 
@@ -363,7 +363,7 @@ static bool readDimensionsAndScaling
         return false;
     if( fscanf( file, "dScale=%g\n", &volScaling.D ) != 1 )
     {
-        EQERROR << "Can't read scaling from header file: " << std::endl;
+        LBERROR << "Can't read scaling from header file: " << std::endl;
         return false;
     }
 
@@ -372,7 +372,7 @@ static bool readDimensionsAndScaling
         volScaling.H<0.001 || 
         volScaling.W<0.001    )
     {
-        EQERROR << "volume scaling is incorrect, check header file"<< std::endl;
+        LBERROR << "volume scaling is incorrect, check header file"<< std::endl;
         return false;
     }
 
@@ -390,7 +390,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 )
     {
-        EQERROR << "Error in header file, can't find 'TF:' marker.";
+        LBERROR << "Error in header file, can't find 'TF:' marker.";
         return false;
     }
 
@@ -399,7 +399,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         return false;
 
     if( TFSize!=256  )
-        EQWARN << "Wrong size of transfer function, should be 256" << std::endl;
+        LBWARN << "Wrong size of transfer function, should be 256" << std::endl;
 
     TFSize = clip<int32_t>( TFSize, 1, 256 );
     TF.resize( TFSize*4 );
@@ -418,7 +418,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            EQERROR << "Failed to read entity #" << i 
+            LBERROR << "Failed to read entity #" << i 
                     << " of TF from header file" << std::endl;
             return i;
         }

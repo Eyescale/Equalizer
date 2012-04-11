@@ -119,7 +119,7 @@ void Config::notifyAttached()
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
-        EQWARN << "Connection to application node failed -- misconfigured "
+        LBWARN << "Connection to application node failed -- misconfigured "
                << "connections on appNode?" << std::endl;
 }
 
@@ -229,7 +229,7 @@ bool Config::init( const uint128_t& initID )
     if( _running )
         handleEvents();
     else
-        EQWARN << "Config initialization failed: " << getError() << std::endl
+        LBWARN << "Config initialization failed: " << getError() << std::endl
                << "    Consult client log for further information" << std::endl;
     return _running;
 }
@@ -380,7 +380,7 @@ uint32_t Config::finishFrame()
             {
                 if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
                 {
-                    EQWARN << "Timeout waiting for nodes to finish frame " 
+                    LBWARN << "Timeout waiting for nodes to finish frame " 
                            << frameToFinish << std::endl;
                     break;
                 }
@@ -418,7 +418,7 @@ uint32_t Config::finishAllFrames()
         }
         catch( const co::Exception& e )
         {
-            EQWARN << e.what() << std::endl;
+            LBWARN << e.what() << std::endl;
             break;
         } 
     }
@@ -830,7 +830,7 @@ bool Config::_cmdCreateNode( co::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.get<ConfigCreateNodePacket>();
-    EQVERB << "Handle create node " << packet << std::endl;
+    LBVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
     EQCHECK( mapObject( node, packet->nodeID ));
@@ -841,7 +841,7 @@ bool Config::_cmdDestroyNode( co::Command& command )
 {
     const ConfigDestroyNodePacket* packet =
         command.get<ConfigDestroyNodePacket>();
-    EQVERB << "Handle destroy node " << packet << std::endl;
+    LBVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
     LBASSERT( node );
@@ -862,7 +862,7 @@ bool Config::_cmdInitReply( co::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.get<ConfigInitReplyPacket>();
-    EQVERB << "handle init reply " << packet << std::endl;
+    LBVERB << "handle init reply " << packet << std::endl;
 
     sync( packet->version );
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
@@ -873,7 +873,7 @@ bool Config::_cmdExitReply( co::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.get<ConfigExitReplyPacket>();
-    EQVERB << "handle exit reply " << packet << std::endl;
+    LBVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
@@ -920,7 +920,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
 
     if( _unlockedFrame < _finishedFrame.get( ))
     {
-        EQWARN << "Finished frame " << _unlockedFrame 
+        LBWARN << "Finished frame " << _unlockedFrame 
                << " was not locally unlocked, enforcing unlock" << std::endl;
         _unlockedFrame = _finishedFrame.get();
     }
@@ -934,7 +934,7 @@ bool Config::_cmdSyncClock( co::Command& command )
     const ConfigSyncClockPacket* packet = 
         command.get< ConfigSyncClockPacket >();
 
-    EQVERB << "sync global clock to " << packet->time << ", drift " 
+    LBVERB << "sync global clock to " << packet->time << ", drift " 
            << packet->time - _clock.getTime64() << std::endl;
 
     _clock.set( packet->time );
@@ -945,7 +945,7 @@ bool Config::_cmdSwapObject( co::Command& command )
 {
     const ConfigSwapObjectPacket* packet = 
         command.get<ConfigSwapObjectPacket>();
-    EQVERB << "Cmd swap object " << packet << std::endl;
+    LBVERB << "Cmd swap object " << packet << std::endl;
 
     co::Object* object = packet->object;
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType(),

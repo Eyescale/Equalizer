@@ -96,7 +96,7 @@ bool Config::init()
     if( !_initData.getTrackerPort().empty( ))
     {
         if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialize tracker" << std::endl;
+            LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -108,7 +108,7 @@ bool Config::init()
             m = eq::Matrix4f::IDENTITY;
             m.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialized" << std::endl;
+            LBINFO << "Tracker initialized" << std::endl;
         }
     }
 
@@ -169,7 +169,7 @@ void Config::_loadModels()
         
             if( !model->readFromFile( filename.c_str( )))
             {
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
                 delete model;
             }
             else

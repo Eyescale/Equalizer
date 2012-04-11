@@ -362,7 +362,7 @@ int main( int argc, char **argv )
     }
     catch( TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
 
         co::exit();
@@ -373,7 +373,7 @@ int main( int argc, char **argv )
     co::ConnectionPtr connection = co::Connection::create( description );
     if( !connection )
     {
-        EQWARN << "Unsupported connection: " << description << std::endl;
+        LBWARN << "Unsupported connection: " << description << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }

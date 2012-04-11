@@ -43,7 +43,7 @@ TreeEqualizer::TreeEqualizer()
         , _tree( 0 )
 
 {
-    EQINFO << "New TreeEqualizer @" << (void*)this << std::endl;
+    LBINFO << "New TreeEqualizer @" << (void*)this << std::endl;
 }
 
 TreeEqualizer::TreeEqualizer( const TreeEqualizer& from )

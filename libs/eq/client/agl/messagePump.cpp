@@ -35,7 +35,7 @@ MessagePump::MessagePump()
                                          &_wakeupEvent );
     if( status != noErr )
     {
-        EQWARN << "CreateEvent failed: " << status << std::endl;
+        LBWARN << "CreateEvent failed: " << status << std::endl;
         EQUNREACHABLE;
     }
 }
@@ -79,7 +79,7 @@ void MessagePump::dispatchOne()
                                                   true, &event );
         if( status == noErr )
         {
-            EQVERB << "Dispatch Carbon event " << event << std::endl;
+            LBVERB << "Dispatch Carbon event " << event << std::endl;
 
             if( !_needGlobalLock )
                 Global::enterCarbon();
@@ -96,7 +96,7 @@ void MessagePump::dispatchOne()
 
         if( status != eventLoopTimedOutErr )
         {
-            EQWARN << "ReceiveNextEvent failed: " << status << std::endl;
+            LBWARN << "ReceiveNextEvent failed: " << status << std::endl;
             return;
         }
     }
@@ -119,11 +119,11 @@ void MessagePump::dispatchAll()
 
         if( status != noErr )
         {
-            EQWARN << "ReceiveNextEvent failed: " << status << std::endl;
+            LBWARN << "ReceiveNextEvent failed: " << status << std::endl;
             break;
         }
 
-        EQVERB << "Dispatch Carbon event " << event << std::endl;
+        LBVERB << "Dispatch Carbon event " << event << std::endl;
 
         if( !_needGlobalLock )
             Global::enterCarbon();

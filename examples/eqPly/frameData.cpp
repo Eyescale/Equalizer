@@ -49,7 +49,7 @@ FrameData::FrameData()
         , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
-    EQINFO << "New FrameData " << std::endl;
+    LBINFO << "New FrameData " << std::endl;
 }
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
@@ -148,7 +148,7 @@ void FrameData::adjustQuality( const float delta )
     _quality = LB_MAX( _quality, 0.1f );
     _quality = LB_MIN( _quality, 1.0f );
     setDirty( DIRTY_FLAGS );
-    EQINFO << "Set non-idle image quality to " << _quality << std::endl;
+    LBINFO << "Set non-idle image quality to " << _quality << std::endl;
 }
 
 void FrameData::togglePilotMode()
@@ -162,7 +162,7 @@ void FrameData::toggleRenderMode()
     _renderMode = static_cast< mesh::RenderMode >(
         ( _renderMode + 1) % mesh::RENDER_MODE_ALL );
 
-    EQINFO << "Switched to " << _renderMode << std::endl;
+    LBINFO << "Switched to " << _renderMode << std::endl;
     setDirty( DIRTY_FLAGS );
 }
 

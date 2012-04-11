@@ -152,7 +152,7 @@ bool PipeConnection::_createPipes()
     int pipeFDs[2];
     if( ::pipe( pipeFDs ) == -1 )
     {
-        EQERROR << "Could not create pipe: " << strerror( errno );
+        LBERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }
@@ -162,7 +162,7 @@ bool PipeConnection::_createPipes()
 
     if( ::pipe( pipeFDs ) == -1 )
     {
-        EQERROR << "Could not create pipe: " << strerror( errno );
+        LBERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }

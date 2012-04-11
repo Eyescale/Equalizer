@@ -85,7 +85,7 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
             dst += 3;
         }
 
-    EQWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
+    LBWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
     _tmpImg.writeImages( ss.str( ));
 }
 
@@ -604,7 +604,7 @@ void ROIFinder::_readbackInfo( )
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            EQERROR << "Failed to compile fragment shader for ROI finder"
+            LBERROR << "Failed to compile fragment shader for ROI finder"
                     << std::endl;
 
         program = _glObjects->newProgram( shaderRBInfo );
@@ -615,7 +615,7 @@ void ROIFinder::_readbackInfo( )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            EQWARN << "Failed to link shader program for ROI finder"
+            LBWARN << "Failed to link shader program for ROI finder"
                    << std::endl;
             return;
         }
@@ -701,13 +701,13 @@ for( int i = 0; i < 100; i++ ) {
 
     if( zoom != Zoom::NONE )
     {
-        EQWARN << "R-B optimization impossible when zoom is used"
+        LBWARN << "R-B optimization impossible when zoom is used"
                << std::endl;
         return result;
     }
 
 #ifdef EQ_ROI_USE_TRACKER
-//    EQWARN << "frID: " << frameID << " stage: " << stage << std::endl;
+//    LBWARN << "frID: " << frameID << " stage: " << stage << std::endl;
     uint8_t* ticket;
     if( !_roiTracker.useROIFinder( pvp, stage, frameID, ticket ))
         return result;
@@ -748,8 +748,8 @@ for( int i = 0; i < 100; i++ ) {
     static float frames = 0;        frames++;
 
     const float avgFPS = sumFPS / frames;
-    EQWARN << "=============================================" << std::endl;
-    EQWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
+    LBWARN << "=============================================" << std::endl;
+    LBWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
           << " ms) max fps: " << maxFPS << " (" << 1000.f/maxFPS
           << " ms) avg fps: " << avgFPS << " (" << 1000.f/avgFPS
           << " ms) cur fps: " << fps    << " (" << 1000.f/fps
@@ -758,7 +758,7 @@ for( int i = 0; i < 100; i++ ) {
     if( frames < 5 ) { minFPS = 10000; maxFPS = 0; }
 #endif //EQ_ROI_TEST_SPEED
 
-//    EQWARN << "Areas found: " << result.size() << std::endl;
+//    LBWARN << "Areas found: " << result.size() << std::endl;
     return result;
 }
 

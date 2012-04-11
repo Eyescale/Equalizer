@@ -65,7 +65,7 @@ bool _init( const int argc, char** argv )
 #  endif
         )
     {
-        EQWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
+        LBWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
                << " not in library search path and hardcoded locations not "
                << "found" << std::endl;
     }
@@ -74,7 +74,7 @@ bool _init( const int argc, char** argv )
 #  ifndef NDEBUG
 #    error "COLLAGE_DSO_NAME not defined"
 #  endif
-    EQWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
+    LBWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
            << std::endl;
 #endif
     plugins.init();
@@ -84,7 +84,7 @@ bool _init( const int argc, char** argv )
     WSADATA wsData;
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
-        EQERROR << "Initialization of Windows Sockets failed" 
+        LBERROR << "Initialization of Windows Sockets failed" 
                 << lunchbox::sysError << std::endl;
         return false;
     }
@@ -112,7 +112,7 @@ bool exit()
 #ifdef _WIN32
     if( WSACleanup() != 0 )
     {
-        EQERROR << "Cleanup of Windows Sockets failed" 
+        LBERROR << "Cleanup of Windows Sockets failed" 
                 << lunchbox::sysError << std::endl;
         return false;
     }

@@ -68,7 +68,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         if( _outputTileQueues.find( name ) != _outputTileQueues.end())
         {
-            EQWARN << "Multiple output queues of the same name are unsupported"
+            LBWARN << "Multiple output queues of the same name are unsupported"
                 << ", ignoring output queue " << name << std::endl;
             queue->unsetData();
             continue;
@@ -100,7 +100,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         if( _outputFrames.find( name ) != _outputFrames.end())
         {
-            EQWARN << "Multiple output frames of the same name are unsupported"
+            LBWARN << "Multiple output frames of the same name are unsupported"
                    << ", ignoring output frame " << name << std::endl;
             frame->unsetData();
             continue;
@@ -114,7 +114,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         
         if( !framePVP.hasArea( )) // output frame has no pixels
         {
-            EQINFO << "Skipping output frame " << name << ", no pixels"
+            LBINFO << "Skipping output frame " << name << ", no pixels"
                    << std::endl;
             frame->unsetData();
             continue;

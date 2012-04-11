@@ -90,12 +90,12 @@ namespace fabric
         void validate()
             {
                 if( isValid( )) return;
-                EQWARN << "Invalid " << *this << std::endl;
+                LBWARN << "Invalid " << *this << std::endl;
                 if( w == 0 ) w = 1;
                 if( h == 0 ) h = 1;
                 if( x >= w ) x = 0;
                 if( y >= h ) y = 0;
-                EQWARN << "Corrected " << *this << std::endl;
+                LBWARN << "Corrected " << *this << std::endl;
             }
 
         /** @return true if the pixel specification is valid. @internal */

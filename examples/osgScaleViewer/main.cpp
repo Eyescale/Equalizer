@@ -58,7 +58,7 @@ int main( const int argc, char** argv )
         new osgScaleViewer::OSGScaleViewer( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }

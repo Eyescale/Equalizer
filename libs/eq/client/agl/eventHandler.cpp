@@ -60,7 +60,7 @@ EventHandler::EventHandler( agl::WindowIF* window )
 
     if( !carbonWindow && !fullscreen )
     {
-        EQWARN << "Can't install event handler without native Carbon window"
+        LBWARN << "Can't install event handler without native Carbon window"
                << std::endl;
         return;
     }
@@ -118,10 +118,10 @@ EventHandler::EventHandler( agl::WindowIF* window )
     Global::leaveCarbon();
 
     if( fullscreen )
-        EQVERB << "Installed event handlers for fullscreen carbon context"
+        LBVERB << "Installed event handlers for fullscreen carbon context"
                << std::endl;
     else
-        EQVERB << "Installed event handlers for carbon window " << carbonWindow
+        LBVERB << "Installed event handlers for carbon window " << carbonWindow
                << std::endl;
 }
 
@@ -205,7 +205,7 @@ bool EventHandler::handleEvent( EventRef eventRef )
              break;
 
         default:
-            EQINFO << "Unknown event class " << GetEventClass( eventRef )
+            LBINFO << "Unknown event class " << GetEventClass( eventRef )
                    << std::endl;
             return false;
     }
@@ -261,7 +261,7 @@ void EventHandler::_processWindowEvent( WindowEvent& event )
             break;
 
         default:
-            EQINFO << "Unhandled window event " << GetEventKind( eventRef )
+            LBINFO << "Unhandled window event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             break;
@@ -415,7 +415,7 @@ bool EventHandler::_processMouseEvent( WindowEvent& event )
             return true;
         }
         default:
-            EQINFO << "Unhandled mouse event " << GetEventKind( eventRef )
+            LBINFO << "Unhandled mouse event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             return true;
@@ -439,7 +439,7 @@ void EventHandler::_processKeyEvent( WindowEvent& event )
             break;
 
         default:
-            EQINFO << "Unhandled keyboard event " << GetEventKind( eventRef )
+            LBINFO << "Unhandled keyboard event " << GetEventKind( eventRef )
                    << std::endl;
             event.type = Event::UNKNOWN;
             break;
@@ -537,7 +537,7 @@ uint32_t EventHandler::_getKey( EventRef eventRef )
 
                 return key;
 
-            EQWARN << "Unrecognized key " << key << std::endl;
+            LBWARN << "Unrecognized key " << key << std::endl;
             return KC_VOID;
     }
 }
@@ -611,11 +611,11 @@ void EventHandler::initMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
     if( _magellanNode )
-        EQINFO << "Space Mouse already installed" << std::endl;
+        LBINFO << "Space Mouse already installed" << std::endl;
     else if( !InstallConnexionHandlers )
-        EQWARN << "Space Mouse drivers not installed" << std::endl;
+        LBWARN << "Space Mouse drivers not installed" << std::endl;
     else if( InstallConnexionHandlers( _magellanEventHandler, 0, 0 ) != noErr )
-        EQWARN << "Can't install Space Mouse connexion handlers" << std::endl;
+        LBWARN << "Can't install Space Mouse connexion handlers" << std::endl;
     else
     {
         std::string program( '\0' + lunchbox::getFilename(

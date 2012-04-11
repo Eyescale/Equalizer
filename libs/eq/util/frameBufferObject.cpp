@@ -62,7 +62,7 @@ bool FrameBufferObject::addColorTexture()
     if( _colors.size() >= 16 )
     {
         _setError( ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES );
-        EQERROR << _error << std::endl;
+        LBERROR << _error << std::endl;
         return false;
     }
 
@@ -82,7 +82,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
     if( _fboID )
     {
         _setError( ERROR_FRAMEBUFFER_INITIALIZED );
-        EQWARN << _error << std::endl;
+        LBWARN << _error << std::endl;
         return false;
     }
 
@@ -137,7 +137,7 @@ bool FrameBufferObject::_checkStatus()
     switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
     {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
-            EQVERB << "FBO supported and complete" << std::endl;
+            LBVERB << "FBO supported and complete" << std::endl;
             _valid = true;
             return true;
 
@@ -166,7 +166,7 @@ bool FrameBufferObject::_checkStatus()
             break;
     }
 
-    EQWARN << _error << std::endl;
+    LBWARN << _error << std::endl;
     _valid = false;
     return false;
 }

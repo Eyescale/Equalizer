@@ -40,7 +40,7 @@ Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
 Texture::~Texture()
 {
     if( _name != 0 )
-        EQWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
+        LBWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
 
     _name      = 0;
     _defined = false;

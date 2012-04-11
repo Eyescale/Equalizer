@@ -360,7 +360,7 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
 
     _data.pvp = pvp;
     notifyPixelViewportChanged();    
-    EQINFO << "Pipe pvp set: " << _data.pvp << std::endl;
+    LBINFO << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
 template< class N, class P, class W, class V >
@@ -373,7 +373,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
         (*i)->notifyViewportChanged();
     }
     setDirty( DIRTY_PIXELVIEWPORT );
-    EQINFO << getName() << " pvp update: " << _data.pvp << std::endl;
+    LBINFO << getName() << " pvp update: " << _data.pvp << std::endl;
 }
 
 //----------------------------------------------------------------------

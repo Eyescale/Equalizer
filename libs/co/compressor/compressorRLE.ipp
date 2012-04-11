@@ -310,7 +310,7 @@ static unsigned _setupResults( const unsigned nChannels,
     for( size_t i = 0; i < nChunks; ++i )
         results[i]->reserve( maxChunkSize );
 
-    EQVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
+    LBVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
            << std::endl;
     return nChunks;
 }

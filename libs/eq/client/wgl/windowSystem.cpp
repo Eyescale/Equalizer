@@ -41,13 +41,13 @@ static class : WindowSystemIF
 
     eq::SystemWindow* createWindow(eq::Window* window) const
     {
-        EQINFO << "Using wgl::Window" << std::endl;
+        LBINFO << "Using wgl::Window" << std::endl;
         return new Window(window);
     }
 
     eq::SystemPipe* createPipe(eq::Pipe* pipe) const
     {
-        EQINFO << "Using wgl::Pipe" << std::endl;
+        LBINFO << "Using wgl::Pipe" << std::endl;
         return new Pipe(pipe);
     }
 
@@ -62,7 +62,7 @@ static class : WindowSystemIF
         HDC dc = wglGetCurrentDC();
         if( !dc )
         {
-            EQWARN << "No WGL device context current" << std::endl;
+            LBWARN << "No WGL device context current" << std::endl;
             return false;
         }
 
@@ -86,7 +86,7 @@ static class : WindowSystemIF
         HFONT newFont = CreateFontIndirect( &font );
         if( !newFont )
         {
-            EQWARN << "Can't load font " << name << ", using Times New Roman" 
+            LBWARN << "Can't load font " << name << ", using Times New Roman" 
                    << std::endl;
 
             strncpy( font.lfFaceName, "Times New Roman", LF_FACESIZE );

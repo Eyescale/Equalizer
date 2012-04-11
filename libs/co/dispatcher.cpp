@@ -83,7 +83,7 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 bool Dispatcher::dispatchCommand( Command& command )
 {
     LBASSERT( command.isValid( ));
-    EQVERB << "dispatch " << command << " on " << lunchbox::className( this )
+    LBVERB << "dispatch " << command << " on " << lunchbox::className( this )
            << std::endl;
 
     const uint32_t which = command->command;
@@ -113,7 +113,7 @@ bool Dispatcher::dispatchCommand( Command& command )
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << lunchbox::className( this )
+    LBERROR << "Unknown " << command << " for " << lunchbox::className( this )
             << lunchbox::backtrace << std::endl;
     EQUNREACHABLE;
     return false;

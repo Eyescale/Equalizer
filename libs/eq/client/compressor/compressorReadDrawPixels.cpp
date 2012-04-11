@@ -444,7 +444,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 #endif
         // else
 
-        EQWARN << "Can't initialize PBO for async readback" << std::endl;
+        LBWARN << "Can't initialize PBO for async readback" << std::endl;
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                                   _format, _type, _buffer.getData( )));
@@ -481,7 +481,7 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
             memcpy( _buffer.getData(), ptr, size );
         else
         {
-            EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
+            LBERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
         }
         _pbo->unmap();
     }

@@ -125,7 +125,7 @@ void WindowSystem::_chooseImpl( const std::string& name )
     }
 
     _impl = _stack;
-    EQWARN << "Window system " << name << " not supported, " << "using "
+    LBWARN << "Window system " << name << " not supported, " << "using "
            << _impl->getName() << " instead." << std::endl;
 }
 

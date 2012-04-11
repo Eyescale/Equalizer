@@ -235,7 +235,7 @@ bool Node::connect()
     EQLOG( LOG_INIT ) << "Connecting node" << std::endl;
     if( !localNode->connect( _node ) && !launch( ))
     {
-        EQWARN << "Connection to " << _node->getNodeID() << " failed"
+        LBWARN << "Connection to " << _node->getNodeID() << " failed"
                << std::endl;
         _state = STATE_FAILED;
         _node = 0;
@@ -304,7 +304,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
                 data << desc->getHostname() << ' ';
             }
             setError( ERROR_NODE_CONNECT );
-            EQWARN << getError() << std::endl;
+            LBWARN << getError() << std::endl;
 
             _state = STATE_FAILED;
             return false;
@@ -355,7 +355,7 @@ bool Node::_launch( const std::string& hostname ) const
                 break;
 
             default:
-                EQWARN << "Unknown token " << command[percentPos+1] 
+                LBWARN << "Unknown token " << command[percentPos+1] 
                        << std::endl;
                 replacement << '%' << command[percentPos+1];
         }
@@ -372,11 +372,11 @@ bool Node::_launch( const std::string& hostname ) const
     if( !commandFound )
         cmd += " " + _createRemoteCommand();
 
-    EQVERB << "Launch command: " << cmd << std::endl;
+    LBVERB << "Launch command: " << cmd << std::endl;
     if( lunchbox::Launcher::run( cmd ))
         return true;
 
-    EQWARN << "Could not launch node using '" << cmd << "'" << std::endl;
+    LBWARN << "Could not launch node using '" << cmd << "'" << std::endl;
     return false;
 }
 
@@ -483,7 +483,7 @@ bool Node::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Node initialization failed: " << getError() << std::endl;
+    LBWARN << "Node initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }
@@ -529,7 +529,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return;
 
-    EQVERB << "Start frame " << frameNumber << std::endl;
+    LBVERB << "Start frame " << frameNumber << std::endl;
     LBASSERT( isActive( ));
 
     _frameIDs[ frameNumber ] = frameID;
@@ -719,7 +719,7 @@ bool Node::_cmdConfigInitReply( co::Command& command )
 {
     const NodeConfigInitReplyPacket* packet = 
         command.get<NodeConfigInitReplyPacket>();
-    EQVERB << "handle configInit reply " << packet << std::endl;
+    LBVERB << "handle configInit reply " << packet << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
@@ -730,7 +730,7 @@ bool Node::_cmdConfigExitReply( co::Command& command )
 {
     const NodeConfigExitReplyPacket* packet =
         command.get<NodeConfigExitReplyPacket>();
-    EQVERB << "handle configExit reply " << packet << std::endl;
+    LBVERB << "handle configExit reply " << packet << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
@@ -741,7 +741,7 @@ bool Node::_cmdFrameFinishReply( co::Command& command )
 {
     const NodeFrameFinishReplyPacket* packet = 
         command.get<NodeFrameFinishReplyPacket>();
-    EQVERB << "handle frame finish reply " << packet << std::endl;
+    LBVERB << "handle frame finish reply " << packet << std::endl;
     
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );

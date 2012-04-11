@@ -65,7 +65,7 @@ EventHandler::EventHandler( WindowIF* window )
         messagePump->register_( display );
     }
     else
-        EQINFO << "Using glx::EventHandler without glx::MessagePump, external "
+        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
                << "event dispatch assumed" << std::endl;
 }
 
@@ -260,12 +260,12 @@ void EventHandler::_processEvent( WindowEvent& event )
         case ReparentNotify:
         case VisibilityNotify:
             event.type = Event::UNKNOWN;
-            EQINFO << "Ignored X event, type " << xEvent.type << std::endl;
+            LBINFO << "Ignored X event, type " << xEvent.type << std::endl;
             break;
 
         default:
             event.type = Event::UNKNOWN;
-            EQWARN << "Unhandled X event, type " << xEvent.type << std::endl;
+            LBWARN << "Unhandled X event, type " << xEvent.type << std::endl;
             break;
     }
 
@@ -372,7 +372,7 @@ uint32_t EventHandler::_getKey( XEvent& event )
             {
                 return key;
             }
-            EQWARN << "Unrecognized X11 key code " << key << std::endl;
+            LBWARN << "Unrecognized X11 key code " << key << std::endl;
             return KC_VOID;
     }
 }

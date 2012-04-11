@@ -40,7 +40,7 @@ template< class Q > void WorkerThread< Q >::run()
     }
  
     _commands.flush();
-    EQINFO << "Leaving worker thread " << lunchbox::className( this ) << std::endl;
+    LBINFO << "Leaving worker thread " << lunchbox::className( this ) << std::endl;
 }
 
 }

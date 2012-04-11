@@ -64,7 +64,7 @@ bool Config::init()
     if( !trackerPort.empty( ))
     {
         if( !_tracker.init( trackerPort ))
-            EQWARN << "Failed to initialize tracker" << std::endl;
+            LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -76,7 +76,7 @@ bool Config::init()
             matrix = eq::Matrix4f::IDENTITY;
             matrix.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( matrix );
-            EQINFO << "Tracker initialized" << std::endl;
+            LBINFO << "Tracker initialized" << std::endl;
         }
     }
 

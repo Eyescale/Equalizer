@@ -200,7 +200,7 @@ void DataOStream::write( const void* data, uint64_t size )
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytes += size;
     if( compressionTime > 100000 )
-        EQWARN << *this << std::endl;
+        LBWARN << *this << std::endl;
 #endif    
 
     if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))

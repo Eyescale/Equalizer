@@ -386,7 +386,7 @@ void Channel::frameAssemble( const uint128_t& )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << std::endl;
+        LBWARN << e.what() << std::endl;
     }
     EQ_GL_CALL( resetAssemblyState( ));
 }
@@ -578,7 +578,7 @@ void Channel::applyViewport() const
 
     if( !pvp.hasArea( ))
     {
-        EQERROR << "Can't apply viewport " << pvp << std::endl;
+        LBERROR << "Can't apply viewport " << pvp << std::endl;
         return;
     }
 
@@ -871,7 +871,7 @@ bool Channel::processEvent( const Event& event )
         }
 
         default:
-            EQWARN << "Unhandled channel event of type " << event.type
+            LBWARN << "Unhandled channel event of type " << event.type
                    << std::endl;
             EQUNIMPLEMENTED;
     }
@@ -1670,7 +1670,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 
     if( frameData->getBuffers() == 0 )
     {
-        EQWARN << "No buffers for frame data" << std::endl;
+        LBWARN << "No buffers for frame data" << std::endl;
         return;
     }
 
@@ -1684,7 +1684,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 
     if( image->getStorageType() == Frame::TYPE_TEXTURE )
     {
-        EQWARN << "Can't transmit image of type TEXTURE" << std::endl;
+        LBWARN << "Can't transmit image of type TEXTURE" << std::endl;
         EQUNIMPLEMENTED;
         return;
     }
@@ -1693,7 +1693,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     co::NodePtr toNode = localNode->connect( request->netNodeID );
     if( !toNode || !toNode->isConnected( ))
     {
-        EQWARN << "Can't connect node " << request->netNodeID
+        LBWARN << "Can't connect node " << request->netNodeID
                << " to send image data" << std::endl;
         return;
     }
@@ -2007,7 +2007,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
 {
     ChannelFrameStartPacket* packet = 
         command.getModifiable< ChannelFrameStartPacket >();
-    EQVERB << "handle channel frame start " << packet << std::endl;
+    LBVERB << "handle channel frame start " << packet << std::endl;
 
     //_grabFrame( packet->frameNumber ); single-threaded
     sync( packet->version );

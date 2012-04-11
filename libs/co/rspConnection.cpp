@@ -256,7 +256,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
-        EQINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
+        LBINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
@@ -269,7 +269,7 @@ bool RSPConnection::listen()
     }
     catch( const boost::system::system_error& e )
     {
-        EQWARN << "can't setup underlying UDP connection: " << e.what()
+        LBWARN << "can't setup underlying UDP connection: " << e.what()
                << std::endl;
         delete _read;
         delete _write;
@@ -296,7 +296,7 @@ bool RSPConnection::listen()
 
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description->getHostname() << ":"
+    LBINFO << "Listening on " << _description->getHostname() << ":"
            << _description->port << " (" << _description->toString() << " @"
            << (void*)this << ")" << std::endl;
     return true;
@@ -315,7 +315,7 @@ ConnectionPtr RSPConnection::acceptSync()
     RSPConnectionPtr newConnection = _newChildren.back();
     _newChildren.pop_back();
 
-    EQINFO << _id << " accepted RSP connection " << newConnection->_id
+    LBINFO << _id << " accepted RSP connection " << newConnection->_id
            << std::endl;
 
     lunchbox::ScopedWrite mutex2( _mutexEvent );
@@ -401,7 +401,7 @@ void RSPConnection::Thread::run()
 {
     _connection->_runThread();
     _connection = 0;
-    EQINFO << "Left RSP protocol thread" << std::endl;
+    LBINFO << "Left RSP protocol thread" << std::endl;
 }
 
 void RSPConnection::_handleTimeout( const boost::system::error_code& error )
@@ -448,7 +448,7 @@ void RSPConnection::_handleInitTimeout( )
     else
     {
         _state = STATE_LISTENING;
-        EQINFO << "RSP connection " << _id << " listening" << std::endl;
+        LBINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
         _ioService.stop(); // thread initialized, run restarts
     } 
@@ -467,7 +467,7 @@ void RSPConnection::_handleConnectedTimeout()
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
-        EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
+        LBERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
         _appBuffers.pushFront( 0 ); // unlock write function
         for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
@@ -521,7 +521,7 @@ void RSPConnection::_processOutgoing()
 #ifdef EQ_INSTRUMENT_RSP
     if( instrumentClock.getTime64() > 1000 )
     {
-        EQWARN << *this << std::endl;
+        LBWARN << *this << std::endl;
         instrumentClock.reset();
     }
 #endif
@@ -1390,7 +1390,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
     if( _findConnection( id ))
         return false;
 
-    EQINFO << "add connection " << id << std::endl;
+    LBINFO << "add connection " << id << std::endl;
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
@@ -1419,7 +1419,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
 
 void RSPConnection::_removeConnection( const uint16_t id )
 {
-    EQINFO << "remove connection " << id << std::endl;
+    LBINFO << "remove connection " << id << std::endl;
     if( id == _id )
         return;
 

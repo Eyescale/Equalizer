@@ -70,7 +70,7 @@ int EVolve::run()
     eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -80,7 +80,7 @@ int EVolve::run()
 
     if( !config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -96,7 +96,7 @@ int EVolve::run()
         return EXIT_FAILURE;
     }
     else if( config->getError( ))
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
     EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
@@ -110,7 +110,7 @@ int EVolve::run()
     {
         config->startFrame();
         if( config->getError( ))
-            EQWARN << "Error during frame start: " << config->getError()
+            LBWARN << "Error during frame start: " << config->getError()
                    << std::endl;
         config->finishFrame();
     }
@@ -128,7 +128,7 @@ int EVolve::run()
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 
     return EXIT_SUCCESS;
@@ -139,7 +139,7 @@ void EVolve::clientLoop()
     do
     {
          eq::Client::clientLoop();
-         EQINFO << "Configuration run successfully executed" << std::endl;
+         LBINFO << "Configuration run successfully executed" << std::endl;
     }
     while( _initData.isResident( )); // execute at lease one config run
 }

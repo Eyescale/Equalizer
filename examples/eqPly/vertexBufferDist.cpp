@@ -120,7 +120,7 @@ mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
                                                  co::VERSION_OLDEST, master );
     if( !localNode->mapObjectSync( req ))
     {
-        EQWARN << "Mapping of model failed" << std::endl;
+        LBWARN << "Mapping of model failed" << std::endl;
         return 0;
     }
 

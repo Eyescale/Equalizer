@@ -66,7 +66,7 @@ bool Application::init()
     eq::ServerPtr server = new eq::Server;
     if( !_app->connectServer( server ))
     {
-        EQERROR << "Can't open Equalizer server" << std::endl;
+        LBERROR << "Can't open Equalizer server" << std::endl;
         exit();
         return false;
     }
@@ -76,7 +76,7 @@ bool Application::init()
 
     if( !_config )
     {
-        EQERROR << "No matching configuration on Equalizer server" << std::endl;
+        LBERROR << "No matching configuration on Equalizer server" << std::endl;
         _app->disconnectServer( server );
         exit();
         return false;

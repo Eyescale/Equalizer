@@ -398,7 +398,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     }
 
     if( _size > target && minUsage == 0 )
-        EQWARN << "Overfull instance cache, too many pinned items, size "
+        LBWARN << "Overfull instance cache, too many pinned items, size "
                << _size << " target " << target << " max " << _maxSize
                << " " << _items->size() << " entries"
 #ifdef EQ_INSTRUMENT_CACHE

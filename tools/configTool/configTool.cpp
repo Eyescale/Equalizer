@@ -63,7 +63,7 @@ int main( int argc, char** argv )
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     configTool.writeConfig();

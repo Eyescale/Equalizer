@@ -124,7 +124,7 @@ void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
 
 #ifdef EQ_INSTRUMENT
         _bytesBuffered -= data->os.getSaveBuffer().getSize();
-        EQINFO << _bytesBuffered << " bytes used" << std::endl;
+        LBINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
         _releaseInstanceData( data );
         _instanceDatas.pop_back();
@@ -150,10 +150,10 @@ void FullMasterCM::_obsolete()
 
 #ifdef EQ_INSTRUMENT
         _bytesBuffered -= data->os.getSaveBuffer().getSize();
-        EQINFO << _bytesBuffered << " bytes used" << std::endl;
+        LBINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
 #if 0
-        EQINFO
+        LBINFO
             << "Remove v" << data->os.getVersion() << " c" << data->commitCount
             << "@" << _commitCount << "/" << _nVersions << " from "
             << lunchbox::className( _object ) << " " << ObjectVersion( _object )
@@ -179,7 +179,7 @@ void FullMasterCM::_initSlave( NodePtr node, const uint128_t& version,
 
 #ifndef NDEBUG
     if( version != VERSION_OLDEST && version < start )
-        EQINFO << "Mapping version " << start << " instead of requested "
+        LBINFO << "Mapping version " << start << " instead of requested "
                << version << std::endl;
 #endif
 
@@ -249,7 +249,7 @@ void FullMasterCM::_initSlave( NodePtr node, const uint128_t& version,
 
 #ifdef EQ_INSTRUMENT_MULTICAST
     if( _miss % 100 == 0 )
-        EQINFO << "Cached " << _hit << "/" << _hit + _miss
+        LBINFO << "Cached " << _hit << "/" << _hit + _miss
                << " instance data transmissions" << std::endl;
 #endif
 }
@@ -311,7 +311,7 @@ void FullMasterCM::_addInstanceData( InstanceData* data )
     _instanceDatas.push_back( data );
 #ifdef EQ_INSTRUMENT
     _bytesBuffered += data->os.getSaveBuffer().getSize();
-    EQINFO << _bytesBuffered << " bytes used" << std::endl;
+    LBINFO << _bytesBuffered << " bytes used" << std::endl;
 #endif
 }
 
@@ -348,7 +348,7 @@ uint128_t FullMasterCM::commit( const uint32_t incarnation )
             ++_version;
             LBASSERT( _version != VERSION_NONE );
 #if 0
-            EQINFO << "Committed v" << _version << "@" << _commitCount
+            LBINFO << "Committed v" << _version << "@" << _commitCount
                    << ", id " << _object->getID() << std::endl;
 #endif
             _addInstanceData( instanceData );

@@ -241,14 +241,14 @@ void Node::_frameFinish( const uint128_t& frameID,
 
     if( _unlockedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+        LBWARN << "Finished frame was not locally unlocked, enforcing unlock" 
                << std::endl;
         releaseFrameLocal( frameNumber );
     }
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock"
+        LBWARN << "Finished frame was not released, enforcing unlock"
                << std::endl;
         releaseFrame( frameNumber );
     }
@@ -514,7 +514,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     LB_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.get<NodeFrameStartPacket>();
-    EQVERB << "handle node frame start " << packet << std::endl;
+    LBVERB << "handle node frame start " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
     LBASSERT( _currentFrame == frameNumber-1 );

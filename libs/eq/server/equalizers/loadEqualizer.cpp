@@ -43,7 +43,7 @@ LoadEqualizer::LoadEqualizer( const Mode mode )
         , _boundaryf( std::numeric_limits<float>::epsilon() )
         , _assembleOnlyLimit( std::numeric_limits< float >::max( ) )
 {
-    EQINFO << "New LoadEqualizer @" << (void*)this << std::endl;
+    LBINFO << "New LoadEqualizer @" << (void*)this << std::endl;
 }
 
 LoadEqualizer::LoadEqualizer( const LoadEqualizer& from )

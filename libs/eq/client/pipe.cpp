@@ -195,7 +195,7 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    EQINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
+    LBINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
 
     Config* config = getConfig();
     config->setupMessagePump( this );
@@ -270,7 +270,7 @@ MessagePump* Pipe::getMessagePump()
 void Pipe::Thread::run()
 {
     LB_TS_THREAD( _pipe->_pipeThread );
-    EQINFO << "Entered pipe thread" << std::endl;
+    LBINFO << "Entered pipe thread" << std::endl;
 
     Pipe* pipe = _pipe; // _pipe gets cleared on exit
     pipe->_state.waitEQ( STATE_MAPPED );
@@ -281,7 +281,7 @@ void Pipe::Thread::run()
     Worker::run();
 
     pipe->_exitCommandQueue();
-    EQINFO << "Leaving pipe thread" << std::endl;
+    LBINFO << "Leaving pipe thread" << std::endl;
 }
 
 co::CommandQueue* Pipe::getPipeThreadQueue()
@@ -589,13 +589,13 @@ bool Pipe::configInit( const uint128_t& initID )
 #ifdef EQ_USE_CUDA
     if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
     {
-        EQINFO << "Initializing CUDAContext" << std::endl;
+        LBINFO << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );
 
         if( !computeCtx->configInit() )
         {
             LBASSERT( getError() != ERROR_NONE );
-            EQWARN << "GPU Computing context initialization failed: "
+            LBWARN << "GPU Computing context initialization failed: "
                    << getError() << std::endl;
             delete computeCtx;
             return false;
@@ -615,7 +615,7 @@ bool Pipe::configInitSystemPipe( const uint128_t& )
     if( !systemPipe->configInit( ))
     {
         LBASSERT( getError() != ERROR_NONE );
-        EQERROR << "System pipe context initialization failed: "
+        LBERROR << "System pipe context initialization failed: "
                 << getError() << std::endl;
         delete systemPipe;
         return false;
@@ -907,7 +907,7 @@ bool Pipe::_cmdExitTransferThread( co::Command& )
 
 bool Pipe::_cmdFrameStartClock( co::Command& )
 {
-    EQVERB << "start frame clock" << std::endl;
+    LBVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
@@ -919,7 +919,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.get<PipeFrameStartPacket>();
-    EQVERB << "handle pipe frame start " << packet << std::endl;
+    LBVERB << "handle pipe frame start " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
     sync( packet->version );
     const int64_t lastFrameTime = _frameTime;
@@ -965,7 +965,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
     if( _unlockedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+        LBWARN << "Finished frame was not locally unlocked, enforcing unlock" 
                << std::endl << "    unlocked " << _unlockedFrame.get()
                << " done " << frameNumber << std::endl;
         releaseFrameLocal( frameNumber );
@@ -973,7 +973,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock"
+        LBWARN << "Finished frame was not released, enforcing unlock"
                << std::endl;
         releaseFrame( frameNumber );
     }

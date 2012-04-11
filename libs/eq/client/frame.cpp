@@ -31,13 +31,13 @@ Frame::Frame()
         : _frameData( 0 )
         , _zoomFilter( FILTER_LINEAR )
 {
-    EQINFO << "New Frame @" << (void*)this << std::endl;
+    LBINFO << "New Frame @" << (void*)this << std::endl;
 }
 
 Frame::~Frame()
 {
     if( _frameData )
-        EQINFO << "FrameData attached to frame during deletion" << std::endl;
+        LBINFO << "FrameData attached to frame during deletion" << std::endl;
 }
 
 void Frame::getInstanceData( co::DataOStream& os )

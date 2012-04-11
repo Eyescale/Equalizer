@@ -225,7 +225,7 @@ template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
         V* view = *i;
         if( view->getObserver() == observer )
         {
-            EQINFO << "Removing " << lunchbox::disableHeader << *observer
+            LBINFO << "Removing " << lunchbox::disableHeader << *observer
                    << " used by " << *view << std::endl
                    << lunchbox::enableHeader;
             view->setObserver( 0 );

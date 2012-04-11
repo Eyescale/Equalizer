@@ -75,7 +75,7 @@ uint128_t Object::commit( const uint32_t incarnation )
     {
         const uint128_t& version = _userData->commit( incarnation );
         LBASSERT( version != co::VERSION_NONE );
-//        EQINFO << "Committed " << _userData->getID() << " v" << version
+//        LBINFO << "Committed " << _userData->getID() << " v" << version
 //               << " of " << lunchbox::className( _userData ) << " @"
 //               << (void*)_userData << lunchbox::backtrace << std::endl;
 
@@ -205,11 +205,11 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         _data.userData.identifier != UUID::ZERO )
     {
         LBASSERT( !hasMasterUserData( ));
-        //EQINFO << "Map " << _data.userData << lunchbox::backtrace
+        //LBINFO << "Map " << _data.userData << lunchbox::backtrace
         //       << std::endl;
         if( !getLocalNode()->mapObject( _userData, _data.userData ))
         {
-            EQWARN << "Mapping of " << lunchbox::className( _userData )
+            LBWARN << "Mapping of " << lunchbox::className( _userData )
                    << " user data failed" << std::endl;
             EQUNREACHABLE;
             return;
@@ -222,7 +222,7 @@ void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
                       _userData->getID() << " != " << _data.userData.identifier );
 #if 0
         if( _userData->getVersion() < _data.userData.version )
-            EQINFO << "Sync " << _data.userData << lunchbox::backtrace
+            LBINFO << "Sync " << _data.userData << lunchbox::backtrace
                    << std::endl;
 #endif
         _userData->sync( _data.userData.version );

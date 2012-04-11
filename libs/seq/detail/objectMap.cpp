@@ -223,7 +223,7 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
     LBASSERT( i != _map.end( ));
     if( i == _map.end( ))
     {
-        EQWARN << "Object mapping failed, no master registered" << std::endl;
+        LBWARN << "Object mapping failed, no master registered" << std::endl;
         return 0;
     }
 
@@ -235,7 +235,7 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
         if( !instance || entry.instance == instance )
             return entry.instance;
 
-        EQWARN << "Object mapping failed, different instance registered"
+        LBWARN << "Object mapping failed, different instance registered"
                << std::endl;
         return 0;
     }

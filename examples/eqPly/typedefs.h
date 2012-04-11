@@ -40,9 +40,9 @@
 #ifdef EQUALIZER
 #  include <eq/eq.h>
 #  define MESHASSERT  LBASSERT
-#  define MESHERROR   EQERROR
-#  define MESHWARN    EQWARN
-#  define MESHINFO    EQINFO
+#  define MESHERROR   LBERROR
+#  define MESHWARN    LBWARN
+#  define MESHINFO    LBINFO
 #else
 #  include <vmmlib/vmmlib.hpp>
 #  ifdef _WIN32

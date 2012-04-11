@@ -212,7 +212,7 @@ void ConnectionSet::setDirty()
     if( _impl->dirty )
         return;
 
-    EQVERB << "FD set modified, restarting select" << std::endl;
+    LBVERB << "FD set modified, restarting select" << std::endl;
     _impl->dirty = true;
     interrupt();
 }
@@ -412,7 +412,7 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
                 _impl->error = errno;
 #endif
 
-                EQERROR << "Error during select: " << lunchbox::sysError
+                LBERROR << "Error during select: " << lunchbox::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 
@@ -482,12 +482,12 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
         _impl->connection = _impl->fdSetResult[i].connection;
         LBASSERT( _impl->connection.isValid( ));
 
-        EQVERB << "Got event on connection @" << (void*)_impl->connection.get()
+        LBVERB << "Got event on connection @" << (void*)_impl->connection.get()
                << std::endl;
 
         if( pollEvents & POLLERR )
         {
-            EQINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
+            LBINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
             return EVENT_ERROR;
         }
 
@@ -504,7 +504,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
         if( pollEvents & POLLIN || pollEvents & POLLPRI )
             return EVENT_DATA;
 
-        EQERROR << "Unhandled poll event(s): " << pollEvents << std::endl;
+        LBERROR << "Unhandled poll event(s): " << pollEvents << std::endl;
         ::abort();
     }
     return EVENT_NONE;
@@ -547,7 +547,7 @@ bool ConnectionSet::_setupFDSet()
 
         if( !readHandle )
         {
-            EQINFO << "Cannot select connection " << connection
+            LBINFO << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << std::endl;
             _impl->connection = connection;
             _impl->lock.unset();
@@ -597,7 +597,7 @@ bool ConnectionSet::_setupFDSet()
 
         if( fd.fd <= 0 )
         {
-            EQINFO << "Cannot select connection " << connection
+            LBINFO << "Cannot select connection " << connection
                    << ", connection " << typeid( *connection.get( )).name() 
                    << " does not use a file descriptor" << std::endl;
             _impl->connection = connection;
@@ -605,7 +605,7 @@ bool ConnectionSet::_setupFDSet()
             return false;
         }
 
-        EQVERB << "Listening on " << typeid( *connection.get( )).name() 
+        LBVERB << "Listening on " << typeid( *connection.get( )).name() 
                << " @" << (void*)connection.get() << std::endl;
         fd.revents = 0;
 

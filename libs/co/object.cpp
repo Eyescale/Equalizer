@@ -98,7 +98,7 @@ void Object::notifyDetach()
     if( slaves.empty( ))
         return;
 
-    EQWARN << slaves.size() << " slaves subscribed during deregisterObject of "
+    LBWARN << slaves.size() << " slaves subscribed during deregisterObject of "
            << lunchbox::className( this ) << " id " << _id << std::endl;
 
     NodeUnmapObjectPacket packet;
@@ -128,7 +128,7 @@ void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )
     {
-        EQVERB
+        LBVERB
             << "Overriding existing object change manager, obj "
             << lunchbox::className( this ) << ", old cm " << lunchbox::className( _cm )
             << ", new cm " << lunchbox::className( cm ) << std::endl;

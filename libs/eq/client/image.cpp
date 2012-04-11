@@ -386,7 +386,7 @@ bool Image::startReadback( const Frame::Buffer buffer,
         !downloader->initDownloader( inputToken, attachment.quality, alpha,
                                      flags ))
     {
-        EQWARN << "Download plugin initialization failed" << std::endl;
+        LBWARN << "Download plugin initialization failed" << std::endl;
         return false;
     }
 
@@ -457,7 +457,7 @@ void Image::_finishReadback( const Frame::Buffer buffer, const Zoom& zoom,
     const bool alpha = _ignoreAlpha && buffer == Frame::BUFFER_COLOR;
     if( !downloader->isValidDownloader( inputToken, alpha, flags ))
     {
-        EQWARN << "Download plugin initialization failed" << std::endl;
+        LBWARN << "Download plugin initialization failed" << std::endl;
         attachment.memory.state = Memory::INVALID;
         return;
     }
@@ -658,7 +658,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         break;
       }
       default:
-        EQWARN << "Unknown external format " << memory.externalFormat
+        LBWARN << "Unknown external format " << memory.externalFormat
                << ", initializing to 0" << std::endl;
         bzero( memory.pixels, size );
         break;
@@ -688,7 +688,7 @@ void Image::setPixelData( const Frame::Buffer buffer, const PixelData& pixels )
     _findTransferers( buffer, 0 /*GLEW context*/, transferrers );
 
     if( transferrers.empty( ))
-        EQWARN << "No upload engines found for given pixel data" << std::endl;
+        LBWARN << "No upload engines found for given pixel data" << std::endl;
     else
     {
         memory.hasAlpha =
@@ -920,7 +920,7 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
         if( !allocCompressor( buffer, memory.compressorName ) || 
             memory.compressorName == EQ_COMPRESSOR_NONE )
         {
-            EQWARN << "No compressor found for token type 0x" << std::hex 
+            LBWARN << "No compressor found for token type 0x" << std::hex 
                    << getExternalFormat( buffer ) << std::dec << std::endl;
             memory.compressorName = EQ_COMPRESSOR_NONE;
         }
@@ -1039,7 +1039,7 @@ bool Image::writeImage( const std::string& filename,
     std::ofstream image( filename.c_str(), std::ios::out | std::ios::binary );
     if( !image.is_open( ))
     {
-        EQERROR << "Can't open " << filename << " for writing" << std::endl;
+        LBERROR << "Can't open " << filename << " for writing" << std::endl;
         return false;
     }
 
@@ -1090,7 +1090,7 @@ bool Image::writeImage( const std::string& filename,
             break;
 
         default:
-            EQERROR << "Unknown image pixel data type" << std::endl;
+            LBERROR << "Unknown image pixel data type" << std::endl;
             return false;
     }
 
@@ -1117,7 +1117,7 @@ bool Image::writeImage( const std::string& filename,
     }
     LBASSERT( header.bytesPerChannel > 0 );
     if( header.bytesPerChannel > 2 )
-        EQWARN << static_cast< int >( header.bytesPerChannel ) 
+        LBWARN << static_cast< int >( header.bytesPerChannel ) 
                << " bytes per channel not supported by RGB spec" << std::endl;
 
     const uint8_t bpc = header.bytesPerChannel;
@@ -1179,14 +1179,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( !addr )
     {
-        EQINFO << "Can't open " << filename << " for reading" << std::endl;
+        LBINFO << "Can't open " << filename << " for reading" << std::endl;
         return false;
     }
 
     const size_t size = image.getSize();
     if( size < sizeof( RGBHeader ))
     {
-        EQWARN << "Image " << filename << " too small" << std::endl;
+        LBWARN << "Image " << filename << " too small" << std::endl;
         return false;
     }
 
@@ -1198,17 +1198,17 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( header.magic != 474)
     {
-        EQERROR << "Bad magic number " << filename << std::endl;
+        LBERROR << "Bad magic number " << filename << std::endl;
         return false;
     }
     if( header.width == 0 || header.height == 0 )
     {
-        EQERROR << "Zero-sized image " << filename << std::endl;
+        LBERROR << "Zero-sized image " << filename << std::endl;
         return false;
     }
     if( header.compression != 0)
     {
-        EQERROR << "Unsupported compression " << filename << std::endl;
+        LBERROR << "Unsupported compression " << filename << std::endl;
         return false;
     }
 
@@ -1221,14 +1221,14 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         ( buffer == Frame::BUFFER_COLOR && nChannels != 3 && nChannels != 4 ) ||
         ( buffer == Frame::BUFFER_DEPTH && nChannels != 4 ))
     {
-        EQERROR << "Unsupported image type " << filename << std::endl;
+        LBERROR << "Unsupported image type " << filename << std::endl;
         return false;
     }
 
     if(( header.bytesPerChannel != 1 || nChannels == 1 ) &&
          header.maxValue != 255 )
     {
-        EQERROR << "Unsupported value range " << header.maxValue << std::endl;
+        LBERROR << "Unsupported value range " << header.maxValue << std::endl;
         return false;
     }
 
@@ -1240,7 +1240,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
 
     if( size < sizeof( RGBHeader ) + nBytes )
     {
-        EQERROR << "Image " << filename << " too small" << std::endl;
+        LBERROR << "Image " << filename << " too small" << std::endl;
         return false;
     }
     LBASSERT( size == sizeof( RGBHeader ) + nBytes );
@@ -1250,7 +1250,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
         case Frame::BUFFER_DEPTH:
             if( header.bytesPerChannel != 1 )
             {
-                EQERROR << "Unsupported channel depth " 
+                LBERROR << "Unsupported channel depth " 
                         << static_cast< int >( header.bytesPerChannel )
                         << std::endl;
                 return false;
@@ -1327,7 +1327,7 @@ bool Image::readImage( const std::string& filename, const Frame::Buffer buffer )
                     break;
 
                 default:
-                    EQERROR << "Unsupported channel depth " 
+                    LBERROR << "Unsupported channel depth " 
                             << static_cast< int >( header.bytesPerChannel )
                             << std::endl;
                     return false;

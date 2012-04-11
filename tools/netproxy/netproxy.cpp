@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 {
     if( argc < 3 )
     {
-        EQINFO << "Usage: " << argv[0] << " input output" << std::endl;
+        LBINFO << "Usage: " << argv[0] << " input output" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -54,14 +54,14 @@ int main( int argc, char **argv )
     co::ConnectionPtr connection = co::Connection::create( listen );
     if( !connection )
     {
-        EQWARN << "Unsupported connection: " << listen << std::endl;
+        LBWARN << "Unsupported connection: " << listen << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }
 
     if( !connection->listen( ))
     {
-        EQERROR << "Can't open listening socket " << listen << std::endl;
+        LBERROR << "Can't open listening socket " << listen << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }
@@ -84,7 +84,7 @@ int main( int argc, char **argv )
     co::ConnectionPtr output = co::Connection::create( forward );
     if( !output->connect( ))
     {
-        EQERROR << "Can't connect forwarding socket " << forward << std::endl;
+        LBERROR << "Can't connect forwarding socket " << forward << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }
@@ -106,7 +106,7 @@ int main( int argc, char **argv )
                                                            true );
                 if( read < 0 ) // error
                 {
-                    EQINFO << "Socket disconnected" << std::endl;
+                    LBINFO << "Socket disconnected" << std::endl;
                     return EXIT_SUCCESS;
                 }
                 else if( read )
@@ -122,7 +122,7 @@ int main( int argc, char **argv )
 
             case co::ConnectionSet::EVENT_DISCONNECT:
             case co::ConnectionSet::EVENT_INVALID_HANDLE:
-                EQINFO << "Socket disconnected" << std::endl;
+                LBINFO << "Socket disconnected" << std::endl;
                 return EXIT_SUCCESS;
 
             case co::ConnectionSet::EVENT_INTERRUPT:

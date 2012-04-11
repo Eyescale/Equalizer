@@ -70,12 +70,12 @@ Client::Client()
     registerCommand( fabric::CMD_CLIENT_EXIT, 
                      ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
-    EQINFO << "New client at " << (void*)this << std::endl;
+    LBINFO << "New client at " << (void*)this << std::endl;
 }
 
 Client::~Client()
 {
-    EQINFO << "Delete client at " << (void*)this << std::endl;
+    LBINFO << "Delete client at " << (void*)this << std::endl;
     LBASSERT( isClosed( ));
     close();
 }
@@ -146,7 +146,7 @@ co::ConnectionPtr _startLocalServer()
 
     if( !_libeqserver.isOpen( ))
     {
-        EQWARN << "Can't open Equalizer server library" << std::endl;
+        LBWARN << "Can't open Equalizer server library" << std::endl;
         return 0;
     }
 
@@ -155,7 +155,7 @@ co::ConnectionPtr _startLocalServer()
 
     if( !eqsStartLocalServer )
     {
-        EQWARN << "Can't find server entry function eqsStartLocalServer"
+        LBWARN << "Can't find server entry function eqsStartLocalServer"
                << std::endl;
         return 0;
     }
@@ -170,7 +170,7 @@ static void _joinLocalServer()
 
     if( !eqsJoinLocalServer )
     {
-        EQWARN << "Can't find server entry function eqsJoinLocalServer"
+        LBWARN << "Can't find server entry function eqsJoinLocalServer"
                << std::endl;
         return;
     }
@@ -219,7 +219,7 @@ bool Client::initLocal( const int argc, char** argv )
                 clientOpts = argv[++i];
 
                 if( !deserialize( clientOpts ))
-                    EQWARN << "Failed to parse client listen port parameters"
+                    LBWARN << "Failed to parse client listen port parameters"
                            << std::endl;
                 LBASSERT( !clientOpts.empty( ));
             }
@@ -238,14 +238,14 @@ bool Client::initLocal( const int argc, char** argv )
             unitString >> _modelUnit;
         }
     }
-    EQINFO << "Launching " << getNodeID() << std::endl;
+    LBINFO << "Launching " << getNodeID() << std::endl;
 
     if( !Super::initLocal( argc, argv ))
         return false;
 
     if( isClient )
     {
-        EQVERB << "Client node started from command line with option " 
+        LBVERB << "Client node started from command line with option " 
                << clientOpts << std::endl;
 
         if( !_setupClient( clientOpts ))
@@ -270,7 +270,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     size_t nextPos = clientArgs.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
-        EQERROR << "Could not parse working directory: " << clientArgs
+        LBERROR << "Could not parse working directory: " << clientArgs
                 << std::endl;
         return false;
     }
@@ -280,25 +280,25 @@ bool Client::_setupClient( const std::string& clientArgs )
 
     co::Global::setWorkDir( workDir );
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
-        EQWARN << "Can't change working directory to " << workDir << ": "
+        LBWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;
     
     nextPos = description.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
-        EQERROR << "Could not parse server node type: " << description
+        LBERROR << "Could not parse server node type: " << description
                 << " is left from " << clientArgs << std::endl;
         return false;
     }
 
     co::NodePtr server = createNode( fabric::NODETYPE_EQ_SERVER );
     if( !server->deserialize( description ))
-        EQWARN << "Can't parse server data" << std::endl;
+        LBWARN << "Can't parse server data" << std::endl;
 
     LBASSERTINFO( description.empty(), description );
     if( !connect( server ))
     {
-        EQERROR << "Can't connect server node using " << *server << std::endl;
+        LBERROR << "Can't connect server node using " << *server << std::endl;
         return false;
     }
 
@@ -307,7 +307,7 @@ bool Client::_setupClient( const std::string& clientArgs )
 
 void Client::clientLoop()
 {
-    EQINFO << "Entered client loop" << std::endl;
+    LBINFO << "Entered client loop" << std::endl;
 
     _running = true;
     while( _running )
@@ -326,7 +326,7 @@ bool Client::exitLocal()
 void Client::exitClient()
 {
     bool ret = exitLocal();
-    EQINFO << "Exit " << lunchbox::className( this ) << " process used "
+    LBINFO << "Exit " << lunchbox::className( this ) << " process used "
            << getRefCount() << std::endl;
 
     if( !eq::exit( ))

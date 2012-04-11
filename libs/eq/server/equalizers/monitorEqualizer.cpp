@@ -72,7 +72,7 @@ private:
 
 MonitorEqualizer::MonitorEqualizer()
 {
-    EQINFO << "New monitor equalizer @" << (void*)this << std::endl;
+    LBINFO << "New monitor equalizer @" << (void*)this << std::endl;
 }
 
 MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
@@ -82,7 +82,7 @@ MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
 MonitorEqualizer::~MonitorEqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete monitor equalizer @" << (void*)this << std::endl;
+    LBINFO << "Delete monitor equalizer @" << (void*)this << std::endl;
 }
 
 void MonitorEqualizer::attach( Compound* compound )

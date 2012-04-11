@@ -385,7 +385,7 @@ bool Window::configInitSystemWindow( const uint128_t& )
     LBASSERT( systemWindow );
     if( !systemWindow->configInit( ))
     {
-        EQWARN << "System window initialization failed: " << getError()
+        LBWARN << "System window initialization failed: " << getError()
                << std::endl;
         delete systemWindow;
         return false;
@@ -495,19 +495,19 @@ const SystemWindow* Window::getTransferSystemWindow()
     {
         if( !_transferWindow->configInit( ))
         {
-            EQWARN << "Transfer window initialization failed: " << std::endl;
+            LBWARN << "Transfer window initialization failed: " << std::endl;
             delete _transferWindow;
             _transferWindow = 0;
         }
     }
     else
-        EQERROR << "Window system " << pipe->getWindowSystem()
+        LBERROR << "Window system " << pipe->getWindowSystem()
                 << " not implemented or supported" << std::endl;
 
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 
-    EQINFO << "Transfer window initialization finished" << std::endl;
+    LBINFO << "Transfer window initialization finished" << std::endl;
     return _transferWindow;
 }
 
@@ -598,7 +598,7 @@ void Window::bindFrameBuffer() const
 void Window::swapBuffers()
 {
     _systemWindow->swapBuffers();
-    EQVERB << "----- SWAP -----" << std::endl;
+    LBVERB << "----- SWAP -----" << std::endl;
 }
 
 const GLEWContext* Window::glewGetContext() const
@@ -622,7 +622,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << " for " << *netBarrier << std::endl;
+        LBWARN << e.what() << " for " << *netBarrier << std::endl;
     } 
 }
 
@@ -691,7 +691,7 @@ bool Window::processEvent( const Event& event )
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
                     break;
                   default:
-                    EQWARN << "Unhandled window event of type " << event.type
+                    LBWARN << "Unhandled window event of type " << event.type
                            << std::endl;
                     EQUNIMPLEMENTED;
                 }
@@ -727,7 +727,7 @@ bool Window::processEvent( const Event& event )
             return false;
 
         default:
-            EQWARN << "Unhandled window event of type " << event.type
+            LBWARN << "Unhandled window event of type " << event.type
                    << std::endl;
             EQUNIMPLEMENTED;
     }
@@ -854,7 +854,7 @@ bool Window::_cmdFrameFinish( co::Command& command )
 {
     const WindowFrameFinishPacket* packet =
         command.get<WindowFrameFinishPacket>();
-    EQVERB << "handle window frame sync " << packet << std::endl;
+    LBVERB << "handle window frame sync " << packet << std::endl;
 
     makeCurrent();
     frameFinish( packet->frameID, packet->frameNumber );
@@ -899,7 +899,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
 bool Window::_cmdBarrier( co::Command& command )
 {
     const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
-    EQVERB << "handle barrier " << packet << std::endl;
+    LBVERB << "handle barrier " << packet << std::endl;
     EQLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
     
     _enterBarrier( packet->barrier );

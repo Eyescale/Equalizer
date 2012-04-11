@@ -92,26 +92,26 @@ ObjectStore::ObjectStore( LocalNode* localNode )
 
 ObjectStore::~ObjectStore()
 {
-    EQVERB << "Delete ObjectStore @" << (void*)this << std::endl;
+    LBVERB << "Delete ObjectStore @" << (void*)this << std::endl;
     
 #ifndef NDEBUG
     if( !_objects->empty( ))
     {
-        EQWARN << _objects->size() << " attached objects in destructor"
+        LBWARN << _objects->size() << " attached objects in destructor"
                << std::endl;
         
         for( ObjectsHash::const_iterator i = _objects->begin();
              i != _objects->end(); ++i )
         {
             const Objects& objects = i->second;
-            EQWARN << "  " << objects.size() << " objects with id " 
+            LBWARN << "  " << objects.size() << " objects with id " 
                    << i->first << std::endl;
             
             for( Objects::const_iterator j = objects.begin();
                  j != objects.end(); ++j )
             {
                 const Object* object = *j;
-                EQINFO << "    object type " << lunchbox::className( object )
+                LBINFO << "    object type " << lunchbox::className( object )
                        << std::endl;
             }
         }
@@ -372,7 +372,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
 
     if( !object || !id.isGenerated( ))
     {
-        EQWARN << "Invalid object " << object << " or id " << id << std::endl;
+        LBWARN << "Invalid object " << object << " or id " << id << std::endl;
         return LB_UNDEFINED_UINT32;
     }
 
@@ -382,14 +382,14 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     LBASSERT( !isMaster ) ;
     if( isAttached || isMaster )
     {
-        EQWARN << "Invalid object state: attached " << isAttached << " master "
+        LBWARN << "Invalid object state: attached " << isAttached << " master "
                << isMaster << std::endl;
         return LB_UNDEFINED_UINT32;
     }
 
     if( !master || !master->isConnected( ))
     {
-        EQWARN << "Mapping of object " << id << " failed, invalid master node"
+        LBWARN << "Mapping of object " << id << " failed, invalid master node"
                << std::endl;
         return LB_UNDEFINED_UINT32;
     }
@@ -479,7 +479,7 @@ void ObjectStore::unmapObject( Object* object )
             object->notifyDetached();
             return;
         }
-        EQERROR << "Master node for object id " << id << " not connected"
+        LBERROR << "Master node for object id " << id << " not connected"
                 << std::endl;
     }
 
@@ -548,7 +548,7 @@ NodePtr ObjectStore::_connectMaster( const UUID& id )
     const NodeID masterNodeID = _findMasterNodeID( id );
     if( masterNodeID == UUID::ZERO )
     {
-        EQWARN << "Can't find master node for object id " << id <<std::endl;
+        LBWARN << "Can't find master node for object id " << id <<std::endl;
         return 0;
     }
 
@@ -556,7 +556,7 @@ NodePtr ObjectStore::_connectMaster( const UUID& id )
     if( master.isValid() && !master->isClosed( ))
         return master;
 
-    EQWARN << "Can't connect master node with id " << masterNodeID
+    LBWARN << "Can't connect master node with id " << masterNodeID
            << " for object id " << id << std::endl;
     return 0;
 }
@@ -818,7 +818,7 @@ bool ObjectStore::_cmdMapObject( Command& command )
         master->addSlave( command );
     else
     {
-        EQWARN << "Can't find master object to map " << id << std::endl;
+        LBWARN << "Can't find master object to map " << id << std::endl;
 
         NodeMapObjectReplyPacket reply( packet );
         reply.nodeID = node->getNodeID();
@@ -898,7 +898,7 @@ bool ObjectStore::_cmdMapObjectReply( Command& command )
         if( packet->releaseCache )
             _instanceCache->release( packet->objectID, 1 );
 
-        EQWARN << "Could not map object " << packet->objectID << std::endl;
+        LBWARN << "Could not map object " << packet->objectID << std::endl;
     }
 
     _localNode->serveRequest( packet->requestID, packet->version );

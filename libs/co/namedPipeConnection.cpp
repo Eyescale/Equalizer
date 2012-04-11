@@ -79,7 +79,7 @@ bool NamedPipeConnection::connect()
     const std::string filename = _getFilename();
     if ( !WaitNamedPipe( filename.c_str(), 20000 )) 
     {
-        EQERROR << "Can't create named pipe: " << lunchbox::sysError << std::endl;
+        LBERROR << "Can't create named pipe: " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -90,7 +90,7 @@ bool NamedPipeConnection::connect()
     _state = STATE_CONNECTED;
     _fireStateChanged();
 
-    EQINFO << "Connected " << _description->toString() << std::endl;
+    LBINFO << "Connected " << _description->toString() << std::endl;
     return true;
 }
 
@@ -106,14 +106,14 @@ void NamedPipeConnection::_close()
         _exitAIOAccept();
 
         if( _fd != INVALID_HANDLE_VALUE && !DisconnectNamedPipe( _fd ))
-            EQERROR << "Could not disconnect named pipe: " << lunchbox::sysError
+            LBERROR << "Could not disconnect named pipe: " << lunchbox::sysError
                     << std::endl;
     }
     else
     {
         _exitAIORead();
         if( _fd != INVALID_HANDLE_VALUE && !CloseHandle( _fd ))
-            EQERROR << "Could not close named pipe: " << lunchbox::sysError
+            LBERROR << "Could not close named pipe: " << lunchbox::sysError
                     << std::endl;
     }
 
@@ -141,7 +141,7 @@ bool NamedPipeConnection::_createNamedPipe()
 
     if ( _fd == INVALID_HANDLE_VALUE ) 
     {
-        EQERROR << "Could not create named pipe: " 
+        LBERROR << "Could not create named pipe: " 
                 << lunchbox::sysError << " file : " << filename << std::endl;
         return false;
     }
@@ -166,7 +166,7 @@ bool NamedPipeConnection::_connectNamedPipe()
 
     if( GetLastError() != ERROR_PIPE_BUSY ) 
     {
-        EQERROR << "Can't create named pipe: " << lunchbox::sysError << std::endl; 
+        LBERROR << "Can't create named pipe: " << lunchbox::sysError << std::endl; 
         return false;
     }
 
@@ -190,7 +190,7 @@ bool NamedPipeConnection::listen()
     _state = STATE_LISTENING;
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description->toString() << std::endl;
+    LBINFO << "Listening on " << _description->toString() << std::endl;
     return true;
 }
 
@@ -215,7 +215,7 @@ bool NamedPipeConnection::_connectToNewClient( HANDLE hPipe )
       // fall through
       default: 
       {
-         EQWARN << "ConnectNamedPipe failed : " << lunchbox::sysError << std::endl;
+         LBWARN << "ConnectNamedPipe failed : " << lunchbox::sysError << std::endl;
          return false;
       }
    } 
@@ -232,7 +232,7 @@ void NamedPipeConnection::_initAIORead()
     LBASSERT( _write.hEvent );
 
     if( !_read.hEvent || !_write.hEvent )
-        EQERROR << "Can't create events for AIO notification: " 
+        LBERROR << "Can't create events for AIO notification: " 
                 << lunchbox::sysError  << std::endl;
 }
 
@@ -287,7 +287,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
         {        
             return 0; 
         }
-        EQWARN << "Accept completion failed: " << lunchbox::sysError
+        LBWARN << "Accept completion failed: " << lunchbox::sysError
                << ", closing named pipe" << std::endl;
          
         close();
@@ -303,7 +303,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
     newConnection->_state  = STATE_CONNECTED;
     _fd = INVALID_HANDLE_VALUE;
 
-    EQINFO << "accepted connection" << std::endl;
+    LBINFO << "accepted connection" << std::endl;
     return newConnection;
 }
 
@@ -326,7 +326,7 @@ void NamedPipeConnection::readNB( void* buffer, const uint64_t bytes )
     }
     else if( GetLastError() != ERROR_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << lunchbox::sysError
+        LBWARN << "Could not start overlapped receive: " << lunchbox::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -339,7 +339,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
 
     if( _fd == INVALID_HANDLE_VALUE )
     {
-        EQERROR << "Invalid read handle" << std::endl;
+        LBERROR << "Invalid read handle" << std::endl;
         return -1;
     }
     
@@ -352,7 +352,7 @@ int64_t NamedPipeConnection::readSync( void* buffer, const uint64_t bytes,
         if( GetLastError() == ERROR_PIPE_CONNECTED ) 
             return 0; 
 
-        EQWARN << "Read complete failed: " << lunchbox::sysError 
+        LBWARN << "Read complete failed: " << lunchbox::sysError 
                << ", closing connection" << std::endl;
         close();
         return -1;
@@ -376,7 +376,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     
     if( GetLastError() != ERROR_IO_PENDING )
     {
-        EQWARN << "Could not start write: " << lunchbox::sysError << std::endl;
+        LBWARN << "Could not start write: " << lunchbox::sysError << std::endl;
         return -1;
     }
 
@@ -399,7 +399,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
       }
 
       default:
-        EQWARN << "Write complete failed: " << lunchbox::sysError << std::endl;
+        LBWARN << "Write complete failed: " << lunchbox::sysError << std::endl;
     }
         
     if( GetOverlappedResult( _fd, &_write, &got, false ))
@@ -408,7 +408,7 @@ int64_t NamedPipeConnection::write( const void* buffer, const uint64_t bytes )
     if( GetLastError() == ERROR_PIPE_CONNECTED ) 
         return 0;
 
-    EQWARN << "Write complete failed: " << lunchbox::sysError << std::endl;
+    LBWARN << "Write complete failed: " << lunchbox::sysError << std::endl;
     return -1;
 }
 

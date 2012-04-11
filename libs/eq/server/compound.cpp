@@ -517,13 +517,13 @@ bool Compound::hasDestinationChannel() const
 void Compound::setWall( const Wall& wall )
 {
     _frustum.setWall( wall );
-    EQVERB << "Wall: " << _data.frustumData << std::endl;
+    LBVERB << "Wall: " << _data.frustumData << std::endl;
 }
 
 void Compound::setProjection( const Projection& projection )
 {
     _frustum.setProjection( projection );
-    EQVERB << "Projection: " << _data.frustumData << std::endl;
+    LBVERB << "Projection: " << _data.frustumData << std::endl;
 }
 
 void Compound::updateFrustum( const Vector3f& eye, const float ratio )
@@ -631,7 +631,7 @@ void Compound::computeFrustum( RenderContext& context,
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
-    EQVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
+    LBVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
         << std::endl;
     _computePerspective( context, eyeWall );
     _computeOrtho( context, eyeWall );

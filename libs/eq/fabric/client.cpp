@@ -58,9 +58,9 @@ bool Client::connectServer( co::NodePtr server )
                                envServer            ? envServer : "localhost";
 
         if( !connDesc->fromString( address ))
-            EQWARN << "Can't parse server address " << address << std::endl;
+            LBWARN << "Can't parse server address " << address << std::endl;
         LBASSERT( address.empty( ));
-        EQINFO << "Connecting to " << connDesc->toString() << std::endl;
+        LBINFO << "Connecting to " << connDesc->toString() << std::endl;
 
         server->addConnectionDescription( connDesc );
     }
@@ -78,14 +78,14 @@ bool Client::disconnectServer( co::NodePtr server )
 {
     if( !server->isConnected( ))
     {
-        EQWARN << "Trying to disconnect unconnected server" << std::endl;
+        LBWARN << "Trying to disconnect unconnected server" << std::endl;
         return false;
     }
 
     if( co::LocalNode::disconnect( server ))
         return true;
 
-    EQWARN << "Server disconnect failed" << std::endl;
+    LBWARN << "Server disconnect failed" << std::endl;
     return false;
 }
 
@@ -103,7 +103,7 @@ void Client::processCommand( const uint32_t timeout )
 
 bool Client::dispatchCommand( co::Command& command )
 {
-    EQVERB << "dispatchCommand " << command << std::endl;
+    LBVERB << "dispatchCommand " << command << std::endl;
 
     switch( command->type )
     {

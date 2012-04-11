@@ -126,7 +126,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         break;
 
       default:
-        EQWARN << "Unknown drawable type "
+        LBWARN << "Unknown drawable type "
                << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
                << ", using window" << std::endl;
         // no break;
@@ -392,7 +392,7 @@ bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
         }
 
         default:
-            EQWARN << "Unknown drawable type "
+            LBWARN << "Unknown drawable type "
                    << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
                    << ", using window" << std::endl;
             // no break;
@@ -444,7 +444,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     }
     setXDrawable( drawable );
     
-    EQINFO << "Created X11 drawable " << drawable << std::endl;
+    LBINFO << "Created X11 drawable " << drawable << std::endl;
     return true;
 }
     
@@ -574,7 +574,7 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     setXDrawable( pbuffer );
 
-    EQINFO << "Created X11 PBuffer " << pbuffer << std::endl;
+    LBINFO << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
 }
 
@@ -662,7 +662,7 @@ void Window::_initSwapSync()
         glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
     }
     else
-        EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
+        LBWARN << "GLX_SGI_swap_control not supported, ignoring window "
                << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }   
 
@@ -696,7 +696,7 @@ void Window::configExit()
             XDestroyWindow( _xDisplay, drawable );
     }
 
-    EQINFO << "Destroyed GLX context and X drawable " << std::endl;
+    LBINFO << "Destroyed GLX context and X drawable " << std::endl;
 }
 
 void Window::makeCurrent() const
@@ -723,12 +723,12 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
 
 #if 1
-    EQWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
+    LBWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
            << std::endl;
 
     if ( !GLXEW_NV_swap_group )
     {
-        EQWARN << "NV Swap group extension not supported" << std::endl;
+        LBWARN << "NV Swap group extension not supported" << std::endl;
         return;
     }
 
@@ -740,7 +740,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( group > maxGroup )
     {
-        EQWARN << "Failed to initialize GLX_NV_swap_group: requested group "
+        LBWARN << "Failed to initialize GLX_NV_swap_group: requested group "
                << group << " greater than maxGroups (" << maxGroup << ")"
                << std::endl;
         return;
@@ -748,7 +748,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( barrier > maxBarrier )
     {
-        EQWARN << "Failed to initialize GLX_NV_swap_group: requested barrier "
+        LBWARN << "Failed to initialize GLX_NV_swap_group: requested barrier "
                << barrier << "greater than maxBarriers (" << maxBarrier << ")"
                << std::endl;
         return;
@@ -756,7 +756,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !glXJoinSwapGroupNV( _xDisplay, _xDrawable, group ))
     {
-        EQWARN << "Failed to join swap group " << group << std::endl;
+        LBWARN << "Failed to join swap group " << group << std::endl;
         return;
     }
 
@@ -764,11 +764,11 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !glXBindSwapBarrierNV( _xDisplay, group, barrier ))
     {
-        EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
+        LBWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
     }
     
-    EQINFO << "Joined swap group " << group << " and barrier " << barrier
+    LBINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
     EQUNIMPLEMENTED;

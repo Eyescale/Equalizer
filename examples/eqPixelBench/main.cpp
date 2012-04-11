@@ -53,14 +53,14 @@ int main( int argc, char** argv )
     NodeFactory nodeFactory;
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
 
     eq::ClientPtr client = new eq::Client;
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         return EXIT_FAILURE;
     }
@@ -69,7 +69,7 @@ int main( int argc, char** argv )
     eq::ServerPtr server = new eq::Server;
     if( !client->connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         client->exitLocal();
         eq::exit();
         return EXIT_FAILURE;
@@ -82,7 +82,7 @@ int main( int argc, char** argv )
     
     if( !config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         client->disconnectServer( server );
         client->exitLocal();
         eq::exit();
@@ -101,7 +101,7 @@ int main( int argc, char** argv )
         return EXIT_FAILURE;
     }
     else if( config->getError( ))
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
     EQLOG( eq::LOG_CUSTOM ) << "Config init took " << clock.getTimef() << " ms"
@@ -127,7 +127,7 @@ int main( int argc, char** argv )
     // 7. cleanup and exit
     server->releaseConfig( config );
     if( !client->disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
     server = 0;
 
     client->exitLocal();

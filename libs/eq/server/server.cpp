@@ -101,10 +101,10 @@ void Server::init()
     const Configs& configs = getConfigs();
 #ifndef EQ_USE_GPUSD
     if( configs.empty( ))
-        EQWARN << "No configurations loaded" << std::endl;
+        LBWARN << "No configurations loaded" << std::endl;
 #endif
 
-    EQINFO << lunchbox::disableFlush << "Running server: " << std::endl
+    LBINFO << lunchbox::disableFlush << "Running server: " << std::endl
            << lunchbox::indent << Global::instance() << *this
            << lunchbox::exdent << lunchbox::enableFlush << std::endl;
 
@@ -173,7 +173,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
 {
     const ServerChooseConfigPacket* packet = 
         command.get<ServerChooseConfigPacket>();
-    EQINFO << "Handle choose config " << packet << std::endl;
+    LBINFO << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -196,7 +196,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
         if( config )
         {
             config->register_();
-            EQINFO << "Configured " << *this << std::endl;
+            LBINFO << "Configured " << *this << std::endl;
         }
     }
 #endif
@@ -236,14 +236,14 @@ bool Server::_cmdChooseConfig( co::Command& command )
     {
         if( descs.empty() && node->getConnectionDescriptions().empty( ))
         {
-            EQWARN << "Likely misconfiguration: Neither the application nor the"
+            LBWARN << "Likely misconfiguration: Neither the application nor the"
                    << " config file has a connection for this multi-node "
                    << "config. Render clients will be unable to communicate "
                    << "with the application process." << std::endl;
         }
         if( getConnectionDescriptions().empty( ))
         {
-            EQWARN << "Likely misconfiguration: The server has no listening "
+            LBWARN << "Likely misconfiguration: The server has no listening "
                    << "connection for this multi-node config. Render clients "
                    << "will be unable to communicate with the server."
                    << std::endl;
@@ -258,7 +258,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
         command.get<ServerReleaseConfigPacket>();
-    EQINFO << "Handle release config " << packet << std::endl;
+    LBINFO << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
@@ -275,14 +275,14 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 
     if( !config )
     {
-        EQWARN << "Release request for unknown config" << std::endl;
+        LBWARN << "Release request for unknown config" << std::endl;
         node->send( reply );
         return true;
     }
 
     if( config->isRunning( ))
     {
-        EQWARN << "Release of running configuration" << std::endl;
+        LBWARN << "Release of running configuration" << std::endl;
         config->exit(); // Make sure config is exited
     }
 
@@ -331,7 +331,7 @@ bool Server::_cmdShutdown( co::Command& command )
 
     if( !_admins.empty( ))
     {
-        EQWARN << "Ignoring shutdown request, " << _admins.size()
+        LBWARN << "Ignoring shutdown request, " << _admins.size()
                << " admin clients connected" << std::endl;
 
         node->send( reply );
@@ -344,7 +344,7 @@ bool Server::_cmdShutdown( co::Command& command )
         Config* candidate = *i;
         if( candidate->isUsed( ))
         {
-            EQWARN << "Ignoring shutdown request due to used config" 
+            LBWARN << "Ignoring shutdown request due to used config" 
                    << std::endl;
 
             node->send( reply );
@@ -352,7 +352,7 @@ bool Server::_cmdShutdown( co::Command& command )
         }
     }
 
-    EQINFO << "Shutting down server" << std::endl;
+    LBINFO << "Shutting down server" << std::endl;
 
     _running = false;
     reply.result = true;

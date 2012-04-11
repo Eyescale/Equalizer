@@ -218,7 +218,7 @@ void Config::activateCanvas( Canvas* canvas )
                 Channel* segmentChannel = segment->getChannel();
                 if( !segmentChannel )
                 {
-                    EQWARN << "Segment " << segment->getName()
+                    LBWARN << "Segment " << segment->getName()
                            << " has no output channel" << std::endl;
                     continue;
                 }
@@ -292,7 +292,7 @@ void Config::updateCanvas( Canvas* canvas )
             const Channels& channels = view->getChannels();
 
             if( channels.empty( ))
-                EQWARN << "New view without destination channels will be ignored"
+                LBWARN << "New view without destination channels will be ignored"
                        << std::endl;
         
             for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )
@@ -310,7 +310,7 @@ void Config::updateCanvas( Canvas* canvas )
     }
 
     canvas->init();
-    EQINFO << *this << std::endl;
+    LBINFO << *this << std::endl;
 }
 
 Observer* Config::createObserver()
@@ -673,7 +673,7 @@ void Config::_stopNodes()
             co::LocalNodePtr localNode = getLocalNode();
             LBASSERT( localNode.isValid( ));
 
-            EQWARN << "Forcefully disconnecting exited render client node"
+            LBWARN << "Forcefully disconnecting exited render client node"
                    << std::endl;
             localNode->disconnect( netNode );
         }
@@ -799,7 +799,7 @@ bool Config::_init( const uint128_t& initID )
 bool Config::exit()
 {
     if( _state != STATE_RUNNING )
-        EQWARN << "Exiting non-initialized config" << std::endl;
+        LBWARN << "Exiting non-initialized config" << std::endl;
 
     LBASSERT( _state == STATE_RUNNING || _state == STATE_INITIALIZING );
     _state = STATE_EXITING;
@@ -956,7 +956,7 @@ bool Config::_cmdInit( co::Command& command )
     LB_TS_THREAD( _mainThread );
     const ConfigInitPacket* packet =
         command.get<ConfigInitPacket>();
-    EQVERB << "handle config start init " << packet << std::endl;
+    LBVERB << "handle config start init " << packet << std::endl;
 
     sync();
     setError( ERROR_NONE );
@@ -968,7 +968,7 @@ bool Config::_cmdInit( co::Command& command )
         exit();
 
     sync();
-    EQINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
+    LBINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
            << getError() << std::endl;
 
     reply.version = commit();
@@ -982,7 +982,7 @@ bool Config::_cmdExit( co::Command& command )
     const ConfigExitPacket* packet = 
         command.get<ConfigExitPacket>();
     ConfigExitReplyPacket   reply( packet );
-    EQVERB << "handle config exit " << packet << std::endl;
+    LBVERB << "handle config exit " << packet << std::endl;
     setError( ERROR_NONE );
 
     if( _state == STATE_RUNNING )
@@ -990,7 +990,7 @@ bool Config::_cmdExit( co::Command& command )
     else
         reply.result = false;
 
-    EQINFO << "config exit result: " << reply.result << std::endl;
+    LBINFO << "config exit result: " << reply.result << std::endl;
     send( command.getNode(), reply );
     return true;
 }
@@ -1000,7 +1000,7 @@ bool Config::_cmdUpdate( co::Command& command )
     const ConfigUpdatePacket* packet = 
         command.get<ConfigUpdatePacket>();
 
-    EQVERB << "handle config update " << packet << std::endl;
+    LBVERB << "handle config update " << packet << std::endl;
 
     sync();
     setError( ERROR_NONE );
@@ -1029,7 +1029,7 @@ bool Config::_cmdUpdate( co::Command& command )
     reply.result = _updateRunning();
     if( !reply.result && getIAttribute( IATTR_ROBUSTNESS ) == OFF )
     {
-        EQWARN << "Config update failed, exiting config: " << getError()
+        LBWARN << "Config update failed, exiting config: " << getError()
                << std::endl;
         exit();
     }
@@ -1043,7 +1043,7 @@ bool Config::_cmdStartFrame( co::Command& command )
 {
     const ConfigStartFramePacket* packet = 
         command.get<ConfigStartFramePacket>();
-    EQVERB << "handle config frame start " << packet << std::endl;
+    LBVERB << "handle config frame start " << packet << std::endl;
 
     _startFrame( packet->frameID );
 
@@ -1061,7 +1061,7 @@ bool Config::_cmdFinishAllFrames( co::Command& command )
 {
     const ConfigFinishAllFramesPacket* packet = 
         command.get<ConfigFinishAllFramesPacket>();
-    EQVERB << "handle config all frames finish " << packet << std::endl;
+    LBVERB << "handle config all frames finish " << packet << std::endl;
 
     _flushAllFrames();
     return true;
@@ -1071,7 +1071,7 @@ bool Config::_cmdStopFrames( co::Command& command )
 {
     const ConfigStopFramesPacket* packet = 
         command.get<ConfigStopFramesPacket>();
-    EQVERB << "handle config stop frames " << packet << std::endl;
+    LBVERB << "handle config stop frames " << packet << std::endl;
 
     ChannelStopFrameVisitor visitor( _currentFrame );
     accept( visitor );

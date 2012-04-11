@@ -120,7 +120,7 @@ void Observer::_updateEyes()
     _eyes[ right ].z() = ( eyeBase_2 * head.at( 2, 0 ) + head.at( 2, 3 ));
     _eyes[ right ]    /= ( eyeBase_2 * head.at( 3, 0 ) + head.at( 3, 3 ));
 
-    EQVERB << "Eye position: " << _eyes[ cyclop ] << std::endl;
+    LBVERB << "Eye position: " << _eyes[ cyclop ] << std::endl;
 }
 
 void Observer::_updateViews()

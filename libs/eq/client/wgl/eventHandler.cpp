@@ -110,7 +110,7 @@ EventHandler::EventHandler( WindowIF* window )
 
     if( !_hWnd )
     {
-        EQWARN << "Window has no window handle" << std::endl;
+        LBWARN << "Window has no window handle" << std::endl;
         return;
     }
 
@@ -142,7 +142,7 @@ LRESULT CALLBACK EventHandler::wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
     EventHandler* handler = getEventHandler( hWnd );
     if( !handler )
     {
-        EQERROR << "Message arrived for unregistered window" << std::endl;
+        LBERROR << "Message arrived for unregistered window" << std::endl;
         return DefWindowProc( hWnd, uMsg, wParam, lParam );
     }
 
@@ -161,7 +161,7 @@ void EventHandler::_syncButtonState( WPARAM wParam )
 #ifndef NDEBUG
     if( _buttonState != buttons )
 
-        EQWARN << "WM_MOUSEMOVE reports button state " << buttons
+        LBWARN << "WM_MOUSEMOVE reports button state " << buttons
                << ", but internal state is " << _buttonState << std::endl;
 #endif
 
@@ -410,7 +410,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
                     // else no break; fall through
                 default:
                     event.type = Event::UNKNOWN;
-                    EQVERB << "Unhandled system command 0x" << std::hex
+                    LBVERB << "Unhandled system command 0x" << std::hex
                            << wParam  << std::dec << std::endl;
                     break;
             }
@@ -422,7 +422,7 @@ LRESULT CALLBACK EventHandler::_wndProc( HWND hWnd, UINT uMsg, WPARAM wParam,
 #endif
         default:
             event.type = Event::UNKNOWN;
-            EQVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
+            LBVERB << "Unhandled message 0x" << std::hex << uMsg << std::dec
                    << std::endl;
             break;
     }
@@ -506,7 +506,7 @@ uint32_t EventHandler::_getKey( LPARAM lParam, WPARAM wParam )
                 return wParam;
             break;
     }
-    EQWARN << "Unrecognized virtual key code " << wParam << std::endl;
+    LBWARN << "Unrecognized virtual key code " << wParam << std::endl;
     return KC_VOID;
 }
 
@@ -544,7 +544,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
     if( GetRawInputData( (HRAWINPUT)lParam, RID_HEADER, &header, &size,
                          size_rawinputheader ) == -1 )
     {
-        EQINFO << "Error from GetRawInputData( RID_HEADER )" << std::endl;
+        LBINFO << "Error from GetRawInputData( RID_HEADER )" << std::endl;
         return;
     }
 
@@ -553,7 +553,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
     if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, 0, &size, 
                          size_rawinputheader ) == -1)
     {
-        EQINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
+        LBINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
         return;
     }
 
@@ -563,7 +563,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
     if( GetRawInputData( (HRAWINPUT)lParam, RID_INPUT, evt, &size, 
                          size_rawinputheader ) == -1)
     {
-        EQINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
+        LBINFO << "Error from GetRawInputData(RID_INPUT)" << std::endl;
         return;
     }
     // else
@@ -652,7 +652,7 @@ bool EventHandler::initMagellan( Node* node )
     // Get Number of devices attached
     if( GetRawInputDeviceList( 0, &nDevices, sizeof( RAWINPUTDEVICELIST )) != 0)
     { 
-        EQINFO << "No RawInput devices attached" << std::endl;
+        LBINFO << "No RawInput devices attached" << std::endl;
         return false;
     }
     // Create list large enough to hold all RAWINPUTDEVICE structs
@@ -660,14 +660,14 @@ bool EventHandler::initMagellan( Node* node )
         sizeof( RAWINPUTDEVICELIST ) * nDevices );
     if( !_pRawInputDeviceList )
     {
-        EQINFO << "Error mallocing RAWINPUTDEVICELIST" << std::endl;
+        LBINFO << "Error mallocing RAWINPUTDEVICELIST" << std::endl;
         return false;
     }
     // Now get the data on the attached devices
     if( GetRawInputDeviceList( _pRawInputDeviceList, &nDevices, 
                                sizeof( RAWINPUTDEVICELIST )) == -1) 
     {
-        EQINFO << "Error from GetRawInputDeviceList" << std::endl;
+        LBINFO << "Error from GetRawInputDeviceList" << std::endl;
         return false;
     }
 
@@ -687,7 +687,7 @@ bool EventHandler::initMagellan( Node* node )
                                        RIDI_DEVICENAME, deviceName, 
                                        &nchars) >= 0)
             {
-                EQINFO << "Device [" << i << "]: handle=" 
+                LBINFO << "Device [" << i << "]: handle=" 
                        << _pRawInputDeviceList[i].hDevice << " name = "
                        << deviceName << std::endl;
             }
@@ -702,7 +702,7 @@ bool EventHandler::initMagellan( Node* node )
                 if (dinfo.dwType == RIM_TYPEHID)
                 {
                     RID_DEVICE_INFO_HID *phidInfo = &dinfo.hid;
-                    EQINFO << "VID = " << phidInfo->dwVendorId << std::endl
+                    LBINFO << "VID = " << phidInfo->dwVendorId << std::endl
                            << "PID = " << phidInfo->dwProductId << std::endl
                            << "Version = " << phidInfo->dwVersionNumber 
                            << std::endl
@@ -736,11 +736,11 @@ bool EventHandler::initMagellan( Node* node )
     if( RegisterRawInputDevices( _rawInputDevices, _nRawInputDevices,
                                  sizeof(RAWINPUTDEVICE) ) == FALSE )
     {
-        EQVERB << "Error calling RegisterRawInputDevices" << std::endl;
+        LBVERB << "Error calling RegisterRawInputDevices" << std::endl;
         return false;
     }
 
-    EQINFO << "Found and connected." << std::endl;
+    LBINFO << "Found and connected." << std::endl;
      _magellanNode = node;
 #endif
     return true;

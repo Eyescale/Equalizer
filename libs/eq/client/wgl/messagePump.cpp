@@ -34,7 +34,7 @@ void MessagePump::postWakeup()
 {
     if( !_win32ThreadID )
     {
-        EQWARN << "Receiver thread not waiting?" << std::endl;
+        LBWARN << "Receiver thread not waiting?" << std::endl;
         return;
     }
 

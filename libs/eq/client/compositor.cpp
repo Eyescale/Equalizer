@@ -227,7 +227,7 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
         accum = objects->newEqAccum( channel );
         if( !accum->init( pvp, channel->getWindow()->getColorFormat( )))
         {
-            EQERROR << "Accumulation initialization failed." << std::endl;
+            LBERROR << "Accumulation initialization failed." << std::endl;
         }
     }
     else
@@ -360,7 +360,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     if( frames.empty( ))
         return 0;
 
-    EQVERB << "Unsorted GPU assembly" << std::endl;
+    LBVERB << "Unsorted GPU assembly" << std::endl;
     if( _isSubPixelDecomposition( frames ))
     {
         uint32_t count = 0;
@@ -506,7 +506,7 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
     if( frames.empty( ))
         return 0;
 
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBVERB << "Sorted CPU assembly" << std::endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds.
@@ -536,7 +536,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
                                          const bool blendAlpha,
                                          const uint32_t timeout )
 {
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBVERB << "Sorted CPU assembly" << std::endl;
 
     // Collect input image information and check preconditions
     PixelViewport destPVP;
@@ -642,7 +642,7 @@ bool Compositor::_collectOutputData(
 
     if( !destPVP.hasArea( ))
     {
-        EQWARN << "Nothing to assemble: " << destPVP << std::endl;
+        LBWARN << "Nothing to assemble: " << destPVP << std::endl;
         return false;
     }
 
@@ -673,7 +673,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
                                  const uint32_t timeout )
 {
     LBASSERT( colorBuffer );
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBVERB << "Sorted CPU assembly" << std::endl;
     
     // Collect input image information and check preconditions
     uint32_t colorInternalFormat    = 0;
@@ -716,7 +716,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
 
     if( colorBufferSize < area * nChannels )
     {
-        EQWARN << "Color output buffer to small" << std::endl;
+        LBWARN << "Color output buffer to small" << std::endl;
         return false;
     }
 
@@ -729,13 +729,13 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
 
         if( !depthBuffer )
         {
-            EQWARN << "No depth output buffer provided" << std::endl;
+            LBWARN << "No depth output buffer provided" << std::endl;
             return false;
         }
 
         if( depthBufferSize < area * 4 )
         {
-            EQWARN << "Depth output buffer to small" << std::endl;
+            LBWARN << "Depth output buffer to small" << std::endl;
             return false;
         }
     }
@@ -780,7 +780,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
 {
     LBASSERT( destColor && destDepth );
 
-    EQVERB << "CPU-DB assembly" << std::endl;
+    LBVERB << "CPU-DB assembly" << std::endl;
 
     uint32_t* destC = reinterpret_cast< uint32_t* >( destColor );
     uint32_t* destD = reinterpret_cast< uint32_t* >( destDepth );
@@ -794,7 +794,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
         if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
             return;
 
-        EQWARN << "Paracomp compositing failed, using fallback" << std::endl;
+        LBWARN << "Paracomp compositing failed, using fallback" << std::endl;
     }
 #endif
 
@@ -839,7 +839,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
                                 const Vector2i& offset )
 {
     // This is mostly copy&paste code from _mergeDBImage :-/
-    EQVERB << "CPU-2D assembly" << std::endl;
+    LBVERB << "CPU-2D assembly" << std::endl;
 
     uint8_t* destC = reinterpret_cast< uint8_t* >( destColor );
     uint8_t* destD = reinterpret_cast< uint8_t* >( destDepth );
@@ -874,7 +874,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
                                    const Image* image,
                                    const Vector2i& offset )
 {
-    EQVERB << "CPU-Blend assembly"<< std::endl;
+    LBVERB << "CPU-Blend assembly"<< std::endl;
 
     int32_t* destColor = reinterpret_cast< int32_t* >( dest );
 
@@ -891,7 +891,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     { 
         // Use Paracomp to composite
         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
-            EQWARN << "Paracomp compositing failed, using fallback"
+            LBWARN << "Paracomp compositing failed, using fallback"
                    << std::endl;
         else
             return; // Go to next input image
@@ -980,7 +980,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
     if( colorFormat == 0 )
     {
-        EQWARN << "Format or type of image not supported by Paracomp" << std::endl;
+        LBWARN << "Format or type of image not supported by Paracomp" << std::endl;
         return false;
     }
 
@@ -1018,7 +1018,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
         if( depthFormat == 0 )
         {
-            EQWARN << "Format or type of image not supported by Paracomp" 
+            LBWARN << "Format or type of image not supported by Paracomp" 
                    << std::endl;
             return false;
         }
@@ -1061,11 +1061,11 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
                                         1, nOutputChannels, outputImage );
     if( error != PC_NO_ERROR )
     {
-        EQWARN << "Paracomp compositing failed: " << error << std::endl;
+        LBWARN << "Paracomp compositing failed: " << error << std::endl;
         return false;
     }
 
-    EQINFO << "Paracomp compositing successful" << std::endl;
+    LBINFO << "Paracomp compositing successful" << std::endl;
     return true;
 }
 #else // EQ_USE_PARACOMP
@@ -1079,7 +1079,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
     const Images& images = frame->getImages();
     if( images.empty( ))
-        EQINFO << "No images to assemble" << std::endl;
+        LBINFO << "No images to assemble" << std::endl;
 
     ImageOp operation;
     operation.channel = channel;
@@ -1118,7 +1118,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
 
     if( operation.buffers == Frame::BUFFER_NONE )
     {
-        EQWARN << "No image attachment buffers to assemble" << std::endl;
+        LBWARN << "No image attachment buffers to assemble" << std::endl;
         return;
     }
 
@@ -1129,7 +1129,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     else if( operation.buffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
         assembleImageDB( image, operation );
     else
-        EQWARN << "Don't know how to assemble using buffers " 
+        LBWARN << "Don't know how to assemble using buffers " 
                << operation.buffers << std::endl;
 
     clearStencilBuffer( operation );
@@ -1426,7 +1426,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            EQERROR << "Failed to compile fragment shader for DB compositing" 
+            LBERROR << "Failed to compile fragment shader for DB compositing" 
                     << std::endl;
 
         program = objects->newProgram( shaderDBKey );
@@ -1437,7 +1437,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            EQWARN << "Failed to link shader program for DB compositing" 
+            LBWARN << "Failed to link shader program for DB compositing" 
                    << std::endl;
             return;
         }

@@ -457,7 +457,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         const co::Barrier* barrier = *i;
         if( barrier->getHeight() <= 1 )
         {
-            EQVERB << "Ignoring swap barrier of height " << barrier->getHeight()
+            LBVERB << "Ignoring swap barrier of height " << barrier->getHeight()
                    << std::endl;
             continue;
         }
@@ -472,7 +472,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     {
         if( _nvNetBarrier->getHeight() <= 1 )
         {
-            EQWARN << "Ignoring NV swap barrier of height "
+            LBWARN << "Ignoring NV swap barrier of height "
                    << _nvNetBarrier->getHeight() << std::endl;
         }
         else
@@ -510,7 +510,7 @@ bool Window::_cmdConfigInitReply( co::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
         command.get<WindowConfigInitReplyPacket>();
-    EQVERB << "handle window configInit reply " << packet << std::endl;
+    LBVERB << "handle window configInit reply " << packet << std::endl;
 
     LBASSERT( !needsDelete( ));
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -521,7 +521,7 @@ bool Window::_cmdConfigExitReply( co::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
         command.get<WindowConfigExitReplyPacket>();
-    EQVERB << "handle window configExit reply " << packet << std::endl;
+    LBVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )
         _state = State( needsDelete() ? 

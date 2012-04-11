@@ -64,7 +64,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
 
     const std::string& filename = initData.getFilename();
     const uint32_t precision = initData.getPrecision();
-    EQINFO << "Loading model " << filename << std::endl;
+    LBINFO << "Loading model " << filename << std::endl;
 
     _renderer = new Renderer( filename.c_str(), precision );
     LBASSERT( _renderer );
@@ -72,7 +72,7 @@ bool Pipe::configInit( const eq::uint128_t& initID )
     if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
     {
         setError( ERROR_EVOLVE_LOADMODEL_FAILED );
-        EQWARN << getError() << ": " << filename << ".vhf" << std::endl;
+        LBWARN << getError() << ": " << filename << ".vhf" << std::endl;
         delete _renderer;
         _renderer = 0;
         return false;

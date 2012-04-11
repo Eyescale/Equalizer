@@ -78,7 +78,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     const std::string& renderClient = parameters.getRenderClient();
     if( renderClient.empty( ))
     {
-        EQWARN << "No render client in ConfigParams specified" << std::endl;
+        LBWARN << "No render client in ConfigParams specified" << std::endl;
         return 0;
     }
 
@@ -149,7 +149,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
 {
     const ServerChooseConfigReplyPacket* packet = 
         command.get<ServerChooseConfigReplyPacket>();
-    EQVERB << "Handle choose config reply " << packet << std::endl;
+    LBVERB << "Handle choose config reply " << packet << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();
     if( packet->configID == UUID::ZERO )
@@ -189,7 +189,7 @@ bool Server::_cmdShutdownReply( co::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.get<ServerShutdownReplyPacket>();
-    EQINFO << "Handle shutdown reply " << packet << std::endl;
+    LBINFO << "Handle shutdown reply " << packet << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID, packet->result );

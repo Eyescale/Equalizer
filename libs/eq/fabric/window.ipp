@@ -424,7 +424,7 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    EQVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
+    LBVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
            << std::endl;
 }
 

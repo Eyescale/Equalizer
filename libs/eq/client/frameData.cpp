@@ -53,7 +53,7 @@ FrameData::FrameData()
         , _depthCompressor( EQ_COMPRESSOR_AUTO )
 {
     _roiFinder = new ROIFinder();
-    EQINFO << "New FrameData @" << (void*)this << std::endl;
+    LBINFO << "New FrameData @" << (void*)this << std::endl;
 }
 
 FrameData::~FrameData()
@@ -64,7 +64,7 @@ FrameData::~FrameData()
          i != _imageCache.end(); ++i )
     {
         Image* image = *i;
-        EQWARN << "Unflushed image in FrameData destructor" << std::endl;
+        LBWARN << "Unflushed image in FrameData destructor" << std::endl;
         delete image;
     }
     _imageCache.clear();
@@ -258,7 +258,7 @@ Images FrameData::startReadback( const Frame& frame,
     const Zoom& zoom = frame.getZoom();
     if( !zoom.isValid( ))
     {
-        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
+        LBWARN << "Invalid zoom factor, skipping frame" << std::endl;
         return images;
     }
 

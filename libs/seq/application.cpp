@@ -79,7 +79,7 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
     LBASSERT( !_impl );
     if( _impl )
     {
-        EQERROR << "Already initialized" << std::endl;
+        LBERROR << "Already initialized" << std::endl;
         return false;
     }
 
@@ -87,13 +87,13 @@ bool Application::init( const int argc, char** argv, co::Object* initData )
     initErrors();
     if( !eq::init( argc, argv, _impl ))
     {
-        EQERROR << "Equalizer initialization failed" << std::endl;
+        LBERROR << "Equalizer initialization failed" << std::endl;
         return false;
     }
 
     if( !initLocal( argc, argv ))
     {
-        EQERROR << "Can't initialization client node" << std::endl;
+        LBERROR << "Can't initialization client node" << std::endl;
         exit();
         return false;
     }

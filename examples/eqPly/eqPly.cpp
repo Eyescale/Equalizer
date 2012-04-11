@@ -86,7 +86,7 @@ int EqPly::run()
     eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -96,7 +96,7 @@ int EqPly::run()
 
     if( !config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -107,14 +107,14 @@ int EqPly::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
     if( config->getError( ))
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
     EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
@@ -129,7 +129,7 @@ int EqPly::run()
     {
         config->startFrame();
         if( config->getError( ))
-            EQWARN << "Error during frame start: " << config->getError()
+            LBWARN << "Error during frame start: " << config->getError()
                    << std::endl;
         config->finishFrame();
 
@@ -155,7 +155,7 @@ int EqPly::run()
             {
                 const eq::ConfigEvent* event = config->nextEvent();
                 if( !config->handleEvent( event ))
-                    EQVERB << "Unhandled " << event << std::endl;
+                    LBVERB << "Unhandled " << event << std::endl;
             }
         }
         config->handleEvents(); // process all pending events
@@ -174,7 +174,7 @@ int EqPly::run()
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
 
     return EXIT_SUCCESS;
 }
@@ -184,7 +184,7 @@ void EqPly::clientLoop()
     do
     {
          eq::Client::clientLoop();
-         EQINFO << "Configuration run successfully executed" << std::endl;
+         LBINFO << "Configuration run successfully executed" << std::endl;
     }
     while( _initData.isResident( )); // execute at lease one config run
 }

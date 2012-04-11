@@ -236,7 +236,7 @@ void Channel< W, C >::notifyViewportChanged()
             setDirty( DIRTY_VIEWPORT );
     }
 
-    EQVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
+    LBVERB << getName() << " viewport update: " << _data.nativeContext.vp << ":"
            << _data.nativeContext.pvp << std::endl;
 }
 

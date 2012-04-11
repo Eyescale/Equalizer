@@ -149,7 +149,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.get<ServerCreateConfigPacket>();
-    EQVERB << "Handle create config " << packet << std::endl;
+    LBVERB << "Handle create config " << packet << std::endl;
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
@@ -169,7 +169,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.get<ServerDestroyConfigPacket>();
-    EQVERB << "Handle destroy config " << packet << std::endl;
+    LBVERB << "Handle destroy config " << packet << std::endl;
     
     co::LocalNodePtr localNode = command.getLocalNode();
 

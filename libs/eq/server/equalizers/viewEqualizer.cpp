@@ -37,7 +37,7 @@ namespace server
 ViewEqualizer::ViewEqualizer()
         : _nPipes( 0 )
 {
-    EQINFO << "New view equalizer @" << (void*)this << std::endl;
+    LBINFO << "New view equalizer @" << (void*)this << std::endl;
 }
 
 ViewEqualizer::ViewEqualizer( const ViewEqualizer& from )
@@ -48,7 +48,7 @@ ViewEqualizer::ViewEqualizer( const ViewEqualizer& from )
 ViewEqualizer::~ViewEqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete view equalizer @" << (void*)this << std::endl;
+    LBINFO << "Delete view equalizer @" << (void*)this << std::endl;
 }
 
 ViewEqualizer::Listener::Listener()

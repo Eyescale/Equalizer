@@ -100,7 +100,7 @@ bool IBConnection::connect()
         return false;
     }
 
-    EQINFO << "Connected " << _description << std::endl;
+    LBINFO << "Connected " << _description << std::endl;
     return true;
 }
 
@@ -175,7 +175,7 @@ bool IBConnection::_preRegister( )
 {
     if( !_adapter.open() )
     {
-        EQWARN << "Can't open IB adapter" << std::endl;
+        LBWARN << "Can't open IB adapter" << std::endl;
         close();
         return false;
     }
@@ -186,7 +186,7 @@ bool IBConnection::_preRegister( )
         if( !_completionQueues[i]->create( this, &_adapter, 
              _interfaces[i]->getNumberBlockMemory() ))
         {
-            EQWARN << "Can't create completion queue" << std::endl;
+            LBWARN << "Can't create completion queue" << std::endl;
             close();
             return false;
         }
@@ -231,7 +231,7 @@ bool IBConnection::_establish( bool isServer, uint32_t index )
         // Create connection between client and server.
         // We do it by exchanging data over a TCP socket connection.
        /*
-        EQINFO << "local address:  LID " << myDest.lid 
+        LBINFO << "local address:  LID " << myDest.lid 
                << " QPN "                << myDest.qpn 
                << " PSN "                << myDest.psn 
                << " RKey "               << myDest.rkey
@@ -248,7 +248,7 @@ bool IBConnection::_establish( bool isServer, uint32_t index )
             close();
             return false;
         }
-    /*    EQINFO << "dest address:  LID " << remDest.lid 
+    /*    LBINFO << "dest address:  LID " << remDest.lid 
                << " QPN "               << remDest.qpn 
                << " PSN "               << remDest.psn 
                << " RKey "              << remDest.rkey

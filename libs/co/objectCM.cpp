@@ -105,7 +105,7 @@ void ObjectCM::_initSlave( NodePtr node, const uint128_t& version,
 
 #ifndef NDEBUG
     if( version != VERSION_OLDEST && version < reply.version )
-        EQINFO << "Mapping version " << reply.version << " instead of "
+        LBINFO << "Mapping version " << reply.version << " instead of "
                << version << std::endl;
 #endif
 

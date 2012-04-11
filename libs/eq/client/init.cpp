@@ -68,12 +68,12 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 
     lunchbox::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
-    EQINFO << "Equalizer v" << Version::getString() << " initializing"
+    LBINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
     if( ++_initialized > 1 ) // not first
     {
-        EQINFO << "Equalizer client library initialized more than once"
+        LBINFO << "Equalizer client library initialized more than once"
                << std::endl;
         return true;
     }
@@ -84,11 +84,11 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 #endif
 
 #ifdef EQ_USE_PARACOMP
-    EQINFO << "Initializing Paracomp library" << std::endl;
+    LBINFO << "Initializing Paracomp library" << std::endl;
     PCerr err = pcSystemInitialize( 0 );
     if( err != PC_NO_ERROR )
     {
-        EQERROR << "Paracomp initialization failed: " << err << std::endl;
+        LBERROR << "Paracomp initialization failed: " << err << std::endl;
         return false;
     }
 #endif
@@ -104,7 +104,7 @@ bool exit()
 {
     if( _initialized <= 0 )
     {
-        EQERROR << "Equalizer client library not initialized" << std::endl;
+        LBERROR << "Equalizer client library not initialized" << std::endl;
         return false;
     }
     if( --_initialized > 0 ) // not last
@@ -163,7 +163,7 @@ void _parseArguments( const int argc, char** argv )
                 }
                 else
                 {
-                    EQWARN << "Can't open log file " << argv[i] << ": "
+                    LBWARN << "Can't open log file " << argv[i] << ": "
                            << lunchbox::sysError << std::endl;
                     delete newLog;
                     newLog = 0;
@@ -245,14 +245,14 @@ void _initPlugins()
     if( plugins.addPlugin( absDSO ))
         return;
 
-    EQWARN << "Built-in Equalizer plugins not loaded: " << EQUALIZER_DSO_NAME
+    LBWARN << "Built-in Equalizer plugins not loaded: " << EQUALIZER_DSO_NAME
            << " not in library search path and " << absDSO << " not found"
            << std::endl;
 #else
 #  ifndef NDEBUG
 #    error "EQUALIZER_DSO_NAME not defined"
 #  endif
-    EQWARN << "Built-in Equalizer plugins not loaded: EQUALIZER_DSO_NAME not "
+    LBWARN << "Built-in Equalizer plugins not loaded: EQUALIZER_DSO_NAME not "
            << "defined" << std::endl;
 #endif
 }
@@ -291,19 +291,19 @@ Config* getConfig( const int argc, char** argv )
             if( config )
                 return config;
 
-            EQERROR << "No matching config on server" << std::endl;
+            LBERROR << "No matching config on server" << std::endl;
 
             // -2. disconnect server
             client->disconnectServer( server );
         }
         else
-            EQERROR << "Can't open server" << std::endl;
+            LBERROR << "Can't open server" << std::endl;
         
         // -1. exit local client node
         client->exitLocal();
     }
     else
-        EQERROR << "Can't init local client node" << std::endl;
+        LBERROR << "Can't init local client node" << std::endl;
 
     return 0;
 }

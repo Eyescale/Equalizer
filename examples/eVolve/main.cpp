@@ -60,7 +60,7 @@ int main( const int argc, char** argv )
 
     if( !eq::init( argc, argv, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         eVolve::exitErrors();
         return EXIT_FAILURE;
     }
@@ -73,7 +73,7 @@ int main( const int argc, char** argv )
     lunchbox::RefPtr< eVolve::EVolve > client = new eVolve::EVolve( initData );
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::exit();
         eVolve::exitErrors();
         return EXIT_FAILURE;

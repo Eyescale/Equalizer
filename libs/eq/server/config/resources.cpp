@@ -79,7 +79,7 @@ bool Resources::discover( Config* config, const std::string& session,
 
     if( infos.empty( ))
     {
-        EQINFO << "No resources found for session " << session 
+        LBINFO << "No resources found for session " << session 
                << ", using default config" << std::endl;
         infos.push_back( gpusd::GPUInfo( ));
     }

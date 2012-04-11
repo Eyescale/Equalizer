@@ -44,7 +44,7 @@ void GLSLShaders::_printLog( GLhandleARB shader, const std::string &type )
 
     GLint written;
     glGetInfoLogARB( shader, length, &written, &log[0] );
-    EQERROR << "Shader error: " << type << std::endl
+    LBERROR << "Shader error: " << type << std::endl
             << &log[0] << std::endl;
 
     return;

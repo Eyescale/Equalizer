@@ -144,7 +144,7 @@ public:
                                 {
                                     size += (*k)->getAllocationSize();
                                 }
-                                EQINFO << _hits << "/" << _hits + _misses
+                                LBINFO << _hits << "/" << _hits + _misses
                                        << " hits, " << _lookups << " lookups, "
                                        << _free[j] << " of " << cmds.size()
                                        << " packets free (min " << _minFree[ j ]

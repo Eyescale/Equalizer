@@ -84,13 +84,13 @@ typedef CommandFunc<Barrier> CmdFunc;
 Barrier::Barrier()
         : _impl( new detail::Barrier )
 {
-    EQINFO << "Barrier instantiated" << std::endl;
+    LBINFO << "Barrier instantiated" << std::endl;
 }
 
 Barrier::Barrier( NodePtr master, const uint32_t height )
         : _impl( new detail::Barrier( master, height ))
 {
-    EQINFO << "New barrier of height " << height << std::endl;
+    LBINFO << "New barrier of height " << height << std::endl;
 }
 
 Barrier::~Barrier()
@@ -171,7 +171,7 @@ void Barrier::enter( const uint32_t timeout )
     LBASSERT( _impl->master->isConnected( ));
     if( !_impl->master || !_impl->master->isConnected( ))
     {
-        EQWARN << "Can't connect barrier master node " << _impl->masterID
+        LBWARN << "Can't connect barrier master node " << _impl->masterID
                << std::endl;
         return;
     }

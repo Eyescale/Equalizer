@@ -35,7 +35,7 @@ Equalizer::Equalizer()
         , _frozen( false )
         , _active( true )
 {
-    EQINFO << "New Equalizer @" << (void*)this << std::endl;
+    LBINFO << "New Equalizer @" << (void*)this << std::endl;
 }
 
 Equalizer::Equalizer( const Equalizer& from )

@@ -88,7 +88,7 @@ bool CameraAnimation::loadAnimation( const std::string& fileName )
     file.open( fileName.c_str( ));
     if( !file )
     {
-        EQERROR << "Path file could not be opened" << std::endl;
+        LBERROR << "Path file could not be opened" << std::endl;
         return false;
     }
 

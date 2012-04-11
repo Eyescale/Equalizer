@@ -82,7 +82,7 @@ bool Plugin::init( const std::string& libraryName )
 
     if( !foundBase || ( !foundCPU && !foundGPU ))
     {
-        EQWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName 
            << " failed, at least one entry point missing" << std::endl;
         return false;
     }
@@ -90,7 +90,7 @@ bool Plugin::init( const std::string& libraryName )
     const size_t nCompressors = getNumCompressors();
     if( nCompressors == 0 )
     {
-        EQWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName 
            << " failed, 0 compression engines reported" << std::endl;
         return false;
     }
@@ -108,7 +108,7 @@ bool Plugin::init( const std::string& libraryName )
         if(( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD ) &&
             ( !startDownload || !finishDownload ))
         {
-            EQWARN << "Download plugin claims to support async readback " <<
+            LBWARN << "Download plugin claims to support async readback " <<
                       "but corresponding functions are missing" << std::endl;
             _infos.clear();
             return false;

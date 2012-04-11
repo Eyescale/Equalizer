@@ -35,14 +35,14 @@ BufferConnection::BufferConnection()
         : _impl( new detail::BufferConnection )
 {
     _state = STATE_CONNECTED;
-    EQVERB << "New BufferConnection @" << (void*)this << std::endl;
+    LBVERB << "New BufferConnection @" << (void*)this << std::endl;
 }
 
 BufferConnection::~BufferConnection()
 {
     _state = STATE_CLOSED;
     if( !_impl->buffer.isEmpty( ))
-        EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
+        LBWARN << "Deleting BufferConnection with buffered data" << std::endl;
     delete _impl;
 }
 
@@ -64,7 +64,7 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
 
     if( !connection )
     {
-        EQWARN << "NULL connection during buffer write" << std::endl;
+        LBWARN << "NULL connection during buffer write" << std::endl;
         return;
     }
 

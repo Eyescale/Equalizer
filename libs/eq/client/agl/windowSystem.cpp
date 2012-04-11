@@ -48,13 +48,13 @@ static class : WindowSystemIF
 
     eq::SystemWindow* createWindow( eq::Window* window ) const
     {
-        EQINFO << "Using agl::Window" << std::endl;
+        LBINFO << "Using agl::Window" << std::endl;
         return new Window(window);
     }
 
     eq::SystemPipe* createPipe( eq::Pipe* pipe ) const
     {
-        EQINFO << "Using agl::Pipe" << std::endl;
+        LBINFO << "Using agl::Pipe" << std::endl;
         return new Pipe(pipe);
     }
 
@@ -70,7 +70,7 @@ static class : WindowSystemIF
         LBASSERT( context );
         if( !context )
         {
-            EQWARN << "No AGL context current" << std::endl;
+            LBWARN << "No AGL context current" << std::endl;
             return false;
         }
 
@@ -86,7 +86,7 @@ static class : WindowSystemIF
 
         if( font == 0 )
         {
-            EQWARN << "Can't load font " << name << ", using Georgia"
+            LBWARN << "Can't load font " << name << ", using Georgia"
                    << std::endl;
             cfFontName = 
                 CFStringCreateWithCString( kCFAllocatorDefault, "Georgia",

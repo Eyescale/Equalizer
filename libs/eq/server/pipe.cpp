@@ -216,7 +216,7 @@ bool Pipe::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Pipe initialization failed: " << getError() << std::endl;
+    LBWARN << "Pipe initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }
@@ -306,7 +306,7 @@ bool Pipe::_cmdConfigInitReply( co::Command& command )
 {
     const PipeConfigInitReplyPacket* packet = 
         command.get<PipeConfigInitReplyPacket>();
-    EQVERB << "handle pipe configInit reply " << packet << std::endl;
+    LBVERB << "handle pipe configInit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
@@ -316,7 +316,7 @@ bool Pipe::_cmdConfigExitReply( co::Command& command )
 {
     const PipeConfigExitReplyPacket* packet = 
         command.get<PipeConfigExitReplyPacket>();
-    EQVERB << "handle pipe configExit reply " << packet << std::endl;
+    LBVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;

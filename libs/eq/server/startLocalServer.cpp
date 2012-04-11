@@ -52,7 +52,7 @@ protected:
             _server->close();
             _server->deleteConfigs();
 
-            EQINFO << "Server thread done, still referenced by " 
+            LBINFO << "Server thread done, still referenced by " 
                    << _server->getRefCount() - 1 << std::endl;
             LBASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
@@ -74,7 +74,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
 #pragma warning(pop)
     if( _serverThread.isRunning( ))
     {
-        EQWARN << "Only one app-local per process server allowed" << std::endl;
+        LBWARN << "Only one app-local per process server allowed" << std::endl;
         return 0;
     }
 
@@ -92,7 +92,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
         server = loader.parseServer( CONFIG );
     if( !server )
     {
-        EQERROR << "Failed to load configuration" << std::endl;
+        LBERROR << "Failed to load configuration" << std::endl;
         return 0;
     }
 
@@ -105,20 +105,20 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))
     {
-        EQERROR << "Failed to set up server connection" << std::endl;
+        LBERROR << "Failed to set up server connection" << std::endl;
         return 0;
     }
 
     co::ConnectionPtr sibling = connection->acceptSync();
     if( !server->listen( sibling ))
     {
-        EQERROR << "Failed to setup server listener" << std::endl;
+        LBERROR << "Failed to setup server listener" << std::endl;
         return 0;
     }
 
     if( !_serverThread.start( server ))
     {
-        EQERROR << "Failed to start server thread" << std::endl;
+        LBERROR << "Failed to start server thread" << std::endl;
         return 0;
     }
 
