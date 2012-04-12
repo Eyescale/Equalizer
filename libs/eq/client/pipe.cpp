@@ -49,6 +49,7 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
+#include <co/worker.h>
 #include <lunchbox/perThread.h>
 #include <sstream>
 
@@ -58,8 +59,8 @@ namespace eq
 
 namespace
 {
-static
 lunchbox::PerThread< const Window, lunchbox::perThreadNoDelete > _currentWindow;
+template void lunchbox::perThreadNoDelete< const Window > ( const Window* object );
 }
 
 /** @cond IGNORE */

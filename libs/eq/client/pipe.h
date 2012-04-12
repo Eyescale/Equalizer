@@ -31,7 +31,6 @@
 #include <lunchbox/lock.h>
 #include <lunchbox/monitor.h>
 #include <lunchbox/refPtr.h>
-#include <co/worker.h>
 
 namespace eq
 {
@@ -41,7 +40,7 @@ namespace detail { class TransferThread; }
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * eq::Worker thread, in parallel with all other pipes in the system. An
+     * co::Worker thread, in parallel with all other pipes in the system. An
      * exception are non-threaded pipes, which execute their tasks on the Node's
      * main thread.
      *

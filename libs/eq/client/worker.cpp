@@ -18,6 +18,7 @@
 #include "api.h"
 #define CO_WORKER_API EQ_API
 #include <co/worker.ipp>
+#undef CO_WORKER_API
 
 #include "commandQueue.h"
 
