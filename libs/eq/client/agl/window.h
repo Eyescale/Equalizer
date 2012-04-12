@@ -265,7 +265,7 @@ namespace agl
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        void _initSwapSync();
+        void _initSwapSync( AGLContext context );
     };
 }
 }
