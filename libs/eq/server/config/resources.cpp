@@ -282,27 +282,30 @@ Compound* Resources::_addMonoCompound( Compound* root, const Channels& channels,
     const std::string& name = layout->getName();
 
     Compound* compound = 0;
-    const bool multiProcess = flags & ( ConfigParams::FLAG_MULTIPROCESS | 
-                                        ConfigParams::FLAG_MULTIPROCESS_DB );
-    const Channels& active = _filter( channels, multiProcess ? " mp " : " mt ");
+    const bool multiProcess = flags & ConfigParams::FLAG_MULTIPROCESS;
+    const bool multiProcessDB = multiProcess || 
+                               ( flags & ConfigParams::FLAG_MULTIPROCESS_DB );
+    const Channels& activeMT = _filter( channels, " mt " );
+    const Channels& activeMP = _filter( channels, " mp " );
 
     if( name == EQ_SERVER_CONFIG_LAYOUT_SIMPLE )
         /* nop */;
     else if( name == EQ_SERVER_CONFIG_LAYOUT_2D_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_2D_STATIC )
     {
-        compound = _add2DCompound( root, active );
+        compound = _add2DCompound( root, multiProcess ? activeMP : activeMT );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DYNAMIC ||
              name == EQ_SERVER_CONFIG_LAYOUT_DB_STATIC )
     {
-        compound = _addDBCompound( root, active );
+        compound = _addDBCompound( root, multiProcessDB ? activeMP : activeMT );
     }
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_DS )
-        compound = _addDSCompound( root, active );
+        compound = _addDSCompound( root, multiProcessDB ? activeMP : activeMT );
     else if( name == EQ_SERVER_CONFIG_LAYOUT_DB_2D )
     {
-        LBASSERT( multiProcess );
+        LBASSERT( !multiProcess );
+        LBASSERT( multiProcessDB );
         compound = _addDB2DCompound( root, channels );
     }
     else
