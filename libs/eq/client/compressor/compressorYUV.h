@@ -43,7 +43,7 @@ public:
     virtual void compress( const void* const inData, 
                            const uint64_t    nPixels, 
                            const bool        useAlpha )
-        { EQDONTCALL; }
+        { LBDONTCALL; }
 
     static bool isCompatible( const GLEWContext* glewContext );
 

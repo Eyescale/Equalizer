@@ -124,7 +124,7 @@ bool IBInterface::_createQueuePair( IBAdapter* adapter )
                                              0, 0, &_queuePair );
     if ( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "cannot create a queue pair" << std::endl; 
+        LBERROR << "cannot create a queue pair" << std::endl; 
         return false;
     }
     return true;
@@ -165,14 +165,14 @@ bool IBInterface::create( IBAdapter* adapter,
     ibStatus = ib_modify_qp( _queuePair, &queuePairModify );
     if ( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "cannot modify a queue pair" << std::endl; 
+        LBERROR << "cannot modify a queue pair" << std::endl; 
         return false;
     }
 
     ibStatus = ib_query_qp( _queuePair, &_queuePairAttr );
     if ( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "cannot query a queue pair" << std::endl; 
+        LBERROR << "cannot query a queue pair" << std::endl; 
         return false;
     }
 
@@ -208,7 +208,7 @@ bool IBInterface::_setAttributeReadyToReceive()
 
     if( ib_modify_qp( _queuePair, &attr ) != IB_SUCCESS )
     {
-        EQERROR << "Error during modification Queue pair  RTR" << std::endl; 
+        LBERROR << "Error during modification Queue pair  RTR" << std::endl; 
         return false;
     }
 
@@ -234,7 +234,7 @@ bool IBInterface::_setAttributeReadyToSend( )
 
     if( ib_modify_qp( _queuePair, &attr ) != IB_SUCCESS )
     {
-        EQERROR << "Error during modification Queue pair RTS" << std::endl; 
+        LBERROR << "Error during modification Queue pair RTS" << std::endl; 
         return false;
     }
 
@@ -274,22 +274,22 @@ void IBInterface::modiyQueuePairAttribute( )
 void IBInterface::close()
 {
 #ifdef EQ_MEASURE_TIME
-    EQINFO << " Time total to ReadNB     : " 
+    LBINFO << " Time total to ReadNB     : " 
            << _floatTimeReadNB << std::endl;
-    EQINFO << " Time total to ReadSync   : " 
+    LBINFO << " Time total to ReadSync   : " 
            << _floatTimeReadSync << std::endl;
-    EQINFO << " Time total to WaitPoll   : " 
+    LBINFO << " Time total to WaitPoll   : " 
            << _timeTotalWaitPoll << std::endl;
-    EQINFO << " Time total to copyBuffer : "
+    LBINFO << " Time total to copyBuffer : "
            << _timeCopyBufferRead << std::endl;
-    EQINFO << " Time total to WaitObj    : " 
+    LBINFO << " Time total to WaitObj    : " 
            <<  _timeTotalWaitobj << std::endl;
 
-    EQINFO << " Time total to Write   : " 
+    LBINFO << " Time total to Write   : " 
            << _timeTotalWrite << std::endl;
-    EQINFO << " Time total to WaitWrite   : " 
+    LBINFO << " Time total to WaitWrite   : " 
            << _timeTotalWriteWait << std::endl;
-    EQINFO << " Time total to copyBuffer : " 
+    LBINFO << " Time total to copyBuffer : " 
            << _timeCopyBufferWrite << std::endl;
 #endif
     ib_api_status_t    status;
@@ -323,7 +323,7 @@ bool IBInterface::_ibPostRecv( uint32_t numBuffer )
     ib_api_status_t ibStatus = ib_post_recv( _queuePair, &_rwr, 0);
     if ( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Error during ib_post_recv" << std::endl; 
+        LBERROR << "Error during ib_post_recv" << std::endl; 
         return false;
     }
     
@@ -408,7 +408,7 @@ int64_t IBInterface::readSync( void* buffer, uint32_t bytes )
         return nbRead;
     }
 
-    EQWARN << "ERROR IN READ SYNC"<< std::endl;
+    LBWARN << "ERROR IN READ SYNC"<< std::endl;
     return -1;
     
 #ifdef EQ_MEASURE_TIME
@@ -445,7 +445,7 @@ int64_t IBInterface::_waitPollCQ( uint32_t numBuffer )
     {
         if ( wcDone->status != IB_WCS_SUCCESS )
         {
-            EQWARN << "ERROR IN POLL READ"<< std::endl;
+            LBWARN << "ERROR IN POLL READ"<< std::endl;
             close();
             return -1;
         }
@@ -490,7 +490,7 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
         {
             if ( wcDone->status != IB_WCS_SUCCESS )
             {
-                EQWARN << "ERROR IN POLL WRITE"<< std::endl;
+                LBWARN << "ERROR IN POLL WRITE"<< std::endl;
                 return -1;
             }
             _writePoll.getData()[wcDone->wr_id] = true;
@@ -546,7 +546,7 @@ int64_t IBInterface::postRdmaWrite( const void* buffer, uint32_t numBytes )
     ibStatus = ib_post_send( _queuePair, &_wr, 0 );
     if ( ibStatus != IB_SUCCESS )
     {
-        EQWARN << "ERROR IN POST SEND DATA"<< std::endl;
+        LBWARN << "ERROR IN POST SEND DATA"<< std::endl;
         return -1;
     }
     _writePoll.getData()[ _numBufWrite ] = false;

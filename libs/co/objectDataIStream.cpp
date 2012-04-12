@@ -75,21 +75,21 @@ void ObjectDataIStream::_reset()
 void ObjectDataIStream::addDataPacket( Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( !isReady( ));
+    LBASSERT( !isReady( ));
 
     const ObjectDataPacket* packet = command.get< ObjectDataPacket >();
 #ifndef NDEBUG
     if( _commands.empty( ))
     {
-        EQASSERTINFO( packet->sequence == 0, packet );
+        LBASSERTINFO( packet->sequence == 0, packet );
     }
     else
     {
         const ObjectDataPacket* previous = 
             _commands.back()->get< ObjectDataPacket >();
-        EQASSERTINFO( packet->sequence == previous->sequence+1, 
+        LBASSERTINFO( packet->sequence == previous->sequence+1, 
                       packet->sequence << ", " << previous->sequence );
-        EQASSERT( packet->version == previous->version );
+        LBASSERT( packet->version == previous->version );
     }
 #endif
 
@@ -103,7 +103,7 @@ bool ObjectDataIStream::hasInstanceData() const
 {
     if( !_usedCommand && _commands.empty( ))
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
@@ -166,7 +166,7 @@ bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
         return false;
 
     const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
-    EQASSERT( packet->command == CMD_OBJECT_INSTANCE ||
+    LBASSERT( packet->command == CMD_OBJECT_INSTANCE ||
               packet->command == CMD_OBJECT_DELTA ||
               packet->command == CMD_OBJECT_SLAVE_DELTA );
 

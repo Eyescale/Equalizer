@@ -38,8 +38,8 @@ Renderer::Renderer( seq::Renderer* parent )
 
 Renderer::~Renderer()
 {
-    EQASSERT( !_pipe );
-    EQASSERT( !_channel );
+    LBASSERT( !_pipe );
+    LBASSERT( !_channel );
 }
 
 co::Object* Renderer::getFrameData()
@@ -49,19 +49,19 @@ co::Object* Renderer::getFrameData()
 
 const Frustumf& Renderer::getFrustum() const
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     return _channel ? _channel->getFrustum() : Frustumf::DEFAULT;
 }
 
 const Matrix4f& Renderer::getViewMatrix() const
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     return _channel ? _channel->getViewMatrix() : Matrix4f::IDENTITY;
 }
 
 const Matrix4f& Renderer::getModelMatrix() const
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     return _channel ? _channel->getModelMatrix() : Matrix4f::IDENTITY;
 }
 
@@ -89,21 +89,21 @@ bool Renderer::exitContext()
 
 void Renderer::clear()
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     if( _channel )
         _channel->clear();
 }
 
 void Renderer::applyRenderContext()
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     if( _channel )
         _channel->applyRenderContext();
 }
 
 void Renderer::applyModelMatrix()
 {
-    EQASSERT( _channel );
+    LBASSERT( _channel );
     if( _channel )
         _channel->applyModelMatrix();
 }

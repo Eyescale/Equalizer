@@ -34,7 +34,7 @@ CommandQueue::CommandQueue()
 
 CommandQueue::~CommandQueue()
 {
-    EQASSERT( !_messagePump );
+    LBASSERT( !_messagePump );
     delete _messagePump;
     _messagePump = 0;
 }

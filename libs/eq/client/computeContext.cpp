@@ -26,7 +26,7 @@ namespace eq
 ComputeContext::ComputeContext( Pipe* parent )
         : _pipe( parent )
 {
-    EQASSERT( _pipe ); 
+    LBASSERT( _pipe ); 
 }
 
 ComputeContext::~ComputeContext()

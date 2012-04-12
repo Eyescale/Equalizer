@@ -94,7 +94,7 @@ RSPConnection::RSPConnection()
     _description->type = CONNECTIONTYPE_RSP;
     _description->bandwidth = 102400;
 
-    EQCHECK( _event->connect( ));
+    LBCHECK( _event->connect( ));
 
     _buffers.reserve( Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS ));
     while( static_cast< int32_t >( _buffers.size( )) <
@@ -103,8 +103,8 @@ RSPConnection::RSPConnection()
         _buffers.push_back( new Buffer( _mtu ));
     }
 
-    EQASSERT( sizeof( DatagramNack ) <= size_t( _mtu ));
-    EQLOG( LOG_RSP ) << "New RSP connection, " << _buffers.size()
+    LBASSERT( sizeof( DatagramNack ) <= size_t( _mtu ));
+    LBLOG( LOG_RSP ) << "New RSP connection, " << _buffers.size()
                      << " buffers of " << _mtu << " bytes" << std::endl;
 }
 
@@ -133,7 +133,7 @@ void RSPConnection::_close()
 
     if( _thread )
     {
-        EQASSERT( !_thread->isCurrent( ));
+        LBASSERT( !_thread->isCurrent( ));
         _sendSimpleDatagram( ID_EXIT, _id );
         _ioService.stop();
         _thread->join();
@@ -193,7 +193,7 @@ uint16_t RSPConnection::_buildNewID()
 
 bool RSPConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_RSP );
+    LBASSERT( _description->type == CONNECTIONTYPE_RSP );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -256,7 +256,7 @@ bool RSPConnection::listen()
             return false;
                 
         const ip::address ifAddr( ip::udp::endpoint( *interfaceIP ).address( ));
-        EQINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
+        LBINFO << "Joining " << mcAddr << " on " << ifAddr << std::endl;
 
         _read->set_option( ip::multicast::join_group( mcAddr.to_v4(),
                                                       ifAddr.to_v4( )));
@@ -269,7 +269,7 @@ bool RSPConnection::listen()
     }
     catch( const boost::system::system_error& e )
     {
-        EQWARN << "can't setup underlying UDP connection: " << e.what()
+        LBWARN << "can't setup underlying UDP connection: " << e.what()
                << std::endl;
         delete _read;
         delete _write;
@@ -291,12 +291,12 @@ bool RSPConnection::listen()
     }
 
     // Make all buffers available for writing
-    EQASSERT( _appBuffers.isEmpty( ));
+    LBASSERT( _appBuffers.isEmpty( ));
     _appBuffers.push( _buffers );
 
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description->getHostname() << ":"
+    LBINFO << "Listening on " << _description->getHostname() << ":"
            << _description->port << " (" << _description->toString() << " @"
            << (void*)this << ")" << std::endl;
     return true;
@@ -308,14 +308,14 @@ ConnectionPtr RSPConnection::acceptSync()
         return 0;
         
     lunchbox::ScopedWrite mutex( _mutexConnection );
-    EQASSERT( !_newChildren.empty( ));
+    LBASSERT( !_newChildren.empty( ));
     if( _newChildren.empty( ))
         return 0;
 
     RSPConnectionPtr newConnection = _newChildren.back();
     _newChildren.pop_back();
 
-    EQINFO << _id << " accepted RSP connection " << newConnection->_id
+    LBINFO << _id << " accepted RSP connection " << newConnection->_id
            << std::endl;
 
     lunchbox::ScopedWrite mutex2( _mutexEvent );
@@ -330,7 +330,7 @@ ConnectionPtr RSPConnection::acceptSync()
 
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
 {
-    EQASSERT( bytes > 0 );
+    LBASSERT( bytes > 0 );
     if( _state != STATE_CONNECTED )
         return -1;
 
@@ -342,7 +342,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
     {
         if( !_readBuffer )
         {
-            EQASSERT( _readBufferPos == 0 );
+            LBASSERT( _readBufferPos == 0 );
             _readBuffer = _appBuffers.pop();
             if( !_readBuffer )
             {
@@ -351,7 +351,7 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
                     -1 : static_cast< int64_t >( bytes - bytesLeft );
             }
         }
-        EQASSERT( _readBuffer );
+        LBASSERT( _readBuffer );
 
         const DatagramData* header = reinterpret_cast< const DatagramData* >(
             _readBuffer->getData( ));
@@ -368,17 +368,17 @@ int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
         // if all data in the buffer has been taken
         if( _readBufferPos >= header->size )
         {
-            EQASSERT( _readBufferPos == header->size );
-            //EQLOG( LOG_RSP ) << "reset read buffer  " << header->sequence
+            LBASSERT( _readBufferPos == header->size );
+            //LBLOG( LOG_RSP ) << "reset read buffer  " << header->sequence
             //                 << std::endl;
 
-            EQCHECK( _threadBuffers.push( _readBuffer ));
+            LBCHECK( _threadBuffers.push( _readBuffer ));
             _readBuffer = 0;
             _readBufferPos = 0;
         }
         else
         {
-            EQASSERT( _readBufferPos < header->size );
+            LBASSERT( _readBufferPos < header->size );
         }
     }
 
@@ -401,7 +401,7 @@ void RSPConnection::Thread::run()
 {
     _connection->_runThread();
     _connection = 0;
-    EQINFO << "Left RSP protocol thread" << std::endl;
+    LBINFO << "Left RSP protocol thread" << std::endl;
 }
 
 void RSPConnection::_handleTimeout( const boost::system::error_code& error )
@@ -422,12 +422,12 @@ void RSPConnection::_handleAcceptIDTimeout( )
     ++_timeouts;
     if( _timeouts < 20 )
     {
-        EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+        LBLOG( LOG_RSP ) << "Announce " << _id << std::endl;
         _sendSimpleDatagram( ID_HELLO, _id );
     }
     else 
     {
-        EQLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
+        LBLOG( LOG_RSP ) << "Confirm " << _id << std::endl;
         _sendSimpleDatagram( ID_CONFIRM, _id );
         _addConnection( _id );
         _idAccepted = true;
@@ -441,14 +441,14 @@ void RSPConnection::_handleAcceptIDTimeout( )
 
 void RSPConnection::_handleInitTimeout( )
 {
-    EQASSERT( _state != STATE_LISTENING );
+    LBASSERT( _state != STATE_LISTENING );
     ++_timeouts;
     if( _timeouts < 20 )
         _sendCountNode();
     else
     {
         _state = STATE_LISTENING;
-        EQINFO << "RSP connection " << _id << " listening" << std::endl;
+        LBINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
         _ioService.stop(); // thread initialized, run restarts
     } 
@@ -467,7 +467,7 @@ void RSPConnection::_handleConnectedTimeout()
 
     if( _timeouts >= EQ_RSP_MAX_TIMEOUTS )
     {
-        EQERROR << "Too many timeouts during send: " << _timeouts << std::endl;
+        LBERROR << "Too many timeouts during send: " << _timeouts << std::endl;
         _sendSimpleDatagram( ID_EXIT, _id );
         _appBuffers.pushFront( 0 ); // unlock write function
         for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
@@ -482,11 +482,11 @@ void RSPConnection::_handleConnectedTimeout()
 
 bool RSPConnection::_initThread()
 {
-    EQLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
+    LBLOG( LOG_RSP ) << "Started RSP protocol thread" << std::endl;
     _timeouts = 0;
  
    // send a first datagram to announce me and discover other connections
-    EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+    LBLOG( LOG_RSP ) << "Announce " << _id << std::endl;
     _sendSimpleDatagram( ID_HELLO, _id );
     _setTimeout( 10 ); 
     _asyncReceiveFrom();
@@ -503,7 +503,7 @@ void RSPConnection::_runThread()
 
 void RSPConnection::_setTimeout( const int32_t timeOut )
 {
-    EQASSERT( timeOut >= 0 );
+    LBASSERT( timeOut >= 0 );
     _timeout.expires_from_now( boost::posix_time::milliseconds( timeOut ));
     _timeout.async_wait( boost::bind( &RSPConnection::_handleTimeout, this,
                                       placeholders::error ));
@@ -521,7 +521,7 @@ void RSPConnection::_processOutgoing()
 #ifdef EQ_INSTRUMENT_RSP
     if( instrumentClock.getTime64() > 1000 )
     {
-        EQWARN << *this << std::endl;
+        LBWARN << *this << std::endl;
         instrumentClock.reset();
     }
 #endif
@@ -569,7 +569,7 @@ void RSPConnection::_writeData()
         return;
 
     _timeouts = 0;
-    EQASSERT( buffer );
+    LBASSERT( buffer );
 
     // write buffer
     DatagramData* header = reinterpret_cast<DatagramData*>( buffer->getData( ));
@@ -582,8 +582,8 @@ void RSPConnection::_writeData()
         while( header->size < _payloadSize && !_threadBuffers.isEmpty( ))
         {
             Buffer* buffer2 = 0;
-            EQCHECK( _threadBuffers.getFront( buffer2 ));
-            EQASSERT( buffer2 );
+            LBCHECK( _threadBuffers.getFront( buffer2 ));
+            LBASSERT( buffer2 );
             DatagramData* header2 = 
                 reinterpret_cast<DatagramData*>( buffer2->getData( ));
 
@@ -593,7 +593,7 @@ void RSPConnection::_writeData()
             memcpy( reinterpret_cast<uint8_t*>( header + 1 ) + header->size,
                     header2 + 1, header2->size );
             header->size += header2->size;
-            EQCHECK( _threadBuffers.pop( buffer2 ));
+            LBCHECK( _threadBuffers.pop( buffer2 ));
             appBuffers.push_back( buffer2 );
 #ifdef EQ_INSTRUMENT_RSP
             ++nMergedDatagrams;
@@ -625,7 +625,7 @@ void RSPConnection::_writeData()
 
     if( _children.size() == 1 ) // We're all alone
     {
-        EQASSERT( _children.front()->_id == _id );
+        LBASSERT( _children.front()->_id == _id );
         _finishWriteQueue( _sequence - 1 );
     }
 }
@@ -666,7 +666,7 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
         _sendRate += int64_t(
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE )) *
             float( _description->bandwidth ) * .001f );
-        EQLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
+        LBLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
                          << std::endl;
     }
 }
@@ -679,21 +679,21 @@ void RSPConnection::_repeatData()
     {
         Nack& request = _repeatQueue.front(); 
         const uint16_t distance = _sequence - request.start;
-        EQASSERT( distance != 0 );
+        LBASSERT( distance != 0 );
 
         if( distance <= _writeBuffers.size( )) // not already acked
         {
-//          EQLOG( LOG_RSP ) << "Repeat " << request.start << ", " << _sendRate
+//          LBLOG( LOG_RSP ) << "Repeat " << request.start << ", " << _sendRate
 //                           << "KB/s"<< std::endl;
 
             const size_t i = _writeBuffers.size() - distance;
             Buffer* buffer = _writeBuffers[i];
-            EQASSERT( buffer );
+            LBASSERT( buffer );
 
             DatagramData* header = 
                 reinterpret_cast<DatagramData*>( buffer->getData( ));
             const uint32_t size = header->size + sizeof( DatagramData );
-            EQASSERT( header->sequence == request.start );
+            LBASSERT( header->sequence == request.start );
 
             // send data
             _waitWritable( size ); // OPT: process incoming in between
@@ -715,20 +715,20 @@ void RSPConnection::_repeatData()
 
 void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 {
-    EQASSERT( !_writeBuffers.empty( ));
+    LBASSERT( !_writeBuffers.empty( ));
 
     RSPConnectionPtr connection = _findConnection( _id );
-    EQASSERT( connection.isValid( ));
-    EQASSERT( connection->_recvBuffers.empty( ));
+    LBASSERT( connection.isValid( ));
+    LBASSERT( connection->_recvBuffers.empty( ));
 
     // Bundle pushing the buffers to the app to avoid excessive lock ops
     Buffers readBuffers;
     Buffers freeBuffers;
 
     const uint16_t size = _sequence - sequence - 1;
-    EQASSERTINFO( size <= uint16_t( _writeBuffers.size( )),
+    LBASSERTINFO( size <= uint16_t( _writeBuffers.size( )),
                   size << " > " << _writeBuffers.size( ));
-    EQLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
+    LBLOG( LOG_RSP ) << "Got all remote acks for " << sequence << " current "
                      << _sequence << " advance " << _writeBuffers.size() - size
                      << " buffers" << std::endl;
 
@@ -740,19 +740,19 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 #ifndef NDEBUG
         const DatagramData* datagram = 
             reinterpret_cast< const DatagramData* >( buffer->getData( ));
-        EQASSERT( datagram->writerID == _id );
-        EQASSERTINFO( datagram->sequence == 
+        LBASSERT( datagram->writerID == _id );
+        LBASSERTINFO( datagram->sequence == 
                       uint16_t( connection->_sequence + readBuffers.size( )),
                       datagram->sequence << ", " << connection->_sequence <<
                       ", " << readBuffers.size( ));
-      //EQLOG( LOG_RSP ) << "self receive " << datagram->sequence << std::endl;
+      //LBLOG( LOG_RSP ) << "self receive " << datagram->sequence << std::endl;
 #endif
 
         Buffer* newBuffer = connection->_newDataBuffer( *buffer );
         if( !newBuffer && !readBuffers.empty( )) // push prepared app buffers
         {
             lunchbox::ScopedWrite mutex( connection->_mutexEvent );
-            EQLOG( LOG_RSP ) << "post " << readBuffers.size()
+            LBLOG( LOG_RSP ) << "post " << readBuffers.size()
                              << " buffers starting with sequence "
                              << connection->_sequence << std::endl;
 
@@ -777,7 +777,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     {
         lunchbox::ScopedWrite mutex( connection->_mutexEvent );
 #if 0
-        EQLOG( LOG_RSP ) 
+        LBLOG( LOG_RSP ) 
             << "post " << readBuffers.size() << " buffers starting at "
             << connection->_sequence << std::endl;
 #endif
@@ -788,7 +788,7 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
     }
 
     connection->_acked = uint16_t( connection->_sequence - 1 );
-    EQASSERT( connection->_acked == sequence );
+    LBASSERT( connection->_acked == sequence );
 
     _timeouts = 0;
 }
@@ -813,7 +813,7 @@ void RSPConnection::_handlePacket( const boost::system::error_code& /* error */,
     else
         _handleAcceptIDData( _recvBuffer.getData() );
 
-    //EQLOG( LOG_RSP ) << "_handlePacket timeout " << timeout << std::endl;
+    //LBLOG( LOG_RSP ) << "_handlePacket timeout " << timeout << std::endl;
     _asyncReceiveFrom();
 }
 
@@ -834,7 +834,7 @@ void RSPConnection::_handleAcceptIDData( const void* data )
             {
                 _timeouts = 0;
                 _sendSimpleDatagram( ID_HELLO, _buildNewID() );
-                EQLOG( LOG_RSP ) << "Announce " << _id << std::endl;
+                LBLOG( LOG_RSP ) << "Announce " << _id << std::endl;
             }
             break;
 
@@ -872,7 +872,7 @@ void RSPConnection::_handleInitData( const void* data)
             return;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             break;
     }
 }
@@ -882,21 +882,21 @@ void RSPConnection::_handleConnectedData( const void* data )
     switch( type )
     {
         case DATA:
-            EQCHECK( _handleData( _recvBuffer ));
+            LBCHECK( _handleData( _recvBuffer ));
             break;
 
         case ACK:
-            EQCHECK( _handleAck( 
+            LBCHECK( _handleAck( 
                       reinterpret_cast< const DatagramAck* >( data )));
             break;
 
         case NACK:
-            EQCHECK( _handleNack(
+            LBCHECK( _handleNack(
                       reinterpret_cast< const DatagramNack* >( data )));
             break;
 
         case ACKREQ: // The writer asks for an ack/nack
-            EQCHECK( _handleAckRequest(
+            LBCHECK( _handleAckRequest(
                 reinterpret_cast< const DatagramAckRequest* >( data )));
             break;
 
@@ -929,7 +929,7 @@ void RSPConnection::_handleConnectedData( const void* data )
             break;
 
         default:
-            EQASSERTINFO( false, 
+            LBASSERTINFO( false, 
                           "Don't know how to handle packet of type " <<
                           type );
     }
@@ -959,20 +959,20 @@ bool RSPConnection::_handleData( Buffer& buffer )
     if( writerID == _id )
         return true;
 #else
-    EQASSERT( writerID != _id );
+    LBASSERT( writerID != _id );
 #endif
 
     RSPConnectionPtr connection = _findConnection( writerID );
 
     if( !connection )  // unknown connection ?
     {
-        EQASSERTINFO( false, "Can't find connection with id " << writerID );
+        LBASSERTINFO( false, "Can't find connection with id " << writerID );
         return false;
     }
-    EQASSERT( connection->_id == writerID );
+    LBASSERT( connection->_id == writerID );
 
     const uint16_t sequence = datagram->sequence;
-//  EQLOG( LOG_RSP ) << "rcvd " << sequence << " from " << writerID <<std::endl;
+//  LBLOG( LOG_RSP ) << "rcvd " << sequence << " from " << writerID <<std::endl;
 
     if( connection->_sequence == sequence ) // in-order packet
     {
@@ -1013,8 +1013,8 @@ bool RSPConnection::_handleData( Buffer& buffer )
     // else out of order
 
     const uint16_t size = sequence - connection->_sequence;
-    EQASSERT( size != 0 );
-    EQASSERTINFO( size <= _numBuffers, size << " > " << _numBuffers );
+    LBASSERT( size != 0 );
+    LBASSERTINFO( size <= _numBuffers, size << " > " << _numBuffers );
 
     ssize_t i = ssize_t( size ) - 1;
     const bool gotPacket = ( connection->_recvBuffers.size() >= size && 
@@ -1029,7 +1029,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
     if( connection->_recvBuffers.size() < size )
         connection->_recvBuffers.resize( size, 0 );
 
-    EQASSERT( !connection->_recvBuffers[ i ] );
+    LBASSERT( !connection->_recvBuffers[ i ] );
     connection->_recvBuffers[ i ] = newBuffer;
 
     // early nack: request missing packets before current
@@ -1052,7 +1052,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
         }
     }
 
-    EQLOG( LOG_RSP ) << "send early nack " << nack.start << ".." << nack.end
+    LBLOG( LOG_RSP ) << "send early nack " << nack.start << ".." << nack.end
                      << " current " << connection->_sequence << " ooo "
                      << connection->_recvBuffers.size() << std::endl;
 
@@ -1066,7 +1066,7 @@ bool RSPConnection::_handleData( Buffer& buffer )
 
 RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
 {
-    EQASSERT( static_cast< int32_t >( inBuffer.getMaxSize( )) == _mtu );
+    LBASSERT( static_cast< int32_t >( inBuffer.getMaxSize( )) == _mtu );
 
     Buffer* buffer = 0;
     if( _threadBuffers.pop( buffer ))
@@ -1079,7 +1079,7 @@ RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
     // then our read thread. This is bad, because now we'll drop the data and
     // will send a NAck packet upon the ack request, causing retransmission even
     // though we'll probably drop it again
-    EQLOG( LOG_RSP ) << "Reader too slow, dropping data" << std::endl;
+    LBLOG( LOG_RSP ) << "Reader too slow, dropping data" << std::endl;
 
     // Set the event if there is data to read. This shouldn't be needed since
     // the event should be set in this case, but it'll increase the robustness
@@ -1091,15 +1091,15 @@ RSPConnection::Buffer* RSPConnection::_newDataBuffer( Buffer& inBuffer )
 
 void RSPConnection::_pushDataBuffer( Buffer* buffer )
 {
-    EQASSERT( _parent );
-    EQASSERTINFO( ((DatagramData*)buffer->getData( ))->sequence == _sequence,
+    LBASSERT( _parent );
+    LBASSERTINFO( ((DatagramData*)buffer->getData( ))->sequence == _sequence,
                   ((DatagramData*)buffer->getData( ))->sequence << " != " <<
                   _sequence );
 
     if( (( _sequence + _parent->_id ) % _ackFreq ) == 0 )
         _parent->_sendAck( _id, _sequence );
 
-    EQLOG( LOG_RSP ) << "post buffer " << _sequence << std::endl;
+    LBLOG( LOG_RSP ) << "post buffer " << _sequence << std::endl;
     ++_sequence;
     _appBuffers.push( buffer );
 }
@@ -1113,7 +1113,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     if( ack->writerID != _id )
         return true;
 
-    EQLOG( LOG_RSP ) << "got ack from " << ack->readerID << " for "
+    LBLOG( LOG_RSP ) << "got ack from " << ack->readerID << " for "
                      << ack->writerID << " sequence " << ack->sequence
                      << " current " << _sequence << std::endl;
 
@@ -1121,7 +1121,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
     RSPConnectionPtr connection = _findConnection( ack->readerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
@@ -1129,7 +1129,7 @@ bool RSPConnection::_handleAck( const DatagramAck* ack )
         connection->_acked - ack->sequence <= _numBuffers )
     {
         // I have received a later ack previously from the reader
-        EQLOG( LOG_RSP ) << "Late ack" << std::endl;
+        LBLOG( LOG_RSP ) << "Late ack" << std::endl;
         return true;
     }
 
@@ -1168,20 +1168,20 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
     if( _id != nack->writerID )
     {
-        EQLOG( LOG_RSP )
+        LBLOG( LOG_RSP )
             << "ignore " << nack->count << " nacks from " << nack->readerID
             << " for " << nack->writerID << " (not me)"<< std::endl;
         return true;
     }
 
-    EQLOG( LOG_RSP )
+    LBLOG( LOG_RSP )
         << "handle " << nack->count << " nacks from " << nack->readerID
         << " for " << nack->writerID << std::endl;
 
     RSPConnectionPtr connection = _findConnection( nack->readerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
         // it's an unknown connection, TODO add this connection?
     }
@@ -1193,15 +1193,15 @@ bool RSPConnection::_handleNack( const DatagramNack* nack )
 
 void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
 {
-    EQLOG( LOG_RSP ) << lunchbox::disableFlush << "Queue repeat requests ";
+    LBLOG( LOG_RSP ) << lunchbox::disableFlush << "Queue repeat requests ";
     size_t lost = 0;
 
     for( size_t i = 0; i < num; ++i )
     {
         const Nack& nack = nacks[ i ];
-        EQASSERT( nack.start <= nack.end );
+        LBASSERT( nack.start <= nack.end );
 
-        EQLOG( LOG_RSP ) << nack.start << ".." << nack.end << " ";
+        LBLOG( LOG_RSP ) << nack.start << ".." << nack.end << " ";
 
         bool merged = false;
         for( RepeatQueue::iterator j = _repeatQueue.begin();
@@ -1222,14 +1222,14 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
                     old.end = nack.end;
                     merged = true;
                 }
-                EQASSERT( lost < _numBuffers );
+                LBASSERT( lost < _numBuffers );
             }
         }
 
         if( !merged )
         {
             lost += uint16_t( nack.end - nack.start ) + 1;
-            EQASSERT( lost <= _numBuffers );
+            LBASSERT( lost <= _numBuffers );
             _repeatQueue.push_back( nack );
         }
     }
@@ -1244,13 +1244,13 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_MAXSCALE ));
         const float downScale = LB_MIN( delta, maxDelta );
         _sendRate -= 1 + int64_t( _sendRate * downScale );
-        EQLOG( LOG_RSP ) 
+        LBLOG( LOG_RSP ) 
             << ", lost " << lost << " slowing down " << downScale * 100.f
             << "% to " << _sendRate << " KB/s" << std::endl 
             << lunchbox::enableFlush;
     }
     else
-        EQLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush;
+        LBLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush;
 }
 
 bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
@@ -1262,12 +1262,12 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     if( writerID == _id )
         return true;
 #else
-    EQASSERT( writerID != _id );
+    LBASSERT( writerID != _id );
 #endif
     RSPConnectionPtr connection = _findConnection( writerID );
     if( !connection )
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         return false;
     }
 
@@ -1275,7 +1275,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     const uint16_t gotID = connection->_sequence - 1;
     const uint16_t distance = reqID - gotID;
 
-    EQLOG( LOG_RSP ) << "ack request "  << reqID << " from " << writerID
+    LBLOG( LOG_RSP ) << "ack request "  << reqID << " from " << writerID
                      << " got " << gotID << " missing " << distance 
                      << std::endl;
 
@@ -1293,7 +1293,7 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
     uint16_t i = 0;
 
     nacks[ i ].start = connection->_sequence;
-    EQLOG( LOG_RSP ) << lunchbox::disableFlush << "nacks: " 
+    LBLOG( LOG_RSP ) << lunchbox::disableFlush << "nacks: " 
                      << nacks[i].start << "..";
     
     std::deque<Buffer*>::const_iterator j = connection->_recvBuffers.begin();
@@ -1303,10 +1303,10 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
         if( *j ) // got buffer
         {
             nacks[ i ].end = connection->_sequence + std::distance( first, j);
-            EQLOG( LOG_RSP ) << nacks[i].end << ", ";
+            LBLOG( LOG_RSP ) << nacks[i].end << ", ";
             if( nacks[ i ].end < nacks[ i ].start )
             {
-                EQASSERT( nacks[ i ].end < _numBuffers );
+                LBASSERT( nacks[ i ].end < _numBuffers );
                 nacks[ i + 1 ].start = 0;
                 nacks[ i + 1 ].end = nacks[ i ].end;
                 nacks[ i ].end = std::numeric_limits< uint16_t >::max();
@@ -1322,36 +1322,36 @@ bool RSPConnection::_handleAckRequest( const DatagramAckRequest* ackRequest )
                 break;
 
             nacks[i].start = connection->_sequence + std::distance(first, j) +1;
-            EQLOG( LOG_RSP ) << nacks[i].start << "..";
+            LBLOG( LOG_RSP ) << nacks[i].start << "..";
         }
     }
 
     if( j != connection->_recvBuffers.end() || i == 0 )
     {
         nacks[ i ].end = reqID;
-        EQLOG( LOG_RSP ) << nacks[i].end;
+        LBLOG( LOG_RSP ) << nacks[i].end;
         ++i;
     }
     else if( uint16_t( reqID - nacks[i-1].end ) < _numBuffers )
     {
         nacks[i].start = nacks[i-1].end + 1;
         nacks[i].end = reqID;
-        EQLOG( LOG_RSP ) << nacks[i].start << ".." << nacks[i].end;
+        LBLOG( LOG_RSP ) << nacks[i].start << ".." << nacks[i].end;
         ++i;
     }
     if( nacks[ i -1 ].end < nacks[ i - 1 ].start )
     {
-        EQASSERT( nacks[ i - 1 ].end < _numBuffers );
+        LBASSERT( nacks[ i - 1 ].end < _numBuffers );
         nacks[ i ].start = 0;
         nacks[ i ].end = nacks[ i - 1 ].end;
         nacks[ i - 1 ].end = std::numeric_limits< uint16_t >::max();
         ++i;
     }
 
-    EQLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush << "send " << i
+    LBLOG( LOG_RSP ) << std::endl << lunchbox::enableFlush << "send " << i
                      << " nacks to " << connection->_id << std::endl;
 
-    EQASSERT( i > 0 );
+    LBASSERT( i > 0 );
     _sendNack( connection->_id, nacks, i );
     return true;
 }
@@ -1361,7 +1361,7 @@ void RSPConnection::_handleCountNode()
     const DatagramCount* countConn = 
         reinterpret_cast< const DatagramCount* >( _recvBuffer.getData( ));
 
-    EQLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
+    LBLOG( LOG_RSP ) << "Got " << countConn->numConnections << " nodes from " 
                      << countConn->clientID << std::endl;
 
     _addConnection( countConn->clientID );
@@ -1372,7 +1372,7 @@ void RSPConnection::_checkNewID( uint16_t id )
     // look if the new ID exist in another connection
     if( id == _id || _findConnection( id ).isValid() )
     {
-        EQLOG( LOG_RSP ) << "Deny " << id << std::endl;
+        LBLOG( LOG_RSP ) << "Deny " << id << std::endl;
         _sendSimpleDatagram( ID_DENY, _id );
     }
 }
@@ -1390,20 +1390,20 @@ bool RSPConnection::_addConnection( const uint16_t id )
     if( _findConnection( id ))
         return false;
 
-    EQINFO << "add connection " << id << std::endl;
+    LBINFO << "add connection " << id << std::endl;
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
     connection->_state = STATE_CONNECTED;
     connection->_description = _description;
-    EQASSERT( connection->_appBuffers.isEmpty( ));
+    LBASSERT( connection->_appBuffers.isEmpty( ));
 
     // Make all buffers available for reading
     for( BuffersCIter i = connection->_buffers.begin();
          i != connection->_buffers.end(); ++i )
     {
         Buffer* buffer = *i;
-        EQCHECK( connection->_threadBuffers.push( buffer ));
+        LBCHECK( connection->_threadBuffers.push( buffer ));
     }
 
     _children.push_back( connection );
@@ -1419,7 +1419,7 @@ bool RSPConnection::_addConnection( const uint16_t id )
 
 void RSPConnection::_removeConnection( const uint16_t id )
 {
-    EQINFO << "remove connection " << id << std::endl;
+    LBINFO << "remove connection " << id << std::endl;
     if( id == _id )
         return;
 
@@ -1444,7 +1444,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
     if ( _parent.isValid() )
         return _parent->write( inData, bytes );
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
 
     if( !_write )
         return -1;
@@ -1483,10 +1483,10 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
         memcpy( header + 1, data, packetSize );
         data += packetSize;
 
-        EQCHECK( _threadBuffers.push( buffer ));
+        LBCHECK( _threadBuffers.push( buffer ));
     }
     _postWakeup();
-    EQLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
+    LBLOG( LOG_RSP ) << "queued " << nDatagrams << " datagrams, " 
                      << bytes << " bytes" << std::endl;
     return bytes;
 }
@@ -1495,10 +1495,10 @@ void RSPConnection::finish()
 {
     if( _parent.isValid( ))
     {
-        EQASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
+        LBASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
         return;
     }
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
     _appBuffers.waitSize( _buffers.size( ));
 }
 
@@ -1507,7 +1507,7 @@ void RSPConnection::_sendCountNode()
     if( !_findConnection( _id ))
         return;
 
-    EQLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
+    LBLOG( LOG_RSP ) << _children.size() << " nodes" << std::endl;
     const DatagramCount count = { COUNTNODE, _id, uint16_t( _children.size( ))};
     _write->send( buffer( &count, sizeof( count )) );
 }
@@ -1521,12 +1521,12 @@ void RSPConnection::_sendSimpleDatagram( DatagramType type, uint16_t id )
 void RSPConnection::_sendAck( const uint16_t writerID,
                               const uint16_t sequence )
 {
-    EQASSERT( _id != writerID );
+    LBASSERT( _id != writerID );
 #ifdef EQ_INSTRUMENT_RSP
     ++nAcksSend;
 #endif
 
-    EQLOG( LOG_RSP ) << "send ack " << sequence << std::endl;
+    LBLOG( LOG_RSP ) << "send ack " << sequence << std::endl;
     const DatagramAck ack = { ACK, _id, writerID, sequence };
     _write->send( buffer( &ack, sizeof( ack )) );
 }
@@ -1534,8 +1534,8 @@ void RSPConnection::_sendAck( const uint16_t writerID,
 void RSPConnection::_sendNack( const uint16_t writerID, const Nack* nacks,
                                const uint16_t count )
 {
-    EQASSERT( count > 0 );
-    EQASSERT( count <= EQ_RSP_MAX_NACKS );
+    LBASSERT( count > 0 );
+    LBASSERT( count <= EQ_RSP_MAX_NACKS );
 #ifdef EQ_INSTRUMENT_RSP
     ++nNAcksSend;
 #endif
@@ -1561,7 +1561,7 @@ void RSPConnection::_sendAckRequest()
 #ifdef EQ_INSTRUMENT_RSP
     ++nAckRequests;
 #endif
-    EQLOG( LOG_RSP ) << "send ack request for " << uint16_t( _sequence -1 )
+    LBLOG( LOG_RSP ) << "send ack request for " << uint16_t( _sequence -1 )
                      << std::endl;
     const DatagramAckRequest ackRequest = { ACKREQ, _id, _sequence - 1 };
     _write->send( buffer( &ackRequest, sizeof( DatagramAckRequest )) );

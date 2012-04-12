@@ -44,7 +44,7 @@ void GLSLShaders::_printLog( GLhandleARB shader, const std::string &type )
 
     GLint written;
     glGetInfoLogARB( shader, length, &written, &log[0] );
-    EQERROR << "Shader error: " << type << std::endl
+    LBERROR << "Shader error: " << type << std::endl
             << &log[0] << std::endl;
 
     return;
@@ -91,7 +91,7 @@ bool GLSLShaders::loadShaders( const std::string &vShader,
     if( _shadersLoaded )
         return true;
 
-    EQASSERT( glewContext );
+    LBASSERT( glewContext );
     _glewContext = glewContext;
 
     _program = glCreateProgramObjectARB();
@@ -128,8 +128,8 @@ void GLSLShaders::unloadShaders()
     if( !_shadersLoaded )
         return;
 
-    EQASSERT( _glewContext );
-    EQASSERT( _program );
+    LBASSERT( _glewContext );
+    LBASSERT( _program );
 
     glDeleteObjectARB( _program );
     _shadersLoaded = false;

@@ -39,7 +39,7 @@ Layout::~Layout(){}
 ServerPtr Layout::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
@@ -51,7 +51,7 @@ void Layout::postDelete()
 
 void Layout::trigger( const Canvas* canvas, const bool active )
 {
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     getConfig()->postNeedsFinish();
 
     const Views& views = getViews();

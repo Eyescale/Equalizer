@@ -117,7 +117,7 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
         , _type( 0 )
         , _depth( _depths[ name ] )
 {
-    EQASSERT( _depth > 0 );
+    LBASSERT( _depth > 0 );
     switch( name )
     {
         case EQ_COMPRESSOR_TRANSFER_RGBA_TO_RGBA:
@@ -267,7 +267,7 @@ CompressorReadDrawPixels::CompressorReadDrawPixels( const unsigned name )
             _internalFormat = GL_DEPTH_COMPONENT;
             break;
 
-        default: EQASSERT( false );
+        default: LBASSERT( false );
     }
 }
 
@@ -334,7 +334,7 @@ void CompressorReadDrawPixels::_initTexture( const GLEWContext* glewContext,
         target = GL_TEXTURE_RECTANGLE_ARB;
     else
     {
-        EQUNREACHABLE;
+        LBUNREACHABLE;
     }
 
     if ( !_texture || _texture->getTarget( ) != target )
@@ -385,7 +385,7 @@ void CompressorReadDrawPixels::upload( const GLEWContext* glewContext,
     }
     else
     {
-        EQASSERT( outDims[0] == 0 && outDims[2]==0 ); // Implement me
+        LBASSERT( outDims[0] == 0 && outDims[2]==0 ); // Implement me
         _initTexture( glewContext, flags );
         _texture->setGLData( destination, _internalFormat,
                              outDims[1], outDims[3] );
@@ -444,7 +444,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 #endif
         // else
 
-        EQWARN << "Can't initialize PBO for async readback" << std::endl;
+        LBWARN << "Can't initialize PBO for async readback" << std::endl;
         _resizeBuffer( size );
         EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
                                   _format, _type, _buffer.getData( )));
@@ -481,14 +481,14 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
             memcpy( _buffer.getData(), ptr, size );
         else
         {
-            EQERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
+            LBERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
         }
         _pbo->unmap();
     }
 #else  // async RB through texture
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
-        EQASSERT( _asyncTexture );
+        LBASSERT( _asyncTexture );
         _asyncTexture->setGLEWContext( glewContext );
         _asyncTexture->download( _buffer.getData( ));
     }

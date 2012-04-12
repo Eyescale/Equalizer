@@ -19,7 +19,7 @@
 #include "eye.h"
 
 #include <lunchbox/bitOperation.h>
-#include <lunchbox/debug.h>   // for EQABORT
+#include <lunchbox/debug.h>   // for LBABORT
 
 namespace eq
 {
@@ -40,7 +40,7 @@ std::ostream& operator << ( std::ostream& os, const Eye& eye )
             break;
         case EYE_UNDEFINED: 
         default: 
-            EQABORT( "Invalid eye value" );
+            LBABORT( "Invalid eye value" );
     }
     
     return os;

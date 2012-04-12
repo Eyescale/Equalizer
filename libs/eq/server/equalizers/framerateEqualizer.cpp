@@ -44,7 +44,7 @@ public:
     virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
-            EQASSERT( channel );
+            LBASSERT( channel );
             channel->addListener( _listener );
 
             return TRAVERSE_CONTINUE; 
@@ -62,7 +62,7 @@ public:
     virtual VisitorResult visit( Compound* compound )
         {
             Channel*  channel = compound->getChannel();
-            EQASSERT( channel );
+            LBASSERT( channel );
             channel->removeListener( _listener );
 
             return TRAVERSE_CONTINUE; 
@@ -80,7 +80,7 @@ private:
 FramerateEqualizer::FramerateEqualizer()
         : _nSamples( 0 )
 {
-    EQINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
+    LBINFO << "New FramerateEqualizer @" << (void*)this << std::endl;
 }
 
 FramerateEqualizer::FramerateEqualizer( const FramerateEqualizer& from )
@@ -113,7 +113,7 @@ void FramerateEqualizer::_init()
     // Subscribe to child channel load events
     const Compounds& children = compound->getChildren();
     
-    EQASSERT( _loadListeners.empty( ));
+    LBASSERT( _loadListeners.empty( ));
     _loadListeners.resize( children.size( ));
     
     for( size_t i = 0; i < children.size(); ++i )
@@ -142,7 +142,7 @@ void FramerateEqualizer::_exit()
 
     const Compounds& children = compound->getChildren();
 
-    EQASSERT( _loadListeners.size() == children.size( ));
+    LBASSERT( _loadListeners.size() == children.size( ));
     for( size_t i = 0; i < children.size(); ++i )
     {
         Compound*      child        = children[i];
@@ -189,8 +189,8 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     for( ++from; from < size && nSamples < _nSamples; ++from )
     {
         const FrameTime& time = _times[from];
-        EQASSERT( time.first > 0 );
-        EQASSERT( time.second != 0.f );
+        LBASSERT( time.first > 0 );
+        LBASSERT( time.second != 0.f );
 
         ++nSamples;
 #ifdef USE_AVERAGE
@@ -198,7 +198,7 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #else
         maxTime = LB_MAX( maxTime, time.second );
 #endif
-        EQLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second
+        LBLOG( LOG_LB2 ) << "Using " << time.first << ", " << time.second
                          << "ms" << std::endl;
     }
 
@@ -230,13 +230,13 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #endif
             compound->setMaxFPS( fps );
 
-        EQLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/" 
+        LBLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/" 
                         << _times.size() << " samples, " << time << "ms" 
                         << std::endl;
     }
 
     _times.push_front( FrameTime( frameNumber, 0.f ));
-    EQASSERT( _times.size() < 210 );
+    LBASSERT( _times.size() < 210 );
 }
 
 void FramerateEqualizer::LoadListener::notifyLoadData( 
@@ -279,7 +279,7 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
 
         const float time = static_cast< float >( endTime - startTime ) / period;
         frameTime.second = LB_MAX( frameTime.second, time );
-        EQLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
+        LBLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
                         << channel->getName() << " time " << time
                         << " period " << period << std::endl;
     }

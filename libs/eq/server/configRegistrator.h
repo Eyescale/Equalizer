@@ -101,7 +101,7 @@ namespace
         VisitorResult _register( O* object, const uint32_t nBuffers )
             {
                 ServerPtr server = object->getServer();
-                EQASSERT( !object->isAttached() );
+                LBASSERT( !object->isAttached() );
                 server->registerObject( object );
                 if( nBuffers > 0 )
                     object->setAutoObsolete( nBuffers );

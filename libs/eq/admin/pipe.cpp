@@ -40,14 +40,14 @@ Pipe::~Pipe()
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
@@ -55,14 +55,14 @@ const Config* Pipe::getConfig() const
 ServerPtr Pipe::getServer()
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
 ClientPtr Pipe::getClient()
 {
     ServerPtr server = getServer();
-    EQASSERT( server.isValid( ));
+    LBASSERT( server.isValid( ));
 
     if( !server )
         return 0;

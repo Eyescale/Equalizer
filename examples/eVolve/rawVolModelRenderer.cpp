@@ -72,10 +72,10 @@ void RawVolumeModelRenderer::_putVolumeDataToShader(
         const eq::Vector4f& taintColor,
         const int           normalsQuality )
 {
-    EQASSERT( _glewContext );
+    LBASSERT( _glewContext );
 
     GLhandleARB shader = _shaders.getProgram();
-    EQASSERT( shader );
+    LBASSERT( shader );
 
     const DataInTextureDimensions& TD = volumeInfo.TD; 
 
@@ -159,7 +159,7 @@ bool RawVolumeModelRenderer::render
 
     if( !_rawModel.getVolumeInfo( volumeInfo, range ))
     {
-        EQERROR << "Can't get volume data" << std::endl;
+        LBERROR << "Can't get volume data" << std::endl;
         return false;
     }
 
@@ -201,11 +201,11 @@ bool RawVolumeModelRenderer::loadShaders()
     if( !_shaders.loadShaders( vertexShader_glsl, fragmentShader_glsl,
                                _glewContext ))
     {
-        EQERROR << "Can't load glsl shaders" << std::endl;
+        LBERROR << "Can't load glsl shaders" << std::endl;
         return false;
     }
 
-    EQLOG( eq::LOG_CUSTOM ) << "glsl shaders loaded" << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "glsl shaders loaded" << std::endl;
     return true;
 }
 }

@@ -144,13 +144,13 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     ScopedMutex mutex( _mutex );
     if( dirtyBits == DIRTY_ALL )
     {
-        EQASSERT( _map.empty( ));
+        LBASSERT( _map.empty( ));
         
         co::ObjectVersion ov;
         is >> ov;
         while( ov != co::ObjectVersion::NONE )
         {
-            EQASSERT( _map.find( ov.identifier ) == _map.end( ));
+            LBASSERT( _map.find( ov.identifier ) == _map.end( ));
             Entry& entry = _map[ ov.identifier ];
             entry.version = ov.version;
             is >> entry.type >> ov;
@@ -166,7 +166,7 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         for( std::vector< uint128_t >::const_iterator i = added.begin();
              i != added.end(); ++i )
         {
-            EQASSERT( _map.find( *i ) == _map.end( ));
+            LBASSERT( _map.find( *i ) == _map.end( ));
             Entry& entry = _map[ *i ];
             is >> entry.version >> entry.type;
         }
@@ -179,11 +179,11 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
         for( co::ObjectVersionsCIter i = changed.begin(); i!=changed.end(); ++i)
         {
             const co::ObjectVersion& ov = *i;
-            EQASSERT( _map.find( ov.identifier ) != _map.end( ));
+            LBASSERT( _map.find( ov.identifier ) != _map.end( ));
 
             Entry& entry = _map[ ov.identifier ];
             entry.version = ov.version;
-            EQASSERT( !entry.instance || entry.instance->isAttached( ));
+            LBASSERT( !entry.instance || entry.instance->isAttached( ));
 
             if( entry.instance && !entry.instance->isMaster( ))
                 entry.instance->sync( ov.version );
@@ -198,13 +198,13 @@ void ObjectMap::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 
 bool ObjectMap::register_( co::Object* object, const uint32_t type )
 {
-    EQASSERT( object );
+    LBASSERT( object );
     if( !object || !_factory.getConfig()->registerObject( object ))
         return false;
 
     const Entry entry( object->getVersion(), object, type );
     ScopedMutex mutex( _mutex );
-    EQASSERT( _map.find( object->getID( )) == _map.end( ));
+    LBASSERT( _map.find( object->getID( )) == _map.end( ));
 
     _map[ object->getID() ] = entry;
     _masters.push_back( object );
@@ -220,35 +220,35 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
 
     ScopedMutex mutex( _mutex );
     MapIter i = _map.find( identifier );
-    EQASSERT( i != _map.end( ));
+    LBASSERT( i != _map.end( ));
     if( i == _map.end( ))
     {
-        EQWARN << "Object mapping failed, no master registered" << std::endl;
+        LBWARN << "Object mapping failed, no master registered" << std::endl;
         return 0;
     }
 
     Entry& entry = i->second;
     if( entry.instance )
     {
-        EQASSERTINFO( !instance || entry.instance == instance,
+        LBASSERTINFO( !instance || entry.instance == instance,
                       entry.instance << " != " << instance )
         if( !instance || entry.instance == instance )
             return entry.instance;
 
-        EQWARN << "Object mapping failed, different instance registered"
+        LBWARN << "Object mapping failed, different instance registered"
                << std::endl;
         return 0;
     }
-    EQASSERT( entry.type != OBJECTTYPE_NONE );
+    LBASSERT( entry.type != OBJECTTYPE_NONE );
 
     co::Object* object = instance ? 
                          instance : _factory.createObject( entry.type );
-    EQASSERT( object );
+    LBASSERT( object );
     if( !object )
         return 0;
 
     eq::Config* config = _factory.getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     if( !config->mapObject( object, identifier, entry.version ))
     {
         if( !instance )
@@ -256,7 +256,7 @@ co::Object* ObjectMap::get( const uint128_t& identifier, co::Object* instance )
         return 0;
     }
 
-    EQASSERT( object->getVersion() == entry.version );
+    LBASSERT( object->getVersion() == entry.version );
     entry.instance = object;
     return object;
 }

@@ -55,7 +55,7 @@ int main( const int argc, char** argv )
         server = loader.parseServer( CONFIG );
     if( !server )
     {
-        EQERROR << "Failed to load configuration" << std::endl;
+        LBERROR << "Failed to load configuration" << std::endl;
         return 0;
     }
 
@@ -67,7 +67,7 @@ int main( const int argc, char** argv )
 
     if( server->getConnectionDescriptions().empty( )) // add default listener
     {
-        EQINFO << "Adding default server connection" << std::endl;
+        LBINFO << "Adding default server connection" << std::endl;
         co::ConnectionDescriptionPtr connDesc = new co::ConnectionDescription;
         connDesc->port = co::Global::getDefaultPort();
         server->addConnectionDescription( connDesc );
@@ -75,7 +75,7 @@ int main( const int argc, char** argv )
 
     if( !server->initLocal( argc, argv ))
     {
-        EQERROR << "Can't create listener for server, please consult log" 
+        LBERROR << "Can't create listener for server, please consult log" 
                 << std::endl;
         return EXIT_FAILURE;
     }
@@ -84,7 +84,7 @@ int main( const int argc, char** argv )
     server->exitLocal();
     server->deleteConfigs();
 
-    EQINFO << "Server ref count: " << server->getRefCount() << std::endl;
+    LBINFO << "Server ref count: " << server->getRefCount() << std::endl;
 
     return eq::server::exit() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

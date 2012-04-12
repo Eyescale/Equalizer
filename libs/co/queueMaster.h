@@ -65,7 +65,7 @@ private:
 
     virtual ChangeType getChangeType() const { return STATIC; }
     virtual void getInstanceData( co::DataOStream& os );
-    virtual void applyInstanceData( co::DataIStream& ) { EQDONTCALL }
+    virtual void applyInstanceData( co::DataIStream& ) { LBDONTCALL }
 };
 
 } // co

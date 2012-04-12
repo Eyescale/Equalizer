@@ -41,12 +41,12 @@ namespace config
 void Display::discoverLocal( Config* config, const uint32_t flags )
 {
     Node* node = config->findAppNode();
-    EQASSERT( node );
+    LBASSERT( node );
     if( !node )
         return;
 
     const Pipes& pipes = node->getPipes();
-    EQASSERT( !pipes.empty( ));
+    LBASSERT( !pipes.empty( ));
     if( pipes.empty( ))
         return;
 

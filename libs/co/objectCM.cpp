@@ -41,8 +41,8 @@ ObjectCM::ObjectCM( Object* object )
 void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
                      const Nodes& nodes )
 {
-    EQASSERT( _object );
-    EQASSERT( !nodes.empty( ));
+    LBASSERT( _object );
+    LBASSERT( !nodes.empty( ));
     if( nodes.empty( ))
         return;
 
@@ -56,8 +56,8 @@ void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
 
 void ObjectCM::_addSlave( Command& command, const uint128_t& version )
 {
-    EQASSERT( command->type == PACKETTYPE_CO_NODE );
-    EQASSERT( command->command == CMD_NODE_MAP_OBJECT );
+    LBASSERT( command->type == PACKETTYPE_CO_NODE );
+    LBASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
     NodePtr node = command.getNode();
     const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
@@ -75,7 +75,7 @@ void ObjectCM::_addSlave( Command& command, const uint128_t& version )
     replyPacket.result = true;
 
     // process request
-    EQASSERT( version != VERSION_NONE );
+    LBASSERT( version != VERSION_NONE );
     _addSlave( node );
 
     const uint32_t instanceID = packet->instanceID;
@@ -98,14 +98,14 @@ void ObjectCM::_initSlave( NodePtr node, const uint128_t& version,
                            NodeMapObjectReplyPacket& reply )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
+    LBLOG( LOG_OBJECTS ) << "Object id " << _object->_id << " v" << _version
                          << ", instantiate on " << node->getNodeID()
                          << std::endl;
 #endif
 
 #ifndef NDEBUG
     if( version != VERSION_OLDEST && version < reply.version )
-        EQINFO << "Mapping version " << reply.version << " instead of "
+        LBINFO << "Mapping version " << reply.version << " instead of "
                << version << std::endl;
 #endif
 

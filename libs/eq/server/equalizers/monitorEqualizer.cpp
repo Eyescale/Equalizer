@@ -72,7 +72,7 @@ private:
 
 MonitorEqualizer::MonitorEqualizer()
 {
-    EQINFO << "New monitor equalizer @" << (void*)this << std::endl;
+    LBINFO << "New monitor equalizer @" << (void*)this << std::endl;
 }
 
 MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
@@ -82,7 +82,7 @@ MonitorEqualizer::MonitorEqualizer( const MonitorEqualizer& from )
 MonitorEqualizer::~MonitorEqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete monitor equalizer @" << (void*)this << std::endl;
+    LBINFO << "Delete monitor equalizer @" << (void*)this << std::endl;
 }
 
 void MonitorEqualizer::attach( Compound* compound )
@@ -147,9 +147,9 @@ void MonitorEqualizer::_updateZoomAndOffset()
 
     const Frames& inputFrames( compound->getInputFrames( ));
     const size_t size( inputFrames.size( ));
-    EQASSERTINFO( size == _outputFrames.size(), 
+    LBASSERTINFO( size == _outputFrames.size(), 
                   size << " != " << _outputFrames.size( ));
-    EQASSERT( size == _viewports.size( ));
+    LBASSERT( size == _viewports.size( ));
 
     for( size_t i = 0; i < size; ++i )
     {

@@ -70,7 +70,7 @@ namespace co
 
         /** @return the information about the current compressor instance. */
         const CompressorInfo& getInfo() const
-            { EQASSERT( _info ); return *_info; }
+            { LBASSERT( _info ); return *_info; }
 
     protected:
         /** The name of the (de)compressor */

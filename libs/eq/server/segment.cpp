@@ -69,18 +69,18 @@ Segment::~Segment()
          i != destinationChannels.end(); ++i )
     {
         Channel* channel = *i;
-        EQASSERT( channel );
+        LBASSERT( channel );
         channel->unsetOutput();
     }
 
-    EQASSERT( _destinationChannels.empty( ));
+    LBASSERT( _destinationChannels.empty( ));
     _destinationChannels.clear();
 }
 
 Config* Segment::getConfig()
 {
     Canvas* canvas = getCanvas();
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     return canvas ? canvas->getConfig() : 0;
 }
 
@@ -88,21 +88,21 @@ Config* Segment::getConfig()
 const Config* Segment::getConfig() const
 {
     const Canvas* canvas = getCanvas();
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     return canvas ? canvas->getConfig() : 0;
 }
 
 ServerPtr Segment::getServer() 
 {
     Canvas* canvas = getCanvas();
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     return ( canvas ? canvas->getServer() : 0 );
 }
 
 void Segment::addDestinationChannel( Channel* channel )
 {
-    EQASSERT( channel );
-    EQASSERT( std::find( _destinationChannels.begin(), 
+    LBASSERT( channel );
+    LBASSERT( std::find( _destinationChannels.begin(), 
                          _destinationChannels.end(), channel ) == 
               _destinationChannels.end( ));
 
@@ -113,13 +113,13 @@ bool Segment::removeDestinationChannel( Channel* channel )
 {
     Channels::iterator i = stde::find( _destinationChannels, channel );
 
-    EQASSERT( i !=  _destinationChannels.end( ));
+    LBASSERT( i !=  _destinationChannels.end( ));
     if( i == _destinationChannels.end( ))
         return false;
 
     _destinationChannels.erase( i );
 
-    EQASSERT( std::find( _destinationChannels.begin(), 
+    LBASSERT( std::find( _destinationChannels.begin(), 
                          _destinationChannels.end(), channel ) == 
               _destinationChannels.end( ));
     return true;
@@ -140,13 +140,13 @@ void Segment::findDestinationChannels( const Layout* layout,
 SegmentPath Segment::getPath() const
 {
     const Canvas* canvas = getCanvas();
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     SegmentPath path( canvas->getPath( ));
     
     const Segments& segments = canvas->getSegments();
     Segments::const_iterator i = std::find( segments.begin(), segments.end(),
                                             this );
-    EQASSERT( i != segments.end( ));
+    LBASSERT( i != segments.end( ));
     path.segmentIndex = std::distance( segments.begin(), i );
     return path;
 }

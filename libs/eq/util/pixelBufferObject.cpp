@@ -43,7 +43,7 @@ public:
     ~PixelBufferObject()
         {
             if( isInitialized( ))
-                EQWARN << "PBO was not freed" << std::endl;
+                LBWARN << "PBO was not freed" << std::endl;
 
             delete lock_;
         }

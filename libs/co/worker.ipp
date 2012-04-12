@@ -26,11 +26,11 @@ template< class Q > void WorkerThread< Q >::run()
     while( !stopRunning( ))
     {
         Command& command = *(_commands.pop( ));
-        EQASSERT( command.isValid( ));
+        LBASSERT( command.isValid( ));
 
         if( !command( ))
         {
-            EQABORT( "Error handling " << command );
+            LBABORT( "Error handling " << command );
         }
         command.release();
 
@@ -40,7 +40,7 @@ template< class Q > void WorkerThread< Q >::run()
     }
  
     _commands.flush();
-    EQINFO << "Leaving worker thread " << lunchbox::className( this ) << std::endl;
+    LBINFO << "Leaving worker thread " << lunchbox::className( this ) << std::endl;
 }
 
 }

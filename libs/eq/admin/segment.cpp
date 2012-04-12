@@ -42,20 +42,20 @@ Segment::~Segment()
 
 Config* Segment::getConfig()
 {
-    EQASSERT( getCanvas() );
+    LBASSERT( getCanvas() );
     return getCanvas() ? getCanvas()->getConfig() : 0;
 }
 
 const Config* Segment::getConfig() const
 {
-    EQASSERT( getCanvas() );
+    LBASSERT( getCanvas() );
     return getCanvas() ? getCanvas()->getConfig() : 0;
 }
 
 ServerPtr Segment::getServer() 
 {
     Canvas* canvas = getCanvas();
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     return ( canvas ? canvas->getServer() : 0 );
 }
 

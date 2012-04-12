@@ -53,7 +53,7 @@ Canvas::~Canvas()
 Segment* Canvas::getSegment( const SegmentPath& path )
 {
     const Segments& segments = getSegments();
-    EQASSERTINFO( segments.size() > path.segmentIndex,
+    LBASSERTINFO( segments.size() > path.segmentIndex,
                   segments.size() << " <= " << path.segmentIndex );
 
     if( segments.size() <= path.segmentIndex )
@@ -65,7 +65,7 @@ Segment* Canvas::getSegment( const SegmentPath& path )
 ServerPtr Canvas::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
@@ -77,14 +77,14 @@ void Canvas::activateLayout( const uint32_t index )
 
 void Canvas::init()
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _switchLayout( LB_UNDEFINED_UINT32, getActiveLayoutIndex( ));
     _state = STATE_RUNNING;
 }
 
 void Canvas::exit()
 {
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_DELETE );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_DELETE );
     _switchLayout( getActiveLayoutIndex(), LB_UNDEFINED_UINT32 );
     if( _state == STATE_RUNNING )
         _state = STATE_STOPPED;

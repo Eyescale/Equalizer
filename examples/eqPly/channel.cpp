@@ -208,7 +208,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
 
         if( accum.buffer && !accum.buffer->usesFBO( ))
         {
-            EQWARN << "Current viewport different from view viewport, "
+            LBWARN << "Current viewport different from view viewport, "
                    << "idle anti-aliasing not implemented." << std::endl;
             accum.step = 0;
         }
@@ -243,7 +243,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << std::endl;
+        LBWARN << e.what() << std::endl;
     }
 
     resetAssemblyState();
@@ -451,7 +451,7 @@ bool Channel::_initAccum()
         {
             if( _accum[ i ].buffer )
             {
-                EQWARN << "glAccum-based accumulation does not support "
+                LBWARN << "glAccum-based accumulation does not support "
                        << "stereo, disabling idle anti-aliasing."
                        << std::endl;
                 for( size_t j = 0; j < eq::NUM_EYES; ++j )
@@ -470,12 +470,12 @@ bool Channel::_initAccum()
     // set up accumulation buffer
     accum.buffer = new eq::util::Accum( glewGetContext( ));
     const eq::PixelViewport& pvp = getPixelViewport();
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
     if( !accum.buffer->init( pvp, getWindow()->getColorFormat( )) ||
         accum.buffer->getMaxSteps() < 256 )
     {
-        EQWARN <<"Accumulation buffer initialization failed, "
+        LBWARN <<"Accumulation buffer initialization failed, "
                << "idle AA not available." << std::endl;
         delete accum.buffer;
         accum.buffer = 0;
@@ -484,7 +484,7 @@ bool Channel::_initAccum()
     }
 
     // else
-    EQVERB << "Initialized "
+    LBVERB << "Initialized "
            << (accum.buffer->usesFBO() ? "FBO accum" : "glAccum")
            << " buffer for " << getName() << " " << getEye() 
            << std::endl;
@@ -577,7 +577,7 @@ const Model* Channel::_getModel()
     Config* config = static_cast< Config* >( getConfig( ));
     const View* view = static_cast< const View* >( getView( ));
     const FrameData& frameData = _getFrameData();
-    EQASSERT( !view || dynamic_cast< const View* >( getView( )));
+    LBASSERT( !view || dynamic_cast< const View* >( getView( )));
 
     eq::uint128_t id = view ? view->getModelID() : frameData.getModelID();
     if( id == lunchbox::UUID::ZERO )
@@ -822,7 +822,7 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 
     if( useOrtho( ))
     {
-        EQASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
+        LBASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
                       std::numeric_limits< float >::epsilon(),
                       nearPoint << " == " << farPoint );
         setNearFar( -nearPoint.z(), -farPoint.z() );

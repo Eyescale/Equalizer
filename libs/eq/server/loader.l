@@ -41,7 +41,7 @@ const char* yyinString = 0;
 void yyerror( const char *errmsg );
 void yyerror( const char *errmsg )
 {
-    EQERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
+    LBERROR << "Parse error: '" << errmsg << "', line " << yylineno+1
             << " at '" << yytext << "' from" << lunchbox::backtrace <<std::endl;
     YY_FLUSH_BUFFER;
 }

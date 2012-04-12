@@ -33,16 +33,16 @@ template< typename C, typename O >
 Observer< C, O >::Observer( C* config )
         : _config( config )
 {
-    EQASSERT( config );
+    LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< typename C, typename O >
 Observer< C, O >::~Observer()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _config->_removeObserver( static_cast< O* >( this ));
 }
 
@@ -123,7 +123,7 @@ ObserverPath Observer< C, O >::getPath() const
     typename std::vector< O* >::const_iterator i = std::find( observers.begin(),
                                                               observers.end(),
                                                               this );
-    EQASSERT( i != observers.end( ));
+    LBASSERT( i != observers.end( ));
 
     ObserverPath path;
     path.observerIndex = std::distance( observers.begin(), i );

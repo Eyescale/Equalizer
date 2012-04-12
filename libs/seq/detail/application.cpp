@@ -46,7 +46,7 @@ Application::Application( ApplicationPtr app, co::Object* initData )
 
 Application::~Application()
 {
-    EQASSERT( !_config );
+    LBASSERT( !_config );
     _app = 0;
 }
 
@@ -66,7 +66,7 @@ bool Application::init()
     eq::ServerPtr server = new eq::Server;
     if( !_app->connectServer( server ))
     {
-        EQERROR << "Can't open Equalizer server" << std::endl;
+        LBERROR << "Can't open Equalizer server" << std::endl;
         exit();
         return false;
     }
@@ -76,7 +76,7 @@ bool Application::init()
 
     if( !_config )
     {
-        EQERROR << "No matching configuration on Equalizer server" << std::endl;
+        LBERROR << "No matching configuration on Equalizer server" << std::endl;
         _app->disconnectServer( server );
         exit();
         return false;
@@ -102,7 +102,7 @@ bool Application::exit()
             retVal = false;
     }
 
-    EQASSERT( !_config );
+    LBASSERT( !_config );
     _isMaster = false;
     return retVal;
 }
@@ -117,14 +117,14 @@ eq::Config* Application::createConfig( eq::ServerPtr parent )
     if( isMaster( ))
         return new MasterConfig( parent );
 
-    EQASSERT( !_config );
+    LBASSERT( !_config );
     _config = new SlaveConfig( parent );
     return _config;
 }
 
 void Application::releaseConfig( eq::Config* config )
 {
-    EQASSERT( config == _config );
+    LBASSERT( config == _config );
     _config = 0;
     delete config;
 }

@@ -58,7 +58,7 @@ namespace co
         virtual void setMasterNode( NodePtr node ) { _master = node; }
         virtual NodePtr getMasterNode() { return _master; }
 
-        virtual void addSlave( Command& command ) { EQDONTCALL; }
+        virtual void addSlave( Command& command ) { LBDONTCALL; }
         virtual void removeSlaves( NodePtr ) {}
 
         virtual void applyMapData( const uint128_t& version );

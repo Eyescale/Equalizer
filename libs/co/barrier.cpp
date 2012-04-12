@@ -59,7 +59,7 @@ public:
             , height( h )
             , master( m )
         {
-            EQASSERT( masterID != NodeID::ZERO );
+            LBASSERT( masterID != NodeID::ZERO );
         }
 
     /** The master barrier node. */
@@ -84,13 +84,13 @@ typedef CommandFunc<Barrier> CmdFunc;
 Barrier::Barrier()
         : _impl( new detail::Barrier )
 {
-    EQINFO << "Barrier instantiated" << std::endl;
+    LBINFO << "Barrier instantiated" << std::endl;
 }
 
 Barrier::Barrier( NodePtr master, const uint32_t height )
         : _impl( new detail::Barrier( master, height ))
 {
-    EQINFO << "New barrier of height " << height << std::endl;
+    LBINFO << "New barrier of height " << height << std::endl;
 }
 
 Barrier::~Barrier()
@@ -155,8 +155,8 @@ void Barrier::attach( const UUID& id, const uint32_t instanceID )
 
 void Barrier::enter( const uint32_t timeout )
 {
-    EQASSERT( _impl->height > 0 );
-    EQASSERT( _impl->masterID != NodeID::ZERO );
+    LBASSERT( _impl->height > 0 );
+    LBASSERT( _impl->masterID != NodeID::ZERO );
 
     if( _impl->height == 1 ) // trivial ;)
         return;
@@ -167,16 +167,16 @@ void Barrier::enter( const uint32_t timeout )
         _impl->master = localNode->connect( _impl->masterID );
     }
 
-    EQASSERT( _impl->master );
-    EQASSERT( _impl->master->isConnected( ));
+    LBASSERT( _impl->master );
+    LBASSERT( _impl->master->isConnected( ));
     if( !_impl->master || !_impl->master->isConnected( ))
     {
-        EQWARN << "Can't connect barrier master node " << _impl->masterID
+        LBWARN << "Can't connect barrier master node " << _impl->masterID
                << std::endl;
         return;
     }
 
-    EQLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
+    LBLOG( LOG_BARRIER ) << "enter barrier " << getID() << " v" << getVersion()
                          << ", height " << _impl->height << std::endl;
 
     const uint32_t leaveVal = _impl->leaveNotify.get() + 1;
@@ -192,14 +192,14 @@ void Barrier::enter( const uint32_t timeout )
     else if( !_impl->leaveNotify.timedWaitEQ( leaveVal, timeout ))
         throw Exception( Exception::TIMEOUT_BARRIER );
 
-    EQLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
+    LBLOG( LOG_BARRIER ) << "left barrier " << getID() << " v" << getVersion()
                          << ", height " << _impl->height << std::endl;
 }
 
 bool Barrier::_cmdEnter( Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     BarrierEnterPacket* packet = command.getModifiable< BarrierEnterPacket >();
@@ -207,14 +207,14 @@ bool Barrier::_cmdEnter( Command& command )
         return true;
     packet->handled = true;
 
-    EQLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
+    LBLOG( LOG_BARRIER ) << "handle barrier enter " << packet << " barrier v"
                          << getVersion() << std::endl;
 
     const uint128_t version = packet->version;
     const uint64_t incarnation = packet->incarnation;
     Request& request = _impl->enteredNodes[ version ];
  
-    EQLOG( LOG_BARRIER ) << "enter barrier v" << version 
+    LBLOG( LOG_BARRIER ) << "enter barrier v" << version 
                          << ", has " << request.nodes.size() << " of " 
                          << _impl->height << std::endl;
 
@@ -262,19 +262,19 @@ bool Barrier::_cmdEnter( Command& command )
     // for performance, send directly the order to unblock the caller.
     if( packet->timeout != LB_TIMEOUT_INDEFINITE && version < getVersion( ))
     {
-        EQASSERT( incarnation == 0 );
+        LBASSERT( incarnation == 0 );
         _sendNotify( version, command.getNode( ) );
         return true;
     }
 
-    EQASSERT( version == getVersion( ));
+    LBASSERT( version == getVersion( ));
 
     Nodes& nodes = request.nodes;
     if( nodes.size() < _impl->height )
         return true;
 
-    EQASSERT( nodes.size() == _impl->height );
-    EQLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
+    LBASSERT( nodes.size() == _impl->height );
+    LBLOG( LOG_BARRIER ) << "Barrier reached" << std::endl;
 
     stde::usort( nodes );
 
@@ -283,7 +283,7 @@ bool Barrier::_cmdEnter( Command& command )
 
     // delete node vector for version
     RequestMapIter i = _impl->enteredNodes.find( version );
-    EQASSERT( i != _impl->enteredNodes.end( ));
+    LBASSERT( i != _impl->enteredNodes.end( ));
     _impl->enteredNodes.erase( i );
     return true;
 }
@@ -291,12 +291,12 @@ bool Barrier::_cmdEnter( Command& command )
 void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     if( node->isLocal( )) // OPT
     {
-        EQLOG( LOG_BARRIER ) << "Unlock local user(s)" << std::endl;
+        LBLOG( LOG_BARRIER ) << "Unlock local user(s)" << std::endl;
         // the case where we receive a different version of the barrier meant
         // that previosly we have detect a timeout true negative
         if( version == getVersion() )
@@ -304,7 +304,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
     }
     else
     {
-        EQLOG( LOG_BARRIER ) << "Unlock " << node << std::endl;
+        LBLOG( LOG_BARRIER ) << "Unlock " << node << std::endl;
         BarrierEnterReplyPacket reply( getID(), version );
         node->send( reply );
     }
@@ -313,7 +313,7 @@ void Barrier::_sendNotify( const uint128_t& version, NodePtr node )
 void Barrier::_cleanup( const uint64_t time )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
+    LBASSERTINFO( !_impl->master || _impl->master == getLocalNode(),
                   _impl->master );
 
     if( _impl->enteredNodes.size() < 2 )
@@ -342,7 +342,7 @@ void Barrier::_cleanup( const uint64_t time )
 bool Barrier::_cmdEnterReply( Command& command )
 {
     LB_TS_THREAD( _thread );
-    EQLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
+    LBLOG( LOG_BARRIER ) << "Got ok, unlock local user(s)" << std::endl;
     const BarrierEnterReplyPacket* reply =
         command.get< BarrierEnterReplyPacket >();
     

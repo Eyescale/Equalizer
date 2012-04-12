@@ -66,17 +66,17 @@ RawVolumeModel::RawVolumeModel( const std::string& filename  )
 
 bool RawVolumeModel::loadHeader( const float brightness, const float alpha )
 {
-    EQASSERT( !_headerLoaded );
-    EQASSERT( brightness > 0.0f );
-    EQASSERT( alpha > 0.0f );
-    EQLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
+    LBASSERT( !_headerLoaded );
+    LBASSERT( brightness > 0.0f );
+    LBASSERT( alpha > 0.0f );
+    LBLOG( eq::LOG_CUSTOM ) << "-------------------------------------------"
                             << std::endl << "model: " << _filename;
 
     hFile header( fopen( ( _filename + std::string( ".vhf" ) ).c_str(), "rb" ));
 
     if( header.f==0 )
     {
-        EQERROR << "Can't open header file" << std::endl;
+        LBERROR << "Can't open header file" << std::endl;
         return false;
     }
 
@@ -127,7 +127,7 @@ bool RawVolumeModel::getVolumeInfo( VolumeInfo& info, const eq::Range& range )
 
     if( _preintName == 0 )
     {
-        EQLOG( eq::LOG_CUSTOM ) << "Creating preint" << std::endl;
+        LBLOG( eq::LOG_CUSTOM ) << "Creating preint" << std::endl;
         _preintName = createPreintegrationTable( &_TF[0] );
     }
 
@@ -237,7 +237,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
     TD.Do = range.start;
     TD.Db = range.start > 0.0001 ? bwStart / static_cast<float>(_tD) : 0;
 
-    EQLOG( eq::LOG_CUSTOM )
+    LBLOG( eq::LOG_CUSTOM )
             << "==============================================="   << std::endl
             << " w: "  << w << " " << _tW
             << " h: "  << h << " " << _tH
@@ -257,7 +257,7 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     if( !file.is_open() )
     {
-        EQERROR << "Can't open model data file";
+        LBERROR << "Can't open model data file";
         return false;
     }
 
@@ -284,10 +284,10 @@ bool RawVolumeModel::_createVolumeTexture(        GLuint&    volume,
 
     file.close();
 
-    EQASSERT( _glewContext );
+    LBASSERT( _glewContext );
     // create 3D texture
     glGenTextures( 1, &volume );
-    EQLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "generated texture: " << volume << std::endl;
     glBindTexture(GL_TEXTURE_3D, volume);
 
     glTexParameteri( GL_TEXTURE_3D, GL_TEXTURE_WRAP_S    , GL_CLAMP_TO_EDGE );
@@ -353,7 +353,7 @@ static bool readDimensionsAndScaling
         return false;
     if( fscanf( file, "d=%u\n", &d ) != 1 )
     {
-        EQERROR << "Can't read dimensions from header file" << std::endl;
+        LBERROR << "Can't read dimensions from header file" << std::endl;
         return false;
     }
 
@@ -363,7 +363,7 @@ static bool readDimensionsAndScaling
         return false;
     if( fscanf( file, "dScale=%g\n", &volScaling.D ) != 1 )
     {
-        EQERROR << "Can't read scaling from header file: " << std::endl;
+        LBERROR << "Can't read scaling from header file: " << std::endl;
         return false;
     }
 
@@ -372,13 +372,13 @@ static bool readDimensionsAndScaling
         volScaling.H<0.001 || 
         volScaling.W<0.001    )
     {
-        EQERROR << "volume scaling is incorrect, check header file"<< std::endl;
+        LBERROR << "volume scaling is incorrect, check header file"<< std::endl;
         return false;
     }
 
     normalizeScaling( w, h, d, volScaling );
 
-    EQLOG( eq::LOG_CUSTOM ) << " "  << w << "x" << h << "x" << d << std::endl
+    LBLOG( eq::LOG_CUSTOM ) << " "  << w << "x" << h << "x" << d << std::endl
                             << "( " << volScaling.W << " x "
                                     << volScaling.H << " x "
                                     << volScaling.D << " )"       << std::endl;
@@ -390,7 +390,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 {
     if( fscanf(file,"TF:\n") !=0 )
     {
-        EQERROR << "Error in header file, can't find 'TF:' marker.";
+        LBERROR << "Error in header file, can't find 'TF:' marker.";
         return false;
     }
 
@@ -399,7 +399,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         return false;
 
     if( TFSize!=256  )
-        EQWARN << "Wrong size of transfer function, should be 256" << std::endl;
+        LBWARN << "Wrong size of transfer function, should be 256" << std::endl;
 
     TFSize = clip<int32_t>( TFSize, 1, 256 );
     TF.resize( TFSize*4 );
@@ -418,7 +418,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
         TF[4*i+2] = tmp;
         if( fscanf( file, "a=%d\n", &tmp ) != 1 )
         {
-            EQERROR << "Failed to read entity #" << i 
+            LBERROR << "Failed to read entity #" << i 
                     << " of TF from header file" << std::endl;
             return i;
         }
@@ -430,7 +430,7 @@ static bool readTransferFunction( FILE* file,  std::vector<uint8_t>& TF )
 
 static GLuint createPreintegrationTable( const uint8_t *Table )
 {
-    EQLOG( eq::LOG_CUSTOM ) << "Calculating preintegration table" << std::endl;
+    LBLOG( eq::LOG_CUSTOM ) << "Calculating preintegration table" << std::endl;
 
     double rInt[256]; rInt[0] = 0.;
     double gInt[256]; gInt[0] = 0.;

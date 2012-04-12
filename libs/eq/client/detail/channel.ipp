@@ -44,7 +44,7 @@ public:
     ~Channel()
         {
             statistics->clear();
-            EQASSERT( !fbo );
+            LBASSERT( !fbo );
         }
 
     /** The channel's drawable config (FBO). */

@@ -252,7 +252,7 @@ std::ostream& operator << ( std::ostream& os, const Wall::Type& type )
           break;
 
       default:
-          EQASSERT( false );
+          LBASSERT( false );
 
       case Wall::TYPE_FIXED:
           os << "fixed";

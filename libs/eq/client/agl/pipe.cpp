@@ -69,7 +69,7 @@ bool Pipe::configInit()
     }
 
     _setCGDisplayID( displayID );
-    EQVERB << "Using CG displayID " << displayID << std::endl;
+    LBVERB << "Using CG displayID " << displayID << std::endl;
     return true;
 }
 
@@ -103,7 +103,7 @@ void Pipe::_setCGDisplayID( CGDirectDisplayID id )
 void Pipe::configExit()
 {
     _setCGDisplayID( kCGNullDirectDisplay );
-    EQINFO << "Reset CG displayID " << std::endl;
+    LBINFO << "Reset CG displayID " << std::endl;
 }
 
 }

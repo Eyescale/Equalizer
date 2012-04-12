@@ -54,13 +54,13 @@ Config< S, C, O, L, CV, N, V >::Config( lunchbox::RefPtr< S > server )
         , _server( server )
 {
     server->_addConfig( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
 Config< S, C, O, L, CV, N, V >::~Config()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _appNodeID = co::NodeID::ZERO;
 
     while( !_canvases.empty( ))
@@ -103,7 +103,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
     Object::attach( id, instanceID );
 
     co::CommandQueue* queue = _server->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_CONFIG_NEW_LAYOUT, 
                 CmdFunc( this, &Config< S, C, O, L, CV, N, V >::_cmdNewLayout ),
@@ -344,7 +344,7 @@ const T* Config< S, C, O, L, CV, N, V >::find( const std::string& name ) const
 template< class S, class C, class O, class L, class CV, class N, class V >
 O* Config< S, C, O, L, CV, N, V >::getObserver( const ObserverPath& path )
 {
-    EQASSERTINFO( _observers.size() > path.observerIndex,
+    LBASSERTINFO( _observers.size() > path.observerIndex,
                   _observers.size() << " <= " << path.observerIndex );
 
     if( _observers.size() <= path.observerIndex )
@@ -378,7 +378,7 @@ uint32_t Config< S, C, O, L, CV, N, V >::getTimeout() const
 template< class S, class C, class O, class L, class CV, class N, class V >
 L* Config< S, C, O, L, CV, N, V >::getLayout( const LayoutPath& path )
 {
-    EQASSERTINFO( _layouts.size() > path.layoutIndex,
+    LBASSERTINFO( _layouts.size() > path.layoutIndex,
                   _layouts.size() << " <= " << path.layoutIndex );
 
     if( _layouts.size() <= path.layoutIndex )
@@ -390,7 +390,7 @@ L* Config< S, C, O, L, CV, N, V >::getLayout( const LayoutPath& path )
 template< class S, class C, class O, class L, class CV, class N, class V >
 CV* Config< S, C, O, L, CV, N, V >::getCanvas( const CanvasPath& path )
 {
-    EQASSERTINFO( _canvases.size() > path.canvasIndex,
+    LBASSERTINFO( _canvases.size() > path.canvasIndex,
                   _canvases.size() << " <= " << path.canvasIndex );
 
     if( _canvases.size() <= path.canvasIndex )
@@ -402,7 +402,7 @@ CV* Config< S, C, O, L, CV, N, V >::getCanvas( const CanvasPath& path )
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::_addObserver( O* observer )
 {
-    EQASSERT( observer->getConfig() == this );
+    LBASSERT( observer->getConfig() == this );
     _observers.push_back( observer );
     setDirty( DIRTY_OBSERVERS );
 }
@@ -422,7 +422,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
         (*j)->_removeObserver( observer );
     }
 
-    EQASSERT( observer->getConfig() == this );
+    LBASSERT( observer->getConfig() == this );
     _observers.erase( i );
     setDirty( DIRTY_OBSERVERS );
     if( !isMaster( ))
@@ -433,7 +433,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeObserver( O* observer )
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::_addLayout( L* layout )
 {
-    EQASSERT( layout->getConfig() == this );
+    LBASSERT( layout->getConfig() == this );
     _layouts.push_back( layout );
     setDirty( DIRTY_LAYOUTS );
 }
@@ -453,7 +453,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
         (*j)->removeLayout( layout );
     }
 
-    EQASSERT( layout->getConfig() == this );
+    LBASSERT( layout->getConfig() == this );
     _layouts.erase( i );
     setDirty( DIRTY_LAYOUTS );
     if( !isMaster( ))
@@ -464,7 +464,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeLayout( L* layout )
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::_addCanvas( CV* canvas )
 {
-    EQASSERT( canvas->getConfig() == this );
+    LBASSERT( canvas->getConfig() == this );
     _canvases.push_back( canvas );
     setDirty( DIRTY_CANVASES );
 }
@@ -529,7 +529,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeCanvas( CV* canvas )
     if( i == _canvases.end( ))
         return false;
 
-    EQASSERT( canvas->getConfig() == this );
+    LBASSERT( canvas->getConfig() == this );
     _canvases.erase( i );
     setDirty( DIRTY_CANVASES );
     if( !isMaster( ))
@@ -574,7 +574,7 @@ void Config< S, C, O, L, CV, N, V >::restore()
 template< class S, class C, class O, class L, class CV, class N, class V >
 void Config< S, C, O, L, CV, N, V >::_addNode( N* node )
 {
-    EQASSERT( node->getConfig() == this );
+    LBASSERT( node->getConfig() == this );
     _nodes.push_back( node );
 }
 
@@ -586,7 +586,7 @@ bool Config< S, C, O, L, CV, N, V >::_removeNode( N* node )
     if( i == _nodes.end( ))
         return false;
 
-    EQASSERT( node->getConfig() == this );
+    LBASSERT( node->getConfig() == this );
     _nodes.erase( i );
     return true;
 }
@@ -708,7 +708,7 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
                 typename C::Nodes result;
                 is.deserializeChildren( this, _nodes, result );
                 _nodes.swap( result );
-                EQASSERT( _nodes.size() == result.size( ));
+                LBASSERT( _nodes.size() == result.size( ));
             }
             else // consume unused ObjectVersions
             {
@@ -724,21 +724,21 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
                 typename C::Observers result;
                 is.deserializeChildren( this, _observers, result );
                 _observers.swap( result );
-                EQASSERT( _observers.size() == result.size( ));
+                LBASSERT( _observers.size() == result.size( ));
             }
             if( dirtyBits & Config::DIRTY_LAYOUTS )
             {
                 typename C::Layouts result;
                 is.deserializeChildren( this, _layouts, result );
                 _layouts.swap( result );
-                EQASSERT( _layouts.size() == result.size( ));
+                LBASSERT( _layouts.size() == result.size( ));
             }
             if( dirtyBits & Config::DIRTY_CANVASES )
             {
                 typename C::Canvases result;
                 is.deserializeChildren( this, _canvases, result );
                 _canvases.swap( result );
-                EQASSERT( _canvases.size() == result.size( ));
+                LBASSERT( _canvases.size() == result.size( ));
             }
         }
         else // consume unused ObjectVersions
@@ -777,7 +777,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
     co::LocalNodePtr localNode = getLocalNode();
     while( !_nodes.empty( ))
     {
-        EQASSERT( mapNodeObjects( ));
+        LBASSERT( mapNodeObjects( ));
         N* node = _nodes.back();
         localNode->unmapObject( node );
         _removeNode( node );
@@ -786,7 +786,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 
     while( !_canvases.empty( ))
     {
-        EQASSERT( mapViewObjects( ));
+        LBASSERT( mapViewObjects( ));
         CV* canvas = _canvases.back();
         localNode->unmapObject( canvas );
         _removeCanvas( canvas );
@@ -795,7 +795,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 
     while( !_layouts.empty( ))
     {
-        EQASSERT( mapViewObjects( ));
+        LBASSERT( mapViewObjects( ));
         L* layout = _layouts.back();
         localNode->unmapObject( layout );
         _removeLayout( layout );
@@ -804,7 +804,7 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 
     while( !_observers.empty( ))
     {
-        EQASSERT( mapViewObjects( ));
+        LBASSERT( mapViewObjects( ));
         O* observer = _observers.back();
         localNode->unmapObject( observer );
         _removeObserver( observer );
@@ -824,11 +824,11 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
     
     L* layout = 0;
     create( &layout );
-    EQASSERT( layout );
+    LBASSERT( layout );
 
     getLocalNode()->registerObject( layout );
     layout->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( layout->isAttached() );
+    LBASSERT( layout->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = layout->getID();
@@ -844,11 +844,11 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
     
     CV* canvas = 0;
     create( &canvas );
-    EQASSERT( canvas );
+    LBASSERT( canvas );
 
     getLocalNode()->registerObject( canvas );
     canvas->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( canvas->isAttached() );
+    LBASSERT( canvas->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = canvas->getID();
@@ -864,11 +864,11 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
     
     O* observer = 0;
     create( &observer );
-    EQASSERT( observer );
+    LBASSERT( observer );
 
     getLocalNode()->registerObject( observer );
     observer->setAutoObsolete( _data.latency + 1 );
-    EQASSERT( observer->isAttached() );
+    LBASSERT( observer->isAttached() );
 
     ConfigNewEntityReplyPacket reply( packet );
     reply.entityID = observer->getID();

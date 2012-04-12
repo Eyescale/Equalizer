@@ -56,9 +56,9 @@ namespace server
 
     protected:        
         virtual void notifyChildAdded( Compound* compound, Compound* child )
-            { EQASSERT( _listeners.empty( )); }
+            { LBASSERT( _listeners.empty( )); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
-            { EQASSERT( _listeners.empty( )); }
+            { LBASSERT( _listeners.empty( )); }
 
     private:
         class Listener : public ChannelListener

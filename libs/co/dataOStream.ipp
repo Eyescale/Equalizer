@@ -28,7 +28,7 @@ CO_API extern lunchbox::a_int32_t nBytesSent;
     inline void DataOStream::sendPacket( P& packet, const void* buffer,
                                          const uint64_t size, const bool last )
     {
-        EQASSERT( last || size != 0 );
+        LBASSERT( last || size != 0 );
 
         if( _connections.empty( ))
             return;
@@ -42,7 +42,7 @@ CO_API extern lunchbox::a_int32_t nBytesSent;
         if( _compressorState == STATE_UNCOMPRESSED ||
             _compressorState == STATE_UNCOMPRESSIBLE )
         {
-            EQASSERT( size == 0 || buffer );
+            LBASSERT( size == 0 || buffer );
 
             packet.compressorName = EQ_COMPRESSOR_NONE;
             packet.nChunks = 1;

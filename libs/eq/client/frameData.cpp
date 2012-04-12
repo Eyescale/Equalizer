@@ -53,7 +53,7 @@ FrameData::FrameData()
         , _depthCompressor( EQ_COMPRESSOR_AUTO )
 {
     _roiFinder = new ROIFinder();
-    EQINFO << "New FrameData @" << (void*)this << std::endl;
+    LBINFO << "New FrameData @" << (void*)this << std::endl;
 }
 
 FrameData::~FrameData()
@@ -64,7 +64,7 @@ FrameData::~FrameData()
          i != _imageCache.end(); ++i )
     {
         Image* image = *i;
-        EQWARN << "Unflushed image in FrameData destructor" << std::endl;
+        LBWARN << "Unflushed image in FrameData destructor" << std::endl;
         delete image;
     }
     _imageCache.clear();
@@ -77,7 +77,7 @@ void FrameData::setQuality( Frame::Buffer buffer, float quality )
 {
     if( buffer != Frame::BUFFER_COLOR )
     {
-        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::BUFFER_DEPTH );
         _depthQuality = quality;
         return;
     }
@@ -89,7 +89,7 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
     if( buffer != Frame::BUFFER_COLOR )
     {
-        EQASSERT( buffer == Frame::BUFFER_DEPTH );
+        LBASSERT( buffer == Frame::BUFFER_DEPTH );
         _depthCompressor = name;
         return;
     }
@@ -99,7 +99,7 @@ void FrameData::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 
 void FrameData::getInstanceData( co::DataOStream& os )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _data.serialize( os );
 }
 
@@ -107,7 +107,7 @@ void FrameData::applyInstanceData( co::DataIStream& is )
 {
     clear();
     _data.deserialize( is );
-    EQLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "applied " << this << std::endl;
 }
 
 FrameData::Data& FrameData::Data::operator = ( const Data& rhs )
@@ -258,7 +258,7 @@ Images FrameData::startReadback( const Frame& frame,
     const Zoom& zoom = frame.getZoom();
     if( !zoom.isValid( ))
     {
-        EQWARN << "Invalid zoom factor, skipping frame" << std::endl;
+        LBWARN << "Invalid zoom factor, skipping frame" << std::endl;
         return images;
     }
 
@@ -284,7 +284,7 @@ Images FrameData::startReadback( const Frame& frame,
         regions.push_back( absPVP );
 #endif
 
-    EQASSERT( getType() == eq::Frame::TYPE_MEMORY );
+    LBASSERT( getType() == eq::Frame::TYPE_MEMORY );
     const eq::Pixel& pixel = getPixel();
 
     for( uint32_t i = 0; i < regions.size(); ++i )
@@ -307,9 +307,9 @@ Images FrameData::startReadback( const Frame& frame,
 
 void FrameData::setVersion( const uint64_t version )
 {
-    EQASSERTINFO( _version <= version, _version << " > " << version );
+    LBASSERTINFO( _version <= version, _version << " > " << version );
     _version = version;
-    EQLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
 void FrameData::waitReady( const uint32_t timeout ) const 
@@ -326,24 +326,24 @@ void FrameData::setReady()
 void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
 {
     clear();
-    EQASSERT(  packet->frameData.version.high() == 0 );
-    EQASSERT( _readyVersion < packet->frameData.version.low( ));
-    EQASSERT( _readyVersion == 0 ||
+    LBASSERT(  packet->frameData.version.high() == 0 );
+    LBASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT( _readyVersion == 0 ||
               _readyVersion + 1 == packet->frameData.version.low( ));
-    EQASSERT( _version == packet->frameData.version.low( ));
+    LBASSERT( _version == packet->frameData.version.low( ));
 
     _images.swap( _pendingImages );
     _data = packet->data;
     _setReady( packet->frameData.version.low());
 
-    EQLOG( LOG_ASSEMBLY ) << this << " applied v" 
+    LBLOG( LOG_ASSEMBLY ) << this << " applied v" 
                           << packet->frameData.version.low() << std::endl;
 }
 
 void FrameData::_setReady( const uint64_t version )
 {
     
-    EQASSERTINFO( _readyVersion <= version,
+    LBASSERTINFO( _readyVersion <= version,
                   "v" << _version << " ready " << _readyVersion << " new "
                       << version );
 
@@ -352,7 +352,7 @@ void FrameData::_setReady( const uint64_t version )
         return;
 
     _readyVersion = version;
-    EQLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
+    LBLOG( LOG_ASSEMBLY ) << "set ready " << this << ", " << _listeners->size()
                           << " monitoring" << std::endl;
 
     for( Listeners::iterator i= _listeners->begin();
@@ -378,7 +378,7 @@ void FrameData::removeListener( lunchbox::Monitor<uint32_t>& listener )
 
     Listeners::iterator i = std::find( _listeners->begin(), _listeners->end(),
                                       &listener );
-    EQASSERT( i != _listeners->end( ));
+    LBASSERT( i != _listeners->end( ));
     _listeners->erase( i );
 }
 
@@ -437,7 +437,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 data += sizeof( uint64_t );
                 pixelData.pixels = data;
                 data += size;
-                EQASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
+                LBASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
             image->setZoom( packet->zoom );
@@ -446,7 +446,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
         }
     }
 
-    EQASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT( _readyVersion < packet->frameData.version.low( ));
     _pendingImages.push_back( image );
     return true;
 }
