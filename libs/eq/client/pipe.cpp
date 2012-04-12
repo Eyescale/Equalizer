@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <pthread.h> // needed for PerThread instantiation
 #include "pipe.h"
 
 #include "client.h"
@@ -48,13 +49,13 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
+#include <co/worker.h>
 #include <sstream>
 
 namespace eq
 {
-    typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
-
 /** @cond IGNORE */
+typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 typedef co::CommandFunc<Pipe> PipeFunc;
 /** @endcond */
 
