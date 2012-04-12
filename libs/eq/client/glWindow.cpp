@@ -29,14 +29,14 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
+template void lunchbox::perThreadNoDelete< const eq::GLWindow > ( const eq::GLWindow* );
+
 namespace eq
 {
 namespace
 {
 static lunchbox::PerThread< const GLWindow,
                             lunchbox::perThreadNoDelete > _current;
-template
-void lunchbox::perThreadNoDelete< const GLWindow > ( const GLWindow* object );
 }
 
 
