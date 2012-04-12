@@ -87,8 +87,8 @@ VertexBufferDist::~VertexBufferDist()
 
 void VertexBufferDist::registerTree( co::LocalNodePtr node )
 {
-    EQASSERT( !isAttached() );
-    EQCHECK( node->registerObject( this ));
+    LBASSERT( !isAttached() );
+    LBCHECK( node->registerObject( this ));
 
     if( _left )
         _left->registerTree( node );
@@ -99,8 +99,8 @@ void VertexBufferDist::registerTree( co::LocalNodePtr node )
 
 void VertexBufferDist::deregisterTree()
 {
-    EQASSERT( isAttached() );
-    EQASSERT( isMaster( ));
+    LBASSERT( isAttached() );
+    LBASSERT( isMaster( ));
 
     getLocalNode()->deregisterObject( this );
 
@@ -114,13 +114,13 @@ mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
                                                      co::LocalNodePtr localNode,
                                                   const eq::uint128_t& modelID )
 {
-    EQASSERT( !_root && !_node );
+    LBASSERT( !_root && !_node );
 
     const uint32_t req = localNode->mapObjectNB( this, modelID,
                                                  co::VERSION_OLDEST, master );
     if( !localNode->mapObjectSync( req ))
     {
-        EQWARN << "Mapping of model failed" << std::endl;
+        LBWARN << "Mapping of model failed" << std::endl;
         return 0;
     }
 
@@ -130,8 +130,8 @@ mesh::VertexBufferRoot* VertexBufferDist::loadModel( co::NodePtr master,
 
 void VertexBufferDist::_unmapTree()
 {
-    EQASSERT( isAttached() );
-    EQASSERT( !isMaster( ));
+    LBASSERT( isAttached() );
+    LBASSERT( !isMaster( ));
 
     getLocalNode()->unmapObject( this );
 
@@ -143,7 +143,7 @@ void VertexBufferDist::_unmapTree()
 
 void VertexBufferDist::getInstanceData( co::DataOStream& os )
 {
-    EQASSERT( _node );
+    LBASSERT( _node );
     os << _isRoot;
 
     if( _left && _right )
@@ -152,7 +152,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
 
         if( _isRoot )
         {
-            EQASSERT( _root );
+            LBASSERT( _root );
             const mesh::VertexBufferData& data = _root->_data;
             
             os << data.vertices << data.colors << data.normals << data.indices 
@@ -163,7 +163,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
     {
         os << lunchbox::UUID::ZERO << lunchbox::UUID::ZERO;
 
-        EQASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
+        LBASSERT( dynamic_cast< const mesh::VertexBufferLeaf* >( _node ));
         const mesh::VertexBufferLeaf* leaf = 
             static_cast< const mesh::VertexBufferLeaf* >( _node );
 
@@ -177,7 +177,7 @@ void VertexBufferDist::getInstanceData( co::DataOStream& os )
 
 void VertexBufferDist::applyInstanceData( co::DataIStream& is )
 {
-    EQASSERT( !_node );
+    LBASSERT( !_node );
 
     mesh::VertexBufferNode* node = 0;
     mesh::VertexBufferBase* base = 0;
@@ -200,7 +200,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         }
         else
         {
-            EQASSERT( _root );
+            LBASSERT( _root );
             node = new mesh::VertexBufferNode;
         }
 
@@ -214,15 +214,15 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         const uint32_t sync2 = to->mapObjectNB( _right, rightID,
                                                 co::VERSION_OLDEST, from );
 
-        EQCHECK( to->mapObjectSync( sync1 ));
-        EQCHECK( to->mapObjectSync( sync2 ));
+        LBCHECK( to->mapObjectSync( sync1 ));
+        LBCHECK( to->mapObjectSync( sync2 ));
 
         node->_left  = const_cast< mesh::VertexBufferBase* >( _left->_node );
         node->_right = const_cast< mesh::VertexBufferBase* >( _right->_node );
     }
     else
     {
-        EQASSERT( !_isRoot );
+        LBASSERT( !_isRoot );
         mesh::VertexBufferData& data = 
             const_cast< mesh::VertexBufferData& >( _root->_data );
         mesh::VertexBufferLeaf* leaf = new mesh::VertexBufferLeaf( data );
@@ -237,7 +237,7 @@ void VertexBufferDist::applyInstanceData( co::DataIStream& is )
         base = leaf;
     }
 
-    EQASSERT( base );
+    LBASSERT( base );
     is >> base->_boundingSphere >> base->_range;
 
     _node = base;

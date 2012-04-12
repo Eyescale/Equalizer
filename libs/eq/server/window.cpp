@@ -78,10 +78,10 @@ void Window::attach( const UUID& id, const uint32_t instanceID )
 
 void Window::removeChild( const UUID& id )
 {
-    EQASSERT( getConfig()->isRunning( ));
+    LBASSERT( getConfig()->isRunning( ));
 
     Channel* channel = _findChannel( id );
-    EQASSERT( channel );
+    LBASSERT( channel );
     if( channel )
         channel->postDelete();
 }
@@ -101,56 +101,56 @@ void Window::postDelete()
 const Node* Window::getNode() const 
 {
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 
 Node* Window::getNode()
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getNode() : 0 );
 }
 
 const Config* Window::getConfig() const
 {
     const Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0);
 }
 
 Config* Window::getConfig() 
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0);
 }
 
 ServerPtr Window::getServer() 
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return ( pipe ? pipe->getServer() : 0 );
 }
 
 co::CommandQueue* Window::getMainThreadQueue()
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return pipe->getMainThreadQueue(); 
 }
 
 co::CommandQueue* Window::getCommandThreadQueue()
 { 
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     return pipe->getCommandThreadQueue(); 
 }
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
     const Channels& channels = getChannels(); 
-    EQASSERT( channels.size() > path.channelIndex );
+    LBASSERT( channels.size() > path.channelIndex );
 
     if( channels.size() <= path.channelIndex )
         return 0;
@@ -161,30 +161,30 @@ Channel* Window::getChannel( const ChannelPath& path )
 void Window::activate()
 {   
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
 
     ++_active;
     pipe->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Window::deactivate()
 { 
-    EQASSERT( _active != 0 );
+    LBASSERT( _active != 0 );
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
 
     --_active; 
     pipe->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Window::addTasks( const uint32_t tasks )
 {
     Pipe* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     setTasks( getTasks() | tasks );
     pipe->addTasks( tasks );
 }
@@ -195,7 +195,7 @@ void Window::addTasks( const uint32_t tasks )
 void Window::_resetSwapBarriers()
 { 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
 
     for( std::vector< co::Barrier* >::iterator i = _masterSwapBarriers.begin();
          i != _masterSwapBarriers.end(); ++i )
@@ -227,7 +227,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
     if( i != _swapBarriers.end( )) // Issue #39: window already has this barrier
         return barrier;
 
-    EQASSERT( getPipe() );
+    LBASSERT( getPipe() );
     const Windows& windows = getPipe()->getWindows();
     bool beforeSelf = true;
 
@@ -264,7 +264,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
                                         co::Barrier* netBarrier )
 { 
-    EQASSERTINFO( !_nvSwapBarrier, 
+    LBASSERTINFO( !_nvSwapBarrier, 
                   "Only one NV_swap_group barrier per window allowed" );
 
     _nvSwapBarrier = swapBarrier;
@@ -298,11 +298,11 @@ void Window::send( co::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
-    EQASSERT( !needsDelete( ));
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( !needsDelete( ));
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    EQLOG( LOG_INIT ) << "Create Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Create Window" << std::endl;
     PipeCreateWindowPacket createWindowPacket;
     createWindowPacket.windowID = getID();
     getPipe()->send( createWindowPacket );
@@ -310,15 +310,15 @@ void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
     WindowConfigInitPacket packet;
     packet.initID = initID;
     
-    EQLOG( LOG_INIT ) << "Init Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Init Window" << std::endl;
     send( packet );
-    EQLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
 }
 
 bool Window::syncConfigInit()
 {
-    EQASSERT( !needsDelete( ));
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+    LBASSERT( !needsDelete( ));
+    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
@@ -341,11 +341,11 @@ void Window::configExit()
     if( _state & STATE_EXITING )
         return;
 
-    EQASSERT( isRunning() || _state == STATE_INIT_FAILED );
+    LBASSERT( isRunning() || _state == STATE_INIT_FAILED );
     _state =
         State( needsDelete() ? STATE_EXITING | STATE_DELETE : STATE_EXITING );
 
-    EQLOG( LOG_INIT ) << "Exit Window" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit Window" << std::endl;
     WindowConfigExitPacket packet;
     send( packet );
 }
@@ -354,7 +354,7 @@ bool Window::syncConfigExit()
 {
     _state.waitNE( STATE_EXITING, State( STATE_EXITING | STATE_DELETE ));
     const bool success = ( _state & STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state & STATE_EXIT_FAILED );
+    LBASSERT( success || _state & STATE_EXIT_FAILED );
 
     // EXIT_FAILED -> STOPPED transition
     uint32_t state = needsDelete() ? STATE_DELETE : 0;
@@ -372,14 +372,14 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return;
 
-    EQASSERT( isActive( ))
+    LBASSERT( isActive( ))
 
     WindowFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
+    LBLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
                            << std::endl;
 
     const Channels& channels = getChannels(); 
@@ -400,7 +400,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
 
@@ -408,7 +408,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     {
         WindowFlushPacket packet;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
     }
 }
 
@@ -418,14 +418,14 @@ void Window::updatePost( const uint128_t& frameID,
     if( !isRunning( ))
         return;
 
-    EQASSERT( isActive( ))
+    LBASSERT( isActive( ))
     _updateSwap( frameNumber );
 
     WindowFrameFinishPacket finishPacket;
     finishPacket.frameID     = frameID;
     finishPacket.frameNumber = frameNumber;
     send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
                            << std::endl;
 }
 
@@ -435,7 +435,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     {
         WindowFinishPacket packet;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
         _swapFinish = false;
     }
 
@@ -445,7 +445,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         packetThrottle.minFrameTime = 1000.0f / _maxFPS;
         
         send( packetThrottle );
-        EQLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
+        LBLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
                                << &packetThrottle << std::endl;
 
         _maxFPS = std::numeric_limits< float >::max();
@@ -457,7 +457,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         const co::Barrier* barrier = *i;
         if( barrier->getHeight() <= 1 )
         {
-            EQVERB << "Ignoring swap barrier of height " << barrier->getHeight()
+            LBVERB << "Ignoring swap barrier of height " << barrier->getHeight()
                    << std::endl;
             continue;
         }
@@ -465,20 +465,20 @@ void Window::_updateSwap( const uint32_t frameNumber )
         WindowBarrierPacket packet;
         packet.barrier = barrier;
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
     }
 
     if( _nvNetBarrier )
     {
         if( _nvNetBarrier->getHeight() <= 1 )
         {
-            EQWARN << "Ignoring NV swap barrier of height "
+            LBWARN << "Ignoring NV swap barrier of height "
                    << _nvNetBarrier->getHeight() << std::endl;
         }
         else
         {
-            EQASSERT( _nvSwapBarrier );
-            EQASSERT( _nvSwapBarrier->isNvSwapBarrier( ));
+            LBASSERT( _nvSwapBarrier );
+            LBASSERT( _nvSwapBarrier->isNvSwapBarrier( ));
             // Entering the NV_swap_group. The _nvNetBarrier is also part of
             // _swapBarriers, which means that the pre-join was already sync'ed
             // with a barrier.
@@ -499,7 +499,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
         WindowSwapPacket packet;
 
         send( packet );
-        EQLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
     }
 }
 
@@ -510,9 +510,9 @@ bool Window::_cmdConfigInitReply( co::Command& command )
 {
     const WindowConfigInitReplyPacket* packet =
         command.get<WindowConfigInitReplyPacket>();
-    EQVERB << "handle window configInit reply " << packet << std::endl;
+    LBVERB << "handle window configInit reply " << packet << std::endl;
 
-    EQASSERT( !needsDelete( ));
+    LBASSERT( !needsDelete( ));
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
@@ -521,7 +521,7 @@ bool Window::_cmdConfigExitReply( co::Command& command )
 {
     const WindowConfigExitReplyPacket* packet =
         command.get<WindowConfigExitReplyPacket>();
-    EQVERB << "handle window configExit reply " << packet << std::endl;
+    LBVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )
         _state = State( needsDelete() ? 

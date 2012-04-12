@@ -72,8 +72,8 @@ public:
         {
             for( size_t i = 0; i < CACHE_ALL; ++i )
             {
-                EQASSERT( cache[i].size() == 1 );
-                EQASSERT( cache[i].front()->isFree( ));
+                LBASSERT( cache[i].size() == 1 );
+                LBASSERT( cache[i].front()->isFree( ));
 
                 delete cache[i].front();
                 cache[i].clear();
@@ -85,13 +85,13 @@ public:
             for( size_t i = 0; i < CACHE_ALL; ++i )
             {
                 Data& cache_ = cache[i];
-                EQASSERTINFO( size_t( free[i] ) == cache_.size(),
+                LBASSERTINFO( size_t( free[i] ) == cache_.size(),
                               free[i] << " != " << cache_.size() );
 
                 for( DataCIter j = cache_.begin(); j != cache_.end(); ++j )
                 {
                     Command* command = *j;
-                    EQASSERT( command->isFree( ));
+                    LBASSERT( command->isFree( ));
                     delete command;
                 }
 
@@ -111,12 +111,12 @@ public:
             Data& cache_ = cache[ which ];
             const uint32_t cacheSize = uint32_t( cache_.size( ));
             lunchbox::a_int32_t& freeCounter = free[ which ];
-            EQASSERTINFO( size_t( freeCounter ) <= cacheSize,
+            LBASSERTINFO( size_t( freeCounter ) <= cacheSize,
                           freeCounter << " > " << cacheSize );
 
             if( freeCounter > 0 )
             {
-                EQASSERT( cacheSize > 0 );
+                LBASSERT( cacheSize > 0 );
 
                 const DataCIter end = position[ which ];
                 DataCIter& i = position[ which ];
@@ -144,7 +144,7 @@ public:
                                 {
                                     size += (*k)->getAllocationSize();
                                 }
-                                EQINFO << _hits << "/" << _hits + _misses
+                                LBINFO << _hits << "/" << _hits + _misses
                                        << " hits, " << _lookups << " lookups, "
                                        << _free[j] << " of " << cmds.size()
                                        << " packets free (min " << _minFree[ j ]
@@ -201,14 +201,14 @@ private:
                 return;
 
             const int32_t target = maxFree_ >> 1;
-            EQASSERT( target > 0 );
+            LBASSERT( target > 0 );
             Data& cache_ = cache[ which ];
             for( Data::iterator i = cache_.begin(); i != cache_.end(); )
             {
                 const Command* cmd = *i;
                 if( cmd->isFree( ))
                 {
-                    EQASSERT( currentFree > 0 );
+                    LBASSERT( currentFree > 0 );
                     i = cache_.erase( i );
                     delete cmd;
 
@@ -248,7 +248,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
                               const uint64_t size )
 {
     LB_TS_THREAD( _thread );
-    EQASSERTINFO( size < LB_BIT48,
+    LBASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;

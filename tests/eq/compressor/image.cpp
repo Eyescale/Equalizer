@@ -309,7 +309,7 @@ int main( int argc, char **argv )
                         channelSize = 2;
                         break;
                     default:
-                        EQERROR << "Unknown image pixel data type" << std::endl;
+                        LBERROR << "Unknown image pixel data type" << std::endl;
                         channelSize = 0;
                 }
                 const int64_t nElem = size / channelSize;

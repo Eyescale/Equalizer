@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -45,6 +45,7 @@ namespace eq
             CHANNEL_ASSEMBLE, //!< Sampling of Channel::frameAssemble
             CHANNEL_FRAME_WAIT_READY, //!< Sampling of Frame::waitReady
             CHANNEL_READBACK, //!< Sampling of Channel::frameReadback
+            CHANNEL_ASYNC_READBACK, //!< Sampling of async readback
             CHANNEL_VIEW_FINISH, //!< Sampling of Channel::frameViewFinish
             CHANNEL_FRAME_TRANSMIT, //!< Sampling of frame transmission
             CHANNEL_FRAME_COMPRESS, //!< Sampling of frame compression

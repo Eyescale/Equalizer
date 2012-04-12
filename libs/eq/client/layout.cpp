@@ -39,7 +39,7 @@ Layout::~Layout()
 ServerPtr Layout::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 

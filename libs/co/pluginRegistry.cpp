@@ -126,7 +126,7 @@ void PluginRegistry::init()
          i != _directories.end(); ++i )
     {
         const std::string& dir = *i;
-        EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
+        LBLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
 #ifdef _WIN32
         Strings files = lunchbox::searchDirectory( dir, "EqualizerCompressor*.dll");
@@ -186,7 +186,7 @@ bool PluginRegistry::addPlugin( const std::string& filename )
     }
 
     _plugins.push_back( plugin );
-    EQLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
+    LBLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
                         << " compression engines in " << filename << std::endl;
     return true;
 }

@@ -52,7 +52,7 @@ bool IBAdapter::open( )
     ibStatus = ib_open_al( &_accessLayer );
     if( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Can't open AL instance !!!" << std::endl;
+        LBERROR << "Can't open AL instance !!!" << std::endl;
         return false;
     }
     
@@ -63,14 +63,14 @@ bool IBAdapter::open( )
     ibStatus = ib_get_ca_guids( _accessLayer, 0, &guidCount );
     if( ibStatus != IB_INSUFFICIENT_MEMORY )
     {
-        EQERROR << "Can't get the Local CA Guids !!!" << std::endl;
+        LBERROR << "Can't get the Local CA Guids !!!" << std::endl;
         return false;
     }
 
     //If no CA's Present then return
     if( guidCount == 0 )
     {
-        EQERROR << "No CA's Present !!!" << std::endl;
+        LBERROR << "No CA's Present !!!" << std::endl;
         return false;
     }
 
@@ -81,7 +81,7 @@ bool IBAdapter::open( )
     ibStatus = ib_get_ca_guids( _accessLayer, caGuidArray, &guidCount );
     if( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Can't get the Local CA Guids !!!" << std::endl;
+        LBERROR << "Can't get the Local CA Guids !!!" << std::endl;
         return false;
     }
 
@@ -89,7 +89,7 @@ bool IBAdapter::open( )
     ibStatus = ib_open_ca( _accessLayer, caGuidArray[0] , 0, 0, &_adapter );
     if( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Can't Open CA !!!" << std::endl;
+        LBERROR << "Can't Open CA !!!" << std::endl;
         return false;
     }
     free( caGuidArray );
@@ -101,7 +101,7 @@ bool IBAdapter::open( )
     ibStatus = ib_query_ca( _adapter, 0, &bsize );
     if( ibStatus != IB_INSUFFICIENT_MEMORY )
     {
-        EQERROR << "Can't Query CA !!!" << std::endl;
+        LBERROR << "Can't Query CA !!!" << std::endl;
         return false;
     }
 
@@ -110,7 +110,7 @@ bool IBAdapter::open( )
     ibStatus = ib_query_ca( _adapter, _adapterAttr, &bsize );
     if( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Can't Query CA !!!" << std::endl;
+        LBERROR << "Can't Query CA !!!" << std::endl;
         return false;
     }
 
@@ -123,7 +123,7 @@ bool IBAdapter::open( )
 
     if ( ibStatus != IB_SUCCESS ) 
     {
-        EQERROR << "Can't Allocate Protection Domain !!!" << std::endl;
+        LBERROR << "Can't Allocate Protection Domain !!!" << std::endl;
         return false;
     }
 

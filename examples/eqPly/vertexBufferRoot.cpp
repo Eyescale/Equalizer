@@ -76,7 +76,7 @@ void VertexBufferRoot::setupTree( VertexData& data )
         
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
-        EQASSERTINFO( distanceSquared <= radiusSquared,
+        LBASSERTINFO( distanceSquared <= radiusSquared,
                       distanceSquared << " > " << radiusSquared );
     }
 #endif

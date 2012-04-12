@@ -60,19 +60,19 @@ bool Pipe::configInit( const eq::uint128_t& initID )
     const lunchbox::UUID  frameDataID = initData.getFrameDataID();
 
     const bool mapped = config->mapObject( &_frameData, frameDataID );
-    EQASSERT( mapped );
+    LBASSERT( mapped );
 
     const std::string& filename = initData.getFilename();
     const uint32_t precision = initData.getPrecision();
-    EQINFO << "Loading model " << filename << std::endl;
+    LBINFO << "Loading model " << filename << std::endl;
 
     _renderer = new Renderer( filename.c_str(), precision );
-    EQASSERT( _renderer );
+    LBASSERT( _renderer );
 
     if( !_renderer->loadHeader( initData.getBrightness(), initData.getAlpha( )))
     {
         setError( ERROR_EVOLVE_LOADMODEL_FAILED );
-        EQWARN << getError() << ": " << filename << ".vhf" << std::endl;
+        LBWARN << getError() << ": " << filename << ".vhf" << std::endl;
         delete _renderer;
         _renderer = 0;
         return false;

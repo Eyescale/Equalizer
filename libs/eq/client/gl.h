@@ -70,7 +70,7 @@
 // Error-check macros
 namespace eq
 {
-/** Output an error OpenGL in a human-readable form to EQWARN */
+/** Output an error OpenGL in a human-readable form to LBWARN */
 EQ_API void debugGLError( const std::string& when, const GLenum error, 
                           const char* file, const int line );
 }

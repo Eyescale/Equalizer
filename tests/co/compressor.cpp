@@ -175,7 +175,7 @@ void _testFile()
 
             if( !data )
             {
-                EQERROR << "Can't mmap " << *j << std::endl;
+                LBERROR << "Can't mmap " << *j << std::endl;
                 continue;
             }
 

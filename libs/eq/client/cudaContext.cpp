@@ -64,17 +64,17 @@ namespace eq
         if( device == LB_UNDEFINED_UINT32 )
         {
             device = _getFastestDeviceID();
-            EQWARN << "No CUDA device, using the fastest device: " << device
+            LBWARN << "No CUDA device, using the fastest device: " << device
                    << std::endl;
         }
 
         int device_count = 0;
         cudaGetDeviceCount( &device_count );
-        EQINFO << "CUDA devices found: " << device_count << std::endl;
-        EQASSERT( static_cast< uint32_t >( device_count ) > device );
+        LBINFO << "CUDA devices found: " << device_count << std::endl;
+        LBASSERT( static_cast< uint32_t >( device_count ) > device );
         if( static_cast< uint32_t >( device_count ) <= device )
         {
-            EQWARN << "Not enough cuda devices, requested device " << device
+            LBWARN << "Not enough cuda devices, requested device " << device
                    << " of " << device_count << std::endl;
             setError( ERROR_CUDACONTEXT_DEVICE_NOTFOUND );
             return false;
@@ -91,14 +91,14 @@ namespace eq
 
         if( !WGLEW_NV_gpu_affinity )
         {
-            EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring device setting"
+            LBWARN <<"WGL_NV_gpu_affinity unsupported, ignoring device setting"
                    << std::endl;
             return true;
         }
 
         if( !wglEnumGpusNV( device, &handle ))
         {
-           EQWARN << "wglEnumGpusNV failed : " << lunchbox::sysError << std::endl;
+           LBWARN << "wglEnumGpusNV failed : " << lunchbox::sysError << std::endl;
             return false;
         }
 
@@ -106,19 +106,19 @@ namespace eq
 #else
         cudaGetDevice( &usedDevice );
 #endif
-        EQASSERT( device == static_cast< uint32_t >( device ));
+        LBASSERT( device == static_cast< uint32_t >( device ));
         cudaGetDeviceProperties( &props, usedDevice );
 
         cudaError_t err = cudaGetLastError();
         if( cudaSuccess != err) 
         {
-            EQWARN << "CUDA initialization error: "
+            LBWARN << "CUDA initialization error: "
                    << cudaGetErrorString( err ) << std::endl;
             setError( ERROR_CUDACONTEXT_INIT_FAILED );
             return false;
         }                         
 
-        EQINFO << "Using CUDA device: " << device << std::endl;
+        LBINFO << "Using CUDA device: " << device << std::endl;
         return true;
 #else
         setError( ERROR_CUDACONTEXT_MISSING_SUPPORT );

@@ -56,20 +56,20 @@ DataOStream::DataOStream()
 DataOStream::~DataOStream()
 {
     // Can't call disable() from destructor since it uses virtual functions
-    EQASSERT( !_enabled );
+    LBASSERT( !_enabled );
     delete _compressor;
 }
 
 void DataOStream::_initCompressor( const uint32_t compressor )
 {
-    EQCHECK( _compressor->Compressor::initCompressor( compressor ));
+    LBCHECK( _compressor->Compressor::initCompressor( compressor ));
     LB_TS_RESET( _compressor->_thread );
 }
 
 void DataOStream::_enable()
 {
-    EQASSERT( !_enabled );
-    EQASSERT( _save || !_connections.empty( ));
+    LBASSERT( !_enabled );
+    LBASSERT( _save || !_connections.empty( ));
     _compressorState = STATE_UNCOMPRESSED;
     _bufferStart = 0;
     _dataSent    = false;
@@ -88,7 +88,7 @@ void DataOStream::_setupConnections( const Nodes& receivers )
 
 void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
 {
-    EQASSERT( _connections.empty( ));
+    LBASSERT( _connections.empty( ));
     ConnectionPtr connection = useMulticast ? node->useMulticast() : 0;
     if( !connection )
         connection = node->getConnection();
@@ -98,9 +98,9 @@ void DataOStream::_setupConnection( NodePtr node, const bool useMulticast )
 
 void DataOStream::_resend()
 {
-    EQASSERT( !_enabled );
-    EQASSERT( !_connections.empty( ));
-    EQASSERT( _save );
+    LBASSERT( !_enabled );
+    LBASSERT( !_connections.empty( ));
+    LBASSERT( _save );
     
     _compress( _buffer.getData(), _dataSize, STATE_COMPLETE );
     sendData( _buffer.getData(), _dataSize, true );
@@ -163,7 +163,7 @@ bool DataOStream::_disable()
         _dataSize = _buffer.getSize();
         _dataSent = true;
 
-        EQASSERT( _bufferStart == 0 );
+        LBASSERT( _bufferStart == 0 );
         if( !_connections.empty( ))
         {
             _compressorState = STATE_UNCOMPRESSED;
@@ -182,25 +182,25 @@ bool DataOStream::_disable()
 
 void DataOStream::enableSave()
 {
-    EQASSERTINFO( !_enabled || ( !_dataSent && _buffer.getSize() == 0 ),
+    LBASSERTINFO( !_enabled || ( !_dataSent && _buffer.getSize() == 0 ),
                   "Can't enable saving after data has been written" );
     _save = true;
 }
 
 void DataOStream::disableSave()
 {
-    EQASSERTINFO( !_enabled || (!_dataSent && _buffer.getSize() == 0 ),
+    LBASSERTINFO( !_enabled || (!_dataSent && _buffer.getSize() == 0 ),
                   "Can't disable saving after data has been written" );
     _save = false;
 }
 
 void DataOStream::write( const void* data, uint64_t size )
 {
-    EQASSERT( _enabled );
+    LBASSERT( _enabled );
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytes += size;
     if( compressionTime > 100000 )
-        EQWARN << *this << std::endl;
+        LBWARN << *this << std::endl;
 #endif    
 
     if( _buffer.getSize() - _bufferStart > Global::getObjectBufferSize( ))
@@ -210,7 +210,7 @@ void DataOStream::write( const void* data, uint64_t size )
 
 void DataOStream::_flush()
 {
-    EQASSERT( _enabled );
+    LBASSERT( _enabled );
     if( !_connections.empty( ))
     {
         void* ptr = _buffer.getData() + _bufferStart;
@@ -268,7 +268,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 
     const uint32_t nChunks = _compressor->getNumResults();
     uint64_t compressedSize = 0;
-    EQASSERT( nChunks > 0 );
+    LBASSERT( nChunks > 0 );
 
     for( uint32_t i = 0; i < nChunks; ++i )
     {
@@ -288,7 +288,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifndef CO_AGGRESSIVE_CACHING
         const uint32_t name = _compressor->getName();
         _compressor->reset();
-        EQCHECK( _compressor->Compressor::initCompressor( name ));
+        LBCHECK( _compressor->Compressor::initCompressor( name ));
 
         if( result == STATE_COMPLETE )
             _buffer.pack();
@@ -300,7 +300,7 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifndef CO_AGGRESSIVE_CACHING
     if( result == STATE_COMPLETE )
     {
-        EQASSERT( _buffer.getSize() == _dataSize );
+        LBASSERT( _buffer.getSize() == _dataSize );
         _buffer.clear();
     }
 #endif
@@ -309,11 +309,11 @@ void DataOStream::_compress( void* src, const uint64_t size,
 uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
     const
 {    
-    EQASSERT( _compressorState != STATE_UNCOMPRESSED &&
+    LBASSERT( _compressorState != STATE_UNCOMPRESSED &&
               _compressorState != STATE_UNCOMPRESSIBLE );
 
     const uint32_t nChunks = _compressor->getNumResults( );
-    EQASSERT( nChunks > 0 );
+    LBASSERT( nChunks > 0 );
 
     uint64_t dataSize = 0;
     for ( uint32_t i = 0; i < nChunks; i++ )

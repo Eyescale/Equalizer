@@ -46,11 +46,11 @@ namespace glx
         const Display* getDisplay() const { return _display; }
 
     protected:
-        virtual void readNB( void*, const uint64_t ) { EQDONTCALL; }
+        virtual void readNB( void*, const uint64_t ) { LBDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
-            { EQDONTCALL; return -1; }
+            { LBDONTCALL; return -1; }
         virtual int64_t write( const void*, const uint64_t )
-            { EQDONTCALL; return -1; }
+            { LBDONTCALL; return -1; }
 
     private:
         Display* const _display;

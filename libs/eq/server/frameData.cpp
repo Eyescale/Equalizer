@@ -38,7 +38,7 @@ void FrameData::getInstanceData( co::DataOStream& os )
 
 void FrameData::applyInstanceData( co::DataIStream& is )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _data.deserialize( is );
 }
 

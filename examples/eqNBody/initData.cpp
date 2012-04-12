@@ -58,6 +58,6 @@ namespace eqNbody
     void InitData::applyInstanceData( co::DataIStream& is )
     {
            is >> _frameDataID;
-           EQASSERT( _frameDataID != lunchbox::UUID::ZERO );
+           LBASSERT( _frameDataID != lunchbox::UUID::ZERO );
     }
 }

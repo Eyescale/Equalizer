@@ -39,7 +39,7 @@ Pipe::Pipe( eq::Node* parent )
 
 Pipe::~Pipe()
 {
-    EQASSERT( !_objects );
+    LBASSERT( !_objects );
 }
 
 seq::Application* Pipe::getApplication()
@@ -59,7 +59,7 @@ Node* Pipe::getNode()
 
 detail::Renderer* Pipe::getRendererImpl()
 {
-    EQASSERT( _renderer );
+    LBASSERT( _renderer );
     if( !_renderer )
         return 0;
     return _renderer->getImpl();
@@ -67,7 +67,7 @@ detail::Renderer* Pipe::getRendererImpl()
 
 co::Object* Pipe::getFrameData()
 {
-    EQASSERT( _objects );
+    LBASSERT( _objects );
     if( _objects )
         return _objects->getFrameData();
     return 0;
@@ -78,11 +78,11 @@ bool Pipe::configInit( const uint128_t& initID )
     if( !eq::Pipe::configInit( initID ))
         return false;
 
-    EQASSERT( !_renderer );
+    LBASSERT( !_renderer );
     _renderer = getApplication()->createRenderer();
     if( !_renderer )
     {
-        EQASSERT( _renderer );
+        LBASSERT( _renderer );
         setError( ERROR_SEQUEL_CREATERENDERER_FAILED );
         return false;
     }
@@ -117,8 +117,8 @@ void Pipe::frameStart( const uint128_t& frameID, const uint32_t frameNumber )
 
 bool Pipe::_mapData( const uint128_t& initID )
 {
-    EQASSERT( !_objects );
-    EQASSERT( _renderer );
+    LBASSERT( !_objects );
+    LBASSERT( _renderer );
 
     Config* config = getConfig();
     _objects = new ObjectMap( config->getClient(), *_renderer );
@@ -132,13 +132,13 @@ bool Pipe::_mapData( const uint128_t& initID )
 
 void Pipe::_syncData( const uint128_t& version )
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
     _objects->sync( version );
 }
 
 void Pipe::_unmapData()
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
         getConfig()->unmapObject( _objects );
     delete _objects;
     _objects = 0;

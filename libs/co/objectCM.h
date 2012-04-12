@@ -64,7 +64,7 @@ namespace co
          * @return the new head version.
          */
         virtual uint128_t commit( const uint32_t incarnation )
-            { EQUNIMPLEMENTED; return VERSION_NONE; }
+            { LBUNIMPLEMENTED; return VERSION_NONE; }
 
         /** 
          * Automatically obsolete old versions.
@@ -72,10 +72,10 @@ namespace co
          * @param count the number of versions to retain, excluding the head
          *              version.
          */
-        virtual void setAutoObsolete( const uint32_t count ){ EQUNIMPLEMENTED; }
+        virtual void setAutoObsolete( const uint32_t count ){ LBUNIMPLEMENTED; }
  
         /** @return get the number of versions this object retains. */
-        virtual uint32_t getAutoObsolete() const { EQUNIMPLEMENTED; return 0; }
+        virtual uint32_t getAutoObsolete() const { LBUNIMPLEMENTED; return 0; }
 
         /** 
          * Sync to a given version.
@@ -85,7 +85,7 @@ namespace co
          * @return the version of the object after the operation.
          */
         virtual uint128_t sync( const uint128_t& version )
-            { EQUNIMPLEMENTED; return VERSION_FIRST; }
+            { LBUNIMPLEMENTED; return VERSION_FIRST; }
 
         /** @return the latest available (head) version. */
         virtual uint128_t getHeadVersion() const = 0;
@@ -122,7 +122,7 @@ namespace co
          * @param node the slave node. 
          */
         virtual void removeSlave( NodePtr node )
-            { EQUNIMPLEMENTED; }
+            { LBUNIMPLEMENTED; }
 
         /** Remove all subscribed slaves from the given node. */
         virtual void removeSlaves( NodePtr node ) = 0;
@@ -132,12 +132,12 @@ namespace co
 
         /** Apply the initial data after mapping. */
         virtual void applyMapData( const uint128_t& version )
-            { EQUNIMPLEMENTED; }
+            { LBUNIMPLEMENTED; }
 
         /** Add existing instance data to the object (from local node cache) */
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&,
                                        const uint128_t& )
-            { EQDONTCALL; }
+            { LBDONTCALL; }
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes ){}
@@ -147,7 +147,7 @@ namespace co
 
         /** @internal Swap the object. */
         void setObject( Object* object )
-            { EQASSERT( object ); _object = object; }
+            { LBASSERT( object ); _object = object; }
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
@@ -162,7 +162,7 @@ namespace co
 #endif
 
         void _addSlave( Command& command, const uint128_t& version );
-        virtual void _addSlave( NodePtr node ) { EQDONTCALL; }
+        virtual void _addSlave( NodePtr node ) { LBDONTCALL; }
         virtual void _initSlave( NodePtr node, const uint128_t& version,
                                  const NodeMapObjectPacket* packet,
                                  NodeMapObjectSuccessPacket& success,

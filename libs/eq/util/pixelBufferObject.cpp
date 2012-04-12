@@ -43,7 +43,7 @@ public:
     ~PixelBufferObject()
         {
             if( isInitialized( ))
-                EQWARN << "PBO was not freed" << std::endl;
+                LBWARN << "PBO was not freed" << std::endl;
 
             delete lock_;
         }
@@ -276,6 +276,11 @@ bool PixelBufferObject::isInitialized() const
 bool PixelBufferObject::isThreadSafe() const
 {
     return _impl->lock_ != 0;
+}
+
+GLuint PixelBufferObject::getID() const
+{
+    return _impl->pboID;
 }
 
 }

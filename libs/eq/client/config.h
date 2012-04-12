@@ -23,6 +23,7 @@
 #include <eq/client/types.h>         // typedefs
 
 #include <eq/fabric/config.h>        // base class
+#include <co/objectHandler.h>        // base class
 #include <lunchbox/clock.h>           // member
 #include <lunchbox/monitor.h>         // member
 #include <lunchbox/spinLock.h>        // member
@@ -52,7 +53,8 @@ namespace eq
      * @sa fabric::Config for public methods
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas, Node, ConfigVisitor >
+                                          Canvas, Node, ConfigVisitor >,
+                   public co::ObjectHandler
     {
     public:
         typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
@@ -233,7 +235,7 @@ namespace eq
          * Start mapping a distributed object from a known master.
          * @version 1.0
          */
-        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id, 
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
                                  const uint128_t& version, co::NodePtr master );
 
         /** Finalize the mapping of a distributed object. @version 1.0 */
@@ -457,8 +459,8 @@ namespace eq
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
-            virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
-            virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
+            virtual void getInstanceData( co::DataOStream& os ){ LBDONTCALL }
+            virtual void applyInstanceData( co::DataIStream& is ){ LBDONTCALL }
             virtual uint32_t chooseCompressor() const { return _compressor; }
 
         private:

@@ -106,7 +106,7 @@ namespace eVolve
 
     private:
         bool _lFailed( char* msg )
-            { EQERROR << msg << std::endl; return false; }
+            { LBERROR << msg << std::endl; return false; }
 
         struct VolumePart
         {

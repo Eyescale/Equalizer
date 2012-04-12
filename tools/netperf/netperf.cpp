@@ -61,7 +61,7 @@ public:
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
-            EQASSERTINFO( _lastPacket == 0 || _lastPacket - 1 ==
+            LBASSERTINFO( _lastPacket == 0 || _lastPacket - 1 ==
                           _buffer[ SEQUENCE ],
                           static_cast< int >( _lastPacket ) << ", " <<
                           static_cast< int >( _buffer[ SEQUENCE ] ));
@@ -73,7 +73,7 @@ public:
 
             const size_t probe = (_rng.get< size_t >() %
                                   ( _buffer.getSize() - DATA )) + DATA;
-            EQASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
+            LBASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                           (int)_buffer[probe] << " != " << (probe&0xff) );
 
             if( _delay > 0 )
@@ -95,13 +95,13 @@ public:
 
     void executeReceive()
         {
-            EQASSERT( _hasConnection == false );
+            LBASSERT( _hasConnection == false );
             _hasConnection = true;
         }
 
     void stop()
         {
-            EQASSERT( _hasConnection == false );
+            LBASSERT( _hasConnection == false );
             _connection = 0;
             _hasConnection = true;
         }
@@ -148,20 +148,20 @@ public:
 
     virtual bool init()
         {
-            EQCHECK( _connection->listen( ));
+            LBCHECK( _connection->listen( ));
             _connection->acceptNB();
             _connectionSet.addConnection( _connection );
 
             // Get first client
             const co::ConnectionSet::Event event = _connectionSet.select();
-            EQASSERT( event == co::ConnectionSet::EVENT_CONNECT );
+            LBASSERT( event == co::ConnectionSet::EVENT_CONNECT );
 
             co::ConnectionPtr resultConn = _connectionSet.getConnection();
             co::ConnectionPtr newConn    = resultConn->acceptSync();
             resultConn->acceptNB();
         
-            EQASSERT( resultConn == _connection );
-            EQASSERT( newConn.isValid( ));
+            LBASSERT( resultConn == _connection );
+            LBASSERT( newConn.isValid( ));
 
             _receivers.push_back( RecvConn( new Receiver( _packetSize, newConn),
                                             newConn ));
@@ -191,7 +191,7 @@ public:
                         newConn = resultConn->acceptSync();
                         resultConn->acceptNB();
 
-                        EQASSERT( newConn.isValid( ));
+                        LBASSERT( newConn.isValid( ));
 
                         _receivers.push_back( 
                             RecvConn( new Receiver( _packetSize, newConn ),
@@ -209,7 +209,7 @@ public:
                         if( resultConn == _connection )
                         {
                             // really a close event of the listener
-                            EQASSERT( resultConn->isClosed( ));
+                            LBASSERT( resultConn->isClosed( ));
                             _connectionSet.removeConnection( resultConn );
                             std::cerr << "listener closed" << std::endl;
                             break;
@@ -226,7 +226,7 @@ public:
                                 break;
                             }
                         }
-                        EQASSERT( receiver );
+                        LBASSERT( receiver );
 
                         if( _useThreads )
                         {
@@ -278,11 +278,11 @@ public:
                         break;
 
                     default:
-                        EQASSERTINFO( false, "Not reachable" );
+                        LBASSERTINFO( false, "Not reachable" );
                 }
             }
-            EQASSERTINFO( _receivers.empty(), _receivers.size() );
-            EQASSERTINFO( _connectionSet.getSize() <= 1,
+            LBASSERTINFO( _receivers.empty(), _receivers.size() );
+            LBASSERTINFO( _connectionSet.getSize() <= 1,
                           _connectionSet.getSize( ));
             _connectionSet.clear();
         }
@@ -300,7 +300,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    EQCHECK( co::init( argc, argv ));
+    LBCHECK( co::init( argc, argv ));
 
     co::ConnectionDescriptionPtr description = new co::ConnectionDescription;
     description->type = co::CONNECTIONTYPE_TCPIP;
@@ -362,7 +362,7 @@ int main( int argc, char **argv )
     }
     catch( TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
 
         co::exit();
@@ -373,7 +373,7 @@ int main( int argc, char **argv )
     co::ConnectionPtr connection = co::Connection::create( description );
     if( !connection )
     {
-        EQWARN << "Unsupported connection: " << description << std::endl;
+        LBWARN << "Unsupported connection: " << description << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }
@@ -402,7 +402,7 @@ int main( int argc, char **argv )
         while( nPackets-- )
         {
             buffer[SEQUENCE] = uint8_t( nPackets );
-            EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
+            LBCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
@@ -438,7 +438,7 @@ int main( int argc, char **argv )
         selector = new Selector( connection, packetSize, useThreads );
         selector->start();
         
-        EQASSERTINFO( connection->getRefCount()>=1, connection->getRefCount( ));
+        LBASSERTINFO( connection->getRefCount()>=1, connection->getRefCount( ));
     
         if ( selector )
             selector->join();
@@ -446,9 +446,9 @@ int main( int argc, char **argv )
 
     
     delete selector;
-    EQASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
+    LBASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection = 0;
-    EQCHECK( co::exit( ));
+    LBCHECK( co::exit( ));
     return EXIT_SUCCESS;
 }
 

@@ -35,6 +35,8 @@
 
 namespace eq
 {
+namespace detail { class TransferThread; }
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
@@ -59,6 +61,8 @@ namespace eq
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        co::CommandQueue* getTransferThreadQueue(); //!< @internal
+
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -173,6 +177,12 @@ namespace eq
         void exitThread();
 
         void cancelThread(); //!< @internal
+
+        /** @internal Start the async readback thread. */
+        bool startTransferThread();
+
+        /** @internal Checks if async readback thread is running. */
+        bool hasTransferThread() const;
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system
@@ -427,8 +437,7 @@ namespace eq
         class Thread;
         Thread* _thread;
 
-        /** The last window made current. */
-        const mutable Window* _currentWindow;
+        detail::TransferThread* const _transferThread;
 
         /** GPU Computing context */
         ComputeContext *_computeContext;
@@ -442,6 +451,8 @@ namespace eq
         void _exitCommandQueue();
 
         friend class Window;
+
+        void _stopTransferThread();
 
         /** @internal Release the views not used for some revisions. */
         void _releaseViews();
@@ -463,6 +474,7 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
         bool _cmdDetachView( co::Command& command );
+        bool _cmdExitTransferThread( co::Command& command );
 
         LB_TS_VAR( _pipeThread );
     };

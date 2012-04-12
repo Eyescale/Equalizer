@@ -45,17 +45,17 @@ Node< C, N, P, V >::Node( C* parent )
         , _isAppNode( false )
 {
     parent->_addNode( static_cast< N* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class N, class P, class V >
 Node< C, N, P, V >::~Node()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_pipes.empty() )
     {
         P* pipe = _pipes.back();
-        EQASSERT( pipe->getNode() == static_cast< N* >( this ) );
+        LBASSERT( pipe->getNode() == static_cast< N* >( this ) );
         _removePipe( pipe );
         delete pipe;
     }
@@ -125,7 +125,7 @@ Node< C, N, P, V >::deserialize( co::DataIStream& is, const uint64_t dirtyBits)
                 Pipes result;
                 is.deserializeChildren( this, _pipes, result );
                 _pipes.swap( result );
-                EQASSERT( _pipes.size() == result.size( ));
+                LBASSERT( _pipes.size() == result.size( ));
             }
             else // consume unused ObjectVersions
             {
@@ -154,11 +154,11 @@ void Node< C, N, P, V >::notifyDetach()
         P* pipe = _pipes.back();
         if( !pipe->isAttached( ))
         {
-            EQASSERT( isMaster( ));
+            LBASSERT( isMaster( ));
             return;
         }
 
-        EQASSERT( !isMaster( ));
+        LBASSERT( !isMaster( ));
         getLocalNode()->unmapObject( pipe );
         _removePipe( pipe );
         _config->getServer()->getNodeFactory()->releasePipe( pipe );
@@ -239,12 +239,12 @@ template< class C, class N, class P, class V >
 NodePath Node< C, N, P, V >::getPath() const
 {
     const C* config = static_cast< const N* >( this )->getConfig( );
-    EQASSERT( config );
+    LBASSERT( config );
     
     const typename std::vector< N* >& nodes = config->getNodes();
     typename std::vector< N* >::const_iterator i =
         std::find( nodes.begin(), nodes.end(), this );
-    EQASSERT( i != nodes.end( ));
+    LBASSERT( i != nodes.end( ));
 
     NodePath path;
     path.nodeIndex = std::distance( nodes.begin(), i );
@@ -284,7 +284,7 @@ Node< C, N, P, V >::getIAttributeString( const IAttribute attr )
 template< class C, class N, class P, class V >
 void Node< C, N, P, V >::_addPipe( P* pipe )
 {
-    EQASSERT( pipe->getNode() == this );
+    LBASSERT( pipe->getNode() == this );
     _pipes.push_back( pipe );
 }
 

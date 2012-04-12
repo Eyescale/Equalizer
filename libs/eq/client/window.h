@@ -184,6 +184,15 @@ namespace eq
          */
         EQ_API const GLEWContext* glewGetContext() const;
 
+        /** @internal
+         * Creates second system window if necessary and returns its context.
+         * 
+         * Should be called from the pipe transfer thread.
+         * 
+         * @return shared context for use in the transfer thread.
+         */
+        EQ_API const GLEWContext* getTransferGlewContext();
+
         /**
          * @internal
          * @return the OpenGL texture format corresponding to the window's color
@@ -232,6 +241,11 @@ namespace eq
          */
         EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
+        /** @internal
+         * Make the shared transfer window's drawable and context current.
+         */
+        void makeCurrentTransfer( const bool cache = true );
+
         /** @internal Bind the window's FBO, if it uses one. */
         EQ_API virtual void bindFrameBuffer() const;
 
@@ -263,6 +277,23 @@ namespace eq
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
         SystemPipe* getSystemPipe(); 
+
+        /** @internal
+         * Creates shared context window for asynchronuous context usage.
+         *
+         * Should be called from separate thread.
+         *
+         * @return the OS-specific transfer window implementation.
+         */
+        const eq::SystemWindow* getTransferSystemWindow();
+
+        /** @internal
+         * Creates shared context window for asynchronious context usage.
+         *
+         * Should be called from the same thread getAsyncSystemWindow 
+         * was called.
+         */
+        void deleteTransferSystemWindow();
         //@}
 
         /**
@@ -415,6 +446,9 @@ namespace eq
 
         /** The window sharing the OpenGL context. */
         Window* _sharedContextWindow;
+
+        /** Transfer window */
+        SystemWindow* _transferWindow;
 
         /** Window-system specific functions class */
         SystemWindow* _systemWindow;

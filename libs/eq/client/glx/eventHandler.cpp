@@ -47,7 +47,7 @@ static lunchbox::PerThread< EventHandlers > _eventHandlers;
 EventHandler::EventHandler( WindowIF* window )
         : _window( window )
 {
-    EQASSERT( window );
+    LBASSERT( window );
 
     if( !_eventHandlers )
         _eventHandlers = new EventHandlers;
@@ -61,11 +61,11 @@ EventHandler::EventHandler( WindowIF* window )
     if( messagePump )
     {
         Display* display = window->getXDisplay();
-        EQASSERT( display );
+        LBASSERT( display );
         messagePump->register_( display );
     }
     else
-        EQINFO << "Using glx::EventHandler without glx::MessagePump, external "
+        LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
                << "event dispatch assumed" << std::endl;
 }
 
@@ -77,12 +77,12 @@ EventHandler::~EventHandler()
     if( messagePump )
     {
         Display* display = _window->getXDisplay();
-        EQASSERT( display );
+        LBASSERT( display );
         messagePump->deregister( display );
     }
 
     EventHandlers::iterator i = stde::find( *_eventHandlers, this );
-    EQASSERT( i != _eventHandlers->end( ));
+    LBASSERT( i != _eventHandlers->end( ));
     _eventHandlers->erase( i );
     if( _eventHandlers->empty( ))
     {
@@ -106,7 +106,7 @@ void EventHandler::dispatch()
 void EventHandler::_dispatch()
 {
     Display* display = _window->getXDisplay();
-    EQASSERT( display );
+    LBASSERT( display );
     if( !display )
         return;
 
@@ -260,12 +260,12 @@ void EventHandler::_processEvent( WindowEvent& event )
         case ReparentNotify:
         case VisibilityNotify:
             event.type = Event::UNKNOWN;
-            EQINFO << "Ignored X event, type " << xEvent.type << std::endl;
+            LBINFO << "Ignored X event, type " << xEvent.type << std::endl;
             break;
 
         default:
             event.type = Event::UNKNOWN;
-            EQWARN << "Unhandled X event, type " << xEvent.type << std::endl;
+            LBWARN << "Unhandled X event, type " << xEvent.type << std::endl;
             break;
     }
 
@@ -372,7 +372,7 @@ uint32_t EventHandler::_getKey( XEvent& event )
             {
                 return key;
             }
-            EQWARN << "Unrecognized X11 key code " << key << std::endl;
+            LBWARN << "Unrecognized X11 key code " << key << std::endl;
             return KC_VOID;
     }
 }

@@ -61,18 +61,18 @@ void DataIStream::read( void* data, uint64_t size )
 {
     if( !_checkBuffer( ))
     {
-        EQUNREACHABLE;
-        EQERROR << "No more input data" << std::endl;
+        LBUNREACHABLE;
+        LBERROR << "No more input data" << std::endl;
         return;
     }
 
-    EQASSERT( _input );
+    LBASSERT( _input );
     
     if( _position + size > _inputSize )
     {
-        EQERROR << "Not enough data in input buffer: need " << size 
+        LBERROR << "Not enough data in input buffer: need " << size 
                 << " bytes, " << _inputSize - _position << " left "<< std::endl;
-        EQUNREACHABLE;
+        LBUNREACHABLE;
         // TODO: Allow reads which are asymmetric to writes by reading from
         // multiple blocks here?
         return;
@@ -100,7 +100,7 @@ uint64_t DataIStream::getRemainingBufferSize()
 
 void DataIStream::advanceBuffer( const uint64_t offset )
 {
-    EQASSERT( _position + offset <= _inputSize );
+    LBASSERT( _position + offset <= _inputSize );
     _position += offset;
 }
 
@@ -129,7 +129,7 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
     if( name == EQ_COMPRESSOR_NONE )
         return src;
 
-    EQASSERT( name > EQ_COMPRESSOR_NONE );
+    LBASSERT( name > EQ_COMPRESSOR_NONE );
 #ifndef CO_AGGRESSIVE_CACHING
     _data.clear();
 #endif

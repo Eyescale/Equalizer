@@ -54,7 +54,7 @@ static void checkError( const std::string& msg )
 {
     const GLenum error = glGetError();
     if (error != GL_NO_ERROR)
-        EQERROR << msg << " GL Error: " << error << std::endl;
+        LBERROR << msg << " GL Error: " << error << std::endl;
 }
 
 
@@ -165,7 +165,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     Pipe*     pipe     = static_cast<Pipe*>( getPipe( ));
     Renderer* renderer = pipe->getRenderer();
-    EQASSERT( renderer );
+    LBASSERT( renderer );
 
     eq::Matrix4f  modelviewM;     // modelview matrix
     eq::Matrix3f  modelviewITM;   // modelview inversed transposed matrix
@@ -361,7 +361,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
     catch( const co::Exception& e )
     {
-        EQWARN << e.what() << std::endl;
+        LBWARN << e.what() << std::endl;
     }
 
     resetAssemblyState();

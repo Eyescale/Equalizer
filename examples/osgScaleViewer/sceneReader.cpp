@@ -47,7 +47,7 @@ osg::ref_ptr<osg::Node> SceneReader::readModel( const std::string& filename )
     osg::ref_ptr<osg::Node> root = osgDB::readNodeFile( filename );
     if ( !root.valid( )) 
     {
-        EQERROR << "Failed to load model." << std::endl;
+        LBERROR << "Failed to load model." << std::endl;
         return root;
     }
 
@@ -61,7 +61,7 @@ osg::ref_ptr<osg::Image> SceneReader::readImage( const std::string& filename )
 {
     osg::ref_ptr<osg::Image> image = osgDB::readImageFile( filename );
     if( !image.valid( ))
-        EQERROR << "Failed to load image." << std::endl;
+        LBERROR << "Failed to load image." << std::endl;
 
     return image;
 }

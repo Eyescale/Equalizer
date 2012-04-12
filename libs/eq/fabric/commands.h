@@ -66,12 +66,12 @@ namespace fabric
     enum ObjectCommand
     {
         CMD_OBJECT_SYNC = co::CMD_OBJECT_CUSTOM, // 10
-        CMD_OBJECT_CUSTOM
+        CMD_OBJECT_CUSTOM = 15
     };
 
     enum ConfigCommand
     {
-        CMD_CONFIG_NEW_LAYOUT = CMD_OBJECT_CUSTOM, // 10
+        CMD_CONFIG_NEW_LAYOUT = CMD_OBJECT_CUSTOM, // 15
         CMD_CONFIG_NEW_CANVAS,
         CMD_CONFIG_NEW_OBSERVER,
         CMD_CONFIG_NEW_ENTITY_REPLY,
@@ -95,12 +95,12 @@ namespace fabric
         CMD_CONFIG_EVENT,
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
-        CMD_CONFIG_CUSTOM = 40 // some buffer for binary-compatible patches
+        CMD_CONFIG_CUSTOM = 45 // some buffer for binary-compatible patches
     };
 
     enum NodeCommand
     {
-        CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 10
+        CMD_NODE_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 15
         CMD_NODE_CONFIG_INIT_REPLY,
         CMD_NODE_SET_AFFINITY,
         CMD_NODE_CONFIG_EXIT,
@@ -114,12 +114,12 @@ namespace fabric
         CMD_NODE_FRAME_TASKS_FINISH,
         CMD_NODE_FRAMEDATA_TRANSMIT,       
         CMD_NODE_FRAMEDATA_READY,
-        CMD_NODE_CUSTOM = 30  // some buffer for binary-compatible patches
+        CMD_NODE_CUSTOM = 35  // some buffer for binary-compatible patches
     };
 
     enum PipeCommand
     {
-        CMD_PIPE_NEW_WINDOW = CMD_OBJECT_CUSTOM, // 10
+        CMD_PIPE_NEW_WINDOW = CMD_OBJECT_CUSTOM, // 15
         CMD_PIPE_NEW_WINDOW_REPLY,
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
@@ -132,13 +132,14 @@ namespace fabric
         CMD_PIPE_FRAME_DRAW_FINISH,
         CMD_PIPE_FRAME_START_CLOCK,
         CMD_PIPE_EXIT_THREAD,
+        CMD_PIPE_EXIT_TRANSFER_THREAD,
         CMD_PIPE_DETACH_VIEW,
-        CMD_PIPE_CUSTOM = 30 // some buffer for binary-compatible patches
+        CMD_PIPE_CUSTOM = 35 // some buffer for binary-compatible patches
     };
 
     enum WindowCommand
     {
-        CMD_WINDOW_NEW_CHANNEL = CMD_OBJECT_CUSTOM, // 10
+        CMD_WINDOW_NEW_CHANNEL = CMD_OBJECT_CUSTOM, // 15
         CMD_WINDOW_NEW_CHANNEL_REPLY,
         CMD_WINDOW_CONFIG_INIT,
         CMD_WINDOW_CONFIG_INIT_REPLY,
@@ -155,12 +156,12 @@ namespace fabric
         CMD_WINDOW_NV_BARRIER,
         CMD_WINDOW_SWAP,
         CMD_WINDOW_FRAME_DRAW_FINISH,
-        CMD_WINDOW_CUSTOM = 30 // some buffer for binary-compatible patches
+        CMD_WINDOW_CUSTOM = 40 // some buffer for binary-compatible patches
     };
 
     enum ChannelCommand
     {
-        CMD_CHANNEL_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 10
+        CMD_CHANNEL_CONFIG_INIT = CMD_OBJECT_CUSTOM, // 15
         CMD_CHANNEL_CONFIG_INIT_REPLY,
         CMD_CHANNEL_CONFIG_EXIT,
         CMD_CHANNEL_CONFIG_EXIT_REPLY,
@@ -174,30 +175,33 @@ namespace fabric
         CMD_CHANNEL_FRAME_READBACK,
         CMD_CHANNEL_FRAME_TRANSMIT_IMAGE,
         CMD_CHANNEL_FRAME_SET_READY,
+        CMD_CHANNEL_FRAME_SET_READY_NODE,
         CMD_CHANNEL_FRAME_VIEW_START,
         CMD_CHANNEL_FRAME_VIEW_FINISH,
         CMD_CHANNEL_STOP_FRAME,
         CMD_CHANNEL_FRAME_TILES,
-        CMD_CHANNEL_CUSTOM = 30 // some buffer for binary-compatible patches
+        CMD_CHANNEL_FINISH_READBACK,
+        CMD_CHANNEL_DELETE_TRANSFER_CONTEXT,
+        CMD_CHANNEL_CUSTOM = 45 // some buffer for binary-compatible patches
     };
 
     enum CanvasCommand
     {
-        CMD_CANVAS_NEW_SEGMENT = CMD_OBJECT_CUSTOM, // 11 
+        CMD_CANVAS_NEW_SEGMENT = CMD_OBJECT_CUSTOM, // 15
         CMD_CANVAS_NEW_SEGMENT_REPLY,
         CMD_CANVAS_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum LayoutCommand
     {
-        CMD_LAYOUT_NEW_VIEW = CMD_OBJECT_CUSTOM, // 11 
+        CMD_LAYOUT_NEW_VIEW = CMD_OBJECT_CUSTOM, // 15
         CMD_LAYOUT_NEW_VIEW_REPLY,
         CMD_LAYOUT_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 
     enum ViewCommand
     {
-        CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 11
+        CMD_VIEW_FREEZE_LOAD_BALANCING = CMD_OBJECT_CUSTOM, // 15
         CMD_VIEW_CUSTOM = 20 // some buffer for binary-compatible patches
     };
 /** @endcond */

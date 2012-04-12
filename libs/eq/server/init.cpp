@@ -33,7 +33,7 @@ bool init( const int argc, char** argv )
 {
     if( _initialized )
     {
-        EQERROR << "Equalizer server library already initialized" << std::endl;
+        LBERROR << "Equalizer server library already initialized" << std::endl;
         return false;
     }
     _initialized = true;
@@ -45,7 +45,7 @@ bool exit()
 {
     if( !_initialized )
     {
-        EQERROR << "Equalizer client library not initialized" << std::endl;
+        LBERROR << "Equalizer client library not initialized" << std::endl;
         return false;
     }
     _initialized = false;

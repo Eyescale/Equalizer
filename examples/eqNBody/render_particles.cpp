@@ -49,7 +49,7 @@ void _checkGLErrors(char const* s)
     GLenum error;
     while ((error = glGetError()) != GL_NO_ERROR) 
     {
-        EQERROR << s << "error - " << std::endl; // << (char *) gluErrorString(error)
+        LBERROR << s << "error - " << std::endl; // << (char *) gluErrorString(error)
         exit(EXIT_FAILURE);
     }
 }

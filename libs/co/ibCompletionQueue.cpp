@@ -99,7 +99,7 @@ ib_cq_handle_t IBCompletionQueue::_createNotifier(
                                              &cqCreate, 0, 0, &_cq );
     if( ibStatus )
     {
-        EQERROR << "Can't create CQ" << std::endl;
+        LBERROR << "Can't create CQ" << std::endl;
         ib_destroy_cq( _cq, 0 );
         return 0;
     }
@@ -123,7 +123,7 @@ ib_cq_handle_t IBCompletionQueue::_createReadBack(
                                              &cqCreate, this, 0, &_cq);
     if( ibStatus )
     {
-        EQERROR << "Can't create CQ" << std::endl;
+        LBERROR << "Can't create CQ" << std::endl;
         ib_destroy_cq( _cq, 0 );
         return 0;
     }
@@ -144,7 +144,7 @@ bool IBCompletionQueue::triggerRead() const
     const ib_api_status_t ibStatus  = ib_rearm_cq( _cqR, false );
     if( ibStatus )
     {
-        EQERROR << "Could not rearm handle read Event" << std::endl; 
+        LBERROR << "Could not rearm handle read Event" << std::endl; 
         return false;
     }
     return true;

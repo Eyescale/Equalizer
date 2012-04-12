@@ -39,24 +39,24 @@ MasterConfig::~MasterConfig()
 
 bool MasterConfig::init()
 {
-    EQASSERT( !_objects );
+    LBASSERT( !_objects );
     _objects = new ObjectMap( getClient(), *getApplication( ));
 
     co::Object* initData = getInitData();
     if( initData )
-        EQCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
+        LBCHECK( _objects->register_( initData, OBJECTTYPE_INITDATA ));
     _objects->setInitData( initData );
 
-    EQCHECK( registerObject( _objects ));
+    LBCHECK( registerObject( _objects ));
 
     if( !eq::Config::init( _objects->getID( )))
     {
-        EQWARN << "Error during initialization: " << getError() << std::endl;
+        LBWARN << "Error during initialization: " << getError() << std::endl;
         exit();
         return false;
     }
     if( getError( ))
-        EQWARN << "Error during initialization: " << getError() << std::endl;
+        LBWARN << "Error during initialization: " << getError() << std::endl;
 
     _redraw = true;
     return true;
@@ -76,9 +76,9 @@ bool MasterConfig::exit()
 
 bool MasterConfig::run( co::Object* frameData )
 {
-    EQASSERT( _objects );
+    LBASSERT( _objects );
     if( frameData )
-        EQCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
+        LBCHECK( _objects->register_( frameData, OBJECTTYPE_FRAMEDATA ));
     _objects->setFrameData( frameData );
 
     seq::Application* const app = getApplication();
@@ -86,7 +86,7 @@ bool MasterConfig::run( co::Object* frameData )
     {
         startFrame();
         if( getError( ))
-            EQWARN << "Error during frame start: " << getError() << std::endl;
+            LBWARN << "Error during frame start: " << getError() << std::endl;
         finishFrame();
 
         while( !needRedraw( )) // wait for an event requiring redraw
@@ -100,7 +100,7 @@ bool MasterConfig::run( co::Object* frameData )
             {
                 const eq::ConfigEvent* event = nextEvent();
                 if( !handleEvent( event ))
-                    EQVERB << "Unhandled " << event << std::endl;
+                    LBVERB << "Unhandled " << event << std::endl;
             }
         }
         handleEvents(); // process all pending events
@@ -128,7 +128,7 @@ public:
             View* view = static_cast< View* >( v );
             if( view->updateData( ))
             {
-                EQVERB << "Redraw: new view data" << std::endl;
+                LBVERB << "Redraw: new view data" << std::endl;
                 _redraw = true;
             }
             return eq::TRAVERSE_CONTINUE;
@@ -152,7 +152,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
           if( Config::handleEvent( event ))
           {
               _redraw = true;
-              EQVERB << "Redraw: requested by eq::Config" << std::endl;
+              LBVERB << "Redraw: requested by eq::Config" << std::endl;
           }
           // no break;
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
@@ -167,7 +167,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
           if( view->handleEvent( event ))
           {
               _redraw = true;
-              EQVERB << "Redraw: requested by view event handler" << std::endl;
+              LBVERB << "Redraw: requested by view event handler" << std::endl;
           }
           return true;
       }
@@ -188,7 +188,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
       case eq::Event::WINDOW_CLOSE:
       case eq::Event::VIEW_RESIZE:
           _redraw = true;
-          EQVERB << "Redraw: window change" << std::endl;
+          LBVERB << "Redraw: window change" << std::endl;
           break;
 
       default:
@@ -198,7 +198,7 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
     if( eq::Config::handleEvent( event ))
     {
         _redraw = true;
-        EQVERB << "Redraw: requested by config event handler" << std::endl;
+        LBVERB << "Redraw: requested by config event handler" << std::endl;
     }
     return _redraw;
 }
