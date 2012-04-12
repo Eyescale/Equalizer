@@ -599,7 +599,7 @@ bool ConnectionSet::_setupFDSet()
         {
             LBINFO << "Cannot select connection " << connection
                    << ", connection " << typeid( *connection.get( )).name() 
-                   << " does not use a file descriptor" << std::endl;
+                   << " doesn't have a file descriptor" << std::endl;
             _impl->connection = connection;
             _impl->lock.unset();
             return false;
