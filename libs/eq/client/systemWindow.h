@@ -73,7 +73,7 @@ namespace eq
          * appropriately.
          * @version 1.0
          */
-        EQ_API virtual void makeCurrent() const = 0;
+        EQ_API virtual void makeCurrent( const bool cache = true ) const = 0;
 
         /** Bind the window's FBO, if it uses an FBO drawable. @version 1.0 */
         EQ_API virtual void bindFrameBuffer() const = 0;

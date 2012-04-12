@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -39,8 +39,14 @@ namespace eq
         /** Destruct a new OpenGL window. @version 1.0 */
         EQ_API virtual ~GLWindow();
 
-        /** Bind the FBO and update the pipe's current cache. @version 1.0 */
-        EQ_API virtual void makeCurrent() const;
+        /** Bind the FBO and update the current cache. @version 1.0 */
+        EQ_API virtual void makeCurrent( const bool cache = true ) const;
+
+        /** 
+         * @return true if this window was last made current in this thread.
+         * @version 1.3.2
+         */
+        EQ_API bool isCurrent() const;
 
         /** @name Frame Buffer Object support. */
         //@{

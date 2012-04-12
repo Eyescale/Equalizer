@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -248,7 +248,7 @@ namespace wgl
         /** @name Operations. */
         //@{
         /** @version 1.0 */
-        EQ_API virtual void makeCurrent() const;
+        EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
         /** @version 1.0 */
         EQ_API virtual void swapBuffers();

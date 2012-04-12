@@ -49,8 +49,11 @@ Window::~Window( )
 {
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
+    if( cache && isCurrent( ))
+        return;
+
     LBCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     WindowIF::makeCurrent();
     if( _wglContext )
