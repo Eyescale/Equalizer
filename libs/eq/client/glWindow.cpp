@@ -33,8 +33,10 @@ namespace eq
 {
 namespace
 {
-static
-lunchbox::PerThread< const GLWindow, lunchbox::perThreadNoDelete > _current;
+static lunchbox::PerThread< const GLWindow,
+                            lunchbox::perThreadNoDelete > _current;
+template
+void lunchbox::perThreadNoDelete< const GLWindow > ( const GLWindow* object );
 }
 
 
