@@ -156,7 +156,7 @@ public:
 
     /** The registered push handlers. */
     HandlerHash pushHandlers;
-    
+
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
 };
@@ -761,7 +761,7 @@ void LocalNode::objectPush( const uint128_t& groupID,
 
     if( istream.hasData( ))
         LBWARN << "Incomplete Object::push for group " << groupID << " type "
-               << typeID << " object " << objectID << std::endl;
+               << objectType << " object " << objectID << std::endl;
 }
 
 void LocalNode::registerPushHandler( const uint128_t& groupID,

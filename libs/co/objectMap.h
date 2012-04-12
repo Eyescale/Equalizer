@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2012, Daniel Nachbaur <danielnachbaur@googlemail.com>
+ *               2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,14 +16,15 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_OBJECTREGISTRY_H
-#define CO_OBJECTREGISTRY_H
+#ifndef CO_OBJECTMAP_H
+#define CO_OBJECTMAP_H
 
 #include <co/serializable.h>      // base class
-#include <co/objectFactory.h>
 
 namespace co
 {
+namespace detail { class ObjectMap; }
+
     /** Central distributed object registry. */
     class ObjectMap : public Serializable
     {
@@ -30,11 +32,11 @@ namespace co
         /**
          * Construct a new ObjectMap.
          *
-         * @param localNode used for object registering and mapping
+         * @param handler used for object registration and mapping
          * @param factory to create & destroy slave objects
          * @version 0.5.1
          */
-        ObjectMap( LocalNodePtr localNode, ObjectFactory& factory );
+        ObjectMap( ObjectHandler& handler, ObjectFactory& factory );
 
         /**
          * Destroy an ObjectMap.
@@ -48,12 +50,12 @@ namespace co
         /**
          * Add and register a new object as master instance to this objectMap.
          *
-         * Upon registering in the localNode, this object will be remembered for
-         * serialization on the next call to commit.
+         * Upon registering using the object handler, this object will be
+         * remembered for serialization on the next call to commit.
          *
          * @param object the new object to add and register
          * @param type unique object type to create object via slave factory
-         * @return false on failed registerObject in localNode, true otherwise
+         * @return false on failed ObjectHandler::registerObject, true otherwise
          * @version 0.5.1
          */
         bool register_( Object* object, const uint32_t type );
@@ -93,36 +95,10 @@ namespace co
         };        
 
     private:
-        LocalNodePtr _localNode;
-        ObjectFactory& _factory; //!< The 'parent' user
-
-        struct Entry //!< One object map item
-        {
-            Entry() : instance( 0 ), type( OBJECTTYPE_NONE ) {}
-            Entry( const uint128_t& v, Object* i, const uint32_t t );
-
-            uint128_t version;    //!< The current version of the object
-            Object* instance; //!< The object instance, if attached
-            uint32_t type;        //!< The object class id
-        };
-
-        typedef stde::hash_map< uint128_t, Entry > Map;
-        typedef Map::iterator MapIter;
-        typedef Map::const_iterator MapCIter;
-
-        mutable lunchbox::SpinLock _mutex;
-
-        Map _map; //!< the actual map
-        Objects _masters; //!< Master objects registered with this instance
-
-        /** Added master objects since the last commit. */
-        std::vector< uint128_t > _added;
-
-        /** Changed master objects since the last commit. */
-        ObjectVersions _changed;
+        detail::ObjectMap* const _impl;
 
         /** Commit and note new master versions. */
         void _commitMasters( const uint32_t incarnation );
     };
 }
-#endif // CO_OBJECTREGISTRY_H
+#endif // CO_OBJECTMAP_H

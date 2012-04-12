@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -121,7 +121,7 @@ bool Pipe::_mapData( const uint128_t& initID )
     LBASSERT( _renderer );
 
     Config* config = getConfig();
-    _objects = new ObjectMap( config->getClient(), *_renderer );
+    _objects = new ObjectMap( *config, *_renderer );
     const uint32_t request = config->mapObjectNB( _objects, initID,
                                                   co::VERSION_OLDEST,
                                                   config->getApplicationNode());
