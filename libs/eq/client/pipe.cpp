@@ -48,18 +48,11 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
-#include <lunchbox/perThread.h>
 #include <sstream>
 
 namespace eq
 {
     typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
-
-namespace
-{
-static
-lunchbox::PerThread< const Window, lunchbox::perThreadNoDelete > _currentWindow;
-}
 
 /** @cond IGNORE */
 typedef co::CommandFunc<Pipe> PipeFunc;
@@ -478,16 +471,6 @@ void Pipe::_flushViews()
         nodeFactory->releaseView( view );
     }
     _views.clear();
-}
-
-bool Pipe::isCurrent( const Window* window ) const
-{
-    return _currentWindow == window;
-}
-
-void Pipe::setCurrent( const Window* window ) const
-{
-    _currentWindow = window;
 }
 
 void Pipe::startThread()

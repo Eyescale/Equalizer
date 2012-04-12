@@ -97,8 +97,11 @@ void Window::configExit()
     LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
+    if( cache && isCurrent( ))
+        return;
+
     aglSetCurrentContext( _aglContext );
     WindowIF::makeCurrent();
     

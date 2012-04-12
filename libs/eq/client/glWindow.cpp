@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@
 #include "pipe.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <lunchbox/perThread.h>
 
 #ifdef _WIN32
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
@@ -30,6 +31,12 @@
 
 namespace eq
 {
+namespace
+{
+static
+lunchbox::PerThread< const GLWindow, lunchbox::perThreadNoDelete > _current;
+}
+
 
 GLWindow::GLWindow( Window* parent )
     : SystemWindow( parent )
@@ -46,12 +53,22 @@ GLWindow::~GLWindow()
     bzero( _glewContext, sizeof( GLEWContext ));
 #endif
     delete _glewContext;
+    if( _current == this )
+        _current = 0;
 }
 
-void GLWindow::makeCurrent() const 
+void GLWindow::makeCurrent( const bool useCache ) const 
 {
+    if( useCache && _current == this )
+        return;
+
     bindFrameBuffer();
-    getPipe()->setCurrent( getWindow( ));
+    _current = this;
+}
+
+bool GLWindow::isCurrent() const
+{
+    return _current == this;
 }
     
 void GLWindow::initGLEW()

@@ -699,9 +699,11 @@ void Window::configExit()
     LBINFO << "Destroyed GLX context and X drawable " << std::endl;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
     LBASSERT( _xDisplay );
+    if( cache && isCurrent( ))
+        return;
 
     glXMakeCurrent( _xDisplay, _xDrawable, _glXContext );
     WindowIF::makeCurrent();

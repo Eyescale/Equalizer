@@ -132,16 +132,6 @@ namespace detail { class TransferThread; }
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
-        /** @internal @return if the window is made current */
-        bool isCurrent( const Window* window ) const;
-
-        /**
-         * @internal
-         * Set the window as current window.
-         * @sa Window::makeCurrent()
-         */
-        void setCurrent( const Window* window ) const;
-
         /** @internal @return the view for the given identifier and version. */
         const View* getView( const co::ObjectVersion& viewVersion ) const;
 
