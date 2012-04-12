@@ -181,7 +181,7 @@ public:
             if( node->isApplicationNode() && node->getPipes().front() == pipe )
             {
                 // display window has discrete 'affinity' GPU
-                if( pipe->getName() != "display" )
+                if( pipe->getName() != "display mt mp" )
                     _channels.push_back( pipe->getChannel( ChannelPath( 0 )));
                 return TRAVERSE_CONTINUE;
             }
