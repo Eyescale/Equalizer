@@ -15,6 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#define CO_WORKER_API EQ_API
 #include <co/worker.ipp>
 #include "commandQueue.h"
 

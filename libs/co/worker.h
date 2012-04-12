@@ -22,6 +22,10 @@
 #include <co/types.h>
 #include <lunchbox/thread.h>  // base class
 
+#ifndef CO_WORKER_API
+#  define CO_WORKER_API CO_API
+#endif
+
 namespace co
 {
     /** A worker thread. */
@@ -46,7 +50,7 @@ namespace co
             }
 
         /** @sa lunchbox::Thread::run() */
-        virtual void run();
+        CO_WORKER_API virtual void run();
 
         /** @return true to stop the worker thread. @version 1.1.5 */
         virtual bool stopRunning() { return false; }
