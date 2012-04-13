@@ -19,9 +19,7 @@
 #ifndef CO_RSPCONNECTION_H
 #define CO_RSPCONNECTION_H
 
-#include <co/connection.h>
-
-#ifdef CO_USE_BOOST
+#include <co/connection.h> // base class
 #include <co/connectionSet.h> // member
 #include <co/types.h>
 #include "eventConnection.h" // member
@@ -322,4 +320,3 @@ namespace co
 }
 
 #endif //CO_RSPCONNECTION_H
-#endif //CO_USE_BOOST
