@@ -41,7 +41,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/sleep.h>
 #include <lunchbox/spinLock.h>
-#include <lunchbox/types.h>   
+#include <lunchbox/types.h>
 
 namespace co
 {
@@ -63,13 +63,13 @@ namespace detail
 class ReceiverThread : public lunchbox::Thread
 {
 public:
-    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ){}
+    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ) {}
     virtual bool init()
         {
             setName( std::string("R ") + lunchbox::className(_localNode));
             return _localNode->_startCommandThread();
         }
-    virtual void run(){ _localNode->_runReceiverThread(); }
+    virtual void run() { _localNode->_runReceiverThread(); }
 
 private:
     co::LocalNode* const _localNode;
@@ -177,9 +177,9 @@ LocalNode::LocalNode( )
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_SET_AFFINITY_RCV,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0 );
     registerCommand( CMD_NODE_SET_AFFINITY_CMD,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue );
     registerCommand( CMD_NODE_CONNECT,
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
