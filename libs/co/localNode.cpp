@@ -54,7 +54,7 @@ typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
 typedef ConnectionNodeHash::iterator ConnectionNodeHashIter;
 typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
 typedef NodeHash::const_iterator NodeHashCIter;
-typedef stde::hash_map< uint128_t, LocalNode::HandlerFunc > HandlerHash;
+typedef stde::hash_map< uint128_t, LocalNode::PushHandler > HandlerHash;
 typedef HandlerHash::const_iterator HandlerHashCIter;
 }
 
@@ -155,7 +155,7 @@ public:
     lunchbox::Clock clock;
 
     /** The registered push handlers. */
-    HandlerHash pushHandlers;
+    lunchbox::Lockable< HandlerHash, lunchbox::Lock > pushHandlers;
 
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
@@ -755,8 +755,9 @@ void LocalNode::objectPush( const uint128_t& groupID,
                             const uint128_t& objectType,
                             const uint128_t& objectID, DataIStream& istream )
 {
-    HandlerHashCIter i = _impl->pushHandlers.find( groupID );
-    if( i != _impl->pushHandlers.end( ))
+    lunchbox::ScopedRead mutex( _impl->pushHandlers );
+    HandlerHashCIter i = _impl->pushHandlers->find( groupID );
+    if( i != _impl->pushHandlers->end( ))
         i->second( groupID, objectType, objectID, istream );
 
     if( istream.hasData( ))
@@ -765,9 +766,10 @@ void LocalNode::objectPush( const uint128_t& groupID,
 }
 
 void LocalNode::registerPushHandler( const uint128_t& groupID,
-                                     const HandlerFunc& handler )
+                                     const PushHandler& handler )
 {
-    _impl->pushHandlers[ groupID ] = handler;
+    lunchbox::ScopedWrite mutex( _impl->pushHandlers );
+    (*_impl->pushHandlers)[ groupID ] = handler;
 }
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )

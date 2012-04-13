@@ -18,7 +18,6 @@
 
 #include "rspConnection.h"
 
-#ifdef CO_USE_BOOST
 #include "connection.h"
 #include "connectionDescription.h"
 #include "global.h"
@@ -1615,4 +1614,3 @@ std::ostream& operator << ( std::ostream& os,
 }
 
 }
-#endif //CO_USE_BOOST

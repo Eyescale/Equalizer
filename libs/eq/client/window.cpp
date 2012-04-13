@@ -82,12 +82,6 @@ Window::~Window()
 {
     LBASSERT( getChannels().empty( ));
 
-    Pipe* pipe = getPipe();
-    LBASSERT( pipe );
-
-    if( pipe->isCurrent( this ))
-        pipe->setCurrent( 0 );
-
     delete _objectManager;
     _objectManager = 0;
 }
@@ -521,15 +515,11 @@ const GLEWContext* Window::getTransferGlewContext()
 
 void Window::makeCurrentTransfer( const bool useCache )
 {
-    if( useCache && getPipe()->isCurrent( this ))
-        return;
-
     const SystemWindow* window = getTransferSystemWindow();
     LBASSERT( window );
 
     if( window )
-        window->makeCurrent();
-    // _pipe->setCurrent done by SystemWindow::makeCurrent
+        window->makeCurrent( useCache );
 }
 
 
@@ -573,20 +563,12 @@ bool Window::configExitSystemWindow()
         delete _systemWindow;
         _systemWindow = 0;
     }
-    
-    Pipe* pipe = getPipe();
-    if( pipe->isCurrent( this ))
-        pipe->setCurrent( 0 );
-
     return true;
 }
 
 void Window::makeCurrent( const bool useCache ) const
 {
-    if( useCache && getPipe()->isCurrent( this ))
-        return;
-
-    _systemWindow->makeCurrent();
+    _systemWindow->makeCurrent( useCache );
     // _pipe->setCurrent done by SystemWindow::makeCurrent
 }
 

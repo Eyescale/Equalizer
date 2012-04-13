@@ -113,11 +113,10 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
 #endif
-#ifdef CO_USE_BOOST
         case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             break;
-#endif
+
 #ifdef CO_USE_OFED
         case CONNECTIONTYPE_RDMA:
             connection = new RDMAConnection;

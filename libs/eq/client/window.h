@@ -231,13 +231,13 @@ namespace eq
         float getFPS() const { return _avgFPS; }
 
         /**
-         * @internal
          * Make the window's drawable and context current.
          *
          * GL drivers tend to behave sub-optimally if too many makeCurrent
          * calls happen in a multi-threaded program. When caching is enabled,
          * this method will only call SystemWindow::makeCurrent if it has not
-         * been done before for this window on this pipe.
+         * been done before for this window on this thread.
+         * @version 1.3.2
          */
         EQ_API virtual void makeCurrent( const bool cache = true ) const;
 

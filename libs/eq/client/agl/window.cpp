@@ -97,8 +97,11 @@ void Window::configExit()
     LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
+    if( cache && isCurrent( ))
+        return;
+
     aglSetCurrentContext( _aglContext );
     WindowIF::makeCurrent();
     
@@ -345,7 +348,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         return 0;
     }
 
-    _initSwapSync()
+    _initSwapSync( context );
     aglSetCurrentContext( context );
 
     Global::leaveCarbon();
@@ -527,7 +530,7 @@ bool Window::configInitAGLWindow()
     return true;
 }
 
-void Window::_initSwapSync()
+void Window::_initSwapSync( AGLContext context )
 {
     if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
         return;
@@ -538,6 +541,7 @@ void Window::_initSwapSync()
 
     if( swapSync < 0 )
         swapSync = 1;
+
     aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
 }
 
