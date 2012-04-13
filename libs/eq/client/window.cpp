@@ -82,9 +82,6 @@ Window::~Window()
 {
     LBASSERT( getChannels().empty( ));
 
-    Pipe* pipe = getPipe();
-    LBASSERT( pipe );
-
     delete _objectManager;
     _objectManager = 0;
 }
