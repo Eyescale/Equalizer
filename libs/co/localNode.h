@@ -49,7 +49,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         typedef boost::function< void( const uint128_t&, //!< groupID
                                        const uint128_t&, //!< objectType
                                        const uint128_t&, //!< objectID
-                                       DataIStream& ) > HandlerFunc;
+                                       DataIStream& ) > PushHandler;
 
         /**
          * @name State Changes
@@ -292,13 +292,13 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * Register a custom handler for Object::push operations
          *
          * The registered handler function will be called automatically for an
-         * incoming object push. Not threadsafe with itself and objectPush().
+         * incoming object push. Threadsafe with itself and objectPush().
          *
          * @param groupID The group identifier given to Object::push()
          * @param handler The handler function called for a registered groupID
          */
         CO_API void registerPushHandler( const uint128_t& groupID,
-                                         const HandlerFunc& handler );
+                                         const PushHandler& handler );
 
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
