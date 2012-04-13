@@ -24,6 +24,7 @@
 #include <co/objectHandler.h>   // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <lunchbox/requestHandler.h> // base class
+#include <boost/function/function1.hpp>
 #include <boost/function/function4.hpp>
 
 namespace co
@@ -45,11 +46,14 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
 
         typedef NodePtr SendToken; //!< An acquired send token
 
-        /** Function signature for push handlers*/
+        /** Function signature for push handlers. */
         typedef boost::function< void( const uint128_t&, //!< groupID
                                        const uint128_t&, //!< objectType
                                        const uint128_t&, //!< objectID
                                        DataIStream& ) > PushHandler;
+
+        /** Function signature for custom command handlers. */
+        typedef boost::function< bool( Command& ) > CommandHandler;
 
         /**
          * @name State Changes
@@ -300,6 +304,18 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API void registerPushHandler( const uint128_t& groupID,
                                          const PushHandler& handler );
 
+        /**
+         * Register a custom command handler handled by this node.
+         *
+         * @param command the unique identifier of the custom command
+         * @param func the handler function for the custom command
+         * @param queue the queue where the command should be inserted to
+         * @return true on successful registering, false otherwise
+         */
+        CO_API bool registerCustomCommand( const uint128_t& command,
+                                           const CommandHandler& func,
+                                           CommandQueue* queue );
+
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
         CO_API void swapObject( Object* oldObject, Object* newObject );
@@ -466,6 +482,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdAddListener( Command& command );
         bool _cmdRemoveListener( Command& command );
         bool _cmdPing( Command& command );
+        bool _cmdUUIDRcv( Command& command );
+        bool _cmdUUIDCmd( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
         //@}
 
