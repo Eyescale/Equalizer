@@ -40,8 +40,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
                       public ObjectHandler
     {
     public:
-        CO_API LocalNode( );
-        CO_API virtual ~LocalNode( );
+        CO_API LocalNode();
+        CO_API virtual ~LocalNode();
 
         typedef NodePtr SendToken; //!< An acquired send token
 
@@ -50,7 +50,6 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
                                        const uint128_t&, //!< objectType
                                        const uint128_t&, //!< objectID
                                        DataIStream& ) > PushHandler;
-
         /**
          * @name State Changes
          *
@@ -242,7 +241,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
 
         /** Start mapping a distributed object. @sa mapObject() */
         CO_API uint32_t mapObjectNB( Object* object, const UUID& id,
-                                    const uint128_t& version = VERSION_OLDEST );
+                                     const uint128_t& version = VERSION_OLDEST);
 
         /**
          * Start mapping a distributed object from a known master.
@@ -409,7 +408,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          */
         CO_API bool connect( NodePtr node, ConnectionPtr connection );
 
-        /** Notify remote node disconnection */
+        /** Notify remote node disconnection from the receiver thread. */
         virtual void notifyDisconnect( NodePtr node ) { }
 
     private:
