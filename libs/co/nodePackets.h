@@ -459,7 +459,17 @@ namespace co
             command = CMD_NODE_PING_REPLY;
             size    = sizeof( NodePingReplyPacket );
         }
-     };
+    };
+
+    struct UUIDPacket : public NodePacket
+    {
+        UUIDPacket()
+        {
+            command = CMD_NODE_UUID_COMMAND_RCV;
+            size    = sizeof( UUIDPacket );
+        }
+        uint128_t custom;
+    };
 
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 

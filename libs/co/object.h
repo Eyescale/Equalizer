@@ -46,7 +46,7 @@ namespace co
             STATIC,            //!< non-versioned, static object.
             INSTANCE,          //!< use only instance data
             DELTA,             //!< use pack/unpack delta
-            UNBUFFERED,        //!< versioned, but don't retain versions
+            UNBUFFERED         //!< versioned, but don't retain versions
         };
 
         /** Construct a new distributed object. */
@@ -64,7 +64,7 @@ namespace co
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        LocalNodePtr getLocalNode(){ return _localNode; };
+        LocalNodePtr getLocalNode() { return _localNode; }
 
         /**
          * Set the object's unique identifier.

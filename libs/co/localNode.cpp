@@ -41,7 +41,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/sleep.h>
 #include <lunchbox/spinLock.h>
-#include <lunchbox/types.h>   
+#include <lunchbox/types.h>
 
 namespace co
 {
@@ -56,6 +56,8 @@ typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
 typedef NodeHash::const_iterator NodeHashCIter;
 typedef stde::hash_map< uint128_t, LocalNode::PushHandler > HandlerHash;
 typedef HandlerHash::const_iterator HandlerHashCIter;
+typedef std::pair< LocalNode::CommandHandler, CommandQueue* > CommandPair;
+typedef stde::hash_map< uint128_t, CommandPair > FunctionTable;
 }
 
 namespace detail
@@ -63,13 +65,13 @@ namespace detail
 class ReceiverThread : public lunchbox::Thread
 {
 public:
-    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ){}
+    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ) {}
     virtual bool init()
         {
             setName( std::string("R ") + lunchbox::className(_localNode));
             return _localNode->_startCommandThread();
         }
-    virtual void run(){ _localNode->_runReceiverThread(); }
+    virtual void run() { _localNode->_runReceiverThread(); }
 
 private:
     co::LocalNode* const _localNode;
@@ -159,6 +161,8 @@ public:
 
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
+
+    FunctionTable fTable;
 };
 }
 
@@ -177,9 +181,9 @@ LocalNode::LocalNode( )
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_SET_AFFINITY_RCV,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0 );
     registerCommand( CMD_NODE_SET_AFFINITY_CMD,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue );
     registerCommand( CMD_NODE_CONNECT,
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -208,6 +212,10 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdPing ), queue );
     registerCommand( CMD_NODE_PING_REPLY,
                      CmdFunc( this, &LocalNode::_cmdDiscard ), 0 );
+    registerCommand( CMD_NODE_UUID_COMMAND_RCV,
+                     CmdFunc( this, &LocalNode::_cmdUUIDRcv ), 0 );
+    registerCommand( CMD_NODE_UUID_COMMAND_CMD,
+                     CmdFunc( this, &LocalNode::_cmdUUIDCmd ), queue );
 }
 
 LocalNode::~LocalNode( )
@@ -770,6 +778,18 @@ void LocalNode::registerPushHandler( const uint128_t& groupID,
 {
     lunchbox::ScopedWrite mutex( _impl->pushHandlers );
     (*_impl->pushHandlers)[ groupID ] = handler;
+}
+
+bool LocalNode::registerCustomCommand( const uint128_t& command,
+                                       const CommandHandler& func,
+                                       CommandQueue* queue )
+{
+    if( _impl->fTable.find( command ) != _impl->fTable.end( ))
+        return false;
+
+    _impl->fTable.insert( std::make_pair( command,
+                                          std::make_pair( func, queue )));
+    return true;
 }
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
@@ -1931,6 +1951,41 @@ bool LocalNode::_cmdPing( Command& command )
     LBASSERT( inCommandThread( ));
     NodePingReplyPacket reply;
     command.getNode()->send( reply );
+    return true;
+}
+
+bool LocalNode::_cmdUUIDRcv( Command& command )
+{
+    UUIDPacket* packet = command.getModifiable< UUIDPacket >();
+
+    FunctionTable::const_iterator i = _impl->fTable.find( packet->custom );
+    if( i == _impl->fTable.end( ))
+        return false;
+
+    if( i->second.second )
+    {
+        packet->command = CMD_NODE_UUID_COMMAND_CMD;
+        dispatchCommand( command );
+        return true;
+    }
+    // else
+
+    const CommandHandler& func = i->second.first;
+    LBCHECK( func( command ));
+
+    return true;
+}
+
+bool LocalNode::_cmdUUIDCmd( Command& command )
+{
+    const UUIDPacket* packet = command.get< UUIDPacket >();
+
+    FunctionTable::const_iterator i = _impl->fTable.find( packet->custom );
+    if( i == _impl->fTable.end( ))
+        return false;
+
+    const CommandHandler& func = i->second.first;
+    LBCHECK( func( command ));
     return true;
 }
 
