@@ -36,7 +36,7 @@ namespace detail { class ObjectMap; }
          * @param factory to create & destroy slave objects
          * @version 0.5.1
          */
-        ObjectMap( ObjectHandler& handler, ObjectFactory& factory );
+        CO_API ObjectMap( ObjectHandler& handler, ObjectFactory& factory );
 
         /**
          * Destroy an ObjectMap.
@@ -45,7 +45,7 @@ namespace detail { class ObjectMap; }
          * All mapped objects will be destroyed using the object factory.
          * @version 0.5.1
          */
-        virtual ~ObjectMap();
+        CO_API virtual ~ObjectMap();
 
         /**
          * Add and register a new object as master instance to this objectMap.
@@ -58,7 +58,7 @@ namespace detail { class ObjectMap; }
          * @return false on failed ObjectHandler::registerObject, true otherwise
          * @version 0.5.1
          */
-        bool register_( Object* object, const uint32_t type );
+        CO_API bool register_( Object* object, const uint32_t type );
 
         /**
          * Map and return an object.
@@ -73,16 +73,19 @@ namespace detail { class ObjectMap; }
          * @return 0 if not registered, the valid instance otherwise
          * @version 0.5.1
          */
-        Object* get( const uint128_t& identifier, Object* instance=0 );
+        CO_API Object* get( const uint128_t& identifier, Object* instance=0 );
 
         /** Commits all registered objects. @version 0.5.1 */
-        virtual uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
+        CO_API virtual uint128_t commit( const uint32_t incarnation =
+                                         CO_COMMIT_NEXT );
 
     protected:
-        virtual bool isDirty() const;
+        CO_API virtual bool isDirty() const;
 
-        virtual void serialize( DataOStream& os, const uint64_t dirtyBits );
-        virtual void deserialize( DataIStream& is, const uint64_t dirtyBits );
+        CO_API virtual void serialize( DataOStream& os,
+                                       const uint64_t dirtyBits );
+        CO_API virtual void deserialize( DataIStream& is,
+                                         const uint64_t dirtyBits );
 
         virtual ChangeType getChangeType() const { return UNBUFFERED; }
 

@@ -16,6 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <pthread.h>
+#include <lunchbox/perThread.h>
+
 #include "glWindow.h"
 
 #include "error.h"
@@ -23,20 +26,17 @@
 #include "pipe.h"
 
 #include <eq/util/frameBufferObject.h>
-#include <lunchbox/perThread.h>
 
 #ifdef _WIN32
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-template void lunchbox::perThreadNoDelete< const eq::GLWindow > ( const eq::GLWindow* );
-
 namespace eq
 {
 namespace
 {
-static lunchbox::PerThread< const GLWindow,
-                            lunchbox::perThreadNoDelete > _current;
+lunchbox::PerThread< const GLWindow, lunchbox::perThreadNoDelete > _current;
+template void lunchbox::perThreadNoDelete< const GLWindow >( const GLWindow* );
 }
 
 
