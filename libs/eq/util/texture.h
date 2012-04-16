@@ -49,7 +49,7 @@ namespace util
          * @version 1.0
          */
         EQ_API Texture( const GLenum target,
-                           const GLEWContext* const glewContext = 0 );
+                        const GLEWContext* const glewContext = 0 );
 
         /** Destruct the texture. @version 1.0 */
         EQ_API virtual ~Texture();
@@ -137,7 +137,7 @@ namespace util
          * @version 1.0
          */
         EQ_API void copyFromFrameBuffer( const GLuint internalFormat,
-                                            const fabric::PixelViewport& pvp );
+                                         const fabric::PixelViewport& pvp );
 
         /** Copy the specified buffer to the texture at 0,0. @version 1.0 */
         EQ_API void upload( const int32_t width, const int32_t height,
