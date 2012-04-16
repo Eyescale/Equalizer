@@ -188,7 +188,8 @@ namespace
 class ActivateLayoutVisitor : public ConfigVisitor
 {
 public:
-    ActivateLayoutVisitor( const Strings& layouts ) : _names( layouts ) {}
+    ActivateLayoutVisitor( const Strings& layouts )
+            : _names( layouts ), _update( false ) {}
 
     virtual VisitorResult visitPre( Canvas* canvas )
         {
@@ -200,15 +201,21 @@ public:
                 for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
                 {
                     const Layout* layout = *j;
-                    if( layout->getName() == name )
-                        canvas->useLayout( j - layouts.begin( ));
+                    if( layout->getName() == name &&
+                        canvas->useLayout( j - layouts.begin( )))
+                    {
+                        _update = true;
+                    }
                 }
             }
             return TRAVERSE_CONTINUE;
         }
 
+    bool needsUpdate() const { return _update; }
+
 private:
     const Strings& _names;
+    bool _update;
 };
 }
 
@@ -222,7 +229,8 @@ bool Config::init( const uint128_t& initID )
 
     ClientPtr client = getClient();
     ActivateLayoutVisitor activate( client->getActiveLayouts( ));
-    accept( activate );
+    if( activate.needsUpdate( ))
+        update();
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
