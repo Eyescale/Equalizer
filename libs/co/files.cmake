@@ -33,6 +33,7 @@ set(CO_PUBLIC_HEADERS
     localNode.h
     log.h
     node.h
+    nodePackets.h
     nodeType.h
     object.h
     objectFactory.h
@@ -62,7 +63,6 @@ set(CO_HEADERS
     eventConnection.h
     fullMasterCM.h
     masterCM.h
-    nodePackets.h
     nullCM.h
     objectCM.h
     objectDataIStream.h

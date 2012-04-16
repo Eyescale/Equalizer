@@ -41,7 +41,7 @@
 #include <lunchbox/scopedMutex.h>
 #include <lunchbox/sleep.h>
 #include <lunchbox/spinLock.h>
-#include <lunchbox/types.h>   
+#include <lunchbox/types.h>
 
 namespace co
 {
@@ -56,6 +56,9 @@ typedef stde::hash_map< uint128_t, NodePtr > NodeHash;
 typedef NodeHash::const_iterator NodeHashCIter;
 typedef stde::hash_map< uint128_t, LocalNode::PushHandler > HandlerHash;
 typedef HandlerHash::const_iterator HandlerHashCIter;
+typedef std::pair< LocalNode::CommandHandler, CommandQueue* > CommandPair;
+typedef stde::hash_map< uint128_t, CommandPair > CommandHash;
+typedef CommandHash::const_iterator CommandHashCIter;
 }
 
 namespace detail
@@ -63,13 +66,13 @@ namespace detail
 class ReceiverThread : public lunchbox::Thread
 {
 public:
-    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ){}
+    ReceiverThread( co::LocalNode* localNode ) : _localNode( localNode ) {}
     virtual bool init()
         {
             setName( std::string("R ") + lunchbox::className(_localNode));
             return _localNode->_startCommandThread();
         }
-    virtual void run(){ _localNode->_runReceiverThread(); }
+    virtual void run() { _localNode->_runReceiverThread(); }
 
 private:
     co::LocalNode* const _localNode;
@@ -157,6 +160,9 @@ public:
     /** The registered push handlers. */
     lunchbox::Lockable< HandlerHash, lunchbox::Lock > pushHandlers;
 
+    /** The registered custom command handlers. */
+    lunchbox::Lockable< CommandHash, lunchbox::SpinLock > customHandlers;
+
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
 };
@@ -177,9 +183,9 @@ LocalNode::LocalNode( )
     registerCommand( CMD_NODE_STOP_CMD,
                      CmdFunc( this, &LocalNode::_cmdStopCmd ), queue );
     registerCommand( CMD_NODE_SET_AFFINITY_RCV,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), 0 );
     registerCommand( CMD_NODE_SET_AFFINITY_CMD,
-                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue);
+                     CmdFunc( this, &LocalNode::_cmdSetAffinity ), queue );
     registerCommand( CMD_NODE_CONNECT,
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
@@ -208,6 +214,8 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdPing ), queue );
     registerCommand( CMD_NODE_PING_REPLY,
                      CmdFunc( this, &LocalNode::_cmdDiscard ), 0 );
+    registerCommand( CMD_NODE_UUID_COMMAND,
+                     CmdFunc( this, &LocalNode::_cmdUUID ), 0 );
 }
 
 LocalNode::~LocalNode( )
@@ -770,6 +778,23 @@ void LocalNode::registerPushHandler( const uint128_t& groupID,
 {
     lunchbox::ScopedWrite mutex( _impl->pushHandlers );
     (*_impl->pushHandlers)[ groupID ] = handler;
+}
+
+bool LocalNode::registerCustomCommand( const uint128_t& command,
+                                       const CommandHandler& func,
+                                       CommandQueue* queue )
+{
+    lunchbox::ScopedFastWrite mutex( _impl->customHandlers );
+    if( _impl->customHandlers->find( command ) != _impl->customHandlers->end( ))
+    {
+        LBWARN << "Already got a registered handler for custom command "
+               << command << std::endl;
+        return false;
+    }
+
+    _impl->customHandlers->insert( std::make_pair( command,
+                                                std::make_pair( func, queue )));
+    return true;
 }
 
 LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
@@ -1931,6 +1956,41 @@ bool LocalNode::_cmdPing( Command& command )
     LBASSERT( inCommandThread( ));
     NodePingReplyPacket reply;
     command.getNode()->send( reply );
+    return true;
+}
+
+bool LocalNode::_cmdUUID( Command& command )
+{
+    const UUIDPacket* packet = command.get< UUIDPacket >();
+
+    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
+    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
+    if( i == _impl->customHandlers->end( ))
+        return false;
+
+    CommandQueue* queue = i->second.second;
+    if( queue )
+    {
+        command.setDispatchFunction( CmdFunc( this, &LocalNode::_cmdUUIDAsync));
+        queue->push( command );
+        return true;
+    }
+    // else
+
+    const CommandHandler& func = i->second.first;
+    LBCHECK( func( command ));
+    return true;
+}
+
+bool LocalNode::_cmdUUIDAsync( Command& command )
+{
+    const UUIDPacket* packet = command.get< UUIDPacket >();
+
+    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
+    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
+    LBASSERT( i != _impl->customHandlers->end( ));
+    const CommandHandler& func = i->second.first;
+    LBCHECK( func( command ));
     return true;
 }
 
