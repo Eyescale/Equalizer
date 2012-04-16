@@ -40,6 +40,9 @@ struct Entry //!< One object map item
 typedef stde::hash_map< uint128_t, Entry > Map;
 typedef Map::iterator MapIter;
 typedef Map::const_iterator MapCIter;
+typedef std::vector< uint128_t > IDVector;
+typedef IDVector::iterator IDVectorIter;
+typedef IDVector::const_iterator IDVectorCIter;
 }
 
 namespace detail
@@ -81,7 +84,7 @@ public:
     Objects masters; //!< Master objects registered with this instance
 
     /** Added master objects since the last commit. */
-    std::vector< uint128_t > added;
+    IDVector added;
 
     /** Changed master objects since the last commit. */
     ObjectVersions changed;
@@ -144,6 +147,8 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
     lunchbox::ScopedFastWrite mutex( _impl->mutex );
     if( dirtyBits == DIRTY_ALL )
     {
+        _impl->added.clear();
+        _impl->changed.clear();
         for( MapCIter i = _impl->map.begin(); i != _impl->map.end(); ++i )
             os << i->first << i->second.version << i->second.type;
         os << ObjectVersion::NONE;
@@ -153,8 +158,7 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_ADDED )
     {
         os << _impl->added;
-        for( std::vector< uint128_t >::const_iterator i = _impl->added.begin();
-             i != _impl->added.end(); ++i )
+        for( IDVectorCIter i = _impl->added.begin(); i != _impl->added.end(); ++i )
         {
             const Entry& entry = _impl->map[ *i ];
             os << entry.version << entry.type;
@@ -190,7 +194,7 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & DIRTY_ADDED )
     {
-        std::vector< uint128_t > added;
+        IDVector added;
         is >> added;
 
         for( std::vector< uint128_t >::const_iterator i = added.begin();
