@@ -76,6 +76,7 @@ if(Equalizer_FIND_REQUIRED)
 endif()
 if(Equalizer_FIND_VERSION)
   # Matching Collage versions
+  set(_eq_coVersion_1.2.1 "0.4.8")
   set(_eq_coVersion_1.2.0 "0.4.8")
   set(_eq_coVersion_1.1.7 "0.4.7")
   set(_eq_coVersion_1.1.6 "0.4.1")
