@@ -1965,7 +1965,7 @@ bool LocalNode::_cmdCommand( Command& command )
     CommandHandler func;
     {
         lunchbox::ScopedFastRead mutex( _impl->commandHandlers );
-        CommandHashCIter i = _impl->commandHandlers->find( packet->custom );
+        CommandHashCIter i = _impl->commandHandlers->find( packet->commandID );
         if( i == _impl->commandHandlers->end( ))
             return false;
 
@@ -1991,7 +1991,7 @@ bool LocalNode::_cmdCommandAsync( Command& command )
     CommandHandler func;
     {
         lunchbox::ScopedFastRead mutex( _impl->commandHandlers );
-        CommandHashCIter i = _impl->commandHandlers->find( packet->custom );
+        CommandHashCIter i = _impl->commandHandlers->find( packet->commandID );
         LBASSERT( i != _impl->commandHandlers->end( ));
         if( i ==  _impl->commandHandlers->end( ))
             return true; // deregistered between dispatch and now

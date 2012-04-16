@@ -71,7 +71,7 @@ namespace co
             command = CMD_NODE_COMMAND;
             size    = sizeof( NodeCommandPacket );
         }
-        uint128_t custom;
+        uint128_t commandID;
     };
 
     /** Packet sent to and handled by an co::Object. */
