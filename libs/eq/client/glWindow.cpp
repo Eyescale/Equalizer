@@ -17,8 +17,6 @@
  */
 
 #include <pthread.h>
-#include <lunchbox/perThread.h>
-
 #include "glWindow.h"
 
 #include "error.h"
@@ -26,11 +24,11 @@
 #include "pipe.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <lunchbox/perThread.h>
 
 #ifdef _WIN32
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
-
 
 template void lunchbox::perThreadNoDelete< const eq::GLWindow >( const eq::GLWindow* );
 
