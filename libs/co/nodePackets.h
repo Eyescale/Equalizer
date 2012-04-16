@@ -465,7 +465,7 @@ namespace co
     {
         UUIDPacket()
         {
-            command = CMD_NODE_UUID_COMMAND_RCV;
+            command = CMD_NODE_UUID_COMMAND;
             size    = sizeof( UUIDPacket );
         }
         uint128_t custom;

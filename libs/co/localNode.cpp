@@ -57,7 +57,8 @@ typedef NodeHash::const_iterator NodeHashCIter;
 typedef stde::hash_map< uint128_t, LocalNode::PushHandler > HandlerHash;
 typedef HandlerHash::const_iterator HandlerHashCIter;
 typedef std::pair< LocalNode::CommandHandler, CommandQueue* > CommandPair;
-typedef stde::hash_map< uint128_t, CommandPair > FunctionTable;
+typedef stde::hash_map< uint128_t, CommandPair > CommandHash;
+typedef CommandHash::const_iterator CommandHashCIter;
 }
 
 namespace detail
@@ -159,10 +160,11 @@ public:
     /** The registered push handlers. */
     lunchbox::Lockable< HandlerHash, lunchbox::Lock > pushHandlers;
 
+    /** The registered custom command handlers. */
+    lunchbox::Lockable< CommandHash, lunchbox::SpinLock > customHandlers;
+
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
-
-    FunctionTable fTable;
 };
 }
 
@@ -212,10 +214,8 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdPing ), queue );
     registerCommand( CMD_NODE_PING_REPLY,
                      CmdFunc( this, &LocalNode::_cmdDiscard ), 0 );
-    registerCommand( CMD_NODE_UUID_COMMAND_RCV,
-                     CmdFunc( this, &LocalNode::_cmdUUIDRcv ), 0 );
-    registerCommand( CMD_NODE_UUID_COMMAND_CMD,
-                     CmdFunc( this, &LocalNode::_cmdUUIDCmd ), queue );
+    registerCommand( CMD_NODE_UUID_COMMAND,
+                     CmdFunc( this, &LocalNode::_cmdUUID ), 0 );
 }
 
 LocalNode::~LocalNode( )
@@ -784,11 +784,16 @@ bool LocalNode::registerCustomCommand( const uint128_t& command,
                                        const CommandHandler& func,
                                        CommandQueue* queue )
 {
-    if( _impl->fTable.find( command ) != _impl->fTable.end( ))
+    lunchbox::ScopedFastWrite mutex( _impl->customHandlers );
+    if( _impl->customHandlers->find( command ) != _impl->customHandlers->end( ))
+    {
+        LBWARN << "Already got a registered handler for custom command "
+               << command << std::endl;
         return false;
+    }
 
-    _impl->fTable.insert( std::make_pair( command,
-                                          std::make_pair( func, queue )));
+    _impl->customHandlers->insert( std::make_pair( command,
+                                                std::make_pair( func, queue )));
     return true;
 }
 
@@ -1954,36 +1959,36 @@ bool LocalNode::_cmdPing( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdUUIDRcv( Command& command )
+bool LocalNode::_cmdUUID( Command& command )
 {
-    UUIDPacket* packet = command.getModifiable< UUIDPacket >();
+    const UUIDPacket* packet = command.get< UUIDPacket >();
 
-    FunctionTable::const_iterator i = _impl->fTable.find( packet->custom );
-    if( i == _impl->fTable.end( ))
+    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
+    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
+    if( i == _impl->customHandlers->end( ))
         return false;
 
-    if( i->second.second )
+    CommandQueue* queue = i->second.second;
+    if( queue )
     {
-        packet->command = CMD_NODE_UUID_COMMAND_CMD;
-        dispatchCommand( command );
+        command.setDispatchFunction( CmdFunc( this, &LocalNode::_cmdUUIDAsync));
+        queue->push( command );
         return true;
     }
     // else
 
     const CommandHandler& func = i->second.first;
     LBCHECK( func( command ));
-
     return true;
 }
 
-bool LocalNode::_cmdUUIDCmd( Command& command )
+bool LocalNode::_cmdUUIDAsync( Command& command )
 {
     const UUIDPacket* packet = command.get< UUIDPacket >();
 
-    FunctionTable::const_iterator i = _impl->fTable.find( packet->custom );
-    if( i == _impl->fTable.end( ))
-        return false;
-
+    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
+    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
+    LBASSERT( i != _impl->customHandlers->end( ));
     const CommandHandler& func = i->second.first;
     LBCHECK( func( command ));
     return true;

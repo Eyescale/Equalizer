@@ -60,8 +60,7 @@ namespace co
         CMD_NODE_OBJECT_PUSH,
         CMD_NODE_PING,
         CMD_NODE_PING_REPLY,
-        CMD_NODE_UUID_COMMAND_RCV,
-        CMD_NODE_UUID_COMMAND_CMD,
+        CMD_NODE_UUID_COMMAND,
         CMD_NODE_CUSTOM = 40  // some buffer for binary-compatible patches
     };
 

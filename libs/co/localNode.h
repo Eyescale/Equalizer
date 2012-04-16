@@ -482,8 +482,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdAddListener( Command& command );
         bool _cmdRemoveListener( Command& command );
         bool _cmdPing( Command& command );
-        bool _cmdUUIDRcv( Command& command );
-        bool _cmdUUIDCmd( Command& command );
+        bool _cmdUUID( Command& command );
+        bool _cmdUUIDAsync( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
         //@}
 
