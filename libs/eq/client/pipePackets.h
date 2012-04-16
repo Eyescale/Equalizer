@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -143,6 +143,15 @@ namespace eq
             {
                 command = fabric::CMD_PIPE_EXIT_THREAD;
                 size    = sizeof( PipeExitThreadPacket );
+            }
+    };
+
+    struct PipeExitTransferThreadPacket : public PipePacket
+    {
+        PipeExitTransferThreadPacket()
+            {
+                command = fabric::CMD_PIPE_EXIT_TRANSFER_THREAD;
+                size    = sizeof( PipeExitTransferThreadPacket );
             }
     };
 

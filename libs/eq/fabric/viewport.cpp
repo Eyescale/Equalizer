@@ -33,7 +33,7 @@ void Viewport::applyView( const Viewport& segmentVP, const Viewport& viewVP,
     contribution.transform( viewVP );
         
     // extend by overdraw percentage
-    EQASSERT( pvp.hasArea( ));
+    LBASSERT( pvp.hasArea( ));
 
     const float xDelta(( static_cast< float >( overdraw.x() + pvp.w ) /
                          static_cast< float >( pvp.w ) - 1.0f ) * 

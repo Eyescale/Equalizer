@@ -40,7 +40,7 @@ namespace co
  */
 inline void gatherConnections( const Nodes& nodes, Connections& result )
 {
-    EQASSERT( result.empty( ));
+    LBASSERT( result.empty( ));
     typedef stde::hash_map< ConnectionDescriptionPtr, NodePtr,
                             lunchbox::hashRefPtr< ConnectionDescription > > MCNodes;
     MCNodes mcNodes; // first node using a multicast connection
@@ -73,7 +73,7 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
         else
             connection = node->getConnection();
 
-        EQASSERT( connection.isValid( ));
+        LBASSERT( connection.isValid( ));
         if( connection.isValid( ))
             result.push_back( connection );
     }
@@ -82,7 +82,7 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
     for( MCNodes::const_iterator i = mcNodes.begin(); i != mcNodes.end(); ++i )
     {
         ConnectionPtr connection = i->second->getConnection();
-        EQASSERT( connection.isValid( ));
+        LBASSERT( connection.isValid( ));
 
         if( connection.isValid( ))
             result.push_back( connection );

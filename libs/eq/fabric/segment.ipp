@@ -38,15 +38,15 @@ Segment< C, S, CH >::Segment( C* canvas )
         , _eyes( EYES_ALL )
         , _swapBarrier( canvas->getSwapBarrier( ))
 {
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }
@@ -93,7 +93,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         Frustum::deserialize( is );
     if( dirtyBits & DIRTY_CHANNEL )
     {
-        EQASSERT( _canvas->_mapViewObjects( ))
+        LBASSERT( _canvas->_mapViewObjects( ))
 
         co::ObjectVersion ov;
         is >> ov;
@@ -102,7 +102,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         if( ov.identifier != UUID::ZERO )
         {
             _canvas->getConfig()->find( ov.identifier, &_channel );
-            EQASSERT( !isMaster() || _channel );
+            LBASSERT( !isMaster() || _channel );
         }
     }
     if( dirtyBits & DIRTY_EYES )
@@ -197,7 +197,7 @@ void Segment< C, S, CH >::notifyFrustumChanged()
             break;
         }
         default: 
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case TYPE_NONE:
             break; 
     }

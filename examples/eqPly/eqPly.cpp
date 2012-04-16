@@ -86,7 +86,7 @@ int EqPly::run()
     eq::ServerPtr server = new eq::Server;
     if( !connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -96,7 +96,7 @@ int EqPly::run()
 
     if( !config )
     {
-        EQERROR << "No matching config on server" << std::endl;
+        LBERROR << "No matching config on server" << std::endl;
         disconnectServer( server );
         return EXIT_FAILURE;
     }
@@ -107,17 +107,17 @@ int EqPly::run()
     config->setInitData( _initData );
     if( !config->init( ))
     {
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
         server->releaseConfig( config );
         disconnectServer( server );
         return EXIT_FAILURE;
     }
     if( config->getError( ))
-        EQWARN << "Error during initialization: " << config->getError()
+        LBWARN << "Error during initialization: " << config->getError()
                << std::endl;
 
-    EQLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
+    LBLOG( LOG_STATS ) << "Config init took " << clock.getTimef() << " ms"
                        << std::endl;
 
     // 4. run main loop
@@ -129,7 +129,7 @@ int EqPly::run()
     {
         config->startFrame();
         if( config->getError( ))
-            EQWARN << "Error during frame start: " << config->getError()
+            LBWARN << "Error during frame start: " << config->getError()
                    << std::endl;
         config->finishFrame();
 
@@ -139,7 +139,7 @@ int EqPly::run()
             const size_t nFrames = config->getFinishedFrame() - lastFrame;
             lastFrame = config->getFinishedFrame();
 
-            EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+            LBLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                                << ( nFrames / time * 1000.f) << " FPS)"
                                << std::endl;
         }
@@ -155,7 +155,7 @@ int EqPly::run()
             {
                 const eq::ConfigEvent* event = config->nextEvent();
                 if( !config->handleEvent( event ))
-                    EQVERB << "Unhandled " << event << std::endl;
+                    LBVERB << "Unhandled " << event << std::endl;
             }
         }
         config->handleEvents(); // process all pending events
@@ -163,18 +163,18 @@ int EqPly::run()
     const uint32_t frame = config->finishAllFrames();
     const float time = clock.resetTimef();
     const size_t nFrames = frame - lastFrame;
-    EQLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
+    LBLOG( LOG_STATS ) << time << " ms for " << nFrames << " frames @ "
                        << ( nFrames / time * 1000.f) << " FPS)" << std::endl;
 
     // 5. exit config
     clock.reset();
     config->exit();
-    EQLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
+    LBLOG( LOG_STATS ) << "Exit took " << clock.getTimef() << " ms" <<std::endl;
 
     // 6. cleanup and exit
     server->releaseConfig( config );
     if( !disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
 
     return EXIT_SUCCESS;
 }
@@ -184,7 +184,7 @@ void EqPly::clientLoop()
     do
     {
          eq::Client::clientLoop();
-         EQINFO << "Configuration run successfully executed" << std::endl;
+         LBINFO << "Configuration run successfully executed" << std::endl;
     }
     while( _initData.isResident( )); // execute at lease one config run
 }

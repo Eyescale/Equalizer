@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
-                      2010, Maxim Makhinya
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -233,7 +233,7 @@ namespace agl
         /** @name Operations. */
         //@{
         /** @version 1.0 */
-        EQ_API virtual void makeCurrent() const;
+        EQ_API virtual void makeCurrent( const bool cache = true ) const;
 
         /** @version 1.0 */
         EQ_API virtual void swapBuffers();
@@ -264,6 +264,8 @@ namespace agl
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
+
+        void _initSwapSync( AGLContext context );
     };
 }
 }

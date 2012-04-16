@@ -50,6 +50,8 @@ class Global;
 class LocalNode;
 class Node;
 class Object;
+class ObjectFactory;
+class ObjectHandler;
 class ObjectDataIStream;
 class Plugin;        //!< @internal
 class PluginRegistry;

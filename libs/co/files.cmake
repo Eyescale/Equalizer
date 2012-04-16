@@ -35,6 +35,9 @@ set(CO_PUBLIC_HEADERS
     node.h
     nodeType.h
     object.h
+    objectFactory.h
+    objectHandler.h
+    objectMap.h
     objectVersion.h
     packets.h
     pluginRegistry.h
@@ -110,6 +113,7 @@ set(CO_SOURCES
     objectInstanceDataOStream.cpp
     objectSlaveDataOStream.cpp
     objectStore.cpp
+    objectMap.cpp
     objectVersion.cpp
     packets.cpp
     pgmConnection.cpp

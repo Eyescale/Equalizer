@@ -26,7 +26,7 @@ int main( const int argc, char** argv )
     // 1. Equalizer admin initialization
     if( !eq::admin::init( argc, argv ))
     {
-        EQERROR << "Initialization of Equalizer administrative library failed"
+        LBERROR << "Initialization of Equalizer administrative library failed"
                 << std::endl;
         return EXIT_FAILURE;
     }
@@ -35,7 +35,7 @@ int main( const int argc, char** argv )
     eq::admin::ClientPtr client = new eq::admin::Client;
     if( !client->initLocal( argc, argv ))
     {
-        EQERROR << "Can't init client" << std::endl;
+        LBERROR << "Can't init client" << std::endl;
         eq::admin::exit();
         return EXIT_FAILURE;
     }
@@ -44,7 +44,7 @@ int main( const int argc, char** argv )
     eq::admin::ServerPtr server = new eq::admin::Server;
     if( !client->connectServer( server ))
     {
-        EQERROR << "Can't open server" << std::endl;
+        LBERROR << "Can't open server" << std::endl;
         eq::admin::exit();
         return EXIT_FAILURE;
     }
@@ -53,11 +53,11 @@ int main( const int argc, char** argv )
 
     // 4. cleanup and exit
     if( !client->disconnectServer( server ))
-        EQERROR << "Client::disconnectServer failed" << std::endl;
+        LBERROR << "Client::disconnectServer failed" << std::endl;
 
     client->exitLocal();
 
-    // TODO EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    // TODO LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
     client = 0;
     eq::admin::exit();
     return EXIT_SUCCESS;

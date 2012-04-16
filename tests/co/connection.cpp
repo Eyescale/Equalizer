@@ -31,9 +31,7 @@ static co::ConnectionType types[] =
 {
     co::CONNECTIONTYPE_TCPIP,
     co::CONNECTIONTYPE_PIPE,
-#ifdef CO_USE_BOOST
     co::CONNECTIONTYPE_RSP,
-#endif
 #ifdef WIN32
     co::CONNECTIONTYPE_NAMEDPIPE,
 #endif

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
                       2009, Makhinya Maxim
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -23,13 +23,22 @@
 #include "pipe.h"
 
 #include <eq/util/frameBufferObject.h>
+#include <lunchbox/perThread.h>
 
 #ifdef _WIN32
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
+template void lunchbox::perThreadNoDelete< const eq::GLWindow > ( const eq::GLWindow* );
+
 namespace eq
 {
+namespace
+{
+static lunchbox::PerThread< const GLWindow,
+                            lunchbox::perThreadNoDelete > _current;
+}
+
 
 GLWindow::GLWindow( Window* parent )
     : SystemWindow( parent )
@@ -46,12 +55,22 @@ GLWindow::~GLWindow()
     bzero( _glewContext, sizeof( GLEWContext ));
 #endif
     delete _glewContext;
+    if( _current == this )
+        _current = 0;
 }
 
-void GLWindow::makeCurrent() const 
+void GLWindow::makeCurrent( const bool useCache ) const 
 {
+    if( useCache && _current == this )
+        return;
+
     bindFrameBuffer();
-    getPipe()->setCurrent( getWindow( ));
+    _current = this;
+}
+
+bool GLWindow::isCurrent() const
+{
+    return _current == this;
 }
     
 void GLWindow::initGLEW()
@@ -61,7 +80,7 @@ void GLWindow::initGLEW()
 
     const GLenum result = glewInit();
     if( result != GLEW_OK )
-        EQWARN << "GLEW initialization failed: " << std::endl;
+        LBWARN << "GLEW initialization failed: " << std::endl;
     else
         _glewInitialized = true;
 }
@@ -140,7 +159,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     const char* glVersion = (const char*)glGetString( GL_VERSION );
     if( !glVersion ) // most likely no context - fail
     {
-        EQWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
+        LBWARN << "glGetString(GL_VERSION) returned 0, assuming GL version 1.1" 
                << std::endl;
         drawableConfig.glVersion = 1.1f;
     }
@@ -171,7 +190,7 @@ void GLWindow::queryDrawableConfig( DrawableConfig& drawableConfig )
     glGetIntegerv( GL_ACCUM_RED_BITS, &accumBits );
     drawableConfig.accumBits = accumBits * 4;
         
-    EQINFO << "Window drawable config: " << drawableConfig << std::endl;
+    LBINFO << "Window drawable config: " << drawableConfig << std::endl;
 }
     
 }

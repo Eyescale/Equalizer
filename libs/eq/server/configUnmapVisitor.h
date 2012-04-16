@@ -87,9 +87,9 @@ private:
                 return;
 
             net::Session* session = object->getSession();
-            EQASSERT( session );
+            LBASSERT( session );
 
-            EQASSERT( object->isMaster( ));
+            LBASSERT( object->isMaster( ));
             session->releaseObject( object );
         }
 

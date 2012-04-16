@@ -42,7 +42,7 @@ namespace tiles
 
             while( tiles.size() < nTiles )
             {
-                EQASSERT ( (yStep == 0 && xStep != 0) ||
+                LBASSERT ( (yStep == 0 && xStep != 0) ||
                            (yStep != 0 && xStep == 0) );
 
                 if( x>=0 && x<dimX && y>=0 && y<dimY )

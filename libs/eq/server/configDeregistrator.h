@@ -93,10 +93,10 @@ namespace server
     private:
         void _deregister( co::Object* object )
             {
-                EQASSERT( object->isAttached( ));
+                LBASSERT( object->isAttached( ));
                 if( !object->isAttached( ))
                     return;
-                EQASSERT( object->isMaster( ));
+                LBASSERT( object->isMaster( ));
 
                 object->sync();
                 co::LocalNodePtr node = object->getLocalNode();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -51,6 +51,8 @@ static StatisticData _statisticData[] =
    "wait frame",   Vector3f( 1.0f, 0.f, 0.f ) }, 
  { Statistic::CHANNEL_READBACK,
    "readback",     Vector3f( 1.0f, .5f, .5f ) }, 
+ { Statistic::CHANNEL_ASYNC_READBACK,
+   "readback",     Vector3f( 1.0f, .5f, .5f ) }, 
  { Statistic::CHANNEL_VIEW_FINISH,
    "view finish",  Vector3f( 1.f, 0.f, 1.0f ) }, 
  { Statistic::CHANNEL_FRAME_TRANSMIT,
@@ -85,13 +87,13 @@ static StatisticData _statisticData[] =
 
 const std::string& Statistic::getName( const Type type )
 {
-    EQASSERTINFO( _statisticData[ type ].type == type, int( type ));
+    LBASSERTINFO( _statisticData[ type ].type == type, int( type ));
     return _statisticData[ type ].name;
 }
 
 const Vector3f& Statistic::getColor( const Type type )
 {
-    EQASSERTINFO( _statisticData[ type ].type == type, type );
+    LBASSERTINFO( _statisticData[ type ].type == type, type );
     return _statisticData[ type ].color;
 }
 

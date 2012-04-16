@@ -68,7 +68,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         if( _outputTileQueues.find( name ) != _outputTileQueues.end())
         {
-            EQWARN << "Multiple output queues of the same name are unsupported"
+            LBWARN << "Multiple output queues of the same name are unsupported"
                 << ", ignoring output queue " << name << std::endl;
             queue->unsetData();
             continue;
@@ -100,7 +100,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
 
         if( _outputFrames.find( name ) != _outputFrames.end())
         {
-            EQWARN << "Multiple output frames of the same name are unsupported"
+            LBWARN << "Multiple output frames of the same name are unsupported"
                    << ", ignoring output frame " << name << std::endl;
             frame->unsetData();
             continue;
@@ -114,7 +114,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         
         if( !framePVP.hasArea( )) // output frame has no pixels
         {
-            EQINFO << "Skipping output frame " << name << ", no pixels"
+            LBINFO << "Skipping output frame " << name << ", no pixels"
                    << std::endl;
             frame->unsetData();
             continue;
@@ -125,9 +125,9 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //      data is set only on master frame data (will copy to all others)
         frame->cycleData( _frameNumber, compound );
         FrameData* frameData = frame->getMasterData();
-        EQASSERT( frameData );
+        LBASSERT( frameData );
 
-        EQLOG( LOG_ASSEMBLY )
+        LBLOG( LOG_ASSEMBLY )
             << lunchbox::disableFlush << "Output frame \"" << name << "\" id " 
             << frame->getID() << " v" << frame->getVersion()+1
             << " data id " << frameData->getID() << " v" 
@@ -177,7 +177,7 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         frame->commitData();
         
         _outputFrames[name] = frame;
-        EQLOG( LOG_ASSEMBLY ) 
+        LBLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
             << framePVP << " readback " << frame->getInheritZoom()
             << " assemble " << frameData->getZoom() << std::endl
@@ -260,7 +260,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
     {
         zoom_1 = compound->getInheritZoom();
-        EQASSERT( zoom_1.isValid( ));
+        LBASSERT( zoom_1.isValid( ));
         zoom.x() = 1.0f / zoom_1.x();
         zoom.y() = 1.0f / zoom_1.y();
     }
@@ -305,7 +305,7 @@ void CompoundUpdateOutputVisitor::_updateSwapBarriers( Compound* compound )
         return;
 
     Window* window = compound->getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     if( !window )
         return;
 

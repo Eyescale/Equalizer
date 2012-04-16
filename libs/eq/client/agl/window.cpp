@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
-                      2010, Maxim Makhinya
+ *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -44,8 +44,8 @@ Window::Window( eq::Window* parent, CGDirectDisplayID displayID )
     if( displayID == kCGNullDirectDisplay )
     {
         const eq::Pipe* pipe = getPipe();
-        EQASSERT( pipe );
-        EQASSERT( pipe->getSystemPipe( ));
+        LBASSERT( pipe );
+        LBASSERT( pipe->getSystemPipe( ));
 
         const Pipe* aglPipe = dynamic_cast<const Pipe*>( pipe->getSystemPipe());
         if( aglPipe )
@@ -69,7 +69,7 @@ void Window::configExit()
 
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
     {
-        EQASSERT( !window );
+        LBASSERT( !window );
         exitEventHandler();
     }
     else if( window )
@@ -94,11 +94,14 @@ void Window::configExit()
         setAGLContext( 0 );
     }
     
-    EQVERB << "Destroyed AGL window and context" << std::endl;
+    LBVERB << "Destroyed AGL window and context" << std::endl;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
+    if( cache && isCurrent( ))
+        return;
+
     aglSetCurrentContext( _aglContext );
     WindowIF::makeCurrent();
     
@@ -115,7 +118,7 @@ void Window::swapBuffers()
 
 void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 {
-    EQWARN << "NV_swap_group not supported on AGL" << std::endl;
+    LBWARN << "NV_swap_group not supported on AGL" << std::endl;
 }
 
 bool Window::processEvent( const WindowEvent& event )
@@ -294,7 +297,7 @@ AGLPixelFormat Window::chooseAGLPixelFormat()
 
         std::vector<GLint>::iterator iter = find( attributes.begin(), 
                                              attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+2 ); // remove two item (attr, value)
     }
@@ -330,7 +333,7 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
     {
-        const WindowIF* aglShareWindow = EQSAFECAST(const WindowIF*, sysWindow);
+        const WindowIF* aglShareWindow = LBSAFECAST(const WindowIF*, sysWindow);
         shareCtx = aglShareWindow->getAGLContext();
     }
  
@@ -340,25 +343,17 @@ AGLContext Window::createAGLContext( AGLPixelFormat pixelFormat )
     if( !context ) 
     {
         setError( ERROR_AGLWINDOW_CREATECONTEXT_FAILED );
-        EQWARN << getError() << ": " << AGLERROR << std::endl;
+        LBWARN << getError() << ": " << AGLERROR << std::endl;
         Global::leaveCarbon();
         return 0;
     }
 
-    // set vsync on/off
-    int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
-    if( swapSync != AUTO )
-    {
-        if( swapSync < 0 )
-            swapSync = 1;
-        aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
-    }
-
+    _initSwapSync( context );
     aglSetCurrentContext( context );
 
     Global::leaveCarbon();
 
-    EQVERB << "Created AGL context " << context << " shared with " << shareCtx
+    LBVERB << "Created AGL context " << context << " shared with " << shareCtx
            << std::endl;
     return context;
 }
@@ -375,7 +370,7 @@ bool Window::configInitAGLDrawable()
             return configInitFBO();
 
         default:
-            EQWARN << "Unknown drawable type "
+            LBWARN << "Unknown drawable type "
                    << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
                    << ", using window" << std::endl;
             // no break;
@@ -406,7 +401,7 @@ bool Window::configInitAGLPBuffer()
                            0, &pbuffer ))
     {
         setError( ERROR_AGLWINDOW_CREATEPBUFFER_FAILED );
-        EQWARN << getError() << ": " << AGLERROR << std::endl;
+        LBWARN << getError() << ": " << AGLERROR << std::endl;
         return false;
     }
 
@@ -414,7 +409,7 @@ bool Window::configInitAGLPBuffer()
     if( !aglSetPBuffer( context, pbuffer, 0, 0, aglGetVirtualScreen( context )))
     {
         setError( ERROR_AGLWINDOW_SETPBUFFER_FAILED );
-        EQWARN << getError() << ": " << AGLERROR << std::endl;
+        LBWARN << getError() << ": " << AGLERROR << std::endl;
         return false;
     }
 
@@ -440,7 +435,7 @@ bool Window::configInitAGLFullscreen()
     const PixelViewport& pvp       = pipePVP.isValid() ? pipePVP : windowPVP;
 
     if( !aglSetFullScreen( context, pvp.w, pvp.h, 0, 0 ))
-        EQWARN << "aglSetFullScreen to " << pvp << " failed: " << AGLERROR
+        LBWARN << "aglSetFullScreen to " << pvp << " failed: " << AGLERROR
                << std::endl;
 
     // Do focus hell
@@ -489,7 +484,7 @@ bool Window::configInitAGLWindow()
     if( status != noErr )
     {
         setError( ERROR_AGLWINDOW_CREATEWINDOW_FAILED );
-        EQWARN << getError() << ": " << status << std::endl;
+        LBWARN << getError() << ": " << status << std::endl;
         Global::leaveCarbon();
         return false;
     }
@@ -517,7 +512,7 @@ bool Window::configInitAGLWindow()
     if( !aglSetWindowRef( context, windowRef ))
     {
         setError( ERROR_AGLWINDOW_SETWINDOW_FAILED );
-        EQWARN << getError() << ": " << AGLERROR << std::endl;
+        LBWARN << getError() << ": " << AGLERROR << std::endl;
         Global::leaveCarbon();
         return false;
     }
@@ -535,9 +530,24 @@ bool Window::configInitAGLWindow()
     return true;
 }
 
+void Window::_initSwapSync( AGLContext context )
+{
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
+    int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
+    if( swapSync == AUTO )
+        return;
+
+    if( swapSync < 0 )
+        swapSync = 1;
+
+    aglSetInteger( context, AGL_SWAP_INTERVAL, &swapSync );
+}
+
 void Window::setCarbonWindow( WindowRef window )
 {
-    EQVERB << "set Carbon window " << window << std::endl;
+    LBVERB << "set Carbon window " << window << std::endl;
 
     if( _carbonWindow == window )
         return;
@@ -571,7 +581,7 @@ void Window::setCarbonWindow( WindowRef window )
 
 void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 {
-    EQVERB << "set AGL PBuffer " << pbuffer << std::endl;
+    LBVERB << "set AGL PBuffer " << pbuffer << std::endl;
 
     if( _aglPBuffer == pbuffer )
         return;
@@ -589,7 +599,7 @@ void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 
     if( aglDescribePBuffer( pbuffer, &w, &h, &target, &format, &maxLevel ))
     {
-        EQASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
+        LBASSERT( target == GL_TEXTURE_RECTANGLE_EXT );
 
         const PixelViewport pvp( 0, 0, w, h );
         getWindow()->setPixelViewport( pvp );
@@ -598,7 +608,7 @@ void Window::setAGLPBuffer( AGLPbuffer pbuffer )
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_eventHandler );
+    LBASSERT( !_eventHandler );
     _eventHandler = new EventHandler( this );
 }
 

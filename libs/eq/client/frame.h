@@ -225,6 +225,24 @@ namespace server
                               const PixelViewports& regions );
 
         /**
+         * Start reading back a set of images for this frame.
+         * 
+         * The newly read images are added to the data, existing images are
+         * retained. The finish for the new images has to be done by the
+         * caller.
+         *
+         * @param frame the corresponding output frame holder.
+         * @param glObjects the GL object manager for the current GL context.
+         * @param config the configuration of the source frame buffer.
+         * @param regions the areas to read back.
+         * @return the new images which need finishReadback.
+         * @version 1.3.2
+         */        
+        EQ_API Images startReadback( ObjectManager* glObjects,
+                                     const DrawableConfig& config,
+                                     const PixelViewports& regions );
+
+        /**
          * Set the frame ready.
          * 
          * Equalizer sets the frame automatically ready after readback and after

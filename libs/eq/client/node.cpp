@@ -62,7 +62,7 @@ Node::Node( Config* parent )
 
 Node::~Node()
 {
-    EQASSERT( getPipes().empty( ));
+    LBASSERT( getPipes().empty( ));
 }
 
 void Node::attach( const UUID& id, const uint32_t instanceID )
@@ -107,14 +107,14 @@ void Node::setDirty( const uint64_t bits )
 ClientPtr Node::getClient()
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getClient() : 0 );
 }
 
 ServerPtr Node::getServer()
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 
@@ -140,7 +140,7 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
         ClientPtr client = getClient();
 
         netBarrier = new co::Barrier;
-        EQCHECK( client->mapObject( netBarrier, barrier ));
+        LBCHECK( client->mapObject( netBarrier, barrier ));
 
         _barriers.data[ barrier.identifier ] = netBarrier;
     }
@@ -160,7 +160,7 @@ FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
         _frameDatas.data[ frameDataVersion.identifier ] = data;
     }
 
-    EQASSERT( frameDataVersion.version.high() == 0 );
+    LBASSERT( frameDataVersion.version.high() == 0 );
     data->setVersion( frameDataVersion.version.low( ));
     return data;
 }
@@ -225,7 +225,7 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
     {
         const Pipe* pipe = *i;
-        EQASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
+        LBASSERT( pipe->isThreaded() || pipe->getFinishedFrame()>=frameNumber );
 
         pipe->waitFrameLocal( frameNumber );
         pipe->waitFrameFinished( frameNumber );
@@ -236,19 +236,19 @@ void Node::_frameFinish( const uint128_t& frameID,
                          const uint32_t frameNumber )
 {
     frameFinish( frameID, frameNumber );
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
+    LBLOG( LOG_TASKS ) << "---- Finished Frame --- " << frameNumber
                        << std::endl;
 
     if( _unlockedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+        LBWARN << "Finished frame was not locally unlocked, enforcing unlock" 
                << std::endl;
         releaseFrameLocal( frameNumber );
     }
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock"
+        LBWARN << "Finished frame was not released, enforcing unlock"
                << std::endl;
         releaseFrame( frameNumber );
     }
@@ -256,7 +256,7 @@ void Node::_frameFinish( const uint128_t& frameID,
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "current " << _currentFrame << " release " << frameNumber );
 
     if( _finishedFrame >= frameNumber )
@@ -274,15 +274,15 @@ void Node::releaseFrame( const uint32_t frameNumber )
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
 {
-    EQASSERT( _unlockedFrame <= frameNumber );
+    LBASSERT( _unlockedFrame <= frameNumber );
     _unlockedFrame = frameNumber;
     
     Config* config = getConfig();
-    EQASSERT( config->getNodes().size() == 1 );
-    EQASSERT( config->getNodes()[0] == this );
+    LBASSERT( config->getNodes().size() == 1 );
+    LBASSERT( config->getNodes()[0] == this );
     config->releaseFrameLocal( frameNumber );
 
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
+    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame
                        << std::endl;
 }
 
@@ -302,7 +302,7 @@ void Node::frameStart( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -329,7 +329,7 @@ void Node::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -355,7 +355,7 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -395,7 +395,7 @@ void Node::TransmitThread::run()
         if( !command )
             return; // exit thread
 
-        EQCHECK( (*command)( ));
+        LBCHECK( (*command)( ));
         command->release();
     }
 }
@@ -419,16 +419,16 @@ bool Node::_cmdCreatePipe( co::Command& command )
 {
     const NodeCreatePipePacket* packet = 
         command.get<NodeCreatePipePacket>();
-    EQLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
     LB_TS_THREAD( _nodeThread );
-    EQASSERT( _state >= STATE_INIT_FAILED );
+    LBASSERT( _state >= STATE_INIT_FAILED );
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
     if( packet->threaded )
         pipe->startThread();
 
     Config* config = getConfig();
-    EQCHECK( config->mapObject( pipe, packet->pipeID ));
+    LBCHECK( config->mapObject( pipe, packet->pipeID ));
     pipe->notifyMapped();
 
     return true;
@@ -440,10 +440,10 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
     const NodeDestroyPipePacket* packet = 
         command.get< NodeDestroyPipePacket >();
-    EQLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
 
     Pipe* pipe = findPipe( packet->pipeID );
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     pipe->exitThread();
 
     PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
@@ -462,7 +462,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 
     const NodeConfigInitPacket* packet = 
         command.get<NodeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init node " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init node " << packet << std::endl;
 
     _state = STATE_INITIALIZING;
 
@@ -489,7 +489,7 @@ bool Node::_cmdConfigInit( co::Command& command )
 bool Node::_cmdConfigExit( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-    EQLOG( LOG_INIT ) << "Node exit " 
+    LBLOG( LOG_INIT ) << "Node exit " 
                       << command.get<NodeConfigExitPacket>() << std::endl;
 
     const Pipes& pipes = getPipes();
@@ -514,12 +514,12 @@ bool Node::_cmdFrameStart( co::Command& command )
     LB_TS_THREAD( _nodeThread );
     const NodeFrameStartPacket* packet = 
         command.get<NodeFrameStartPacket>();
-    EQVERB << "handle node frame start " << packet << std::endl;
+    LBVERB << "handle node frame start " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERT( _currentFrame == frameNumber-1 );
+    LBASSERT( _currentFrame == frameNumber-1 );
 
-    EQLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
+    LBLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
     Config* config = getConfig();
@@ -531,7 +531,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     config->_frameStart();
     frameStart( packet->frameID, frameNumber );
 
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "Node::frameStart() did not start frame " << frameNumber );
     return true;
 }
@@ -541,7 +541,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
     LB_TS_THREAD( _nodeThread );
     const NodeFrameFinishPacket* packet = 
         command.get<NodeFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
                        << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
@@ -562,7 +562,7 @@ bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
     const NodeFrameDrawFinishPacket* packet = 
         command.get< NodeFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );
@@ -573,7 +573,7 @@ bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
     const NodeFrameTasksFinishPacket* packet = 
         command.get< NodeFrameTasksFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameTasksFinish( packet->frameID, packet->frameNumber );
@@ -585,18 +585,18 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
     const NodeFrameDataTransmitPacket* packet =
         command.get<NodeFrameDataTransmitPacket>();
 
-    EQLOG( LOG_ASSEMBLY )
+    LBLOG( LOG_ASSEMBLY )
         << "received image data for " << packet->frameData << ", buffers "
         << packet->buffers << " pvp " << packet->pvp << std::endl;
 
-    EQASSERT( packet->pvp.isValid( ));
+    LBASSERT( packet->pvp.isValid( ));
 
     FrameData* frameData = getFrameData( packet->frameData );
-    EQASSERT( !frameData->isReady() );
+    LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
                           packet->frameNumber );
-    EQCHECK( frameData->addImage( packet ));
+    LBCHECK( frameData->addImage( packet ));
     return true;
 }
 
@@ -605,13 +605,13 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     const NodeFrameDataReadyPacket* packet =
         command.get<NodeFrameDataReadyPacket>();
 
-    EQLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
+    LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
     FrameData* frameData = getFrameData( packet->frameData );
-    EQASSERT( frameData );
-    EQASSERT( !frameData->isReady() );
+    LBASSERT( frameData );
+    LBASSERT( !frameData->isReady() );
     frameData->setReady( packet );
-    EQASSERT( frameData->isReady() );
+    LBASSERT( frameData->isReady() );
     return true;
 }
 

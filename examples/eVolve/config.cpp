@@ -45,14 +45,14 @@ Config::~Config(){}
 bool Config::init()
 {
     // init distributed objects
-    EQCHECK( registerObject( &_frameData ));
+    LBCHECK( registerObject( &_frameData ));
 
     _frameData.setOrtho( _initData.getOrtho( ));
     _initData.setFrameDataID( _frameData.getID( ));
 
     _frameData.setAutoObsolete( getLatency( ));
 
-    EQCHECK( registerObject( &_initData ));
+    LBCHECK( registerObject( &_initData ));
 
     // init config
     if( !eq::Config::init( _initData.getID( )))
@@ -82,7 +82,7 @@ bool Config::mapData( const eq::uint128_t& initDataID )
     }
     else  // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }
@@ -280,7 +280,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             eq::Canvases::const_iterator i = std::find( canvases.begin(),
                                                         canvases.end(),
                                                         _currentCanvas );
-            EQASSERT( i != canvases.end( ));
+            LBASSERT( i != canvases.end( ));
 
             ++i;
             if( i == canvases.end( ))
@@ -308,7 +308,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
                               find< eq::View >( _frameData.getCurrentViewID( ));
 
             const eq::Views& views = layout->getViews();
-            EQASSERT( !views.empty( ))
+            LBASSERT( !views.empty( ))
 
             if( !current )
             {
@@ -319,7 +319,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             eq::Views::const_iterator i = std::find( views.begin(),
                                                           views.end(),
                                                           current );
-            EQASSERT( i != views.end( ));
+            LBASSERT( i != views.end( ));
 
             ++i;
             if( i == views.end( ))
@@ -350,7 +350,7 @@ void Config::_switchLayout( int32_t increment )
 
     size_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ));
+    LBASSERT( !layouts.empty( ));
 
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));

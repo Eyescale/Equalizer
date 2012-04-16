@@ -67,7 +67,7 @@ bool Channel::configInit( const eq::uint128_t& initID )
     const InitData& id = static_cast<Config*>( getConfig() )->getInitData();
     SharedData& sd = static_cast<Pipe*>( getPipe() )->getSharedData();
 
-    EQCHECK( _controller->init(id, sd.getPos(), true ));
+    LBCHECK( _controller->init(id, sd.getPos(), true ));
     return true;
 }
 

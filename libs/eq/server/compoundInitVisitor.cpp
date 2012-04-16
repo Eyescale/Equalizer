@@ -52,7 +52,7 @@ VisitorResult CompoundInitVisitor::visit( Compound* compound )
         // Note: The second case are non-view destination compounds. One use
         // case are swap-syncing all output channels using task-less compounds.
 
-        EQASSERT( !channel || !channel->getView( ));
+        LBASSERT( !channel || !channel->getView( ));
         uint32_t eyes = compound->getEyes();
         if( eyes == fabric::EYE_UNDEFINED )
             eyes = fabric::EYES_ALL;

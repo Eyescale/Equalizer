@@ -67,7 +67,7 @@ void Frustum::updateFrustum()
             _data.invalidate();
             break;
         default:
-            EQUNREACHABLE;
+            LBUNREACHABLE;
     }
 }
 

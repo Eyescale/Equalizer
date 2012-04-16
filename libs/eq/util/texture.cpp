@@ -40,7 +40,7 @@ Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
 Texture::~Texture()
 {
     if( _name != 0 )
-        EQWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
+        LBWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
 
     _name      = 0;
     _defined = false;
@@ -77,7 +77,7 @@ uint32_t Texture::getCompressorTarget() const
             return EQ_COMPRESSOR_USE_TEXTURE_RECT;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case GL_TEXTURE_2D:
             return EQ_COMPRESSOR_USE_TEXTURE_2D;
     }
@@ -127,15 +127,15 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
             setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8 );
             break;
         case GL_RGBA32UI:
-            EQASSERT( _glewContext );
+            LBASSERT( _glewContext );
             if( GLEW_EXT_texture_integer )
                 setExternalFormat( GL_RGBA_INTEGER_EXT, GL_UNSIGNED_INT );
             else
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             setExternalFormat( internalFormat, GL_UNSIGNED_BYTE );
     }
 }
@@ -249,14 +249,14 @@ void Texture::upload( const int32_t width, const int32_t height,
 void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( _defined );
+    LBASSERT( _defined );
     EQ_GL_CALL( glBindTexture( _target, _name ));
     EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
 }
 
 void Texture::bind() const
 {
-    EQASSERT( _name );
+    LBASSERT( _name );
     glBindTexture( _target, _name );
 }
 
@@ -264,8 +264,8 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
                          const int32_t height )
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( _internalFormat );
-    EQASSERT( _glewContext );
+    LBASSERT( _internalFormat );
+    LBASSERT( _glewContext );
 
     _generate();
 
@@ -282,17 +282,17 @@ void Texture::bindToFBO( const GLenum target, const int32_t width,
 void Texture::resize( const int32_t width, const int32_t height )
 {
     LB_TS_THREAD( _thread );
-    EQASSERT( _name );
-    EQASSERT( _internalFormat );
-    EQASSERT( width > 0 && height > 0 );
+    LBASSERT( _name );
+    LBASSERT( _internalFormat );
+    LBASSERT( width > 0 && height > 0 );
 
     if( _width == width && _height == height && _defined )
         return;
 
     if( _target == GL_TEXTURE_2D && !_isPOT( width, height ))
     {
-        EQASSERT( _glewContext );
-        EQASSERT( GLEW_ARB_texture_non_power_of_two );
+        LBASSERT( _glewContext );
+        LBASSERT( GLEW_ARB_texture_non_power_of_two );
     }
 
     EQ_GL_CALL( glBindTexture( _target, _name ));
@@ -305,7 +305,7 @@ void Texture::resize( const int32_t width, const int32_t height )
 
 void Texture::writeRGB( const std::string& filename ) const
 {
-    EQASSERT( _defined );
+    LBASSERT( _defined );
     if( !_defined )
         return;
 
@@ -362,12 +362,13 @@ void Texture::writeRGB( const std::string& filename ) const
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
             return;
     }
 
     image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
-    image.readback( Frame::BUFFER_COLOR, this, _glewContext );
+    if( image.startReadback( Frame::BUFFER_COLOR, this, _glewContext ))
+        image.finishReadback( Zoom::NONE, _glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
 }
 

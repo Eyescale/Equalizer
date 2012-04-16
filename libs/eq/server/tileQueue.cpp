@@ -55,7 +55,7 @@ TileQueue::~TileQueue()
 void TileQueue::addTile( const TileTaskPacket& tile, fabric::Eye eye )
 {
     uint32_t index = lunchbox::getIndexOfLastBit(eye);
-    EQASSERT( index < NUM_EYES );
+    LBASSERT( index < NUM_EYES );
     _queueMaster[index]->_queue.push( tile );
 }
 

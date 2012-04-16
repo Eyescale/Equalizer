@@ -27,7 +27,7 @@ namespace eq
 SystemWindow::SystemWindow( Window* parent )
     : _window( parent )
 {
-    EQASSERT( _window ); 
+    LBASSERT( _window ); 
 }
 
 SystemWindow::~SystemWindow()
@@ -36,58 +36,58 @@ SystemWindow::~SystemWindow()
 
 const Pipe* SystemWindow::getPipe() const
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getPipe();
 }
 Pipe* SystemWindow::getPipe()
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getPipe();
 }
 
 const Node* SystemWindow::getNode() const
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getNode();
 }
 Node* SystemWindow::getNode()
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getNode();
 }
 
 const Config* SystemWindow::getConfig() const
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getConfig();
 }
 Config* SystemWindow::getConfig()
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getConfig();
 }
 
 int32_t SystemWindow::getIAttribute( const Window::IAttribute attr ) const
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getIAttribute( attr );
 }
 
 void SystemWindow::setError( const int32_t error )
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     _window->setError( error );
 }
 
 co::Error SystemWindow::getError() const
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->getError();
 }
 
 bool SystemWindow::processEvent( const Event& event )
 {
-    EQASSERT( _window );
+    LBASSERT( _window );
     return _window->processEvent( event );
 }
 

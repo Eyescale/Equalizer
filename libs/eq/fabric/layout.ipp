@@ -37,19 +37,19 @@ template< class C, class L, class V >
 Layout< C, L, V >::Layout( C* config )
         : _config( config )
 {
-    EQASSERT( config );
+    LBASSERT( config );
     static_cast< L* >( this )->_config->_addLayout( static_cast< L* >( this ));
-    EQLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class L, class V >
 Layout< C, L, V >::~Layout()
 {
-    EQLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_views.empty( ))
     {
         V* view = _views.back();
-        EQCHECK( _removeChild( view ));
+        LBCHECK( _removeChild( view ));
         release( view );
     }
 
@@ -63,7 +63,7 @@ void Layout< C, L, V >::attach( const UUID& id,
     Object::attach( id, instanceID );
 
     co::CommandQueue* queue = _config->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_LAYOUT_NEW_VIEW,
                      CmdFunc( this, &Layout< C, L, V >::_cmdNewView ), queue );
@@ -195,8 +195,8 @@ VisitorResult Layout< C, L, V >::accept( Visitor& visitor ) const
 template< class C, class L, class V >
 void Layout< C, L, V >::_addChild( V* view )
 {
-    EQASSERT( view );
-    EQASSERT( view->getLayout() == this );
+    LBASSERT( view );
+    LBASSERT( view->getLayout() == this );
     _views.push_back( view );
     setDirty( DIRTY_VIEWS );
 }
@@ -208,7 +208,7 @@ bool Layout< C, L, V >::_removeChild( V* view )
     if( i == _views.end( ))
         return false;
 
-    EQASSERT( view->getLayout() == this );
+    LBASSERT( view->getLayout() == this );
     _views.erase( i );
     setDirty( DIRTY_VIEWS );
     if( !isMaster( ))
@@ -225,7 +225,7 @@ template< class O > void Layout< C, L, V >::_removeObserver( const O* observer )
         V* view = *i;
         if( view->getObserver() == observer )
         {
-            EQINFO << "Removing " << lunchbox::disableHeader << *observer
+            LBINFO << "Removing " << lunchbox::disableHeader << *observer
                    << " used by " << *view << std::endl
                    << lunchbox::enableHeader;
             view->setObserver( 0 );
@@ -249,7 +249,7 @@ bool Layout< C, L, V >::isActive() const
 template< class C, class L, class V >
 V* Layout< C, L, V >::getView( const ViewPath& path )
 {
-    EQASSERTINFO( _views.size() > path.viewIndex,
+    LBASSERTINFO( _views.size() > path.viewIndex,
                   _views.size() << " <= " << path.viewIndex << " " << this );
 
     if( _views.size() <= path.viewIndex )
@@ -261,12 +261,12 @@ V* Layout< C, L, V >::getView( const ViewPath& path )
 template< class C, class L, class V >
 LayoutPath Layout< C, L, V >::getPath() const
 {
-    EQASSERT( _config );
+    LBASSERT( _config );
     const std::vector< L* >& layouts = _config->getLayouts();
     typename std::vector< L* >::const_iterator i = std::find( layouts.begin(),
                                                               layouts.end(),
                                                               this );
-    EQASSERT( i != layouts.end( ));
+    LBASSERT( i != layouts.end( ));
 
     LayoutPath path;
     path.layoutIndex = std::distance( layouts.begin(), i );
@@ -292,11 +292,11 @@ Layout< C, L, V >::_cmdNewView( co::Command& command )
     
     V* view = 0;
     create( &view );
-    EQASSERT( view );
+    LBASSERT( view );
 
     getLocalNode()->registerObject( view );
     view->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( view->isAttached() );
+    LBASSERT( view->isAttached() );
 
     LayoutNewViewReplyPacket reply( packet );
     reply.viewID = view->getID();

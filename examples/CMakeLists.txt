@@ -49,7 +49,7 @@ function(EQ_ADD_EXAMPLE NAME)
 
   purple_expand_libraries(LINK_LIBRARIES
                           ${EQUALIZER_LIBRARIES} ${THIS_LINK_LIBRARIES})
-  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_LIBRARIES})
+  target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed

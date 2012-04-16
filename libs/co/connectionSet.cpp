@@ -124,7 +124,7 @@ public:
             // Whenever another threads modifies the connection list while the
             // connection set is waiting in a select, the select is interrupted
             // using this connection.
-            EQCHECK( selfConnection->connect( ));
+            LBCHECK( selfConnection->connect( ));
         }
 
     ~ConnectionSet()
@@ -212,7 +212,7 @@ void ConnectionSet::setDirty()
     if( _impl->dirty )
         return;
 
-    EQVERB << "FD set modified, restarting select" << std::endl;
+    LBVERB << "FD set modified, restarting select" << std::endl;
     _impl->dirty = true;
     interrupt();
 }
@@ -229,14 +229,14 @@ void ConnectionSet::interrupt()
 
 void ConnectionSet::addConnection( ConnectionPtr connection )
 {
-    EQASSERT( connection->isConnected() || connection->isListening( ));
+    LBASSERT( connection->isConnected() || connection->isListening( ));
 
     { 
         lunchbox::ScopedWrite mutex( _impl->lock );
         _impl->allConnections.push_back( connection );
 
 #ifdef _WIN32
-        EQASSERT( _impl->allConnections.size() <
+        LBASSERT( _impl->allConnections.size() <
                   MAX_CONNECTIONS * MAX_CONNECTIONS );
         if( _impl->connections.size() < MAX_CONNECTIONS - _impl->threads.size())
         {
@@ -271,7 +271,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
         _impl->connections.push_back( connection );
         connection->addListener( this );
 
-        EQASSERT( _impl->connections.size() < MAX_CONNECTIONS );
+        LBASSERT( _impl->connections.size() < MAX_CONNECTIONS );
 #endif // _WIN32
     }
 
@@ -312,10 +312,10 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
                 }
             }
 
-            EQASSERT( k != _impl->threads.end( ));
+            LBASSERT( k != _impl->threads.end( ));
             _impl->threads.erase( k );
 #else
-            EQUNREACHABLE;
+            LBUNREACHABLE;
 #endif
         }
         else
@@ -380,7 +380,7 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
 
         // poll for a result
 #ifdef _WIN32
-        EQASSERT( LB_TIMEOUT_INDEFINITE == INFINITE );
+        LBASSERT( LB_TIMEOUT_INDEFINITE == INFINITE );
         const DWORD ret = WaitForMultipleObjectsEx( _impl->fdSet.getSize(),
                                                     _impl->fdSet.getData(),
                                                     FALSE, timeout, TRUE );
@@ -412,7 +412,7 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
                 _impl->error = errno;
 #endif
 
-                EQERROR << "Error during select: " << lunchbox::sysError
+                LBERROR << "Error during select: " << lunchbox::sysError
                         << std::endl;
                 return EVENT_SELECT_ERROR;
 
@@ -441,7 +441,7 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
     const uint32_t i = index - WAIT_OBJECT_0;
-    EQASSERT( i < MAXIMUM_WAIT_OBJECTS );
+    LBASSERT( i < MAXIMUM_WAIT_OBJECTS );
 
     // Bug: WaitForMultipleObjects returns occasionally 16 with fdSet size 2,
     //   when used by the RSPConnection
@@ -452,8 +452,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     if( i > _impl->connections.size( ))
     {
         _impl->thread = _impl->fdSetResult[i].thread;
-        EQASSERT( _impl->thread->event != EVENT_NONE );
-        EQASSERT( _impl->fdSet[ i ] == _impl->thread->notifier );
+        LBASSERT( _impl->thread->event != EVENT_NONE );
+        LBASSERT( _impl->fdSet[ i ] == _impl->thread->notifier );
         
         ResetEvent( _impl->thread->notifier ); 
         _impl->connection = _impl->thread->set->getConnection();
@@ -463,7 +463,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
     // else locally handled connection
 
     _impl->connection = _impl->fdSetResult[i].connection;
-    EQASSERT( _impl->fdSet[i] == _impl->connection->getNotifier() ||
+    LBASSERT( _impl->fdSet[i] == _impl->connection->getNotifier() ||
               _impl->connection->isClosed( ));
     return EVENT_DATA;
 }
@@ -477,17 +477,17 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
             continue;
 
         const int pollEvents = pollFD.revents;
-        EQASSERT( pollFD.fd > 0 );
+        LBASSERT( pollFD.fd > 0 );
 
         _impl->connection = _impl->fdSetResult[i].connection;
-        EQASSERT( _impl->connection.isValid( ));
+        LBASSERT( _impl->connection.isValid( ));
 
-        EQVERB << "Got event on connection @" << (void*)_impl->connection.get()
+        LBVERB << "Got event on connection @" << (void*)_impl->connection.get()
                << std::endl;
 
         if( pollEvents & POLLERR )
         {
-            EQINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
+            LBINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
             return EVENT_ERROR;
         }
 
@@ -504,7 +504,7 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
         if( pollEvents & POLLIN || pollEvents & POLLPRI )
             return EVENT_DATA;
 
-        EQERROR << "Unhandled poll event(s): " << pollEvents << std::endl;
+        LBERROR << "Unhandled poll event(s): " << pollEvents << std::endl;
         ::abort();
     }
     return EVENT_NONE;
@@ -530,7 +530,7 @@ bool ConnectionSet::_setupFDSet()
 #ifdef _WIN32
     // add self connection
     HANDLE readHandle = _impl->selfConnection->getNotifier();
-    EQASSERT( readHandle );
+    LBASSERT( readHandle );
     _impl->fdSet.append( readHandle );
 
     Result res;
@@ -547,7 +547,7 @@ bool ConnectionSet::_setupFDSet()
 
         if( !readHandle )
         {
-            EQINFO << "Cannot select connection " << connection
+            LBINFO << "Cannot select connection " << connection
                  << ", connection does not provide a read handle" << std::endl;
             _impl->connection = connection;
             _impl->lock.unset();
@@ -565,7 +565,7 @@ bool ConnectionSet::_setupFDSet()
     {
         Thread* thread = *i;
         readHandle = thread->notifier;
-        EQASSERT( readHandle );
+        LBASSERT( readHandle );
         _impl->fdSet.append( readHandle );
 
         Result result;
@@ -579,7 +579,7 @@ bool ConnectionSet::_setupFDSet()
 
     // add self 'connection'
     fd.fd = _impl->selfConnection->getNotifier();
-    EQASSERT( fd.fd > 0 );
+    LBASSERT( fd.fd > 0 );
     fd.revents = 0;
     _impl->fdSet.append( fd );
 
@@ -597,15 +597,15 @@ bool ConnectionSet::_setupFDSet()
 
         if( fd.fd <= 0 )
         {
-            EQINFO << "Cannot select connection " << connection
+            LBINFO << "Cannot select connection " << connection
                    << ", connection " << typeid( *connection.get( )).name() 
-                   << " does not use a file descriptor" << std::endl;
+                   << " doesn't have a file descriptor" << std::endl;
             _impl->connection = connection;
             _impl->lock.unset();
             return false;
         }
 
-        EQVERB << "Listening on " << typeid( *connection.get( )).name() 
+        LBVERB << "Listening on " << typeid( *connection.get( )).name() 
                << " @" << (void*)connection.get() << std::endl;
         fd.revents = 0;
 

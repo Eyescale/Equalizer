@@ -61,7 +61,7 @@ bool Pipe::configInit()
     if( !xDisplay )
     {
         setError( ERROR_GLXPIPE_DEVICE_NOTFOUND );
-        EQWARN << getError() << " " << XDisplayName( displayName.c_str( ))
+        LBWARN << getError() << " " << XDisplayName( displayName.c_str( ))
                << ": " << lunchbox::sysError << std::endl;
         return false;
     }
@@ -75,7 +75,7 @@ bool Pipe::configInit()
     }
 
     setXDisplay( xDisplay );
-    EQINFO << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
+    LBINFO << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
            << xDisplay << ", device " << getPipe()->getDevice() << std::endl;
 
     return _configInitGLXEW();
@@ -89,7 +89,7 @@ void Pipe::configExit()
 
     setXDisplay( 0 );
     XCloseDisplay( xDisplay );
-    EQINFO << "Closed X display " << xDisplay << std::endl;
+    LBINFO << "Closed X display " << xDisplay << std::endl;
 }
 
 
@@ -135,12 +135,12 @@ void Pipe::setXDisplay( Display* display )
         const uint32_t device = getPipe()->getDevice();
 
         if( port != LB_UNDEFINED_UINT32 && info.port != port )
-            EQWARN << "Display mismatch: provided display connection uses"
+            LBWARN << "Display mismatch: provided display connection uses"
                    << " display " << info.port << ", but pipe has port " << port
                    << std::endl;
 
         if( device != LB_UNDEFINED_UINT32 && info.device != device )
-            EQWARN << "Screen mismatch: provided display connection uses "
+            LBWARN << "Screen mismatch: provided display connection uses "
                    << "default screen " << info.device
                    << ", but pipe has screen " << device << std::endl;
     }
@@ -174,7 +174,7 @@ bool Pipe::getGPUInfo( Display* display, GPUInfo& info )
 
 bool Pipe::_configInitGLXEW()
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
 
     //----- Create and make current a temporary GL context to initialize GLXEW
     // visual
@@ -227,11 +227,11 @@ bool Pipe::_configInitGLXEW()
     if( !success )
     {
         setError( ERROR_GLXPIPE_GLXEWINIT_FAILED );
-        EQWARN << getError() << ": " << result << std::endl;
+        LBWARN << getError() << ": " << result << std::endl;
     }
     else
     {
-        EQINFO << "Pipe GLXEW initialization successful" << std::endl;
+        LBINFO << "Pipe GLXEW initialization successful" << std::endl;
         success = configInitGL();
     }
 
@@ -245,41 +245,41 @@ bool Pipe::_configInitGLXEW()
 #ifndef NDEBUG
 int XErrorHandler( Display* display, XErrorEvent* event )
 {
-    EQWARN << lunchbox::disableFlush;
-    EQWARN << "X Error occured: " << lunchbox::disableHeader 
+    LBWARN << lunchbox::disableFlush;
+    LBWARN << "X Error occured: " << lunchbox::disableHeader 
            << lunchbox::indent;
 
     char buffer[256];
     XGetErrorText( display, event->error_code, buffer, 256);
 
-    EQWARN << buffer << std::endl;
-    EQWARN << "Major opcode: " << (int)event->request_code << std::endl;
-    EQWARN << "Minor opcode: " << (int)event->minor_code << std::endl;
-    EQWARN << "Error code: " << (int)event->error_code << std::endl;
-    EQWARN << "Request serial: " << event->serial << std::endl;
-    EQWARN << "Current serial: " << NextRequest( display ) - 1 << std::endl;
+    LBWARN << buffer << std::endl;
+    LBWARN << "Major opcode: " << (int)event->request_code << std::endl;
+    LBWARN << "Minor opcode: " << (int)event->minor_code << std::endl;
+    LBWARN << "Error code: " << (int)event->error_code << std::endl;
+    LBWARN << "Request serial: " << event->serial << std::endl;
+    LBWARN << "Current serial: " << NextRequest( display ) - 1 << std::endl;
 
     switch( event->error_code )
     {
         case BadValue:
-            EQWARN << "  Value: " << event->resourceid << std::endl;
+            LBWARN << "  Value: " << event->resourceid << std::endl;
             break;
 
         case BadAtom:
-            EQWARN << "  AtomID: " << event->resourceid << std::endl;
+            LBWARN << "  AtomID: " << event->resourceid << std::endl;
             break;
 
         default:
-            EQWARN << "  ResourceID: " << event->resourceid << std::endl;
+            LBWARN << "  ResourceID: " << event->resourceid << std::endl;
             break;
     }
-    EQWARN << lunchbox::enableFlush << lunchbox::exdent 
+    LBWARN << lunchbox::enableFlush << lunchbox::exdent 
            << lunchbox::enableHeader;
 
 #ifndef NDEBUG
     if( getenv( "EQ_ABORT_WAIT" ))
     {
-        EQWARN << "Caught X Error, entering infinite loop for debugging" 
+        LBWARN << "Caught X Error, entering infinite loop for debugging" 
                << std::endl;
         while( true ) ;
     }

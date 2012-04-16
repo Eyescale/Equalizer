@@ -36,8 +36,8 @@ UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
         : MasterCM( object )
 {
     _version = VERSION_FIRST;
-    EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
+    LBASSERT( object );
+    LBASSERT( object->getLocalNode( ));
 }
 
 UnbufferedMasterCM::~UnbufferedMasterCM()
@@ -47,7 +47,7 @@ uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
 {
     Mutex mutex( _slaves );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
                          << std::endl;
 #endif
     if( !_object->isDirty() || _slaves->empty( ))
@@ -61,9 +61,9 @@ uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
     if( os.hasSentData( ))
     {
         ++_version;
-        EQASSERT( _version != VERSION_NONE );
+        LBASSERT( _version != VERSION_NONE );
 #if 0
-        EQLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
+        LBLOG( LOG_OBJECTS ) << "Committed v" << _version << ", id " 
                              << _object->getID() << std::endl;
 #endif
     }

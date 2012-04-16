@@ -82,8 +82,8 @@ inline uint16_t ROIEmptySpaceFinder::getArea(
                                     const int32_t w, const int32_t h,
                                     const uint16_t* data ) const
 {
-    EQASSERT( x >= 0 && w > 0 && x+w < _w );
-    EQASSERT( y >= 0 && h > 0 && y+h < _h );
+    LBASSERT( x >= 0 && w > 0 && x+w < _w );
+    LBASSERT( y >= 0 && h > 0 && y+h < _h );
 
     const uint16_t* data_ = data + h*_w;
     return  *data - data[ w ] - *data_ + data_[ w ];
@@ -174,12 +174,12 @@ bool ROIEmptySpaceFinder::_updateMaximalEmptyRegion(
 PixelViewport ROIEmptySpaceFinder::getLargestEmptyArea(const PixelViewport& pvp)
 const
 {
-    EQASSERT(   pvp.x >= 0    && pvp.w > 0 &&
+    LBASSERT(   pvp.x >= 0    && pvp.w > 0 &&
                 pvp.y >= 0    && pvp.h > 0 &&
                 pvp.x + pvp.w < _w && 
                 pvp.y + pvp.h < _h );
 
-    EQASSERT( _mask );
+    LBASSERT( _mask );
 
     PixelViewport res( pvp.x, pvp.y, 0, 0 );
 

@@ -47,8 +47,8 @@ namespace co
 
         bool operator()( Command& command )
         {
-            EQASSERT( _object );
-            EQASSERT( _func );
+            LBASSERT( _object );
+            LBASSERT( _func );
             return (_object->*_func)( command );
         }
 

@@ -136,10 +136,10 @@ namespace co
          * multicast connection the data is only send once.
          *
          * @param groupID An identifier to group a set of push operations.
-         * @param typeID A per-push identifier.
+         * @param objectType A per-push identifier.
          * @param nodes The vector of nodes to push to.
          */
-        CO_API void push( const uint128_t& groupID, const uint128_t& typeID,
+        CO_API void push( const uint128_t& groupID, const uint128_t& objectType,
                           const Nodes& nodes );
 
         /** 
@@ -430,7 +430,7 @@ namespace co
     template< class T > inline bool
     Object::send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
     {
-        EQASSERT( isAttached() );
+        LBASSERT( isAttached() );
         packet.objectID  = _id;
         return node->send( packet, v );
     }

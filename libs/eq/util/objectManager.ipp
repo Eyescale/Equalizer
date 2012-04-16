@@ -40,14 +40,14 @@ template< class T >
 ObjectManager< T >::ObjectManager( const GLEWContext* const glewContext )
         : _data( new SharedData( glewContext ))
 {
-    EQASSERT( glewContext );
+    LBASSERT( glewContext );
 }
 
 template< class T >
 ObjectManager< T >::ObjectManager( ObjectManager* shared )
         : _data( shared->_data )
 {
-    EQASSERT( shared );
+    LBASSERT( shared );
 }
 
 template< class T >
@@ -60,7 +60,7 @@ template< class T >
 ObjectManager<T>::SharedData::SharedData( const GLEWContext* gl )
         : glewContext( new GLEWContext )
 {
-    EQASSERT( gl );
+    LBASSERT( gl );
     memcpy( glewContext, gl, sizeof( GLEWContext ));
 }
 
@@ -69,55 +69,55 @@ ObjectManager<T>::SharedData::~SharedData()
 {
     // Do not delete GL objects, we may no longer have a GL context.
     if( !lists.empty( ))
-        EQWARN << lists.size() 
+        LBWARN << lists.size() 
                << " lists still allocated in ObjectManager destructor"
                << std::endl;
     lists.clear();
 
     if( !textures.empty( ))
-        EQWARN << textures.size() 
+        LBWARN << textures.size() 
                << " textures still allocated in ObjectManager destructor" 
                << std::endl;
     textures.clear();
 
     if( !buffers.empty( ))
-        EQWARN << buffers.size() 
+        LBWARN << buffers.size() 
                << " buffers still allocated in ObjectManager destructor" 
                << std::endl;
     buffers.clear();
 
     if( !programs.empty( ))
-        EQWARN << programs.size() 
+        LBWARN << programs.size() 
                << " programs still allocated in ObjectManager destructor" 
                << std::endl;
     programs.clear();
 
     if( !shaders.empty( ))
-        EQWARN << shaders.size() 
+        LBWARN << shaders.size() 
                << " shaders still allocated in ObjectManager destructor" 
                << std::endl;
     shaders.clear();
 
     if( !eqTextures.empty( ))
-        EQWARN << eqTextures.size() 
+        LBWARN << eqTextures.size() 
                << " eq::Texture still allocated in ObjectManager destructor" 
                << std::endl;
     eqTextures.clear();
 
     if( !eqFonts.empty( ))
-        EQWARN << eqFonts.size() 
+        LBWARN << eqFonts.size() 
                << " eq::BitmapFont still allocated in ObjectManager destructor" 
                << std::endl;
     eqFonts.clear();
 
     if( !eqFrameBufferObjects.empty( ))
-        EQWARN << eqFrameBufferObjects.size() 
+        LBWARN << eqFrameBufferObjects.size() 
                << " eq::FrameBufferObject's still allocated in ObjectManager "
                << "destructor" << std::endl;
     eqFrameBufferObjects.clear();
 
     if( !eqUploaders.empty( ))
-        EQWARN << eqUploaders.size() 
+        LBWARN << eqUploaders.size() 
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
     eqUploaders.clear();
@@ -131,7 +131,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->lists.end(); ++i )
     {
         const Object& object = i->second;
-        EQVERB << "Delete list " << object.id << std::endl;
+        LBVERB << "Delete list " << object.id << std::endl;
         glDeleteLists( object.id, object.num ); 
     }
     _data->lists.clear();
@@ -140,7 +140,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->textures.end(); ++i )
     {
         const Object& object = i->second;
-        EQVERB << "Delete texture " << object.id << std::endl;
+        LBVERB << "Delete texture " << object.id << std::endl;
         glDeleteTextures( 1, &object.id ); 
     }
     _data->textures.clear();
@@ -149,7 +149,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->buffers.end(); ++i )
     {
         const Object& object = i->second;
-        EQVERB << "Delete buffer " << object.id << std::endl;
+        LBVERB << "Delete buffer " << object.id << std::endl;
         glDeleteBuffers( 1, &object.id ); 
     }
     _data->buffers.clear();
@@ -158,7 +158,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->programs.end(); ++i )
     {
         const Object& object = i->second;
-        EQVERB << "Delete program " << object.id << std::endl;
+        LBVERB << "Delete program " << object.id << std::endl;
         glDeleteProgram( object.id ); 
     }
     _data->programs.clear();
@@ -167,7 +167,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->shaders.end(); ++i )
     {
         const Object& object = i->second;
-        EQVERB << "Delete shader " << object.id << std::endl;
+        LBVERB << "Delete shader " << object.id << std::endl;
         glDeleteShader( object.id ); 
     }
     _data->shaders.clear();
@@ -176,7 +176,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
-        EQVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
+        LBVERB << "Delete eq::Texture " << i->first << " @" << (void*)texture
                << std::endl;
         texture->flush();
         delete texture;
@@ -187,7 +187,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqFonts.end(); ++i )
     {
         util::BitmapFont< T >* font = i->second;
-        EQVERB << "Delete eq::Font " << i->first << " @" << (void*)font
+        LBVERB << "Delete eq::Font " << i->first << " @" << (void*)font
                << std::endl;
         font->exit();
         delete font;
@@ -199,7 +199,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqFrameBufferObjects.end(); ++i )
     {
         FrameBufferObject* frameBufferObject = i->second;
-        EQVERB << "Delete eq::FrameBufferObject " << i->first << " @" 
+        LBVERB << "Delete eq::FrameBufferObject " << i->first << " @" 
                << (void*)frameBufferObject << std::endl;
         frameBufferObject->exit();
         delete frameBufferObject;
@@ -212,7 +212,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqUploaders.end(); ++i )
     {
         GPUCompressor* uploader = i->second;
-        EQVERB << "Delete eq::GPUCompressor " << i->first << " @" 
+        LBVERB << "Delete eq::GPUCompressor " << i->first << " @" 
                << (void*)uploader << std::endl;
         delete uploader;
     }
@@ -238,14 +238,14 @@ GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
 {
     if( _data->lists.find( key ) != _data->lists.end( ))
     {
-        EQWARN << "Requested new list for existing key" << std::endl;
+        LBWARN << "Requested new list for existing key" << std::endl;
         return INVALID;
     }
 
     const GLuint id = glGenLists( num );
     if( !id )
     {
-        EQWARN << "glGenLists failed: " << glGetError() << std::endl;
+        LBWARN << "glGenLists failed: " << glGetError() << std::endl;
         return INVALID;
     }
     
@@ -295,7 +295,7 @@ GLuint ObjectManager<T>::newTexture( const T& key )
 {
     if( _data->textures.find( key ) != _data->textures.end( ))
     {
-        EQWARN << "Requested new texture for existing key" << std::endl;
+        LBWARN << "Requested new texture for existing key" << std::endl;
         return INVALID;
     }
 
@@ -303,7 +303,7 @@ GLuint ObjectManager<T>::newTexture( const T& key )
     glGenTextures( 1, &id );
     if( id == INVALID )
     {
-        EQWARN << "glGenTextures failed: " << glGetError() << std::endl;
+        LBWARN << "glGenTextures failed: " << glGetError() << std::endl;
         return INVALID;
     }
     
@@ -357,13 +357,13 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
 {
     if( !GLEW_VERSION_1_5 )
     {
-        EQWARN << "glGenBuffers not available" << std::endl;
+        LBWARN << "glGenBuffers not available" << std::endl;
         return INVALID;
     }
 
     if( _data->buffers.find( key ) != _data->buffers.end() )
     {
-        EQWARN << "Requested new buffer for existing key" << std::endl;
+        LBWARN << "Requested new buffer for existing key" << std::endl;
         return INVALID;
     }
 
@@ -372,7 +372,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
 
     if( id == INVALID )
     {
-        EQWARN << "glGenBuffers failed: " << glGetError() << std::endl;
+        LBWARN << "glGenBuffers failed: " << glGetError() << std::endl;
         return INVALID;
     }
     
@@ -426,20 +426,20 @@ GLuint ObjectManager<T>::newProgram( const T& key )
 {
     if( !GLEW_VERSION_2_0 )
     {
-        EQWARN << "glCreateProgram not available" << std::endl;
+        LBWARN << "glCreateProgram not available" << std::endl;
         return INVALID;
     }
 
     if( _data->programs.find( key ) != _data->programs.end() )
     {
-        EQWARN << "Requested new program for existing key" << std::endl;
+        LBWARN << "Requested new program for existing key" << std::endl;
         return INVALID;
     }
 
     const GLuint id = glCreateProgram();
     if( !id )
     {
-        EQWARN << "glCreateProgram failed: " << glGetError() << std::endl;
+        LBWARN << "glCreateProgram failed: " << glGetError() << std::endl;
         return INVALID;
     }
     
@@ -493,20 +493,20 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
 {
     if( !GLEW_VERSION_2_0 )
     {
-        EQWARN << "glCreateShader not available" << std::endl;
+        LBWARN << "glCreateShader not available" << std::endl;
         return INVALID;
     }
 
     if( _data->shaders.find( key ) != _data->shaders.end() )
     {
-        EQWARN << "Requested new shader for existing key" << std::endl;
+        LBWARN << "Requested new shader for existing key" << std::endl;
         return INVALID;
     }
 
     const GLuint id = glCreateShader( type );
     if( !id )
     {
-        EQWARN << "glCreateShader failed: " << glGetError() << std::endl;
+        LBWARN << "glCreateShader failed: " << glGetError() << std::endl;
         return INVALID;
     }
 
@@ -552,7 +552,7 @@ Accum* ObjectManager<T>::newEqAccum( const T& key )
 {
     if( _data->accums.find( key ) != _data->accums.end( ))
     {
-        EQWARN << "Requested new Accumulation for existing key" << std::endl;
+        LBWARN << "Requested new Accumulation for existing key" << std::endl;
         return 0;
     }
 
@@ -601,7 +601,7 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
 {
     if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
     {
-        EQWARN << "Requested new Accumulation for existing key" << std::endl;
+        LBWARN << "Requested new Accumulation for existing key" << std::endl;
         return 0;
     }
 
@@ -655,7 +655,7 @@ Texture* ObjectManager<T>::newEqTexture( const T& key, const GLenum target )
 {
     if( _data->eqTextures.find( key ) != _data->eqTextures.end( ))
     {
-        EQWARN << "Requested new eqTexture for existing key" << std::endl;
+        LBWARN << "Requested new eqTexture for existing key" << std::endl;
         return 0;
     }
 
@@ -703,7 +703,7 @@ util::BitmapFont< T >* ObjectManager<T>::newEqBitmapFont( const T& key )
 {
     if( _data->eqFonts.find( key ) != _data->eqFonts.end( ))
     {
-        EQWARN << "Requested new eqFont for existing key" << std::endl;
+        LBWARN << "Requested new eqFont for existing key" << std::endl;
         return 0;
     }
 
@@ -759,7 +759,7 @@ FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
     if( _data->eqFrameBufferObjects.find( key ) !=
         _data->eqFrameBufferObjects.end( ))
     {
-        EQWARN << "Requested new eqFrameBufferObject for existing key"
+        LBWARN << "Requested new eqFrameBufferObject for existing key"
                << std::endl;
         return 0;
     }
@@ -818,7 +818,7 @@ PixelBufferObject* ObjectManager<T>::newEqPixelBufferObject( const T& key,
     if( _data->eqPixelBufferObjects.find( key ) !=
         _data->eqPixelBufferObjects.end( ))
     {
-        EQWARN << "Requested new eqPixelBufferObject for existing key"
+        LBWARN << "Requested new eqPixelBufferObject for existing key"
                << std::endl;
         return 0;
     }
@@ -838,7 +838,7 @@ PixelBufferObject* ObjectManager<T>::obtainEqPixelBufferObject( const T& key,
     {
         if( pixelBufferObject->isThreadSafe() != threadSafe )
         {
-            EQERROR << "Wrong sharing option requested!" << std::endl;
+            LBERROR << "Wrong sharing option requested!" << std::endl;
             return 0;
         }
         return pixelBufferObject;

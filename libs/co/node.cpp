@@ -30,19 +30,19 @@ Node::Node()
         , _state( STATE_CLOSED )
         , _lastReceive ( 0 )
 {
-    EQVERB << "New Node @" << (void*)this << " " << _id << std::endl;
+    LBVERB << "New Node @" << (void*)this << " " << _id << std::endl;
 }
 
 Node::~Node()
 {
-    EQVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
-    EQASSERT( _outgoing == 0 );
+    LBVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
+    LBASSERT( _outgoing == 0 );
     _connectionDescriptions->clear();
 }
 
 bool Node::operator == ( const Node* node ) const
 { 
-    EQASSERTINFO( _id != node->_id || this == node,
+    LBASSERTINFO( _id != node->_id || this == node,
                   "Two node instances with the same ID found "
                   << (void*)this << " and " << (void*)node );
 
@@ -73,7 +73,7 @@ ConnectionPtr Node::useMulticast()
     NodePtr node = data.node;
 
     // prime multicast connections on peers
-    EQINFO << "Announcing id " << node->getNodeID() << " to multicast group "
+    LBINFO << "Announcing id " << node->getNodeID() << " to multicast group "
            << data.connection->getDescription() << std::endl;
 
     NodeIDPacket packet;
@@ -127,13 +127,13 @@ std::string Node::serialize() const
  
 bool Node::deserialize( std::string& data )
 {
-    EQASSERT( _state == STATE_CLOSED );
+    LBASSERT( _state == STATE_CLOSED );
 
     // node id
     size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
-        EQERROR << "Could not parse node data" << std::endl;
+        LBERROR << "Could not parse node data" << std::endl;
         return false;
     }
 
@@ -147,7 +147,7 @@ bool Node::deserialize( std::string& data )
 
 NodePtr Node::createNode( const uint32_t type )
 {
-    EQASSERTINFO( type == NODETYPE_CO_NODE, type );
+    LBASSERTINFO( type == NODETYPE_CO_NODE, type );
     return new Node;
 }
 

@@ -45,7 +45,7 @@ namespace server
          */
         //@{
         void setCompound( Compound* compound )
-            { EQASSERT( !_compound ); _compound = compound; }
+            { LBASSERT( !_compound ); _compound = compound; }
         Compound* getCompound() const { return _compound; }
         Channel* getChannel() const 
             { return _compound ? _compound->getChannel() :0; }

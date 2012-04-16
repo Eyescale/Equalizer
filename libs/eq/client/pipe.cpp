@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -16,6 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <pthread.h> // needed for PerThread instantiation
 #include "pipe.h"
 
 #include "client.h"
@@ -48,18 +49,13 @@
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
+#include <co/worker.h>
 #include <sstream>
 
 namespace eq
 {
-    typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
-
-namespace
-{
-static const Window* _ntCurrentWindow = 0;
-}
-
 /** @cond IGNORE */
+typedef fabric::Pipe< Node, Pipe, Window, PipeVisitor > Super;
 typedef co::CommandFunc<Pipe> PipeFunc;
 /** @endcond */
 
@@ -77,6 +73,23 @@ private:
     friend class Pipe;
 };
 
+namespace detail
+{
+
+/** Asynchronous, per-pipe readback thread. */
+class TransferThread : public co::Worker
+{
+public:
+    TransferThread() : co::Worker(), _running( true ){}
+
+    virtual bool stopRunning() { return !_running; }
+    void postStop() { _running = false; }
+
+private:
+    bool _running; // thread will exit if this is false
+};
+}
+
 Pipe::Pipe( Node* parent )
         : Super( parent )
         , _systemPipe( 0 )
@@ -84,43 +97,45 @@ Pipe::Pipe( Node* parent )
         , _currentFrame( 0 )
         , _frameTime( 0 )
         , _thread( 0 )
-        , _currentWindow( 0 )
+        , _transferThread( new detail::TransferThread( ))
         , _computeContext( 0 )
 {
 }
 
 Pipe::~Pipe()
 {
-    EQASSERT( getWindows().empty( ));
+    LBASSERT( getWindows().empty( ));
     delete _thread;
     _thread = 0;
+
+    delete _transferThread;
 }
 
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 ClientPtr Pipe::getClient()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getClient() : 0);
 }
 
 ServerPtr Pipe::getServer()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getServer() : 0);
 }
 
@@ -129,6 +144,7 @@ void Pipe::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
     
     co::CommandQueue* queue = getPipeThreadQueue();
+    co::CommandQueue* transferQ = getTransferThreadQueue();
 
     registerCommand( fabric::CMD_PIPE_CONFIG_INIT, 
                      PipeFunc( this, &Pipe::_cmdConfigInit ), queue );
@@ -150,6 +166,9 @@ void Pipe::attach( const UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdExitThread ), queue );
     registerCommand( fabric::CMD_PIPE_DETACH_VIEW,
                      PipeFunc( this, &Pipe::_cmdDetachView ), queue );
+    registerCommand( fabric::CMD_PIPE_EXIT_TRANSFER_THREAD,
+                     PipeFunc( this, &Pipe::_cmdExitTransferThread ),
+                     transferQ );
 }
 
 void Pipe::setDirty( const uint64_t bits )
@@ -170,7 +189,7 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    EQINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
+    LBINFO << "Set up pipe message pump for " << _windowSystem << std::endl;
 
     Config* config = getConfig();
     config->setupMessagePump( this );
@@ -179,8 +198,8 @@ void Pipe::_setupCommandQueue()
         return;
     
     CommandQueue* queue = _thread->getWorkerQueue();
-    EQASSERT( queue );
-    EQASSERT( !queue->getMessagePump( ));
+    LBASSERT( queue );
+    LBASSERT( !queue->getMessagePump( ));
 
     Global::enterCarbon();
     MessagePump* pump = createMessagePump();
@@ -220,7 +239,7 @@ void Pipe::_exitCommandQueue()
         return;
     
     CommandQueue* queue = _thread->getWorkerQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     MessagePump* pump = queue->getMessagePump();
     queue->setMessagePump( 0 );
@@ -245,7 +264,7 @@ MessagePump* Pipe::getMessagePump()
 void Pipe::Thread::run()
 {
     LB_TS_THREAD( _pipe->_pipeThread );
-    EQINFO << "Entered pipe thread" << std::endl;
+    LBINFO << "Entered pipe thread" << std::endl;
 
     Pipe* pipe = _pipe; // _pipe gets cleared on exit
     pipe->_state.waitEQ( STATE_MAPPED );
@@ -256,7 +275,7 @@ void Pipe::Thread::run()
     Worker::run();
 
     pipe->_exitCommandQueue();
-    EQINFO << "Leaving pipe thread" << std::endl;
+    LBINFO << "Leaving pipe thread" << std::endl;
 }
 
 co::CommandQueue* Pipe::getPipeThreadQueue()
@@ -265,6 +284,11 @@ co::CommandQueue* Pipe::getPipeThreadQueue()
         return _thread->getWorkerQueue();
 
     return getNode()->getMainThreadQueue();
+}
+
+co::CommandQueue* Pipe::getTransferThreadQueue()
+{
+    return _transferThread->getWorkerQueue();
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
@@ -288,24 +312,24 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         ClientPtr client = getClient();
         frame = new Frame();
 
-        EQCHECK( client->mapObject( frame, frameVersion ));
+        LBCHECK( client->mapObject( frame, frameVersion ));
         _frames[ frameVersion.identifier ] = frame;
     }
     else
         frame->sync( frameVersion.version );
 
     const co::ObjectVersion& dataVersion = frame->getDataVersion( eye );
-    EQLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
     FrameData* frameData = getNode()->getFrameData( dataVersion );
-    EQASSERT( frameData );
+    LBASSERT( frameData );
 
     if( isOutput )
     {
         if( !frameData->isAttached() )
         {
             ClientPtr client = getClient();
-            EQCHECK( client->mapObject( frameData, dataVersion ));
+            LBCHECK( client->mapObject( frameData, dataVersion ));
         }
         else if( frameData->getVersion() < dataVersion.version )
             frameData->sync( dataVersion.version );
@@ -352,7 +376,7 @@ co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
     {
         queue = new co::QueueSlave;
         ClientPtr client = getClient();
-        EQCHECK( client->mapObject( queue, queueVersion ));
+        LBCHECK( client->mapObject( queue, queueVersion ));
 
         _queues[ queueVersion.identifier ] = queue;
     }
@@ -392,10 +416,10 @@ View* Pipe::getView( const co::ObjectVersion& viewVersion )
     {
         NodeFactory* nodeFactory = Global::getNodeFactory();
         view = nodeFactory->createView( 0 );
-        EQASSERT( view );
+        LBASSERT( view );
         view->_pipe = this;        
         ClientPtr client = getClient();
-        EQCHECK( client->mapObject( view, viewVersion ));
+        LBCHECK( client->mapObject( view, viewVersion ));
 
         _views[ viewVersion.identifier ] = view;
     }
@@ -450,21 +474,6 @@ void Pipe::_flushViews()
     _views.clear();
 }
 
-bool Pipe::isCurrent( const Window* window ) const
-{
-    if( isThreaded( ))
-        return ( window == _currentWindow );
-    return ( window == _ntCurrentWindow );
-}
-
-void Pipe::setCurrent( const Window* window ) const
-{
-    if( isThreaded( ))
-        _currentWindow = window;
-    else
-        _ntCurrentWindow = window;
-}
-
 void Pipe::startThread()
 {
     _thread = new Thread( this );
@@ -473,6 +482,8 @@ void Pipe::startThread()
 
 void Pipe::exitThread()
 {
+    _stopTransferThread();
+
     if( !_thread )
         return;
 
@@ -486,6 +497,8 @@ void Pipe::exitThread()
 
 void Pipe::cancelThread()
 {
+    _stopTransferThread();
+
     if( !_thread )
         return;
 
@@ -515,7 +528,7 @@ bool Pipe::isStopped() const
 
 void Pipe::notifyMapped()
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_MAPPED;
 }
 
@@ -548,25 +561,25 @@ bool Pipe::configInit( const uint128_t& initID )
 {
     LB_TS_THREAD( _pipeThread );
 
-    EQASSERT( !_systemPipe );
+    LBASSERT( !_systemPipe );
 
     if ( !configInitSystemPipe( initID ))
         return false;   
 
     // -------------------------------------------------------------------------
-    EQASSERT(!_computeContext);
+    LBASSERT(!_computeContext);
 
     // for now we only support CUDA
 #ifdef EQ_USE_CUDA
     if( getIAttribute( IATTR_HINT_CUDA_GL_INTEROP ) == eq::ON )
     {
-        EQINFO << "Initializing CUDAContext" << std::endl;
+        LBINFO << "Initializing CUDAContext" << std::endl;
         ComputeContext* computeCtx = new CUDAContext( this );
 
         if( !computeCtx->configInit() )
         {
-            EQASSERT( getError() != ERROR_NONE );
-            EQWARN << "GPU Computing context initialization failed: "
+            LBASSERT( getError() != ERROR_NONE );
+            LBWARN << "GPU Computing context initialization failed: "
                    << getError() << std::endl;
             delete computeCtx;
             return false;
@@ -581,12 +594,12 @@ bool Pipe::configInit( const uint128_t& initID )
 bool Pipe::configInitSystemPipe( const uint128_t& )
 {
     SystemPipe* systemPipe = _windowSystem.createPipe( this );
-    EQASSERT( systemPipe );
+    LBASSERT( systemPipe );
 
     if( !systemPipe->configInit( ))
     {
-        EQASSERT( getError() != ERROR_NONE );
-        EQERROR << "System pipe context initialization failed: "
+        LBASSERT( getError() != ERROR_NONE );
+        LBERROR << "System pipe context initialization failed: "
                 << getError() << std::endl;
         delete systemPipe;
         return false;
@@ -634,7 +647,7 @@ void Pipe::frameStart( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     startFrame( frameNumber );
@@ -656,7 +669,7 @@ void Pipe::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -676,7 +689,7 @@ void Pipe::frameFinish( const uint128_t&, const uint32_t frameNumber )
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     // Global release
@@ -687,25 +700,49 @@ void Pipe::startFrame( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
     _currentFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "---- Started Frame ---- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrame( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
     _finishedFrame = frameNumber; 
-    EQLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
+    LBLOG( LOG_TASKS ) << "---- Finished Frame --- "<< frameNumber << std::endl;
 }
 
 void Pipe::releaseFrameLocal( const uint32_t frameNumber )
 { 
     LB_TS_THREAD( _pipeThread );
-    EQASSERTINFO( _unlockedFrame + 1 == frameNumber,
+    LBASSERTINFO( _unlockedFrame + 1 == frameNumber,
                   _unlockedFrame << ", " << frameNumber );
 
     _unlockedFrame = frameNumber;
-    EQLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
+    LBLOG( LOG_TASKS ) << "---- Unlocked Frame --- " << _unlockedFrame.get()
                        << std::endl;
+}
+
+bool Pipe::startTransferThread()
+{
+    if( _transferThread->isRunning( ))
+        return true;
+
+    return _transferThread->start();
+}
+
+bool Pipe::hasTransferThread() const
+{
+    return _transferThread->isRunning();
+}
+
+void Pipe::_stopTransferThread()
+{
+    if( _transferThread->isStopped( ))
+        return;
+
+    PipeExitTransferThreadPacket packet;
+    send( getLocalNode(), packet );
+
+    _transferThread->join();
 }
 
 //---------------------------------------------------------------------------
@@ -715,13 +752,13 @@ bool Pipe::_cmdCreateWindow( co::Command& command )
 {
     const PipeCreateWindowPacket* packet = 
         command.get<PipeCreateWindowPacket>();
-    EQLOG( LOG_INIT ) << "Create window " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create window " << packet << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     window->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    EQCHECK( config->mapObject( window, packet->windowID ));
+    LBCHECK( config->mapObject( window, packet->windowID ));
     
     return true;
 }
@@ -730,10 +767,10 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
 {
     const PipeDestroyWindowPacket* packet =
         command.get<PipeDestroyWindowPacket>();
-    EQLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
 
     Window* window = _findWindow( packet->windowID );
-    EQASSERT( window );
+    LBASSERT( window );
 
     // re-set shared windows accordingly
     Window* newSharedWindow = 0;
@@ -756,7 +793,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
             }
         }
 
-        EQASSERT( candidate->getSharedContextWindow() != window );
+        LBASSERT( candidate->getSharedContextWindow() != window );
     }
 
     WindowConfigExitReplyPacket reply( packet->windowID, window->isStopped( ));
@@ -774,7 +811,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeConfigInitPacket* packet = 
         command.get<PipeConfigInitPacket>();
-    EQLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
 
     if( !isThreaded( ))
     {
@@ -786,7 +823,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
     setError( ERROR_NONE );
 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     node->waitInitialized();
 
     if( node->isRunning( ))
@@ -807,7 +844,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         reply.result = false;
     }
 
-    EQLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
 
     co::NodePtr netNode = command.getNode();
 
@@ -821,7 +858,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeConfigExitPacket* packet = 
         command.get<PipeConfigExitPacket>();
-    EQLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
 
     _state = STATE_STOPPING; // needed in View::detach (from _flushViews)
 
@@ -840,14 +877,21 @@ bool Pipe::_cmdConfigExit( co::Command& command )
 
 bool Pipe::_cmdExitThread( co::Command& command )
 {
-    EQASSERT( _thread );
+    LBASSERT( _thread );
     _thread->_pipe = 0;
+    return true;
+}
+
+bool Pipe::_cmdExitTransferThread( co::Command& )
+{
+    LBASSERT( _transferThread );
+    _transferThread->postStop();
     return true;
 }
 
 bool Pipe::_cmdFrameStartClock( co::Command& )
 {
-    EQVERB << "start frame clock" << std::endl;
+    LBVERB << "start frame clock" << std::endl;
     _frameTimeMutex.set();
     _frameTimes.push_back( getConfig()->getTime( ));
     _frameTimeMutex.unset();
@@ -859,13 +903,13 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameStartPacket* packet = 
         command.get<PipeFrameStartPacket>();
-    EQVERB << "handle pipe frame start " << packet << std::endl;
-    EQLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
+    LBVERB << "handle pipe frame start " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
     sync( packet->version );
     const int64_t lastFrameTime = _frameTime;
 
     _frameTimeMutex.set();
-    EQASSERT( !_frameTimes.empty( ));
+    LBASSERT( !_frameTimes.empty( ));
 
     _frameTime = _frameTimes.front();
     _frameTimes.pop_front();
@@ -880,7 +924,7 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     }
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _currentFrame + 1 == frameNumber,
+    LBASSERTINFO( _currentFrame + 1 == frameNumber,
                   "current " << _currentFrame << " start " << frameNumber );
 
     frameStart( packet->frameID, frameNumber );
@@ -892,20 +936,20 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameFinishPacket* packet =
         command.get<PipeFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
 
     const uint32_t frameNumber = packet->frameNumber;
-    EQASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber, 
                   "current " << _currentFrame << " finish " << frameNumber );
 
     frameFinish( packet->frameID, frameNumber );
     
-    EQASSERTINFO( _finishedFrame >= frameNumber, 
+    LBASSERTINFO( _finishedFrame >= frameNumber, 
                   "Pipe::frameFinish() did not release frame " << frameNumber );
 
     if( _unlockedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+        LBWARN << "Finished frame was not locally unlocked, enforcing unlock" 
                << std::endl << "    unlocked " << _unlockedFrame.get()
                << " done " << frameNumber << std::endl;
         releaseFrameLocal( frameNumber );
@@ -913,7 +957,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
     if( _finishedFrame < frameNumber )
     {
-        EQWARN << "Finished frame was not released, enforcing unlock"
+        LBWARN << "Finished frame was not released, enforcing unlock"
                << std::endl;
         releaseFrame( frameNumber );
     }
@@ -934,7 +978,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& command )
     LB_TS_THREAD( _pipeThread );
     const PipeFrameDrawFinishPacket* packet =
         command.get< PipeFrameDrawFinishPacket >();
-    EQLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
                        << std::endl;
 
     frameDrawFinish( packet->frameID, packet->frameNumber );

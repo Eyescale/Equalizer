@@ -29,7 +29,7 @@
 
 #define TEST( x )                                                       \
     {                                                                   \
-        EQVERB << "Test " << #x << std::endl;                           \
+        LBVERB << "Test " << #x << std::endl;                           \
         if( !(x) )                                                      \
         {                                                               \
             OUTPUT << #x << " failed (l." << __LINE__ << ')' << std::endl; \
@@ -39,7 +39,7 @@
 
 #define TESTINFO( x, info )                                           \
     {                                                                 \
-        EQVERB << "Test " << #x << ": " << info << std::endl;         \
+        LBVERB << "Test " << #x << ": " << info << std::endl;         \
         if( !(x) )                                                    \
         {                                                             \
             OUTPUT << #x << " failed (l." << __LINE__ << "): " << info  \
