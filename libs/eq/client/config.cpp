@@ -171,11 +171,13 @@ class SetDefaultVisitor : public ConfigVisitor
 {
 public:
     SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
-            : _layouts( activeLayouts ), _modelUnit( modelUnit ) {}
+            : _layouts( activeLayouts ), _modelUnit( modelUnit )
+            , _update( false ) {}
 
     virtual VisitorResult visit( View* view )
         {
-            view->setModelUnit( _modelUnit );
+            if( view->setModelUnit( _modelUnit ))
+                _update = true;
             return TRAVERSE_CONTINUE;
         }
 
@@ -189,16 +191,22 @@ public:
                 for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
                 {
                     const Layout* layout = *j;
-                    if( layout->getName() == name )
-                        canvas->useLayout( j - layouts.begin( ));
+                    if( layout->getName() == name &&
+                        canvas->useLayout( j - layouts.begin( )))
+                    {
+                        _update = true;
+                    }
                 }
             }
             return TRAVERSE_CONTINUE;
         }
 
+    bool needsUpdate() const { return _update; }
+
 private:
     const Strings& _layouts;
     const float _modelUnit;
+    bool _update;
 };
 }
 
@@ -214,6 +222,8 @@ bool Config::init( const uint128_t& initID )
     SetDefaultVisitor defaults( client->getActiveLayouts(),
                                 client->getModelUnit( ));
     accept( defaults );
+    if( defaults.needsUpdate( ))
+        update();
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;

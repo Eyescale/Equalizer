@@ -297,14 +297,15 @@ const L* Canvas< CFG, C, S, L >::getActiveLayout() const
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
+bool Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
 {
     LBASSERT( index < _layouts.size( ));
     if( _data.activeLayout == index )
-        return;
+        return false;
 
     _data.activeLayout = index;
     setDirty( DIRTY_LAYOUT );
+    return true;
 }
 
 template< class CFG, class C, class S, class L >

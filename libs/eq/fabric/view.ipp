@@ -183,15 +183,16 @@ bool View< L, V, O >::isActive() const
 }
 
 template< class L, class V, class O >
-void View< L, V, O >::setModelUnit( const float modelUnit )
+bool View< L, V, O >::setModelUnit( const float modelUnit )
 {
     if( modelUnit < std::numeric_limits< float >::epsilon() ||
         _data.modelUnit == modelUnit )
     {
-        return;
+        return false;
     }
     _data.modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
+    return true;
 }
 
 template< class L, class V, class O >

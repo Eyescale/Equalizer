@@ -103,8 +103,12 @@ namespace fabric
 
         /** @name Operations */
         //@{
-        /** Activate the given layout on this canvas. @version 1.0 */
-        EQFABRIC_INL virtual void useLayout( const uint32_t index );
+        /**
+         * Activate the given layout on this canvas.
+         * @return true if the active layout changed.
+         * @version 1.0
+         */
+        EQFABRIC_INL virtual bool useLayout( const uint32_t index );
 
         /** 
          * Traverse this canvas and all children using a canvas visitor.
