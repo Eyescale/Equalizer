@@ -73,7 +73,8 @@
 
   2.3. Optimizations
 
-     * 109
+     * 109: Race and performance issue with multicast object
+       distribution
 
   2.4. Examples
 
@@ -96,9 +97,10 @@
    Equalizer 1.2.1 includes the following bugfixes over the
    1.2 release:
 
+     * 103: RSP race during connection
      * 105: Sequel missing from packages
      * 107: Installed examples CMake build does not work
-     * 10:
+     * 112: --eq-layout gets activated on second frame
 
   2.9. Known Bugs
 

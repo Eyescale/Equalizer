@@ -84,7 +84,7 @@ No enhancements
 2.3. Optimizations
 ~~~~~~~~~~~~~~~~~~
 
--   109
+-   `109`_: Race and performance issue with multicast object distribution
 
 
 2.4. Examples
@@ -116,9 +116,10 @@ No documentation changes
 
 Equalizer 1.2.1 includes the following bugfixes over the 1.2 release:
 
+-   `103`_: RSP race during connection
 -   `105`_: Sequel missing from packages
 -   `107`_: Installed examples CMake build does not work
--   `10`_:
+-   `112`_: --eq-layout gets activated on second frame
 
 
 2.9. Known Bugs
@@ -215,9 +216,11 @@ information.
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/major.html#1.2
 .. _detailed feature list: /features.html
+.. _109: https://github.com/Eyescale/Equalizer/issues/109
+.. _103: https://github.com/Eyescale/Equalizer/issues/103
 .. _105: https://github.com/Eyescale/Equalizer/issues/105
 .. _107: https://github.com/Eyescale/Equalizer/issues/107
-.. _10: https://github.com/Eyescale/Equalizer/issues/10
+.. _112: https://github.com/Eyescale/Equalizer/issues/112
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
 .. _78: https://github.com/Eyescale/Equalizer/issues/78
 .. _76: https://github.com/Eyescale/Equalizer/issues/76
