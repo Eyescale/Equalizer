@@ -158,7 +158,8 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_ADDED )
     {
         os << _impl->added;
-        for( IDVectorCIter i = _impl->added.begin(); i != _impl->added.end(); ++i )
+        for( IDVectorCIter i = _impl->added.begin();
+             i != _impl->added.end(); ++i )
         {
             const Entry& entry = _impl->map[ *i ];
             os << entry.version << entry.type;
@@ -197,8 +198,7 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
         IDVector added;
         is >> added;
 
-        for( std::vector< uint128_t >::const_iterator i = added.begin();
-             i != added.end(); ++i )
+        for( IDVectorCIter i = added.begin(); i != added.end(); ++i )
         {
             LBASSERT( _impl->map.find( *i ) == _impl->map.end( ));
             Entry& entry = _impl->map[ *i ];
