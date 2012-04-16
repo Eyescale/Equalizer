@@ -312,9 +312,9 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * @param queue the queue where the command should be inserted to
          * @return true on successful registering, false otherwise
          */
-        CO_API bool registerCustomCommand( const uint128_t& command,
-                                           const CommandHandler& func,
-                                           CommandQueue* queue );
+        CO_API bool registerCommandHandler( const uint128_t& command,
+                                            const CommandHandler& func,
+                                            CommandQueue* queue );
 
         /** @internal swap the existing object by a new object and keep
                       the cm, id and instanceID. */
@@ -482,8 +482,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         bool _cmdAddListener( Command& command );
         bool _cmdRemoveListener( Command& command );
         bool _cmdPing( Command& command );
-        bool _cmdUUID( Command& command );
-        bool _cmdUUIDAsync( Command& command );
+        bool _cmdCommand( Command& command );
+        bool _cmdCommandAsync( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
         //@}
 

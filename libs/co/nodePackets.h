@@ -461,16 +461,6 @@ namespace co
         }
     };
 
-    struct UUIDPacket : public NodePacket
-    {
-        UUIDPacket()
-        {
-            command = CMD_NODE_UUID_COMMAND;
-            size    = sizeof( UUIDPacket );
-        }
-        uint128_t custom;
-    };
-
     //------------------------------------------------------------
     inline std::ostream& operator << ( std::ostream& os, 
                                        const NodeConnectPacket* packet )

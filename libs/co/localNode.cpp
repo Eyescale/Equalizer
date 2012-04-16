@@ -161,7 +161,7 @@ public:
     lunchbox::Lockable< HandlerHash, lunchbox::Lock > pushHandlers;
 
     /** The registered custom command handlers. */
-    lunchbox::Lockable< CommandHash, lunchbox::SpinLock > customHandlers;
+    lunchbox::Lockable< CommandHash, lunchbox::SpinLock > commandHandlers;
 
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
@@ -214,8 +214,8 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdPing ), queue );
     registerCommand( CMD_NODE_PING_REPLY,
                      CmdFunc( this, &LocalNode::_cmdDiscard ), 0 );
-    registerCommand( CMD_NODE_UUID_COMMAND,
-                     CmdFunc( this, &LocalNode::_cmdUUID ), 0 );
+    registerCommand( CMD_NODE_COMMAND,
+                     CmdFunc( this, &LocalNode::_cmdCommand ), 0 );
 }
 
 LocalNode::~LocalNode( )
@@ -780,19 +780,19 @@ void LocalNode::registerPushHandler( const uint128_t& groupID,
     (*_impl->pushHandlers)[ groupID ] = handler;
 }
 
-bool LocalNode::registerCustomCommand( const uint128_t& command,
-                                       const CommandHandler& func,
-                                       CommandQueue* queue )
+bool LocalNode::registerCommandHandler( const uint128_t& command,
+                                        const CommandHandler& func,
+                                        CommandQueue* queue )
 {
-    lunchbox::ScopedFastWrite mutex( _impl->customHandlers );
-    if( _impl->customHandlers->find( command ) != _impl->customHandlers->end( ))
+    lunchbox::ScopedFastWrite mutex( _impl->commandHandlers );
+    if( _impl->commandHandlers->find(command) != _impl->commandHandlers->end( ))
     {
         LBWARN << "Already got a registered handler for custom command "
                << command << std::endl;
         return false;
     }
 
-    _impl->customHandlers->insert( std::make_pair( command,
+    _impl->commandHandlers->insert( std::make_pair( command,
                                                 std::make_pair( func, queue )));
     return true;
 }
@@ -1959,39 +1959,45 @@ bool LocalNode::_cmdPing( Command& command )
     return true;
 }
 
-bool LocalNode::_cmdUUID( Command& command )
+bool LocalNode::_cmdCommand( Command& command )
 {
-    const UUIDPacket* packet = command.get< UUIDPacket >();
-
-    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
-    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
-    if( i == _impl->customHandlers->end( ))
-        return false;
-
-    CommandQueue* queue = i->second.second;
-    if( queue )
+    const NodeCommandPacket* packet = command.get< NodeCommandPacket >();
+    CommandHandler func;
     {
-        command.setDispatchFunction( CmdFunc( this, &LocalNode::_cmdUUIDAsync));
-        queue->push( command );
-        return true;
-    }
-    // else
+        lunchbox::ScopedFastRead mutex( _impl->commandHandlers );
+        CommandHashCIter i = _impl->commandHandlers->find( packet->custom );
+        if( i == _impl->commandHandlers->end( ))
+            return false;
 
-    const CommandHandler& func = i->second.first;
-    LBCHECK( func( command ));
-    return true;
+        CommandQueue* queue = i->second.second;
+        if( queue )
+        {
+            command.setDispatchFunction( CmdFunc( this,
+                                                &LocalNode::_cmdCommandAsync ));
+            queue->push( command );
+            return true;
+        }
+        // else
+
+        func = i->second.first;
+    }
+
+    return func( command );
 }
 
-bool LocalNode::_cmdUUIDAsync( Command& command )
+bool LocalNode::_cmdCommandAsync( Command& command )
 {
-    const UUIDPacket* packet = command.get< UUIDPacket >();
-
-    lunchbox::ScopedFastRead mutex( _impl->customHandlers );
-    CommandHashCIter i = _impl->customHandlers->find( packet->custom );
-    LBASSERT( i != _impl->customHandlers->end( ));
-    const CommandHandler& func = i->second.first;
-    LBCHECK( func( command ));
-    return true;
+    const NodeCommandPacket* packet = command.get< NodeCommandPacket >();
+    CommandHandler func;
+    {
+        lunchbox::ScopedFastRead mutex( _impl->commandHandlers );
+        CommandHashCIter i = _impl->commandHandlers->find( packet->custom );
+        LBASSERT( i != _impl->commandHandlers->end( ));
+        if( i ==  _impl->commandHandlers->end( ))
+            return true; // deregistered between dispatch and now
+        func = i->second.first;
+    }
+    return func( command );
 }
 
 }
