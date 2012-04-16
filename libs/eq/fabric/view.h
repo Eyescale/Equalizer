@@ -137,9 +137,10 @@ namespace fabric
          * unit which is always in meter.
          *
          * @param modelUnit the new model unit value
+         * @return true if the model unit has changed.
          * @version 1.3.1
          */
-        EQFABRIC_INL void setModelUnit( const float modelUnit );
+        EQFABRIC_INL bool setModelUnit( const float modelUnit );
 
         /**
          * Get the model unit of this view.
