@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <pthread.h>
+#include <pthread.h> // needed for PerThread instantiation
 #include "glWindow.h"
 
 #include "error.h"
