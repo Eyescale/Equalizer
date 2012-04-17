@@ -97,7 +97,7 @@ set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
 
 if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  if(EQUALIZER_RELEASE)
+  if(RELEASE_VERSION)
     set(DPUT_HOST "ppa:eilemann/equalizer")
   else()
     set(DPUT_HOST "ppa:eilemann/equalizer-dev")

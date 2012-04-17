@@ -62,7 +62,7 @@ debug_glx/Makefile:
 	@mkdir -p debug_glx
 	@cd debug_glx; $(CMAKE) .. -DEQUALIZER_PREFER_AGL=OFF
 
-package: release/Makefile ../equalizergraphics.com/build/documents/Developer/API
+package: release/Makefile ../equalizergraphics/build/documents/Developer/API
 	@$(MAKE) -C release doxygen
 	@$(MAKE) -C release package
 
@@ -76,16 +76,16 @@ xcode: XCode/Equalizer.xcodeproj
 tests: debug/Makefile
 	@$(MAKE) -C debug tests
 
-docs: ../equalizergraphics.com/build/documents/Developer/API
+docs: ../equalizergraphics/build/documents/Developer/API
 	@$(MAKE) -C $(BUILD) doxygen
 
-.PHONY: ../equalizergraphics.com/build/documents/Developer/API/internal
-../equalizergraphics.com/build/documents/Developer/API/internal:
-	@mkdir -p ../equalizergraphics.com/build/documents/Developer/API/internal
+.PHONY: ../equalizergraphics/build/documents/Developer/API/internal
+../equalizergraphics/build/documents/Developer/API/internal:
+	@mkdir -p ../equalizergraphics/build/documents/Developer/API/internal
 
-.PHONY: ../equalizergraphics.com/build/documents/Developer/API
-../equalizergraphics.com/build/documents/Developer/API: ../equalizergraphics.com/build/documents/Developer/API/internal $(BUILD)/Makefile
-	@mkdir -p ../equalizergraphics.com/build/collage/documents/Developer/API
+.PHONY: ../equalizergraphics/build/documents/Developer/API
+../equalizergraphics/build/documents/Developer/API: ../equalizergraphics/build/documents/Developer/API/internal $(BUILD)/Makefile
+	@mkdir -p ../equalizergraphics/build/collage/documents/Developer/API
 
 RELNOTES.txt: libs/RelNotes.dox
 	-links -dump -width 65 $< > $@.tmp && mv $@.tmp $@

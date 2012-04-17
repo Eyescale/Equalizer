@@ -315,7 +315,7 @@ namespace eq
          * Finish an asynchronous readback.
          * 
          * @param zoom the scale factor to apply during readback.
-         * @param glObjects the GL object manager for the current GL context.
+         * @param glewContext the OpenGL function table.
          * @version 1.3.2
          */
         EQ_API void finishReadback( const Zoom& zoom,
