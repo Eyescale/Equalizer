@@ -40,6 +40,9 @@ struct Entry //!< One object map item
 typedef stde::hash_map< uint128_t, Entry > Map;
 typedef Map::iterator MapIter;
 typedef Map::const_iterator MapCIter;
+typedef std::vector< uint128_t > IDVector;
+typedef IDVector::iterator IDVectorIter;
+typedef IDVector::const_iterator IDVectorCIter;
 }
 
 namespace detail
@@ -81,7 +84,7 @@ public:
     Objects masters; //!< Master objects registered with this instance
 
     /** Added master objects since the last commit. */
-    std::vector< uint128_t > added;
+    IDVector added;
 
     /** Changed master objects since the last commit. */
     ObjectVersions changed;
@@ -100,7 +103,10 @@ ObjectMap::~ObjectMap()
 uint128_t ObjectMap::commit( const uint32_t incarnation )
 {
     _commitMasters( incarnation );
-    return Serializable::commit( incarnation );
+    const uint128_t& version = Serializable::commit( incarnation );
+    _impl->added.clear();
+    _impl->changed.clear();
+    return version;
 }
 
 bool ObjectMap::isDirty() const
@@ -153,18 +159,16 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_ADDED )
     {
         os << _impl->added;
-        for( std::vector< uint128_t >::const_iterator i = _impl->added.begin();
+        for( IDVectorCIter i = _impl->added.begin();
              i != _impl->added.end(); ++i )
         {
             const Entry& entry = _impl->map[ *i ];
             os << entry.version << entry.type;
         }
-        _impl->added.clear();
     }
     if( dirtyBits & DIRTY_CHANGED )
     {
         os << _impl->changed;
-        _impl->changed.clear();
     }
 }
 
@@ -190,11 +194,10 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
 
     if( dirtyBits & DIRTY_ADDED )
     {
-        std::vector< uint128_t > added;
+        IDVector added;
         is >> added;
 
-        for( std::vector< uint128_t >::const_iterator i = added.begin();
-             i != added.end(); ++i )
+        for( IDVectorCIter i = added.begin(); i != added.end(); ++i )
         {
             LBASSERT( _impl->map.find( *i ) == _impl->map.end( ));
             Entry& entry = _impl->map[ *i ];
@@ -219,6 +222,12 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
                 entry.instance->sync( ov.version );
         }
     }
+}
+
+void ObjectMap::notifyAttached()
+{
+    _impl->added.clear();
+    _impl->changed.clear();
 }
 
 bool ObjectMap::register_( Object* object, const uint32_t type )
