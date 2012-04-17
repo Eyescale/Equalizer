@@ -438,8 +438,6 @@ namespace detail { class TransferThread; }
         void _setupCommandQueue();
         void _setupAffinity();
         void _exitCommandQueue();
-	int _getXDisplayDevice();
-        int _getXDisplayPort();
 
         friend class Window;
 
