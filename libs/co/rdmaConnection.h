@@ -198,14 +198,18 @@ private:
 
     /* Protocol */
     bool _postReceives( const uint32_t count );
+
     inline void _recvRDMAWrite( const uint32_t imm_data );
+    inline uint32_t _makeImm( const uint32_t b );
     bool _postRDMAWrite( );
-    void _recvMessage( const RDMAMessage &message );
+
     bool _postMessage( const RDMAMessage &message );
+    void _recvMessage( const RDMAMessage &message );
     inline void _recvFC( const RDMAFCPayload &fc );
     bool _postFC( const uint32_t bytes_taken );
     void _recvSetup( const RDMASetupPayload &setup );
     bool _postSetup( );
+
     bool _waitRecvSetup( );
 
 private:
@@ -221,10 +225,7 @@ private:
     /* _cm->fd (listener) or _cm_id->recv_cq_channel->fd (connection) */
     Notifier _notifier;
 
-    /* Protect close( ) from multiple threads */
-    lunchbox::Lock _close_lock;
-
-    /* Protect _pollCQ( ) from multiple threads */
+    /* Protect RDMA/Verbs vars from multiple threads */
     lunchbox::Lock _poll_lock;
 
     /* Timeout for resolving RDMA address & route */
@@ -242,11 +243,15 @@ private:
 
     struct RDMAConnParamData _cpd;
     bool _established;
-    int32_t _depth;
-    lunchbox::a_int32_t _credits;
+
+    int32_t _depth;               // Maximum sends in flight (writes & acks)
+    lunchbox::a_int32_t _writes;  // Number of RDMA writes received
+    lunchbox::a_int32_t _acks;    // Number of FC messages received
+    lunchbox::a_int32_t _credits; // Number of send credits available
+
     unsigned int _completions;
 
-    /* MR for setup and FC messages */
+    /* MR for setup and ack messages */
     BufferPool _msgbuf;
 
     /* source RDMA MR */

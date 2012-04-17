@@ -19,9 +19,10 @@
 
 #include "connectionDescription.h"
 #include "global.h"
-#include "base/thread.h"
-#include "base/scopedMutex.h"
-#include "base/clock.h"
+
+#include <lunchbox/thread.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/clock.h>
 
 #ifdef _WIN32
 #    include <winsock2.h>
