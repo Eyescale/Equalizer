@@ -87,7 +87,9 @@ namespace detail { class ObjectMap; }
         CO_API virtual void deserialize( DataIStream& is,
                                          const uint64_t dirtyBits );
 
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
+        virtual ChangeType getChangeType() const { return DELTA; }
+
+        virtual void notifyAttached();
 
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits

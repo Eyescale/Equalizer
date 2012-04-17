@@ -88,6 +88,8 @@ typedef Nodes::const_iterator                    NodesCIter;
 
 /** A vector of objects. */
 typedef std::vector< Object* >                   Objects;
+/** A iterator for a vector of objects. */
+typedef Objects::iterator                        ObjectsIter;
 /** A const iterator for a vector of objects. */
 typedef Objects::const_iterator                  ObjectsCIter;
 

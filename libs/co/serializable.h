@@ -78,7 +78,7 @@ namespace co
          * need to be transmitted by the overriding method.
          * @version 1.0
          */
-        virtual void serialize( co::DataOStream&, const uint64_t ){};
+        virtual void serialize( co::DataOStream&, const uint64_t ){}
 
         /** 
          * Worker for unpack() and applyInstanceData().
@@ -90,7 +90,7 @@ namespace co
          * @sa serialize()
          * @version 1.0
          */
-        virtual void deserialize( co::DataIStream&, const uint64_t ){};
+        virtual void deserialize( co::DataIStream&, const uint64_t ){}
 
         virtual ChangeType getChangeType() const { return DELTA; }
 
