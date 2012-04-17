@@ -86,7 +86,8 @@
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li>109</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/109">109</a>:
+    Race and performance issue with multicast object distribution</li>
 </ul>
 
 <a name="examples"></a>
@@ -111,12 +112,14 @@
   Equalizer 1.2.1 includes the following bugfixes over the 1.2 release:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/103">103</a>:
+    RSP race during connection</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
     Sequel missing from packages</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/107">107</a>:
     Installed examples CMake build does not work</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/10">10</a>:
-    </li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/112">112</a>:
+    --eq-layout gets activated on second frame</li>
 </ul>
 
 <a name="knownbugs"></a>

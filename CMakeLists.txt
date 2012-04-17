@@ -24,7 +24,7 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
 include(revision)
 
-set(EQUALIZER_RELEASE OFF) # OFF or 'Mm0' ABI version
+set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
 set(VERSION_PATCH "1")
@@ -36,17 +36,17 @@ set(CO_VERSION_PATCH "1")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
-if(EQUALIZER_RELEASE)
+if(RELEASE_VERSION)
   set(EQ_DEFINITIONS -DEQ_RELEASE)
   set(CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX${EQ_OSX_VERSION}.sdk
       CACHE PATH "" FORCE)
-  set(VERSION_ABI ${EQUALIZER_RELEASE})
+  set(VERSION_ABI ${RELEASE_VERSION})
 else()
   set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
 endif()
 
 if(NOT CMAKE_BUILD_TYPE)
-  if(EQUALIZER_RELEASE)
+  if(RELEASE_VERSION)
     set(CMAKE_BUILD_TYPE Release)
   else()
     set(CMAKE_BUILD_TYPE Debug)
@@ -79,22 +79,7 @@ test_big_endian(EQ_BIG_ENDIAN)
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   include(UseGnuWin32)
-
-  # http://www.ogre3d.org/forums/viewtopic.php?f=2&t=60015&start=0
-  if(EQUALIZER_RELEASE)
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR")
-  else()
-    set(CMAKE_CXX_FLAGS "/DWIN32 /D_WINDOWS /W3 /Zm500 /EHsc /GR /WX")
-  endif()
 endif(MSVC)
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  include(EqCompilerVersion)
-  EQ_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
-  if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
-    message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
-  endif()
-endif(CMAKE_COMPILER_IS_GNUCXX)
 
 find_package(Boost 1.36 REQUIRED system regex date_time serialization)
 if(Boost_VERSION GREATER 103999)
@@ -181,15 +166,6 @@ endif(EQ_AGL_USED)
 if(GPUSD_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
 endif()
-
-IF(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
-  SET(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
-ENDIF()
-SET(LIBRARY_DIR lib${LIB_SUFFIX})
-
-if(LINUX)
-  add_definitions(-fPIC) # 64bit Linux wants this
-endif(LINUX)
 
 if(APPLE)
   link_directories(/usr/X11R6/lib)

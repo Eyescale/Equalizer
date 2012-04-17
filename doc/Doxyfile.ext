@@ -581,7 +581,12 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT = @CMAKE_INSTALL_PREFIX@
+INPUT = @CMAKE_INSTALL_PREFIX@/include/lunchbox \
+        @CMAKE_INSTALL_PREFIX@/include/co \
+        @CMAKE_INSTALL_PREFIX@/include/eq \
+        @CMAKE_INSTALL_PREFIX@/include/seq \
+        @CMAKE_INSTALL_PREFIX@/include/vmmlib \
+        @CMAKE_INSTALL_PREFIX@/share/Equalizer/examples
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -782,7 +787,7 @@ GENERATE_HTML          = YES
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
 # put in front of it. If left blank `html' will be used as the default path.
 
-HTML_OUTPUT            = @Equalizer_SOURCE_DIR@/../equalizergraphics.com/build/documents/Developer/API
+HTML_OUTPUT            = @Equalizer_SOURCE_DIR@/../equalizergraphics/build/documents/Developer/API
 
 # The HTML_FILE_EXTENSION tag can be used to specify the file extension for
 # each generated HTML page (for example: .htm,.php,.asp). If it is left blank
