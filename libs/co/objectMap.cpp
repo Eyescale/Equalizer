@@ -103,7 +103,10 @@ ObjectMap::~ObjectMap()
 uint128_t ObjectMap::commit( const uint32_t incarnation )
 {
     _commitMasters( incarnation );
-    return Serializable::commit( incarnation );
+    const uint128_t& version = Serializable::commit( incarnation );
+    _impl->added.clear();
+    _impl->changed.clear();
+    return version;
 }
 
 bool ObjectMap::isDirty() const
@@ -147,8 +150,6 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
     lunchbox::ScopedFastWrite mutex( _impl->mutex );
     if( dirtyBits == DIRTY_ALL )
     {
-        _impl->added.clear();
-        _impl->changed.clear();
         for( MapCIter i = _impl->map.begin(); i != _impl->map.end(); ++i )
             os << i->first << i->second.version << i->second.type;
         os << ObjectVersion::NONE;
@@ -164,12 +165,10 @@ void ObjectMap::serialize( DataOStream& os, const uint64_t dirtyBits )
             const Entry& entry = _impl->map[ *i ];
             os << entry.version << entry.type;
         }
-        _impl->added.clear();
     }
     if( dirtyBits & DIRTY_CHANGED )
     {
         os << _impl->changed;
-        _impl->changed.clear();
     }
 }
 
@@ -222,6 +221,15 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
             if( entry.instance && !entry.instance->isMaster( ))
                 entry.instance->sync( ov.version );
         }
+    }
+}
+
+void ObjectMap::notifyAttached()
+{
+    if( isMaster( ))
+    {
+        _impl->added.clear();
+        _impl->changed.clear();
     }
 }
 
