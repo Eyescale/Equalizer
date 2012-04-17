@@ -71,7 +71,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
   endif()
   set(LIBRARY_DIR lib${LIB_SUFFIX})
-endif(LINUX)
+endif()
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")
