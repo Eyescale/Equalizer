@@ -209,6 +209,34 @@ void Pipe::_setupCommandQueue()
     Global::leaveCarbon();
 }
 
+int Pipe::_getXDisplayPort()
+{
+    const uint32_t port = getPort();
+
+    if( !getenv( "DISPLAY" ))
+            return -1;
+
+    /* If defined port */
+    if ( port != EQ_UNDEFINED_UINT32 )
+        return static_cast<int> (port);
+    else
+        return 0;
+}
+
+int Pipe::_getXDisplayDevice()
+{
+    const uint32_t device = getDevice();
+
+    if( !getenv( "DISPLAY" ))
+        return -1;
+
+    /* If defined device */
+    if ( device != EQ_UNDEFINED_UINT32 )
+        return static_cast<int> (device);
+    else
+        return 0;
+}
+
 void Pipe::_setupAffinity()
 {
     const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
@@ -218,11 +246,15 @@ void Pipe::_setupAffinity()
             break;
 
         case AUTO:
-            // To be implemented later
-            /*
-            const int32_t cpu = getCPU();
-            Pipe::Thread::setAffinity( cpu );
-            */
+        {
+            const int port = _getXDisplayPort();
+            const int device = _getXDisplayDevice();
+
+            if ( port > -1 && device > -1 )
+                Pipe::Thread::setAutoAffinity( port, device );
+            else
+                EQWARN << "No valid display is provided " << std::endl;
+        }
             break;
 
         default:
