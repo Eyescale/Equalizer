@@ -63,9 +63,9 @@ static uint32_t _drawBuffer[2][2][NUM_EYES];
 static bool _drawBufferInit = _setDrawBuffers();
 bool _setDrawBuffers()
 {
-    const int32_t cyclop = co::base::getIndexOfLastBit( EYE_CYCLOP );
-    const int32_t left = co::base::getIndexOfLastBit( EYE_LEFT );
-    const int32_t right = co::base::getIndexOfLastBit( EYE_RIGHT );
+    const int32_t cyclop = lunchbox::getIndexOfLastBit( EYE_CYCLOP );
+    const int32_t left = lunchbox::getIndexOfLastBit( EYE_LEFT );
+    const int32_t right = lunchbox::getIndexOfLastBit( EYE_RIGHT );
 
     // [stereo][doublebuffered][eye]
     _drawBuffer[0][0][ cyclop ] = GL_FRONT;
@@ -164,7 +164,7 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
                                                 RenderContext& context )
 {
     const Channel* destChannel = compound->getInheritChannel();
-    EQASSERT( destChannel );
+    LBASSERT( destChannel );
 
     context.frameID       = _frameID;
     context.pvp           = compound->getInheritPixelViewport();
@@ -185,13 +185,13 @@ void ChannelUpdateVisitor::_setupRenderContext( const Compound* compound,
     context.taskID        = compound->getTaskID();
 
     const View* view = destChannel->getView();
-    EQASSERT( context.view == view );
+    LBASSERT( context.view == view );
 
     if( view )
     {
         // compute inherit vp (part of view covered by segment/view channel)
         const Segment* segment = destChannel->getSegment();
-        EQASSERT( segment );
+        LBASSERT( segment );
 
         const PixelViewport& pvp = destChannel->getPixelViewport();
         if( pvp.hasArea( ))
@@ -229,7 +229,7 @@ void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
         drawPacket.finish = _channel->hasListeners(); // finish for eq stats
         _channel->send( drawPacket );
         _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+        LBLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
                            << &drawPacket << std::endl;
     }
 }
@@ -258,7 +258,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const TileQueue* inputQueue = *i;
         const TileQueue* outputQueue = inputQueue->getOutputQueue( context.eye);
         const UUID& id = outputQueue->getQueueMasterID( context.eye );
-        EQASSERT( id != co::base::UUID::ZERO );
+        LBASSERT( id != UUID::ZERO );
 
         ChannelFrameTilesPacket tilesPacket;
         tilesPacket.isLocal = (_channel == destChannel);
@@ -273,7 +273,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         _channel->send< co::ObjectVersion >( tilesPacket, frameIDs );
 
         _updated = true;
-        EQLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
                            << &tilesPacket << std::endl;
     }
 }
@@ -300,7 +300,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     channelPacket.frameID     = _frameID;
 
     node->send( channelPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
+    LBLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
                        <<  " " << &channelPacket << std::endl;
 
     // Window::frameDrawFinish
@@ -317,7 +317,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     windowPacket.frameID     = _frameID;
 
     node->send( windowPacket );
-    EQLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
+    LBLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
                            <<  " " << &windowPacket << std::endl;
 
     // Pipe::frameDrawFinish
@@ -333,7 +333,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     pipePacket.frameID     = _frameID;
 
     node->send( pipePacket );
-    EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << pipe->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << pipe->getName() <<  " "
                        << &pipePacket << std::endl;
 
     // Node::frameDrawFinish
@@ -348,7 +348,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     nodePacket.frameID     = _frameID;
 
     node->send( nodePacket );
-    EQLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
                        << &nodePacket << std::endl;
 }
 
@@ -358,7 +358,7 @@ void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
     clearPacket.context = context;
     _channel->send( clearPacket );
     _updated = true;
-    EQLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                        << &clearPacket << std::endl;
 }
 
@@ -374,7 +374,7 @@ void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const
 uint32_t ChannelUpdateVisitor::_getDrawBuffer( const Compound* compound ) const
 {
     const DrawableConfig& dc = _channel->getWindow()->getDrawableConfig();
-    const int32_t eye = co::base::getIndexOfLastBit( _eye );
+    const int32_t eye = lunchbox::getIndexOfLastBit( _eye );
 
     if( compound->getInheritIAttribute(Compound::IATTR_STEREO_MODE) == QUAD )
         return _drawBuffer[ dc.stereo ][ dc.doublebuffered ][ eye ];
@@ -420,7 +420,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         return;
 
     const Frames& inputFrames = compound->getInputFrames();
-    EQASSERT( !inputFrames.empty( ));
+    LBASSERT( !inputFrames.empty( ));
 
     std::vector< co::ObjectVersion > frameIDs;
     for( Frames::const_iterator iter = inputFrames.begin(); 
@@ -442,7 +442,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = uint32_t( frameIDs.size( ));
 
-    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK assemble " << _channel->getName() <<  " " << &packet
         << std::endl;
     _channel->send< co::ObjectVersion >( packet, frameIDs );
@@ -459,7 +459,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
     }
 
     const std::vector< Frame* >& outputFrames = compound->getOutputFrames();
-    EQASSERT( !outputFrames.empty( ));
+    LBASSERT( !outputFrames.empty( ));
 
     Frames frames;
     std::vector< co::ObjectVersion > frameIDs;
@@ -484,7 +484,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     _channel->send<co::ObjectVersion>( packet, frameIDs );
     _updated = true;
-    EQLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
         << "TASK readback " << _channel->getName() <<  " " << &packet
         << std::endl;
 }
@@ -492,7 +492,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
                                              const RenderContext& context )
 {
-    EQASSERT( !_skipCompound( compound ));
+    LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     
@@ -500,7 +500,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
     ChannelFrameViewStartPacket packet;
     packet.context = context;
 
-    EQLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
                            << &packet << std::endl;
     _channel->send( packet );
 }
@@ -508,7 +508,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
 void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
                                               const RenderContext& context )
 {
-    EQASSERT( !_skipCompound( compound ));
+    LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
     
@@ -516,7 +516,7 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
     ChannelFrameViewFinishPacket packet;
     packet.context = context;
 
-    EQLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
+    LBLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
                        << &packet << std::endl;
     _channel->send( packet );
 }

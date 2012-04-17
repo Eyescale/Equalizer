@@ -54,8 +54,8 @@ TileQueue::~TileQueue()
 
 void TileQueue::addTile( const TileTaskPacket& tile, fabric::Eye eye )
 {
-    uint32_t index = co::base::getIndexOfLastBit(eye);
-    EQASSERT( index < NUM_EYES );
+    uint32_t index = lunchbox::getIndexOfLastBit(eye);
+    LBASSERT( index < NUM_EYES );
     _queueMaster[index]->_queue.push( tile );
 }
 
@@ -136,11 +136,11 @@ void TileQueue::unsetData()
 
 const UUID TileQueue::getQueueMasterID( fabric::Eye eye ) const
 {
-    uint32_t index = co::base::getIndexOfLastBit(eye);
+    uint32_t index = lunchbox::getIndexOfLastBit(eye);
     LatencyQueue* queue = _queueMaster[ index ];
     if ( queue )
         return queue->_queue.getID();
-    return co::base::UUID::ZERO;
+    return UUID::ZERO;
 }
 
 std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
@@ -148,8 +148,8 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     if( !tileQueue )
         return os;
     
-    os << co::base::disableFlush << "tiles" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << lunchbox::disableFlush << "tiles" << std::endl;
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = tileQueue->getName();
     os << "name      \"" << name << "\"" << std::endl;
@@ -158,7 +158,7 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
     if( size != Vector2i::ZERO )
         os << "size      " << size << std::endl;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
 

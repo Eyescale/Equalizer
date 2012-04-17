@@ -58,7 +58,7 @@ Pipe::~Pipe()
 {
 }
 
-void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Pipe::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
 
@@ -71,12 +71,12 @@ void Pipe::attach( const co::base::UUID& id, const uint32_t instanceID )
                      PipeFunc( this, &Pipe::_cmdConfigExitReply ), cmdQ );
 }
 
-void Pipe::removeChild( const co::base::UUID& id )
+void Pipe::removeChild( const UUID& id )
 {
-    EQASSERT( getConfig()->isRunning( ));
+    LBASSERT( getConfig()->isRunning( ));
 
     Window* window = _findWindow( id );
-    EQASSERT( window );
+    LBASSERT( window );
     if( window )
         window->postDelete();
 }
@@ -84,49 +84,49 @@ void Pipe::removeChild( const co::base::UUID& id )
 ServerPtr Pipe::getServer()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getServer() : 0);
 }
 
 ConstServerPtr Pipe::getServer() const
 { 
     const Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return node ? node->getServer() : 0; 
 }
 
 Config* Pipe::getConfig()
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 const Config* Pipe::getConfig() const
 {
     const Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return ( node ? node->getConfig() : 0);
 }
 
 co::CommandQueue* Pipe::getMainThreadQueue()
 { 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return node->getMainThreadQueue(); 
 }
 
 co::CommandQueue* Pipe::getCommandThreadQueue()
 { 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     return node->getCommandThreadQueue(); 
 }
 
 Channel* Pipe::getChannel( const ChannelPath& path )
 {
     const Windows& windows = getWindows(); 
-    EQASSERTINFO( windows.size() > path.windowIndex,
+    LBASSERTINFO( windows.size() > path.windowIndex,
                   "Path " << path << " for " << *this );
 
     if( windows.size() <= path.windowIndex )
@@ -138,33 +138,33 @@ Channel* Pipe::getChannel( const ChannelPath& path )
 void Pipe::activate()
 {   
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
 
     ++_active;
     if( node ) 
         node->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Pipe::deactivate()
 { 
-    EQASSERT( _active != 0 );
+    LBASSERT( _active != 0 );
 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
 
     --_active; 
     if( node ) 
         node->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
 void Pipe::addTasks( const uint32_t tasks )
 {
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     setTasks( getTasks() | tasks );
     node->addTasks( tasks );
 }
@@ -172,7 +172,7 @@ void Pipe::addTasks( const uint32_t tasks )
 void Pipe::send( co::ObjectPacket& packet )
 { 
     Node* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     packet.objectID = getID();
     node->send( packet ); 
 }
@@ -186,17 +186,17 @@ void Pipe::send( co::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    EQLOG( LOG_INIT ) << "Create pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Create pipe" << std::endl;
     NodeCreatePipePacket createPipePacket;
     createPipePacket.objectID = getNode()->getID();
     createPipePacket.pipeID   = getID();
     createPipePacket.threaded = getIAttribute( IATTR_HINT_THREAD );
     getNode()->send( createPipePacket );
 
-    EQLOG( LOG_INIT ) << "Init pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Init pipe" << std::endl;
     PipeConfigInitPacket packet;
     packet.initID = initID;
     packet.frameNumber = frameNumber;
@@ -205,7 +205,7 @@ void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
 
 bool Pipe::syncConfigInit()
 {
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
@@ -216,7 +216,7 @@ bool Pipe::syncConfigInit()
         return true;
     }
 
-    EQWARN << "Pipe initialization failed: " << getError() << std::endl;
+    LBWARN << "Pipe initialization failed: " << getError() << std::endl;
     configExit();
     return false;
 }
@@ -229,22 +229,22 @@ void Pipe::configExit()
     if( _state == STATE_EXITING )
         return;
 
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit pipe" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit pipe" << std::endl;
     PipeConfigExitPacket packet;
     send( packet );
 }
 
 bool Pipe::syncConfigExit()
 {
-    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
     
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state == STATE_EXIT_FAILED );
+    LBASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     setTasks( fabric::TASK_NONE );
@@ -259,7 +259,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return;
 
-    EQASSERT( isActive( ))
+    LBASSERT( isActive( ))
     PipeFrameStartClockPacket startClockPacket;
     send( startClockPacket );
 
@@ -268,7 +268,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
 
     const Windows& windows = getWindows(); 
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
@@ -283,7 +283,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
         drawFinishPacket.frameNumber = frameNumber;
         drawFinishPacket.frameID     = frameID;
         send( drawFinishPacket );
-        EQLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
+        LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
     _lastDrawWindow = 0;
@@ -293,7 +293,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.frameNumber  = frameNumber;
     send( finishPacket );
 
-    EQLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
+    LBLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
                        << std::endl;
 }
 
@@ -306,7 +306,7 @@ bool Pipe::_cmdConfigInitReply( co::Command& command )
 {
     const PipeConfigInitReplyPacket* packet = 
         command.get<PipeConfigInitReplyPacket>();
-    EQVERB << "handle pipe configInit reply " << packet << std::endl;
+    LBVERB << "handle pipe configInit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
@@ -316,7 +316,7 @@ bool Pipe::_cmdConfigExitReply( co::Command& command )
 {
     const PipeConfigExitReplyPacket* packet = 
         command.get<PipeConfigExitReplyPacket>();
-    EQVERB << "handle pipe configExit reply " << packet << std::endl;
+    LBVERB << "handle pipe configExit reply " << packet << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
@@ -336,7 +336,7 @@ void Pipe::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -348,7 +348,7 @@ void Pipe::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl;
+        os << lunchbox::exdent << "}" << std::endl;
 }
 
 }

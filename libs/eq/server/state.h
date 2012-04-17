@@ -18,8 +18,8 @@
 #ifndef EQSERVER_STATE_H
 #define EQSERVER_STATE_H
 
-#include <co/base/log.h>
-#include <co/base/types.h>
+#include <lunchbox/log.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {
@@ -31,17 +31,17 @@ namespace server
      */
     enum State
     {
-        STATE_UNUSED = EQ_BIT1,      //!< next: STOPPED
-        STATE_STOPPED = EQ_BIT2,      //!< next: INITIALIZING or UNUSED
-        STATE_INITIALIZING = EQ_BIT3, //!< next: INIT_FAILED or INIT_SUCCESS
-        STATE_INIT_SUCCESS = EQ_BIT4, //!< next: RUNNING
-        STATE_INIT_FAILED = EQ_BIT5,  //!< next: EXITING
-        STATE_RUNNING = EQ_BIT6,      //!< next: EXITING
-        STATE_EXITING = EQ_BIT7,      //!< next: EXIT_FAILED or EXIT_SUCCESS
-        STATE_EXIT_SUCCESS = EQ_BIT8, //!< next: STOPPED or FAILED
-        STATE_EXIT_FAILED = EQ_BIT9,  //!< next: STOPPED or FAILED
-        STATE_FAILED = EQ_BIT10,       //!< next: STOPPED
-        STATE_DELETE = EQ_BIT16       //!< additional modifier
+        STATE_UNUSED = LB_BIT1,      //!< next: STOPPED
+        STATE_STOPPED = LB_BIT2,      //!< next: INITIALIZING or UNUSED
+        STATE_INITIALIZING = LB_BIT3, //!< next: INIT_FAILED or INIT_SUCCESS
+        STATE_INIT_SUCCESS = LB_BIT4, //!< next: RUNNING
+        STATE_INIT_FAILED = LB_BIT5,  //!< next: EXITING
+        STATE_RUNNING = LB_BIT6,      //!< next: EXITING
+        STATE_EXITING = LB_BIT7,      //!< next: EXIT_FAILED or EXIT_SUCCESS
+        STATE_EXIT_SUCCESS = LB_BIT8, //!< next: STOPPED or FAILED
+        STATE_EXIT_FAILED = LB_BIT9,  //!< next: STOPPED or FAILED
+        STATE_FAILED = LB_BIT10,       //!< next: STOPPED
+        STATE_DELETE = LB_BIT16       //!< additional modifier
     };
 
     inline std::ostream& operator << ( std::ostream& os, const State& state_ )

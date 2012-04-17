@@ -40,8 +40,8 @@
 
 #include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
-#include <co/base/os.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/os.h>
+#include <lunchbox/stdExt.h>
 
 #include <algorithm>
 #include <math.h>
@@ -71,9 +71,9 @@ Compound::Compound( Config* parent )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
 {
-    EQASSERT( parent );
+    LBASSERT( parent );
     parent->addCompound( this );
-    EQLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
+    LBLOG( LOG_INIT ) << "New root compound @" << (void*)this << std::endl;
 }
 
 Compound::Compound( Compound* parent )
@@ -83,9 +83,9 @@ Compound::Compound( Compound* parent )
         , _taskID( 0 )
         , _frustum( _data.frustumData )
 {
-    EQASSERT( parent );
+    LBASSERT( parent );
     parent->_addChild( this );
-    EQLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
+    LBLOG( LOG_INIT ) << "New compound child @" << (void*)this << std::endl;
 }
 
 Compound::~Compound()
@@ -112,7 +112,7 @@ Compound::~Compound()
         _config->removeCompound( this );
     else
     {
-        EQASSERT( _parent );
+        LBASSERT( _parent );
         _parent->_removeChild( this );
     }
 
@@ -145,8 +145,8 @@ Compound::InheritData::InheritData()
         , buffers( eq::Frame::BUFFER_UNDEFINED )
         , eyes( fabric::EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
-        , period( EQ_UNDEFINED_UINT32 )
-        , phase( EQ_UNDEFINED_UINT32 )
+        , period( LB_UNDEFINED_UINT32 )
+        , phase( LB_UNDEFINED_UINT32 )
         , maxFPS( std::numeric_limits< float >::max( ))
 {
     const Global* global = Global::instance();
@@ -159,7 +159,7 @@ Compound::InheritData::InheritData()
 
 void Compound::_addChild( Compound* child )
 {
-    EQASSERT( child->_parent == this );
+    LBASSERT( child->_parent == this );
     _children.push_back( child );
     _fireChildAdded( child );
 }
@@ -280,16 +280,16 @@ void Compound::addEqualizer( Equalizer* equalizer )
 
 bool Compound::isInheritActive( const Eye eye ) const
 {
-    const int32_t index = co::base::getIndexOfLastBit( eye );
-    EQASSERT( index >= 0 );
-    EQASSERT( index < NUM_EYES );
+    const int32_t index = lunchbox::getIndexOfLastBit( eye );
+    LBASSERT( index >= 0 );
+    LBASSERT( index < NUM_EYES );
     return _inherit.active[ index ];
 }
 
 bool Compound::isLastInheritEye( const Eye eye ) const
 {
-    int32_t index = co::base::getIndexOfLastBit( eye );
-    EQASSERT( index >= 0 );
+    int32_t index = lunchbox::getIndexOfLastBit( eye );
+    LBASSERT( index >= 0 );
 
     while( ++index < NUM_EYES )
         if( _inherit.active[ index ] )
@@ -313,7 +313,7 @@ bool Compound::isRunning() const
     if( !channel->isRunning( ))
         return false;
 
-    EQASSERT( _inherit.channel );
+    LBASSERT( _inherit.channel );
     const View* view = _inherit.channel->getView();
     return channel->supportsView( view );
 }
@@ -323,13 +323,13 @@ bool Compound::isRunning() const
 //---------------------------------------------------------------------------
 void Compound::addListener( CompoundListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
     _listeners.push_back( listener );
 }
 
 void Compound::removeListener(  CompoundListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
     CompoundListeners::iterator i = find( _listeners.begin(), _listeners.end(),
                                           listener );
     if( i != _listeners.end( ))
@@ -338,7 +338,7 @@ void Compound::removeListener(  CompoundListener* listener )
 
 void Compound::fireUpdatePre( const uint32_t frameNumber )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -348,7 +348,7 @@ void Compound::fireUpdatePre( const uint32_t frameNumber )
 
 void Compound::_fireChildAdded( Compound* child )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -358,7 +358,7 @@ void Compound::_fireChildAdded( Compound* child )
 
 void Compound::_fireChildRemove( Compound* child )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( CompoundListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -386,7 +386,7 @@ void Compound::setSwapBarrier( SwapBarrierPtr barrier )
 
 void Compound::addInputFrame( Frame* frame )
 { 
-    EQASSERT( frame );
+    LBASSERT( frame );
     if( frame->getName().empty() )
         _setDefaultFrameName( frame );
     _inputFrames.push_back( frame ); 
@@ -403,7 +403,7 @@ void Compound::addOutputFrame( Frame* frame )
 
 void Compound::addInputTileQueue( TileQueue* tileQueue )
 {
-    EQASSERT( tileQueue );
+    LBASSERT( tileQueue );
     if( tileQueue->getName().empty() )
         _setDefaultTileQueueName( tileQueue );
     _inputTileQueues.push_back( tileQueue ); 
@@ -483,7 +483,7 @@ void Compound::adopt( Compound* child )
     }
     else
     {
-        EQASSERT( child->_parent );
+        LBASSERT( child->_parent );
         child->_parent->_removeChild( child );
     }
 
@@ -517,13 +517,13 @@ bool Compound::hasDestinationChannel() const
 void Compound::setWall( const Wall& wall )
 {
     _frustum.setWall( wall );
-    EQVERB << "Wall: " << _data.frustumData << std::endl;
+    LBVERB << "Wall: " << _data.frustumData << std::endl;
 }
 
 void Compound::setProjection( const Projection& projection )
 {
     _frustum.setProjection( projection );
-    EQVERB << "Projection: " << _data.frustumData << std::endl;
+    LBVERB << "Projection: " << _data.frustumData << std::endl;
 }
 
 void Compound::updateFrustum( const Vector3f& eye, const float ratio )
@@ -556,7 +556,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         {
             case Frustum::TYPE_WALL:
                 setWall( wall );
-                EQLOG( LOG_VIEW ) << "View wall for " << channel->getName() 
+                LBLOG( LOG_VIEW ) << "View wall for " << channel->getName() 
                                   << ": " << wall << std::endl;
                 return;
 
@@ -565,27 +565,27 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
                 Projection projection( view->getProjection( )); // keep distance
                 projection = wall;
                 setProjection( projection );
-                EQLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
+                LBLOG( LOG_VIEW ) << "View projection for " <<channel->getName()
                                   << ": " << projection << std::endl;
                 return;
             }
 
             default:
-                EQUNIMPLEMENTED;
+                LBUNIMPLEMENTED;
         }
     }
     // else frustum from segment
 
     if( segment->getCurrentType() == Frustum::TYPE_NONE )
     {
-        EQASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
+        LBASSERT( segment->getCanvas()->getCurrentType() != Frustum::TYPE_NONE);
         segment->notifyFrustumChanged();
     }
 
     // set compound frustum =
     //         segment frustum X channel/segment coverage
     const Channel* outputChannel = segment->getChannel();
-    EQASSERT( outputChannel );
+    LBASSERT( outputChannel );
 
     const Viewport& outputVP  = outputChannel->getViewport();
     const Viewport& channelVP = channel->getViewport();
@@ -602,7 +602,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
         case Frustum::TYPE_WALL:
         {
             setWall( wall );
-            EQLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
+            LBLOG( LOG_VIEW ) << "Segment wall for " << channel->getName()
                               << ": " << wall << std::endl;
             return;
         }
@@ -612,13 +612,13 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
             Projection projection( segment->getProjection( ));
             projection = wall;
             setProjection( projection );
-            EQLOG( LOG_VIEW ) << "Segment projection for " 
+            LBLOG( LOG_VIEW ) << "Segment projection for " 
                               << channel->getName() << ": " << projection
                               << std::endl;
             return;
         }
         default: 
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 }
 
@@ -631,7 +631,7 @@ void Compound::computeFrustum( RenderContext& context,
     const Matrix4f& xfm = frustumData.getTransform();
     const Vector3f eyeWall = xfm * eyeWorld;
 
-    EQVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
+    LBVERB << "Eye position world: " << eyeWorld << " wall " << eyeWall
         << std::endl;
     _computePerspective( context, eyeWall );
     _computeOrtho( context, eyeWall );
@@ -722,7 +722,7 @@ Vector3f Compound::_getEyePosition( const fabric::Eye eye ) const
         return Vector3f( eyeBase_2, 0.f, 0.f );
 
     default:
-        EQUNIMPLEMENTED;
+        LBUNIMPLEMENTED;
     case EYE_CYCLOP:
         return Vector3f::ZERO;
     }
@@ -816,13 +816,13 @@ void Compound::_computeFrustumCorners( Frustumf& frustum,
 void Compound::_updateOverdraw( Wall& wall )
 {
     Channel* channel = getChannel();
-    EQASSERT( channel );
+    LBASSERT( channel );
     if( !channel )
         return;
 
     const Segment* segment = channel->getSegment();
     const View*    view    = channel->getView();
-    EQASSERT( segment && view );
+    LBASSERT( segment && view );
     if( !segment || !view )
         return;
 
@@ -953,7 +953,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
         } 
         else // node
@@ -973,7 +973,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
         }
 
@@ -999,7 +999,7 @@ VisitorResult _accept( C* compound, CompoundVisitor& visitor )
                     break;
 
                 default:
-                    EQASSERTINFO( 0, "Unreachable" );
+                    LBASSERTINFO( 0, "Unreachable" );
             }
             
             if ( current == compound ) 
@@ -1051,7 +1051,7 @@ void Compound::deactivate( const uint32_t eyes )
         if( !(eyes & eye) )
             continue;
 
-        EQASSERT( _data.active[ i ] );
+        LBASSERT( _data.active[ i ] );
         --_data.active[ i ];
         if( !getChannel( )) // non-dest root compound
             continue;
@@ -1084,7 +1084,7 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Output frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
     }
 
@@ -1094,7 +1094,7 @@ void Compound::register_()
         Frame* frame = *i;
         server->registerObject( frame );
         frame->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Input frame \"" << frame->getName() 
                                   << "\" id " << frame->getID() << std::endl;
     }
 
@@ -1104,7 +1104,7 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Input queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
 
@@ -1114,7 +1114,7 @@ void Compound::register_()
         TileQueue* queue = *i;
         server->registerObject( queue );
         queue->setAutoObsolete( latency );
-        EQLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
+        LBLOG( eq::LOG_ASSEMBLY ) << "Output queue \"" << queue->getName() 
                                   << "\" id " << queue->getID() << std::endl;
     }
 }
@@ -1241,7 +1241,7 @@ void Compound::updateInheritData( const uint32_t frameNumber )
 
 void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
 {
-    EQASSERT( !_parent );
+    LBASSERT( !_parent );
     _inherit = _data;
     _inherit.zoom = Zoom::NONE; // will be reapplied below
     _updateInheritPVP( oldPVP );
@@ -1255,10 +1255,10 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
 
-    if( _inherit.period == EQ_UNDEFINED_UINT32 )
+    if( _inherit.period == LB_UNDEFINED_UINT32 )
         _inherit.period = 1;
 
-    if( _inherit.phase == EQ_UNDEFINED_UINT32 )
+    if( _inherit.phase == LB_UNDEFINED_UINT32 )
         _inherit.phase = 0;
 
     if( _inherit.buffers == eq::Frame::BUFFER_UNDEFINED )
@@ -1277,7 +1277,7 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
 
 void Compound::_updateInheritNode( const PixelViewport& oldPVP )
 {
-    EQASSERT( _parent );
+    LBASSERT( _parent );
     _inherit = _parent->_inherit;
 
     if( !_inherit.channel )
@@ -1287,7 +1287,7 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
     }
     else if( _inherit.pvp.isValid( ))
     {
-        EQASSERT( _data.vp.isValid( ));
+        LBASSERT( _data.vp.isValid( ));
         _inherit.pvp.apply( _data.vp );
 
         // Compute the inherit viewport to be pixel-correct with the integer-
@@ -1299,7 +1299,7 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
     }
     else
     {
-        EQASSERT( !_inherit.channel->isRunning( ));
+        LBASSERT( !_inherit.channel->isRunning( ));
     }
 
     if( _data.frustumData.isValid( ))
@@ -1318,10 +1318,10 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
             _inherit.eyes = EYE_CYCLOP;
     }
         
-    if( _data.period != EQ_UNDEFINED_UINT32 )
+    if( _data.period != LB_UNDEFINED_UINT32 )
         _inherit.period = _data.period;
 
-    if( _data.phase != EQ_UNDEFINED_UINT32 )
+    if( _data.phase != LB_UNDEFINED_UINT32 )
         _inherit.phase = _data.phase;
 
     _inherit.maxFPS = _data.maxFPS;
@@ -1354,10 +1354,10 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
     View* view = channel->getView();
     if( !view || !_inherit.pvp.isValid( ))
     {
-        EQASSERT( channel->getOverdraw() == Vector4i::ZERO );
+        LBASSERT( channel->getOverdraw() == Vector4i::ZERO );
         return;
     }
-    EQASSERT( channel == getChannel( ));
+    LBASSERT( channel == getChannel( ));
 
     // enlarge pvp by overdraw
     const Vector4i& overdraw = channel->getOverdraw();
@@ -1367,7 +1367,7 @@ void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
     if( oldPVP != _inherit.pvp ) // channel PVP changed
     {
         view->updateFrusta();
-        EQASSERT( overdraw == channel->getOverdraw( ));
+        LBASSERT( overdraw == channel->getOverdraw( ));
     }
 
     _inherit.overdraw = overdraw;
@@ -1383,20 +1383,20 @@ void Compound::_updateInheritOverdraw()
     _inherit.overdraw.z() -= parentPVP.getXEnd() - pvp.getXEnd();
     _inherit.overdraw.w() -= parentPVP.getYEnd() - pvp.getYEnd();
 
-    _inherit.overdraw.x() = EQ_MAX( _inherit.overdraw.x(), 0 );
-    _inherit.overdraw.y() = EQ_MAX( _inherit.overdraw.y(), 0 );
-    _inherit.overdraw.z() = EQ_MAX( _inherit.overdraw.z(), 0 );
-    _inherit.overdraw.w() = EQ_MAX( _inherit.overdraw.w(), 0 );
+    _inherit.overdraw.x() = LB_MAX( _inherit.overdraw.x(), 0 );
+    _inherit.overdraw.y() = LB_MAX( _inherit.overdraw.y(), 0 );
+    _inherit.overdraw.z() = LB_MAX( _inherit.overdraw.z(), 0 );
+    _inherit.overdraw.w() = LB_MAX( _inherit.overdraw.w(), 0 );
 
-    _inherit.overdraw.x() = EQ_MIN( _inherit.overdraw.x(), pvp.w );
-    _inherit.overdraw.y() = EQ_MIN( _inherit.overdraw.y(), pvp.h );
-    _inherit.overdraw.z() = EQ_MIN( _inherit.overdraw.z(), pvp.w );
-    _inherit.overdraw.w() = EQ_MIN( _inherit.overdraw.w(), pvp.h );
+    _inherit.overdraw.x() = LB_MIN( _inherit.overdraw.x(), pvp.w );
+    _inherit.overdraw.y() = LB_MIN( _inherit.overdraw.y(), pvp.h );
+    _inherit.overdraw.z() = LB_MIN( _inherit.overdraw.z(), pvp.w );
+    _inherit.overdraw.w() = LB_MIN( _inherit.overdraw.w(), pvp.h );
 
-    EQASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
+    LBASSERTINFO( pvp.w >= _inherit.overdraw.x() + _inherit.overdraw.z(), 
                   pvp.w << " < " << 
                   _inherit.overdraw.x() + _inherit.overdraw.z( ));
-    EQASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
+    LBASSERTINFO( pvp.h >= _inherit.overdraw.y() + _inherit.overdraw.w(), 
                   pvp.h << " < " <<
                   _inherit.overdraw.y() + _inherit.overdraw.w( ));
 }
@@ -1478,8 +1478,8 @@ void Compound::_updateInheritActive( const uint32_t frameNumber )
 
 std::ostream& operator << (std::ostream& os, const Compound& compound)
 {
-    os << co::base::disableFlush << "compound" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << lunchbox::disableFlush << "compound" << std::endl;
+    os << "{" << std::endl << lunchbox::indent;
       
     const std::string& name = compound.getName();
     if( !name.empty( ))
@@ -1493,7 +1493,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         {
             const std::string& channelName = channel->getName();
             const Config*      config      = compound.getConfig();
-            EQASSERT( config );
+            LBASSERT( config );
 
             if( !channelName.empty() && 
                 config->find< Channel >( channelName ) == channel )
@@ -1614,13 +1614,13 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     const uint32_t period = compound.getPeriod();
     const uint32_t phase  = compound.getPhase();
-    if( period != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 )
         os << "period " << period << "  ";
 
-    if( phase != EQ_UNDEFINED_UINT32 )
+    if( phase != LB_UNDEFINED_UINT32 )
         os << "phase " << phase;
 
-    if( period != EQ_UNDEFINED_UINT32 || phase != EQ_UNDEFINED_UINT32 )
+    if( period != LB_UNDEFINED_UINT32 || phase != LB_UNDEFINED_UINT32 )
         os << std::endl;
 
     // attributes
@@ -1637,7 +1637,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -1660,12 +1660,12 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
                 break;
 
             default:
-                EQASSERTINFO( 0, "unimplemented" );
+                LBASSERTINFO( 0, "unimplemented" );
         }
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 
     switch( compound.getFrustumType( ))
     {
@@ -1710,7 +1710,7 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
         os << "output"  << *i;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
     return os;
 }
 

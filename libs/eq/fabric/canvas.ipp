@@ -37,15 +37,15 @@ template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::Canvas( CFG* config )
         : _config( config )
 {
-    EQASSERT( config );
+    LBASSERT( config );
     config->_addCanvas( static_cast< C* >( this ));
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CFG, class C, class S, class L >
 Canvas< CFG, C, S, L >::~Canvas()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_segments.empty( ))
     {
         S* segment = _segments.back();
@@ -77,13 +77,13 @@ void Canvas< CFG, C, S, L >::restore()
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::attach( const co::base::UUID& id,
+void Canvas< CFG, C, S, L >::attach( const UUID& id,
                                      const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
     co::CommandQueue* queue = _config->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_CANVAS_NEW_SEGMENT, 
                      CmdFunc( this, &Canvas< CFG, C, S, L >::_cmdNewSegment ),
@@ -139,7 +139,7 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
             Segments result;
             is.deserializeChildren( this, _segments, result );
             _segments.swap( result );
-            EQASSERT( _segments.size() == result.size( ));
+            LBASSERT( _segments.size() == result.size( ));
         }
     }
 
@@ -151,15 +151,15 @@ void Canvas< CFG, C, S, L >::deserialize( co::DataIStream& is,
         for( co::ObjectVersions::const_iterator i = layouts.begin();
              i != layouts.end(); ++i )
         {
-            const co::base::UUID& id = (*i).identifier;
+            const UUID& id = (*i).identifier;
 
-            if( id == co::base::UUID::ZERO )
+            if( id == UUID::ZERO )
                 _layouts.push_back( 0 );
             else
             {
                 L* layout = 0;
                 _config->find( id, &layout );
-                EQASSERT( layout );
+                LBASSERT( layout );
                 _layouts.push_back( layout );
             }
         }
@@ -200,8 +200,8 @@ void Canvas< CFG, C, S, L >::notifyDetach()
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::_addChild( S* segment )
 {
-    EQASSERT( segment );
-    EQASSERT( segment->getCanvas() == this );
+    LBASSERT( segment );
+    LBASSERT( segment->getCanvas() == this );
     _segments.push_back( segment );
     setDirty( DIRTY_SEGMENTS );
 }
@@ -213,7 +213,7 @@ bool Canvas< CFG, C, S, L >::_removeChild( S* segment )
     if( i == _segments.end( ))
         return false;
 
-    EQASSERT( segment->getCanvas() == this );
+    LBASSERT( segment->getCanvas() == this );
     _segments.erase( i );
     setDirty( DIRTY_SEGMENTS );
     if( isAttached() && !isMaster( ))
@@ -231,13 +231,13 @@ template< class CFG, class C, class S, class L >
 CanvasPath Canvas< CFG, C, S, L >::getPath() const
 {
     const CFG* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
 
     const Canvases& canvases = config->getCanvases();
     typename Canvases::const_iterator i = std::find( canvases.begin(),
                                                      canvases.end(),
                                                      this );
-    EQASSERT( i != canvases.end( ));
+    LBASSERT( i != canvases.end( ));
 
     CanvasPath path;
     path.canvasIndex = std::distance( canvases.begin(), i );
@@ -263,7 +263,7 @@ const S* Canvas< CFG, C, S, L >::findSegment( const std::string& name ) const
 template< class CFG, class C, class S, class L >
 void Canvas< CFG, C, S, L >::addLayout( L* layout )
 {
-    EQASSERT( stde::find( _layouts, layout ) == _layouts.end( ));
+    LBASSERT( stde::find( _layouts, layout ) == _layouts.end( ));
 
     // dest channel creation is done be Config::addCanvas
     _layouts.push_back( layout );
@@ -291,20 +291,21 @@ bool Canvas< CFG, C, S, L >::removeLayout( L* layout )
 template< class CFG, class C, class S, class L >
 const L* Canvas< CFG, C, S, L >::getActiveLayout() const
 {
-    EQASSERTINFO( _data.activeLayout < _layouts.size(),
+    LBASSERTINFO( _data.activeLayout < _layouts.size(),
                   _data.activeLayout << " >= " << _layouts.size( ));
     return _layouts[ _data.activeLayout ];
 }
 
 template< class CFG, class C, class S, class L >
-void Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
+bool Canvas< CFG, C, S, L >::useLayout( const uint32_t index )
 {
-    EQASSERT( index < _layouts.size( ));
+    LBASSERT( index < _layouts.size( ));
     if( _data.activeLayout == index )
-        return;
+        return false;
 
     _data.activeLayout = index;
     setDirty( DIRTY_LAYOUT );
+    return true;
 }
 
 template< class CFG, class C, class S, class L >
@@ -437,11 +438,11 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
     
     S* segment = 0;
     create( &segment );
-    EQASSERT( segment );
+    LBASSERT( segment );
 
     getLocalNode()->registerObject( segment );
     segment->setAutoObsolete( _config->getLatency() + 1 );
-    EQASSERT( segment->isAttached() );
+    LBASSERT( segment->isAttached() );
 
     CanvasNewSegmentReplyPacket reply( packet );
     reply.segmentID = segment->getID();
@@ -464,9 +465,9 @@ template< class CFG, class C, class S, class L >
 std::ostream& operator << ( std::ostream& os, 
                             const Canvas< CFG, C, S, L >& canvas )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "canvas"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "canvas"
        << std::endl;
-    os << "{" << std::endl << co::base::indent; 
+    os << "{" << std::endl << lunchbox::indent; 
 
     const std::string& name = canvas.getName();
     if( !name.empty( ))
@@ -502,8 +503,8 @@ std::ostream& operator << ( std::ostream& os,
     {
         os << **i;
     }
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

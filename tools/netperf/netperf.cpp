@@ -18,12 +18,12 @@
 // Tests network throughput
 // Usage: see 'netPerf -h'
 
-#define EQ_RELEASE_ASSERT
+#define LB_RELEASE_ASSERT
 
 #include <co/co.h>
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -32,8 +32,8 @@
 namespace
 {
 co::ConnectionSet   _connectionSet;
-co::base::a_int32_t _nClients;
-co::base::Lock      _mutexPrint;
+lunchbox::a_int32_t _nClients;
+lunchbox::Lock      _mutexPrint;
 uint32_t _delay = 0;
 enum
 {
@@ -41,7 +41,7 @@ enum
     DATA // must be last
 };
 
-class Receiver : public co::base::Thread
+class Receiver : public lunchbox::Thread
 {
 public:
     Receiver( const size_t packetSize, co::ConnectionPtr connection )
@@ -61,7 +61,7 @@ public:
             if( !_connection->recvSync( 0, 0 ))
                 return false;
 
-            EQASSERTINFO( _lastPacket == 0 || _lastPacket - 1 ==
+            LBASSERTINFO( _lastPacket == 0 || _lastPacket - 1 ==
                           _buffer[ SEQUENCE ],
                           static_cast< int >( _lastPacket ) << ", " <<
                           static_cast< int >( _buffer[ SEQUENCE ] ));
@@ -73,11 +73,11 @@ public:
 
             const size_t probe = (_rng.get< size_t >() %
                                   ( _buffer.getSize() - DATA )) + DATA;
-            EQASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
+            LBASSERTINFO( _buffer[probe] == static_cast< uint8_t >( probe ),
                           (int)_buffer[probe] << " != " << (probe&0xff) );
 
             if( _delay > 0 )
-                co::base::sleep( _delay );
+                lunchbox::sleep( _delay );
 
             if( time < 1000.f )
                 return true;
@@ -85,7 +85,7 @@ public:
             _clock.reset();
             co::ConnectionDescriptionPtr desc = 
                 _connection->getDescription();
-            const co::base::ScopedMutex<> mutex( _mutexPrint );
+            const lunchbox::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
                       << "MB/s (" << _nSamples / time * 1000.f  << "pps) from "
                       << desc->toString() << std::endl;
@@ -95,13 +95,13 @@ public:
 
     void executeReceive()
         {
-            EQASSERT( _hasConnection == false );
+            LBASSERT( _hasConnection == false );
             _hasConnection = true;
         }
 
     void stop()
         {
-            EQASSERT( _hasConnection == false );
+            LBASSERT( _hasConnection == false );
             _connection = 0;
             _hasConnection = true;
         }
@@ -126,18 +126,18 @@ public:
         }
         
 private:
-    co::base::Clock _clock;
-    co::base::RNG _rng;
+    lunchbox::Clock _clock;
+    lunchbox::RNG _rng;
 
-    co::base::Bufferb _buffer;
-    co::base::Monitor< bool > _hasConnection;
+    lunchbox::Bufferb _buffer;
+    lunchbox::Monitor< bool > _hasConnection;
     co::ConnectionPtr _connection;
     const float _mBytesSec;
     size_t      _nSamples;
     uint8_t     _lastPacket;
 };
 
-class Selector : public co::base::Thread
+class Selector : public lunchbox::Thread
 {
 public:
     Selector( co::ConnectionPtr connection, const size_t packetSize,
@@ -148,20 +148,20 @@ public:
 
     virtual bool init()
         {
-            EQCHECK( _connection->listen( ));
+            LBCHECK( _connection->listen( ));
             _connection->acceptNB();
             _connectionSet.addConnection( _connection );
 
             // Get first client
             const co::ConnectionSet::Event event = _connectionSet.select();
-            EQASSERT( event == co::ConnectionSet::EVENT_CONNECT );
+            LBASSERT( event == co::ConnectionSet::EVENT_CONNECT );
 
             co::ConnectionPtr resultConn = _connectionSet.getConnection();
             co::ConnectionPtr newConn    = resultConn->acceptSync();
             resultConn->acceptNB();
         
-            EQASSERT( resultConn == _connection );
-            EQASSERT( newConn.isValid( ));
+            LBASSERT( resultConn == _connection );
+            LBASSERT( newConn.isValid( ));
 
             _receivers.push_back( RecvConn( new Receiver( _packetSize, newConn),
                                             newConn ));
@@ -191,7 +191,7 @@ public:
                         newConn = resultConn->acceptSync();
                         resultConn->acceptNB();
 
-                        EQASSERT( newConn.isValid( ));
+                        LBASSERT( newConn.isValid( ));
 
                         _receivers.push_back( 
                             RecvConn( new Receiver( _packetSize, newConn ),
@@ -209,7 +209,7 @@ public:
                         if( resultConn == _connection )
                         {
                             // really a close event of the listener
-                            EQASSERT( resultConn->isClosed( ));
+                            LBASSERT( resultConn->isClosed( ));
                             _connectionSet.removeConnection( resultConn );
                             std::cerr << "listener closed" << std::endl;
                             break;
@@ -226,7 +226,7 @@ public:
                                 break;
                             }
                         }
-                        EQASSERT( receiver );
+                        LBASSERT( receiver );
 
                         if( _useThreads )
                         {
@@ -278,11 +278,11 @@ public:
                         break;
 
                     default:
-                        EQASSERTINFO( false, "Not reachable" );
+                        LBASSERTINFO( false, "Not reachable" );
                 }
             }
-            EQASSERTINFO( _receivers.empty(), _receivers.size() );
-            EQASSERTINFO( _connectionSet.getSize() <= 1,
+            LBASSERTINFO( _receivers.empty(), _receivers.size() );
+            LBASSERTINFO( _connectionSet.getSize() <= 1,
                           _connectionSet.getSize( ));
             _connectionSet.clear();
         }
@@ -293,14 +293,14 @@ private:
     std::vector< RecvConn > _receivers;
     size_t _packetSize;
     bool _useThreads;
-    co::base::Bufferb _buffer;
+    lunchbox::Bufferb _buffer;
 };
 
 }
 
 int main( int argc, char **argv )
 {
-    EQCHECK( co::init( argc, argv ));
+    LBCHECK( co::init( argc, argv ));
 
     co::ConnectionDescriptionPtr description = new co::ConnectionDescription;
     description->type = co::CONNECTIONTYPE_TCPIP;
@@ -362,7 +362,7 @@ int main( int argc, char **argv )
     }
     catch( TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
 
         co::exit();
@@ -373,7 +373,7 @@ int main( int argc, char **argv )
     co::ConnectionPtr connection = co::Connection::create( description );
     if( !connection )
     {
-        EQWARN << "Unsupported connection: " << description << std::endl;
+        LBWARN << "Unsupported connection: " << description << std::endl;
         co::exit();
         return EXIT_FAILURE;
     }
@@ -389,24 +389,24 @@ int main( int argc, char **argv )
         else if( !connection->connect( ))
             ::exit( EXIT_FAILURE );
 
-        co::base::Buffer< uint8_t > buffer;
+        lunchbox::Buffer< uint8_t > buffer;
         buffer.resize( packetSize );
         for( size_t i = 0; i<packetSize; ++i )
             buffer[i] = static_cast< uint8_t >( i );
 
         const float mBytesSec = buffer.getSize() / 1024.0f / 1024.0f * 1000.0f;
-        co::base::Clock clock;
+        lunchbox::Clock clock;
         size_t lastOutput = nPackets;
 
         clock.reset();
         while( nPackets-- )
         {
             buffer[SEQUENCE] = uint8_t( nPackets );
-            EQCHECK( connection->send( buffer.getData(), buffer.getSize() ));
+            LBCHECK( connection->send( buffer.getData(), buffer.getSize() ));
             const float time = clock.getTimef();
             if( time > 1000.f )
             {
-                const co::base::ScopedMutex<> mutex( _mutexPrint );
+                const lunchbox::ScopedMutex<> mutex( _mutexPrint );
                 const size_t nSamples = lastOutput - nPackets;
                 std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                           << "MB/s (" << nSamples / time * 1000.f  << "pps)"
@@ -416,13 +416,13 @@ int main( int argc, char **argv )
                 clock.reset();
             }
             if( waitTime > 0 )
-                co::base::sleep( waitTime );
+                lunchbox::sleep( waitTime );
         }
         const float time = clock.getTimef();
         const size_t nSamples = lastOutput - nPackets;
         if( nSamples != 0 )
         {
-            const co::base::ScopedMutex<> mutex( _mutexPrint );
+            const lunchbox::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Send perf: " << mBytesSec / time * nSamples 
                       << "MB/s (" << nSamples / time * 1000.f  << "pps)"
                       << std::endl;
@@ -438,7 +438,7 @@ int main( int argc, char **argv )
         selector = new Selector( connection, packetSize, useThreads );
         selector->start();
         
-        EQASSERTINFO( connection->getRefCount()>=1, connection->getRefCount( ));
+        LBASSERTINFO( connection->getRefCount()>=1, connection->getRefCount( ));
     
         if ( selector )
             selector->join();
@@ -446,9 +446,9 @@ int main( int argc, char **argv )
 
     
     delete selector;
-    EQASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
+    LBASSERTINFO( connection->getRefCount() == 1, connection->getRefCount( ));
     connection = 0;
-    EQCHECK( co::exit( ));
+    LBCHECK( co::exit( ));
     return EXIT_SUCCESS;
 }
 

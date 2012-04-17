@@ -18,7 +18,7 @@
 #include "eventConnection.h"
 #include "pipeConnection.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {
@@ -47,7 +47,7 @@ bool EventConnection::connect()
     _event = CreateEvent( 0, TRUE, FALSE, 0 );
 #else
     _connection = new PipeConnection;
-    EQCHECK( _connection->connect( ));
+    LBCHECK( _connection->connect( ));
     _set = false;
 #endif
 
@@ -78,7 +78,7 @@ void EventConnection::set()
 #ifdef _WIN32
     SetEvent( _event );
 #else
-    base::ScopedMutex<> mutex( _lock );
+    lunchbox::ScopedMutex<> mutex( _lock );
     if( _set )
         return;
     
@@ -92,7 +92,7 @@ void EventConnection::reset()
 #ifdef _WIN32
     ResetEvent( _event );
 #else
-    base::ScopedMutex<> mutex( _lock );
+    lunchbox::ScopedMutex<> mutex( _lock );
     if( !_set )
         return;
     

@@ -17,7 +17,7 @@
 
 // Tests basic connection functionality
 #include <test.h>
-#include <co/base/monitor.h>
+#include <lunchbox/monitor.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
 #include <co/connectionSet.h>
@@ -31,9 +31,7 @@ static co::ConnectionType types[] =
 {
     co::CONNECTIONTYPE_TCPIP,
     co::CONNECTIONTYPE_PIPE,
-#ifdef CO_USE_BOOST
     co::CONNECTIONTYPE_RSP,
-#endif
 #ifdef WIN32
     co::CONNECTIONTYPE_NAMEDPIPE,
 #endif

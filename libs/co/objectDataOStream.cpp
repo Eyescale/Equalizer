@@ -36,9 +36,9 @@ ObjectDataOStream::ObjectDataOStream( const ObjectCM* cm )
     const Object* object = cm->getObject();
     const uint32_t name = object->chooseCompressor();
     _initCompressor( name );
-    EQLOG( LOG_OBJECTS )
+    LBLOG( LOG_OBJECTS )
         << "Using byte compressor 0x" << std::hex << name << std::dec << " for "
-        << base::className( object ) << std::endl;
+        << lunchbox::className( object ) << std::endl;
 }
 
 void ObjectDataOStream::reset()
@@ -59,7 +59,7 @@ void ObjectDataOStream::enableCommit( const uint128_t& version,
 void ObjectDataOStream::sendData( ObjectDataPacket& packet, const void* buffer,
                                   const uint64_t size, const bool last )
 {
-    EQASSERT( _version != VERSION_INVALID );
+    LBASSERT( _version != VERSION_INVALID );
     packet.version = _version;
     packet.sequence = _sequence++;
     packet.objectID  = _cm->getObject()->getID();

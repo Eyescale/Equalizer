@@ -36,7 +36,7 @@
 #include <eq/client/windowPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 #include "channel.ipp"
 
@@ -106,7 +106,7 @@ Channel::Channel( const Channel& from )
     // Don't copy view and segment. Will be re-set by segment copy ctor
 }
 
-void Channel::attach( const co::base::UUID& id, const uint32_t instanceID )
+void Channel::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
     
@@ -136,49 +136,49 @@ void Channel::postDelete()
 Config* Channel::getConfig()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getConfig() : 0; 
 }
 
 const Config* Channel::getConfig() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getConfig() : 0;
 }
 
 Node* Channel::getNode() 
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
 const Node* Channel::getNode() const
 { 
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
 Pipe* Channel::getPipe() 
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getPipe() : 0;
 }
 
 const Pipe* Channel::getPipe() const
 { 
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window ? window->getPipe() : 0;
 }
 
 ServerPtr Channel::getServer()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getServer() : 0 );
 }
 
@@ -197,14 +197,14 @@ const Compounds& Channel::getCompounds() const
 co::CommandQueue* Channel::getMainThreadQueue()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->getMainThreadQueue(); 
 }
 
 co::CommandQueue* Channel::getCommandThreadQueue()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return window->getCommandThreadQueue(); 
 }
 
@@ -221,32 +221,32 @@ bool Channel::supportsView( const View* view ) const
 void Channel::activate()
 { 
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
 
     ++_active;
     window->activate();
 
-    EQLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
                       << std::endl;
 }
 
 void Channel::deactivate()
 { 
     Window* window = getWindow();
-    EQASSERT( _active != 0 );
-    EQASSERT( window );
+    LBASSERT( _active != 0 );
+    LBASSERT( window );
 
     --_active; 
     window->deactivate(); 
 
-    EQLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
                       << std::endl;
 }
 
 void Channel::setOutput( View* view, Segment* segment )
 {
-    EQASSERT( !_view && !_segment );
-    EQASSERT( view && segment );
+    LBASSERT( !_view && !_segment );
+    LBASSERT( view && segment );
 
     _view = view;
     _segment = segment;
@@ -263,10 +263,10 @@ void Channel::setOutput( View* view, Segment* segment )
 
 void Channel::unsetOutput()
 {
-    EQASSERT( _view && _segment );
+    LBASSERT( _view && _segment );
 
-    EQCHECK( _view->removeChannel( this ));
-    EQCHECK( _segment->removeDestinationChannel( this ));
+    LBCHECK( _view->removeChannel( this ));
+    LBCHECK( _segment->removeDestinationChannel( this ));
 
     _view    = 0;
     _segment = 0;
@@ -274,14 +274,14 @@ void Channel::unsetOutput()
 
 const Layout* Channel::getLayout() const
 {
-    EQASSERT( _view );
+    LBASSERT( _view );
     return _view ? _view->getLayout() : 0;
 }
 
 void Channel::addTasks( const uint32_t tasks )
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     setTasks( getTasks() | tasks );
     window->addTasks( tasks );
 }
@@ -295,20 +295,20 @@ void Channel::addTasks( const uint32_t tasks )
 //---------------------------------------------------------------------------
 void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
 {
-    EQASSERT( _state == STATE_STOPPED );
+    LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
     WindowCreateChannelPacket createChannelPacket( getID( ));
     getWindow()->send( createChannelPacket );
 
-    EQLOG( LOG_INIT ) << "Init channel" << std::endl;
+    LBLOG( LOG_INIT ) << "Init channel" << std::endl;
     ChannelConfigInitPacket packet( initID );    
     send( packet );
 }
 
 bool Channel::syncConfigInit()
 {
-    EQASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
+    LBASSERT( _state == STATE_INITIALIZING || _state == STATE_INIT_SUCCESS ||
               _state == STATE_INIT_FAILED );
 
     _state.waitNE( STATE_INITIALIZING );
@@ -328,22 +328,22 @@ bool Channel::syncConfigInit()
 //---------------------------------------------------------------------------
 void Channel::configExit()
 {
-    EQASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
+    LBASSERT( _state == STATE_RUNNING || _state == STATE_INIT_FAILED );
     _state = STATE_EXITING;
 
-    EQLOG( LOG_INIT ) << "Exit channel" << std::endl;
+    LBLOG( LOG_INIT ) << "Exit channel" << std::endl;
     ChannelConfigExitPacket packet;
     send( packet );
 }
 
 bool Channel::syncConfigExit()
 {
-    EQASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
               _state == STATE_EXIT_FAILED );
     
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
-    EQASSERT( success || _state == STATE_EXIT_FAILED );
+    LBASSERT( success || _state == STATE_EXIT_FAILED );
 
     _state = isActive() ? STATE_FAILED : STATE_STOPPED;
     return success;
@@ -359,7 +359,7 @@ void Channel::_setupRenderContext( const uint128_t& frameID,
     context.pvp = getPixelViewport();
     context.view = _view;
     context.vp = getViewport();
-    EQASSERTINFO( getNativeContext().view == context.view, 
+    LBASSERTINFO( getNativeContext().view == context.view, 
                   getNativeContext().view << " != " << context.view << " " <<
                   getName( ));
 }
@@ -369,8 +369,8 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     if( !isRunning( ))
         return false; // not updated
 
-    EQASSERT( isActive( ))
-    EQASSERT( getWindow()->isActive( ));
+    LBASSERT( isActive( ))
+    LBASSERT( getWindow()->isActive( ));
 
     ChannelFrameStartPacket startPacket;
     startPacket.frameNumber = frameNumber;
@@ -378,7 +378,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
+    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
                        << &startPacket << std::endl;
 
     bool updated = false;
@@ -406,7 +406,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     finishPacket.context = startPacket.context;
 
     send( finishPacket );
-    EQLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
+    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
                            << &finishPacket << std::endl;
     _lastDrawCompound = 0;
 
@@ -424,8 +424,8 @@ void Channel::send( co::ObjectPacket& packet )
 //---------------------------------------------------------------------------
 void Channel::addListener( ChannelListener* listener )
 {
-    EQ_TS_SCOPED( _serverThread );
-    EQASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
+    LB_TS_SCOPED( _serverThread );
+    LBASSERT( std::find( _listeners.begin(), _listeners.end(), listener ) ==
               _listeners.end( ));
 
     _listeners.push_back( listener );
@@ -444,7 +444,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
                              const Statistic* statistics,
                              const Viewport& region )
 {
-    EQ_TS_SCOPED( _serverThread );
+    LB_TS_SCOPED( _serverThread );
 
     for( ChannelListeners::const_iterator i = _listeners.begin(); 
          i != _listeners.end(); ++i )
@@ -461,7 +461,7 @@ bool Channel::_cmdConfigInitReply( co::Command& command )
 {
     const ChannelConfigInitReplyPacket* packet = 
         command.get<ChannelConfigInitReplyPacket>();
-    EQLOG( LOG_INIT ) << "handle channel configInit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configInit reply " << packet
                       << std::endl;
 
     _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -472,7 +472,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 {
     const ChannelConfigExitReplyPacket* packet = 
         command.get<ChannelConfigExitReplyPacket>();
-    EQLOG( LOG_INIT ) << "handle channel configExit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configExit reply " << packet
                       << std::endl;
 
     _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
@@ -510,7 +510,7 @@ void Channel::output( std::ostream& os ) const
         if( !attrPrinted )
         {
             os << std::endl << "attributes" << std::endl;
-            os << "{" << std::endl << co::base::indent;
+            os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
         
@@ -522,7 +522,7 @@ void Channel::output( std::ostream& os ) const
     }
     
     if( attrPrinted )
-        os << co::base::exdent << "}" << std::endl << std::endl;
+        os << lunchbox::exdent << "}" << std::endl << std::endl;
 }
 
 void Channel::updateCapabilities()

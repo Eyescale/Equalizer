@@ -82,7 +82,7 @@ bool Plugin::init( const std::string& libraryName )
 
     if( !foundBase || ( !foundCPU && !foundGPU ))
     {
-        EQWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName 
            << " failed, at least one entry point missing" << std::endl;
         return false;
     }
@@ -90,7 +90,7 @@ bool Plugin::init( const std::string& libraryName )
     const size_t nCompressors = getNumCompressors();
     if( nCompressors == 0 )
     {
-        EQWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName 
            << " failed, 0 compression engines reported" << std::endl;
         return false;
     }
@@ -108,7 +108,7 @@ bool Plugin::init( const std::string& libraryName )
         if(( info.capabilities & EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD ) &&
             ( !startDownload || !finishDownload ))
         {
-            EQWARN << "Download plugin claims to support async readback " <<
+            LBWARN << "Download plugin claims to support async readback " <<
                       "but corresponding functions are missing" << std::endl;
             _infos.clear();
             return false;
@@ -119,17 +119,17 @@ bool Plugin::init( const std::string& libraryName )
             {
                 // Set up CPU compressor output to be input type
                 info.outputTokenType = info.tokenType;
-                EQASSERT( info.outputTokenSize == 0 );
+                LBASSERT( info.outputTokenSize == 0 );
             }
             else
             {
-                EQASSERT( info.outputTokenSize != 0 );
+                LBASSERT( info.outputTokenSize != 0 );
             }
         }
 #ifndef NDEBUG // Check that each compressor exist once
         for( size_t j = 0; j < i; ++j )
         {
-            EQASSERTINFO( info.name != _infos[j].name,
+            LBASSERTINFO( info.name != _infos[j].name,
                           "Compressors " << i << " and " << j << " in '" <<
                           libraryName << "' use the same name" );
         }
@@ -165,12 +165,12 @@ void Plugin::initChildren()
     for( CompressorInfos::iterator i = _infos.begin(); i != _infos.end(); ++i )
     {
         CompressorInfo& info = *i;
-        EQLOG( LOG_PLUGIN ) << base::disableFlush << "Engine 0x" << std::hex
+        LBLOG( LOG_PLUGIN ) << lunchbox::disableFlush << "Engine 0x" << std::hex
                             << info.name;
 
         if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
         {
-            EQLOG( LOG_PLUGIN ) << " compressors:";
+            LBLOG( LOG_PLUGIN ) << " compressors:";
             // Find compressors for downloader
             for( Plugins::const_iterator j = plugins.begin();
                  j != plugins.end(); ++j )
@@ -189,13 +189,13 @@ void Plugin::initChildren()
                     }
 
                     info.compressors.push_back( &child );
-                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                    LBLOG( LOG_PLUGIN ) << " 0x" << child.name;
                 }
             }
         }
         else
         {
-            EQLOG( LOG_PLUGIN ) << " uploaders:";
+            LBLOG( LOG_PLUGIN ) << " uploaders:";
             // Find uploaders for decompressor
             for( Plugins::const_iterator j = plugins.begin();
                  j != plugins.end(); ++j )
@@ -214,11 +214,11 @@ void Plugin::initChildren()
                     }
 
                     info.uploaders.push_back( &child );
-                    EQLOG( LOG_PLUGIN ) << " 0x" << child.name;
+                    LBLOG( LOG_PLUGIN ) << " 0x" << child.name;
                 }
             }
         }
-        EQLOG( LOG_PLUGIN ) << std::endl << std::dec << base::enableFlush;
+        LBLOG( LOG_PLUGIN ) << std::endl << std::dec << lunchbox::enableFlush;
     }
 }
 
@@ -244,7 +244,7 @@ const CompressorInfo& Plugin::findInfo( const uint32_t name ) const
             return (*i);
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return _infos.front();
 }
 

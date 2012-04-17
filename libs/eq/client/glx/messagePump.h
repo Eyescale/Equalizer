@@ -22,7 +22,7 @@
 #include <eq/client/messagePump.h> // base class
 
 #include <co/connectionSet.h>  // member
-#include <co/base/stdExt.h>    // member
+#include <lunchbox/stdExt.h>    // member
 
 namespace eq
 {

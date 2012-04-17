@@ -87,14 +87,14 @@ namespace eq
      */
     enum PointerButton
     {
-        PTR_BUTTON_NONE = EQ_BIT_NONE,
-        PTR_BUTTON1     = EQ_BIT1,
-        PTR_BUTTON2     = EQ_BIT2,
-        PTR_BUTTON3     = EQ_BIT3,
-        PTR_BUTTON4     = EQ_BIT4,
-        PTR_BUTTON5     = EQ_BIT5,
-        PTR_BUTTON6     = EQ_BIT6,
-        PTR_BUTTON7     = EQ_BIT7
+        PTR_BUTTON_NONE = LB_BIT_NONE,
+        PTR_BUTTON1     = LB_BIT1,
+        PTR_BUTTON2     = LB_BIT2,
+        PTR_BUTTON3     = LB_BIT3,
+        PTR_BUTTON4     = LB_BIT4,
+        PTR_BUTTON5     = LB_BIT5,
+        PTR_BUTTON6     = LB_BIT6,
+        PTR_BUTTON7     = LB_BIT7
     };
 
     /**

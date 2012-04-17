@@ -4,8 +4,6 @@
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 
 include(configure.cmake)
-
-include(base/files.cmake)
 include(files.cmake)
 
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
@@ -27,7 +25,7 @@ endif()
 add_definitions(-DEQ_PLUGIN_BUILD)
 
 set(VERSION ${CO_VERSION})
-set(CO_ADD_LINKLIB)
+set(CO_ADD_LINKLIB ${PTHREAD_LIBRARIES} ${LUNCHBOX_LIBRARIES})
 
 if(WIN32)
   list(APPEND CO_ADD_LINKLIB ws2_32 mswsock)
@@ -67,8 +65,6 @@ if(HWLOC_FOUND)
   list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
 endif(HWLOC_FOUND)
 
-source_group(base FILES ${COBASE_PUBLIC_HEADERS} ${COBASE_HEADERS}
-  ${COBASE_SOURCES})
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(collage FILES ${CO_PUBLIC_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
@@ -76,10 +72,10 @@ source_group(compressor FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
 
 purple_add_library(Collage SHARED
   HEADERS_PREFIX "co/"
-  HEADERS ${COBASE_PUBLIC_HEADERS} ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
-  SOURCES ${COBASE_SOURCES} ${COBASE_HEADERS} ${CO_HEADERS} ${CO_SOURCES}
-          ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES}
-  LINK_LIBRARIES ${PTHREAD_LIBRARIES} ${CO_ADD_LINKLIB}
+  HEADERS ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
+  SOURCES ${CO_HEADERS} ${CO_SOURCES} ${CO_COMPRESSOR_HEADERS}
+          ${CO_COMPRESSOR_SOURCES}
+  LINK_LIBRARIES ${CO_ADD_LINKLIB}
   )
 
 # TODO: this will be incorporated into PURPLE_ADD_LIBRARY

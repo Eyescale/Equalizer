@@ -23,7 +23,7 @@
 #include <eq/fabric/nodeType.h>  // for NODETYPE_EQ_SERVER enum
 #include <eq/fabric/visitorResult.h> // enum
 
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 #include <co/types.h>
 
 namespace eq
@@ -36,9 +36,9 @@ namespace fabric
     {
     public:
         /** A reference-counted pointer to the client. */
-        typedef co::base::RefPtr< CL > ClientPtr;
+        typedef lunchbox::RefPtr< CL > ClientPtr;
         /** A reference-counted const pointer to the client. */
-        typedef co::base::RefPtr< const CL > ConstClientPtr;
+        typedef lunchbox::RefPtr< const CL > ConstClientPtr;
         /** A vector of config pointers. */
         typedef std::vector< CFG* > Configs;
         /** The node factory. */

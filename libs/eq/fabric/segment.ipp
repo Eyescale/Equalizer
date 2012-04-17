@@ -38,15 +38,15 @@ Segment< C, S, CH >::Segment( C* canvas )
         , _eyes( EYES_ALL )
         , _swapBarrier( canvas->getSwapBarrier( ))
 {
-    EQASSERT( canvas );
+    LBASSERT( canvas );
     canvas->_addChild( static_cast< S* >( this ));
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class C, class S, class CH >
 Segment< C, S, CH >::~Segment()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _canvas->_removeChild( static_cast< S* >( this ));
     _channel = 0;
 }
@@ -93,16 +93,16 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         Frustum::deserialize( is );
     if( dirtyBits & DIRTY_CHANNEL )
     {
-        EQASSERT( _canvas->_mapViewObjects( ))
+        LBASSERT( _canvas->_mapViewObjects( ))
 
         co::ObjectVersion ov;
         is >> ov;
 
         _channel = 0;
-        if( ov.identifier != co::base::UUID::ZERO )
+        if( ov.identifier != UUID::ZERO )
         {
             _canvas->getConfig()->find( ov.identifier, &_channel );
-            EQASSERT( !isMaster() || _channel );
+            LBASSERT( !isMaster() || _channel );
         }
     }
     if( dirtyBits & DIRTY_EYES )
@@ -197,7 +197,7 @@ void Segment< C, S, CH >::notifyFrustumChanged()
             break;
         }
         default: 
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
         case TYPE_NONE:
             break; 
     }
@@ -237,9 +237,9 @@ template< class C, class S, class CH >
 std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
 {
     const S& segment = static_cast< const S& >( s );
-    os << co::base::disableFlush << co::base::disableHeader << "segment"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "segment"
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
     
     const std::string& name = segment.getName();
     if( !name.empty( ))
@@ -278,8 +278,8 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
         os << *segment.getSwapBarrier();
     os << static_cast< const Frustum& >( segment );
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

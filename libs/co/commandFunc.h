@@ -19,7 +19,7 @@
 #define CO_COMMANDFUNC_H
 
 #include <co/types.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 // If you get a warning in your code, add before in including this file:
 //  #pragma warning( disable: 4407 )
@@ -47,8 +47,8 @@ namespace co
 
         bool operator()( Command& command )
         {
-            EQASSERT( _object );
-            EQASSERT( _func );
+            LBASSERT( _object );
+            LBASSERT( _func );
             return (_object->*_func)( command );
         }
 
@@ -79,7 +79,7 @@ namespace co
                                        const CommandFunc<T>& func )
     {
         if( func.isValid( ))
-            os << "CommandFunc of " << base::className( func._object );
+            os << "CommandFunc of " << lunchbox::className( func._object );
         else
             os << "NULL CommandFunc";
         return os;

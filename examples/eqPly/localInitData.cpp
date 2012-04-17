@@ -34,7 +34,7 @@
 #include <functional>
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -44,7 +44,6 @@ LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu )
         , _color( true )
         , _isResident( false )
-        , _multiProcess( false )
 {
 #ifdef EQ_RELEASE
 #  ifdef _WIN32 // final INSTALL_DIR is not known at compile time
@@ -67,7 +66,6 @@ const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
     _isResident  = from._isResident;
     _filenames    = from._filenames;
     _pathFilename = from._pathFilename;
-    _multiProcess = from._multiProcess;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
@@ -143,9 +141,6 @@ void LocalInitData::parseArguments( const int argc, char** argv )
                         command );
         TCLAP::SwitchArg roiArg( "d", "disableROI", "Disable ROI", command,
                                  false );
-        TCLAP::SwitchArg mpArg( "f", "multiProcess",
-                            "Use one process per pipe during auto-configuration",
-                                command, false );
 
         command.parse( argc, argv );
 
@@ -198,12 +193,10 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             disableLogo();
         if( roiArg.isSet( ))
             disableROI();
-        if( mpArg.isSet( ))
-            _multiProcess = true;
     }
     catch( const TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
         ::exit( EXIT_FAILURE );
     }

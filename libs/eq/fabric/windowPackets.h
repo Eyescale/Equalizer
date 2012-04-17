@@ -50,7 +50,7 @@ namespace fabric
                 size    = sizeof( WindowNewChannelReplyPacket );
             }
 
-        co::base::UUID channelID;
+        UUID channelID;
         const uint32_t requestID; 
         const uint32_t pad;       
     };

@@ -21,8 +21,8 @@
 
 #include "connectionDescription.h"
 
-#include <co/base/os.h>
-#include <co/base/log.h>
+#include <lunchbox/os.h>
+#include <lunchbox/log.h>
 
 #include <errno.h>
 #include <sstream>
@@ -58,7 +58,7 @@ PGMConnection::PGMConnection()
     _description->type = CONNECTIONTYPE_PGM;
     _description->bandwidth = 50 * 1024; // 50MB/s
 
-    EQVERB << "New PGMConnection @" << (void*)this << std::endl;
+    LBVERB << "New PGMConnection @" << (void*)this << std::endl;
 }
 
 PGMConnection::~PGMConnection()
@@ -79,7 +79,7 @@ bool PGMConnection::connect()
 //----------------------------------------------------------------------
 bool PGMConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_PGM );
+    LBASSERT( _description->type == CONNECTIONTYPE_PGM );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -92,7 +92,7 @@ bool PGMConnection::listen()
 
     if( !_parseAddress( address ))
     {
-        EQWARN << "Can't parse connection parameters" << std::endl;
+        LBWARN << "Can't parse connection parameters" << std::endl;
         return false;
     }
 
@@ -109,7 +109,7 @@ bool PGMConnection::listen()
         
     if( !listening )
     {
-        EQWARN << "Could not listen on socket: " << base::sysError 
+        LBWARN << "Could not listen on socket: " << lunchbox::sysError 
                << std::endl;
         close();
         return false;
@@ -163,8 +163,8 @@ bool PGMConnection::listen()
 
     if( !connected )
     {
-        EQWARN << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << base::sysError 
+        LBWARN << "Could not connect to '" << _description->getHostname() << ":"
+               << _description->port << "': " << lunchbox::sysError 
                << std::endl;
         close();
         return false;
@@ -173,7 +173,7 @@ bool PGMConnection::listen()
     _state = STATE_LISTENING;
     _fireStateChanged();
 
-    EQINFO << "Listening on " << _description->getHostname() << "["
+    LBINFO << "Listening on " << _description->getHostname() << "["
            << inet_ntoa( address.sin_addr ) << "]:" << _description->port
            << " (" << _description->toString() << ")" << std::endl;
     
@@ -194,7 +194,7 @@ void PGMConnection::_close()
         _exitAIORead();
 
     _state = STATE_CLOSED;
-    EQASSERT( _readFD > 0 ); 
+    LBASSERT( _readFD > 0 ); 
 
     if( _readFD > 0 )
     {
@@ -206,7 +206,7 @@ void PGMConnection::_close()
                 ::setsockopt( _readFD, IPPROTO_RM, RM_DEL_RECEIVE_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
             {
-                EQWARN << "can't delete recv interface " <<  base::sysError
+                LBWARN << "can't delete recv interface " <<  lunchbox::sysError
                        << std::endl;
             }
         }
@@ -217,7 +217,7 @@ void PGMConnection::_close()
 #endif
         
         if( !closed )
-            EQWARN << "Could not close read socket: " << base::sysError
+            LBWARN << "Could not close read socket: " << lunchbox::sysError
                    << std::endl;
     }
 
@@ -230,7 +230,7 @@ void PGMConnection::_close()
 #endif
 
         if( !closed )
-            EQWARN << "Could not close write socket: " << base::sysError
+            LBWARN << "Could not close write socket: " << lunchbox::sysError
                    << std::endl;
     }
 
@@ -246,11 +246,11 @@ void PGMConnection::_close()
 void PGMConnection::_initAIORead()
 {
     _overlapped.hEvent = CreateEvent( 0, FALSE, FALSE, 0 );
-    EQASSERT( _overlapped.hEvent );
+    LBASSERT( _overlapped.hEvent );
 
     if( !_overlapped.hEvent )
-        EQERROR << "Can't create event for AIO notification: " 
-                << base::sysError << std::endl;
+        LBERROR << "Can't create event for AIO notification: " 
+                << lunchbox::sysError << std::endl;
 }
 
 void PGMConnection::_initAIOAccept()
@@ -290,19 +290,19 @@ void PGMConnection::_exitAIORead(){ /* NOP */ }
 #ifdef _WIN32
 void PGMConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
 
     // Create new accept socket
     const DWORD flags = WSA_FLAG_OVERLAPPED;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket == INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket == INVALID_SOCKET );
     _overlappedSocket = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_RM, 0, 0,
                                    flags );
 
     if( _overlappedSocket == INVALID_SOCKET )
     {
-        EQERROR << "Could not create accept socket: " << base::sysError
+        LBERROR << "Could not create accept socket: " << lunchbox::sysError
                 << ", closing connection" << std::endl;
         close();
         return;
@@ -320,7 +320,7 @@ void PGMConnection::acceptNB()
                    &got, &_overlapped ) &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQERROR << "Could not start accept operation: " << base::sysError 
+        LBERROR << "Could not start accept operation: " << lunchbox::sysError 
                 << ", closing connection" << std::endl;
         close();
     }
@@ -328,12 +328,12 @@ void PGMConnection::acceptNB()
     
 ConnectionPtr PGMConnection::acceptSync()
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
     if( _state != STATE_LISTENING )
         return 0;
 
-    EQASSERT( _overlappedAcceptData );
-    EQASSERT( _overlappedSocket != INVALID_SOCKET );
+    LBASSERT( _overlappedAcceptData );
+    LBASSERT( _overlappedSocket != INVALID_SOCKET );
     if( _overlappedSocket == INVALID_SOCKET )
         return 0;
 
@@ -342,7 +342,7 @@ ConnectionPtr PGMConnection::acceptSync()
     DWORD flags = 0;
     if( !WSAGetOverlappedResult( _readFD, &_overlapped, &got, TRUE, &flags ))
     {
-        EQWARN << "Accept completion failed: " << base::sysError 
+        LBWARN << "Accept completion failed: " << lunchbox::sysError 
                << ", closing connection" << std::endl;
         close();
         return 0;
@@ -368,7 +368,7 @@ ConnectionPtr PGMConnection::acceptSync()
     newConnection->_state       = STATE_CONNECTED;
     newConnection->_description = _description;
 
-    EQINFO << "accepted connection " << (void*)newConnection << " from " 
+    LBINFO << "accepted connection " << (void*)newConnection << " from " 
            << inet_ntoa( remote->sin_addr ) << ":" << ntohs( remote->sin_port )
            << std::endl;
     return connection;
@@ -395,7 +395,7 @@ ConnectionPtr PGMConnection::acceptSync()
 
     if( fd == INVALID_PGM )
     {
-        EQWARN << "accept failed: " << base::sysError << std::endl;
+        LBWARN << "accept failed: " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -410,7 +410,7 @@ ConnectionPtr PGMConnection::acceptSync()
     newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
     newConnection->_description->TCPIP.port   = ntohs( newAddress.sin_port );
 
-    EQVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
+    LBVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
            << ":" << ntohs( newAddress.sin_port ) << std::endl;
 
     return newConnection;
@@ -429,7 +429,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     if( _state == STATE_CLOSED || _readFD == INVALID_SOCKET )
         return;
 
-    WSABUF wsaBuffer = { EQ_MIN( bytes, 65535 ),
+    WSABUF wsaBuffer = { LB_MIN( bytes, 65535 ),
                          reinterpret_cast< char* >( buffer ) };
     DWORD  got   = 0;
     DWORD  flags = 0;
@@ -438,7 +438,7 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
     if( WSARecv( _readFD, &wsaBuffer, 1, &got, &flags, &_overlapped, 0 )!= 0 &&
         GetLastError() != WSA_IO_PENDING )
     {
-        EQWARN << "Could not start overlapped receive: " << base::sysError
+        LBWARN << "Could not start overlapped receive: " << lunchbox::sysError
                << ", closing connection" << std::endl;
         close();
     }
@@ -447,11 +447,11 @@ void PGMConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
                                  const bool ignored )
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
 
     if( _readFD == INVALID_SOCKET )
     {
-        EQERROR << "Invalid read handle" << std::endl;
+        LBERROR << "Invalid read handle" << std::endl;
         return -1;
     }
 
@@ -462,7 +462,7 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
         if( GetLastError() == WSASYSCALLFAILURE ) // happens sometimes!?
             return 0;
 
-        EQWARN << "Read complete failed: " << base::sysError 
+        LBWARN << "Read complete failed: " << lunchbox::sysError 
                << ", closing connection" << std::endl;
         close();
         return -1;
@@ -470,7 +470,7 @@ int64_t PGMConnection::readSync( void* buffer, const uint64_t bytes,
 
     if( got == 0 )
     {
-        EQWARN << "Read operation returned with nothing read"
+        LBWARN << "Read operation returned with nothing read"
                << ", closing connection." << std::endl;
         close();
         return -1;
@@ -493,7 +493,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
 
     DWORD  wrote;
     WSABUF wsaBuffer = 
-        {   EQ_MIN( bytes, 65535 ),
+        {   LB_MIN( bytes, 65535 ),
             const_cast<char*>( static_cast< const char* >( buffer )) 
         };
 
@@ -511,7 +511,7 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
         // error
         if( GetLastError( ) != WSAEWOULDBLOCK )
         {
-            EQWARN << "Error during write: " << base::sysError << std::endl;
+            LBWARN << "Error during write: " << lunchbox::sysError << std::endl;
             return -1;
         }
 
@@ -525,13 +525,13 @@ int64_t PGMConnection::write( const void* buffer, const uint64_t bytes)
         const int result = select( _writeFD+1, 0, &set, 0, 0 );
         if( result <= 0 )
         {
-            EQWARN << "Error during select: " << base::sysError << std::endl;
+            LBWARN << "Error during select: " << lunchbox::sysError << std::endl;
             return -1;
         }
 #endif
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return -1;
 }
 #endif // _WIN32
@@ -548,7 +548,7 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
     if( fd == INVALID_SOCKET )
     {
-        EQERROR << "Could not create socket: " << base::sysError << std::endl;
+        LBERROR << "Could not create socket: " << lunchbox::sysError << std::endl;
         return INVALID_SOCKET;
     }
 
@@ -556,7 +556,7 @@ SOCKET PGMConnection::_initSocket( sockaddr_in address )
 
     if( !bound )
     {
-        EQWARN << "Could not bind socket " << fd << ": " << base::sysError
+        LBWARN << "Could not bind socket " << fd << ": " << lunchbox::sysError
                << " to " << inet_ntoa( address.sin_addr ) << ":" 
                << ntohs( address.sin_port ) << " AF " << (int)address.sin_family
                << std::endl;
@@ -596,7 +596,7 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
     if( _description->getHostname().empty( ))
         _description->setHostname( "239.255.42.42" );
 
-    EQASSERT( _description->port != 0 );
+    LBASSERT( _description->port != 0 );
 
     address.sin_family      = AF_INET;
     address.sin_port        = htons( _description->port );
@@ -605,7 +605,7 @@ bool PGMConnection::_parseAddress( sockaddr_in& address )
     if( !_parseHostname( _description->getHostname(), address.sin_addr.s_addr ))
         return false;
 
-    EQVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
+    LBVERB << "Address " << inet_ntoa( address.sin_addr ) << ":" 
            << ntohs( address.sin_port ) << std::endl;
     return true;
 }
@@ -620,7 +620,7 @@ bool PGMConnection::_parseHostname( const std::string& hostname,
     hostent *hptr = gethostbyname( hostname.c_str( ));
     if( !hptr )
     {
-        EQWARN << "Can't resolve host " << hostname << std::endl;
+        LBWARN << "Can't resolve host " << hostname << std::endl;
         return false;
     }
 
@@ -630,13 +630,13 @@ bool PGMConnection::_parseHostname( const std::string& hostname,
 
 bool PGMConnection::_setSendBufferSize( const int newSize )
 {
-    EQASSERT(newSize >= 0);
+    LBASSERT(newSize >= 0);
     
     if ( ::setsockopt( _writeFD, SOL_SOCKET, SO_SNDBUF, 
                        ( char* )&newSize, sizeof( int )) == SOCKET_ERROR ) 
     {
-        EQWARN << "can't SetSendBufferSize, error: " 
-               <<  base::sysError << std::endl;
+        LBWARN << "can't SetSendBufferSize, error: " 
+               <<  lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -653,14 +653,14 @@ bool PGMConnection::_setSendRate()
     sendWindow.WindowSizeInBytes = 0;
     sendWindow.WindowSizeInMSecs = 10000; // Set window size to 10s
 
-    EQINFO << "Setting PGM send rate to " << sendWindow.RateKbitsPerSec
+    LBINFO << "Setting PGM send rate to " << sendWindow.RateKbitsPerSec
            << " kBit/s" << std::endl;
 
     if( ::setsockopt( _writeFD, IPPROTO_RM, RM_RATE_WINDOW_SIZE, 
                       (char*)&sendWindow, 
                       sizeof(RM_SEND_WINDOW)) == SOCKET_ERROR ) 
     {
-        EQWARN << "can't set send rate, error: " <<  base::sysError
+        LBWARN << "can't set send rate, error: " <<  lunchbox::sysError
                << std::endl;
         return false ;
     }
@@ -678,7 +678,7 @@ bool PGMConnection::_setSendInterface()
         ::setsockopt( _writeFD, IPPROTO_RM, RM_SET_SEND_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
     {
-        EQWARN << "can't set send interface " <<  base::sysError << std::endl;
+        LBWARN << "can't set send interface " <<  lunchbox::sysError << std::endl;
         return false;
     }
     return true;
@@ -721,8 +721,8 @@ bool PGMConnection::_setFecParameters( const SOCKET fd,
     if ( ::setsockopt( fd, IPPROTO_RM, RM_USE_FEC, 
                       (char *)&fec, sizeof( RM_FEC_INFO )))
     {
-        EQWARN << "can't set error correction parameters " 
-               << base::sysError << std::endl;
+        LBWARN << "can't set error correction parameters " 
+               << lunchbox::sysError << std::endl;
         return false;
     }
     return true;
@@ -733,8 +733,8 @@ bool PGMConnection::_setReadBufferSize( int newSize )
     if ( ::setsockopt( _readFD, SOL_SOCKET, SO_RCVBUF,
                       (char*)&newSize, sizeof(int)) == SOCKET_ERROR ) 
     {
-        EQWARN << "can't set receive buffer size, error: " 
-               <<  base::sysError << std::endl;
+        LBWARN << "can't set receive buffer size, error: " 
+               <<  lunchbox::sysError << std::endl;
         return false;
     }
     return true;
@@ -751,7 +751,7 @@ bool PGMConnection::_setReadInterface()
         ::setsockopt( _readFD, IPPROTO_RM, RM_ADD_RECEIVE_IF,
                      (char*)&interface, sizeof(uint32_t)) == SOCKET_ERROR )
     {
-        EQWARN << "can't add recv interface " <<  base::sysError 
+        LBWARN << "can't add recv interface " <<  lunchbox::sysError 
                << std::endl;
         return false;
     }
@@ -765,8 +765,8 @@ bool PGMConnection::_enableHighSpeed(  SOCKET fd )
     if ( ::setsockopt( fd, IPPROTO_RM, RM_HIGH_SPEED_INTRANET_OPT , 
                  (char*)&HighSpeedLanEnabled, sizeof( ULONG )) == SOCKET_ERROR )
     {
-        EQWARN << "can't EnableHighSpeedLanOption, error: " 
-               <<  base::sysError << std::endl;
+        LBWARN << "can't EnableHighSpeedLanOption, error: " 
+               <<  lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -784,7 +784,7 @@ void PGMConnection::_printReadStatistics()
         return;
     }
 
-    EQWARN << stats.NumDuplicateDataPackets << " dups, " 
+    LBWARN << stats.NumDuplicateDataPackets << " dups, " 
            << stats.NumRDataPacketsReceived << " retransmits of "
            << stats.NumODataPacketsReceived << " packets, "
            << stats.NumDataPacketsBuffered << " not yet read, "
@@ -802,7 +802,7 @@ void PGMConnection::_printSendStatistics()
         return;
     }
 
-    EQWARN << stats.NaksReceived << " NAKs, " 
+    LBWARN << stats.NaksReceived << " NAKs, " 
            << stats.NaksReceivedTooLate << " late NAKs "
            << stats.RepairPacketsSent << " repair packets, "
            << stats.TotalODataPacketsSent << " data packets, "

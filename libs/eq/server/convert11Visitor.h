@@ -43,7 +43,7 @@ class ConvertTo11Visitor : public ServerVisitor
         if( nodes.size() > 1 )
         {
             // RFE 3156103: Add default appNode connection for multi-node config
-            EQINFO << "Adding default server connection for multi-node config"
+            LBINFO << "Adding default server connection for multi-node config"
                    << std::endl;
             co::ConnectionDescriptionPtr desc = new co::ConnectionDescription;
             desc->port = EQ_DEFAULT_PORT;
@@ -70,7 +70,7 @@ class ConvertTo11Visitor : public ServerVisitor
             node->getConfig()->getNodes().size() > 1 )
         {
             //RFE 3156103: Add default appNode connection for multi-node configs
-            EQINFO << "Adding default appNode connection for multi-node config"
+            LBINFO << "Adding default appNode connection for multi-node config"
                    << std::endl;
             node->addConnectionDescription( new ConnectionDescription );
         }

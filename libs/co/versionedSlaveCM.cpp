@@ -23,7 +23,7 @@
 #include "object.h"
 #include "objectDataIStream.h"
 #include "objectPackets.h"
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <limits>
 
 namespace co
@@ -40,7 +40,7 @@ VersionedSlaveCM::VersionedSlaveCM( Object* object, uint32_t masterInstanceID )
         , _ostream( this )
 #pragma warning(pop)
 {
-    EQASSERT( object );
+    LBASSERT( object );
 
     object->registerCommand( CMD_OBJECT_INSTANCE,
                              CmdFunc( this, &VersionedSlaveCM::_cmdData ), 0 );
@@ -53,7 +53,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
     while( !_queuedVersions.isEmpty( ))
         delete _queuedVersions.pop();
 
-    EQASSERT( !_currentIStream );
+    LBASSERT( !_currentIStream );
     delete _currentIStream;
     _currentIStream = 0;
 
@@ -64,7 +64,7 @@ VersionedSlaveCM::~VersionedSlaveCM()
 uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
     if( !_object->isDirty() || !_master || !_master->isConnected( ))
@@ -80,7 +80,7 @@ uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
 uint128_t VersionedSlaveCM::sync( const uint128_t& v )
 {
 #if 0
-    EQLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
+    LBLOG( LOG_OBJECTS ) << "sync to v" << v << ", id " << _object->getID()
                          << "." << _object->getInstanceID() << std::endl;
 #endif
     if( _version == v )
@@ -93,10 +93,10 @@ uint128_t VersionedSlaveCM::sync( const uint128_t& v )
     }
 
     const uint128_t version = ( v == VERSION_NEXT ) ? _version + 1 : v;
-    EQASSERTINFO( version.high() == 0, "Not a master version: " << version )
-    EQASSERTINFO( _version <= version,
+    LBASSERTINFO( version.high() == 0, "Not a master version: " << version )
+    LBASSERTINFO( _version <= version,
                   "can't sync to older version of object " << 
-                  base::className( _object ) << " " << _object->getID() <<
+                  lunchbox::className( _object ) << " " << _object->getID() <<
                   " (" << _version << ", " << version <<")" );
 
     while( _version < version )
@@ -138,7 +138,7 @@ uint128_t VersionedSlaveCM::getHeadVersion() const
     ObjectDataIStream* is = 0;
     if( _queuedVersions.getBack( is ))
     {
-        EQASSERT( is );
+        LBASSERT( is );
         return is->getVersion();
     }
     return _version;    
@@ -146,8 +146,8 @@ uint128_t VersionedSlaveCM::getHeadVersion() const
 
 void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 {
-    EQASSERT( is );
-    EQASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
+    LBASSERT( is );
+    LBASSERTINFO( _version == is->getVersion() - 1, "Expected version " 
                   << _version + 1 << ", got " << is->getVersion() << " for "
                   << *_object );
 
@@ -158,14 +158,14 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
 
     _version = is->getVersion();
 
-    EQASSERT( _version != VERSION_INVALID );
-    EQASSERT( _version != VERSION_NONE );
-    EQASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
+    LBASSERT( _version != VERSION_INVALID );
+    LBASSERT( _version != VERSION_NONE );
+    LBASSERTINFO( is->getRemainingBufferSize()==0 && is->nRemainingBuffers()==0,
                   "Object " << typeid( *_object ).name() <<
                   " did not unpack all data" );
 
 #if 0
-    EQLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
+    LBLOG( LOG_OBJECTS ) << "applied v" << _version << ", id "
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
@@ -180,22 +180,22 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
         ObjectDataIStream* is = _queuedVersions.pop();
         if( is->getVersion() == version )
         {
-            EQASSERTINFO( is->hasInstanceData(), *_object );
+            LBASSERTINFO( is->hasInstanceData(), *_object );
 
             if( is->hasData( )) // not VERSION_NONE
                 _object->applyInstanceData( *is );
             _version = is->getVersion();
 
-            EQASSERT( _version != VERSION_INVALID );
-            EQASSERTINFO( !is->hasData(),
-                          base::className( _object ) <<
+            LBASSERT( _version != VERSION_INVALID );
+            LBASSERTINFO( !is->hasData(),
+                          lunchbox::className( _object ) <<
                           " did not unpack all data, " <<
                           is->getRemainingBufferSize() << " bytes, " <<
                           is->nRemainingBuffers() << " buffer(s)" );
 
             _releaseStream( is );
 #if 0
-            EQLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
+            LBLOG( LOG_OBJECTS ) << "Mapped initial data of " << _object
                                  << std::endl;
 #endif
             return;
@@ -211,7 +211,7 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
             // - p1, cmd receives commit data
             // -> newly attached object recv new commit data before map data,
             //    ignore it
-            EQASSERTINFO( is->getVersion() > version,
+            LBASSERTINFO( is->getVersion() > version,
                           is->getVersion() << " <= " << version );
             _releaseStream( is );
         }
@@ -221,9 +221,9 @@ void VersionedSlaveCM::applyMapData( const uint128_t& version )
 void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
                                          const uint128_t& startVersion )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
 #if 0
-    EQLOG( LOG_OBJECTS ) << base::disableFlush << "Adding data front ";
+    LBLOG( LOG_OBJECTS ) << lunchbox::disableFlush << "Adding data front ";
 #endif
 
     uint128_t oldest = VERSION_NONE;
@@ -232,10 +232,10 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
     {
         ObjectDataIStream* is = 0;
 
-        EQCHECK( _queuedVersions.getFront( is ));
+        LBCHECK( _queuedVersions.getFront( is ));
         oldest = is->getVersion();
 
-        EQCHECK( _queuedVersions.getBack( is ));
+        LBCHECK( _queuedVersions.getBack( is ));
         newest = is->getVersion();
     }
 
@@ -250,8 +250,8 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
         if( version < startVersion )
             continue;
         
-        EQASSERT( stream->isReady( ));
-        EQASSERT( stream->hasInstanceData( ));
+        LBASSERT( stream->isReady( ));
+        LBASSERT( stream->hasInstanceData( ));
         if( !stream->isReady( ))
             break;
 
@@ -269,16 +269,16 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
         ObjectDataIStream* debugStream = 0;
         _queuedVersions.getFront( debugStream );
         if( debugStream )
-            EQASSERT( debugStream->getVersion() == stream->getVersion() + 1);
+            LBASSERT( debugStream->getVersion() == stream->getVersion() + 1);
 #endif
         _queuedVersions.pushFront( new ObjectDataIStream( *stream ));
 #if 0
-        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+        LBLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
     }
 
 #if 0
-    EQLOG( LOG_OBJECTS ) << " back ";
+    LBLOG( LOG_OBJECTS ) << " back ";
 #endif
     for( ObjectDataIStreams::const_iterator i = tail.begin();
          i != tail.end(); ++i )
@@ -289,16 +289,16 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
         _queuedVersions.getBack( debugStream );
         if( debugStream )
         {
-            EQASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));
+            LBASSERT( debugStream->getVersion() + 1 == stream->getVersion( ));
         } 
 #endif
         _queuedVersions.push( new ObjectDataIStream( *stream ));
 #if 0
-        EQLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
+        LBLOG( LOG_OBJECTS ) << stream->getVersion() << ' ';
 #endif
     }
 #if 0
-    EQLOG( LOG_OBJECTS ) << std::endl << base::enableFlush;
+    LBLOG( LOG_OBJECTS ) << std::endl << lunchbox::enableFlush;
 #endif
 }
 
@@ -307,8 +307,8 @@ void VersionedSlaveCM::addInstanceDatas( const ObjectDataIStreamDeque& cache,
 //---------------------------------------------------------------------------
 bool VersionedSlaveCM::_cmdData( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
-    EQASSERT( command.getNode().isValid( ));
+    LB_TS_THREAD( _rcvThread );
+    LBASSERT( command.getNode().isValid( ));
 
     if( !_currentIStream )
         _currentIStream = _iStreamCache.alloc();
@@ -318,7 +318,7 @@ bool VersionedSlaveCM::_cmdData( Command& command )
     {
         const uint128_t& version = _currentIStream->getVersion();
 #if 0
-        EQLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
+        LBLOG( LOG_OBJECTS ) << "v" << version << ", id " << _object->getID()
                              << "." << _object->getInstanceID() << " ready"
                              << std::endl;
 #endif
@@ -327,7 +327,7 @@ bool VersionedSlaveCM::_cmdData( Command& command )
         _queuedVersions.getBack( debugStream );
         if ( debugStream )
         {
-            EQASSERT( debugStream->getVersion() + 1 == version );
+            LBASSERT( debugStream->getVersion() + 1 == version );
         }
 #endif
         _queuedVersions.push( _currentIStream );

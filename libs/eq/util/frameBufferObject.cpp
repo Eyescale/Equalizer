@@ -38,7 +38,7 @@ FrameBufferObject::FrameBufferObject( const GLEWContext* glewContext,
     , _error( co::ERROR_NONE )
     , _valid( false )
 {
-    EQASSERT( GLEW_EXT_framebuffer_object );
+    LBASSERT( GLEW_EXT_framebuffer_object );
     _colors.push_back( new Texture( textureTarget, glewContext ));
 }
 
@@ -62,7 +62,7 @@ bool FrameBufferObject::addColorTexture()
     if( _colors.size() >= 16 )
     {
         _setError( ERROR_FRAMEBUFFER_FULL_COLOR_TEXTURES );
-        EQERROR << _error << std::endl;
+        LBERROR << _error << std::endl;
         return false;
     }
 
@@ -77,12 +77,12 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
                               const int32_t depthSize,
                               const int32_t stencilSize )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     if( _fboID )
     {
         _setError( ERROR_FRAMEBUFFER_INITIALIZED );
-        EQWARN << _error << std::endl;
+        LBWARN << _error << std::endl;
         return false;
     }
 
@@ -117,7 +117,7 @@ bool FrameBufferObject::init( const int32_t width, const int32_t height,
 
 void FrameBufferObject::exit()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     if( _fboID )
     {
         glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, 0 );
@@ -137,7 +137,7 @@ bool FrameBufferObject::_checkStatus()
     switch( glCheckFramebufferStatusEXT( GL_FRAMEBUFFER_EXT ))
     {
         case GL_FRAMEBUFFER_COMPLETE_EXT:
-            EQVERB << "FBO supported and complete" << std::endl;
+            LBVERB << "FBO supported and complete" << std::endl;
             _valid = true;
             return true;
 
@@ -166,15 +166,15 @@ bool FrameBufferObject::_checkStatus()
             break;
     }
 
-    EQWARN << _error << std::endl;
+    LBWARN << _error << std::endl;
     _valid = false;
     return false;
 }
 
 void FrameBufferObject::bind()
 {
-    EQ_TS_THREAD( _thread );
-    EQASSERT( _fboID );
+    LB_TS_THREAD( _thread );
+    LBASSERT( _fboID );
     EQ_GL_CALL( glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, _fboID ));
 }
 
@@ -185,10 +185,10 @@ void FrameBufferObject::unbind()
 
 bool FrameBufferObject::resize( const int32_t width, const int32_t height )
 {
-    EQ_TS_THREAD( _thread );
-    EQASSERT( width > 0 && height > 0 );
+    LB_TS_THREAD( _thread );
+    LBASSERT( width > 0 && height > 0 );
 
-    EQASSERT( !_colors.empty( ));
+    LBASSERT( !_colors.empty( ));
     Texture* color = _colors.front();
 
     if( color->getWidth() == width && color->getHeight() == height && _valid )

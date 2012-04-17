@@ -21,7 +21,7 @@
 #include <eq/client/api.h>
 #include <eq/client/types.h>
 #include <eq/client/version.h>    // used inline
-#include <co/base/log.h>   // used inline
+#include <lunchbox/log.h>   // used inline
 
 namespace eq
 {
@@ -58,7 +58,7 @@ namespace eq
     {
         if( EQ_VERSION_ABI == Version::getABI( ))
             return eq::_init( argc, argv, nodeFactory );
-        EQWARN << "Equalizer shared library v" << Version::getABI()
+        LBWARN << "Equalizer shared library v" << Version::getABI()
                << " not binary-compatible with application v" << EQ_VERSION_ABI
                << std::endl;
         return false;

@@ -23,9 +23,10 @@
 #include <eq/client/types.h>         // typedefs
 
 #include <eq/fabric/config.h>        // base class
-#include <co/base/clock.h>           // member
-#include <co/base/monitor.h>         // member
-#include <co/base/spinLock.h>        // member
+#include <co/objectHandler.h>        // base class
+#include <lunchbox/clock.h>           // member
+#include <lunchbox/monitor.h>         // member
+#include <lunchbox/spinLock.h>        // member
 
 namespace eq
 {
@@ -52,7 +53,8 @@ namespace eq
      * @sa fabric::Config for public methods
      */
     class Config : public fabric::Config< Server, Config, Observer, Layout,
-                                          Canvas, Node, ConfigVisitor >
+                                          Canvas, Node, ConfigVisitor >,
+                   public co::ObjectHandler
     {
     public:
         typedef fabric::Config< Server, Config, Observer, Layout, Canvas, Node,
@@ -106,7 +108,7 @@ namespace eq
          * The clock in all processes of the config is synchronized to the
          * Server clock. The precision of this synchronization is typically
          * about 1 ms. The clock of the last instantiated config is used as the
-         *co::base::Log clock.
+         *lunchbox::Log clock.
          *
          * @return the global time in ms.
          * @version 1.0
@@ -233,7 +235,7 @@ namespace eq
          * Start mapping a distributed object from a known master.
          * @version 1.0
          */
-        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id, 
+        EQ_API virtual uint32_t mapObjectNB( co::Object* object, const UUID& id,
                                  const uint128_t& version, co::NodePtr master );
 
         /** Finalize the mapping of a distributed object. @version 1.0 */
@@ -403,7 +405,7 @@ namespace eq
 
     protected:
         /** @internal */
-        EQ_API virtual void attach( const co::base::UUID& id,
+        EQ_API virtual void attach( const UUID& id,
                                     const uint32_t instanceID );
 
         EQ_API virtual void notifyAttached(); //!< @internal
@@ -426,7 +428,7 @@ namespace eq
         co::Connections _connections;
 
         /** Global statistics events, index per frame and channel. */
-        co::base::Lockable< std::deque< FrameStatistics >, co::base::SpinLock >
+        lunchbox::Lockable< std::deque< FrameStatistics >, lunchbox::SpinLock >
             _statistics;
         
         /** The last started frame. */
@@ -434,10 +436,10 @@ namespace eq
         /** The last locally released frame. */
         uint32_t _unlockedFrame;
         /** The last completed frame. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         /** The global clock. */
-        co::base::Clock _clock;
+        lunchbox::Clock _clock;
 
         std::deque< int64_t > _frameTimes; //!< Start time of last frames
 
@@ -457,8 +459,8 @@ namespace eq
 
         protected:
             virtual ChangeType getChangeType() const { return _changeType; }
-            virtual void getInstanceData( co::DataOStream& os ){ EQDONTCALL }
-            virtual void applyInstanceData( co::DataIStream& is ){ EQDONTCALL }
+            virtual void getInstanceData( co::DataOStream& os ){ LBDONTCALL }
+            virtual void applyInstanceData( co::DataIStream& is ){ LBDONTCALL }
             virtual uint32_t chooseCompressor() const { return _compressor; }
 
         private:
@@ -470,7 +472,7 @@ namespace eq
         typedef std::vector< LatencyObject* > LatencyObjects;
 
         /** protected list of the current latency object */
-       co::base::Lockable< LatencyObjects,co::base::SpinLock > _latencyObjects;
+       lunchbox::Lockable< LatencyObjects,lunchbox::SpinLock > _latencyObjects;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

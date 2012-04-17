@@ -23,8 +23,8 @@
 #  include "namedPipeConnection.h"
 #endif
 
-#include <co/base/log.h>
-#include <co/base/thread.h>
+#include <lunchbox/log.h>
+#include <lunchbox/thread.h>
 
 #include <errno.h>
 
@@ -47,7 +47,7 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 bool PipeConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_PIPE );
+    LBASSERT( _description->type == CONNECTIONTYPE_PIPE );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -81,7 +81,7 @@ Connection::Notifier PipeConnection::getNotifier() const
 bool PipeConnection::_createPipes()
 {
     std::stringstream pipeName;
-    pipeName << "\\\\.\\pipe\\Collage." << co::base::UUID( true );
+    pipeName << "\\\\.\\pipe\\Collage." << UUID( true );
 
     _namedPipe = new NamedPipeConnection;
     _namedPipe->getDescription()->setFilename( pipeName.str() );
@@ -152,7 +152,7 @@ bool PipeConnection::_createPipes()
     int pipeFDs[2];
     if( ::pipe( pipeFDs ) == -1 )
     {
-        EQERROR << "Could not create pipe: " << strerror( errno );
+        LBERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }
@@ -162,7 +162,7 @@ bool PipeConnection::_createPipes()
 
     if( ::pipe( pipeFDs ) == -1 )
     {
-        EQERROR << "Could not create pipe: " << strerror( errno );
+        LBERROR << "Could not create pipe: " << strerror( errno );
         close();
         return false;
     }

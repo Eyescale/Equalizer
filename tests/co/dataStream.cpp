@@ -29,14 +29,14 @@
 #include <co/packets.h>
 #include <co/types.h>
 
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 
 #include <co/dataOStream.ipp>      // private impl
 #include <co/cpuCompressor.h> // private header
 
 // Tests the functionality of the DataOStream and DataIStream
 
-#define CONTAINER_SIZE EQ_64KB
+#define CONTAINER_SIZE LB_64KB
 
 static std::string _message( "So long, and thanks for all the fish" );
 
@@ -52,8 +52,8 @@ struct DataPacket : public co::Packet
     uint64_t dataSize;
     uint32_t compressorName;
     uint32_t nChunks;
-    EQ_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
-    EQ_ALIGN8( uint8_t data[8] );
+    LB_ALIGN8( uint64_t last ); // pad and align to multiple-of-eight
+    LB_ALIGN8( uint8_t data[8] );
 };
 
 class DataOStream : public co::DataOStream
@@ -80,7 +80,7 @@ public:
         }
 
     virtual size_t nRemainingBuffers() const { return _commands.getSize(); }
-    virtual co::base::uint128_t getVersion() const { return co::VERSION_NONE;}
+    virtual lunchbox::uint128_t getVersion() const { return co::VERSION_NONE;}
     virtual co::NodePtr getMaster() { return 0; }
 
 protected:
@@ -111,10 +111,10 @@ namespace co
 {
 namespace DataStreamTest
 {
-class Sender : public co::base::Thread
+class Sender : public lunchbox::Thread
 {
 public:
-    Sender( co::base::RefPtr< co::Connection > connection )
+    Sender( lunchbox::RefPtr< co::Connection > connection )
             : Thread(),
               _connection( connection )
         {}
@@ -144,7 +144,7 @@ protected:
         }
 
 private:
-    co::base::RefPtr< co::Connection > _connection;
+    lunchbox::RefPtr< co::Connection > _connection;
 };
 }
 }

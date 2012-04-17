@@ -31,7 +31,7 @@
 #include "renderer.h"
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -63,7 +63,7 @@ co::Object* Application::createObject( const uint32_t type )
 //    switch( type )
     {
 //      default:
-          EQUNIMPLEMENTED;
+          LBUNIMPLEMENTED;
           return 0;
     }
 }
@@ -138,12 +138,12 @@ void Application::_loadModel( const int argc, char** argv )
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
-            const eq::Strings subFiles = co::base::searchDirectory( filename,
+            const eq::Strings subFiles = lunchbox::searchDirectory( filename,
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
@@ -171,15 +171,15 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
         return 0;
     if( _model )
         return _model;
-    co::base::memoryBarrier();
+    lunchbox::memoryBarrier();
 
     // Accessed concurrently from render threads
-    co::base::ScopedMutex<> mutex( _modelLock );
+    lunchbox::ScopedMutex<> mutex( _modelLock );
 
-    EQASSERT( !_modelDist );
+    LBASSERT( !_modelDist );
     _modelDist = new ModelDist;
     Model* model = _modelDist->loadModel( getMasterNode(), this, modelID );
-    EQASSERT( model );
+    LBASSERT( model );
     _model = model;
 
     return model;

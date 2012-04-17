@@ -39,13 +39,13 @@ View< L, V, O >::View( L* layout )
     // client views are multi-buffered (once per pipe) and do not have a parent
     if( layout )
         layout->_addChild( static_cast< V* >( this ));
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class L, class V, class O > 
 View< L, V, O >::~View()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     if( _layout )
         _layout->_removeChild( static_cast< V* >( this ));
 }
@@ -54,9 +54,9 @@ template< class L, class V, class O >
 View< L, V, O >::BackupData::BackupData()
         : overdraw( Vector2i::ZERO )
         , tileSize( Vector2i::ZERO )
-        , minimumCapabilities( EQ_BIT_NONE )
-        , maximumCapabilities( EQ_BIT_ALL_64 )
-        , capabilities( EQ_BIT_ALL_64 )
+        , minimumCapabilities( LB_BIT_NONE )
+        , maximumCapabilities( LB_BIT_ALL_64 )
+        , capabilities( LB_BIT_ALL_64 )
         , mode( MODE_MONO )
         , equalizers( EQUALIZER_ALL )
         , modelUnit( EQ_M )
@@ -100,7 +100,7 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         co::ObjectVersion observer;
         is >> observer;
 
-        if( observer.identifier == co::base::UUID::ZERO )
+        if( observer.identifier == UUID::ZERO )
         {
             if( _observer )
                 _observer->removeView( static_cast< V* >( this ));
@@ -111,16 +111,16 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
             if( !_observer && _layout ) // don't map render client observers yet
             {
                 L* layout = getLayout();
-                EQASSERT( layout && layout->getConfig( ));
+                LBASSERT( layout && layout->getConfig( ));
                 layout->getConfig()->find( observer.identifier, &_observer );
                 if( _observer )
                     _observer->addView( static_cast< V* >( this ));
-                EQASSERT( _observer );
-                EQASSERT( _observer->getID() == observer.identifier );
+                LBASSERT( _observer );
+                LBASSERT( _observer->getID() == observer.identifier );
             }
             if( _observer )
             {
-                EQASSERT( _observer->getID() == observer.identifier );
+                LBASSERT( _observer->getID() == observer.identifier );
                 if( _observer->isMaster( ))
                     _observer->sync();
                 else
@@ -183,21 +183,22 @@ bool View< L, V, O >::isActive() const
 }
 
 template< class L, class V, class O >
-void View< L, V, O >::setModelUnit( const float modelUnit )
+bool View< L, V, O >::setModelUnit( const float modelUnit )
 {
     if( modelUnit < std::numeric_limits< float >::epsilon() ||
         _data.modelUnit == modelUnit )
     {
-        return;
+        return false;
     }
     _data.modelUnit = modelUnit;
     setDirty( DIRTY_MODELUNIT );
+    return true;
 }
 
 template< class L, class V, class O >
 float View< L, V, O >::getModelUnit() const
 {
-    EQASSERT( _data.modelUnit > 0.f );
+    LBASSERT( _data.modelUnit > 0.f );
     return _data.modelUnit;
 }
 
@@ -374,9 +375,9 @@ uint64_t View< L, V, O >::getCapabilities() const
 template< class L, class V, class O >
 std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
 {
-    os << co::base::disableFlush << co::base::disableHeader
+    os << lunchbox::disableFlush << lunchbox::disableHeader
        << "view" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
     
     const std::string& name = view.getName();
     if( !name.empty( ))
@@ -406,8 +407,8 @@ std::ostream& operator << ( std::ostream& os, const View< L, V, O >& view )
     } 
 
     return os << static_cast< const Frustum& >( view )
-              << co::base::exdent << "}" << std::endl << co::base::enableHeader
-              << co::base::enableFlush;
+              << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+              << lunchbox::enableFlush;
 }
 
 }

@@ -126,11 +126,12 @@ GLXFBConfig* Window::chooseGLXFBConfig()
         break;
 
       default:
-        EQWARN << "Unknown drawable type "
+        LBWARN << "Unknown drawable type "
                << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
                << ", using window" << std::endl;
         // no break;
       case UNDEFINED:
+      case OFF: // needs fbConfig with visual for dummy window
       case FBO: // No typo - FBO needs fbConfig with visual for dummy window
       case WINDOW:
         attributes.push_back( GLX_X_RENDERABLE );
@@ -164,7 +165,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
             break;
         }
 
-        EQASSERT( colorSize > 0 );
+        LBASSERT( colorSize > 0 );
         attributes.push_back( GLX_RED_SIZE );
         attributes.push_back( colorSize );
         attributes.push_back( GLX_GREEN_SIZE );
@@ -186,7 +187,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
               break;
 
           default:
-            EQASSERT( alphaSize > 0 );
+            LBASSERT( alphaSize > 0 );
             attributes.push_back( GLX_ALPHA_SIZE );
             attributes.push_back( alphaSize > 0 ? alphaSize : colorSize );
         }
@@ -289,7 +290,7 @@ GLXFBConfig* Window::chooseGLXFBConfig()
 
         std::vector<int>::iterator iter = find( attributes.begin(),
                                                 attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
         attributes.erase( iter, iter+2 );
         configs = chooseFBConfig( _xDisplay, screen, &attributes[0], &nConfigs);
     }
@@ -316,7 +317,7 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
                                     shareWindow->getSystemWindow() : 0;
     if( sysWindow )
     {
-        const WindowIF* shareGLXWindow = EQSAFECAST( const Window*,
+        const WindowIF* shareGLXWindow = LBSAFECAST( const Window*,
                                                         sysWindow );
         shCtx = shareGLXWindow->getGLXContext();
     }
@@ -347,9 +348,9 @@ GLXContext Window::createGLXContext( GLXFBConfig* fbConfig )
             attributes.push_back( GLX_RED_SIZE );
             attributes.push_back( 1 );
             attributes.push_back( GLX_ALPHA_SIZE );
-            attributes.push_back(  1 );
+            attributes.push_back( 1 );
             attributes.push_back( GLX_DEPTH_SIZE );
-            attributes.push_back(  1 );
+            attributes.push_back( 1 );
             attributes.push_back( GLX_DOUBLEBUFFER );
             attributes.push_back( None );
 
@@ -383,14 +384,15 @@ bool Window::configInitGLXDrawable( GLXFBConfig* fbConfig )
             return configInitGLXPBuffer( fbConfig );
 
         case FBO:
+        case OFF:
         {
             const PixelViewport pvp( 0, 0, 1, 1 );
             setXDrawable( _createGLXWindow( fbConfig, pvp ));
-            return (_xDrawable != 0 );
+            return _xDrawable != 0;
         }
 
         default:
-            EQWARN << "Unknown drawable type "
+            LBWARN << "Unknown drawable type "
                    << getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )
                    << ", using window" << std::endl;
             // no break;
@@ -442,14 +444,13 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     }
     setXDrawable( drawable );
     
-    EQINFO << "Created X11 drawable " << drawable << std::endl;
+    LBINFO << "Created X11 drawable " << drawable << std::endl;
     return true;
 }
     
-XID Window::_createGLXWindow( GLXFBConfig* fbConfig, 
-                                 const PixelViewport& pvp )
+XID Window::_createGLXWindow( GLXFBConfig* fbConfig, const PixelViewport& pvp )
 {
-    EQASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
+    LBASSERT( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) != PBUFFER );
 
     if( !_xDisplay )
     {
@@ -500,14 +501,13 @@ XID Window::_createGLXWindow( GLXFBConfig* fbConfig,
           break;
     }
 
-    XID drawable = XCreateWindow( _xDisplay, parent, 
-                                  pvp.x, pvp.y, pvp.w, pvp.h,
+    XID drawable = XCreateWindow( _xDisplay, parent, pvp.x, pvp.y, pvp.w, pvp.h,
                                   0, visInfo->depth, InputOutput,
                                   visInfo->visual, 
                                   CWBackPixmap | CWBorderPixel | CWEventMask |
                                   CWColormap | CWOverrideRedirect, &wa );
     XFree( visInfo );
-    if ( !drawable )
+    if( !drawable )
     {
         setError( ERROR_GLXWINDOW_CREATEWINDOW_FAILED );
         return 0;
@@ -574,12 +574,14 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     setXDrawable( pbuffer );
 
-    EQINFO << "Created X11 PBuffer " << pbuffer << std::endl;
+    LBINFO << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
 }
 
 void Window::setXDrawable( XID drawable )
 {
+    LBASSERT( _xDisplay );
+
     if( _xDrawable == drawable )
         return;
 
@@ -591,12 +593,12 @@ void Window::setXDrawable( XID drawable )
     if( !drawable )
         return;
 
-    initEventHandler();
+    const int32_t drawableType = getIAttribute(eq::Window::IATTR_HINT_DRAWABLE);
+    if( drawableType != OFF )
+        initEventHandler();
 
     // query pixel viewport of window
-    EQASSERT( _xDisplay );
-
-    switch( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ))
+    switch( drawableType )
     {
         case PBUFFER:
         {
@@ -633,9 +635,10 @@ void Window::setXDrawable( XID drawable )
             break;
         }
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
+        case OFF:
         case FBO:
-            EQASSERT( getWindow()->getPixelViewport().hasArea( ));
+            LBASSERT( getWindow()->getPixelViewport().hasArea( ));
     }
 }
 
@@ -647,6 +650,9 @@ void Window::setGLXContext( GLXContext context )
 
 void Window::_initSwapSync()
 {
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
     const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
     if( swapSync == AUTO ) // leave it alone
         return;
@@ -656,7 +662,7 @@ void Window::_initSwapSync()
         glXSwapIntervalSGI( (swapSync < 0) ? 1 : swapSync );
     }
     else
-        EQWARN << "GLX_SGI_swap_control not supported, ignoring window "
+        LBWARN << "GLX_SGI_swap_control not supported, ignoring window "
                << "swapsync hint " << IAttribute( swapSync ) << std::endl;
 }   
 
@@ -672,8 +678,8 @@ void Window::configExit()
 
     glXMakeCurrent( _xDisplay, None, 0 );
 
-    GLXContext context  = getGLXContext();
-    XID        drawable = getXDrawable();
+    GLXContext context = getGLXContext();
+    XID drawable = getXDrawable();
 
     setGLXContext( 0 );
     setXDrawable( 0 );
@@ -690,12 +696,14 @@ void Window::configExit()
             XDestroyWindow( _xDisplay, drawable );
     }
 
-    EQINFO << "Destroyed GLX context and X drawable " << std::endl;
+    LBINFO << "Destroyed GLX context and X drawable " << std::endl;
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
+    if( cache && isCurrent( ))
+        return;
 
     glXMakeCurrent( _xDisplay, _xDrawable, _glXContext );
     WindowIF::makeCurrent();
@@ -707,7 +715,7 @@ void Window::makeCurrent() const
 
 void Window::swapBuffers()
 {
-    EQASSERT( _xDisplay );
+    LBASSERT( _xDisplay );
     glXSwapBuffers( _xDisplay, _xDrawable );
 }
 
@@ -717,12 +725,12 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
 
 #if 1
-    EQWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
+    LBWARN << "Entering untested function GLXWindow::joinNVSwapBarrier"
            << std::endl;
 
     if ( !GLXEW_NV_swap_group )
     {
-        EQWARN << "NV Swap group extension not supported" << std::endl;
+        LBWARN << "NV Swap group extension not supported" << std::endl;
         return;
     }
 
@@ -734,7 +742,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( group > maxGroup )
     {
-        EQWARN << "Failed to initialize GLX_NV_swap_group: requested group "
+        LBWARN << "Failed to initialize GLX_NV_swap_group: requested group "
                << group << " greater than maxGroups (" << maxGroup << ")"
                << std::endl;
         return;
@@ -742,7 +750,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( barrier > maxBarrier )
     {
-        EQWARN << "Failed to initialize GLX_NV_swap_group: requested barrier "
+        LBWARN << "Failed to initialize GLX_NV_swap_group: requested barrier "
                << barrier << "greater than maxBarriers (" << maxBarrier << ")"
                << std::endl;
         return;
@@ -750,7 +758,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !glXJoinSwapGroupNV( _xDisplay, _xDrawable, group ))
     {
-        EQWARN << "Failed to join swap group " << group << std::endl;
+        LBWARN << "Failed to join swap group " << group << std::endl;
         return;
     }
 
@@ -758,14 +766,14 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !glXBindSwapBarrierNV( _xDisplay, group, barrier ))
     {
-        EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
+        LBWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
     }
     
-    EQINFO << "Joined swap group " << group << " and barrier " << barrier
+    LBINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
-    EQUNIMPLEMENTED;
+    LBUNIMPLEMENTED;
 #endif
 }
 
@@ -780,13 +788,13 @@ void Window::leaveNVSwapBarrier()
     
     _glXNVSwapGroup = 0;
 #else
-    EQUNIMPLEMENTED;
+    LBUNIMPLEMENTED;
 #endif
 }
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_glXEventHandler );
+    LBASSERT( !_glXEventHandler );
     _glXEventHandler = new EventHandler( this );
 }
 

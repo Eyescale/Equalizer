@@ -9,7 +9,7 @@ function(UPDATE_FILE IN OUT)
   endif()
 
   configure_file(${IN} ${OUT}.tmp)
-  file(READ ${OUT} _old_contents @ONLY)
+  file(READ ${OUT} _old_contents)
   file(READ ${OUT}.tmp _new_contents)
   if("${_old_contents}" STREQUAL "${_new_contents}")
     file(REMOVE ${OUT}.tmp)

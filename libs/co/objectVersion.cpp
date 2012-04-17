@@ -32,15 +32,15 @@ const uint128_t VERSION_HEAD( 0, 0xffffffffffffffffull );
 ObjectVersion ObjectVersion::NONE;
 
 ObjectVersion::ObjectVersion()
-        : identifier( base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( UUID::ZERO ), version( VERSION_NONE )
 {}
 
-ObjectVersion::ObjectVersion( const base::UUID& id_, const uint128_t& version_ )
+ObjectVersion::ObjectVersion( const UUID& id_, const uint128_t& version_ )
         : identifier( id_ ), version( version_ )
 {}
 
 ObjectVersion::ObjectVersion( const Object* object )
-        : identifier( base::UUID::ZERO ), version( VERSION_NONE )
+        : identifier( UUID::ZERO ), version( VERSION_NONE )
 {
     if( object && object->isAttached( ))
     {
@@ -58,7 +58,7 @@ ObjectVersion& ObjectVersion::operator = ( const Object* object )
     }
     else
     {
-        identifier = base::UUID::ZERO;
+        identifier = UUID::ZERO;
         version = VERSION_NONE;
     }
 

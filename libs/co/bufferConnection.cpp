@@ -17,7 +17,7 @@
 
 #include "bufferConnection.h"
 
-#include <co/base/buffer.h>
+#include <lunchbox/buffer.h>
 #include <string.h>
 
 namespace co
@@ -27,7 +27,7 @@ namespace detail
 class BufferConnection
 {
 public:
-    base::Bufferb buffer;
+    lunchbox::Bufferb buffer;
 };
 }
 
@@ -35,14 +35,14 @@ BufferConnection::BufferConnection()
         : _impl( new detail::BufferConnection )
 {
     _state = STATE_CONNECTED;
-    EQVERB << "New BufferConnection @" << (void*)this << std::endl;
+    LBVERB << "New BufferConnection @" << (void*)this << std::endl;
 }
 
 BufferConnection::~BufferConnection()
 {
     _state = STATE_CLOSED;
     if( !_impl->buffer.isEmpty( ))
-        EQWARN << "Deleting BufferConnection with buffered data" << std::endl;
+        LBWARN << "Deleting BufferConnection with buffered data" << std::endl;
     delete _impl;
 }
 
@@ -64,11 +64,11 @@ void BufferConnection::sendBuffer( ConnectionPtr connection )
 
     if( !connection )
     {
-        EQWARN << "NULL connection during buffer write" << std::endl;
+        LBWARN << "NULL connection during buffer write" << std::endl;
         return;
     }
 
-    EQCHECK( connection->send( _impl->buffer.getData(),
+    LBCHECK( connection->send( _impl->buffer.getData(),
                                _impl->buffer.getSize() ));
     _impl->buffer.setSize( 0 );
 }

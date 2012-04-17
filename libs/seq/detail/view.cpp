@@ -94,7 +94,7 @@ bool View::updateData()
         return false;
 
     ViewData* data = getViewData();
-    EQASSERT( data );
+    LBASSERT( data );
     if( data )
         return data->update();
     return false;
@@ -103,7 +103,7 @@ bool View::updateData()
 bool View::handleEvent( const eq::ConfigEvent* event )
 {
     ViewData* data = getViewData();
-    EQASSERT( data );
+    LBASSERT( data );
     if( !data )
         return false;
     if( isActive( ))

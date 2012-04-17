@@ -59,9 +59,9 @@ template< class P, class W, class C >
 Window< P, W, C >::Window( P* parent )
         : _pipe( parent )
 {
-    EQASSERT( parent );
+    LBASSERT( parent );
     parent->_addWindow( static_cast< W* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class P, class W, class C >
@@ -74,12 +74,12 @@ Window< P, W, C >::BackupData::BackupData()
 template< class P, class W, class C >
 Window< P, W, C >::~Window( )
 {    
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_channels.empty( ))
     {
         C* channel = _channels.back();
 
-        EQASSERT( channel->getWindow() == this );
+        LBASSERT( channel->getWindow() == this );
         _removeChannel( channel );
         delete channel;
     }
@@ -94,12 +94,12 @@ void Window< P, W, C >::init()
 }
 
 template< class P, class W, class C >
-void Window< P, W, C >::attach( const co::base::UUID& id,
+void Window< P, W, C >::attach( const UUID& id,
                                 const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
     co::CommandQueue* queue = _pipe->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_WINDOW_NEW_CHANNEL, 
                      CmdFunc( this, &Window< P, W, C >::_cmdNewChannel ),
@@ -173,7 +173,7 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
                 Channels result;
                 is.deserializeChildren( this, _channels, result );
                 _channels.swap( result );
-                EQASSERT( _channels.size() == result.size( ));
+                LBASSERT( _channels.size() == result.size( ));
             }
             else // consume unused ObjectVersions
             {
@@ -225,7 +225,7 @@ void Window< P, W, C >::notifyDetach()
         while( !_channels.empty( ))
         {
             C* channel = _channels.back();
-            EQASSERT( channel->isAttached( ));
+            LBASSERT( channel->isAttached( ));
 
             node->releaseObject( channel );
             _removeChannel( channel );
@@ -251,7 +251,7 @@ void Window< P, W, C >::release( C* channel )
 template< class P, class W, class C >
 void Window< P, W, C >::_addChannel( C* channel )
 {
-    EQASSERT( channel->getWindow() == this );
+    LBASSERT( channel->getWindow() == this );
     _channels.push_back( channel );
     setDirty( DIRTY_CHANNELS );
 }
@@ -271,7 +271,7 @@ bool Window< P, W, C >::_removeChannel( C* channel )
 }
 
 template< class P, class W, class C >
-C* Window< P, W, C >::_findChannel( const co::base::UUID& id )
+C* Window< P, W, C >::_findChannel( const UUID& id )
 {
     for( typename Channels::const_iterator i = _channels.begin(); 
          i != _channels.end(); ++i )
@@ -293,14 +293,14 @@ template< class P, class W, class C >
 WindowPath Window< P, W, C >::getPath() const
 {
     const P* pipe = getPipe();
-    EQASSERT( pipe );
+    LBASSERT( pipe );
     WindowPath path( pipe->getPath( ));
     
     const typename std::vector< W* >& windows = pipe->getWindows();
     typename std::vector< W* >::const_iterator i = std::find( windows.begin(),
                                                               windows.end(),
                                                               this );
-    EQASSERT( i != windows.end( ));
+    LBASSERT( i != windows.end( ));
     path.windowIndex = std::distance( windows.begin(), i );
     return path;
 }
@@ -365,7 +365,7 @@ VisitorResult Window< P, W, C >::accept( Visitor& visitor  ) const
 template< class P, class W, class C >
 void Window< P, W, C >::setPixelViewport( const PixelViewport& pvp )
 {
-    EQASSERTINFO( pvp.isValid(), pvp );
+    LBASSERTINFO( pvp.isValid(), pvp );
     if( !pvp.isValid( ))
         return;
 
@@ -424,7 +424,7 @@ void Window< P, W, C >::notifyViewportChanged()
     {
         (*i)->notifyViewportChanged();
     }
-    EQVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
+    LBVERB << getName() << " viewport update: " << _data.vp << ":" << _data.pvp
            << std::endl;
 }
 
@@ -446,15 +446,15 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
     
     C* channel = 0;
     create( &channel );
-    EQASSERT( channel );
+    LBASSERT( channel );
 
     getLocalNode()->registerObject( channel );
-    EQASSERT( channel->isAttached() );
+    LBASSERT( channel->isAttached() );
 
     WindowNewChannelReplyPacket reply( packet );
     reply.channelID = channel->getID();
     send( command.getNode(), reply ); 
-    EQASSERT( channel->isAttached( ));
+    LBASSERT( channel->isAttached( ));
 
     return true;
 }
@@ -472,9 +472,9 @@ bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 template< class P, class W, class C >
 std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
 {
-    os << co::base::disableFlush << co::base::disableHeader
+    os << lunchbox::disableFlush << lunchbox::disableHeader
        << "window" << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = window.getName();
     if( !name.empty( ))
@@ -504,8 +504,8 @@ std::ostream& operator << ( std::ostream& os, const Window< P, W, C >& window )
         os << **i;
     }
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

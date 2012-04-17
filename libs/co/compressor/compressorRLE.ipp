@@ -18,7 +18,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <co/base/omp.h>
+#include <lunchbox/omp.h>
 
 #include <limits>
 
@@ -88,7 +88,7 @@ static inline void _write( const T token, const T numTokens, T*& out )
         ++out;
         break;
 
-      case 0: EQASSERT( false ); break;
+      case 0: LBASSERT( false ); break;
 
       default:
         out[0] = _rleMarker;
@@ -292,7 +292,7 @@ static unsigned _setupResults( const unsigned nChannels,
 {
     // determine number of chunks and set up output data structure
 #ifdef CO_USE_OPENMP
-    const unsigned cpuChunks = nChannels * co::base::OMP::getNThreads() * 4;
+    const unsigned cpuChunks = nChannels * lunchbox::OMP::getNThreads() * 4;
     const size_t sizeChunks = inSize / 4096 * nChannels;
     const unsigned minChunks = unsigned( nChannels > sizeChunks ?
                                          nChannels : sizeChunks );
@@ -310,7 +310,7 @@ static unsigned _setupResults( const unsigned nChannels,
     for( size_t i = 0; i < nChunks; ++i )
         results[i]->reserve( maxChunkSize );
 
-    EQVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
+    LBVERB << "Compressing " << inSize << " bytes in " << nChunks << " chunks"
            << std::endl;
     return nChunks;
 }

@@ -66,13 +66,13 @@ public:
                                 uint8_t& two, uint8_t& three, uint8_t& four ) 
     {
          NoSwizzle::swizzle(
-           ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
-            (( input & ( EQ_BIT14 | EQ_BIT13 | EQ_BIT12 )) >> 8 )          |
-            (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |
-            (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | 
-                         EQ_BIT21 | EQ_BIT20 )) >> 13 )                    |
-            (( input & ( EQ_BIT16 | EQ_BIT15 )) >> 1 )                     |
-            (( input &   EQ_BIT32 ) >> 16 )),
+           ((( input & ( LB_BIT6  | LB_BIT5  | LB_BIT4 )) >> 3 )           |
+            (( input & ( LB_BIT14 | LB_BIT13 | LB_BIT12 )) >> 8 )          |
+            (( input & ( LB_BIT8  | LB_BIT7 )) << 5 )                      |
+            (( input & ( LB_BIT24 | LB_BIT23 | LB_BIT22 | 
+                         LB_BIT21 | LB_BIT20 )) >> 13 )                    |
+            (( input & ( LB_BIT16 | LB_BIT15 )) >> 1 )                     |
+            (( input &   LB_BIT32 ) >> 16 )),
                  one, two, three, four );
     }
 
@@ -85,13 +85,13 @@ public:
     {
         const uint32_t input = one + ( two << 8 ) + ( three << 16 ) +
                                ( four << 24 );
-        return (((( input & ( EQ_BIT3 | EQ_BIT2 | EQ_BIT1 )) << 3 )           |
-                 (( input & ( EQ_BIT6 | EQ_BIT5 | EQ_BIT4 )) << 8 )           |
-                 (( input & ( EQ_BIT13 | EQ_BIT12 )) >> 5 )                   |
-                 (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9 |
-                              EQ_BIT8 | EQ_BIT7 )) << 13 )                    |
-                 (( input & ( EQ_BIT15 | EQ_BIT14 )) << 1 )                   |
-                 (( input &   EQ_BIT16 ) << 16 )))
+        return (((( input & ( LB_BIT3 | LB_BIT2 | LB_BIT1 )) << 3 )           |
+                 (( input & ( LB_BIT6 | LB_BIT5 | LB_BIT4 )) << 8 )           |
+                 (( input & ( LB_BIT13 | LB_BIT12 )) >> 5 )                   |
+                 (( input & ( LB_BIT11 | LB_BIT10 | LB_BIT9 |
+                              LB_BIT8 | LB_BIT7 )) << 13 )                    |
+                 (( input & ( LB_BIT15 | LB_BIT14 )) << 1 )                   |
+                 (( input &   LB_BIT16 ) << 16 )))
                           | 0x3f040404;
     }
 
@@ -111,12 +111,12 @@ public:
                                 uint8_t& two, uint8_t& three ) 
     {
         NoSwizzle::swizzle(
-           ((( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 )) >> 3 )           |
-                (( input & ( EQ_BIT13 | EQ_BIT12 | EQ_BIT11 )) >> 7 )          |
-                (( input & ( EQ_BIT8  | EQ_BIT7 )) << 5 )                      |
-                (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 |
-                             EQ_BIT21 | EQ_BIT20 )) >> 13 )                    |
-                 ( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 ))),
+           ((( input & ( LB_BIT6  | LB_BIT5  | LB_BIT4 )) >> 3 )           |
+                (( input & ( LB_BIT13 | LB_BIT12 | LB_BIT11 )) >> 7 )          |
+                (( input & ( LB_BIT8  | LB_BIT7 )) << 5 )                      |
+                (( input & ( LB_BIT24 | LB_BIT23 | LB_BIT22 |
+                             LB_BIT21 | LB_BIT20 )) >> 13 )                    |
+                 ( input & ( LB_BIT16 | LB_BIT15 | LB_BIT14 ))),
                    one, two, three );
     }
 
@@ -128,12 +128,12 @@ public:
                                       const uint8_t three )
     {
         const uint32_t input = one + ( two << 8 ) + ( three << 16 );
-        return (((( input & ( EQ_BIT3 | EQ_BIT2 | EQ_BIT1 )) << 3 )           |
-                 (( input & ( EQ_BIT6 | EQ_BIT5 | EQ_BIT4 )) << 7 )           |
-                 (( input & ( EQ_BIT13 | EQ_BIT12 )) >> 5 )                   |
-                 (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9 |
-                              EQ_BIT8  | EQ_BIT7 )) << 13 )                   |
-                  ( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 ))) 
+        return (((( input & ( LB_BIT3 | LB_BIT2 | LB_BIT1 )) << 3 )           |
+                 (( input & ( LB_BIT6 | LB_BIT5 | LB_BIT4 )) << 7 )           |
+                 (( input & ( LB_BIT13 | LB_BIT12 )) >> 5 )                   |
+                 (( input & ( LB_BIT11 | LB_BIT10 | LB_BIT9 |
+                              LB_BIT8  | LB_BIT7 )) << 13 )                   |
+                  ( input & ( LB_BIT16 | LB_BIT15 | LB_BIT14 ))) 
                           & 0xf8fcf8 )
                           | 0x020202;
     }

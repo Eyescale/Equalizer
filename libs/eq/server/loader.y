@@ -42,8 +42,8 @@
 #include "window.h"
 
 #include <eq/fabric/paths.h>
-#include <co/base/os.h>
-#include <co/base/file.h>
+#include <lunchbox/os.h>
+#include <lunchbox/file.h>
 
 #include <locale.h>
 #include <string>
@@ -83,7 +83,7 @@
     }
     }
 
-    using namespace co::base;
+    using namespace lunchbox;
     using namespace eq::loader;
 
     int eqLoader_lex();
@@ -396,7 +396,7 @@ global:
      }
      | EQTOKEN_NODE_IATTR_HINT_STATISTICS IATTR
      {
-         EQWARN << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
+         LBWARN << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
                 << std::endl;
      }
      | EQTOKEN_PIPE_IATTR_HINT_THREAD IATTR
@@ -516,7 +516,7 @@ global:
      }
      | EQTOKEN_COMPOUND_IATTR_UPDATE_FOV IATTR
      {
-         EQWARN << "ignoring removed attribute EQ_COMPOUND_IATTR_UPDATE_FOV"
+         LBWARN << "ignoring removed attribute EQ_COMPOUND_IATTR_UPDATE_FOV"
                 << std::endl;
      }
 
@@ -582,7 +582,7 @@ renderNode: EQTOKEN_NODE '{' {
 appNode: EQTOKEN_APPNODE '{' 
             {
                 node = config->findApplicationNode();
-                EQASSERT( node );
+                LBASSERT( node );
             }
             nodeFields
             '}' { node = 0; }
@@ -623,7 +623,7 @@ nodeAttribute:
         { node->setIAttribute( eq::server::Node::IATTR_LAUNCH_TIMEOUT, $2 ); }
     | EQTOKEN_HINT_STATISTICS IATTR
         {
-            EQWARN
+            LBWARN
                 << "Ignoring deprecated attribute Node::IATTR_HINT_STATISTICS"
                 << std::endl;
         }
@@ -1083,7 +1083,7 @@ projectionField:
 loadBalancer: 
     EQTOKEN_LOADBALANCER '{' loadBalancerFields '}'
     {
-        EQWARN << "Deprecated loadBalancer specification, "
+        LBWARN << "Deprecated loadBalancer specification, "
                << " use new ???_equalizer grammar" << std::endl;
 
         dfrEqualizer = 0;
@@ -1297,7 +1297,7 @@ compoundAttribute:
         { eqCompound->setIAttribute( 
                 eq::server::Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK, $2 ); }
     | EQTOKEN_UPDATE_FOV IATTR
-        { EQWARN << "ignoring removed attribute update_FOV" << std::endl; }
+        { LBWARN << "ignoring removed attribute update_FOV" << std::endl; }
 
 viewport: '[' FLOAT FLOAT FLOAT FLOAT ']'
      { 
@@ -1377,7 +1377,7 @@ ServerPtr Loader::loadFile( const std::string& filename )
 
     if( !yyin )
     {
-        EQERROR << "Can't open config file " << filename << std::endl;
+        LBERROR << "Can't open config file " << filename << std::endl;
         return 0;
     }
 
@@ -1401,7 +1401,7 @@ void Loader::_parseString( const char* data )
 
 void Loader::_parse()
 {
-    EQASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
+    LBASSERTINFO( !eq::loader::loader, "Config file loader is not reentrant" );
     eq::loader::loader = this;
 
     loader::server = 0;

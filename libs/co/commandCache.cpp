@@ -19,7 +19,7 @@
 
 #include "command.h"
 #include "node.h"
-#include <co/base/atomic.h>
+#include <lunchbox/atomic.h>
 
 #define COMPACT
 //#define PROFILE
@@ -45,11 +45,11 @@ static const int32_t _minFree[ CACHE_ALL ] = { 200, 20 };
 static const uint32_t _freeShift = 1; // 'size >> shift' packets can be free
 
 #ifdef PROFILE
-static base::a_int32_t _hits;
-static base::a_int32_t _misses;
-static base::a_int32_t _lookups;
-static base::a_int32_t _allocs;
-static base::a_int32_t _frees;
+static lunchbox::a_int32_t _hits;
+static lunchbox::a_int32_t _misses;
+static lunchbox::a_int32_t _lookups;
+static lunchbox::a_int32_t _allocs;
+static lunchbox::a_int32_t _frees;
 #endif
 }
 namespace detail
@@ -72,8 +72,8 @@ public:
         {
             for( size_t i = 0; i < CACHE_ALL; ++i )
             {
-                EQASSERT( cache[i].size() == 1 );
-                EQASSERT( cache[i].front()->isFree( ));
+                LBASSERT( cache[i].size() == 1 );
+                LBASSERT( cache[i].front()->isFree( ));
 
                 delete cache[i].front();
                 cache[i].clear();
@@ -85,13 +85,13 @@ public:
             for( size_t i = 0; i < CACHE_ALL; ++i )
             {
                 Data& cache_ = cache[i];
-                EQASSERTINFO( size_t( free[i] ) == cache_.size(),
+                LBASSERTINFO( size_t( free[i] ) == cache_.size(),
                               free[i] << " != " << cache_.size() );
 
                 for( DataCIter j = cache_.begin(); j != cache_.end(); ++j )
                 {
                     Command* command = *j;
-                    EQASSERT( command->isFree( ));
+                    LBASSERT( command->isFree( ));
                     delete command;
                 }
 
@@ -110,13 +110,13 @@ public:
 
             Data& cache_ = cache[ which ];
             const uint32_t cacheSize = uint32_t( cache_.size( ));
-            base::a_int32_t& freeCounter = free[ which ];
-            EQASSERTINFO( size_t( freeCounter ) <= cacheSize,
+            lunchbox::a_int32_t& freeCounter = free[ which ];
+            LBASSERTINFO( size_t( freeCounter ) <= cacheSize,
                           freeCounter << " > " << cacheSize );
 
             if( freeCounter > 0 )
             {
-                EQASSERT( cacheSize > 0 );
+                LBASSERT( cacheSize > 0 );
 
                 const DataCIter end = position[ which ];
                 DataCIter& i = position[ which ];
@@ -144,7 +144,7 @@ public:
                                 {
                                     size += (*k)->getAllocationSize();
                                 }
-                                EQINFO << _hits << "/" << _hits + _misses
+                                LBINFO << _hits << "/" << _hits + _misses
                                        << " hits, " << _lookups << " lookups, "
                                        << _free[j] << " of " << cmds.size()
                                        << " packets free (min " << _minFree[ j ]
@@ -169,7 +169,7 @@ public:
 
             freeCounter += add;
             const int32_t num = int32_t( cache_.size() >> _freeShift );
-            maxFree[ which ] = EQ_MAX( _minFree[ which ], num );
+            maxFree[ which ] = LB_MAX( _minFree[ which ], num );
             position[ which ] = cache_.begin();
 
 #ifdef PROFILE
@@ -186,7 +186,7 @@ public:
     DataCIter position[ CACHE_ALL ];
 
     /** The current number of free items in each cache */
-    base::a_int32_t free[ CACHE_ALL ];
+    lunchbox::a_int32_t free[ CACHE_ALL ];
 
     /** The maximum number of free items in each cache */
     int32_t maxFree[ CACHE_ALL ];
@@ -195,20 +195,20 @@ private:
     void _compact( const Cache which )
         {
 #ifdef COMPACT
-            base::a_int32_t& currentFree = free[ which ];
+            lunchbox::a_int32_t& currentFree = free[ which ];
             int32_t& maxFree_ = maxFree[ which ];
             if( currentFree <= maxFree_ )
                 return;
 
             const int32_t target = maxFree_ >> 1;
-            EQASSERT( target > 0 );
+            LBASSERT( target > 0 );
             Data& cache_ = cache[ which ];
             for( Data::iterator i = cache_.begin(); i != cache_.end(); )
             {
                 const Command* cmd = *i;
                 if( cmd->isFree( ))
                 {
-                    EQASSERT( currentFree > 0 );
+                    LBASSERT( currentFree > 0 );
                     i = cache_.erase( i );
                     delete cmd;
 
@@ -223,7 +223,7 @@ private:
             }
 
             const int32_t num = int32_t( cache_.size() >> _freeShift );
-            maxFree_ = EQ_MAX( _minFree[ which ] , num );
+            maxFree_ = LB_MAX( _minFree[ which ] , num );
             position[ which ] = cache_.begin();
 #endif // COMPACT
         }
@@ -247,8 +247,8 @@ void CommandCache::flush()
 Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode, 
                               const uint64_t size )
 {
-    EQ_TS_THREAD( _thread );
-    EQASSERTINFO( size < EQ_BIT48,
+    LB_TS_THREAD( _thread );
+    LBASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
@@ -260,7 +260,7 @@ Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
 
 Command& CommandCache::clone( Command& from )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     const Cache which = (from->size>Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
     Command& command = _impl->newCommand( which );
@@ -272,10 +272,10 @@ Command& CommandCache::clone( Command& from )
 std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
 {
     const Data& commands = cache._impl->cache[ CACHE_SMALL ];
-    os << base::disableFlush << "Cache has "
+    os << lunchbox::disableFlush << "Cache has "
        << commands.size() - cache._impl->free[ CACHE_SMALL ]
        << " used small packets:" << std::endl
-       << base::indent << base::disableHeader;
+       << lunchbox::indent << lunchbox::disableHeader;
 
     for( DataCIter i = commands.begin(); i != commands.end(); ++i )
     {
@@ -283,7 +283,7 @@ std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
         if( !command->isFree( ))
             os << *command << std::endl;
     }
-    return os << base::enableHeader << base::exdent << base::enableFlush ;
+    return os << lunchbox::enableHeader << lunchbox::exdent << lunchbox::enableFlush ;
 }
 
 }

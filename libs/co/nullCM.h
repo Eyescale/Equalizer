@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -37,15 +37,16 @@ namespace co
         virtual void init() {}
 
         virtual void push( const uint128_t&, const uint128_t&, Nodes& )
-            { EQDONTCALL; }
+            { LBDONTCALL; }
 
         virtual uint128_t getHeadVersion() const   { return VERSION_NONE; }
         virtual uint128_t getVersion() const       { return VERSION_NONE; }
         virtual bool isMaster() const { return false; }
         virtual uint32_t getMasterInstanceID() const
-            { EQDONTCALL; return EQ_INSTANCE_INVALID; }
+            { LBDONTCALL; return EQ_INSTANCE_INVALID; }
 
-        virtual void removeSlaves( NodePtr ) { EQDONTCALL; }
+        virtual void addSlave( Command& command ) { LBDONTCALL; }
+        virtual void removeSlaves( NodePtr ) { LBDONTCALL; }
 
     private:
     };

@@ -22,7 +22,7 @@
 
 namespace eq
 {
-    /** Defines selective logging classes enabled by setting EQ_LOG_TOPICS. */
+    /** Defines selective logging classes enabled by setting LB_LOG_TOPICS. */
     enum LogTopics
     {
         LOG_PLUGIN   = co::LOG_PLUGIN,         //!< Plugin usage (256)

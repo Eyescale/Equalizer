@@ -24,8 +24,8 @@
 #include <co/nodeType.h>          // for NODETYPE_CO_NODE enum
 #include <co/types.h>
 
-#include <co/base/lockable.h>         // member
-#include <co/base/spinLock.h>         // member
+#include <lunchbox/lockable.h>         // member
+#include <lunchbox/spinLock.h>         // member
 
 namespace co
 {
@@ -37,7 +37,7 @@ namespace co
      * at least one Connection through which is reachable. A Node provides the
      * basic communication facilities through message passing.
      */
-    class Node : public Dispatcher, public base::Referenced
+    class Node : public Dispatcher, public lunchbox::Referenced
     {
     public:
         /** Construct a new Node. */
@@ -239,7 +239,7 @@ namespace co
         ConnectionPtr _outgoing;
 
         /** The multicast connection to this node, can be 0. */
-        base::Lockable< ConnectionPtr > _outMulticast;
+        lunchbox::Lockable< ConnectionPtr > _outMulticast;
 
         struct MCData
         {
@@ -258,7 +258,7 @@ namespace co
         MCDatas _multicasts;
 
         /** The list of descriptions on how this node is reachable. */
-        base::Lockable< ConnectionDescriptions, base::SpinLock >
+        lunchbox::Lockable< ConnectionDescriptions, lunchbox::SpinLock >
             _connectionDescriptions;
 
         /** Ensures the connectivity of this node. */
@@ -267,7 +267,7 @@ namespace co
                 ConnectionPtr connection = _outgoing;
                 if( _state != STATE_CLOSED )
                     return connection;
-                EQUNREACHABLE;
+                LBUNREACHABLE;
                 return 0;
             }
 

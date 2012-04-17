@@ -55,7 +55,7 @@ namespace fabric
          * @version 1.0
          */
         EQFABRIC_API void processCommand( const uint32_t timeout =
-                                          EQ_TIMEOUT_INDEFINITE );
+                                          LB_TIMEOUT_INDEFINITE );
 
         /** @return the command queue to the main node thread. @internal */
         virtual co::CommandQueue* getMainThreadQueue() = 0;

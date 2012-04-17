@@ -24,7 +24,7 @@
 #include "global.h"
 #include "log.h"
 
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 
 #include <errno.h>
 #include <poll.h>
@@ -39,7 +39,7 @@ FDConnection::FDConnection()
 int FDConnection::_getTimeOut()
 {
     const uint32_t timeout = Global::getTimeout();
-    return timeout == EQ_TIMEOUT_INDEFINITE ? -1 : int( timeout );
+    return timeout == LB_TIMEOUT_INDEFINITE ? -1 : int( timeout );
 }
 
 //----------------------------------------------------------------------
@@ -54,7 +54,7 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
     if( bytesRead > 0 )
         return bytesRead;
 
-    //EQINFO << "1st " << bytesRead << " " << strerror( errno ) << std::endl;
+    //LBINFO << "1st " << bytesRead << " " << strerror( errno ) << std::endl;
     if( bytesRead == 0 || errno == EWOULDBLOCK || errno == EAGAIN )
     {
         struct pollfd fds[1];
@@ -64,7 +64,7 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
         const int res = poll( fds, 1, _getTimeOut( ));
         if( res < 0 )
         {
-            EQWARN << "Error during read : " << strerror( errno ) << std::endl;
+            LBWARN << "Error during read : " << strerror( errno ) << std::endl;
             return -1;
         }
         
@@ -72,7 +72,7 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
             throw Exception( Exception::TIMEOUT_READ );
 
         bytesRead = ::read( _readFD, buffer, bytes );
-        //EQINFO << "2nd " << bytesRead << " " << strerror(errno) << std::endl;
+        //LBINFO << "2nd " << bytesRead << " " << strerror(errno) << std::endl;
     }
 
     if( bytesRead > 0 )
@@ -80,18 +80,18 @@ int64_t FDConnection::readSync( void* buffer, const uint64_t bytes, const bool )
 
     if( bytesRead == 0 ) // EOF
     {
-        EQINFO << "Got EOF, closing " << getDescription()->toString()
+        LBINFO << "Got EOF, closing " << getDescription()->toString()
                << std::endl;
         close();
         return -1;
     }
 
-    EQASSERT( bytesRead == -1 ); // error
+    LBASSERT( bytesRead == -1 ); // error
 
     if( errno == EINTR ) // if interrupted, try again
         return 0;
 
-    EQWARN << "Error during read: " << strerror( errno ) << ", " << bytes
+    LBWARN << "Error during read: " << strerror( errno ) << ", " << bytes
            << "b on fd " << _readFD << std::endl;
     return -1;
 }
@@ -116,7 +116,7 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
         const int res = poll( fds, 1, _getTimeOut( ));
         if (res < 0)
         {
-            EQWARN << "Write error : " << strerror( errno ) << std::endl;
+            LBWARN << "Write error : " << strerror( errno ) << std::endl;
             return -1;
         }
 
@@ -134,7 +134,7 @@ int64_t FDConnection::write( const void* buffer, const uint64_t bytes )
         if( errno == EINTR ) // if interrupted, try again
             return 0;
 
-        EQWARN << "Error during write: " << strerror( errno ) << std::endl;
+        LBWARN << "Error during write: " << strerror( errno ) << std::endl;
         return -1;
     }
 

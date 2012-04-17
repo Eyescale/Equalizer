@@ -21,7 +21,7 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/thread.h>         // thread-safety macros
+#include <lunchbox/thread.h>         // thread-safety macros
 
 namespace co
 {
@@ -70,7 +70,7 @@ namespace co
 
         /** @return the information about the current compressor instance. */
         const CompressorInfo& getInfo() const
-            { EQASSERT( _info ); return *_info; }
+            { LBASSERT( _info ); return *_info; }
 
     protected:
         /** The name of the (de)compressor */
@@ -100,7 +100,7 @@ namespace co
          */
         Plugin* _findPlugin( uint32_t name );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 #endif  // CO_COMPRESSOR_H

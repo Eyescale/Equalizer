@@ -58,13 +58,13 @@ QueueSlave::~QueueSlave()
     while( !_impl->queue.isEmpty( ))
     {
         Command* cmd = _impl->queue.pop();
-        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+        LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
         cmd->release();
     }
     delete _impl;
 }
 
-void QueueSlave::attach( const base::UUID& id, const uint32_t instanceID )
+void QueueSlave::attach( const UUID& id, const uint32_t instanceID )
 {
     Object::attach(id, instanceID);
     registerCommand( CMD_QUEUE_ITEM, CommandFunc<Object>(0, 0), &_impl->queue );
@@ -76,15 +76,15 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
     uint128_t masterNodeID;
     is >> _impl->masterInstanceID >> masterNodeID;
 
-    EQASSERT( masterNodeID != NodeID::ZERO );
-    EQASSERT( !_impl->master );
+    LBASSERT( masterNodeID != NodeID::ZERO );
+    LBASSERT( !_impl->master );
     LocalNodePtr localNode = getLocalNode();
     _impl->master = localNode->connect( masterNodeID );
 }
 
 Command* QueueSlave::pop()
 {
-    static base::a_int32_t _request;
+    static lunchbox::a_int32_t _request;
     const int32_t request = ++_request;
 
     while( true )
@@ -104,7 +104,7 @@ Command* QueueSlave::pop()
         if( (*cmd)->command == CMD_QUEUE_ITEM )
             return cmd;
     
-        EQASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
+        LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
         const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
         if( packet->requestID == request )
         {

@@ -22,8 +22,8 @@
 #include "pluginRegistry.h"
 #include "socketConnection.h"
 
-#include <co/base/init.h>
-#include <co/base/os.h>
+#include <lunchbox/init.h>
+#include <lunchbox/os.h>
 
 #ifdef _MSC_VER
 #  include <direct.h>
@@ -38,7 +38,7 @@ namespace co
 {
 namespace
 {
-    static co::base::a_int32_t _initialized;
+    static lunchbox::a_int32_t _initialized;
 }
 
 bool _init( const int argc, char** argv )
@@ -46,7 +46,7 @@ bool _init( const int argc, char** argv )
     if( ++_initialized > 1 ) // not first
         return true;
 
-    if( !base::init( argc, argv ))
+    if( !lunchbox::init( argc, argv ))
         return false;
 
     // init all available plugins
@@ -65,7 +65,7 @@ bool _init( const int argc, char** argv )
 #  endif
         )
     {
-        EQWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
+        LBWARN << "Built-in Collage plugins not loaded: " << COLLAGE_DSO_NAME
                << " not in library search path and hardcoded locations not "
                << "found" << std::endl;
     }
@@ -74,7 +74,7 @@ bool _init( const int argc, char** argv )
 #  ifndef NDEBUG
 #    error "COLLAGE_DSO_NAME not defined"
 #  endif
-    EQWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
+    LBWARN << "Built-in Collage plugins not loaded: COLLAGE_DSO_NAME not defined"
            << std::endl;
 #endif
     plugins.init();
@@ -84,8 +84,8 @@ bool _init( const int argc, char** argv )
     WSADATA wsData;
     if( WSAStartup( wsVersion, &wsData ) != 0 )
     {
-        EQERROR << "Initialization of Windows Sockets failed" 
-                << base::sysError << std::endl;
+        LBERROR << "Initialization of Windows Sockets failed" 
+                << lunchbox::sysError << std::endl;
         return false;
     }
 #endif
@@ -107,13 +107,13 @@ bool exit()
 {
     if( --_initialized > 0 ) // not last
         return true;
-    EQASSERT( _initialized == 0 );
+    LBASSERT( _initialized == 0 );
 
 #ifdef _WIN32
     if( WSACleanup() != 0 )
     {
-        EQERROR << "Cleanup of Windows Sockets failed" 
-                << base::sysError << std::endl;
+        LBERROR << "Cleanup of Windows Sockets failed" 
+                << lunchbox::sysError << std::endl;
         return false;
     }
 #endif
@@ -122,7 +122,7 @@ bool exit()
     PluginRegistry& plugins = Global::getPluginRegistry();
     plugins.exit();
 
-    return base::exit();
+    return lunchbox::exit();
 }
 
 }

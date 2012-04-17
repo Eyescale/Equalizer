@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -21,7 +21,8 @@
 
 #include <co/plugins/compressor.h>
 
-#include <co/base/buffer.h>
+#include <co/defines.h>
+#include <lunchbox/buffer.h>
 #include <vector>
 #ifdef _WIN32
 #  include <malloc.h>
@@ -76,9 +77,9 @@ namespace plugin
          */
         virtual void compress( const void* const inData,
                                const eq_uint64_t nPixels, 
-                               const bool useAlpha ) { EQDONTCALL; };
+                               const bool useAlpha ) { LBDONTCALL; };
 
-        typedef co::base::Bufferb Result;
+        typedef lunchbox::Bufferb Result;
         typedef std::vector< Result* > ResultVector;
 
         /** @return the vector containing the result data. */
@@ -103,7 +104,7 @@ namespace plugin
                                const unsigned     source,
                                const eq_uint64_t  flags,
                                eq_uint64_t        outDims[4],
-                               void**             out ) { EQDONTCALL; }
+                               void**             out ) { LBDONTCALL; }
 
         /**
          * Transfer data from main memory into GPU memory.
@@ -121,7 +122,7 @@ namespace plugin
                              const eq_uint64_t  inDims[4],
                              const eq_uint64_t  flags,
                              const eq_uint64_t  outDims[4],  
-                             const unsigned     destination ) { EQDONTCALL; }
+                             const unsigned     destination ) { LBDONTCALL; }
 
         /**
          * Start transferring frame buffer data into main memory.
@@ -137,7 +138,7 @@ namespace plugin
         virtual void startDownload( const GLEWContext* glewContext,
                                     const eq_uint64_t  inDims[4],
                                     const unsigned     source,
-                                    const eq_uint64_t  flags ) { EQDONTCALL; }
+                                    const eq_uint64_t  flags ) { LBDONTCALL; }
 
 
         /**
@@ -158,7 +159,7 @@ namespace plugin
                                      const unsigned     source,
                                      const eq_uint64_t  flags,
                                      eq_uint64_t        outDims[4],
-                                     void**             out ) { EQDONTCALL; }
+                                     void**             out ) { LBDONTCALL; }
 
         /** @internal Register a new plugin engine. */
         static void registerEngine( const Functions& functions );

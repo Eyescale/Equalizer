@@ -24,7 +24,7 @@
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
 #include <eq/fabric/drawableConfig.h>
-#include <co/base/clock.h>
+#include <lunchbox/clock.h>
 
 // Tests the functionality of the compositor and computes the performance.
 
@@ -52,7 +52,7 @@ int main( int argc, char **argv )
     TEST( image->hasPixelData( eq::Frame::BUFFER_COLOR ));
     
     eq::Frames frames;
-    co::base::Clock clock;
+    lunchbox::Clock clock;
     float time;
     const size_t size = image->getPixelDataSize( eq::Frame::BUFFER_COLOR ) * 3;
     frames.push_back( &frame );

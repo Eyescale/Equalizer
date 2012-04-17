@@ -22,15 +22,15 @@
 #include "log.h"
 #include "plugin.h"
 
-#include <co/base/dso.h>
-#include <co/base/file.h>
-#include <co/base/os.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/dso.h>
+#include <lunchbox/file.h>
+#include <lunchbox/stdExt.h>
 
 #include <vector>
 #include <typeinfo>
 
 #ifdef _MSC_VER
+#  include <lunchbox/os.h> // GetModuleFileName
 #  include <direct.h>
 #  define getcwd _getcwd
 #else
@@ -126,22 +126,22 @@ void PluginRegistry::init()
          i != _directories.end(); ++i )
     {
         const std::string& dir = *i;
-        EQLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
+        LBLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
 
 #ifdef _WIN32
-        Strings files = base::searchDirectory( dir, "EqualizerCompressor*.dll");
+        Strings files = lunchbox::searchDirectory( dir, "EqualizerCompressor*.dll");
         const char DIRSEP = '\\';
 #elif defined (Darwin)
-        Strings files = base::searchDirectory( dir,
+        Strings files = lunchbox::searchDirectory( dir,
                                                "libEqualizerCompressor*.dylib");
-        Strings oldFiles = base::searchDirectory( dir,
+        Strings oldFiles = lunchbox::searchDirectory( dir,
                                                   "libeqCompressor*.dylib" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #else
-        Strings files = base::searchDirectory( dir,
+        Strings files = lunchbox::searchDirectory( dir,
                                                "libEqualizerCompressor*.so" );
-        Strings oldFiles = base::searchDirectory( dir, "libeqCompressor*.so" );
+        Strings oldFiles = lunchbox::searchDirectory( dir, "libeqCompressor*.so" );
         files.insert( files.end(), oldFiles.begin(), oldFiles.end( ));
         const char DIRSEP = '/';
 #endif
@@ -186,7 +186,7 @@ bool PluginRegistry::addPlugin( const std::string& filename )
     }
 
     _plugins.push_back( plugin );
-    EQLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
+    LBLOG( LOG_PLUGIN ) << "Found " << plugin->getInfos().size()
                         << " compression engines in " << filename << std::endl;
     return true;
 }

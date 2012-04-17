@@ -22,7 +22,7 @@
 #include "../channelListener.h" // nested base class
 
 #include <eq/client/types.h>
-#include <co/base/hash.h>
+#include <lunchbox/hash.h>
 #include <deque>
 #include <map>
 
@@ -56,9 +56,9 @@ namespace server
 
     protected:        
         virtual void notifyChildAdded( Compound* compound, Compound* child )
-            { EQASSERT( _listeners.empty( )); }
+            { LBASSERT( _listeners.empty( )); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
-            { EQASSERT( _listeners.empty( )); }
+            { LBASSERT( _listeners.empty( )); }
 
     private:
         class Listener : public ChannelListener
@@ -99,7 +99,7 @@ namespace server
             size_t getNLoads() const { return _loads.size(); }
 
         private:
-            typedef co::base::PtrHash< Channel*, uint32_t > TaskIDHash;
+            typedef lunchbox::PtrHash< Channel*, uint32_t > TaskIDHash;
             TaskIDHash _taskIDs;
 
             typedef std::deque< Load > LoadDeque;

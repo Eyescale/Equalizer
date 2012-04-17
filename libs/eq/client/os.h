@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,8 +20,8 @@
 
 #include <eq/client/api.h>
 #include <eq/client/gl.h>
-#include <co/base/os.h>
-#include <co/base/types.h>
+#include <lunchbox/os.h>
+#include <lunchbox/types.h>
 
 #include <string>
 
@@ -56,9 +56,6 @@
 #endif
 
 #ifdef AGL
-#  if defined(__i386__) // WAR compile error
-#    undef Status 
-#  endif
 #  define Cursor CGLCursor   // avoid name clash with X11 'Cursor'
 #  include <ApplicationServices/ApplicationServices.h>
 #  include <AGL/agl.h>

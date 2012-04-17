@@ -21,11 +21,11 @@
 #include <eq/util/types.h>
 
 #include <eq/client/gl.h>              // OpenGL/GLEW types
-#include <co/base/api.h>              // EQ_API definition
-#include <co/base/debug.h>            // EQASSERT definition
-#include <co/base/hash.h>             // member
-#include <co/base/nonCopyable.h>      // base class
-#include <co/base/referenced.h>       // base class
+#include <lunchbox/api.h>              // EQ_API definition
+#include <lunchbox/debug.h>            // LBASSERT definition
+#include <lunchbox/hash.h>             // member
+#include <lunchbox/nonCopyable.h>      // base class
+#include <lunchbox/referenced.h>       // base class
 
 namespace eq
 {
@@ -53,7 +53,7 @@ namespace util
      *
      * @sa http://www.equalizergraphics.com/documents/design/objectManager.html
      */
-    template< class T > class ObjectManager : public co::base::NonCopyable
+    template< class T > class ObjectManager : public lunchbox::NonCopyable
     {
     public:
         enum
@@ -160,7 +160,7 @@ namespace util
         typedef stde::hash_map< T, Accum* > AccumHash;
         typedef stde::hash_map< T, GPUCompressor* > UploaderHash;
 
-        struct SharedData : public co::base::Referenced
+        struct SharedData : public lunchbox::Referenced
         {
             SharedData( const GLEWContext* glewContext );
             virtual ~SharedData();
@@ -185,7 +185,7 @@ namespace util
             };
         };
 
-        typedef co::base::RefPtr< SharedData > SharedDataPtr;
+        typedef lunchbox::RefPtr< SharedData > SharedDataPtr;
         SharedDataPtr _data;
 
         struct Private;

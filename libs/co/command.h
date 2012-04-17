@@ -21,8 +21,8 @@
 #include <co/api.h>
 #include <co/localNode.h> // NodePtr members
 
-#include <co/base/atomic.h> // member
-#include <co/base/refPtr.h> // NodePtr
+#include <lunchbox/atomic.h> // member
+#include <lunchbox/refPtr.h> // NodePtr
 
 namespace co
 {    
@@ -39,22 +39,22 @@ namespace co
         /** @name Data Access */
         //@{
         template< class P > P* getModifiable()
-            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
+            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
         template< class P > const P* get() const
-            { EQASSERT( _packet ); return static_cast<P*>( _packet ); }
+            { LBASSERT( _packet ); return static_cast<P*>( _packet ); }
 
         NodePtr getNode()      const { return _node; }
         LocalNodePtr getLocalNode() const { return _localNode; }
 
         bool          operator ! () const { return ( _packet==0 ); }
-        Packet*       operator->()       { EQASSERT(_packet); return _packet; }
-        const Packet* operator->() const { EQASSERT(_packet); return _packet; }
+        Packet*       operator->()       { LBASSERT(_packet); return _packet; }
+        const Packet* operator->() const { LBASSERT(_packet); return _packet; }
 
         bool isValid() const { return ( _packet!=0 ); }
         uint64_t getAllocationSize() const { return _dataSize; }
 
         void setDispatchFunction( const Dispatcher::Func& func )
-            { EQASSERT( !_func.isValid( )); _func = func; }
+            { LBASSERT( !_func.isValid( )); _func = func; }
         //@}
 
         /** @name Usage tracking. */
@@ -67,7 +67,7 @@ namespace co
         /** Invoke and clear the command function of a dispatched command. */
         CO_API bool operator()();
 
-        explicit Command( base::a_int32_t& freeCounter ); //!< @internal
+        explicit Command( lunchbox::a_int32_t& freeCounter ); //!< @internal
         ~Command(); //!< @internal
 
         /** @internal @return the number of newly allocated bytes. */
@@ -98,14 +98,14 @@ namespace co
         Packet*  _data;     //!< Our allocated data
         uint64_t _dataSize; //!< The size of the allocation
 
-        base::a_int32_t* _refCountMaster;
-        base::a_int32_t  _refCount;
-        base::a_int32_t& _freeCount;
+        lunchbox::a_int32_t* _refCountMaster;
+        lunchbox::a_int32_t  _refCount;
+        lunchbox::a_int32_t& _freeCount;
 
         Dispatcher::Func _func;
         friend CO_API std::ostream& operator << (std::ostream&, const Command&);
 
-        EQ_TS_VAR( _writeThread );
+        LB_TS_VAR( _writeThread );
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, const Command& );

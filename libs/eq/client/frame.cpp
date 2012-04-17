@@ -18,7 +18,9 @@
 #include "frame.h"
 
 #include "frameData.h"
+#include "image.h"
 
+#include <eq/util/objectManager.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -29,18 +31,18 @@ Frame::Frame()
         : _frameData( 0 )
         , _zoomFilter( FILTER_LINEAR )
 {
-    EQINFO << "New Frame @" << (void*)this << std::endl;
+    LBINFO << "New Frame @" << (void*)this << std::endl;
 }
 
 Frame::~Frame()
 {
     if( _frameData )
-        EQINFO << "FrameData attached to frame during deletion" << std::endl;
+        LBINFO << "FrameData attached to frame during deletion" << std::endl;
 }
 
 void Frame::getInstanceData( co::DataOStream& os )
 {
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     _data.serialize( os );
 }
 
@@ -74,49 +76,49 @@ const std::string& Frame::getName() const
 
 uint32_t Frame::getBuffers() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getBuffers();
 }
 
 const Pixel& Frame::getPixel() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getPixel();
 }
 
 const SubPixel& Frame::getSubPixel() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getSubPixel();
 }
 
 const Range& Frame::getRange() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getRange();
 }
 
 uint32_t Frame::getPeriod() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getPeriod();
 }
 
 uint32_t Frame::getPhase() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getPhase();
 }
 
 const Images& Frame::getImages() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->getImages();
 }
 
 void Frame::clear()
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->clear();
 }
 
@@ -146,50 +148,65 @@ void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 {
-    EQASSERT( _frameData );
-    _frameData->readback( *this, glObjects, config );
+    LBASSERT( _frameData );
+    const PixelViewport& pvp = _frameData->getPixelViewport();
+    const Images& images = _frameData->startReadback( *this, glObjects, config,
+                                                      PixelViewports( 1, pvp ));
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
 }
 
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
-    EQASSERT( _frameData );
-    _frameData->readback( *this, glObjects, config, regions );
+    LBASSERT( _frameData );
+    const Images& images = _frameData->startReadback( *this, glObjects, config,
+                                                      regions );
+    for( ImagesCIter i = images.begin(); i != images.end(); ++i )
+        (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
+}
+
+Images Frame::startReadback( ObjectManager* glObjects,
+                           const DrawableConfig& config,
+                           const PixelViewports& regions )
+{
+    LBASSERT( _frameData );
+    return _frameData->startReadback(  *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->setReady();
 }
 
 bool Frame::isReady() const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     return _frameData->isReady();
 }
 
 void Frame::waitReady( const uint32_t timeout ) const
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->disableBuffer( buffer );
 }
 
-void Frame::addListener( co::base::Monitor<uint32_t>& listener )
+void Frame::addListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->addListener( listener );
 }
 
-void Frame::removeListener( co::base::Monitor<uint32_t>& listener )
+void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    EQASSERT( _frameData );
+    LBASSERT( _frameData );
     _frameData->removeListener( listener );
 }
 

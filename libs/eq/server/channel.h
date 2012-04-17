@@ -26,7 +26,7 @@
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
-#include <co/base/monitor.h> // member
+#include <lunchbox/monitor.h> // member
 
 #include <iostream>
 #include <vector>
@@ -203,7 +203,7 @@ namespace server
         Vector4i _overdraw;
 
         /** The current state for state change synchronization. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
 
         /** The last draw compound for this entity */
         const Compound* _lastDrawCompound;
@@ -211,7 +211,7 @@ namespace server
         typedef std::vector< ChannelListener* > ChannelListeners;
         ChannelListeners _listeners;
 
-        EQ_TS_VAR( _serverThread );
+        LB_TS_VAR( _serverThread );
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes

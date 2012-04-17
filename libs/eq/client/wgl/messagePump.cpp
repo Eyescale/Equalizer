@@ -17,9 +17,9 @@
 
 #include "messagePump.h"
 
-#include <co/base/debug.h>
-#include <co/base/log.h>
-#include <co/base/os.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/log.h>
+#include <lunchbox/os.h>
 
 namespace eq
 {
@@ -34,7 +34,7 @@ void MessagePump::postWakeup()
 {
     if( !_win32ThreadID )
     {
-        EQWARN << "Receiver thread not waiting?" << std::endl;
+        LBWARN << "Receiver thread not waiting?" << std::endl;
         return;
     }
 
@@ -48,9 +48,9 @@ void MessagePump::_initReceiverQueue()
         MSG msg;
         PeekMessage( &msg, 0, WM_USER, WM_USER, PM_NOREMOVE );
         _win32ThreadID = GetCurrentThreadId();
-        EQASSERT( _win32ThreadID );
+        LBASSERT( _win32ThreadID );
     }
-    EQASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
+    LBASSERTINFO( _win32ThreadID == GetCurrentThreadId(),
                   "wgl::MessagePump::pop() called from two different threads" );
 }
 

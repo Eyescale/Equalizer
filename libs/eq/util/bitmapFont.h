@@ -21,7 +21,7 @@
 #include <eq/util/types.h>
 #include <eq/client/api.h>
 #include <eq/client/windowSystem.h> // enum used
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 #include <string>
 

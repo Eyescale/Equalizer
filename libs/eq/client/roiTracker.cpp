@@ -59,7 +59,7 @@ bool ROITracker::useROIFinder( const PixelViewport& pvp,
                                const uint128_t&     frameID,
                                      uint8_t*&      ticket )
 {
-    EQASSERT( !_needsUpdate );
+    LBASSERT( !_needsUpdate );
     ticket = 0;
 
     const uint32_t pvpArea = pvp.getArea();
@@ -126,12 +126,12 @@ bool ROITracker::useROIFinder( const PixelViewport& pvp,
 void ROITracker::updateDelay( const PixelViewports& pvps,
                               const uint8_t* ticket )
 {
-    EQASSERT( _needsUpdate );
-    EQASSERTINFO( ticket == _ticket, "Wrong ticket" );
+    LBASSERT( _needsUpdate );
+    LBASSERTINFO( ticket == _ticket, "Wrong ticket" );
 
     if( ticket != _ticket )
     {
-        EQERROR << "Wrong ticket" << std::endl;
+        LBERROR << "Wrong ticket" << std::endl;
         return;
     }
 
@@ -148,7 +148,7 @@ void ROITracker::updateDelay( const PixelViewports& pvps,
     {
         // disable ROI for next frames, if it was failing before, 
         // increase number of frames to skip
-        area.lastSkip = EQ_MIN( area.lastSkip*2 + 1, 64 );
+        area.lastSkip = LB_MIN( area.lastSkip*2 + 1, 64 );
         area.skip     = area.lastSkip;
     }
     _needsUpdate = false;

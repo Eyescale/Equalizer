@@ -36,34 +36,34 @@ Channel::~Channel()
 Pipe* Channel::getPipe()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getPipe() : 0 );
 }
 const Pipe* Channel::getPipe() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getPipe() : 0 );
 }
 
 Config* Channel::getConfig()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getConfig() : 0 );
 }
 
 const Config* Channel::getConfig() const
 {
     const Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getConfig() : 0 );
 }
 
 ServerPtr Channel::getServer()
 {
     Window* window = getWindow();
-    EQASSERT( window );
+    LBASSERT( window );
     return ( window ? window->getServer() : 0 );
 }
 

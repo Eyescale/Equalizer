@@ -21,10 +21,10 @@
 #include "pipe.h"
 #include "window.h"
 
-#include <co/base/lock.h>
-#include <co/base/debug.h>
+#include <lunchbox/lock.h>
+#include <lunchbox/debug.h>
 
-using namespace co::base;
+using namespace lunchbox;
 using namespace std;
 
 namespace eq
@@ -66,7 +66,7 @@ void EventHandler::_getRenderContext( const Window* window, Event& event )
     const int32_t y = event.pointer.y;
 
     if( !window->getRenderContext( x, y, event.context ))
-        EQVERB << "No rendering context for pointer event at " << x << ", " 
+        LBVERB << "No rendering context for pointer event at " << x << ", " 
                << y << endl;
 }
 

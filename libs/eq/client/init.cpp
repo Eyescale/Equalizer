@@ -30,7 +30,7 @@
 #include <eq/fabric/init.h>
 #include <co/global.h>
 #include <co/pluginRegistry.h>
-#include <co/base/file.h>
+#include <lunchbox/file.h>
 
 #include <fstream>
 
@@ -38,12 +38,16 @@
 #  include <pcapi.h>
 #endif
 
+#ifdef _WIN32
+#  define atoll _atoi64
+#endif
+
 namespace eq
 {
 namespace
 {
 static std::ofstream* _logFile = 0;
-static co::base::a_int32_t _initialized;
+static lunchbox::a_int32_t _initialized;
 }
 
 static void _parseArguments( const int argc, char** argv );
@@ -54,14 +58,22 @@ static void _exitPlugins();
 
 bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 {
-    co::base::Log::instance().setThreadName( "Main" );
+    const char *env = getenv( "EQ_LOG_LEVEL" );
+    if( env )
+        lunchbox::Log::level = lunchbox::Log::getLogLevel( env );
+
+    env = getenv( "EQ_LOG_TOPICS" );
+    if( env )
+        lunchbox::Log::topics |= atoll( env );
+
+    lunchbox::Log::instance().setThreadName( "Main" );
     _parseArguments( argc, argv );
-    EQINFO << "Equalizer v" << Version::getString() << " initializing"
+    LBINFO << "Equalizer v" << Version::getString() << " initializing"
            << std::endl;
 
     if( ++_initialized > 1 ) // not first
     {
-        EQINFO << "Equalizer client library initialized more than once"
+        LBINFO << "Equalizer client library initialized more than once"
                << std::endl;
         return true;
     }
@@ -72,16 +84,16 @@ bool _init( const int argc, char** argv, NodeFactory* nodeFactory )
 #endif
 
 #ifdef EQ_USE_PARACOMP
-    EQINFO << "Initializing Paracomp library" << std::endl;
+    LBINFO << "Initializing Paracomp library" << std::endl;
     PCerr err = pcSystemInitialize( 0 );
     if( err != PC_NO_ERROR )
     {
-        EQERROR << "Paracomp initialization failed: " << err << std::endl;
+        LBERROR << "Paracomp initialization failed: " << err << std::endl;
         return false;
     }
 #endif
 
-    EQASSERT( nodeFactory );
+    LBASSERT( nodeFactory );
     Global::_nodeFactory = nodeFactory;
 
     _initPlugins();
@@ -92,7 +104,7 @@ bool exit()
 {
     if( _initialized <= 0 )
     {
-        EQERROR << "Equalizer client library not initialized" << std::endl;
+        LBERROR << "Equalizer client library not initialized" << std::endl;
         return false;
     }
     if( --_initialized > 0 ) // not last
@@ -110,9 +122,9 @@ bool exit()
     if( _logFile )
     {
 #ifdef NDEBUG
-        co::base::Log::setOutput( std::cout );
+        lunchbox::Log::setOutput( std::cout );
 #else
-        co::base::Log::setOutput( std::cerr );
+        lunchbox::Log::setOutput( std::cerr );
 #endif
         _logFile->close();
         delete _logFile;
@@ -140,7 +152,7 @@ void _parseArguments( const int argc, char** argv )
                 if( newLog->is_open( ))
                 {
                     _logFile = newLog;
-                    co::base::Log::setOutput( *newLog );
+                    lunchbox::Log::setOutput( *newLog );
 
                     if( oldLog )
                     {
@@ -151,8 +163,8 @@ void _parseArguments( const int argc, char** argv )
                 }
                 else
                 {
-                    EQWARN << "Can't open log file " << argv[i] << ": "
-                           << co::base::sysError << std::endl;
+                    LBWARN << "Can't open log file " << argv[i] << ": "
+                           << lunchbox::sysError << std::endl;
                     delete newLog;
                     newLog = 0;
                 }
@@ -189,7 +201,7 @@ void _parseArguments( const int argc, char** argv )
             if( i<argc )
             {
                 co::Global::setProgramName( argv[i] );
-                co::Global::setWorkDir( co::base::getDirname( argv[i] ));
+                co::Global::setWorkDir( lunchbox::getDirname( argv[i] ));
             }
         }
     }
@@ -233,14 +245,14 @@ void _initPlugins()
     if( plugins.addPlugin( absDSO ))
         return;
 
-    EQWARN << "Built-in Equalizer plugins not loaded: " << EQUALIZER_DSO_NAME
+    LBWARN << "Built-in Equalizer plugins not loaded: " << EQUALIZER_DSO_NAME
            << " not in library search path and " << absDSO << " not found"
            << std::endl;
 #else
 #  ifndef NDEBUG
 #    error "EQUALIZER_DSO_NAME not defined"
 #  endif
-    EQWARN << "Built-in Equalizer plugins not loaded: EQUALIZER_DSO_NAME not "
+    LBWARN << "Built-in Equalizer plugins not loaded: EQUALIZER_DSO_NAME not "
            << "defined" << std::endl;
 #endif
 }
@@ -279,19 +291,19 @@ Config* getConfig( const int argc, char** argv )
             if( config )
                 return config;
 
-            EQERROR << "No matching config on server" << std::endl;
+            LBERROR << "No matching config on server" << std::endl;
 
             // -2. disconnect server
             client->disconnectServer( server );
         }
         else
-            EQERROR << "Can't open server" << std::endl;
+            LBERROR << "Can't open server" << std::endl;
         
         // -1. exit local client node
         client->exitLocal();
     }
     else
-        EQERROR << "Can't init local client node" << std::endl;
+        LBERROR << "Can't init local client node" << std::endl;
 
     return 0;
 }
@@ -302,17 +314,17 @@ void releaseConfig( Config* config )
         return;
 
     ServerPtr server = config->getServer();
-    EQASSERT( server.isValid( ));
+    LBASSERT( server.isValid( ));
     server->releaseConfig( config );
 
     ClientPtr client = server->getClient();
-    EQASSERT( client.isValid( ));
+    LBASSERT( client.isValid( ));
 
     client->disconnectServer( server );
     client->exitLocal();
 
-    EQASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
-    EQASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
+    LBASSERTINFO( client->getRefCount() == 1, client->getRefCount( ));
+    LBASSERTINFO( server->getRefCount() == 1, server->getRefCount( ));
 }
 
 }

@@ -21,7 +21,7 @@
 #include <co/connection.h>
 #include <co/node.h>
 #include <co/types.h>
-#include <co/base/hash.h>
+#include <lunchbox/hash.h>
 
 #include <set>
 
@@ -40,9 +40,9 @@ namespace co
  */
 inline void gatherConnections( const Nodes& nodes, Connections& result )
 {
-    EQASSERT( result.empty( ));
+    LBASSERT( result.empty( ));
     typedef stde::hash_map< ConnectionDescriptionPtr, NodePtr,
-                            base::hashRefPtr< ConnectionDescription > > MCNodes;
+                            lunchbox::hashRefPtr< ConnectionDescription > > MCNodes;
     MCNodes mcNodes; // first node using a multicast connection
 
     typedef std::set< ConnectionDescriptionPtr > MCSet;
@@ -73,7 +73,7 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
         else
             connection = node->getConnection();
 
-        EQASSERT( connection.isValid( ));
+        LBASSERT( connection.isValid( ));
         if( connection.isValid( ))
             result.push_back( connection );
     }
@@ -82,7 +82,7 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
     for( MCNodes::const_iterator i = mcNodes.begin(); i != mcNodes.end(); ++i )
     {
         ConnectionPtr connection = i->second->getConnection();
-        EQASSERT( connection.isValid( ));
+        LBASSERT( connection.isValid( ));
 
         if( connection.isValid( ))
             result.push_back( connection );

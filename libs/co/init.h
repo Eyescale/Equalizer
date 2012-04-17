@@ -20,7 +20,7 @@
 
 #include <co/api.h>
 #include <co/version.h>  // used inline
-#include <co/base/log.h> // used inline
+#include <lunchbox/log.h> // used inline
 
 namespace co
 {
@@ -39,7 +39,7 @@ namespace co
     {
         if( CO_VERSION_ABI == Version::getABI( ))
             return co::_init( argc, argv );
-        EQWARN << "Collage shared library v" << Version::getABI()
+        LBWARN << "Collage shared library v" << Version::getABI()
                << " not binary-compatible with application v" << CO_VERSION_ABI
                << std::endl;
         return false;

@@ -66,7 +66,7 @@ detail::Renderer* Channel::getRendererImpl()
 const Matrix4f& Channel::getModelMatrix() const
 {
     const ViewData* data = getViewData();
-    EQASSERT( data );
+    LBASSERT( data );
     if( !data )
         return Matrix4f::IDENTITY;
 
@@ -76,7 +76,7 @@ const Matrix4f& Channel::getModelMatrix() const
 bool Channel::useOrtho() const
 {
     const ViewData* data = getViewData();
-    EQASSERT( data );
+    LBASSERT( data );
     if( !data )
         return false;
 
@@ -117,7 +117,7 @@ void Channel::applyModelMatrix()
 void Channel::frameViewFinish( const uint128_t& frameID )
 {
     const ViewData* data = getViewData();
-    EQASSERT( data );
+    LBASSERT( data );
     if( !data || !data->getStatistics( ))
         return;
 

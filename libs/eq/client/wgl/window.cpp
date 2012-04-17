@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
-                      2010, Maxim Makhinya
+ *                    2010, Maxim Makhinya
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,7 +25,7 @@
 #include <eq/client/global.h>
 #include <eq/client/pipe.h>
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace eq
 {
@@ -43,16 +43,18 @@ Window::Window( eq::Window* parent )
     , _wglEventHandler( 0 )
     , _wglNVSwapGroup( 0 )
 {
-    
 }
 
 Window::~Window( )
 {
 }
 
-void Window::makeCurrent() const
+void Window::makeCurrent( const bool cache ) const
 {
-    EQCHECK( wglMakeCurrent( _wglDC, _wglContext ));
+    if( cache && isCurrent( ))
+        return;
+
+    LBCHECK( wglMakeCurrent( _wglDC, _wglContext ));
     WindowIF::makeCurrent();
     if( _wglContext )
     {
@@ -87,6 +89,9 @@ void Window::setWGLWindowHandle( HWND handle )
 
     _wglWindow = handle;
     setWGLDC( GetDC( handle ), WGL_DC_WINDOW );
+
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
 
     initEventHandler();
 
@@ -135,7 +140,7 @@ void Window::setWGLDC( HDC dc, const WGLDCType type )
     if( ( type != WGL_DC_NONE && dc == 0 ) ||
         ( type == WGL_DC_NONE && dc != 0 ))
     {
-        EQABORT( "Illegal combination of WGL device context and type" );
+        LBABORT( "Illegal combination of WGL device context and type" );
         return;
     }
 
@@ -145,29 +150,29 @@ void Window::setWGLDC( HDC dc, const WGLDCType type )
             break;
 
         case WGL_DC_WINDOW:
-            EQASSERT( _wglWindow );
-            EQASSERT( _wglDC );
+            LBASSERT( _wglWindow );
+            LBASSERT( _wglDC );
             ReleaseDC( _wglWindow, _wglDC );
             break;
             
         case WGL_DC_PBUFFER:
-            EQASSERT( _wglPBuffer );
-            EQASSERT( _wglDC );
+            LBASSERT( _wglPBuffer );
+            LBASSERT( _wglDC );
             wglReleasePbufferDCARB( _wglPBuffer, _wglDC );
             break;
 
         case WGL_DC_AFFINITY:
-            EQASSERT( _wglDC );
+            LBASSERT( _wglDC );
             wglDeleteDCNV( _wglDC );
             break;
                 
         case WGL_DC_DISPLAY:
-            EQASSERT( _wglDC );
+            LBASSERT( _wglDC );
             DeleteDC( _wglDC );
             break;
 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     _wglDC     = dc;
@@ -231,10 +236,11 @@ bool Window::configInitWGLDrawable( int pixelFormat )
             return configInitWGLPBuffer( pixelFormat );
 
         case FBO:
+        case OFF:
             return configInitWGLFBO( pixelFormat );
 
         default:
-            EQWARN << "Unknown drawable type "
+            LBWARN << "Unknown drawable type "
                    << getIAttribute(eq::Window::IATTR_HINT_DRAWABLE )
                    << ", creating a window" << std::endl;
             // no break;
@@ -261,7 +267,6 @@ bool Window::configInitWGLFBO( int pixelFormat )
             return false;
 
         const HDC dc = GetDC( _wglWindow );
-        
         if( !dc )
             return false;
         
@@ -276,7 +281,7 @@ bool Window::configInitWGLFBO( int pixelFormat )
     if( !SetPixelFormat( _wglDC, pixelFormat, &pfd ))
     {
         setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -303,7 +308,7 @@ bool Window::configInitWGLWindow( int pixelFormat )
     {
         ReleaseDC( hWnd, windowDC );
         setError( ERROR_WGLWINDOW_SETPIXELFORMAT_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
     ReleaseDC( hWnd, windowDC );
@@ -348,7 +353,7 @@ HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     if( !RegisterClass( &wc ))
     {
         setError( ERROR_WGLWINDOW_REGISTERCLASS_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -371,7 +376,7 @@ HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
             DISP_CHANGE_SUCCESSFUL )
         {
             setError( ERROR_WGLWINDOW_FULLSCREEN_FAILED );
-            EQWARN << getError() << ": " << co::base::sysError << std::endl;
+            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
             return false;
         }
         windowStyle = WS_POPUP | WS_MAXIMIZE;
@@ -395,7 +400,7 @@ HWND Window::_createWGLWindow( int pixelFormat, const PixelViewport& pvp  )
     if( !hWnd )
     {
         setError( ERROR_WGLWINDOW_CREATEWINDOW_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -411,7 +416,7 @@ bool Window::configInitWGLPBuffer( int pf )
     }
 
     const eq::PixelViewport& pvp = getWindow()->getPixelViewport();
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
     HPBUFFERARB pBuffer = 0;
     const int attr[] = { WGL_PBUFFER_LARGEST_ARB, TRUE, 0 };
@@ -431,7 +436,7 @@ bool Window::configInitWGLPBuffer( int pf )
     if( !pBuffer )
     {
         setError( ERROR_WGLWINDOW_CREATEPBUFFER_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -458,6 +463,9 @@ bool Window::initWGLAffinityDC()
 
 void Window::_initSwapSync()
 {
+    if( getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == OFF )
+        return;
+
     const int32_t swapSync = getIAttribute( eq::Window::IATTR_HINT_SWAPSYNC );
     if( swapSync == AUTO ) // leave it alone
         return;
@@ -467,7 +475,7 @@ void Window::_initSwapSync()
         wglSwapIntervalEXT( (swapSync < 0) ? 1 : swapSync );
     }
     else
-        EQWARN << "WGL_EXT_swap_control not supported, ignoring window "
+        LBWARN << "WGL_EXT_swap_control not supported, ignoring window "
                << "swapsync hint " << swapSync << std::endl;
 }   
 
@@ -512,7 +520,7 @@ void Window::configExit( )
     if( getIAttribute( eq::Window::IATTR_HINT_FULLSCREEN ) == ON )
         ChangeDisplaySettings( 0, 0 );
 
-    EQINFO << "Destroyed WGL context and window" << std::endl;
+    LBINFO << "Destroyed WGL context and window" << std::endl;
 }
 
 HDC Window::getWGLAffinityDC()
@@ -542,7 +550,7 @@ int Window::chooseWGLPixelFormat()
     if( pixelFormat == 0 )
     {
         setError( ERROR_SYSTEMWINDOW_PIXELFORMAT_NOTFOUND );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return 0;
     }
  
@@ -556,7 +564,7 @@ int Window::chooseWGLPixelFormat()
         if( !SetPixelFormat( _wglAffinityDC, pixelFormat, &pfd ))
         {
             setError( ERROR_WGLWINDOW_SETAFFINITY_PF_FAILED );
-            EQWARN << getError() << ": " << co::base::sysError << std::endl;
+            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
             return 0;
         }
     }
@@ -598,14 +606,14 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
 
     if( pf == 0 && window->getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO )
     {        
-        EQINFO << "Visual not available, trying mono visual" << std::endl;
+        LBINFO << "Visual not available, trying mono visual" << std::endl;
         pfd.dwFlags |= PFD_STEREO_DONTCARE;
         pf = ChoosePixelFormat( pfDC, &pfd );
     }
 
     if( pf == 0 && stencilSize == AUTO )
     {        
-        EQINFO << "Visual not available, trying non-stencil visual"
+        LBINFO << "Visual not available, trying non-stencil visual"
                << std::endl;
         pfd.cStencilBits = 0;
         pf = ChoosePixelFormat( pfDC, &pfd );
@@ -614,7 +622,7 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
     if( pf == 0 &&
         window->getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO )
     {        
-        EQINFO << "Visual not available, trying single-buffered visual" 
+        LBINFO << "Visual not available, trying single-buffered visual" 
                << std::endl;
         pfd.dwFlags |= PFD_DOUBLEBUFFER_DONTCARE;
         pf = ChoosePixelFormat( pfDC, &pfd );
@@ -625,7 +633,7 @@ int Window::_chooseWGLPixelFormat( HDC pfDC )
 
 int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 {
-    EQASSERT( WGLEW_ARB_pixel_format );
+    LBASSERT( WGLEW_ARB_pixel_format );
 
     std::vector< int > attributes;
     attributes.push_back( WGL_SUPPORT_OPENGL_ARB );
@@ -711,13 +719,13 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
             attributes.push_back( samplesSize );
         }
         else
-            EQWARN << "WGLEW_ARB_multisample not supported, ignoring samples "
+            LBWARN << "WGLEW_ARB_multisample not supported, ignoring samples "
                    << "attribute" << std::endl;
     }
 
     if( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == ON ||
-        ( getIAttribute( eq::Window::IATTR_HINT_STEREO )   == AUTO && 
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
+        ( getIAttribute( eq::Window::IATTR_HINT_STEREO ) == AUTO && 
+          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_STEREO_ARB );
         attributes.push_back( 1 );
@@ -725,7 +733,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
     if( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == ON ||
         ( getIAttribute( eq::Window::IATTR_HINT_DOUBLEBUFFER ) == AUTO && 
-        getIAttribute( eq::Window::IATTR_HINT_DRAWABLE )     == WINDOW ))
+          getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW ))
     {
         attributes.push_back( WGL_DOUBLE_BUFFER_ARB );
         attributes.push_back( 1 );
@@ -767,7 +775,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
             &pixelFormat, &nFormats ))
         {
             setError( ERROR_WGLWINDOW_CHOOSE_PF_ARB_FAILED);
-            EQWARN << getError() << ": " << co::base::sysError << std::endl;
+            LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
             return 0;
         }
 
@@ -783,7 +791,7 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
         std::vector<GLint>::iterator iter = find( attributes.begin(), 
             attributes.end(), attribute );
-        EQASSERT( iter != attributes.end( ));
+        LBASSERT( iter != attributes.end( ));
 
         attributes.erase( iter, iter+2 ); // remove two items (attr, value)
     }
@@ -793,14 +801,14 @@ int Window::_chooseWGLPixelFormatARB( HDC pfDC )
 
 HGLRC Window::createWGLContext()
 {
-    EQASSERT( _wglDC );
+    LBASSERT( _wglDC );
 
     // create context
     HGLRC context = wglCreateContext( _wglAffinityDC ? _wglAffinityDC :_wglDC );
     if( !context )
     {
         setError( ERROR_WGLWINDOW_CREATECONTEXT_FAILED);
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -810,13 +818,13 @@ HGLRC Window::createWGLContext()
         shareWindow ? shareWindow->getSystemWindow() :0;
     if( sysWindow )
     {
-        EQASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
+        LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
         const WindowIF* shareWGLWindow = 
             static_cast< const WindowIF* >( sysWindow );
         HGLRC shareCtx = shareWGLWindow->getWGLContext();
 
         if( shareCtx && !wglShareLists( shareCtx, context ))
-            EQWARN << "Context sharing failed: " << co::base::sysError
+            LBWARN << "Context sharing failed: " << lunchbox::sysError
                    << std::endl;
     }
 
@@ -825,13 +833,13 @@ HGLRC Window::createWGLContext()
 
 void Window::destroyWGLContext( HGLRC context )
 {
-    EQASSERT( context );
+    LBASSERT( context );
     wglDeleteContext( context );
 }
 
 void Window::initEventHandler()
 {
-    EQASSERT( !_wglEventHandler );
+    LBASSERT( !_wglEventHandler );
     _wglEventHandler = new EventHandler( this );
 }
 
@@ -845,7 +853,7 @@ bool Window::processEvent( const WindowEvent& event )
 {
     if( event.type == Event::WINDOW_EXPOSE )
     {
-        EQASSERT( _wglWindow ); // PBuffers should not generate paint events
+        LBASSERT( _wglWindow ); // PBuffers should not generate paint events
 
         // Invalidate update rectangle
         PAINTSTRUCT ps;
@@ -863,7 +871,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !WGLEW_NV_swap_group )
     {
-        EQWARN << "NV Swap group extension not supported" << std::endl;
+        LBWARN << "NV Swap group extension not supported" << std::endl;
         return;
     }
 
@@ -873,7 +881,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( group > maxGroup )
     {
-        EQWARN << "Failed to initialize WGL_NV_swap_group: requested group "
+        LBWARN << "Failed to initialize WGL_NV_swap_group: requested group "
                << group << " greater than maxGroups (" << maxGroup << ")"
                << std::endl;
         return;
@@ -881,7 +889,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( barrier > maxBarrier )
     {
-        EQWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
+        LBWARN << "Failed to initialize WGL_NV_swap_group: requested barrier "
                << barrier << " greater than maxBarriers (" << maxBarrier << ")"
                << std::endl;
         return;
@@ -889,18 +897,18 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
 
     if( !wglJoinSwapGroupNV( _wglDC, group ))
     {
-        EQWARN << "Failed to join swap group " << group << std::endl;
+        LBWARN << "Failed to join swap group " << group << std::endl;
         return;
     }
     _wglNVSwapGroup = group;
 
     if( !wglBindSwapBarrierNV( group, barrier ))
     {
-        EQWARN << "Failed to bind swap barrier " << barrier << std::endl;
+        LBWARN << "Failed to bind swap barrier " << barrier << std::endl;
         return;
     }
     
-    EQINFO << "Joined swap group " << group << " and barrier " << barrier
+    LBINFO << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 }
 
@@ -910,10 +918,10 @@ void Window::leaveNVSwapBarrier()
         return;
 
     if( !wglBindSwapBarrierNV( _wglNVSwapGroup, 0 ))
-        EQWARN << "Failed to unbind swap barrier" << std::endl;
+        LBWARN << "Failed to unbind swap barrier" << std::endl;
 
     if( !wglJoinSwapGroupNV( _wglDC, 0 ))
-        EQWARN << "Failed to unjoin swap group " << std::endl;
+        LBWARN << "Failed to unjoin swap group " << std::endl;
 
     _wglNVSwapGroup = 0;
 }
@@ -926,9 +934,9 @@ WGLEWContext* Window::wglewGetContext()
 Pipe* Window::getWGLPipe()
 {
     eq::Pipe* pipe = getPipe();
-    EQASSERT( pipe );
-    EQASSERT( pipe->getSystemPipe( ));
-    EQASSERT( dynamic_cast< Pipe* >( pipe->getSystemPipe( )));
+    LBASSERT( pipe );
+    LBASSERT( pipe->getSystemPipe( ));
+    LBASSERT( dynamic_cast< Pipe* >( pipe->getSystemPipe( )));
 
     return static_cast< Pipe* >( pipe->getSystemPipe( ) );
 }

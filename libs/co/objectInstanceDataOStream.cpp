@@ -115,7 +115,7 @@ void ObjectInstanceDataOStream::enableMap( const uint128_t& version,
 void ObjectInstanceDataOStream::sendData( const void* buffer,
                                           const uint64_t size, const bool last )
 {
-    EQASSERT( _command );
+    LBASSERT( _command );
 
     ObjectInstancePacket packet( _nodeID, _cm->getObject()->getInstanceID( ));
     packet.command = _command;

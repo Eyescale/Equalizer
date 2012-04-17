@@ -24,7 +24,7 @@
 
 #include <eq/client/statistic.h>
 #include <eq/fabric/zoom.h>
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 namespace eq
 {
@@ -37,13 +37,13 @@ DFREqualizer::DFREqualizer()
         , _current ( _target )
         , _lastTime( 0 )
 {    
-    EQINFO << "New DFREqualizer @" << (void*)this << std::endl;
+    LBINFO << "New DFREqualizer @" << (void*)this << std::endl;
 }
 
 DFREqualizer::~DFREqualizer()
 {
     attach( 0 );
-    EQINFO << "Delete DFREqualizer @" << (void*)this << std::endl;
+    LBINFO << "Delete DFREqualizer @" << (void*)this << std::endl;
 }
 
 void DFREqualizer::attach( Compound* compound )
@@ -52,7 +52,7 @@ void DFREqualizer::attach( Compound* compound )
     if( oldCompound )
     {
         Channel*  channel   = oldCompound->getChannel();
-        EQASSERT( channel );
+        LBASSERT( channel );
 
         // Unsubscribe to channel load notification
         channel->removeListener( this );
@@ -63,7 +63,7 @@ void DFREqualizer::attach( Compound* compound )
     if( compound )
     {
         Channel* channel = compound->getChannel();
-        EQASSERT( channel );
+        LBASSERT( channel );
     
         // Subscribe to channel load notification
         if( compound->getParent() && channel )
@@ -74,7 +74,7 @@ void DFREqualizer::attach( Compound* compound )
 void DFREqualizer::notifyUpdatePre( Compound* compound, 
                                     const uint32_t frameNumber )
 {
-    EQASSERT( compound == getCompound( ));
+    LBASSERT( compound == getCompound( ));
 
     if( isFrozen() || !compound->isRunning() || !isActive( ))
     {
@@ -82,8 +82,8 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
         return;    
     }
    
-    EQASSERT( _damping >= 0.f );
-    EQASSERT( _damping <= 1.f );
+    LBASSERT( _damping >= 0.f );
+    LBASSERT( _damping <= 1.f );
 
     const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
         _damping + 1.0f;
@@ -91,7 +91,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     Zoom newZoom( compound->getZoom( ));
     newZoom *= factor;
 
-    //EQINFO << _current << ": " << factor << " = " << newZoom 
+    //LBINFO << _current << ": " << factor << " = " << newZoom 
     //       << std::endl;
 
     // clip zoom factor to min( 128px ), max( channel pvp )
@@ -102,15 +102,15 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     const Channel*           channel    = compound->getChannel();
     const eq::PixelViewport& channelPVP = channel->getPixelViewport();
    
-    const float minZoom = 128.f / EQ_MIN( static_cast< float >( pvp.h ),
+    const float minZoom = 128.f / LB_MIN( static_cast< float >( pvp.h ),
                                           static_cast< float >( pvp.w ));
-    const float maxZoom = EQ_MIN( static_cast< float >( channelPVP.w ) /
+    const float maxZoom = LB_MIN( static_cast< float >( channelPVP.w ) /
                                   static_cast< float >( pvp.w ),
                                   static_cast< float >( channelPVP.h ) /
                                   static_cast< float >( pvp.h ));
    
-    newZoom.x() = EQ_MAX( newZoom.x(), minZoom ); 
-    newZoom.x() = EQ_MIN( newZoom.x(), maxZoom );
+    newZoom.x() = LB_MAX( newZoom.x(), minZoom ); 
+    newZoom.x() = LB_MIN( newZoom.x(), maxZoom );
     newZoom.y() = newZoom.x(); 
 
     compound->setZoom( newZoom );
@@ -132,7 +132,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
             case eq::Statistic::CHANNEL_DRAW:
             case eq::Statistic::CHANNEL_ASSEMBLE:
             case eq::Statistic::CHANNEL_READBACK:
-                endTime = EQ_MAX( endTime, data.endTime );
+                endTime = LB_MAX( endTime, data.endTime );
                 break;
                 
             default:
@@ -150,7 +150,7 @@ void DFREqualizer::notifyLoadData( Channel* channel, const uint32_t frameNumber,
         return;
          
     _current = 1000.0f / static_cast< float >( time );
-    EQLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
+    LBLOG( LOG_LB1 ) << "Frame " << frameNumber << " channel "
                      << channel->getName() << " time " << time << std::endl;
 }
 
@@ -159,7 +159,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( !lb )
         return os;
 
-    os << co::base::disableFlush
+    os << lunchbox::disableFlush
        << "DFR_equalizer " << std::endl
        << '{' << std::endl
        << "    framerate " << lb->getFrameRate() << std::endl;
@@ -167,7 +167,7 @@ std::ostream& operator << ( std::ostream& os, const DFREqualizer* lb )
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
     
-    os << '}' << std::endl << co::base::enableFlush;
+    os << '}' << std::endl << lunchbox::enableFlush;
     return os;
 }
 

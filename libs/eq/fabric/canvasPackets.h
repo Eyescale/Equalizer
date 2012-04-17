@@ -50,7 +50,7 @@ namespace fabric
                 size    = sizeof( CanvasNewSegmentReplyPacket );
             }
 
-        co::base::UUID segmentID;
+        UUID segmentID;
         const uint32_t requestID;
         const uint32_t pad;
     };

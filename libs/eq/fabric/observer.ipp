@@ -33,16 +33,16 @@ template< typename C, typename O >
 Observer< C, O >::Observer( C* config )
         : _config( config )
 {
-    EQASSERT( config );
+    LBASSERT( config );
     config->_addObserver( static_cast< O* >( this ));
     _data.eyeBase = config->getFAttribute( C::FATTR_EYE_BASE );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< typename C, typename O >
 Observer< C, O >::~Observer()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _config->_removeObserver( static_cast< O* >( this ));
 }
 
@@ -123,7 +123,7 @@ ObserverPath Observer< C, O >::getPath() const
     typename std::vector< O* >::const_iterator i = std::find( observers.begin(),
                                                               observers.end(),
                                                               this );
-    EQASSERT( i != observers.end( ));
+    LBASSERT( i != observers.end( ));
 
     ObserverPath path;
     path.observerIndex = std::distance( observers.begin(), i );
@@ -173,9 +173,9 @@ void Observer< C, O >::setHeadMatrix( const Matrix4f& matrix )
 template< typename C, typename O >
 std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "observer"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "observer"
        << std::endl;
-    os << "{" << std::endl << co::base::indent; 
+    os << "{" << std::endl << lunchbox::indent; 
 
     const std::string& name = observer.getName();
     if( !name.empty( ))
@@ -191,8 +191,8 @@ std::ostream& operator << ( std::ostream& os, const Observer< C, O >& observer )
     const FocusMode focusMode = observer.getFocusMode();
     os << "focus_mode     " << focusMode << std::endl;
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

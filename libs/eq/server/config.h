@@ -26,7 +26,7 @@
 #include "visitorResult.h" // enum
 
 #include <eq/fabric/config.h> // base class
-#include <co/base/monitor.h> // member
+#include <lunchbox/monitor.h> // member
 
 #include <iostream>
 #include <vector>
@@ -186,7 +186,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const co::base::UUID& id );
+        virtual void removeChild( const UUID& id );
 
     private:
         Config( const Config& from );
@@ -210,7 +210,7 @@ namespace server
         uint32_t _incarnation;
 
         /** The last finished frame, or 0. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         State _state;
 
@@ -228,7 +228,7 @@ namespace server
         void _updateCanvases();
         bool _connectNodes();
         bool _connectNode( Node* node );
-        bool _syncConnectNode( Node* node, const co::base::Clock& clock );
+        bool _syncConnectNode( Node* node, const lunchbox::Clock& clock );
         void _startNodes();
         uint32_t _createConfig( Node* node );
         bool _updateNodes();
@@ -251,7 +251,7 @@ namespace server
         virtual void releaseCanvas( Canvas* canvas );
 
         /** @internal Post deletion for the given child, returns true if found*/
-        template< class T > bool _postDelete( const co::base::UUID& id );
+        template< class T > bool _postDelete( const UUID& id );
 
         /** The command functions. */
         bool _cmdInit( co::Command& command );
@@ -263,8 +263,8 @@ namespace server
         bool _cmdCreateReply( co::Command& command );
         bool _cmdFreezeLoadBalancing( co::Command& command );
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _mainThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _mainThread );
     };
 }
 }

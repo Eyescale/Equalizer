@@ -22,8 +22,8 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <co/base/buffer.h> // member
-#include <co/base/types.h>
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/types.h>
 
 #include <iostream>
 #include <vector>
@@ -124,7 +124,7 @@ namespace co
         uint64_t  _position;
 
         CPUCompressor* const _decompressor; //!< current decompressor
-        base::Bufferb _data; //!< decompressed buffer
+        lunchbox::Bufferb _data; //!< decompressed buffer
 
         /**
          * Check that the current buffer has data left, get the next buffer is
@@ -143,7 +143,7 @@ namespace co
         {
             uint64_t nElems = 0;
             read( &nElems, sizeof( nElems ));
-            EQASSERTINFO( nElems < EQ_BIT48,
+            LBASSERTINFO( nElems < LB_BIT48,
                   "Out-of-sync co::DataIStream: " << nElems << " elements?" );
             value.resize( size_t( nElems ));
             if( nElems > 0 )
@@ -165,7 +165,7 @@ namespace co{
     { 
         uint64_t nElems = 0;
         read( &nElems, sizeof( nElems ));
-        EQASSERTINFO( nElems <= getRemainingBufferSize(),
+        LBASSERTINFO( nElems <= getRemainingBufferSize(),
                       nElems << " > " << getRemainingBufferSize( ));
         if( nElems == 0 )
             str.clear();
@@ -183,7 +183,7 @@ namespace co{
     {
         ObjectVersion data;
         (*this) >> data;
-        EQASSERT( object->getID() == data.identifier );
+        LBASSERT( object->getID() == data.identifier );
         object->sync( data.version );
         return *this;
     }
@@ -193,12 +193,12 @@ namespace co{
     class ObjectFinder
     {
     public:
-        ObjectFinder( const base::UUID& id ) : _id( id ) {}
+        ObjectFinder( const UUID& id ) : _id( id ) {}
         bool operator()( co::Object* candidate )
             { return candidate->getID() == _id; }
 
     private:
-        const base::UUID _id;
+        const UUID _id;
     };
     }
 
@@ -218,7 +218,7 @@ namespace co{
         {
             const ObjectVersion& version = *i;
             
-            if( version.identifier == base::UUID::ZERO )
+            if( version.identifier == UUID::ZERO )
             {
                 result.push_back( 0 );
                 continue;
@@ -232,10 +232,10 @@ namespace co{
                 C* child = 0;
                 object->create( &child );
                 LocalNodePtr localNode = object->getLocalNode();
-                EQASSERT( child );
-                EQASSERT( !object->isMaster( ));
+                LBASSERT( child );
+                LBASSERT( !object->isMaster( ));
 
-                EQCHECK( localNode->mapObject( child, version ));
+                LBCHECK( localNode->mapObject( child, version ));
                 result.push_back( child );
             }
             else

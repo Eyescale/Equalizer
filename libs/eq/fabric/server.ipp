@@ -39,16 +39,16 @@ template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::Server( NF* nodeFactory )
         : _nodeFactory( nodeFactory )
 {
-    EQASSERT( nodeFactory );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBASSERT( nodeFactory );
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
 Server< CL, S, CFG, NF, N, V >::~Server()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     _client = 0;
-    EQASSERT( _configs.empty( ));
+    LBASSERT( _configs.empty( ));
 }
 
 template< class CL, class S, class CFG, class NF, class N, class V >
@@ -68,8 +68,8 @@ void Server< CL, S, CFG, NF, N, V >::setClient( ClientPtr client )
 template< class CL, class S, class CFG, class NF, class N, class V >
 void Server< CL, S, CFG, NF, N, V >::_addConfig( CFG* config )
 { 
-    EQASSERT( config->getServer() == static_cast< S* >( this ));
-    EQASSERT( stde::find( _configs, config ) == _configs.end( ));
+    LBASSERT( config->getServer() == static_cast< S* >( this ));
+    LBASSERT( stde::find( _configs, config ) == _configs.end( ));
     _configs.push_back( config );
 }
 
@@ -149,13 +149,13 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 {
     const ServerCreateConfigPacket* packet = 
         command.get<ServerCreateConfigPacket>();
-    EQVERB << "Handle create config " << packet << std::endl;
+    LBVERB << "Handle create config " << packet << std::endl;
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();
     localNode->mapObject( config, packet->configVersion );
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS, 
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ConfigCreateReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -169,7 +169,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
 {
     const ServerDestroyConfigPacket* packet = 
         command.get<ServerDestroyConfigPacket>();
-    EQVERB << "Handle destroy config " << packet << std::endl;
+    LBVERB << "Handle destroy config " << packet << std::endl;
     
     co::LocalNodePtr localNode = command.getLocalNode();
 
@@ -183,12 +183,12 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
             break;
         }
     }
-    EQASSERT( config );
+    LBASSERT( config );
 
     localNode->unmapObject( config );
     _nodeFactory->releaseConfig( config );
 
-    if( packet->requestID != EQ_UNDEFINED_UINT32 )
+    if( packet->requestID != LB_UNDEFINED_UINT32 )
     {
         ServerDestroyConfigReplyPacket reply( packet );
         command.getNode()->send( reply );
@@ -200,9 +200,9 @@ template< class CL, class S, class CFG, class NF, class N, class V >
 std::ostream& operator << ( std::ostream& os, 
                             const Server< CL, S, CFG, NF, N, V >& server )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "server "
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "server "
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
     
     const co::ConnectionDescriptions& cds =
         server.getConnectionDescriptions();
@@ -221,8 +221,8 @@ std::ostream& operator << ( std::ostream& os,
         os << *config;
     }
 
-    os << co::base::exdent << "}"  << co::base::enableHeader 
-       << co::base::enableFlush << std::endl;
+    os << lunchbox::exdent << "}"  << lunchbox::enableHeader 
+       << lunchbox::enableFlush << std::endl;
 
     return os;
 }

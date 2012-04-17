@@ -66,7 +66,7 @@ static ConnectionType _getConnectionType( const std::string& string )
     if( string == "UDT" )
         return CONNECTIONTYPE_UDT;
     
-    EQASSERTINFO( false, "Unknown type: " << string );
+    LBASSERTINFO( false, "Unknown type: " << string );
     return CONNECTIONTYPE_NONE;
 }
 }
@@ -79,7 +79,7 @@ ConnectionDescription::ConnectionDescription( const char* data )
 {
     std::string string( data );
     fromString( string );
-    EQASSERTINFO( string.empty(), data << " -> " << string );
+    LBASSERTINFO( string.empty(), data << " -> " << string );
 }
 
 const std::string& ConnectionDescription::getSAttributeString(
@@ -200,7 +200,7 @@ bool ConnectionDescription::fromString( std::string& data )
     return true;
 
   error:
-    EQWARN << "Could not parse connection description: " << data << std::endl;
+    LBWARN << "Could not parse connection description: " << data << std::endl;
     return false;
 }
 
@@ -243,9 +243,9 @@ bool ConnectionDescription::isSameMulticastGroup( ConnectionDescriptionPtr rhs )
 std::ostream& operator << ( std::ostream& os, 
                             const ConnectionDescription& desc)
 {
-    os << base::disableFlush << base::disableHeader << "connection"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "connection"
        << std::endl
-       << "{" << std::endl << base::indent
+       << "{" << std::endl << lunchbox::indent
        << "type          " << desc.type << std::endl
        << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
 
@@ -261,7 +261,7 @@ std::ostream& operator << ( std::ostream& os,
     if( desc.bandwidth != 0 )
         os << "bandwidth     " << desc.bandwidth << std::endl;
 
-    return os << base::exdent << "}" << base::enableHeader << base::enableFlush
+    return os << lunchbox::exdent << "}" << lunchbox::enableHeader << lunchbox::enableFlush
               << std::endl;
 }
 
@@ -291,14 +291,14 @@ std::string serialize( const ConnectionDescriptions& descriptions )
 bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
 {
     if( !descriptions.empty( ))
-        EQWARN << "Connection descriptions already hold data before deserialize"
+        LBWARN << "Connection descriptions already hold data before deserialize"
                << std::endl;
 
     // num connection descriptions
     size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
-        EQERROR << "Could not parse number of connection descriptions"
+        LBERROR << "Could not parse number of connection descriptions"
                 << std::endl;
         return false;
     }
@@ -306,7 +306,7 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
     const std::string sizeStr = data.substr( 0, nextPos );
     if( !isdigit( sizeStr[0] ))
     {
-        EQERROR << "Could not parse number of connection descriptions"
+        LBERROR << "Could not parse number of connection descriptions"
                 << std::endl;
         return false;
     }
@@ -320,7 +320,7 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
         ConnectionDescriptionPtr desc = new ConnectionDescription;
         if( !desc->fromString( data ))
         {
-            EQERROR << "Error during connection description parsing"
+            LBERROR << "Error during connection description parsing"
                     << std::endl;
             return false;
         }

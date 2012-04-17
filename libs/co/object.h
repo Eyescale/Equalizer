@@ -26,9 +26,8 @@
 namespace co
 {
     class ObjectCM;
-    struct NodeMapObjectReplyPacket;
 
-#  define CO_COMMIT_NEXT EQ_UNDEFINED_UINT32 //!< the next commit incarnation
+#  define CO_COMMIT_NEXT LB_UNDEFINED_UINT32 //!< the next commit incarnation
 
     /** 
      * A generic, distributed object.
@@ -47,7 +46,7 @@ namespace co
             STATIC,            //!< non-versioned, static object.
             INSTANCE,          //!< use only instance data
             DELTA,             //!< use pack/unpack delta
-            UNBUFFERED,        //!< versioned, but don't retain versions
+            UNBUFFERED         //!< versioned, but don't retain versions
         };
 
         /** Construct a new distributed object. */
@@ -65,7 +64,7 @@ namespace co
          * @return the local node to which this object is mapped, or 0 if the
          *         object is not mapped.
          */
-        LocalNodePtr getLocalNode(){ return _localNode; };
+        LocalNodePtr getLocalNode() { return _localNode; }
 
         /**
          * Set the object's unique identifier.
@@ -77,10 +76,10 @@ namespace co
          * overwritten with the identifier of the master object.
          * @version 1.1.5
          */
-        CO_API void setID( const base::UUID& identifier );
+        CO_API void setID( const UUID& identifier );
 
         /** @return the object's unique identifier. */
-        const base::UUID& getID() const { return _id; }
+        const UUID& getID() const { return _id; }
 
         /** @return the node-wide unique object instance identifier. */
         uint32_t getInstanceID() const { return _instanceID; }
@@ -137,10 +136,10 @@ namespace co
          * multicast connection the data is only send once.
          *
          * @param groupID An identifier to group a set of push operations.
-         * @param typeID A per-push identifier.
+         * @param objectType A per-push identifier.
          * @param nodes The vector of nodes to push to.
          */
-        CO_API void push( const uint128_t& groupID, const uint128_t& typeID,
+        CO_API void push( const uint128_t& groupID, const uint128_t& objectType,
                           const Nodes& nodes );
 
         /** 
@@ -353,7 +352,7 @@ namespace co
         NodePtr getMasterNode();
 
         /** @internal */
-        void addSlave( Command& command, NodeMapObjectReplyPacket& reply );
+        void addSlave( Command& command );
         CO_API void removeSlave( NodePtr node ); //!< @internal
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
@@ -377,7 +376,7 @@ namespace co
          * @internal
          * Called when object is attached from the receiver thread.
          */
-        CO_API virtual void attach( const base::UUID& id, 
+        CO_API virtual void attach( const UUID& id, 
                                     const uint32_t instanceID );
         /**
          * @internal
@@ -411,7 +410,7 @@ namespace co
         friend class VersionedSlaveCM;
 
         /** The session-unique object identifier. */
-        base::UUID _id;
+        UUID _id;
 
         /** The node where this object is attached. */
         LocalNodePtr _localNode;
@@ -424,14 +423,14 @@ namespace co
 
         void _setChangeManager( ObjectCM* cm );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
     CO_API std::ostream& operator << ( std::ostream&, const Object& );
 
     template< class T > inline bool
     Object::send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v )
     {
-        EQASSERT( isAttached() );
+        LBASSERT( isAttached() );
         packet.objectID  = _id;
         return node->send( packet, v );
     }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -60,7 +60,8 @@ namespace co
         CMD_NODE_OBJECT_PUSH,
         CMD_NODE_PING,
         CMD_NODE_PING_REPLY,
-        CMD_NODE_CUSTOM = 40  // some buffer for binary-compatible patches
+        CMD_NODE_COMMAND,
+        CMD_NODE_CUSTOM = 50  // some buffer for binary-compatible patches
     };
 
     enum ObjectCommand

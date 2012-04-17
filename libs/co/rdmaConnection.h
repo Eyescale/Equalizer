@@ -18,11 +18,11 @@
 #pragma once
 
 #include <co/connection.h>
+#include "ring.h"
 
-#include <co/base/thread.h>
-#include <co/base/monitor.h>
-#include <co/base/ring.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/thread.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/scopedMutex.h>
 
 #include <rdma/rdma_cma.h>
 
@@ -44,13 +44,13 @@ public:
     size_t getBufferSize( ) const { return _buffer_size; }
     void *getBuffer( )
     {
-        base::ScopedWrite mutex( _buffer_lock );
+        lunchbox::ScopedWrite mutex( _buffer_lock );
 
         return (void *)( (uintptr_t)_buffer + ( _ring.get( ) * _buffer_size ));
     }
     void freeBuffer( void *buf )
     {
-        base::ScopedWrite mutex( _buffer_lock );
+        lunchbox::ScopedWrite mutex( _buffer_lock );
 
         ::memset( buf, 0xff, _buffer_size ); // Paranoid
 
@@ -66,7 +66,7 @@ private:
     void *_buffer;
     struct ibv_mr *_mr;
     BufferQ<uint32_t> _ring;
-    base::Lock _buffer_lock;
+    lunchbox::Lock _buffer_lock;
 }; // BufferPool
 
 /**
@@ -222,7 +222,7 @@ private:
     Notifier _notifier;
 
     /* Protect RDMA/Verbs vars from multiple threads */
-    base::Lock _poll_lock;
+    lunchbox::Lock _poll_lock;
 
     /* Timeout for resolving RDMA address & route */
     const int32_t _timeout;
@@ -240,7 +240,7 @@ private:
     struct RDMAConnParamData _cpd;
     bool _established;
     int32_t _depth;
-    base::a_int32_t _credits;
+    lunchbox::a_int32_t _credits;
     unsigned int _completions;
 
     /* MR for setup and FC messages */
@@ -286,7 +286,7 @@ private:
     /* Singleton channel event monitor thread */
     class ChannelEventThread;
     static ChannelEventThread *_event_thread;
-    static base::Lock _thread_lock;
+    static lunchbox::Lock _thread_lock;
 
     bool _eventThreadRegister( );
     void _eventThreadUnregister( );
@@ -303,7 +303,7 @@ private:
         CMD_DONE = 1 << 7,
         CMD_DONE_LAST,
     };
-    base::Monitor<CmdStatus> _cmd_block;
+    lunchbox::Monitor<CmdStatus> _cmd_block;
 
     /* Types of file descriptors that the event thread will monitor */
     enum epoll_type { EVENT_FD, CONNECTION_FD };

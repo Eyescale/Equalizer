@@ -22,7 +22,7 @@
 #include <co/commands.h> // used for CMD_ enums
 #include <co/types.h>
 #include <co/version.h>  // enum
-#include <co/base/uuid.h> // member
+#include <lunchbox/uuid.h> // member
 
 namespace co
 {
@@ -63,6 +63,17 @@ namespace co
         NodePacket() { type = PACKETTYPE_CO_NODE; }
     };
 
+    /** Packet sent to and handled by an co::Node. */
+    struct NodeCommandPacket : public NodePacket
+    {
+        NodeCommandPacket()
+        {
+            command = CMD_NODE_COMMAND;
+            size    = sizeof( NodeCommandPacket );
+        }
+        uint128_t commandID;
+    };
+
     /** Packet sent to and handled by an co::Object. */
     struct ObjectPacket : public NodePacket
     {
@@ -72,7 +83,7 @@ namespace co
             {
                 type = PACKETTYPE_CO_OBJECT; 
             }
-        base::UUID objectID;
+        UUID objectID;
         uint32_t instanceID;
         const uint32_t pad; // pad to multiple-of-eight
 

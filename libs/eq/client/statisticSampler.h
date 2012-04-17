@@ -41,12 +41,12 @@ namespace eq
          * @version 1.0
          */
         StatisticSampler( const Statistic::Type type, Owner* owner, 
-                          const uint32_t frameNumber = EQ_UNDEFINED_UINT32 )
+                          const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
                 : _owner( owner )
             {
-                EQASSERT( owner );
-                EQASSERT( owner->getID() != UUID::ZERO );
-                EQASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
+                LBASSERT( owner );
+                LBASSERT( owner->getID() != UUID::ZERO );
+                LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
                 event.data.type                  = Event::STATISTIC;
                 event.data.serial                = owner->getSerial();
                 event.data.originator            = owner->getID();
@@ -56,7 +56,7 @@ namespace eq
                 event.data.statistic.startTime   = 0;
                 event.data.statistic.endTime     = 0;
 
-                if( event.data.statistic.frameNumber == EQ_UNDEFINED_UINT32 )
+                if( event.data.statistic.frameNumber == LB_UNDEFINED_UINT32 )
                     event.data.statistic.frameNumber = owner->getCurrentFrame();
             }
 

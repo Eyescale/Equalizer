@@ -40,7 +40,7 @@ namespace server
                     // old-school (non-Layout) destination channel
                     ( compound->isDestination() && !channel->getSegment( )))
                 {
-                    EQASSERT( !channel || !channel->getView( ));
+                    LBASSERT( !channel || !channel->getView( ));
                     uint32_t eyes = compound->getEyes();
                     if( eyes == fabric::EYE_UNDEFINED )
                         eyes = fabric::EYES_ALL;

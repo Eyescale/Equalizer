@@ -19,7 +19,7 @@
 #define CO_BUFFER_CONNECTION_H
 
 #include <co/connection.h>  // base class
-#include <co/base/types.h>
+#include <lunchbox/types.h>
 
 namespace co
 {
@@ -36,12 +36,12 @@ namespace detail { class BufferConnection; }
         CO_API uint64_t getSize() const;
 
     protected:
-        virtual void readNB( void*, const uint64_t ) { EQDONTCALL; }
+        virtual void readNB( void*, const uint64_t ) { LBDONTCALL; }
         virtual int64_t readSync( void*, const uint64_t, const bool )
-            { EQDONTCALL; return -1; }
+            { LBDONTCALL; return -1; }
         CO_API virtual int64_t write( const void* buffer, const uint64_t bytes);
 
-        virtual Notifier getNotifier() const { EQDONTCALL; return 0; }
+        virtual Notifier getNotifier() const { LBDONTCALL; return 0; }
 
     private:
         detail::BufferConnection* const _impl;

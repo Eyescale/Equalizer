@@ -46,13 +46,13 @@ public:
     virtual bool handleEvent( const eq::ConfigEvent* event );
 
     /** @return the clock started by startFrame, or 0 on render clients. */
-    const co::base::Clock* getClock() const { return _clock; }
+    const lunchbox::Clock* getClock() const { return _clock; }
 
 protected:
     virtual ~Config();
 
 private:
-    co::base::Clock* _clock;
+    lunchbox::Clock* _clock;
     bool _modeTest;
 };
 }

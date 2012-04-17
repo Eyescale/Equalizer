@@ -103,7 +103,7 @@ namespace eqPly
 
         Models     _models;
         ModelDists _modelDist;
-        co::base::Lock  _modelLock;
+        lunchbox::Lock  _modelLock;
 
         CameraAnimation _animation;
 

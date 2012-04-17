@@ -40,7 +40,7 @@ namespace co
 
     struct BarrierEnterReplyPacket : public ObjectPacket
     {
-        BarrierEnterReplyPacket( const base::UUID objectID_, 
+        BarrierEnterReplyPacket( const UUID objectID_, 
                                  const uint128_t version_ ) 
                 : version( version_ )
             {

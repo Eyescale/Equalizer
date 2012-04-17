@@ -54,9 +54,9 @@ public:
 
 private:
 
-    eq::base::Lock   _mutex;
-    eq::base::a_int32_t  numRead;
-    eq::base::a_int32_t _comptEvent;
+    eq::lunchbox::Lock   _mutex;
+    eq::lunchbox::a_int32_t  numRead;
+    eq::lunchbox::a_int32_t _comptEvent;
     
     IBAdapter          _adapter;
 
@@ -94,7 +94,7 @@ private:
     bool _preRegister();
 
     void _close();
-    EQ_TS_VAR( _recvThread );
+    LB_TS_VAR( _recvThread );
 };
 }
 #endif //EQ_INFINIBAND

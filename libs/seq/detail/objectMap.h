@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -20,21 +20,18 @@
 
 #include <seq/objectType.h> // used inline
 #include <seq/types.h>
-#include <co/serializable.h>      // base class
+#include <co/objectMap.h>      // base class
 
 namespace seq
 {
 namespace detail
 {
     /** Central distributed object registry. */
-    class ObjectMap : public co::Serializable
+    class ObjectMap : public co::ObjectMap
     {
     public:
-        ObjectMap( ObjectFactory& factory );
+        ObjectMap( eq::Config& config, co::ObjectFactory& factory );
         ~ObjectMap();
-
-        bool register_( co::Object* object, const uint32_t type );
-        co::Object* get( const uint128_t& identifier, co::Object* instance=0 );
 
         void setInitData( co::Object* object );
         void setFrameData( co::Object* object );
@@ -42,58 +39,22 @@ namespace detail
         co::Object* getInitData( co::Object* object )
             { return get( _initData, object ); }
         co::Object* getFrameData() { return get( _frameData ); }
-        virtual uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT );
 
     protected:
-        virtual bool isDirty() const;
-
         virtual void serialize( co::DataOStream& os, const uint64_t dirtyBits );
         virtual void deserialize( co::DataIStream& is,
                                   const uint64_t dirtyBits );
 
-        virtual ChangeType getChangeType() const { return UNBUFFERED; }
-
     private:
-        ObjectFactory& _factory; //!< The 'parent' user
         uint128_t _initData;
         uint128_t _frameData;
 
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
         {
-            DIRTY_ADDED       = co::Serializable::DIRTY_CUSTOM << 0, // 1
-            DIRTY_CHANGED     = co::Serializable::DIRTY_CUSTOM << 1, // 2
-            DIRTY_INITDATA    = co::Serializable::DIRTY_CUSTOM << 2, // 4
-            DIRTY_FRAMEDATA   = co::Serializable::DIRTY_CUSTOM << 3  // 8
+            DIRTY_INITDATA    = co::ObjectMap::DIRTY_CUSTOM << 0, // 4
+            DIRTY_FRAMEDATA   = co::ObjectMap::DIRTY_CUSTOM << 1  // 8
         };
-
-        struct Entry //!< One object map item
-        {
-            Entry() : instance( 0 ), type( OBJECTTYPE_NONE ) {}
-            Entry( const uint128_t& v, co::Object* i, const uint32_t t );
-
-            uint128_t version;    //!< The current version of the object
-            co::Object* instance; //!< The object instance, if attached
-            uint32_t type;        //!< The object class id
-        };
-
-        typedef stde::hash_map< uint128_t, Entry > Map;
-        typedef Map::iterator MapIter;
-        typedef Map::const_iterator MapCIter;
-
-        mutable co::base::SpinLock _mutex;
-
-        Map _map; //!< the actual map
-        co::Objects _masters; //!< Master objects registered with this instance
-
-        /** Added master objects since the last commit. */
-        std::vector< uint128_t > _added;
-
-        /** Changed master objects since the last commit. */
-        co::ObjectVersions _changed;
-
-        /** Commit and note new master versions. */
-        void _commitMasters( const uint32_t incarnation );
     };
 }
 }

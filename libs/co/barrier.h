@@ -75,11 +75,11 @@ namespace detail { class Barrier; }
          * also enters the barrier. If a timeout happens a timeout exception is
          * thrown.
          */
-        CO_API void enter( const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+        CO_API void enter( const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
         //@}
 
     protected:
-        virtual void attach( const base::UUID& id, 
+        virtual void attach( const UUID& id, 
                              const uint32_t instanceID );
 
         virtual ChangeType getChangeType() const { return DELTA; }
@@ -99,7 +99,7 @@ namespace detail { class Barrier; }
         bool _cmdEnter( Command& command );
         bool _cmdEnterReply( Command& command );
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
     };
 }
 

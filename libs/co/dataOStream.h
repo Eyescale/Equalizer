@@ -21,8 +21,8 @@
 
 #include <co/api.h>
 #include <co/types.h>
-#include <co/base/buffer.h> // member
-#include <co/base/nonCopyable.h> // base class
+#include <lunchbox/buffer.h> // member
+#include <lunchbox/nonCopyable.h> // base class
 
 #include <iostream>
 #include <vector>
@@ -41,7 +41,7 @@ namespace DataStreamTest
      *
      * Derived classes send the data using the appropriate command packets.
      */
-    class DataOStream : public base::NonCopyable
+    class DataOStream : public lunchbox::NonCopyable
     {
     public:
         /** @name Internal */
@@ -139,7 +139,7 @@ namespace DataStreamTest
         CompressorState _compressorState;
         
         /** The buffer used for saving and buffering */
-        base::Bufferb  _buffer;
+        lunchbox::Bufferb  _buffer;
 
         /** The start position of the buffering, always 0 if !_save */
         uint64_t _bufferStart;
@@ -224,7 +224,7 @@ namespace co
     template<> inline DataOStream& 
     DataOStream::operator << ( const Object* const& object )
     {
-        EQASSERT( !object || object->isAttached( ));
+        LBASSERT( !object || object->isAttached( ));
         (*this) << ObjectVersion( object );
         return *this;
     }
@@ -252,7 +252,7 @@ namespace co
         {
             C* child = *i;
             (*this) << ObjectVersion( child );
-            EQASSERTINFO( !child || child->isAttached(),
+            LBASSERTINFO( !child || child->isAttached(),
                           "Found unmapped object during serialization" );
         }
     }

@@ -47,18 +47,18 @@ std::string _iPipeAttributeStrings[] = {
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::Pipe( N* parent )
         : _node( parent )
-        , _port( EQ_UNDEFINED_UINT32 )
-        , _device( EQ_UNDEFINED_UINT32 )
+        , _port( LB_UNDEFINED_UINT32 )
+        , _device( LB_UNDEFINED_UINT32 )
 {
     memset( _iAttributes, 0xff, IATTR_ALL * sizeof( int32_t ));
     parent->_addPipe( static_cast< P* >( this ) );
-    EQLOG( LOG_INIT ) << "New " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "New " << lunchbox::className( this ) << std::endl;
 }
 
 template< class N, class P, class W, class V >
 Pipe< N, P, W, V >::~Pipe()
 {
-    EQLOG( LOG_INIT ) << "Delete " << co::base::className( this ) << std::endl;
+    LBLOG( LOG_INIT ) << "Delete " << lunchbox::className( this ) << std::endl;
     while( !_windows.empty() )
     {
         W* window = _windows.back();
@@ -86,13 +86,13 @@ void Pipe< N, P, W, V >::restore()
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::attach( const co::base::UUID& id,
+void Pipe< N, P, W, V >::attach( const UUID& id,
                                  const uint32_t instanceID )
 {
     Object::attach( id, instanceID );
 
     co::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
-    EQASSERT( queue );
+    LBASSERT( queue );
 
     registerCommand( CMD_PIPE_NEW_WINDOW, 
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindow ),
@@ -148,7 +148,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
                 Windows result;
                 is.deserializeChildren( this, _windows, result );
                 _windows.swap( result );
-                EQASSERT( _windows.size() == result.size( ));
+                LBASSERT( _windows.size() == result.size( ));
             }
             else // consume unused ObjectVersions
             {
@@ -183,11 +183,11 @@ void Pipe< N, P, W, V >::notifyDetach()
         W* window = _windows.back();
         if( !window->isAttached()  )
         {
-            EQASSERT( isMaster( ));
+            LBASSERT( isMaster( ));
             return;
         }
 
-        EQASSERT( !isMaster( ));
+        LBASSERT( !isMaster( ));
 
         getLocalNode()->unmapObject( window );
         _removeWindow( window );
@@ -270,14 +270,14 @@ template< class N, class P, class W, class V >
 PipePath Pipe< N, P, W, V >::getPath() const
 {
     const N* node = getNode();
-    EQASSERT( node );
+    LBASSERT( node );
     PipePath path( node->getPath( ));
     
     const typename std::vector< P* >& pipes = node->getPipes();
     typename std::vector< P* >::const_iterator i = std::find( pipes.begin(),
                                                               pipes.end(),
                                                               this );
-    EQASSERT( i != pipes.end( ));
+    LBASSERT( i != pipes.end( ));
     path.pipeIndex = std::distance( pipes.begin(), i );
     return path;
 }
@@ -310,7 +310,7 @@ void Pipe< N, P, W, V >::setPort( const uint32_t port )
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::_addWindow( W* window )
 {
-    EQASSERT( window->getPipe() == this );
+    LBASSERT( window->getPipe() == this );
     _windows.push_back( window );
     setDirty( DIRTY_WINDOWS );
 }
@@ -331,7 +331,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 }
 
 template< class N, class P, class W, class V >
-W* Pipe< N, P, W, V >::_findWindow( const co::base::UUID& id )
+W* Pipe< N, P, W, V >::_findWindow( const UUID& id )
 {
     for( typename Windows::const_iterator i = _windows.begin(); 
          i != _windows.end(); ++i )
@@ -360,7 +360,7 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
 
     _data.pvp = pvp;
     notifyPixelViewportChanged();    
-    EQINFO << "Pipe pvp set: " << _data.pvp << std::endl;
+    LBINFO << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
 template< class N, class P, class W, class V >
@@ -373,7 +373,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
         (*i)->notifyViewportChanged();
     }
     setDirty( DIRTY_PIXELVIEWPORT );
-    EQINFO << getName() << " pvp update: " << _data.pvp << std::endl;
+    LBINFO << getName() << " pvp update: " << _data.pvp << std::endl;
 }
 
 //----------------------------------------------------------------------
@@ -387,10 +387,10 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
     
     W* window = 0;
     create( &window );
-    EQASSERT( window );
+    LBASSERT( window );
 
     getLocalNode()->registerObject( window );
-    EQASSERT( window->isAttached() );
+    LBASSERT( window->isAttached() );
 
     PipeNewWindowReplyPacket reply( packet );
     reply.windowID = window->getID();
@@ -412,18 +412,18 @@ Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& command )
 template< class N, class P, class W, class V >
 std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
 {
-    os << co::base::disableFlush << co::base::disableHeader << "pipe"
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "pipe"
        << std::endl;
-    os << "{" << std::endl << co::base::indent;
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = pipe.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
 
-    if( pipe.getPort() != EQ_UNDEFINED_UINT32 )
+    if( pipe.getPort() != LB_UNDEFINED_UINT32 )
         os << "port     " << pipe.getPort() << std::endl;
         
-    if( pipe.getDevice() != EQ_UNDEFINED_UINT32 )
+    if( pipe.getDevice() != LB_UNDEFINED_UINT32 )
         os << "device   " << pipe.getDevice() << std::endl;
     
     const PixelViewport& pvp = pipe.getPixelViewport();
@@ -440,8 +440,8 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
         os << **i;
     }
 
-    os << co::base::exdent << "}" << std::endl << co::base::enableHeader
-       << co::base::enableFlush;
+    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableHeader
+       << lunchbox::enableFlush;
     return os;
 }
 

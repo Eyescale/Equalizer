@@ -59,11 +59,11 @@ int main( int argc, char** argv )
     if( !configTool.parseArguments( argc, argv ))
         ::exit( EXIT_FAILURE );
 
-    co::base::Log::setOutput( std::cout );
+    lunchbox::Log::setOutput( std::cout );
     eq::NodeFactory nodeFactory;
     if( !eq::init( 0, 0, &nodeFactory ))
     {
-        EQERROR << "Equalizer init failed" << std::endl;
+        LBERROR << "Equalizer init failed" << std::endl;
         return EXIT_FAILURE;
     }
     configTool.writeConfig();
@@ -244,9 +244,9 @@ void ConfigTool::writeConfig() const
     _writeResources( config, nodeNames );
     _writeCompound( config );
 
-    co::base::Log::instance( "", 0 )
-        << co::base::disableHeader << global << *server << std::endl
-        << co::base::enableHeader << co::base::disableFlush;
+    lunchbox::Log::instance( "", 0 )
+        << lunchbox::disableHeader << global << *server << std::endl
+        << lunchbox::enableHeader << lunchbox::disableFlush;
 }
 
 void ConfigTool::_writeResources( Config* config,
@@ -386,13 +386,13 @@ eq::server::Compound* ConfigTool::_addSingleSegment( Config* config ) const
     config->activateCanvas( canvas );
 
     const Compounds compounds = Loader::addOutputCompounds(config->getServer());
-    EQASSERT( compounds.size() == 1 );
+    LBASSERT( compounds.size() == 1 );
     if( compounds.empty( ))
         return 0;
 
     Compound* root = compounds.front();
     const Compounds& children = root->getChildren();
-    EQASSERT( children.size() == 1 );
+    LBASSERT( children.size() == 1 );
     return children.empty() ? 0 : children.front();
 }
 

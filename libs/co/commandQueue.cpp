@@ -21,7 +21,7 @@
 #include "exception.h"
 #include "node.h"
 
-#include <co/base/mtQueue.h>
+#include <lunchbox/mtQueue.h>
 
 namespace co
 {
@@ -31,7 +31,7 @@ class CommandQueue
 {
 public:
     /** Thread-safe command queue. */
-    base::MTQueue< Command* > commands;
+    lunchbox::MTQueue< Command* > commands;
 };
 }
 
@@ -49,13 +49,13 @@ CommandQueue::~CommandQueue()
 void CommandQueue::flush()
 {
     if( !isEmpty( ))
-        EQWARN << "Flushing non-empty command queue" << std::endl;
+        LBWARN << "Flushing non-empty command queue" << std::endl;
 
     Command* command( 0 );
     while( _impl->commands.tryPop( command ))
     {
-        EQWARN << *command << std::endl;
-        EQASSERT( command );
+        LBWARN << *command << std::endl;
+        LBASSERT( command );
         command->release();
     }
 }
@@ -72,14 +72,14 @@ size_t CommandQueue::getSize() const
 
 void CommandQueue::push( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.push( &command );
 }
 
 void CommandQueue::pushFront( Command& command )
 {
-    EQASSERT( command.isValid( ));
+    LBASSERT( command.isValid( ));
     command.retain();
     _impl->commands.pushFront( &command );
 }
@@ -91,7 +91,7 @@ void CommandQueue::wakeup()
 
 Command* CommandQueue::pop( const uint32_t timeout )
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
 
     Command* command;
     if( !_impl->commands.timedPop( timeout, command ))
@@ -102,7 +102,7 @@ Command* CommandQueue::pop( const uint32_t timeout )
 
 Command* CommandQueue::tryPop()
 {
-    EQ_TS_THREAD( _thread );
+    LB_TS_THREAD( _thread );
     Command* command = 0;
     _impl->commands.tryPop( command );
     return command;

@@ -62,7 +62,7 @@ bool Pipe::configInit()
         GPU_DEVICE gpuDevice;
         gpuDevice.cb = sizeof( gpuDevice );
         const bool found = wglEnumGpuDevicesNV( hGPU, 0, &gpuDevice );
-        EQASSERT( found );
+        LBASSERT( found );
 
         if( gpuDevice.Flags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP )
         {
@@ -94,15 +94,15 @@ bool Pipe::configInit()
         }
         else
         {
-            EQWARN << "Can't create display dc query pipe resolution: "
-                   << co::base::sysError << std::endl;
+            LBWARN << "Can't create display dc query pipe resolution: "
+                   << lunchbox::sysError << std::endl;
             pvp.w = 2048;
             pvp.h = 2048;
         }
     }
 
     getPipe()->setPixelViewport( pvp );
-    EQINFO << "Pipe pixel viewport " << pvp << std::endl;
+    LBINFO << "Pipe pixel viewport " << pvp << std::endl;
     return true;
 }
 
@@ -128,7 +128,7 @@ bool Pipe::createWGLAffinityDC( HDC& affinityDC )
     if( !affinityDC )
     {
         setError( ERROR_WGL_CREATEAFFINITYDC_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -138,7 +138,7 @@ bool Pipe::createWGLAffinityDC( HDC& affinityDC )
 HDC Pipe::createWGLDisplayDC()
 {
     uint32_t device = getPipe()->getDevice();
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         device = 0;
 
     DISPLAY_DEVICE devInfo;
@@ -147,7 +147,7 @@ HDC Pipe::createWGLDisplayDC()
     if( !EnumDisplayDevices( 0, device, &devInfo, 0 ))
     {
         setError( ERROR_WGLPIPE_ENUMDISPLAYS_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -155,7 +155,7 @@ HDC Pipe::createWGLDisplayDC()
     if( !displayDC )
     {
         setError( ERROR_WGLPIPE_CREATEDC_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return 0;
     }
 
@@ -167,12 +167,12 @@ bool Pipe::_getGPUHandle( HGPUNV& handle )
     handle = 0;
 
     const uint32_t device = getPipe()->getDevice();
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         return true;
 
     if( !WGLEW_NV_gpu_affinity )
     {
-        EQWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
+        LBWARN <<"WGL_NV_gpu_affinity unsupported, ignoring pipe device setting"
                << std::endl;
         return true;
     }
@@ -180,7 +180,7 @@ bool Pipe::_getGPUHandle( HGPUNV& handle )
     if( !wglEnumGpusNV( device, &handle ))
     {
         setError( ERROR_WGLPIPE_ENUMGPUS_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -207,7 +207,7 @@ bool Pipe::_configInitWGLEW()
     if( !RegisterClass( &wc ))
     {
         setError( ERROR_WGLPIPE_REGISTERCLASS_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         return false;
     }
 
@@ -224,7 +224,7 @@ bool Pipe::_configInitWGLEW()
     if( !hWnd )
     {
         setError( ERROR_SYSTEMPIPE_CREATEWINDOW_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         UnregisterClass( classStr.c_str(),  instance );
         return false;
     }
@@ -240,7 +240,7 @@ bool Pipe::_configInitWGLEW()
     if( pf == 0 )
     {
         setError( ERROR_SYSTEMPIPE_PIXELFORMAT_NOTFOUND );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
         return false;
@@ -249,7 +249,7 @@ bool Pipe::_configInitWGLEW()
     if( !SetPixelFormat( dc, pf, &pfd ))
     {
         setError( ERROR_WGLPIPE_SETPF_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -261,7 +261,7 @@ bool Pipe::_configInitWGLEW()
     if( !context )
     {
         setError( ERROR_SYSTEMPIPE_CREATECONTEXT_FAILED );
-        EQWARN << getError() << ": " << co::base::sysError << std::endl;
+        LBWARN << getError() << ": " << lunchbox::sysError << std::endl;
         ReleaseDC( hWnd, dc );
         DestroyWindow( hWnd );
         UnregisterClass( classStr.c_str(),  instance );
@@ -277,13 +277,13 @@ bool Pipe::_configInitWGLEW()
     bool success = result == GLEW_OK;
     if( success )
     {
-        EQINFO << "Pipe WGLEW initialization successful" << std::endl;
+        LBINFO << "Pipe WGLEW initialization successful" << std::endl;
         success = configInitGL();
     }
     else
     {
         setError( ERROR_WGLPIPE_WGLEWINIT_FAILED );
-        EQWARN << getError() << ": " << result << std::endl;
+        LBWARN << getError() << ": " << result << std::endl;
     }
 
     wglDeleteContext( context );

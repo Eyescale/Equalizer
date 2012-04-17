@@ -139,7 +139,7 @@ namespace eq
          */
         static const Image* mergeFramesCPU( const Frames& frames,
                                             const bool blendAlpha = false,
-                               const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+                               const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
 
         /** 
          * Merge the provided frames into one main memory buffer.
@@ -164,7 +164,7 @@ namespace eq
                                     void* depthBuffer, 
                                     const uint32_t depthBufferSize,
                                     PixelViewport& outPVP,
-                               const uint32_t timeout = EQ_TIMEOUT_INDEFINITE );
+                               const uint32_t timeout = LB_TIMEOUT_INDEFINITE );
 
         /**
          * Assemble a frame into the frame buffer using the default algorithm.

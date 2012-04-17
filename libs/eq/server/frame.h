@@ -23,7 +23,7 @@
 #include "types.h"
 
 #include <eq/client/frame.h>
-#include <co/base/bitOperation.h> // function getIndexOfLastBit
+#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
 
 namespace eq
 {
@@ -45,7 +45,7 @@ namespace server
          */
         //@{
         void setCompound( Compound* compound )
-            { EQASSERT( !_compound ); _compound = compound; }
+            { LBASSERT( !_compound ); _compound = compound; }
         Compound* getCompound() const { return _compound; }
         Channel* getChannel() const 
             { return _compound ? _compound->getChannel() :0; }
@@ -56,7 +56,7 @@ namespace server
 
         FrameData* getMasterData() const { return _masterFrameData; }
         bool hasData( const eq::Eye eye ) const
-            { return ( _frameData[ co::base::getIndexOfLastBit(eye) ] != 0 ); }
+            { return ( _frameData[ lunchbox::getIndexOfLastBit(eye) ] != 0 ); }
 
         co::ObjectVersion getDataVersion( const Eye eye ) const;
 
@@ -144,7 +144,7 @@ namespace server
 
         /** @return the vector of current input frames. */
         const Frames& getInputFrames( const eq::Eye eye ) const
-            { return _inputFrames[ co::base::getIndexOfLastBit( eye ) ]; }
+            { return _inputFrames[ lunchbox::getIndexOfLastBit( eye ) ]; }
 
         /** Unset the frame data. */
         void unsetData();

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -28,9 +28,9 @@ namespace detail
 
 bool SlaveConfig::mapData( const uint128_t& initID )
 {
-    EQASSERT( !_objects );
+    LBASSERT( !_objects );
 
-    _objects = new ObjectMap( *getApplication( ));
+    _objects = new ObjectMap( *this, *getApplication( ));
     const uint32_t request = mapObjectNB( _objects, initID, co::VERSION_OLDEST,
                                           getApplicationNode( ));
     if( !mapObjectSync( request ))
@@ -40,13 +40,13 @@ bool SlaveConfig::mapData( const uint128_t& initID )
 
 void SlaveConfig::syncData( const uint128_t& version )
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
     _objects->sync( version );
 }
 
 void SlaveConfig::unmapData()
 {
-    EQASSERT( _objects )
+    LBASSERT( _objects )
     unmapObject( _objects );
     delete _objects;
     _objects = 0;

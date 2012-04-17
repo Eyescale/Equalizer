@@ -60,7 +60,7 @@ Config::~Config()
 
     for( ModelDistsCIter i = _modelDist.begin(); i != _modelDist.end(); ++i )
     {
-        EQASSERT( !(*i)->isAttached() );
+        LBASSERT( !(*i)->isAttached() );
         delete *i;
     }
     _modelDist.clear();
@@ -96,7 +96,7 @@ bool Config::init()
     if( !_initData.getTrackerPort().empty( ))
     {
         if( !_tracker.init( _initData.getTrackerPort() ))
-            EQWARN << "Failed to initialize tracker" << std::endl;
+            LBWARN << "Failed to initialize tracker" << std::endl;
         else
         {
             // Set up position of tracking system wrt world space
@@ -108,7 +108,7 @@ bool Config::init()
             m = eq::Matrix4f::IDENTITY;
             m.rotate_z( -M_PI_2 );
             _tracker.setSensorToObject( m );
-            EQINFO << "Tracker initialized" << std::endl;
+            LBINFO << "Tracker initialized" << std::endl;
         }
     }
 
@@ -169,7 +169,7 @@ void Config::_loadModels()
         
             if( !model->readFromFile( filename.c_str( )))
             {
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
                 delete model;
             }
             else
@@ -177,12 +177,12 @@ void Config::_loadModels()
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
-            const eq::Strings subFiles = co::base::searchDirectory( filename,
+            const eq::Strings subFiles = lunchbox::searchDirectory( filename,
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
@@ -196,7 +196,7 @@ void Config::_registerModels()
     // Register distribution helpers on each config run
     const bool createDist = _modelDist.empty(); //first run, create distributors
     const size_t  nModels = _models.size();
-    EQASSERT( createDist || _modelDist.size() == nModels );
+    LBASSERT( createDist || _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -211,12 +211,12 @@ void Config::_registerModels()
             modelDist = _modelDist[i];
 
         modelDist->registerTree( getClient( ));
-        EQASSERT( modelDist->isAttached() );
+        LBASSERT( modelDist->isAttached() );
 
         _frameData.setModelID( modelDist->getID( ));
     }
 
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     if( !_modelDist.empty( ))
     {
@@ -233,7 +233,7 @@ void Config::_deregisterData()
         if( !modelDist->isAttached() ) // already done
             continue;
 
-        EQASSERT( modelDist->isMaster( ));
+        LBASSERT( modelDist->isMaster( ));
         modelDist->deregisterTree();
     }
 
@@ -257,7 +257,7 @@ bool Config::loadData( const eq::uint128_t& initDataID )
     }
     else // appNode, _initData is registered already
     {
-        EQASSERT( _initData.getID() == initDataID );
+        LBASSERT( _initData.getID() == initDataID );
     }
     return true;
 }
@@ -270,10 +270,10 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     // Protect if accessed concurrently from multiple pipe threads
     const eq::Node* node = getNodes().front();
     const bool needModelLock = (node->getPipes().size() > 1);
-    co::base::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
+    lunchbox::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
-    EQASSERT( _modelDist.size() == nModels );
+    LBASSERT( _modelDist.size() == nModels );
 
     for( size_t i = 0; i < nModels; ++i )
     {
@@ -285,7 +285,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     _modelDist.push_back( new ModelDist );
     Model* model = _modelDist.back()->loadModel( getApplicationNode(),
                                                  getClient(), modelID );
-    EQASSERT( model );
+    LBASSERT( model );
     _models.push_back( model );
 
     return model;
@@ -333,7 +333,7 @@ void Config::_updateData()
     // idle mode
     if( isIdleAA( ))
     {
-        EQASSERT( _numFramesAA > 0 );
+        LBASSERT( _numFramesAA > 0 );
         _frameData.setIdle( true );
     }
     else
@@ -507,7 +507,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             {
                 const ConfigEvent* idleEvent = 
                     static_cast< const ConfigEvent* >( event );
-                _numFramesAA = EQ_MAX( _numFramesAA, idleEvent->steps );
+                _numFramesAA = LB_MAX( _numFramesAA, idleEvent->steps );
             }
             else
                 _numFramesAA = 0;
@@ -566,7 +566,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
 
         case 'k':
         {
-            co::base::RNG rng;
+            lunchbox::RNG rng;
             if( rng.get< bool >( ))
                 _frameData.toggleOrtho();
             if( rng.get< bool >( ))
@@ -672,7 +672,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'x':
             eqAdmin::removeWindow( _getAdminServer( ));
             _currentCanvas = 0;
-            EQASSERT( update() );
+            LBASSERT( update() );
             return false;
 
         // Head Tracking Emulation
@@ -817,7 +817,7 @@ void Config::_switchCanvas()
     }
 
     eq::CanvasesCIter i = stde::find( canvases, _currentCanvas );
-    EQASSERT( i != canvases.end( ));
+    LBASSERT( i != canvases.end( ));
 
     ++i;
     if( i == canvases.end( ))
@@ -842,7 +842,7 @@ void Config::_switchView()
 
     const View* view = _getCurrentView();
     const eq::Views& views = layout->getViews();
-    EQASSERT( !views.empty( ));
+    LBASSERT( !views.empty( ));
 
     if( !view )
     {
@@ -891,7 +891,7 @@ void Config::_switchModel()
     if( view )
     {
         const Model* model = getModel( modelID );
-        _setMessage( "Using " + co::base::getFilename( model->getName( )));
+        _setMessage( "Using " + lunchbox::getFilename( model->getName( )));
     }
 }
 
@@ -971,7 +971,7 @@ void Config::_switchLayout( int32_t increment )
 
     int64_t index = _currentCanvas->getActiveLayoutIndex() + increment;
     const eq::Layouts& layouts = _currentCanvas->getLayouts();
-    EQASSERT( !layouts.empty( ));
+    LBASSERT( !layouts.empty( ));
 
     index = ( index % layouts.size( ));
     _currentCanvas->useLayout( uint32_t( index ));
@@ -1089,8 +1089,8 @@ void Config::_closeAdminServer()
     eq::admin::ClientPtr client = _admin->getClient();
     client->disconnectServer( _admin );
     client->exitLocal();
-    EQASSERT( client->getRefCount() == 1 );
-    EQASSERT( _admin->getRefCount() == 1 );
+    LBASSERT( client->getRefCount() == 1 );
+    LBASSERT( _admin->getRefCount() == 1 );
     
     _admin = 0;
     eq::admin::exit();

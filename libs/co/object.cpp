@@ -33,7 +33,7 @@
 #include "unbufferedMasterCM.h"
 #include "versionedSlaveCM.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 #include <iostream>
 
 namespace co
@@ -54,7 +54,7 @@ Object::Object( const Object& object )
 
 Object::~Object()
 {
-    EQASSERTINFO( !isAttached(),
+    LBASSERTINFO( !isAttached(),
                   "Object " << _id << " is still attached to node " <<
                   _localNode->getNodeID());
     
@@ -69,16 +69,16 @@ Object::~Object()
 
 typedef CommandFunc<Object> CmdFunc;
 
-void Object::attach( const base::UUID& id, const uint32_t instanceID )
+void Object::attach( const UUID& id, const uint32_t instanceID )
 {
-    EQASSERT( !isAttached() );
-    EQASSERT( _localNode );
-    EQASSERT( instanceID <= EQ_INSTANCE_MAX );
+    LBASSERT( !isAttached() );
+    LBASSERT( _localNode );
+    LBASSERT( instanceID <= EQ_INSTANCE_MAX );
 
     _id         = id;
     _instanceID = instanceID;
-    EQLOG( LOG_OBJECTS )
-        << _id << '.' << _instanceID << ": " << base::className( this )
+    LBLOG( LOG_OBJECTS )
+        << _id << '.' << _instanceID << ": " << lunchbox::className( this )
         << (isMaster() ? " master" : " slave") << std::endl;
 }
 
@@ -98,8 +98,8 @@ void Object::notifyDetach()
     if( slaves.empty( ))
         return;
 
-    EQWARN << slaves.size() << " slaves subscribed during deregisterObject of "
-           << base::className( this ) << " id " << _id << std::endl;
+    LBWARN << slaves.size() << " slaves subscribed during deregisterObject of "
+           << lunchbox::className( this ) << " id " << _id << std::endl;
 
     NodeUnmapObjectPacket packet;
     packet.objectID = _id;
@@ -128,37 +128,37 @@ void Object::_setChangeManager( ObjectCM* cm )
 {
     if( _cm != ObjectCM::ZERO )
     {
-        EQVERB
+        LBVERB
             << "Overriding existing object change manager, obj "
-            << base::className( this ) << ", old cm " << base::className( _cm )
-            << ", new cm " << base::className( cm ) << std::endl;
+            << lunchbox::className( this ) << ", old cm " << lunchbox::className( _cm )
+            << ", new cm " << lunchbox::className( cm ) << std::endl;
         delete _cm;
     }
 
     _cm = cm;
     cm->init();
-    EQLOG( LOG_OBJECTS ) << "set new change manager " << base::className( cm )
-                         << " for " << base::className( this ) 
+    LBLOG( LOG_OBJECTS ) << "set new change manager " << lunchbox::className( cm )
+                         << " for " << lunchbox::className( this ) 
                          << std::endl;
 }
 
-void Object::setID( const base::UUID& identifier )
+void Object::setID( const UUID& identifier )
 {
-    EQASSERT( !isAttached( ));
-    EQASSERT( identifier.isGenerated( ));
+    LBASSERT( !isAttached( ));
+    LBASSERT( identifier.isGenerated( ));
     _id = identifier;
 }
 
 bool Object::send( NodePtr node, ObjectPacket& packet )
 {
-    EQASSERT( isAttached( ));
+    LBASSERT( isAttached( ));
     packet.objectID = _id;
     return node->send( packet );
 }
 
 bool Object::send( NodePtr node, ObjectPacket& packet, const std::string& string)
 {
-    EQASSERT( isAttached() );
+    LBASSERT( isAttached() );
     packet.objectID  = _id;
     return node->send( packet, string );
 }
@@ -166,7 +166,7 @@ bool Object::send( NodePtr node, ObjectPacket& packet, const std::string& string
 bool Object::send( NodePtr node, ObjectPacket& packet, const void* data,
                    const uint64_t size )
 {
-    EQASSERT( isAttached() );
+    LBASSERT( isAttached() );
     packet.objectID  = _id;
     return node->send( packet, data, size );
 }
@@ -192,12 +192,12 @@ void Object::setupChangeManager( const Object::ChangeType type,
     switch( type )
     {
         case Object::NONE:
-            EQASSERT( !_localNode );
+            LBASSERT( !_localNode );
             _setChangeManager( ObjectCM::ZERO );
             break;
 
         case Object::STATIC:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new StaticMasterCM( this ));
             else
@@ -205,7 +205,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::INSTANCE:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new FullMasterCM( this ));
             else
@@ -214,7 +214,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::DELTA:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new DeltaMasterCM( this ));
             else
@@ -223,7 +223,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
             break;
 
         case Object::UNBUFFERED:
-            EQASSERT( _localNode );
+            LBASSERT( _localNode );
             if( master )
                 _setChangeManager( new UnbufferedMasterCM( this ));
             else
@@ -231,7 +231,7 @@ void Object::setupChangeManager( const Object::ChangeType type,
                                                          masterInstanceID ));
             break;
 
-        default: EQUNIMPLEMENTED;
+        default: LBUNIMPLEMENTED;
     }
 }
 
@@ -258,9 +258,9 @@ bool Object::isMaster() const
     return _cm->isMaster();
 }
 
-void Object::addSlave( Command& command, NodeMapObjectReplyPacket& reply )
+void Object::addSlave( Command& command )
 {
-    _cm->addSlave( command, reply );
+    _cm->addSlave( command );
 }
 
 void Object::removeSlave( NodePtr node )
@@ -313,9 +313,9 @@ uint128_t Object::getVersion() const
 
 void Object::notifyNewHeadVersion( const uint128_t& version )
 { 
-    EQASSERTINFO( getVersion() == VERSION_NONE || 
+    LBASSERTINFO( getVersion() == VERSION_NONE || 
                   version < getVersion() + 100, 
-                  base::className( this ));
+                  lunchbox::className( this ));
 }
 
 uint32_t Object::chooseCompressor() const
@@ -335,7 +335,7 @@ NodePtr Object::getMasterNode()
 
 std::ostream& operator << ( std::ostream& os, const Object& object )
 {
-    os << base::className( &object ) << " " << object.getID() << "."
+    os << lunchbox::className( &object ) << " " << object.getID() << "."
        << object.getInstanceID() << " v" << object.getVersion();
     return os;
 }

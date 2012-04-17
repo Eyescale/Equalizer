@@ -46,7 +46,7 @@ REGISTER_ENGINE( CompressorRLE4BU, 4_BYTE_UNSIGNED, BGRA, 1., 0.89, 2.1, true );
             switch( nSame )                                             \
             {                                                           \
                 case 0:                                                 \
-                    EQASSERTINFO( false, "Unreachable code");           \
+                    LBASSERTINFO( false, "Unreachable code");           \
                     break;                                              \
                 case 3:                                                 \
                     out[ outPos++ ] = lastSymbol; /* fall through */    \
@@ -61,7 +61,7 @@ REGISTER_ENGINE( CompressorRLE4BU, 4_BYTE_UNSIGNED, BGRA, 1., 0.89, 2.1, true );
                     out[ outPos++ ] = nSame;                            \
                     break;                                              \
             }                                                           \
-        EQASSERTINFO( nWords<<1 >= outPos,                              \
+        LBASSERTINFO( nWords<<1 >= outPos,                              \
                       "Overwrite array bounds during image compress" ); \
     }
 
@@ -99,7 +99,7 @@ void CompressorRLE4BU::compress( const void* const inData,
                                   const bool        useAlpha )
 {
     const uint64_t size = nPixels * sizeof( uint32_t );
-    EQASSERT( size > 0 );
+    LBASSERT( size > 0 );
 
     _nResults = _setupResults( 1, size, _results );
 
@@ -156,7 +156,7 @@ void CompressorRLE4BU::decompress( const void* const* inData,
             out += nWords * sizeof( uint64_t );
         }
 
-        EQASSERTINFO(
+        LBASSERTINFO(
             nPixels*4 >= (uint64_t)(out-reinterpret_cast<uint8_t*>(outData)-7),
                 "Pixel data size does not match expected image size: "
                 << nPixels*4 << " ? " 
@@ -184,7 +184,7 @@ void CompressorRLE4BU::decompress( const void* const* inData,
             {
                 const uint64_t symbol = in[inPos++];
                 const uint64_t nSame  = in[inPos++];
-                EQASSERT( outPos + nSame <= endPos );
+                LBASSERT( outPos + nSame <= endPos );
 
                 for( uint32_t j = 0; j<nSame; ++j )
                     out[outPos++] = symbol;
@@ -192,10 +192,10 @@ void CompressorRLE4BU::decompress( const void* const* inData,
             else // symbol
                 out[outPos++] = token;
 
-            EQASSERTINFO( ((outPos-1) << 3) <= nPixels*4,
+            LBASSERTINFO( ((outPos-1) << 3) <= nPixels*4,
                           "Overwrite array bounds during decompress" );
         }
-        EQASSERT( outPos == endPos );
+        LBASSERT( outPos == endPos );
     }
 }
 

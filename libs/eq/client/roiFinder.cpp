@@ -34,7 +34,7 @@
 
 #include <eq/util/frameBufferObject.h>
 #include <eq/util/objectManager.h>
-#include <co/base/os.h>
+#include <lunchbox/os.h>
 #include <co/plugins/compressor.h>
 
 
@@ -85,7 +85,7 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
             dst += 3;
         }
 
-    EQWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
+    LBWARN << "Dumping ROI image: " << ss.str( ) << std::endl;
     _tmpImg.writeImages( ss.str( ));
 }
 
@@ -94,7 +94,7 @@ void ROIFinder::_dumpDebug( const uint32_t stage )
 PixelViewport ROIFinder::_getObjectPVP( const PixelViewport& pvp,
                                         const uint8_t*       src )
 {
-    EQASSERT( pvp.x >= 0 && pvp.x+pvp.w <= _wb &&
+    LBASSERT( pvp.x >= 0 && pvp.x+pvp.w <= _wb &&
               pvp.y >= 0 && pvp.y+pvp.h <= _hb );
 
     // Calculate per-pixel histograms
@@ -184,8 +184,8 @@ void ROIFinder::_init( )
     memset( &_mask[0]   , 0, _mask.size( ));
     memset( &_tmpMask[0], 0, _tmpMask.size( ));
 
-    EQASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _w*_h*4 );
-    EQASSERT( static_cast<int32_t>(_mask.size())         >= _wb*_h  );
+    LBASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _w*_h*4 );
+    LBASSERT( static_cast<int32_t>(_mask.size())         >= _wb*_h  );
 
     const float*    src = &_perBlockInfo[0];
           uint8_t*  dst = &_mask[0];
@@ -219,7 +219,7 @@ void ROIFinder::_invalidateAreas( Area* areas, uint8_t num )
 
 void ROIFinder::_updateSubArea( const uint8_t type )
 {
-    EQASSERT( type <= 16 );
+    LBASSERT( type <= 16 );
 
     if( type == 0 )
         return;
@@ -244,11 +244,11 @@ void ROIFinder::_updateSubArea( const uint8_t type )
         case 15: pvp = PixelViewport( _dim.x1,_dim.y3,_dim.w6,_dim.h3 ); break;
         case 16: pvp = PixelViewport( _dim.x1,_dim.y1,_dim.w6,_dim.h1 ); break;
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
-    EQASSERT( pvp.hasArea( ));
-    EQASSERT( pvp.x >=0 && pvp.y >=0 && pvp.x+pvp.w <=_w && pvp.y+pvp.h <=_h );
+    LBASSERT( pvp.hasArea( ));
+    LBASSERT( pvp.x >=0 && pvp.y >=0 && pvp.x+pvp.w <=_w && pvp.y+pvp.h <=_h );
 
     Area& a = _tmpAreas[type];
 
@@ -258,7 +258,7 @@ void ROIFinder::_updateSubArea( const uint8_t type )
 
     a.emptySize = pvp.getArea() - a.pvp.getArea() + a.hole.getArea();
 
-    EQASSERT( !a.valid );
+    LBASSERT( !a.valid );
 
 #ifndef NDEBUG
     a.valid = true;
@@ -324,7 +324,7 @@ static const uint8_t _compilations16[18][4] =// center
 
 uint8_t ROIFinder::_splitArea( Area& a )
 {
-    EQASSERT( a.hole.getArea() > 0 );
+    LBASSERT( a.hole.getArea() > 0 );
 #ifndef NDEBUG
     _invalidateAreas( _tmpAreas, 17 );
 #endif
@@ -355,7 +355,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
     uint8_t type;
     if( a.pvp.h == a.hole.h ) // hole through the whole block
     {
-        EQASSERT( a.pvp.w != a.hole.w );
+        LBASSERT( a.pvp.w != a.hole.w );
         type = 8;
     }
     else if( a.pvp.w == a.hole.w ) // hole through the whole block
@@ -424,7 +424,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
             int32_t sum = 0;
             for( uint8_t j = 0; j < areasPerVariant; j++ )
             {
-                EQASSERT( _tmpAreas[_compilations16[i][j]].valid );
+                LBASSERT( _tmpAreas[_compilations16[i][j]].valid );
                 sum += _tmpAreas[_compilations16[i][j]].emptySize;
             }
 
@@ -437,7 +437,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 
         for( uint8_t j = 0; j < areasPerVariant; j++ )
         {
-            EQASSERT( _tmpAreas[_compilations16[variant][j]].valid );
+            LBASSERT( _tmpAreas[_compilations16[variant][j]].valid );
             _finalAreas[j] = &_tmpAreas[_compilations16[variant][j]];
         }
 
@@ -450,7 +450,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
         int32_t sum = 0;
         for( uint8_t j = 0; j < areasPerVariant; j++ )
         {
-            EQASSERT( _tmpAreas[_compilations[type][i][j]].valid );
+            LBASSERT( _tmpAreas[_compilations[type][i][j]].valid );
             sum += _tmpAreas[_compilations[type][i][j]].emptySize;
         }
 
@@ -463,7 +463,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 
     for( uint8_t j = 0; j < areasPerVariant; j++ )
     {
-        EQASSERT( _tmpAreas[_compilations[type][variant][j]].valid );
+        LBASSERT( _tmpAreas[_compilations[type][variant][j]].valid );
         _finalAreas[j] = &_tmpAreas[_compilations[type][variant][j]];
     }
 
@@ -473,7 +473,7 @@ uint8_t ROIFinder::_splitArea( Area& a )
 
 void ROIFinder::_findAreas( PixelViewports& resultPVPs )
 {
-    EQASSERT( _areasToCheck.size() == 0 );
+    LBASSERT( _areasToCheck.size() == 0 );
 
     Area area( PixelViewport( 0, 0, _w, _h ));
     area.pvp  = _getObjectPVP( area.pvp, &_mask[0] );
@@ -495,12 +495,12 @@ void ROIFinder::_findAreas( PixelViewports& resultPVPs )
         _areasToCheck.pop_back();
 
         uint8_t n = _splitArea( curArea );
-        EQASSERT( n >= 2 && n <= 4 );
+        LBASSERT( n >= 2 && n <= 4 );
 
         for( uint8_t i = 0; i < n; i++ )
         {
-            EQASSERT( _finalAreas[i]->valid );
-            EQASSERT( _finalAreas[i]->pvp.hasArea( ));
+            LBASSERT( _finalAreas[i]->valid );
+            LBASSERT( _finalAreas[i]->pvp.hasArea( ));
             
             if( _finalAreas[i]->hole.getArea() == 0 )
                 resultPVPs.push_back( _finalAreas[i]->pvp );
@@ -536,16 +536,16 @@ const void* ROIFinder::_getInfoKey( ) const
 
 void ROIFinder::_readbackInfo( )
 {
-    EQASSERT( _glObjects );
-    EQASSERT( _glObjects->supportsEqTexture( ));
-    EQASSERT( _glObjects->supportsEqFrameBufferObject( ));
+    LBASSERT( _glObjects );
+    LBASSERT( _glObjects->supportsEqTexture( ));
+    LBASSERT( _glObjects->supportsEqFrameBufferObject( ));
 
     PixelViewport pvp = _pvp;
     pvp.apply( Zoom( GRID_SIZE, GRID_SIZE ));
-    pvp.w = EQ_MIN( pvp.w+pvp.x, _pvpOriginal.w+_pvpOriginal.x ) - pvp.x;
-    pvp.h = EQ_MIN( pvp.h+pvp.y, _pvpOriginal.h+_pvpOriginal.y ) - pvp.y;
+    pvp.w = LB_MIN( pvp.w+pvp.x, _pvpOriginal.w+_pvpOriginal.x ) - pvp.x;
+    pvp.h = LB_MIN( pvp.h+pvp.y, _pvpOriginal.h+_pvpOriginal.y ) - pvp.y;
 
-    EQASSERT( pvp.isValid());
+    LBASSERT( pvp.isValid());
 
     // copy frame buffer to texture
     const void* bufferKey = _getInfoKey( );
@@ -564,12 +564,12 @@ void ROIFinder::_readbackInfo( )
 
     if( fbo )
     {
-        EQCHECK( fbo->resize( _pvp.w, _pvp.h ));
+        LBCHECK( fbo->resize( _pvp.w, _pvp.h ));
     }
     else
     {
         fbo = _glObjects->newEqFrameBufferObject( fboKey );
-        EQCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
+        LBCHECK( fbo->init( _pvp.w, _pvp.h, GL_RGBA32F, 0, 0 ));
     }
     fbo->bind();
 
@@ -591,7 +591,7 @@ void ROIFinder::_readbackInfo( )
         // rectangular textures
         const GLuint shader = _glObjects->newShader( shaderRBInfo,
                                                         GL_FRAGMENT_SHADER );
-        EQASSERT( shader != ObjectManager::INVALID );
+        LBASSERT( shader != ObjectManager::INVALID );
 
 #ifdef EQ_ROI_USE_DEPTH_TEXTURE
         const GLchar* fShaderPtr = roiFragmentShader_glsl.c_str();
@@ -604,7 +604,7 @@ void ROIFinder::_readbackInfo( )
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            EQERROR << "Failed to compile fragment shader for ROI finder"
+            LBERROR << "Failed to compile fragment shader for ROI finder"
                     << std::endl;
 
         program = _glObjects->newProgram( shaderRBInfo );
@@ -615,7 +615,7 @@ void ROIFinder::_readbackInfo( )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            EQWARN << "Failed to link shader program for ROI finder"
+            LBWARN << "Failed to link shader program for ROI finder"
                    << std::endl;
             return;
         }
@@ -650,11 +650,11 @@ void ROIFinder::_readbackInfo( )
     fbo->unbind();
 
     // finish readback of info
-    EQASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _pvp.w*_pvp.h*4 );
+    LBASSERT( static_cast<int32_t>(_perBlockInfo.size()) >= _pvp.w*_pvp.h*4 );
 
     texture = fbo->getColorTextures()[0];
-    EQASSERT( texture->getFormat() == GL_RGBA );
-    EQASSERT( texture->getType() == GL_FLOAT );
+    LBASSERT( texture->getFormat() == GL_RGBA );
+    LBASSERT( texture->getType() == GL_FLOAT );
     texture->download( &_perBlockInfo[0] );
 }
 
@@ -688,26 +688,26 @@ PixelViewports ROIFinder::findRegions( const uint32_t         buffers,
 #endif
 
 #ifdef EQ_ROI_TEST_SPEED
-    co::base::Clock clock; 
+    lunchbox::Clock clock; 
     clock.reset();
 for( int i = 0; i < 100; i++ ) {
 #endif
 
-    EQASSERT( glObjects );
-    EQASSERTINFO( !_glObjects, "Another readback in progress?" );
-    EQLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
+    LBASSERT( glObjects );
+    LBASSERTINFO( !_glObjects, "Another readback in progress?" );
+    LBLOG( LOG_ASSEMBLY )   << "ROIFinder::getObjects " << pvp
                             << ", buffers " << buffers
                             << std::endl;
 
     if( zoom != Zoom::NONE )
     {
-        EQWARN << "R-B optimization impossible when zoom is used"
+        LBWARN << "R-B optimization impossible when zoom is used"
                << std::endl;
         return result;
     }
 
 #ifdef EQ_ROI_USE_TRACKER
-//    EQWARN << "frID: " << frameID << " stage: " << stage << std::endl;
+//    LBWARN << "frID: " << frameID << " stage: " << stage << std::endl;
     uint8_t* ticket;
     if( !_roiTracker.useROIFinder( pvp, stage, frameID, ticket ))
         return result;
@@ -742,14 +742,14 @@ for( int i = 0; i < 100; i++ ) {
     const float time = clock.getTimef() / 100;
     const float fps  = 1000.f / time;
 
-    static float minFPS = 10000;    minFPS = EQ_MIN( fps, minFPS );
-    static float maxFPS = 0;        maxFPS = EQ_MAX( fps, maxFPS );
+    static float minFPS = 10000;    minFPS = LB_MIN( fps, minFPS );
+    static float maxFPS = 0;        maxFPS = LB_MAX( fps, maxFPS );
     static float sumFPS = 0;        sumFPS += fps;
     static float frames = 0;        frames++;
 
     const float avgFPS = sumFPS / frames;
-    EQWARN << "=============================================" << std::endl;
-    EQWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
+    LBWARN << "=============================================" << std::endl;
+    LBWARN << "ROI min fps: " << minFPS << " (" << 1000.f/minFPS
           << " ms) max fps: " << maxFPS << " (" << 1000.f/maxFPS
           << " ms) avg fps: " << avgFPS << " (" << 1000.f/avgFPS
           << " ms) cur fps: " << fps    << " (" << 1000.f/fps
@@ -758,13 +758,13 @@ for( int i = 0; i < 100; i++ ) {
     if( frames < 5 ) { minFPS = 10000; maxFPS = 0; }
 #endif //EQ_ROI_TEST_SPEED
 
-//    EQWARN << "Areas found: " << result.size() << std::endl;
+//    LBWARN << "Areas found: " << result.size() << std::endl;
     return result;
 }
 
 const GLEWContext* ROIFinder::glewGetContext() const
 {
-    EQASSERT( _glObjects );
+    LBASSERT( _glObjects );
     return _glObjects->glewGetContext();
 }
 

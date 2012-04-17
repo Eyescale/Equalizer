@@ -90,16 +90,16 @@ public:
                                 uint8_t& two, uint8_t& three, uint8_t& four ) 
     {
         NoSwizzle::swizzle(
-            (( input &  ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
-                          EQ_BIT12 | EQ_BIT11 | EQ_BIT2 | EQ_BIT1 ))        |
-             (( input & ( EQ_BIT8  | EQ_BIT7 ))<<18 )                       |
-             (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT14 | EQ_BIT13 ))<<6 ) |
-             (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT6  | 
-                          EQ_BIT5  | EQ_BIT4  | EQ_BIT3 )) <<12 )           |
-             (( input & ( EQ_BIT28 | EQ_BIT27 | EQ_BIT26 | EQ_BIT25 ))>>18) |
-             (( input & ( EQ_BIT18 | EQ_BIT17 ))>>12)                       |
-             (( input & ( EQ_BIT30 | EQ_BIT29 | EQ_BIT20 | EQ_BIT19 |
-                          EQ_BIT10 | EQ_BIT9 ))>>6 )),
+            (( input &  ( LB_BIT32 | LB_BIT31 | LB_BIT22 | LB_BIT21 | 
+                          LB_BIT12 | LB_BIT11 | LB_BIT2 | LB_BIT1 ))        |
+             (( input & ( LB_BIT8  | LB_BIT7 ))<<18 )                       |
+             (( input & ( LB_BIT24 | LB_BIT23 | LB_BIT14 | LB_BIT13 ))<<6 ) |
+             (( input & ( LB_BIT16 | LB_BIT15 | LB_BIT6  | 
+                          LB_BIT5  | LB_BIT4  | LB_BIT3 )) <<12 )           |
+             (( input & ( LB_BIT28 | LB_BIT27 | LB_BIT26 | LB_BIT25 ))>>18) |
+             (( input & ( LB_BIT18 | LB_BIT17 ))>>12)                       |
+             (( input & ( LB_BIT30 | LB_BIT29 | LB_BIT20 | LB_BIT19 |
+                          LB_BIT10 | LB_BIT9 ))>>6 )),
                                   one, two, three, four );
     }
     static inline void swizzle( const uint32_t input, uint8_t& one,
@@ -110,16 +110,16 @@ public:
                                       const uint8_t three, const uint8_t four )
     {
         const uint32_t input = one + (two<<8) + (three<<16) + (four<<24);
-        return ((  input & ( EQ_BIT32 | EQ_BIT31 | EQ_BIT22 | EQ_BIT21 | 
-                             EQ_BIT11 | EQ_BIT12 | EQ_BIT2 | EQ_BIT1 ))        |
-                (( input & ( EQ_BIT26 | EQ_BIT25 )) >>18 )                     |
-                (( input & ( EQ_BIT30 | EQ_BIT29 | EQ_BIT20 | EQ_BIT19 ))>>6 ) |
-                (( input & ( EQ_BIT28 | EQ_BIT27 | EQ_BIT18 | 
-                             EQ_BIT17 | EQ_BIT16 |EQ_BIT15 ))>>12 )            |
-                (( input & ( EQ_BIT10 | EQ_BIT9  | EQ_BIT8  | EQ_BIT7 ))<<18 ) |
-                (( input & ( EQ_BIT6  | EQ_BIT5 ))<<12 )                       |
-                (( input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT14 | 
-                             EQ_BIT13 | EQ_BIT4  | EQ_BIT3 ))<<6 ));
+        return ((  input & ( LB_BIT32 | LB_BIT31 | LB_BIT22 | LB_BIT21 | 
+                             LB_BIT11 | LB_BIT12 | LB_BIT2 | LB_BIT1 ))        |
+                (( input & ( LB_BIT26 | LB_BIT25 )) >>18 )                     |
+                (( input & ( LB_BIT30 | LB_BIT29 | LB_BIT20 | LB_BIT19 ))>>6 ) |
+                (( input & ( LB_BIT28 | LB_BIT27 | LB_BIT18 | 
+                             LB_BIT17 | LB_BIT16 |LB_BIT15 ))>>12 )            |
+                (( input & ( LB_BIT10 | LB_BIT9  | LB_BIT8  | LB_BIT7 ))<<18 ) |
+                (( input & ( LB_BIT6  | LB_BIT5 ))<<12 )                       |
+                (( input & ( LB_BIT24 | LB_BIT23 | LB_BIT14 | 
+                             LB_BIT13 | LB_BIT4  | LB_BIT3 ))<<6 ));
     }
 
     static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
@@ -138,14 +138,14 @@ public:
                                 uint8_t& two, uint8_t& three ) 
     {
         NoSwizzle::swizzle(
-            (( input &  ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | EQ_BIT13 | 
-                          EQ_BIT12 | EQ_BIT3  | EQ_BIT2  | EQ_BIT1 )) |
-             (( input & ( EQ_BIT16 | EQ_BIT15 | EQ_BIT14 )) << 5 )    | 
-             (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9  )) >> 5 )    |
-             (( input & ( EQ_BIT8  | EQ_BIT7  | EQ_BIT6  | EQ_BIT5  |
-                          EQ_BIT4  )) << 10 )                         |
-             (( input & ( EQ_BIT21 | EQ_BIT20 | EQ_BIT19 | EQ_BIT18 |
-                          EQ_BIT17 )) >> 10 )),
+            (( input &  ( LB_BIT24 | LB_BIT23 | LB_BIT22 | LB_BIT13 | 
+                          LB_BIT12 | LB_BIT3  | LB_BIT2  | LB_BIT1 )) |
+             (( input & ( LB_BIT16 | LB_BIT15 | LB_BIT14 )) << 5 )    | 
+             (( input & ( LB_BIT11 | LB_BIT10 | LB_BIT9  )) >> 5 )    |
+             (( input & ( LB_BIT8  | LB_BIT7  | LB_BIT6  | LB_BIT5  |
+                          LB_BIT4  )) << 10 )                         |
+             (( input & ( LB_BIT21 | LB_BIT20 | LB_BIT19 | LB_BIT18 |
+                          LB_BIT17 )) >> 10 )),
                                   one, two, three );
     }
     static inline uint32_t deswizzle( const uint8_t one, const uint8_t two,
@@ -156,14 +156,14 @@ public:
                                       const uint8_t three )
     {
         const uint32_t input = one + (two<<8) + (three<<16);
-        return ((  input & ( EQ_BIT24 | EQ_BIT23 | EQ_BIT22 | EQ_BIT13 | 
-                             EQ_BIT12 | EQ_BIT3  | EQ_BIT2  | EQ_BIT1 )) |
-                (( input & ( EQ_BIT21 | EQ_BIT20 | EQ_BIT19 ))>>5 )      |
-                (( input & ( EQ_BIT6  | EQ_BIT5  | EQ_BIT4 ))<<5 )       | 
-                (( input & ( EQ_BIT18 | EQ_BIT17 | EQ_BIT16 | 
-                             EQ_BIT15 | EQ_BIT14 ))>>10 )                |
-                (( input & ( EQ_BIT11 | EQ_BIT10 | EQ_BIT9  | 
-                             EQ_BIT8  | EQ_BIT7 ))<<10 ));
+        return ((  input & ( LB_BIT24 | LB_BIT23 | LB_BIT22 | LB_BIT13 | 
+                             LB_BIT12 | LB_BIT3  | LB_BIT2  | LB_BIT1 )) |
+                (( input & ( LB_BIT21 | LB_BIT20 | LB_BIT19 ))>>5 )      |
+                (( input & ( LB_BIT6  | LB_BIT5  | LB_BIT4 ))<<5 )       | 
+                (( input & ( LB_BIT18 | LB_BIT17 | LB_BIT16 | 
+                             LB_BIT15 | LB_BIT14 ))>>10 )                |
+                (( input & ( LB_BIT11 | LB_BIT10 | LB_BIT9  | 
+                             LB_BIT8  | LB_BIT7 ))<<10 ));
     }
 };  
 

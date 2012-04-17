@@ -21,7 +21,7 @@
 #include "commandQueue.h"
 #include "node.h"
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace co
 {
@@ -57,7 +57,7 @@ Dispatcher::~Dispatcher()
 void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
                                    CommandQueue* destinationQueue )
 {
-    EQASSERT( _impl->fTable.size() == _impl->qTable.size( ));
+    LBASSERT( _impl->fTable.size() == _impl->qTable.size( ));
 
     if( _impl->fTable.size() <= command )
     {
@@ -70,7 +70,7 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
         _impl->fTable.push_back( func );
         _impl->qTable.push_back( destinationQueue );
 
-        EQASSERT( _impl->fTable.size() == command + 1 );
+        LBASSERT( _impl->fTable.size() == command + 1 );
     }
     else
     {
@@ -82,18 +82,18 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 
 bool Dispatcher::dispatchCommand( Command& command )
 {
-    EQASSERT( command.isValid( ));
-    EQVERB << "dispatch " << command << " on " << base::className( this )
+    LBASSERT( command.isValid( ));
+    LBVERB << "dispatch " << command << " on " << lunchbox::className( this )
            << std::endl;
 
     const uint32_t which = command->command;
 #ifndef NDEBUG
     if( which >= _impl->qTable.size( ))
     {
-        EQABORT( "Command " << command
+        LBABORT( "Command " << command
                  << " higher than number of registered command handlers ("
                  << _impl->qTable.size() << ") for object of type "
-                 << base::className( this ) << std::endl );
+                 << lunchbox::className( this ) << std::endl );
         return false;
     }
 #endif
@@ -107,15 +107,15 @@ bool Dispatcher::dispatchCommand( Command& command )
     }
     // else
 
-    EQCHECK( _impl->fTable[which]( command ));
+    LBCHECK( _impl->fTable[which]( command ));
     return true;
 }
 
 bool Dispatcher::_cmdUnknown( Command& command )
 {
-    EQERROR << "Unknown " << command << " for " << base::className( this )
-            << base::backtrace << std::endl;
-    EQUNREACHABLE;
+    LBERROR << "Unknown " << command << " for " << lunchbox::className( this )
+            << lunchbox::backtrace << std::endl;
+    LBUNREACHABLE;
     return false;
 }
 

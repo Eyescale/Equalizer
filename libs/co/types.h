@@ -18,9 +18,10 @@
 #ifndef CO_TYPES_H
 #define CO_TYPES_H
 
+#include <co/defines.h>
 #include <co/error.h>
-#include <co/base/refPtr.h>
-#include <co/base/types.h>
+#include <lunchbox/refPtr.h>
+#include <lunchbox/types.h>
 
 #include <deque>
 #include <vector>
@@ -30,7 +31,7 @@ namespace co
 
 #define CO_SEPARATOR '#'
 
-#define EQ_INSTANCE_MAX     EQ_MAX_UINT32 //!< The biggest instance id possible
+#define EQ_INSTANCE_MAX     LB_MAX_UINT32 //!< The biggest instance id possible
 #define EQ_INSTANCE_NONE    0xfffffffdu   //!< None/NULL identifier
 #define EQ_INSTANCE_INVALID 0xfffffffeu   //!< Invalid/unset instance identifier
 #define EQ_INSTANCE_ALL     0xffffffffu   //!< all object instances
@@ -49,6 +50,8 @@ class Global;
 class LocalNode;
 class Node;
 class Object;
+class ObjectFactory;
+class ObjectHandler;
 class ObjectDataIStream;
 class Plugin;        //!< @internal
 class PluginRegistry;
@@ -61,19 +64,20 @@ struct ObjectVersion;
 struct Packet;
 struct QueueItemPacket;
 
-typedef base::UUID NodeID; //!< A unique identifier for nodes.
+using lunchbox::UUID;
+using lunchbox::uint128_t;
+using lunchbox::Strings;
 
-using base::uint128_t;
-using base::Strings;
+typedef UUID NodeID; //!< A unique identifier for nodes.
 
 /** A reference pointer for Node pointers. */
-typedef base::RefPtr< Node >                  NodePtr;
+typedef lunchbox::RefPtr< Node >                  NodePtr;
 /** A reference pointer for LocalNode pointers. */
-typedef base::RefPtr< LocalNode >             LocalNodePtr;
+typedef lunchbox::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for Connection pointers. */
-typedef base::RefPtr< Connection >            ConnectionPtr;
+typedef lunchbox::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
-typedef base::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
+typedef lunchbox::RefPtr< ConnectionDescription > ConnectionDescriptionPtr;
 
 /** A vector of NodePtr's. */
 typedef std::vector< NodePtr >                   Nodes;
@@ -128,10 +132,11 @@ typedef Plugins::const_iterator PluginsCIter;
 #ifndef EQ_2_0_API
 namespace base
 {
-typedef co::Error Error;
-typedef co::ErrorRegistry ErrorRegistry;
-typedef co::PluginRegistry PluginRegistry;
-typedef co::Global Global;
+using namespace lunchbox;
+using co::Error;
+using co::ErrorRegistry;
+using co::PluginRegistry;
+using co::Global;
 }
 #endif
 }

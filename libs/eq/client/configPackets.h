@@ -32,19 +32,19 @@ namespace eq
                 size    = sizeof( ConfigCreateNodePacket );
             }
 
-        co::base::UUID nodeID;
+        UUID nodeID;
     };
 
     struct ConfigDestroyNodePacket : public ConfigPacket
     {
-        ConfigDestroyNodePacket( const co::base::UUID& id )
+        ConfigDestroyNodePacket( const UUID& id )
                 : nodeID( id )
             {
                 command = fabric::CMD_CONFIG_DESTROY_NODE;
                 size    = sizeof( ConfigDestroyNodePacket );
             }
 
-        const co::base::UUID nodeID;
+        const UUID nodeID;
     };
 
     struct ConfigInitPacket : public ConfigPacket
@@ -206,7 +206,7 @@ namespace eq
     struct ConfigSwapObjectPacket : public ConfigPacket
     {
         ConfigSwapObjectPacket()
-                : requestID( EQ_UNDEFINED_UINT32 )
+                : requestID( LB_UNDEFINED_UINT32 )
         {
             command   = fabric::CMD_CONFIG_SWAP_OBJECT;
             size      = sizeof( ConfigSwapObjectPacket ); 

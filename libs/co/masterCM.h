@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -22,10 +22,10 @@
 #include "dataIStreamQueue.h" // member
 #include <co/types.h>
 
-#include <co/base/mtQueue.h> // member
-#include <co/base/pool.h>    // member
-#include <co/base/stdExt.h>  // member
-#include <co/base/thread.h>  // thread-safety check
+#include <lunchbox/mtQueue.h> // member
+#include <lunchbox/pool.h>    // member
+#include <lunchbox/stdExt.h>  // member
+#include <lunchbox/thread.h>  // thread-safety check
 
 namespace co
 {
@@ -36,7 +36,7 @@ namespace co
     class MasterCM : public ObjectCM
     {
     protected:
-        typedef base::ScopedWrite Mutex;
+        typedef lunchbox::ScopedWrite Mutex;
 
     public:
         MasterCM( Object* object );
@@ -56,8 +56,9 @@ namespace co
 
         virtual bool isMaster() const { return true; }
         virtual uint32_t getMasterInstanceID() const
-            { EQDONTCALL; return EQ_INSTANCE_INVALID; }
+            { LBDONTCALL; return EQ_INSTANCE_INVALID; }
 
+        virtual void addSlave( Command& command );
         virtual void removeSlave( NodePtr node );
         virtual void removeSlaves( NodePtr node );
         virtual const Nodes getSlaveNodes() const
@@ -65,7 +66,7 @@ namespace co
 
     protected:
         /** The list of subscribed slave nodes. */
-        base::Lockable< Nodes > _slaves;
+        lunchbox::Lockable< Nodes > _slaves;
 
         typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
 
@@ -78,16 +79,16 @@ namespace co
         /** Slave commit queue. */
         DataIStreamQueue _slaveCommits;
 
+        virtual void _addSlave( NodePtr node );
+
         uint128_t _apply( ObjectDataIStream* is );
-        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID,
-                                const uint128_t& version );
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
 
-        EQ_TS_VAR( _cmdThread );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _cmdThread );
+        LB_TS_VAR( _rcvThread );
     };
 }
 

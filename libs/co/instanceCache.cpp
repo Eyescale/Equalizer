@@ -21,8 +21,8 @@
 #include "objectDataIStream.h"
 #include "objectVersion.h"
 
-#include <co/base/debug.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {
@@ -30,15 +30,15 @@ namespace co
 #ifdef EQ_INSTRUMENT_CACHE
 namespace
 {
-base::a_int32_t nRead;
-base::a_int32_t nReadHit;
-base::a_int32_t nWrite;
-base::a_int32_t nWriteHit;
-base::a_int32_t nWriteMiss;
-base::a_int32_t nWriteReady;
-base::a_int32_t nWriteOld;
-base::a_int32_t nUsedRelease;
-base::a_int32_t nUnusedRelease;
+lunchbox::a_int32_t nRead;
+lunchbox::a_int32_t nReadHit;
+lunchbox::a_int32_t nWrite;
+lunchbox::a_int32_t nWriteHit;
+lunchbox::a_int32_t nWriteMiss;
+lunchbox::a_int32_t nWriteReady;
+lunchbox::a_int32_t nWriteOld;
+lunchbox::a_int32_t nUsedRelease;
+lunchbox::a_int32_t nUnusedRelease;
 }
 #endif
 
@@ -91,7 +91,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 
     const NodeID nodeID = command.getNode()->getNodeID();
 
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );
     if( i == _items->end( ))
     {
@@ -103,7 +103,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     Item& item = _items.data[ rev.identifier ] ;
     if( item.data.masterInstanceID != instanceID || item.from != nodeID )
     {
-        EQASSERT( !item.access ); // same master with different instance ID?!
+        LBASSERT( !item.access ); // same master with different instance ID?!
         if( item.access != 0 ) // are accessed - don't add
             return false;
         // trash data from different master mapping
@@ -113,7 +113,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         item.used = usage;
     }
     else
-        item.used = EQ_MAX( item.used, usage );
+        item.used = LB_MAX( item.used, usage );
 
     if( item.data.versions.empty( ))
     {
@@ -134,7 +134,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
     else
     {
         const ObjectDataIStream* previous = item.data.versions.back();
-        EQASSERT( previous->isReady( ));
+        LBASSERT( previous->isReady( ));
 
         const uint128_t previousVersion = previous->getPendingVersion();
         if( previousVersion > rev.version )
@@ -146,7 +146,7 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         }
         if( ( previousVersion + 1 ) != rev.version ) // hole
         {
-            EQASSERT( previousVersion < rev.version );
+            LBASSERT( previousVersion < rev.version );
 
             if( item.access != 0 ) // are accessed - don't add
                 return false;
@@ -155,13 +155,13 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
         }
         else
         {
-            EQASSERT( previous->isReady( ));
+            LBASSERT( previous->isReady( ));
         }
         item.data.versions.push_back( new ObjectDataIStream ); 
         item.times.push_back( _clock.getTime64( ));
     }
 
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( !item.data.versions.empty( ));
     ObjectDataIStream* stream = item.data.versions.back();
 
     stream->addDataPacket( command );
@@ -183,16 +183,16 @@ bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
 
 void InstanceCache::remove( const NodeID& nodeID )
 {
-    std::vector< base::uint128_t > keys;
+    std::vector< lunchbox::uint128_t > keys;
 
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;
         if( item.from != nodeID )
             continue;
 
-        EQASSERT( !item.access );
+        LBASSERT( !item.access );
         if( item.access != 0 )
             continue;
 
@@ -200,26 +200,26 @@ void InstanceCache::remove( const NodeID& nodeID )
         keys.push_back( i->first );
     }
 
-    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< lunchbox::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         _items->erase( *i );
     }
 }
 
-const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
+const InstanceCache::Data& InstanceCache::operator[]( const UUID& id )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nRead;
 #endif
 
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return Data::NONE;
 
     Item& item = i->second;
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( !item.data.versions.empty( ));
     ++item.access;
     ++item.used;
 
@@ -229,25 +229,25 @@ const InstanceCache::Data& InstanceCache::operator[]( const base::UUID& id )
     return item.data;
 }
 
-bool InstanceCache::release( const base::UUID& id, const uint32_t count )
+bool InstanceCache::release( const UUID& id, const uint32_t count )
 {
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
 
     Item& item = i->second;
-    EQASSERT( !item.data.versions.empty( ));
-    EQASSERT( item.access >= count );
+    LBASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access >= count );
 
     item.access -= count;
     _releaseItems( 1 );
     return true;
 }
 
-bool InstanceCache::erase( const base::UUID& id )
+bool InstanceCache::erase( const UUID& id )
 {
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     ItemHash::iterator i = _items->find( id );
     if( i == _items->end( ))
         return false;
@@ -267,9 +267,9 @@ void InstanceCache::expire( const int64_t timeout )
     if( time <= 0 )
         return;
 
-    std::vector< base::uint128_t > keys;
+    std::vector< lunchbox::uint128_t > keys;
 
-    base::ScopedMutex<> mutex( _items );
+    lunchbox::ScopedMutex<> mutex( _items );
     for( ItemHash::iterator i = _items->begin(); i != _items->end(); ++i )
     {
         Item& item = i->second;
@@ -281,7 +281,7 @@ void InstanceCache::expire( const int64_t timeout )
             keys.push_back( i->first );
     }
 
-    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< lunchbox::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         _items->erase( *i );
@@ -291,7 +291,7 @@ void InstanceCache::expire( const int64_t timeout )
 void InstanceCache::_releaseStreams( InstanceCache::Item& item, 
                                      const int64_t minTime )
 {
-    EQASSERT( item.access == 0 );
+    LBASSERT( item.access == 0 );
     while( !item.data.versions.empty() && item.times.front() <= minTime &&
            item.data.versions.front()->isReady( ))
     {
@@ -301,8 +301,8 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item,
 
 void InstanceCache::_releaseStreams( InstanceCache::Item& item )
 {
-    EQASSERT( item.access == 0 );
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access == 0 );
+    LBASSERT( !item.data.versions.empty( ));
 
     while( !item.data.versions.empty( ))
     {
@@ -315,8 +315,8 @@ void InstanceCache::_releaseStreams( InstanceCache::Item& item )
 
 void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
 {
-    EQASSERT( item.access == 0 );
-    EQASSERT( !item.data.versions.empty( ));
+    LBASSERT( item.access == 0 );
+    LBASSERT( !item.data.versions.empty( ));
     if( item.data.versions.empty( ))
         return;
 
@@ -328,8 +328,8 @@ void InstanceCache::_releaseFirstStream( InstanceCache::Item& item )
 
 void InstanceCache::_deleteStream( ObjectDataIStream* stream )
 {
-    EQASSERT( stream->isReady( ));
-    EQASSERT( _size >= stream->getDataSize( ));
+    LBASSERT( stream->isReady( ));
+    LBASSERT( _size >= stream->getDataSize( ));
 
     _size -= stream->getDataSize();
     delete stream;
@@ -340,9 +340,9 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     if( _size <= _maxSize )
         return;
 
-    EQ_TS_SCOPED( _thread );
+    LB_TS_SCOPED( _thread );
 
-    std::vector< base::uint128_t > keys;
+    std::vector< lunchbox::uint128_t > keys;
     const uint64_t target = uint64_t( float( _maxSize ) * 0.8f );
 
     // Release used items (first stream)
@@ -351,7 +351,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
          i != _items->end() && _size > target; ++i )
     {
         Item& item = i->second;
-        EQASSERT( !item.data.versions.empty( ));
+        LBASSERT( !item.data.versions.empty( ));
 
         if( item.access == 0 && item.used >= minUsage )
         {
@@ -371,7 +371,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     {
         streamsLeft = false;
 
-        for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+        for( std::vector< lunchbox::uint128_t >::const_iterator i = keys.begin();
              i != keys.end() && _size > target; ++i )
         {
             Item& item = _items.data[ *i ];
@@ -389,7 +389,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
         }
     }
 
-    for( std::vector< base::uint128_t >::const_iterator i = keys.begin();
+    for( std::vector< lunchbox::uint128_t >::const_iterator i = keys.begin();
          i != keys.end(); ++i )
     {
         Item& item = _items.data[ *i ];
@@ -398,7 +398,7 @@ void InstanceCache::_releaseItems( const uint32_t minUsage )
     }
 
     if( _size > target && minUsage == 0 )
-        EQWARN << "Overfull instance cache, too many pinned items, size "
+        LBWARN << "Overfull instance cache, too many pinned items, size "
                << _size << " target " << target << " max " << _maxSize
                << " " << _items->size() << " entries"
 #ifdef EQ_INSTRUMENT_CACHE

@@ -204,7 +204,7 @@ int32_t Global::getIAttribute( const IAttribute attr )
 uint32_t Global::getTimeout()
 {
     return getIAttribute( IATTR_ROBUSTNESS ) ? 
-        getIAttribute( IATTR_TIMEOUT_DEFAULT ) : EQ_TIMEOUT_INDEFINITE;
+        getIAttribute( IATTR_TIMEOUT_DEFAULT ) : LB_TIMEOUT_INDEFINITE;
 }
 
 uint32_t Global::getKeepaliveTimeout()

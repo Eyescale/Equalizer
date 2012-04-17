@@ -34,7 +34,7 @@
 #include <eq/fabric/wall.h>       // used in inline method
 #include <eq/fabric/zoom.h>       // member
 #include <co/barrier.h>
-#include <co/base/thread.h>
+#include <lunchbox/thread.h>
 #include <iostream>
 #include <vector>
 
@@ -234,7 +234,7 @@ namespace server
         float getMaxFPS() const                    { return _data.maxFPS; }
 
         void setUsage( const float usage )         
-            { EQASSERT( usage >= 0.f ); _usage = usage; }
+            { LBASSERT( usage >= 0.f ); _usage = usage; }
         float getUsage() const                     { return _usage; }
 
         void setTaskID( const uint32_t id )        { _taskID = id; }
@@ -598,7 +598,7 @@ namespace server
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQ_TS_VAR( _serverThread );
+        LB_TS_VAR( _serverThread );
 
         //-------------------- Methods --------------------
         void _addChild( Compound* child );

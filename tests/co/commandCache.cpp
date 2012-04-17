@@ -23,7 +23,7 @@
 #include <co/commandQueue.h>
 #include <co/dispatcher.h>
 #include <co/init.h>
-#include <co/base/clock.h>
+#include <lunchbox/clock.h>
 
 // Tests the functionality of the network packet cache
 
@@ -40,7 +40,7 @@ struct Packet : public co::Packet
 };
 
 
-class Reader : public co::Dispatcher, public co::base::Thread
+class Reader : public co::Dispatcher, public lunchbox::Thread
 {
 public:
     bool _cmd( co::Command& command ) { return true; }
@@ -88,7 +88,7 @@ int main( int argc, char **argv )
         co::LocalNodePtr node = new co::LocalNode;
         size_t nOps = 0;
 
-        co::base::Clock clock;
+        lunchbox::Clock clock;
         while( clock.getTime64() < RUNTIME )
         {
             co::Command& command = cache.alloc( node, node, sizeof( Packet ));

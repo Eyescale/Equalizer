@@ -30,7 +30,6 @@ set(SEQUEL_HEADERS
     api.h
     application.h
     error.h
-    objectFactory.h
     objectType.h
     renderer.h
     sequel.h

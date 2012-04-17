@@ -18,7 +18,7 @@
 #ifndef EQSEQUEL_RENDERER_H
 #define EQSEQUEL_RENDERER_H
 
-#include <seq/objectFactory.h> // interface
+#include <co/objectFactory.h> // interface
 #include <seq/types.h>
 
 namespace seq
@@ -29,7 +29,7 @@ namespace seq
      * All calls to one renderer instance are guaranteed to be executed from a
      * single thread.
      */
-    class Renderer : public ObjectFactory
+    class Renderer : public co::ObjectFactory
     {
     public:
         /** Construct a new renderer. @version 1.0 */
@@ -180,7 +180,6 @@ namespace seq
 
         /** @name ObjectFactory interface, forwards to Application instance. */
         //@{
-        SEQ_API virtual eq::Config* getConfig();
         SEQ_API virtual co::Object* createObject( const uint32_t type );
         SEQ_API virtual void destroyObject( co::Object* object,
                                             const uint32_t type );

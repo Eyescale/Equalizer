@@ -107,11 +107,11 @@ namespace util
 
         /** @return the current width. @version 1.0 */
         int32_t getWidth() const
-            { EQASSERT( !_colors.empty( )); return _colors.front()->getWidth();}
+            { LBASSERT( !_colors.empty( )); return _colors.front()->getWidth();}
 
         /** @return the current height. @version 1.0 */
         int32_t getHeight() const
-            { EQASSERT( !_colors.empty()); return _colors.front()->getHeight();}
+            { LBASSERT( !_colors.empty()); return _colors.front()->getHeight();}
 
         /** @return the vector of color textures. @version 1.0 */
         const Textures& getColorTextures() const { return _colors; }
@@ -144,7 +144,7 @@ namespace util
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
-        EQ_TS_VAR( _thread );
+        LB_TS_VAR( _thread );
 
         /** Check the result after changes to an FBO and set the _valid flag. */
         bool _checkStatus();

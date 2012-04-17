@@ -43,7 +43,7 @@ Canvas::~Canvas()
 ServerPtr Canvas::getServer() 
 {
     Config* config = getConfig();
-    EQASSERT( config );
+    LBASSERT( config );
     return ( config ? config->getServer() : 0 );
 }
 

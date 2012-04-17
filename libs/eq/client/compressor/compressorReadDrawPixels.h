@@ -43,7 +43,7 @@ public:
     virtual void compress( const void* const inData, 
                            const eq_uint64_t nPixels, 
                            const bool        useAlpha )
-        { EQDONTCALL; }
+        { LBDONTCALL; }
     
     static bool isCompatible( const GLEWContext* glewContext );
     
@@ -73,7 +73,7 @@ public:
                                  void**             out );
 
 protected:
-    co::base::Bufferb _buffer;
+    lunchbox::Bufferb _buffer;
     util::Texture*    _texture;
     util::Texture*    _asyncTexture;
     util::PixelBufferObject* _pbo;

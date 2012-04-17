@@ -26,6 +26,8 @@
 /** @cond IGNORE */
 namespace eq
 {
+namespace detail { struct RBStat; }
+
     struct ChannelConfigInitPacket : public ChannelPacket
     {
         ChannelConfigInitPacket( const uint128_t& initID_ )
@@ -58,9 +60,20 @@ namespace eq
             }
     };
 
+    struct ChannelDeleteTransferContextPacket: public ChannelPacket
+    {
+        ChannelDeleteTransferContextPacket( const uint32_t req )
+                : requestID( req )
+            {
+                command = fabric::CMD_CHANNEL_DELETE_TRANSFER_CONTEXT;
+                size    = sizeof( ChannelDeleteTransferContextPacket );
+            }
+        const uint32_t requestID;
+    };
+
     struct ChannelConfigExitReplyPacket : public ChannelPacket
     {
-        ChannelConfigExitReplyPacket( const co::base::UUID& channelID, const bool res )
+        ChannelConfigExitReplyPacket( const UUID& channelID, const bool res )
                 : result( res )
             {
                 command   = fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY;
@@ -120,7 +133,7 @@ namespace eq
         Viewport region;
         uint32_t frameNumber;
         uint32_t nStatistics;
-        EQ_ALIGN8( Statistic statistics[1] );
+        LB_ALIGN8( Statistic statistics[1] );
     };
         
 
@@ -164,8 +177,8 @@ namespace eq
                 size          = sizeof( ChannelFrameAssemblePacket );
             }
 
-        uint32_t             nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        uint32_t nFrames;
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
         
     struct ChannelFrameReadbackPacket : public ChannelTaskPacket
@@ -176,34 +189,73 @@ namespace eq
                 size          = sizeof( ChannelFrameReadbackPacket );
             }
 
-        uint32_t             nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        uint32_t nFrames;
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
-    struct ChannelFrameTransmitImagePacket : public ChannelTaskPacket
+    struct ChannelFrameTransmitImagePacket : public ChannelPacket
     {
         ChannelFrameTransmitImagePacket()
-                : fill( 0 )
         {
             command       = fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE;
             size          = sizeof( ChannelFrameTransmitImagePacket );
         }
 
         co::ObjectVersion  frameData;
+        uint128_t          nodeID;
         uint128_t          netNodeID;
-        uint128_t          clientNodeID;
         uint64_t           imageIndex;
         uint32_t           frameNumber;
-        const uint32_t     fill;
+        uint32_t           taskID;
     };
 
-    struct ChannelFrameSetReadyPacket : public ChannelFrameTransmitImagePacket
+    struct ChannelFrameSetReadyPacket : public ChannelPacket
     {
-        ChannelFrameSetReadyPacket()
+        ChannelFrameSetReadyPacket( const co::ObjectVersion& fd,
+                                    detail::RBStat* s, const uint32_t n )
+                : frameData( fd ), stat( s ), nNodes( n )
+            {
+                command = fabric::CMD_CHANNEL_FRAME_SET_READY;
+                size = sizeof( ChannelFrameSetReadyPacket );
+            }
+
+        const co::ObjectVersion frameData;
+        detail::RBStat* stat;
+        const uint32_t nNodes;
+        LB_ALIGN8( uint128_t IDs[1] );
+    };
+
+    struct ChannelFrameSetReadyNodePacket : public ChannelPacket
+    {
+        ChannelFrameSetReadyNodePacket( const co::ObjectVersion& fd,
+                                        const uint128_t& n, const uint128_t nn,
+                                        const uint32_t f )
+                : frameData( fd ), nodeID( n ), netNodeID( nn ), frameNumber(f)
         {
-            command       = fabric::CMD_CHANNEL_FRAME_SET_READY;
-            size          = sizeof( ChannelFrameSetReadyPacket );
+            command       = fabric::CMD_CHANNEL_FRAME_SET_READY_NODE;
+            size          = sizeof( ChannelFrameSetReadyNodePacket );
         }
+
+        const co::ObjectVersion frameData;
+        const uint128_t nodeID;
+        const uint128_t netNodeID;
+        const uint32_t frameNumber;
+    };
+
+    struct ChannelFinishReadbackPacket : public ChannelPacket
+    {
+        ChannelFinishReadbackPacket()
+            {
+                command = fabric::CMD_CHANNEL_FINISH_READBACK;
+                size = sizeof( ChannelFinishReadbackPacket );
+            }
+
+        co::ObjectVersion  frameData;
+        uint64_t           imageIndex;
+        uint32_t           frameNumber;
+        uint32_t           taskID;
+        uint32_t           nNodes;
+        LB_ALIGN8( uint128_t IDs[1] );
     };
 
     struct ChannelFrameViewStartPacket : public ChannelTaskPacket
@@ -236,7 +288,7 @@ namespace eq
         co::ObjectVersion queueVersion;
         uint32_t          tasks;
         uint32_t          nFrames;
-        EQ_ALIGN8( co::ObjectVersion frames[1] );
+        LB_ALIGN8( co::ObjectVersion frames[1] );
     };
 
     inline std::ostream& operator << ( std::ostream& os, 
@@ -278,11 +330,10 @@ namespace eq
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 
-                                     const ChannelFrameTransmitImagePacket* packet )
+                                 const ChannelFrameTransmitImagePacket* packet )
     {
         os << (co::ObjectPacket*)packet << " frame data " << packet->frameData
-           << " receiver " << packet->clientNodeID << " on "
-           << packet->netNodeID;
+           << " receiver " << packet->nodeID << " on " << packet->netNodeID;
         return os;
     }
     inline std::ostream& operator << ( std::ostream& os, 

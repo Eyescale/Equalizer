@@ -51,7 +51,6 @@ namespace eqPly
         uint32_t           getMaxFrames()   const { return _maxFrames; }
         bool               useColor()       const { return _color; }
         bool               isResident()     const { return _isResident; }
-        bool               useMultiProcess() const { return _multiProcess; }
 
         const std::vector< std::string >& getFilenames() const
             { return _filenames; }
@@ -65,7 +64,6 @@ namespace eqPly
         uint32_t    _maxFrames;
         bool        _color;
         bool        _isResident;
-        bool        _multiProcess;
     };
 }
 

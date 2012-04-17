@@ -27,7 +27,7 @@
 #include <eq/fabric/iAttribute.h>       // eq::OFF enum
 #include <eq/fabric/pipe.h>             // parent
 #include <eq/fabric/pixelViewport.h>    // member
-#include <co/base/monitor.h>            // member
+#include <lunchbox/monitor.h>            // member
 
 #include <ostream>
 #include <vector>
@@ -125,7 +125,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const co::base::UUID& id );
+        virtual void removeChild( const UUID& id );
 
     private:
         /** Number of activations for this pipe. */
@@ -134,7 +134,7 @@ namespace server
         friend class Node;
 
         /** The current state for state change synchronization. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
 
         /** The last draw window for this entity. */
         const Window* _lastDrawWindow;

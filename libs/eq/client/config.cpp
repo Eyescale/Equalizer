@@ -44,7 +44,7 @@
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace eq
 {
@@ -60,16 +60,16 @@ Config::Config( ServerPtr server )
         , _finishedFrame( 0 )
         , _running( false )
 {
-    co::base::Log::setClock( &_clock );
+    lunchbox::Log::setClock( &_clock );
 }
 
 Config::~Config()
 {
-    EQASSERT( getObservers().empty( ));
-    EQASSERT( getLayouts().empty( ));
-    EQASSERT( getCanvases().empty( ));
-    EQASSERT( getNodes().empty( ));
-    EQASSERT( _latencyObjects->empty() );
+    LBASSERT( getObservers().empty( ));
+    LBASSERT( getLayouts().empty( ));
+    LBASSERT( getCanvases().empty( ));
+    LBASSERT( getNodes().empty( ));
+    LBASSERT( _latencyObjects->empty() );
 
     while( tryNextEvent( )) /* flush all pending events */ ;
     if( _lastEvent )
@@ -77,7 +77,7 @@ Config::~Config()
     _eventQueue.flush();
     _lastEvent = 0;
     _appNode   = 0;
-    co::base::Log::setClock( 0 );
+    lunchbox::Log::setClock( 0 );
 }
 
 void Config::attach( const UUID& id, const uint32_t instanceID )
@@ -114,12 +114,12 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
 void Config::notifyAttached()
 {
     fabric::Object::notifyAttached();
-    EQASSERT( !_appNode )
-    EQASSERT( getAppNodeID().isGenerated() )
+    LBASSERT( !_appNode )
+    LBASSERT( getAppNodeID().isGenerated() )
     co::LocalNodePtr localNode = getLocalNode();
     _appNode = localNode->connect( getAppNodeID( ));
     if( !_appNode )
-        EQWARN << "Connection to application node failed -- misconfigured "
+        LBWARN << "Connection to application node failed -- misconfigured "
                << "connections on appNode?" << std::endl;
 }
 
@@ -127,7 +127,7 @@ void Config::notifyDetach()
 {
     {
         ClientPtr client = getClient();
-        co::base::ScopedFastWrite mutex( _latencyObjects );
+        lunchbox::ScopedFastWrite mutex( _latencyObjects );
         while( !_latencyObjects->empty() )
         {
             LatencyObject* latencyObject = _latencyObjects->back();
@@ -171,11 +171,13 @@ class SetDefaultVisitor : public ConfigVisitor
 {
 public:
     SetDefaultVisitor( const Strings& activeLayouts, const float modelUnit )
-            : _layouts( activeLayouts ), _modelUnit( modelUnit ) {}
+            : _layouts( activeLayouts ), _modelUnit( modelUnit )
+            , _update( false ) {}
 
     virtual VisitorResult visit( View* view )
         {
-            view->setModelUnit( _modelUnit );
+            if( view->setModelUnit( _modelUnit ))
+                _update = true;
             return TRAVERSE_CONTINUE;
         }
 
@@ -189,22 +191,28 @@ public:
                 for( LayoutsCIter j = layouts.begin(); j != layouts.end(); ++j )
                 {
                     const Layout* layout = *j;
-                    if( layout->getName() == name )
-                        canvas->useLayout( j - layouts.begin( ));
+                    if( layout->getName() == name &&
+                        canvas->useLayout( j - layouts.begin( )))
+                    {
+                        _update = true;
+                    }
                 }
             }
             return TRAVERSE_CONTINUE;
         }
 
+    bool needsUpdate() const { return _update; }
+
 private:
     const Strings& _layouts;
     const float _modelUnit;
+    bool _update;
 };
 }
 
 bool Config::init( const uint128_t& initID )
 {
-    EQASSERT( !_running );
+    LBASSERT( !_running );
     _currentFrame = 0;
     _unlockedFrame = 0;
     _finishedFrame = 0;
@@ -214,6 +222,8 @@ bool Config::init( const uint128_t& initID )
     SetDefaultVisitor defaults( client->getActiveLayouts(),
                                 client->getModelUnit( ));
     accept( defaults );
+    if( defaults.needsUpdate( ))
+        update();
 
     co::LocalNodePtr localNode = getLocalNode();
     ConfigInitPacket packet;
@@ -229,7 +239,7 @@ bool Config::init( const uint128_t& initID )
     if( _running )
         handleEvents();
     else
-        EQWARN << "Config initialization failed: " << getError() << std::endl
+        LBWARN << "Config initialization failed: " << getError() << std::endl
                << "    Consult client log for further information" << std::endl;
     return _running;
 }
@@ -281,7 +291,7 @@ bool Config::update()
     uint32_t finishID = 0;
     client->waitRequest( packet.finishID, finishID );
 
-    if( finishID == EQ_UNDEFINED_UINT32 )
+    if( finishID == LB_UNDEFINED_UINT32 )
     {
         sync( version );
         client->unregisterRequest( packet.requestID );
@@ -315,7 +325,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     send( getServer(), packet );
 
     ++_currentFrame;
-    EQLOG( co::base::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
+    LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- " << _currentFrame
                                << std::endl;
     stat.event.data.statistic.frameNumber = _currentFrame;
     return _currentFrame;
@@ -350,7 +360,7 @@ uint32_t Config::finishFrame()
         {
             while( _unlockedFrame < _currentFrame )
                 client->processCommand();
-            EQLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
+            LBLOG( LOG_TASKS ) << "Local frame sync " << _currentFrame
                                << std::endl;
         }
 
@@ -358,18 +368,18 @@ uint32_t Config::finishFrame()
         const Nodes& nodes = getNodes();
         if( !nodes.empty( ))
         {
-            EQASSERT( nodes.size() == 1 );
+            LBASSERT( nodes.size() == 1 );
             const Node* node = nodes.front();
 
             while( node->getFinishedFrame() < frameToFinish )
                 client->processCommand();
-            EQLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
+            LBLOG( LOG_TASKS ) << "Local total sync " << frameToFinish
                                << " @ " << _currentFrame << std::endl;
         }
 
         // global sync
         const uint32_t timeout = getTimeout();
-        if( timeout == EQ_TIMEOUT_INDEFINITE )
+        if( timeout == LB_TIMEOUT_INDEFINITE )
             _finishedFrame.waitGE( frameToFinish );
         else
         {
@@ -380,13 +390,13 @@ uint32_t Config::finishFrame()
             {
                 if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
                 {
-                    EQWARN << "Timeout waiting for nodes to finish frame " 
+                    LBWARN << "Timeout waiting for nodes to finish frame " 
                            << frameToFinish << std::endl;
                     break;
                 }
             }
         }
-        EQLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
+        LBLOG( LOG_TASKS ) << "Global sync " << frameToFinish << " @ "
                            << _currentFrame << std::endl;
     }
 
@@ -394,7 +404,7 @@ uint32_t Config::finishFrame()
     _updateStatistics( frameToFinish );
     _releaseObjects();
 
-    EQLOG( co::base::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
+    LBLOG( lunchbox::LOG_ANY ) << "---- Finished Frame --- " << frameToFinish
                                << " (" << _currentFrame << ')' << std::endl;
     return frameToFinish;
 }
@@ -404,7 +414,7 @@ uint32_t Config::finishAllFrames()
     if( _finishedFrame == _currentFrame )
         return _currentFrame;
 
-    EQLOG( co::base::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "-- Finish All Frames --" << std::endl;
     ConfigFinishAllFramesPacket packet;
     send( getServer(), packet );
 
@@ -418,14 +428,14 @@ uint32_t Config::finishAllFrames()
         }
         catch( const co::Exception& e )
         {
-            EQWARN << e.what() << std::endl;
+            LBWARN << e.what() << std::endl;
             break;
         } 
     }
     handleEvents();
     _updateStatistics( _currentFrame );
     _releaseObjects();
-    EQLOG( co::base::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
+    LBLOG( lunchbox::LOG_ANY ) << "-- Finished All Frames --" << std::endl;
     return _currentFrame;
 }
 
@@ -483,10 +493,10 @@ void Config::changeLatency( const uint32_t latency )
 
 void Config::sendEvent( ConfigEvent& event )
 {
-    EQASSERT( event.data.type != Event::STATISTIC ||
+    LBASSERT( event.data.type != Event::STATISTIC ||
               event.data.statistic.type != Statistic::NONE );
-    EQASSERT( getAppNodeID() != co::NodeID::ZERO );
-    EQASSERT( _appNode.isValid( ));
+    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( _appNode.isValid( ));
 
     if( _appNode.isValid( ))
         send( _appNode, event );
@@ -547,16 +557,16 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::STATISTIC:
         {
-            EQLOG( LOG_STATS ) << event->data << std::endl;
+            LBLOG( LOG_STATS ) << event->data << std::endl;
 
             const uint32_t originator = event->data.serial;
-            EQASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
+            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
             if( originator == 0 )
                 return false;
 
             const Statistic& statistic = event->data.statistic;
             const uint32_t   frame     = statistic.frameNumber;
-            EQASSERT( statistic.type != Statistic::NONE )
+            LBASSERT( statistic.type != Statistic::NONE )
 
             if( frame == 0 ||      // Not a frame-related stat event or
                 statistic.type == Statistic::NONE ) // No event-type set
@@ -564,7 +574,7 @@ bool Config::handleEvent( const ConfigEvent* event )
                 return false;
             }
 
-            co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+            lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
 
             for( std::deque<FrameStatistics>::iterator i =_statistics->begin();
                  i != _statistics->end(); ++i )
@@ -592,7 +602,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            EQASSERT( event->data.originator != UUID::ZERO );
+            LBASSERT( event->data.originator != UUID::ZERO );
             View* view = find< View >( event->data.originator );
             if( view )
                 return view->handleEvent( event->data );
@@ -609,7 +619,7 @@ bool Config::_needsLocalSync() const
     if( nodes.empty( ))
         return true; // server sends unlock command - process it
 
-    EQASSERT( nodes.size() == 1 );
+    LBASSERT( nodes.size() == 1 );
     const Node* node = nodes.front();
     switch( node->getIAttribute( Node::IATTR_THREAD_MODEL ))
     {
@@ -628,7 +638,7 @@ bool Config::_needsLocalSync() const
             break;
                 
         default:
-            EQUNIMPLEMENTED;
+            LBUNIMPLEMENTED;
     }
 
     return true;
@@ -637,7 +647,7 @@ bool Config::_needsLocalSync() const
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
     // keep statistics for three frames
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
     while( !_statistics->empty() &&
            finishedFrame - _statistics->front().first > 2 )
     {
@@ -647,7 +657,7 @@ void Config::_updateStatistics( const uint32_t finishedFrame )
 
 void Config::getStatistics( std::vector< FrameStatistics >& statistics )
 {
-    co::base::ScopedMutex< co::base::SpinLock > mutex( _statistics );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _statistics );
 
     for( std::deque<FrameStatistics>::const_iterator i = _statistics->begin();
          i != _statistics->end(); ++i )
@@ -672,8 +682,8 @@ void Config::setupMessagePump( Pipe* pipe )
         return;
 
     // called from pipe threads - but only during init
-    static co::base::Lock _lock;
-    co::base::ScopedWrite mutex( _lock );
+    static lunchbox::Lock _lock;
+    lunchbox::ScopedWrite mutex( _lock );
 
     if( _eventQueue.getMessagePump( )) // Already done
         return;
@@ -682,10 +692,10 @@ void Config::setupMessagePump( Pipe* pipe )
     _eventQueue.setMessagePump( pump );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
-    EQASSERT( queue );
-    EQASSERT( !queue->getMessagePump( ));
+    LBASSERT( queue );
+    LBASSERT( !queue->getMessagePump( ));
 
     queue->setMessagePump( pump );
 }
@@ -697,10 +707,10 @@ void Config::_exitMessagePump()
     _eventQueue.setMessagePump( 0 );
 
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
-    EQASSERT( queue );
-    EQASSERT( queue->getMessagePump() == pump );
+    LBASSERT( queue );
+    LBASSERT( queue->getMessagePump() == pump );
 
     queue->setMessagePump( 0 );
     delete pump;
@@ -709,7 +719,7 @@ void Config::_exitMessagePump()
 MessagePump* Config::getMessagePump()
 {
     ClientPtr client = getClient();
-    CommandQueue* queue = EQSAFECAST( CommandQueue*, 
+    CommandQueue* queue = LBSAFECAST( CommandQueue*, 
                                       client->getMainThreadQueue( ));
     if( queue )
         return queue->getMessagePump();
@@ -720,8 +730,8 @@ void Config::setupServerConnections( const char* connectionData )
 {
     std::string data = connectionData;
     co::ConnectionDescriptions descriptions;
-    EQCHECK( co::deserialize( data, descriptions ));
-    EQASSERTINFO( data.empty(), data << " left from " << connectionData );
+    LBCHECK( co::deserialize( data, descriptions ));
+    LBASSERTINFO( data.empty(), data << " left from " << connectionData );
 
     for( co::ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
@@ -742,8 +752,8 @@ bool Config::registerObject( co::Object* object )
 
 void Config::deregisterObject( co::Object* object )
 {
-    EQASSERT( object )
-    EQASSERT( object->isMaster( ));
+    LBASSERT( object )
+    LBASSERT( object->isMaster( ));
 
     if( !object->isAttached( )) // not registered
         return;
@@ -809,7 +819,7 @@ void Config::_releaseObjects()
 {
     ClientPtr client = getClient();
 
-    co::base::ScopedFastWrite mutex( _latencyObjects );
+    lunchbox::ScopedFastWrite mutex( _latencyObjects );
     while( !_latencyObjects->empty() )
     {
         LatencyObject* latencyObject = _latencyObjects->front();
@@ -830,10 +840,10 @@ bool Config::_cmdCreateNode( co::Command& command )
 {
     const ConfigCreateNodePacket* packet = 
         command.get<ConfigCreateNodePacket>();
-    EQVERB << "Handle create node " << packet << std::endl;
+    LBVERB << "Handle create node " << packet << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
-    EQCHECK( mapObject( node, packet->nodeID ));
+    LBCHECK( mapObject( node, packet->nodeID ));
     return true;
 }
 
@@ -841,16 +851,16 @@ bool Config::_cmdDestroyNode( co::Command& command )
 {
     const ConfigDestroyNodePacket* packet =
         command.get<ConfigDestroyNodePacket>();
-    EQVERB << "Handle destroy node " << packet << std::endl;
+    LBVERB << "Handle destroy node " << packet << std::endl;
 
     Node* node = _findNode( packet->nodeID );
-    EQASSERT( node );
+    LBASSERT( node );
     if( !node )
         return true;
 
     NodeConfigExitReplyPacket reply( packet->nodeID, node->isStopped( ));
 
-    EQASSERT( node->getPipes().empty( ));
+    LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
@@ -862,7 +872,7 @@ bool Config::_cmdInitReply( co::Command& command )
 {
     const ConfigInitReplyPacket* packet = 
         command.get<ConfigInitReplyPacket>();
-    EQVERB << "handle init reply " << packet << std::endl;
+    LBVERB << "handle init reply " << packet << std::endl;
 
     sync( packet->version );
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
@@ -873,7 +883,7 @@ bool Config::_cmdExitReply( co::Command& command )
 {
     const ConfigExitReplyPacket* packet = 
         command.get<ConfigExitReplyPacket>();
-    EQVERB << "handle exit reply " << packet << std::endl;
+    LBVERB << "handle exit reply " << packet << std::endl;
 
     _exitMessagePump();
     getLocalNode()->serveRequest( packet->requestID, (void*)(packet->result) );
@@ -914,13 +924,13 @@ bool Config::_cmdFrameFinish( co::Command& command )
 {
     const ConfigFrameFinishPacket* packet = 
         command.get<ConfigFrameFinishPacket>();
-    EQLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
+    LBLOG( LOG_TASKS ) << "frame finish " << packet << std::endl;
 
     _finishedFrame = packet->frameNumber;
 
     if( _unlockedFrame < _finishedFrame.get( ))
     {
-        EQWARN << "Finished frame " << _unlockedFrame 
+        LBWARN << "Finished frame " << _unlockedFrame 
                << " was not locally unlocked, enforcing unlock" << std::endl;
         _unlockedFrame = _finishedFrame.get();
     }
@@ -934,7 +944,7 @@ bool Config::_cmdSyncClock( co::Command& command )
     const ConfigSyncClockPacket* packet = 
         command.get< ConfigSyncClockPacket >();
 
-    EQVERB << "sync global clock to " << packet->time << ", drift " 
+    LBVERB << "sync global clock to " << packet->time << ", drift " 
            << packet->time - _clock.getTime64() << std::endl;
 
     _clock.set( packet->time );
@@ -945,7 +955,7 @@ bool Config::_cmdSwapObject( co::Command& command )
 {
     const ConfigSwapObjectPacket* packet = 
         command.get<ConfigSwapObjectPacket>();
-    EQVERB << "Cmd swap object " << packet << std::endl;
+    LBVERB << "Cmd swap object " << packet << std::endl;
 
     co::Object* object = packet->object;
     LatencyObject* latencyObject = new LatencyObject( object->getChangeType(),
@@ -953,10 +963,10 @@ bool Config::_cmdSwapObject( co::Command& command )
                                              _currentFrame + getLatency() + 1 );
     getLocalNode()->swapObject( object, latencyObject  );
     {
-        co::base::ScopedFastWrite mutex( _latencyObjects );
+        lunchbox::ScopedFastWrite mutex( _latencyObjects );
         _latencyObjects->push_back( latencyObject );
     }
-    EQASSERT( packet->requestID != EQ_UNDEFINED_UINT32 );
+    LBASSERT( packet->requestID != LB_UNDEFINED_UINT32 );
     getLocalNode()->serveRequest( packet->requestID );
     return true;
 }

@@ -20,7 +20,7 @@
 
 #include "objectCM.h"     // base class
 #include <co/objectVersion.h> // VERSION_FOO values
-#include <co/base/thread.h>  // thread-safety check
+#include <lunchbox/thread.h>  // thread-safety check
 
 namespace co
 {
@@ -47,6 +47,7 @@ namespace co
         virtual uint32_t getMasterInstanceID() const
             { return EQ_INSTANCE_INVALID; }
 
+        virtual void addSlave( Command& command ) { LBDONTCALL; }
         virtual void removeSlaves( NodePtr ) {}
 
         virtual void applyMapData( const uint128_t& version );
@@ -59,7 +60,7 @@ namespace co
     private:
         /* The command handlers. */
         bool _cmdInstance( Command& command );
-        EQ_TS_VAR( _rcvThread );
+        LB_TS_VAR( _rcvThread );
     };
 }
 

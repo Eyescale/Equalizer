@@ -99,7 +99,7 @@ namespace fabric
             }
 
         const uint32_t requestID;
-        co::base::UUID     entityID;
+        UUID     entityID;
     };
 }
 }

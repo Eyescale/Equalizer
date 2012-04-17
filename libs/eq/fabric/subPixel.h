@@ -20,8 +20,8 @@
 #define EQFABRIC_SUBPIXEL_H
 
 #include <eq/fabric/api.h>
-#include <co/base/log.h>
-#include <co/base/types.h>
+#include <lunchbox/log.h>
+#include <lunchbox/types.h>
 
 namespace eq
 {
@@ -89,10 +89,10 @@ namespace fabric
         void validate()
         {
             if( isValid( )) return;
-            EQWARN << "Invalid " << *this << std::endl;
+            LBWARN << "Invalid " << *this << std::endl;
             if( index >= size ) index = 0;
             if( size == 0 )     size = 1;
-            EQWARN << "Corrected " << *this << std::endl;
+            LBWARN << "Corrected " << *this << std::endl;
         }
 
         /** @return true if the pixel specification is valid. @internal */

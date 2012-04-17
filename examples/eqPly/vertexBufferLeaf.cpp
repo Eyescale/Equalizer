@@ -115,9 +115,9 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
     _boundingSphere.y() = ( _boundingBox[0].y() + _boundingBox[1].y() ) * 0.5f;
     _boundingSphere.z() = ( _boundingBox[0].z() + _boundingBox[1].z() ) * 0.5f;
 
-    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
+    _boundingSphere.w()  = LB_MAX( _boundingBox[1].x() - _boundingBox[0].x(),
                                    _boundingBox[1].y() - _boundingBox[0].y() );
-    _boundingSphere.w()  = EQ_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
+    _boundingSphere.w()  = LB_MAX( _boundingBox[1].z() - _boundingBox[0].z(),
                                    _boundingSphere.w() );
     _boundingSphere.w() *= .5f;
 
@@ -147,7 +147,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
   
         center       += normdelta;
 
-        EQASSERTINFO( Vertex( vertex-center ).squared_length() <= 
+        LBASSERTINFO( Vertex( vertex-center ).squared_length() <= 
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );
@@ -163,7 +163,7 @@ const BoundingSphere& VertexBufferLeaf::updateBoundingSphere()
         
         const Vertex centerToPoint   = vertex - center;
         const float  distanceSquared = centerToPoint.squared_length();
-        EQASSERTINFO( distanceSquared <= 
+        LBASSERTINFO( distanceSquared <= 
                 ( radiusSquared + 2.f * std::numeric_limits<float>::epsilon( )),
                       vertex << " c " << center << " r " << radius << " (" 
                              << Vertex( vertex-center ).length() << ")" );

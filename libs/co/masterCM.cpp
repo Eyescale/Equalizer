@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,8 +32,8 @@ MasterCM::MasterCM( Object* object )
         : ObjectCM( object )
         , _version( VERSION_NONE )
 {
-    EQASSERT( object );
-    EQASSERT( object->getLocalNode( ));
+    LBASSERT( object );
+    LBASSERT( object->getLocalNode( ));
 
     // sync commands are send to all instances, even the master gets it
     object->registerCommand( CMD_OBJECT_INSTANCE,
@@ -52,10 +52,10 @@ MasterCM::~MasterCM()
 
 uint128_t MasterCM::sync( const uint128_t& inVersion )
 {
-    EQASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
+    LBASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
                   inVersion == VERSION_HEAD, inVersion );
 #if 0
-    EQLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
+    LBLOG( LOG_OBJECTS ) << "sync to v" << inVersion << ", id " 
                          << _object->getID() << "." << _object->getInstanceID()
                          << std::endl;
 #endif
@@ -80,11 +80,11 @@ uint128_t MasterCM::sync( const uint128_t& inVersion )
 
 uint128_t MasterCM::_apply( ObjectDataIStream* is )
 {
-    EQASSERT( !is->hasInstanceData( ));
+    LBASSERT( !is->hasInstanceData( ));
     _object->unpack( *is );
-    EQASSERTINFO( is->getRemainingBufferSize() == 0 && 
+    LBASSERTINFO( is->getRemainingBufferSize() == 0 && 
                   is->nRemainingBuffers()==0,
-                  "Object " << base::className( _object ) <<
+                  "Object " << lunchbox::className( _object ) <<
                   " did not unpack all data" );
 
     const uint128_t version = is->getVersion();
@@ -93,32 +93,35 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
     return version;
 }
 
-void MasterCM::_sendEmptyVersion( NodePtr node, const uint32_t instanceID,
-                                  const uint128_t& version )
+void MasterCM::addSlave( Command& command )
 {
-    ObjectInstancePacket packet( NodeID::ZERO, _object->getInstanceID( ));
-    packet.type = PACKETTYPE_CO_OBJECT;
-    packet.command = CMD_OBJECT_INSTANCE;
-    packet.last = true;
-    packet.version = version;
-    packet.instanceID = instanceID;
-    _object->send( node, packet );
+    LB_TS_THREAD( _cmdThread );
+    Mutex mutex( _slaves );
+    ObjectCM::_addSlave( command, _version );
+}
+
+void MasterCM::_addSlave( NodePtr node )
+{
+    // OPT: use tr1::unordered_set
+    ++_slavesCount[ node->getNodeID() ];
+    _slaves->push_back( node );
+    stde::usort( *_slaves );
 }
 
 void MasterCM::removeSlave( NodePtr node )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
     const NodeID& nodeID = node->getNodeID();
 
     Mutex mutex( _slaves );
     // remove from subscribers
-    EQASSERTINFO( _slavesCount[ nodeID ] != 0, base::className( _object ));
+    LBASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
 
     --_slavesCount[ nodeID ];
     if( _slavesCount[ nodeID ] == 0 )
     {
         Nodes::iterator i = find( _slaves->begin(), _slaves->end(), node );
-        EQASSERT( i != _slaves->end( ));
+        LBASSERT( i != _slaves->end( ));
         _slaves->erase( i );
         _slavesCount.erase( nodeID );
     }
@@ -126,7 +129,7 @@ void MasterCM::removeSlave( NodePtr node )
 
 void MasterCM::removeSlaves( NodePtr node )
 {
-    EQ_TS_THREAD( _cmdThread );
+    LB_TS_THREAD( _cmdThread );
 
     const NodeID& nodeID = node->getNodeID();
 
@@ -136,7 +139,7 @@ void MasterCM::removeSlaves( NodePtr node )
         return;
 
     NodesIter j = stde::find( *_slaves, node );
-    EQASSERT( j != _slaves->end( ));
+    LBASSERT( j != _slaves->end( ));
     _slaves->erase( j );
     _slavesCount.erase( i );
 }
@@ -146,7 +149,7 @@ void MasterCM::removeSlaves( NodePtr node )
 //---------------------------------------------------------------------------
 bool MasterCM::_cmdSlaveDelta( Command& command )
 {
-    EQ_TS_THREAD( _rcvThread );
+    LB_TS_THREAD( _rcvThread );
     const ObjectSlaveDeltaPacket* packet = 
         command.get< ObjectSlaveDeltaPacket >();
 

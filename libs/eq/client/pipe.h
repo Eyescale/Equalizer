@@ -28,18 +28,19 @@
 #include <eq/fabric/pipe.h>           // base class
 
 #include <co/objectVersion.h>
-#include <co/base/lock.h>
-#include <co/base/monitor.h>
-#include <co/base/refPtr.h>
-#include <co/worker.h>
+#include <lunchbox/lock.h>
+#include <lunchbox/monitor.h>
+#include <lunchbox/refPtr.h>
 
 namespace eq
 {
+namespace detail { class TransferThread; }
+
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
      *
      * All Pipe, Window and Channel task methods are executed in a separate
-     * eq::Worker thread, in parallel with all other pipes in the system. An
+     * co::Worker thread, in parallel with all other pipes in the system. An
      * exception are non-threaded pipes, which execute their tasks on the Node's
      * main thread.
      *
@@ -59,6 +60,8 @@ namespace eq
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         co::CommandQueue* getMainThreadQueue(); //!< @internal
         co::CommandQueue* getCommandThreadQueue(); //!< @internal
+        co::CommandQueue* getTransferThreadQueue(); //!< @internal
+
 
         /** @return the parent configuration. @version 1.0 */
         EQ_API Config* getConfig();
@@ -128,16 +131,6 @@ namespace eq
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames();
 
-        /** @internal @return if the window is made current */
-        bool isCurrent( const Window* window ) const;
-
-        /**
-         * @internal
-         * Set the window as current window.
-         * @sa Window::makeCurrent()
-         */
-        void setCurrent( const Window* window ) const;
-
         /** @internal @return the view for the given identifier and version. */
         const View* getView( const co::ObjectVersion& viewVersion ) const;
 
@@ -147,7 +140,7 @@ namespace eq
 
         void waitExited() const; //!<  @internal Wait for the pipe to be exited
         void notifyMapped(); //!< @internal
-        
+
         /**
          * @internal
          * Wait for a frame to be finished.
@@ -173,6 +166,12 @@ namespace eq
         void exitThread();
 
         void cancelThread(); //!< @internal
+
+        /** @internal Start the async readback thread. */
+        bool startTransferThread();
+
+        /** @internal Checks if async readback thread is running. */
+        bool hasTransferThread() const;
 
         /** 
          * @name Interface to and from the SystemPipe, the window-system
@@ -388,20 +387,20 @@ namespace eq
             STATE_FAILED
         };
         /** The configInit/configExit state. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
 
         /** The last started frame. */
         uint32_t _currentFrame;
 
         /** The number of the last finished frame. */
-        co::base::Monitor< uint32_t > _finishedFrame;
+        lunchbox::Monitor< uint32_t > _finishedFrame;
 
         /** The number of the last locally unlocked frame. */
-        co::base::Monitor<uint32_t> _unlockedFrame;
+        lunchbox::Monitor<uint32_t> _unlockedFrame;
 
         /** The running per-frame statistic clocks. */
         std::deque< int64_t > _frameTimes;
-        co::base::Lock _frameTimeMutex;
+        lunchbox::Lock _frameTimeMutex;
 
         /** The base time for the currently active frame. */
         int64_t _frameTime;
@@ -427,8 +426,7 @@ namespace eq
         class Thread;
         Thread* _thread;
 
-        /** The last window made current. */
-        const mutable Window* _currentWindow;
+        detail::TransferThread* const _transferThread;
 
         /** GPU Computing context */
         ComputeContext *_computeContext;
@@ -442,6 +440,8 @@ namespace eq
         void _exitCommandQueue();
 
         friend class Window;
+
+        void _stopTransferThread();
 
         /** @internal Release the views not used for some revisions. */
         void _releaseViews();
@@ -463,8 +463,9 @@ namespace eq
         bool _cmdFrameDrawFinish( co::Command& command );
         bool _cmdExitThread( co::Command& command );
         bool _cmdDetachView( co::Command& command );
+        bool _cmdExitTransferThread( co::Command& command );
 
-        EQ_TS_VAR( _pipeThread );
+        LB_TS_VAR( _pipeThread );
     };
 }
 

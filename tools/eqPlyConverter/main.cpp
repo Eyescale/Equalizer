@@ -61,19 +61,19 @@ int main( const int argc, char** argv )
         {
             mesh::VertexBufferRoot* model = new mesh::VertexBufferRoot;
             if( !model->readFromFile( filename.c_str( )))
-                EQWARN << "Can't load model: " << filename << std::endl;
+                LBWARN << "Can't load model: " << filename << std::endl;
 
             delete model;
         }
         else
         {
-            const std::string basename = co::base::getFilename( filename );
+            const std::string basename = lunchbox::getFilename( filename );
             if( basename == "." || basename == ".." )
                 continue;
 
             // recursively search directories
             const eq::Strings& subFiles =
-                co::base::searchDirectory( filename, "*" );
+                lunchbox::searchDirectory( filename, "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
                 filenames.push_back( filename + '/' + *i );

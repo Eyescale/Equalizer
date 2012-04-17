@@ -20,7 +20,7 @@
 #include "connectionDescription.h"
 #include "nodePackets.h"
 
-#include <co/base/scopedMutex.h>
+#include <lunchbox/scopedMutex.h>
 
 namespace co
 {
@@ -30,19 +30,19 @@ Node::Node()
         , _state( STATE_CLOSED )
         , _lastReceive ( 0 )
 {
-    EQVERB << "New Node @" << (void*)this << " " << _id << std::endl;
+    LBVERB << "New Node @" << (void*)this << " " << _id << std::endl;
 }
 
 Node::~Node()
 {
-    EQVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
-    EQASSERT( _outgoing == 0 );
+    LBVERB << "Delete Node @" << (void*)this << " " << _id << std::endl;
+    LBASSERT( _outgoing == 0 );
     _connectionDescriptions->clear();
 }
 
 bool Node::operator == ( const Node* node ) const
 { 
-    EQASSERTINFO( _id != node->_id || this == node,
+    LBASSERTINFO( _id != node->_id || this == node,
                   "Two node instances with the same ID found "
                   << (void*)this << " and " << (void*)node );
 
@@ -51,7 +51,7 @@ bool Node::operator == ( const Node* node ) const
 
 ConnectionDescriptions Node::getConnectionDescriptions() const
 {
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _connectionDescriptions );
     return _connectionDescriptions.data;
 }
 
@@ -64,7 +64,7 @@ ConnectionPtr Node::useMulticast()
     if( connection.isValid() && !connection->isClosed( ))
         return connection;
 
-    base::ScopedMutex<> mutex( _outMulticast );
+    lunchbox::ScopedMutex<> mutex( _outMulticast );
     if( _multicasts.empty( ))
         return 0;
 
@@ -73,7 +73,7 @@ ConnectionPtr Node::useMulticast()
     NodePtr node = data.node;
 
     // prime multicast connections on peers
-    EQINFO << "Announcing id " << node->getNodeID() << " to multicast group "
+    LBINFO << "Announcing id " << node->getNodeID() << " to multicast group "
            << data.connection->getDescription() << std::endl;
 
     NodeIDPacket packet;
@@ -90,14 +90,14 @@ void Node::addConnectionDescription( ConnectionDescriptionPtr cd )
     if( cd->type >= CONNECTIONTYPE_MULTICAST && cd->port == 0 )
         cd->port = EQ_DEFAULT_PORT;
 
-    base::ScopedMutex< base::SpinLock > 
+    lunchbox::ScopedMutex< lunchbox::SpinLock > 
                        mutex( _connectionDescriptions );
     _connectionDescriptions->push_back( cd ); 
 }
 
 bool Node::removeConnectionDescription( ConnectionDescriptionPtr cd )
 {
-    base::ScopedMutex< base::SpinLock > 
+    lunchbox::ScopedMutex< lunchbox::SpinLock > 
                        mutex( _connectionDescriptions );
 
     // Don't use std::find, RefPtr::operator== compares pointers, not values.
@@ -117,7 +117,7 @@ std::string Node::serialize() const
 {
     std::ostringstream data;
     {
-        base::ScopedMutex< base::SpinLock >
+        lunchbox::ScopedMutex< lunchbox::SpinLock >
                                             mutex( _connectionDescriptions );
         data << _id << CO_SEPARATOR
              << co::serialize( _connectionDescriptions.data );
@@ -127,27 +127,27 @@ std::string Node::serialize() const
  
 bool Node::deserialize( std::string& data )
 {
-    EQASSERT( _state == STATE_CLOSED );
+    LBASSERT( _state == STATE_CLOSED );
 
     // node id
     size_t nextPos = data.find( CO_SEPARATOR );
     if( nextPos == std::string::npos || nextPos == 0 )
     {
-        EQERROR << "Could not parse node data" << std::endl;
+        LBERROR << "Could not parse node data" << std::endl;
         return false;
     }
 
     _id = data.substr( 0, nextPos );
     data = data.substr( nextPos + 1 );
 
-    base::ScopedMutex< base::SpinLock > mutex( _connectionDescriptions );
+    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _connectionDescriptions );
     _connectionDescriptions->clear();
     return co::deserialize( data, _connectionDescriptions.data );
 }
 
 NodePtr Node::createNode( const uint32_t type )
 {
-    EQASSERTINFO( type == NODETYPE_CO_NODE, type );
+    LBASSERTINFO( type == NODETYPE_CO_NODE, type );
     return new Node;
 }
 

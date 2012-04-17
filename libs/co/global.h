@@ -131,7 +131,7 @@ namespace co
         /** @return the value of an integer attribute. */
         CO_API static int32_t getIAttribute( const IAttribute attr );
 
-        /** @return the timeout, a concrete time or EQ_TIMEOUT_INDEFINITE. */
+        /** @return the timeout, a concrete time or LB_TIMEOUT_INDEFINITE. */
         CO_API static uint32_t getTimeout();
         //@}
 

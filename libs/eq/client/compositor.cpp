@@ -17,7 +17,7 @@
  */
 
 #include <pthread.h>
-#include <co/base/perThread.h>
+#include <lunchbox/perThread.h>
 
 #include "channel.h"
 #include "channelStatistics.h"
@@ -37,8 +37,8 @@
 #include <eq/util/objectManager.h>
 
 #include <co/global.h>
-#include <co/base/debug.h>
-#include <co/base/monitor.h>
+#include <lunchbox/debug.h>
+#include <lunchbox/monitor.h>
 
 #include <co/plugins/compressor.h>
 
@@ -50,7 +50,7 @@
 #  define bzero( ptr, size ) { memset( ptr, 0, size ); }
 #endif
 
-using co::base::Monitor;
+using lunchbox::Monitor;
 
 namespace eq
 {
@@ -66,7 +66,7 @@ static const char* colorDBKey  = shaderDBKey + 1;
 static const char* depthDBKey  = shaderDBKey + 2;
 
 // Image used for CPU-based assembly
-static co::base::PerThread< Image > _resultImage;
+static lunchbox::PerThread< Image > _resultImage;
 
 static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
                              const bool blendAlpha = false )
@@ -218,7 +218,7 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
 {
     const PixelViewport& pvp = channel->getPixelViewport();
 
-    EQASSERT( pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
     Window::ObjectManager* objects = channel->getObjectManager();
     util::Accum* accum = objects->getEqAccum( channel );
@@ -227,7 +227,7 @@ util::Accum* Compositor::_obtainAccum( Channel* channel )
         accum = objects->newEqAccum( channel );
         if( !accum->init( pvp, channel->getWindow()->getColorFormat( )))
         {
-            EQERROR << "Accumulation initialization failed." << std::endl;
+            LBERROR << "Accumulation initialization failed." << std::endl;
         }
     }
     else
@@ -262,7 +262,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
             Frames current = _extractOneSubPixel( framesLeft );
             const uint32_t subCount = assembleFramesSorted( current, channel,
                                                             accum, blendAlpha );
-            EQASSERT( subCount < 2 );
+            LBASSERT( subCount < 2 );
 
             if( subCount > 0 )
                 accum->accum();
@@ -276,7 +276,7 @@ uint32_t Compositor::assembleFramesSorted( const Frames& frames,
     if( blendAlpha )
     {
         glEnable( GL_BLEND );
-        EQASSERT( GLEW_EXT_blend_func_separate );
+        LBASSERT( GLEW_EXT_blend_func_separate );
         glBlendFuncSeparate( GL_ONE, GL_SRC_ALPHA, GL_ZERO, GL_SRC_ALPHA );
     }
 
@@ -360,7 +360,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     if( frames.empty( ))
         return 0;
 
-    EQVERB << "Unsorted GPU assembly" << std::endl;
+    LBVERB << "Unsorted GPU assembly" << std::endl;
     if( _isSubPixelDecomposition( frames ))
     {
         uint32_t count = 0;
@@ -382,7 +382,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
 
             // use assembleFrames to potentially benefit from CPU assembly
             const uint32_t subCount = assembleFrames( current, channel, accum );
-            EQASSERT( subCount < 2 )
+            LBASSERT( subCount < 2 )
             if( subCount > 0 )
                 accum->accum();
             count += subCount;
@@ -429,7 +429,7 @@ public:
             left.clear();
         }
 
-    co::base::Monitor< uint32_t > monitor;
+    lunchbox::Monitor< uint32_t > monitor;
     Frames left;
     Channel* const channel;
     uint32_t processed;
@@ -459,7 +459,7 @@ Frame* Compositor::waitFrame( WaitHandle* handle )
     const uint32_t timeout = config->getTimeout();
 
     ++handle->processed;
-    if( timeout == EQ_TIMEOUT_INDEFINITE )
+    if( timeout == LB_TIMEOUT_INDEFINITE )
         handle->monitor.waitGE( handle->processed );
     else
     {
@@ -495,7 +495,7 @@ Frame* Compositor::waitFrame( WaitHandle* handle )
         return frame;
     }
 
-    EQASSERTINFO( false, "Unreachable code" );
+    LBASSERTINFO( false, "Unreachable code" );
     delete handle;
     return 0;
 }
@@ -506,7 +506,7 @@ uint32_t Compositor::assembleFramesCPU( const Frames& frames, Channel* channel,
     if( frames.empty( ))
         return 0;
 
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBVERB << "Sorted CPU assembly" << std::endl;
     // Assembles images from DB and 2D compounds using the CPU and then
     // assembles the result image. Does not yet support Pixel or Eye
     // compounds.
@@ -536,7 +536,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
                                          const bool blendAlpha,
                                          const uint32_t timeout )
 {
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBVERB << "Sorted CPU assembly" << std::endl;
 
     // Collect input image information and check preconditions
     PixelViewport destPVP;
@@ -562,7 +562,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     Image* result = _resultImage.get();
 
     // pre-condition check for current _merge implementations
-    EQASSERT( colorInternalFormat != 0 );
+    LBASSERT( colorInternalFormat != 0 );
 
     result->setPixelViewport( destPVP );
 
@@ -576,7 +576,7 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     void* destDepth = 0;
     if( depthInternalFormat != 0 ) // at least one depth assembly
     {
-        EQASSERT( depthExternalFormat ==
+        LBASSERT( depthExternalFormat ==
                   EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
         PixelData depthPixels;
         depthPixels.internalFormat = depthInternalFormat;
@@ -606,7 +606,7 @@ bool Compositor::_collectOutputData(
         Frame* frame = *i;
         frame->waitReady( timeout );
 
-        EQASSERTINFO( frame->getPixel() == Pixel::ALL &&
+        LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
                       frame->getZoom() == Zoom::NONE &&
                       frame->getData()->getZoom() == Zoom::NONE,
@@ -618,7 +618,7 @@ bool Compositor::_collectOutputData(
         for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
-            EQASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
+            LBASSERT( image->getStorageType() == Frame::TYPE_MEMORY );
             if( image->getStorageType() != Frame::TYPE_MEMORY )
                 return false;
 
@@ -642,7 +642,7 @@ bool Compositor::_collectOutputData(
 
     if( !destPVP.hasArea( ))
     {
-        EQWARN << "Nothing to assemble: " << destPVP << std::endl;
+        LBWARN << "Nothing to assemble: " << destPVP << std::endl;
         return false;
     }
 
@@ -654,11 +654,11 @@ void Compositor::_collectOutputData( const PixelData& pixelData,
                                      uint32_t& pixelSize,
                                      uint32_t& externalFormat )
 {
-    EQASSERT( internalFormat == GL_NONE ||
+    LBASSERT( internalFormat == GL_NONE ||
               internalFormat == pixelData.internalFormat );
-    EQASSERT( externalFormat == GL_NONE ||
+    LBASSERT( externalFormat == GL_NONE ||
               externalFormat == pixelData.externalFormat );
-    EQASSERT( pixelSize == GL_NONE || pixelSize == pixelData.pixelSize );
+    LBASSERT( pixelSize == GL_NONE || pixelSize == pixelData.pixelSize );
     internalFormat    = pixelData.internalFormat;
     pixelSize         = pixelData.pixelSize;
     externalFormat    = pixelData.externalFormat;
@@ -672,8 +672,8 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
                                  PixelViewport& outPVP,
                                  const uint32_t timeout )
 {
-    EQASSERT( colorBuffer );
-    EQVERB << "Sorted CPU assembly" << std::endl;
+    LBASSERT( colorBuffer );
+    LBVERB << "Sorted CPU assembly" << std::endl;
     
     // Collect input image information and check preconditions
     uint32_t colorInternalFormat    = 0;
@@ -691,7 +691,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
         return false;
 
     // pre-condition check for current _merge implementations
-    EQASSERT( colorInternalFormat != 0 );
+    LBASSERT( colorInternalFormat != 0 );
 
     // check output buffers
     const uint32_t area = outPVP.getArea();
@@ -711,31 +711,31 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
             nChannels = 3;
             break;
         default:
-            EQASSERT( false );
+            LBASSERT( false );
     }
 
     if( colorBufferSize < area * nChannels )
     {
-        EQWARN << "Color output buffer to small" << std::endl;
+        LBWARN << "Color output buffer to small" << std::endl;
         return false;
     }
 
     if( depthInternalFormat != 0 ) // at least one depth assembly
     {
-        EQASSERT( depthBuffer );
-        EQASSERT( depthInternalFormat == GL_DEPTH_COMPONENT );
-        EQASSERT( depthExternalFormat == 
+        LBASSERT( depthBuffer );
+        LBASSERT( depthInternalFormat == GL_DEPTH_COMPONENT );
+        LBASSERT( depthExternalFormat == 
                   EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
 
         if( !depthBuffer )
         {
-            EQWARN << "No depth output buffer provided" << std::endl;
+            LBWARN << "No depth output buffer provided" << std::endl;
             return false;
         }
 
         if( depthBufferSize < area * 4 )
         {
-            EQWARN << "Depth output buffer to small" << std::endl;
+            LBWARN << "Depth output buffer to small" << std::endl;
             return false;
         }
     }
@@ -778,9 +778,9 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
                                 const Image* image, 
                                 const Vector2i& offset )
 {
-    EQASSERT( destColor && destDepth );
+    LBASSERT( destColor && destDepth );
 
-    EQVERB << "CPU-DB assembly" << std::endl;
+    LBVERB << "CPU-DB assembly" << std::endl;
 
     uint32_t* destC = reinterpret_cast< uint32_t* >( destColor );
     uint32_t* destD = reinterpret_cast< uint32_t* >( destDepth );
@@ -794,7 +794,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
         if( _mergeImage_PC( PC_COMP_DEPTH, destColor, destDepth, image ))
             return;
 
-        EQWARN << "Paracomp compositing failed, using fallback" << std::endl;
+        LBWARN << "Paracomp compositing failed, using fallback" << std::endl;
     }
 #endif
 
@@ -839,7 +839,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
                                 const Vector2i& offset )
 {
     // This is mostly copy&paste code from _mergeDBImage :-/
-    EQVERB << "CPU-2D assembly" << std::endl;
+    LBVERB << "CPU-2D assembly" << std::endl;
 
     uint8_t* destC = reinterpret_cast< uint8_t* >( destColor );
     uint8_t* destD = reinterpret_cast< uint8_t* >( destDepth );
@@ -848,7 +848,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
 
     const uint8_t*   color = image->getPixelPointer( Frame::BUFFER_COLOR );
     const size_t pixelSize = image->getPixelSize( Frame::BUFFER_COLOR );
@@ -874,7 +874,7 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
                                    const Image* image,
                                    const Vector2i& offset )
 {
-    EQVERB << "CPU-Blend assembly"<< std::endl;
+    LBVERB << "CPU-Blend assembly"<< std::endl;
 
     int32_t* destColor = reinterpret_cast< int32_t* >( dest );
 
@@ -882,16 +882,16 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     const int32_t         destX  = offset.x() + pvp.x - destPVP.x;
     const int32_t         destY  = offset.y() + pvp.y - destPVP.y;
 
-    EQASSERT( image->getPixelSize( Frame::BUFFER_COLOR ) == 4 );
-    EQASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
-    EQASSERT( image->hasAlpha( ));
+    LBASSERT( image->getPixelSize( Frame::BUFFER_COLOR ) == 4 );
+    LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
+    LBASSERT( image->hasAlpha( ));
     
 #ifdef EQ_USE_PARACOMP_BLEND
     if( pvp == destPVP && offset == eq::Vector2i::ZERO )
     { 
         // Use Paracomp to composite
         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
-            EQWARN << "Paracomp compositing failed, using fallback"
+            LBWARN << "Paracomp compositing failed, using fallback"
                    << std::endl;
         else
             return; // Go to next input image
@@ -925,9 +925,9 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
 
         for( int32_t x = 0; x < pvp.w; ++x )
         {
-            dst[0] = EQ_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
-            dst[1] = EQ_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
-            dst[2] = EQ_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
+            dst[0] = LB_MIN( src[0] + (src[3]*dst[0] >> 8), 255 );
+            dst[1] = LB_MIN( src[1] + (src[3]*dst[1] >> 8), 255 );
+            dst[2] = LB_MIN( src[2] + (src[3]*dst[2] >> 8), 255 );
             dst[3] =                   src[3]*dst[3] >> 8;
 
             src += step;
@@ -980,7 +980,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
     if( colorFormat == 0 )
     {
-        EQWARN << "Format or type of image not supported by Paracomp" << std::endl;
+        LBWARN << "Format or type of image not supported by Paracomp" << std::endl;
         return false;
     }
 
@@ -993,7 +993,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
     output[0].size        = source->getDepth( Frame::BUFFER_COLOR );
 
     const PixelViewport& pvp = source->getPixelViewport();
-    EQASSERT( pvp == source->getPixelViewport( ));
+    LBASSERT( pvp == source->getPixelViewport( ));
 
     input[0].xOffset   = 0;
     input[0].yOffset   = 0;
@@ -1018,7 +1018,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
         if( depthFormat == 0 )
         {
-            EQWARN << "Format or type of image not supported by Paracomp" 
+            LBWARN << "Format or type of image not supported by Paracomp" 
                    << std::endl;
             return false;
         }
@@ -1061,11 +1061,11 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
                                         1, nOutputChannels, outputImage );
     if( error != PC_NO_ERROR )
     {
-        EQWARN << "Paracomp compositing failed: " << error << std::endl;
+        LBWARN << "Paracomp compositing failed: " << error << std::endl;
         return false;
     }
 
-    EQINFO << "Paracomp compositing successful" << std::endl;
+    LBINFO << "Paracomp compositing successful" << std::endl;
     return true;
 }
 #else // EQ_USE_PARACOMP
@@ -1079,7 +1079,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
 {
     const Images& images = frame->getImages();
     if( images.empty( ))
-        EQINFO << "No images to assemble" << std::endl;
+        LBINFO << "No images to assemble" << std::endl;
 
     ImageOp operation;
     operation.channel = channel;
@@ -1118,7 +1118,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
 
     if( operation.buffers == Frame::BUFFER_NONE )
     {
-        EQWARN << "No image attachment buffers to assemble" << std::endl;
+        LBWARN << "No image attachment buffers to assemble" << std::endl;
         return;
     }
 
@@ -1129,7 +1129,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     else if( operation.buffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
         assembleImageDB( image, operation );
     else
-        EQWARN << "Don't know how to assemble using buffers " 
+        LBWARN << "Don't know how to assemble using buffers " 
                << operation.buffers << std::endl;
 
     clearStencilBuffer( operation );
@@ -1230,7 +1230,7 @@ void Compositor::assembleImage2D( const Image* image, const ImageOp& op )
     _drawPixels( image, op, Frame::BUFFER_COLOR );
     declareRegion( image, op );
 #if 0
-    static co::base::a_int32_t counter;
+    static lunchbox::a_int32_t counter;
     std::ostringstream stringstream;
     stringstream << "Image_" << ++counter;
     image->writeImages( stringstream.str( ));
@@ -1241,13 +1241,13 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
                               const Frame::Buffer which )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    EQLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
+    LBLOG( LOG_ASSEMBLY ) << "_drawPixels " << pvp << " offset " << op.offset
                           << std::endl;
 
     const util::Texture* texture = 0;
     if( image->getStorageType() == Frame::TYPE_MEMORY )
     {
-        EQASSERT( image->hasPixelData( which ));
+        LBASSERT( image->hasPixelData( which ));
         Channel* channel = op.channel; // needed for glewGetContext
         Window::ObjectManager* objects = channel->getObjectManager();
 
@@ -1266,7 +1266,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
     }
     else // texture image
     {
-        EQASSERT( image->hasTextureData( which ));
+        LBASSERT( image->hasTextureData( which ));
         texture = &image->getTexture( which );
     }
 
@@ -1278,7 +1278,7 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
         glDepthMask( false );
     else
     {
-        EQASSERT( which == Frame::BUFFER_DEPTH )
+        LBASSERT( which == Frame::BUFFER_DEPTH )
         glColorMask( false, false, false, false );
     }
 
@@ -1336,7 +1336,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
                           << std::endl;
 
     // Z-Based sort-last assembly
@@ -1375,7 +1375,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
-    EQLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, GLSL " << pvp << std::endl;
 
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
@@ -1411,7 +1411,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         // rectangular textures
         const GLuint shader = objects->newShader( shaderDBKey, 
                                                   GL_FRAGMENT_SHADER );
-        EQASSERT( shader != Window::ObjectManager::INVALID );
+        LBASSERT( shader != Window::ObjectManager::INVALID );
 
         const char* source =
             "uniform sampler2DRect color; \
@@ -1426,7 +1426,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            EQERROR << "Failed to compile fragment shader for DB compositing" 
+            LBERROR << "Failed to compile fragment shader for DB compositing" 
                     << std::endl;
 
         program = objects->newProgram( shaderDBKey );
@@ -1437,7 +1437,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            EQWARN << "Failed to link shader program for DB compositing" 
+            LBWARN << "Failed to link shader program for DB compositing" 
                    << std::endl;
             return;
         }

@@ -69,7 +69,7 @@ public:
                                       IN void  *cq_context );
 
     void resetEventRead();
-    eq::base::Lock   _mutex;
+    eq::lunchbox::Lock   _mutex;
     
 private:
 

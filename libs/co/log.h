@@ -18,18 +18,18 @@
 #ifndef CO_LOG_H
 #define CO_LOG_H
 
-#include <co/base/log.h>
+#include <lunchbox/log.h>
 
 namespace co
 {
     enum LogTopics
     {
-        LOG_OBJECTS = base::LOG_CUSTOM << 0,  // 16
-        LOG_BARRIER = base::LOG_CUSTOM << 1,  // 32
-        LOG_RSP     = base::LOG_CUSTOM << 2,  // 64
-        LOG_PACKETS = base::LOG_CUSTOM << 3,  // 128
-        LOG_PLUGIN  = base::LOG_CUSTOM << 4,  // 256
-        LOG_CUSTOM  = base::LOG_CUSTOM << 5   // 512
+        LOG_OBJECTS = lunchbox::LOG_CUSTOM << 0,  // 16
+        LOG_BARRIER = lunchbox::LOG_CUSTOM << 1,  // 32
+        LOG_RSP     = lunchbox::LOG_CUSTOM << 2,  // 64
+        LOG_PACKETS = lunchbox::LOG_CUSTOM << 3,  // 128
+        LOG_PLUGIN  = lunchbox::LOG_CUSTOM << 4,  // 256
+        LOG_CUSTOM  = lunchbox::LOG_CUSTOM << 5   // 512
     };
 }
 #endif // CO_LOG_H

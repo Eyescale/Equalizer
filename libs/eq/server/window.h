@@ -26,8 +26,8 @@
 
 #include <eq/fabric/window.h> // base class
 #include <co/barrier.h>
-#include <co/base/monitor.h>   // member
-#include <co/base/uint128_t.h> // member
+#include <lunchbox/monitor.h>   // member
+#include <lunchbox/uint128_t.h> // member
 #include <iostream>
 #include <vector>
 
@@ -176,7 +176,7 @@ namespace server
         virtual void attach( const UUID& id, const uint32_t instanceID );
 
         /** @internal Execute the slave remove request. */
-        virtual void removeChild( const co::base::UUID& id );
+        virtual void removeChild( const UUID& id );
 
     private:
 
@@ -184,7 +184,7 @@ namespace server
         uint32_t _active;
 
         /** The current state for state change synchronization. */
-        co::base::Monitor< State > _state;
+        lunchbox::Monitor< State > _state;
         
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;

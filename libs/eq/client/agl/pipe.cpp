@@ -47,7 +47,7 @@ bool Pipe::configInit()
     CGDirectDisplayID displayID = CGMainDisplayID();
     const uint32_t device = getPipe()->getDevice();
 
-    if( device != EQ_UNDEFINED_UINT32 )
+    if( device != LB_UNDEFINED_UINT32 )
     {
         CGDirectDisplayID displayIDs[device+1];
         CGDisplayCount    nDisplays;
@@ -69,7 +69,7 @@ bool Pipe::configInit()
     }
 
     _setCGDisplayID( displayID );
-    EQVERB << "Using CG displayID " << displayID << std::endl;
+    LBVERB << "Using CG displayID " << displayID << std::endl;
     return true;
 }
 
@@ -103,7 +103,7 @@ void Pipe::_setCGDisplayID( CGDirectDisplayID id )
 void Pipe::configExit()
 {
     _setCGDisplayID( kCGNullDirectDisplay );
-    EQINFO << "Reset CG displayID " << std::endl;
+    LBINFO << "Reset CG displayID " << std::endl;
 }
 
 }

@@ -67,7 +67,7 @@ bool IBMemBlock::create( ib_pd_handle_t  protectionDomain,
 
     if ( ibStatus != IB_SUCCESS )
     {
-        EQERROR << "Can't create memory region !!!" << std::endl;
+        LBERROR << "Can't create memory region !!!" << std::endl;
         return false;
     }
     return true;

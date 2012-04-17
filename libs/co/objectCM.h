@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -24,12 +24,14 @@
 
 //#define EQ_INSTRUMENT_MULTICAST
 #ifdef EQ_INSTRUMENT_MULTICAST
-#  include <co/base/atomic.h>
+#  include <lunchbox/atomic.h>
 #endif
 
 namespace co
 {
+    struct NodeMapObjectPacket;
     struct NodeMapObjectReplyPacket;
+    struct NodeMapObjectSuccessPacket;
 
     /**
      * @internal
@@ -62,7 +64,7 @@ namespace co
          * @return the new head version.
          */
         virtual uint128_t commit( const uint32_t incarnation )
-            { EQUNIMPLEMENTED; return VERSION_NONE; }
+            { LBUNIMPLEMENTED; return VERSION_NONE; }
 
         /** 
          * Automatically obsolete old versions.
@@ -70,10 +72,10 @@ namespace co
          * @param count the number of versions to retain, excluding the head
          *              version.
          */
-        virtual void setAutoObsolete( const uint32_t count ){ EQUNIMPLEMENTED; }
+        virtual void setAutoObsolete( const uint32_t count ){ LBUNIMPLEMENTED; }
  
         /** @return get the number of versions this object retains. */
-        virtual uint32_t getAutoObsolete() const { EQUNIMPLEMENTED; return 0; }
+        virtual uint32_t getAutoObsolete() const { LBUNIMPLEMENTED; return 0; }
 
         /** 
          * Sync to a given version.
@@ -83,7 +85,7 @@ namespace co
          * @return the version of the object after the operation.
          */
         virtual uint128_t sync( const uint128_t& version )
-            { EQUNIMPLEMENTED; return VERSION_FIRST; }
+            { LBUNIMPLEMENTED; return VERSION_FIRST; }
 
         /** @return the latest available (head) version. */
         virtual uint128_t getHeadVersion() const = 0;
@@ -111,11 +113,8 @@ namespace co
          * Add a subscribed slave to the managed object.
          * 
          * @param command the subscribe command initiating the add.
-         * @param reply the reply packet.
-         * @return the first version the slave has to use from its cache.
          */
-        virtual void addSlave(Command& command, NodeMapObjectReplyPacket& reply)
-            { EQUNIMPLEMENTED; }
+        virtual void addSlave( Command& command ) = 0;
 
         /** 
          * Remove a subscribed slave.
@@ -123,7 +122,7 @@ namespace co
          * @param node the slave node. 
          */
         virtual void removeSlave( NodePtr node )
-            { EQUNIMPLEMENTED; }
+            { LBUNIMPLEMENTED; }
 
         /** Remove all subscribed slaves from the given node. */
         virtual void removeSlaves( NodePtr node ) = 0;
@@ -133,12 +132,12 @@ namespace co
 
         /** Apply the initial data after mapping. */
         virtual void applyMapData( const uint128_t& version )
-            { EQUNIMPLEMENTED; }
+            { LBUNIMPLEMENTED; }
 
         /** Add existing instance data to the object (from local node cache) */
         virtual void addInstanceDatas( const ObjectDataIStreamDeque&,
                                        const uint128_t& )
-            { EQDONTCALL; }
+            { LBDONTCALL; }
 
         /** Speculatively send instance data to all nodes. */
         virtual void sendInstanceData( Nodes& nodes ){}
@@ -148,7 +147,7 @@ namespace co
 
         /** @internal Swap the object. */
         void setObject( Object* object )
-            { EQASSERT( object ); _object = object; }
+            { LBASSERT( object ); _object = object; }
 
         /** The default CM for unattached objects. */
         static ObjectCM* ZERO;
@@ -158,9 +157,18 @@ namespace co
         Object* _object;
 
 #ifdef EQ_INSTRUMENT_MULTICAST
-        static base::a_int32_t _hit;
-        static base::a_int32_t _miss;
+        static lunchbox::a_int32_t _hit;
+        static lunchbox::a_int32_t _miss;
 #endif
+
+        void _addSlave( Command& command, const uint128_t& version );
+        virtual void _addSlave( NodePtr node ) { LBDONTCALL; }
+        virtual void _initSlave( NodePtr node, const uint128_t& version,
+                                 const NodeMapObjectPacket* packet,
+                                 NodeMapObjectSuccessPacket& success,
+                                 NodeMapObjectReplyPacket& reply );
+        void _sendEmptyVersion( NodePtr node, const uint32_t instanceID,
+                                const uint128_t& version, const bool multicast);
     };
 }
 

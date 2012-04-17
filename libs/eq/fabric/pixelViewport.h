@@ -22,7 +22,7 @@
 #include <eq/fabric/pixel.h>    // used in inline method
 #include <eq/fabric/zoom.h>     // used in inline method
 
-#include <co/base/debug.h>
+#include <lunchbox/debug.h>
 
 #include <limits>
 
@@ -243,10 +243,10 @@ namespace fabric
                 const int32_t dEx = rhs.x + rhs.w;
                 const int32_t dEy = rhs.y + rhs.h;
                 
-                x = EQ_MIN( x, rhs.x );
-                y = EQ_MIN( y, rhs.y );
-                w = EQ_MAX( sEx, dEx ) - x;
-                h = EQ_MAX( sEy, dEy ) - y;
+                x = LB_MIN( x, rhs.x );
+                y = LB_MIN( y, rhs.y );
+                w = LB_MAX( sEx, dEx ) - x;
+                h = LB_MAX( sEy, dEy ) - y;
             }
 
         /** Create the intersection of the two pixel viewports. @version 1.0 */
@@ -275,10 +275,10 @@ namespace fabric
                 const int32_t dEx = rhs.x + rhs.w;
                 const int32_t dEy = rhs.y + rhs.h;
                     
-                x = EQ_MAX( x, rhs.x );
-                y = EQ_MAX( y, rhs.y );
-                w = EQ_MIN( sEx, dEx ) - x;
-                h = EQ_MIN( sEy, dEy ) - y;
+                x = LB_MAX( x, rhs.x );
+                y = LB_MAX( y, rhs.y );
+                w = LB_MIN( sEx, dEx ) - x;
+                h = LB_MIN( sEy, dEy ) - y;
             }
 
         //@}

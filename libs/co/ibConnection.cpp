@@ -74,7 +74,7 @@ eq::net::Connection::Notifier IBConnection::getNotifier() const
 
 bool IBConnection::connect()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_IB );
+    LBASSERT( _description->type == CONNECTIONTYPE_IB );
 
     if( _state != STATE_CLOSED )
         return false;
@@ -100,7 +100,7 @@ bool IBConnection::connect()
         return false;
     }
 
-    EQINFO << "Connected " << _description << std::endl;
+    LBINFO << "Connected " << _description << std::endl;
     return true;
 }
 
@@ -126,7 +126,7 @@ void IBConnection::_close()
 
 bool IBConnection::listen()
 {
-    EQASSERT( _description->type == CONNECTIONTYPE_IB );
+    LBASSERT( _description->type == CONNECTIONTYPE_IB );
 
     _socketConnection = new SocketConnection();  
 
@@ -148,7 +148,7 @@ bool IBConnection::listen()
 
 void IBConnection::acceptNB()
 {
-    EQASSERT( _state == STATE_LISTENING );
+    LBASSERT( _state == STATE_LISTENING );
     _socketConnection->acceptNB();
 }
 
@@ -175,7 +175,7 @@ bool IBConnection::_preRegister( )
 {
     if( !_adapter.open() )
     {
-        EQWARN << "Can't open IB adapter" << std::endl;
+        LBWARN << "Can't open IB adapter" << std::endl;
         close();
         return false;
     }
@@ -186,7 +186,7 @@ bool IBConnection::_preRegister( )
         if( !_completionQueues[i]->create( this, &_adapter, 
              _interfaces[i]->getNumberBlockMemory() ))
         {
-            EQWARN << "Can't create completion queue" << std::endl;
+            LBWARN << "Can't create completion queue" << std::endl;
             close();
             return false;
         }
@@ -231,7 +231,7 @@ bool IBConnection::_establish( bool isServer, uint32_t index )
         // Create connection between client and server.
         // We do it by exchanging data over a TCP socket connection.
        /*
-        EQINFO << "local address:  LID " << myDest.lid 
+        LBINFO << "local address:  LID " << myDest.lid 
                << " QPN "                << myDest.qpn 
                << " PSN "                << myDest.psn 
                << " RKey "               << myDest.rkey
@@ -248,7 +248,7 @@ bool IBConnection::_establish( bool isServer, uint32_t index )
             close();
             return false;
         }
-    /*    EQINFO << "dest address:  LID " << remDest.lid 
+    /*    LBINFO << "dest address:  LID " << remDest.lid 
                << " QPN "               << remDest.qpn 
                << " PSN "               << remDest.psn 
                << " RKey "              << remDest.rkey
@@ -285,7 +285,7 @@ bool IBConnection::_writeKeys( const struct IBDest *myDest )
 bool IBConnection::_readKeys( struct IBDest *remDest)
 {
     int parsed;
-    eq::base::Buffer<void*> buf;
+    eq::lunchbox::Buffer<void*> buf;
     buf.resize( KEY_MSG_SIZE );
     uint64_t size = KEY_MSG_SIZE;
     WSABUF wsaBuffer = { KEY_MSG_SIZE,
@@ -337,7 +337,7 @@ bool IBConnection::_clientExchDest( const struct IBDest *myDest,
 
 void IBConnection::addEvent()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     
     _comptEvent++;
 
@@ -346,7 +346,7 @@ void IBConnection::addEvent()
 }
 void IBConnection::removeEvent()
 {
-    eq::base::ScopedMutex mutex( _mutex );
+    eq::lunchbox::ScopedMutex mutex( _mutex );
     _comptEvent--;
     if( _comptEvent  < 1 ) 
     {
@@ -373,7 +373,7 @@ void IBConnection::readNB( void* buffer, const uint64_t bytes ){ /* NOB */ }
 int64_t IBConnection::readSync( void* buffer, const uint64_t bytes,
                                 const bool ignored )
 {
-    EQ_TS_THREAD( _recvThread );
+    LB_TS_THREAD( _recvThread );
     int64_t result = _interfaces[ numRead ]->readSync( buffer, bytes );
     if ( result < 0 ) 
         close();

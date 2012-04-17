@@ -34,7 +34,7 @@
 #include <functional>
 
 #ifndef MIN
-#  define MIN EQ_MIN
+#  define MIN LB_MIN
 #endif
 #include <tclap/CmdLine.h>
 
@@ -140,7 +140,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     }
     catch( const TCLAP::ArgException& exception )
     {
-        EQERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error() 
                 << " for argument " << exception.argId() << std::endl;
         ::exit( EXIT_FAILURE );
     }

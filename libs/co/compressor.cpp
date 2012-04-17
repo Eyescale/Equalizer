@@ -45,11 +45,11 @@ void Compressor::reset()
     switch( _state )
     {
       case STATE_FREE:
-        EQASSERT( !_instance );
+        LBASSERT( !_instance );
         break;
 
       case STATE_COMPRESSOR:
-        EQASSERT( _instance );
+        LBASSERT( _instance );
         if( _instance )
             _plugin->deleteCompressor( _instance );
         break;
@@ -80,7 +80,7 @@ Plugin* Compressor::_findPlugin( uint32_t name )
 
 bool Compressor::isValid( uint32_t name ) const
 {
-    EQ_TS_SCOPED( _thread );
+    LB_TS_SCOPED( _thread );
     if( _name == EQ_COMPRESSOR_INVALID || _state == STATE_FREE )
         return false;
     if( _name == EQ_COMPRESSOR_NONE )
@@ -96,12 +96,12 @@ bool Compressor::isValid( uint32_t name ) const
 
 bool Compressor::initCompressor( uint32_t name )
 {
-    EQ_TS_SCOPED( _thread );
-    EQ_TS_THREAD( _thread );
+    LB_TS_SCOPED( _thread );
+    LB_TS_THREAD( _thread );
 
     if( name == _name )
     {
-        EQASSERT( isValid( name ));
+        LBASSERT( isValid( name ));
         return true;
     }
 
@@ -114,7 +114,7 @@ bool Compressor::initCompressor( uint32_t name )
 
     _plugin = _findPlugin( name );
 
-    EQASSERT( _plugin );
+    LBASSERT( _plugin );
     if( !_plugin )
         return false;
 
@@ -122,21 +122,21 @@ bool Compressor::initCompressor( uint32_t name )
     _instance = _plugin->newCompressor( name );
     _name = name;
     _info = &_plugin->findInfo( name );
-    EQASSERT( _instance );
+    LBASSERT( _instance );
     
-    EQLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
+    LBLOG( LOG_PLUGIN ) << "Instantiated compressor of type 0x" << std::hex
                         << name << std::dec << std::endl;
     return true;
 }
 
 bool Compressor::initDecompressor( uint32_t name )
 {
-    EQ_TS_SCOPED( _thread );
-    EQ_TS_THREAD( _thread );
+    LB_TS_SCOPED( _thread );
+    LB_TS_THREAD( _thread );
 
     if( name == _name )
     {
-        EQASSERT( isValid( name ));
+        LBASSERT( isValid( name ));
         return true;
     }
 
@@ -148,7 +148,7 @@ bool Compressor::initDecompressor( uint32_t name )
     }
 
     _plugin = _findPlugin( name );
-    EQASSERTINFO( _plugin, "Can't find plugin for compressor " << name );
+    LBASSERTINFO( _plugin, "Can't find plugin for compressor " << name );
 
     if( !_plugin )
         return false;
@@ -158,7 +158,7 @@ bool Compressor::initDecompressor( uint32_t name )
     _name = name;
     _info = &_plugin->findInfo( name );
 
-    EQLOG( LOG_PLUGIN ) << "Instantiated " << ( _instance ? "" : "empty " )
+    LBLOG( LOG_PLUGIN ) << "Instantiated " << ( _instance ? "" : "empty " )
                         << "decompressor of type 0x" << std::hex << name
                         << std::dec << std::endl;
     return true; 

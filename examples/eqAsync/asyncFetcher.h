@@ -52,7 +52,7 @@ class Window;
 /**
  *  Asynchronous fetching thread. Creates and supplies new textures to the main rendering pipe.
  */
-class AsyncFetcher : public co::base::Thread
+class AsyncFetcher : public lunchbox::Thread
 {
 public:
     typedef eq::util::ObjectManager< int > ObjectManager;
@@ -61,7 +61,7 @@ public:
     ~AsyncFetcher();
 
     virtual void run();
-    void setup( Window* wnd ) { _wnd = wnd; }
+    void setup( Window* window ) { _window = window; }
 
     TextureId getTextureId()               { return _outQueue.pop().id;      }
     bool tryGetTextureId( TextureId& val ) { return _outQueue.tryPop( val ); }
@@ -70,11 +70,11 @@ public:
     const GLEWContext* glewGetContext() const;
 
 private:
-    Window*                        _wnd;
-    co::base::MTQueue<const void*> _inQueue;       // textures to delete
-    co::base::MTQueue<TextureId>   _outQueue;      // generated textures
+    Window*                        _window;
+    lunchbox::MTQueue<const void*> _inQueue;       // textures to delete
+    lunchbox::MTQueue<TextureId>   _outQueue;      // generated textures
     eq::ObjectManager*             _objectManager;
-    eq::SystemWindow*              _sharedContextWindow;
+    eq::SystemWindow*              _sharedWindow;
     GLbyte*                        _tmpTexture;    // temporal texture storage
 };
 

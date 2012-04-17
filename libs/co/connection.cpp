@@ -43,8 +43,8 @@
 #  include "udtConnection.h"
 #endif
 
-#include <co/base/scopedMutex.h>
-#include <co/base/stdExt.h>
+#include <lunchbox/scopedMutex.h>
+#include <lunchbox/stdExt.h>
 
 namespace co
 {
@@ -56,19 +56,19 @@ Connection::Connection()
         , _aioBytes( 0 )
 {
     _description->type = CONNECTIONTYPE_NONE;
-    EQVERB << "New Connection @" << (void*)this << std::endl;
+    LBVERB << "New Connection @" << (void*)this << std::endl;
 }
 
 Connection::~Connection()
 {
-    EQASSERT( isClosed( ));
+    LBASSERT( isClosed( ));
     _state = STATE_CLOSED;
     _description = 0;
 
-//    EQASSERTINFO( !_aioBytes && _aioBytes == 0,
+//    LBASSERTINFO( !_aioBytes && _aioBytes == 0,
 //                  "Pending IO operation during connection destruction" );
 
-    EQVERB << "Delete Connection @" << (void*)this << std::endl;
+    LBVERB << "Delete Connection @" << (void*)this << std::endl;
 }
 
 bool Connection::operator == ( const Connection& rhs ) const
@@ -77,7 +77,7 @@ bool Connection::operator == ( const Connection& rhs ) const
         return true;
     if( _description->type != CONNECTIONTYPE_PIPE )
         return false;
-    PipeConnection* pipe = EQSAFECAST( PipeConnection*, 
+    PipeConnection* pipe = LBSAFECAST( PipeConnection*, 
                                        const_cast< Connection* >( this ));
     return pipe->acceptSync().get() == &rhs;
 }
@@ -113,11 +113,10 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
             break;
 
 #endif
-#ifdef CO_USE_BOOST
         case CONNECTIONTYPE_RSP:
             connection = new RSPConnection;
             break;
-#endif
+
 #ifdef CO_USE_OFED
         case CONNECTIONTYPE_RDMA:
             connection = new RDMAConnection;
@@ -130,7 +129,7 @@ ConnectionPtr Connection::create( ConnectionDescriptionPtr description )
 #endif
 
         default:
-            EQWARN << "Connection type " << description->type
+            LBWARN << "Connection type " << description->type
                    << " not supported" << std::endl;
             return 0;
     }
@@ -170,10 +169,10 @@ void Connection::_fireStateChanged()
 //----------------------------------------------------------------------
 void Connection::recvNB( void* buffer, const uint64_t bytes )
 {
-    EQASSERT( !_aioBuffer );
-    EQASSERT( !_aioBytes );
-    EQASSERT( buffer );
-    EQASSERT( bytes );
+    LBASSERT( !_aioBuffer );
+    LBASSERT( !_aioBytes );
+    LBASSERT( buffer );
+    LBASSERT( bytes );
 
     _aioBuffer = buffer;
     _aioBytes  = bytes;
@@ -184,8 +183,8 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                            const bool block )
 {
     // set up async IO data
-    EQASSERT( _aioBuffer );
-    EQASSERT( _aioBytes );
+    LBASSERT( _aioBuffer );
+    LBASSERT( _aioBytes );
 
     if( outBuffer )
         *outBuffer = _aioBuffer;
@@ -211,7 +210,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
     int64_t got = readSync( ptr, bytesLeft, block );
     if( got == READ_TIMEOUT ) // fluke notification
     {
-        EQASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
+        LBASSERTINFO( bytesLeft == bytes, bytesLeft << " != " << bytes );
         if( outBytes )
             *outBytes = 0;
 
@@ -228,9 +227,9 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
             if( outBytes )
                 *outBytes -= bytesLeft;
             if( bytes == bytesLeft )
-                EQINFO << "Read on dead connection" << std::endl;
+                LBINFO << "Read on dead connection" << std::endl;
             else
-                EQERROR << "Error during read after " << bytes - bytesLeft
+                LBERROR << "Error during read after " << bytes - bytesLeft
                         << " bytes on " << _description << std::endl;
             return false;
         }
@@ -244,7 +243,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
                     *outBytes = 0;
                 return false;
             }
-            EQVERB << "Zero bytes read" << std::endl;
+            LBVERB << "Zero bytes read" << std::endl;
         }
 
         if( bytesLeft > static_cast< uint64_t >( got )) // partial read
@@ -257,33 +256,33 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
         }
         else
         {
-            EQASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
+            LBASSERTINFO( static_cast< uint64_t >( got ) == bytesLeft,
                           got << " != " << bytesLeft );
 
 #ifndef NDEBUG
-            if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+            if( bytes <= 1024 && ( lunchbox::Log::topics & LOG_PACKETS ))
             {
                 ptr = static_cast< uint8_t* >( buffer );
-                EQINFO << "recv:" << std::hex << base::disableFlush
-                       << base::disableHeader;
+                LBINFO << "recv:" << std::hex << lunchbox::disableFlush
+                       << lunchbox::disableHeader;
                 for( size_t i = 0; i < bytes; ++i )
                 {
                     if( (i % 16) == 0 )
-                        EQINFO << std::endl;
+                        LBINFO << std::endl;
                     if( (i % 4) == 0 )
-                        EQINFO << " 0x";
-                    EQINFO << std::setfill( '0' ) << std::setw(2)
+                        LBINFO << " 0x";
+                    LBINFO << std::setfill( '0' ) << std::setw(2)
                            << static_cast< unsigned >( ptr[ i ] );
                 }
-                EQINFO << std::dec << base::enableFlush
-                       << std::endl << base::enableHeader;
+                LBINFO << std::dec << lunchbox::enableFlush
+                       << std::endl << lunchbox::enableHeader;
             }
 #endif
             return true;
         }
     }
 
-    EQUNREACHABLE;
+    LBUNREACHABLE;
     return true;
 }
 
@@ -293,7 +292,7 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
 bool Connection::send( const void* buffer, const uint64_t bytes, 
                        const bool isLocked )
 {
-    EQASSERT( bytes > 0 );
+    LBASSERT( bytes > 0 );
     if( bytes == 0 )
         return true;
 
@@ -304,24 +303,24 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
     // 1) Disassemble buffer into 'small enough' pieces and use a header to
     //    reassemble correctly on the other side (aka reliable UDP)
     // 2) Introduce a send thread with a thread-safe task queue
-    base::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
+    lunchbox::ScopedMutex<> mutex( isLocked ? 0 : &_sendLock );
 
 #ifndef NDEBUG
-    if( bytes <= 1024 && ( base::Log::topics & LOG_PACKETS ))
+    if( bytes <= 1024 && ( lunchbox::Log::topics & LOG_PACKETS ))
     {
-        EQINFO << "send:" << std::hex << base::disableFlush
-               << base::disableHeader << std::endl;
+        LBINFO << "send:" << std::hex << lunchbox::disableFlush
+               << lunchbox::disableHeader << std::endl;
         for( size_t i = 0; i < bytes; ++i )
         {
             if( (i % 16) == 0 )
-                EQINFO << std::endl;
+                LBINFO << std::endl;
             if( (i % 4) == 0 )
-                EQINFO << " 0x";
-            EQINFO << std::setfill( '0' ) << std::setw(2)
+                LBINFO << " 0x";
+            LBINFO << std::setfill( '0' ) << std::setw(2)
                    << static_cast< unsigned >( ptr[ i ] );
         }
-        EQINFO << std::dec << base::enableFlush << std::endl
-               << base::enableHeader;
+        LBINFO << std::dec << lunchbox::enableFlush << std::endl
+               << lunchbox::enableHeader;
     }
 #endif
 
@@ -333,20 +332,20 @@ bool Connection::send( const void* buffer, const uint64_t bytes,
             const int64_t wrote = this->write( ptr, bytesLeft );
             if( wrote == -1 ) // error
             {
-                EQERROR << "Error during write after " << bytes - bytesLeft 
+                LBERROR << "Error during write after " << bytes - bytesLeft 
                         << " bytes, closing connection" << std::endl;
                 close();
                 return false;
             }
             else if( wrote == 0 )
-                EQINFO << "Zero bytes write" << std::endl;
+                LBINFO << "Zero bytes write" << std::endl;
 
             bytesLeft -= wrote;
             ptr += wrote;
         }
         catch( const co::Exception& e )
         {
-            EQERROR << e.what() << " after " << bytes - bytesLeft 
+            LBERROR << e.what() << " after " << bytes - bytesLeft 
                     << " bytes, closing connection" << std::endl;
             close();
             return false;
@@ -484,7 +483,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {
-        EQASSERT( sizes[i] > 0 );
+        LBASSERT( sizes[i] > 0 );
         packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 
@@ -517,11 +516,11 @@ ConnectionDescriptionPtr Connection::getDescription() const
 
 void Connection::setDescription( ConnectionDescriptionPtr description )
 {
-    EQASSERT( description.isValid( ));
-    EQASSERTINFO( _description->type == description->type,
+    LBASSERT( description.isValid( ));
+    LBASSERTINFO( _description->type == description->type,
                   "Wrong connection type in description" );
     _description = description;
-    EQASSERT( description->bandwidth > 0 );
+    LBASSERT( description->bandwidth > 0 );
 }
 
 std::ostream& operator << ( std::ostream& os, const Connection& connection )
