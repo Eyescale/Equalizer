@@ -35,8 +35,8 @@ add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 # Compiler setting
 if(CMAKE_COMPILER_IS_GNUCXX)
-  include(EqCompilerVersion)
-  EQ_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
+  include(CompilerVersion)
+  COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
