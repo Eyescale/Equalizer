@@ -231,7 +231,6 @@ namespace server
          * retained. The finish for the new images has to be done by the
          * caller.
          *
-         * @param frame the corresponding output frame holder.
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.
          * @param regions the areas to read back.

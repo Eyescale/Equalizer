@@ -38,20 +38,21 @@ add_custom_target(doxygen_int
 add_custom_target(doxygen_co
   ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.co
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS doxygen_int doxygen_install
+  DEPENDS
   COMMENT "Generating Collage API documentation using doxygen" VERBATIM)
+add_dependencies(doxygen_co doxygen_install doxygen_int)
 
 add_custom_target(doxygen_seq
   ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.seq
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS doxygen_co
   COMMENT "Generating Sequel API documentation using doxygen" VERBATIM)
+add_dependencies(doxygen_seq doxygen_co)
 
 add_custom_target(doxygen_ext
   ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.ext
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS doxygen_seq
   COMMENT "Generating Equalizer API documentation using doxygen" VERBATIM)
+add_dependencies(doxygen_ext doxygen_seq)
 
 # set_target_properties(tests PROPERTIES FOLDER "Tests")
 add_custom_target(doxygen DEPENDS doxygen_ext doxygen_int doxygen_co)
@@ -61,6 +62,7 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man/man3 DESTINATION man
   COMPONENT man PATTERN "*_docs_*" EXCLUDE)
 
 make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
+make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/collage/documents/Developer/API)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/Equalizer
         COMPONENT doc)
