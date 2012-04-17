@@ -4,9 +4,9 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-configure_file(DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
+configure_file(doc/DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
   @ONLY)
-configure_file(Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
+configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY DOXYGEN_DEP_TARGETS)
 add_custom_target(doxygen_install
