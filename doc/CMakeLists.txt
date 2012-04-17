@@ -60,6 +60,7 @@ make_directory(${CMAKE_CURRENT_BINARY_DIR}/man/man3)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man/man3 DESTINATION man
   COMPONENT man PATTERN "*_docs_*" EXCLUDE)
 
+make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/html)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/Equalizer
         COMPONENT doc)
