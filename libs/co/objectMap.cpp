@@ -226,11 +226,8 @@ void ObjectMap::deserialize( DataIStream& is, const uint64_t dirtyBits )
 
 void ObjectMap::notifyAttached()
 {
-    if( isMaster( ))
-    {
-        _impl->added.clear();
-        _impl->changed.clear();
-    }
+    _impl->added.clear();
+    _impl->changed.clear();
 }
 
 bool ObjectMap::register_( Object* object, const uint32_t type )
