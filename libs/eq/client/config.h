@@ -108,7 +108,7 @@ namespace eq
          * The clock in all processes of the config is synchronized to the
          * Server clock. The precision of this synchronization is typically
          * about 1 ms. The clock of the last instantiated config is used as the
-         *lunchbox::Log clock.
+         * lunchbox::Log clock.
          *
          * @return the global time in ms.
          * @version 1.0
