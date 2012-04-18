@@ -45,14 +45,6 @@ else()
   set(VERSION_ABI ${VERSION_MAJOR}${VERSION_MINOR}${VERSION_PATCH})
 endif()
 
-if(NOT CMAKE_BUILD_TYPE)
-  if(RELEASE_VERSION)
-    set(CMAKE_BUILD_TYPE Release)
-  else()
-    set(CMAKE_BUILD_TYPE Debug)
-  endif()
-endif(NOT CMAKE_BUILD_TYPE)
-
 include(Common)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
@@ -231,10 +223,10 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(FILES CMake/FindCollage.cmake CMake/FindHWLOC.cmake CMake/FindUDT.cmake
-  CMake/FindOFED.cmake DESTINATION share/Equalizer/CMake COMPONENT codev)
-install(FILES CMake/FindEqualizer.cmake CMake/FindGLEW_MX.cmake
-  CMake/FindMAGELLAN.cmake DESTINATION share/Equalizer/CMake COMPONENT eqdev)
+install(FILES CMake/FindCollage.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
+  COMPONENT codev)
+install(FILES CMake/FindEqualizer.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
+  COMPONENT eqdev)
 
 if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")

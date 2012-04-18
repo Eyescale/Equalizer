@@ -120,6 +120,7 @@ Equalizer 1.2.1 includes the following bugfixes over the 1.2 release:
 -   `105`_: Sequel missing from packages
 -   `107`_: Installed examples CMake build does not work
 -   `112`_: --eq-layout gets activated on second frame
+-   `113`_: Install find scripts in CMake root
 
 
 2.9. Known Bugs
@@ -221,6 +222,7 @@ information.
 .. _105: https://github.com/Eyescale/Equalizer/issues/105
 .. _107: https://github.com/Eyescale/Equalizer/issues/107
 .. _112: https://github.com/Eyescale/Equalizer/issues/112
+.. _113: https://github.com/Eyescale/Equalizer/issues/113
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
 .. _78: https://github.com/Eyescale/Equalizer/issues/78
 .. _76: https://github.com/Eyescale/Equalizer/issues/76
