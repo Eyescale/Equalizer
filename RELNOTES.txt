@@ -101,6 +101,7 @@
      * 105: Sequel missing from packages
      * 107: Installed examples CMake build does not work
      * 112: --eq-layout gets activated on second frame
+     * 113: Install find scripts in CMake root
 
   2.9. Known Bugs
 

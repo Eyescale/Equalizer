@@ -24,6 +24,9 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
+string(REGEX REPLACE ".*\\/(share\\/.*)" "\\1/Modules" CMAKE_MODULE_INSTALL_PATH
+  ${CMAKE_ROOT})
+
 # Boost settings
 if(MSVC)
   option(Boost_USE_STATIC_LIBS "Use boost static libs" ON)
@@ -33,10 +36,10 @@ if(BOOST_ROOT)
 endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
-# Compiler setting
+# Compiler settings
 if(CMAKE_COMPILER_IS_GNUCXX)
-  include(EqCompilerVersion)
-  EQ_COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
+  include(CompilerVersion)
+  COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
   if(GCC_COMPILER_VERSION VERSION_LESS 4.1)
     message(ERROR "GCC 4.1 or later required, found ${GCC_COMPILER_VERSION}")
   endif()
@@ -70,8 +73,8 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
   endif()
-  set(LIBRARY_DIR lib${LIB_SUFFIX})
 endif()
+set(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(APPLE)
   if(_CMAKE_OSX_MACHINE MATCHES "ppc")

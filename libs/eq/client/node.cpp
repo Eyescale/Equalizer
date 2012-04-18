@@ -201,15 +201,16 @@ void Node::_setAffinity()
             break;
 
         case AUTO:
-            EQINFO << "No automatic thread placement for node threads " << std::endl;
+            LBINFO << "No automatic thread placement for node threads "
+                   << std::endl;
             break;
 
         default:
             NodeAffinityPacket packet;
             packet.affinity = affinity;
-
             co::LocalNodePtr node = getLocalNode();
             send( node, packet );
+
             node->setAffinity( affinity );
             break;
     }
