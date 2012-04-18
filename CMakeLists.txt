@@ -290,9 +290,11 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/auxiliary" AND
 endif()
 add_subdirectory(doc) # must be after all targets
 
-install(FILES CMake/FindCollage.cmake DESTINATION share/Equalizer/CMake
+string(REGEX REPLACE ".*\\/(share\\/.*)" "\\1/Modules" CMAKE_MODULE_INSTALL_PATH
+  ${CMAKE_ROOT})
+install(FILES CMake/FindCollage.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT codev)
-install(FILES CMake/FindEqualizer.cmake DESTINATION share/Equalizer/CMake
+install(FILES CMake/FindEqualizer.cmake DESTINATION ${CMAKE_MODULE_INSTALL_PATH}
   COMPONENT eqdev)
 
 if(CUDA_FOUND)

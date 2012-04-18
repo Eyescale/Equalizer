@@ -120,6 +120,8 @@
     Installed examples CMake build does not work</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/112">112</a>:
     --eq-layout gets activated on second frame</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/113">113</a>:
+    Install find scripts in CMake root</li>
 </ul>
 
 <a name="knownbugs"></a>
