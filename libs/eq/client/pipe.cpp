@@ -222,6 +222,9 @@ int Pipe::_getAutoAffinity()
 
     const uint32_t port = getPort();
     const uint32_t device = getDevice();
+    EQINFO << "---------------------------------------------------- " << port << std::endl;
+    EQINFO << "---------------------------------------------------- " << device << std::endl;
+
 
     if (port == EQ_UNDEFINED_UINT32 || device == EQ_UNDEFINED_UINT32)
     {
