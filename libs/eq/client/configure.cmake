@@ -18,6 +18,10 @@ install(FILES ${OUTPUT_INCLUDE_DIR}/eq/client/version.h DESTINATION include/eq C
 # compile-time definitions
 set(EQUALIZER_DEFINES)
 
+if(HWLOC_FOUND)
+  list(APPEND EQUALIZER_DEFINES EQ_USE_HWLOC)
+endif(HWLOC_FOUND)
+
 if(CUDA_FOUND)
   list(APPEND EQUALIZER_DEFINES EQ_USE_CUDA)
 endif(CUDA_FOUND)
