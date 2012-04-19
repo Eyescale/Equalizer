@@ -51,7 +51,7 @@
 #include <co/worker.h>
 #include <sstream>
 
-#ifdef EQ_USE_HWLOC
+#ifndef EQ_USE_HWLOC
 #  include <hwloc.h>
 #  include <hwloc/gl.h>
 #endif
@@ -226,6 +226,7 @@ int Pipe::_getAutoAffinity()
     EQINFO << "---------------------------------------------------- " << device << std::endl;
 
 
+
     if (port == EQ_UNDEFINED_UINT32 || device == EQ_UNDEFINED_UINT32)
     {
         EQWARN << "No valid display is provided in the configuration file"
@@ -235,9 +236,11 @@ int Pipe::_getAutoAffinity()
     }
     else
     {
-#ifdef EQ_USE_HWLOC
+#ifndef EQ_USE_HWLOC
         hwloc_topology_t topology;
         hwloc_topology_init( &topology );
+
+        std::cout << "2" << std::endl;
 
         /* Flags used for loading the I/O devices,
          * bridges and their relevant info */
@@ -246,7 +249,7 @@ int Pipe::_getAutoAffinity()
                                             ^ HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
         /* Set discovery flags */
         const int sucess = hwloc_topology_set_flags( topology, loading_flags );
-
+        std::cout << "3" << std::endl;
         /* Flags not set */
         if ( sucess < 0 )
         {
@@ -254,30 +257,41 @@ int Pipe::_getAutoAffinity()
                " PCI devices will not be loaded in the topology" << std::endl;
               EQINFO << "Automatic pipe thread placement failed" << std::endl;
 
-              return;
+              return cpuIndex;
         }
         hwloc_topology_load( topology );
-
+        std::cout << "4" << std::endl;
         /* Get the cpuset for the socket connected to GPU
         attached to the display defined by its port and device */
         hwloc_bitmap_t cpuSet = get_display_cpuset
-            ( topology, static_cast<int> port, static_cast<int> device );
+            ( topology, static_cast<int> (port), static_cast<int> (device) );
 
-        hwloc_topology_destroy(topology);
+        char* _cpuset_string;
+                hwloc_bitmap_asprintf(&_cpuset_string, cpuSet);
+                printf("Selected CPU set is %s: \n", _cpuset_string);
 
+        std::cout << "5" << std::endl;
+
+
+        std::cout << "6" << std::endl;
         const int numCpus = hwloc_get_nbobjs_by_type
                                           ( topology, HWLOC_OBJ_SOCKET );
 
-        for (int i = 0; i < num_cpus - 1; i++)
+        std::cout << "numCPUs " << numCpus << std::endl;
+
+        std::cout << "7" << std::endl;
+        for (int i = 0; i < numCpus - 1; i++)
         {
             hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type
                                  ( topology, cpuSet, HWLOC_OBJ_SOCKET, i);
-            if (cpu_obj != 0)
+            if (cpuObj != 0)
             {
                 cpuIndex = cpuObj->logical_index;
                 break;
             }
         }
+        std::cout << "8" << std::endl;
+        hwloc_topology_destroy(topology);
 #else
     EQINFO << "Missing hwloc," <<
               "Automatic thread placement is not supported" << std::endl;
