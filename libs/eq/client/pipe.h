@@ -438,6 +438,7 @@ namespace detail { class TransferThread; }
         void _setupCommandQueue();
         void _setupAffinity();
         void _exitCommandQueue();
+	int _getAutoAffinity();
 
         friend class Window;
 
