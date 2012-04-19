@@ -254,25 +254,25 @@ int Pipe::_getAutoAffinity()
                " PCI devices will not be loaded in the topology" << std::endl;
               EQINFO << "Automatic pipe thread placement failed" << std::endl;
 
-              return;
+              return cpuIndex;
         }
         hwloc_topology_load( topology );
 
         /* Get the cpuset for the socket connected to GPU
         attached to the display defined by its port and device */
         hwloc_bitmap_t cpuSet = get_display_cpuset
-            ( topology, static_cast<int> port, static_cast<int> device );
+            ( topology, static_cast<int> (port), static_cast<int> (device) );
 
 
 
         const int numCpus = hwloc_get_nbobjs_by_type
                                           ( topology, HWLOC_OBJ_SOCKET );
 
-        for (int i = 0; i < num_cpus - 1; i++)
+        for (int i = 0; i < numCpus - 1; i++)
         {
             hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type
                                  ( topology, cpuSet, HWLOC_OBJ_SOCKET, i);
-            if (cpu_obj != 0)
+            if (cpuObj != 0)
             {
                 cpuIndex = cpuObj->logical_index;
                 break;
