@@ -89,7 +89,7 @@ namespace detail { class ObjectMap; }
 
         virtual ChangeType getChangeType() const { return DELTA; }
 
-        virtual void notifyAttached();
+        CO_API virtual void notifyAttached();
 
         /** The changed parts of the object since the last serialize(). */
         enum DirtyBits
