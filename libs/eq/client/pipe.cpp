@@ -51,7 +51,7 @@
 #include <co/worker.h>
 #include <sstream>
 
-#ifdef EQ_USE_HWLOC
+#ifndef EQ_USE_HWLOC
 #  include <hwloc.h>
 #  include <hwloc/gl.h>
 #endif
@@ -235,7 +235,7 @@ int Pipe::_getAutoAffinity()
     }
     else
     {
-#ifdef EQ_USE_HWLOC
+#ifndef EQ_USE_HWLOC
         hwloc_topology_t topology;
         hwloc_topology_init( &topology );
 
@@ -263,7 +263,7 @@ int Pipe::_getAutoAffinity()
         hwloc_bitmap_t cpuSet = get_display_cpuset
             ( topology, static_cast<int> port, static_cast<int> device );
 
-        hwloc_topology_destroy(topology);
+
 
         const int numCpus = hwloc_get_nbobjs_by_type
                                           ( topology, HWLOC_OBJ_SOCKET );
@@ -278,6 +278,7 @@ int Pipe::_getAutoAffinity()
                 break;
             }
         }
+        hwloc_topology_destroy(topology);
 #else
     EQINFO << "Missing hwloc," <<
               "Automatic thread placement is not supported" << std::endl;
