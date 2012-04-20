@@ -12,9 +12,9 @@ Prerequisites:
  X11SDK: Equalizer uses X11. The X11SDK packages is shipped with Mac OS X,
    but not installed by default.
 
- boost (optional): RSP, the protocol used for multicast data
-   distribution, requires boost::asio. The preferred way is to install
-   MaxPorts[1] and to 'sudo port install boost +universal+debug'.
+ boost: RSP, the protocol used for multicast data distribution, requires
+   boost::asio. The preferred way is to install MacPorts[1] and to 'sudo
+   port install boost +universal+debug'.
 
 
 Universal Binary Notes
