@@ -966,9 +966,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
 bool LocalNode::connect( NodePtr node )
 {
-    if( _connect( node ) == CONNECT_OK )
-        return true;
-    return false;
+    return ( _connect( node ) == CONNECT_OK );
 }
 
 uint32_t LocalNode::_connect( NodePtr node )
@@ -1002,9 +1000,7 @@ uint32_t LocalNode::_connect( NodePtr node )
 
 bool LocalNode::connect( NodePtr node, ConnectionPtr connection )
 {
-    if( _connect( node, connection ) == CONNECT_OK )
-        return true;
-    return false;
+    return ( _connect( node, connection ) == CONNECT_OK );
 }
 
 uint32_t LocalNode::_connect( NodePtr node, ConnectionPtr connection )
