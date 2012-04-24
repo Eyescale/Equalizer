@@ -11,7 +11,7 @@ else()
 endif()
 
 find_path(VMMLIB_INCLUDE_DIR vmmlib/vmmlib.hpp
-  /usr/include /usr/local/include /opt/local/include)
+  /usr/include /usr/local/include /opt/local/include ${VMMLIB_ROOT}/include)
 
 if(_vmmlib_output)
   message(STATUS "Found vmmlib in ${VMMLIB_INCLUDE_DIR}")
