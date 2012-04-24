@@ -135,7 +135,7 @@ void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
     {
         // tweak commitCount of minimum retained version for correct obsoletion
         data->commitCount = 0;
-	_version = data->os.getVersion();
+        _version = data->os.getVersion();
     }
 }
 

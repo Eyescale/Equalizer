@@ -68,13 +68,13 @@ namespace co
         /** The list of subscribed slave nodes. */
         lunchbox::Lockable< Nodes > _slaves;
 
-        typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
-
-        /** The number of object instances subscribed per slave node. */
-        SlavesCount _slavesCount;
-
         /** The current version. */
         uint128_t _version;
+
+    private:
+        typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
+        /** The number of object instances subscribed per slave node. */
+        SlavesCount _slavesCount;
 
         /** Slave commit queue. */
         DataIStreamQueue _slaveCommits;
