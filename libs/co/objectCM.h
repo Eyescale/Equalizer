@@ -121,7 +121,7 @@ namespace co
          * 
          * @param node the slave node. 
          */
-        virtual void removeSlave( NodePtr node )
+        virtual void removeSlave( NodePtr node, const uint32_t instanceID )
             { LBUNIMPLEMENTED; }
 
         /** Remove all subscribed slaves from the given node. */

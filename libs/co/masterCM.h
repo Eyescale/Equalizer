@@ -59,7 +59,7 @@ namespace co
             { LBDONTCALL; return EQ_INSTANCE_INVALID; }
 
         virtual void addSlave( Command& command );
-        virtual void removeSlave( NodePtr node );
+        virtual void removeSlave( NodePtr node, const uint32_t instanceID );
         virtual void removeSlaves( NodePtr node );
         virtual const Nodes getSlaveNodes() const
             { Mutex mutex( _slaves ); return *_slaves; }
@@ -72,9 +72,22 @@ namespace co
         uint128_t _version;
 
     private:
-        typedef stde::hash_map< uint128_t, uint32_t > SlavesCount;
-        /** The number of object instances subscribed per slave node. */
-        SlavesCount _slavesCount;
+        struct SlaveData
+        {
+            SlaveData() : maxVersion( std::numeric_limits< uint64_t >::max( ))
+                        , instanceID( LB_UNDEFINED_UINT32 ) {}
+            bool operator == ( const SlaveData& rhs ) const
+                { return node == rhs.node && instanceID == rhs.instanceID; }
+
+            NodePtr node;
+            uint64_t maxVersion;
+            uint32_t instanceID;
+        };
+        typedef std::vector< SlaveData > SlaveDatas;
+        typedef SlaveDatas::iterator SlaveDatasIter;
+
+        /** Additional slave data. */
+        SlaveDatas _slaveData;
 
         /** Slave commit queue. */
         DataIStreamQueue _slaveCommits;

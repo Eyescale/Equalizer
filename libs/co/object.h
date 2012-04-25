@@ -99,6 +99,13 @@ namespace co
         virtual ChangeType getChangeType() const { return STATIC; }
 
         /**
+         * @return the number of queued versions a slave instance may have.
+         * @version 1.3.2
+         */
+        virtual uint64_t getMaxVersions() const
+            { return std::numeric_limits< uint64_t >::max(); }
+
+        /**
          * Return the compressor to be used for data transmission.
          *
          * This default implementation chooses the compressor with the highest
@@ -303,8 +310,8 @@ namespace co
                           const void* data, const uint64_t size );
 
         /** Send a packet to peer object instance(s) on another node. */
-        template< class T >
-        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v );
+        template< class T > bool
+        send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v );
         //@}
 
         /** @name Notifications */
@@ -353,7 +360,7 @@ namespace co
 
         /** @internal */
         void addSlave( Command& command );
-        CO_API void removeSlave( NodePtr node ); //!< @internal
+        CO_API void removeSlave( NodePtr node, const uint32_t instanceID );
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
         /** @internal */

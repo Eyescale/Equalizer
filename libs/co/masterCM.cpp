@@ -20,6 +20,7 @@
 #include "command.h"
 #include "commands.h"
 #include "log.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectPackets.h"
 #include "objectDataIStream.h"
@@ -98,49 +99,58 @@ void MasterCM::addSlave( Command& command )
     LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
 
-    // OPT: use tr1::unordered_set
-    NodePtr node = command.getNode();
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves->push_back( node );
+    SlaveData data;
+    data.node = command.getNode();
+    data.instanceID = command.get< NodeMapObjectPacket >()->instanceID;
+    _slaveData.push_back( data );
+
+    _slaves->push_back( data.node );
     stde::usort( *_slaves );
 
     ObjectCM::_addSlave( command, _version );
 }
 
-void MasterCM::removeSlave( NodePtr node )
+void MasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
 {
     LB_TS_THREAD( _cmdThread );
-    const NodeID& nodeID = node->getNodeID();
-
     Mutex mutex( _slaves );
-    // remove from subscribers
-    LBASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
 
-    --_slavesCount[ nodeID ];
-    if( _slavesCount[ nodeID ] == 0 )
-    {
-        Nodes::iterator i = find( _slaves->begin(), _slaves->end(), node );
-        LBASSERT( i != _slaves->end( ));
-        _slaves->erase( i );
-        _slavesCount.erase( nodeID );
-    }
+    // remove from subscribers
+    SlaveData data;
+    data.node = node;
+    data.instanceID = instanceID;
+    SlaveDatasIter i = stde::find( _slaveData, data );
+    LBASSERTINFO( i != _slaveData.end(), lunchbox::className( _object ));
+    if( i == _slaveData.end( ))
+        return;
+
+    _slaveData.erase( i );
+
+    // update _slaves node vector
+    _slaves->clear();
+    for( i = _slaveData.begin(); i != _slaveData.end(); ++i )
+        _slaves->push_back( i->node );
+    stde::usort( *_slaves );
 }
 
 void MasterCM::removeSlaves( NodePtr node )
 {
     LB_TS_THREAD( _cmdThread );
 
-    const NodeID& nodeID = node->getNodeID();
-
     Mutex mutex( _slaves );
-    SlavesCount::iterator i = _slavesCount.find( nodeID );
-    if( i == _slavesCount.end( ))
-        return;
 
-    NodesIter j = stde::find( *_slaves, node );
-    LBASSERT( j != _slaves->end( ));
-    _slaves->erase( j );
-    _slavesCount.erase( i );
+    NodesIter i = stde::find( *_slaves, node );
+    if( i == _slaves->end( ))
+        return;
+    _slaves->erase( i );
+
+    for( SlaveDatasIter j = _slaveData.begin(); j != _slaveData.end(); )
+    {
+        if( j->node == node )
+            j = _slaveData.erase( j );
+        else
+            ++j;
+    }
 }
 
 //---------------------------------------------------------------------------

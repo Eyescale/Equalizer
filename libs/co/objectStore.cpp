@@ -921,14 +921,13 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
         if( i != _objects->end( ))
         {
             const Objects& objects = i->second;
-
             for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
             {
                 Object* object = *j;
                 if( object->isMaster() && 
                     object->getInstanceID() == packet->masterInstanceID )
                 {
-                    object->removeSlave( node );
+                    object->removeSlave( node, packet->slaveInstanceID );
                     break;
                 }
             }   
