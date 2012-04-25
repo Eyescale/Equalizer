@@ -99,6 +99,17 @@ namespace co
         virtual ChangeType getChangeType() const { return STATIC; }
 
         /**
+         * Limit the number of queued versions of slave instances.
+         *
+         * Changing the return value of this method causes the master instance
+         * to block during commit() if any slave instance has reached the
+         * maximum number of queued versions. The method is called on the slave
+         * instance. Multiple slave instances may use different values.
+         *
+         * Changing the return value at runtime, that is, after the slave
+         * instance has been mapped is unsupported and causes undefined
+         * behavior.
+         * 
          * @return the number of queued versions a slave instance may have.
          * @version 1.3.2
          */
