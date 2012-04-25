@@ -76,6 +76,7 @@ namespace co
         void _checkConsistency() const;
 
         virtual bool isBuffered() const{ return true; }
+        virtual void _commit();
 
     private:
         /** The number of commits, needed for auto-obsoletion. */

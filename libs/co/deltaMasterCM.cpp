@@ -42,26 +42,8 @@ DeltaMasterCM::DeltaMasterCM( Object* object )
 DeltaMasterCM::~DeltaMasterCM()
 {}
 
-uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
+void DeltaMasterCM::_commit()
 {
-    LBASSERT( _version != VERSION_NONE );
-
-    if( !_object->isDirty( ))
-    {
-        Mutex mutex( _slaves );
-        _updateCommitCount( incarnation );
-        _obsolete();
-        return _version;
-    }
-
-    _maxVersion.waitGE( _version.low() + 1 );
-    Mutex mutex( _slaves );
-#if 0
-    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
-                         << std::endl;
-#endif
-    _updateCommitCount( incarnation );
-
     if( !_slaves->empty( ))
     {
         _deltaData.reset();
@@ -94,9 +76,6 @@ uint128_t DeltaMasterCM::commit( const uint32_t incarnation )
                              << std::endl;
 #endif
     }
-
-    _obsolete();
-    return _version;
 }
 
 }

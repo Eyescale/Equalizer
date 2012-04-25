@@ -343,7 +343,13 @@ uint128_t FullMasterCM::commit( const uint32_t incarnation )
                          << std::endl;
 #endif
     _updateCommitCount( incarnation );
+    _commit();
+    _obsolete();
+    return _version;
+}
 
+void FullMasterCM::_commit()
+{
     InstanceData* instanceData = _newInstanceData();
 
     instanceData->os.enableCommit( _version + 1, *_slaves );
@@ -362,9 +368,6 @@ uint128_t FullMasterCM::commit( const uint32_t incarnation )
     }
     else
         _instanceDataCache.push_back( instanceData );
-
-    _obsolete();
-    return _version;
 }
 
 void FullMasterCM::push( const uint128_t& groupID, const uint128_t& typeID,
