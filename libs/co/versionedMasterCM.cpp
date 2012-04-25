@@ -182,7 +182,7 @@ void VersionedMasterCM::_updateMaxVersion()
         }
     }
 
-    if( _maxVersion == maxVersion )
+    if( _maxVersion != maxVersion )
        _maxVersion = maxVersion;
 }
 
