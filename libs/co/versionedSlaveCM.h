@@ -88,6 +88,7 @@ namespace co
 
         void _syncToHead();
         void _releaseStream( ObjectDataIStream* stream );
+        void _sendAck();
 
         /** Apply the data in the input stream to the object */
         virtual void _unpackOneVersion( ObjectDataIStream* is );

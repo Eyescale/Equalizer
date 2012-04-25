@@ -21,7 +21,6 @@ set(PTHREAD_LIBRARIES pthread)
 add_subdirectory(co)
 
 include(GLEW/CMakeLists.txt)
-add_subdirectory(vmmlib)
 add_subdirectory(eq)
 add_subdirectory(seq)
 

@@ -20,6 +20,7 @@
 #include "command.h"
 #include "commands.h"
 #include "log.h"
+#include "nodePackets.h"
 #include "object.h"
 #include "objectPackets.h"
 #include "objectDataIStream.h"
@@ -31,6 +32,7 @@ typedef CommandFunc<MasterCM> CmdFunc;
 MasterCM::MasterCM( Object* object )
         : ObjectCM( object )
         , _version( VERSION_NONE )
+        , _maxVersion( std::numeric_limits< uint64_t >::max( ))
 {
     LBASSERT( object );
     LBASSERT( object->getLocalNode( ));
@@ -43,6 +45,8 @@ MasterCM::MasterCM( Object* object )
 
     object->registerCommand( CMD_OBJECT_SLAVE_DELTA,
                              CmdFunc( this, &MasterCM::_cmdSlaveDelta ), 0 );
+    object->registerCommand( CMD_OBJECT_MAX_VERSION,
+                             CmdFunc( this, &MasterCM::_cmdMaxVersion ), 0 );
 }
 
 MasterCM::~MasterCM()
@@ -97,51 +101,82 @@ void MasterCM::addSlave( Command& command )
 {
     LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
+    const NodeMapObjectPacket* packet = command.get< NodeMapObjectPacket >();
+
+    SlaveData data;
+    data.node = command.getNode();
+    data.instanceID = packet->instanceID;
+    data.maxVersion = packet->maxVersion;
+    if( data.maxVersion == 0 )
+        data.maxVersion = std::numeric_limits< uint64_t >::max();
+    else if( data.maxVersion < std::numeric_limits< uint64_t >::max( ))
+        data.maxVersion += _version.low();
+
+    _slaveData.push_back( data );
+    _updateMaxVersion();
+
+    _slaves->push_back( data.node );
+    stde::usort( *_slaves );
+
     ObjectCM::_addSlave( command, _version );
 }
 
-void MasterCM::_addSlave( NodePtr node )
-{
-    // OPT: use tr1::unordered_set
-    ++_slavesCount[ node->getNodeID() ];
-    _slaves->push_back( node );
-    stde::usort( *_slaves );
-}
-
-void MasterCM::removeSlave( NodePtr node )
+void MasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
 {
     LB_TS_THREAD( _cmdThread );
-    const NodeID& nodeID = node->getNodeID();
-
     Mutex mutex( _slaves );
-    // remove from subscribers
-    LBASSERTINFO( _slavesCount[ nodeID ] != 0, lunchbox::className( _object ));
 
-    --_slavesCount[ nodeID ];
-    if( _slavesCount[ nodeID ] == 0 )
-    {
-        Nodes::iterator i = find( _slaves->begin(), _slaves->end(), node );
-        LBASSERT( i != _slaves->end( ));
-        _slaves->erase( i );
-        _slavesCount.erase( nodeID );
-    }
+    // remove from subscribers
+    SlaveData data;
+    data.node = node;
+    data.instanceID = instanceID;
+    SlaveDatasIter i = stde::find( _slaveData, data );
+    LBASSERTINFO( i != _slaveData.end(), lunchbox::className( _object ));
+    if( i == _slaveData.end( ))
+        return;
+
+    _slaveData.erase( i );
+
+    // update _slaves node vector
+    _slaves->clear();
+    for( i = _slaveData.begin(); i != _slaveData.end(); ++i )
+        _slaves->push_back( i->node );
+    stde::usort( *_slaves );
 }
 
 void MasterCM::removeSlaves( NodePtr node )
 {
     LB_TS_THREAD( _cmdThread );
 
-    const NodeID& nodeID = node->getNodeID();
-
     Mutex mutex( _slaves );
-    SlavesCount::iterator i = _slavesCount.find( nodeID );
-    if( i == _slavesCount.end( ))
-        return;
 
-    NodesIter j = stde::find( *_slaves, node );
-    LBASSERT( j != _slaves->end( ));
-    _slaves->erase( j );
-    _slavesCount.erase( i );
+    NodesIter i = stde::find( *_slaves, node );
+    if( i == _slaves->end( ))
+        return;
+    _slaves->erase( i );
+
+    for( SlaveDatasIter j = _slaveData.begin(); j != _slaveData.end(); )
+    {
+        if( j->node == node )
+            j = _slaveData.erase( j );
+        else
+            ++j;
+    }
+}
+
+void MasterCM::_updateMaxVersion()
+{
+    uint64_t maxVersion = std::numeric_limits< uint64_t >::max();
+    for( SlaveDatasCIter i = _slaveData.begin(); i != _slaveData.end(); ++i )
+    {
+        if( i->maxVersion != std::numeric_limits< uint64_t >::max() &&
+            maxVersion > i->maxVersion )
+        {
+            maxVersion = i->maxVersion;
+        }
+    }
+
+    _maxVersion = maxVersion;
 }
 
 //---------------------------------------------------------------------------
@@ -155,6 +190,29 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
 
     if( _slaveCommits.addDataPacket( packet->commit, command ))
         _object->notifyNewVersion();
+    return true;
+}
+
+bool MasterCM::_cmdMaxVersion( Command& command )
+{
+    const ObjectMaxVersionPacket* packet = 
+        command.get< ObjectMaxVersionPacket >();
+
+    Mutex mutex( _slaves );
+
+    // Update slave's max version
+    SlaveData data;
+    data.node = command.getNode();
+    data.instanceID = packet->slaveID;
+    SlaveDatasIter i = stde::find( _slaveData, data );
+    if( i == _slaveData.end( ))
+    {
+        LBWARN << "Got max version from unmapped slave" << std::endl;
+        return true;
+    }
+    i->maxVersion = packet->version;
+
+    _updateMaxVersion();
     return true;
 }
 

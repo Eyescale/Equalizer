@@ -157,6 +157,7 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
         _object->unpack( *is );
 
     _version = is->getVersion();
+    _sendAck();
 
     LBASSERT( _version != VERSION_INVALID );
     LBASSERT( _version != VERSION_NONE );
@@ -172,6 +173,16 @@ void VersionedSlaveCM::_unpackOneVersion( ObjectDataIStream* is )
     _releaseStream( is );
 }
 
+void VersionedSlaveCM::_sendAck()
+{
+    const uint64_t maxVersion = _version.low() + _object->getMaxVersions();
+    if( maxVersion <= _version.low( )) // overflow: default unblocking commit
+        return;
+
+    ObjectMaxVersionPacket packet( maxVersion, _object->getInstanceID( ));
+    packet.instanceID = _masterInstanceID;
+    _object->send( _master, packet );
+}
 
 void VersionedSlaveCM::applyMapData( const uint128_t& version )
 {

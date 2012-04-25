@@ -121,7 +121,7 @@ namespace co
          * 
          * @param node the slave node. 
          */
-        virtual void removeSlave( NodePtr node )
+        virtual void removeSlave( NodePtr node, const uint32_t instanceID )
             { LBUNIMPLEMENTED; }
 
         /** Remove all subscribed slaves from the given node. */
@@ -162,7 +162,6 @@ namespace co
 #endif
 
         void _addSlave( Command& command, const uint128_t& version );
-        virtual void _addSlave( NodePtr node ) { LBDONTCALL; }
         virtual void _initSlave( NodePtr node, const uint128_t& version,
                                  const NodeMapObjectPacket* packet,
                                  NodeMapObjectSuccessPacket& success,
