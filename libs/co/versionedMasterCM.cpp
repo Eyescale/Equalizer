@@ -15,7 +15,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "masterCM.h"
+#include "versionedMasterCM.h"
 
 #include "command.h"
 #include "commands.h"
@@ -27,9 +27,9 @@
 
 namespace co
 {
-typedef CommandFunc<MasterCM> CmdFunc;
+typedef CommandFunc<VersionedMasterCM> CmdFunc;
 
-MasterCM::MasterCM( Object* object )
+VersionedMasterCM::VersionedMasterCM( Object* object )
         : ObjectCM( object )
         , _version( VERSION_NONE )
         , _maxVersion( std::numeric_limits< uint64_t >::max( ))
@@ -39,22 +39,26 @@ MasterCM::MasterCM( Object* object )
 
     // sync commands are send to all instances, even the master gets it
     object->registerCommand( CMD_OBJECT_INSTANCE,
-                             CmdFunc( this, &MasterCM::_cmdDiscard ), 0 );
+                             CmdFunc( this, &VersionedMasterCM::_cmdDiscard ),
+                             0 );
     object->registerCommand( CMD_OBJECT_DELTA,
-                             CmdFunc( this, &MasterCM::_cmdDiscard ), 0 );
+                             CmdFunc( this, &VersionedMasterCM::_cmdDiscard ),
+                             0 );
 
     object->registerCommand( CMD_OBJECT_SLAVE_DELTA,
-                             CmdFunc( this, &MasterCM::_cmdSlaveDelta ), 0 );
+                            CmdFunc( this, &VersionedMasterCM::_cmdSlaveDelta ),
+                             0 );
     object->registerCommand( CMD_OBJECT_MAX_VERSION,
-                             CmdFunc( this, &MasterCM::_cmdMaxVersion ), 0 );
+                            CmdFunc( this, &VersionedMasterCM::_cmdMaxVersion ),
+                             0 );
 }
 
-MasterCM::~MasterCM()
+VersionedMasterCM::~VersionedMasterCM()
 {
     _slaves->clear();
 }
 
-uint128_t MasterCM::sync( const uint128_t& inVersion )
+uint128_t VersionedMasterCM::sync( const uint128_t& inVersion )
 {
     LBASSERTINFO( inVersion.high() != 0 || inVersion == VERSION_NEXT ||
                   inVersion == VERSION_HEAD, inVersion );
@@ -82,7 +86,7 @@ uint128_t MasterCM::sync( const uint128_t& inVersion )
     return _apply( _slaveCommits.pull( inVersion ));
 }
 
-uint128_t MasterCM::_apply( ObjectDataIStream* is )
+uint128_t VersionedMasterCM::_apply( ObjectDataIStream* is )
 {
     LBASSERT( !is->hasInstanceData( ));
     _object->unpack( *is );
@@ -97,7 +101,7 @@ uint128_t MasterCM::_apply( ObjectDataIStream* is )
     return version;
 }
 
-void MasterCM::addSlave( Command& command )
+void VersionedMasterCM::addSlave( Command& command )
 {
     LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
@@ -121,7 +125,7 @@ void MasterCM::addSlave( Command& command )
     ObjectCM::_addSlave( command, _version );
 }
 
-void MasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
+void VersionedMasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
 {
     LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
@@ -145,7 +149,7 @@ void MasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
     _updateMaxVersion();
 }
 
-void MasterCM::removeSlaves( NodePtr node )
+void VersionedMasterCM::removeSlaves( NodePtr node )
 {
     LB_TS_THREAD( _cmdThread );
 
@@ -166,7 +170,7 @@ void MasterCM::removeSlaves( NodePtr node )
     _updateMaxVersion();
 }
 
-void MasterCM::_updateMaxVersion()
+void VersionedMasterCM::_updateMaxVersion()
 {
     uint64_t maxVersion = std::numeric_limits< uint64_t >::max();
     for( SlaveDatasCIter i = _slaveData.begin(); i != _slaveData.end(); ++i )
@@ -185,7 +189,7 @@ void MasterCM::_updateMaxVersion()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool MasterCM::_cmdSlaveDelta( Command& command )
+bool VersionedMasterCM::_cmdSlaveDelta( Command& command )
 {
     LB_TS_THREAD( _rcvThread );
     const ObjectSlaveDeltaPacket* packet = 
@@ -196,7 +200,7 @@ bool MasterCM::_cmdSlaveDelta( Command& command )
     return true;
 }
 
-bool MasterCM::_cmdMaxVersion( Command& command )
+bool VersionedMasterCM::_cmdMaxVersion( Command& command )
 {
     const ObjectMaxVersionPacket* packet = 
         command.get< ObjectMaxVersionPacket >();

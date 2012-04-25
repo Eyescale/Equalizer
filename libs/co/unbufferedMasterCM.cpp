@@ -33,7 +33,7 @@ namespace co
 typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
-        : MasterCM( object )
+        : VersionedMasterCM( object )
 {
     _version = VERSION_FIRST;
     LBASSERT( object );

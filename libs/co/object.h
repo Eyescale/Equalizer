@@ -423,7 +423,7 @@ namespace co
     private:
         friend class DeltaMasterCM;
         friend class FullMasterCM;
-        friend class MasterCM;
+        friend class VersionedMasterCM;
         friend class ObjectCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;

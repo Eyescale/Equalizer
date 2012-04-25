@@ -33,14 +33,14 @@ namespace co
      * @internal
      * The base class for versioned master change managers.
      */
-    class MasterCM : public ObjectCM
+    class VersionedMasterCM : public ObjectCM
     {
     protected:
         typedef lunchbox::ScopedWrite Mutex;
 
     public:
-        MasterCM( Object* object );
-        virtual ~MasterCM();
+        VersionedMasterCM( Object* object );
+        virtual ~VersionedMasterCM();
 
         virtual void init(){}
 

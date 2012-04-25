@@ -61,7 +61,6 @@ set(CO_HEADERS
     errorRegistry.cpp
     eventConnection.h
     fullMasterCM.h
-    masterCM.h
     nodePackets.h
     nullCM.h
     objectCM.h
@@ -78,6 +77,7 @@ set(CO_HEADERS
     staticMasterCM.h
     staticSlaveCM.h
     unbufferedMasterCM.h
+    versionedMasterCM.h
     versionedSlaveCM.h
   )
 
@@ -103,7 +103,6 @@ set(CO_SOURCES
     init.cpp
     instanceCache.cpp
     localNode.cpp
-    masterCM.cpp
     node.cpp
     object.cpp
     objectCM.cpp
@@ -111,9 +110,9 @@ set(CO_SOURCES
     objectDataOStream.cpp
     objectDeltaDataOStream.cpp
     objectInstanceDataOStream.cpp
+    objectMap.cpp
     objectSlaveDataOStream.cpp
     objectStore.cpp
-    objectMap.cpp
     objectVersion.cpp
     packets.cpp
     pgmConnection.cpp
@@ -126,6 +125,7 @@ set(CO_SOURCES
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp
     version.cpp
+    versionedMasterCM.cpp
     versionedSlaveCM.cpp
     worker.cpp
 )
