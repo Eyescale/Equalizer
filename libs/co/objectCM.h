@@ -162,7 +162,6 @@ namespace co
 #endif
 
         void _addSlave( Command& command, const uint128_t& version );
-        virtual void _addSlave( NodePtr node ) { LBDONTCALL; }
         virtual void _initSlave( NodePtr node, const uint128_t& version,
                                  const NodeMapObjectPacket* packet,
                                  NodeMapObjectSuccessPacket& success,

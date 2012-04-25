@@ -79,8 +79,6 @@ namespace co
         /** Slave commit queue. */
         DataIStreamQueue _slaveCommits;
 
-        virtual void _addSlave( NodePtr node );
-
         uint128_t _apply( ObjectDataIStream* is );
 
         /* The command handlers. */

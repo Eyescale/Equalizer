@@ -97,15 +97,14 @@ void MasterCM::addSlave( Command& command )
 {
     LB_TS_THREAD( _cmdThread );
     Mutex mutex( _slaves );
-    ObjectCM::_addSlave( command, _version );
-}
 
-void MasterCM::_addSlave( NodePtr node )
-{
     // OPT: use tr1::unordered_set
+    NodePtr node = command.getNode();
     ++_slavesCount[ node->getNodeID() ];
     _slaves->push_back( node );
     stde::usort( *_slaves );
+
+    ObjectCM::_addSlave( command, _version );
 }
 
 void MasterCM::removeSlave( NodePtr node )
