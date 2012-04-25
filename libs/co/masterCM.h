@@ -71,6 +71,9 @@ namespace co
         /** The current version. */
         uint128_t _version;
 
+        /** Maximum master version allowed to commit. */
+        lunchbox::Monitor< uint64_t > _maxVersion;
+
     private:
         struct SlaveData
         {
@@ -84,6 +87,7 @@ namespace co
             uint32_t instanceID;
         };
         typedef std::vector< SlaveData > SlaveDatas;
+        typedef SlaveDatas::const_iterator SlaveDatasCIter;
         typedef SlaveDatas::iterator SlaveDatasIter;
 
         /** Additional slave data. */
@@ -93,9 +97,11 @@ namespace co
         DataIStreamQueue _slaveCommits;
 
         uint128_t _apply( ObjectDataIStream* is );
+        void _updateMaxVersion();
 
         /* The command handlers. */
         bool _cmdSlaveDelta( Command& command );
+        bool _cmdMaxVersion( Command& command );
         bool _cmdDiscard( Command& ) { return true; }
 
         LB_TS_VAR( _cmdThread );

@@ -283,6 +283,7 @@ namespace co
         uint128_t minCachedVersion;
         uint128_t maxCachedVersion;
         UUID objectID;
+        uint64_t maxVersion;
         uint32_t requestID;
         uint32_t instanceID;
         uint32_t masterInstanceID;

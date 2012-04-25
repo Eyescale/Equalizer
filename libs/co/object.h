@@ -109,7 +109,10 @@ namespace co
          * Changing the return value at runtime, that is, after the slave
          * instance has been mapped is unsupported and causes undefined
          * behavior.
-         * 
+         *
+         * Not supported on master instances for slave object commits. Open an
+         * issue if you need this.
+         *
          * @return the number of queued versions a slave instance may have.
          * @version 1.3.2
          */

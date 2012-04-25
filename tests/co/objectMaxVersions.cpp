@@ -64,7 +64,7 @@ public:
 
     virtual void run()
         {
-            lunchbox::sleep( 150 );
+            lunchbox::sleep( 110 );
             _object.sync( 3 );
             TESTINFO( _object.getVersion() == 3, _object.getVersion( ));
         }

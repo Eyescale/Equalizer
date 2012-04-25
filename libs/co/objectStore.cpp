@@ -398,6 +398,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     packet.requestID        = _localNode->registerRequest( object );
     packet.objectID         = id;
     packet.requestedVersion = version;
+    packet.maxVersion       = object->getMaxVersions();
     packet.instanceID       = _genNextID( _instanceIDs );
 
     if( _instanceCache )
