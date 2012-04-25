@@ -142,6 +142,7 @@ void MasterCM::removeSlave( NodePtr node, const uint32_t instanceID )
     for( i = _slaveData.begin(); i != _slaveData.end(); ++i )
         _slaves->push_back( i->node );
     stde::usort( *_slaves );
+    _updateMaxVersion();
 }
 
 void MasterCM::removeSlaves( NodePtr node )
@@ -162,6 +163,7 @@ void MasterCM::removeSlaves( NodePtr node )
         else
             ++j;
     }
+    _updateMaxVersion();
 }
 
 void MasterCM::_updateMaxVersion()
@@ -176,7 +178,8 @@ void MasterCM::_updateMaxVersion()
         }
     }
 
-    _maxVersion = maxVersion;
+    if( _maxVersion == maxVersion )
+       _maxVersion = maxVersion;
 }
 
 //---------------------------------------------------------------------------
