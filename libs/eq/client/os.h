@@ -47,11 +47,7 @@
 
 #ifdef _WIN32
 #ifndef _WIN32_WINNT
-#  ifdef EQ_USE_MAGELLAN
-#    define _WIN32_WINNT 0x501 // XP
-#  else
-#    define _WIN32_WINNT 0x500 // 2000
-#  endif
+#  define _WIN32_WINNT 0x501 // XP
 #endif
 #endif
 

@@ -18,7 +18,7 @@
 #ifndef CO_FULLMASTERCM_H
 #define CO_FULLMASTERCM_H
 
-#include "masterCM.h"        // base class
+#include "versionedMasterCM.h"        // base class
 #include "objectInstanceDataOStream.h" // member
 
 #include <deque>
@@ -32,7 +32,7 @@ namespace co
      * instance.
      * @internal
      */
-    class FullMasterCM : public MasterCM
+    class FullMasterCM : public VersionedMasterCM
     {
     public:
         FullMasterCM( Object* object );
@@ -55,7 +55,7 @@ namespace co
     protected:
         struct InstanceData
         {
-            InstanceData( const MasterCM* cm ) 
+            InstanceData( const VersionedMasterCM* cm ) 
                     : os( cm ), commitCount( 0 ) {}
 
             ObjectInstanceDataOStream os;
@@ -76,6 +76,7 @@ namespace co
         void _checkConsistency() const;
 
         virtual bool isBuffered() const{ return true; }
+        virtual void _commit();
 
     private:
         /** The number of commits, needed for auto-obsoletion. */

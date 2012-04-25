@@ -56,6 +56,7 @@ void ObjectCM::push( const uint128_t& groupID, const uint128_t& typeID,
 
 void ObjectCM::_addSlave( Command& command, const uint128_t& version )
 {
+    LBASSERT( version != VERSION_NONE );
     LBASSERT( command->type == PACKETTYPE_CO_NODE );
     LBASSERT( command->command == CMD_NODE_MAP_OBJECT );
 
@@ -75,9 +76,6 @@ void ObjectCM::_addSlave( Command& command, const uint128_t& version )
     replyPacket.result = true;
 
     // process request
-    LBASSERT( version != VERSION_NONE );
-    _addSlave( node );
-
     const uint32_t instanceID = packet->instanceID;
     if( requested == VERSION_NONE ) // no data to send, send empty version
     {

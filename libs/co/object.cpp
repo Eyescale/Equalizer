@@ -263,9 +263,9 @@ void Object::addSlave( Command& command )
     _cm->addSlave( command );
 }
 
-void Object::removeSlave( NodePtr node )
+void Object::removeSlave( NodePtr node, const uint32_t instanceID )
 {
-    _cm->removeSlave( node );
+    _cm->removeSlave( node, instanceID );
 }
 
 void Object::removeSlaves( NodePtr node )

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -40,7 +40,7 @@ lunchbox::a_int32_t _bytesBuffered;
 typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
-        : MasterCM( object )
+        : VersionedMasterCM( object )
         , _commitCount( 0 )
         , _nVersions( 0 )
 {}
@@ -76,14 +76,14 @@ void FullMasterCM::sendInstanceData( Nodes& nodes )
 void FullMasterCM::init()
 {
     LBASSERT( _commitCount == 0 );
-    MasterCM::init();
+    VersionedMasterCM::init();
 
     InstanceData* data = _newInstanceData();
 
     data->os.enableCommit( VERSION_FIRST, *_slaves );
     _object->getInstanceData( data->os );
     data->os.disable();
-        
+
     _instanceDatas.push_back( data );
     ++_version;
     ++_commitCount;
@@ -135,7 +135,7 @@ void FullMasterCM::_updateCommitCount( const uint32_t incarnation )
     {
         // tweak commitCount of minimum retained version for correct obsoletion
         data->commitCount = 0;
-	_version = data->os.getVersion();
+        _version = data->os.getVersion();
     }
 }
 
@@ -186,7 +186,7 @@ void FullMasterCM::_initSlave( NodePtr node, const uint128_t& version,
     reply.version = start;
     if( reply.useCache )
     {
-        if( packet->minCachedVersion <= start && 
+        if( packet->minCachedVersion <= start &&
             packet->maxCachedVersion >= start )
         {
 #ifdef EQ_INSTRUMENT_MULTICAST
@@ -326,38 +326,48 @@ void FullMasterCM::_releaseInstanceData( InstanceData* data )
 
 uint128_t FullMasterCM::commit( const uint32_t incarnation )
 {
-    Mutex mutex( _slaves );
-#if 0
-    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
-                         << std::endl;
-#endif
     LBASSERT( _version != VERSION_NONE );
 
-    _updateCommitCount( incarnation );
-    
-    if( _object->isDirty( ))
+    if( !_object->isDirty( ))
     {
-        InstanceData* instanceData = _newInstanceData();
-
-        instanceData->os.enableCommit( _version + 1, *_slaves );
-        _object->getInstanceData( instanceData->os );
-        instanceData->os.disable();
-
-        if( instanceData->os.hasSentData( ))
-        {
-            ++_version;
-            LBASSERT( _version != VERSION_NONE );
-#if 0
-            LBINFO << "Committed v" << _version << "@" << _commitCount
-                   << ", id " << _object->getID() << std::endl;
-#endif
-            _addInstanceData( instanceData );
-        }
-        else
-            _instanceDataCache.push_back( instanceData );
+        Mutex mutex( _slaves );
+        _updateCommitCount( incarnation );
+        _obsolete();
+        return _version;
     }
+
+    _maxVersion.waitGE( _version.low() + 1 );
+    Mutex mutex( _slaves );
+#if 0
+    LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
+                         << std::endl;
+#endif
+    _updateCommitCount( incarnation );
+    _commit();
     _obsolete();
     return _version;
+}
+
+void FullMasterCM::_commit()
+{
+    InstanceData* instanceData = _newInstanceData();
+
+    instanceData->os.enableCommit( _version + 1, *_slaves );
+    _object->getInstanceData( instanceData->os );
+    instanceData->os.disable();
+
+    if( instanceData->os.hasSentData( ))
+    {
+        ++_version;
+        LBASSERT( _version != VERSION_NONE );
+#if 0
+        LBINFO << "Committed v" << _version << "@" << _commitCount << ", id "
+               << _object->getID() << std::endl;
+#endif
+        _addInstanceData( instanceData );
+    }
+    else
+        _instanceDataCache.push_back( instanceData );
 }
 
 void FullMasterCM::push( const uint128_t& groupID, const uint128_t& typeID,

@@ -35,7 +35,8 @@ namespace co
         DeltaMasterCM( Object* object );
         virtual ~DeltaMasterCM();
 
-        virtual uint128_t commit( const uint32_t incarnation );
+    protected:
+        virtual void _commit();
 
     private:
         /* The command handlers. */
