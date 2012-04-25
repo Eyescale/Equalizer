@@ -52,6 +52,12 @@
 #include <lunchbox/rng.h>
 #include <lunchbox/scopedMutex.h>
 
+#ifdef EQ_USE_GLSTATS
+#  include <GLStats/data.h>
+#  include <GLStats/item.h>
+#  include <GLStats/renderer.h>
+#endif
+
 #include <bitset>
 #include <set>
 
@@ -944,15 +950,11 @@ void Channel::drawStatistics()
     glMatrixMode( GL_MODELVIEW );
     glDisable( GL_LIGHTING );
 
-    Window* window = getWindow();
-    const Window::Font* font = window->getSmallFont();
-
-    //----- find min/max time
-    int64_t xMax = 0;
-    int64_t xMin = std::numeric_limits< int64_t >::max();
-
-    std::map< uint32_t, EntityData > entities;
-    std::map< uint32_t, IdleData >   idles;
+#ifdef EQ_USE_GLSTATS
+    GLStats::Data data;
+    ///Window* window = getWindow();
+    ///const Window::Font* font = window->getSmallFont();
+    ///std::map< uint32_t, IdleData >   idles;
 
     for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
          i != statistics.end(); ++i )
@@ -965,21 +967,32 @@ void Channel::drawStatistics()
         {
             const uint32_t id = j->first;
             Statistics& stats = j->second;
-            std::sort( stats.begin(), stats.end(), _compare );
+            std::sort( stats.begin(), stats.end(), _compare ); ///
 
             for( Statistics::const_iterator k = stats.begin(); 
                  k != stats.end(); ++k )
             {
                 const Statistic& stat = *k;
+                GLStats::Item item;
+                item.entity = id;
+                item.start = stat.startTime;
+                item.end = stat.endTime;
+
+                const Vector3f& color = Statistic::getColor( stat.type );
+                item.color[0] = color[0];
+                item.color[1] = color[1];
+                item.color[2] = color[2];
 
                 switch( stat.type )
                 {
                   case Statistic::PIPE_IDLE:
                   {
+#if 0
                     IdleData& data = idles[ id ];
                     data.name = stat.resourceName;
                     data.idle += (stat.idleTime * 100ll / stat.totalTime);
                     ++data.nIdle;
+#endif
                     continue;
                   }
 
@@ -987,52 +1000,50 @@ void Channel::drawStatistics()
                     continue;
 
                   case Statistic::CHANNEL_ASYNC_READBACK:
-                    entities[ id ].threads.set( THREAD_ASYNC1 );
+                    item.thread = THREAD_ASYNC1;
                     break;
 
                   case Statistic::CHANNEL_FRAME_TRANSMIT:
-                    entities[ id ].threads.set( THREAD_ASYNC2 );
+                    item.thread = THREAD_ASYNC2;
+                    break;
+
+                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                  case Statistic::CHANNEL_FRAME_WAIT_READY:
+                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                    item.layer = 1;
                     break;
 
                   default:
                     break;
                 }
 
-                xMax = LB_MAX( xMax, stat.endTime );
-                xMin = LB_MIN( xMin, stat.startTime );
-
+#if 0
                 if( entities.find( id ) == entities.end( ))
                 {
                     EntityData& data = entities[ id ];
                     data.name = stats.front().resourceName;
                 }
+#endif
+                data.addItem( item );
             }
         }
     }
+    
+    GLStats::Renderer renderer;
     const Viewport& vp = getViewport();
     const uint32_t width = uint32_t( pvp.w/vp.w );
-    uint32_t scale = 1;
-
-    while( (xMax - xMin) / scale > width )
-        scale *= 10;
-
-    xMax  /= scale;
-    int64_t xStart = xMax - width + SPACE;
-
     const uint32_t height = uint32_t( pvp.h / vp.h);
-    uint32_t nextY = height - SPACE;
 
+    renderer.setViewport( width, height );
+    renderer.draw( data );
+#endif
+#if 0
     //----- statistics
     float dim = 0.0f;
     for( std::vector< eq::FrameStatistics >::reverse_iterator 
              i = statistics.rbegin(); i != statistics.rend(); ++i )
     {
-        const eq::FrameStatistics& frameStats  = *i;
-        const SortedStatistics& configStats = frameStats.second;
-
-        int64_t     frameMin = xMax;
-        int64_t     frameMax = 0;
-
         // draw stats
         for( SortedStatistics::const_iterator j = configStats.begin();
              j != configStats.end(); ++j )
@@ -1308,6 +1319,8 @@ void Channel::drawStatistics()
         font->draw( Statistic::getName( type ));
     }
     
+#endif
+    Window* window = getWindow();
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));

@@ -7,6 +7,7 @@
 if(EQUALIZER_USE_MAGELLAN)
   find_package(MAGELLAN)
 endif()
+find_package(GLStats)
 
 # TODO: resolve two-way dependency between client and util!
 include(configure.cmake)
@@ -20,6 +21,10 @@ set(EQ_LIBRARIES)
 if(MAGELLAN_FOUND)
   include_directories(${MAGELLAN_INCLUDE_DIR})
   list(APPEND EQ_LIBRARIES ${MAGELLAN_LIBRARY})
+endif()
+if(GLSTATS_FOUND)
+  include_directories(${GLSTATS_INCLUDE_DIR})
+  list(APPEND EQ_LIBRARIES ${GLSTATS_LIBRARIES})
 endif()
 
 if(APPLE)
