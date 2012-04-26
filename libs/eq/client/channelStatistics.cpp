@@ -54,6 +54,7 @@ ChannelStatistics::ChannelStatistics( const Statistic::Type type,
     event.data.statistic.resourceName[31] = 0;
 
     if( _hint == NICEST &&
+        type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
         type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
@@ -72,6 +73,7 @@ ChannelStatistics::~ChannelStatistics()
 
     const Statistic::Type type = event.data.statistic.type;
     if( _hint == NICEST &&
+        type != Statistic::CHANNEL_ASYNC_READBACK &&
         type != Statistic::CHANNEL_FRAME_TRANSMIT &&
         type != Statistic::CHANNEL_FRAME_COMPRESS &&
         type != Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN )
