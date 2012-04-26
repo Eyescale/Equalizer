@@ -40,7 +40,7 @@ lunchbox::a_int32_t _bytesBuffered;
 typedef CommandFunc<FullMasterCM> CmdFunc;
 
 FullMasterCM::FullMasterCM( Object* object )
-        : MasterCM( object )
+        : VersionedMasterCM( object )
         , _commitCount( 0 )
         , _nVersions( 0 )
 {}
@@ -76,7 +76,7 @@ void FullMasterCM::sendInstanceData( Nodes& nodes )
 void FullMasterCM::init()
 {
     LBASSERT( _commitCount == 0 );
-    MasterCM::init();
+    VersionedMasterCM::init();
 
     InstanceData* data = _newInstanceData();
 

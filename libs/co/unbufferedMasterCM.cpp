@@ -33,7 +33,7 @@ namespace co
 typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
-        : MasterCM( object )
+        : VersionedMasterCM( object )
 {
     _version = VERSION_FIRST;
     LBASSERT( object );
@@ -53,7 +53,6 @@ uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
         return _version;
 
     _maxVersion.waitGE( _version.low() + 1 );
-
     Mutex mutex( _slaves );
     if( _slaves->empty( ))
         return _version;

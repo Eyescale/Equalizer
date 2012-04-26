@@ -19,7 +19,7 @@
 #include "objectInstanceDataOStream.h"
 
 #include "log.h"
-#include "masterCM.h"
+#include "versionedMasterCM.h"
 #include "nodePackets.h"
 #include "object.h"
 #include "objectDataIStream.h"
