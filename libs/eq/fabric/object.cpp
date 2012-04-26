@@ -145,7 +145,10 @@ void Object::serialize( co::DataOStream& os, const uint64_t dirtyBits )
         _removedChildren.clear();
     }
     if( (dirtyBits & DIRTY_SERIAL) && isMaster( ))
-        os << getInstanceID();
+    {
+        _serial = getInstanceID();
+        os << _serial;
+    }
 }
 
 void Object::deserialize( co::DataIStream& is, const uint64_t dirtyBits )

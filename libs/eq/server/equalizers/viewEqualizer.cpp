@@ -344,8 +344,9 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
         float segmentResources( load.time / resourceTime );
 
         LBLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " (" 
-                        << child->getChannel()->getName() << ") using "
-                        << segmentResources << " resources" << std::endl;
+                         << child->getChannel()->getName() << " "
+                         << child->getChannel()->getSerial() << ") using "
+                         << segmentResources << " resources" << std::endl;
         SelfAssigner assigner( child->getPipe(), segmentResources, pipeUsage );
         
         child->accept( assigner );
@@ -363,7 +364,8 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         float& leftOver = leftOvers[i];
         LBLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
-                         << child->getChannel()->getName() << ") using "
+                         << child->getChannel()->getName() << " "
+                         << child->getChannel()->getSerial() << ") using "
                          << leftOver << " resources" << std::endl;
         PreviousAssigner assigner( child->getPipe(), leftOver, pipeUsage );
         
@@ -629,7 +631,8 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     if( startTime == std::numeric_limits< int64_t >::max( ))
         return;
     
-    LBASSERTINFO( load.missing > 0, load );
+    LBASSERTINFO( load.missing > 0, load << " for " << channel->getName() <<
+                                    " " << channel->getSerial( ));
 
     const int64_t time = LB_MAX(endTime - startTime, transmitTime );
     load.time += time;
@@ -642,7 +645,8 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
     }
 
     LBLOG( LOG_LB1 ) << "Task " << taskID << ", added time " << time << " to "
-                    << load << std::endl;
+                     << load << " from " << channel->getName() << " "
+                     << channel->getSerial() << std::endl;
 }
 
 uint32_t ViewEqualizer::Listener::findYoungestLoad( const uint32_t frame ) const
