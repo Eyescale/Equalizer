@@ -347,6 +347,10 @@ void Channel::addStatistic( Event& event )
 //---------------------------------------------------------------------------
 // operations
 //---------------------------------------------------------------------------
+void Channel::waitFrameFinished( const uint32_t frame ) const
+{
+    _impl->finishedFrame.waitGE( frame );
+}
 
 void Channel::frameClear( const uint128_t& )
 {
@@ -1526,6 +1530,8 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 
     stats.data.clear();
     stats.region = Viewport::FULL;
+
+    _impl->finishedFrame = frameNumber; 
 }
 
 void Channel::_setOutputFrames( const uint32_t nFrames,
@@ -1978,6 +1984,7 @@ bool Channel::_cmdConfigInit( co::Command& command )
         LBASSERT( pvp.hasArea( ));
         _impl->initialSize.x() = pvp.w;
         _impl->initialSize.y() = pvp.h;
+        _impl->finishedFrame = window->getCurrentFrame();
 
         reply.result = configInit( packet->initID );
 
