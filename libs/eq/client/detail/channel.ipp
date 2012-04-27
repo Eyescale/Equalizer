@@ -86,6 +86,9 @@ public:
     /** The application-declared regions of interest, merged if 
         necessary to be non overlapping. */
     PixelViewports regions;
+
+    /** The number of the last finished frame. */
+    lunchbox::Monitor< uint32_t > finishedFrame;
 };
 
 }

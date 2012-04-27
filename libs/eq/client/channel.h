@@ -61,6 +61,7 @@ namespace detail { class Channel; struct RBStat; }
         EQ_API co::CommandQueue* getPipeThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
         EQ_API uint32_t getCurrentFrame() const; //!< @internal render thr only
+        void waitFrameFinished( const uint32_t frame ) const; //!< @internal
 
         /**
          * @return true if this channel is stopped, false otherwise.

@@ -102,7 +102,7 @@ server
             }
             segment
             {
-                channel "channel-bottom"
+                channel "channel-top"
                 wall
                 {
                     bottom_left  [ -1 -1  1 ]
@@ -112,7 +112,7 @@ server
             }
             segment
             { 
-                channel "channel-top"
+                channel "channel-bottom"
                 wall
                 {
                     bottom_left  [ -1  1 -1 ]

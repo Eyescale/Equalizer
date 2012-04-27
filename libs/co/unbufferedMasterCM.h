@@ -18,7 +18,7 @@
 #ifndef EQNET_UNBUFFEREDMASTERCM_H
 #define EQNET_UNBUFFEREDMASTERCM_H
 
-#include "masterCM.h"           // base class
+#include "versionedMasterCM.h"           // base class
 
 namespace co
 {
@@ -29,7 +29,7 @@ namespace co
      * buffering.
      * @internal
      */
-    class UnbufferedMasterCM : public MasterCM
+    class UnbufferedMasterCM : public VersionedMasterCM
     {
     public:
         UnbufferedMasterCM( Object* object );

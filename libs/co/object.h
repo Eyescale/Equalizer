@@ -99,6 +99,27 @@ namespace co
         virtual ChangeType getChangeType() const { return STATIC; }
 
         /**
+         * Limit the number of queued versions of slave instances.
+         *
+         * Changing the return value of this method causes the master instance
+         * to block during commit() if any slave instance has reached the
+         * maximum number of queued versions. The method is called on the slave
+         * instance. Multiple slave instances may use different values.
+         *
+         * Changing the return value at runtime, that is, after the slave
+         * instance has been mapped is unsupported and causes undefined
+         * behavior.
+         *
+         * Not supported on master instances for slave object commits. Open an
+         * issue if you need this.
+         *
+         * @return the number of queued versions a slave instance may have.
+         * @version 1.3.2
+         */
+        virtual uint64_t getMaxVersions() const
+            { return std::numeric_limits< uint64_t >::max(); }
+
+        /**
          * Return the compressor to be used for data transmission.
          *
          * This default implementation chooses the compressor with the highest
@@ -303,8 +324,8 @@ namespace co
                           const void* data, const uint64_t size );
 
         /** Send a packet to peer object instance(s) on another node. */
-        template< class T >
-        bool send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v );
+        template< class T > bool
+        send( NodePtr node, ObjectPacket& packet, const std::vector<T>& v );
         //@}
 
         /** @name Notifications */
@@ -353,7 +374,7 @@ namespace co
 
         /** @internal */
         void addSlave( Command& command );
-        CO_API void removeSlave( NodePtr node ); //!< @internal
+        CO_API void removeSlave( NodePtr node, const uint32_t instanceID );
         CO_API void removeSlaves( NodePtr node ); //!< @internal
         void setMasterNode( NodePtr node ); //!< @internal
         /** @internal */
@@ -402,7 +423,7 @@ namespace co
     private:
         friend class DeltaMasterCM;
         friend class FullMasterCM;
-        friend class MasterCM;
+        friend class VersionedMasterCM;
         friend class ObjectCM;
         friend class StaticMasterCM;
         friend class StaticSlaveCM;

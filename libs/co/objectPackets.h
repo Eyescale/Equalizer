@@ -76,6 +76,19 @@ namespace co
         const Nodes* nodes;
     };
 
+    struct ObjectMaxVersionPacket : public ObjectPacket
+    {
+        ObjectMaxVersionPacket( const uint64_t version_,
+                                const uint32_t slaveInstanceID )
+                : version( version_ ), slaveID( slaveInstanceID )
+            {
+                command = CMD_OBJECT_MAX_VERSION;
+                size = sizeof( ObjectMaxVersionPacket );
+            }
+        const uint64_t version;
+        const uint32_t slaveID;
+    };
+
     struct ObjectDataPacket : public ObjectPacket
     {
         ObjectDataPacket()
