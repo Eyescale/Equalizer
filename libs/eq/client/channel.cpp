@@ -55,8 +55,10 @@
 #ifdef EQ_USE_GLSTATS
 #  include "detail/statsRenderer.h"
 #  include <GLStats/data.h>
+#  include <GLStats/entity.h>
 #  include <GLStats/item.h>
 #  include <GLStats/renderer.h>
+#  include <GLStats/thread.h>
 #endif
 
 #include <bitset>
@@ -982,6 +984,10 @@ void Channel::drawStatistics()
                 item.start = stat.startTime;
                 item.end = stat.endTime;
 
+                GLStats::Entity entity;
+                entity.name = stat.resourceName;
+                data.addEntity( id, entity );
+
                 const Vector3f& color = Statistic::getColor( stat.type );
                 item.color[0] = color[0];
                 item.color[1] = color[1];
@@ -1004,13 +1010,23 @@ void Channel::drawStatistics()
                     continue;
 
                   case Statistic::CHANNEL_ASYNC_READBACK:
+                  {
                     item.thread = THREAD_ASYNC1;
-                    break;
 
+                    GLStats::Thread thread;
+                    thread.name = "transfer";
+                    data.addThread( id, thread );
+                    break;
+                  }
                   case Statistic::CHANNEL_FRAME_TRANSMIT:
+                  {
                     item.thread = THREAD_ASYNC2;
-                    break;
 
+                    GLStats::Thread thread;
+                    thread.name = "transmit";
+                    data.addThread( id, thread );
+                    break;
+                  }
                   case Statistic::CONFIG_WAIT_FINISH_FRAME:
                   case Statistic::CHANNEL_FRAME_WAIT_READY:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
