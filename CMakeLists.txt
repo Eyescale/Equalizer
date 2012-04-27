@@ -113,7 +113,6 @@ endif()
 if(HWLOC_FOUND)
   include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
-  message ("-------------------------------------------------------------------------------")
 endif()
 
 if(APPLE)
