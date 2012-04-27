@@ -18,7 +18,6 @@
 
 #include "pipe.h"
 
-#include "channel.h"
 #include "client.h"
 #include "config.h"
 #include "exception.h"
@@ -294,10 +293,13 @@ void Pipe::_setupAffinity()
         {
             const int autoAffinitySocket = _getAutoAffinity();
             if ( autoAffinitySocket == -1 )
-                EQINFO << " Auto thread placement is not supported " << std::endl;
+            {
+                EQINFO << "Invalid display configuration values" << std::endl;
+                EQINFO << "Auto thread placement's not supported" << std::endl;
+            }
             else
                 Pipe::Thread::setAffinity
-                           ( autoAffinitySocket +  lunchbox::Thread::SOCKET );
+                           ( autoAffinitySocket + lunchbox::Thread::SOCKET );
         }
             break;
 
@@ -607,29 +609,9 @@ void Pipe::notifyMapped()
     _state = STATE_MAPPED;
 }
 
-namespace
-{
-class WaitFinishedVisitor : public PipeVisitor
-{
-public:
-    WaitFinishedVisitor( const uint32_t frame ) : _frame( frame ) {}
-
-    virtual VisitorResult visit( Channel* channel )
-        {
-            channel->waitFrameFinished( _frame );
-            return TRAVERSE_CONTINUE;
-        }
-
-private:
-    const uint32_t _frame;
-};
-}
-
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
     _finishedFrame.waitGE( frameNumber );
-    WaitFinishedVisitor waiter( frameNumber );
-    accept( waiter );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
