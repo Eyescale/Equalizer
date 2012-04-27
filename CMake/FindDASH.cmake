@@ -69,7 +69,7 @@
 
 #
 # find and parse dash/version.h
-find_path(_dash_INCLUDE_DIR dash/Version.h
+find_path(_dash_INCLUDE_DIR dash/version.h
   HINTS ${CMAKE_SOURCE_DIR}/../../.. $ENV{DASH_ROOT} ${DASH_ROOT} }
   PATH_SUFFIXES include
   PATHS /usr /usr/local /opt/local /opt
@@ -87,7 +87,7 @@ endif()
 
 # Try to ascertain the version...
 if(_dash_INCLUDE_DIR)
-  set(_dash_Version_file "${_dash_INCLUDE_DIR}/dash/Version.h")
+  set(_dash_Version_file "${_dash_INCLUDE_DIR}/dash/version.h")
 
   if(EXISTS "${_dash_Version_file}")
     file(READ "${_dash_Version_file}" _dash_Version_contents)

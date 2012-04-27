@@ -1,6 +1,8 @@
 # Copyright (c) 2011 Stefan Eilemann <eile@eyescale.ch>
 
-include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
+find_package(VMMLIB REQUIRED)
+include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS}
+                           ${VMMLIB_INCLUDE_DIR})
 if(CUDA_FOUND)
   include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
 endif()

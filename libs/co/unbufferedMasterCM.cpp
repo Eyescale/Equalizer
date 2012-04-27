@@ -33,7 +33,7 @@ namespace co
 typedef CommandFunc<UnbufferedMasterCM> CmdFunc;
 
 UnbufferedMasterCM::UnbufferedMasterCM( Object* object )
-        : MasterCM( object )
+        : VersionedMasterCM( object )
 {
     _version = VERSION_FIRST;
     LBASSERT( object );
@@ -45,12 +45,16 @@ UnbufferedMasterCM::~UnbufferedMasterCM()
 
 uint128_t UnbufferedMasterCM::commit( const uint32_t incarnation )
 {
-    Mutex mutex( _slaves );
 #if 0
     LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command
                          << std::endl;
 #endif
-    if( !_object->isDirty() || _slaves->empty( ))
+    if( !_object->isDirty( ))
+        return _version;
+
+    _maxVersion.waitGE( _version.low() + 1 );
+    Mutex mutex( _slaves );
+    if( _slaves->empty( ))
         return _version;
 
     ObjectDeltaDataOStream os( this );

@@ -56,9 +56,6 @@ namespace co
         virtual void addSlave( Command& command )
             { ObjectCM::_addSlave( command, VERSION_FIRST ); }
         virtual void removeSlaves( NodePtr ) { /* NOP */}
-
-    private:
-        virtual void _addSlave( NodePtr node ) { /* NOP */ }
     };
 }
 

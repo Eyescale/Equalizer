@@ -72,6 +72,7 @@ namespace co
         CMD_OBJECT_COMMIT,
         CMD_OBJECT_PUSH,
         CMD_OBJECT_OBSOLETE,
+        CMD_OBJECT_MAX_VERSION,
         CMD_OBJECT_CUSTOM = 10 // some buffer for binary-compatible patches
     };
 

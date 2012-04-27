@@ -398,6 +398,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
     packet.requestID        = _localNode->registerRequest( object );
     packet.objectID         = id;
     packet.requestedVersion = version;
+    packet.maxVersion       = object->getMaxVersions();
     packet.instanceID       = _genNextID( _instanceIDs );
 
     if( _instanceCache )
@@ -921,14 +922,13 @@ bool ObjectStore::_cmdUnsubscribeObject( Command& command )
         if( i != _objects->end( ))
         {
             const Objects& objects = i->second;
-
             for( ObjectsCIter j = objects.begin(); j != objects.end(); ++j )
             {
                 Object* object = *j;
                 if( object->isMaster() && 
                     object->getInstanceID() == packet->masterInstanceID )
                 {
-                    object->removeSlave( node );
+                    object->removeSlave( node, packet->slaveInstanceID );
                     break;
                 }
             }   
