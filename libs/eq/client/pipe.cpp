@@ -217,7 +217,7 @@ void Pipe::_setupCommandQueue()
 int Pipe::_getAutoAffinity()
 {
     /* Return -1 if no port and devices were specified by the
-     * configuration files*/
+     * configuration file*/
     int cpuIndex = -1;
 
     const uint32_t port = getPort();
@@ -232,7 +232,6 @@ int Pipe::_getAutoAffinity()
     else
     {
 #ifdef EQ_USE_HWLOC
-        std::cout << "************************************************************************************* 1" << std::endl;
         hwloc_topology_t topology;
         hwloc_topology_init( &topology );
 
@@ -255,45 +254,30 @@ int Pipe::_getAutoAffinity()
         }
         hwloc_topology_load( topology );
 
-        std::cout << "************************************************************************************* 2" << std::endl;
         /* Get the cpuset for the socket connected to GPU
         attached to the display defined by its port and device */
         hwloc_bitmap_t cpuSet = get_display_cpuset
             ( topology, static_cast<int> (port), static_cast<int> (device) );
 
-        if (cpuSet != 0)
-        {
-            char* _cpuset_string;
-            hwloc_bitmap_asprintf(&_cpuset_string, cpuSet);
-            printf("Selected CPU set is %s: \n", _cpuset_string);
-        }
-
         const int numCpus = hwloc_get_nbobjs_by_type
                                           ( topology, HWLOC_OBJ_SOCKET );
-        printf("numCPUs is %d \n", numCpus);
 
         for (int i = 0; i <= numCpus - 1  ; i++)
         {
-            std::cout << "************************************************************************************* 3" << std::endl;
             hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type
                                  ( topology, cpuSet, HWLOC_OBJ_SOCKET, i);
             if (cpuObj != 0)
             {
-                std::cout << "************************************************************************************* 4" << std::endl;
                 cpuIndex = cpuObj->logical_index;
                 break;
             }
         }
         hwloc_topology_destroy(topology);
-
-        printf("cpuIndex is %d \n", cpuIndex);
-        return cpuIndex;
 #else
     EQINFO << "Missing hwloc," <<
               "Automatic thread placement is not supported" << std::endl;
 #endif
     }
-
     return cpuIndex;
 }
 
@@ -309,10 +293,13 @@ void Pipe::_setupAffinity()
         {
             const int autoAffinitySocket = _getAutoAffinity();
             if ( autoAffinitySocket == -1 )
-                EQINFO << " Auto thread placement is not supported " << std::endl;
+            {
+                EQINFO << "Invalid display configuration values" << std::endl;
+                EQINFO << "Auto thread placement is not supported" << std::endl;
+            }
             else
                 Pipe::Thread::setAffinity
-                           ( autoAffinitySocket +  lunchbox::Thread::SOCKET );
+                           ( autoAffinitySocket + lunchbox::Thread::SOCKET );
         }
             break;
 
