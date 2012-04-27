@@ -53,6 +53,7 @@
 #include <lunchbox/scopedMutex.h>
 
 #ifdef EQ_USE_GLSTATS
+#  include "detail/statsRenderer.h"
 #  include <GLStats/data.h>
 #  include <GLStats/item.h>
 #  include <GLStats/renderer.h>
@@ -956,8 +957,6 @@ void Channel::drawStatistics()
 
 #ifdef EQ_USE_GLSTATS
     GLStats::Data data;
-    ///Window* window = getWindow();
-    ///const Window::Font* font = window->getSmallFont();
     ///std::map< uint32_t, IdleData >   idles;
 
     for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
@@ -979,6 +978,7 @@ void Channel::drawStatistics()
                 const Statistic& stat = *k;
                 GLStats::Item item;
                 item.entity = id;
+                item.frame = stat.frameNumber;
                 item.start = stat.startTime;
                 item.end = stat.endTime;
 
@@ -1034,7 +1034,9 @@ void Channel::drawStatistics()
         }
     }
     
-    GLStats::Renderer renderer;
+    Window* window = getWindow();
+    const Window::Font* font = window->getSmallFont();
+    detail::StatsRenderer renderer( font );
     const Viewport& vp = getViewport();
     const uint32_t width = uint32_t( pvp.w/vp.w );
     const uint32_t height = uint32_t( pvp.h / vp.h);
@@ -1324,7 +1326,6 @@ void Channel::drawStatistics()
     }
     
 #endif
-    Window* window = getWindow();
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
