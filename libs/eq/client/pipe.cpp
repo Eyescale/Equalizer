@@ -263,7 +263,7 @@ int Pipe::_getAutoAffinity()
 
         const int numCpus = hwloc_get_nbobjs_by_type
                                           ( topology, HWLOC_OBJ_SOCKET );
-        for (int i = 0; i < numCpus - 1; i++)
+        for (int i = 0; i <= numCpus - 1; i++)
         {
             hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type
                                  ( topology, cpuSet, HWLOC_OBJ_SOCKET, i);
