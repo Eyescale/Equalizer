@@ -957,9 +957,15 @@ void Channel::drawStatistics()
     glMatrixMode( GL_MODELVIEW );
     glDisable( GL_LIGHTING );
 
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glDisable( GL_COLOR_LOGIC_OP );
+
 #ifdef EQ_USE_GLSTATS
     GLStats::Data data;
-    ///std::map< uint32_t, IdleData >   idles;
+
+    data.clearText();
+    std::map< uint32_t, IdleData > idles;
 
     for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
          i != statistics.end(); ++i )
@@ -997,12 +1003,10 @@ void Channel::drawStatistics()
                 {
                   case Statistic::PIPE_IDLE:
                   {
-#if 0
-                    IdleData& data = idles[ id ];
-                    data.name = stat.resourceName;
-                    data.idle += (stat.idleTime * 100ll / stat.totalTime);
-                    ++data.nIdle;
-#endif
+                    IdleData& idle = idles[ id ];
+                    idle.name = stat.resourceName;
+                    idle.idle += (stat.idleTime * 100ll / stat.totalTime);
+                    ++idle.nIdle;
                     continue;
                   }
 
@@ -1049,6 +1053,20 @@ void Channel::drawStatistics()
             }
         }
     }
+
+    std::stringstream text;
+    if( !idles.empty( ))
+        text << "Idle:";
+
+    for( std::map< uint32_t, IdleData >::const_iterator i = idles.begin();
+         i != idles.end(); ++i )
+    {
+        const IdleData& idle = i->second;
+        LBASSERT( idle.nIdle > 0 );
+
+        text << " " << idle.name << ":" << idle.idle / idle.nIdle << "%";
+    }
+    data.addText( text.str( ));
     
     Window* window = getWindow();
     const Window::Font* font = window->getSmallFont();
@@ -1537,6 +1555,11 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
     if( --stats.used != 0 ) // Frame still in use
         return;
+
+    ++stats.used; // otherwise assertion
+    { ChannelStatistics event( Statistic::CHANNEL_FRAME_FINISH, this,
+                               frameNumber ); }
+    --stats.used;
 
     ChannelFrameFinishReplyPacket reply;
     reply.nStatistics = uint32_t( stats.data.size( ));

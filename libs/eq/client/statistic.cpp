@@ -61,6 +61,8 @@ static StatisticData _statisticData[] =
    "compress",     Vector3f( 0.f, .7f, 1.f ) }, 
  { Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN,
    "wait send token", Vector3f( 1.f, 0.f, 0.f ) }, 
+ { Statistic::CHANNEL_FRAME_FINISH,
+   "compress",     Vector3f( 1.f, 1.f, 1.f ) }, 
  { Statistic::WINDOW_FINISH,
    "finish",       Vector3f( 1.0f, 1.0f, 0.f ) },
  { Statistic::WINDOW_THROTTLE_FRAMERATE,
