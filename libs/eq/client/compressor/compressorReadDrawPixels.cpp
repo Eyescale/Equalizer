@@ -34,6 +34,12 @@ namespace
 {
 static stde::hash_map< unsigned, unsigned > _depths;
 
+#ifdef __APPLE__
+#  define ASYNC_FLAG  // PBO readbacks broken ?
+#else
+#  define ASYNC_FLAG EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |
+#endif
+
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
     {                                                                   \
@@ -42,7 +48,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
                              EQ_COMPRESSOR_DATA_2D |                    \
                              EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
                              EQ_COMPRESSOR_USE_TEXTURE_2D |             \
-                             EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |         \
+                             ASYNC_FLAG                                 \
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
         if( alpha )                                                     \
             info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
