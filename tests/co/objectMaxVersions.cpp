@@ -119,6 +119,7 @@ int main( int argc, char **argv )
     TESTINFO( master.getVersion() == 3, master.getVersion( ));
     TESTINFO( time > 100.f, time );
 
+    thread.join();
     server->unmapObject( &slave );
     client->deregisterObject( &master );
 
