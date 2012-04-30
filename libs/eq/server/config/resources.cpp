@@ -96,6 +96,8 @@ bool Resources::discover( Config* config, const std::string& session,
     for( gpusd::GPUInfosCIter i = infos.begin(); i != infos.end(); ++i )
     {
         const gpusd::GPUInfo& info = *i;
+        if( info.flags & gpusd::GPUInfo::FLAG_VIRTUALGL_DISPLAY )
+            continue; // ignore, default $DISPLAY gpu uses this one
 
         Node* mtNode = nodes[ info.hostname ];
         Node* mpNode = 0;
@@ -128,8 +130,12 @@ bool Resources::discover( Config* config, const std::string& session,
         }
 
         std::stringstream name;
-        if( info.device == LB_UNDEFINED_UINT32 )
+        if( info.device == LB_UNDEFINED_UINT32 &&    
+            // VirtualGL display redirects to local GPU (see continue above)
+            !(info.flags & gpusd::GPUInfo::FLAG_VIRTUALGL) )
+        {
             name << "display";
+        }
         else
             name << "GPU" << ++gpuCounter;
 
