@@ -121,6 +121,7 @@ set(CO_SOURCES
     pluginRegistry.cpp
     queueMaster.cpp
     queueSlave.cpp
+    serializable.cpp
     socketConnection.cpp
     staticSlaveCM.cpp
     unbufferedMasterCM.cpp

@@ -21,6 +21,8 @@
 #include "task.h"
 
 #include <co/command.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 #include <co/types.h>
 
 namespace eq

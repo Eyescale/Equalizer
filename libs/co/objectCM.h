@@ -120,6 +120,7 @@ namespace co
          * Remove a subscribed slave.
          * 
          * @param node the slave node. 
+         * @param instanceID the slave's instance identifier.
          */
         virtual void removeSlave( NodePtr node, const uint32_t instanceID )
             { LBUNIMPLEMENTED; }
