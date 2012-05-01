@@ -963,6 +963,11 @@ void Channel::drawStatistics()
 
 #ifdef EQ_USE_GLSTATS
     GLStats::Data data;
+    GLStats::Thread thread;
+    thread.name = "transfer";
+    data.addThread( THREAD_ASYNC1, thread );
+    thread.name = "transmit";
+    data.addThread( THREAD_ASYNC2, thread );
 
     data.clearText();
     std::map< uint32_t, IdleData > idles;
@@ -992,7 +997,6 @@ void Channel::drawStatistics()
 
                 GLStats::Entity entity;
                 entity.name = stat.resourceName;
-                data.addEntity( id, entity );
 
                 const Vector3f& color = Statistic::getColor( stat.type );
                 item.color[0] = color[0];
@@ -1014,27 +1018,43 @@ void Channel::drawStatistics()
                     continue;
 
                   case Statistic::CHANNEL_ASYNC_READBACK:
-                  {
                     item.thread = THREAD_ASYNC1;
-
-                    GLStats::Thread thread;
-                    thread.name = "transfer";
-                    data.addThread( id, thread );
-                    break;
-                  }
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                    // no break;
+                  case Statistic::CHANNEL_READBACK:
                   {
-                    item.thread = THREAD_ASYNC2;
-
-                    GLStats::Thread thread;
-                    thread.name = "transmit";
-                    data.addThread( id, thread );
+                    std::stringstream text;
+                    text << unsigned( 100.f * stat.ratio ) << '%';
+                    item.text = text.str();
+#if 0
+                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
+                        data.downloaders.insert( stat.plugins[0] );
+                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
+                        data.downloaders.insert( stat.plugins[1] );
+#endif
                     break;
                   }
+
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                    item.thread = THREAD_ASYNC2;
+                    break;
+
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                  {
+                    item.layer = 1;
+                    std::stringstream text;
+                    text << unsigned( 100.f * stat.ratio ) << '%';
+                    item.text = text.str();
+#if 0
+                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
+                        data.compressors.insert( stat.plugins[0] );
+                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
+                        data.compressors.insert( stat.plugins[1] );
+#endif
+                  }
+                  // no break;
                   case Statistic::CONFIG_WAIT_FINISH_FRAME:
                   case Statistic::CHANNEL_FRAME_WAIT_READY:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
                     item.layer = 1;
                     break;
 
@@ -1050,6 +1070,7 @@ void Channel::drawStatistics()
                 }
 #endif
                 data.addItem( item );
+                data.addEntity( id, entity );
             }
         }
     }
@@ -1079,102 +1100,6 @@ void Channel::drawStatistics()
     renderer.draw( data );
 #endif
 #if 0
-    //----- statistics
-    float dim = 0.0f;
-    for( std::vector< eq::FrameStatistics >::reverse_iterator 
-             i = statistics.rbegin(); i != statistics.rend(); ++i )
-    {
-        // draw stats
-        for( SortedStatistics::const_iterator j = configStats.begin();
-             j != configStats.end(); ++j )
-        {
-            const uint32_t id = j->first;
-            const Statistics& stats = j->second;
-
-            if( stats.empty( ))
-                continue;
-
-            std::map< uint32_t, EntityData >::iterator l = entities.find( id );
-            if( l == entities.end( ))
-                continue;
-
-            EntityData& data = l->second;
-            if( data.yPos == 0 )
-            {
-                data.yPos = nextY;
-                nextY -= data.threads.count() * (HEIGHT + SPACE);
-            }
-
-            uint32_t y = data.yPos;
-
-            for( Statistics::const_iterator k = stats.begin(); 
-                 k != stats.end(); ++k )
-            {
-                const Statistic& stat = *k;
-
-                switch( stat.type )
-                {
-                  case Statistic::PIPE_IDLE:
-                  case Statistic::WINDOW_FPS:
-                    continue;
-
-                  case Statistic::CHANNEL_ASYNC_READBACK:
-                    y = data.yPos - (HEIGHT + SPACE);
-                    break;
-
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    y = data.yPos -
-                        (data.threads.count() - 1) * (HEIGHT + SPACE);
-                    break;
-                default:
-                    break;
-                }
-
-                const int64_t startTime = stat.startTime / scale;
-                const int64_t endTime   = stat.endTime   / scale;
-
-                frameMin = LB_MIN( frameMin, startTime );
-                frameMax = LB_MAX( frameMax, endTime   );
-
-                if( endTime < xStart || endTime == startTime )
-                    continue;
-
-                float y1 = static_cast< float >( y );
-                float y2 = static_cast< float >( y - HEIGHT );
-                const float x1 = static_cast< float >( startTime - xStart );
-                const float x2 = static_cast< float >( endTime   - xStart );
-                std::stringstream text;
-                
-                switch( stat.type )
-                {
-                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                  case Statistic::CHANNEL_FRAME_WAIT_READY:
-                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    y1 -= SPACE;
-                    y2 += SPACE;
-                    break;
-
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                    y1 -= SPACE;
-                    y2 += SPACE;
-                    text << unsigned( 100.f * stat.ratio ) << '%';
-                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        data.compressors.insert( stat.plugins[0] );
-                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        data.compressors.insert( stat.plugins[1] );
-                    break;
-
-                  case Statistic::CHANNEL_READBACK:
-                  case Statistic::CHANNEL_ASYNC_READBACK:
-                    text << unsigned( 100.f * stat.ratio ) << '%';
-                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        data.downloaders.insert( stat.plugins[0] );
-                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        data.downloaders.insert( stat.plugins[1] );
-                    break;
-
                 default:
                     break;
                 }
