@@ -18,6 +18,8 @@
 #include "objectMap.h"
 
 #include <eq/client/config.h>
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace seq
 {

@@ -18,6 +18,8 @@
 
 #include "objectMap.h"
 
+#include "dataIStream.h"
+#include "dataOStream.h"
 #include "objectFactory.h"
 
 #include <lunchbox/scopedMutex.h>

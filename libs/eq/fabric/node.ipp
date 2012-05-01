@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -22,6 +22,9 @@
 #include "leafVisitor.h"
 #include "log.h"
 #include "paths.h"
+
+#include <co/dataIStream.h>
+#include <co/dataOStream.h>
 
 namespace eq
 {
