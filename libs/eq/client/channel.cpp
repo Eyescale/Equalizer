@@ -906,15 +906,9 @@ enum
     THREAD_ASYNC2,
 };
 
-struct EntityData
-{
-    EntityData() : yPos( 0 ), threads( 1 ) {}
-    uint32_t yPos;
-    std::bitset<32> threads;
-    std::string name;
-    std::set< uint32_t > downloaders;
-    std::set< uint32_t > compressors;
-};
+typedef std::set< uint32_t > PluginSet;
+typedef stde::hash_map< uint32_t, PluginSet > Plugins;
+typedef PluginSet::const_iterator PluginSetCIter;
 
 struct IdleData
 {
@@ -925,8 +919,7 @@ struct IdleData
 };
 
 static bool _compare( const Statistic& stat1, const Statistic& stat2 )
-{ return stat1.type < stat2.type; }
-
+    { return stat1.type < stat2.type; }
 }
 
 void Channel::drawStatistics()
@@ -971,6 +964,7 @@ void Channel::drawStatistics()
 
     data.clearText();
     std::map< uint32_t, IdleData > idles;
+    Plugins plugins;
 
     for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
          i != statistics.end(); ++i )
@@ -1025,12 +1019,12 @@ void Channel::drawStatistics()
                     std::stringstream text;
                     text << unsigned( 100.f * stat.ratio ) << '%';
                     item.text = text.str();
-#if 0
+
+                    PluginSet& pluginSet = plugins[ id ];
                     if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        data.downloaders.insert( stat.plugins[0] );
+                        pluginSet.insert( stat.plugins[0] );
                     if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        data.downloaders.insert( stat.plugins[1] );
-#endif
+                        pluginSet.insert( stat.plugins[1] );
                     break;
                   }
 
@@ -1040,16 +1034,16 @@ void Channel::drawStatistics()
 
                   case Statistic::CHANNEL_FRAME_COMPRESS:
                   {
-                    item.layer = 1;
+                    item.thread = THREAD_ASYNC2;
                     std::stringstream text;
                     text << unsigned( 100.f * stat.ratio ) << '%';
                     item.text = text.str();
-#if 0
+
+                    PluginSet& pluginSet = plugins[ id ];
                     if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        data.compressors.insert( stat.plugins[0] );
+                        pluginSet.insert( stat.plugins[0] );
                     if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        data.compressors.insert( stat.plugins[1] );
-#endif
+                        pluginSet.insert( stat.plugins[1] );
                   }
                   // no break;
                   case Statistic::CONFIG_WAIT_FINISH_FRAME:
@@ -1062,17 +1056,26 @@ void Channel::drawStatistics()
                     break;
                 }
 
-#if 0
-                if( entities.find( id ) == entities.end( ))
-                {
-                    EntityData& data = entities[ id ];
-                    data.name = stats.front().resourceName;
-                }
-#endif
                 data.addItem( item );
                 data.addEntity( id, entity );
             }
         }
+    }
+
+    for( Plugins::const_iterator i = plugins.begin(); i != plugins.end(); ++i )
+    {
+        const PluginSet& pluginSet = i->second;
+        if( pluginSet.empty( ))
+            continue;
+
+        GLStats::Entity entity = data.getEntity( i->first );
+        std::stringstream text;
+
+        for( PluginSetCIter j = pluginSet.begin(); j != pluginSet.end(); ++j )
+            text << " 0x" << std::hex << *j << std::dec;
+
+        entity.name += text.str();
+        data.addEntity( i->first, entity );
     }
 
     std::stringstream text;
@@ -1088,7 +1091,7 @@ void Channel::drawStatistics()
         text << " " << idle.name << ":" << idle.idle / idle.nIdle << "%";
     }
     data.addText( text.str( ));
-    
+
     Window* window = getWindow();
     const Window::Font* font = window->getSmallFont();
     detail::StatsRenderer renderer( font );
@@ -1100,95 +1103,6 @@ void Channel::drawStatistics()
     renderer.draw( data );
 #endif
 #if 0
-                default:
-                    break;
-                }
-                
-                const Vector3f color( Statistic::getColor( stat.type ) - dim );
-                glColor3fv( color.array );
-
-                glBegin( GL_QUADS );
-                    glVertex3f( x2, y1, 0.f );
-                    glVertex3f( x1, y1, 0.f );
-                    glVertex3f( x1, y2, 0.f);
-                    glVertex3f( x2, y2, 0.f );
-                glEnd();
-
-                if( !text.str().empty( ))
-                {
-                    glColor3f( 1.f, 1.f, 1.f );
-                    glRasterPos3f( x1+1, y2, 0.f );
-                    font->draw( text.str( ));
-                }
-            }
-        }
-
-        frameMin -= xStart;
-        frameMax -= xStart;
-
-        float x = static_cast< float >( frameMin );
-        const float y1 = static_cast< float >( nextY );
-        const float y2 = static_cast< float >( height );
-
-        glBegin( GL_LINES );
-            glColor3f( .5f-dim, 1.0f-dim, .5f-dim );
-            glVertex3f( x, y1, 0.3f );
-            glVertex3f( x, y2, 0.3f );
-
-            x = static_cast< float >( frameMax );
-            glColor3f( .5f-dim, .5f-dim, .5f-dim );
-            glVertex3f( x, y1, 0.3f );
-            glVertex3f( x, y2, 0.3f );
-        glEnd();
-
-        dim += .1f;
-    }
-
-    glLogicOp( GL_XOR );
-    glEnable( GL_COLOR_LOGIC_OP );
-
-    //----- Entitity names
-    for( std::map< uint32_t, EntityData >::const_iterator i = entities.begin();
-         i != entities.end(); ++i )
-    {
-        const EntityData& data = i->second;
-
-        glColor3f( 1.f, 1.f, 1.f );
-        glRasterPos3f( 60.f, data.yPos - (HEIGHT + SPACE), 0.99f );
-        font->draw( data.name );
-
-        std::stringstream downloaders;
-        for( std::set<uint32_t>::const_iterator j = data.downloaders.begin();
-             j != data.downloaders.end(); ++j )
-        {
-            downloaders << " 0x" << std::hex << *j << std::dec;
-        }
-        if( !downloaders.str().empty( ))
-        {
-            if( data.threads[THREAD_ASYNC1] )
-            {
-                glRasterPos3f( 80.f, data.yPos - 2 * (HEIGHT + SPACE), 0.99f );
-                font->draw( "read" );
-            }
-            else
-                font->draw( std::string( ", r" ) + downloaders.str( ));
-
-            font->draw( downloaders.str( ));
-        }
-
-        std::stringstream compressors;
-        for( std::set<uint32_t>::const_iterator j = data.compressors.begin();
-             j != data.compressors.end(); ++j )
-        {
-            compressors << " 0x" << std::hex << *j << std::dec;
-        }
-        if( !compressors.str().empty( ))
-        {
-            const float y = data.yPos - data.threads.count() * (HEIGHT + SPACE);
-            glRasterPos3f( 80.f, y, 0.99f );
-            font->draw( std::string( "compress" ) + compressors.str( ));
-        }
-    }
 
     //----- Global stats (scale, GPU idle)
     glColor3f( 1.f, 1.f, 1.f );
