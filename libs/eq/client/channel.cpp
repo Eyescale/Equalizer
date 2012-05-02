@@ -924,6 +924,7 @@ static bool _compare( const Statistic& stat1, const Statistic& stat2 )
 
 void Channel::drawStatistics()
 {
+#ifdef EQ_USE_GLSTATS
     const PixelViewport& pvp = getPixelViewport();
     LBASSERT( pvp.hasArea( ));
     if( !pvp.hasArea( ))
@@ -954,7 +955,6 @@ void Channel::drawStatistics()
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glDisable( GL_COLOR_LOGIC_OP );
 
-#ifdef EQ_USE_GLSTATS
     GLStats::Data data;
     GLStats::Thread thread;
     thread.name = "transfer";
@@ -999,17 +999,17 @@ void Channel::drawStatistics()
 
                 switch( stat.type )
                 {
-                  case Statistic::PIPE_IDLE:
-                  {
-                    IdleData& idle = idles[ id ];
-                    idle.name = stat.resourceName;
-                    idle.idle += (stat.idleTime * 100ll / stat.totalTime);
-                    ++idle.nIdle;
-                    continue;
-                  }
-
-                  case Statistic::WINDOW_FPS:
-                    continue;
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                    item.thread = THREAD_ASYNC2;
+                    // no break;
+                  case Statistic::CHANNEL_CLEAR:
+                  case Statistic::CHANNEL_DRAW:
+                  case Statistic::CHANNEL_DRAW_FINISH:
+                  case Statistic::CHANNEL_ASSEMBLE:
+                  case Statistic::CHANNEL_VIEW_FINISH:
+                  case Statistic::CHANNEL_FRAME_FINISH:
+                    entity.typeName = "channel";
+                    break;
 
                   case Statistic::CHANNEL_ASYNC_READBACK:
                     item.thread = THREAD_ASYNC1;
@@ -1019,6 +1019,7 @@ void Channel::drawStatistics()
                     std::stringstream text;
                     text << unsigned( 100.f * stat.ratio ) << '%';
                     item.text = text.str();
+                    entity.typeName = "channel";
 
                     PluginSet& pluginSet = plugins[ id ];
                     if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
@@ -1027,10 +1028,6 @@ void Channel::drawStatistics()
                         pluginSet.insert( stat.plugins[1] );
                     break;
                   }
-
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
-                    item.thread = THREAD_ASYNC2;
-                    break;
 
                   case Statistic::CHANNEL_FRAME_COMPRESS:
                   {
@@ -1046,11 +1043,41 @@ void Channel::drawStatistics()
                         pluginSet.insert( stat.plugins[1] );
                   }
                   // no break;
-                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
                   case Statistic::CHANNEL_FRAME_WAIT_READY:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
                     item.layer = 1;
+                    entity.typeName = "channel";
                     break;
+
+                  case Statistic::WINDOW_FPS:
+                    continue;
+
+                  case Statistic::WINDOW_FINISH:
+                  case Statistic::WINDOW_THROTTLE_FRAMERATE:
+                  case Statistic::WINDOW_SWAP_BARRIER:
+                  case Statistic::WINDOW_SWAP:
+                    entity.typeName = "window";
+                    break;
+                  case Statistic::NODE_FRAME_DECOMPRESS:
+                    entity.typeName = "node";
+                    break;
+
+                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                    item.layer = 1;
+                    // no break;
+                  case Statistic::CONFIG_START_FRAME:
+                  case Statistic::CONFIG_FINISH_FRAME:
+                    entity.typeName = "config";
+                    break;
+
+                  case Statistic::PIPE_IDLE:
+                  {
+                    IdleData& idle = idles[ id ];
+                    idle.name = stat.resourceName;
+                    idle.idle += (stat.idleTime * 100ll / stat.totalTime);
+                    ++idle.nIdle;
+                    continue;
+                  }
 
                   default:
                     break;
@@ -1101,30 +1128,8 @@ void Channel::drawStatistics()
 
     renderer.setViewport( width, height );
     renderer.draw( data );
-#endif
+
 #if 0
-
-    //----- Global stats (scale, GPU idle)
-    glColor3f( 1.f, 1.f, 1.f );
-    nextY -= (HEIGHT + SPACE);
-    glRasterPos3f( 60.f, static_cast< float >( nextY ), 0.99f );
-    std::ostringstream text;
-    text << scale << "ms/pixel";
-
-    if( !idles.empty( ))
-        text << ", Idle:";
-
-    for( std::map< uint32_t, IdleData >::const_iterator i = idles.begin();
-         i != idles.end(); ++i )
-    {
-        const IdleData& data = i->second;
-        LBASSERT( data.nIdle > 0 );
-
-        text << " " << data.name << ":" << data.idle / data.nIdle << "%";
-    }
-
-    font->draw( text.str( ));
-    
     //----- Legend
     nextY -= SPACE;
     float x = 0.f;
@@ -1198,6 +1203,7 @@ void Channel::drawStatistics()
         font->draw( Statistic::getName( type ));
     }
     
+#endif
 #endif
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();

@@ -34,11 +34,7 @@ namespace
 {
 static stde::hash_map< unsigned, unsigned > _depths;
 
-#ifdef __APPLE__
-#  define ASYNC_FLAG  // PBO readbacks broken ?
-#else
 #  define ASYNC_FLAG EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |
-#endif
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
