@@ -441,7 +441,7 @@ namespace detail { class TransferThread; }
 
         /** @internal Returns CPU index that is connected to the pipe defined
          * by its port and device in the configuration file */
-        int _getAutoAffinity();
+        int32_t _getAutoAffinity() const;
 
         friend class Window;
 
