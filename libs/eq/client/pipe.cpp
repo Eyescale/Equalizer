@@ -18,7 +18,6 @@
 
 #include "pipe.h"
 
-#include "channel.h"
 #include "client.h"
 #include "config.h"
 #include "exception.h"
@@ -51,6 +50,11 @@
 #include <co/queueSlave.h>
 #include <co/worker.h>
 #include <sstream>
+
+#ifdef EQ_USE_HWLOC
+#  include <hwloc.h>
+#  include <hwloc/gl.h>
+#endif
 
 namespace eq
 {
@@ -210,6 +214,73 @@ void Pipe::_setupCommandQueue()
     Global::leaveCarbon();
 }
 
+int Pipe::_getAutoAffinity()
+{
+    /* Return -1 if no port and devices were specified by the
+     * configuration files*/
+    int cpuIndex = -1;
+
+    const uint32_t port = getPort();
+    const uint32_t device = getDevice();
+
+    if (port == EQ_UNDEFINED_UINT32 || device == EQ_UNDEFINED_UINT32)
+    {
+        EQWARN << "No valid display is provided in the configuration file"
+               << std::endl;
+        EQINFO << "Automatic pipe thread placement failed" << std::endl;
+        return cpuIndex;
+    }
+    else
+    {
+#ifdef EQ_USE_HWLOC
+        hwloc_topology_t topology;
+        hwloc_topology_init( &topology );
+
+        /* Flags used for loading the I/O devices,
+         * bridges and their relevant info */
+        const unsigned long loading_flags = 0x0000000000000000
+                                            ^ HWLOC_TOPOLOGY_FLAG_IO_BRIDGES
+                                            ^ HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
+        /* Set discovery flags */
+        const int sucess = hwloc_topology_set_flags( topology, loading_flags );
+
+        /* Flags not set */
+        if ( sucess < 0 )
+        {
+              EQINFO << "hwloc_topology_set_flags() failed," <<
+               " PCI devices will not be loaded in the topology" << std::endl;
+              EQINFO << "Automatic pipe thread placement failed" << std::endl;
+
+              return cpuIndex;
+        }
+        hwloc_topology_load( topology );
+
+        /* Get the cpuset for the socket connected to GPU
+        attached to the display defined by its port and device */
+        hwloc_bitmap_t cpuSet = get_display_cpuset
+            ( topology, static_cast<int> (port), static_cast<int> (device) );
+
+        const int numCpus = hwloc_get_nbobjs_by_type
+                                          ( topology, HWLOC_OBJ_SOCKET );
+        for (int i = 0; i <= numCpus - 1; i++)
+        {
+            hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type
+                                 ( topology, cpuSet, HWLOC_OBJ_SOCKET, i);
+            if (cpuObj != 0)
+            {
+                cpuIndex = cpuObj->logical_index;
+                break;
+            }
+        }
+        hwloc_topology_destroy(topology);
+#else
+    EQINFO << "Missing hwloc," <<
+              "Automatic thread placement is not supported" << std::endl;
+#endif
+    }
+    return cpuIndex;
+}
+
 void Pipe::_setupAffinity()
 {
     const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
@@ -219,11 +290,17 @@ void Pipe::_setupAffinity()
             break;
 
         case AUTO:
-            // To be implemented later
-            /*
-            const int32_t cpu = getCPU();
-            Pipe::Thread::setAffinity( cpu );
-            */
+        {
+            const int autoAffinitySocket = _getAutoAffinity();
+            if ( autoAffinitySocket == -1 )
+            {
+                EQINFO << "Invalid display configuration values" << std::endl;
+                EQINFO << "Auto thread placement's not supported" << std::endl;
+            }
+            else
+                Pipe::Thread::setAffinity
+                           ( autoAffinitySocket + lunchbox::Thread::SOCKET );
+        }
             break;
 
         default:
@@ -532,29 +609,9 @@ void Pipe::notifyMapped()
     _state = STATE_MAPPED;
 }
 
-namespace
-{
-class WaitFinishedVisitor : public PipeVisitor
-{
-public:
-    WaitFinishedVisitor( const uint32_t frame ) : _frame( frame ) {}
-
-    virtual VisitorResult visit( Channel* channel )
-        {
-            channel->waitFrameFinished( _frame );
-            return TRAVERSE_CONTINUE;
-        }
-
-private:
-    const uint32_t _frame;
-};
-}
-
 void Pipe::waitFrameFinished( const uint32_t frameNumber ) const
 {
     _finishedFrame.waitGE( frameNumber );
-    WaitFinishedVisitor waiter( frameNumber );
-    accept( waiter );
 }
 
 void Pipe::waitFrameLocal( const uint32_t frameNumber ) const
