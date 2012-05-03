@@ -73,20 +73,18 @@ include(FindPackageHandleStandardArgs)
 
 set(_lunchbox_findargs)
 if(Lunchbox_FIND_REQUIRED)
-  set(_lunchbox_findargs "${_lunchbox_findargs} REQUIRED")
-endif();
+  list(APPEND _lunchbox_findargs REQUIRED)
+endif()
 if(Lunchbox_FIND_QUIETLY)
-  set(_lunchbox_findargs "${_lunchbox_findargs} QUIET")
-endif();
+  list(APPEND _lunchbox_findargs QUIET)
+endif()
 if(Lunchbox_FIND_VERSION)
-  set(_lunchbox_findargs
-    "${_lunchbox_findargs} VERSION ${Lunchbox_FIND_VERSION}")
-endif();
+  list(APPEND _lunchbox_findargs VERSION ${Lunchbox_FIND_VERSION})
+endif()
 if(Lunchbox_FIND_VERSION_EXACT)
-  set(_lunchbox_findargs "${_lunchbox_findargs} EXACT")
-endif();
+  list(APPEND _lunchbox_findargs EXACT)
+endif()
 
 find_library_package(lunchbox ${_lunchbox_findargs})
 find_package_handle_standard_args(Lunchbox DEFAULT_MSG
                                   LUNCHBOX_LIBRARIES LUNCHBOX_INCLUDE_DIRS)
-endif()
