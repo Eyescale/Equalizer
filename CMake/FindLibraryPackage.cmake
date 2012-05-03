@@ -37,13 +37,17 @@
 #
 # Invocation:
 #
-# find_library_package(name [QUIET] [REQUIRED] [VERSION version [EXACT]])
+# find_library_package(name [INCLUDE include_prefix])
 #
-# The following CMAKE and environment variables are respected for
-# finding the package. CMAKE_PREFIX_PATH can also be used for this
-# (see find_library() CMake documentation):
+# The following CMAKE variables are respected for finding the package.
+# CMAKE_PREFIX_PATH can also be used for this (see find_library() CMake
+# documentation):
 #
-#    NAME_ROOT
+#    NAME_ROOT, $ENV{NAME_ROOT}
+#    name_FIND_REQUIRED
+#    name_FIND_QUIETLY
+#    name_FIND_VERSION
+#    name_FIND_VERSION_EXACT
 #
 # This macro defines the following output variables:
 #
@@ -81,27 +85,29 @@ macro(FIND_LIBRARY_PACKAGE name)
   string(TOUPPER ${name} NAME)
 
   # options
-  set(options REQUIRED EXACT)
-  set(oneValueArgs VERSION)
-  cmake_parse_arguments(_flp "${options}" "${oneValueArgs}" "" ${ARGN} )
+  set(oneValueArgs INCLUDE)
+  cmake_parse_arguments(_flp "" "${oneValueArgs}" "" ${ARGN} )
+  if(NOT _flp_INCLUDE)
+    set(_flp_INCLUDE ${name})
+  endif()
 
-  find_path(${NAME}_INCLUDE_DIR ${name}/version.h
+  find_path(${NAME}_INCLUDE_DIR ${_flp_INCLUDE}/version.h
     HINTS "${${NAME}_ROOT}/include" "$ENV{${NAME}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
 
-  if(_flp_REQUIRED)
+  if(${name}_FIND_REQUIRED)
     set(_flp_version_output_type FATAL_ERROR)
     set(_flp_output 1)
   else()
     set(_flp_version_output_type STATUS)
-    if(NOT _flp_QUIET)
+    if(NOT ${name}_FIND_QUIETLY)
       set(_flp_output 1)
     endif()
   endif()
 
   # Try to ascertain the version...
   if(${NAME}_INCLUDE_DIR)
-    set(_flp_Version_file "${${NAME}_INCLUDE_DIR}/${name}/version.h")
+    set(_flp_Version_file "${${NAME}_INCLUDE_DIR}/${_flp_INCLUDE}/version.h")
     if("${${NAME}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
         NOT EXISTS "${_flp_Version_file}")
       set(_flp_Version_file "${${NAME}_INCLUDE_DIR}/Headers/version.h")
@@ -155,29 +161,30 @@ macro(FIND_LIBRARY_PACKAGE name)
   else()
     set(_flp_EPIC_FAIL TRUE)
     if(_flp_output)
-      message(${_flp_version_output_type} "Can't find ${name}/version.h.")
+      message(${_flp_version_output_type}
+        "Can't find ${_flp_INCLUDE}/version.h.")
     endif()
   endif()
 
   # Version checking
-  if(_flp_VERSION AND ${NAME}_VERSION)
-    if(_flp_EXACT)
-      if(NOT ${NAME}_VERSION VERSION_EQUAL _flp_VERSION})
+  if(_flp_VERSION AND ${name}_FIND_VERSION)
+    if(${name}_FIND_VERSION_EXACT)
+      if(NOT ${name}_FIND_VERSION VERSION_EQUAL _flp_VERSION})
         set(_flp_EPIC_FAIL TRUE)
         if(_flp_output)
           message(${_flp_version_output_type}
             "Version _flp_VERSION} of ${name} is required exactly. "
-            "Version ${${NAME}_VERSION} was found.")
+            "Version ${${name}_FIND_VERSION} was found.")
         endif()
       endif()
     else()
-      if( NOT ${NAME}_VERSION VERSION_EQUAL _flp_VERSION} AND 
-          NOT ${NAME}_VERSION VERSION_GREATER _flp_VERSION} )
+      if( NOT ${name}_FIND_VERSION VERSION_EQUAL _flp_VERSION} AND 
+          NOT ${name}_FIND_VERSION VERSION_GREATER _flp_VERSION} )
         set(_flp_EPIC_FAIL TRUE)
         if(_flp_output)
           message(${_flp_version_output_type}
             "Version ${_flp_VERSION} or higher of ${name} is required. "
-            "Version ${${NAME}_VERSION} was found in ${${NAME}_INCLUDE_DIR}.")
+            "Version ${${name}_FIND_VERSION} was found in ${${NAME}_INCLUDE_DIR}.")
         endif()
       endif()
     endif()
@@ -191,7 +198,7 @@ macro(FIND_LIBRARY_PACKAGE name)
     PATHS ${${NAME}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
   set(${NAME}_LIBRARIES ${${NAME}_LIBRARY})
 
-  if(_flp_REQUIRED)
+  if(${name}_FIND_REQUIRED)
     if(${NAME}_LIBRARY MATCHES "${NAME}_LIBRARY-NOTFOUND")
       set(_flp_EPIC_FAIL TRUE)
       if(_flp_output)
@@ -213,7 +220,7 @@ macro(FIND_LIBRARY_PACKAGE name)
     get_filename_component(${NAME}_LIBRARY_DIRS ${${NAME}_LIBRARY} PATH)
 
     if(_flp_output)
-      message(STATUS "Found ${name} ${${NAME}_VERSION} in "
+      message(STATUS "Found ${name} ${${name}_FIND_VERSION} in "
         "${${NAME}_INCLUDE_DIRS}:${${NAME}_LIBRARIES}")
     endif()
   endif()
