@@ -49,7 +49,7 @@ include(Common)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
 if(EQUALIZER_USE_GPUSD)
-  find_package(GPUSD 1.1.2)
+  find_package(gpusd 1.1.2)
 endif()
 
 set(EQ_FEATURES)
