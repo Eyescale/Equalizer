@@ -1130,83 +1130,8 @@ void Channel::drawStatistics()
 
     renderer.setViewport( width, height );
     renderer.draw( data );
-
-#if 0
-    //----- Legend
-    nextY -= SPACE;
-    float x = 0.f;
-
-    glRasterPos3f( x+1.f, nextY-12.f, 0.f );
-    glColor3f( 1.f, 1.f, 1.f );
-    font->draw( "channel" );
-    glDisable( GL_COLOR_LOGIC_OP );
-
-    for( size_t i = 1; i < Statistic::CONFIG_START_FRAME; ++i )
-    {
-        const Statistic::Type type = static_cast< Statistic::Type >( i );
-        if( type == Statistic::CHANNEL_DRAW_FINISH ||
-            type == Statistic::PIPE_IDLE || type == Statistic::WINDOW_FPS ||
-            type == Statistic::CHANNEL_ASYNC_READBACK )
-        {
-            continue;
-        }
-
-        switch( type )
-        {
-          case Statistic::CHANNEL_FRAME_TRANSMIT:
-            x = 0.f;
-            nextY -= (HEIGHT + SPACE);
-
-            glColor3f( 1.f, 1.f, 1.f );
-            glRasterPos3f( x+1.f, nextY-12.f, 0.f );
-            break;
-
-          case Statistic::WINDOW_FINISH:
-            x = 0.f;
-            nextY -= (HEIGHT + SPACE);
-
-            glColor3f( 1.f, 1.f, 1.f );
-            glRasterPos3f( x+1.f, nextY-12.f, 0.f );
-            glEnable( GL_COLOR_LOGIC_OP );
-            font->draw( "window" );
-            glDisable( GL_COLOR_LOGIC_OP );
-            break;
-
-          case Statistic::NODE_FRAME_DECOMPRESS:
-            x = 0.f;
-            nextY -= (HEIGHT + SPACE);
-
-            glColor3f( 1.f, 1.f, 1.f );
-            glRasterPos3f( x+1.f, nextY-12.f, 0.f );
-            glEnable( GL_COLOR_LOGIC_OP );
-            font->draw( "node" );
-            glDisable( GL_COLOR_LOGIC_OP );
-            break;
-
-          default:
-            break;
-        }
-
-        x += 60.f;
-        const float x2 = x + 60.f - SPACE; 
-        const float y1 = static_cast< float >( nextY );
-        const float y2 = static_cast< float >( nextY - HEIGHT );
-
-        glColor3fv( Statistic::getColor( type ).array );
-        glBegin( GL_QUADS );
-            glVertex3f( x2, y1, 0.f );
-            glVertex3f( x,  y1, 0.f );
-            glVertex3f( x,  y2, 0.f );
-            glVertex3f( x2, y2, 0.f );
-        glEnd();
-
-        glColor3f( 0.f, 0.f, 0.f );
-        glRasterPos3f( x+1.f, nextY-12.f, 0.f );
-        font->draw( Statistic::getName( type ));
-    }
-    
 #endif
-#endif
+
     glColor3f( 1.f, 1.f, 1.f );
     window->drawFPS();
     EQ_GL_CALL( resetAssemblyState( ));
