@@ -84,7 +84,7 @@ include(FindPackageHandleStandardArgs)
 find_library_package(gpusd)
 
 # core
-set(GPUSD_core_LIBRARY GPUSD_LIBRARY)
+set(GPUSD_core_LIBRARY ${GPUSD_LIBRARY})
 set(GPUSD_COMPONENTS core) # reset in !FOUND
 
 # components
@@ -92,11 +92,12 @@ set(_gpusd_COMPONENTS cgl glx wgl dns_sd)
 foreach(_gpusd_COMPONENT ${_gpusd_COMPONENTS})
   set(_gpusd_lib GPUSD_${_gpusd_COMPONENT}_LIBRARY)
   find_library(${_gpusd_lib} gpusd_${_gpusd_COMPONENT}
-    PATHS ${_gpusd_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
+    PATHS ${GPUSD_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
 
   if(${_gpusd_lib} MATCHES "${_gpusd_lib}-NOTFOUND")
     if(gpusd_FIND_COMPONENTS MATCHES ${_gpusd_COMPONENT} AND _gpusd_output)
-      message(${_gpusd_version_output_type} "${_gpusd_lib} not found")
+      message(${_gpusd_version_output_type}
+        "gpusd_${_gpusd_COMPONENT} not found in ${GPUSD_INCLUDE_DIR}/../lib")
     endif()
   else()
     set(GPUSD_${_gpusd_COMPONENT}_FOUND TRUE)
@@ -109,11 +110,9 @@ find_package_handle_standard_args(gpusd DEFAULT_MSG
                                   GPUSD_core_LIBRARY GPUSD_INCLUDE_DIRS)
 if(GPUSD_FOUND)
   set(GPUSD_DEB_DEPENDENCIES "gpu-sd${GPUSD_VERSION_MAJOR}-runtime")
-  if(_gpusd_output)
-    message(STATUS "Found gpusd ${GPUSD_VERSION} in ${GPUSD_INCLUDE_DIRS}:"
-      "${GPUSD_LIBRARIES}")
+  if(_flp_output)
+    message(STATUS "Found gpusd modules ${GPUSD_COMPONENTS}")
   endif()
 else()
   set(GPUSD_COMPONENTS)
 endif()
-
