@@ -68,6 +68,7 @@
 #  Output variables of the form LUNCHBOX_FOO
 #
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindLunchbox)
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
