@@ -59,6 +59,7 @@
 #  include <GLStats/item.h>
 #  include <GLStats/renderer.h>
 #  include <GLStats/thread.h>
+#  include <GLStats/type.h>
 #endif
 
 #include <bitset>
@@ -985,6 +986,7 @@ void Channel::drawStatistics()
                 const Statistic& stat = *k;
                 GLStats::Item item;
                 item.entity = id;
+                item.type = stat.type;
                 item.frame = stat.frameNumber;
                 item.start = stat.startTime;
                 item.end = stat.endTime;
@@ -992,34 +994,78 @@ void Channel::drawStatistics()
                 GLStats::Entity entity;
                 entity.name = stat.resourceName;
 
+                GLStats::Type type;
                 const Vector3f& color = Statistic::getColor( stat.type );
-                item.color[0] = color[0];
-                item.color[1] = color[1];
-                item.color[2] = color[2];
 
+                type.color[0] = color[0];
+                type.color[1] = color[1];
+                type.color[2] = color[2];
+                type.name = Statistic::getName( stat.type );
                 switch( stat.type )
                 {
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
-                    item.thread = THREAD_ASYNC2;
-                    // no break;
                   case Statistic::CHANNEL_CLEAR:
                   case Statistic::CHANNEL_DRAW:
                   case Statistic::CHANNEL_DRAW_FINISH:
                   case Statistic::CHANNEL_ASSEMBLE:
+                  case Statistic::CHANNEL_FRAME_WAIT_READY:
+                  case Statistic::CHANNEL_READBACK:
                   case Statistic::CHANNEL_VIEW_FINISH:
                   case Statistic::CHANNEL_FRAME_FINISH:
-                    entity.typeName = "channel";
-                    break;
-
+                      type.group = "channel";
+                      break;
                   case Statistic::CHANNEL_ASYNC_READBACK:
-                    item.thread = THREAD_ASYNC1;
+                      type.group = "channel";
+                      type.subgroup = "transfer";
+                      item.thread = THREAD_ASYNC1;
+                      break;
+                  case Statistic::CHANNEL_FRAME_TRANSMIT:
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                      type.group = "channel";
+                      type.subgroup = "transmit";
+                      item.thread = THREAD_ASYNC2;
+                      break;
+                  case Statistic::WINDOW_FINISH:
+                  case Statistic::WINDOW_THROTTLE_FRAMERATE:
+                  case Statistic::WINDOW_SWAP_BARRIER:
+                  case Statistic::WINDOW_SWAP:
+                      type.group = "window";
+                      break;
+                  case Statistic::NODE_FRAME_DECOMPRESS:
+                      type.group = "node";
+                      break;
+                  case Statistic::CONFIG_START_FRAME:
+                  case Statistic::CONFIG_FINISH_FRAME:
+                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                      type.group = "config";
+                      break;
+
+                  case Statistic::PIPE_IDLE:
+                  {
+                      IdleData& idle = idles[ id ];
+                      idle.name = stat.resourceName;
+                      idle.idle += (stat.idleTime * 100ll / stat.totalTime);
+                      ++idle.nIdle;
+                      continue;
+                  }
+                  case Statistic::WINDOW_FPS:
+                  case Statistic::NONE:
+                  case Statistic::ALL:
+                      continue;
+                }
+                data.addType( stat.type, type );
+
+                switch( stat.type )
+                {
+                  case Statistic::CHANNEL_FRAME_COMPRESS:
+                    item.layer = 1;
                     // no break;
+                  case Statistic::CHANNEL_ASYNC_READBACK:
                   case Statistic::CHANNEL_READBACK:
                   {
                     std::stringstream text;
                     text << unsigned( 100.f * stat.ratio ) << '%';
                     item.text = text.str();
-                    entity.typeName = "channel";
 
                     PluginSet& pluginSet = plugins[ id ];
                     if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
@@ -1029,55 +1075,11 @@ void Channel::drawStatistics()
                     break;
                   }
 
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                  {
-                    item.thread = THREAD_ASYNC2;
-                    std::stringstream text;
-                    text << unsigned( 100.f * stat.ratio ) << '%';
-                    item.text = text.str();
-
-                    PluginSet& pluginSet = plugins[ id ];
-                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        pluginSet.insert( stat.plugins[0] );
-                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        pluginSet.insert( stat.plugins[1] );
-                  }
-                  // no break;
                   case Statistic::CHANNEL_FRAME_WAIT_READY:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    item.layer = 1;
-                    entity.typeName = "channel";
-                    break;
-
-                  case Statistic::WINDOW_FPS:
-                    continue;
-
-                  case Statistic::WINDOW_FINISH:
-                  case Statistic::WINDOW_THROTTLE_FRAMERATE:
-                  case Statistic::WINDOW_SWAP_BARRIER:
-                  case Statistic::WINDOW_SWAP:
-                    entity.typeName = "window";
-                    break;
-                  case Statistic::NODE_FRAME_DECOMPRESS:
-                    entity.typeName = "node";
-                    break;
-
                   case Statistic::CONFIG_WAIT_FINISH_FRAME:
                     item.layer = 1;
-                    // no break;
-                  case Statistic::CONFIG_START_FRAME:
-                  case Statistic::CONFIG_FINISH_FRAME:
-                    entity.typeName = "config";
                     break;
-
-                  case Statistic::PIPE_IDLE:
-                  {
-                    IdleData& idle = idles[ id ];
-                    idle.name = stat.resourceName;
-                    idle.idle += (stat.idleTime * 100ll / stat.totalTime);
-                    ++idle.nIdle;
-                    continue;
-                  }
 
                   default:
                     break;
