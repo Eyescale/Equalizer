@@ -69,7 +69,8 @@
 #  Output variables of the form EQUALIZER_FOO
 #
 
-# Find Collage
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindEqualizer)
+
 set(_eq_required)
 if(Equalizer_FIND_REQUIRED)
   set(_eq_required REQUIRED)
@@ -217,6 +218,28 @@ else()
   if(NOT COLLAGE_FOUND)
     set(_eq_EPIC_FAIL 1)
   endif()
+
+  # GLEW_MX
+  set(TEST_SRC ${CMAKE_BINARY_DIR}/glewmx_test.cpp)
+  file(WRITE ${TEST_SRC}
+    "#include <eq/client/defines.h>\n"
+    "#ifndef EQ_GLEW_INTERNAL\n"
+    "#  error Need external GLEW_MX\n"
+    "#endif\n"
+    "int main(int argc, char* argv[]){}\n"
+  )
+
+  try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
+    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
+                "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
+    OUTPUT_VARIABLE out
+  )
+  if(_glew_mx_internal)
+    set(GLEW_MX_INCLUDE_DIRS)
+    set(GLEW_MX_LIBRARIES)
+  else()
+    find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
+  endif()
 endif()
 
 if(_eq_EPIC_FAIL OR NOT COLLAGE_FOUND)
@@ -233,8 +256,8 @@ else()
   endif()
 endif()
 
-set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR})
-set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES})
+set(EQUALIZER_INCLUDE_DIRS ${_eq_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS})
+set(EQUALIZER_LIBRARIES ${_eq_LIBRARY} ${COLLAGE_LIBRARIES} ${GLEW_MX_LIBRARIES})
 if(EQUALIZER_VERSION VERSION_GREATER 1.0)
   set(EQUALIZER_LIBRARIES ${EQUALIZER_LIBRARIES} ${_eq_fabric_LIBRARY})
 endif()
