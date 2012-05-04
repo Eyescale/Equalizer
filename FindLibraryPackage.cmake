@@ -203,9 +203,7 @@ macro(FIND_LIBRARY_PACKAGE name)
       set(_flp_EPIC_FAIL TRUE)
       if(_flp_output)
         message(${_flp_version_output_type}
-          "ERROR: Missing the ${name} library.\n"
-          "Consider using CMAKE_PREFIX_PATH or the ${NAME}_ROOT variable. "
-          "See ${CMAKE_CURRENT_LIST_FILE} for more details.")
+          "Missing the ${name} library in ${${NAME}_INCLUDE_DIR}/../lib.")
       endif()
     endif()
   endif()
