@@ -530,7 +530,7 @@ retry2:
     {
         if( _sinkptr.isEmpty( ) && !_established )
         {
-            LBINFO << "Got EOF, closing connection." << std::endl;
+            LBINFO << "Got EOF, closing " << getDescription() << std::endl;
             close( );
             goto err;
         }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,11 +19,11 @@
 #define CO_SERIALIZABLE_H
 
 #include <co/object.h>        // base class
-#include <co/dataOStream.h>   // used inline
-#include <co/dataIStream.h>   // used inline
 
 namespace co
 {
+namespace detail { class Serializable; }
+
     /**
      * Base class for distributed, inheritable objects.
      *
@@ -36,35 +36,29 @@ namespace co
     {
     public:
         /** @return the current dirty bit mask. @version 1.0 */
-        uint64_t getDirty() const { return _dirty; }
+        CO_API uint64_t getDirty() const;
 
         /** @return true if the serializable has to be committed. @version 1.0*/
-        virtual bool isDirty() const { return ( _dirty != DIRTY_NONE ); }
+        CO_API virtual bool isDirty() const;
 
         /** @return true if the given dirty bit is set. @version 1.0 */
-        virtual bool isDirty( const uint64_t dirtyBits ) const
-            { return (_dirty & dirtyBits) == dirtyBits; }
+        CO_API virtual bool isDirty( const uint64_t dirtyBits ) const;
 
-        virtual uint128_t commit( const uint32_t incarnation = CO_COMMIT_NEXT )
-            {
-                const uint128_t& version = co::Object::commit( incarnation );
-                _dirty = DIRTY_NONE;
-                return version;
-            }
+        CO_API virtual uint128_t commit( const uint32_t incarnation =
+                                         CO_COMMIT_NEXT );
 
     protected:
         /** Construct a new Serializable. @version 1.0 */
-        Serializable() : _dirty( DIRTY_NONE ) {}
+        CO_API Serializable();
         
         /**
          * Construct an unmapped, unregistered copy of an serializable.
          * @version 1.0
          */
-        Serializable( const Serializable& )
-                : co::Object(), _dirty ( DIRTY_NONE ) {}
+        CO_API Serializable( const Serializable& );
         
         /** Destruct the serializable. @version 1.0 */
-        virtual ~Serializable() {}
+        CO_API virtual ~Serializable();
 
         /** 
          * Worker for pack() and getInstanceData().
@@ -108,55 +102,24 @@ namespace co
         };
 
         /** Add dirty flags to mark data for distribution. @version 1.0 */
-        virtual void setDirty( const uint64_t bits ) { _dirty |= bits; }
+        CO_API virtual void setDirty( const uint64_t bits );
 
         /** Remove dirty flags to clear data from distribution. @version 1.0 */
-        virtual void unsetDirty( const uint64_t bits ) { _dirty &= ~bits; }
+        CO_API virtual void unsetDirty( const uint64_t bits );
 
-        virtual void notifyAttached()
-            {
-                if( isMaster( ))
-                    _dirty = DIRTY_NONE;
-            }
+        CO_API virtual void notifyAttached();
 
     private:
+        detail::Serializable* const _impl;
+        friend class detail::Serializable;
+
         virtual void getInstanceData( co::DataOStream& os )
-            {
-                serialize( os, DIRTY_ALL );
-            }
+            { serialize( os, DIRTY_ALL ); }
 
-        virtual void applyInstanceData( co::DataIStream& is )
-            {
-                if( !is.hasData( ))
-                    return;
-                deserialize( is, DIRTY_ALL );
-            }
+        CO_API virtual void applyInstanceData( co::DataIStream& is );
 
-        virtual void pack( co::DataOStream& os )
-            {
-                if( _dirty == DIRTY_NONE )
-                    return;
-
-                os << _dirty;
-                serialize( os, _dirty );
-            }
-
-        virtual void unpack( co::DataIStream& is )
-            {
-                LBASSERT( is.hasData( ));
-                if( !is.hasData( ))
-                    return;
-
-                uint64_t dirty;
-                is >> dirty;
-                deserialize( is, dirty );
-            }
-
-        /** The current dirty bits. */
-        uint64_t _dirty;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        CO_API virtual void pack( co::DataOStream& os );
+        CO_API virtual void unpack( co::DataIStream& is );
     };
 }
 #endif // CO_SERIALIZABLE_H
