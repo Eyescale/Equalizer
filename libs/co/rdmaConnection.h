@@ -200,6 +200,8 @@ private:
     bool _reject( );
 
     /* Protocol */
+    inline bool _needFC( );
+
     bool _postReceives( const uint32_t count );
 
     inline void _recvRDMAWrite( const uint32_t imm_data );
@@ -271,8 +273,6 @@ private:
     lunchbox::a_int32_t _fcs;     // Number of unacked FC messages received
     lunchbox::a_int32_t _wcredits; // Number of RDMA write credits available
     lunchbox::a_int32_t _fcredits; // Number of FC message credits available
-
-    bool _needFC( );
 
     unsigned int _completions;
 

@@ -753,8 +753,6 @@ RDMAConnection::~RDMAConnection( )
     LBVERB << (void *)this << ".delete" << std::endl;
 
     close( );
-
-    _cleanup( );
 }
 
 void RDMAConnection::setState( const State state )
@@ -1431,7 +1429,7 @@ bool RDMAConnection::_needFC( )
     // This isn't sufficient to guarantee deadlock-free operation and
     // RNR avoidance.  The credit-based flow control protocol needs
     // work for higher latency conditions and/or smaller queue depths.
-    return( _writes > 0 );
+    return true;//( _writes > 0 );
 }
 
 bool RDMAConnection::_postReceives( const uint32_t count )
