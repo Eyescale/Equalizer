@@ -153,7 +153,7 @@ public:
 
     virtual bool connect( );
     virtual bool listen( );
-    virtual void close( );
+    virtual void close( ) { _close( ); }
 
     virtual void acceptNB( );
     virtual ConnectionPtr acceptSync( );
@@ -174,6 +174,7 @@ protected:
 
 private:
     /* Teardown */
+    void _close( );
     void _cleanup( );
 
     /* Setup */
@@ -186,6 +187,7 @@ private:
     bool _createEventChannel( );
     bool _createId( );
 
+    bool _initVerbs( );
     bool _createQP( );
     bool _initBuffers( );
 
@@ -194,12 +196,14 @@ private:
     bool _connect( );
 
     bool _bindAddress( );
-    bool _listen( );
+    bool _listen( int backlog );
     bool _migrateId( );
     bool _accept( );
     bool _reject( );
 
     /* Protocol */
+    bool _initProtocol( int32_t depth );
+
     inline bool _needFC( );
 
     bool _postReceives( const uint32_t count );
@@ -230,13 +234,13 @@ private:
     bool _checkEvents( eventset &events );
 
     /* Connection manager events */
+    bool _checkDisconnected( eventset &events );
     bool _waitForCMEvent( enum rdma_cm_event_type expected );
     bool _doCMEvent( enum rdma_cm_event_type expected );
 
     /* Completion queue events */
-    bool _rearmRecvCQ( );
-    bool _checkRecvCQ( bool drain );
-    bool _checkSendCQ( );
+    bool _rearmCQ( );
+    bool _checkCQ( bool drain );
 
     /* Available byte events */
     bool _createBytesAvailableFD( );
@@ -261,6 +265,8 @@ private:
     struct rdma_event_channel *_cm;
     struct rdma_cm_id *_cm_id;
     struct rdma_cm_id *_new_cm_id;
+    struct ibv_comp_channel *_cc;
+    struct ibv_cq *_cq;
     struct ibv_pd *_pd;
 
     int _event_fd;

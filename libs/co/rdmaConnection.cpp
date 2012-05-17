@@ -43,12 +43,9 @@
 #define RDMA_PROTOCOL_MAGIC     0xC0
 #define RDMA_PROTOCOL_VERSION   0x03
 
-#define RDMA_CONNECT_ATTEMPTS    1
-#define RDMA_CONNECT_RETRY_SLEEP 500 // ms
-
 namespace co
 {
-namespace { static const uint64_t ONE = 1ULL; }
+//namespace { static const uint64_t ONE = 1ULL; }
 
 /**
  * Message types
@@ -101,6 +98,13 @@ struct RDMAFCImm
     uint32_t fcs_received:4;
 };
 
+namespace {
+// We send a max of 28 bits worth of byte counts per RDMA write.
+static const uint64_t MAX_BS = (( 2 << ( 28 - 1 )) - 1 );
+// We send a max of four bits worth of fc counts per RDMA write.
+static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
+}
+
 /**
  * An RDMA connection implementation.
  *
@@ -113,36 +117,31 @@ struct RDMAFCImm
  *                                    prepost/accept
  *     send setup         <------->    send setup
  *   wait for setup                   wait for setup
- * WR_RDMA_WRITE_WITH_IMM  -------> WC_RDMA_WRITE(DATA)
- *     WC_RECV(ACK)       <-------      WR_SEND
+ * RDMA_WRITE_WITH_IMM WR  -------> RDMA_WRITE(DATA) WC
+ *     RECV(FC) WC        <-------      SEND WR
  *                            .
  *                            .
  *                            .
  *
  * The setup phase exchanges the MR parameters of a fixed size circular buffer
  * to which remote writes are sent.  Sender tracks available space on the
- * receiver by accepting "Flow Control" messages (aka ACKs) that update the
- * tail pointer of the local "view" of the remote sink MR.
+ * receiver by accepting "Flow Control" messages that update the tail pointer
+ * of the local "view" of the remote sink MR.
  *
  * Once setup is complete, either side may begin operations on the other's MR
  * (the initiator doesn't have to send first, as in the above example).
  *
  * If either credits or buffer space are exhausted, sender will spin waiting
  * for flow control messages.  Receiver will also not send flow control if
- * there are no credits available.  Flow control is currently sent on every
- * read, a possible optimization might be to send it less frequently.
+ * there are no credits available.
  *
  * One catch is that Collage will only monitor a single "notifier" for events
- * and we have two that need to be monitored: one for the receive completion
- * queue (upon incoming RDMA write), and the other for connection status events
- * (the RDMA event channel) - RDMA_CM_EVENT_DISCONNECTED in particular.
- * Collage gets the receive completion queue's file descriptor and would never
- * detect a remote hangup as that fd does not signal on that condition.  This
- * is addressed by having a singleton "ChannelEventThread" who's sole purpose
- * in life is to watch for disconnect events and trigger a local flush so that
- * the receive queue is awoken (since errors *do* wake up the selector and
- * flush is an error condition).  This thread is launched on demand and will
- * exit when there are no active RDMA connections to monitor.
+ * and we have three that need to be monitored: one for connection status
+ * events (the RDMA event channel) - RDMA_CM_EVENT_DISCONNECTED in particular,
+ * one for the receive completion queue (upon incoming RDMA write), and an
+ * additional eventfd(2) used to keep the notifier "hot" after partial reads.
+ * We leverage the feature of epoll(7) in that "If an epoll file descriptor
+ * has events waiting then it will indicate as being readable".
  *
  * Quite interesting is the effect of RDMA_RING_BUFFER_SIZE_MB and
  * RDMA_SEND_QUEUE_DEPTH depending on the communication pattern.  Basically,
@@ -167,6 +166,8 @@ RDMAConnection::RDMAConnection( )
     , _cm( NULL )
     , _cm_id( NULL )
     , _new_cm_id( NULL )
+    , _cc( NULL )
+    , _cq( NULL )
     , _pd( NULL )
     , _event_fd( -1 )
     , _established( false )
@@ -185,11 +186,6 @@ RDMAConnection::RDMAConnection( )
     , _rbase( 0ULL )
     , _rkey( 0ULL )
 {
-    LBVERB << (void *)this << ".new" << std::showbase
-        << std::hex << "(" << RDMA_PROTOCOL_MAGIC
-        << std::dec << ":" << RDMA_PROTOCOL_VERSION << ")"
-        << std::endl;
-
     ::memset( (void *)&_addr, 0, sizeof(_addr) );
     ::memset( (void *)&_serv, 0, sizeof(_serv) );
 
@@ -202,10 +198,6 @@ RDMAConnection::RDMAConnection( )
 
 bool RDMAConnection::connect( )
 {
-    int attempt = 1;
-
-    LBVERB << (void *)this << ".connect( )" << std::endl;
-
     LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
 
     if( STATE_CLOSED != _state )
@@ -213,9 +205,6 @@ bool RDMAConnection::connect( )
 
     if( 0u == _description->port )
         return false;
-
-retry:
-    bool retry = false;
 
     _cleanup( );
 
@@ -231,7 +220,7 @@ retry:
 
     if( !_createNotifier( ))
     {
-        LBERROR << "Failed to create notifier." << std::endl;
+        LBERROR << "Failed to create master notifier." << std::endl;
         goto err;
     }
 
@@ -265,14 +254,16 @@ retry:
         << " (" << _description->toString( ) << ")"
         << std::endl;
 
-    _depth = Global::getIAttribute( Global::IATTR_RDMA_SEND_QUEUE_DEPTH );
-    _writes = 0L;
-    _fcs = 0L;
-    _wcredits = _depth / 2 - 2;
-    _fcredits = _depth / 2 + 2;
-    if( _depth <= 0L )
+    if( !_initProtocol( Global::getIAttribute(
+            Global::IATTR_RDMA_SEND_QUEUE_DEPTH )))
     {
-        LBERROR << "Invalid queue depth." << std::endl;
+        LBERROR << "Failed to initialize protocol variables." << std::endl;
+        goto err;
+    }
+
+    if( !_initVerbs( ))
+    {
+        LBERROR << "Failed to initialize verbs." << std::endl;
         goto err;
     }
 
@@ -284,7 +275,13 @@ retry:
 
     if( !_createBytesAvailableFD( ))
     {
-        LBERROR << "Failed to create available byte counter." << std::endl;
+        LBERROR << "Failed to create available byte notifier." << std::endl;
+        goto err;
+    }
+
+    if( !_initBuffers( ))
+    {
+        LBERROR << "Failed to initialize ring buffers." << std::endl;
         goto err;
     }
 
@@ -295,13 +292,7 @@ retry:
         goto err;
     }
 
-    if( !_initBuffers( ))
-    {
-        LBERROR << "Failed to initialize ring buffers." << std::endl;
-        goto err;
-    }
-
-    if( !_postReceives( static_cast< uint32_t >( _depth )))
+    if( !_postReceives( _depth ))
     {
         LBERROR << "Failed to pre-post receives." << std::endl;
         goto err;
@@ -311,7 +302,6 @@ retry:
     {
         LBERROR << "Failed to connect to destination : "
             << _addr << ":" << _serv << std::endl;
-        retry = true;
         goto err;
     }
 
@@ -345,27 +335,24 @@ retry:
         << std::endl;
 
     setState( STATE_CONNECTED );
+
     return true;
 
 err:
-    LBINFO << "Connection attempt #" << attempt
-        << " failed to remote address : " << _addr << ":" << _serv << std::endl;
+    LBVERB << "Connection failed on " << std::dec
+        << _device_name << ":" << (int)_cm_id->port_num
+        << " to "
+        << _addr << ":" << _serv
+        << " (" << _description->toString( ) << ")"
+        << std::endl;
 
     close( );
-
-    if( retry && ( ++attempt <= RDMA_CONNECT_ATTEMPTS ))
-    {
-        lunchbox::sleep( RDMA_CONNECT_RETRY_SLEEP );
-        goto retry;
-    }
 
     return false;
 }
 
 bool RDMAConnection::listen( )
 {
-    LBVERB << (void *)this << ".listen( )" << std::endl;
-
     LBASSERT( CONNECTIONTYPE_RDMA == _description->type );
 
     if( STATE_CLOSED != _state )
@@ -386,7 +373,7 @@ bool RDMAConnection::listen( )
 
     if( !_createNotifier( ))
     {
-        LBERROR << "Failed to create notifier." << std::endl;
+        LBERROR << "Failed to create master notifier." << std::endl;
         goto err;
     }
 
@@ -422,7 +409,7 @@ bool RDMAConnection::listen( )
 
     _updateInfo( ::rdma_get_local_addr( _cm_id ));
 
-    if( !_listen( ))
+    if( !_listen( SOMAXCONN ))
     {
         LBERROR << "Failed to listen on bound address : "
             << _addr << ":" << _serv << std::endl;
@@ -440,6 +427,7 @@ bool RDMAConnection::listen( )
         << std::endl;
 
     setState( STATE_LISTENING );
+
     return true;
 
 err:
@@ -448,33 +436,10 @@ err:
     return false;
 }
 
-void RDMAConnection::close( )
-{
-    LBVERB << (void *)this << ".close( )" << std::endl;
-
-    if( STATE_CLOSED != _state )
-    {
-        LBASSERT( STATE_CLOSING != _state );
-        setState( STATE_CLOSING );
-
-        // TODO : verify this method of determining if we can call disconnect
-        // without getting a error (and spitting out a unnecessary warning).
-        if( _cm_id && _cm_id->qp && ( _cm_id->qp->state > IBV_QPS_INIT ) &&
-                ::rdma_disconnect( _cm_id ))
-            LBWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
-
-        setState( STATE_CLOSED );
-
-        _cleanup( );
-    }
-}
-
 void RDMAConnection::acceptNB( ) { /* NOP */ }
 
 ConnectionPtr RDMAConnection::acceptSync( )
 {
-    LBVERB << (void *)this << ".acceptSync( )" << std::endl;
-
     RDMAConnection *newConnection = NULL;
 
     if( STATE_LISTENING != _state )
@@ -518,32 +483,24 @@ int64_t RDMAConnection::readSync( void* buffer, const uint64_t bytes,
     uint32_t bytes_taken = 0UL;
     bool extra_event = false;
 
+    if( STATE_CONNECTED != _state )
+        goto err;
+
 //    LBWARN << (void *)this << std::dec << ".read(" << bytes << ")"
 //       << std::endl;
 
     _stats.reads++;
 
 retry:
-    if( !_checkEvents( events ))
+    if( !_checkDisconnected( events ))
     {
         LBERROR << "Error while checking event state." << std::endl;
         goto err;
     }
 
-    if( events.test( CM_EVENT ))
-    {
-        if( !_doCMEvent( RDMA_CM_EVENT_DISCONNECTED ))
-        {
-            LBERROR << "Unexpected connection manager event." << std::endl;
-            goto err;
-        }
-
-        LBASSERT( !_established );
-    }
-
     if( events.test( CQ_EVENT ))
     {
-        if( !_rearmRecvCQ( ))
+        if( !_rearmCQ( ))
         {
             LBERROR << "Error while rearming receive channel." << std::endl;
             goto err;
@@ -551,7 +508,7 @@ retry:
     }
 
     // Modifies _sourceptr.TAIL, _sinkptr.HEAD & _rptr.TAIL
-    if( !_checkRecvCQ( events.test( CQ_EVENT )) || !_checkSendCQ( ))
+    if( !_checkCQ( events.test( CQ_EVENT )))
     {
         LBERROR << "Error while polling completion queues." << std::endl;
         goto err;
@@ -577,11 +534,13 @@ retry:
     }
 
     // "Note that an extra event may be triggered without having a
-    // corresponding completion entry in the CQ." IBV_GET_CQ_EVENT(3)
+    // corresponding completion entry in the CQ." (per ibv_get_cq_event(3))
     if( _established && !events.test( BUF_EVENT ))
     {
+        // Special case: If LocalNode is reading the length part of a message
+        // it will ignore this zero return and restart the select.
         if( extra_event && !block )
-            return 0;
+            return 0LL;
 
         extra_event = true;
         goto retry;
@@ -606,7 +565,6 @@ retry:
         {
             LBINFO << "Got EOF, closing " << getDescription( )->toString( )
                 << std::endl;
-            close( );
             goto err;
         }
 
@@ -625,7 +583,7 @@ retry:
         goto retry;
     }
 
-    // Put back what wasn't taken.
+    // Put back what wasn't taken (ensure the master notifier stays "hot").
     if( available_bytes > bytes_taken )
         _incrAvailableBytes( available_bytes - bytes_taken );
 
@@ -636,9 +594,11 @@ retry:
 //       << " took " << bytes_taken << " bytes"
 //       << " (" << _sinkptr.available( ) << " still available)" << std::endl;
 
-    return static_cast< int64_t >( bytes_taken );
+    return bytes_taken;
 
 err:
+    close( );
+
     return -1LL;
 }
 
@@ -648,12 +608,11 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     const int64_t start = clock.getTime64( );
     const uint32_t timeout = Global::getTimeout( );
     eventset events;
-    // Can only send sizeof(struct RDMAFCImm.bytes_sent) per rdma write.
-    const uint32_t can_put = std::min( bytes, (uint64_t)0xFFFFFFF );
+    const uint32_t can_put = std::min( bytes, MAX_BS );
     uint32_t bytes_put;
 
     if( STATE_CONNECTED != _state )
-        return -1LL;
+        goto err;
 
 //    LBWARN << (void *)this << std::dec << ".write(" << bytes << ")"
 //        << std::endl;
@@ -661,21 +620,10 @@ int64_t RDMAConnection::write( const void* buffer, const uint64_t bytes )
     _stats.writes++;
 
 retry:
-    if( !_checkEvents( events ))
+    if( !_checkDisconnected( events ))
     {
-        LBERROR << "Error while checking event state." << std::endl;
+        LBERROR << "Error while checking connection state." << std::endl;
         goto err;
-    }
-
-    if( events.test( CM_EVENT ))
-    {
-        if( !_doCMEvent( RDMA_CM_EVENT_DISCONNECTED ))
-        {
-            LBERROR << "Unexpected connection manager event." << std::endl;
-            goto err;
-        }
-
-        LBASSERT( !_established );
     }
 
     if( !_established )
@@ -685,7 +633,7 @@ retry:
     }
 
     // Modifies _sourceptr.TAIL, _sinkptr.HEAD & _rptr.TAIL
-    if( !_checkRecvCQ( false ) || !_checkSendCQ( ))
+    if( !_checkCQ( false ))
     {
         LBERROR << "Error while polling completion queues." << std::endl;
         goto err;
@@ -728,7 +676,6 @@ retry:
         lunchbox::Thread::yield( );
         if( _sourceptr.isFull( ) || _rptr.isFull( ))
             _stats.buffer_full++;
-
         goto retry;
     }
 
@@ -742,7 +689,7 @@ retry:
 //    LBWARN << (void *)this << std::dec << ".write(" << bytes << ")"
 //       << " put " << bytes_put << " bytes" << std::endl;
 
-    return static_cast< int64_t >( bytes_put );
+    return bytes_put;
 
 err:
     return -1LL;
@@ -750,9 +697,7 @@ err:
 
 RDMAConnection::~RDMAConnection( )
 {
-    LBVERB << (void *)this << ".delete" << std::endl;
-
-    close( );
+    _close( );
 }
 
 void RDMAConnection::setState( const State state )
@@ -766,6 +711,24 @@ void RDMAConnection::setState( const State state )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void RDMAConnection::_close( )
+{
+    lunchbox::ScopedWrite close_mutex( _poll_lock );
+
+    if( STATE_CLOSED != _state )
+    {
+        LBASSERT( STATE_CLOSING != _state );
+        setState( STATE_CLOSING );
+
+        if( _established && ::rdma_disconnect( _cm_id ))
+            LBWARN << "rdma_disconnect : " << lunchbox::sysError << std::endl;
+
+        setState( STATE_CLOSED );
+
+        _cleanup( );
+    }
+}
+
 void RDMAConnection::_cleanup( )
 {
     LBASSERT( STATE_CLOSED == _state );
@@ -776,13 +739,22 @@ void RDMAConnection::_cleanup( )
 
     if( _completions > 0U )
     {
-        ::ibv_ack_cq_events( _cm_id->recv_cq, _completions );
+        ::ibv_ack_cq_events( _cq, _completions );
         _completions = 0U;
     }
 
     if( NULL != _cm_id )
         ::rdma_destroy_ep( _cm_id );
     _cm_id = NULL;
+
+    if(( NULL != _cq ) && ::rdma_seterrno( ::ibv_destroy_cq( _cq )))
+        LBWARN << "ibv_destroy_cq : " << lunchbox::sysError << std::endl;
+    _cq = NULL;
+
+    if(( NULL != _cc ) && ::rdma_seterrno( ::ibv_destroy_comp_channel( _cc )))
+        LBWARN << "ibv_destroy_comp_channel : " << lunchbox::sysError
+            << std::endl;
+    _cc = NULL;
 
     if(( NULL != _pd ) && ::rdma_seterrno( ::ibv_dealloc_pd( _pd )))
         LBWARN << "ibv_dealloc_pd : " << lunchbox::sysError << std::endl;
@@ -888,8 +860,8 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
 
     if( !_createNotifier( ))
     {
-        LBERROR << "Failed to create notifier." << std::endl;
-        goto err;
+        LBERROR << "Failed to create master notifier." << std::endl;
+        goto err_reject;
     }
 
     if( !_createEventChannel( ))
@@ -904,14 +876,15 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         goto err_reject;
     }
 
-    _depth = cpd.depth;
-    _writes = 0L;
-    _fcs = 0L;
-    _wcredits = _depth / 2 - 2;
-    _fcredits = _depth / 2 + 2;
-    if( _depth <= 0L )
+    if( !_initProtocol( cpd.depth ))
     {
-        LBERROR << "Invalid (unsent?) queue depth." << std::endl;
+        LBERROR << "Failed to initialize protocol variables." << std::endl;
+        goto err_reject;
+    }
+
+    if( !_initVerbs( ))
+    {
+        LBERROR << "Failed to initialize verbs." << std::endl;
         goto err_reject;
     }
 
@@ -923,8 +896,8 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
 
     if( !_createBytesAvailableFD( ))
     {
-        LBERROR << "Failed to create available byte counter." << std::endl;
-        goto err;
+        LBERROR << "Failed to create available byte notifier." << std::endl;
+        goto err_reject;
     }
 
     if( !_initBuffers( ))
@@ -933,7 +906,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         goto err_reject;
     }
 
-    if( !_postReceives( static_cast< uint32_t >( _depth )))
+    if( !_postReceives( _depth ))
     {
         LBERROR << "Failed to pre-post receives." << std::endl;
         goto err_reject;
@@ -968,6 +941,7 @@ bool RDMAConnection::_finishAccept( struct rdma_cm_id *new_cm_id,
         << std::endl;
 
     setState( STATE_CONNECTED );
+
     return true;
 
 err_reject:
@@ -979,6 +953,7 @@ err_reject:
 
 err:
     close( );
+
     return false;
 }
 
@@ -1081,7 +1056,7 @@ bool RDMAConnection::_createEventChannel( )
     ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
     evctl.events = EPOLLIN;
     evctl.data.fd = _cm->fd;
-    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, _cm->fd, &evctl ))
+    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, evctl.data.fd, &evctl ))
     {
         LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
@@ -1110,14 +1085,16 @@ err:
     return false;
 }
 
-bool RDMAConnection::_createQP( )
+bool RDMAConnection::_initVerbs( )
 {
-    struct ibv_qp_init_attr init_attr;
     struct epoll_event evctl;
 
     LBASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _cm_id->verbs );
+
     LBASSERT( NULL == _pd );
 
+    // Allocate protection domain.
     _pd = ::ibv_alloc_pd( _cm_id->verbs );
     if( NULL == _pd )
     {
@@ -1125,38 +1102,75 @@ bool RDMAConnection::_createQP( )
         goto err;
     }
 
-    ::memset( (void *)&init_attr, 0, sizeof(struct ibv_qp_init_attr) );
-    init_attr.cap.max_send_wr = static_cast< uint32_t >( _depth );
-    init_attr.cap.max_recv_wr = static_cast< uint32_t >( _depth );
-    init_attr.cap.max_recv_sge = 1;
-    init_attr.cap.max_send_sge = 1;
-    init_attr.sq_sig_all = 1; // aka always IBV_SEND_SIGNALED
-    init_attr.qp_type = IBV_QPT_RC;
+    LBASSERT( NULL == _cc );
 
-    if( ::rdma_create_qp( _cm_id, _pd, &init_attr ))
+    // Create completion channel.
+    _cc = ::ibv_create_comp_channel( _cm_id->verbs );
+    if( NULL == _cc )
     {
-        LBERROR << "rdma_create_qp : " << lunchbox::sysError << std::endl;
+        LBERROR << "ibv_create_comp_channel : " << lunchbox::sysError
+            << std::endl;
         goto err;
     }
 
     LBASSERT( _notifier >= 0 );
 
-    // Use the receive CQ channel fd to signal Collage of RDMA writes received.
+    // Use the completion channel fd to signal Collage of RDMA writes received.
     ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
     evctl.events = EPOLLIN;
-    evctl.data.fd = _cm_id->recv_cq_channel->fd;
-    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, _cm_id->recv_cq_channel->fd,
-            &evctl ))
+    evctl.data.fd = _cc->fd;
+    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, evctl.data.fd, &evctl ))
     {
         LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
-    // Request only solicited events (i.e. just RDMA writes, don't wake up
-    // Collage on ACKs).
-    if( ::rdma_seterrno( ::ibv_req_notify_cq( _cm_id->recv_cq, 1 )))
+    LBASSERT( NULL == _cq );
+
+    // Create a single completion queue for both sends & receives */
+    _cq = ::ibv_create_cq( _cm_id->verbs, _depth * 2, NULL, _cc, 0 );
+    if( NULL == _cq )
+    {
+        LBERROR << "ibv_create_cq : " << lunchbox::sysError << std::endl;
+        goto err;
+    }
+
+    // Request IBV_SEND_SOLICITED events only (i.e. RDMA writes, not FC)
+    if( ::rdma_seterrno( ::ibv_req_notify_cq( _cq, 1 )))
     {
         LBERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
+        goto err;
+    }
+
+    return true;
+
+err:
+    return false;
+}
+
+bool RDMAConnection::_createQP( )
+{
+    struct ibv_qp_init_attr init_attr;
+
+    LBASSERT( _depth > 0 );
+    LBASSERT( NULL != _cm_id );
+    LBASSERT( NULL != _pd );
+    LBASSERT( NULL != _cq );
+
+    ::memset( (void *)&init_attr, 0, sizeof(struct ibv_qp_init_attr) );
+    init_attr.qp_type = IBV_QPT_RC;
+    init_attr.cap.max_send_wr = _depth;
+    init_attr.cap.max_recv_wr = _depth;
+    init_attr.cap.max_recv_sge = 1;
+    init_attr.cap.max_send_sge = 1;
+    init_attr.recv_cq = _cq;
+    init_attr.send_cq = _cq;
+    init_attr.sq_sig_all = 1; // i.e. always IBV_SEND_SIGNALED
+
+    // Create queue pair.
+    if( ::rdma_create_qp( _cm_id, _pd, &init_attr ))
+    {
+        LBERROR << "rdma_create_qp : " << lunchbox::sysError << std::endl;
         goto err;
     }
 
@@ -1164,8 +1178,7 @@ bool RDMAConnection::_createQP( )
         init_attr.cap.max_recv_wr << " receives, " <<
         init_attr.cap.max_send_wr << " sends, " << std::endl;
 
-    // Need enough space for sends and receives.
-    return _msgbuf.resize( _pd, static_cast< uint32_t >( _depth * 2 ));
+    return true;
 
 err:
     return false;
@@ -1175,6 +1188,9 @@ bool RDMAConnection::_initBuffers( )
 {
     const size_t rbs = 1024 * 1024 *
         Global::getIAttribute( Global::IATTR_RDMA_RING_BUFFER_SIZE_MB );
+
+    LBASSERT( _depth > 0 );
+    LBASSERT( NULL != _pd );
 
     if( 0 == rbs )
     {
@@ -1196,6 +1212,14 @@ bool RDMAConnection::_initBuffers( )
 
     _sourceptr.clear( _sourcebuf.getSize( ));
     _sinkptr.clear( _sinkbuf.getSize( ));
+
+    // Need enough space for both sends and receives.
+    if( !_msgbuf.resize( _pd, _depth * 2 ))
+    {
+        LBERROR << "Failed to resize message buffer pool." << std::endl;
+        goto err;
+    }
+
     return true;
 
 err:
@@ -1333,11 +1357,11 @@ err:
     return false;
 }
 
-bool RDMAConnection::_listen( )
+bool RDMAConnection::_listen( int backlog )
 {
     LBASSERT( NULL != _cm_id );
 
-    if( ::rdma_listen( _cm_id, SOMAXCONN ))
+    if( ::rdma_listen( _cm_id, backlog ))
     {
         LBERROR << "rdma_listen : " << lunchbox::sysError << std::endl;
         goto err;
@@ -1415,6 +1439,28 @@ bool RDMAConnection::_reject( )
         LBERROR << "rdma_reject : " << lunchbox::sysError << std::endl;
         goto err;
     }
+
+    return true;
+
+err:
+    return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool RDMAConnection::_initProtocol( int32_t depth )
+{
+    if( depth < 2L )
+    {
+        LBERROR << "Invalid queue depth." << std::endl;
+        goto err;
+    }
+
+    _depth = depth;
+    _writes = 0L;
+    _fcs = 0L;
+    _wcredits = _depth / 2 - 2;
+    _fcredits = _depth / 2 + 2;
 
     return true;
 
@@ -1500,12 +1546,11 @@ uint32_t RDMAConnection::_makeImm( const uint32_t b )
         RDMAFCImm fc;
     } x;
 
-    // Can ack only one byte's worth of fcs per rdma write.
-    x.fc.fcs_received = std::min( (uint16_t)0xF, (uint16_t)_fcs );
+    x.fc.fcs_received = std::min( MAX_FC, static_cast< uint16_t >( _fcs ));
     _fcs -= x.fc.fcs_received;
     LBASSERT( _fcs >= 0 );
 
-    LBASSERT( b <= (uint32_t)0xFFFFFFF );
+    LBASSERT( b <= MAX_BS );
     x.fc.bytes_sent = b;
 
     return htonl( x.val );
@@ -1665,19 +1710,10 @@ bool RDMAConnection::_waitRecvSetup( )
     eventset events;
 
 retry:
-    if( !_checkEvents( events ))
+    if( !_checkDisconnected( events ))
     {
         LBERROR << "Error while checking event state." << std::endl;
         goto err;
-    }
-
-    if( events.test( CM_EVENT ))
-    {
-        if( !_doCMEvent( RDMA_CM_EVENT_DISCONNECTED ))
-        {
-            LBERROR << "Unexpected connection manager event." << std::endl;
-            goto err;
-        }
     }
 
     if( !_established )
@@ -1686,7 +1722,7 @@ retry:
         goto err;
     }
 
-    if( !_checkRecvCQ( true ))
+    if( !_checkCQ( true ))
     {
         LBERROR << "Error while polling receive completion queue." << std::endl;
         goto err;
@@ -1749,13 +1785,39 @@ bool RDMAConnection::_checkEvents( eventset &events )
         const int fd = evts[i].data.fd;
         if(( _event_fd >= 0 ) && ( fd == _event_fd ))
             events.set( BUF_EVENT );
-        else if( _cm_id && _cm_id->recv_cq_channel &&
-                ( fd == _cm_id->recv_cq_channel->fd ))
+        else if( _cc && ( fd == _cc->fd ))
             events.set( CQ_EVENT );
         else if( _cm && ( fd == _cm->fd ))
             events.set( CM_EVENT );
         else
             LBUNREACHABLE;
+    }
+
+    return true;
+
+err:
+    return false;
+}
+
+bool RDMAConnection::_checkDisconnected( eventset &events )
+{
+    lunchbox::ScopedWrite poll_mutex( _poll_lock );
+
+    if( !_checkEvents( events ))
+    {
+        LBERROR << "Error while checking event state." << std::endl;
+        goto err;
+    }
+
+    if( events.test( CM_EVENT ))
+    {
+        if( !_doCMEvent( RDMA_CM_EVENT_DISCONNECTED ))
+        {
+            LBERROR << "Unexpected connection manager event." << std::endl;
+            goto err;
+        }
+
+        LBASSERT( !_established );
     }
 
     return true;
@@ -1783,7 +1845,7 @@ bool RDMAConnection::_createBytesAvailableFD( )
     ::memset( (void *)&evctl, 0, sizeof(struct epoll_event) );
     evctl.events = EPOLLIN;
     evctl.data.fd = _event_fd;
-    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, _event_fd, &evctl ))
+    if( ::epoll_ctl( _notifier, EPOLL_CTL_ADD, evctl.data.fd, &evctl ))
     {
         LBERROR << "epoll_ctl : " << lunchbox::sysError << std::endl;
         goto err;
@@ -1797,8 +1859,6 @@ err:
 
 bool RDMAConnection::_incrAvailableBytes( const uint64_t b )
 {
-//    LBWARN << "_incrAvailableBytes( " << b << " )" << std::endl;
-
     if( ::write( _event_fd, (const void *)&b, sizeof(b) ) != sizeof(b) )
     {
         LBERROR << "write : " << lunchbox::sysError << std::endl;
@@ -1845,7 +1905,7 @@ retry:
         goto err;
     }
 
-    if( events.test( CM_EVENT ) && !( done = _doCMEvent( expected )))
+    if( events.test( CM_EVENT ))
     {
         done = _doCMEvent( expected );
         if( !done )
@@ -1948,12 +2008,12 @@ out:
     return ok;
 }
 
-bool RDMAConnection::_rearmRecvCQ( )
+bool RDMAConnection::_rearmCQ( )
 {
     struct ibv_cq *ev_cq;
     void *ev_ctx;
 
-    if( ::ibv_get_cq_event( _cm_id->recv_cq_channel, &ev_cq, &ev_ctx ))
+    if( ::ibv_get_cq_event( _cc, &ev_cq, &ev_ctx ))
     {
         LBERROR << "ibv_get_cq_event : " << lunchbox::sysError << std::endl;
         goto err;
@@ -1963,12 +2023,12 @@ bool RDMAConnection::_rearmRecvCQ( )
     _completions++;
     if( std::numeric_limits< unsigned int >::max( ) == _completions )
     {
-        ::ibv_ack_cq_events( _cm_id->recv_cq, _completions );
+        ::ibv_ack_cq_events( _cq, _completions );
         _completions = 0U;
     }
 
     // Solicited only!
-    if( ::rdma_seterrno( ::ibv_req_notify_cq( _cm_id->recv_cq, 1 )))
+    if( ::rdma_seterrno( ::ibv_req_notify_cq( _cq, 1 )))
     {
         LBERROR << "ibv_req_notify_cq : " << lunchbox::sysError << std::endl;
         goto err;
@@ -1980,15 +2040,20 @@ err:
     return false;
 }
 
-bool RDMAConnection::_checkRecvCQ( bool drain )
+bool RDMAConnection::_checkCQ( bool drain )
 {
-    struct ibv_wc wcs[10];
+    struct ibv_wc wcs[_depth];
     uint32_t num_recvs;
     int count;
 
+    lunchbox::ScopedWrite poll_mutex( _poll_lock );
+
+    if( NULL == _cq )
+        goto out;
+
 repoll:
     /* CHECK RECEIVE COMPLETIONS */
-    count = ::ibv_poll_cq( _cm_id->recv_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
+    count = ::ibv_poll_cq( _cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
     if( count < 0 )
     {
         LBERROR << "ibv_poll_cq : " << lunchbox::sysError << std::endl;
@@ -2018,21 +2083,25 @@ repoll:
         }
 
         LBASSERT( IBV_WC_SUCCESS == wc.status );
-        LBASSERT( IBV_WC_RECV & wc.opcode );
 
-        // All receive completions need to be reposted.
-        num_recvs++;
-
-        lunchbox::ScopedWrite poll_mutex( _poll_lock );
 
         if( IBV_WC_RECV_RDMA_WITH_IMM == wc.opcode )
             _recvRDMAWrite( wc.imm_data );
         else if( IBV_WC_RECV == wc.opcode )
             _recvMessage( *reinterpret_cast< RDMAMessage * >( wc.wr_id ));
+        else if( IBV_WC_SEND == wc.opcode )
+            _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
+        else if( IBV_WC_RDMA_WRITE == wc.opcode )
+            _sourceptr.incrTail( (uint32_t)wc.wr_id );
         else
             LBUNREACHABLE;
 
-        _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
+        if( IBV_WC_RECV & wc.opcode )
+        {
+            _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
+            // All receive completions need to be reposted.
+            num_recvs++;
+        }
     }
 
     if(( num_recvs > 0UL ) && !_postReceives( num_recvs ))
@@ -2041,63 +2110,7 @@ repoll:
     if( drain && ( count > 0 ))
         goto repoll;
 
-    return true;
-
-err:
-    return false;
-}
-
-bool RDMAConnection::_checkSendCQ( )
-{
-    struct ibv_wc wcs[10];
-    int count;
-
-    /* CHECK SEND COMPLETIONS */
-    count = ::ibv_poll_cq( _cm_id->send_cq, sizeof(wcs) / sizeof(wcs[0]), wcs );
-    if( count < 0 )
-    {
-        LBERROR << "ibv_poll_cq : " << lunchbox::sysError << std::endl;
-        goto err;
-    }
-
-    for( int i = 0; i != count ; i++ )
-    {
-        struct ibv_wc &wc = wcs[i];
-
-        if( IBV_WC_SUCCESS != wc.status )
-        {
-            // Non-fatal.
-            if( IBV_WC_WR_FLUSH_ERR == wc.status )
-                continue;
-
-            LBWARN << (void *)this << " !IBV_WC_SUCCESS : " << std::showbase
-                << std::hex << "wr_id = " << wc.wr_id
-                << ", status = \"" << ::ibv_wc_status_str( wc.status ) << "\""
-                << std::dec << " (" << (unsigned int)wc.status << ")"
-                << std::hex << ", vendor_err = " << wc.vendor_err
-                << std::dec << std::endl;
-
-            // Warning only as we just might be trying to ack a dead sender.
-            if(( IBV_WC_RETRY_EXC_ERR == wc.status )/* ||
-                ( IBV_WC_RNR_RETRY_EXC_ERR == wc.status )*/)
-                continue;
-
-            // All others are fatal.
-            goto err;
-        }
-
-        LBASSERT( IBV_WC_SUCCESS == wc.status );
-
-        lunchbox::ScopedWrite poll_mutex( _poll_lock );
-
-        if( IBV_WC_SEND == wc.opcode )
-            _msgbuf.freeBuffer( (void *)(uintptr_t)wc.wr_id );
-        else if( IBV_WC_RDMA_WRITE == wc.opcode )
-            _sourceptr.incrTail( (uint32_t)wc.wr_id );
-        else
-            LBUNREACHABLE;
-    }
-
+out:
     return true;
 
 err:
