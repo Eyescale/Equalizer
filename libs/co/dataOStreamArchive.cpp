@@ -37,7 +37,7 @@ DataOStreamArchive::DataOStreamArchive( DataOStream& stream )
 {
 }
 
-void DataOStreamArchive::save_binary( void* data, std::size_t size )
+void DataOStreamArchive::save_binary( const void* data, std::size_t size )
 {
     _stream.write( data, size );
 }

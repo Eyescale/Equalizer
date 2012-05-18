@@ -41,7 +41,23 @@ namespace co
         CO_API DataOStreamArchive( DataOStream& stream );
 
         /** @internal archives are expected to support this function. */
-        CO_API void save_binary( void* data, std::size_t size );
+        CO_API void save_binary( const void* data, std::size_t size );
+
+        /** @internal enable serialization optimization for arrays. */
+        struct use_array_optimization
+        {
+            template< class T >
+            struct apply
+                : public boost::serialization::is_bitwise_serializable< T > {};
+        };
+
+        /** @internal use optimized save for arrays. */
+        template< class ValueType >
+        void save_array( const boost::serialization::array< ValueType >& a,
+                         unsigned int )
+        {
+            save_binary( a.address(), a.count() * sizeof( ValueType ));
+        }
 
     private:
         friend class boost::archive::save_access;
@@ -57,6 +73,7 @@ namespace co
 }
 
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(co::DataOStreamArchive)
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(co::DataOStreamArchive)
 
 #endif //CO_USE_BOOST_SERIALIZATION
 #endif //CO_DATAOSTREAMARCHIVE_H
