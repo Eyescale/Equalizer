@@ -27,6 +27,7 @@
 
 #include <boost/archive/basic_binary_oarchive.hpp>
 #include <boost/archive/detail/register_archive.hpp>
+#include <boost/serialization/is_bitwise_serializable.hpp>
 
 namespace co
 {

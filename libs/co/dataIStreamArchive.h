@@ -31,6 +31,7 @@
 #pragma warning( pop )
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/archive/shared_ptr_helper.hpp>
+#include <boost/serialization/is_bitwise_serializable.hpp>
 
 namespace co
 {
