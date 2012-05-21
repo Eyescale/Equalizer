@@ -31,6 +31,7 @@
 #pragma warning( pop )
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/archive/shared_ptr_helper.hpp>
+#include <boost/serialization/is_bitwise_serializable.hpp>
 
 namespace co
 {
@@ -47,6 +48,22 @@ namespace co
 
         /** @internal archives are expected to support this function */
         CO_API void load_binary( void* data, std::size_t size );
+
+        /** @internal enable serialization optimization for arrays. */
+        struct use_array_optimization
+        {
+            template< class T >
+            struct apply
+                : public boost::serialization::is_bitwise_serializable< T > {};
+        };
+
+        /** @internal use optimized load for arrays. */
+        template< class ValueType >
+        void load_array( boost::serialization::array< ValueType >& a,
+                         unsigned int )
+        {
+            load_binary( a.address(), a.count() * sizeof( ValueType ));
+        }
 
     private:
         friend class boost::archive::load_access;
@@ -65,6 +82,7 @@ namespace co
 #include <boost/archive/impl/basic_binary_iarchive.ipp>
 
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(co::DataIStreamArchive)
+BOOST_SERIALIZATION_USE_ARRAY_OPTIMIZATION(co::DataIStreamArchive)
 
 #endif //CO_USE_BOOST_SERIALIZATION
 #endif //CO_DATAISTREAMARCHIVE_H
