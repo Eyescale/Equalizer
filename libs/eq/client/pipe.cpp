@@ -54,7 +54,9 @@
 
 #ifdef EQ_USE_HWLOC
 #  include <hwloc.h>
-#  include <hwloc/gl.h>
+#  ifdef EQ_USE_HWLOC_GL
+#    include <hwloc/gl.h>
+#  endif
 #endif
 
 namespace eq
@@ -217,7 +219,7 @@ void Pipe::_setupCommandQueue()
 
 int32_t Pipe::_getAutoAffinity() const
 {
-#ifdef EQ_USE_HWLOC
+#ifdef EQ_USE_HWLOC_GL
     uint32_t port = getPort();
     uint32_t device = getDevice();
 
@@ -285,7 +287,7 @@ void Pipe::_setupAffinity()
     switch( affinity )
     {
         case AUTO:
-            Pipe::Thread::setAffinity( _getAutoAffinity( ) );
+            Pipe::Thread::setAffinity( _getAutoAffinity( ));
             break;
 
         case OFF:
