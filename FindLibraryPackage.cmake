@@ -82,7 +82,7 @@ macro(FIND_LIBRARY_PACKAGE name)
   set(_flp_REQUIRED)
   set(_flp_QUIET)
   set(_flp_output)
-  string(TOUPPER ${name} NAME)
+  string(TOUPPER ${name} _flp_NAME)
 
   # options
   set(oneValueArgs INCLUDE)
@@ -91,8 +91,8 @@ macro(FIND_LIBRARY_PACKAGE name)
     set(_flp_INCLUDE ${name})
   endif()
 
-  find_path(${NAME}_INCLUDE_DIR ${_flp_INCLUDE}/version.h
-    HINTS "${${NAME}_ROOT}/include" "$ENV{${NAME}_ROOT}/include"
+  find_path(${_flp_NAME}_INCLUDE_DIR ${_flp_INCLUDE}/version.h
+    HINTS "${${_flp_NAME}_ROOT}/include" "$ENV{${_flp_NAME}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
 
   if(${name}_FIND_REQUIRED)
@@ -106,11 +106,11 @@ macro(FIND_LIBRARY_PACKAGE name)
   endif()
 
   # Try to ascertain the version...
-  if(${NAME}_INCLUDE_DIR)
-    set(_flp_Version_file "${${NAME}_INCLUDE_DIR}/${_flp_INCLUDE}/version.h")
-    if("${${NAME}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
+  if(${_flp_NAME}_INCLUDE_DIR)
+    set(_flp_Version_file "${${_flp_NAME}_INCLUDE_DIR}/${_flp_INCLUDE}/version.h")
+    if("${${_flp_NAME}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
         NOT EXISTS "${_flp_Version_file}")
-      set(_flp_Version_file "${${NAME}_INCLUDE_DIR}/Headers/version.h")
+      set(_flp_Version_file "${${_flp_NAME}_INCLUDE_DIR}/Headers/version.h")
     endif()
 
     if(EXISTS "${_flp_Version_file}")
@@ -119,44 +119,44 @@ macro(FIND_LIBRARY_PACKAGE name)
       set(_flp_Version_contents "unknown")
     endif()
 
-    string(REGEX MATCH "define[ \t]+${NAME}_VERSION_MAJOR[ \t]+[0-9]+"
-      ${NAME}_VERSION_MAJOR ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${NAME}_VERSION_MINOR[ \t]+[0-9]+"
-      ${NAME}_VERSION_MINOR ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${NAME}_VERSION_PATCH[ \t]+[0-9]+"
-      ${NAME}_VERSION_PATCH ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${NAME}_VERSION_ABI[ \t]+[0-9]+"
-      ${NAME}_VERSION_ABI ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_MAJOR[ \t]+[0-9]+"
+      ${_flp_NAME}_VERSION_MAJOR ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_MINOR[ \t]+[0-9]+"
+      ${_flp_NAME}_VERSION_MINOR ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_PATCH[ \t]+[0-9]+"
+      ${_flp_NAME}_VERSION_PATCH ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_ABI[ \t]+[0-9]+"
+      ${_flp_NAME}_VERSION_ABI ${_flp_Version_contents})
 
-    if("${${NAME}_VERSION_MAJOR}" STREQUAL "")
+    if("${${_flp_NAME}_VERSION_MAJOR}" STREQUAL "")
       set(_flp_EPIC_FAIL TRUE)
       if(_flp_output)
         message(${_flp_version_output_type} "Can't parse ${_flp_Version_file}.")
       endif()
     else()
-      string(REGEX REPLACE ".*([0-9]+)" "\\1" ${NAME}_VERSION_MAJOR
-        ${${NAME}_VERSION_MAJOR})
+      string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_MAJOR
+        ${${_flp_NAME}_VERSION_MAJOR})
 
-      if("${${NAME}_VERSION_MINOR}" STREQUAL "")
-        set(${NAME}_VERSION_MINOR 0)
+      if("${${_flp_NAME}_VERSION_MINOR}" STREQUAL "")
+        set(${_flp_NAME}_VERSION_MINOR 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${NAME}_VERSION_MINOR
-          ${${NAME}_VERSION_MINOR})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_MINOR
+          ${${_flp_NAME}_VERSION_MINOR})
       endif()
-      if("${${NAME}_VERSION_PATCH}" STREQUAL "")
-        set(${NAME}_VERSION_PATCH 0)
+      if("${${_flp_NAME}_VERSION_PATCH}" STREQUAL "")
+        set(${_flp_NAME}_VERSION_PATCH 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${NAME}_VERSION_PATCH
-          ${${NAME}_VERSION_PATCH})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_PATCH
+          ${${_flp_NAME}_VERSION_PATCH})
       endif()
-      if("${${NAME}_VERSION_ABI}" STREQUAL "")
-        set(${NAME}_VERSION_ABI 0)
+      if("${${_flp_NAME}_VERSION_ABI}" STREQUAL "")
+        set(${_flp_NAME}_VERSION_ABI 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${NAME}_VERSION_ABI
-          ${${NAME}_VERSION_ABI})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_ABI
+          ${${_flp_NAME}_VERSION_ABI})
       endif()
 
-      set(${NAME}_VERSION "${${NAME}_VERSION_MAJOR}.${${NAME}_VERSION_MINOR}.${${NAME}_VERSION_PATCH}")
+      set(${_flp_NAME}_VERSION "${${_flp_NAME}_VERSION_MAJOR}.${${_flp_NAME}_VERSION_MINOR}.${${_flp_NAME}_VERSION_PATCH}")
     endif()
   else()
     set(_flp_EPIC_FAIL TRUE)
@@ -184,42 +184,42 @@ macro(FIND_LIBRARY_PACKAGE name)
         if(_flp_output)
           message(${_flp_version_output_type}
             "Version ${_flp_VERSION} or higher of ${name} is required. "
-            "Version ${${name}_FIND_VERSION} was found in ${${NAME}_INCLUDE_DIR}.")
+            "Version ${${name}_FIND_VERSION} was found in ${${_flp_NAME}_INCLUDE_DIR}.")
         endif()
       endif()
     endif()
   endif()
 
   # include
-  set(${NAME}_INCLUDE_DIRS ${${NAME}_INCLUDE_DIR})
+  set(${_flp_NAME}_INCLUDE_DIRS ${${_flp_NAME}_INCLUDE_DIR})
 
   # library
-  find_library(${NAME}_LIBRARY ${name}
-    PATHS ${${NAME}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
-  set(${NAME}_LIBRARIES ${${NAME}_LIBRARY})
+  find_library(${_flp_NAME}_LIBRARY ${name}
+    PATHS ${${_flp_NAME}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
+  set(${_flp_NAME}_LIBRARIES ${${_flp_NAME}_LIBRARY})
 
   if(${name}_FIND_REQUIRED)
-    if(${NAME}_LIBRARY MATCHES "${NAME}_LIBRARY-NOTFOUND")
+    if(${_flp_NAME}_LIBRARY MATCHES "${_flp_NAME}_LIBRARY-NOTFOUND")
       set(_flp_EPIC_FAIL TRUE)
       if(_flp_output)
         message(${_flp_version_output_type}
-          "Missing the ${name} library in ${${NAME}_INCLUDE_DIR}/../lib.")
+          "Missing the ${name} library in ${${_flp_NAME}_INCLUDE_DIR}/../lib.")
       endif()
     endif()
   endif()
 
   if(_flp_EPIC_FAIL)
     # Zero out everything, we didn't meet version requirements
-    set(${NAME}_FOUND)
-    set(${NAME}_LIBRARIES)
-    set(${NAME}_INCLUDE_DIRS)
+    set(${_flp_NAME}_FOUND)
+    set(${_flp_NAME}_LIBRARIES)
+    set(${_flp_NAME}_INCLUDE_DIRS)
   else()
-    set(${NAME}_FOUND TRUE)
-    get_filename_component(${NAME}_LIBRARY_DIRS ${${NAME}_LIBRARY} PATH)
+    set(${_flp_NAME}_FOUND TRUE)
+    get_filename_component(${_flp_NAME}_LIBRARY_DIRS ${${_flp_NAME}_LIBRARY} PATH)
 
     if(_flp_output)
       message(STATUS "Found ${name} ${${name}_FIND_VERSION} in "
-        "${${NAME}_INCLUDE_DIRS}:${${NAME}_LIBRARIES}")
+        "${${_flp_NAME}_INCLUDE_DIRS}:${${_flp_NAME}_LIBRARIES}")
     endif()
   endif()
 endmacro()
