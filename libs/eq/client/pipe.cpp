@@ -52,6 +52,13 @@
 #include <co/worker.h>
 #include <sstream>
 
+#ifdef EQ_USE_HWLOC
+#  include <hwloc.h>
+#  ifdef EQ_USE_HWLOC_GL
+#    include <hwloc/gl.h>
+#  endif
+#endif
+
 namespace eq
 {
 /** @cond IGNORE */
@@ -210,22 +217,75 @@ void Pipe::_setupCommandQueue()
     Global::leaveCarbon();
 }
 
+int32_t Pipe::_getAutoAffinity() const
+{
+#ifdef EQ_USE_HWLOC_GL
+    uint32_t port = getPort();
+    uint32_t device = getDevice();
+
+    if( port == EQ_UNDEFINED_UINT32 && device == EQ_UNDEFINED_UINT32 )
+        return lunchbox::Thread::NONE;
+
+    if( port == EQ_UNDEFINED_UINT32 )
+        port = 0;
+    if( device == EQ_UNDEFINED_UINT32 )
+        device = 0;
+
+    hwloc_topology_t topology;
+    hwloc_topology_init( &topology );
+
+    // Flags used for loading the I/O devices,  bridges and their relevant info
+    const unsigned long loading_flags = HWLOC_TOPOLOGY_FLAG_IO_BRIDGES ^
+                                        HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
+    // Set discovery flags
+    const int success = hwloc_topology_set_flags( topology, loading_flags );
+
+    if ( success < 0 ) // Flags not set
+    {
+        EQWARN << "Automatic pipe thread placement failed: "
+               << "hwloc_topology_set_flags() failed, PCI devices will not be "
+               << "loaded in the topology" << std::endl
+
+        return lunchbox::Thread::NONE;
+    }
+
+    hwloc_topology_load( topology );
+
+    // Get the cpuset for the socket connected to GPU attached to the display
+    // defined by its port and device 
+    const hwloc_bitmap_t cpuSet = get_display_cpuset( topology, int( port ),
+                                                      int( device ));
+    const int numCpus = hwloc_get_nbobjs_by_type( topology, HWLOC_OBJ_SOCKET );
+    for( int i = 0; i <= numCpus - 1; ++i )
+    {
+        hwloc_obj_t cpuObj = 
+            hwloc_get_obj_inside_cpuset_by_type( topology, cpuSet,
+                                                 HWLOC_OBJ_SOCKET, i);
+        if( cpuObj != 0 )
+        {
+            const int cpuIndex = cpuObj->logical_index;
+            hwloc_topology_destroy( topology );
+            return cpuIndex + lunchbox::Thread::SOCKET;
+        }
+    }
+    hwloc_topology_destroy( topology );
+#else
+    EQINFO << "Missing hwloc, automatic thread placement is not supported"
+           << std::endl;
+#endif
+    return lunchbox::Thread::NONE;
+}
+
 void Pipe::_setupAffinity()
 {
     const int32_t affinity = getIAttribute( IATTR_HINT_AFFINITY );
     switch( affinity )
     {
-        case OFF:
-            break;
-
         case AUTO:
-            // To be implemented later
-            /*
-            const int32_t cpu = getCPU();
-            Pipe::Thread::setAffinity( cpu );
-            */
+            Pipe::Thread::setAffinity( _getAutoAffinity( ));
             break;
 
+        case OFF:
         default:
             Pipe::Thread::setAffinity( affinity );
             break;

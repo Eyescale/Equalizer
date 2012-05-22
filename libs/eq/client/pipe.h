@@ -439,6 +439,10 @@ namespace detail { class TransferThread; }
         void _setupAffinity();
         void _exitCommandQueue();
 
+        /** @internal Returns CPU index that is connected to the pipe defined
+         * by its port and device in the configuration file */
+        int32_t _getAutoAffinity() const;
+
         friend class Window;
 
         void _stopTransferThread();
