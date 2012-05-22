@@ -221,11 +221,8 @@ int32_t Pipe::_getAutoAffinity() const
     uint32_t port = getPort();
     uint32_t device = getDevice();
 
-    EQINFO << "port " << port << std::endl;
-    EQINFO << "device " << device << std::endl;
-
-    //if( port == EQ_UNDEFINED_UINT32 && device == EQ_UNDEFINED_UINT32 )
-      //  return lunchbox::Thread::NONE;
+    if( port == EQ_UNDEFINED_UINT32 && device == EQ_UNDEFINED_UINT32 )
+        return lunchbox::Thread::NONE;
 
     if( port == EQ_UNDEFINED_UINT32 )
         port = 0;
@@ -255,12 +252,12 @@ int32_t Pipe::_getAutoAffinity() const
     // Get the cpuset for the socket connected to GPU attached to the display
     // defined by its port and device 
     hwloc_bitmap_t cpuSet;
-
     const int err = hwloc_gl_get_display_cpuset( topology, int( port ),
                                                       int( device ), &cpuSet );
     if ( !err )
     {
-        const int numCpus = hwloc_get_nbobjs_by_type( topology, HWLOC_OBJ_SOCKET );
+        const int numCpus = hwloc_get_nbobjs_by_type( topology,
+                                                        HWLOC_OBJ_SOCKET );
         for( int i = 0; i <= numCpus - 1; ++i )
         {
             hwloc_obj_t cpuObj =
@@ -288,18 +285,12 @@ void Pipe::_setupAffinity()
     switch( affinity )
     {
         case AUTO:
-          {
             Pipe::Thread::setAffinity( _getAutoAffinity( ) );
-          EQINFO << "Pipe::Thread::setAffinity( _getAutoAffinity( ) );";
-          }
             break;
 
         case OFF:
         default:
-          {
             Pipe::Thread::setAffinity( affinity );
-            EQINFO << "Pipe::Thread::setAffinity( affinity );";
-          }
             break;
     }
 }
