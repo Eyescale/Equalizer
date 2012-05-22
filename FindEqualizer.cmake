@@ -218,27 +218,31 @@ else()
   if(NOT COLLAGE_FOUND)
     set(_eq_EPIC_FAIL 1)
   endif()
+  if(NOT _eq_EPIC_FAIL)
+    # GLEW_MX
+    set(TEST_SRC ${CMAKE_BINARY_DIR}/glewmx_test.cpp)
+    file(WRITE ${TEST_SRC}
+      "#include <eq/client/defines.h>\n"
+      "#ifndef EQ_GLEW_INTERNAL\n"
+      "#  error Need external GLEW_MX\n"
+      "#endif\n"
+      "int main(int argc, char* argv[]){}\n"
+      )
 
-  # GLEW_MX
-  set(TEST_SRC ${CMAKE_BINARY_DIR}/glewmx_test.cpp)
-  file(WRITE ${TEST_SRC}
-    "#include <eq/client/defines.h>\n"
-    "#ifndef EQ_GLEW_INTERNAL\n"
-    "#  error Need external GLEW_MX\n"
-    "#endif\n"
-    "int main(int argc, char* argv[]){}\n"
-  )
-
-  try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
-    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
-                "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
-    OUTPUT_VARIABLE out
-  )
-  if(_glew_mx_internal)
-    set(GLEW_MX_INCLUDE_DIRS)
-    set(GLEW_MX_LIBRARIES)
-  else()
-    find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
+    try_compile(_glew_mx_internal ${CMAKE_BINARY_DIR}/glewmx_test ${TEST_SRC}
+      CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${_eq_INCLUDE_DIR}"
+                  "-DLINK_LIBRARIES:STRING=${_eq_LIBRARY}"
+      OUTPUT_VARIABLE out
+    )
+    if(_glew_mx_internal)
+      set(GLEW_MX_INCLUDE_DIRS)
+      set(GLEW_MX_LIBRARIES)
+    else()
+      find_package(GLEW_MX ${_eq_required} ${_eq_quiet})
+      if(NOT GLEW_MX_FOUND)
+        set(_eq_EPIC_FAIL 1)
+      endif()
+    endif()
   endif()
 endif()
 
