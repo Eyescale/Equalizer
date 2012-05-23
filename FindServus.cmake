@@ -72,6 +72,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindServus)
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
-find_library_package(Servus INCLUDE servus)
+find_library_package(servus)
 find_package_handle_standard_args(Servus DEFAULT_MSG
                                   SERVUS_LIBRARIES SERVUS_INCLUDE_DIRS)
