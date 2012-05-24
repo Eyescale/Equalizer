@@ -393,24 +393,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API SendToken acquireSendToken( NodePtr toNode );
         CO_API void releaseSendToken( SendToken& token );
 
-        /** 
-         * Set a key/value pair to be announced using ZeroConf.
-         *
-         * When Collage is compiled with Servus support (CO_USE_SERVUS), it uses
-         * the ZeroConf service "_collage._tcp" to announce the presence of a
-         * listening LocalNode using zeroconf, unless the LocalNode has no
-         * connections. This method may be used to add additional key/value
-         * pairs to this service to announce application-specific data. Please
-         * refer to the documentation of servus::Service::set() for details.
-         *
-         * When Collage is compiled without Servus support, this method prints a
-         * warning and does nothing.
-         *
-         * @param key the data key.
-         * @param value the data value.
-         */
-        CO_API void setZeroconfData( const::std::string& key,
-                                     const std::string& value );
+        /** @return a Zeroconf communicator handle for this node. */
+        CO_API Zeroconf getZeroconf();
         //@}
 
         /** @internal Ack an operation to the sender. */

@@ -26,6 +26,10 @@
 #include <deque>
 #include <vector>
 
+/** @cond IGNORE */
+namespace servus { class Service; }
+/** @endcond */
+
 namespace co
 {
 
@@ -58,6 +62,7 @@ class PluginRegistry;
 class QueueMaster;
 class QueueSlave;
 class Serializable;
+class Zeroconf;
 struct CompressorInfo; //!< @internal
 template< class Q > class WorkerThread;
 struct ObjectVersion;

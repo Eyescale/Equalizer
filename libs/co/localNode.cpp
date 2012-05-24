@@ -1,21 +1,21 @@
 
 /* Copyright (c)  2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                     2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                     2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
- 
+
 #include "localNode.h"
 
 #include "command.h"
@@ -32,8 +32,8 @@
 #include "pipeConnection.h"
 #include "worker.h"
 
-#include <lunchbox/clock.h>   
-#include <lunchbox/hash.h>    
+#include <lunchbox/clock.h>
+#include <lunchbox/hash.h>
 #include <lunchbox/lockable.h>
 #include <lunchbox/log.h>
 #include <lunchbox/requestHandler.h>
@@ -42,6 +42,9 @@
 #include <lunchbox/sleep.h>
 #include <lunchbox/spinLock.h>
 #include <lunchbox/types.h>
+#ifdef CO_USE_SERVUS
+#  include <servus/service.h>
+#endif
 
 namespace co
 {
@@ -106,6 +109,7 @@ public:
     LocalNode()
             : sendToken( true ), lastSendToken( 0 ), objectStore( 0 )
             , receiverThread( 0 ), commandThread( 0 )
+            , service( "_collage._tcp" )
         {
         }
 
@@ -129,6 +133,17 @@ public:
 
     bool inReceiverThread() const { return receiverThread->isCurrent(); }
 
+    void initService()
+    {
+#   ifdef CO_USE_SERVUS
+//        service.set( "co_id", 
+#   endif
+    }
+
+    void exitService()
+    {
+    }
+
     /** Commands re-scheduled for dispatch. */
     CommandList  pendingCommands;
 
@@ -144,7 +159,7 @@ public:
 
     /** Needed for thread-safety during nodeID-based connect() */
     lunchbox::Lock connectLock;
-    
+
     /** The node for each connection. */
     ConnectionNodeHash connectionNodes; // read and write: recv only
 
@@ -165,6 +180,10 @@ public:
 
     ReceiverThread* receiverThread;
     CommandThread* commandThread;
+
+#ifdef CO_USE_SERVUS
+    servus::Service service;
+#endif
 };
 }
 
@@ -176,7 +195,7 @@ LocalNode::LocalNode( )
     _impl->objectStore = new ObjectStore( this );
 
     CommandQueue* queue = getCommandThreadQueue();
-    registerCommand( CMD_NODE_ACK_REQUEST, 
+    registerCommand( CMD_NODE_ACK_REQUEST,
                      CmdFunc( this, &LocalNode::_cmdAckRequest ), 0 );
     registerCommand( CMD_NODE_STOP_RCV,
                      CmdFunc( this, &LocalNode::_cmdStopRcv ), 0 );
@@ -190,7 +209,7 @@ LocalNode::LocalNode( )
                      CmdFunc( this, &LocalNode::_cmdConnect ), 0);
     registerCommand( CMD_NODE_CONNECT_REPLY,
                      CmdFunc( this, &LocalNode::_cmdConnectReply ), 0 );
-    registerCommand( CMD_NODE_CONNECT_ACK, 
+    registerCommand( CMD_NODE_CONNECT_ACK,
                      CmdFunc( this, &LocalNode::_cmdConnectAck ), 0 );
     registerCommand( CMD_NODE_ID,
                      CmdFunc( this, &LocalNode::_cmdID ), 0 );
@@ -278,11 +297,11 @@ bool LocalNode::initLocal( const int argc, char** argv )
             }
         }
     }
-    
+
     if( !listen( ))
     {
         LBWARN << "Can't setup listener(s) on " << *static_cast< Node* >( this )
-               << std::endl; 
+               << std::endl;
         return false;
     }
     return true;
@@ -322,10 +341,10 @@ bool LocalNode::listen()
 
         LBVERB << "Added node " << _id << " using " << connection << std::endl;
     }
-    
+
     _state = STATE_LISTENING;
-    
-    LBVERB << lunchbox::className( this ) << " start command and receiver thread "
+
+    LBVERB << lunchbox::className(this) << " start command and receiver thread "
            << std::endl;
     _impl->receiverThread->start();
 
@@ -341,8 +360,8 @@ bool LocalNode::listen( ConnectionPtr connection )
     return true;
 }
 
-bool LocalNode::close() 
-{ 
+bool LocalNode::close()
+{
     if( _state != STATE_LISTENING )
         return false;
 
@@ -512,7 +531,7 @@ void LocalNode::_cleanup()
     {
         NodePtr node = i->second;
         LBINFO << "    " << i->first << " : " << node << std::endl;
-        LBINFO << "    Node ref count " << node->getRefCount() - 1 
+        LBINFO << "    Node ref count " << node->getRefCount() - 1
                << ' ' << node->_outgoing << ' ' << node->_state
                << ( node == this ? " self" : "" ) << std::endl;
     }
@@ -528,7 +547,7 @@ void LocalNode::_cleanup()
     for( NodeHash::const_iterator i = _impl->nodes->begin(); i != _impl->nodes->end(); ++i )
     {
         NodePtr node = i->second;
-        LBINFO << "    " << node << " ref count " << node->getRefCount() - 1 
+        LBINFO << "    " << node << " ref count " << node->getRefCount() - 1
                << ' ' << node->_outgoing << ' ' << node->_state
                << ( node == this ? " self" : "" ) << std::endl;
     }
@@ -551,7 +570,7 @@ bool LocalNode::_connectSelf()
     _outgoing = connection->acceptSync();
 
     // add to connection set
-    LBASSERT( connection->getDescription().isValid( )); 
+    LBASSERT( connection->getDescription().isValid( ));
     LBASSERT( _impl->connectionNodes.find( connection ) == _impl->connectionNodes.end( ));
 
     _impl->connectionNodes[ connection ] = this;
@@ -588,11 +607,11 @@ void LocalNode::_connectMulticast( NodePtr node )
             ConnectionDescriptionPtr fromDescription = *j;
             if( !description->isSameMulticastGroup( fromDescription ))
                 continue;
-            
+
             LBASSERT( !node->_outMulticast.data );
             LBASSERT( node->_multicasts.empty( ));
 
-            if( _outMulticast->isValid() && 
+            if( _outMulticast->isValid() &&
                 _outMulticast.data->getDescription() == description )
             {
                 node->_outMulticast.data = _outMulticast.data;
@@ -604,7 +623,7 @@ void LocalNode::_connectMulticast( NodePtr node )
                       k != _multicasts.end(); ++k )
             {
                 const MCData& data = *k;
-                ConnectionDescriptionPtr dataDesc = 
+                ConnectionDescriptionPtr dataDesc =
                     data.connection->getDescription();
                 if( !description->isSameMulticastGroup( dataDesc ))
                     continue;
@@ -719,13 +738,13 @@ bool LocalNode::mapObject( Object* object, const UUID& id,
     return mapObjectSync( requestID );
 }
 
-uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id, 
+uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id,
                                  const uint128_t& version )
 {
     return _impl->objectStore->mapObjectNB( object, id, version );
 }
 
-uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id, 
+uint32_t LocalNode::mapObjectNB( Object* object, const UUID& id,
                                  const uint128_t& version, NodePtr master )
 {
     return _impl->objectStore->mapObjectNB( object, id, version, master );
@@ -805,7 +824,7 @@ LocalNode::SendToken LocalNode::acquireSendToken( NodePtr node )
     NodeAcquireSendTokenPacket packet;
     packet.requestID = registerRequest();
     node->send( packet );
-    
+
     bool ret = false;
     if( waitRequest( packet.requestID, ret, Global::getTimeout( )))
         return node;
@@ -894,7 +913,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     NodePtr node;
     {
-        lunchbox::ScopedFastRead mutexNodes( _impl->nodes ); 
+        lunchbox::ScopedFastRead mutexNodes( _impl->nodes );
         NodeHash::const_iterator i = _impl->nodes->find( nodeID );
         if( i != _impl->nodes->end( ))
             node = i->second;
@@ -919,7 +938,7 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
 
     if( !result )
     {
-        LBINFO << "Node " << nodeID << " not found on " << peer->getNodeID() 
+        LBINFO << "Node " << nodeID << " not found on " << peer->getNodeID()
                << std::endl;
         return 0;
     }
@@ -1090,6 +1109,7 @@ Command& LocalNode::cloneCommand( Command& command )
 void LocalNode::_runReceiverThread()
 {
     LB_TS_THREAD( _rcvThread );
+    _impl->initService();
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -1119,7 +1139,7 @@ void LocalNode::_runReceiverThread()
                 LBWARN << "Connection error during select" << std::endl;
                 if( nErrors > 100 )
                 {
-                    LBWARN << "Too many errors in a row, capping connection" 
+                    LBWARN << "Too many errors in a row, capping connection"
                            << std::endl;
                     _handleDisconnect();
                 }
@@ -1142,14 +1162,14 @@ void LocalNode::_runReceiverThread()
             default:
                 LBUNIMPLEMENTED;
         }
-        if( result != ConnectionSet::EVENT_ERROR && 
+        if( result != ConnectionSet::EVENT_ERROR &&
             result != ConnectionSet::EVENT_SELECT_ERROR )
 
             nErrors = 0;
     }
 
     if( !_impl->pendingCommands.empty( ))
-        LBWARN << _impl->pendingCommands.size() 
+        LBWARN << _impl->pendingCommands.size()
                << " commands pending while leaving command thread" << std::endl;
 
     for( CommandList::const_iterator i = _impl->pendingCommands.begin();
@@ -1219,7 +1239,7 @@ void LocalNode::_handleDisconnect()
         }
         else
         {
-            LBASSERT( connection->getDescription()->type >= 
+            LBASSERT( connection->getDescription()->type >=
                       CONNECTIONTYPE_MULTICAST );
 
             lunchbox::ScopedMutex<> mutex( _outMulticast );
@@ -1312,7 +1332,7 @@ bool LocalNode::_handleData()
     // this point the remote node is not yet available.
     LBASSERTINFO( node.isValid() ||
                  ( command->type == PACKETTYPE_CO_NODE &&
-                  ( command->command == CMD_NODE_CONNECT  || 
+                  ( command->command == CMD_NODE_CONNECT  ||
                     command->command == CMD_NODE_CONNECT_REPLY ||
                     command->command == CMD_NODE_ID )),
                   command << " connection " << connection );
@@ -1392,7 +1412,7 @@ void LocalNode::_redispatchCommands()
 
 #ifndef NDEBUG
     if( !_impl->pendingCommands.empty( ))
-        LBVERB << _impl->pendingCommands.size() << " undispatched commands" 
+        LBVERB << _impl->pendingCommands.size() << " undispatched commands"
                << std::endl;
     LBASSERT( _impl->pendingCommands.size() < 200 );
 #endif
@@ -1426,6 +1446,7 @@ bool LocalNode::_cmdStopRcv( Command& command )
     LBASSERT( _state == STATE_LISTENING );
     LBINFO << "Cmd stop receiver " << this << std::endl;
 
+    _impl->exitService();
     _state = STATE_CLOSING; // causes rcv thread exit
 
     command->command = CMD_NODE_STOP_CMD; // causes cmd thread exit
@@ -1513,7 +1534,7 @@ bool LocalNode::_cmdConnect( Command& command )
     reply.nodeID    = _id;
     reply.nodeType  = getType();
 
-    connection->send( reply, serialize( ));    
+    connection->send( reply, serialize( ));
     return true;
 }
 
@@ -1590,7 +1611,7 @@ bool LocalNode::_cmdConnectReply( Command& command )
 
     peer->_outgoing = connection;
     peer->_state    = STATE_CONNECTED;
-    
+
     {
         lunchbox::ScopedFastWrite mutex( _impl->nodes );
         _impl->connectionNodes[ connection ] = peer;
@@ -1612,7 +1633,7 @@ bool LocalNode::_cmdConnectAck( Command& command )
     LBASSERT( node.isValid( ));
     LBASSERT( _impl->inReceiverThread( ));
     LBVERB << "handle connect ack" << std::endl;
-    
+
     _connectMulticast( node );
     return true;
 }
@@ -1735,7 +1756,7 @@ bool LocalNode::_cmdDisconnect( Command& command )
             _impl->nodes->erase( node->_id );
         }
 
-        LBINFO << node << " disconnected from " << this << " connection used " 
+        LBINFO << node << " disconnected from " << this << " connection used "
                << connection->getRefCount() << std::endl;
     }
 
@@ -1776,7 +1797,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
 {
     LBASSERT( _impl->inReceiverThread( ));
 
-    const NodeGetNodeDataReplyPacket* packet = 
+    const NodeGetNodeDataReplyPacket* packet =
         command.get< NodeGetNodeDataReplyPacket >();
     LBVERB << "cmd get node data reply: " << packet << std::endl;
 
@@ -1789,7 +1810,7 @@ bool LocalNode::_cmdGetNodeDataReply( Command& command )
     {
         // Requested node connected to us in the meantime
         NodePtr node = i->second;
-        
+
         node->ref( this );
         serveRequest( requestID, node.get( ));
         return true;
@@ -1836,7 +1857,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
 
     _impl->sendToken = false;
 
-    const NodeAcquireSendTokenPacket* packet = 
+    const NodeAcquireSendTokenPacket* packet =
         command.get< NodeAcquireSendTokenPacket >();
     NodeAcquireSendTokenReplyPacket reply( packet );
     command.getNode()->send( reply );
@@ -1845,7 +1866,7 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
 
 bool LocalNode::_cmdAcquireSendTokenReply( Command& command )
 {
-    const NodeAcquireSendTokenReplyPacket* packet = 
+    const NodeAcquireSendTokenReplyPacket* packet =
         command.get< NodeAcquireSendTokenReplyPacket >();
     serveRequest( packet->requestID );
     return true;
@@ -1867,7 +1888,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
     Command* request = _impl->sendTokenQueue.front();
     _impl->sendTokenQueue.pop_front();
 
-    const NodeAcquireSendTokenPacket* packet = 
+    const NodeAcquireSendTokenPacket* packet =
         request->get< NodeAcquireSendTokenPacket >();
     NodeAcquireSendTokenReplyPacket reply( packet );
 
@@ -1910,7 +1931,7 @@ bool LocalNode::_cmdAddListener( Command& command )
 
 bool LocalNode::_cmdRemoveListener( Command& command )
 {
-    NodeRemoveListenerPacket* packet = 
+    NodeRemoveListenerPacket* packet =
         command.getModifiable< NodeRemoveListenerPacket >();
 
     ConnectionDescriptionPtr description =
