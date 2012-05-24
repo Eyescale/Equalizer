@@ -72,6 +72,7 @@ struct QueueItemPacket;
 using lunchbox::UUID;
 using lunchbox::uint128_t;
 using lunchbox::Strings;
+using lunchbox::StringsCIter;
 
 typedef UUID NodeID; //!< A unique identifier for nodes.
 

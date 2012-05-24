@@ -173,7 +173,7 @@ public:
     CommandThread* commandThread;
 
 #ifdef CO_USE_SERVUS
-    servus::Service service;
+    lunchbox::Lockable< servus::Service > service;
 #endif
 };
 }
@@ -883,14 +883,18 @@ NodePtr LocalNode::connect( const NodeID& nodeID )
             return node;
     }
 
+    NodePtr node = _connectFromZeroconf( nodeID );
+    if( node )
+        return node;
+
     // check again if node connected by itself by now
     nodes.clear();
     getNodes( nodes );
     for( NodesCIter i = nodes.begin(); i != nodes.end(); ++i )
     {
-        NodePtr peer = *i;
-        if( peer->getNodeID() == nodeID && peer->isConnected( ))
-            return peer;
+        node = *i;
+        if( node->getNodeID() == nodeID && node->isConnected( ))
+            return node;
     }
 
     LBWARN << "Node " << nodeID << " connection failed" << std::endl;
@@ -972,6 +976,56 @@ NodePtr LocalNode::_connect( const NodeID& nodeID, NodePtr peer )
     }
 
     return node->isConnected() ? node : 0;
+}
+
+NodePtr LocalNode::_connectFromZeroconf( const NodeID& nodeID )
+{
+#ifdef CO_USE_SERVUS
+    lunchbox::ScopedWrite mutex( _impl->service );
+
+    const Strings& hosts = _impl->service->discover( servus::IF_ALL, 500 );
+    for( StringsCIter i = hosts.begin(); i != hosts.end(); ++i )
+    {
+        const std::string& host = *i;
+        const std::string& nodeStr = _impl->service->get( host, "co_id" );
+        const NodeID candidate = uint128_t( nodeStr );
+        if( candidate != nodeID )
+            continue;
+
+        const std::string& typeStr = _impl->service->get( host, "co_type" );
+        if( typeStr.empty( ))
+            return 0;
+
+        std::istringstream in( typeStr );
+        uint32_t type = 0;
+        in >> type;
+
+        NodePtr node = createNode( type );
+        const std::string& numStr = _impl->service->get( host, "co_numPorts" );
+        uint32_t num = 0;
+
+        in.clear();
+        in.str( numStr );
+        in >> num;
+        LBASSERT( num > 0 );
+        for( size_t j = 0; j < num; ++j )
+        {
+            ConnectionDescriptionPtr desc = new ConnectionDescription;
+            std::ostringstream out;
+            out << "co_port" << j;
+
+            std::string descStr = _impl->service->get( host, out.str( ));
+            LBASSERT( !descStr.empty( ));
+            LBCHECK( desc->fromString( descStr ));
+            LBASSERT( descStr.empty( ));
+            node->addConnectionDescription( desc );
+        }
+        mutex.leave();
+        if( connect( node ))
+            return node;
+    }
+#endif
+    return 0;
 }
 
 bool LocalNode::connect( NodePtr node )
@@ -1220,7 +1274,7 @@ void LocalNode::_handleDisconnect()
             if( node->_outMulticast.data.isValid( ) )
                 _removeConnection( node->_outMulticast.data );
 
-            node->_outMulticast = 0;
+            node->_outMulticast.data = 0;
             node->_multicasts.clear();
 
             lunchbox::ScopedFastWrite mutex( _impl->nodes );
@@ -1235,7 +1289,7 @@ void LocalNode::_handleDisconnect()
 
             lunchbox::ScopedMutex<> mutex( _outMulticast );
             if( node->_outMulticast == connection )
-                node->_outMulticast = 0;
+                node->_outMulticast.data = 0;
             else
             {
                 for( MCDatas::iterator j = node->_multicasts.begin();
@@ -1413,35 +1467,38 @@ void LocalNode::_initService()
 {
     LB_TS_SCOPED( _rcvThread );
 #ifdef CO_USE_SERVUS
-    _exitService(); // go silent during k/v update
+    _impl->service->withdraw(); // go silent during k/v update
 
     const ConnectionDescriptions& descs = getConnectionDescriptions();
     if( descs.empty( ))
         return;
 
-    _impl->service.set( "co_id", _id.getString( ));
+    _impl->service->set( "co_id", _id.getString( ));
 
     std::ostringstream out;
+    out << getType();
+    _impl->service->set( "co_type", out.str( ));
+
+    out.str("");
     out << descs.size();
-    _impl->service.set( "co_numPorts", out.str( ));
+    _impl->service->set( "co_numPorts", out.str( ));
 
     for( ConnectionDescriptionsCIter i = descs.begin(); i != descs.end(); ++i )
     {
         ConnectionDescriptionPtr desc = *i;
         out.str("");
         out << "co_port" << i - descs.begin();
-        _impl->service.set( out.str(), desc->toString( ));
+        _impl->service->set( out.str(), desc->toString( ));
     }
 
-    uint16_t port = 4242;
-    _impl->service.announce( port );
+    _impl->service->announce( descs.front()->port );
 #endif
 }
 
 void LocalNode::_exitService()
 {
 #ifdef CO_USE_SERVUS
-    _impl->service.withdraw();
+    _impl->service->withdraw();
 #endif
 }
 

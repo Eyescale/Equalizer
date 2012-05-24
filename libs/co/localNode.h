@@ -447,6 +447,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         void _removeConnection( ConnectionPtr connection );
 
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
+        NodePtr _connectFromZeroconf( const NodeID& nodeID );
         uint32_t _removeListenerNB( ConnectionPtr connection );
         uint32_t _connect( NodePtr node );
         uint32_t _connect( NodePtr node, ConnectionPtr connection );
