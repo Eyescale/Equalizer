@@ -130,11 +130,10 @@ void ObjectMap::_commitMasters( const uint32_t incarnation )
     for( ObjectsCIter i =_impl->masters.begin(); i !=_impl->masters.end(); ++i )
     {
         Object* object = *i;
-        if( !object->isDirty( ))
+        if( !object->isDirty() || object->getChangeType() == Object::STATIC )
             continue;
 
-        const ObjectVersion ov( object->getID(),
-                                    object->commit( incarnation ));
+        const ObjectVersion ov( object->getID(), object->commit( incarnation ));
         Entry& entry = _impl->map[ ov.identifier ];
         if( entry.version == ov.version )
             continue;
@@ -283,8 +282,8 @@ Object* ObjectMap::get( const uint128_t& identifier, Object* instance )
     if( !object )
         return 0;
 
-    const uint32_t req =
-        _impl->handler.mapObjectNB( object, identifier, entry.version, 0 );
+    const uint32_t req = _impl->handler.mapObjectNB( object, identifier,
+                                                     entry.version, 0 );
     if( !_impl->handler.mapObjectSync( req ))
     {
         if( !instance )

@@ -19,22 +19,17 @@
 #ifndef EQ_PIPE_H
 #define EQ_PIPE_H
 
+#include <eq/client/api.h>
 #include <eq/client/eye.h>            // Eye enum
-#include <eq/client/gl.h>             // WGLEWContext
 #include <eq/client/types.h>
 #include <eq/client/visitorResult.h>  // enum
-#include <eq/client/windowSystem.h>   // enum
 
 #include <eq/fabric/pipe.h>           // base class
-
 #include <co/objectVersion.h>
-#include <lunchbox/lock.h>
-#include <lunchbox/monitor.h>
-#include <lunchbox/refPtr.h>
 
 namespace eq
 {
-namespace detail { class TransferThread; }
+namespace detail { class Pipe; class RenderThread; }
 
     /**
      * A Pipe represents a graphics card (GPU) on a Node.
@@ -106,7 +101,7 @@ namespace detail { class TransferThread; }
          * @return the window system used by this pipe.
          * @version 1.0
          */
-        WindowSystem getWindowSystem() const { return _windowSystem; }
+        EQ_API WindowSystem getWindowSystem() const;
         //@}
 
         /**
@@ -185,13 +180,13 @@ namespace detail { class TransferThread; }
          * The os-specific pipe has to be initialized.
          * @version 1.0
          */
-        void setSystemPipe( SystemPipe* pipe )  { _systemPipe = pipe; }
+        EQ_API void setSystemPipe( SystemPipe* pipe );
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        SystemPipe* getSystemPipe() { return _systemPipe; }
+        EQ_API SystemPipe* getSystemPipe();
 
         /** @return the OS-specific pipe implementation. @version 1.0 */
-        const SystemPipe* getSystemPipe() const { return _systemPipe; }
+        EQ_API const SystemPipe* getSystemPipe() const;
         //@}
 
         /**
@@ -200,14 +195,13 @@ namespace detail { class TransferThread; }
          */
         //@{
         /** Set the compute-specific context. */
-        void setComputeContext( ComputeContext* ctx ) { _computeContext = ctx; }
+        EQ_API void setComputeContext( ComputeContext* ctx );
 
         /** @return the compute context. */
-        const ComputeContext* getComputeContext() const
-            { return _computeContext; }
+        EQ_API const ComputeContext* getComputeContext() const;
 
         /** @return the compute context. */
-        ComputeContext* getComputeContext() { return _computeContext; }
+        EQ_API ComputeContext* getComputeContext();
         //@}
 
         /** @name Configuration. */
@@ -280,8 +274,7 @@ namespace detail { class TransferThread; }
          * @return true if the window system is supported, false if not.
          * @version 1.0
          */
-        virtual bool supportsWindowSystem( const WindowSystem system ) const
-            { return true; }
+        EQ_API virtual bool supportsWindowSystem( const WindowSystem ) const;
 #endif
         /** 
          * Choose the window system to be used by this pipe.
@@ -370,76 +363,15 @@ namespace detail { class TransferThread; }
         EQ_API virtual void attach( const UUID& id, const uint32_t instanceID );
 
     private:
-        //-------------------- Members --------------------
-        /** Window-system specific functions class */
-        SystemPipe* _systemPipe;
-
-        /** The current window system. */
-        WindowSystem _windowSystem;
-
-        enum State
-        {
-            STATE_MAPPED,
-            STATE_INITIALIZING,
-            STATE_RUNNING,
-            STATE_STOPPING, // must come after running
-            STATE_STOPPED, // must come after running
-            STATE_FAILED
-        };
-        /** The configInit/configExit state. */
-        lunchbox::Monitor< State > _state;
-
-        /** The last started frame. */
-        uint32_t _currentFrame;
-
-        /** The number of the last finished frame. */
-        lunchbox::Monitor< uint32_t > _finishedFrame;
-
-        /** The number of the last locally unlocked frame. */
-        lunchbox::Monitor<uint32_t> _unlockedFrame;
-
-        /** The running per-frame statistic clocks. */
-        std::deque< int64_t > _frameTimes;
-        lunchbox::Lock _frameTimeMutex;
-
-        /** The base time for the currently active frame. */
-        int64_t _frameTime;
-
-        typedef stde::hash_map< uint128_t, Frame* > FrameHash;
-        typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
-
-        /** All assembly frames used by the pipe during rendering. */
-        FrameHash _frames;
-
-        /** All output frame datas used by the pipe during rendering. */
-        FrameDataHash _outputFrameDatas;
-
-        typedef stde::hash_map< uint128_t, View* > ViewHash;
-        /** All views used by the pipe's channels during rendering. */
-        ViewHash _views;
-
-        typedef stde::hash_map< uint128_t, co::QueueSlave* > QueueHash;
-        /** All queues used by the pipe's channels during rendering. */
-        QueueHash _queues;
-
-        /** The pipe thread. */
-        class Thread;
-        Thread* _thread;
-
-        detail::TransferThread* const _transferThread;
-
-        /** GPU Computing context */
-        ComputeContext *_computeContext;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        detail::Pipe* const _impl;
+        friend class detail::RenderThread;
 
         //-------------------- Methods --------------------
         void _setupCommandQueue();
         void _setupAffinity();
         void _exitCommandQueue();
 
-        friend class Window;
+        //friend class Window;
 
         void _stopTransferThread();
 
