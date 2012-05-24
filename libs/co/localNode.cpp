@@ -109,7 +109,9 @@ public:
     LocalNode()
             : sendToken( true ), lastSendToken( 0 ), objectStore( 0 )
             , receiverThread( 0 ), commandThread( 0 )
+#ifdef CO_USE_SERVUS
             , service( "_collage._tcp" )
+#endif
         {
         }
 
