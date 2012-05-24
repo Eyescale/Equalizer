@@ -135,17 +135,6 @@ public:
 
     bool inReceiverThread() const { return receiverThread->isCurrent(); }
 
-    void initService()
-    {
-#   ifdef CO_USE_SERVUS
-//        service.set( "co_id", 
-#   endif
-    }
-
-    void exitService()
-    {
-    }
-
     /** Commands re-scheduled for dispatch. */
     CommandList  pendingCommands;
 
@@ -315,7 +304,7 @@ bool LocalNode::listen()
     if( !isClosed() || !_connectSelf( ))
         return false;
 
-    ConnectionDescriptions descriptions = getConnectionDescriptions();
+    const ConnectionDescriptions& descriptions = getConnectionDescriptions();
     for( ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
@@ -593,8 +582,8 @@ void LocalNode::_connectMulticast( NodePtr node )
         return;
 
     // Search if the connected node is in the same multicast group as we are
-    ConnectionDescriptions descriptions = getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i = descriptions.begin();
+    const ConnectionDescriptions& descriptions = getConnectionDescriptions();
+    for( ConnectionDescriptionsCIter i = descriptions.begin();
          i != descriptions.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
@@ -603,7 +592,7 @@ void LocalNode::_connectMulticast( NodePtr node )
 
         const ConnectionDescriptions& fromDescs =
             node->getConnectionDescriptions();
-        for( ConnectionDescriptions::const_iterator j = fromDescs.begin();
+        for( ConnectionDescriptionsCIter j = fromDescs.begin();
              j != fromDescs.end(); ++j )
         {
             ConnectionDescriptionPtr fromDescription = *j;
@@ -1001,7 +990,7 @@ uint32_t LocalNode::_connect( NodePtr node )
 
     // try connecting using the given descriptions
     const ConnectionDescriptions& cds = node->getConnectionDescriptions();
-    for( ConnectionDescriptions::const_iterator i = cds.begin();
+    for( ConnectionDescriptionsCIter i = cds.begin();
         i != cds.end(); ++i )
     {
         ConnectionDescriptionPtr description = *i;
@@ -1111,7 +1100,7 @@ Command& LocalNode::cloneCommand( Command& command )
 void LocalNode::_runReceiverThread()
 {
     LB_TS_THREAD( _rcvThread );
-    _impl->initService();
+    _initService();
 
     int nErrors = 0;
     while( _state == STATE_LISTENING )
@@ -1420,6 +1409,43 @@ void LocalNode::_redispatchCommands()
 #endif
 }
 
+void LocalNode::_initService()
+{
+    LB_TS_SCOPED( _rcvThread );
+#ifdef CO_USE_SERVUS
+    _exitService(); // go silent during k/v update
+
+    const ConnectionDescriptions& descs = getConnectionDescriptions();
+    if( descs.empty( ))
+        return;
+
+    _impl->service.set( "co_id", _id.getString( ));
+
+    std::ostringstream out;
+    out << descs.size();
+    _impl->service.set( "co_numPorts", out.str( ));
+
+    for( ConnectionDescriptionsCIter i = descs.begin(); i != descs.end(); ++i )
+    {
+        ConnectionDescriptionPtr desc = *i;
+        out.str("");
+        out << "co_port" << i - descs.begin();
+        _impl->service.set( out.str(), desc->toString( ));
+    }
+
+    uint16_t port = 4242;
+    _impl->service.announce( port );
+#endif
+}
+
+void LocalNode::_exitService()
+{
+#ifdef CO_USE_SERVUS
+    _impl->service.withdraw();
+#endif
+}
+
+
 //----------------------------------------------------------------------
 // command thread functions
 //----------------------------------------------------------------------
@@ -1448,7 +1474,7 @@ bool LocalNode::_cmdStopRcv( Command& command )
     LBASSERT( _state == STATE_LISTENING );
     LBINFO << "Cmd stop receiver " << this << std::endl;
 
-    _impl->exitService();
+    _exitService();
     _state = STATE_CLOSING; // causes rcv thread exit
 
     command->command = CMD_NODE_STOP_CMD; // causes cmd thread exit
@@ -1928,6 +1954,7 @@ bool LocalNode::_cmdAddListener( Command& command )
     }
 
     connection->acceptNB();
+    _initService(); // update zeroconf
     return true;
 }
 
@@ -1942,6 +1969,8 @@ bool LocalNode::_cmdRemoveListener( Command& command )
 
     if( command.getNode() != this )
         return true;
+
+    _initService(); // update zeroconf
 
     LBASSERT( packet->connection );
     ConnectionPtr connection = packet->connection;

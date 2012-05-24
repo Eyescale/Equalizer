@@ -455,6 +455,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         void   _handleConnect();
         void   _handleDisconnect();
         bool   _handleData();
+        void   _initService();
+        void   _exitService();
 
         friend class ObjectStore;
         template< typename T > void
