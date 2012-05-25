@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,17 +19,16 @@
 #ifndef EQ_CONFIG_H
 #define EQ_CONFIG_H
 
-#include <eq/client/commandQueue.h>  // member
-#include <eq/client/types.h>         // typedefs
+#include <eq/client/api.h>
+#include <eq/client/types.h>
 
 #include <eq/fabric/config.h>        // base class
 #include <co/objectHandler.h>        // base class
-#include <lunchbox/clock.h>           // member
-#include <lunchbox/monitor.h>         // member
-#include <lunchbox/spinLock.h>        // member
 
 namespace eq
 {
+namespace detail { class Config; }
+
     /**
      * A configuration is a visualization session driven by an application.
      *
@@ -78,16 +77,16 @@ namespace eq
          * @return the application node.
          * @warning experimental, may not be supported in the future
          */
-        co::NodePtr getApplicationNode() { return _appNode; }
+        EQ_API co::NodePtr getApplicationNode();
 
         EQ_API co::CommandQueue* getMainThreadQueue(); //!< @internal
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
 
         /** @return the frame number of the last frame started. @version 1.0 */
-        uint32_t getCurrentFrame()  const { return _currentFrame; }
+        EQ_API uint32_t getCurrentFrame() const;
 
         /** @return the frame number of the last frame finished. @version 1.0 */
-        uint32_t getFinishedFrame() const { return _finishedFrame.get(); }
+        EQ_API uint32_t getFinishedFrame() const;
 
         /** @internal Get all received statistics. */
         EQ_API void getStatistics( std::vector< FrameStatistics >& stats );
@@ -97,10 +96,10 @@ namespace eq
          *         has happened.
          * @version 1.0
          */
-        bool isRunning() const { return _running; }
+        EQ_API bool isRunning() const;
 
         /** Stop the config. @version 1.0 */
-        void stopRunning() { _running = false; }
+        EQ_API void stopRunning();
 
         /**
          * Get the current time in milliseconds.
@@ -113,7 +112,7 @@ namespace eq
          * @return the global time in ms.
          * @version 1.0
          */
-        int64_t getTime() const { return _clock.getTime64(); }
+        EQ_API int64_t getTime() const;
 
         /** @return the config's message pump, or 0. @version 1.0 */
         MessagePump* getMessagePump();
@@ -315,8 +314,7 @@ namespace eq
          * @param frameNumber the frame to release.
          * @version 1.0
          */
-        void releaseFrameLocal( const uint32_t frameNumber )
-            { _unlockedFrame = frameNumber; }
+        EQ_API void releaseFrameLocal( const uint32_t frameNumber );
 
         /**
          * Asynchronously signal all channels to interrupt their rendering.
@@ -369,7 +367,7 @@ namespace eq
         EQ_API const ConfigEvent* tryNextEvent();
 
         /** @return true if events are pending. @version 1.0 */
-        bool checkEvent() const { return !_eventQueue.isEmpty(); }
+        EQ_API bool checkEvent() const;
 
         /**
          * Handle all config events.
@@ -415,70 +413,11 @@ namespace eq
         EQ_API virtual bool mapViewObjects() const; //!< @internal
 
     private:
-        /** The node running the application thread. */
-        co::NodePtr _appNode;
+        detail::Config* const _impl;
 
-        /** The receiver->app thread event queue. */
-        CommandQueue _eventQueue;
-        
-        /** The last received event to be released. */
-        co::Command* _lastEvent;
-
-        /** The connections configured by the server for this config. */
-        co::Connections _connections;
-
-        /** Global statistics events, index per frame and channel. */
-        lunchbox::Lockable< std::deque< FrameStatistics >, lunchbox::SpinLock >
-            _statistics;
-        
-        /** The last started frame. */
-        uint32_t _currentFrame;
-        /** The last locally released frame. */
-        uint32_t _unlockedFrame;
-        /** The last completed frame. */
-        lunchbox::Monitor< uint32_t > _finishedFrame;
-
-        /** The global clock. */
-        lunchbox::Clock _clock;
-
-        std::deque< int64_t > _frameTimes; //!< Start time of last frames
-
-        /** true while the config is initialized and no window has exited. */
-        bool _running;
-
-        /** @internal A proxy object to keep master data within latency. */
-        class LatencyObject : public co::Object
-        {
-        public:
-            LatencyObject( const ChangeType type, const uint32_t compressor,
-                           const uint32_t frame )
-                    : frameNumber( frame ), _changeType( type ),
-                      _compressor( compressor ) {}
-
-            const uint32_t frameNumber;
-
-        protected:
-            virtual ChangeType getChangeType() const { return _changeType; }
-            virtual void getInstanceData( co::DataOStream& os ){ LBDONTCALL }
-            virtual void applyInstanceData( co::DataIStream& is ){ LBDONTCALL }
-            virtual uint32_t chooseCompressor() const { return _compressor; }
-
-        private:
-            const ChangeType _changeType;
-            const uint32_t _compressor;
-        };
-        
-        /** list of the current latency object */
-        typedef std::vector< LatencyObject* > LatencyObjects;
-
-        /** protected list of the current latency object */
-       lunchbox::Lockable< LatencyObjects,lunchbox::SpinLock > _latencyObjects;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
-        friend class Node;
         void _frameStart();
+        friend class Node;
+
         bool _needsLocalSync() const;
 
         /** 
