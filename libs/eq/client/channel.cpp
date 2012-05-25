@@ -1130,6 +1130,7 @@ void Channel::drawStatistics()
 
     renderer.setViewport( width, height );
     renderer.draw( data );
+    // data.obsolete( nFrames );
 #endif
 
     glColor3f( 1.f, 1.f, 1.f );
