@@ -47,6 +47,7 @@ set(CO_PUBLIC_HEADERS
     serializable.h
     types.h
     worker.h
+    zeroconf.h
   )
 
 set(CO_HEADERS 

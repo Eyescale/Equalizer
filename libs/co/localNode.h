@@ -392,6 +392,9 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          */
         CO_API SendToken acquireSendToken( NodePtr toNode );
         CO_API void releaseSendToken( SendToken& token );
+
+        /** @return a Zeroconf communicator handle for this node. */
+        CO_API Zeroconf getZeroconf();
         //@}
 
         /** @internal Ack an operation to the sender. */
@@ -444,6 +447,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         void _removeConnection( ConnectionPtr connection );
 
         NodePtr _connect( const NodeID& nodeID, NodePtr peer );
+        NodePtr _connectFromZeroconf( const NodeID& nodeID );
         uint32_t _removeListenerNB( ConnectionPtr connection );
         uint32_t _connect( NodePtr node );
         uint32_t _connect( NodePtr node, ConnectionPtr connection );
@@ -452,6 +456,8 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         void   _handleConnect();
         void   _handleDisconnect();
         bool   _handleData();
+        void   _initService();
+        void   _exitService();
 
         friend class ObjectStore;
         template< typename T > void

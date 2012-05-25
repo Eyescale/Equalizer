@@ -26,6 +26,10 @@
 #include <deque>
 #include <vector>
 
+/** @cond IGNORE */
+namespace servus { class Service; }
+/** @endcond */
+
 namespace co
 {
 
@@ -58,6 +62,7 @@ class PluginRegistry;
 class QueueMaster;
 class QueueSlave;
 class Serializable;
+class Zeroconf;
 struct CompressorInfo; //!< @internal
 template< class Q > class WorkerThread;
 struct ObjectVersion;
@@ -67,6 +72,7 @@ struct QueueItemPacket;
 using lunchbox::UUID;
 using lunchbox::uint128_t;
 using lunchbox::Strings;
+using lunchbox::StringsCIter;
 
 typedef UUID NodeID; //!< A unique identifier for nodes.
 
