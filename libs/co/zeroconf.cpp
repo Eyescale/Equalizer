@@ -123,52 +123,61 @@ Zeroconf::Zeroconf( const Zeroconf& from )
 
 Zeroconf::~Zeroconf()
 {
+#ifdef CO_USE_SERVUS
     delete _impl;
+#endif
 }
 
 Zeroconf& Zeroconf::operator = ( const Zeroconf& rhs )
 {
-    if( rhs._impl && this != &rhs )
+#ifdef CO_USE_SERVUS
+    if( this != &rhs )
     {
         delete _impl;
         _impl = new detail::Zeroconf( *rhs._impl );
     }
+#endif
     return *this;
 }
 
 void Zeroconf::set( const std::string& key, const std::string& value )
 {
-    if( _impl )
-        _impl->set( key, value );
+#ifdef CO_USE_SERVUS
+    _impl->set( key, value );
+#endif
 }
 
 Strings Zeroconf::getHosts() const
 {
-    if( _impl )
-        return _impl->getHosts();
+#ifdef CO_USE_SERVUS
+    return _impl->getHosts();
+#endif
     return Strings();
 }
 
 Strings Zeroconf::getKeys( const std::string& host ) const
 {
-    if( _impl )
-        return _impl->getKeys( host );
+#ifdef CO_USE_SERVUS
+    return _impl->getKeys( host );
+#endif;
     return Strings();
 }
 
 bool Zeroconf::containsKey( const std::string& host,
                             const std::string& key ) const
 {
-    if( _impl )
-        return _impl->containsKey( host, key );
+#ifdef CO_USE_SERVUS
+    return _impl->containsKey( host, key );
+#endif
     return false;
 }
 
 const std::string& Zeroconf::get( const std::string& host,
                                   const std::string& key ) const
 {
-    if( _impl )
-        return _impl->get( host, key );
+#ifdef CO_USE_SERVUS
+    return _impl->get( host, key );
+#endif
     return empty_;
 }
 
