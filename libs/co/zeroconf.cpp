@@ -159,7 +159,7 @@ Strings Zeroconf::getKeys( const std::string& host ) const
 {
 #ifdef CO_USE_SERVUS
     return _impl->getKeys( host );
-#endif;
+#endif
     return Strings();
 }
 
