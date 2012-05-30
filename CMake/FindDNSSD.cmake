@@ -77,14 +77,20 @@ find_path(_dnssd_INCLUDE_DIR dns_sd.h
   )
 
 if(DNSSD_FIND_REQUIRED)
-    set(_dnssd_output_type FATAL_ERROR)
+  set(_dnssd_output_type FATAL_ERROR)
+  set(_dnssd_output 1)
 else()
-    set(_dnssd_output_type STATUS)
+  set(_dnssd_output_type STATUS)
+  if(NOT DNSSD_FIND_QUIETLY)
+    set(_dnssd_output 1)
+  endif()
 endif()
 
 if(NOT _dnssd_INCLUDE_DIR)
   set(_dnssd_EPIC_FAIL TRUE)
-  message(${_dnssd_output_type} "Can't find dns_sd.h header file.")
+  if(_dnssd_output)
+    message(${_dnssd_output_type} "Can't find dns_sd.h header file.")
+  endif()
 endif()
 
 if(APPLE)
@@ -132,7 +138,7 @@ endif()
 set(DNSSD_INCLUDE_DIRS ${_dnssd_INCLUDE_DIR})
 set(DNSSD_LIBRARIES ${_dnssd_LIBRARY})
 
-if(DNSSD_FOUND)
+if(DNSSD_FOUND AND _dnssd_output)
   message(STATUS "Found ZeroConf in ${DNSSD_INCLUDE_DIRS};${DNSSD_LIBRARIES}")
 endif()
 
