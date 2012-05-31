@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
  */
 
 #include "eventHandler.h"
+#ifdef AGL
 
 #include "window.h"
 #include "windowEvent.h"
@@ -645,3 +646,4 @@ void EventHandler::exitMagellan( Node* node )
 
 }
 }
+#endif // AGL

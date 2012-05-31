@@ -28,12 +28,22 @@ else() # installed examples
   if(APPLE)
     link_directories(/usr/X11R6/lib)
     include_directories(SYSTEM /usr/X11R6/include)
-    set(CMAKE_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
+    set(EQUALIZER_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
   endif(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
   endif()
 endif()
+if(EQ_AGL_USED)
+  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "ppc")
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES "ppc" CACHE STRING
+      "Equalizer examples build architectures")
+  else()
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES "i386" CACHE STRING
+      "Equalizer examples build architectures")
+  endif()
+endif()
+set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
 
 include(EqStringifyShaders)
 
@@ -52,6 +62,12 @@ function(EQ_ADD_EXAMPLE NAME)
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
 
   set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
+  if(APPLE AND AGL) # set preference to 32 bit if AGL is available
+    update_file(${CMAKE_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
+      ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)
+    set_target_properties(${THIS_TARGET} PROPERTIES
+      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)
+  endif()
   add_dependencies(${THIS_TARGET} ${EQUALIZER_SERVER_LIBRARY}) # dlopen'ed
 
   install(TARGETS ${THIS_TARGET} DESTINATION bin COMPONENT apps)

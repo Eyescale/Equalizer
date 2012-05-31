@@ -17,6 +17,7 @@
  */
 
 #include "window.h"
+#ifdef AGL
 
 #include "eventHandler.h"
 #include "pipe.h"
@@ -620,3 +621,4 @@ void Window::exitEventHandler()
 
 }
 }
+#endif // AGL

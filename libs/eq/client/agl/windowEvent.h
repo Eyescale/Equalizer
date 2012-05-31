@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,9 @@
 #ifndef EQ_AGL_WINDOWEVENT_H
 #define EQ_AGL_WINDOWEVENT_H
 
+#include <eq/client/defines.h>
+#ifdef AGL
+
 #include <eq/client/event.h> // base class
 
 namespace eq
@@ -33,4 +36,5 @@ namespace agl
     };
 }
 }
+#endif // AGL
 #endif // EQ_AGL_WINDOWEVENT_H
