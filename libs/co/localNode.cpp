@@ -984,16 +984,15 @@ NodePtr LocalNode::_connectFromZeroconf( const NodeID& nodeID )
 #ifdef CO_USE_SERVUS
     lunchbox::ScopedWrite mutex( _impl->service );
 
-    const Strings& hosts = _impl->service->discover( servus::IF_ALL, 500 );
-    for( StringsCIter i = hosts.begin(); i != hosts.end(); ++i )
+    const Strings& instances = _impl->service->discover( servus::IF_ALL, 500 );
+    for( StringsCIter i = instances.begin(); i != instances.end(); ++i )
     {
-        const std::string& host = *i;
-        const std::string& nodeStr = _impl->service->get( host, "co_id" );
-        const NodeID candidate = uint128_t( nodeStr );
+        const std::string& instance = *i;
+        const NodeID candidate = uint128_t( instance );
         if( candidate != nodeID )
             continue;
 
-        const std::string& typeStr = _impl->service->get( host, "co_type" );
+        const std::string& typeStr = _impl->service->get( instance, "co_type" );
         if( typeStr.empty( ))
             return 0;
 
@@ -1002,7 +1001,8 @@ NodePtr LocalNode::_connectFromZeroconf( const NodeID& nodeID )
         in >> type;
 
         NodePtr node = createNode( type );
-        const std::string& numStr = _impl->service->get( host, "co_numPorts" );
+        const std::string& numStr = _impl->service->get( instance,
+                                                         "co_numPorts" );
         uint32_t num = 0;
 
         in.clear();
@@ -1015,7 +1015,7 @@ NodePtr LocalNode::_connectFromZeroconf( const NodeID& nodeID )
             std::ostringstream out;
             out << "co_port" << j;
 
-            std::string descStr = _impl->service->get( host, out.str( ));
+            std::string descStr = _impl->service->get( instance, out.str( ));
             LBASSERT( !descStr.empty( ));
             LBCHECK( desc->fromString( descStr ));
             LBASSERT( descStr.empty( ));
@@ -1474,8 +1474,6 @@ void LocalNode::_initService()
     if( descs.empty( ))
         return;
 
-    _impl->service->set( "co_id", _id.getString( ));
-
     std::ostringstream out;
     out << getType();
     _impl->service->set( "co_type", out.str( ));
@@ -1492,7 +1490,7 @@ void LocalNode::_initService()
         _impl->service->set( out.str(), desc->toString( ));
     }
 
-    _impl->service->announce( descs.front()->port );
+    _impl->service->announce( descs.front()->port, _id.getString( ));
 #endif
 }
 
