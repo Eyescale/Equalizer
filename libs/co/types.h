@@ -26,6 +26,10 @@
 #include <deque>
 #include <vector>
 
+/** @cond IGNORE */
+namespace servus { class Service; }
+/** @endcond */
+
 namespace co
 {
 
@@ -58,6 +62,7 @@ class PluginRegistry;
 class QueueMaster;
 class QueueSlave;
 class Serializable;
+class Zeroconf;
 struct CompressorInfo; //!< @internal
 template< class Q > class WorkerThread;
 struct ObjectVersion;
@@ -67,13 +72,18 @@ struct QueueItemPacket;
 using lunchbox::UUID;
 using lunchbox::uint128_t;
 using lunchbox::Strings;
+using lunchbox::StringsCIter;
 
 typedef UUID NodeID; //!< A unique identifier for nodes.
 
 /** A reference pointer for Node pointers. */
 typedef lunchbox::RefPtr< Node >                  NodePtr;
+/** A reference pointer for const Node pointers. */
+typedef lunchbox::RefPtr< const Node >            ConstNodePtr;
 /** A reference pointer for LocalNode pointers. */
 typedef lunchbox::RefPtr< LocalNode >             LocalNodePtr;
+/** A reference pointer for const LocalNode pointers. */
+typedef lunchbox::RefPtr< const LocalNode >       ConstLocalNodePtr;
 /** A reference pointer for Connection pointers. */
 typedef lunchbox::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */

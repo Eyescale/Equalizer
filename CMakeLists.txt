@@ -5,7 +5,6 @@
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
 
-option(EQUALIZER_PREFER_AGL "Prefer AGL over GLX on Mac OS X" ON)
 option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
 option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
@@ -18,7 +17,6 @@ option(EQUALIZER_BUILD_2_0_API
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
 mark_as_advanced(EQUALIZER_FORCE_OPENMP)
-mark_as_advanced(EQUALIZER_PREFER_AGL)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
@@ -27,12 +25,12 @@ include(revision)
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
-set(VERSION_PATCH "1")
+set(VERSION_PATCH "2")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "5")
-set(CO_VERSION_PATCH "1")
+set(CO_VERSION_PATCH "2")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
@@ -132,16 +130,8 @@ if(X11_FOUND)
   if(APPLE)
     set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}" )
-    if(EXISTS /Developer/SDKs/MacOSX10.7.sdk)
-      set(EQ_AGL_USED 1)
-      set(EQ_GLX_USED 1)
-    else()
-      if(EQUALIZER_PREFER_AGL)
-        set(EQ_AGL_USED 1)
-      else(EQUALIZER_PREFER_AGL)
-        set(EQ_GLX_USED 1)
-      endif(EQUALIZER_PREFER_AGL)
-    endif()
+    set(EQ_AGL_USED 1)
+    set(EQ_GLX_USED 1)
   else(APPLE)
     set(EQ_GLX_USED 1)
   endif(APPLE)
@@ -164,22 +154,12 @@ if(APPLE)
   include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
 
-  if(EQ_AGL_USED)
-    if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-      set(EQUALIZER_OSX_ARCHITECTURES "ppc" CACHE STRING
-          "Equalizer build architectures")
-    else()
-        set(EQUALIZER_OSX_ARCHITECTURES "i386" CACHE STRING
-            "Equalizer build architectures")
-    endif()
-  else(EQ_AGL_USED)
-    if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-      set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-          "Equalizer build architectures")
-    else()
-      set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-          "Equalizer build architectures")
-    endif()
+  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
+    set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
+      "Equalizer build architectures")
+  else()
+    set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
+      "Equalizer build architectures")
   endif()
   mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
   

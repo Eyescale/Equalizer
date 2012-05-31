@@ -3,6 +3,7 @@
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
 #               2010 Cedric Stalder <cedric.stalder@gmail.ch>
 
+find_package(Servus 0.9)
 include(configure.cmake)
 include(files.cmake)
 
@@ -62,8 +63,14 @@ if(UDT_FOUND)
 endif()
 
 if(HWLOC_FOUND)
+  include_directories(${HWLOC_INCLUDE_DIR})
   list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
 endif(HWLOC_FOUND)
+
+if(SERVUS_FOUND)
+  include_directories(${SERVUS_INCLUDE_DIR})
+  list(APPEND CO_ADD_LINKLIB ${SERVUS_LIBRARIES})
+endif(SERVUS_FOUND)
 
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )

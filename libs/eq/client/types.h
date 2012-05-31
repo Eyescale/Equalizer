@@ -53,6 +53,7 @@ class SystemPipe;
 class SystemWindow;
 class View;
 class Window;
+class WindowSystem;
 struct ConfigEvent;
 struct PixelData;
 struct Statistic;

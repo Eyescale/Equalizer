@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -49,6 +49,5 @@ typedef struct __AGLPBufferRec* AGLPbuffer;
 typedef struct OpaqueEventRef* EventRef;
 typedef struct OpaqueEventQueueRef* EventQueueRef;
 /** @endcond */
-
 
 #endif // EQ_AGL_TYPES_H

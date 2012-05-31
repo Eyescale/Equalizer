@@ -47,6 +47,7 @@ set(CO_PUBLIC_HEADERS
     serializable.h
     types.h
     worker.h
+    zeroconf.h
   )
 
 set(CO_HEADERS 
@@ -129,6 +130,7 @@ set(CO_SOURCES
     versionedMasterCM.cpp
     versionedSlaveCM.cpp
     worker.cpp
+    zeroconf.cpp
 )
   
 set(CO_COMPRESSOR_HEADERS
