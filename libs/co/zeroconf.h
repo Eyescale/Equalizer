@@ -25,7 +25,7 @@ namespace co
 {
 namespace detail { class Zeroconf; }
     /**
-     * A Zeroconf communicator.
+     * A zeroconf communicator.
      *
      * When Collage is compiled with Servus support (CO_USE_SERVUS), it uses the
      * ZeroConf service "_collage._tcp" to announce the presence of a listening
@@ -43,6 +43,15 @@ namespace detail { class Zeroconf; }
     class Zeroconf
     {
     public:
+        /** Create a copy of a zeroconf communicator. */
+        CO_API Zeroconf( const Zeroconf& from );
+
+        /** Destruct this zeroconf communicator. */
+        CO_API ~Zeroconf();
+
+        /** Assign the data from another zeroconf communicator. */
+        CO_API Zeroconf& operator = ( const Zeroconf& rhs );
+
         /**
          * Set a key/value pair to be announced.
          *
@@ -69,8 +78,11 @@ namespace detail { class Zeroconf; }
         CO_API const std::string& get( const std::string& host,
                                        const std::string& key ) const;
     private:
+        Zeroconf();
         Zeroconf( servus::Service& service );
         friend class LocalNode;
+
+        detail::Zeroconf* _impl;
     };
 }
 #endif // CO_ZEROCONF_H

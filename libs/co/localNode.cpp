@@ -31,6 +31,7 @@
 #include "objectStore.h"
 #include "pipeConnection.h"
 #include "worker.h"
+#include "zeroconf.h"
 
 #include <lunchbox/clock.h>
 #include <lunchbox/hash.h>
@@ -1499,6 +1500,17 @@ void LocalNode::_exitService()
 {
 #ifdef CO_USE_SERVUS
     _impl->service->withdraw();
+#endif
+}
+
+Zeroconf LocalNode::getZeroconf()
+{
+#ifdef CO_USE_SERVUS
+    lunchbox::ScopedWrite mutex( _impl->service );
+    _impl->service->discover( servus::IF_ALL, 500 );
+    return Zeroconf( _impl->service.data );
+#else
+    return Zeroconf();
 #endif
 }
 

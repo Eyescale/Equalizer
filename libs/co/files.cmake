@@ -130,6 +130,7 @@ set(CO_SOURCES
     versionedMasterCM.cpp
     versionedSlaveCM.cpp
     worker.cpp
+    zeroconf.cpp
 )
   
 set(CO_COMPRESSOR_HEADERS

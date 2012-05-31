@@ -21,9 +21,12 @@
 #include <co/connectionDescription.h>
 #include <co/init.h>
 #include <co/localNode.h>
+#include <co/zeroconf.h>
 #include <lunchbox/rng.h>
 
 #include <iostream>
+
+using co::uint128_t;
 
 int main( int argc, char **argv )
 {
@@ -43,16 +46,37 @@ int main( int argc, char **argv )
     server->addConnectionDescription( connDesc );
     TEST( server->listen( ));
 
-    connDesc = new co::ConnectionDescription;
-    connDesc->type = co::CONNECTIONTYPE_TCPIP;
-    connDesc->setHostname( "localhost" );
-
     co::LocalNodePtr client = new co::LocalNode;
-    client->addConnectionDescription( connDesc );
     TEST( client->listen( ));
 
     co::NodePtr serverProxy = client->connect( server->getNodeID( ));
     TEST( serverProxy );
+
+    co::Zeroconf zeroconf = server->getZeroconf();
+    zeroconf.set( "co_test_value", "42" );
+    lunchbox::sleep( 500 ); // give it time to propagate
+    zeroconf = client->getZeroconf(); // rediscover, use other peer for a change
+
+    const co::Strings& hosts = zeroconf.getHosts();
+    bool found = false;
+    TEST( hosts.size() >= 1 );
+
+    for( co::StringsCIter i = hosts.begin(); i != hosts.end(); ++i )
+    {
+        const std::string& host = *i;
+        const uint128_t nodeID( zeroconf.get( host, "co_id" ));
+        TEST( nodeID != co::NodeID::ZERO );
+        TEST( nodeID != client->getNodeID( ));
+
+        if( nodeID != server->getNodeID( ))
+            continue;
+
+        TEST( zeroconf.get( host, "co_numPorts" ) == "1" );
+        TEST( zeroconf.get( host, "co_test_value" ) == "42" );
+        found = true;
+    }
+
+    TEST( found );
     TEST( client->disconnect( serverProxy ));
     TEST( client->close( ));
     TEST( server->close( ));

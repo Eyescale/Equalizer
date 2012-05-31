@@ -82,10 +82,7 @@ namespace co
     };
 
     inline std::ostream& operator << (std::ostream& os, const ObjectVersion& ov)
-    {
-        os << "id " << ov.identifier << " v" << ov.version;
-        return os;
-    }
+        { return os << "id " << ov.identifier << " v" << ov.version; }
 
 }
 

@@ -51,10 +51,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(ARCH Linux)
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
-if(EQ_AGL_USED)
-  list(APPEND EQUALIZER_DEFINES AGL)
-endif(EQ_AGL_USED)
-
 if(EQ_GLX_USED)
   list(APPEND EQUALIZER_DEFINES GLX)
 endif(EQ_GLX_USED)
@@ -83,6 +79,16 @@ foreach(DEF ${EQUALIZER_DEFINES})
     "#endif\n"
     )
 endforeach(DEF ${EQUALIZER_DEFINES})
+
+if(EQ_AGL_USED) # special case
+  file(APPEND ${DEFINES_FILE_IN}
+    "#ifndef __LP64__ // AGL not supported in 64 bit mode\n"
+    "#  ifndef AGL\n"
+    "#    define AGL\n"
+    "#  endif\n"
+    "#endif\n"
+    )
+endif(EQ_AGL_USED)
 
 file(APPEND ${DEFINES_FILE_IN}
   "\n#endif /* EQ_DEFINES_${ARCH}_H */\n"

@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
- *               2011, Stefan Eilemann <eile@eyescale.ch>
+ *               2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,6 +19,8 @@
 // HACK: Get rid of deprecated warning for aglUseFont
 //   -Wno-deprecated-declarations would do as well, but here it is more isolated
 #include <eq/client/defines.h>
+#ifdef AGL
+
 #include <AvailabilityMacros.h>
 #undef DEPRECATED_ATTRIBUTE
 #define DEPRECATED_ATTRIBUTE
@@ -123,3 +125,4 @@ static class : WindowSystemIF
 
 }
 }
+#endif // AGL
