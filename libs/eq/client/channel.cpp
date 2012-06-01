@@ -35,6 +35,7 @@
 #include "nodeFactory.h"
 #include "nodePackets.h"
 #include "pipe.h"
+#include "pixelData.h"
 #include "server.h"
 #include "systemWindow.h"
 #include "windowPackets.h"

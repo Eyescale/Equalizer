@@ -28,6 +28,7 @@
 #include "frameData.h"
 #include "image.h"
 #include "log.h"
+#include "pixelData.h"
 #include "server.h"
 #include "window.h"
 #include "windowSystem.h"
