@@ -152,8 +152,7 @@ void FrameData::flush()
 {
     clear();
 
-    for( Images::const_iterator i = _imageCache.begin();
-         i != _imageCache.end(); ++i )
+    for( ImagesCIter i = _imageCache.begin(); i != _imageCache.end(); ++i )
     {
         Image* image = *i;
         image->flush();

@@ -53,6 +53,12 @@ ObjectManager< T >::ObjectManager( ObjectManager* shared )
 template< class T >
 ObjectManager<T>::~ObjectManager()
 {
+    for( ExitHandlersIter i = _exitHandlers.begin(); i != _exitHandlers.end();
+         ++i )
+    {
+        ExitHandler& func = *i;
+        func( *this );
+    }
     _data = 0;
 }
 
@@ -218,6 +224,12 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqUploaders.clear();
 #endif
+}
+
+template< class T >
+void ObjectManager<T>::addExitHandler( const ExitHandler& func )
+{
+    _exitHandlers.push_back( func );
 }
 
 // display list functions

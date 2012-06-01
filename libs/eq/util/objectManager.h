@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,7 @@
 #include <lunchbox/hash.h>             // member
 #include <lunchbox/nonCopyable.h>      // base class
 #include <lunchbox/referenced.h>       // base class
+#include <boost/function/function1.hpp>
 
 namespace eq
 {
@@ -61,6 +62,9 @@ namespace util
             INVALID = 0 //<! return value for failed operations.
         };
 
+        /** Function signature for exit cleanup handlers. */
+        typedef boost::function< void( ObjectManager< T >& ) > ExitHandler;
+
         /** Construct a new object manager. */
         EQ_API ObjectManager( const GLEWContext* const glewContext );
 
@@ -73,6 +77,9 @@ namespace util
         bool isShared() const { return _data->getRefCount() > 1; }
 
         EQ_API void deleteAll();
+
+        /** Add an exit handler. */
+        EQ_API void addExitHandler( const ExitHandler& func );
 
         EQ_API GLuint getList( const T& key ) const;
         EQ_API GLuint newList( const T& key, const GLsizei num = 1 );
@@ -187,6 +194,10 @@ namespace util
 
         typedef lunchbox::RefPtr< SharedData > SharedDataPtr;
         SharedDataPtr _data;
+
+        typedef std::vector< ExitHandler > ExitHandlers;
+        typedef typename ExitHandlers::iterator ExitHandlersIter;
+        ExitHandlers _exitHandlers;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
