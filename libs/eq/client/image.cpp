@@ -161,7 +161,7 @@ namespace detail
 class Image
 {
 public:
-    Image() : type( Frame::TYPE_MEMORY ), ignoreAlpha( false ) {}
+    Image() : type( eq::Frame::TYPE_MEMORY ), ignoreAlpha( false ) {}
 
     /** The rectangle of the current pixel data. */
     PixelViewport pvp;
@@ -170,7 +170,7 @@ public:
     Zoom zoom;
 
     /** The storage type for the pixel data. */
-    Frame::Type type;
+    eq::Frame::Type type;
 
     Attachment color;
     Attachment depth;
@@ -178,13 +178,13 @@ public:
     /** Alpha channel significance. */
     bool ignoreAlpha;
 
-    Attachment& getAttachment( const Frame::Buffer buffer )
+    Attachment& getAttachment( const eq::Frame::Buffer buffer )
     {
         switch( buffer )
         {
-          case Frame::BUFFER_COLOR:
+          case eq::Frame::BUFFER_COLOR:
               return color;
-          case Frame::BUFFER_DEPTH:
+          case eq::Frame::BUFFER_DEPTH:
               return depth;
           default:
               LBUNIMPLEMENTED;
@@ -192,13 +192,13 @@ public:
         return color;
     }
 
-    const Attachment& getAttachment( const Frame::Buffer buffer ) const
+    const Attachment& getAttachment( const eq::Frame::Buffer buffer ) const
     {
         switch( buffer )
         {
-          case Frame::BUFFER_COLOR:
+          case eq::Frame::BUFFER_COLOR:
               return color;
-          case Frame::BUFFER_DEPTH:
+          case eq::Frame::BUFFER_DEPTH:
               return depth;
           default:
               LBUNIMPLEMENTED;
@@ -206,9 +206,9 @@ public:
         return color;
     }
 
-    Memory& getMemory( const Frame::Buffer buffer )
+    Memory& getMemory( const eq::Frame::Buffer buffer )
         { return getAttachment( buffer ).memory; }
-    const Memory& getMemory( const Frame::Buffer buffer ) const
+    const Memory& getMemory( const eq::Frame::Buffer buffer ) const
         { return getAttachment( buffer ).memory; }
 
 };

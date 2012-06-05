@@ -23,95 +23,135 @@
 
 namespace eq
 {
+namespace detail
+{
+class Frame
+{
+public:
+    FrameData* frameData;
+    ZoomFilter zoomFilter; // texture filter
+
+    Frame() : frameData( 0 ), zoomFilter( FILTER_LINEAR ) {}
+    ~Frame()
+    {
+        if( frameData )
+            LBINFO << "FrameData attached in frame destructor" << std::endl;
+    }
+};
+}
+
 Frame::Frame()
-        : _frameData( 0 )
-        , _zoomFilter( FILTER_LINEAR )
+        : _impl( new detail::Frame )
 {
 }
 
 Frame::~Frame()
 {
-    if( _frameData )
-        LBINFO << "FrameData attached to frame during deletion" << std::endl;
+    delete _impl;
+}
+
+void Frame::setZoomFilter( const ZoomFilter zoomFilter )
+{
+    _impl->zoomFilter = zoomFilter;
+}
+
+ZoomFilter Frame::getZoomFilter() const
+{
+    return _impl->zoomFilter;
+}
+
+void Frame::setData( FrameData* data )
+{
+    _impl->frameData = data;
+}
+
+FrameData* Frame::getData()
+{
+    return _impl->frameData;
+}
+
+const FrameData* Frame::getData() const
+{
+    return _impl->frameData;
 }
 
 uint32_t Frame::getBuffers() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getBuffers();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getBuffers();
 }
 
 const Pixel& Frame::getPixel() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPixel();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPixel();
 }
 
 const SubPixel& Frame::getSubPixel() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getSubPixel();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getSubPixel();
 }
 
 const Range& Frame::getRange() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getRange();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getRange();
 }
 
 uint32_t Frame::getPeriod() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPeriod();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPeriod();
 }
 
 uint32_t Frame::getPhase() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPhase();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPhase();
 }
 
 const Images& Frame::getImages() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getImages();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getImages();
 }
 
 void Frame::clear()
 {
-    LBASSERT( _frameData );
-    _frameData->clear();
+    LBASSERT( _impl->frameData );
+    _impl->frameData->clear();
 }
 
 void Frame::flush()
 {
-    if( _frameData )
-        _frameData->flush();
+    if( _impl->frameData )
+        _impl->frameData->flush();
 }
 
 void Frame::setAlphaUsage( const bool useAlpha )
 {
-    if( _frameData )
-        _frameData->setAlphaUsage( useAlpha );
+    if( _impl->frameData )
+        _impl->frameData->setAlphaUsage( useAlpha );
 }
 
 void Frame::setQuality( const Frame::Buffer buffer, const float quality )
 {
-    if( _frameData )
-        _frameData->setQuality( buffer, quality );
+    if( _impl->frameData )
+        _impl->frameData->setQuality( buffer, quality );
 }
 
 void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-    if( _frameData )
-        _frameData->useCompressor( buffer, name );
+    if( _impl->frameData )
+        _impl->frameData->useCompressor( buffer, name );
 }
 
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 {
-    LBASSERT( _frameData );
-    const PixelViewport& pvp = _frameData->getPixelViewport();
-    const Images& images = _frameData->startReadback( *this, glObjects, config,
+    LBASSERT( _impl->frameData );
+    const PixelViewport& pvp = _impl->frameData->getPixelViewport();
+    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
                                                       PixelViewports( 1, pvp ));
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
@@ -120,8 +160,8 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
-    LBASSERT( _frameData );
-    const Images& images = _frameData->startReadback( *this, glObjects, config,
+    LBASSERT( _impl->frameData );
+    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
                                                       regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
@@ -131,44 +171,44 @@ Images Frame::startReadback( ObjectManager* glObjects,
                            const DrawableConfig& config,
                            const PixelViewports& regions )
 {
-    LBASSERT( _frameData );
-    return _frameData->startReadback(  *this, glObjects, config, regions );
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->startReadback(  *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
 {
-    LBASSERT( _frameData );
-    _frameData->setReady();
+    LBASSERT( _impl->frameData );
+    _impl->frameData->setReady();
 }
 
 bool Frame::isReady() const
 {
-    LBASSERT( _frameData );
-    return _frameData->isReady();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->isReady();
 }
 
 void Frame::waitReady( const uint32_t timeout ) const
 {
-    LBASSERT( _frameData );
-    _frameData->waitReady( timeout );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )
 {
-    LBASSERT( _frameData );
-    _frameData->disableBuffer( buffer );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->disableBuffer( buffer );
 }
 
 void Frame::addListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _frameData );
-    _frameData->addListener( listener );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->addListener( listener );
 }
 
 void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _frameData );
-    _frameData->removeListener( listener );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->removeListener( listener );
 }
 
 }

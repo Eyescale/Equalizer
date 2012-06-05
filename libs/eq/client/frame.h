@@ -26,6 +26,8 @@
 
 namespace eq
 {
+namespace detail{ class Frame; }
+
     /**
      * A holder for a frame data and related parameters.
      *
@@ -84,26 +86,25 @@ namespace eq
          * Set the filter applied to zoomed assemble operations.
          * @version 1.0
          */
-        void setZoomFilter( const ZoomFilter zoomFilter )
-            { _zoomFilter = zoomFilter; }
+        EQ_API void setZoomFilter( const ZoomFilter zoomFilter );
 
         /**
          * @return the filter applied to zoomed assemble operations.
          * @version 1.0
          */
-        ZoomFilter getZoomFilter() const { return _zoomFilter; }
+        EQ_API ZoomFilter getZoomFilter() const;
 
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;
 
         /** Set the data for this frame. @version 1.0 */
-        void setData( FrameData* data ) { _frameData = data; }
+        EQ_API void setData( FrameData* data );
 
         /** @return the frame's data. @version 1.0 */
-        FrameData* getData() { return _frameData; }
+        EQ_API FrameData* getData();
 
         /** @return the frame's data. @version 1.0 */
-        const FrameData* getData() const { return _frameData; }
+        EQ_API const FrameData* getData() const;
 
         /** @return the enabled frame buffer attachments. @version 1.0 */
         EQ_API uint32_t getBuffers() const;
@@ -218,11 +219,7 @@ namespace eq
         //@}
 
     private:
-        FrameData*  _frameData;
-        ZoomFilter _zoomFilter; // texture filter
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        detail::Frame* const _impl;
     };
 };
 #endif // EQ_FRAME_H
