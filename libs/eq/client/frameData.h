@@ -309,7 +309,7 @@ namespace server { class FrameData; }
             EQ_API Data& operator=( const Data& rhs );
 
             PixelViewport pvp;
-            Frame::Type   frameType;
+            fabric::Frame::Type frameType;
             uint32_t      buffers;
             uint32_t      period;
             uint32_t      phase;

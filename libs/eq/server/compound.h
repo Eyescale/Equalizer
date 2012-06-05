@@ -23,6 +23,7 @@
 #include "frustum.h"               // member
 #include "frustumData.h"           // member
 #include "visitorResult.h"         // enum
+#include "types.h"
 
 #include <eq/client/frame.h>
 #include <eq/fabric/projection.h> // used in inline method

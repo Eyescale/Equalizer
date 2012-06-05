@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,23 +20,12 @@
 #define EQ_FRAME_H
 
 #include <eq/client/api.h>
-#include <eq/client/eye.h>    // enum Eye
 #include <eq/client/types.h>
-#include <eq/client/zoomFilter.h>   // member
-
-#include <eq/fabric/zoom.h>   // member
-#include <co/object.h>
-#include <co/objectVersion.h>
-#include <co/types.h>
-#include <lunchbox/bitOperation.h> // function getIndexOfLastBit
-#include <lunchbox/monitor.h>
+#include <eq/client/zoomFilter.h> // enum
+#include <eq/fabric/frame.h>   // base class
 
 namespace eq
 {
-namespace server
-{
-    class Frame;
-}
     /**
      * A holder for a frame data and related parameters.
      *
@@ -47,30 +36,9 @@ namespace server
      * (input-)frame-specific, while others are set by the output frame on its
      * data and therefore shared between all input frames.
      */
-    class Frame : public co::Object
+    class Frame : public fabric::Frame
     {
     public:
-        /** 
-         * The buffer format defines which components of the frame are to
-         * be used during readback and assembly.
-         * @version 1.0
-         */
-        enum Buffer
-        {
-            BUFFER_NONE      = LB_BIT_NONE,
-            BUFFER_UNDEFINED = LB_BIT1,  //!< Inherit, only if no others are set
-            BUFFER_COLOR     = LB_BIT5,  //!< Use color images
-            BUFFER_DEPTH     = LB_BIT9,  //!< Use depth images
-            BUFFER_ALL       = LB_BIT_ALL_32
-        };
-
-        /** The storage type for pixel data. @version 1.0 */
-        enum Type
-        {
-            TYPE_MEMORY,    //!< use main memory to store pixel data
-            TYPE_TEXTURE    //!< use a GL texture to store pixel data
-        };
-
         /** Construct a new frame. @version 1.0 */
         EQ_API Frame();
 
@@ -81,19 +49,6 @@ namespace server
         //@{
         /** @return the name of the frame. @version 1.0 */
         EQ_API const std::string& getName() const;
-
-        /** @return the position of the frame wrt the channel. @version 1.0 */
-        const Vector2i& getOffset() const { return _data.offset; }
-
-        /**
-         * Set the position of the frame wrt the channel.
-         *
-         * The offset is only applied for operations on this frame holder, i.e.,
-         * it does not apply to other (input) frames using the same underlying
-         * frame data.
-         * @version 1.0
-         */
-        void setOffset( const Vector2i& offset ) { _data.offset = offset;}
 
         /**
          * @return the database range relative to the destination channel.
@@ -126,19 +81,6 @@ namespace server
         EQ_API uint32_t getPhase() const;
 
         /**
-         * Set the zoom for this frame holder.
-         *
-         * The zoom is only applied for operations on this frame holder, i.e.,
-         * it does not apply to other (input) frames using the same underlying
-         * frame data.
-         * @version 1.0
-         */
-        void setZoom( const Zoom& zoom ) { _data.zoom = zoom; }
-
-        /** @return the zoom factor for readback or assemble. @version 1.0 */
-        const Zoom& getZoom() const { return _data.zoom; }
-
-        /** 
          * Set the filter applied to zoomed assemble operations.
          * @version 1.0
          */
@@ -166,9 +108,9 @@ namespace server
         /** @return the enabled frame buffer attachments. @version 1.0 */
         EQ_API uint32_t getBuffers() const;
 
-        /** 
+        /**
          * Disable the usage of a frame buffer attachment for all images.
-         * 
+         *
          * @param buffer the buffer to disable.
          * @version 1.0
          */
@@ -184,10 +126,6 @@ namespace server
         /** Sets a compressor for compression for following transmissions. */
         EQ_API void useCompressor( const Frame::Buffer buffer,
                                    const uint32_t name );
-
-        /** @internal */
-        const co::ObjectVersion& getDataVersion( const Eye eye ) const
-            { return _data.frameDataVersion[lunchbox::getIndexOfLastBit(eye)]; }
         //@}
 
         /** @name Operations */
@@ -200,7 +138,7 @@ namespace server
 
         /**
          * Read back an image.
-         * 
+         *
          * The image is added to the data, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
@@ -212,7 +150,7 @@ namespace server
 
         /**
          * Read back a set of images.
-         * 
+         *
          * The images are added to the data, existing images are retained.
          *
          * @param glObjects the GL object manager for the current GL context.
@@ -226,7 +164,7 @@ namespace server
 
         /**
          * Start reading back a set of images for this frame.
-         * 
+         *
          * The newly read images are added to the data, existing images are
          * retained. The finish for the new images has to be done by the
          * caller.
@@ -236,24 +174,24 @@ namespace server
          * @param regions the areas to read back.
          * @return the new images which need finishReadback.
          * @version 1.3.2
-         */        
+         */
         EQ_API Images startReadback( ObjectManager* glObjects,
                                      const DrawableConfig& config,
                                      const PixelViewports& regions );
 
         /**
          * Set the frame ready.
-         * 
+         *
          * Equalizer sets the frame automatically ready after readback and after
          * network transmission.
          * @version 1.0
          */
         void setReady();
 
-        /** 
+        /**
          * Test the readiness of the frame.
-         * 
-         * @return true if the frame is ready, false if not. 
+         *
+         * @return true if the frame is ready, false if not.
          * @version 1.0
          */
         EQ_API bool isReady() const;
@@ -262,72 +200,29 @@ namespace server
         EQ_API void waitReady( const uint32_t timeout =
                                LB_TIMEOUT_INDEFINITE ) const;
 
-        /** 
+        /**
          * Add a listener which will be incremented when the frame is ready.
-         * 
+         *
          * @param listener the listener.
          * @version 1.0
          */
         void addListener( lunchbox::Monitor<uint32_t>& listener );
 
-        /** 
+        /**
          * Remove a frame listener.
-         * 
+         *
          * @param listener the listener.
          * @version 1.0
          */
         void removeListener( lunchbox::Monitor<uint32_t>& listener );
         //@}
 
-        /** @internal @return the receiving eq::Node IDs of an output frame */
-        const std::vector< uint128_t >& getInputNodes( const Eye eye ) const
-        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNodes; }
-
-        /** @internal @return the receiving co::Node IDs of an output frame */
-        const std::vector< uint128_t >& getInputNetNodes(const Eye eye) const
-        { return _data.toNodes[lunchbox::getIndexOfLastBit(eye)].inputNetNodes; }
-
-    protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
-
     private:
-        std::string _name;
         FrameData*  _frameData;
-
         ZoomFilter _zoomFilter; // texture filter
-
-        /** The distributed data shared between Frame and server::Frame. */
-        friend class eq::server::Frame;
-
-        struct Data
-        {
-            struct ToNode
-            {
-                std::vector< uint128_t > inputNodes;
-                std::vector< uint128_t > inputNetNodes;
-            };
-
-            Data() : offset( Vector2i::ZERO ) {}
-
-            Vector2i offset;
-            Zoom zoom;
-            co::ObjectVersion frameDataVersion[ NUM_EYES ];
-            ToNode toNodes[ NUM_EYES ];
-
-            EQ_API void serialize( co::DataOStream& os ) const;
-            EQ_API void deserialize( co::DataIStream& is );
-        }
-        _data;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
     };
-
-    /** Print the frame type to the given output stream. @version 1.0 */
-    EQ_API std::ostream& operator << ( std::ostream&, const Frame::Type );
-    /** Print the frame buffer value to the given output stream. @version 1.0 */
-    EQ_API std::ostream& operator << ( std::ostream&, const Frame::Buffer );
 };
 #endif // EQ_FRAME_H

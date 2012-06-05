@@ -19,59 +19,20 @@
 
 #include "frameData.h"
 #include "image.h"
-
 #include <eq/util/objectManager.h>
-#include <co/dataIStream.h>
-#include <co/dataOStream.h>
 
 namespace eq
 {
-
 Frame::Frame()
         : _frameData( 0 )
         , _zoomFilter( FILTER_LINEAR )
 {
-    LBINFO << "New Frame @" << (void*)this << std::endl;
 }
 
 Frame::~Frame()
 {
     if( _frameData )
         LBINFO << "FrameData attached to frame during deletion" << std::endl;
-}
-
-void Frame::getInstanceData( co::DataOStream& os )
-{
-    LBUNREACHABLE;
-    _data.serialize( os );
-}
-
-void Frame::applyInstanceData( co::DataIStream& is )
-{
-    _data.deserialize( is );
-}
-
-void Frame::Data::serialize( co::DataOStream& os ) const
-{
-    os << offset << zoom;
-
-    for( unsigned i = 0; i < NUM_EYES; ++i )
-        os << frameDataVersion[i] << toNodes[i].inputNodes 
-           << toNodes[i].inputNetNodes;
-}
-
-void Frame::Data::deserialize( co::DataIStream& is )
-{
-    is >> offset >> zoom;
-
-    for( unsigned i = 0; i < NUM_EYES; ++i )
-        is >> frameDataVersion[i] >> toNodes[i].inputNodes
-           >> toNodes[i].inputNetNodes;
-}
-
-const std::string& Frame::getName() const
-{
-    return _name;
 }
 
 uint32_t Frame::getBuffers() const
@@ -208,36 +169,6 @@ void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
     LBASSERT( _frameData );
     _frameData->removeListener( listener );
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                                      const Frame::Type type )
-{
-    os << "type     ";
-    if ( type == eq::Frame::TYPE_TEXTURE ) 
-        os << " texture" << std::endl;
-    else if ( type == eq::Frame::TYPE_MEMORY ) 
-        os << " memory" << std::endl;
-        
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                                      const Frame::Buffer buffer )
-{
-    if( buffer == Frame::BUFFER_NONE )
-        os << "none ";
-    else if( buffer & Frame::BUFFER_UNDEFINED )
-        os << "undefined ";
-    else
-    {
-        if( buffer & Frame::BUFFER_COLOR )
-            os << "color ";
-        if( buffer & Frame::BUFFER_DEPTH )
-            os << "depth ";
-    }
-
-    return os;
 }
 
 }
