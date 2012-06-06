@@ -426,7 +426,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     return frame;
 }
 
-void Pipe::flushFrames()
+void Pipe::flushFrames( ObjectManager* om )
 {
     LB_TS_THREAD( _pipeThread );
     ClientPtr client = getClient();
@@ -434,18 +434,20 @@ void Pipe::flushFrames()
     {
         Frame* frame = i->second;
 
+        frame->deleteGLObjects( om );
         frame->setFrameData( 0 ); // 'output' datas cleared below and from node
-        frame->flush();
         client->unmapObject( frame );
         delete frame;
     }
     _impl->frames.clear();
 
     for( FrameDataHashCIter i = _impl->outputFrameDatas.begin();
-         i != _impl->outputFrameDatas.end(); ++i)
+         i != _impl->outputFrameDatas.end(); ++i )
     {
         FrameDataPtr data = i->second;
-        data->flush();
+        data->resetPlugins();
+        client->unmapObject( data.get( ));
+        getNode()->releaseFrameData( data );
     }
     _impl->outputFrameDatas.clear();
 }

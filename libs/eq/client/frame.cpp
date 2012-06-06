@@ -144,10 +144,10 @@ void Frame::clear()
     _impl->frameData->clear();
 }
 
-void Frame::flush()
+void Frame::deleteGLObjects( ObjectManager* om )
 {
     if( _impl->frameData )
-        _impl->frameData->flush();
+        _impl->frameData->deleteGLObjects( om );
 }
 
 void Frame::setAlphaUsage( const bool useAlpha )

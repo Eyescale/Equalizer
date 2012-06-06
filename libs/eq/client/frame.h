@@ -144,8 +144,8 @@ namespace detail{ class Frame; }
         /** @internal Recycle images attached  to the frame data. */
         EQ_API void clear();
 
-        /** @internal Clear and free all images attached to the frame data. */
-        void flush();
+        /** @internal Deallocate all data from the given object manager. */
+        void deleteGLObjects( ObjectManager* om );
 
         /**
          * Read back an image.

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -53,12 +53,6 @@ ObjectManager< T >::ObjectManager( ObjectManager* shared )
 template< class T >
 ObjectManager<T>::~ObjectManager()
 {
-    for( ExitHandlersIter i = _exitHandlers.begin(); i != _exitHandlers.end();
-         ++i )
-    {
-        ExitHandler& func = *i;
-        func( *this );
-    }
     _data = 0;
 }
 
@@ -75,55 +69,55 @@ ObjectManager<T>::SharedData::~SharedData()
 {
     // Do not delete GL objects, we may no longer have a GL context.
     if( !lists.empty( ))
-        LBWARN << lists.size() 
+        LBWARN << lists.size()
                << " lists still allocated in ObjectManager destructor"
                << std::endl;
     lists.clear();
 
     if( !textures.empty( ))
-        LBWARN << textures.size() 
-               << " textures still allocated in ObjectManager destructor" 
+        LBWARN << textures.size()
+               << " textures still allocated in ObjectManager destructor"
                << std::endl;
     textures.clear();
 
     if( !buffers.empty( ))
-        LBWARN << buffers.size() 
-               << " buffers still allocated in ObjectManager destructor" 
+        LBWARN << buffers.size()
+               << " buffers still allocated in ObjectManager destructor"
                << std::endl;
     buffers.clear();
 
     if( !programs.empty( ))
-        LBWARN << programs.size() 
-               << " programs still allocated in ObjectManager destructor" 
+        LBWARN << programs.size()
+               << " programs still allocated in ObjectManager destructor"
                << std::endl;
     programs.clear();
 
     if( !shaders.empty( ))
-        LBWARN << shaders.size() 
-               << " shaders still allocated in ObjectManager destructor" 
+        LBWARN << shaders.size()
+               << " shaders still allocated in ObjectManager destructor"
                << std::endl;
     shaders.clear();
 
     if( !eqTextures.empty( ))
-        LBWARN << eqTextures.size() 
-               << " eq::Texture still allocated in ObjectManager destructor" 
+        LBWARN << eqTextures.size()
+               << " eq::Texture still allocated in ObjectManager destructor"
                << std::endl;
     eqTextures.clear();
 
     if( !eqFonts.empty( ))
-        LBWARN << eqFonts.size() 
-               << " eq::BitmapFont still allocated in ObjectManager destructor" 
+        LBWARN << eqFonts.size()
+               << " eq::BitmapFont still allocated in ObjectManager destructor"
                << std::endl;
     eqFonts.clear();
 
     if( !eqFrameBufferObjects.empty( ))
-        LBWARN << eqFrameBufferObjects.size() 
+        LBWARN << eqFrameBufferObjects.size()
                << " eq::FrameBufferObject's still allocated in ObjectManager "
                << "destructor" << std::endl;
     eqFrameBufferObjects.clear();
 
     if( !eqUploaders.empty( ))
-        LBWARN << eqUploaders.size() 
+        LBWARN << eqUploaders.size()
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
     eqUploaders.clear();
@@ -133,52 +127,52 @@ ObjectManager<T>::SharedData::~SharedData()
 template< class T >
 void ObjectManager<T>::deleteAll()
 {
-    for( typename ObjectHash::const_iterator i = _data->lists.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->lists.begin();
          i != _data->lists.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete list " << object.id << std::endl;
-        glDeleteLists( object.id, object.num ); 
+        glDeleteLists( object.id, object.num );
     }
     _data->lists.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->textures.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->textures.begin();
          i != _data->textures.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete texture " << object.id << std::endl;
-        glDeleteTextures( 1, &object.id ); 
+        glDeleteTextures( 1, &object.id );
     }
     _data->textures.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->buffers.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->buffers.begin();
          i != _data->buffers.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete buffer " << object.id << std::endl;
-        glDeleteBuffers( 1, &object.id ); 
+        glDeleteBuffers( 1, &object.id );
     }
     _data->buffers.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->programs.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->programs.begin();
          i != _data->programs.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete program " << object.id << std::endl;
-        glDeleteProgram( object.id ); 
+        glDeleteProgram( object.id );
     }
     _data->programs.clear();
 
-    for( typename ObjectHash::const_iterator i = _data->shaders.begin(); 
+    for( typename ObjectHash::const_iterator i = _data->shaders.begin();
          i != _data->shaders.end(); ++i )
     {
         const Object& object = i->second;
         LBVERB << "Delete shader " << object.id << std::endl;
-        glDeleteShader( object.id ); 
+        glDeleteShader( object.id );
     }
     _data->shaders.clear();
 
-    for( typename TextureHash::const_iterator i = _data->eqTextures.begin(); 
+    for( typename TextureHash::const_iterator i = _data->eqTextures.begin();
          i != _data->eqTextures.end(); ++i )
     {
         Texture* texture = i->second;
@@ -189,7 +183,7 @@ void ObjectManager<T>::deleteAll()
     }
     _data->eqTextures.clear();
 
-    for( typename FontHash::const_iterator i = _data->eqFonts.begin(); 
+    for( typename FontHash::const_iterator i = _data->eqFonts.begin();
          i != _data->eqFonts.end(); ++i )
     {
         util::BitmapFont< T >* font = i->second;
@@ -205,7 +199,7 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqFrameBufferObjects.end(); ++i )
     {
         FrameBufferObject* frameBufferObject = i->second;
-        LBVERB << "Delete eq::FrameBufferObject " << i->first << " @" 
+        LBVERB << "Delete eq::FrameBufferObject " << i->first << " @"
                << (void*)frameBufferObject << std::endl;
         frameBufferObject->exit();
         delete frameBufferObject;
@@ -218,18 +212,12 @@ void ObjectManager<T>::deleteAll()
          i != _data->eqUploaders.end(); ++i )
     {
         GPUCompressor* uploader = i->second;
-        LBVERB << "Delete eq::GPUCompressor " << i->first << " @" 
+        LBVERB << "Delete eq::GPUCompressor " << i->first << " @"
                << (void*)uploader << std::endl;
         delete uploader;
     }
     _data->eqUploaders.clear();
 #endif
-}
-
-template< class T >
-void ObjectManager<T>::addExitHandler( const ExitHandler& func )
-{
-    _exitHandlers.push_back( func );
 }
 
 // display list functions
@@ -260,7 +248,7 @@ GLuint ObjectManager<T>::newList( const T& key, const GLsizei num )
         LBWARN << "glGenLists failed: " << glGetError() << std::endl;
         return INVALID;
     }
-    
+
     Object& object   = _data->lists[ key ];
     object.id        = id;
     object.num       = num;
@@ -278,7 +266,7 @@ GLuint ObjectManager<T>::obtainList( const T& key, const GLsizei num )
 }
 
 template< class T >
-void   ObjectManager<T>::deleteList( const T& key )
+void ObjectManager<T>::deleteList( const T& key )
 {
     typename ObjectHash::iterator i = _data->lists.find( key );
     if( i == _data->lists.end( ))
@@ -318,7 +306,7 @@ GLuint ObjectManager<T>::newTexture( const T& key )
         LBWARN << "glGenTextures failed: " << glGetError() << std::endl;
         return INVALID;
     }
-    
+
     Object& object   = _data->textures[ key ];
     object.id        = id;
     return id;
@@ -334,7 +322,7 @@ GLuint ObjectManager<T>::obtainTexture( const T& key )
 }
 
 template< class T >
-void   ObjectManager<T>::deleteTexture( const T& key )
+void ObjectManager<T>::deleteTexture( const T& key )
 {
     typename ObjectHash::iterator i = _data->textures.find( key );
     if( i == _data->textures.end( ))
@@ -387,7 +375,7 @@ GLuint ObjectManager<T>::newBuffer( const T& key )
         LBWARN << "glGenBuffers failed: " << glGetError() << std::endl;
         return INVALID;
     }
-    
+
     Object& object     = _data->buffers[ key ];
     object.id          = id;
     return id;
@@ -454,7 +442,7 @@ GLuint ObjectManager<T>::newProgram( const T& key )
         LBWARN << "glCreateProgram failed: " << glGetError() << std::endl;
         return INVALID;
     }
-    
+
     Object& object     = _data->programs[ key ];
     object.id          = id;
     return id;
@@ -522,7 +510,7 @@ GLuint ObjectManager<T>::newShader( const T& key, const GLenum type )
         return INVALID;
     }
 
-    
+
     Object& object     = _data->shaders[ key ];
     object.id          = id;
     return id;
@@ -776,7 +764,7 @@ FrameBufferObject* ObjectManager<T>::newEqFrameBufferObject( const T& key )
         return 0;
     }
 
-    FrameBufferObject* frameBufferObject = 
+    FrameBufferObject* frameBufferObject =
                                     new FrameBufferObject( _data->glewContext );
     _data->eqFrameBufferObjects[ key ] = frameBufferObject;
     return frameBufferObject;
@@ -835,7 +823,7 @@ PixelBufferObject* ObjectManager<T>::newEqPixelBufferObject( const T& key,
         return 0;
     }
 
-    PixelBufferObject* pixelBufferObject = 
+    PixelBufferObject* pixelBufferObject =
                         new PixelBufferObject( _data->glewContext, threadSafe );
     _data->eqPixelBufferObjects[ key ] = pixelBufferObject;
     return pixelBufferObject;

@@ -431,6 +431,7 @@ extern "C" {
      * @version 1
      */
     EQ_PLUGIN_API void* EqCompressorNewDecompressor( const unsigned name );
+
     /**
      * Release a decompressor instance.
      *

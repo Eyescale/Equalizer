@@ -85,6 +85,9 @@ namespace eq
          */
         FrameDataPtr getFrameData( const co::ObjectVersion& frameDataVersion );
 
+        /** @internal Release the frame data instance. */
+        void releaseFrameData( FrameDataPtr data );
+
         /** @internal Wait for the node to be initialized. */
         EQ_API void waitInitialized() const;
 
@@ -279,6 +282,8 @@ namespace eq
         lunchbox::Lockable< BarrierHash > _barriers;
 
         typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
+        typedef FrameDataHash::const_iterator FrameDataHashCIter;
+        typedef FrameDataHash::iterator FrameDataHashIter;
         /** All frame datas used by the node during rendering. */
         lunchbox::Lockable< FrameDataHash > _frameDatas;
 

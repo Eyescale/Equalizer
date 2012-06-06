@@ -97,11 +97,11 @@ public:
 /** @internal The individual parameters for a buffer. */
 struct Attachment
 {
-    co::CPUCompressor* const fullCompressor;
-    co::CPUCompressor* const lossyCompressor;
+    co::CPUCompressor fullCompressor;
+    co::CPUCompressor lossyCompressor;
 
-    util::GPUCompressor* const fullTransfer;
-    util::GPUCompressor* const lossyTransfer;
+    util::GPUCompressor fullTransfer;
+    util::GPUCompressor lossyTransfer;
 
     co::CPUCompressor* compressor; //!< current CPU (de)compressor
     util::GPUCompressor* transfer;   //!< current up/download engine
@@ -115,32 +115,33 @@ struct Attachment
     Memory memory;
 
     Attachment()
-            : fullCompressor( new co::CPUCompressor )
-            , lossyCompressor( new co::CPUCompressor )
-            , fullTransfer( new util::GPUCompressor )
-            , lossyTransfer( new util::GPUCompressor )
-            , compressor( fullCompressor )
-            , transfer ( fullTransfer )
+            : compressor( &fullCompressor )
+            , transfer ( &fullTransfer )
             , quality( 1.f )
             , texture( GL_TEXTURE_RECTANGLE_ARB )
         {}
 
     ~Attachment()
     {
-        delete fullCompressor;
-        delete lossyCompressor;
-        delete fullTransfer;
-        delete lossyTransfer;
+        LBASSERT( !fullCompressor.isValid( fullCompressor.getName( )));
+        LBASSERT( !lossyCompressor.isValid( lossyCompressor.getName( )));
+        LBASSERT( !fullTransfer.isValid( fullTransfer.getName( )));
+        LBASSERT( !lossyTransfer.isValid( lossyTransfer.getName( )));
     }
 
     void flush()
     {
         memory.flush();
         texture.flush();
-        fullCompressor->reset();
-        lossyCompressor->reset();
-        fullTransfer->reset();
-        lossyTransfer->reset();
+        resetPlugins();
+    }
+
+    void resetPlugins()
+    {
+        fullCompressor.reset();
+        lossyCompressor.reset();
+        fullTransfer.reset();
+        lossyTransfer.reset();
     }
 };
 
@@ -210,7 +211,6 @@ public:
         { return getAttachment( buffer ).memory; }
     const Memory& getMemory( const eq::Frame::Buffer buffer ) const
         { return getAttachment( buffer ).memory; }
-
 };
 }
 
@@ -235,6 +235,58 @@ void Image::flush()
 {
     _impl->color.flush();
     _impl->depth.flush();
+}
+
+void Image::resetPlugins()
+{
+    _impl->color.resetPlugins();
+    _impl->depth.resetPlugins();
+}
+
+void Image::deleteGLObjects( ObjectManager* om )
+{
+    const char* key = reinterpret_cast< const char* >( this );
+    for( size_t i=0; i < 4; ++i )
+    {
+        om->deleteEqUploader( key + i );
+        om->deleteEqTexture( key + i );
+    }
+}
+
+const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
+{
+    switch( buffer )
+    {
+        // Check also deleteGLObjects!
+        case Frame::BUFFER_COLOR:
+            return ( reinterpret_cast< const char* >( this ) + 0 );
+        case Frame::BUFFER_DEPTH:
+            return ( reinterpret_cast< const char* >( this ) + 1 );
+        default:
+            LBUNIMPLEMENTED;
+            return ( reinterpret_cast< const char* >( this ) + 2 );
+    }
+}
+
+const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
+{
+    const Attachment& attachment = _impl->getAttachment( buffer );
+
+    switch( buffer )
+    {
+        // Check also deleteGLObjects!
+        case Frame::BUFFER_COLOR:
+            if( attachment.quality == 1.0f )
+                return ( reinterpret_cast< const char* >( this ) + 0 );
+            return ( reinterpret_cast< const char* >( this ) + 1 );
+        case Frame::BUFFER_DEPTH:
+            if( attachment.quality == 1.0f )
+                return ( reinterpret_cast< const char* >( this ) + 2 );
+            return ( reinterpret_cast< const char* >( this ) + 3 );
+        default:
+            LBUNIMPLEMENTED;
+            return ( reinterpret_cast< const char* >( this ) + 0 );
+    }
 }
 
 uint32_t Image::getPixelDataSize( const Frame::Buffer buffer ) const
@@ -326,7 +378,8 @@ void Image::_findTransferers( const Frame::Buffer buffer,
 {
     util::GPUCompressor::findTransferers(
         getInternalFormat( buffer ), getExternalFormat( buffer ),
-        0 /*caps*/, getQuality( buffer ), _impl->ignoreAlpha, glewContext, result );
+        0 /*caps*/, getQuality( buffer ), _impl->ignoreAlpha, glewContext,
+        result );
 }
 
 uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
@@ -338,9 +391,10 @@ uint32_t Image::_chooseCompressor( const Frame::Buffer buffer ) const
 
     const Attachment& attachment = _impl->getAttachment( buffer );
     const float quality = attachment.quality /
-                          attachment.lossyTransfer->getQuality();
+                          attachment.lossyTransfer.getQuality();
 
-    return co::CPUCompressor::chooseCompressor(tokenType, quality,_impl->ignoreAlpha);
+    return co::CPUCompressor::chooseCompressor( tokenType, quality,
+                                                _impl->ignoreAlpha );
 }
 
 bool Image::hasAlpha() const
@@ -368,15 +422,15 @@ void Image::setQuality( const Frame::Buffer buffer, const float quality )
     attachment.quality = quality;
     if( quality == 1.f )
     {
-        attachment.compressor = attachment.fullCompressor;
-        attachment.transfer = attachment.fullTransfer;
+        attachment.compressor = &attachment.fullCompressor;
+        attachment.transfer = &attachment.fullTransfer;
     }
     else
     {
-        attachment.lossyCompressor->reset();
-        attachment.lossyTransfer->reset();
-        attachment.compressor = attachment.lossyCompressor;
-        attachment.transfer = attachment.lossyTransfer;
+        attachment.lossyCompressor.reset();
+        attachment.lossyTransfer.reset();
+        attachment.compressor = &attachment.lossyCompressor;
+        attachment.transfer = &attachment.lossyTransfer;
     }
 }
 
@@ -712,42 +766,6 @@ bool Image::_readbackZoom( const Frame::Buffer buffer, const Zoom& zoom,
     LBLOG( LOG_ASSEMBLY ) << "Read texture " << getPixelDataSize( buffer )
                           << std::endl;
     return startReadback( buffer, zoomedTexture, glewGetContext( ));
-}
-
-const void* Image::_getBufferKey( const Frame::Buffer buffer ) const
-{
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            return ( reinterpret_cast< const char* >( this ) + 0 );
-        case Frame::BUFFER_DEPTH:
-            return ( reinterpret_cast< const char* >( this ) + 1 );
-        default:
-            LBUNIMPLEMENTED;
-            return ( reinterpret_cast< const char* >( this ) + 2 );
-    }
-}
-
-const void* Image::_getCompressorKey( const Frame::Buffer buffer ) const
-{
-    const Attachment& attachment = _impl->getAttachment( buffer );
-
-    switch( buffer )
-    {
-        case Frame::BUFFER_COLOR:
-            if( attachment.quality == 1.0f )
-                return ( reinterpret_cast< const char* >( this ) + 0 );
-            else
-                return ( reinterpret_cast< const char* >( this ) + 1 );
-        case Frame::BUFFER_DEPTH:
-            if( attachment.quality == 1.0f )
-                return ( reinterpret_cast< const char* >( this ) + 2 );
-            else
-                return ( reinterpret_cast< const char* >( this ) + 3 );
-        default:
-            LBUNIMPLEMENTED;
-            return ( reinterpret_cast< const char* >( this ) + 0 );
-    }
 }
 
 void Image::setPixelViewport( const PixelViewport& pvp )

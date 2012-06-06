@@ -203,11 +203,17 @@ namespace server { class FrameData; }
         EQ_API Image* newImage( const Frame::Type type,
                                 const DrawableConfig& config );
 
+        /** Clear the frame by recycling the attached images. @version 1.0 */
+        EQ_API void clear();
+
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 
-        /** Clear the frame by recycling the attached images. @version 1.0 */
-        EQ_API void clear();
+        /** Delete data allocated by the given object manager on all images.*/
+        void deleteGLObjects( ObjectManager* om );
+
+        /** Deallocate all transfer and compression plugins on all images. */
+        void resetPlugins();
 
 #ifndef EQ_2_0_API
         /**

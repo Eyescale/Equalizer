@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -45,7 +45,7 @@ namespace eq
 
 typedef co::CommandFunc<FrameData> CmdFunc;
 
-FrameData::FrameData() 
+FrameData::FrameData()
         : _version( co::VERSION_NONE.low( ))
         , _useAlpha( true )
         , _colorQuality( 1.f )
@@ -54,7 +54,6 @@ FrameData::FrameData()
         , _depthCompressor( EQ_COMPRESSOR_AUTO )
 {
     _roiFinder = new ROIFinder();
-    LBINFO << "New FrameData @" << (void*)this << std::endl;
 }
 
 FrameData::~FrameData()
@@ -64,7 +63,7 @@ FrameData::~FrameData()
     for( Images::const_iterator i = _imageCache.begin();
          i != _imageCache.end(); ++i )
     {
-        Image* image = *i;
+       Image* image = *i;
         LBWARN << "Unflushed image in FrameData destructor" << std::endl;
         delete image;
     }
@@ -163,6 +162,22 @@ void FrameData::flush()
     _imageCache.clear();
 }
 
+void FrameData::deleteGLObjects( ObjectManager* om )
+{
+    for( ImagesCIter i = _images.begin(); i != _images.end(); ++i )
+        (*i)->deleteGLObjects( om );
+    for( ImagesCIter i = _imageCache.begin(); i != _imageCache.end(); ++i )
+        (*i)->deleteGLObjects( om );
+}
+
+void FrameData::resetPlugins()
+{
+    for( ImagesCIter i = _images.begin(); i != _images.end(); ++i )
+        (*i)->resetPlugins();
+    for( ImagesCIter i = _imageCache.begin(); i != _imageCache.end(); ++i )
+        (*i)->resetPlugins();
+}
+
 Image* FrameData::newImage( const eq::Frame::Type type,
                             const DrawableConfig& config )
 {
@@ -197,7 +212,7 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
     if( setQuality_ )
     {
         image->setQuality( Frame::BUFFER_COLOR, _colorQuality );
-        image->setQuality( Frame::BUFFER_DEPTH, _depthQuality ); 
+        image->setQuality( Frame::BUFFER_DEPTH, _depthQuality );
     }
 
     image->useCompressor( Frame::BUFFER_COLOR, _colorCompressor );
@@ -207,20 +222,20 @@ Image* FrameData::_allocImage( const eq::Frame::Type type,
                               EQ_COMPRESSOR_DATATYPE_DEPTH );
     switch( config.colorBits )
     {
-        case 16:  
-            image->setInternalFormat( Frame::BUFFER_COLOR, 
+        case 16:
+            image->setInternalFormat( Frame::BUFFER_COLOR,
                                       EQ_COMPRESSOR_DATATYPE_RGBA16F );
             break;
-        case 32:  
-            image->setInternalFormat( Frame::BUFFER_COLOR, 
+        case 32:
+            image->setInternalFormat( Frame::BUFFER_COLOR,
                                       EQ_COMPRESSOR_DATATYPE_RGBA32F );
             break;
         case 10:
-            image->setInternalFormat( Frame::BUFFER_COLOR, 
+            image->setInternalFormat( Frame::BUFFER_COLOR,
                                       EQ_COMPRESSOR_DATATYPE_RGB10_A2 );
             break;
         default:
-            image->setInternalFormat( Frame::BUFFER_COLOR, 
+            image->setInternalFormat( Frame::BUFFER_COLOR,
                                       EQ_COMPRESSOR_DATATYPE_RGBA );
     }
 
@@ -312,7 +327,7 @@ void FrameData::setVersion( const uint64_t version )
     LBLOG( LOG_ASSEMBLY ) << "New v" << version << std::endl;
 }
 
-void FrameData::waitReady( const uint32_t timeout ) const 
+void FrameData::waitReady( const uint32_t timeout ) const
 {
     if( !_readyVersion.timedWaitGE( _version, timeout ))
         throw Exception( Exception::TIMEOUT_INPUTFRAME );
@@ -336,13 +351,13 @@ void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
     _data = packet->data;
     _setReady( packet->frameData.version.low());
 
-    LBLOG( LOG_ASSEMBLY ) << this << " applied v" 
+    LBLOG( LOG_ASSEMBLY ) << this << " applied v"
                           << packet->frameData.version.low() << std::endl;
 }
 
 void FrameData::_setReady( const uint64_t version )
 {
-    
+
     LBASSERTINFO( _readyVersion <= version,
                   "v" << _version << " ready " << _readyVersion << " new "
                       << version );
@@ -399,7 +414,7 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     for( unsigned i = 0; i < 2; ++i )
     {
         const Frame::Buffer buffer = buffers[i];
-        
+
         if( packet->buffers & buffer )
         {
             PixelData pixelData;
@@ -425,8 +440,8 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 {
                     const uint64_t size = *reinterpret_cast< uint64_t*>( data );
                     data += sizeof( uint64_t );
-                    
-                    pixelData.compressedSize[j] = size; 
+
+                    pixelData.compressedSize[j] = size;
                     pixelData.compressedData[j] = data;
                     data += size;
                 }

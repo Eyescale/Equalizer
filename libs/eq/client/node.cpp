@@ -150,7 +150,7 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
 
 FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
-    lunchbox::ScopedMutex<> mutex( _frameDatas );
+    lunchbox::ScopedWrite mutex( _frameDatas );
     FrameDataPtr data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
@@ -163,6 +163,17 @@ FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
     LBASSERT( frameDataVersion.version.high() == 0 );
     data->setVersion( frameDataVersion.version.low( ));
     return data;
+}
+
+void Node::releaseFrameData( FrameDataPtr data )
+{
+    lunchbox::ScopedWrite mutex( _frameDatas );
+    FrameDataHashIter i = _frameDatas->find( data->getID( ));
+    EQASSERT( i != _frameDatas->end( ));
+    if( i == _frameDatas->end( ))
+        return;
+
+    _frameDatas->erase( i );
 }
 
 void Node::waitInitialized() const
@@ -387,8 +398,10 @@ void Node::_flushObjects()
     }
 
     lunchbox::ScopedMutex<> mutex( _frameDatas );
-    for( FrameDataHash::const_iterator i = _frameDatas->begin(); 
-         i != _frameDatas->end(); ++ i )
+    LBASSERT( _frameDatas->empty( ));
+
+    for( FrameDataHashCIter i = _frameDatas->begin();
+         i != _frameDatas->end(); ++i )
     {
         FrameDataPtr frameData = i->second;
         client->unmapObject( frameData.get( ));

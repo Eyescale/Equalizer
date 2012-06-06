@@ -132,7 +132,7 @@ namespace detail { class Image; }
          * Set a compressor to be used during transmission of the image.
          *
          * The default compressor is EQ_COMPRESSOR_AUTO which selects the most
-         * suitable compressor wrt the current image and buffer parameters.
+         * suitable compressor based on the current image and buffer parameters.
          *
          * @param buffer the frame buffer attachment.
          * @param name the compressor name
@@ -153,6 +153,22 @@ namespace detail { class Image; }
 
         /** Free all cached data of this image. @version 1.0 */
         EQ_API void flush();
+
+        /**
+         * Delete all OpenGL objects allocated from the given object manager.
+         *
+         * Requires the appropriate OpenGL context to be current.
+         * @version 1.3.2
+         */
+        EQ_API void deleteGLObjects( ObjectManager* om );
+
+        /**
+         * Deallocate all transfer and compression plugins.
+         *
+         * Requires the OpenGL context used during readback to be current.
+         * @version 1.3.2
+         */
+        EQ_API void resetPlugins();
         //@}
 
         /** @name Pixel Data Access */

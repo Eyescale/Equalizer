@@ -798,7 +798,7 @@ bool Window::_cmdConfigExit( co::Command& command )
         if( getPipe()->isRunning( ) && _systemWindow )
         {
             makeCurrent();
-            getPipe()->flushFrames();
+            getPipe()->flushFrames( _objectManager );
         }
         // else emergency exit, no context available.
 
