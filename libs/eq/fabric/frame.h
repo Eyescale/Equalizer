@@ -107,8 +107,8 @@ namespace detail { class Frame; }
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
+        EQFABRIC_API virtual void getInstanceData( co::DataOStream& os );
+        EQFABRIC_API virtual void applyInstanceData( co::DataIStream& is );
 
         /** @internal */
         EQFABRIC_API void _setDataVersion( const unsigned i,
