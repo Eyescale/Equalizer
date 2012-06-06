@@ -73,6 +73,11 @@
  * @sa plugins/compressorTypes.h, plugins/compressorTokens.h
  *
  * <h2>Changes</h2>
+ * Version 4
+ *  - Added support for asynchronous downloads
+ *    - Added functions: EqCompressorStartDownload, EqCompressorFinishDownload
+ *    - Added flag: EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD
+ *
  * Version 3
  *  - Added GPU-based compression during upload and download:
  *    - Added functions: EqCompressorIsCompatible, EqCompressorDownload,
