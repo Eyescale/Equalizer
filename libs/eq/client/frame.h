@@ -97,14 +97,24 @@ namespace detail{ class Frame; }
         /** @return all images of this frame. @version 1.0 */
         EQ_API const Images& getImages() const;
 
-        /** Set the data for this frame. @version 1.0 */
+#ifndef EQ_2_0_API
+        /** Set the data for this frame. @deprecated */
         EQ_API void setData( FrameData* data );
 
-        /** @return the frame's data. @version 1.0 */
+        /** @return the frame's data. @deprecated */
         EQ_API FrameData* getData();
 
-        /** @return the frame's data. @version 1.0 */
+        /** @return the frame's data. @deprecated */
         EQ_API const FrameData* getData() const;
+#endif
+        /** Set the data for this frame. @version 1.3.2 */
+        EQ_API void setFrameData( FrameDataPtr data );
+
+        /** @return the frame's data. @version 1.3.2 */
+        EQ_API FrameDataPtr getFrameData();
+
+        /** @return the frame's data. @version 1.3.2 */
+        EQ_API const FrameDataPtr getFrameData() const;
 
         /** @return the enabled frame buffer attachments. @version 1.0 */
         EQ_API uint32_t getBuffers() const;

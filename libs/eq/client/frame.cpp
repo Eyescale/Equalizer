@@ -28,7 +28,9 @@ namespace detail
 class Frame
 {
 public:
-    FrameData* frameData;
+    FrameData* frameData; // Remove me in 2.0
+    FrameDataPtr frameDataPtr;
+
     ZoomFilter zoomFilter; // texture filter
 
     Frame() : frameData( 0 ), zoomFilter( FILTER_LINEAR ) {}
@@ -60,8 +62,10 @@ ZoomFilter Frame::getZoomFilter() const
     return _impl->zoomFilter;
 }
 
+#ifndef EQ_2_0_API
 void Frame::setData( FrameData* data )
 {
+    LBASSERTINFO( !_impl->frameDataPtr, "Don't mix deprecated with new API" );
     _impl->frameData = data;
 }
 
@@ -73,6 +77,23 @@ FrameData* Frame::getData()
 const FrameData* Frame::getData() const
 {
     return _impl->frameData;
+}
+#endif
+
+void Frame::setFrameData( FrameDataPtr data )
+{
+    _impl->frameDataPtr = data;
+    _impl->frameData = data.get();
+}
+
+FrameDataPtr Frame::getFrameData()
+{
+    return _impl->frameDataPtr;
+}
+
+const FrameDataPtr Frame::getFrameData() const
+{
+    return _impl->frameDataPtr;
 }
 
 uint32_t Frame::getBuffers() const

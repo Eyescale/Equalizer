@@ -53,7 +53,7 @@ namespace server { class FrameData; }
      * Parameters set on an Equalizer output frame data are automatically
      * transported to the corresponding input frames.
      */
-    class FrameData : public co::Object
+    class FrameData : public co::Object, public lunchbox::Referenced
     {
     public:
         void assembleFrame( Frame* frame, Channel* channel );

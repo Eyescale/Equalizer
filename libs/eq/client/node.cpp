@@ -148,10 +148,10 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
+FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
     lunchbox::ScopedMutex<> mutex( _frameDatas );
-    FrameData* data = _frameDatas.data[ frameDataVersion.identifier ];
+    FrameDataPtr data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
     {
@@ -390,9 +390,8 @@ void Node::_flushObjects()
     for( FrameDataHash::const_iterator i = _frameDatas->begin(); 
          i != _frameDatas->end(); ++ i )
     {
-        FrameData* frameData = i->second;
-        client->unmapObject( frameData );
-        delete frameData;
+        FrameDataPtr frameData = i->second;
+        client->unmapObject( frameData.get( ));
     }
     _frameDatas->clear();
 }
@@ -603,7 +602,7 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
 
     LBASSERT( packet->pvp.isValid( ));
 
-    FrameData* frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( packet->frameData );
     LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
@@ -619,7 +618,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
-    FrameData* frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( packet->frameData );
     LBASSERT( frameData );
     LBASSERT( !frameData->isReady() );
     frameData->setReady( packet );

@@ -83,7 +83,7 @@ namespace eq
          * @param frameDataVersion the frame data identifier and version.
          * @return the frame.
          */
-        FrameData* getFrameData( const co::ObjectVersion& frameDataVersion );
+        FrameDataPtr getFrameData( const co::ObjectVersion& frameDataVersion );
 
         /** @internal Wait for the node to be initialized. */
         EQ_API void waitInitialized() const;
@@ -278,7 +278,7 @@ namespace eq
         /** All barriers mapped by the node. */
         lunchbox::Lockable< BarrierHash > _barriers;
 
-        typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
+        typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
         /** All frame datas used by the node during rendering. */
         lunchbox::Lockable< FrameDataHash > _frameDatas;
 
