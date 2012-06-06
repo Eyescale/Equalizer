@@ -49,7 +49,6 @@ FrameData::FrameData()
         , _currentViewID( lunchbox::UUID::ZERO )
 {
     reset();
-    LBINFO << "New FrameData " << std::endl;
 }
 
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )

@@ -44,6 +44,6 @@ void debugGLError( const std::string& when, const GLenum error,
     }
     
     LBWARN << ' ' << when << " in " << file << ':' << line << std::endl
-           << lunchbox::backtrace << std::endl << lunchbox::enableFlush;
+           << lunchbox::backtrace << lunchbox::enableFlush << std::endl;
 }                                 
 }
