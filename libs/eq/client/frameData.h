@@ -53,7 +53,7 @@ namespace server { class FrameData; }
      * Parameters set on an Equalizer output frame data are automatically
      * transported to the corresponding input frames.
      */
-    class FrameData : public co::Object
+    class FrameData : public co::Object, public lunchbox::Referenced
     {
     public:
         void assembleFrame( Frame* frame, Channel* channel );
@@ -203,11 +203,17 @@ namespace server { class FrameData; }
         EQ_API Image* newImage( const Frame::Type type,
                                 const DrawableConfig& config );
 
+        /** Clear the frame by recycling the attached images. @version 1.0 */
+        EQ_API void clear();
+
         /** Flush the frame by deleting all images. @version 1.0 */
         void flush();
 
-        /** Clear the frame by recycling the attached images. @version 1.0 */
-        EQ_API void clear();
+        /** Delete data allocated by the given object manager on all images.*/
+        void deleteGLObjects( ObjectManager* om );
+
+        /** Deallocate all transfer and compression plugins on all images. */
+        void resetPlugins();
 
 #ifndef EQ_2_0_API
         /**
@@ -309,7 +315,7 @@ namespace server { class FrameData; }
             EQ_API Data& operator=( const Data& rhs );
 
             PixelViewport pvp;
-            Frame::Type   frameType;
+            fabric::Frame::Type frameType;
             uint32_t      buffers;
             uint32_t      period;
             uint32_t      phase;

@@ -35,6 +35,7 @@
 #include "nodeFactory.h"
 #include "nodePackets.h"
 #include "pipe.h"
+#include "pixelData.h"
 #include "server.h"
 #include "systemWindow.h"
 #include "windowPackets.h"
@@ -1439,7 +1440,8 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
             for( size_t i = 0; i < nFrames; ++i )
             {
                 nImages[i] = frames[i]->getImages().size();
-                frames[i]->getData()->setPixelViewport( getPixelViewport() );
+                frames[i]->getFrameData()->setPixelViewport(
+                    getPixelViewport( ));
             }
 
             frameReadback( packet->context.frameID );
@@ -1572,7 +1574,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
     for( size_t i = 0; i < frames.size(); ++i )
     {
         Frame* frame = frames[i];
-        FrameData* frameData = frame->getData();
+        FrameDataPtr frameData = frame->getFrameData();
         const uint32_t frameNumber = getCurrentFrame();
 
         if( frameData->getBuffers() == 0 )
@@ -1617,7 +1619,7 @@ void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << packet
                                     << std::endl;
 
-    FrameData* frameData = getNode()->getFrameData( packet->frameData );
+    FrameDataPtr frameData = getNode()->getFrameData( packet->frameData );
     const Images& images = frameData->getImages();
     Image* image = images[ packet->imageIndex ];
     const GLEWContext* glewContext = getWindow()->getTransferGlewContext();
@@ -1640,7 +1642,7 @@ void Channel::_finishReadback( const ChannelFinishReadbackPacket* packet )
                     netNodes, packet->taskID );
 }
 
-void Channel::_asyncTransmit( FrameData* frame, const uint32_t frameNumber,
+void Channel::_asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                               const size_t image,
                               const std::vector<uint128_t>& nodes,
                               const std::vector< uint128_t >& netNodes,
@@ -1671,7 +1673,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 {
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << request << std::endl;
 
-    FrameData* frameData = getNode()->getFrameData( request->frameData ); 
+    FrameDataPtr frameData = getNode()->getFrameData( request->frameData ); 
     LBASSERT( frameData );
 
     if( frameData->getBuffers() == 0 )
@@ -1864,13 +1866,13 @@ void Channel::_setReady( const bool async, detail::RBStat* stat )
         const std::vector< uint128_t >& netNodes = frame->getInputNetNodes(eye);
 
         if( async )
-            _asyncSetReady( frame->getData(), stat, nodes, netNodes );
+            _asyncSetReady( frame->getFrameData(), stat, nodes, netNodes );
         else
-            _setReady( frame->getData(), stat, nodes, netNodes );
+            _setReady( frame->getFrameData(), stat, nodes, netNodes );
     }
 }
 
-void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
+void Channel::_asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                               const std::vector< uint128_t >& nodes,
                               const std::vector< uint128_t >& netNodes )
 {
@@ -1888,7 +1890,7 @@ void Channel::_asyncSetReady( const FrameData* frame, detail::RBStat* stat,
     send( getLocalNode(), packet, ids );
 }
 
-void Channel::_setReady( FrameData* frame, detail::RBStat* stat,
+void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
                          const std::vector< uint128_t >& nodes,
                          const std::vector< uint128_t >& netNodes )
 {
@@ -2125,7 +2127,8 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
     {
         // Unset the frame data on input frames, so that they only get flushed
         // once by the output frames during exit.
-        (*i)->setData( 0 );
+        // TODO: review with #124
+        (*i)->setFrameData( 0 );
     }
     _impl->inputFrames.clear();
     resetRenderContext();
@@ -2163,7 +2166,7 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
         command.get<ChannelFrameSetReadyPacket>();
     LBASSERT( packet->stat->event.event.data.statistic.frameNumber > 0 );
 
-    FrameData* frameData = getNode()->getFrameData( packet->frameData );
+    FrameDataPtr frameData = getNode()->getFrameData( packet->frameData );
     std::vector< uint128_t > nodes;
     std::vector< uint128_t > netNodes;
     nodes.insert( nodes.end(), packet->IDs, packet->IDs + packet->nNodes );
@@ -2194,7 +2197,7 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& command )
 
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( packet->netNodeID );
-    const FrameData* frameData = getNode()->getFrameData( packet->frameData );
+    const FrameDataPtr frameData = getNode()->getFrameData( packet->frameData );
 
     NodeFrameDataReadyPacket readyPacket( frameData );
     readyPacket.objectID = packet->nodeID;

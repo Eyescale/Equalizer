@@ -163,7 +163,7 @@ namespace eq
 
     struct NodeFrameDataReadyPacket : public NodePacket
     {
-        NodeFrameDataReadyPacket( const FrameData* fd )
+        NodeFrameDataReadyPacket( const FrameDataPtr fd )
                 : frameData( fd ), data( fd->_data )
             {
                 command = fabric::CMD_NODE_FRAMEDATA_READY;

@@ -124,7 +124,7 @@ namespace detail { class Pipe; class RenderThread; }
         co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
 
         /** @internal Clear the frame cache and delete all frames. */
-        void flushFrames();
+        void flushFrames( ObjectManager* om );
 
         /** @internal @return the view for the given identifier and version. */
         const View* getView( const co::ObjectVersion& viewVersion ) const;

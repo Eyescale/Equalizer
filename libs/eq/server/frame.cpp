@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -32,20 +32,18 @@ namespace server
 
 Frame::Frame()
         : _compound( 0 )
-        , _buffers( eq::Frame::BUFFER_UNDEFINED )
-        , _type( eq::Frame::TYPE_MEMORY )
+        , _buffers( BUFFER_UNDEFINED )
+        , _type( TYPE_MEMORY )
         , _masterFrameData( 0 )
 {
-    _data.zoom.invalidate(); // to inherit zoom from compound unless set
+    setZoom( Zoom( 0.f, 0.f )); //set invalid zoom to detect 'set' state
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _frameData[i] = 0;
 }
 
 Frame::Frame( const Frame& from )
-        : co::Object()
+        : fabric::Frame( from )
         , _compound( 0 )
-        , _name( from._name )
-        , _data( from._data )
         , _vp( from._vp )
         , _buffers( from._buffers )
         , _type( from._type )
@@ -60,17 +58,6 @@ Frame::~Frame()
     LBASSERT( _datas.empty());
     _compound = 0;
     _masterFrameData = 0;
-}
-
-void Frame::getInstanceData( co::DataOStream& os )
-{
-    _inherit.serialize( os );
-}
-
-void Frame::applyInstanceData( co::DataIStream& is )
-{
-    LBUNREACHABLE;
-    _inherit.deserialize( is );
 }
 
 void Frame::flush()
@@ -92,8 +79,8 @@ void Frame::unsetData()
     {
         _frameData[i] = 0;
         _inputFrames[i].clear();
-        _data.toNodes[i].inputNodes.clear();
-        _data.toNodes[i].inputNetNodes.clear();
+        _getInputNodes( i ).clear();
+        _getInputNetNodes( i ).clear();
     }
 }
 
@@ -117,11 +104,7 @@ void Frame::commitData()
 uint128_t Frame::commit( const uint32_t incarnation )
 {
     for( unsigned i = 0; i < NUM_EYES; ++i )
-    {
-        _inherit.frameDataVersion[i]      = _frameData[i];
-        _inherit.toNodes[i].inputNodes    = _data.toNodes[i].inputNodes;
-        _inherit.toNodes[i].inputNetNodes = _data.toNodes[i].inputNetNodes;
-    }
+        _setDataVersion( i, _frameData[i] );
     return co::Object::commit( incarnation );
 }
 
@@ -132,7 +115,8 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
     {
         _inputFrames[i].clear();
 
-        if( !compound->isInheritActive( (eq::Eye)(1<<i) ))// eye pass not used
+        const Eye eye = Eye(1<<i);
+        if( !compound->isInheritActive( eye )) // eye pass not used
         {
             _frameData[i] = 0;
             continue;
@@ -158,8 +142,8 @@ void Frame::cycleData( const uint32_t frameNumber, const Compound* compound )
     
         _datas.push_front( data );
         _frameData[i] = data;
-        _data.toNodes[i].inputNodes.clear();
-        _data.toNodes[i].inputNetNodes.clear();
+        _getInputNodes( i ).clear();
+        _getInputNetNodes( i ).clear();
         if( !_masterFrameData )
             _masterFrameData = data;
     }
@@ -170,7 +154,8 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     for( unsigned i = 0; i < NUM_EYES; ++i )
     {
         // eye pass not used && no output frame for eye pass
-        if( compound->isInheritActive( (eq::Eye)(1<<i) ) && _frameData[i] )     
+        const Eye eye = Eye( 1<<i );
+        if( compound->isInheritActive( eye ) && _frameData[i] )     
         {
             frame->_frameData[i] = _frameData[i];
             _inputFrames[i].push_back( frame );
@@ -179,9 +164,8 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
             if( inputNode != getNode( ))
             {
                 co::NodePtr inputNetNode = inputNode->getNode();
-                _data.toNodes[i].inputNodes.push_back( inputNode->getID() );
-                _data.toNodes[i].inputNetNodes.push_back(
-                    inputNetNode->getNodeID());
+                _getInputNodes( i ).push_back( inputNode->getID( ));
+                _getInputNetNodes( i ).push_back( inputNetNode->getNodeID( ));
             }
         }
         else
@@ -189,11 +173,6 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
             frame->_frameData[i] = 0;
         }
     }
-}
-
-co::ObjectVersion Frame::getDataVersion( const Eye eye ) const
-{
-    return co::ObjectVersion( _frameData[ lunchbox::getIndexOfLastBit( eye )]);
 }
 
 std::ostream& operator << ( std::ostream& os, const Frame* frame )
@@ -216,20 +195,19 @@ std::ostream& operator << ( std::ostream& os, const Frame* frame )
         os << " ]" << std::endl;
     }
 
-    const eq::Frame::Type frameType = frame->getType();
-    if( frameType != eq::Frame::TYPE_MEMORY )
+    const Frame::Type frameType = frame->getType();
+    if( frameType != Frame::TYPE_MEMORY )
         os  << frameType;
     
-    const eq::Viewport& vp = frame->getViewport();
+    const Viewport& vp = frame->getViewport();
     if( vp != eq::Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    const eq::Zoom& zoom = frame->getZoom();
+    const Zoom& zoom = frame->getZoom();
     if( zoom.isValid() && zoom != eq::Zoom::NONE )
         os << zoom << std::endl;
 
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
-    return os;
+    return os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
 }
 
 }

@@ -143,7 +143,7 @@ Compound::InheritData::InheritData()
         : channel( 0 )
         , overdraw( Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
-        , eyes( fabric::EYE_UNDEFINED )
+        , eyes( EYE_UNDEFINED )
         , tasks( fabric::TASK_DEFAULT )
         , period( LB_UNDEFINED_UINT32 )
         , phase( LB_UNDEFINED_UINT32 )
@@ -153,7 +153,7 @@ Compound::InheritData::InheritData()
     for( int i=0; i<IATTR_ALL; ++i )
         iAttributes[i] =
             global->getCompoundIAttribute( static_cast< IAttribute >( i ));
-    for( size_t i = 0; i < eq::NUM_EYES; ++i )
+    for( size_t i = 0; i < NUM_EYES; ++i )
         active[ i ] = 0;
 }
 
@@ -622,8 +622,7 @@ void Compound::updateFrustum( const Vector3f& eye, const float ratio )
     }
 }
 
-void Compound::computeFrustum( RenderContext& context, 
-                               const fabric::Eye eye ) const
+void Compound::computeFrustum( RenderContext& context, const Eye eye ) const
 {
     // compute eye position in screen space
     const Vector3f eyeWorld = _getEyePosition( eye );
@@ -637,7 +636,7 @@ void Compound::computeFrustum( RenderContext& context,
     _computeOrtho( context, eyeWall );
 }
 
-void Compound::computeTileFrustum( Frustumf& frustum, const fabric::Eye eye,
+void Compound::computeTileFrustum( Frustumf& frustum, const Eye eye,
                                    Viewport vp, bool ortho ) const
 {
     const Vector3f eyeWorld = _getEyePosition( eye );
@@ -671,7 +670,7 @@ void Compound::_computePerspective( RenderContext& context,
 
     _computeFrustumCorners( context.frustum, frustumData, eye, false);
     _computeHeadTransform( context.headTransform, frustumData.getTransform(),
-        eye );
+                           eye );
 
     const bool isHMD = (frustumData.getType() != Wall::TYPE_FIXED);
     if( isHMD )
@@ -698,7 +697,7 @@ void Compound::_computeOrtho( RenderContext& context, const Vector3f& eye) const
         context.orthoTransform *= _getInverseHeadMatrix();
 }
 
-Vector3f Compound::_getEyePosition( const fabric::Eye eye ) const
+Vector3f Compound::_getEyePosition( const Eye eye ) const
 {
     const FrustumData& frustumData = getInheritFrustumData();
     const Channel* destChannel = getInheritChannel();
@@ -1030,7 +1029,7 @@ void Compound::activate( const uint32_t eyes )
 {
     for( size_t i = 0; i < NUM_EYES; ++i )
     {
-        const fabric::Eye eye = static_cast< Eye >( 1 << i );
+        const Eye eye = Eye( 1 << i );
         if( !(eyes & eye) )
             continue;
 

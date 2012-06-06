@@ -148,10 +148,10 @@ co::Barrier* Node::getBarrier( const co::ObjectVersion barrier )
     return netBarrier;
 }
 
-FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
+FrameDataPtr Node::getFrameData( const co::ObjectVersion& frameDataVersion )
 {
-    lunchbox::ScopedMutex<> mutex( _frameDatas );
-    FrameData* data = _frameDatas.data[ frameDataVersion.identifier ];
+    lunchbox::ScopedWrite mutex( _frameDatas );
+    FrameDataPtr data = _frameDatas.data[ frameDataVersion.identifier ];
 
     if( !data )
     {
@@ -163,6 +163,17 @@ FrameData* Node::getFrameData( const co::ObjectVersion& frameDataVersion )
     LBASSERT( frameDataVersion.version.high() == 0 );
     data->setVersion( frameDataVersion.version.low( ));
     return data;
+}
+
+void Node::releaseFrameData( FrameDataPtr data )
+{
+    lunchbox::ScopedWrite mutex( _frameDatas );
+    FrameDataHashIter i = _frameDatas->find( data->getID( ));
+    EQASSERT( i != _frameDatas->end( ));
+    if( i == _frameDatas->end( ))
+        return;
+
+    _frameDatas->erase( i );
 }
 
 void Node::waitInitialized() const
@@ -387,12 +398,13 @@ void Node::_flushObjects()
     }
 
     lunchbox::ScopedMutex<> mutex( _frameDatas );
-    for( FrameDataHash::const_iterator i = _frameDatas->begin(); 
-         i != _frameDatas->end(); ++ i )
+    LBASSERT( _frameDatas->empty( ));
+
+    for( FrameDataHashCIter i = _frameDatas->begin();
+         i != _frameDatas->end(); ++i )
     {
-        FrameData* frameData = i->second;
-        client->unmapObject( frameData );
-        delete frameData;
+        FrameDataPtr frameData = i->second;
+        client->unmapObject( frameData.get( ));
     }
     _frameDatas->clear();
 }
@@ -603,7 +615,7 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
 
     LBASSERT( packet->pvp.isValid( ));
 
-    FrameData* frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( packet->frameData );
     LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
@@ -619,7 +631,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
-    FrameData* frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( packet->frameData );
     LBASSERT( frameData );
     LBASSERT( !frameData->isReady() );
     frameData->setReady( packet );
