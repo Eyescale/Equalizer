@@ -11,10 +11,9 @@
     <li><a href="#optimizations">2.3. Optimizations</a></li>
     <li><a href="#examples">2.4. Examples</a></li>
     <li><a href="#tools">2.5. Tools</a></li>
-    <li><a href="#changes">2.6. API Changes</a></li>
-    <li><a href="#documentation">2.7. Documentation</a></li>
-    <li><a href="#bugfixes">2.8. Bug Fixes</a></li>
-    <li><a href="#knownbugs">2.9. Known Bugs</a></li>
+    <li><a href="#documentation">2.6. Documentation</a></li>
+    <li><a href="#bugfixes">2.7. Bug Fixes</a></li>
+    <li><a href="#knownbugs">2.8. Known Bugs</a></li>
   </ul>
   <li><a href="#about">3. About</a></li>
   <ul>
@@ -30,17 +29,18 @@
 <h2>1. Introduction</h2>
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
-  scalable OpenGL applications. This release is a bugfix release for Equalizer
-  1.2.
+  scalable OpenGL applications. This release introduces major new features, most
+  notably ...
 </p>
 <p>
-  Equalizer 1.2 culminates over seven years of development and decades of
-  experience into a feature-rich, high-performance and mature parallel rendering
-  framework and an object-oriented high-level network library. It is intended
-  for all application developers creating parallel, interactive OpenGL
-  applications. Equalizer 1.2.1 can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.2.1.tar.gz">source
-    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/major.html#1.2">precompiled packages</a>.
+  Equalizer 1.4 beta is a feature release extending the 1.0 API, distilling over
+  seven years of development and decades of experience into a feature-rich,
+  high-performance and mature parallel rendering framework and an
+  object-oriented high-level network library. It is intended for all application
+  developers creating parallel, interactive OpenGL applications. Equalizer 1.4
+  beta can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.3.5.tar.gz">source
+    code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/developer.html">precompiled packages</a>.
 </p>
 
 <a name="features"></a>
@@ -71,68 +71,116 @@
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 1.2.1 contains the following features, enhancements, bug fixes
+  Equalizer 1.4 beta contains the following features, enhancements, bug fixes
   and documentation changes:
 </p>
 
 <a name="newFeatures"></a>
 <h3>2.1. New Features</h3>
-<p>No new features</p>
+<ul>
+  <li><a href="http://www.equalizergraphics.com/documents/design/asyncCompositing.html">Asynchronous
+      readback</a> support</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/57">Automatic
+      CPU-GPU affinity</a>.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/63">Application-specific
+      scaling</a> to visualize data in a scale different to 1:1 in immersive
+    environments.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/67">VirtualGL-aware
+      auto-configuration</a></li>
+  <li><a href="/documents/design/roi.html">Region of interest</a> for scalable
+    rendering and load-balancing.</li>
+</ul>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/122">ZeroConf
+      support and node discovery</a>.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/116">Blocking
+      co::Object::commit</a>.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/111">Extensible
+      packet dispatch</a>.</li>
+</ul>
 
 <a name="enhancements"></a>
 <h3>2.2. Enhancements</h3>
-<p>No enhancements</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/70">System window
+      without drawable buffer</a></li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/123">Mac OS X: Build
+      universal libraries even when AGL is enabled</a>.</li>
+  <li>auto-config: add direct send configuration.</li>
+  <li>auto-config: save generated configuration to .eqc file.</li>
+  <li>auto-config: application-specific flags for multiprocess execution.</li>
+</ul>
 
 <a name="optimizations"></a>
 <h3>2.3. Optimizations</h3>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/109">109</a>:
-    Race and performance issue with multicast object distribution</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/95">Multi-GPU NVidia
+      optimization</a></li>
+  <li>load_equalizer: split along longest axis in 2D mode.</li>
+</ul><ul>
+  <li>InfiniBand RDMA: significant performance increase using a different
+    underlying implementation.</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
-<p>No example changes</p>
+<ul>
+  <li>eqPly: Add command line option to disable region of interest.</li>
+  <li>eqPly: Parallel kd-tree construction when using gcc 4.4 or later.</li>
+  <li>eqPly: runtime-changeable model unit scaling.</li>
+  <li>eqPly: Create all VBOs/display lists during the first frame.</li>
+</ul>
 
 <a name="tools"></a>
 <h3>2.5. Tools</h3>
-<p>No tool changes</p>
-
-<a name="changes"></a>
-<h3>2.6. API Changes</h3>
-<p>No API changes</p>
+<ul>
+  <li>eqPlyConverter: New offline tool to generate binary cache for eqPly.</li>
+</ul>
 
 <a name="documentation"></a>
-<h3>2.7. Documentation</h3>
-<p>No documentation changes</p>
-
-<a name="bugfixes"></a>
-<h3>2.8. Bug Fixes</h3>
+<h3>2.6. Documentation</h3>
 <p>
-  Equalizer 1.2.1 includes the following bugfixes over the 1.2 release:
+  The following documentation has been added or substantially improved since the
+  last release:
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/103">103</a>:
-    RSP race during connection</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/105">105</a>:
-    Sequel missing from packages</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/107">107</a>:
-    Installed examples CMake build does not work</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/112">112</a>:
-    --eq-layout gets activated on second frame</li>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/113">113</a>:
-    Install find scripts in CMake root</li>
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
+      documentation</a> for the public Equalizer API.</li>
+  <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
+      User Guide</a> has been extended to 107 pages and 60 figures.</li>
+  <li><a href="/documents/design/tileCompounds.html">Tile compounds</a>
+    using a pull-based task distribution for volume rendering and interactive
+    raytracing.</li>
+</ul>
+
+<a name="bugfixes"></a>
+<h3>2.7. Bug Fixes</h3>
+<p>
+  Equalizer 1.4 beta includes various bugfixes over the 1.2.1 release, including the
+  following:
+</p>
+<ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/124">124</a>:
+    Upload plugins are not freed.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/121">121</a>:
+    Packaging: netperf conflicts with other packages.</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/117">117</a>:
+    Race with async channel tasks.</li>
 </ul>
 
 <a name="knownbugs"></a>
-<h3>2.9. Known Bugs</h3>
+<h3>2.8. Known Bugs</h3>
 <p>The following bugs were known at release time. Please file a
   <a href="https://github.com/Eyescale/Equalizer/issues">Bug Report</a> if you
   find any other issue with this release.
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/118"></a>118:
+    OS X: Async readback doesn't work</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
     assertion on interaction with multiple GPUs</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/77">77</a>:
+    7-window.DB.PIXEL.eqc broken</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/76">76</a>:
     7-window.DPLEX.2D.lb.eqc does not load-balance</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/49">49</a>:
@@ -155,7 +203,7 @@
 </p>
 <p>
   Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
-  but uses newer OpenGL features when available. Version 1.2 has been tested on:
+  but uses newer OpenGL features when available. Version 1.4 beta has been tested on:
 </p>
 
 <a name="os"></a>
@@ -165,9 +213,9 @@
   following platforms and build environments are tested:
 </p>
 <ul>
-  <li><b>Linux:</b> Ubuntu 11.04, 11.10, RHEL 6.1 (Makefile, i386, x64)</li>
-  <li><b>Windows:</b> XP and 7 (Visual Studio 2008, i386, x64)</li>
-  <li><b>Mac OS X:</b> 10.6, 10.7 (Makefile, XCode, i386, x64)</li>
+  <li><b>Linux:</b> Ubuntu 11.10, 12.04, RHEL 6.1 (Makefile, i386, x64)</li>
+  <li><b>Windows:</b> 7 (Visual Studio 2008, i386, x64)</li>
+  <li><b>Mac OS X:</b> 10.7 (Makefile, XCode, i386, x64)</li>
 </ul>
 
 <a name="ws"></a>
@@ -184,18 +232,18 @@
   The Programming and User Guide is available as a 
   <a href="https://www.createspace.com/3800793">hard-copy</a>
   and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
-  The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/index.html">API
+  The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
     documentation</a> can be found on the Equalizer website.
 </p>
 <p>
   As with any open source project, the available source code, in particular the
   shipped
-  <a href="https://github.com/Eyescale/Equalizer/tree/1.2.1/examples">examples</a>
+  <a href="https://github.com/Eyescale/Equalizer/tree/1.3.5/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
   provides further design documents for specific features. XCode users can
   download
-  a <a href="http://www.equalizergraphics.com/documents/Developer/API-1.2/ch.eyescale.Equalizer.docset.zip">Documentation
+  a <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/ch.eyescale.Equalizer.docset.zip">Documentation
     Set</a>.
 </p>
 
@@ -217,4 +265,3 @@
 
 <a name="errata"></a>
 <h2>4. Errata</h2>
-<p></p>
