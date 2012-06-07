@@ -178,12 +178,11 @@ macro(FIND_LIBRARY_PACKAGE name)
         endif()
       endif()
     else()
-      if( NOT ${name}_FIND_VERSION VERSION_EQUAL ${_flp_NAME}_VERSION AND 
-          NOT ${name}_FIND_VERSION VERSION_GREATER ${_flp_NAME}_VERSION )
+      if( ${name}_FIND_VERSION VERSION_GREATER ${_flp_NAME}_VERSION )
         set(_flp_EPIC_FAIL TRUE)
         if(_flp_output)
           message(${_flp_version_output_type}
-            "Version ${${name}_FIND_VERSION} or higher of ${name} is required."
+            "Version ${${name}_FIND_VERSION} or higher of ${name} is required. "
             "Version ${${_flp_NAME}_VERSION} was found in ${${_flp_NAME}_INCLUDE_DIR}.")
         endif()
       endif()
