@@ -77,6 +77,6 @@
 #include <co/object.h>
 #include <co/serializable.h>
 #include <co/zeroconf.h>
-#include <lunchbox/base.h>
+#include <lunchbox/lunchbox.h>
 
 #endif // CO_H
