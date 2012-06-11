@@ -206,10 +206,10 @@ function(UPLOAD_PPA UBUNTU_NAME)
 
   ##############################################################################
   # dput ppa:your-lp-id/ppa <source.changes>
-  add_custom_target(dput_${PROJECT_NAME}_${UBUNTU_NAME}
+  add_custom_target(dput_${UBUNTU_NAME}
     ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES}
     DEPENDS ${DEBIAN_BASE_DIR}/${DEB_SOURCE_CHANGES}
     WORKING_DIRECTORY ${DEBIAN_BASE_DIR}
     )
-  set(DPUT_${PROJECT_NAME}_TARGETS ${DPUT_${PROJECT_NAME}_TARGETS} dput_${PROJECT_NAME}_${UBUNTU_NAME} PARENT_SCOPE)
+  set(DPUT_TARGETS ${DPUT_TARGETS} dput_${UBUNTU_NAME} PARENT_SCOPE)
 endfunction()
