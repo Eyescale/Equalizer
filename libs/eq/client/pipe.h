@@ -270,11 +270,11 @@ namespace detail { class Pipe; class RenderThread; }
          * Returns always true since version 1.1.3 since the WindowSystem is an
          * object.
          *
-         * @param system the window system to test.
+         * @param ws the window system to test.
          * @return true if the window system is supported, false if not.
          * @version 1.0
          */
-        EQ_API virtual bool supportsWindowSystem( const WindowSystem ) const;
+        EQ_API virtual bool supportsWindowSystem( const WindowSystem ws ) const;
 #endif
         /** 
          * Choose the window system to be used by this pipe.

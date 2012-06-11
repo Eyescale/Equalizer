@@ -17,10 +17,7 @@ configure_file(DoxygenLayout.xml ${CMAKE_CURRENT_BINARY_DIR}/DoxygenLayout.xml
   @ONLY)
 configure_file(doxyfooter.html ${CMAKE_CURRENT_BINARY_DIR}/doxyfooter.html
   @ONLY)
-configure_file(Doxyfile.ext ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.ext @ONLY)
 configure_file(Doxyfile.int ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.int @ONLY)
-configure_file(Doxyfile.co ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.co @ONLY)
-configure_file(Doxyfile.seq ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.seq @ONLY)
 
 get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_TARGETS)
 add_custom_target(doxygen_install
@@ -35,37 +32,38 @@ add_custom_target(doxygen_int
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Generating internal API documentation using doxygen" VERBATIM)
 
-add_custom_target(doxygen_co
-  ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.co
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS
-  COMMENT "Generating Collage API documentation using doxygen" VERBATIM)
-add_dependencies(doxygen_co doxygen_install doxygen_int)
+set(PUBLIC_DOCS Collage Sequel Equalizer)
+set(PREVIOUS doxygen_int doxygen_install)
+foreach(DOC ${PUBLIC_DOCS})
+  configure_file(Doxyfile.${DOC} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.${DOC}
+    @ONLY)
+  add_custom_target(doxygen_${DOC}
+    ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.${DOC}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating ${DOC} API documentation using doxygen" VERBATIM)
+  add_dependencies(doxygen_${DOC} ${PREVIOUS})
 
-add_custom_target(doxygen_seq
-  ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.seq
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMENT "Generating Sequel API documentation using doxygen" VERBATIM)
-add_dependencies(doxygen_seq doxygen_co)
+  add_custom_target(github_${DOC}
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${VERSION}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${VERSION}
+    COMMENT "Copying API documentation to eyescale.github.com/${DOC}-${VERSION}"
+    VERBATIM)
+  add_dependencies(github_${DOC} doxygen_${DOC})
 
-add_custom_target(doxygen_ext
-  ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.ext
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMENT "Generating Equalizer API documentation using doxygen" VERBATIM)
-add_dependencies(doxygen_ext doxygen_seq)
+  make_directory(${CMAKE_CURRENT_BINARY_DIR}/${DOC})
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DOC}
+    DESTINATION share/Equalizer COMPONENT doc)
+  set(PREVIOUS doxygen_${DOC})
+endforeach()
 
 # set_target_properties(tests PROPERTIES FOLDER "Tests")
-add_custom_target(doxygen DEPENDS doxygen_ext doxygen_int doxygen_co)
+add_custom_target(doxygen DEPENDS github_Collage github_Sequel github_Equalizer)
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/man/man3)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man/man3 DESTINATION man
   COMPONENT man PATTERN "*_docs_*" EXCLUDE)
 
 make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
-make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/collage/documents/Developer/API)
-make_directory(${CMAKE_CURRENT_BINARY_DIR}/html)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION share/Equalizer
-        COMPONENT doc)
 install(DIRECTORY . DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES ../RELNOTES.txt ../AUTHORS ../CHANGES.txt ../ACKNOWLEDGEMENTS
         ../LGPL ../LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)
