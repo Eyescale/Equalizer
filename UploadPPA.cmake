@@ -24,6 +24,14 @@ endif()
 
 set(UPLOADPPA_FOUND TRUE)
 
+if(NOT DPUT_HOST)
+  if(RELEASE_VERSION)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
+endif()
+
 # DEBIAN/control
 # debian policy enforce lower case for package name
 # Package: (mandatory)
