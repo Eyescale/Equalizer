@@ -43,10 +43,16 @@ foreach(DOC ${PUBLIC_DOCS})
     COMMENT "Generating ${DOC} API documentation using doxygen" VERBATIM)
   add_dependencies(doxygen_${DOC} ${PREVIOUS})
 
+  if(DOC STREQUAL Collage)
+    set(PROJECT_VERSION ${CO_VERSION})
+  else()
+    set(PROJECT_VERSION ${VERSION})
+  endif()
+
   add_custom_target(github_${DOC}
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${VERSION}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${VERSION}
-    COMMENT "Copying API documentation to eyescale.github.com/${DOC}-${VERSION}"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${PROJECT_VERSION}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html/${DOC} ${CMAKE_SOURCE_DIR}/../eyescale/${DOC}-${PROJECT_VERSION}
+    COMMENT "Copying API documentation to eyescale.github.com/${DOC}-${PROJECT_VERSION}"
     VERBATIM)
   add_dependencies(github_${DOC} doxygen_${DOC})
 
