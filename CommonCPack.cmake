@@ -58,10 +58,8 @@ if(LSB_RELEASE_EXECUTABLE)
   execute_process(COMMAND ${LSB_RELEASE_EXECUTABLE} -si
     OUTPUT_VARIABLE LSB_DISTRIBUTOR_ID OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  message(STATUS "LSB-Release system information::
-      Distributor-ID: ${LSB_DISTRIBUTOR_ID}
-      Release: ${LSB_RELEASE}
-      Codename: ${LSB_CODENAME}")
+  message(STATUS "LSB-Release system information:: Distributor-ID: "
+    "${LSB_DISTRIBUTOR_ID}  Release: ${LSB_RELEASE}  Codename: ${LSB_CODENAME}")
 endif()
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   find_program(RPM_EXE rpmbuild)
