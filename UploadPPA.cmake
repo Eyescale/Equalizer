@@ -16,12 +16,21 @@ if(NOT DPUT_EXECUTABLE)
   message(STATUS "dput not found")
   return()
 endif()
-if(CMAKE_BINARY_DIR MATCHES "${CMAKE_SOURCE_DIR}")
-  message(STATUS "Build directory is a sub-directory of source, no PPA upload")
+if(CMAKE_BINARY_DIR MATCHES "${CMAKE_SOURCE_DIR}/")
+  message(STATUS "Build directory ${CMAKE_BINARY_DIR} is a sub-directory of "
+    "source directory ${CMAKE_SOURCE_DIR}, no PPA upload")
   return()
 endif()
 
 set(UPLOADPPA_FOUND TRUE)
+
+if(NOT DPUT_HOST)
+  if(RELEASE_VERSION)
+    set(DPUT_HOST "ppa:eilemann/equalizer")
+  else()
+    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
+  endif()
+endif()
 
 # DEBIAN/control
 # debian policy enforce lower case for package name
@@ -197,10 +206,16 @@ function(UPLOAD_PPA UBUNTU_NAME)
 
   ##############################################################################
   # dput ppa:your-lp-id/ppa <source.changes>
-  add_custom_target(dput_${PROJECT_NAME}_${UBUNTU_NAME}
+  add_custom_target(dput_${UBUNTU_NAME}
     ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES}
     DEPENDS ${DEBIAN_BASE_DIR}/${DEB_SOURCE_CHANGES}
     WORKING_DIRECTORY ${DEBIAN_BASE_DIR}
     )
-  set(DPUT_${PROJECT_NAME}_TARGETS ${DPUT_${PROJECT_NAME}_TARGETS} dput_${PROJECT_NAME}_${UBUNTU_NAME} PARENT_SCOPE)
+  set(DPUT_TARGETS ${DPUT_TARGETS} dput_${UBUNTU_NAME} PARENT_SCOPE)
+endfunction()
+
+function(UPLOAD_PPAS)
+  upload_ppa(oneiric)
+  upload_ppa(precise)
+  add_custom_target(dput DEPENDS ${DPUT_TARGETS})
 endfunction()

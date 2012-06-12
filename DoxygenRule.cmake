@@ -19,6 +19,13 @@ add_custom_target(doxygen
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
 
+add_custom_target(github
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../eyescale/${PROJECT_NAME}-${VERSION}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../eyescale/${PROJECT_NAME}-${VERSION}
+  COMMENT "Copying API documentation to eyescale.github.com/${PROJECT_NAME}-${VERSION}"
+  VERBATIM)
+add_dependencies(github doxygen)
+
 make_directory(${CMAKE_BINARY_DIR}/doc/man/man3)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/doc/man/man3 DESTINATION man
   COMPONENT man PATTERN "*_docs_*" EXCLUDE)
