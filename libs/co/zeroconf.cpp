@@ -30,9 +30,9 @@ static const std::string empty_;
 namespace detail
 {
 typedef std::map< std::string, std::string > ValueMap;
-typedef std::map< std::string, ValueMap > HostMap;
+typedef std::map< std::string, ValueMap > InstanceMap;
 typedef ValueMap::const_iterator ValueMapCIter;
-typedef HostMap::const_iterator HostMapCIter;
+typedef InstanceMap::const_iterator InstanceMapCIter;
 
 class Zeroconf
 {
@@ -40,7 +40,7 @@ public:
     Zeroconf( servus::Service& service )
             : service_( service )
     {
-        service_.getData( hostMap_ );
+        service_.getData( instanceMap_ );
     }
 
     void set( const std::string& key, const std::string& value )
@@ -48,19 +48,22 @@ public:
         service_.set( key, value );
     }
 
-    Strings getHosts() const
+    Strings getInstances() const
     {
-        Strings hosts;
-        for( HostMapCIter i = hostMap_.begin(); i != hostMap_.end(); ++i )
-            hosts.push_back( i->first );
-        return hosts;
+        Strings instances;
+        for( InstanceMapCIter i = instanceMap_.begin();
+             i != instanceMap_.end(); ++i )
+        {
+            instances.push_back( i->first );
+        }
+        return instances;
     }
 
-    Strings getKeys( const std::string& host ) const
+    Strings getKeys( const std::string& instance ) const
     {
         Strings keys;
-        HostMapCIter i = hostMap_.find( host );
-        if( i == hostMap_.end( ))
+        InstanceMapCIter i = instanceMap_.find( instance );
+        if( i == instanceMap_.end( ))
             return keys;
 
         const ValueMap& values = i->second;
@@ -69,10 +72,11 @@ public:
         return keys;
     }
 
-    bool containsKey( const std::string& host, const std::string& key ) const
+    bool containsKey( const std::string& instance,
+                      const std::string& key ) const
     {
-        HostMapCIter i = hostMap_.find( host );
-        if( i == hostMap_.end( ))
+        InstanceMapCIter i = instanceMap_.find( instance );
+        if( i == instanceMap_.end( ))
             return false;
 
         const ValueMap& values = i->second;
@@ -82,11 +86,11 @@ public:
         return true;
     }
 
-    const std::string& get( const std::string& host,
+    const std::string& get( const std::string& instance,
                             const std::string& key ) const
     {
-        HostMapCIter i = hostMap_.find( host );
-        if( i == hostMap_.end( ))
+        InstanceMapCIter i = instanceMap_.find( instance );
+        if( i == instanceMap_.end( ))
             return empty_;
 
         const ValueMap& values = i->second;
@@ -98,7 +102,7 @@ public:
 
 private:
     servus::Service& service_;
-    HostMap hostMap_; //!< copy of discovered data
+    InstanceMap instanceMap_; //!< copy of discovered data
 };
 }
 #endif
@@ -147,36 +151,36 @@ void Zeroconf::set( const std::string& key, const std::string& value )
 #endif
 }
 
-Strings Zeroconf::getHosts() const
+Strings Zeroconf::getInstances() const
 {
 #ifdef CO_USE_SERVUS
-    return _impl->getHosts();
+    return _impl->getInstances();
 #endif
     return Strings();
 }
 
-Strings Zeroconf::getKeys( const std::string& host ) const
+Strings Zeroconf::getKeys( const std::string& instance ) const
 {
 #ifdef CO_USE_SERVUS
-    return _impl->getKeys( host );
+    return _impl->getKeys( instance );
 #endif
     return Strings();
 }
 
-bool Zeroconf::containsKey( const std::string& host,
+bool Zeroconf::containsKey( const std::string& instance,
                             const std::string& key ) const
 {
 #ifdef CO_USE_SERVUS
-    return _impl->containsKey( host, key );
+    return _impl->containsKey( instance, key );
 #endif
     return false;
 }
 
-const std::string& Zeroconf::get( const std::string& host,
+const std::string& Zeroconf::get( const std::string& instance,
                                   const std::string& key ) const
 {
 #ifdef CO_USE_SERVUS
-    return _impl->get( host, key );
+    return _impl->get( instance, key );
 #endif
     return empty_;
 }

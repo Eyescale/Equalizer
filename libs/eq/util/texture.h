@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -27,10 +27,9 @@
 
 namespace eq
 {
-    class Image;
-
 namespace util
 {
+namespace detail { class Texture; }
     /** 
      * A wrapper around OpenGL textures.
      * 
@@ -57,7 +56,7 @@ namespace util
         /** @name Data Access. */
         //@{
         /** @return the target of the texture. @version 1.0 */
-        GLenum getTarget() const { return _target; }
+        EQ_API GLenum getTarget() const;
 
         /**
          * @internal
@@ -70,7 +69,7 @@ namespace util
          * @sa init()
          * @version 1.0 
          */
-        GLuint getInternalFormat() const { return _internalFormat; }
+        EQ_API GLuint getInternalFormat() const;
 
         /** 
          * Set the external data format and type.
@@ -86,22 +85,22 @@ namespace util
          * @return the external data format of the texture, e.g., GL_RGBA.
          * @version 1.0
          */
-        GLuint getFormat() const { return _format; }
+        EQ_API GLuint getFormat() const;
 
         /**
          * @return the external data type of the texture, e.g., GL_HALF_FLOAT.
          * @version 1.0
          */
-        GLuint getType() const { return _type; }
+        EQ_API GLuint getType() const;
 
         /** @return the OpenGL texture name. @version 1.0 */
-        GLuint getName() const { return _name; }
+        EQ_API GLuint getName() const;
 
         /** @return the current width. @version 1.0 */
-        int32_t getWidth() const { return _width; }
+        EQ_API int32_t getWidth() const;
 
         /** @return the current height. @version 1.0 */
-        int32_t getHeight() const { return _height; }
+        EQ_API int32_t getHeight() const;
 
         /** @return true if the texture can be bound. @version 1.0 */
         EQ_API bool isValid() const;
@@ -163,9 +162,8 @@ namespace util
         EQ_API void writeRGB( const std::string& filename ) const;
         //@}
 
-        const GLEWContext* glewGetContext() const { return _glewContext; }
-        void setGLEWContext( const GLEWContext* context )
-            { _glewContext = context; }
+        EQ_API const GLEWContext* glewGetContext() const;
+        EQ_API void setGLEWContext( const GLEWContext* context );
 
         /** @name Wrap existing GL textures */
         //@{
@@ -193,35 +191,7 @@ namespace util
         //@}
 
     private:
-        /** The GL texture name. */
-        GLuint _name;
-
-        /** the target of the texture. */
-        const GLenum _target;
-
-        /** The GL pixel format (format+type). */
-        GLuint _internalFormat;
-
-        /** texture data format, complementary to pixel texture format */
-        GLuint _format;
-
-        /** texture data type */
-        GLuint _type;
-        
-        /** The maximum width of the texture. */
-        int32_t _width;
-
-        /** The maximum height of the texture. */
-        int32_t _height;
-
-        /** false if the texture needs to be defined, true if not. */
-        bool _defined;
-
-        const GLEWContext* _glewContext;
-
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
-
+        detail::Texture* const _impl;
         /**
          * Set the internal pixel format of the texture, e.g., GL_RGBA16F.
          *

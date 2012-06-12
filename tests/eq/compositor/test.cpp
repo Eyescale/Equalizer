@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -33,11 +33,11 @@ int main( int argc, char **argv )
     eq::NodeFactory nodeFactory;
     TEST( eq::init( 0, 0, &nodeFactory ));
 
-    eq::Frame      frame;
-    eq::FrameData* frameData = new eq::FrameData;
+    eq::Frame frame;
+    eq::FrameDataPtr frameData = new eq::FrameData;
 
     frameData->setBuffers( eq::Frame::BUFFER_COLOR | eq::Frame::BUFFER_DEPTH );
-    frame.setData( frameData );
+    frame.setFrameData( frameData );
 
     // 1) 2D assembly test
     eq::Image* image = frameData->newImage( eq::Frame::TYPE_MEMORY,

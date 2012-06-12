@@ -19,7 +19,7 @@
 #define CO_DEFINES_H
 
 // Lunchbox includes before, the generated files check for LB defines.
-#include <lunchbox/base.h>
+#include <lunchbox/lunchbox.h>
 
 #ifdef __APPLE__
 #  include <co/definesDarwin.h>

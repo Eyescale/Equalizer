@@ -68,8 +68,8 @@ static EnumMap _enums[] = {
 Channel::Channel( eq::Window* parent )
         : eq::Channel( parent )
 {
-    eq::FrameData* frameData = new eq::FrameData;
-    _frame.setData( frameData );
+    eq::FrameDataPtr frameData = new eq::FrameData;
+    _frame.setFrameData( frameData );
 
     for( unsigned i = 0; i < NUM_IMAGES; ++i )
         frameData->newImage( eq::Frame::TYPE_MEMORY, getDrawableConfig( ));

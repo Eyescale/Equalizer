@@ -57,22 +57,22 @@ int main( int argc, char **argv )
     lunchbox::sleep( 500 ); // give it time to propagate
     zeroconf = client->getZeroconf(); // rediscover, use other peer for a change
 
-    const co::Strings& hosts = zeroconf.getHosts();
+    const co::Strings& instances = zeroconf.getInstances();
     bool found = false;
-    TEST( hosts.size() >= 1 );
+    TEST( instances.size() >= 1 );
 
-    for( co::StringsCIter i = hosts.begin(); i != hosts.end(); ++i )
+    for( co::StringsCIter i = instances.begin(); i != instances.end(); ++i )
     {
-        const std::string& host = *i;
-        const uint128_t nodeID( zeroconf.get( host, "co_id" ));
+        const std::string& instance = *i;
+        const uint128_t nodeID( instance );
         TEST( nodeID != co::NodeID::ZERO );
         TEST( nodeID != client->getNodeID( ));
 
         if( nodeID != server->getNodeID( ))
             continue;
 
-        TEST( zeroconf.get( host, "co_numPorts" ) == "1" );
-        TEST( zeroconf.get( host, "co_test_value" ) == "42" );
+        TEST( zeroconf.get( instance, "co_numPorts" ) == "1" );
+        TEST( zeroconf.get( instance, "co_test_value" ) == "42" );
         found = true;
     }
 

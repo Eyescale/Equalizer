@@ -64,18 +64,18 @@ namespace detail { class Zeroconf; }
          */
         CO_API void set( const std::string& key, const std::string& value );
 
-        /** @return all hosts found at the time of creation. */
-        CO_API Strings getHosts() const;
+        /** @return all instances found at the time of creation. */
+        CO_API Strings getInstances() const;
 
-        /** @return all keys discovered on the given host. */
-        CO_API Strings getKeys( const std::string& host ) const;
+        /** @return all keys discovered on the given instance. */
+        CO_API Strings getKeys( const std::string& instance ) const;
 
         /** @return true if the given key was discovered. */
-        CO_API bool containsKey( const std::string& host,
+        CO_API bool containsKey( const std::string& instance,
                                  const std::string& key ) const;
 
-        /** @return the value of the given key on the given host. */
-        CO_API const std::string& get( const std::string& host,
+        /** @return the value of the given key on the given instance. */
+        CO_API const std::string& get( const std::string& instance,
                                        const std::string& key ) const;
     private:
         Zeroconf();

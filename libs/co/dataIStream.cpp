@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *               2009-2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -67,10 +67,10 @@ void DataIStream::read( void* data, uint64_t size )
     }
 
     LBASSERT( _input );
-    
+
     if( _position + size > _inputSize )
     {
-        LBERROR << "Not enough data in input buffer: need " << size 
+        LBERROR << "Not enough data in input buffer: need " << size
                 << " bytes, " << _inputSize - _position << " left "<< std::endl;
         LBUNREACHABLE;
         // TODO: Allow reads which are asymmetric to writes by reading from
@@ -111,7 +111,7 @@ bool DataIStream::_checkBuffer()
         uint32_t compressor = EQ_COMPRESSOR_NONE;
         uint32_t nChunks = 0;
         const void* chunkData = 0;
-        
+
         if( !getNextBuffer( &compressor, &nChunks, &chunkData, &_inputSize ))
             return false;
 
@@ -139,11 +139,11 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
         _decompressor->initDecompressor( name );
 
     uint64_t outDim[2] = { 0, dataSize };
-    uint64_t* chunkSizes = static_cast< uint64_t* >( 
+    uint64_t* chunkSizes = static_cast< uint64_t* >(
                                 alloca( nChunks * sizeof( uint64_t )));
-    void** chunks = static_cast< void ** >( 
+    void** chunks = static_cast< void ** >(
                                 alloca( nChunks * sizeof( void* )));
-    
+
     for( uint32_t i = 0; i < nChunks; ++i )
     {
         const uint64_t size = *reinterpret_cast< const uint64_t* >( src );
@@ -155,7 +155,7 @@ const uint8_t* DataIStream::_decompress( const void* data, const uint32_t name,
         src += size;
     }
 
-    _decompressor->decompress( chunks, chunkSizes, nChunks, 
+    _decompressor->decompress( chunks, chunkSizes, nChunks,
                                _data.getData(), outDim );
     return _data.getData();
 }

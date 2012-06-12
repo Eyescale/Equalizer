@@ -923,7 +923,7 @@ compoundField:
         compoundTasks ']'
     | EQTOKEN_EYE  '['   { eqCompound->setEyes( eq::fabric::EYE_UNDEFINED );}
         compoundEyes  ']'
-    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
+    | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
         buffers ']' { eqCompound->setBuffers( flags ); flags = 0; }
     | EQTOKEN_VIEWPORT viewport
         { eqCompound->setViewport( eq::Viewport( $2[0], $2[1], $2[2], $2[3] ));}
@@ -1041,8 +1041,8 @@ compoundEye:
 
 buffers: /*null*/ | buffers buffer
 buffer:
-    EQTOKEN_COLOR    { flags |= eq::Frame::BUFFER_COLOR; }
-    | EQTOKEN_DEPTH  { flags |= eq::Frame::BUFFER_DEPTH; }
+    EQTOKEN_COLOR    { flags |= eq::fabric::Frame::BUFFER_COLOR; }
+    | EQTOKEN_DEPTH  { flags |= eq::fabric::Frame::BUFFER_DEPTH; }
     
 drawables:  /*null*/ | drawables drawable
 drawable:  
@@ -1259,14 +1259,14 @@ frameField:
     | EQTOKEN_TYPE frameType
     | EQTOKEN_VIEWPORT viewport
         { frame->setViewport(eq::Viewport( $2[0], $2[1], $2[2], $2[3])); }
-    | EQTOKEN_BUFFER '[' { flags = eq::Frame::BUFFER_NONE; }
+    | EQTOKEN_BUFFER '[' { flags = eq::fabric::Frame::BUFFER_NONE; }
         buffers ']' { frame->setBuffers( flags ); flags = 0; }
     | EQTOKEN_ZOOM '[' FLOAT FLOAT ']'
-        { frame->setZoom( eq::Zoom( $3, $4 )); }
+        { frame->setNativeZoom( eq::Zoom( $3, $4 )); }
 
 frameType: 
-    EQTOKEN_TEXTURE { frame->setType( eq::Frame::TYPE_TEXTURE ); }
-    | EQTOKEN_MEMORY { frame->setType( eq::Frame::TYPE_MEMORY ); }
+    EQTOKEN_TEXTURE { frame->setType( eq::fabric::Frame::TYPE_TEXTURE ); }
+    | EQTOKEN_MEMORY { frame->setType( eq::fabric::Frame::TYPE_MEMORY ); }
 
 inputFrame: EQTOKEN_OUTPUTTILES '{' { tileQueue = new eq::server::TileQueue; }
     tileQueueFields '}'

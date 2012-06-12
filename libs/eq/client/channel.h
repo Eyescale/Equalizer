@@ -598,18 +598,18 @@ namespace detail { class Channel; struct RBStat; }
 
         bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
-        void _asyncTransmit( FrameData* frame, const uint32_t frameNumber,
+        void _asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                              const size_t image,
                              const std::vector<uint128_t>& nodes,
                              const std::vector< uint128_t >& netNodes,
                              const uint32_t taskID );
 
         void _setReady( const bool async, detail::RBStat* stat );
-        void _asyncSetReady( const FrameData* frame, detail::RBStat* stat,
+        void _asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
                              const std::vector< uint128_t >& nodes,
                              const std::vector< uint128_t >& netNodes );
 
-        void _setReady( FrameData* frame, detail::RBStat* stat,
+        void _setReady( FrameDataPtr frame, detail::RBStat* stat,
                         const std::vector< uint128_t >& nodes,
                         const std::vector< uint128_t >& netNodes );
 

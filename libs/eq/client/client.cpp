@@ -192,7 +192,7 @@ bool Client::disconnectServer( ServerPtr server )
         _joinLocalServer();
         server->_localServer = false;
         server->setClient( 0 );
-        LBASSERT( !server->isConnected( ))
+        LBASSERT( !server->isConnected( ));
     }
     else
     {
