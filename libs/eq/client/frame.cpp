@@ -19,138 +19,160 @@
 
 #include "frameData.h"
 #include "image.h"
-
 #include <eq/util/objectManager.h>
-#include <co/dataIStream.h>
-#include <co/dataOStream.h>
 
 namespace eq
 {
+namespace detail
+{
+class Frame
+{
+public:
+    FrameData* frameData; // Remove me in 2.0
+    FrameDataPtr frameDataPtr;
+
+    ZoomFilter zoomFilter; // texture filter
+
+    Frame() : frameData( 0 ), zoomFilter( FILTER_LINEAR ) {}
+    ~Frame()
+    {
+        if( frameData )
+            LBINFO << "FrameData attached in frame destructor" << std::endl;
+    }
+};
+}
 
 Frame::Frame()
-        : _frameData( 0 )
-        , _zoomFilter( FILTER_LINEAR )
+        : _impl( new detail::Frame )
 {
-    LBINFO << "New Frame @" << (void*)this << std::endl;
 }
 
 Frame::~Frame()
 {
-    if( _frameData )
-        LBINFO << "FrameData attached to frame during deletion" << std::endl;
+    delete _impl;
 }
 
-void Frame::getInstanceData( co::DataOStream& os )
+void Frame::setZoomFilter( const ZoomFilter zoomFilter )
 {
-    LBUNREACHABLE;
-    _data.serialize( os );
+    _impl->zoomFilter = zoomFilter;
 }
 
-void Frame::applyInstanceData( co::DataIStream& is )
+ZoomFilter Frame::getZoomFilter() const
 {
-    _data.deserialize( is );
+    return _impl->zoomFilter;
 }
 
-void Frame::Data::serialize( co::DataOStream& os ) const
+#ifndef EQ_2_0_API
+void Frame::setData( FrameData* data )
 {
-    os << offset << zoom;
-
-    for( unsigned i = 0; i < NUM_EYES; ++i )
-        os << frameDataVersion[i] << toNodes[i].inputNodes 
-           << toNodes[i].inputNetNodes;
+    LBASSERTINFO( !_impl->frameDataPtr, "Don't mix deprecated with new API" );
+    _impl->frameData = data;
 }
 
-void Frame::Data::deserialize( co::DataIStream& is )
+FrameData* Frame::getData()
 {
-    is >> offset >> zoom;
-
-    for( unsigned i = 0; i < NUM_EYES; ++i )
-        is >> frameDataVersion[i] >> toNodes[i].inputNodes
-           >> toNodes[i].inputNetNodes;
+    return _impl->frameData;
 }
 
-const std::string& Frame::getName() const
+const FrameData* Frame::getData() const
 {
-    return _name;
+    return _impl->frameData;
+}
+#endif
+
+void Frame::setFrameData( FrameDataPtr data )
+{
+    _impl->frameDataPtr = data;
+    _impl->frameData = data.get();
+}
+
+FrameDataPtr Frame::getFrameData()
+{
+    return _impl->frameDataPtr;
+}
+
+const FrameDataPtr Frame::getFrameData() const
+{
+    return _impl->frameDataPtr;
 }
 
 uint32_t Frame::getBuffers() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getBuffers();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getBuffers();
 }
 
 const Pixel& Frame::getPixel() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPixel();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPixel();
 }
 
 const SubPixel& Frame::getSubPixel() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getSubPixel();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getSubPixel();
 }
 
 const Range& Frame::getRange() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getRange();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getRange();
 }
 
 uint32_t Frame::getPeriod() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPeriod();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPeriod();
 }
 
 uint32_t Frame::getPhase() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getPhase();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getPhase();
 }
 
 const Images& Frame::getImages() const
 {
-    LBASSERT( _frameData );
-    return _frameData->getImages();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->getImages();
 }
 
 void Frame::clear()
 {
-    LBASSERT( _frameData );
-    _frameData->clear();
+    LBASSERT( _impl->frameData );
+    _impl->frameData->clear();
 }
 
-void Frame::flush()
+void Frame::deleteGLObjects( ObjectManager* om )
 {
-    if( _frameData )
-        _frameData->flush();
+    if( _impl->frameData )
+        _impl->frameData->deleteGLObjects( om );
 }
 
 void Frame::setAlphaUsage( const bool useAlpha )
 {
-    if( _frameData )
-        _frameData->setAlphaUsage( useAlpha );
+    if( _impl->frameData )
+        _impl->frameData->setAlphaUsage( useAlpha );
 }
 
 void Frame::setQuality( const Frame::Buffer buffer, const float quality )
 {
-    if( _frameData )
-        _frameData->setQuality( buffer, quality );
+    if( _impl->frameData )
+        _impl->frameData->setQuality( buffer, quality );
 }
 
 void Frame::useCompressor( const Frame::Buffer buffer, const uint32_t name )
 {
-    if( _frameData )
-        _frameData->useCompressor( buffer, name );
+    if( _impl->frameData )
+        _impl->frameData->useCompressor( buffer, name );
 }
 
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 {
-    LBASSERT( _frameData );
-    const PixelViewport& pvp = _frameData->getPixelViewport();
-    const Images& images = _frameData->startReadback( *this, glObjects, config,
+    LBASSERT( _impl->frameData );
+    const PixelViewport& pvp = _impl->frameData->getPixelViewport();
+    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
                                                       PixelViewports( 1, pvp ));
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
@@ -159,8 +181,8 @@ void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config )
 void Frame::readback( ObjectManager* glObjects, const DrawableConfig& config,
                       const PixelViewports& regions )
 {
-    LBASSERT( _frameData );
-    const Images& images = _frameData->startReadback( *this, glObjects, config,
+    LBASSERT( _impl->frameData );
+    const Images& images = _impl->frameData->startReadback( *this, glObjects, config,
                                                       regions );
     for( ImagesCIter i = images.begin(); i != images.end(); ++i )
         (*i)->finishReadback( getZoom(), glObjects->glewGetContext( ));
@@ -170,74 +192,44 @@ Images Frame::startReadback( ObjectManager* glObjects,
                            const DrawableConfig& config,
                            const PixelViewports& regions )
 {
-    LBASSERT( _frameData );
-    return _frameData->startReadback(  *this, glObjects, config, regions );
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->startReadback(  *this, glObjects, config, regions );
 }
 
 void Frame::setReady()
 {
-    LBASSERT( _frameData );
-    _frameData->setReady();
+    LBASSERT( _impl->frameData );
+    _impl->frameData->setReady();
 }
 
 bool Frame::isReady() const
 {
-    LBASSERT( _frameData );
-    return _frameData->isReady();
+    LBASSERT( _impl->frameData );
+    return _impl->frameData->isReady();
 }
 
 void Frame::waitReady( const uint32_t timeout ) const
 {
-    LBASSERT( _frameData );
-    _frameData->waitReady( timeout );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->waitReady( timeout );
 }
 
 void Frame::disableBuffer( const Buffer buffer )
 {
-    LBASSERT( _frameData );
-    _frameData->disableBuffer( buffer );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->disableBuffer( buffer );
 }
 
 void Frame::addListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _frameData );
-    _frameData->addListener( listener );
+    LBASSERT( _impl->frameData );
+    _impl->frameData->addListener( listener );
 }
 
 void Frame::removeListener( lunchbox::Monitor<uint32_t>& listener )
 {
-    LBASSERT( _frameData );
-    _frameData->removeListener( listener );
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                                      const Frame::Type type )
-{
-    os << "type     ";
-    if ( type == eq::Frame::TYPE_TEXTURE ) 
-        os << " texture" << std::endl;
-    else if ( type == eq::Frame::TYPE_MEMORY ) 
-        os << " memory" << std::endl;
-        
-    return os;
-}
-
-std::ostream& operator << ( std::ostream& os, 
-                                      const Frame::Buffer buffer )
-{
-    if( buffer == Frame::BUFFER_NONE )
-        os << "none ";
-    else if( buffer & Frame::BUFFER_UNDEFINED )
-        os << "undefined ";
-    else
-    {
-        if( buffer & Frame::BUFFER_COLOR )
-            os << "color ";
-        if( buffer & Frame::BUFFER_DEPTH )
-            os << "depth ";
-    }
-
-    return os;
+    LBASSERT( _impl->frameData );
+    _impl->frameData->removeListener( listener );
 }
 
 }

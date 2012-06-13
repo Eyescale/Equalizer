@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -106,10 +106,10 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
         Frame* outputFrame = j->second;
         const Channel* iChannel = compound->getInheritChannel();
         Vector2i frameOffset = outputFrame->getMasterData()->getOffset() +
-                               frame->getOffset();
+                               frame->getNativeOffset();
 
         if( outputFrame->getCompound()->getInheritChannel() != iChannel )
-            frameOffset = frame->getOffset();
+            frameOffset = frame->getNativeOffset();
         else if( channel != iChannel )
         {
             // compute delta offset between source and destination, since the
@@ -126,7 +126,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
             frameOffset.x() -= iChannelPVP.x;
             frameOffset.y() -= iChannelPVP.y;
         }
-        frame->setInheritOffset( frameOffset );
+        frame->setOffset( frameOffset );
 
         // 2) zoom
         _updateZoom( compound, frame, outputFrame );
@@ -141,7 +141,7 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
 
         for( unsigned k = 0; k < NUM_EYES; ++k )
         {
-            const eq::Eye eye = eq::Eye( 1<<k );
+            const Eye eye = Eye( 1<<k );
             if( compound->isInheritActive( eye ) &&  // eye pass used
                 outputFrame->hasData( eye ))         // output data for eye pass
             {
@@ -150,8 +150,8 @@ void CompoundUpdateInputVisitor::_updateFrames( Compound* compound )
                     << "Input frame  \"" << name << "\" on channel \"" 
                     << channel->getName() << "\" id " << frame->getID() << " v"
                     << frame->getVersion() << "\" tile pos "
-                    << frame->getInheritOffset() << ' '
-                    << frame->getInheritZoom() << std::endl;
+                    << frame->getOffset() << ' ' << frame->getZoom()
+                    << std::endl;
                 break;
             }
         }
@@ -162,7 +162,7 @@ void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,
                                               Frame* frame, 
                                               const Frame* outputFrame )
 {
-    Zoom zoom = frame->getZoom();
+    Zoom zoom = frame->getNativeZoom();
     if( !zoom.isValid( )) // if zoom is not set, inherit from parent
         zoom = compound->getInheritZoom();
 
@@ -170,7 +170,7 @@ void CompoundUpdateInputVisitor::_updateZoom( const Compound* compound,
     const FrameData* frameData = outputFrame->getMasterData();
     zoom /= frameData->getZoom();
 
-    frame->setInheritZoom( zoom );
+    frame->setZoom( zoom );
 }
 
 }

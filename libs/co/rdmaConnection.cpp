@@ -150,7 +150,7 @@ static const uint16_t MAX_FC = (( 2 << ( 4 - 1 )) - 1 );
  *
  * ib_write_bw
  * -----------
- *  #bytes     #iterations    BW peak[MB/sec]    BW average[MB/sec]
+ *  #bytes    num iterations  BW peak[MB/sec]    BW average[MB/sec]
  * 1048576    10000           3248.10            3247.94
  *
  * netperf

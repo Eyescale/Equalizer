@@ -121,7 +121,7 @@ namespace eq
          * @warning experimental - may not be supported in the future.         
          */
         EQ_API bool getRenderContext( const int32_t x, const int32_t y,
-                                         RenderContext& context ) const;
+                                      RenderContext& context ) const;
         //@}
 
         /** @name OpenGL context handling and sharing */

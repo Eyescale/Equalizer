@@ -91,11 +91,9 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     Zoom newZoom( compound->getZoom( ));
     newZoom *= factor;
 
-    //LBINFO << _current << ": " << factor << " = " << newZoom 
-    //       << std::endl;
+    //LBINFO << _current << ": " << factor << " = " << newZoom << std::endl;
 
     // clip zoom factor to min( 128px ), max( channel pvp )
-
     const Compound*          parent = compound->getParent();
     const eq::PixelViewport& pvp    = parent->getInheritPixelViewport();
    

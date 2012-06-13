@@ -24,6 +24,7 @@
 #include <eq/client/image.h>
 #include <eq/client/init.h>
 #include <eq/client/nodeFactory.h>
+#include <eq/client/pixelData.h>
 
 #include <co/global.h>
 #include <co/pluginRegistry.h>

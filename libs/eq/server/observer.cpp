@@ -1,6 +1,6 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
- * Copyright (c) 2010, Cedric Stalder <cedric.stalder@gmail.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -101,9 +101,9 @@ void Observer::_updateEyes()
 
     // eye_world = (+-eye_base/2., 0, 0 ) x head_matrix
     // OPT: don't use vector operator* due to possible simplification
-    const int32_t cyclop = lunchbox::getIndexOfLastBit( eq::EYE_CYCLOP );
-    const int32_t right  = lunchbox::getIndexOfLastBit( eq::EYE_RIGHT );
-    const int32_t left   = lunchbox::getIndexOfLastBit( eq::EYE_LEFT );
+    const int32_t cyclop = lunchbox::getIndexOfLastBit( EYE_CYCLOP );
+    const int32_t right  = lunchbox::getIndexOfLastBit( EYE_RIGHT );
+    const int32_t left   = lunchbox::getIndexOfLastBit( EYE_LEFT );
 
     _eyes[ cyclop ].x() = head.at( 0, 3 );
     _eyes[ cyclop ].y() = head.at( 1, 3 );

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -25,53 +25,79 @@ namespace eq
 {
 namespace util
 {
+namespace detail
+{
+class Texture
+{
+public:
+    Texture( const GLenum tgt, const GLEWContext* const gl )
+            : name( 0 )
+            , target( tgt )
+            , internalFormat( 0 )
+            , format( 0 )
+            , type( 0 )
+            , width( 0 )
+            , height( 0 )
+            , defined( false ) 
+            , glewContext( gl )
+        {}
+
+    ~Texture()
+    {
+        if( name != 0 )
+            LBWARN << "OpenGL texture " << name << " not freed" << std::endl;
+
+        name      = 0;
+        defined = false;
+    }
+
+
+    GLuint name;
+    const GLenum target;
+    GLuint internalFormat;
+    GLuint format;
+    GLuint type;
+    int32_t width;
+    int32_t height;
+    bool defined;
+    const GLEWContext* glewContext;
+};
+}
+
 Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
-        : _name( 0 )
-        , _target( target )
-        , _internalFormat( 0 )
-        , _format( 0 )
-        , _type( 0 )
-        , _width( 0 )
-        , _height( 0 )
-        , _defined( false ) 
-        , _glewContext( glewContext )
+        : _impl( new detail::Texture( target, glewContext ))
 {}
 
 Texture::~Texture()
 {
-    if( _name != 0 )
-        LBWARN << "OpenGL texture " << _name << " was not freed" << std::endl;
-
-    _name      = 0;
-    _defined = false;
+    delete _impl;
 }
-
 bool Texture::isValid() const
 { 
-    return ( _name != 0 && _defined );
+    return ( _impl->name != 0 && _impl->defined );
 }
 
 void Texture::flush()
 {
-    if( _name == 0 )
+    if( _impl->name == 0 )
         return;
 
     LB_TS_THREAD( _thread );
-    glDeleteTextures( 1, &_name );
-    _name = 0;
-    _defined = false;
+    glDeleteTextures( 1, &_impl->name );
+    _impl->name = 0;
+    _impl->defined = false;
 }
 
 void Texture::flushNoDelete()
 {
     LB_TS_THREAD( _thread );
-    _name = 0;
-    _defined = false;
+    _impl->name = 0;
+    _impl->defined = false;
 }
 
 uint32_t Texture::getCompressorTarget() const
 {
-    switch( _target )
+    switch( _impl->target )
     {
         case GL_TEXTURE_RECTANGLE_ARB:
             return EQ_COMPRESSOR_USE_TEXTURE_RECT;
@@ -85,11 +111,11 @@ uint32_t Texture::getCompressorTarget() const
 
 void Texture::_setInternalFormat( const GLuint internalFormat )
 {
-    if( _internalFormat == internalFormat )
+    if( _impl->internalFormat == internalFormat )
         return;
 
-    _defined = false;
-    _internalFormat = internalFormat;
+    _impl->defined = false;
+    _impl->internalFormat = internalFormat;
 
     switch( internalFormat )
     {
@@ -127,7 +153,7 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
             setExternalFormat( GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8 );
             break;
         case GL_RGBA32UI:
-            LBASSERT( _glewContext );
+            LBASSERT( _impl->glewContext );
             if( GLEW_EXT_texture_integer )
                 setExternalFormat( GL_RGBA_INTEGER_EXT, GL_UNSIGNED_INT );
             else
@@ -142,18 +168,18 @@ void Texture::_setInternalFormat( const GLuint internalFormat )
 
 void Texture::setExternalFormat( const uint32_t format, const uint32_t type )
 {
-     _format = format;
-     _type   = type;    
+     _impl->format = format;
+     _impl->type   = type;    
 }
 
 void Texture::_generate()
 {
     LB_TS_THREAD( _thread );
-    if( _name != 0 )
+    if( _impl->name != 0 )
         return;
 
-    _defined = false;
-    EQ_GL_CALL( glGenTextures( 1, &_name ));
+    _impl->defined = false;
+    EQ_GL_CALL( glGenTextures( 1, &_impl->name ));
 }
 
 void Texture::init( const GLuint format, const int32_t width,
@@ -169,10 +195,10 @@ void Texture::setGLData( const GLuint id, const GLuint internalFormat,
 {
     flush();
     _setInternalFormat( internalFormat );
-    _name = id;
-    _width = width;
-    _height = height;
-    _defined = true;
+    _impl->name = id;
+    _impl->width = width;
+    _impl->height = height;
+    _impl->defined = true;
 }
 
 namespace
@@ -188,29 +214,29 @@ static bool _isPOT( const uint32_t width, const uint32_t height )
 
 void Texture::_grow( const int32_t width, const int32_t height )
 {
-    if( _width < width )
+    if( _impl->width < width )
     {
-        _width   = width;
-        _defined = false;
+        _impl->width   = width;
+        _impl->defined = false;
     }
 
-    if( _height < height )
+    if( _impl->height < height )
     {
-        _height  = height;
-        _defined = false;
+        _impl->height  = height;
+        _impl->defined = false;
     }
 }
 
 void Texture::applyZoomFilter( const ZoomFilter zoomFilter ) const
 {
-    glTexParameteri( _target, GL_TEXTURE_MAG_FILTER, zoomFilter );
-    glTexParameteri( _target, GL_TEXTURE_MIN_FILTER, zoomFilter );
+    glTexParameteri( _impl->target, GL_TEXTURE_MAG_FILTER, zoomFilter );
+    glTexParameteri( _impl->target, GL_TEXTURE_MIN_FILTER, zoomFilter );
 }
 
 void Texture::applyWrap() const
 {
-    glTexParameteri( _target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri( _target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexParameteri( _impl->target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( _impl->target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 }
 
 void Texture::copyFromFrameBuffer( const GLuint internalFormat,
@@ -223,12 +249,12 @@ void Texture::copyFromFrameBuffer( const GLuint internalFormat,
     _setInternalFormat( internalFormat );
     _grow( pvp.w, pvp.h );
 
-    if( _defined )
-        glBindTexture( _target, _name );
+    if( _impl->defined )
+        glBindTexture( _impl->target, _impl->name );
     else
-        resize( _width, _height );
+        resize( _impl->width, _impl->height );
 
-    glCopyTexSubImage2D( _target, 0, 0, 0, pvp.x, pvp.y, pvp.w, pvp.h );
+    glCopyTexSubImage2D( _impl->target, 0, 0, 0, pvp.x, pvp.y, pvp.w, pvp.h );
     EQ_GL_ERROR( "after Texture::copyFromFrameBuffer" );
 }
 
@@ -238,127 +264,130 @@ void Texture::upload( const int32_t width, const int32_t height,
     _generate();
     _grow( width, height );
 
-    if( _defined )
-        glBindTexture( _target, _name );
+    if( _impl->defined )
+        glBindTexture( _impl->target, _impl->name );
     else
-        resize( _width, _height );
+        resize( _impl->width, _impl->height );
 
-    glTexSubImage2D( _target, 0, 0, 0, width, height, _format, _type, ptr );
+    glTexSubImage2D( _impl->target, 0, 0, 0, width, height,
+                     _impl->format, _impl->type, ptr );
 }
 
 void Texture::download( void* buffer ) const
 {
     LB_TS_THREAD( _thread );
-    LBASSERT( _defined );
-    EQ_GL_CALL( glBindTexture( _target, _name ));
-    EQ_GL_CALL( glGetTexImage( _target, 0, _format, _type, buffer ));
+    LBASSERT( _impl->defined );
+    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
+    EQ_GL_CALL( glGetTexImage( _impl->target, 0, _impl->format, _impl->type,
+                               buffer ));
 }
 
 void Texture::bind() const
 {
-    LBASSERT( _name );
-    glBindTexture( _target, _name );
+    LBASSERT( _impl->name );
+    glBindTexture( _impl->target, _impl->name );
 }
 
 void Texture::bindToFBO( const GLenum target, const int32_t width, 
                          const int32_t height )
 {
     LB_TS_THREAD( _thread );
-    LBASSERT( _internalFormat );
-    LBASSERT( _glewContext );
+    LBASSERT( _impl->internalFormat );
+    LBASSERT( _impl->glewContext );
 
     _generate();
 
-    glBindTexture( _target, _name );
-    glTexImage2D( _target, 0, _internalFormat, width, height, 0,
-                  _format, _type, 0 );
-    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _target, _name, 0 );
+    glBindTexture( _impl->target, _impl->name );
+    glTexImage2D( _impl->target, 0, _impl->internalFormat, width, height, 0,
+                  _impl->format, _impl->type, 0 );
+    glFramebufferTexture2DEXT( GL_FRAMEBUFFER, target, _impl->target,
+                               _impl->name, 0 );
 
-    _width = width;
-    _height = height;
-    _defined = true;
+    _impl->width = width;
+    _impl->height = height;
+    _impl->defined = true;
 }
 
 void Texture::resize( const int32_t width, const int32_t height )
 {
     LB_TS_THREAD( _thread );
-    LBASSERT( _name );
-    LBASSERT( _internalFormat );
+    LBASSERT( _impl->name );
+    LBASSERT( _impl->internalFormat );
     LBASSERT( width > 0 && height > 0 );
 
-    if( _width == width && _height == height && _defined )
+    if( _impl->width == width && _impl->height == height && _impl->defined )
         return;
 
-    if( _target == GL_TEXTURE_2D && !_isPOT( width, height ))
+    if( _impl->target == GL_TEXTURE_2D && !_isPOT( width, height ))
     {
-        LBASSERT( _glewContext );
+        LBASSERT( _impl->glewContext );
         LBASSERT( GLEW_ARB_texture_non_power_of_two );
     }
 
-    EQ_GL_CALL( glBindTexture( _target, _name ));
-    EQ_GL_CALL( glTexImage2D( _target, 0, _internalFormat, width, height, 0,
-                              _format, _type, 0 ));
-    _width  = width;
-    _height = height;
-    _defined = true;
+    EQ_GL_CALL( glBindTexture( _impl->target, _impl->name ));
+    EQ_GL_CALL( glTexImage2D( _impl->target, 0, _impl->internalFormat, width,
+                              height, 0, _impl->format, _impl->type, 0 ));
+    _impl->width  = width;
+    _impl->height = height;
+    _impl->defined = true;
 }
 
 void Texture::writeRGB( const std::string& filename ) const
 {
-    LBASSERT( _defined );
-    if( !_defined )
+    LBASSERT( _impl->defined );
+    if( !_impl->defined )
         return;
 
     eq::Image image;
 
-    switch( _internalFormat )
+    switch( _impl->internalFormat )
     {
         case GL_DEPTH_COMPONENT:
             image.allocDownloader( Frame::BUFFER_COLOR,
                              EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGB10_A2:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGB10_A2_TO_BGR10_A2,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGBA:
         case GL_RGBA8:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGRA,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGBA16F:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGRA16F,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGBA32F:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGRA32F,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGB:
         case GL_RGB8:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA_TO_BGR,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGB16F:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA16F_TO_BGR16F,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_RGB32F:
             image.allocDownloader( Frame::BUFFER_COLOR,
                                    EQ_COMPRESSOR_TRANSFER_RGBA32F_TO_BGR32F,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
         case GL_DEPTH24_STENCIL8:
             image.allocDownloader( Frame::BUFFER_COLOR, 
                       EQ_COMPRESSOR_TRANSFER_DEPTH_TO_DEPTH_UNSIGNED_INT,
-                                   _glewContext );
+                                   _impl->glewContext );
             break;
 
         default:
@@ -366,10 +395,24 @@ void Texture::writeRGB( const std::string& filename ) const
             return;
     }
 
-    image.setPixelViewport( eq::PixelViewport( 0, 0, _width, _height ));
-    if( image.startReadback( Frame::BUFFER_COLOR, this, _glewContext ))
-        image.finishReadback( Zoom::NONE, _glewContext );
+    image.setPixelViewport( eq::PixelViewport( 0, 0,
+                                               _impl->width, _impl->height ));
+    if( image.startReadback( Frame::BUFFER_COLOR, this, _impl->glewContext ))
+        image.finishReadback( Zoom::NONE, _impl->glewContext );
     image.writeImage( filename + ".rgb", Frame::BUFFER_COLOR );
+}
+
+GLenum Texture::getTarget() const { return _impl->target; }
+GLuint Texture::getInternalFormat() const { return _impl->internalFormat; }
+GLuint Texture::getFormat() const { return _impl->format; }
+GLuint Texture::getType() const { return _impl->type; }
+GLuint Texture::getName() const { return _impl->name; }
+int32_t Texture::getWidth() const { return _impl->width; }
+int32_t Texture::getHeight() const { return _impl->height; }
+const GLEWContext* Texture::glewGetContext() const{ return _impl->glewContext; }
+void Texture::setGLEWContext( const GLEWContext* context )
+{
+    _impl->glewContext = context;
 }
 
 }

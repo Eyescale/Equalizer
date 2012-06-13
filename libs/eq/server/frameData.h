@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #define EQSERVER_FRAMEDATA_H
 
 #include <eq/client/frameData.h>
-#include <eq/client/frame.h>      // for FrameType
+#include <eq/fabric/frame.h>      // for Frame::Type
 
 namespace eq
 {
@@ -76,15 +76,15 @@ namespace server
         const eq::Zoom& getZoom() const      { return _zoom; }
 
         /** return the frame storage type. */    
-        eq::Frame::Type getType()const{ return _data.frameType; }
+        fabric::Frame::Type getType() const { return _data.frameType; }
 
         /** 
          * Set the frame storage type.
          * 
          * @param type frame storage type.
          */
-        void setType( const eq::Frame::Type type ){ _data.frameType = type; }
-
+        void setType( const fabric::Frame::Type type )
+            { _data.frameType = type; }
         //@}
 
     protected:

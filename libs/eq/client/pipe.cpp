@@ -79,7 +79,7 @@ enum State
 };
 
 typedef stde::hash_map< uint128_t, Frame* > FrameHash;
-typedef stde::hash_map< uint128_t, FrameData* > FrameDataHash;
+typedef stde::hash_map< uint128_t, FrameDataPtr > FrameDataHash;
 typedef stde::hash_map< uint128_t, View* > ViewHash;
 typedef stde::hash_map< uint128_t, co::QueueSlave* > QueueHash;
 typedef FrameHash::const_iterator FrameHashCIter;
@@ -471,7 +471,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
     const co::ObjectVersion& dataVersion = frame->getDataVersion( eye );
     LBLOG( LOG_ASSEMBLY ) << "Use " << dataVersion << std::endl;
 
-    FrameData* frameData = getNode()->getFrameData( dataVersion );
+    FrameDataPtr frameData = getNode()->getFrameData( dataVersion );
     LBASSERT( frameData );
 
     if( isOutput )
@@ -479,7 +479,7 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         if( !frameData->isAttached() )
         {
             ClientPtr client = getClient();
-            LBCHECK( client->mapObject( frameData, dataVersion ));
+            LBCHECK( client->mapObject( frameData.get(), dataVersion ));
         }
         else if( frameData->getVersion() < dataVersion.version )
             frameData->sync( dataVersion.version );
@@ -487,11 +487,11 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
         _impl->outputFrameDatas[ dataVersion.identifier ] = frameData;
     }
 
-    frame->setData( frameData );
+    frame->setFrameData( frameData );
     return frame;
 }
 
-void Pipe::flushFrames()
+void Pipe::flushFrames( ObjectManager* om )
 {
     LB_TS_THREAD( _pipeThread );
     ClientPtr client = getClient();
@@ -499,18 +499,20 @@ void Pipe::flushFrames()
     {
         Frame* frame = i->second;
 
-        frame->setData( 0 ); // 'output' datas cleared below and from node
-        frame->flush();
+        frame->deleteGLObjects( om );
+        frame->setFrameData( 0 ); // 'output' datas cleared below and from node
         client->unmapObject( frame );
         delete frame;
     }
     _impl->frames.clear();
 
     for( FrameDataHashCIter i = _impl->outputFrameDatas.begin();
-         i != _impl->outputFrameDatas.end(); ++i)
+         i != _impl->outputFrameDatas.end(); ++i )
     {
-        FrameData* data = i->second;
-        data->flush();
+        FrameDataPtr data = i->second;
+        data->resetPlugins();
+        client->unmapObject( data.get( ));
+        getNode()->releaseFrameData( data );
     }
     _impl->outputFrameDatas.clear();
 }

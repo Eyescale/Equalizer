@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -163,11 +163,11 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         //----- Set frame parameters:
         // 1) offset is position wrt window, i.e., the channel position
         if( compound->getInheritChannel() == channel )
-            frame->setInheritOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
+            frame->setOffset( Vector2i( inheritPVP.x, inheritPVP.y ));
         else
         {
             const PixelViewport& nativePVP = channel->getPixelViewport();
-            frame->setInheritOffset( Vector2i( nativePVP.x, nativePVP.y ));
+            frame->setOffset( Vector2i( nativePVP.x, nativePVP.y ));
         }
 
         // 2) zoom
@@ -179,9 +179,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         _outputFrames[name] = frame;
         LBLOG( LOG_ASSEMBLY ) 
             << " buffers " << frameData->getBuffers() << " read area "
-            << framePVP << " readback " << frame->getInheritZoom()
-            << " assemble " << frameData->getZoom() << std::endl
-            << lunchbox::enableFlush;
+            << framePVP << " readback " << frame->getZoom() << " assemble "
+            << frameData->getZoom()<< lunchbox::enableFlush << std::endl ;
     }
 }
 
@@ -254,7 +253,7 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
 void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
                                                Frame* frame )
 {
-    Zoom zoom = frame->getZoom();
+    Zoom zoom = frame->getNativeZoom();
     Zoom zoom_1;
 
     if( !zoom.isValid( )) // if zoom is not set, auto-calculate from parent
@@ -274,7 +273,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
     {
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( zoom_1 ); // textures are zoomed by input frame
-        frame->setInheritZoom( Zoom::NONE );
+        frame->setZoom( Zoom::NONE );
     }
     else
     {
@@ -294,7 +293,7 @@ void CompoundUpdateOutputVisitor::_updateZoom( const Compound* compound,
 
         FrameData* frameData = frame->getMasterData();
         frameData->setZoom( inputZoom );
-        frame->setInheritZoom( zoom );                
+        frame->setZoom( zoom );                
     }
 }
 

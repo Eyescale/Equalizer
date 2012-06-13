@@ -35,6 +35,7 @@ class Canvas;
 class Channel;
 class Compound;
 class Config;
+class ConfigVisitor;
 class Equalizer;
 class Frame;
 class FrameData;
@@ -158,10 +159,17 @@ typedef fabric::ElementVisitor< Node, PipeVisitor > NodeVisitor;
 /** A visitor to traverse layouts and children. */
 typedef fabric::ElementVisitor< Layout, ViewVisitor > LayoutVisitor;
 
-class ConfigVisitor;
-
 /** A visitor to traverse servers and children. */
 typedef fabric::ElementVisitor< Server, ConfigVisitor > ServerVisitor;
+
+using fabric::Eye;
+using fabric::EYE_UNDEFINED;
+using fabric::EYE_CYCLOP;
+using fabric::EYE_LEFT;
+using fabric::EYE_RIGHT;
+using fabric::EYES_STEREO;
+using fabric::EYES_ALL;
+using fabric::NUM_EYES;
 
 using fabric::FocusMode;
 using fabric::FOCUSMODE_FIXED;

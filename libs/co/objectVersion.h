@@ -45,9 +45,11 @@ namespace co
     struct ObjectVersion
     {
         CO_API ObjectVersion();
-        CO_API ObjectVersion( const UUID& identifier,
-                                 const uint128_t& version );
+        CO_API ObjectVersion( const UUID& identifier, const uint128_t& version);
         CO_API ObjectVersion( const Object* object );
+        template< class R > ObjectVersion( lunchbox::RefPtr< R > object )
+            { *this = object.get(); }
+
         CO_API ObjectVersion& operator = ( const Object* object );
      
         bool operator == ( const ObjectVersion& value ) const

@@ -54,8 +54,8 @@ protected:
 
             LBINFO << "Server thread done, still referenced by " 
                    << _server->getRefCount() - 1 << std::endl;
-            LBASSERTINFO( _server->getRefCount() == 1, _server->getRefCount( ));
 
+            LBASSERTINFO( _server->getRefCount() == 1, _server );
             _server = 0;
             eq::server::Global::clear();
         }
@@ -101,6 +101,7 @@ extern "C" EQSERVER_API co::ConnectionPtr eqsStartLocalServer(
     eq::server::Loader::addDefaultObserver( server );
     eq::server::Loader::convertTo11( server );
     eq::server::Loader::convertTo12( server );
+    LBASSERTINFO( server->getRefCount() == 1, server );
 
     co::PipeConnectionPtr connection = new co::PipeConnection;
     if( !connection->connect( ))

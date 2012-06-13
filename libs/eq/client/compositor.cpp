@@ -28,6 +28,7 @@
 #include "frameData.h"
 #include "image.h"
 #include "log.h"
+#include "pixelData.h"
 #include "server.h"
 #include "window.h"
 #include "windowSystem.h"
@@ -119,7 +120,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             frame->waitReady( timeout );
         }
 
-        if( frame->getData()->getZoom() != Zoom::NONE )
+        if( frame->getFrameData()->getZoom() != Zoom::NONE )
             return false;
 
         const Images& images = frame->getImages();
@@ -609,7 +610,7 @@ bool Compositor::_collectOutputData(
         LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
                       frame->getZoom() == Zoom::NONE &&
-                      frame->getData()->getZoom() == Zoom::NONE,
+                      frame->getFrameData()->getZoom() == Zoom::NONE,
                       "CPU-based compositing not implemented for given frames");
         if( frame->getPixel() != Pixel::ALL )
             return false;
@@ -1087,7 +1088,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
-    operation.zoom.apply( frame->getData()->getZoom( ));
+    operation.zoom.apply( frame->getFrameData()->getZoom( ));
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {

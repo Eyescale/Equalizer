@@ -180,7 +180,8 @@ else()
 
   if(COLLAGE_VERSION VERSION_GREATER 0.5) # need Lunchbox
     set(_co_lbVersion_0.5.1 "0.9.0")
-    find_package(Lunchbox "${_co_lbVersion_${COLLAGE_VERSION}}" EXACT
+    set(_co_lbVersion_0.5.2 "1.3.5")
+    find_package(Lunchbox ${_co_lbVersion_${COLLAGE_VERSION}} EXACT
       ${_co_required} ${_co_quiet})
     if(NOT LUNCHBOX_FOUND)
       set(_co_EPIC_FAIL 1)

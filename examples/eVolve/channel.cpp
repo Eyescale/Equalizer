@@ -45,9 +45,9 @@ Channel::Channel( eq::Window* parent )
         , _drawRange( eq::Range::ALL )
         , _taint( getenv( "EQ_TAINT_CHANNELS" ))
 {
-    eq::FrameData* frameData = new eq::FrameData;
+    eq::FrameDataPtr frameData = new eq::FrameData;
     frameData->setBuffers( eq::Frame::BUFFER_COLOR );
-    _frame.setData( frameData );
+    _frame.setFrameData( frameData );
 }
 
 static void checkError( const std::string& msg ) 
@@ -313,7 +313,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
     }
 
     // calculate correct frames sequence
-    eq::FrameData* data = _frame.getData();
+    eq::FrameDataPtr data = _frame.getFrameData();
     if( !composeOnly && coveredPVP.hasArea( ))
     {
         _frame.clear();
@@ -384,7 +384,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Frame* frame = *i;
         frame->setQuality( eq::Frame::BUFFER_COLOR, frameData.getQuality());
         frame->disableBuffer( eq::Frame::BUFFER_DEPTH );
-        frame->getData()->setRange( _drawRange );
+        frame->getFrameData()->setRange( _drawRange );
     }
 
     eq::Channel::frameReadback( frameID );
