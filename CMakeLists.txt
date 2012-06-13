@@ -78,6 +78,9 @@ endif()
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
+set(PTHREAD_LIBRARIES pthread)
+link_directories(${LUNCHBOX_LIBRARY_DIRS})
+
 if(EQUALIZER_USE_OPENMP)
   find_package(OpenMP)
 endif()
