@@ -1058,8 +1058,8 @@ const PixelData& Image::compressPixelData( const Frame::Buffer buffer )
 
 bool Image::writeImages( const std::string& filenameTemplate ) const
 {
-    return( writeImage( filenameTemplate + "_impl->color.rgb", Frame::BUFFER_COLOR) &&
-            writeImage( filenameTemplate + "_impl->depth.rgb", Frame::BUFFER_DEPTH ));
+    return( writeImage( filenameTemplate + "_color.rgb", Frame::BUFFER_COLOR) &&
+            writeImage( filenameTemplate + "_depth.rgb", Frame::BUFFER_DEPTH ));
 }
 
 #define SWAP_SHORT(v) ( v = (v&0xff) << 8 | (v&0xff00) >> 8 )
