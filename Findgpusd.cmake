@@ -110,6 +110,7 @@ find_package_handle_standard_args(gpusd DEFAULT_MSG
                                   GPUSD_core_LIBRARY GPUSD_INCLUDE_DIRS)
 if(GPUSD_FOUND)
   set(GPUSD_DEB_DEPENDENCIES "gpu-sd${GPUSD_VERSION_MAJOR}-runtime")
+  set(GPUSD_DEB_BUILD_DEPENDENCIES "gpu-sd${GPUSD_VERSION_MAJOR}-dev")
   if(_flp_output)
     message(STATUS "Found gpusd modules ${GPUSD_COMPONENTS}")
   endif()
