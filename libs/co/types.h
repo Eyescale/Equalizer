@@ -26,10 +26,6 @@
 #include <deque>
 #include <vector>
 
-/** @cond IGNORE */
-namespace servus { class Service; }
-/** @endcond */
-
 namespace co
 {
 

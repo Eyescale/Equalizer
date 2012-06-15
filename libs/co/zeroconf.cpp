@@ -18,7 +18,7 @@
 #include "zeroconf.h"
 
 #ifdef CO_USE_SERVUS
-#  include <servus/service.h>
+#  include <lunchbox/servus.h>
 #  include <map>
 #endif
 
@@ -37,7 +37,7 @@ typedef InstanceMap::const_iterator InstanceMapCIter;
 class Zeroconf
 {
 public:
-    Zeroconf( servus::Service& service )
+    Zeroconf( lunchbox::Servus& service )
             : service_( service )
     {
         service_.getData( instanceMap_ );
@@ -101,14 +101,14 @@ public:
     }
 
 private:
-    servus::Service& service_;
+    lunchbox::Servus& service_;
     InstanceMap instanceMap_; //!< copy of discovered data
 };
 }
 #endif
 
 #ifdef CO_USE_SERVUS
-Zeroconf::Zeroconf( servus::Service& service )
+Zeroconf::Zeroconf( lunchbox::Servus& service )
         : _impl( new detail::Zeroconf( service ))
 #else
 Zeroconf::Zeroconf()

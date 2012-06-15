@@ -79,7 +79,7 @@ namespace detail { class Zeroconf; }
                                        const std::string& key ) const;
     private:
         Zeroconf();
-        Zeroconf( servus::Service& service );
+        Zeroconf( lunchbox::Servus& service );
         friend class LocalNode;
 
         detail::Zeroconf* _impl;
