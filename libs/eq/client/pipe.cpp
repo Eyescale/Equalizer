@@ -389,7 +389,7 @@ void Pipe::_setupAffinity()
     switch( affinity )
     {
         case AUTO:
-            Pipe::Thread::setAffinity( _getAutoAffinity( ));
+            detail::RenderThread::setAffinity( _getAutoAffinity( ));
             break;
 
         case OFF:
