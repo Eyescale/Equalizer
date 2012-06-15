@@ -2,16 +2,19 @@
 # Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
 # Info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
-string(TOUPPER ${CMAKE_PROJECT_NAME} UPPER_PROJECT_NAME)
+if(NOT CPACK_PROJECT_NAME)
+  set(CPACK_PROJECT_NAME ${CMAKE_PROJECT_NAME})
+endif()
+string(TOUPPER ${CPACK_PROJECT_NAME} UPPER_PROJECT_NAME)
 
 set(${UPPER_PROJECT_NAME}_PACKAGE_VERSION "" CACHE 
   STRING "Additional build version for packages")
 mark_as_advanced(${UPPER_PROJECT_NAME}_PACKAGE_VERSION)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}${VERSION_ABI}")
+  set(CPACK_PACKAGE_NAME "${CPACK_PROJECT_NAME}${VERSION_ABI}")
 else()
-  set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
+  set(CPACK_PACKAGE_NAME "${CPACK_PROJECT_NAME}")
 endif()
 
 if(NOT APPLE)
@@ -24,24 +27,27 @@ set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
 set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
 
-# Feel free to override components and description after including this file
-if(RELEASE_VERSION)
-  set(CPACK_COMPONENTS_ALL lib dev)
-else()
-  set(CPACK_COMPONENTS_ALL unspecified lib dev)
+# Default component definition
+if(NOT CPACK_COMPONENTS_ALL)
+  if(RELEASE_VERSION)
+    set(CPACK_COMPONENTS_ALL lib dev)
+  else()
+    set(CPACK_COMPONENTS_ALL unspecified lib dev)
+  endif()
+
+  set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
+  set(CPACK_COMPONENT_UNSPECIFIED_DESCRIPTION
+    "Unspecified Component - set COMPONENT in CMake install() command")
+
+  set(CPACK_COMPONENT_LIB_DISPLAY_NAME "${CPACK_PROJECT_NAME} Libraries")
+  set(CPACK_COMPONENT_LIB_DESCRIPTION "${CPACK_PROJECT_NAME} Runtime Libraries")
+
+  set(CPACK_COMPONENT_DEV_DISPLAY_NAME
+    "${CPACK_PROJECT_NAME} Development Files")
+  set(CPACK_COMPONENT_DEV_DESCRIPTION
+    "Header and Library Files for ${CPACK_PROJECT_NAME} Development")
+  set(CPACK_COMPONENT_DEV_DEPENDS lib)
 endif()
-
-set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
-set(CPACK_COMPONENT_UNSPECIFIED_DESCRIPTION
-  "Unspecified Component - set COMPONENT in CMake install() command")
-
-set(CPACK_COMPONENT_LIB_DISPLAY_NAME "${CMAKE_PROJECT_NAME} Libraries")
-set(CPACK_COMPONENT_LIB_DESCRIPTION "${CMAKE_PROJECT_NAME} Runtime Libraries")
-
-set(CPACK_COMPONENT_DEV_DISPLAY_NAME "${CMAKE_PROJECT_NAME} Development Files")
-set(CPACK_COMPONENT_DEV_DESCRIPTION
-  "Header and Library Files for ${CMAKE_PROJECT_NAME} Development")
-set(CPACK_COMPONENT_DEV_DEPENDS lib)
 
 # LSB system information
 set(LSB_DISTRIBUTOR_ID "unknown")
