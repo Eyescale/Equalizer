@@ -1,6 +1,6 @@
 # CMake Modules
 
-Integration into another project:
+First integration into another project:
 
     git remote add -f CMake https://github.com/Eyescale/CMake.git
     rm -rf CMake/*
@@ -8,6 +8,10 @@ Integration into another project:
     git commit -am 'Removing old, common CMake files'
     git read-tree --prefix=CMake -u CMake/master
     git commit -am 'Merging CMake subtree'
+
+Setup for new clone of a project:
+
+    git remote add -f CMake https://github.com/Eyescale/CMake.git
 
 Update:
 
