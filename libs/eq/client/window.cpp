@@ -184,6 +184,8 @@ void Window::drawFPS()
     const Font* font = getSmallFont();
     const PixelViewport& pvp = getPixelViewport();
 
+    glLogicOp( GL_XOR );
+    glEnable( GL_COLOR_LOGIC_OP );
     glRasterPos3f( pvp.w - 60.f, 10.f , 0.99f );
     glColor3f( 1.f, 1.f, 1.f );
 
