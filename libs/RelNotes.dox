@@ -81,22 +81,22 @@
   <li><a href="http://www.equalizergraphics.com/documents/design/asyncCompositing.html">Asynchronous
       readback</a> support</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/57">Automatic
-      CPU-GPU affinity</a>.</li>
+      CPU-GPU affinity</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/63">Application-specific
       scaling</a> to visualize data in a scale different to 1:1 in immersive
-    environments.</li>
+    environments</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/67">VirtualGL-aware
       auto-configuration</a></li>
   <li><a href="/documents/design/roi.html">Region of interest</a> for scalable
-    rendering and load-balancing.</li>
+    rendering and load-balancing</li>
 </ul>
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/122">ZeroConf
-      support and node discovery</a>.</li>
+      support and node discovery</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/116">Blocking
-      co::Object::commit</a>.</li>
+      co::Object::commit</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/111">Extensible
-      packet dispatch</a>.</li>
+      packet dispatch</a></li>
 </ul>
 
 <a name="enhancements"></a>
@@ -105,10 +105,10 @@
   <li><a href="https://github.com/Eyescale/Equalizer/issues/70">System window
       without drawable buffer</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/123">Mac OS X: Build
-      universal libraries even when AGL is enabled</a>.</li>
-  <li>auto-config: add direct send configuration.</li>
-  <li>auto-config: save generated configuration to .eqc file.</li>
-  <li>auto-config: application-specific flags for multiprocess execution.</li>
+      universal libraries even when AGL is enabled</a></li>
+  <li>auto-config: add direct send configuration</li>
+  <li>auto-config: save generated configuration to .eqc file</li>
+  <li>auto-config: application-specific flags for multiprocess execution</li>
 </ul>
 
 <a name="optimizations"></a>
@@ -116,25 +116,25 @@
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/95">Multi-GPU NVidia
       optimization</a></li>
-  <li>load_equalizer: split along longest axis in 2D mode.</li>
+  <li>load_equalizer: split along longest axis in 2D mode</li>
 </ul><ul>
   <li>InfiniBand RDMA: significant performance increase using a different
-    underlying implementation.</li>
+    underlying implementation</li>
 </ul>
 
 <a name="examples"></a>
 <h3>2.4. Examples</h3>
 <ul>
-  <li>eqPly: Add command line option to disable region of interest.</li>
-  <li>eqPly: Parallel kd-tree construction when using gcc 4.4 or later.</li>
-  <li>eqPly: runtime-changeable model unit scaling.</li>
-  <li>eqPly: Create all VBOs/display lists during the first frame.</li>
+  <li>eqPly: Add command line option to disable region of interest</li>
+  <li>eqPly: Parallel kd-tree construction when using gcc 4.4 or later</li>
+  <li>eqPly: runtime-changeable model unit scaling</li>
+  <li>eqPly: Create all VBOs/display lists during the first frame</li>
 </ul>
 
 <a name="tools"></a>
 <h3>2.5. Tools</h3>
 <ul>
-  <li>eqPlyConverter: New offline tool to generate binary cache for eqPly.</li>
+  <li>eqPlyConverter: New offline tool to generate binary cache for eqPly</li>
 </ul>
 
 <a name="documentation"></a>
@@ -145,12 +145,12 @@
 </p>
 <ul>
   <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
-      documentation</a> for the public Equalizer API.</li>
+      documentation</a> for the public Equalizer API</li>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
-      User Guide</a> has been extended to 107 pages and 60 figures.</li>
+      User Guide</a> has been extended to 107 pages and 60 figures</li>
   <li><a href="/documents/design/tileCompounds.html">Tile compounds</a>
     using a pull-based task distribution for volume rendering and interactive
-    raytracing.</li>
+    raytracing</li>
 </ul>
 
 <a name="bugfixes"></a>
@@ -160,12 +160,14 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/127">127</a>:
+    Problem with getdomainname() in SocketConnection::listen()</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/124">124</a>:
-    Upload plugins are not freed.</li>
+    Upload plugins are not freed</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/121">121</a>:
-    Packaging: netperf conflicts with other packages.</li>
+    Packaging: netperf conflicts with other packages</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/117">117</a>:
-    Race with async channel tasks.</li>
+    Race with async channel tasks</li>
 </ul>
 
 <a name="knownbugs"></a>
@@ -221,9 +223,9 @@
 <a name="ws"></a>
 <h3>3.2. Window System Support</h3>
 <ul>
-  <li><b>X11:</b> Full support for all documented features.</li>
-  <li><b>WGL:</b> Full support for all documented features.</li>
-  <li><b>AGL:</b> Full support for all documented features.</li>
+  <li><b>X11:</b> Full support for all documented features</li>
+  <li><b>WGL:</b> Full support for all documented features</li>
+  <li><b>AGL:</b> Full support for all documented features</li>
 </ul>
 
 <a name="documentation"></a>
