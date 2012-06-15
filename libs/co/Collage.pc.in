@@ -8,7 +8,7 @@ includedir=${prefix}/include
 Name: Collage
 Description: Object-Oriented Network Library
 Version: @CO_VERSION@
-Requires:
+Requires: Lunchbox
 Conflicts:
 Libs: -L${libdir} -lCollage
 Cflags: -I${includedir}
