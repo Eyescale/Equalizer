@@ -75,3 +75,6 @@ include(FindPackageHandleStandardArgs)
 find_library_package(Lunchbox INCLUDE lunchbox)
 find_package_handle_standard_args(Lunchbox DEFAULT_MSG
                                   LUNCHBOX_LIBRARIES LUNCHBOX_INCLUDE_DIRS)
+if(LUNCHBOX_FOUND)
+  include("${LUNCHBOX_LIBRARY_DIRS}/../share/Lunchbox/CMake/options.cmake")
+endif()
