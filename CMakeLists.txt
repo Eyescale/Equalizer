@@ -148,10 +148,6 @@ if(EQ_AGL_USED)
   set(EQ_FEATURES "${EQ_FEATURES} AGL")
 endif(EQ_AGL_USED)
 
-if(GPUSD_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
-endif()
-
 if(APPLE)
   link_directories(/usr/X11R6/lib)
   include_directories(SYSTEM /usr/X11R6/include)
@@ -213,6 +209,12 @@ install(FILES CMake/FindEqualizer.cmake
 install(FILES CMake/FindGLEW_MX.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH}/FindEqualizer COMPONENT eqdev)
 
+if(LUNCHBOX_USE_DNSSD)
+  set(EQ_FEATURES "${EQ_FEATURES} zeroconf")
+endif()
+if(GPUSD_FOUND)
+  set(EQ_FEATURES "${EQ_FEATURES} GPUSD")
+endif()
 if(CUDA_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} CUDA")
 endif()
