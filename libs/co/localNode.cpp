@@ -44,7 +44,7 @@
 #include <lunchbox/spinLock.h>
 #include <lunchbox/types.h>
 #ifdef CO_USE_SERVUS
-#  include <servus/service.h>
+#  include <lunchbox/servus.h>
 #endif
 
 namespace co
@@ -174,7 +174,7 @@ public:
     CommandThread* commandThread;
 
 #ifdef CO_USE_SERVUS
-    lunchbox::Lockable< servus::Service > service;
+    lunchbox::Lockable< lunchbox::Servus > service;
 #endif
 };
 }
@@ -984,7 +984,8 @@ NodePtr LocalNode::_connectFromZeroconf( const NodeID& nodeID )
 #ifdef CO_USE_SERVUS
     lunchbox::ScopedWrite mutex( _impl->service );
 
-    const Strings& instances = _impl->service->discover( servus::IF_ALL, 500 );
+    const Strings& instances =
+        _impl->service->discover( lunchbox::Servus::IF_ALL, 500 );
     for( StringsCIter i = instances.begin(); i != instances.end(); ++i )
     {
         const std::string& instance = *i;
@@ -1505,7 +1506,7 @@ Zeroconf LocalNode::getZeroconf()
 {
 #ifdef CO_USE_SERVUS
     lunchbox::ScopedWrite mutex( _impl->service );
-    _impl->service->discover( servus::IF_ALL, 500 );
+    _impl->service->discover( lunchbox::Servus::IF_ALL, 500 );
     return Zeroconf( _impl->service.data );
 #else
     return Zeroconf();
