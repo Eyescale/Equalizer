@@ -371,12 +371,10 @@ namespace detail { class Pipe; class RenderThread; }
         void _setupAffinity();
         void _exitCommandQueue();
 
-        /** @internal Returns CPU index that is connected to the pipe defined
-         * by its port and device in the configuration file */
+        /** @internal @return lunchbox::Thread::Affinity mask for this GPU.  */
         int32_t _getAutoAffinity() const;
 
         //friend class Window;
-
 
         void _stopTransferThread();
 

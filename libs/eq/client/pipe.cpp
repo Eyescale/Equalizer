@@ -52,11 +52,9 @@
 #include <co/worker.h>
 #include <sstream>
 
-#ifdef EQ_USE_HWLOC
+#ifdef EQ_USE_HWLOC_GL
 #  include <hwloc.h>
-#  ifdef EQ_USE_HWLOC_GL
-#    include <hwloc/gl.h>
-#  endif
+#  include <hwloc/gl.h>
 #endif
 
 namespace eq
@@ -340,45 +338,57 @@ int32_t Pipe::_getAutoAffinity() const
     const unsigned long loading_flags = HWLOC_TOPOLOGY_FLAG_IO_BRIDGES ^
                                         HWLOC_TOPOLOGY_FLAG_IO_DEVICES;
     // Set discovery flags
-    const int success = hwloc_topology_set_flags( topology, loading_flags );
-
-    if ( success < 0 ) // Flags not set
+    if( hwloc_topology_set_flags( topology, loading_flags ) < 0 )
     {
-        EQWARN << "Automatic pipe thread placement failed: "
-               << "hwloc_topology_set_flags() failed, PCI devices will not be "
-               << "loaded in the topology" << std::endl;
-
+        EQINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_topology_set_flags() failed" << std::endl;
         return lunchbox::Thread::NONE;
     }
 
-    hwloc_topology_load( topology );
+    if( hwloc_topology_load( topology ) < 0 )
+    {
+        EQINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_topology_load() failed" << std::endl;
+        return lunchbox::Thread::NONE;
+    }
 
     // Get the cpuset for the socket connected to GPU attached to the display
     // defined by its port and device 
     hwloc_bitmap_t cpuSet;
-    const int err = hwloc_gl_get_display_cpuset( topology, int( port ),
-                                                      int( device ), &cpuSet );
-    if ( !err )
+    if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
+                                     &cpuSet ) < 0 )
     {
-        const int numCpus = hwloc_get_nbobjs_by_type( topology,
-                                                        HWLOC_OBJ_SOCKET );
-        for( int i = 0; i <= numCpus - 1; ++i )
-        {
-            hwloc_obj_t cpuObj =
-                hwloc_get_obj_inside_cpuset_by_type( topology, cpuSet,
-                                                    HWLOC_OBJ_SOCKET, i);
-            if( cpuObj != 0 )
-            {
-                const int cpuIndex = cpuObj->logical_index;
-                hwloc_topology_destroy( topology );
-                return cpuIndex + lunchbox::Thread::SOCKET;
-            }
-        }
+        EQINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_gl_get_display_cpuset() failed" << std::endl;
+        hwloc_topology_destroy( topology );
+        return lunchbox::Thread::NONE;
     }
+
+    const int numCpus = hwloc_get_nbobjs_inside_cpuset_by_type( topology, cpuSet,
+                                                              HWLOC_OBJ_SOCKET );
+    if( numCpus != 1 )
+    {
+        EQINFO << "Automatic pipe thread placement failed: GPU attached to "
+               << numCpus << " processors" << std::endl;
+        hwloc_topology_destroy( topology );
+        return lunchbox::Thread::NONE;
+    }
+
+    const hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type( topology,
+                                                   cpuSet, HWLOC_OBJ_SOCKET, 0 );
+    if( cpuObj == 0 )
+    {
+        EQINFO << "Automatic pipe thread placement failed: "
+               << "hwloc_get_obj_inside_cpuset_by_type() failed" << std::endl;
+        hwloc_topology_destroy( topology );
+        return lunchbox::Thread::NONE;
+    }
+
+    const int cpuIndex = cpuObj->logical_index;
     hwloc_topology_destroy( topology );
+    return cpuIndex + lunchbox::Thread::SOCKET;
 #else
-    EQINFO << "Missing hwloc with GL module,"
-           << "automatic thread placement is not supported"
+    EQINFO << "Automatic thread placement not supported, no hwloc GL support"
            << std::endl;
 #endif
     return lunchbox::Thread::NONE;
