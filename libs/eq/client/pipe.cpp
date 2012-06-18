@@ -377,7 +377,8 @@ int32_t Pipe::_getAutoAffinity() const
     }
     hwloc_topology_destroy( topology );
 #else
-    EQINFO << "Missing hwloc, automatic thread placement is not supported"
+    EQINFO << "Missing hwloc with GL module,"
+           << "automatic thread placement is not supported"
            << std::endl;
 #endif
     return lunchbox::Thread::NONE;
