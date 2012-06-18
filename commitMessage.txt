@@ -1,4 +1,4 @@
-Fix packaging typo
+Updaint the automatic thread placement code according to the hwloc refactoring.
 
 [ ] May break build
 [ ] May break existing applications (see CHANGES.txt)
