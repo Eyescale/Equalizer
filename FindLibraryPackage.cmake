@@ -213,10 +213,13 @@ macro(FIND_LIBRARY_PACKAGE name)
     set(${_flp_NAME}_LIBRARIES)
     set(${_flp_NAME}_INCLUDE_DIRS)
   else()
+    string(TOLOWER ${name} _flp_name)
+
     set(${_flp_NAME}_FOUND TRUE)
-    set(${_flp_NAME}_DEB_DEPENDENCIES "${name}${${_flp_NAME}_VERSION_ABI}-lib")
+    set(${_flp_NAME}_DEB_DEPENDENCIES
+      "${_flp_name}${${_flp_NAME}_VERSION_ABI}-lib")
     set(${_flp_NAME}_DEB_BUILD_DEPENDENCIES
-      "${name}${${_flp_NAME}_VERSION_ABI}-dev")
+      "${_flp_name}${${_flp_NAME}_VERSION_ABI}-dev")
     get_filename_component(${_flp_NAME}_LIBRARY_DIRS ${${_flp_NAME}_LIBRARY}
       PATH)
 
