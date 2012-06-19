@@ -2,7 +2,7 @@
 
 find_package(VMMLIB REQUIRED)
 include_directories(SYSTEM ${OPENGL_INCLUDE_DIR} ${GLEW_MX_INCLUDE_DIRS}
-                           ${VMMLIB_INCLUDE_DIR})
+                           ${VMMLIB_INCLUDE_DIRS})
 if(CUDA_FOUND)
   include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
 endif()
