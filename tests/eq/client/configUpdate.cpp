@@ -29,6 +29,7 @@ int main( const int argc, char** argv )
 
     eq::Config* config = eq::getConfig( argc, argv );
     TEST( config );
+    TEST( config->init( 0 ));
 
     size_t nLoops = 0;
     const lunchbox::Clock clock;
@@ -42,6 +43,7 @@ int main( const int argc, char** argv )
     std::cout << nLoops << " Config::update in " << time << " ms (" << 
         time/float(nLoops) << " ms/update)" << std::endl;
 
+    config->exit();
     eq::releaseConfig( config );
     eq::exit();
     return EXIT_SUCCESS;
