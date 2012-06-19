@@ -12,15 +12,15 @@ used for 1.4-beta).
 
 The branch is pushed to the origin.
 
-## cut:
+## cut
 
 Delete the current version branch locall and remote.
 
-## tag:
+## tag
 
 Creates the version branch if needed, and creates a tag release-VERSION
 on the version branch HEAD. Pushes tag to the origin repository.
 
-## erase:
+## erase
 
 Removes the release-VERSION locally and remotely.
