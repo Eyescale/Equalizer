@@ -258,12 +258,6 @@ using lunchbox::UUID;
 
 /** @cond IGNORE */
 typedef co::WorkerThread< CommandQueue > Worker; // instantiated in worker.cpp
-
-// originator serial -> statistics
-typedef std::map< uint32_t, Statistics > SortedStatistics;
-
-// frame id, config statistics
-typedef std::pair< uint32_t, SortedStatistics > FrameStatistics;
 /** @endcond */
 }
 
@@ -275,6 +269,7 @@ struct GLXEWContextStruct;
 typedef struct GLEWContextStruct GLEWContext;
 typedef struct WGLEWContextStruct WGLEWContext;
 typedef struct GLXEWContextStruct GLXEWContext;
+namespace GLStats { class Data; }
 /** @endcond */
 
 #endif // EQ_TYPES_H

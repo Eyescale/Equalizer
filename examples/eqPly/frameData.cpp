@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@ FrameData::FrameData()
         , _colorMode( COLOR_MODEL )
         , _quality( 1.0f )
         , _ortho( false )
-        , _statistics( false )
+        , _statistics( true )
         , _help( false )
         , _wireframe( false )
         , _pilotMode( false )

@@ -896,49 +896,11 @@ bool Channel::processEvent( const Event& event )
     return true;
 }
 
-namespace
-{
-#define HEIGHT 12
-#define SPACE  2
-
-enum
-{
-    THREAD_MAIN,
-    THREAD_ASYNC1,
-    THREAD_ASYNC2,
-};
-
-typedef std::set< uint32_t > PluginSet;
-typedef stde::hash_map< uint32_t, PluginSet > Plugins;
-typedef PluginSet::const_iterator PluginSetCIter;
-
-struct IdleData
-{
-    IdleData() : idle( 0 ), nIdle( 0 ) {}
-    uint32_t idle;
-    uint32_t nIdle;
-    std::string name;
-};
-
-static bool _compare( const Statistic& stat1, const Statistic& stat2 )
-    { return stat1.type < stat2.type; }
-}
-
 void Channel::drawStatistics()
 {
-#ifdef EQ_USE_GLSTATS
     const PixelViewport& pvp = getPixelViewport();
     LBASSERT( pvp.hasArea( ));
     if( !pvp.hasArea( ))
-        return;
-
-    Config* config = getConfig();
-    LBASSERT( config );
-
-    std::vector< eq::FrameStatistics > statistics;
-    config->getStatistics( statistics );
-
-    if( statistics.empty( )) 
         return;
 
     //----- setup
@@ -957,173 +919,12 @@ void Channel::drawStatistics()
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glDisable( GL_COLOR_LOGIC_OP );
 
-    GLStats::Data data;
-    GLStats::Thread thread;
-    thread.name = "transfer";
-    data.addThread( THREAD_ASYNC1, thread );
-    thread.name = "transmit";
-    data.addThread( THREAD_ASYNC2, thread );
-
-    data.clearText();
-    std::map< uint32_t, IdleData > idles;
-    Plugins plugins;
-
-    for( std::vector< eq::FrameStatistics >::iterator i = statistics.begin();
-         i != statistics.end(); ++i )
-    {
-        eq::FrameStatistics& frameStats  = *i;
-        SortedStatistics& configStats = frameStats.second;
-
-        for( SortedStatistics::iterator j = configStats.begin();
-             j != configStats.end(); ++j )
-        {
-            const uint32_t id = j->first;
-            Statistics& stats = j->second;
-            std::sort( stats.begin(), stats.end(), _compare ); ///
-
-            for( Statistics::const_iterator k = stats.begin(); 
-                 k != stats.end(); ++k )
-            {
-                const Statistic& stat = *k;
-                GLStats::Item item;
-                item.entity = id;
-                item.type = stat.type;
-                item.frame = stat.frameNumber;
-                item.start = stat.startTime;
-                item.end = stat.endTime;
-
-                GLStats::Entity entity;
-                entity.name = stat.resourceName;
-
-                GLStats::Type type;
-                const Vector3f& color = Statistic::getColor( stat.type );
-
-                type.color[0] = color[0];
-                type.color[1] = color[1];
-                type.color[2] = color[2];
-                type.name = Statistic::getName( stat.type );
-                switch( stat.type )
-                {
-                  case Statistic::CHANNEL_CLEAR:
-                  case Statistic::CHANNEL_DRAW:
-                  case Statistic::CHANNEL_DRAW_FINISH:
-                  case Statistic::CHANNEL_ASSEMBLE:
-                  case Statistic::CHANNEL_FRAME_WAIT_READY:
-                  case Statistic::CHANNEL_READBACK:
-                  case Statistic::CHANNEL_VIEW_FINISH:
-                  case Statistic::CHANNEL_FRAME_FINISH:
-                      type.group = "channel";
-                      break;
-                  case Statistic::CHANNEL_ASYNC_READBACK:
-                      type.group = "channel";
-                      type.subgroup = "transfer";
-                      item.thread = THREAD_ASYNC1;
-                      break;
-                  case Statistic::CHANNEL_FRAME_TRANSMIT:
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                      type.group = "channel";
-                      type.subgroup = "transmit";
-                      item.thread = THREAD_ASYNC2;
-                      break;
-                  case Statistic::WINDOW_FINISH:
-                  case Statistic::WINDOW_THROTTLE_FRAMERATE:
-                  case Statistic::WINDOW_SWAP_BARRIER:
-                  case Statistic::WINDOW_SWAP:
-                      type.group = "window";
-                      break;
-                  case Statistic::NODE_FRAME_DECOMPRESS:
-                      type.group = "node";
-                      break;
-                  case Statistic::CONFIG_START_FRAME:
-                  case Statistic::CONFIG_FINISH_FRAME:
-                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                      type.group = "config";
-                      break;
-
-                  case Statistic::PIPE_IDLE:
-                  {
-                      IdleData& idle = idles[ id ];
-                      idle.name = stat.resourceName;
-                      idle.idle += (stat.idleTime * 100ll / stat.totalTime);
-                      ++idle.nIdle;
-                      continue;
-                  }
-                  case Statistic::WINDOW_FPS:
-                  case Statistic::NONE:
-                  case Statistic::ALL:
-                      continue;
-                }
-                data.addType( stat.type, type );
-
-                switch( stat.type )
-                {
-                  case Statistic::CHANNEL_FRAME_COMPRESS:
-                    item.layer = 1;
-                    // no break;
-                  case Statistic::CHANNEL_ASYNC_READBACK:
-                  case Statistic::CHANNEL_READBACK:
-                  {
-                    std::stringstream text;
-                    text << unsigned( 100.f * stat.ratio ) << '%';
-                    item.text = text.str();
-
-                    PluginSet& pluginSet = plugins[ id ];
-                    if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
-                        pluginSet.insert( stat.plugins[0] );
-                    if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE )
-                        pluginSet.insert( stat.plugins[1] );
-                    break;
-                  }
-
-                  case Statistic::CHANNEL_FRAME_WAIT_READY:
-                  case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                  case Statistic::CONFIG_WAIT_FINISH_FRAME:
-                    item.layer = 1;
-                    break;
-
-                  default:
-                    break;
-                }
-
-                data.addItem( item );
-                data.addEntity( id, entity );
-            }
-        }
-    }
-
-    for( Plugins::const_iterator i = plugins.begin(); i != plugins.end(); ++i )
-    {
-        const PluginSet& pluginSet = i->second;
-        if( pluginSet.empty( ))
-            continue;
-
-        GLStats::Entity entity = data.getEntity( i->first );
-        std::stringstream text;
-
-        for( PluginSetCIter j = pluginSet.begin(); j != pluginSet.end(); ++j )
-            text << " 0x" << std::hex << *j << std::dec;
-
-        entity.name += text.str();
-        data.addEntity( i->first, entity );
-    }
-
-    std::stringstream text;
-    if( !idles.empty( ))
-        text << "Idle:";
-
-    for( std::map< uint32_t, IdleData >::const_iterator i = idles.begin();
-         i != idles.end(); ++i )
-    {
-        const IdleData& idle = i->second;
-        LBASSERT( idle.nIdle > 0 );
-
-        text << " " << idle.name << ":" << idle.idle / idle.nIdle << "%";
-    }
-    data.addText( text.str( ));
-
     Window* window = getWindow();
+
+#ifdef EQ_USE_GLSTATS
     const Window::Font* font = window->getSmallFont();
+    const Config* config = getConfig();
+    const GLStats::Data& data = config->getStatistics();
     detail::StatsRenderer renderer( font );
     const Viewport& vp = getViewport();
     const uint32_t width = uint32_t( pvp.w/vp.w );
@@ -1131,7 +932,6 @@ void Channel::drawStatistics()
 
     renderer.setViewport( width, height );
     renderer.draw( data );
-    // data.obsolete( nFrames );
 #endif
 
     glColor3f( 1.f, 1.f, 1.f );

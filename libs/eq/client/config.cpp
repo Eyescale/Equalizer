@@ -44,7 +44,17 @@
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
+#include <co/plugins/compressorTypes.h>
 #include <lunchbox/scopedMutex.h>
+
+#ifdef EQ_USE_GLSTATS
+#  include <GLStats/data.h>
+#  include <GLStats/entity.h>
+#  include <GLStats/item.h>
+#  include <GLStats/type.h>
+#else
+    namespace GLStats { class Data {} _fakeStats; }
+#endif
 
 namespace eq
 {
@@ -71,6 +81,17 @@ private:
     const ChangeType _changeType;
     const uint32_t _compressor;
 };
+#ifdef EQ_USE_GLSTATS
+namespace
+{
+enum
+{
+    THREAD_MAIN,
+    THREAD_ASYNC1,
+    THREAD_ASYNC2,
+};
+}
+#endif
 }
 
 namespace detail
@@ -107,9 +128,10 @@ public:
     /** The connections configured by the server for this config. */
     co::Connections connections;
 
-    /** Global statistics events, index per frame and channel. */
-    lunchbox::Lockable< std::deque< FrameStatistics >, lunchbox::SpinLock >
-        statistics;
+#ifdef EQ_USE_GLSTATS
+    /** Global statistics data. */
+    lunchbox::Lockable< GLStats::Data, lunchbox::SpinLock > statistics;
+#endif
 
     /** The last started frame. */
     uint32_t currentFrame;
@@ -468,7 +490,8 @@ uint32_t Config::finishFrame()
             const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
             const int64_t time = getTime() + timeout;
 
-            while( !_impl->finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+            while( !_impl->finishedFrame.timedWaitGE( frameToFinish,
+                                                      pingTimeout ))
             {
                 if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
                 {
@@ -651,46 +674,138 @@ bool Config::handleEvent( const ConfigEvent* event )
         case Event::STATISTIC:
         {
             LBLOG( LOG_STATS ) << event->data << std::endl;
-
+#ifdef EQ_USE_GLSTATS
             const uint32_t originator = event->data.serial;
             LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
             if( originator == 0 )
                 return false;
 
-            const Statistic& statistic = event->data.statistic;
-            const uint32_t   frame     = statistic.frameNumber;
-            LBASSERT( statistic.type != Statistic::NONE )
+            const Statistic& stat = event->data.statistic;
+            const uint32_t frame = stat.frameNumber;
+            LBASSERT( stat.type != Statistic::NONE )
 
-            if( frame == 0 ||      // Not a frame-related stat event or
-                statistic.type == Statistic::NONE ) // No event-type set
+            if( frame == 0 ||  // Not a frame-related stat event or
+                stat.type == Statistic::NONE ) // No event-type set
             {
                 return false;
             }
 
             lunchbox::ScopedFastWrite mutex( _impl->statistics );
+            GLStats::Item item;
+            item.entity = originator;
+            item.type = stat.type;
+            item.frame = stat.frameNumber;
+            item.start = stat.startTime;
+            item.end = stat.endTime;
 
-            for( std::deque<FrameStatistics>::iterator i =
-                     _impl->statistics->begin();
-                 i != _impl->statistics->end(); ++i )
+            GLStats::Entity entity;
+            entity.name = stat.resourceName;
+
+            GLStats::Type type;
+            const Vector3f& color = Statistic::getColor( stat.type );
+
+            type.color[0] = color[0];
+            type.color[1] = color[1];
+            type.color[2] = color[2];
+            type.name = Statistic::getName( stat.type );
+            switch( stat.type )
             {
-                FrameStatistics& frameStats = *i;
-                if( frameStats.first == frame )
+              case Statistic::CHANNEL_FRAME_COMPRESS:
+              case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
+                  type.subgroup = "transmit";
+                  item.thread = THREAD_ASYNC2;
+                  // no break;
+              case Statistic::CHANNEL_FRAME_WAIT_READY:
+                  type.group = "channel";
+                  item.layer = 1;
+                  break;
+              case Statistic::CHANNEL_CLEAR:
+              case Statistic::CHANNEL_DRAW:
+              case Statistic::CHANNEL_DRAW_FINISH:
+              case Statistic::CHANNEL_ASSEMBLE:
+              case Statistic::CHANNEL_READBACK:
+              case Statistic::CHANNEL_VIEW_FINISH:
+              case Statistic::CHANNEL_FRAME_FINISH:
+                  type.group = "channel";
+                  break;
+              case Statistic::CHANNEL_ASYNC_READBACK:
+                  type.group = "channel";
+                  type.subgroup = "transfer";
+                  item.thread = THREAD_ASYNC1;
+                  break;
+              case Statistic::CHANNEL_FRAME_TRANSMIT:
+                  type.group = "channel";
+                  type.subgroup = "transmit";
+                  item.thread = THREAD_ASYNC2;
+                  break;
+
+              case Statistic::WINDOW_FINISH:
+              case Statistic::WINDOW_THROTTLE_FRAMERATE:
+              case Statistic::WINDOW_SWAP_BARRIER:
+              case Statistic::WINDOW_SWAP:
+                  type.group = "window";
+                  break;
+              case Statistic::NODE_FRAME_DECOMPRESS:
+                  type.group = "node";
+                  break;
+
+              case Statistic::CONFIG_WAIT_FINISH_FRAME:
+                  item.layer = 1;
+                  // no break;
+              case Statistic::CONFIG_START_FRAME:
+              case Statistic::CONFIG_FINISH_FRAME:
+                  type.group = "config";
+                  break;
+
+              case Statistic::PIPE_IDLE:
+              {
+                const Strings& strings = _impl->statistics->getText();
+                std::stringstream text;
+                if( strings.empty( ))
+                    text <<  "Idle: ";
+                else
+                    text << strings[0] << ", ";
+
+                text << stat.resourceName << " " <<
+                    (stat.idleTime * 100ll / stat.totalTime) << "%";
+
+                _impl->statistics->clearText();
+                _impl->statistics->addText( text.str( ));
+              }
+              // no break;
+
+              case Statistic::WINDOW_FPS:
+              case Statistic::NONE:
+              case Statistic::ALL:
+                  return false;
+            }
+            switch( stat.type )
+            {
+              case Statistic::CHANNEL_FRAME_COMPRESS:
+              case Statistic::CHANNEL_ASYNC_READBACK:
+              case Statistic::CHANNEL_READBACK:
+              {
+                std::stringstream text;
+                text << unsigned( 100.f * stat.ratio ) << '%';
+
+                if( stat.plugins[ 0 ]  > EQ_COMPRESSOR_NONE )
+                    text << " " << stat.plugins[0];
+                if( stat.plugins[ 1 ]  > EQ_COMPRESSOR_NONE &&
+                    stat.plugins[ 0 ] != stat.plugins[ 1 ] )
                 {
-                    SortedStatistics& sortedStats = frameStats.second;
-                    Statistics&       statistics  = sortedStats[ originator ];
-                    statistics.push_back( statistic );
-                    return false;
+                    text << " " << stat.plugins[1];
                 }
+                item.text = text.str();
+                break;
+              }
+              default:
+                break;
             }
 
-            _impl->statistics->push_back( FrameStatistics( ));
-            FrameStatistics& frameStats = _impl->statistics->back();
-            frameStats.first = frame;
-
-            SortedStatistics& sortedStats = frameStats.second;
-            Statistics&       statistics  = sortedStats[ originator ];
-            statistics.push_back( statistic );
-
+            _impl->statistics->addType( stat.type, type );
+            _impl->statistics->addItem( item );
+            _impl->statistics->addEntity( originator, entity );
+#endif
             return false;
         }
 
@@ -740,25 +855,22 @@ bool Config::_needsLocalSync() const
 
 void Config::_updateStatistics( const uint32_t finishedFrame )
 {
+#ifdef EQ_USE_GLSTATS
     // keep statistics for three frames
-    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _impl->statistics );
-    while( !_impl->statistics->empty() &&
-           finishedFrame - _impl->statistics->front().first > 2 )
-    {
-        _impl->statistics->pop_front();
-    }
+    lunchbox::ScopedFastWrite mutex( _impl->statistics );
+    _impl->statistics->obsolete( 3 /* frames to keep */ );
+    _impl->statistics->clearText();
+#endif
 }
 
-void Config::getStatistics( std::vector< FrameStatistics >& statistics )
+GLStats::Data Config::getStatistics() const
 {
-    lunchbox::ScopedMutex< lunchbox::SpinLock > mutex( _impl->statistics );
-
-    for( std::deque<FrameStatistics>::const_iterator i =
-             _impl->statistics->begin(); i != _impl->statistics->end(); ++i )
-    {
-        if( (*i).first <= _impl->finishedFrame.get( ))
-            statistics.push_back( *i );
-    }
+#ifdef EQ_USE_GLSTATS
+    lunchbox::ScopedFastRead mutex( _impl->statistics );
+    return GLStats::Data( _impl->statistics.data );
+#else
+    return _fakeStats;
+#endif
 }
 
 uint32_t Config::getCurrentFrame() const

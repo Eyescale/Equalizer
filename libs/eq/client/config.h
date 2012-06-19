@@ -89,7 +89,7 @@ namespace detail { class Config; }
         EQ_API uint32_t getFinishedFrame() const;
 
         /** @internal Get all received statistics. */
-        EQ_API void getStatistics( std::vector< FrameStatistics >& stats );
+        EQ_API GLStats::Data getStatistics() const;
 
         /**
          * @return true while the config is initialized and no exit event
