@@ -26,6 +26,8 @@ if(HWLOC_FOUND)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIBRARIES
     HWLOC_INCLUDE_DIRS)
+  
+  include_directories(${HWLOC_INCLUDE_DIRS})
 
   if(${HWLOC_VERSION} VERSION_LESS 1.5.0)
     set(HWLOC_GL_FOUND)
