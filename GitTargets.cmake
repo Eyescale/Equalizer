@@ -1,13 +1,5 @@
 # Copyright (c) 2012 Stefan.Eilemann@epfl.ch
-
-# Adds the following targets for git-based repositories:
-#
-# branch: Create MAJOR.MINOR branch and push it
-# cut: Delete MAJOR.MINOR locally and remote
-# tag: branch, switch to branch and create or move release-VERSION tag to HEAD
-# erase: Remove release-VERSION tag
-#
-# NB: Branch minor versions are rounded up to the next even version!
+# See doc/GitTargets.md for documentation
 
 find_package(Git REQUIRED)
 
