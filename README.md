@@ -22,4 +22,4 @@ Update:
 
 ## Documentation
 
-- [GitTargets.cmake](blob/master/doc/GitTargets.md)
+- [GitTargets.cmake](CMake/blob/master/doc/GitTargets.md)
