@@ -72,7 +72,7 @@ set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   librdmacm-dev libibverbs-dev librdmacm-dev
   ${GPUSD_DEB_BUILD_DEPENDENCIES} ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}
   ${VMMLIB_DEB_BUILD_DEPENDENCIES})
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES} ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES}, ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
 
 set(UBUNTU_LP_BUG 300472)
 include(CommonCPack)
