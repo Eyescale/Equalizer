@@ -4,39 +4,13 @@
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
 configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
-              ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
+  ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
 
-set(EQUALIZER_PACKAGE_VERSION "" CACHE STRING "Additional build version for packages")
-mark_as_advanced(EQUALIZER_PACKAGE_VERSION)
-
-if(LINUX)
-  set(CPACK_PACKAGE_NAME "Equalizer${VERSION_ABI}")
-else()
-  set(CPACK_PACKAGE_NAME "Equalizer")
-endif()
-
-if(APPLE)
-  set(CPACK_PACKAGE_VENDOR "www.eyescale.ch") # PackageMaker doesn't like http://
-else()
-  set(CPACK_PACKAGE_VENDOR "http://www.eyescale.ch") # deb lintian insists on URL
-endif()
-
+set(CPACK_PACKAGE_VENDOR "www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
-set(CPACK_PACKAGE_VERSION ${VERSION})
-set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-set(CPACK_RESOURCE_FILE_LICENSE ${Equalizer_SOURCE_DIR}/LICENSE.txt)
 set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${CMAKE_SYSTEM_PROCESSOR}")
-
-if(EQUALIZER_PACKAGE_VERSION)
-  set(CPACK_PACKAGE_VERSION_PATCH
-      ${CPACK_PACKAGE_VERSION_PATCH}-${EQUALIZER_PACKAGE_VERSION})
-  set(CPACK_RPM_PACKAGE_RELEASE ${EQUALIZER_PACKAGE_VERSION})
-endif()
 
 set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev seqlib seqdev man doc apps examples tools data vmmlib)
 
@@ -91,19 +65,6 @@ set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
 set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
   "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
 
-set(CPACK_RPM_PACKAGE_LICENSE "LGPL, BSD")
-set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries/Parallel")
-set(CPACK_RPM_PACKAGE_VERSION ${VERSION})
-
-if(NOT CPACK_DEBIAN_PACKAGE_MAINTAINER)
-  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
-  if(RELEASE_VERSION)
-    set(DPUT_HOST "ppa:eilemann/equalizer")
-  else()
-    set(DPUT_HOST "ppa:eilemann/equalizer-dev")
-  endif()
-endif()
-
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   libboost-date-time-dev libboost-regex-dev libboost-serialization-dev
@@ -113,34 +74,5 @@ set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
   ${VMMLIB_DEB_BUILD_DEPENDENCIES})
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libboost-system-dev, libboost-date-time-dev, libboost-regex-dev, libboost-serialization-dev, libx11-dev, libgl1-mesa-dev, libglewmx1.5-dev, ${EQ_IB_PACKAGES}, ${GPUSD_DEB_DEPENDENCIES}, ${LUNCHBOX_DEB_BUILD_DEPENDENCIES} ${VMMLIB_DEB_BUILD_DEPENDENCIES}")
 
-set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "/sbin/ldconfig")
-
-set(CPACK_OSX_PACKAGE_VERSION "${EQ_OSX_VERSION}")
-
-if(MSVC)
-  set(CPACK_GENERATOR "NSIS")
-  set(CPACK_NSIS_MODIFY_PATH ON)
-endif(MSVC)
-
-if(APPLE)
-  set(CPACK_GENERATOR "PackageMaker")
-#  set(CPACK_SET_DESTDIR ON)
-endif(APPLE)
-
-if(LINUX)
-  find_program(RPM_EXE rpmbuild)
-  if(${RPM_EXE} MATCHES RPM_EXE-NOTFOUND)
-    set(CPACK_GENERATOR "DEB")
-  else()
-    set(CPACK_GENERATOR "DEB;RPM")
-  endif()
-endif(LINUX)
-
-set(CPACK_STRIP_FILES TRUE)
 set(UBUNTU_LP_BUG 300472)
-include(InstallRequiredSystemLibraries)
-include(CPack)
-include(UploadPPA)
-if(UPLOADPPA_FOUND)
-  upload_ppas()
-endif()
+include(CommonCPack)
