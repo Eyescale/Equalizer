@@ -30,7 +30,8 @@
 <p>
   Welcome to Equalizer, the standard middleware to create and deploy parallel,
   scalable OpenGL applications. This release introduces major new features, most
-  notably ...
+  notably asynchronous readbacks, region of interest and thread affinity for
+  increased performance during scalable rendering.
 </p>
 <p>
   Equalizer 1.4 beta is a feature release extending the 1.0 API, distilling over
@@ -91,7 +92,7 @@
     rendering and load-balancing</li>
 </ul>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/122">ZeroConf
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/122">Zeroconf
       support and node discovery</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/116">Blocking
       co::Object::commit</a></li>

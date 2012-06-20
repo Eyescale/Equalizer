@@ -12,7 +12,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Parallel Rendering Framework")
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 set(CPACK_RESOURCE_FILE_README ${Equalizer_SOURCE_DIR}/RELNOTES.txt)
 
-set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev seqlib seqdev man doc apps examples tools data vmmlib)
+set(CPACK_COMPONENTS_ALL colib codev eqlib eqdev seqlib seqdev man doc apps examples tools data)
 
 set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Misc")
 set(CPACK_COMPONENT_UNSPECIFIED_DESCRIPTION "Miscellanous")
@@ -30,7 +30,7 @@ set(CPACK_COMPONENT_EQLIB_DEPENDS colib)
 
 set(CPACK_COMPONENT_EQDEV_DISPLAY_NAME "Equalizer Development Files")
 set(CPACK_COMPONENT_EQDEV_DESCRIPTION "Header and Library Files for Equalizer Development")
-set(CPACK_COMPONENT_EQDEV_DEPENDS vmmlib eqlib codev)
+set(CPACK_COMPONENT_EQDEV_DEPENDS eqlib codev)
 
 set(CPACK_COMPONENT_SEQLIB_DISPLAY_NAME "Sequel Libraries")
 set(CPACK_COMPONENT_SEQLIB_DESCRIPTION "Sequel Runtime Libraries, a simple interface for Equalizer")
@@ -52,7 +52,7 @@ set(CPACK_COMPONENT_APPS_DEPENDS seqlib data eqlib colib)
 
 set(CPACK_COMPONENT_EXAMPLES_DISPLAY_NAME "Examples Source Code")
 set(CPACK_COMPONENT_EXAMPLES_DESCRIPTION "Source code of example programs")
-set(CPACK_COMPONENT_EXAMPLES_DEPENDS seqdev eqdev codev vmmlib data)
+set(CPACK_COMPONENT_EXAMPLES_DEPENDS seqdev eqdev codev data)
 
 set(CPACK_COMPONENT_TOOLS_DISPLAY_NAME "Tools")
 set(CPACK_COMPONENT_TOOLS_DESCRIPTION "Utility programs for Equalizer")
@@ -60,10 +60,6 @@ set(CPACK_COMPONENT_TOOLS_DEPENDS eqlib colib)
 
 set(CPACK_COMPONENT_DATA_DISPLAY_NAME "Data files")
 set(CPACK_COMPONENT_DATA_DESCRIPTION "Example configuration files and data sets")
-
-set(CPACK_COMPONENT_VMMLIB_DISPLAY_NAME "VMMLib header files")
-set(CPACK_COMPONENT_VMMLIB_DESCRIPTION
-  "vmmlib is a vector and matrix math library implemented using C++ templates, thus making it very easy to integrate into other libraries and programs.")
 
 set(EQ_IB_PACKAGES "librdmacm-dev, libibverbs-dev, librdmacm-dev")
 set(CPACK_DEBIAN_BUILD_DEPENDS bison flex libboost-system-dev
