@@ -44,6 +44,7 @@ else()
 endif()
 
 include(Common)
+include(GitTargets)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
 if(EQUALIZER_USE_GPUSD)
