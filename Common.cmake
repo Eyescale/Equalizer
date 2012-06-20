@@ -9,9 +9,9 @@ endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
-    set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release CACHE FORCE)
   else()
-    set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Debug CACHE FORCE)
   endif()
 endif(NOT CMAKE_BUILD_TYPE)
 
