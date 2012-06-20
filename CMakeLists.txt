@@ -22,15 +22,15 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
 include(revision)
 
-set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
+set(RELEASE_VERSION 140) # OFF or 'Mm0' ABI version
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "3")
-set(VERSION_PATCH "2")
+set(VERSION_PATCH "5")
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "5")
-set(CO_VERSION_PATCH "2")
+set(CO_VERSION_PATCH "5")
 set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 set(EQ_OSX_VERSION 10.6)
@@ -71,6 +71,9 @@ if(MSVC)
   include(UseGnuWin32)
 endif(MSVC)
 
+find_package(VMMLIB REQUIRED)
+include_directories(SYSTEM ${VMMLIB_INCLUDE_DIRS})
+
 find_package(Boost 1.36 REQUIRED system regex date_time serialization)
 if(Boost_VERSION GREATER 103999)
   set(CO_USE_BOOST_SERIALIZATION 1)
@@ -99,20 +102,17 @@ endif(OPENMP_FOUND)
 find_package(OFED)
 if(OFED_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} RDMA")
-  include_directories(SYSTEM ${OFED_INCLUDE_DIRS})
 endif()
 
 find_package(UDT)
 if(UDT_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} UDT")
-  include_directories(SYSTEM ${UDT_INCLUDE_DIRS})
 endif()
 
 if(EQUALIZER_USE_HWLOC)
   find_package(HWLOC)
 endif()
 if(HWLOC_FOUND)
-  include_directories(SYSTEM ${HWLOC_INCLUDE_DIR})
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
 endif()
 
