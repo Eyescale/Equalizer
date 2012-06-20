@@ -70,6 +70,7 @@
 #
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindEqualizer)
+include(FindPackageHandleStandardArgs)
 
 set(_eq_required)
 if(Equalizer_FIND_REQUIRED)
