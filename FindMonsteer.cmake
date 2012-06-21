@@ -1,5 +1,5 @@
 #
-# Copyright 2012 Stefan Eilemann <eile@eyescale.ch>
+# Copyright 2012 Daniel Nachbaur <daniel.nachbaur@epfl.ch>
 #
 #  Redistribution and use in source and binary forms, with or without
 #  modification, are permitted provided that the following conditions are met:
@@ -27,51 +27,53 @@
 #
 #==================================
 #
-# - Find Servus
-# This module searches for the Servus library
-#    See https://github.com/Eyescale/servus
+# - Find Monsteer
+# This module searches for the Monsteer library
+#    See https://github.com/BlueBrain/Monsteer
 #
 #==================================
 #
-# The following environment variables are respected for finding Servus.
+# The following environment variables are respected for finding Monsteer.
 # CMAKE_PREFIX_PATH can also be used for this (see find_library() CMake
 # documentation).
 #
-#    SERVUS_ROOT
-#    EQ_ROOT
+#    MONSTEER_ROOT
 #
 # This module defines the following output variables:
 #
-#    SERVUS_FOUND - Was Servus and all of the specified components found?
+#    MONSTEER_FOUND - Was Monsteer and all of the specified components found?
 #
-#    SERVUS_VERSION - The version of Servus which was found
+#    MONSTEER_VERSION - The version of Monsteer which was found
 #
-#    SERVUS_VERSION_ABI - The DSO version of Servus which was found
+#    MONSTEER_VERSION_ABI - The DSO version of Monsteer which was found
 #
-#    SERVUS_INCLUDE_DIRS - Where to find the headers
+#    MONSTEER_INCLUDE_DIRS - Where to find the headers
 #
-#    SERVUS_LIBRARIES - The Servus libraries
+#    MONSTEER_LIBRARIES - The Monsteer libraries
 #
 #==================================
 # Example Usage:
 #
-#  find_package(Servus 0.3.0 REQUIRED)
-#  include_directories(${SERVUS_INCLUDE_DIRS})
+#  find_package(Monsteer 0.1.0 REQUIRED)
+#  include_directories(${MONSTEER_INCLUDE_DIRS})
 #
 #  add_executable(foo foo.cc)
-#  target_link_libraries(foo ${SERVUS_LIBRARIES})
+#  target_link_libraries(foo ${MONSTEER_LIBRARIES})
 #
 #==================================
 # Naming convention:
-#  Local variables of the form _servus_foo
-#  Input variables of the form Servus_FOO
-#  Output variables of the form SERVUS_FOO
+#  Local variables of the form _monsteer_foo
+#  Input variables of the form Monsteer_FOO
+#  Output variables of the form MONSTEER_FOO
 #
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindServus)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindMonsteer)
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
-find_library_package(servus)
-find_package_handle_standard_args(Servus DEFAULT_MSG
-                                  SERVUS_LIBRARIES SERVUS_INCLUDE_DIRS)
+find_library_package(Monsteer INCLUDE monsteer)
+find_package_handle_standard_args(Monsteer DEFAULT_MSG
+                                  MONSTEER_LIBRARIES MONSTEER_INCLUDE_DIRS)
+if(MONSTEER_FOUND)
+  include("${MONSTEER_LIBRARY_DIRS}/../share/Monsteer/CMake/options.cmake")
+endif()

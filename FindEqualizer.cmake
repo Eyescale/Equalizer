@@ -70,6 +70,7 @@
 #
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindEqualizer)
+include(FindPackageHandleStandardArgs)
 
 set(_eq_required)
 if(Equalizer_FIND_REQUIRED)
@@ -198,6 +199,7 @@ else()
   find_package_handle_standard_args(Equalizer DEFAULT_MSG
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
   # Matching Collage versions
+  set(_eq_coVersion_1.3.5 "0.5.5")
   set(_eq_coVersion_1.3.2 "0.5.2")
   set(_eq_coVersion_1.3.1 "0.5.1")
   set(_eq_coVersion_1.3.0 "0.5.0")
