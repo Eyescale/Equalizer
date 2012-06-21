@@ -19,7 +19,8 @@ if(APPLE)
   endif()
   mark_as_advanced(COLLAGE_OSX_ARCHITECTURES)
   set(CMAKE_OSX_ARCHITECTURES "${COLLAGE_OSX_ARCHITECTURES}")
-  message(STATUS "Building Collage for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS
+    "Building Collage ${CO_VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
 add_definitions(-DEQ_PLUGIN_BUILD)

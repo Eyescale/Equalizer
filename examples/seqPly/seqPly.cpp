@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,11 +40,8 @@ namespace seqPly
 
 bool Application::init( const int argc, char** argv )
 {
-    if( !seq::Application::init( argc, argv, 0 ))
-        return false;
-
-    _loadModel( argc, argv );
-    return true;
+    _loadModel( argc, argv );  // #131: has cmdline parser
+    return seq::Application::init( argc, argv, 0 );
 }
 
 bool Application::run()
@@ -92,12 +89,13 @@ static bool _isPlyfile( const std::string& filename )
 
 void Application::_loadModel( const int argc, char** argv )
 {
-    TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example" );
+    TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example", ' ',
+                            eq::Version::getString( ));
     TCLAP::ValueArg<std::string> modelArg( "m", "model", "ply model file name",
                                            false, "", "string", command );
     TCLAP::VariableSwitchArg ignoreEqArgs( "eq", "Ignored Equalizer options",
                                            command );
-    TCLAP::UnlabeledMultiArg< std::string > 
+    TCLAP::UnlabeledMultiArg< std::string >
         ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                     command );
     command.parse( argc, argv );
@@ -111,7 +109,7 @@ void Application::_loadModel( const int argc, char** argv )
                          std::string( "share/Equalizer/data" ));
 #  endif
 #else
-    filenames.push_back( std::string( EQ_SOURCE_DIR ) + 
+    filenames.push_back( std::string( EQ_SOURCE_DIR ) +
                          std::string( "examples/eqPly" ));
 #endif
 
@@ -122,7 +120,7 @@ void Application::_loadModel( const int argc, char** argv )
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
-     
+
         if( _isPlyfile( filename ))
         {
             _model = new Model;

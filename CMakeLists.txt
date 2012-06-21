@@ -164,7 +164,7 @@ if(APPLE)
   mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
   
   set(CMAKE_OSX_ARCHITECTURES "${EQUALIZER_OSX_ARCHITECTURES}")
-  message(STATUS "Building Equalizer for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS "Building Equalizer ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
   if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
