@@ -75,7 +75,7 @@ bool Pipe::configInit()
     }
 
     setXDisplay( xDisplay );
-    LBINFO << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
+    LBVERB << "Opened X display " << XDisplayName( displayName.c_str( )) << " @"
            << xDisplay << ", device " << getPipe()->getDevice() << std::endl;
 
     return _configInitGLXEW();
@@ -89,7 +89,7 @@ void Pipe::configExit()
 
     setXDisplay( 0 );
     XCloseDisplay( xDisplay );
-    LBINFO << "Closed X display " << xDisplay << std::endl;
+    LBVERB << "Closed X display " << xDisplay << std::endl;
 }
 
 
@@ -224,15 +224,15 @@ bool Pipe::_configInitGLXEW()
 
     const GLenum result = glxewInit();
     bool success = result == GLEW_OK;
-    if( !success )
+    if( success )
     {
-        setError( ERROR_GLXPIPE_GLXEWINIT_FAILED );
-        LBWARN << getError() << ": " << result << std::endl;
+        LBVERB << "Pipe GLXEW initialization successful" << std::endl;
+        success = configInitGL();
     }
     else
     {
-        LBINFO << "Pipe GLXEW initialization successful" << std::endl;
-        success = configInitGL();
+        setError( ERROR_GLXPIPE_GLXEWINIT_FAILED );
+        LBWARN << getError() << ": " << result << std::endl;
     }
 
     XSync( _xDisplay, False );

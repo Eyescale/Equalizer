@@ -260,7 +260,7 @@ void EventHandler::_processEvent( WindowEvent& event )
         case ReparentNotify:
         case VisibilityNotify:
             event.type = Event::UNKNOWN;
-            LBINFO << "Ignored X event, type " << xEvent.type << std::endl;
+            LBVERB << "Ignored X event, type " << xEvent.type << std::endl;
             break;
 
         default:

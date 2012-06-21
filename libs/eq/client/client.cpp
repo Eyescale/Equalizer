@@ -70,12 +70,12 @@ Client::Client()
     registerCommand( fabric::CMD_CLIENT_EXIT, 
                      ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
-    LBINFO << "New client at " << (void*)this << std::endl;
+    LBVERB << "New client at " << (void*)this << std::endl;
 }
 
 Client::~Client()
 {
-    LBINFO << "Delete client at " << (void*)this << std::endl;
+    LBVERB << "Delete client at " << (void*)this << std::endl;
     LBASSERT( isClosed( ));
     close();
 }
@@ -238,7 +238,7 @@ bool Client::initLocal( const int argc, char** argv )
             unitString >> _modelUnit;
         }
     }
-    LBINFO << "Launching " << getNodeID() << std::endl;
+    LBVERB << "Launching " << getNodeID() << std::endl;
 
     if( !Super::initLocal( argc, argv ))
         return false;
