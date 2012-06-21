@@ -40,8 +40,12 @@ namespace seqPly
 
 bool Application::init( const int argc, char** argv )
 {
-    _loadModel( argc, argv );  // #131: has cmdline parser
-    return seq::Application::init( argc, argv, 0 );
+    const eq::Strings& models = _parseArguments( argc, argv );
+    if( !seq::Application::init( argc, argv, 0 ))
+        return false;
+
+    _loadModels( models );
+    return true;
 }
 
 bool Application::run()
@@ -87,7 +91,7 @@ static bool _isPlyfile( const std::string& filename )
 }
 }
 
-void Application::_loadModel( const int argc, char** argv )
+eq::Strings Application::_parseArguments( const int argc, char** argv )
 {
     TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example", ' ',
                             eq::Version::getString( ));
@@ -115,11 +119,16 @@ void Application::_loadModel( const int argc, char** argv )
 
     if( modelArg.isSet( ))
         filenames.push_back( modelArg.getValue( ));
+    return filenames;
+}
 
-    while( !filenames.empty( ))
+void Application::_loadModels( const eq::Strings& models )
+{
+    eq::Strings files = models;
+    while( !files.empty( ))
     {
-        const std::string filename = filenames.back();
-        filenames.pop_back();
+        const std::string filename = files.back();
+        files.pop_back();
 
         if( _isPlyfile( filename ))
         {
@@ -145,7 +154,7 @@ void Application::_loadModel( const int argc, char** argv )
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
-                filenames.push_back( filename + '/' + *i );
+                files.push_back( filename + '/' + *i );
         }
     }
 }
