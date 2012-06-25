@@ -19,7 +19,8 @@ if(APPLE)
   endif()
   mark_as_advanced(COLLAGE_OSX_ARCHITECTURES)
   set(CMAKE_OSX_ARCHITECTURES "${COLLAGE_OSX_ARCHITECTURES}")
-  message(STATUS "Building Collage for ${CMAKE_OSX_ARCHITECTURES}")
+  message(STATUS
+    "Building Collage ${CO_VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
 add_definitions(-DEQ_PLUGIN_BUILD)
@@ -50,21 +51,18 @@ if(Boost_FOUND)
 endif(Boost_FOUND)
 
 if(OFED_FOUND)
+  include_directories(SYSTEM ${OFED_INCLUDE_DIRS})
   list(APPEND CO_HEADERS rdmaConnection.h)
   list(APPEND CO_SOURCES rdmaConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${OFED_LIBRARIES})
 endif()
 
 if(UDT_FOUND)
+  include_directories(SYSTEM ${UDT_INCLUDE_DIRS})
   list(APPEND CO_HEADERS udtConnection.h)
   list(APPEND CO_SOURCES udtConnection.cpp)
   list(APPEND CO_ADD_LINKLIB ${UDT_LIBRARIES})
 endif()
-
-if(HWLOC_FOUND)
-  include_directories(${HWLOC_INCLUDE_DIR})
-  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
-endif(HWLOC_FOUND)
 
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )

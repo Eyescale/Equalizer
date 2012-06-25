@@ -27,6 +27,11 @@ if(GLSTATS_FOUND)
   list(APPEND EQ_LIBRARIES ${GLSTATS_LIBRARIES})
 endif()
 
+if(HWLOC_GL_FOUND)
+  include_directories(${HWLOC_INCLUDE_DIRS})
+  list(APPEND CO_ADD_LINKLIB ${HWLOC_LIBRARIES})
+endif()
+
 if(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)

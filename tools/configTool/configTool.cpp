@@ -85,51 +85,40 @@ bool ConfigTool::parseArguments( int argc, char** argv )
 {
     try
     {
-        TCLAP::CmdLine command( "configTool - Equalizer config file generator");
-
+        TCLAP::CmdLine command( "configTool - Equalizer config file generator",
+                                ' ', eq::Version::getString( ));
         TCLAP::SwitchArg fullScreenArg( "f", "fullScreen",
                                         "Full screen rendering", command, 
                                         false );
-
         TCLAP::ValueArg<std::string> modeArg( "m", "mode",
-                                         "Compound mode (default 2D)",
-                                         false, "2D",
-                                         "2D|DB|DB_ds|DB_stream|DPlex|Wall",
-                                         command );
-
+                                              "Compound mode (default 2D)",
+                                              false, "2D",
+                                             "2D|DB|DB_ds|DB_stream|DPlex|Wall",
+                                              command );
         TCLAP::ValueArg<unsigned> pipeArg( "p", "numPipes",
                                          "Number of pipes per node (default 1)",
                                            false, 1, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> channelArg( "c", "numChannels", 
                                          "Total number of channels (default 4)",
                                               false, 4, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> columnsArg( "C", "columns", 
                                           "number of columns in a display wall",
                                               false, 3, "unsigned", command );
-
         TCLAP::ValueArg<unsigned> rowsArg( "R", "rows",
                                            "number of rows in a display wall",
                                            false, 2, "unsigned", command );
-
         TCLAP::SwitchArg destArg( "a", "assembleOnly", 
-                        "Destination channel does not contribute to rendering", 
+                         "Destination channel does not contribute to rendering",
                                   command, false );
-
         TCLAP::ValueArg<std::string> nodesArg( "n", "nodes", 
-                                          "file with list of node-names",
-                                          false, "", "filename", command );
-
+                                               "file with list of node-names",
+                                               false, "", "filename", command );
         TCLAP::MultiArg<unsigned> resArg( "r", "resolution",
                                           "output window resolution", 
                                           false, "unsigned", command );
-
         TCLAP::ValueArg<std::string> descrArg( "d", "descr",
                                       "file with channels per-node description",
-                                          false, "", "filename", command );
-
-
+                                               false, "", "filename", command );
         command.parse( argc, argv );
 
         if( nodesArg.isSet( ))

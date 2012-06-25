@@ -5,7 +5,7 @@ if(NOT DOXYGEN_FOUND)
   return()
 endif()
 
-if(EQUALIZER_RELEASE)
+if(RELEASE_VERSION)
   set(EQ_DOXYGEN_VERSION ${VERSION})
   set(CO_DOXYGEN_VERSION ${CO_VERSION})
 else()
@@ -56,20 +56,19 @@ foreach(DOC ${PUBLIC_DOCS})
     VERBATIM)
   add_dependencies(github_${DOC} doxygen_${DOC})
 
-  make_directory(${CMAKE_CURRENT_BINARY_DIR}/${DOC})
-  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DOC}
+  make_directory(${CMAKE_CURRENT_BINARY_DIR}/html/${DOC})
+  install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/${DOC}
     DESTINATION share/Equalizer COMPONENT doc)
   set(PREVIOUS doxygen_${DOC})
 endforeach()
 
 # set_target_properties(tests PROPERTIES FOLDER "Tests")
-add_custom_target(doxygen DEPENDS github_Collage github_Sequel github_Equalizer)
+add_custom_target(doxygen DEPENDS doxygen_Equalizer)
+add_custom_target(github DEPENDS github_Collage github_Sequel github_Equalizer)
 
 make_directory(${CMAKE_CURRENT_BINARY_DIR}/man/man3)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/man/man3 DESTINATION man
-  COMPONENT man PATTERN "*_docs_*" EXCLUDE)
-
 make_directory(${CMAKE_SOURCE_DIR}/../equalizergraphics/build/documents/Developer/API/internal)
+
 install(DIRECTORY . DESTINATION share/Equalizer/doc COMPONENT doc)
 install(FILES ../RELNOTES.txt ../AUTHORS ../CHANGES.txt ../ACKNOWLEDGEMENTS
         ../LGPL ../LICENSE.txt DESTINATION share/Equalizer/doc COMPONENT doc)

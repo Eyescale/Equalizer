@@ -314,7 +314,8 @@ int main( int argc, char **argv )
 
     try // command line parsing
     {
-        TCLAP::CmdLine command( "netPerf - Equalizer network benchmark tool\n");
+        TCLAP::CmdLine command( "netPerf - Equalizer network benchmark tool",
+                                ' ', co::Version::getString( ));
         TCLAP::ValueArg< std::string > clientArg( "c", "client",
                                                   "run as client", true, "",
                                                   "IP[:port][:protocol]" );

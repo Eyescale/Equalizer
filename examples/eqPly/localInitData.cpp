@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@
 
 namespace eqPly
 {
-LocalInitData::LocalInitData() 
+LocalInitData::LocalInitData()
         : _maxFrames( 0xffffffffu )
         , _color( true )
         , _isResident( false )
@@ -53,27 +53,27 @@ LocalInitData::LocalInitData()
                           std::string( "share/Equalizer/data" ));
 #  endif
 #else
-    _filenames.push_back( std::string( EQ_SOURCE_DIR ) + 
+    _filenames.push_back( std::string( EQ_SOURCE_DIR ) +
                           std::string( "examples/eqPly" ));
 #endif
 }
 
 const LocalInitData& LocalInitData::operator = ( const LocalInitData& from )
 {
-    _trackerPort = from._trackerPort;  
-    _maxFrames   = from._maxFrames;    
-    _color       = from._color;        
+    _trackerPort = from._trackerPort;
+    _maxFrames   = from._maxFrames;
+    _color       = from._color;
     _isResident  = from._isResident;
     _filenames    = from._filenames;
     _pathFilename = from._pathFilename;
 
     setWindowSystem( from.getWindowSystem( ));
     setRenderMode( from.getRenderMode( ));
-    if( from.useGLSL( )) 
+    if( from.useGLSL( ))
         enableGLSL();
-    if( from.useInvertedFaces( )) 
+    if( from.useInvertedFaces( ))
         enableInvertedFaces();
-    if( !from.showLogo( )) 
+    if( !from.showLogo( ))
         disableLogo();
     if( !from.useROI( ))
         disableROI();
@@ -99,31 +99,31 @@ void LocalInitData::parseArguments( const int argc, char** argv )
 
         const std::string& desc = EqPly::getHelp();
 
-        TCLAP::CmdLine command( desc );
-        TCLAP::MultiArg<std::string> modelArg( "m", "model", 
+        TCLAP::CmdLine command( desc, ' ', eq::Version::getString( ));
+        TCLAP::MultiArg<std::string> modelArg( "m", "model",
                                              "ply model file name or directory",
                                                false, "string", command );
         TCLAP::ValueArg<std::string> portArg( "p", "port",
                                               "tracking device port",
                                               false, "/dev/ttyS0", "string",
                                               command );
-        TCLAP::SwitchArg colorArg( "b", "blackAndWhite", 
-                                   "Don't use colors from ply file", 
+        TCLAP::SwitchArg colorArg( "b", "blackAndWhite",
+                                   "Don't use colors from ply file",
                                    command, false );
-        TCLAP::SwitchArg residentArg( "r", "resident", 
-           "Keep client resident (see resident node documentation on website)", 
+        TCLAP::SwitchArg residentArg( "r", "resident",
+           "Keep client resident (see resident node documentation on website)",
                                       command, false );
-        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames", 
-                                           "Maximum number of rendered frames", 
+        TCLAP::ValueArg<uint32_t> framesArg( "n", "numFrames",
+                                           "Maximum number of rendered frames",
                                              false, 0xffffffffu, "unsigned",
                                              command );
         TCLAP::ValueArg<std::string> wsArg( "w", "windowSystem", wsHelp,
                                             false, "auto", "string", command );
-        TCLAP::ValueArg<std::string> modeArg( "c", "renderMode", 
+        TCLAP::ValueArg<std::string> modeArg( "c", "renderMode",
                                  "Rendering Mode (immediate, displayList, VBO)",
                                               false, "auto", "string",
                                               command );
-        TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders", 
+        TCLAP::SwitchArg glslArg( "g", "glsl", "Enable GLSL shaders",
                                     command, false );
         TCLAP::SwitchArg invFacesArg( "i", "invertFaces",
                              "Invert faces (valid during binary file creation)",
@@ -131,7 +131,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
         TCLAP::ValueArg<std::string> pathArg( "a", "cameraPath",
                                         "File containing camera path animation",
                                               false, "", "string", command );
-        TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo", 
+        TCLAP::SwitchArg overlayArg( "o", "noOverlay", "Disable overlay logo",
                                      command, false );
         TCLAP::VariableSwitchArg ignoreEqArgs( "eq",
                                                "Ignored Equalizer options",
@@ -173,7 +173,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
             std::string mode = modeArg.getValue();
             transform( mode.begin(), mode.end(), mode.begin(),
                        (int(*)(int))std::tolower );
-            
+
             if( mode == "immediate" )
                 setRenderMode( mesh::RENDER_MODE_IMMEDIATE );
             else if( mode == "displaylist" )
@@ -196,7 +196,7 @@ void LocalInitData::parseArguments( const int argc, char** argv )
     }
     catch( const TCLAP::ArgException& exception )
     {
-        LBERROR << "Command line parse error: " << exception.error() 
+        LBERROR << "Command line parse error: " << exception.error()
                 << " for argument " << exception.argId() << std::endl;
         ::exit( EXIT_FAILURE );
     }

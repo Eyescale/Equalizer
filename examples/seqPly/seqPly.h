@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,7 +69,8 @@ namespace seqPly
         ModelDist* _modelDist;
         lunchbox::Lock _modelLock;
 
-        void _loadModel( const int argc, char** argv );
+        eq::Strings _parseArguments( const int argc, char** argv );
+        void _loadModels( const eq::Strings& models );
         void _unloadModel();
     };
 

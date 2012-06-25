@@ -40,14 +40,22 @@ namespace fabric
 
         /** @name Data Access */
         //@{
-        /** @return the parent config of this observer. @version 1.0 */
-        const C* getConfig() const { return _config; }
+        /** 
+         * Set the head matrix.
+         *
+         * The head matrix specifies the transformation origin->observer.
+         * Together with the eye separation, this determines the eye positions
+         * in the global coordinate system. The eye position and wall or
+         * projection description define the shape of the frustum and the
+         * channel's head transformation during rendering.
+         *
+         * @param matrix the matrix
+         * @version 1.0
+         */
+        EQFABRIC_INL void setHeadMatrix( const Matrix4f& matrix );
 
-        /** @return the parent config of this observer. @version 1.0 */
-        C* getConfig() { return _config; }
-
-        /** @internal @return the index path to this observer. */
-        ObserverPath getPath() const;
+        /** @return the current head matrix. @version 1.0 */
+        const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
 
         /** Set the eye separation of this observer. @version 1.0 */
         EQFABRIC_INL void setEyeBase( const float eyeBase );
@@ -67,22 +75,14 @@ namespace fabric
         /** @return the current focal mode. @version 1.1 */
         FocusMode getFocusMode() const { return _data.focusMode; }
 
-        /** 
-         * Set the head matrix.
-         *
-         * The head matrix specifies the transformation origin->observer.
-         * Together with the eye separation, this determines the eye positions
-         * in the global coordinate system. The eye position and wall or
-         * projection description define the shape of the frustum and the
-         * channel's head transformation during rendering.
-         *
-         * @param matrix the matrix
-         * @version 1.0
-         */
-        EQFABRIC_INL void setHeadMatrix( const Matrix4f& matrix );
+        /** @return the parent config of this observer. @version 1.0 */
+        const C* getConfig() const { return _config; }
 
-        /** @return the current head matrix. @version 1.0 */
-        const Matrix4f& getHeadMatrix() const { return _data.headMatrix; }
+        /** @return the parent config of this observer. @version 1.0 */
+        C* getConfig() { return _config; }
+
+        /** @internal @return the index path to this observer. */
+        ObserverPath getPath() const;
         //@}
 
         /** @name Operations */

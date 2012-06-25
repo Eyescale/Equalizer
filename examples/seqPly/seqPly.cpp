@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,10 +40,11 @@ namespace seqPly
 
 bool Application::init( const int argc, char** argv )
 {
+    const eq::Strings& models = _parseArguments( argc, argv );
     if( !seq::Application::init( argc, argv, 0 ))
         return false;
 
-    _loadModel( argc, argv );
+    _loadModels( models );
     return true;
 }
 
@@ -90,14 +91,15 @@ static bool _isPlyfile( const std::string& filename )
 }
 }
 
-void Application::_loadModel( const int argc, char** argv )
+eq::Strings Application::_parseArguments( const int argc, char** argv )
 {
-    TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example" );
+    TCLAP::CmdLine command( "seqPly - Sequel polygonal rendering example", ' ',
+                            eq::Version::getString( ));
     TCLAP::ValueArg<std::string> modelArg( "m", "model", "ply model file name",
                                            false, "", "string", command );
     TCLAP::VariableSwitchArg ignoreEqArgs( "eq", "Ignored Equalizer options",
                                            command );
-    TCLAP::UnlabeledMultiArg< std::string > 
+    TCLAP::UnlabeledMultiArg< std::string >
         ignoreArgs( "ignore", "Ignored unlabeled arguments", false, "any",
                     command );
     command.parse( argc, argv );
@@ -111,18 +113,23 @@ void Application::_loadModel( const int argc, char** argv )
                          std::string( "share/Equalizer/data" ));
 #  endif
 #else
-    filenames.push_back( std::string( EQ_SOURCE_DIR ) + 
+    filenames.push_back( std::string( EQ_SOURCE_DIR ) +
                          std::string( "examples/eqPly" ));
 #endif
 
     if( modelArg.isSet( ))
         filenames.push_back( modelArg.getValue( ));
+    return filenames;
+}
 
-    while( !filenames.empty( ))
+void Application::_loadModels( const eq::Strings& models )
+{
+    eq::Strings files = models;
+    while( !files.empty( ))
     {
-        const std::string filename = filenames.back();
-        filenames.pop_back();
-     
+        const std::string filename = files.back();
+        files.pop_back();
+
         if( _isPlyfile( filename ))
         {
             _model = new Model;
@@ -147,7 +154,7 @@ void Application::_loadModel( const int argc, char** argv )
                                                                     "*" );
 
             for(eq::StringsCIter i = subFiles.begin(); i != subFiles.end(); ++i)
-                filenames.push_back( filename + '/' + *i );
+                files.push_back( filename + '/' + *i );
         }
     }
 }

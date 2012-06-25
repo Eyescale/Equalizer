@@ -1,21 +1,40 @@
 # Copyright (c) 2012 Marwan Abdellah <marwan.abdellah@epfl.ch>
 
-find_path(HWLOC_INCLUDE_DIR "hwloc.h" 
-  HINTS ${HWLOC_ROOT}/include
-  /usr/include
-  /usr/local/include
-  /opt/local/include 
-)
+# Use pkg-config to fetch the contents of the .pc file 
+# After that, use the directories refer to the libraries and 
+# also the headers
 
-find_library(HWLOC_LIBRARIES NAMES hwloc 
-  HINTS ${HWLOC_ROOT}/lib
-  PATHS /usr/lib /usr/local/lib /opt/local/lib
-)
+find_package(PkgConfig)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIBRARIES
-  HWLOC_INCLUDE_DIR)
+# To point to the hwloc.pc in the installation directory 
+# For details, http://www.mail-archive.com/cmake@cmake.org/msg14754.html
+if(HWLOC_ROOT)
+  set(ENV{PKG_CONFIG_PATH} "${HWLOC_ROOT}/lib/pkgconfig")
+endif()
+
+if(NOT HWLOC_FIND_QUIETLY)
+  set(_hwloc_output 1)
+endif()
+
+pkg_check_modules(HWLOC hwloc)
 
 if(HWLOC_FOUND)
-  message(STATUS "Found HWLOC in ${HWLOC_INCLUDE_DIR};${HWLOC_LIBRARIES}")
+  find_library(HWLOC_LIBRARY hwloc
+    PATHS ${HWLOC_ROOT} PATH_SUFFIXES lib NO_DEFAULT_PATH)
+  set(HWLOC_LIBRARIES ${HWLOC_LIBRARY})
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(HWLOC DEFAULT_MSG HWLOC_LIBRARIES
+    HWLOC_INCLUDE_DIRS)
+
+  if(${HWLOC_VERSION} VERSION_LESS 1.5.0)
+    set(HWLOC_GL_FOUND)
+  else() 
+    set(HWLOC_GL_FOUND 1)
+  endif()
+
+  if(HWLOC_FOUND AND _hwloc_output)
+    message(STATUS
+      "Found HWLOC ${HWLOC_VERSION} in ${HWLOC_INCLUDE_DIRS};${HWLOC_LIBRARIES}")
+  endif()
 endif(HWLOC_FOUND)
