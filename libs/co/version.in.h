@@ -40,6 +40,9 @@ namespace co
     /** The current DSO binary revision. @version 0.4 */
 #   define CO_VERSION_ABI @VERSION_ABI@
 
+    /** The Lunchbox version used for linking. @version 0.5.6 */
+#   define CO_LUNCHBOX_VERSION @LUNCHBOX_VERSION@
+
 /** True if the current version is newer than the given one. @version 0.4 */
 #   define CO_VERSION_GT( MAJOR, MINOR, PATCH )                         \
     ( (CO_VERSION_MAJOR>MAJOR) ||                                       \
