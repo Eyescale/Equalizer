@@ -220,9 +220,6 @@ macro(FIND_LIBRARY_PACKAGE name)
         string(REGEX REPLACE ".*[ \t]([0-9.]+)" "\\1"
           ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
           ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION})
-        message("${name} -> ${_flp_trans} ${${_flp_${name}_UC}_VERSION}
-          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}
-          EXACT ${_flp_${name}_REQ} ${_flp_${name}_QUIET}")
         find_package(${_flp_trans}
           ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}
           EXACT ${_flp_${name}_REQ} ${_flp_${name}_QUIET})
