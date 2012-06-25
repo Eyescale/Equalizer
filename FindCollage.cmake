@@ -211,6 +211,6 @@ endif()
 
 if(COLLAGE_FOUND AND _co_output)
   message(STATUS "Found Collage ${COLLAGE_VERSION}/${COLLAGE_VERSION_ABI} in "
-    "${COLLAGE_INCLUDE_DIRS};${COLLAGE_LIBRARIES}")
+    "${COLLAGE_INCLUDE_DIRS}:${COLLAGE_LIBRARIES}")
 endif()
 
