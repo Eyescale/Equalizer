@@ -334,7 +334,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API NodePtr getNode( const NodeID& id ) const;
 
         /** Assemble a vector of the currently connected nodes. */
-        void getNodes( Nodes& nodes, const bool addSelf = true ) const;
+        CO_API void getNodes( Nodes& nodes, const bool addSelf = true ) const;
 
         /** Return the command queue to the command thread. */
         CO_API CommandQueue* getCommandThreadQueue();
