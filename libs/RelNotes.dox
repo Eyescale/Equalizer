@@ -88,8 +88,8 @@
     environments</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/67">VirtualGL-aware
       auto-configuration</a></li>
-  <li><a href="/documents/design/roi.html">Region of interest</a> for scalable
-    rendering and load-balancing</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/roi.html">Region
+      of interest</a> for scalable rendering and load-balancing</li>
 </ul>
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/122">Zeroconf
