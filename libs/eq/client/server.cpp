@@ -189,9 +189,8 @@ bool Server::_cmdShutdownReply( co::Command& command )
 {
     const ServerShutdownReplyPacket* packet = 
         command.get<ServerShutdownReplyPacket>();
-    LBINFO << "Handle shutdown reply " << packet << std::endl;
 
-    co::LocalNodePtr  localNode = command.getLocalNode();
+    co::LocalNodePtr localNode = command.getLocalNode();
     localNode->serveRequest( packet->requestID, packet->result );
     return true;
 }
