@@ -72,54 +72,63 @@ ObjectManager<T>::SharedData::~SharedData()
         LBWARN << lists.size()
                << " lists still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( lists.empty( ));
     lists.clear();
 
     if( !textures.empty( ))
         LBWARN << textures.size()
                << " textures still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( textures.empty( ));
     textures.clear();
 
     if( !buffers.empty( ))
         LBWARN << buffers.size()
                << " buffers still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( buffers.empty( ));
     buffers.clear();
 
     if( !programs.empty( ))
         LBWARN << programs.size()
                << " programs still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( programs.empty( ));
     programs.clear();
 
     if( !shaders.empty( ))
         LBWARN << shaders.size()
                << " shaders still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( shaders.empty( ));
     shaders.clear();
 
     if( !eqTextures.empty( ))
         LBWARN << eqTextures.size()
                << " eq::Texture still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( eqTextures.empty( ));
     eqTextures.clear();
 
     if( !eqFonts.empty( ))
         LBWARN << eqFonts.size()
                << " eq::BitmapFont still allocated in ObjectManager destructor"
                << std::endl;
+    LBASSERT( eqFonts.empty( ));
     eqFonts.clear();
 
     if( !eqFrameBufferObjects.empty( ))
         LBWARN << eqFrameBufferObjects.size()
                << " eq::FrameBufferObject's still allocated in ObjectManager "
                << "destructor" << std::endl;
+    LBASSERT( eqFrameBufferObjects.empty( ));
     eqFrameBufferObjects.clear();
 
     if( !eqUploaders.empty( ))
         LBWARN << eqUploaders.size()
                << " eq::GPUCompressor's still allocated in ObjectManager "
                << "destructor" << std::endl;
+    LBASSERTINFO( eqUploaders.empty(), (void*)eqUploaders.begin()->second );
     eqUploaders.clear();
     delete glewContext;
 }
@@ -601,21 +610,21 @@ GPUCompressor* ObjectManager<T>::newEqUploader( const T& key )
 {
     if( _data->eqUploaders.find( key ) != _data->eqUploaders.end( ))
     {
-        LBWARN << "Requested new Accumulation for existing key" << std::endl;
+        LBWARN << "Requested new compressor for existing key" << std::endl;
         return 0;
     }
 
-    GPUCompressor* compressorData = new GPUCompressor( _data->glewContext );
-    _data->eqUploaders[ key ] = compressorData;
-    return compressorData;
+    GPUCompressor* compressor = new GPUCompressor( _data->glewContext );
+    _data->eqUploaders[ key ] = compressor;
+    return compressor;
 }
 
 template< class T >
 GPUCompressor* ObjectManager<T>::obtainEqUploader( const T& key )
 {
-    GPUCompressor* compressorData = getEqUploader( key );
-    if( compressorData )
-        return compressorData;
+    GPUCompressor* compressor = getEqUploader( key );
+    if( compressor )
+        return compressor;
     return newEqUploader( key );
 }
 
@@ -626,10 +635,10 @@ void ObjectManager<T>::deleteEqUploader( const T& key )
     if( i == _data->eqUploaders.end( ))
         return;
 
-    GPUCompressor* compressorData = i->second;
+    GPUCompressor* compressor = i->second;
     _data->eqUploaders.erase( i );
 
-    delete compressorData;
+    delete compressor;
 }
 #endif
 

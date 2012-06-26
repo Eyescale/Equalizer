@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2007, Tobias Wolf <twolf@access.unizh.ch>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
@@ -151,18 +151,16 @@ void Window::_loadLogo()
     LBASSERT( _logoTexture );
     
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
+    image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }
 
 void Window::_loadShaders()
 {
-    if( _state->getShader( vertexShader_glsl ) !=
-        VertexBufferState::INVALID )
-    {
+    if( _state->getShader( vertexShader_glsl ) != VertexBufferState::INVALID )
         // already loaded
         return;
-    }
 
     // Check if functions are available
     if( !GLEW_VERSION_2_0 )
