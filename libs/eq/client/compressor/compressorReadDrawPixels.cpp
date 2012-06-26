@@ -283,6 +283,9 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
     _texture = 0;
     delete _asyncTexture;
     _asyncTexture = 0;
+
+    if( _pbo )
+        _pbo->destroy();
     delete _pbo;
     _pbo = 0;
 }
