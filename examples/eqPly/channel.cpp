@@ -141,8 +141,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     if( model )
         _updateNearFar( model->getBoundingSphere( ));
 
-    // Setup OpenGL state
-    eq::Channel::frameDraw( frameID );
+    eq::Channel::frameDraw( frameID ); // Setup OpenGL state
 
     glLightfv( GL_LIGHT0, GL_POSITION, lightPosition );
     glLightfv( GL_LIGHT0, GL_AMBIENT,  lightAmbient  );
@@ -229,8 +228,8 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         if( curSubPixel != eq::SubPixel::ALL )
             accum.transfer = false;
 
-        accum.stepsDone = LB_MAX( accum.stepsDone, 
-                                  frame->getSubPixel().size*frame->getPeriod( ));
+        accum.stepsDone = LB_MAX( accum.stepsDone, frame->getSubPixel().size * 
+                                                   frame->getPeriod( ));
     }
 
     applyBuffer();
