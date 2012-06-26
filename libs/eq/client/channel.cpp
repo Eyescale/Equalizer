@@ -2122,17 +2122,8 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 
     frameAssemble( packet->context.frameID );
 
-    for( FramesCIter i = _impl->inputFrames.begin();
-         i != _impl->inputFrames.end(); ++i )
-    {
-        // Unset the frame data on input frames, so that they only get flushed
-        // once by the output frames during exit.
-        // TODO: review with #124
-        (*i)->setFrameData( 0 );
-    }
     _impl->inputFrames.clear();
     resetRenderContext();
-
     return true;
 }
 

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -126,6 +126,7 @@ void Window::_loadLogo()
     LBASSERT( _logoTexture );
     
     image.upload(eq::Frame::BUFFER_COLOR, _logoTexture, eq::Vector2i::ZERO, om);
+    image.deleteGLObjects( om );
     LBVERB << "Created logo texture of size " << _logoTexture->getWidth() << "x"
            << _logoTexture->getHeight() << std::endl;
 }

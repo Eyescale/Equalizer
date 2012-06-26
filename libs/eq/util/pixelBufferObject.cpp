@@ -38,10 +38,13 @@ public:
             , size( 0 )
             , _glewContext( glewContext )
             , _type( 0 )
-        {}
+        {
+            LBVERB << (void*)this << backtrace << std::endl;
+        }
 
     ~PixelBufferObject()
         {
+            LBASSERTINFO( !isInitialized(), (void*)this << backtrace );
             if( isInitialized( ))
                 LBWARN << "PBO was not freed" << std::endl;
 

@@ -503,7 +503,7 @@ const SystemWindow* Window::getTransferSystemWindow()
 
     setIAttribute( IATTR_HINT_DRAWABLE, drawable );
 
-    LBINFO << "Transfer window initialization finished" << std::endl;
+    LBVERB << "Transfer window initialization finished" << std::endl;
     return _transferWindow;
 }
 

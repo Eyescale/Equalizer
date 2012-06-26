@@ -146,6 +146,7 @@ void Frame::clear()
 
 void Frame::deleteGLObjects( ObjectManager* om )
 {
+    LBASSERT( _impl->frameData );
     if( _impl->frameData )
         _impl->frameData->deleteGLObjects( om );
 }

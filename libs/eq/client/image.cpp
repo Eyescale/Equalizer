@@ -472,6 +472,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 {
     LBASSERT( glObjects );
 
+    // freed by deleteGLObjects, e.g., called from Pipe::flushFrames()
     util::GPUCompressor* uploader = glObjects->obtainEqUploader(
                                         _getCompressorKey( buffer ));
     const PixelData& pixelData = getPixelData( buffer );

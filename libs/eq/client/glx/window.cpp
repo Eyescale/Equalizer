@@ -444,7 +444,7 @@ bool Window::configInitGLXWindow( GLXFBConfig* fbConfig )
     }
     setXDrawable( drawable );
     
-    LBINFO << "Created X11 drawable " << drawable << std::endl;
+    LBVERB << "Created X11 drawable " << drawable << std::endl;
     return true;
 }
     
@@ -574,7 +574,7 @@ bool Window::configInitGLXPBuffer( GLXFBConfig* fbConfig )
     XFlush( _xDisplay );
     setXDrawable( pbuffer );
 
-    LBINFO << "Created X11 PBuffer " << pbuffer << std::endl;
+    LBVERB << "Created X11 PBuffer " << pbuffer << std::endl;
     return true;
 }
 
@@ -696,7 +696,7 @@ void Window::configExit()
             XDestroyWindow( _xDisplay, drawable );
     }
 
-    LBINFO << "Destroyed GLX context and X drawable " << std::endl;
+    LBVERB << "Destroyed GLX context and X drawable " << std::endl;
 }
 
 void Window::makeCurrent( const bool cache ) const
@@ -770,7 +770,7 @@ void Window::joinNVSwapBarrier( const uint32_t group, const uint32_t barrier)
         return;
     }
     
-    LBINFO << "Joined swap group " << group << " and barrier " << barrier
+    LBVERB << "Joined swap group " << group << " and barrier " << barrier
            << std::endl;
 #else
     LBUNIMPLEMENTED;

@@ -173,7 +173,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
 {
     const ServerChooseConfigPacket* packet = 
         command.get<ServerChooseConfigPacket>();
-    LBINFO << "Handle choose config " << packet << std::endl;
+    LBVERB << "Handle choose config " << packet << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -258,7 +258,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 {
     const ServerReleaseConfigPacket* packet = 
         command.get<ServerReleaseConfigPacket>();
-    LBINFO << "Handle release config " << packet << std::endl;
+    LBVERB << "Handle release config " << packet << std::endl;
 
     ServerReleaseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();

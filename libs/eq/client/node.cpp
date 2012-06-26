@@ -212,7 +212,8 @@ void Node::_setAffinity()
             break;
 
         case AUTO:
-            LBINFO << "No automatic thread placement for node threads "
+            // TODO
+            LBVERB << "No automatic thread placement for node threads "
                    << std::endl;
             break;
 
