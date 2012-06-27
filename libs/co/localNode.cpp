@@ -1540,7 +1540,6 @@ bool LocalNode::_cmdStopRcv( Command& command )
 {
     LB_TS_THREAD( _rcvThread );
     LBASSERT( _state == STATE_LISTENING );
-    LBINFO << "Cmd stop receiver " << this << std::endl;
 
     _exitService();
     _state = STATE_CLOSING; // causes rcv thread exit
@@ -1554,7 +1553,6 @@ bool LocalNode::_cmdStopCmd( Command& command )
 {
     LB_TS_THREAD( _cmdThread );
     LBASSERT( _state == STATE_CLOSING );
-    LBINFO << "Cmd stop command " << this << std::endl;
 
     _state = STATE_CLOSED;
     return true;

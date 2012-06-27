@@ -37,7 +37,17 @@
 #
 # Invocation:
 #
-# find_library_package(name [INCLUDE include_prefix])
+# find_library_package(name [INCLUDE include_prefix] [TRANSIENT package])
+#
+# The default INCLUDE prefix is the package name, which may be
+# overwritten if the package name differs from the include prefix,
+# e.g., due to capitalization.
+#
+# TRANSIENT packages are packages which are exposed through the API of
+# the package, that is, packages which a user of this package needs to
+# include and link. It does not concern packages which are only used
+# internally. The version of the transient package is parsed from
+# version.h, e.g., "DASH_LUNCHBOX_VERSION M.m.p"
 #
 # The following CMAKE variables are respected for finding the package.
 # CMAKE_PREFIX_PATH can also be used for this (see find_library() CMake
@@ -78,39 +88,46 @@ include(CMakeParseArguments)
 
 macro(FIND_LIBRARY_PACKAGE name)
   # reset internal variables
-  set(_flp_EPIC_FAIL)
-  set(_flp_REQUIRED)
-  set(_flp_QUIET)
-  set(_flp_output)
-  string(TOUPPER ${name} _flp_NAME)
+  set(_flp_${name}_FAIL)
+  set(_flp_${name}_REQ)
+  set(_flp_${name}_QUIET)
+  set(_flp_${name}_out)
+  string(TOUPPER ${name} _flp_${name}_UC)
 
   # options
   set(oneValueArgs INCLUDE)
-  cmake_parse_arguments(_flp "" "${oneValueArgs}" "" ${ARGN} )
-  if(NOT _flp_INCLUDE)
-    set(_flp_INCLUDE ${name})
+  set(multiValueArgs TRANSIENT)
+  cmake_parse_arguments(_flp_${name} "" "${oneValueArgs}" "${multiValueArgs}"
+    ${ARGN})
+  if(NOT _flp_${name}_INCLUDE)
+    set(_flp_${name}_INCLUDE ${name})
   endif()
+  string(TOUPPER ${_flp_${name}_INCLUDE} _flp_${name}_INCLUDE_UC)
 
-  find_path(${_flp_NAME}_INCLUDE_DIR ${_flp_INCLUDE}/version.h
-    HINTS "${${_flp_NAME}_ROOT}/include" "$ENV{${_flp_NAME}_ROOT}/include"
+  find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.h
+    HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
 
   if(${name}_FIND_REQUIRED)
     set(_flp_version_output_type FATAL_ERROR)
-    set(_flp_output 1)
+    set(_flp_${name}_out 1)
+    set(_flp_${name}_REQ REQUIRED)
   else()
     set(_flp_version_output_type STATUS)
     if(NOT ${name}_FIND_QUIETLY)
-      set(_flp_output 1)
+      set(_flp_${name}_out 1)
     endif()
+  endif()
+  if(${name}_FIND_QUIETLY)
+    set(_flp_${name}_QUIET QUIET)
   endif()
 
   # Try to ascertain the version...
-  if(${_flp_NAME}_INCLUDE_DIR)
-    set(_flp_Version_file "${${_flp_NAME}_INCLUDE_DIR}/${_flp_INCLUDE}/version.h")
-    if("${${_flp_NAME}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
+  if(${_flp_${name}_UC}_INCLUDE_DIR)
+    set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/${_flp_${name}_INCLUDE}/version.h")
+    if("${${_flp_${name}_UC}_INCLUDE_DIR}" MATCHES "\\.framework$" AND
         NOT EXISTS "${_flp_Version_file}")
-      set(_flp_Version_file "${${_flp_NAME}_INCLUDE_DIR}/Headers/version.h")
+      set(_flp_Version_file "${${_flp_${name}_UC}_INCLUDE_DIR}/Headers/version.h")
     endif()
 
     if(EXISTS "${_flp_Version_file}")
@@ -119,113 +136,179 @@ macro(FIND_LIBRARY_PACKAGE name)
       set(_flp_Version_contents "unknown")
     endif()
 
-    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_MAJOR[ \t]+[0-9]+"
-      ${_flp_NAME}_VERSION_MAJOR ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_MINOR[ \t]+[0-9]+"
-      ${_flp_NAME}_VERSION_MINOR ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_PATCH[ \t]+[0-9]+"
-      ${_flp_NAME}_VERSION_PATCH ${_flp_Version_contents})
-    string(REGEX MATCH "define[ \t]+${_flp_NAME}_VERSION_ABI[ \t]+[0-9]+"
-      ${_flp_NAME}_VERSION_ABI ${_flp_Version_contents})
+    # parse version out of version.h
+    string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_MAJOR[ \t]+[0-9]+"
+      ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_MINOR[ \t]+[0-9]+"
+      ${_flp_${name}_UC}_VERSION_MINOR ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_PATCH[ \t]+[0-9]+"
+      ${_flp_${name}_UC}_VERSION_PATCH ${_flp_Version_contents})
+    string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_ABI[ \t]+[0-9]+"
+      ${_flp_${name}_UC}_VERSION_ABI ${_flp_Version_contents})
 
-    if("${${_flp_NAME}_VERSION_MAJOR}" STREQUAL "")
-      set(_flp_EPIC_FAIL TRUE)
-      if(_flp_output)
+    if("${${_flp_${name}_UC}_VERSION_MAJOR}" STREQUAL "") # Try 'include' naming
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_MAJOR[ \t]+[0-9]+"
+        ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_Version_contents})
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_MINOR[ \t]+[0-9]+"
+        ${_flp_${name}_UC}_VERSION_MINOR ${_flp_Version_contents})
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_PATCH[ \t]+[0-9]+"
+        ${_flp_${name}_UC}_VERSION_PATCH ${_flp_Version_contents})
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_ABI[ \t]+[0-9]+"
+        ${_flp_${name}_UC}_VERSION_ABI ${_flp_Version_contents})
+    endif()
+
+    if("${${_flp_${name}_UC}_VERSION_MAJOR}" STREQUAL "")
+      set(_flp_${name}_FAIL TRUE)
+      if(_flp_${name}_out)
         message(${_flp_version_output_type} "Can't parse ${_flp_Version_file}.")
       endif()
     else()
-      string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_MAJOR
-        ${${_flp_NAME}_VERSION_MAJOR})
+      string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_${name}_UC}_VERSION_MAJOR
+        ${${_flp_${name}_UC}_VERSION_MAJOR})
 
-      if("${${_flp_NAME}_VERSION_MINOR}" STREQUAL "")
-        set(${_flp_NAME}_VERSION_MINOR 0)
+      if("${${_flp_${name}_UC}_VERSION_MINOR}" STREQUAL "")
+        set(${_flp_${name}_UC}_VERSION_MINOR 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_MINOR
-          ${${_flp_NAME}_VERSION_MINOR})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_${name}_UC}_VERSION_MINOR
+          ${${_flp_${name}_UC}_VERSION_MINOR})
       endif()
-      if("${${_flp_NAME}_VERSION_PATCH}" STREQUAL "")
-        set(${_flp_NAME}_VERSION_PATCH 0)
+      if("${${_flp_${name}_UC}_VERSION_PATCH}" STREQUAL "")
+        set(${_flp_${name}_UC}_VERSION_PATCH 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_PATCH
-          ${${_flp_NAME}_VERSION_PATCH})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_${name}_UC}_VERSION_PATCH
+          ${${_flp_${name}_UC}_VERSION_PATCH})
       endif()
-      if("${${_flp_NAME}_VERSION_ABI}" STREQUAL "")
-        set(${_flp_NAME}_VERSION_ABI 0)
+      if("${${_flp_${name}_UC}_VERSION_ABI}" STREQUAL "")
+        set(${_flp_${name}_UC}_VERSION_ABI 0)
       else()
-        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_NAME}_VERSION_ABI
-          ${${_flp_NAME}_VERSION_ABI})
+        string(REGEX REPLACE ".*([0-9]+)" "\\1" ${_flp_${name}_UC}_VERSION_ABI
+          ${${_flp_${name}_UC}_VERSION_ABI})
       endif()
 
-      set(${_flp_NAME}_VERSION "${${_flp_NAME}_VERSION_MAJOR}.${${_flp_NAME}_VERSION_MINOR}.${${_flp_NAME}_VERSION_PATCH}")
+      set(${_flp_${name}_UC}_VERSION "${${_flp_${name}_UC}_VERSION_MAJOR}.${${_flp_${name}_UC}_VERSION_MINOR}.${${_flp_${name}_UC}_VERSION_PATCH}")
     endif()
+
+    # Find transient packages
+    foreach(_flp_trans ${_flp_${name}_TRANSIENT})
+      string(TOUPPER ${_flp_trans} _flp_${name}_TRANS)
+
+      # search 'COLLAGE_LUNCHBOX_VERSION'
+      string(REGEX MATCH
+        "define[ \t]+${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
+        ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+        ${_flp_Version_contents})
+
+      # not found -> search 'CO_LUNCHBOX_VERSION'
+      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
+        string(REGEX MATCH
+          "define[ \t]+${_flp_${name}_INCLUDE_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
+          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${_flp_Version_contents})
+      endif()
+
+      # not found -> use _Collage_Lunchbox_version_${CO_VERSION}
+      if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
+        set(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${_${name}_${_flp_trans}_version_${${_flp_${name}_UC}_VERSION}})
+      endif()
+      
+      if(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION)
+        string(REGEX REPLACE ".*[ \t]([0-9.]+)" "\\1"
+          ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
+          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION})
+        find_package(${_flp_trans}
+          ${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}
+          EXACT ${_flp_${name}_REQ} ${_flp_${name}_QUIET})
+        if(NOT ${_flp_${name}_TRANS}_FOUND)
+          set(_flp_${name}_FAIL TRUE)
+        endif()
+      # else() no version, don't search for package
+      endif()
+    endforeach()
   else()
-    set(_flp_EPIC_FAIL TRUE)
-    if(_flp_output)
+    set(_flp_${name}_FAIL TRUE)
+    if(_flp_${name}_out)
       message(${_flp_version_output_type}
-        "Can't find ${_flp_INCLUDE}/version.h.")
+        "Can't find ${_flp_${name}_INCLUDE}/version.h.")
     endif()
   endif()
 
   # Version checking
-  if(${_flp_NAME}_VERSION AND ${name}_FIND_VERSION)
+  if(${_flp_${name}_UC}_VERSION AND ${name}_FIND_VERSION)
     if(${name}_FIND_VERSION_EXACT)
-      if(NOT ${name}_FIND_VERSION VERSION_EQUAL ${_flp_NAME}_VERSION)
-        set(_flp_EPIC_FAIL TRUE)
-        if(_flp_output)
+      if(NOT ${name}_FIND_VERSION VERSION_EQUAL ${_flp_${name}_UC}_VERSION)
+        set(_flp_${name}_FAIL TRUE)
+        if(_flp_${name}_out)
           message(${_flp_version_output_type}
             "Version ${${name}_FIND_VERSION} of ${name} is required exactly. "
-            "Version ${${_flp_NAME}_VERSION} was found.")
+            "Version ${${_flp_${name}_UC}_VERSION} was found.")
         endif()
       endif()
     else()
-      if( ${name}_FIND_VERSION VERSION_GREATER ${_flp_NAME}_VERSION )
-        set(_flp_EPIC_FAIL TRUE)
-        if(_flp_output)
+      if( ${name}_FIND_VERSION VERSION_GREATER ${_flp_${name}_UC}_VERSION )
+        set(_flp_${name}_FAIL TRUE)
+        if(_flp_${name}_out)
           message(${_flp_version_output_type}
             "Version ${${name}_FIND_VERSION} or higher of ${name} is required. "
-            "Version ${${_flp_NAME}_VERSION} was found in ${${_flp_NAME}_INCLUDE_DIR}.")
+            "Version ${${_flp_${name}_UC}_VERSION} was found in ${${_flp_${name}_UC}_INCLUDE_DIR}.")
         endif()
       endif()
     endif()
   endif()
 
   # include
-  set(${_flp_NAME}_INCLUDE_DIRS ${${_flp_NAME}_INCLUDE_DIR})
+  set(${_flp_${name}_UC}_INCLUDE_DIRS ${${_flp_${name}_UC}_INCLUDE_DIR})
 
   # library
-  find_library(${_flp_NAME}_LIBRARY ${name}
-    PATHS ${${_flp_NAME}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
-  set(${_flp_NAME}_LIBRARIES ${${_flp_NAME}_LIBRARY})
+  find_library(${_flp_${name}_UC}_LIBRARY ${name}
+    PATHS ${${_flp_${name}_UC}_INCLUDE_DIR}/.. PATH_SUFFIXES lib NO_DEFAULT_PATH)
+  set(${_flp_${name}_UC}_LIBRARIES ${${_flp_${name}_UC}_LIBRARY})
 
   if(${name}_FIND_REQUIRED)
-    if(${_flp_NAME}_LIBRARY MATCHES "${_flp_NAME}_LIBRARY-NOTFOUND")
-      set(_flp_EPIC_FAIL TRUE)
-      if(_flp_output)
+    if(${_flp_${name}_UC}_LIBRARY MATCHES "${_flp_${name}_UC}_LIBRARY-NOTFOUND")
+      set(_flp_${name}_FAIL TRUE)
+      if(_flp_${name}_out)
         message(${_flp_version_output_type}
-          "Missing the ${name} library in ${${_flp_NAME}_INCLUDE_DIR}/../lib.")
+          "Missing the ${name} library in ${${_flp_${name}_UC}_INCLUDE_DIR}/../lib.")
       endif()
     endif()
   endif()
 
-  if(_flp_EPIC_FAIL)
+  if(_flp_${name}_FAIL)
     # Zero out everything, we didn't meet version requirements
-    set(${_flp_NAME}_FOUND)
-    set(${_flp_NAME}_LIBRARIES)
-    set(${_flp_NAME}_INCLUDE_DIRS)
+    set(${_flp_${name}_UC}_FOUND)
+    set(${_flp_${name}_UC}_LIBRARIES)
+    set(${_flp_${name}_UC}_INCLUDE_DIRS)
   else()
     string(TOLOWER ${name} _flp_name)
 
-    set(${_flp_NAME}_FOUND TRUE)
-    set(${_flp_NAME}_DEB_DEPENDENCIES
-      "${_flp_name}${${_flp_NAME}_VERSION_ABI}-lib")
-    set(${_flp_NAME}_DEB_BUILD_DEPENDENCIES
-      "${_flp_name}${${_flp_NAME}_VERSION_ABI}-dev")
-    get_filename_component(${_flp_NAME}_LIBRARY_DIRS ${${_flp_NAME}_LIBRARY}
-      PATH)
+    set(${_flp_${name}_UC}_FOUND TRUE)
+    set(${_flp_${name}_UC}_DEB_DEPENDENCIES
+      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-lib")
+    set(${_flp_${name}_UC}_DEB_BUILD_DEPENDENCIES
+      "${_flp_name}${${_flp_${name}_UC}_VERSION_ABI}-dev")
+    get_filename_component(${_flp_${name}_UC}_LIBRARY_DIRS
+      ${${_flp_${name}_UC}_LIBRARY} PATH)
 
-    if(_flp_output)
-      message(STATUS "Found ${name} ${${_flp_NAME}_VERSION} in "
-        "${${_flp_NAME}_INCLUDE_DIRS}:${${_flp_NAME}_LIBRARIES}")
+    # Add transient package information to self
+    foreach(_flp_trans ${_flp_${name}_TRANSIENT})
+      string(TOUPPER ${_flp_trans} _flp_TRANS)
+      if(${_flp_TRANS}_FOUND)
+        list(APPEND
+          ${_flp_${name}_UC}_INCLUDE_DIRS ${${_flp_TRANS}_INCLUDE_DIRS})
+        list(APPEND
+          ${_flp_${name}_UC}_LIBRARY_DIRS ${${_flp_TRANS}_LIBRARY_DIRS})
+        list(APPEND ${_flp_${name}_UC}_LIBRARIES ${${_flp_TRANS}_LIBRARIES})
+      endif()
+    endforeach()
+
+    if(_flp_${name}_out)
+      message(STATUS "Found ${name} ${${_flp_${name}_UC}_VERSION} in "
+        "${${_flp_${name}_UC}_INCLUDE_DIRS}:${${_flp_${name}_UC}_LIBRARIES}")
     endif()
   endif()
 endmacro()

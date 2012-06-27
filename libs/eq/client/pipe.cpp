@@ -166,6 +166,9 @@ public:
     /** All output frame datas used by the pipe during rendering. */
     FrameDataHash outputFrameDatas;
 
+    /** All input frame datas used by the pipe during rendering. */
+    FrameDataHash inputFrameDatas;
+
     /** All views used by the pipe's channels during rendering. */
     ViewHash views;
 
@@ -192,10 +195,15 @@ void RenderThread::run()
     pipe->_setupCommandQueue();
     pipe->_setupAffinity();
 
+    std::ostringstream stream;
+    const uint32_t device = _pipe->getDevice();
+    stream << "Pipe" << (device==EQ_UNDEFINED_UINT32 ? -1 : int32_t( device ))
+           << "Draw";
+    setName( stream.str( ));
+
     Worker::run();
 
     pipe->_exitCommandQueue();
-    LBINFO << "Leaving pipe thread" << std::endl;
 }
 }
 
@@ -497,6 +505,8 @@ Frame* Pipe::getFrame( const co::ObjectVersion& frameVersion, const Eye eye,
 
         _impl->outputFrameDatas[ dataVersion.identifier ] = frameData;
     }
+    else
+        _impl->inputFrameDatas[ dataVersion.identifier ] = frameData;
 
     frame->setFrameData( frameData );
     return frame;
@@ -509,19 +519,26 @@ void Pipe::flushFrames( ObjectManager* om )
     for( FrameHashCIter i = _impl->frames.begin(); i !=_impl->frames.end(); ++i)
     {
         Frame* frame = i->second;
-
-        frame->deleteGLObjects( om );
-        frame->setFrameData( 0 ); // 'output' datas cleared below and from node
+        frame->setFrameData( 0 ); // datas are flushed below
         client->unmapObject( frame );
         delete frame;
     }
     _impl->frames.clear();
+
+    for( FrameDataHashCIter i = _impl->inputFrameDatas.begin();
+         i != _impl->inputFrameDatas.end(); ++i )
+    {
+        FrameDataPtr data = i->second;
+        data->deleteGLObjects( om );
+    }
+    _impl->inputFrameDatas.clear();
 
     for( FrameDataHashCIter i = _impl->outputFrameDatas.begin();
          i != _impl->outputFrameDatas.end(); ++i )
     {
         FrameDataPtr data = i->second;
         data->resetPlugins();
+        data->deleteGLObjects( om );
         client->unmapObject( data.get( ));
         getNode()->releaseFrameData( data );
     }

@@ -253,6 +253,7 @@ typedef std::vector< uint16_t >   Vectorus;
 typedef Strings::const_iterator StringsCIter;
 
 using lunchbox::a_int32_t;
+using lunchbox::backtrace;
 using lunchbox::uint128_t;
 using lunchbox::UUID;
 

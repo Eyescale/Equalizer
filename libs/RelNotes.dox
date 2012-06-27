@@ -178,7 +178,7 @@
   find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/118"></a>118:
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
     OS X: Async readback doesn't work</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
     assertion on interaction with multiple GPUs</li>

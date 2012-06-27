@@ -207,9 +207,19 @@ add_subdirectory(doc) # must be after all targets
 find_program(LINKS_EXECUTABLE links)
 if(LINKS_EXECUTABLE)
   add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/RELNOTES.txt
-    COMMAND ${LINKS_EXECUTABLE} -dump -width 65 ${CMAKE_SOURCE_DIR}/libs/RelNotes.dox > ${CMAKE_SOURCE_DIR}/RELNOTES.txt
+    COMMAND ${LINKS_EXECUTABLE} -dump libs/RelNotes.dox > RELNOTES.txt
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/libs/RelNotes.dox)
   add_custom_target(RELNOTES.txt ALL DEPENDS ${CMAKE_SOURCE_DIR}/RELNOTES.txt)
+endif()
+
+find_package(PythonInterp)
+if(PYTHON_EXECUTABLE)
+  add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/README.rst
+    COMMAND ${PYTHON_EXECUTABLE} CMake/html2rst.py libs/RelNotes.dox > README.rst
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/libs/RelNotes.dox)
+  add_custom_target(README.rst ALL DEPENDS ${CMAKE_SOURCE_DIR}/README.rst)
 endif()
 
 install(FILES CMake/FindCollage.cmake
