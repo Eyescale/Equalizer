@@ -34,6 +34,7 @@ public:
     PixelBufferObject( const GLEWContext* glewContext,
                        const bool threadSafe )
             : lock_( threadSafe ? new lunchbox::Lock : 0 )
+            , error( co::ERROR_NONE )
             , pboID( 0 )
             , size( 0 )
             , _glewContext( glewContext )
@@ -124,7 +125,7 @@ public:
 
     const void* mapRead() const
         {
-            if( !_testInitialized() )
+            if( !_testInitialized( ))
                 return 0;
 
             if( _type != GL_READ_ONLY_ARB )
@@ -139,7 +140,7 @@ public:
 
     void* mapWrite()
         {
-            if( !_testInitialized() )
+            if( !_testInitialized( ))
                 return 0;
 
             if( _type != GL_WRITE_ONLY_ARB )
@@ -164,7 +165,7 @@ public:
 
     bool bind() const
         {
-            if( !_testInitialized() )
+            if( !_testInitialized( ))
                 return false;
 
             EQ_GL_CALL( glBindBufferARB( _getName(), pboID ));
