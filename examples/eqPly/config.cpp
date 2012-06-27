@@ -270,7 +270,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
     // Protect if accessed concurrently from multiple pipe threads
     const eq::Node* node = getNodes().front();
     const bool needModelLock = (node->getPipes().size() > 1);
-    lunchbox::ScopedMutex<> _mutex( needModelLock ? &_modelLock : 0 );
+    lunchbox::ScopedWrite _mutex( needModelLock ? &_modelLock : 0 );
 
     const size_t nModels = _models.size();
     LBASSERT( _modelDist.size() == nModels );
@@ -310,7 +310,7 @@ void Config::_updateData()
         _setHeadMatrix( headMatrix );
     }
 
-    // update database
+    // update camera
     if( _animation.isValid( ))
     {
         const eq::Vector3f&  modelRotation = _animation.getModelRotation();

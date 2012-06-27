@@ -30,12 +30,12 @@ namespace detail { class Zeroconf; }
      * When Collage is compiled with Servus support (CO_USE_SERVUS), it uses the
      * ZeroConf service "_collage._tcp" to announce the presence of a listening
      * LocalNode using the zeroconf protocol, unless the LocalNode has no
-     * connections. This class may be used to add additional key/value pairs to
-     * this service to announce application-specific data, and to retrieve a
-     * snapshot of the discovered nodes.
-     * Internal keys start with 'co_', this
-     * prefix should not be used by applications. Please refer to the
-     * documentation of servus::Service::set() for details.
+     * listening connections. This class may be used to add additional key/value
+     * pairs to this service to announce application-specific data, and to
+     * retrieve a snapshot of all key/value pairs of all discovered nodes on the
+     * network. Internal keys start with 'co_', this prefix should not be used
+     * by applications. Please refer to the documentation of
+     * lunchbox::Servus::set() for details.
      *
      * When Collage is compiled without Servus support, this class implements
      * dummy functionality.

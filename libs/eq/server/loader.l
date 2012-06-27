@@ -153,8 +153,8 @@ planes_samples                  { return EQTOKEN_PLANES_SAMPLES; }
 ON                              { return EQTOKEN_ON; }
 OFF                             { return EQTOKEN_OFF; }
 AUTO                            { return EQTOKEN_AUTO; }
-core                            { return EQTOKEN_CORE; }
-socket                          { return EQTOKEN_SOCKET; }
+CORE                            { return EQTOKEN_CORE; }
+SOCKET                          { return EQTOKEN_SOCKET; }
 FASTEST                         { return EQTOKEN_FASTEST; }
 NICEST                          { return EQTOKEN_NICEST; }
 QUAD                            { return EQTOKEN_QUAD; }
