@@ -90,9 +90,10 @@ void Renderer::draw( co::Object* frameDataObj )
     const eq::Frustumf& frustum = getFrustum();
     const eq::Matrix4f projection = frustum.compute_matrix();
     const eq::Matrix4f pmv = projection * view * modelM;
+    const seq::RenderContext& context = getRenderContext();
 
     _state->setProjectionModelViewMatrix( pmv );
-    //_state->setRange( &getRange().start);
+    _state->setRange( &context.range.start );
     _state->setColors( model->hasColors( ));
     
     model->cullDraw( *_state );

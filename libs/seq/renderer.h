@@ -115,6 +115,9 @@ namespace seq
          */
         SEQ_API virtual void applyRenderContext();
 
+        /** @return the current rendering parameters. @version 1.4 */
+        SEQ_API const RenderContext& getRenderContext() const;
+
         /**
          * Apply the current model matrix to OpenGL.
          *

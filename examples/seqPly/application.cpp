@@ -184,6 +184,8 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
 
     // Accessed concurrently from render threads
     lunchbox::ScopedMutex<> mutex( _modelLock );
+    if( _model )
+        return _model;
 
     LBASSERT( !_modelDist );
     _modelDist = new ModelDist;

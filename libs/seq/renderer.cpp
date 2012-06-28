@@ -90,6 +90,11 @@ void Renderer::applyRenderContext()
     _impl->applyRenderContext();
 }
 
+const RenderContext& Renderer::getRenderContext() const
+{
+    return _impl->getRenderContext();
+}
+
 void Renderer::applyModelMatrix()
 {
     _impl->applyModelMatrix();
