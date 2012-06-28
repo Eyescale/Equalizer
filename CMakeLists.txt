@@ -75,10 +75,7 @@ endif(MSVC)
 find_package(VMMLIB REQUIRED)
 include_directories(SYSTEM ${VMMLIB_INCLUDE_DIRS})
 
-find_package(Boost 1.36 REQUIRED system regex date_time serialization)
-if(Boost_VERSION GREATER 103999)
-  set(CO_USE_BOOST_SERIALIZATION 1)
-endif()
+find_package(Boost 1.41 REQUIRED system regex date_time serialization)
 link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 

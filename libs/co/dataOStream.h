@@ -134,7 +134,7 @@ namespace DataStreamTest
             STATE_UNCOMPRESSED,
             STATE_PARTIAL,
             STATE_COMPLETE,
-            STATE_UNCOMPRESSIBLE,
+            STATE_UNCOMPRESSIBLE
         };
         CompressorState _compressorState;
         

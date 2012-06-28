@@ -39,12 +39,10 @@ if(LINUX)
 endif()
 
 if(Boost_FOUND)
-  list(APPEND CO_SOURCES rspConnection.cpp)
-  list(APPEND CO_ADD_LINKLIB ${Boost_SYSTEM_LIBRARY})
-  if(CO_USE_BOOST_SERIALIZATION)
-    list(APPEND CO_SOURCES dataIStreamArchive.cpp dataOStreamArchive.cpp)
-    list(APPEND CO_ADD_LINKLIB ${Boost_SERIALIZATION_LIBRARY})
-  endif()
+  list(APPEND CO_SOURCES dataIStreamArchive.cpp dataOStreamArchive.cpp
+                         rspConnection.cpp)
+  list(APPEND CO_ADD_LINKLIB ${Boost_SERIALIZATION_LIBRARY}
+                             ${Boost_SYSTEM_LIBRARY})
   if(NOT Boost_USE_STATIC_LIBS)
     list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
   endif()

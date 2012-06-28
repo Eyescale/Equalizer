@@ -35,11 +35,85 @@ DataIStreamArchive::DataIStreamArchive( DataIStream& stream )
     : Super( 0 )
     , _stream( stream )
 {
+    using namespace boost::archive;
+
+    if( _loadSignedChar() != magicByte )
+        throw archive_exception( archive_exception::invalid_signature );
+    else
+    {
+#if BOOST_VERSION < 104400
+        version_type libraryVersion;
+#else
+        library_version_type libraryVersion;
+#endif
+        operator>>( libraryVersion );
+
+        if( libraryVersion > BOOST_ARCHIVE_VERSION( ))
+            throw archive_exception( archive_exception::unsupported_version );
+        else
+            set_library_version( libraryVersion );
+    }
 }
 
 void DataIStreamArchive::load_binary( void* data, std::size_t size )
 {
     _stream.read( data, size );
+}
+
+void DataIStreamArchive::load( bool& b )
+{
+    switch( signed char c = _loadSignedChar( ))
+    {
+    case 0:
+        b = false;
+        break;
+    case 1:
+        b = _loadSignedChar();
+        break;
+    default:
+        throw DataStreamArchiveException( c );
+    }
+}
+
+#if BOOST_VERSION >= 104400
+void DataIStreamArchive::load( boost::archive::library_version_type& version )
+{
+    load((boost::uint_least16_t&)(version));
+}
+
+void DataIStreamArchive::load( boost::archive::class_id_type& class_id )
+{
+    load((boost::uint_least16_t&)(class_id));
+}
+
+void DataIStreamArchive::load(
+                              boost::serialization::item_version_type& version )
+{
+    load((boost::uint_least32_t&)(version));
+}
+
+void DataIStreamArchive::load(
+                           boost::serialization::collection_size_type& version )
+{
+    load((boost::uint_least32_t&)(version));
+}
+
+void DataIStreamArchive::load( boost::archive::object_id_type& object_id )
+{
+    load((boost::uint_least32_t&)(object_id));
+}
+
+void DataIStreamArchive::load( boost::archive::version_type& version )
+{
+    load((boost::uint_least32_t&)(version));
+}
+#endif
+
+signed char DataIStreamArchive::_loadSignedChar()
+{
+    signed char c;
+    _stream >> c;
+    return c;
 }
 
 }

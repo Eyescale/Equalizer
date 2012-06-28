@@ -35,11 +35,71 @@ DataOStreamArchive::DataOStreamArchive( DataOStream& stream )
     : Super( 0 )
     , _stream( stream )
 {
+    // write our minimalistic header (magic byte plus version)
+    // the boost archives write a string instead - by calling
+    // boost::archive::basic_binary_oarchive<derived_t>::init()
+    _saveSignedChar( magicByte );
+
+    using namespace boost::archive;
+
+#if BOOST_VERSION < 104400
+    const version_type libraryVersion( BOOST_ARCHIVE_VERSION( ));
+#else
+    const library_version_type libraryVersion( BOOST_ARCHIVE_VERSION( ));
+#endif
+    operator<<( libraryVersion );
 }
 
 void DataOStreamArchive::save_binary( const void* data, std::size_t size )
 {
     _stream.write( data, size );
+}
+
+void DataOStreamArchive::save( bool b )
+{
+    _saveSignedChar( b );
+    if( b )
+        _saveSignedChar( 'T' );
+}
+
+#if BOOST_VERSION >= 104400
+void DataOStreamArchive::save(
+                           const boost::archive::library_version_type& version )
+{
+    save((boost::uint_least16_t)(version));
+}
+
+void DataOStreamArchive::save( const boost::archive::class_id_type& class_id )
+{
+    save((boost::uint_least16_t)(class_id));
+}
+
+void DataOStreamArchive::save(
+                       const boost::serialization::item_version_type& class_id )
+{
+    save((boost::uint_least32_t)(class_id));
+}
+
+void DataOStreamArchive::save(
+                    const boost::serialization::collection_size_type& class_id )
+{
+    save((boost::uint_least32_t)(class_id));
+}
+
+void DataOStreamArchive::save( const boost::archive::object_id_type& object_id )
+{
+    save((boost::uint_least32_t)(object_id));
+}
+
+void DataOStreamArchive::save( const boost::archive::version_type& version )
+{
+    save((boost::uint_least32_t)(version));
+}
+#endif
+
+void DataOStreamArchive::_saveSignedChar( const signed char& c )
+{
+    _stream << c;
 }
 
 }

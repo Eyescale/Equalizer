@@ -20,8 +20,11 @@ set(CO_PUBLIC_HEADERS
     connectionType.h
     dataIStream.h
     dataIStreamArchive.h
+    dataIStreamArchive.ipp
     dataOStream.h
     dataOStreamArchive.h
+    dataOStreamArchive.ipp
+    dataStreamArchiveException.h
     defines.h
     dispatcher.h
     error.h
