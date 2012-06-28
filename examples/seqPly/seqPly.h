@@ -59,6 +59,7 @@ namespace seqPly
         virtual bool exit();
 
         virtual seq::Renderer* createRenderer();
+        virtual co::Object* createObject( const uint32_t type );
 
         const Model* getModel( const eq::uint128_t& modelID );
 
@@ -69,7 +70,7 @@ namespace seqPly
         lunchbox::Lock _modelLock;
 
         eq::Strings _parseArguments( const int argc, char** argv );
-        void _loadModels( const eq::Strings& models );
+        void _loadModel( const eq::Strings& models );
         void _unloadModel();
     };
 

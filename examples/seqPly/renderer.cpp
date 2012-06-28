@@ -98,18 +98,5 @@ void Renderer::draw( co::Object* frameDataObj )
     model->cullDraw( *_state );
 }
 
-co::Object* Renderer::createObject( const uint32_t type )
-{
-    switch( type )
-    {
-      case seq::OBJECTTYPE_FRAMEDATA:
-          return new eqPly::FrameData;
-
-      default:
-          LBASSERTINFO( false, "Object type " << type << " unknown" );
-          return 0;
-    }
-}
-
 }
 

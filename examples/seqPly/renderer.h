@@ -40,8 +40,6 @@ namespace seqPly
         Renderer( seq::Application& app ) : seq::Renderer( app ), _state( 0 ) {}
         virtual ~Renderer() {}
 
-        virtual co::Object* createObject( const uint32_t type );
-
         State& getState() { return *_state; }
 
     protected:

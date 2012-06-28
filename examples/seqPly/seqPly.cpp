@@ -44,7 +44,7 @@ bool Application::init( const int argc, char** argv )
     if( !seq::Application::init( argc, argv, 0 ))
         return false;
 
-    _loadModels( models );
+    _loadModel( models );
     return true;
 }
 
@@ -62,6 +62,18 @@ bool Application::exit()
 seq::Renderer* Application::createRenderer()
 {
     return new Renderer( *this );
+}
+
+co::Object* Application::createObject( const uint32_t type )
+{
+    switch( type )
+    {
+      case seq::OBJECTTYPE_FRAMEDATA:
+          return new eqPly::FrameData;
+
+      default:
+          return seq::Application::createObject( type );
+    }
 }
 
 namespace
@@ -112,7 +124,7 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
     return filenames;
 }
 
-void Application::_loadModels( const eq::Strings& models )
+void Application::_loadModel( const eq::Strings& models )
 {
     eq::Strings files = models;
     while( !files.empty( ))
