@@ -276,8 +276,8 @@ Object* ObjectMap::get( const uint128_t& identifier, Object* instance )
     }
     LBASSERT( entry.type != OBJECTTYPE_NONE );
 
-    Object* object = instance ?
-                         instance : _impl->factory.createObject( entry.type );
+    Object* object = instance ? instance :
+                                _impl->factory.createObject( entry.type );
     LBASSERT( object );
     if( !object )
         return 0;

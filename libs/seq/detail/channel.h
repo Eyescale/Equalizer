@@ -42,6 +42,7 @@ namespace detail
         const Matrix4f& getModelMatrix() const;
 
         virtual bool useOrtho() const;
+        const RenderContext& getRenderContext() const { return getContext(); }
         //@}
 
         /** @name Operations. */

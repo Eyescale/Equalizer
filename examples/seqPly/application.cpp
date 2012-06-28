@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "seqPly.h"
+#include "application.h"
 
 #include "renderer.h"
 
@@ -44,7 +44,7 @@ bool Application::init( const int argc, char** argv )
     if( !seq::Application::init( argc, argv, 0 ))
         return false;
 
-    _loadModels( models );
+    _loadModel( models );
     return true;
 }
 
@@ -59,19 +59,21 @@ bool Application::exit()
     return seq::Application::exit();
 }
 
-co::Object* Application::createObject( const uint32_t type )
-{
-//    switch( type )
-    {
-//      default:
-          LBUNIMPLEMENTED;
-          return 0;
-    }
-}
-
 seq::Renderer* Application::createRenderer()
 {
     return new Renderer( *this );
+}
+
+co::Object* Application::createObject( const uint32_t type )
+{
+    switch( type )
+    {
+      case seq::OBJECTTYPE_FRAMEDATA:
+          return new eqPly::FrameData;
+
+      default:
+          return seq::Application::createObject( type );
+    }
 }
 
 namespace
@@ -122,7 +124,7 @@ eq::Strings Application::_parseArguments( const int argc, char** argv )
     return filenames;
 }
 
-void Application::_loadModels( const eq::Strings& models )
+void Application::_loadModel( const eq::Strings& models )
 {
     eq::Strings files = models;
     while( !files.empty( ))
@@ -182,6 +184,8 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
 
     // Accessed concurrently from render threads
     lunchbox::ScopedMutex<> mutex( _modelLock );
+    if( _model )
+        return _model;
 
     LBASSERT( !_modelDist );
     _modelDist = new ModelDist;
@@ -191,7 +195,6 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
 
     return model;
 }
-
 
 }
 

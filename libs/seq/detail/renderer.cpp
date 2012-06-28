@@ -27,6 +27,7 @@ namespace seq
 {
 namespace detail
 {
+static const RenderContext dummyContext;
 
 Renderer::Renderer( seq::Renderer* parent )
         : _renderer( parent )
@@ -99,6 +100,14 @@ void Renderer::applyRenderContext()
     LBASSERT( _channel );
     if( _channel )
         _channel->applyRenderContext();
+}
+
+const RenderContext& Renderer::getRenderContext() const
+{
+    LBASSERT( _channel );
+    if( _channel )
+        return _channel->getRenderContext();
+    return dummyContext;
 }
 
 void Renderer::applyModelMatrix()

@@ -56,6 +56,7 @@ namespace detail
         void clear();
 
         void applyRenderContext();
+        const RenderContext& getRenderContext() const;
         void applyModelMatrix();
         //@}
 
