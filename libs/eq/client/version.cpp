@@ -66,7 +66,7 @@ std::string Version::getString()
 
     const std::string revision = getRevision();
     if( revision != "0" )
-        version << " (" << revision << ")";
+        version << '.' << revision;
 
     return version.str();
 }

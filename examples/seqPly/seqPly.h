@@ -58,7 +58,6 @@ namespace seqPly
         bool run();
         virtual bool exit();
 
-        virtual co::Object* createObject( const uint32_t type );
         virtual seq::Renderer* createRenderer();
 
         const Model* getModel( const eq::uint128_t& modelID );

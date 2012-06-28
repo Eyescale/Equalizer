@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -42,7 +42,8 @@ namespace co
          * @return a new object instance of the given type.
          * @version 0.5.1
          * @sa ObjectType, Config::getObject(), Renderer::getObject() */
-        virtual co::Object* createObject( const uint32_t type ) = 0;
+        virtual co::Object* createObject( const uint32_t type )
+            { EQUNIMPLEMENTED; return 0; }
 
         /** Delete the given object of the given type. @version 0.5.1 */
         virtual void destroyObject( co::Object* object, const uint32_t type )

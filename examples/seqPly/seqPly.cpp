@@ -59,16 +59,6 @@ bool Application::exit()
     return seq::Application::exit();
 }
 
-co::Object* Application::createObject( const uint32_t type )
-{
-//    switch( type )
-    {
-//      default:
-          LBUNIMPLEMENTED;
-          return 0;
-    }
-}
-
 seq::Renderer* Application::createRenderer()
 {
     return new Renderer( *this );
@@ -191,7 +181,6 @@ const Model* Application::getModel( const eq::uint128_t& modelID )
 
     return model;
 }
-
 
 }
 
