@@ -15,17 +15,15 @@
  */
 
 
-template< class ValueType >
-void DataOStreamArchive::save_array(
-                              const boost::serialization::array< ValueType >& a,
-                              unsigned int )
+template< typename T >
+void DataOStreamArchive::save_array( const boost::serialization::array< T >& a,
+                                     unsigned int )
 {
-    save_binary( a.address(), a.count() * sizeof( ValueType ));
+    save_binary( a.address(), a.count() * sizeof( T ));
 }
 
-
-template<class C, class T, class A>
-void DataOStreamArchive::save( const std::basic_string<C, T, A>& s )
+template< class C, class T, class A >
+void DataOStreamArchive::save( const std::basic_string< C, T, A >& s )
 {
     // implementation only valid for narrow string
     BOOST_STATIC_ASSERT( sizeof(C) == sizeof(char));

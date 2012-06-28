@@ -59,9 +59,8 @@ public:
     CO_API void load_binary( void* data, std::size_t size );
 
     /** @internal use optimized load for arrays. */
-    template< class ValueType >
-    void load_array( boost::serialization::array< ValueType >& a,
-                     unsigned int );
+    template< typename T >
+    void load_array( boost::serialization::array< T >& a, unsigned int );
 
 private:
     friend class boost::archive::load_access;
@@ -84,8 +83,8 @@ private:
     CO_API void load( bool& b );
 
     /** Load string types. */
-    template<class C, class T, class A>
-    void load( std::basic_string<C, T, A>& s );
+    template< class C, class T, class A >
+    void load( std::basic_string< C, T, A >& s );
 
     /**
      * Load integer types.

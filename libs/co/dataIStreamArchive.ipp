@@ -16,17 +16,15 @@
  */
 
 
-template< class ValueType >
-void DataIStreamArchive::load_array(
-                                    boost::serialization::array< ValueType >& a,
-                                    unsigned int )
+template< typename T >
+void DataIStreamArchive::load_array( boost::serialization::array< T >& a,
+                                     unsigned int )
 {
-    load_binary( a.address(), a.count() * sizeof( ValueType ));
+    load_binary( a.address(), a.count() * sizeof( T ));
 }
 
-
-template<class C, class T, class A>
-void DataIStreamArchive::load( std::basic_string<C, T, A>& s )
+template< class C, class T, class A >
+void DataIStreamArchive::load( std::basic_string< C, T, A >& s )
 {
     // implementation only valid for narrow string
     BOOST_STATIC_ASSERT( sizeof(C) == sizeof(char));

@@ -55,9 +55,8 @@ public:
     CO_API void save_binary( const void* data, std::size_t size );
 
     /** @internal use optimized save for arrays. */
-    template< class ValueType >
-    void save_array( const boost::serialization::array< ValueType >& a,
-                     unsigned int );
+    template< typename T >
+    void save_array( const boost::serialization::array< T >& a, unsigned int );
 
 private:
     friend class boost::archive::save_access;
@@ -79,8 +78,8 @@ private:
     CO_API void save( bool b );
 
     /** Save string types. */
-    template<class C, class T, class A>
-    void save( const std::basic_string<C, T, A>& s );
+    template< class C, class T, class A >
+    void save( const std::basic_string< C, T, A >& s );
 
     /**
      * Save integer types.
