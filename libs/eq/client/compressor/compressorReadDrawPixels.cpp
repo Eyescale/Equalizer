@@ -471,11 +471,11 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 }
 
 
-void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
-                                                const eq_uint64_t  inDims[4],
-                                                const eq_uint64_t  flags,
-                                                eq_uint64_t        outDims[4],
-                                                void**             out )
+void CompressorReadDrawPixels::finishDownload( const GLEWContext* glewContext,
+                                               const eq_uint64_t  inDims[4],
+                                               const eq_uint64_t  flags,
+                                               eq_uint64_t        outDims[4],
+                                               void**             out )
 {
     _copy4( outDims, inDims );
 
@@ -490,7 +490,8 @@ void CompressorReadDrawPixels::finishDownload(  const GLEWContext* glewContext,
             memcpy( _buffer.getData(), ptr, size );
         else
         {
-            LBERROR << "Can't map PBO: " << _pbo->getError() << std::endl;
+            LBERROR << "Can't map PBO: " << _pbo->getError()<< std::endl;
+            EQ_GL_ERROR( "PixelBufferObject::mapRead()" );
         }
         _pbo->unmap();
     }
