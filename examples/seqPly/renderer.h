@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@
 #ifndef SEQ_PLY_RENDERER_H
 #define SEQ_PLY_RENDERER_H
 
-#include "seqPly.h"
+#include "application.h"
 #include <seq/sequel.h>
 
 namespace seqPly
