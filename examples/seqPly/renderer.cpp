@@ -59,8 +59,6 @@ bool Renderer::exit()
 
 void Renderer::draw( co::Object* frameDataObj )
 {
-    LBASSERT( _state );
-
     const FrameData* frameData = static_cast< FrameData* >( frameDataObj );
     Application& application = static_cast< Application& >( getApplication( ));
     const eq::uint128_t id = frameData->getModelID();
