@@ -35,6 +35,12 @@ template< typename T >
 typename boost::enable_if< boost::is_integral<T> >::type
 DataIStreamArchive::load( T& t )
 {
+#if BOOST_VERSION < 104800
+    namespace bs = boost::detail;
+#else
+    namespace bs = boost::spirit::detail;
+#endif
+
     // get the number of bytes in the stream
     if( signed char size = _loadSignedChar( ))
     {
@@ -52,7 +58,7 @@ DataIStreamArchive::load( T& t )
 
         // load the value from little endian - is is then converted
         // to the target type T and fits it because size <= sizeof(T)
-        t = boost::detail::load_little_endian<T, sizeof(T)>( &temp );
+        t = bs::load_little_endian<T, sizeof(T)>( &temp );
     }
     else
         // zero optimization

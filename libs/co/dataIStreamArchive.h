@@ -16,8 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Based on portable_iarchive.hpp from christian.pfligersdorffer@eos.info
+// Based on portable_iarchive.hpp
 // https://github.com/boost-vault/serialization/eos_portable_archive.zip
+// Copyright Christian Pfligersdorffer, 2007. All rights reserved.
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef CO_DATAISTREAMARCHIVE_H
 #define CO_DATAISTREAMARCHIVE_H
@@ -34,7 +39,7 @@
 #include <boost/archive/shared_ptr_helper.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
+#include <boost/spirit/home/support/detail/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 
 #include <boost/type_traits/is_integral.hpp>

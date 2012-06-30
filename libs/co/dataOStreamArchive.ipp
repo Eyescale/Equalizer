@@ -34,6 +34,12 @@ template< typename T >
 typename boost::enable_if< boost::is_integral<T> >::type
 DataOStreamArchive::save( const T& t )
 {
+#if BOOST_VERSION < 104800
+    namespace bs = boost::detail;
+#else
+    namespace bs = boost::spirit::detail;
+#endif
+
     if( T temp = t )
     {
         // examine the number of bytes
@@ -52,7 +58,7 @@ DataOStreamArchive::save( const T& t )
 
         // we choose to use little endian because this way we just
         // save the first size bytes to the stream and skip the rest
-        boost::detail::store_little_endian<T, sizeof(T)>( &temp, t );
+        bs::store_little_endian<T, sizeof(T)>( &temp, t );
         save_binary( &temp, size );
     }
     else
