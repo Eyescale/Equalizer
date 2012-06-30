@@ -35,7 +35,7 @@
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
+#include <boost/spirit/home/support/detail/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 
 #include <boost/type_traits/is_integral.hpp>

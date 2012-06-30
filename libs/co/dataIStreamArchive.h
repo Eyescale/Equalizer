@@ -39,7 +39,7 @@
 #include <boost/archive/shared_ptr_helper.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
+#include <boost/spirit/home/support/detail/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 
 #include <boost/type_traits/is_integral.hpp>
