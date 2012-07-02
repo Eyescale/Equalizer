@@ -169,7 +169,7 @@ void Node::releaseFrameData( FrameDataPtr data )
 {
     lunchbox::ScopedWrite mutex( _frameDatas );
     FrameDataHashIter i = _frameDatas->find( data->getID( ));
-    EQASSERT( i != _frameDatas->end( ));
+    LBASSERT( i != _frameDatas->end( ));
     if( i == _frameDatas->end( ))
         return;
 

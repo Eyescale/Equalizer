@@ -197,7 +197,7 @@ void RenderThread::run()
 
     std::ostringstream stream;
     const uint32_t device = _pipe->getDevice();
-    stream << "Pipe" << (device==EQ_UNDEFINED_UINT32 ? -1 : int32_t( device ))
+    stream << "Pipe" << (device==LB_UNDEFINED_UINT32 ? -1 : int32_t( device ))
            << "Draw";
     setName( stream.str( ));
 
@@ -331,12 +331,12 @@ int32_t Pipe::_getAutoAffinity() const
     uint32_t port = getPort();
     uint32_t device = getDevice();
 
-    if( port == EQ_UNDEFINED_UINT32 && device == EQ_UNDEFINED_UINT32 )
+    if( port == LB_UNDEFINED_UINT32 && device == LB_UNDEFINED_UINT32 )
         return lunchbox::Thread::NONE;
 
-    if( port == EQ_UNDEFINED_UINT32 )
+    if( port == LB_UNDEFINED_UINT32 )
         port = 0;
-    if( device == EQ_UNDEFINED_UINT32 )
+    if( device == LB_UNDEFINED_UINT32 )
         device = 0;
 
     hwloc_topology_t topology;
@@ -348,14 +348,14 @@ int32_t Pipe::_getAutoAffinity() const
     // Set discovery flags
     if( hwloc_topology_set_flags( topology, loading_flags ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_set_flags() failed" << std::endl;
         return lunchbox::Thread::NONE;
     }
 
     if( hwloc_topology_load( topology ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_load() failed" << std::endl;
         return lunchbox::Thread::NONE;
     }
@@ -366,7 +366,7 @@ int32_t Pipe::_getAutoAffinity() const
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
                                      &cpuSet ) < 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_gl_get_display_cpuset() failed" << std::endl;
         hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
@@ -376,7 +376,7 @@ int32_t Pipe::_getAutoAffinity() const
                                                               HWLOC_OBJ_SOCKET );
     if( numCpus != 1 )
     {
-        EQINFO << "Automatic pipe thread placement failed: GPU attached to "
+        LBINFO << "Automatic pipe thread placement failed: GPU attached to "
                << numCpus << " processors" << std::endl;
         hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
@@ -386,7 +386,7 @@ int32_t Pipe::_getAutoAffinity() const
                                                    cpuSet, HWLOC_OBJ_SOCKET, 0 );
     if( cpuObj == 0 )
     {
-        EQINFO << "Automatic pipe thread placement failed: "
+        LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_get_obj_inside_cpuset_by_type() failed" << std::endl;
         hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
@@ -396,7 +396,7 @@ int32_t Pipe::_getAutoAffinity() const
     hwloc_topology_destroy( topology );
     return cpuIndex + lunchbox::Thread::SOCKET;
 #else
-    EQINFO << "Automatic thread placement not supported, no hwloc GL support"
+    LBINFO << "Automatic thread placement not supported, no hwloc GL support"
            << std::endl;
 #endif
     return lunchbox::Thread::NONE;

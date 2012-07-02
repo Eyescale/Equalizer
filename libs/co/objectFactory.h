@@ -43,7 +43,7 @@ namespace co
          * @version 0.5.1
          * @sa ObjectType, Config::getObject(), Renderer::getObject() */
         virtual co::Object* createObject( const uint32_t type )
-            { EQUNIMPLEMENTED; return 0; }
+            { LBUNIMPLEMENTED; return 0; }
 
         /** Delete the given object of the given type. @version 0.5.1 */
         virtual void destroyObject( co::Object* object, const uint32_t type )
