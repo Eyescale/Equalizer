@@ -104,6 +104,9 @@ macro(FIND_LIBRARY_PACKAGE name)
   endif()
   string(TOUPPER ${_flp_${name}_INCLUDE} _flp_${name}_INCLUDE_UC)
 
+  # might already be set from a previous run with a different/wrong version
+  unset(${_flp_NAME}_INCLUDE_DIR CACHE)
+
   find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.h
     HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
