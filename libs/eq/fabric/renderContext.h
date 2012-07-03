@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -37,7 +37,7 @@ namespace fabric
     /** The context applied to a channel during rendering operations. */
     class RenderContext
     {
-    public: 
+    public:
         EQFABRIC_API RenderContext();
 
         Frustumf       frustum;        //!< frustum for projection matrix
@@ -58,7 +58,7 @@ namespace fabric
         SubPixel       subpixel;       //!< subpixel decomposition wrt to dest
         Zoom           zoom;           //!< up/downsampling wrt to dest
 
-        uint32_t       buffer;         //!< buffer as passed to glDrawBuffer() 
+        uint32_t       buffer;         //!< buffer as passed to glDrawBuffer()
         uint32_t       taskID;         //!< @internal per-channel task counter
         uint32_t       period;         //!< DPlex period
         uint32_t       phase;          //!< DPlex phase
@@ -69,8 +69,8 @@ namespace fabric
         bool           alignDummy[28]; //!< @internal padding
     };
 
-    EQFABRIC_API std::ostream& operator << ( std::ostream& os, 
-                                          const RenderContext& ctx );
+    EQFABRIC_API std::ostream& operator << ( std::ostream& os,
+                                             const RenderContext& ctx );
 }
 }
 #endif // EQFABRIC_RENDERCONTEXT_H

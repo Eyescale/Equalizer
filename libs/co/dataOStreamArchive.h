@@ -16,8 +16,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-// Based on portable_oarchive.hpp from christian.pfligersdorffer@eos.info
+// Based on portable_oarchive.hpp
 // https://github.com/boost-vault/serialization/eos_portable_archive.zip
+// Copyright Christian Pfligersdorffer, 2007. All rights reserved.
+//
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef CO_DATAOSTREAMARCHIVE_H
 #define CO_DATAOSTREAMARCHIVE_H
@@ -30,7 +35,7 @@
 #include <boost/archive/detail/register_archive.hpp>
 #include <boost/serialization/is_bitwise_serializable.hpp>
 
-#include <boost/spirit/home/support/detail/integer/endian.hpp>
+#include <boost/spirit/home/support/detail/endian.hpp>
 #include <boost/spirit/home/support/detail/math/fpclassify.hpp>
 
 #include <boost/type_traits/is_integral.hpp>
@@ -55,9 +60,8 @@ public:
     CO_API void save_binary( const void* data, std::size_t size );
 
     /** @internal use optimized save for arrays. */
-    template< class ValueType >
-    void save_array( const boost::serialization::array< ValueType >& a,
-                     unsigned int );
+    template< typename T >
+    void save_array( const boost::serialization::array< T >& a, unsigned int );
 
 private:
     friend class boost::archive::save_access;
@@ -79,8 +83,8 @@ private:
     CO_API void save( bool b );
 
     /** Save string types. */
-    template<class C, class T, class A>
-    void save( const std::basic_string<C, T, A>& s );
+    template< class C, class T, class A >
+    void save( const std::basic_string< C, T, A >& s );
 
     /**
      * Save integer types.

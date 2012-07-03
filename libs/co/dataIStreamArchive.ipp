@@ -16,17 +16,15 @@
  */
 
 
-template< class ValueType >
-void DataIStreamArchive::load_array(
-                                    boost::serialization::array< ValueType >& a,
-                                    unsigned int )
+template< typename T >
+void DataIStreamArchive::load_array( boost::serialization::array< T >& a,
+                                     unsigned int )
 {
-    load_binary( a.address(), a.count() * sizeof( ValueType ));
+    load_binary( a.address(), a.count() * sizeof( T ));
 }
 
-
-template<class C, class T, class A>
-void DataIStreamArchive::load( std::basic_string<C, T, A>& s )
+template< class C, class T, class A >
+void DataIStreamArchive::load( std::basic_string< C, T, A >& s )
 {
     // implementation only valid for narrow string
     BOOST_STATIC_ASSERT( sizeof(C) == sizeof(char));
@@ -37,6 +35,12 @@ template< typename T >
 typename boost::enable_if< boost::is_integral<T> >::type
 DataIStreamArchive::load( T& t )
 {
+#if BOOST_VERSION < 104800
+    namespace bs = boost::detail;
+#else
+    namespace bs = boost::spirit::detail;
+#endif
+
     // get the number of bytes in the stream
     if( signed char size = _loadSignedChar( ))
     {
@@ -54,7 +58,7 @@ DataIStreamArchive::load( T& t )
 
         // load the value from little endian - is is then converted
         // to the target type T and fits it because size <= sizeof(T)
-        t = boost::detail::load_little_endian<T, sizeof(T)>( &temp );
+        t = bs::load_little_endian<T, sizeof(T)>( &temp );
     }
     else
         // zero optimization

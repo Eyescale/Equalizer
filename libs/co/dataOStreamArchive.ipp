@@ -15,17 +15,15 @@
  */
 
 
-template< class ValueType >
-void DataOStreamArchive::save_array(
-                              const boost::serialization::array< ValueType >& a,
-                              unsigned int )
+template< typename T >
+void DataOStreamArchive::save_array( const boost::serialization::array< T >& a,
+                                     unsigned int )
 {
-    save_binary( a.address(), a.count() * sizeof( ValueType ));
+    save_binary( a.address(), a.count() * sizeof( T ));
 }
 
-
-template<class C, class T, class A>
-void DataOStreamArchive::save( const std::basic_string<C, T, A>& s )
+template< class C, class T, class A >
+void DataOStreamArchive::save( const std::basic_string< C, T, A >& s )
 {
     // implementation only valid for narrow string
     BOOST_STATIC_ASSERT( sizeof(C) == sizeof(char));
@@ -36,6 +34,12 @@ template< typename T >
 typename boost::enable_if< boost::is_integral<T> >::type
 DataOStreamArchive::save( const T& t )
 {
+#if BOOST_VERSION < 104800
+    namespace bs = boost::detail;
+#else
+    namespace bs = boost::spirit::detail;
+#endif
+
     if( T temp = t )
     {
         // examine the number of bytes
@@ -54,7 +58,7 @@ DataOStreamArchive::save( const T& t )
 
         // we choose to use little endian because this way we just
         // save the first size bytes to the stream and skip the rest
-        boost::detail::store_little_endian<T, sizeof(T)>( &temp, t );
+        bs::store_little_endian<T, sizeof(T)>( &temp, t );
         save_binary( &temp, size );
     }
     else
