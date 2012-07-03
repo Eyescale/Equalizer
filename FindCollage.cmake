@@ -75,6 +75,9 @@ set(_Collage_Lunchbox_version_0.5.1 "0.9.0")
 set(_Collage_Lunchbox_version_0.5.2 "1.3.5")
 set(_Collage_Lunchbox_version_0.5.5 "1.3.5")
 
+# needed if called directly w/o called from FindEqualizer
+set(COLLAGE_ROOT ${EQ_ROOT})
+
 find_library_package(Collage INCLUDE co TRANSIENT Lunchbox)
 find_package_handle_standard_args(Collage DEFAULT_MSG
                                   COLLAGE_LIBRARIES COLLAGE_INCLUDE_DIRS)
