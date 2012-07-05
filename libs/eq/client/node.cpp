@@ -399,12 +399,11 @@ void Node::_flushObjects()
     }
 
     lunchbox::ScopedMutex<> mutex( _frameDatas );
-    LBASSERT( _frameDatas->empty( ));
-
     for( FrameDataHashCIter i = _frameDatas->begin();
          i != _frameDatas->end(); ++i )
     {
         FrameDataPtr frameData = i->second;
+        frameData->resetPlugins();
         client->unmapObject( frameData.get( ));
     }
     _frameDatas->clear();
