@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -50,6 +50,7 @@ namespace eq
     struct ConfigInitPacket : public ConfigPacket
     {
         ConfigInitPacket()
+                : pad( 0 )
             {
                 command   = fabric::CMD_CONFIG_INIT;
                 size      = sizeof( ConfigInitPacket );
@@ -57,6 +58,7 @@ namespace eq
 
         uint128_t initID;
         uint32_t requestID;
+        const uint32_t pad;
     };
 
     struct ConfigInitReplyPacket : public ConfigPacket
@@ -81,7 +83,7 @@ namespace eq
                 command   = fabric::CMD_CONFIG_UPDATE;
                 size      = sizeof( ConfigUpdatePacket );
             }
-       
+
         uint32_t versionID;
         uint32_t finishID;
         uint32_t requestID;
@@ -209,18 +211,18 @@ namespace eq
                 : requestID( LB_UNDEFINED_UINT32 )
         {
             command   = fabric::CMD_CONFIG_SWAP_OBJECT;
-            size      = sizeof( ConfigSwapObjectPacket ); 
+            size      = sizeof( ConfigSwapObjectPacket );
         }
         uint32_t         requestID;
         co::Object*     object;
     };
 
-    inline std::ostream& operator << ( std::ostream& os, 
+    inline std::ostream& operator << ( std::ostream& os,
                                        const ConfigFrameFinishPacket* packet )
     {
         os << (ConfigPacket*)packet << " frame " << packet->frameNumber;
         return os;
-    }    
+    }
 }
 /** @endcond */
 #endif //EQ_CONFIGPACKETS_H

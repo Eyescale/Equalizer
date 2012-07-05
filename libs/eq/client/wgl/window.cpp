@@ -820,12 +820,14 @@ HGLRC Window::createWGLContext()
     {
         LBASSERT( dynamic_cast< const WindowIF* >( sysWindow ));
         const WindowIF* shareWGLWindow = 
-            static_cast< const WindowIF* >( sysWindow );
-        HGLRC shareCtx = shareWGLWindow->getWGLContext();
-
-        if( shareCtx && !wglShareLists( shareCtx, context ))
-            LBWARN << "Context sharing failed: " << lunchbox::sysError
-                   << std::endl;
+            dynamic_cast< const WindowIF* >( sysWindow );
+        if( shareWGLWindow )
+        {
+            HGLRC shareCtx = shareWGLWindow->getWGLContext();
+            if( shareCtx && !wglShareLists( shareCtx, context ))
+                LBWARN << "Context sharing failed: " << lunchbox::sysError
+                       << std::endl;
+        }
     }
 
     return context;
