@@ -120,8 +120,13 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             frame->waitReady( timeout );
         }
 
+#ifdef EQ_2_0_API
         if( frame->getFrameData()->getZoom() != Zoom::NONE )
             return false;
+#else
+        if( frame->getData()->getZoom() != Zoom::NONE )
+            return false;
+#endif
 
         const Images& images = frame->getImages();
         for( Images::const_iterator j = images.begin(); 
@@ -609,8 +614,12 @@ bool Compositor::_collectOutputData(
 
         LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
-                      frame->getZoom() == Zoom::NONE &&
-                      frame->getFrameData()->getZoom() == Zoom::NONE,
+#ifdef EQ_2_0_API
+                      frame->getFrameData()->getZoom() == Zoom::NONE &&
+#else
+                      frame->getData()->getZoom() == Zoom::NONE &&
+#endif
+                      frame->getZoom() == Zoom::NONE,
                       "CPU-based compositing not implemented for given frames");
         if( frame->getPixel() != Pixel::ALL )
             return false;
@@ -1088,7 +1097,11 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
     operation.offset  = frame->getOffset();
     operation.pixel   = frame->getPixel();
     operation.zoom    = frame->getZoom();
+#ifdef EQ_2_0_API
     operation.zoom.apply( frame->getFrameData()->getZoom( ));
+#else
+    operation.zoom.apply( frame->getData()->getZoom( ));
+#endif
 
     for( Images::const_iterator i = images.begin(); i != images.end(); ++i )
     {
