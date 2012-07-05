@@ -46,6 +46,7 @@ GLWindow::GLWindow( Window* parent )
     , _glewContext( new GLEWContext )
     , _fbo( 0 )
 {
+    bzero( _glewContext, sizeof( _glewContext ));
 }
 
 GLWindow::~GLWindow()
