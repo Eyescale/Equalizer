@@ -71,7 +71,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindMonsteer)
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 
-find_library_package(Monsteer INCLUDE monsteer)
+find_library_package(Monsteer INCLUDE monsteer TRANSIENT Collage DASH
+                                                         CODASH Lunchbox)
 find_package_handle_standard_args(Monsteer DEFAULT_MSG
                                   MONSTEER_LIBRARIES MONSTEER_INCLUDE_DIRS)
 if(MONSTEER_FOUND)
