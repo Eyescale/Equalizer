@@ -143,6 +143,19 @@ std::vector< uint128_t >& Frame::_getInputNetNodes( const unsigned i )
     return _impl->toNodes[ i ].inputNetNodes;
 }
 
+std::ostream& operator << ( std::ostream& os, const Frame& frame )
+{
+    os << lunchbox::disableFlush << "frame" << std::endl
+       << "{" << std::endl << lunchbox::indent
+       << "name     \"" << frame.getName() << "\"" << std::endl;
+
+    const Zoom& zoom = frame.getZoom();
+    if( zoom.isValid() && zoom != Zoom::NONE )
+        os << zoom << std::endl;
+
+    return os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
+}
+
 std::ostream& operator << ( std::ostream& os, const Frame::Type type )
 {
     os << "type     ";

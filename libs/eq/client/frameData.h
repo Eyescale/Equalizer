@@ -374,8 +374,8 @@ namespace server { class FrameData; }
         LB_TS_VAR( _commandThread );
     };
 
-    /** Print the frame data to the given output stream. @version 1.0 */
-    std::ostream& operator << ( std::ostream& os, const FrameData* data );
+    /** Print the frame data to the given output stream. @version 1.4 */
+    EQ_API std::ostream& operator << ( std::ostream&, const FrameData& );
 }
 
 #endif // EQ_FRAMEDATA_H

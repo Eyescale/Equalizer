@@ -153,8 +153,8 @@ namespace server
         Compound* _compound;
 
         /** Frame-specific data. */
-        eq::Viewport    _vp;
-        uint32_t        _buffers;
+        eq::Viewport _vp;
+        uint32_t _buffers;
         Type _type;
 
         /** The configured frame data (base class contains inherit values). */
@@ -171,7 +171,7 @@ namespace server
         Frames _inputFrames[ fabric::NUM_EYES ];
     };
 
-    std::ostream& operator << ( std::ostream& os, const Frame* frame );
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame& );
 }
 }
 #endif // EQSERVER_FRAME_H

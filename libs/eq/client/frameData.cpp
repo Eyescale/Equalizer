@@ -466,12 +466,12 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
     return true;
 }
 
-std::ostream& operator << ( std::ostream& os, const FrameData* data )
+std::ostream& operator << ( std::ostream& os, const FrameData& data )
 {
-    os << "frame data id " << data->getID() << "." << data->getInstanceID()
-       << " v" << data->getVersion() << ' ' << data->getImages().size()
-       << " images, ready " << ( data->isReady() ? 'y' :'n' );
-    return os;
+    return os << "frame data id " << data.getID() << "." << data.getInstanceID()
+              << " v" << data.getVersion() << ' ' << data.getImages().size()
+              << " images, ready " << ( data.isReady() ? 'y' :'n' ) << " "
+              << data.getZoom();
 }
 
 }

@@ -36,7 +36,7 @@ Frame::Frame()
         , _type( TYPE_MEMORY )
         , _masterFrameData( 0 )
 {
-    setZoom( Zoom( 0.f, 0.f )); //set invalid zoom to detect 'set' state
+    setNativeZoom( Zoom( 0.f, 0.f )); //set invalid zoom to detect 'set' state
     for( unsigned i = 0; i < NUM_EYES; ++i )
         _frameData[i] = 0;
 }
@@ -175,39 +175,34 @@ void Frame::addInputFrame( Frame* frame, const Compound* compound )
     }
 }
 
-std::ostream& operator << ( std::ostream& os, const Frame* frame )
+std::ostream& operator << ( std::ostream& os, const Frame& frame )
 {
-    if( !frame )
-        return os;
-    
-    os << lunchbox::disableFlush << "frame" << std::endl;
-    os << "{" << std::endl << lunchbox::indent;
-      
-    const std::string& name = frame->getName();
-    os << "name     \"" << name << "\"" << std::endl;
+    os << lunchbox::disableFlush << "frame" << std::endl
+       << "{" << std::endl << lunchbox::indent
+       << "name     \"" << frame.getName() << "\"" << std::endl;
 
-    const uint32_t buffers = frame->getBuffers();
-    if( buffers != eq::Frame::BUFFER_UNDEFINED )
+    const uint32_t buffers = frame.getBuffers();
+    if( buffers != Frame::BUFFER_UNDEFINED )
     {
         os << "buffers  [";
-        if( buffers & eq::Frame::BUFFER_COLOR )  os << " COLOR";
-        if( buffers & eq::Frame::BUFFER_DEPTH )  os << " DEPTH";
+        if( buffers & Frame::BUFFER_COLOR )  os << " COLOR";
+        if( buffers & Frame::BUFFER_DEPTH )  os << " DEPTH";
         os << " ]" << std::endl;
     }
 
-    const Frame::Type frameType = frame->getType();
+    const Frame::Type frameType = frame.getType();
     if( frameType != Frame::TYPE_MEMORY )
         os  << frameType;
     
-    const Viewport& vp = frame->getViewport();
-    if( vp != eq::Viewport::FULL )
+    const Viewport& vp = frame.getViewport();
+    if( vp != Viewport::FULL )
         os << "viewport " << vp << std::endl;
 
-    const Zoom& zoom = frame->getZoom();
-    if( zoom.isValid() && zoom != eq::Zoom::NONE )
+    const Zoom& zoom = frame.getZoom();
+    if( zoom.isValid() && zoom != Zoom::NONE )
         os << zoom << std::endl;
 
-    return os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
+    return os << lunchbox::exdent << "}" << lunchbox::enableFlush;
 }
 
 }

@@ -1703,14 +1703,13 @@ std::ostream& operator << (std::ostream& os, const Compound& compound)
 
     const Frames& inputFrames = compound.getInputFrames();
     for( FramesCIter i = inputFrames.begin(); i != inputFrames.end(); ++i )
-        os << "input" << *i;
+        os << "input" << **i << std::endl;
 
     const Frames& outputFrames = compound.getOutputFrames();
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
-        os << "output"  << *i;
+        os << "output"  << **i << std::endl;
 
-    os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
-    return os;
+    return os << lunchbox::exdent << "}" << std::endl << lunchbox::enableFlush;
 }
 
 }

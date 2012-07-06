@@ -2108,8 +2108,8 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
 {
     ChannelFrameAssemblePacket* packet = 
         command.getModifiable< ChannelFrameAssemblePacket >();
-    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK assemble " << getName() <<  " " 
-                                      << packet << std::endl;
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY )
+        << "TASK assemble " << getName() <<  " " << packet << std::endl;
 
     _setRenderContext( packet->context );
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
@@ -2118,6 +2118,8 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
         Pipe*  pipe  = getPipe();
         Frame* frame = pipe->getFrame( packet->frames[i], getEye(), false );
         _impl->inputFrames.push_back( frame );
+        LBLOG( LOG_ASSEMBLY ) << *frame << " " << *frame->getFrameData()
+                              << std::endl;
     }
 
     frameAssemble( packet->context.frameID );
