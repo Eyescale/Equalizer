@@ -91,7 +91,7 @@ FrameDataPtr Frame::getFrameData()
     return _impl->frameDataPtr;
 }
 
-const FrameDataPtr Frame::getFrameData() const
+ConstFrameDataPtr Frame::getFrameData() const
 {
     return _impl->frameDataPtr;
 }

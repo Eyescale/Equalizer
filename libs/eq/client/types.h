@@ -206,6 +206,8 @@ typedef lunchbox::RefPtr< const Client >  ConstClientPtr;
 typedef lunchbox::RefPtr< Server >        ServerPtr;
 /** A reference-counted pointer to an eq::FrameData */
 typedef lunchbox::RefPtr< FrameData >     FrameDataPtr;
+/** A reference-counted pointer to a const eq::FrameData */
+typedef lunchbox::RefPtr< const FrameData >     ConstFrameDataPtr;
 
 namespace util
 {
