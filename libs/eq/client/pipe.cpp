@@ -350,6 +350,7 @@ int32_t Pipe::_getAutoAffinity() const
     {
         LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_set_flags() failed" << std::endl;
+        hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
     }
 
@@ -357,6 +358,7 @@ int32_t Pipe::_getAutoAffinity() const
     {
         LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_topology_load() failed" << std::endl;
+        hwloc_topology_destroy( topology );
         return lunchbox::Thread::NONE;
     }
 

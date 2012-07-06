@@ -318,22 +318,26 @@ namespace co
                 : objectID( request->objectID )
                 , version( request->requestedVersion )
                 , requestID( request->requestID )
+                , pad1( 0 )
                 , result( false )
                 , releaseCache( request->useCache )
                 , useCache( false )
             {
                 command   = CMD_NODE_MAP_OBJECT_REPLY;
                 size      = sizeof( NodeMapObjectReplyPacket ); 
+                pad2[0]=pad2[1]=pad2[2]=pad2[3]=pad2[4]=0;
             }
         
         NodeID nodeID;
         const UUID objectID;
         uint128_t version;
         const uint32_t requestID;
+        const uint32_t pad1;
         
         bool result;
         const bool releaseCache;
         bool useCache;
+        bool pad2[5];
     };
 
     struct NodeUnmapObjectPacket : public NodePacket

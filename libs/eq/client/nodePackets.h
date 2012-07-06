@@ -46,7 +46,7 @@ namespace eq
                 size      = sizeof( NodeConfigInitReplyPacket );
             }
 
-        bool     result;
+        uint64_t result; // bool, padded for valgrind
     };
 
     struct NodeConfigExitPacket : public NodePacket
@@ -68,7 +68,7 @@ namespace eq
                 objectID  = nodeID;
             }
 
-        const bool result;
+        const uint64_t result; // bool, padded for valgrind
     };
 
     struct NodeCreatePipePacket : public NodePacket
@@ -80,7 +80,7 @@ namespace eq
             }
 
         UUID pipeID;
-        bool     threaded;
+        uint64_t threaded; // bool, padded for valgrind
     };
 
     struct NodeDestroyPipePacket : public NodePacket
