@@ -111,6 +111,14 @@ class TransferThread : public co::Worker
 public:
     TransferThread() : co::Worker(), _running( true ){}
 
+    virtual bool init()
+        {
+            if( !co::Worker::init( ))
+                return false;
+            setName( "PipeTfer" );
+            return true;
+        }
+
     virtual bool stopRunning() { return !_running; }
     void postStop() { _running = false; }
 
@@ -186,6 +194,7 @@ public:
 
 void RenderThread::run()
 {
+    setName( "PipeDraw" );
     LB_TS_THREAD( _pipe->_pipeThread );
     LBINFO << "Entered pipe thread" << std::endl;
 
@@ -194,12 +203,6 @@ void RenderThread::run()
     pipe->_impl->windowSystem = pipe->selectWindowSystem();
     pipe->_setupCommandQueue();
     pipe->_setupAffinity();
-
-    std::ostringstream stream;
-    const uint32_t device = _pipe->getDevice();
-    stream << "Pipe" << (device==LB_UNDEFINED_UINT32 ? -1 : int32_t( device ))
-           << "Draw";
-    setName( stream.str( ));
 
     Worker::run();
 
