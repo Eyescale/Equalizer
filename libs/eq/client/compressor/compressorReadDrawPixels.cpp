@@ -34,11 +34,6 @@ namespace
 {
 static stde::hash_map< unsigned, unsigned > _depths;
 
-#ifdef __APPLE__
-#  define ASYNC_FLAG  // PBO readbacks broken ?
-#else
-#  define ASYNC_FLAG EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |
-#endif
 
 #define REGISTER_TRANSFER( in, out, size, quality_, ratio_, speed_, alpha ) \
     static void _getInfo ## in ## out( EqCompressorInfo* const info )   \
@@ -48,7 +43,7 @@ static stde::hash_map< unsigned, unsigned > _depths;
                              EQ_COMPRESSOR_DATA_2D |                    \
                              EQ_COMPRESSOR_USE_TEXTURE_RECT |           \
                              EQ_COMPRESSOR_USE_TEXTURE_2D |             \
-                             ASYNC_FLAG                                 \
+                             EQ_COMPRESSOR_USE_ASYNC_DOWNLOAD |         \
                              EQ_COMPRESSOR_USE_FRAMEBUFFER;             \
         if( alpha )                                                     \
             info->capabilities |= EQ_COMPRESSOR_IGNORE_ALPHA;           \
@@ -408,7 +403,7 @@ bool CompressorReadDrawPixels::_initPBO( const GLEWContext* glewContext,
                                          const eq_uint64_t size )
 {
     // create thread-safe PBO
-    if( _pbo == 0 )
+    if( !_pbo )
         _pbo = new util::PixelBufferObject( glewContext, true );
 
     return _pbo->setup( size, GL_READ_ONLY_ARB );
@@ -425,12 +420,12 @@ void CompressorReadDrawPixels::_initAsyncTexture(const GLEWContext* glewContext,
     _asyncTexture->init( _internalFormat, w, h );
 }
 
-void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
-                                                const eq_uint64_t  inDims[4],
-                                                const unsigned     source,
-                                                const eq_uint64_t  flags )
+void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
+                                              const eq_uint64_t dims[4],
+                                              const unsigned source,
+                                              const eq_uint64_t flags )
 {
-    const eq_uint64_t size = inDims[1] * inDims[3] * _depth;
+    const eq_uint64_t size = dims[1] * dims[3] * _depth;
 
     if( flags & EQ_COMPRESSOR_USE_FRAMEBUFFER )
     {
@@ -438,14 +433,14 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         if( _initPBO( glewContext, size ))
         {
             _pbo->bind();
-            EQ_GL_CALL( glReadPixels( inDims[0], inDims[2],
-                                      inDims[1], inDims[3],
+            EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
                                       _format, _type, 0 ));
             _pbo->unbind();
+            glFlush(); // Fixes https://github.com/Eyescale/Equalizer/issues/118
             return;
         }
 #else  // async RB through texture
-        const PixelViewport pvp( inDims[0], inDims[2], inDims[1], inDims[3] );
+        const PixelViewport pvp( dims[0], dims[2], dims[1], dims[3] );
         _initAsyncTexture( glewContext, pvp.w, pvp.h );
         _asyncTexture->setExternalFormat( _format, _type );
         _asyncTexture->copyFromFrameBuffer( _internalFormat, pvp );
@@ -455,7 +450,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
 
         LBWARN << "Can't initialize PBO for async readback" << std::endl;
         _resizeBuffer( size );
-        EQ_GL_CALL( glReadPixels( inDims[0], inDims[2], inDims[1], inDims[3],
+        EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
                                   _format, _type, _buffer.getData( )));
     }
     else
@@ -463,7 +458,7 @@ void CompressorReadDrawPixels::startDownload(   const GLEWContext* glewContext,
         // TODO: fix Texture class for async texture download
         _resizeBuffer( size );
         _initTexture( glewContext, flags );
-        _texture->setGLData( source, _internalFormat, inDims[1], inDims[3] );
+        _texture->setGLData( source, _internalFormat, dims[1], dims[3] );
         _texture->setExternalFormat( _format, _type );
         _texture->download( _buffer.getData( ));
         _texture->flushNoDelete();
