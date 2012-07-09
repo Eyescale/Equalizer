@@ -18,7 +18,7 @@ server
                     channel
                     {
                         drawable [ FBO_COLOR FBO_DEPTH ]
-                        name "buffer"
+                        name "FBO"
                     }
 
                     channel{ name "channel" }
@@ -42,11 +42,11 @@ server
             compound { range   [ 0 .5 ] }
             compound
             { 
-                channel "buffer"
+                channel "FBO"
                 range   [ .5 1 ]
-                outputframe { name "frame.buffer" }
+                outputframe { name "frame.FBO" }
             }
-            inputframe { name "frame.buffer" }
+            inputframe { name "frame.FBO" }
         }
     }    
 }
