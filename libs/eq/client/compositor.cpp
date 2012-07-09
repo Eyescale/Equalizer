@@ -612,15 +612,19 @@ bool Compositor::_collectOutputData(
         Frame* frame = *i;
         frame->waitReady( timeout );
 
+#ifdef EQ_2_0_API
         LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
-#ifdef EQ_2_0_API
                       frame->getFrameData()->getZoom() == Zoom::NONE &&
-#else
-                      frame->getData()->getZoom() == Zoom::NONE &&
-#endif
                       frame->getZoom() == Zoom::NONE,
                       "CPU-based compositing not implemented for given frames");
+#else
+       LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
+                      frame->getSubPixel() == SubPixel::ALL &&
+                      frame->getData()->getZoom() == Zoom::NONE &&
+                      frame->getZoom() == Zoom::NONE,
+                      "CPU-based compositing not implemented for given frames");
+#endif
         if( frame->getPixel() != Pixel::ALL )
             return false;
 
