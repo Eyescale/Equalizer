@@ -139,7 +139,7 @@ Compound::~Compound()
     _outputTileQueues.clear();
 }
 
-Compound::InheritData::InheritData()
+Compound::Data::Data()
         : channel( 0 )
         , overdraw( Vector4i::ZERO )
         , buffers( eq::Frame::BUFFER_UNDEFINED )
@@ -1198,12 +1198,11 @@ void Compound::updateInheritData( const uint32_t frameNumber )
     _data.pixel.validate();
     _data.subpixel.validate();
     _data.zoom.validate();
-    const PixelViewport oldPVP( _inherit.pvp );
 
     if( isRoot( ))
-        _updateInheritRoot( oldPVP );
+        _updateInheritRoot();
     else
-        _updateInheritNode( oldPVP );
+        _updateInheritNode();
 
     if( _inherit.channel )
     {
@@ -1238,12 +1237,16 @@ void Compound::updateInheritData( const uint32_t frameNumber )
         _inherit.tasks = fabric::TASK_NONE;
 }
 
-void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
+void Compound::_updateInheritRoot()
 {
     LBASSERT( !_parent );
+
+    const PixelViewport oldPVP( _inherit.pvp );
     _inherit = _data;
+    _inherit.pvp = oldPVP;
+
     _inherit.zoom = Zoom::NONE; // will be reapplied below
-    _updateInheritPVP( oldPVP );
+    _updateInheritPVP();
 
     if( _inherit.eyes == fabric::EYE_UNDEFINED )
         _inherit.eyes = fabric::EYES_ALL;
@@ -1274,14 +1277,16 @@ void Compound::_updateInheritRoot( const PixelViewport& oldPVP )
             COLOR_MASK_GREEN | COLOR_MASK_BLUE;
 }
 
-void Compound::_updateInheritNode( const PixelViewport& oldPVP )
+void Compound::_updateInheritNode()
 {
     LBASSERT( _parent );
+    const PixelViewport oldPVP( _inherit.pvp );
     _inherit = _parent->_inherit;
 
     if( !_inherit.channel )
     {
-        _updateInheritPVP( oldPVP );
+        _inherit.pvp = oldPVP;
+        _updateInheritPVP();
         _inherit.vp.apply( _data.vp );
     }
     else if( _inherit.pvp.isValid( ))
@@ -1341,12 +1346,13 @@ void Compound::_updateInheritNode( const PixelViewport& oldPVP )
             _data.iAttributes[IATTR_STEREO_ANAGLYPH_RIGHT_MASK];
 }
 
-void Compound::_updateInheritPVP( const PixelViewport& oldPVP )
+void Compound::_updateInheritPVP()
 {
     Channel* channel = _data.channel;
     if( !channel )
         return;
 
+    const PixelViewport oldPVP( _inherit.pvp );
     _inherit.channel = channel;
     _inherit.pvp = channel->getPixelViewport( );
 
