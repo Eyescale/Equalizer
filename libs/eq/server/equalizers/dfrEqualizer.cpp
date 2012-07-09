@@ -76,7 +76,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
 {
     LBASSERT( compound == getCompound( ));
 
-    if( isFrozen() || !compound->isRunning() || !isActive( ))
+    if( isFrozen() || !compound->isActive() || !isActive( ))
     {
         compound->setZoom( Zoom::NONE );  
         return;    
@@ -85,8 +85,7 @@ void DFREqualizer::notifyUpdatePre( Compound* compound,
     LBASSERT( _damping >= 0.f );
     LBASSERT( _damping <= 1.f );
 
-    const float factor = ( sqrtf( _current / _target ) - 1.f ) * 
-        _damping + 1.0f;
+    const float factor = ( sqrtf( _current / _target ) - 1.f ) * _damping + 1.f;
 
     Zoom newZoom( compound->getZoom( ));
     newZoom *= factor;

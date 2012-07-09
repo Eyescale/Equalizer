@@ -297,7 +297,7 @@ bool Compound::isLastInheritEye( const Eye eye ) const
     return true;
 }
 
-bool Compound::isRunning() const
+bool Compound::isActive() const
 {
     bool active = false;
     for( size_t i = 0; i < NUM_EYES; ++i )

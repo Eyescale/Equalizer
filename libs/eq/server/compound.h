@@ -458,7 +458,7 @@ namespace server
          * @return true if the compound is active and the compound's channel is
          *         running.
          */
-        bool isRunning() const;
+        bool isActive() const;
 
         /** Initialize this compound. */
         void init();
