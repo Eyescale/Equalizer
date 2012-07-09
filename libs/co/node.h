@@ -51,12 +51,9 @@ namespace co
         bool isClosed() const { return _state == STATE_CLOSED; }
         bool isListening() const { return _state == STATE_LISTENING || 
                                           _state == STATE_CLOSING; }
-
         //@}
 
-        /**
-         * @name Connectivity information. 
-         */
+        /** @name Connectivity information. */
         //@{
         /** @return true if the node is local (listening), false otherwise. */
         bool isLocal() const { return isListening(); }
@@ -223,10 +220,10 @@ namespace co
             STATE_CLOSING    //!< listening, about to close
         };
 
-        friend CO_API std::ostream& operator << ( std::ostream& os, 
-                                                     const Node& node );
+        friend CO_API std::ostream& operator << ( std::ostream& os,
+                                                  const Node& node );
         friend CO_API std::ostream& operator << ( std::ostream&,
-                                                     const State );
+                                                  const State );
         friend class LocalNode;
 
         /** Globally unique node identifier. */
