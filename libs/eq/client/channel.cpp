@@ -1433,9 +1433,9 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
         if( packet->tasks & fabric::TASK_READBACK )
         {
             const int64_t time = getConfig()->getTime();
-
             const Frames& frames = getOutputFrames();
             const size_t nFrames = frames.size();
+
             std::vector< size_t > nImages( nFrames, 0 );
             for( size_t i = 0; i < nFrames; ++i )
             {
@@ -1489,6 +1489,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
         stat->event.event.data.statistic.endTime = startTime;
 
         _setReady( hasAsyncReadback, stat.get( ));
+        _resetOutputFrames();
     }
 
     frameTilesFinish( packet->context.frameID );
@@ -1527,10 +1528,16 @@ void Channel::_setOutputFrames( const uint32_t nFrames,
                                 const co::ObjectVersion* frames )
 {
     LB_TS_THREAD( _pipeThread );
+    LBASSERT( _impl->outputFrames.empty( ))
+
     for( uint32_t i=0; i<nFrames; ++i )
     {
         Pipe*  pipe  = getPipe();
         Frame* frame = pipe->getFrame( frames[i], getEye(), true );
+        LBASSERTINFO( stde::find( _impl->outputFrames, frame ) ==
+                      _impl->outputFrames.end(),
+                      "frame " << i << " " << frames[i] );
+
         _impl->outputFrames.push_back( frame );
     }
 }
