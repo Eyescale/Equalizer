@@ -67,9 +67,6 @@ public:
     template< typename T >
     void load_array( boost::serialization::array< T >& a, unsigned int );
 
-private:
-    friend class boost::archive::load_access;
-
     /** @internal enable serialization optimization for arrays. */
     struct use_array_optimization
     {
@@ -77,6 +74,9 @@ private:
         struct apply
             : public boost::serialization::is_bitwise_serializable< T > {};
     };
+
+private:
+    friend class boost::archive::load_access;
 
     /**
      * Load boolean.
