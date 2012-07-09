@@ -34,13 +34,13 @@
   increased performance during scalable rendering.
 </p>
 <p>
-  Equalizer 1.4 beta is a feature release extending the 1.0 API, distilling over
+  Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
   seven years of development and decades of experience into a feature-rich,
   high-performance and mature parallel rendering framework and an
   object-oriented high-level network library. It is intended for all application
   developers creating parallel, interactive OpenGL applications. Equalizer 1.4
-  beta can be retrieved by downloading the
-  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.3.5.tar.gz">source
+  can be retrieved by downloading the
+  <a href="http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz">source
     code</a> or one of the <a href="http://www.equalizergraphics.com/downloads/developer.html">precompiled packages</a>.
 </p>
 
@@ -72,7 +72,7 @@
 <a name="new"></a>
 <h2>2. New in this release</h2>
 <p>
-  Equalizer 1.4 beta contains the following features, enhancements, bug fixes
+  Equalizer 1.4 contains the following features, enhancements, bug fixes
   and documentation changes:
 </p>
 
@@ -157,10 +157,20 @@
 <a name="bugfixes"></a>
 <h3>2.7. Bug Fixes</h3>
 <p>
-  Equalizer 1.4 beta includes various bugfixes over the 1.2.1 release, including the
+  Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
+    OS X: Async readback doesn't work</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/137">137</a>:
+    1-window.DFR broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/136">136</a>:
+    compositor assertion when using custom frames</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/135">135</a>:
+    Command line option --eq-layout broken</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/131">131</a>:
+    seqPly --help launches application</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/127">127</a>:
     Problem with getdomainname() in SocketConnection::listen()</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/124">124</a>:
@@ -178,8 +188,6 @@
   find any other issue with this release.
 </p>
 <ul>
-  <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
-    OS X: Async readback doesn't work</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
     assertion on interaction with multiple GPUs</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/77">77</a>:
@@ -206,7 +214,7 @@
 </p>
 <p>
   Equalizer requires at least <a href="http://www.opengl.org">OpenGL 1.1</a>,
-  but uses newer OpenGL features when available. Version 1.4 beta has been tested on:
+  but uses newer OpenGL features when available. Version 1.4 has been tested on:
 </p>
 
 <a name="os"></a>

@@ -31,13 +31,13 @@ scalable OpenGL applications. This release introduces major new features,
 most notably asynchronous readbacks, region of interest and thread affinity
 for increased performance during scalable rendering.
 
-Equalizer 1.4 beta is a feature release extending the 1.0 API, distilling
-over seven years of development and decades of experience into a feature-
-rich, high-performance and mature parallel rendering framework and an object-
+Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
+seven years of development and decades of experience into a feature-rich,
+high-performance and mature parallel rendering framework and an object-
 oriented high-level network library. It is intended for all application
 developers creating parallel, interactive OpenGL applications. Equalizer 1.4
-beta can be retrieved by downloading the `source code`_ or one of the
-`precompiled packages`_.
+can be retrieved by downloading the `source code`_ or one of the `precompiled
+packages`_.
 
 
 1.1. Features
@@ -66,8 +66,8 @@ can be found on the Equalizer website.
 2. New in this release
 ----------------------
 
-Equalizer 1.4 beta contains the following features, enhancements, bug fixes
-and documentation changes:
+Equalizer 1.4 contains the following features, enhancements, bug fixes and
+documentation changes:
 
 
 2.1. New Features
@@ -136,9 +136,14 @@ the last release:
 2.7. Bug Fixes
 ~~~~~~~~~~~~~~
 
-Equalizer 1.4 beta includes various bugfixes over the 1.2.1 release,
-including the following:
+Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
+following:
 
+-   `118`_: OS X: Async readback doesn't work
+-   `137`_: 1-window.DFR broken
+-   `136`_: compositor assertion when using custom frames
+-   `135`_: Command line option --eq-layout broken
+-   `131`_: seqPly --help launches application
 -   `127`_: Problem with getdomainname() in SocketConnection::listen()
 -   `124`_: Upload plugins are not freed
 -   `121`_: Packaging: netperf conflicts with other packages
@@ -151,7 +156,6 @@ including the following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
--   `118`_: OS X: Async readback doesn't work
 -   `78`_: AGL: assertion on interaction with multiple GPUs
 -   `77`_: 7-window.DB.PIXEL.eqc broken
 -   `76`_: 7-window.DPLEX.2D.lb.eqc does not load-balance
@@ -169,7 +173,7 @@ operating system, including all Unix variants and the Windows operating
 system. A `compatibility matrix`_ can be found on the Equalizer website.
 
 Equalizer requires at least `OpenGL 1.1`_, but uses newer OpenGL features
-when available. Version 1.4 beta has been tested on:
+when available. Version 1.4 has been tested on:
 
 
 3.1. Operating System Support
@@ -236,7 +240,7 @@ information.
 .. _3.4. Support: #support
 .. _4. Errata: #errata
 .. _source     code:
-    http://www.equalizergraphics.com/downloads/Equalizer-1.3.5.tar.gz
+    http://www.equalizergraphics.com/downloads/Equalizer-1.3.6.tar.gz
 .. _precompiled packages:
     http://www.equalizergraphics.com/downloads/developer.html
 .. _detailed feature list: /features.html
@@ -267,12 +271,16 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _118: https://github.com/Eyescale/Equalizer/issues/118
+.. _137: https://github.com/Eyescale/Equalizer/issues/137
+.. _136: https://github.com/Eyescale/Equalizer/issues/136
+.. _135: https://github.com/Eyescale/Equalizer/issues/135
+.. _131: https://github.com/Eyescale/Equalizer/issues/131
 .. _127: https://github.com/Eyescale/Equalizer/issues/127
 .. _124: https://github.com/Eyescale/Equalizer/issues/124
 .. _121: https://github.com/Eyescale/Equalizer/issues/121
 .. _117: https://github.com/Eyescale/Equalizer/issues/117
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
-.. _118: https://github.com/Eyescale/Equalizer/issues/118
 .. _78: https://github.com/Eyescale/Equalizer/issues/78
 .. _77: https://github.com/Eyescale/Equalizer/issues/77
 .. _76: https://github.com/Eyescale/Equalizer/issues/76
