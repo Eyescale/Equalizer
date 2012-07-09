@@ -280,9 +280,11 @@ CompressorReadDrawPixels::~CompressorReadDrawPixels( )
     _asyncTexture = 0;
 
     if( _pbo )
+    {
         _pbo->destroy();
-    delete _pbo;
-    _pbo = 0;
+        delete _pbo;
+        _pbo = 0;
+    }
 }
 
 bool CompressorReadDrawPixels::isCompatible( const GLEWContext* glewContext )
@@ -432,7 +434,6 @@ void CompressorReadDrawPixels::startDownload( const GLEWContext* glewContext,
 #ifdef EQ_ASYNC_PBO
         if( _initPBO( glewContext, size ))
         {
-            _pbo->bind();
             EQ_GL_CALL( glReadPixels( dims[0], dims[2], dims[1], dims[3],
                                       _format, _type, 0 ));
             _pbo->unbind();
