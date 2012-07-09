@@ -647,8 +647,16 @@ void Channel::_drawModel( const Model* scene )
     glLoadIdentity();
 
     const eq::View* currentView = getView();
-    if( currentView && frameData.getCurrentViewID() == currentView->getID( ))
+    if( frameData.getColorMode() == COLOR_DEMO )
+    {
+        const eq::Vector3ub color = getUniqueColor();
+        glColor3ub( color.r(), color.g(), color.b() );
+    }
+    else if( currentView && 
+             frameData.getCurrentViewID() == currentView->getID( ))
+    {
         glColor3f( 0.f, 0.f, 0.f );
+    }
     else
         glColor3f( 1.f, 1.f, 1.f );
     glNormal3f( 0.f, 0.f, 1.f );
