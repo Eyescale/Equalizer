@@ -258,6 +258,9 @@ namespace co
         lunchbox::Lockable< ConnectionDescriptions, lunchbox::SpinLock >
             _connectionDescriptions;
 
+        /** Last time packets were received */
+        int64_t _lastReceive;
+
         /** Ensures the connectivity of this node. */
         ConnectionPtr _getConnection()
             {
@@ -267,9 +270,6 @@ namespace co
                 LBUNREACHABLE;
                 return 0;
             }
-
-        /** Last time packets were received */
-        int64_t _lastReceive;
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, const Node& node );

@@ -522,6 +522,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
 
     bool needFinish = (buffers & Frame::BUFFER_COLOR) &&
                          _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
+
     if( (buffers & Frame::BUFFER_DEPTH) &&
         _startReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
     {

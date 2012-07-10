@@ -48,25 +48,23 @@ VisitorResult CompoundUpdateOutputVisitor::visit( Compound* compound )
     if( !compound->isActive( ))
         return TRAVERSE_PRUNE;    
 
-    _updateOutput( compound );
+    _updateQueues( compound );
+    _updateFrames( compound );
     _updateSwapBarriers( compound );
 
     return TRAVERSE_CONTINUE;    
 }
 
-void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
+void CompoundUpdateOutputVisitor::_updateQueues( Compound* compound )
 {
-    const Channel* channel = compound->getChannel();
-
-    const TileQueues& outputQueues = compound->getOutputTileQueues();
-    for( TileQueuesCIter i = outputQueues.begin(); 
-        i != outputQueues.end(); ++i )
+    const TileQueues& queues = compound->getOutputTileQueues();
+    for( TileQueuesCIter i = queues.begin(); i != queues.end(); ++i )
     {
         //----- Check uniqueness of output queue name
         TileQueue* queue  = *i;
         const std::string& name   = queue->getName();
 
-        if( _outputTileQueues.find( name ) != _outputTileQueues.end())
+        if( _outputTileQueues.find( name ) != _outputTileQueues.end( ))
         {
             LBWARN << "Multiple output queues of the same name are unsupported"
                 << ", ignoring output queue " << name << std::endl;
@@ -80,19 +78,19 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         _generateTiles( queue, compound );
         _outputTileQueues[name] = queue;
     }
+}
 
+void CompoundUpdateOutputVisitor::_updateFrames( Compound* compound )
+{
+    const Frames& outputFrames = compound->getOutputFrames();
+    if( outputFrames.empty( ))
+        compound->unsetInheritTask( fabric::TASK_READBACK );
+
+    const Channel* channel = compound->getChannel();
     if( !compound->testInheritTask( fabric::TASK_READBACK ) || !channel )
         return;
 
-    const Frames& outputFrames = compound->getOutputFrames();
-    if( outputFrames.empty( ))
-    {
-        compound->unsetInheritTask( fabric::TASK_READBACK );
-        return;
-    }
-
-    for( Frames::const_iterator i = outputFrames.begin(); 
-         i != outputFrames.end(); ++i )
+    for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i )
     {
         //----- Check uniqueness of output frame name
         Frame*             frame  = *i;
@@ -121,8 +119,8 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
         }
 
         //----- Create new frame datas
-        //      one frame data used for each eye pass
-        //      data is set only on master frame data (will copy to all others)
+        // * one frame data used for each eye pass
+        // * data is set only on master frame data (will copy to all others)
         frame->cycleData( _frameNumber, compound );
         FrameData* frameData = frame->getMasterData();
         LBASSERT( frameData );
@@ -136,10 +134,10 @@ void CompoundUpdateOutputVisitor::_updateOutput( Compound* compound )
             << framePVP.y;
 
         //----- Set frame data parameters:
-        // 1) offset is position wrt destination view
-        const bool usesTiles = !compound->getInputTileQueues().empty();
-        frameData->setOffset( usesTiles ? Vector2i( 0 , 0 ) :
-                                          Vector2i( framePVP.x, framePVP.y ) );
+        // 1) offset is position wrt destination view, used only by input frames
+        const bool tiled = !compound->getInputTileQueues().empty();
+        frameData->setOffset( tiled ? Vector2i( 0 , 0 ) :
+                                      Vector2i( framePVP.x, framePVP.y ));
 
         // 2) pvp is area within channel
         framePVP.x = static_cast< int32_t >( frameVP.x * inheritPVP.w );

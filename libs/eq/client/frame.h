@@ -178,7 +178,7 @@ namespace detail{ class Frame; }
          *
          * The newly read images are added to the data, existing images are
          * retained. The finish for the new images has to be done by the
-         * caller.
+         * caller. The regions are relative to the current OpenGL viewport.
          *
          * @param glObjects the GL object manager for the current GL context.
          * @param config the configuration of the source frame buffer.

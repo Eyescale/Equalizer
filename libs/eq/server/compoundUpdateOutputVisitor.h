@@ -52,9 +52,10 @@ namespace server
         Compound::FrameMap     _outputFrames;
         Compound::TileQueueMap _outputTileQueues;
 
-        void _updateOutput( Compound* compound );
-        void _updateZoom( const Compound* compound, Frame* frame );
+        void _updateQueues( Compound* compound );
+        void _updateFrames( Compound* compound );
         void _updateSwapBarriers( Compound* compound );
+        void _updateZoom( const Compound* compound, Frame* frame );
 
         void _generateTiles( TileQueue* queue, Compound* compound );
         void _addTilesToQueue( TileQueue* queue, Compound* compound, 

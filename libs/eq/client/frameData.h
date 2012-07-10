@@ -342,7 +342,7 @@ namespace server { class FrameData; }
 
         typedef lunchbox::Monitor< uint64_t > Monitor;
 
-        /** Data ready monitor synchronization primitive. */
+        /** Data ready monitor for output->input synchronization. */
         Monitor _readyVersion;
 
         typedef lunchbox::Monitor< uint32_t > Listener;
