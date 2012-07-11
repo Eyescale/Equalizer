@@ -320,6 +320,7 @@ uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
     {
         _compressor->getResult( i, &chunks[i], &chunkSizes[i] );
         dataSize += chunkSizes[i];
+        LBASSERTINFO( chunkSizes[i] != 0, i );
     }
 
     return dataSize;

@@ -29,7 +29,6 @@ CO_API extern lunchbox::a_int32_t nBytesSent;
                                          const uint64_t size, const bool last )
     {
         LBASSERT( last || size != 0 );
-
         if( _connections.empty( ))
             return;
 
@@ -58,14 +57,13 @@ CO_API extern lunchbox::a_int32_t nBytesSent;
         uint64_t* chunkSizes = static_cast< uint64_t* >(
                                   alloca( packet.nChunks * sizeof( uint64_t )));
         void** chunks = static_cast< void ** >(
-                            alloca( packet.nChunks * sizeof( void* )));
-        
+                            alloca( packet.nChunks * sizeof( void* )));        
 
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
         const uint64_t compressedSize = _getCompressedData( chunks, chunkSizes);
         nBytesSaved += ((size - compressedSize) * long(_connections.size( )));
 #else
-        _getCompressedData( chunks, chunkSizes);
+        _getCompressedData( chunks, chunkSizes );
 #endif
         packet.compressorName = _compressor->getName();
         Connection::send( _connections, packet, chunks, chunkSizes,

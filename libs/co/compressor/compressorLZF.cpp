@@ -58,12 +58,13 @@ void CompressorLZF::compress( const void* const inData,
     _nResults = 1;
     if( _results.size() < _nResults )
         _results.push_back( new co::plugin::Compressor::Result );
-    const eq_uint64_t maxSize = eq_uint64_t( float( nPixels ) * 1.1f );
+    const eq_uint64_t maxSize = eq_uint64_t( float( nPixels ) * 1.1f ) + 8;
     _results[0]->reserve( maxSize );
 
     const unsigned size = lzf_compress( inData, nPixels,
                                         _results[0]->getData(), maxSize );
     _results[0]->resize( size );
+    assert( size != 0 );
 }
 
 void CompressorLZF::decompress( const void* const* inData,

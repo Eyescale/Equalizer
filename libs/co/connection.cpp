@@ -483,7 +483,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {
-        LBASSERT( sizes[i] > 0 );
+        LBASSERTINFO( sizes[i] != 0, i );
         packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 

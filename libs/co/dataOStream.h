@@ -31,14 +31,12 @@
 
 namespace co
 {
-namespace DataStreamTest
-{
-    class Sender;
-}
+namespace DataStreamTest { class Sender; }
 
     /**
-     * A std::ostream buffering and/or retaining data in a binary format.
+     * A std::ostream-like interface for object serialization.
      *
+     * Implements buffering, retaining and compressing data in a binary format.
      * Derived classes send the data using the appropriate command packets.
      */
     class DataOStream : public lunchbox::NonCopyable
