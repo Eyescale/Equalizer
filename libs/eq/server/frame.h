@@ -171,7 +171,7 @@ namespace server
         Frames _inputFrames[ fabric::NUM_EYES ];
     };
 
-    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame& );
+    EQSERVER_API std::ostream& operator << ( std::ostream&, const Frame& );
 }
 }
 #endif // EQSERVER_FRAME_H
