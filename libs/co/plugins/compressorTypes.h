@@ -112,6 +112,9 @@
 /** RLE Compression of unsigned tokens. */
 #define EQ_COMPRESSOR_RLE_DIFF_UNSIGNED                             0x28u
 
+/** LZF Compression of bytes. */
+#define EQ_COMPRESSOR_LZF_BYTE   0x30u
+
 // Equalizer GPU<->CPU transfer plugins
 /* Transfer data from internal RGBA to external RGBA format with a data type
    UNSIGNED_BYTE */

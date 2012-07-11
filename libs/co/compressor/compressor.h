@@ -127,8 +127,8 @@ namespace plugin
         /**
          * Start transferring frame buffer data into main memory.
          * 
-         * @param glewContext the initialized GLEW context describing corresponding
-         *                    to the current OpenGL context.
+         * @param glewContext the initialized GLEW context describing
+         *                    corresponding to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
          * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
          *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.
@@ -144,8 +144,8 @@ namespace plugin
         /**
          * Finish transferring frame buffer data into main memory.
          * 
-         * @param glewContext the initialized GLEW context describing corresponding
-         *                    to the current OpenGL context.
+         * @param glewContext the initialized GLEW context describing
+         *                    corresponding to the current OpenGL context.
          * @param inDims the dimensions of the input data (x, w, y, h).
          * @param source texture name, if EQ_COMPRESSOR_USE_TEXTURE_2D or
          *               EQ_COMPRESSOR_USE_TEXTURE_RECT is set.

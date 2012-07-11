@@ -78,220 +78,34 @@
 */
 
 ===========================================================================
-         Pthreads-Win32 (http://sourceware.org/pthreads-win32/)
+                             CompressorLZF
 ===========================================================================
+Copyright (c) 2000-2009 Marc Alexander Lehmann <schmorp@schmorp.de>
 
-This file is Copyrighted
-------------------------
+Redistribution and use in source and binary forms, with or without modifica-
+tion, are permitted provided that the following conditions are met:
 
-    This file is covered under the following Copyright:
+  1.  Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
 
-	Copyright (C) 2001,2006 Ross P. Johnson
-	All rights reserved.
+  2.  Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
 
-	Everyone is permitted to copy and distribute verbatim copies
-	of this license document, but changing it is not allowed.
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
+CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPE-
+CIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTH-
+ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Pthreads-win32 is covered by the GNU Lesser General Public License
-------------------------------------------------------------------
-
-    Pthreads-win32 is open software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public License
-    as published by the Free Software Foundation version 2.1 of the
-    License.
-
-    Pthreads-win32 is several binary link libraries, several modules,
-    associated interface definition files and scripts used to control
-    its compilation and installation.
-
-    Pthreads-win32 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    A copy of the GNU Lesser General Public License is distributed with
-    pthreads-win32 under the filename:
-
-	    COPYING.LIB
-
-    You should have received a copy of the version 2.1 GNU Lesser General
-    Public License with pthreads-win32; if not, write to:
-
-	    Free Software Foundation, Inc.
-	    59 Temple Place
-	    Suite 330
-	    Boston, MA	02111-1307
-	    USA
-
-    The contact addresses for pthreads-win32 is as follows:
-
-        Web:	http://sources.redhat.com/pthreads-win32
-        Email:  Ross Johnson
-                Please use: Firstname.Lastname@homemail.com.au
-
-
-
-Pthreads-win32 copyrights and exception files
----------------------------------------------
-
-    With the exception of the files listed below, Pthreads-win32
-    is covered under the following GNU Lesser General Public License
-    Copyrights:
-
-	Pthreads-win32 - POSIX Threads Library for Win32
-	Copyright(C) 1998 John E. Bossom
-	Copyright(C) 1999,2006 Pthreads-win32 contributors
-
-	The current list of contributors is contained
-        in the file CONTRIBUTORS included with the source
-	code distribution. The current list of CONTRIBUTORS
-	can also be seen at the following WWW location:
-        http://sources.redhat.com/pthreads-win32/contributors.html
-
-    Contact Email: Ross Johnson
-                   Please use: Firstname.Lastname@homemail.com.au
-
-    These files are not covered under one of the Copyrights listed above:
-
-            COPYING
-	    COPYING.LIB
-            tests/rwlock7.c
-
-    This file, COPYING, is distributed under the Copyright found at the
-    top of this file.  It is important to note that you may distribute
-    verbatim copies of this file but you may not modify this file.
-
-    The file COPYING.LIB, which contains a copy of the version 2.1
-    GNU Lesser General Public License, is itself copyrighted by the
-    Free Software Foundation, Inc.  Please note that the Free Software
-    Foundation, Inc. does NOT have a copyright over Pthreads-win32,
-    only the COPYING.LIB that is supplied with pthreads-win32.
-
-    The file tests/rwlock7.c is derived from code written by
-    Dave Butenhof for his book 'Programming With POSIX(R) Threads'.
-    The original code was obtained by free download from his website
-    http://home.earthlink.net/~anneart/family/Threads/source.html
-    and did not contain a copyright or author notice. It is assumed to
-    be freely distributable.
-
-    In all cases one may use and distribute these exception files freely.
-    And because one may freely distribute the LGPL covered files, the
-    entire pthreads-win32 source may be freely used and distributed.
-
-
-===========================================================================
-                VMMLib (http://vmmlib.sourceforge.net/)
-===========================================================================
-
-Copyright (c) 2006, Visualization and Multimedia Lab, University of Zurich
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-Redistributions of source code must retain the above copyright notice,
-this list of conditions and the following disclaimer.
-Redistributions in binary form must reproduce the above copyright
-notice, this list of conditions and the following disclaimer in the
-documentation and/or other materials provided with the distribution. 
-Neither the name of the Visualization and Multimedia Lab, University of
-Zurich nor the names of its contributors may be used to endorse or
-promote products derived from this software without specific prior
-written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
----------------------------------------------------------------------------
-enable_if (http://www.boost.org/doc/libs/1_39_0/libs/utility/enable_if.html)
----------------------------------------------------------------------------
-Boost Software License - Version 1.0 - August 17th, 2003
-
-Permission is hereby granted, free of charge, to any person or organization
-obtaining a copy of the software and accompanying documentation covered by
-this license (the "Software") to use, reproduce, display, distribute,
-execute, and transmit the Software, and to prepare derivative works of the
-Software, and to permit third-parties to whom the Software is furnished to
-do so, all subject to the following:
-
-The copyright notices in the Software and this entire statement, including
-the above license grant, this restriction and the following disclaimer,
-must be included in all copies of the Software, in whole or in part, and
-all derivative works of the Software, unless such copies or derivative
-works are solely in the form of machine-executable object code generated by
-a source language processor.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
-SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
-FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
----------------------------------------------------------------------------
-Parts of vector and matrix code (http://www.cs.cmu.edu/~ajw/doc/vl.html)
----------------------------------------------------------------------------
-
-Except where otherwise noted, Copyright (c) 2000 Andrew Willmott.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form have no conditions on them.
-
-THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
-NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-===========================================================================
-    lockfree (http://tim.klingt.org/git?p=boost_lockfree.git;a=tree)
-===========================================================================
-
-Boost Software License - Version 1.0 - August 17th, 2003
-
-Permission is hereby granted, free of charge, to any person or organization
-obtaining a copy of the software and accompanying documentation covered by
-this license (the "Software") to use, reproduce, display, distribute,
-execute, and transmit the Software, and to prepare derivative works of the
-Software, and to permit third-parties to whom the Software is furnished to
-do so, all subject to the following:
-
-The copyright notices in the Software and this entire statement, including
-the above license grant, this restriction and the following disclaimer,
-must be included in all copies of the Software, in whole or in part, and
-all derivative works of the Software, unless such copies or derivative
-works are solely in the form of machine-executable object code generated by
-a source language processor.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
-SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
-FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
+Alternatively, the following files carry an additional notice that
+explicitly allows relicensing under the GPLv2: lzf.c lzf.h lzfP.h lzf_c.c
+lzf_d.c
 
 ===========================================================================
     jitter (http://medialab.di.unipi.it/web/IUM/OpenGL/openglbk/jitter.h)

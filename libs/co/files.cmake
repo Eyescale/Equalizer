@@ -145,6 +145,8 @@ set(CO_COMPRESSOR_HEADERS
     compressor/compressorRLE565.h
     compressor/compressorRLEB.h
     compressor/compressorRLEYUV.h
+    compressor/compressorLZF.h
+    compressor/liblzf/lzf.h
 )
   
 set(CO_COMPRESSOR_SOURCES
@@ -157,6 +159,9 @@ set(CO_COMPRESSOR_SOURCES
     compressor/compressorRLE565.cpp
     compressor/compressorRLEB.cpp
     compressor/compressorRLEYUV.cpp
+    compressor/compressorLZF.cpp
+    compressor/liblzf/lzf_c.c
+    compressor/liblzf/lzf_d.c
 )
 
 set(PLUGIN_HEADERS
