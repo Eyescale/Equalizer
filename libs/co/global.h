@@ -121,6 +121,7 @@ namespace co
             IATTR_RDMA_RESOLVE_TIMEOUT_MS, //!< @internal address resolution
             IATTR_ROBUSTNESS,            //!< @internal use robustness
             IATTR_TIMEOUT_DEFAULT,       //!< @internal default timeout
+            IATTR_OBJECT_COMPRESSION,    //!< @internal threshold to compress
             IATTR_ALL
         };
 
