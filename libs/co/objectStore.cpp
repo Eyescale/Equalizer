@@ -387,7 +387,7 @@ uint32_t ObjectStore::mapObjectNB( Object* object, const UUID& id,
         return LB_UNDEFINED_UINT32;
     }
 
-    if( !master || !master->isConnected( ))
+    if( !master || !master->isReachable( ))
     {
         LBWARN << "Mapping of object " << id << " failed, invalid master node"
                << std::endl;
@@ -467,7 +467,7 @@ void ObjectStore::unmapObject( Object* object )
         NodePtr master = object->getMasterNode();
         LBASSERT( master )
 
-        if( master && master->isConnected( ))
+        if( master && master->isReachable( ))
         {
             NodeUnsubscribeObjectPacket packet;
             packet.requestID = _localNode->registerRequest();

@@ -286,6 +286,14 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
     return true;
 }
 
+void Connection::resetRecvData( void** buffer, uint64_t* bytes )
+{
+    *buffer = _aioBuffer;
+    *bytes = _aioBytes;
+    _aioBuffer = 0;
+    _aioBytes = 0;
+}
+
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------

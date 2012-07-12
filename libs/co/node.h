@@ -20,15 +20,14 @@
 #define CO_NODE_H
 
 #include <co/dispatcher.h>        // base class
-#include <co/connection.h>        // member - ConnectionPtr
+#include <co/connection.h>        // used in inline template method
 #include <co/nodeType.h>          // for NODETYPE_CO_NODE enum
 #include <co/types.h>
 
-#include <lunchbox/lockable.h>         // member
-#include <lunchbox/spinLock.h>         // member
-
 namespace co
 {
+namespace detail { class Node; }
+
     /**
      * Manages a node.
      *
@@ -47,10 +46,11 @@ namespace co
         //@{
         bool operator == ( const Node* n ) const;
 
-        bool isConnected() const { return !isClosed();}
-        bool isClosed() const { return _state == STATE_CLOSED; }
-        bool isListening() const { return _state == STATE_LISTENING || 
-                                          _state == STATE_CLOSING; }
+        bool isReachable() const;
+        bool isConnected() const;
+        bool isClosed() const;
+        bool isClosing() const;
+        bool isListening() const;
         //@}
 
         /** @name Connectivity information. */
@@ -78,9 +78,12 @@ namespace co
         CO_API ConnectionDescriptions getConnectionDescriptions() const;
 
         /** @return the connection to this node. */
-        ConnectionPtr getConnection() const { return _outgoing; }
+        ConnectionPtr getConnection() const;
 
-        /** @return the multicast connection to this node, or 0. */
+        /** @return the established multicast connection to this node. */
+        ConnectionPtr getMulticast() const;
+
+        /** @return the first usable multicast connection to this node, or 0. */
         ConnectionPtr useMulticast();
         //@}
 
@@ -93,12 +96,10 @@ namespace co
          * @return the success status of the transaction.
          */
         bool send( const Packet& packet )
-            {
-                ConnectionPtr connection = _getConnection();
-                if( !connection )
-                    return false;
-                return connection->send( packet );
-            }
+        {
+            ConnectionPtr connection = _getConnection();
+            return connection ? connection->send( packet ) : false;
+        }
 
         /** 
          * Sends a packet with a string to the node.
@@ -116,12 +117,10 @@ namespace co
          * @return the success status of the transaction.
          */
         bool send( Packet& packet, const std::string& string )
-            {
-                ConnectionPtr connection = _getConnection();
-                if( !connection )
-                    return false;
-                return connection->send( packet, string );
-            }
+        {
+            ConnectionPtr connection = _getConnection();
+            return connection ? connection->send( packet, string ) : false;
+        }
 
         /** 
          * Sends a packet with additional data to the node.
@@ -138,12 +137,10 @@ namespace co
          */
         template< class T >
         bool send( Packet& packet, const std::vector<T>& data )
-            {
-                ConnectionPtr connection = _getConnection();
-                if( !connection )
-                    return false;
-                return connection->send( packet, data );
-            }
+        {
+            ConnectionPtr connection = _getConnection();
+            return connection ? connection->send( packet, data ) : false;
+        }
 
         /** 
          * Sends a packet with additional data to the node.
@@ -162,12 +159,10 @@ namespace co
          * @return the success status of the transaction.
          */
         bool send( Packet& packet, const void* data, const uint64_t size )
-            {
-                ConnectionPtr connection = _getConnection();
-                if( !connection )
-                    return false;
-                return connection->send( packet, data, size );
-            }
+        {
+            ConnectionPtr connection = _getConnection();
+            return connection ? connection->send( packet, data, size ) : false;
+        }
 
         /** 
          * Multicasts a packet to the multicast group of this node.
@@ -176,15 +171,13 @@ namespace co
          * @return the success status of the transaction.
          */
         bool multicast( const Packet& packet )
-            {
-                ConnectionPtr connection = useMulticast();
-                if( !connection )
-                    return false;
-                return connection->send( packet );
-            }
+        {
+            ConnectionPtr connection = useMulticast();
+            return connection ? connection->send( packet ) : false;
+        }
         //@}
 
-        const NodeID& getNodeID() const { return _id; }
+        CO_API const NodeID& getNodeID() const;
 
         /** Serialize the node's information. */
         CO_API std::string serialize() const;
@@ -192,7 +185,7 @@ namespace co
         CO_API bool deserialize( std::string& data );
 
         /** @return last receive time. */
-        int64_t getLastReceiveTime() const { return _lastReceive; }
+        int64_t getLastReceiveTime() const;
 
         /** @return the type of the node, used during connect(). */
         virtual uint32_t getType() const { return NODETYPE_CO_NODE; }
@@ -211,69 +204,29 @@ namespace co
         CO_API virtual NodePtr createNode( const uint32_t type );
 
     private:
-        /** The state of the node. */
-        enum State
-        {
-            STATE_CLOSED,    //!< initial state
-            STATE_CONNECTED, //!< proxy for a remote node, connected  
-            STATE_LISTENING, //!< local node, listening
-            STATE_CLOSING    //!< listening, about to close
-        };
-
-        friend CO_API std::ostream& operator << ( std::ostream& os,
-                                                  const Node& node );
-        friend CO_API std::ostream& operator << ( std::ostream&,
-                                                  const State );
-        friend class LocalNode;
-
-        /** Globally unique node identifier. */
-        NodeID _id;
-
-        /** The current state of this node. */
-        State _state;
-
-        /** The connection to this node. */
-        ConnectionPtr _outgoing;
-
-        /** The multicast connection to this node, can be 0. */
-        lunchbox::Lockable< ConnectionPtr > _outMulticast;
-
-        struct MCData
-        {
-            ConnectionPtr connection;
-            NodePtr       node;
-        };
-        typedef std::vector< MCData > MCDatas;
-
-        /** 
-         * Unused multicast connections for this node.
-         *
-         * On the first multicast send usage, the connection is 'primed' by
-         * sending our node identifier to the MC group, removed from this vector
-         * and set as _outMulticast.
-         */
-        MCDatas _multicasts;
-
-        /** The list of descriptions on how this node is reachable. */
-        lunchbox::Lockable< ConnectionDescriptions, lunchbox::SpinLock >
-            _connectionDescriptions;
-
-        /** Last time packets were received */
-        int64_t _lastReceive;
+        detail::Node* const _impl;
+        friend std::ostream& operator << ( std::ostream& os, const Node& node );
 
         /** Ensures the connectivity of this node. */
-        ConnectionPtr _getConnection()
-            {
-                ConnectionPtr connection = _outgoing;
-                if( _state != STATE_CLOSED )
-                    return connection;
-                LBUNREACHABLE;
-                return 0;
-            }
+        CO_API ConnectionPtr _getConnection();
+
+        /** @internal @name Methods for LocalNode */
+        //@{
+        void _addMulticast( NodePtr node, ConnectionPtr connection );
+        void _removeMulticast( ConnectionPtr connection );
+        void _connectMulticast( NodePtr node );
+        void _connectMulticast( NodePtr node, ConnectionPtr connection );
+        void _setListening();
+        void _setClosing();
+        void _setClosed();
+        void _connect( ConnectionPtr connection );
+        void _disconnect();
+        void _setLastReceive( const int64_t time );
+        friend class LocalNode;
+        //@}
     };
 
     CO_API std::ostream& operator << ( std::ostream& os, const Node& node );
-    CO_API std::ostream& operator << ( std::ostream&, const Node::State );
 }
 
 #endif // CO_NODE_H

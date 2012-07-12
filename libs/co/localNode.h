@@ -24,6 +24,7 @@
 #include <co/objectHandler.h>   // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <lunchbox/requestHandler.h> // base class
+
 #include <boost/function/function1.hpp>
 #include <boost/function/function4.hpp>
 
@@ -435,7 +436,6 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         detail::LocalNode* const _impl;
 
         bool _connectSelf();
-        void _connectMulticast( NodePtr node );
 
         bool _startCommandThread();
         bool _notifyCommandThreadIdle();
@@ -443,6 +443,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         friend class detail::CommandThread;
 
         void _cleanup();
+        void _closeNode( NodePtr node );
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
 

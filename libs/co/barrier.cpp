@@ -168,8 +168,8 @@ void Barrier::enter( const uint32_t timeout )
     }
 
     LBASSERT( _impl->master );
-    LBASSERT( _impl->master->isConnected( ));
-    if( !_impl->master || !_impl->master->isConnected( ))
+    LBASSERT( _impl->master->isReachable( ));
+    if( !_impl->master || !_impl->master->isReachable( ))
     {
         LBWARN << "Can't connect barrier master node " << _impl->masterID
                << std::endl;

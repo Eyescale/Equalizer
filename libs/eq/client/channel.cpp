@@ -1706,7 +1706,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
 
     co::LocalNodePtr localNode = getLocalNode();
     co::NodePtr toNode = localNode->connect( request->netNodeID );
-    if( !toNode || !toNode->isConnected( ))
+    if( !toNode || !toNode->isReachable( ))
     {
         LBWARN << "Can't connect node " << request->netNodeID
                << " to send image data" << std::endl;

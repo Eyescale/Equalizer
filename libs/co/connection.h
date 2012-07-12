@@ -203,8 +203,7 @@ namespace co
         CO_API bool recvSync( void** buffer, uint64_t* bytes,
                                  const bool block = true );
 
-        void getRecvData( void** buffer, uint64_t* bytes )
-            { *buffer = _aioBuffer; *bytes = _aioBytes; }
+        void resetRecvData( void** buffer, uint64_t* bytes ); //!< @internal
 
         /** 
          * Start a read operation on the connection.
