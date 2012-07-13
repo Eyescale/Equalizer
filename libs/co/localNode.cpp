@@ -52,7 +52,7 @@ namespace co
 namespace
 {
 typedef CommandFunc<LocalNode> CmdFunc;
-typedef std::list< Command* > CommandList;
+typedef std::list< CommandPtr > CommandList;
 typedef lunchbox::RefPtrHash< Connection, NodePtr > ConnectionNodeHash;
 typedef ConnectionNodeHash::const_iterator ConnectionNodeHashCIter;
 typedef ConnectionNodeHash::iterator ConnectionNodeHashIter;
@@ -144,7 +144,7 @@ public:
 
     bool sendToken; //!< send token availability.
     uint64_t lastSendToken; //!< last used time for timeout detection
-    std::deque< Command* > sendTokenQueue; //!< pending requests
+    std::deque< CommandPtr > sendTokenQueue; //!< pending requests
 
     /** Manager of distributed object */
     ObjectStore* objectStore;
@@ -1104,7 +1104,7 @@ void LocalNode::flushCommands()
     _impl->incoming.interrupt();
 }
 
-Command& LocalNode::cloneCommand( Command& command )
+CommandPtr LocalNode::cloneCommand( CommandPtr command )
 {
     return _impl->commandCache.clone( command );
 }
@@ -1178,13 +1178,7 @@ void LocalNode::_runReceiverThread()
         LBWARN << _impl->pendingCommands.size()
                << " commands pending while leaving command thread" << std::endl;
 
-    for( CommandList::const_iterator i = _impl->pendingCommands.begin();
-         i != _impl->pendingCommands.end(); ++i )
-    {
-        Command* command = *i;
-        command->release();
-    }
-
+    _impl->pendingCommands.clear();
     LBCHECK( _impl->commandThread->join( ));
     _impl->objectStore->clear();
     _impl->pendingCommands.clear();
@@ -1218,10 +1212,10 @@ void LocalNode::_handleDisconnect()
     if( i != _impl->connectionNodes.end( ))
     {
         NodePtr node = i->second;
-        Command& command = _impl->commandCache.alloc( node, this,
+        CommandPtr command = _impl->commandCache.alloc( node, this,
                                                 sizeof( NodeRemoveNodePacket ));
         NodeRemoveNodePacket* packet =
-             command.getModifiable< NodeRemoveNodePacket >();
+             command->getModifiable< NodeRemoveNodePacket >();
         *packet = NodeRemoveNodePacket();
         packet->node = node.get();
         _dispatchCommand( command );
@@ -1280,16 +1274,16 @@ bool LocalNode::_handleData()
     if( node )
         node->_setLastReceive( getTime64( ));
 
-    Command& command = _impl->commandCache.alloc( node, this, size );
+    CommandPtr command = _impl->commandCache.alloc( node, this, size );
     uint8_t* ptr = reinterpret_cast< uint8_t* >(
-        command.getModifiable< Packet >()) + sizeof( uint64_t );
+        command->getModifiable< Packet >()) + sizeof( uint64_t );
 
     connection->recvNB( ptr, size - sizeof( uint64_t ));
     const bool gotData = connection->recvSync( 0, 0 );
 
     LBASSERT( gotData );
-    LBASSERT( command.isValid( ));
-    LBASSERT( command.isFree( ));
+    LBASSERT( command->isValid( ));
+    LBASSERT( command->getRefCount() == 1 );
 
     // start next receive
     connection->recvNB( sizePtr, sizeof( uint64_t ));
@@ -1303,45 +1297,41 @@ bool LocalNode::_handleData()
     // This is one of the initial packets during the connection handshake, at
     // this point the remote node is not yet available.
     LBASSERTINFO( node.isValid() ||
-                 ( command->type == PACKETTYPE_CO_NODE &&
-                  ( command->command == CMD_NODE_CONNECT  ||
-                    command->command == CMD_NODE_CONNECT_REPLY ||
-                    command->command == CMD_NODE_ID )),
+                 ( (*command)->type == PACKETTYPE_CO_NODE &&
+                  ( (*command)->command == CMD_NODE_CONNECT  ||
+                    (*command)->command == CMD_NODE_CONNECT_REPLY ||
+                    (*command)->command == CMD_NODE_ID )),
                   command << " connection " << connection );
 
     _dispatchCommand( command );
     return true;
 }
 
-Command& LocalNode::allocCommand( const uint64_t size )
+CommandPtr LocalNode::allocCommand( const uint64_t size )
 {
     LBASSERT( _impl->inReceiverThread( ));
     return _impl->commandCache.alloc( this, this, size );
 }
 
-void LocalNode::_dispatchCommand( Command& command )
+void LocalNode::_dispatchCommand( CommandPtr command )
 {
-    LBASSERT( command.isValid( ));
-    command.retain();
+    LBASSERT( command->isValid( ));
 
     if( dispatchCommand( command ))
-    {
-        command.release();
         _redispatchCommands();
-    }
     else
     {
         _redispatchCommands();
-        _impl->pendingCommands.push_back( &command );
+        _impl->pendingCommands.push_back( command );
     }
 }
 
-bool LocalNode::dispatchCommand( Command& command )
+bool LocalNode::dispatchCommand( CommandPtr command )
 {
     LBVERB << "dispatch " << command << " by " << getNodeID() << std::endl;
-    LBASSERT( command.isValid( ));
+    LBASSERT( command->isValid( ));
 
-    const uint32_t type = command->type;
+    const uint32_t type = (*command)->type;
     switch( type )
     {
         case PACKETTYPE_CO_NODE:
@@ -1369,13 +1359,12 @@ void LocalNode::_redispatchCommands()
         for( CommandList::iterator i = _impl->pendingCommands.begin();
              i != _impl->pendingCommands.end(); ++i )
         {
-            Command* command = *i;
+            CommandPtr command = *i;
             LBASSERT( command->isValid( ));
 
-            if( dispatchCommand( *command ))
+            if( dispatchCommand( command ))
             {
                 _impl->pendingCommands.erase( i );
-                command->release();
                 changes = true;
                 break;
             }
@@ -1470,7 +1459,7 @@ bool LocalNode::_cmdStopRcv( Command& command )
     _setClosing(); // causes rcv thread exit
 
     command->command = CMD_NODE_STOP_CMD; // causes cmd thread exit
-    _dispatchCommand( command );
+    _dispatchCommand( &command );
     return true;
 }
 
@@ -1802,7 +1791,6 @@ bool LocalNode::_cmdAcquireSendToken( Command& command )
         if( timeout == LB_TIMEOUT_INDEFINITE ||
             ( getTime64() - _impl->lastSendToken <= timeout ))
         {
-            command.retain();
             _impl->sendTokenQueue.push_back( &command );
             return true;
         }
@@ -1842,7 +1830,7 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
         return true;
     }
 
-    Command* request = _impl->sendTokenQueue.front();
+    CommandPtr request = _impl->sendTokenQueue.front();
     _impl->sendTokenQueue.pop_front();
 
     const NodeAcquireSendTokenPacket* packet =
@@ -1850,7 +1838,6 @@ bool LocalNode::_cmdReleaseSendToken( Command& )
     NodeAcquireSendTokenReplyPacket reply( packet );
 
     request->getNode()->send( reply );
-    request->release();
     return true;
 }
 
@@ -1933,7 +1920,7 @@ bool LocalNode::_cmdCommand( Command& command )
         {
             command.setDispatchFunction( CmdFunc( this,
                                                 &LocalNode::_cmdCommandAsync ));
-            queue->push( command );
+            queue->push( &command );
             return true;
         }
         // else

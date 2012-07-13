@@ -599,10 +599,10 @@ void ObjectStore::removeNode( NodePtr node )
 //===========================================================================
 // Packet handling
 //===========================================================================
-bool ObjectStore::dispatchObjectCommand( Command& command )
+bool ObjectStore::dispatchObjectCommand( CommandPtr command )
 {
     LB_TS_THREAD( _receiverThread );
-    const ObjectPacket* packet = command.get< ObjectPacket >();
+    const ObjectPacket* packet = command->get< ObjectPacket >();
     const UUID& id = packet->objectID;
     const uint32_t instanceID = packet->instanceID;
 
@@ -638,7 +638,7 @@ bool ObjectStore::dispatchObjectCommand( Command& command )
     for( ++j; j != objects.end(); ++j )
     {
         object = *j;
-        Command& clone = _localNode->cloneCommand( command );
+        CommandPtr clone = _localNode->cloneCommand( command );
         LBCHECK( object->dispatchCommand( clone ));
     }
     return true;
@@ -989,7 +989,7 @@ bool ObjectStore::_cmdInstance( Command& command )
 #ifndef CO_AGGRESSIVE_CACHING // Issue #82: 
         if( type != CMD_NODE_OBJECT_INSTANCE_PUSH )
 #endif
-            _instanceCache->add( rev, packet->masterInstanceID, command, 0 );
+            _instanceCache->add( rev, packet->masterInstanceID, &command, 0 );
     }
 
     switch( type )
@@ -1004,12 +1004,12 @@ bool ObjectStore::_cmdInstance( Command& command )
             return true;
 
         LBASSERT( packet->instanceID <= EQ_INSTANCE_MAX );
-        return dispatchObjectCommand( command );
+        return dispatchObjectCommand( &command );
 
       case CMD_NODE_OBJECT_INSTANCE_COMMIT:
         LBASSERT( packet->nodeID == NodeID::ZERO );
         LBASSERT( packet->instanceID == EQ_INSTANCE_NONE );
-        return dispatchObjectCommand( command );
+        return dispatchObjectCommand( &command );
 
       case CMD_NODE_OBJECT_INSTANCE_PUSH:
         LBASSERT( packet->nodeID == NodeID::ZERO );

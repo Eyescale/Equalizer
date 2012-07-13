@@ -415,12 +415,11 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::Command* command = _queue.pop();
+        co::CommandPtr command = _queue.pop();
         if( !command )
             return; // exit thread
 
         LBCHECK( (*command)( ));
-        command->release();
     }
 }
 

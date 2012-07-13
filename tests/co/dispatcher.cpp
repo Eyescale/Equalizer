@@ -123,10 +123,9 @@ int main( int argc, char **argv )
 {
     co::CommandCache cache;
     co::LocalNodePtr node = new co::LocalNode;
-    co::Command& command = cache.alloc( node, node, sizeof( Packet ));
-    Packet* packet = command.getModifiable< Packet >();
+    co::CommandPtr command = cache.alloc( node, node, sizeof( Packet ));
+    Packet* packet = command->getModifiable< Packet >();
 
-    command.retain();
     *packet = Packet();
 
     Bar bar;
@@ -138,6 +137,5 @@ int main( int argc, char **argv )
     barFoo.dispatchCommand ( command );
     TESTINFO( calls == 3, calls );
 
-    command.release();
     return EXIT_SUCCESS;
 }

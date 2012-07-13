@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,6 +18,7 @@
 #include "commandQueue.h"
 
 #include "messagePump.h"
+#include <co/command.h>
 #include <lunchbox/clock.h>
 
 namespace eq
@@ -39,14 +40,14 @@ CommandQueue::~CommandQueue()
     _messagePump = 0;
 }
 
-void CommandQueue::push(co::Command& inCommand)
+void CommandQueue::push(co::CommandPtr inCommand)
 {
     co::CommandQueue::push( inCommand );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront(co::Command& inCommand)
+void CommandQueue::pushFront(co::CommandPtr inCommand)
 {
     co::CommandQueue::pushFront( inCommand );
     if( _messagePump )
@@ -60,7 +61,7 @@ void CommandQueue::wakeup()
         _messagePump->postWakeup();
 }
 
-co::Command* CommandQueue::pop()
+co::CommandPtr CommandQueue::pop()
 {
     int64_t start = -1;
     while( true )
@@ -85,14 +86,14 @@ co::Command* CommandQueue::pop()
         else
         {
             start = _clock.getTime64();
-            co::Command* command = co::CommandQueue::pop(); // blocking
+            co::CommandPtr command = co::CommandQueue::pop(); // blocking
             _waitTime += ( _clock.getTime64() - start );
             return command;
         }
     }
 }
 
-co::Command* CommandQueue::tryPop()
+co::CommandPtr CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking

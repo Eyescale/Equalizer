@@ -80,6 +80,8 @@ typedef lunchbox::RefPtr< const Node >            ConstNodePtr;
 typedef lunchbox::RefPtr< LocalNode >             LocalNodePtr;
 /** A reference pointer for const LocalNode pointers. */
 typedef lunchbox::RefPtr< const LocalNode >       ConstLocalNodePtr;
+/** A reference pointer for Commands. */
+typedef lunchbox::RefPtr< Command >               CommandPtr;
 /** A reference pointer for Connection pointers. */
 typedef lunchbox::RefPtr< Connection >            ConnectionPtr;
 /** A reference pointer for ConnectionDescription pointers. */
@@ -118,8 +120,8 @@ typedef ConnectionDescriptions::iterator         ConnectionDescriptionsIter;
 typedef ConnectionDescriptions::const_iterator   ConnectionDescriptionsCIter;
 
 /** @cond IGNORE */
-typedef std::vector< Command* > Commands;
-typedef std::deque< Command* > CommandDeque;
+typedef std::vector< CommandPtr > Commands;
+typedef std::deque< CommandPtr > CommandDeque;
 typedef CommandDeque::const_iterator CommandDequeCIter;
 
 typedef std::vector< ObjectVersion > ObjectVersions;

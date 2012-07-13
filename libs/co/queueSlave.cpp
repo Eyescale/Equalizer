@@ -55,12 +55,6 @@ QueueSlave::QueueSlave( const uint32_t prefetchMark,
 
 QueueSlave::~QueueSlave()
 {
-    while( !_impl->queue.isEmpty( ))
-    {
-        Command* cmd = _impl->queue.pop();
-        LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
-        cmd->release();
-    }
     delete _impl;
 }
 
@@ -82,7 +76,7 @@ void QueueSlave::applyInstanceData( co::DataIStream& is )
     _impl->master = localNode->connect( masterNodeID );
 }
 
-Command* QueueSlave::pop()
+CommandPtr QueueSlave::pop()
 {
     static lunchbox::a_int32_t _request;
     const int32_t request = ++_request;
@@ -100,19 +94,15 @@ Command* QueueSlave::pop()
             send( _impl->master, packet );
         }
 
-        Command* cmd = _impl->queue.pop();
+        CommandPtr cmd = _impl->queue.pop();
         if( (*cmd)->command == CMD_QUEUE_ITEM )
             return cmd;
     
         LBASSERT( (*cmd)->command == CMD_QUEUE_EMPTY );
         const QueueEmptyPacket* packet = cmd->get< QueueEmptyPacket >();
         if( packet->requestID == request )
-        {
-            cmd->release();
             return 0;
-        }
         // else left-over or not our empty packet, discard and retry
-        cmd->release();
     }
 }
 

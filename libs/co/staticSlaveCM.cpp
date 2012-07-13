@@ -101,7 +101,7 @@ bool StaticSlaveCM::_cmdInstance( Command& command )
 {
     LB_TS_THREAD( _rcvThread );
     LBASSERT( _currentIStream );
-    _currentIStream->addDataPacket( command );
+    _currentIStream->addDataPacket( &command );
 
     if( _currentIStream->isReady( ))
         LBLOG( LOG_OBJECTS ) << "id " << _object->getID() << "." 

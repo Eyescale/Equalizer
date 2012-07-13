@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,55 +26,30 @@ Command::Command( lunchbox::a_int32_t& freeCounter )
         : _packet( 0 )
         , _data( 0 )
         , _dataSize( 0 )
-        , _refCountMaster( 0 )
         , _freeCount( freeCounter )
         , _func( 0, 0 )
 {}
 
 Command::~Command() 
 {
-    LBASSERTINFO( _refCount == 0, _refCount << ", " << *this );
     _free(); 
 }
 
-void Command::retain()
+void Command::deleteReferenced( const Referenced* object ) const
 {
-    //LB_TS_THREAD( _writeThread );
-    if( ++_refCount == 1 ) // first reference
-    {
-        LBASSERT( _refCount == 1 ); // ought to be single-threaded in recv
-        LBASSERT( _freeCount > 0 );
-        --_freeCount;
-    }
-
-    if( _refCountMaster )
-    {
-        if( ++( *_refCountMaster ) == 1 )
-            --_freeCount;
-        LBASSERT( *_refCountMaster >= _refCount );
-    }
-}
-
-void Command::release() 
-{
-    if( _refCountMaster ) // do it before self - otherwise race!
-    {
-        LBASSERT( *_refCountMaster != 0 );
-        if( --( *_refCountMaster ) == 0 ) // last reference
-            ++_freeCount;
-    }
-
-    LBASSERT( _refCount != 0 );
-    if( --_refCount == 0 ) // last reference
-        ++_freeCount;
+    Command* command = const_cast< Command* >( this );
+    command->_master = 0;
+    ++command->_freeCount;
 }
 
 size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
                         const uint64_t size )
 {
     LB_TS_THREAD( _writeThread );
-    LBASSERT( _refCount == 0 );
+    LBASSERT( getRefCount() == 1 ); // caller CommandCache
+    LBASSERT( !_master );
     LBASSERTINFO( !_func.isValid(), *this );
+    --_freeCount;
 
     size_t allocated = 0;
     if( !_data )
@@ -93,7 +68,6 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
 
     _node = node;
     _localNode = localNode;
-    _refCountMaster = 0;
     _func.clear();
     _packet = _data;
     _packet->size = size;
@@ -101,23 +75,26 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
     return allocated;
 }
 
-void Command::clone_( Command& from )
+void Command::clone_( CommandPtr from )
 {
     LB_TS_THREAD( _writeThread );
-    LBASSERT( _refCount == 0 );
-    LBASSERT( !_func.isValid( ));
+    LBASSERT( getRefCount() == 1 ); // caller CommandCache
+    LBASSERT( !_master );
+    LBASSERTINFO( !_func.isValid(), *this );
 
-    _node = from._node;
-    _localNode = from._localNode;
-    _packet = from._packet;
+    --_freeCount;
 
-    _refCountMaster = &from._refCount;
+    _node = from->_node;
+    _localNode = from->_localNode;
+    _packet = from->_packet;
+    _master = from;
 }
 
 void Command::_free()
 {
     LB_TS_THREAD( _writeThread );
-    LBASSERT( _refCount == 0 );
+    LBASSERT( getRefCount() == 0 );
+    LBASSERT( !_master );
     LBASSERT( !_func.isValid( ));
 
     if( _data )
@@ -128,7 +105,7 @@ void Command::_free()
     _packet = 0;
     _node = 0;
     _localNode = 0;
-    _refCountMaster = 0;
+    _master = 0;
 }        
 
 bool Command::operator()()
@@ -136,7 +113,7 @@ bool Command::operator()()
     LBASSERT( _func.isValid( ));
     Dispatcher::Func func = _func;
     _func.clear();
-    return func( *this );
+    return func( this );
 }
 
 std::ostream& operator << ( std::ostream& os, const Command& command )
@@ -159,8 +136,7 @@ std::ostream& operator << ( std::ostream& os, const Command& command )
                 os << packet;
         }
 
-        os << ", " << command.getNode() << ", r" << command._refCount << " >"
-           << lunchbox::enableFlush;
+        os << ", " << command.getNode() << " >" << lunchbox::enableFlush;
     }
     else
         os << "command< empty >";

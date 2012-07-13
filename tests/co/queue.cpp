@@ -47,24 +47,21 @@ int main( int argc, char **argv )
     qm->push(p3);
     qm->push(p4);
 
-    co::Command* c1 = qs->pop();
-    co::Command* c2 = qs->pop();
-    co::Command* c3 = qs->pop();
-    co::Command* c4 = qs->pop();
-    co::Command* c5 = qs->pop();
+    {
+        co::CommandPtr c1 = qs->pop();
+        co::CommandPtr c2 = qs->pop();
+        co::CommandPtr c3 = qs->pop();
+        co::CommandPtr c4 = qs->pop();
+        co::CommandPtr c5 = qs->pop();
 
-    TEST( c1 != 0 );
-    TEST( c2 != 0 );
-    TEST( c3 != 0 );
-    TEST( c4 != 0 );
-    TEST( c5 == 0 );
+        TEST( c1 );
+        TEST( c2 );
+        TEST( c3 );
+        TEST( c4 );
+        TEST( !c5 );
+    }
 
-    c1->release();
-    c2->release();
-    c3->release();
-    c4->release();
-
-    lunchbox::sleep(1000);
+    lunchbox::sleep(10);
 
     node->unmapObject( qs );
     node->deregisterObject( qm );

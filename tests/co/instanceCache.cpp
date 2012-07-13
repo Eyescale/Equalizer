@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -90,9 +90,9 @@ int main( int argc, char **argv )
     pkg.version = 1;
     pkg.sequence = 0;
 
-    co::Command& command = commandCache.alloc( node, node, PACKET_SIZE );
+    co::CommandPtr command = commandCache.alloc( node, node, PACKET_SIZE );
     co::ObjectInstancePacket* packet =
-        command.getModifiable< co::ObjectInstancePacket >();
+        command->getModifiable< co::ObjectInstancePacket >();
     memcpy( packet, &pkg, sizeof( pkg ));
 
     Reader** readers = static_cast< Reader** >( 
@@ -164,7 +164,7 @@ int main( int argc, char **argv )
     std::cout << cache << std::endl;
 
     TESTINFO( cache.getSize() == 0, cache.getSize( ));
-    TEST( command.isFree( ));
+    TEST( command->isFree( ));
 
     TEST( co::exit( ));
     return EXIT_SUCCESS;

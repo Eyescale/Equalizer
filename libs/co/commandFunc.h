@@ -45,11 +45,11 @@ namespace co
                   _func( static_cast<bool (T::*)( Command& )>(from._func))
             {}
 
-        bool operator()( Command& command )
+        bool operator()( CommandPtr command )
         {
             LBASSERT( _object );
             LBASSERT( _func );
-            return (_object->*_func)( command );
+            return (_object->*_func)( *command );
         }
 
         void clear() { _object = 0; _func = 0; }

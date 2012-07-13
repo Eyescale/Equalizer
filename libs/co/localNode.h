@@ -373,10 +373,10 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API void flushCommands();
 
         /** @internal Clone the given command. */
-        CO_API Command& cloneCommand( Command& command );
+        CO_API CommandPtr cloneCommand( CommandPtr command );
 
         /** @internal Allocate a local command from the receiver thread. */
-        CO_API Command& allocCommand( const uint64_t size );
+        CO_API CommandPtr allocCommand( const uint64_t size );
 
         /**
          * Dispatches a packet to the registered command queue.
@@ -385,7 +385,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * @return the result of the operation.
          * @sa Command::invoke
          */
-        CO_API bool dispatchCommand( Command& command );
+        CO_API virtual bool dispatchCommand( CommandPtr command );
 
         /**
          * Acquire a singular send token from the given node.
@@ -468,7 +468,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
             registerCommand( command, func, destinationQueue );
         }
 
-        void _dispatchCommand( Command& command );
+        void _dispatchCommand( CommandPtr command );
         void   _redispatchCommands();
 
         /** The command functions. */
@@ -497,6 +497,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         LB_TS_VAR( _cmdThread );
         LB_TS_VAR( _rcvThread );
     };
+
     inline std::ostream& operator << ( std::ostream& os, const LocalNode& node )
     {
         os << static_cast< const Node& >( node );

@@ -140,9 +140,9 @@ void Server::deleteConfigs()
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( co::Command& command )
+bool Server::dispatchCommand( co::CommandPtr command )
 {
-    switch( command->type )
+    switch( (*command)->type )
     {
         case fabric::PACKETTYPE_EQ_SERVER:
             return co::Dispatcher::dispatchCommand( command );
@@ -158,13 +158,11 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::Command& command = *(_mainThreadQueue.pop( ));
-        if( !command( ))
+        co::CommandPtr command = _mainThreadQueue.pop();
+        if( !(*command)( ))
         {
             LBABORT( "Error handling command " << command );
         }
-
-        command.release();
     }
     _mainThreadQueue.flush();
 }

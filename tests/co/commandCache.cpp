@@ -64,9 +64,8 @@ protected:
             _running = true;
             while( _running )
             {
-                co::Command& command = *_queue.pop();
-                TEST( command( ));
-                command.release();
+                co::CommandPtr command = _queue.pop();
+                TEST( (*command)( ));
                 yield(); // let writer run ahead a bit
             }
         }
@@ -91,19 +90,17 @@ int main( int argc, char **argv )
         lunchbox::Clock clock;
         while( clock.getTime64() < RUNTIME )
         {
-            co::Command& command = cache.alloc( node, node, sizeof( Packet ));
-            Packet* packet = command.getModifiable< Packet >();
-            command.retain();
+            co::CommandPtr command = cache.alloc( node, node, sizeof( Packet ));
+            Packet* packet = command->getModifiable< Packet >();
             *packet = Packet();
 
             readers[0].dispatchCommand( command );
 
             for( size_t i = 1; i < N_READER; ++i )
             {
-                co::Command& clone = cache.clone( command );
+                co::CommandPtr clone = cache.clone( command );
                 readers[i].dispatchCommand( clone );
             }
-            command.release();
             ++nOps;
         }
 
@@ -111,8 +108,8 @@ int main( int argc, char **argv )
 
         for( size_t i = 0; i < N_READER; ++i )
         {
-            co::Command& command = cache.alloc( node, node, sizeof( Packet ));
-            Packet* packet = command.getModifiable< Packet >();
+            co::CommandPtr command = cache.alloc( node, node, sizeof( Packet ));
+            Packet* packet = command->getModifiable< Packet >();
             *packet = Packet();
             packet->command = 1;
 
