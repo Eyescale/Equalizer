@@ -41,9 +41,6 @@ namespace eq
         /** @sa co::CommandQueue::pushFront(). */
         virtual void pushFront( co::CommandPtr packet );
 
-        /** @sa co::CommandQueue::wakeup(). */
-        virtual void wakeup();
-
         /** @sa co::CommandQueue::pop(). */
         virtual co::CommandPtr pop();
 

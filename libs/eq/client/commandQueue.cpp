@@ -54,13 +54,6 @@ void CommandQueue::pushFront(co::CommandPtr inCommand)
         _messagePump->postWakeup();
 }
 
-void CommandQueue::wakeup()
-{
-    co::CommandQueue::wakeup();
-    if( _messagePump )
-        _messagePump->postWakeup();
-}
-
 co::CommandPtr CommandQueue::pop()
 {
     int64_t start = -1;

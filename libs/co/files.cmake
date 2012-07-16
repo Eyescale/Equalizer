@@ -8,7 +8,6 @@ set(CO_PUBLIC_HEADERS
     bufferConnection.h
     co.h
     command.h
-    commandCache.h
     commandFunc.h
     commandQueue.h
     commands.h
@@ -55,6 +54,7 @@ set(CO_PUBLIC_HEADERS
 
 set(CO_HEADERS 
     barrierPackets.h
+    commandCache.h
     compressor.h
     compressorInfo.h
     cpuCompressor.h

@@ -26,34 +26,34 @@ namespace co
 {
 namespace detail { class CommandQueue; }
 
-    /** A CommandQueue is a thread-safe queue for command packets. */
+    /** A thread-safe queue for Command packets. */
     class CommandQueue : public lunchbox::NonCopyable
     {
     public:
+        /** Construct a new command queue. @version 1.0 */
         CO_API CommandQueue();
+
+        /** Destruct a new command queue. @version 1.0 */
         CO_API virtual ~CommandQueue();
 
         /** 
          * Push a command to the queue.
          * 
          * @param packet the command packet.
+         * @version 1.0
          */
         CO_API virtual void push( CommandPtr packet );
 
-        /** Push a command to the front of the queue. */
+        /** Push a command to the front of the queue. @version 1.0 */
         CO_API virtual void pushFront( CommandPtr packet );
-
-        /** Wake up the command queue, pop() will return 0. */
-        CO_API virtual void wakeup();
 
         /** 
          * Pop a command from the queue.
          *
-         * The returned command has to be released after usage.
-         * 
          * @param timeout the time in ms to wait for the operation.
          * @return the next command in the queue.
-         * @throws Exception on timeout.
+         * @throw Exception on timeout.
+         * @version 1.0
          */
         CO_API virtual CommandPtr pop( const uint32_t timeout =
                                        LB_TIMEOUT_INDEFINITE );
@@ -61,22 +61,22 @@ namespace detail { class CommandQueue; }
         /** 
          * Try to pop a command from the queue.
          *
-         * The returned command has to be released after usage.
-         * 
          * @return the next command in the queue, or 0 if no command is queued.
+         * @version 1.0
          */
         CO_API virtual CommandPtr tryPop();
 
         /** 
          * @return <code>true</code> if the command queue is empty,
          *         <code>false</code> if not. 
+         * @version 1.0
          */
         CO_API bool isEmpty() const;
 
-        /** Flush all cached commands. */
+        /** Flush all pending commands. @version 1.0 */
         CO_API void flush();
 
-        /** @return the size of the queue. */
+        /** @return the size of the queue. @version 1.0 */
         CO_API size_t getSize() const;
 
         LB_TS_VAR( _thread );

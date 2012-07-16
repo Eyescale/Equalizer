@@ -431,7 +431,7 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
 }
 
@@ -523,7 +523,7 @@ bool Node::_cmdConfigExit( co::Command& command )
     }
     
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
     _flushObjects();
 

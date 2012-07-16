@@ -32,7 +32,7 @@ namespace co
      * This class is used by the LocalNode to pass received packets to the
      * Dispatcher and ultimately command handler functions. It is not intended
      * to be instantiated by applications. It is the applications responsible to
-     * access the correct packet type.
+     * provide the correct packet type to the templated get methods.
      */
     class Command : public lunchbox::Referenced
     {

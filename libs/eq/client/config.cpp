@@ -1043,7 +1043,7 @@ bool Config::_cmdFrameFinish( co::Command& command )
         _impl->unlockedFrame = _impl->finishedFrame.get();
     }
 
-    getMainThreadQueue()->wakeup();
+    getMainThreadQueue()->push( 0 ); // wakeup signal
     return true;
 }
 

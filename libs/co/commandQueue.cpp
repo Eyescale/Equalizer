@@ -76,11 +76,6 @@ void CommandQueue::pushFront( CommandPtr command )
     _impl->commands.pushFront( command );
 }
 
-void CommandQueue::wakeup()
-{
-    _impl->commands.push( CommandPtr( ));
-}
-
 CommandPtr CommandQueue::pop( const uint32_t timeout )
 {
     LB_TS_THREAD( _thread );
