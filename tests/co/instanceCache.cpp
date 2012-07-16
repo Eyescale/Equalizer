@@ -164,7 +164,8 @@ int main( int argc, char **argv )
     std::cout << cache << std::endl;
 
     TESTINFO( cache.getSize() == 0, cache.getSize( ));
-    TEST( command->isFree( ));
+    TEST( command->getRefCount() ==  1 );
+    command = 0;
 
     TEST( co::exit( ));
     return EXIT_SUCCESS;

@@ -46,6 +46,7 @@ if(Boost_FOUND)
   if(NOT Boost_USE_STATIC_LIBS)
     list(APPEND CO_ADD_LINKLIB ${Boost_DATE_TIME_LIBRARY})
   endif()
+  add_definitions(-DBOOST_ARCHIVE_SOURCE)
 endif(Boost_FOUND)
 
 if(OFED_FOUND)
