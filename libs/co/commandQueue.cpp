@@ -66,7 +66,6 @@ size_t CommandQueue::getSize() const
 
 void CommandQueue::push( CommandPtr command )
 {
-    LBASSERT( command->isValid( ));
     _impl->commands.push( command );
 }
 
