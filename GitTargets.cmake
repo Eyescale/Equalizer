@@ -1,7 +1,10 @@
 # Copyright (c) 2012 Stefan.Eilemann@epfl.ch
 # See doc/GitTargets.md for documentation
 
-find_package(Git REQUIRED)
+find_package(Git)
+if(NOT GIT_EXECUTABLE)
+  return()
+endif()
 
 math(EXPR _gittargets_ODD_MINOR "${VERSION_MINOR} % 2")
 if(_gittargets_ODD_MINOR)
