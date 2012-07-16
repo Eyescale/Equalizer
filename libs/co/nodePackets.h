@@ -24,6 +24,8 @@
 #include <co/objectVersion.h> // VERSION_FOO values
 #include <lunchbox/compiler.h> // align macros
 
+#include "nodeCommand.h" // CMD enums
+
 /** @cond IGNORE */
 namespace co
 {
