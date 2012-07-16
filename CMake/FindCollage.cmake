@@ -68,6 +68,8 @@
 #  Output variables of the form COLLAGE_FOO
 #
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/FindCollage)
+
 include(FindLibraryPackage)
 include(FindPackageHandleStandardArgs)
 

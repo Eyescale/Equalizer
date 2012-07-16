@@ -221,6 +221,8 @@ endif()
 
 install(FILES CMake/FindCollage.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT codev)
+install(FILES CMake/FindLibraryPackage.cmake
+  DESTINATION ${CMAKE_MODULE_INSTALL_PATH}/FindCollage COMPONENT codev)
 install(FILES CMake/FindEqualizer.cmake
   DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT eqdev)
 install(FILES CMake/FindGLEW_MX.cmake
