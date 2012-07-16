@@ -8,7 +8,6 @@ set(CO_PUBLIC_HEADERS
     bufferConnection.h
     co.h
     command.h
-    commandCache.h
     commandFunc.h
     commandQueue.h
     commands.h
@@ -55,6 +54,7 @@ set(CO_PUBLIC_HEADERS
 
 set(CO_HEADERS 
     barrierPackets.h
+    commandCache.h
     compressor.h
     compressorInfo.h
     cpuCompressor.h
@@ -138,6 +138,7 @@ set(CO_SOURCES
   
 set(CO_COMPRESSOR_HEADERS
     compressor/compressor.h
+    compressor/compressorFastLZ.h
     compressor/compressorRLE4B.h
     compressor/compressorRLE4BU.h
     compressor/compressorRLE4HF.h
@@ -145,10 +146,14 @@ set(CO_COMPRESSOR_HEADERS
     compressor/compressorRLE565.h
     compressor/compressorRLEB.h
     compressor/compressorRLEYUV.h
+    compressor/compressorLZF.h
+    compressor/fastlz/fastlz.h
+    compressor/liblzf/lzf.h
 )
   
 set(CO_COMPRESSOR_SOURCES
     compressor/compressor.cpp
+    compressor/compressorFastLZ.cpp
     compressor/compressorRLE.ipp
     compressor/compressorRLE4B.cpp
     compressor/compressorRLE4BU.cpp
@@ -157,6 +162,10 @@ set(CO_COMPRESSOR_SOURCES
     compressor/compressorRLE565.cpp
     compressor/compressorRLEB.cpp
     compressor/compressorRLEYUV.cpp
+    compressor/compressorLZF.cpp
+    compressor/fastlz/fastlz.c
+    compressor/liblzf/lzf_c.c
+    compressor/liblzf/lzf_d.c
 )
 
 set(PLUGIN_HEADERS

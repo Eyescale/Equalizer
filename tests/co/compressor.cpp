@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,8 +47,8 @@ void _testData( const uint32_t nameCompressor, const std::string& name,
 std::vector< uint32_t > getCompressorNames( const uint32_t tokenType );
 void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes );
 
-std::vector< std::string > getFiles( const std::string path, 
-                                     std::vector< std::string >& files, 
+std::vector< std::string > getFiles( const std::string path,
+                                     std::vector< std::string >& files,
                                      const std::string& ext );
 
 uint64_t _result = 0;
@@ -81,21 +81,21 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
                 names.push_back( (*j).name );
         }
     }
-    
+
     return names;
 }
 
 void _testData( const uint32_t compressorName, const std::string& name,
-                       const uint8_t* data, const uint64_t size )
+                const uint8_t* data, const uint64_t size )
 {
     co::CPUCompressor compressor;
     co::CPUCompressor decompressor;
     compressor.co::Compressor::initCompressor( compressorName );
     decompressor.co::Compressor::initDecompressor( compressorName );
 
-    const uint64_t flags = EQ_COMPRESSOR_DATA_1D;    
+    const uint64_t flags = EQ_COMPRESSOR_DATA_1D;
     uint64_t inDims[2]  = { 0, size };
-    
+
     compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
     lunchbox::Clock clock;
     compressor.compress( const_cast<uint8_t*>(data), inDims, flags );
@@ -115,11 +115,11 @@ void _testData( const uint32_t compressorName, const std::string& name,
         compressor.getResult( i, &vectorVoid[i], &vectorSize[i] );
         compressedSize += vectorSize[i];
     }
-        
+
     lunchbox::Bufferb result;
     result.resize( size );
     uint8_t* outData = result.getData();
-        
+
     decompressor.decompress( &vectorVoid.front(), &vectorSize.front(),
                              numResults, outData, inDims );
 
@@ -143,30 +143,32 @@ void _testData( const uint32_t compressorName, const std::string& name,
 
 void _testFile()
 {
-    std::vector< uint32_t >compressorNames = 
+    std::vector< uint32_t >compressorNames =
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
 
     std::vector< std::string > files;
-    
+
     getFiles( "", files, "*.dll" );
     getFiles( "", files, "*.exe" );
     getFiles( "", files, "*.so" );
-    getFiles( "text", files, "*.a" );
-    getFiles( "text", files, "*.dylib" );
+    getFiles( "images", files, "*.rgb" );
+    getFiles( "", files, "*.a" );
+    getFiles( "", files, "*.dylib" );
     getFiles( "/Users/eile/Library/Models/mediumPly/", files, "*.bin" );
-    
+    getFiles( "/Users/eile/Library/Models/mediumPly/", files, "*.ply" );
+
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
     std::cout << "                File, Compressor,       SIZE, "
               << "Compressed,     t_comp,   t_decomp" << std::endl;
-    _result = 0;
-    _size = 0;
-    _compressionTime = 0;
-    _decompressionTime = 0;
-    
     for( std::vector< uint32_t >::const_iterator i = compressorNames.begin();
          i != compressorNames.end(); ++i )
     {
+        _result = 0;
+        _size = 0;
+        _compressionTime = 0;
+        _decompressionTime = 0;
+
         for ( std::vector< std::string >::const_iterator j = files.begin();
               j != files.end(); ++j )
         {
@@ -179,9 +181,9 @@ void _testFile()
                 continue;
             }
 
-            const size_t size = file.getSize();    
+            const size_t size = file.getSize();
             const std::string name = lunchbox::getFilename( *j );
-            
+
             _testData( *i, name, data, size );
         }
         std::cout << std::setw(24) << "Total, 0x" << std::setw(8)
@@ -201,7 +203,7 @@ void _testRandom()
     for( size_t k = 0; k<size; ++k )
         data[k] = rng.get< uint8_t >();
 
-    std::vector< uint32_t >compressorNames = 
+    std::vector< uint32_t >compressorNames =
         getCompressorNames( EQ_COMPRESSOR_DATATYPE_BYTE );
     _result = 0;
     _size = 0;
@@ -226,7 +228,7 @@ void _testRandom()
    }
 
     delete [] data;
-} 
+}
 
 void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes )
 {
@@ -239,8 +241,8 @@ void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes )
     }
 }
 
-std::vector< std::string > getFiles( const std::string path, 
-                                     std::vector< std::string >& files, 
+std::vector< std::string > getFiles( const std::string path,
+                                     std::vector< std::string >& files,
                                      const std::string& ext )
 {
     const co::PluginRegistry& reg = co::Global::getPluginRegistry();
@@ -248,16 +250,16 @@ std::vector< std::string > getFiles( const std::string path,
     if( !path.empty( ))
         paths.push_back( path );
 
-    for ( uint64_t j = 0; j < paths.size(); j++)
+    for( uint64_t j = 0; j < paths.size(); ++j )
     {
-        lunchbox::Strings candidates = 
-            lunchbox::searchDirectory( paths[j], ext.c_str() );
-        for( lunchbox::Strings::const_iterator i = candidates.begin();
+        lunchbox::Strings candidates = lunchbox::searchDirectory( paths[j],
+                                                                  ext.c_str( ));
+        for( lunchbox::StringsCIter i = candidates.begin();
                 i != candidates.end(); ++i )
         {
             const std::string& filename = *i;
             files.push_back( paths[j] + '/' + filename );
-        }    
+        }
     }
     return files;
 }

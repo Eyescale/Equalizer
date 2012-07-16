@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,6 +26,8 @@ namespace eq
 {
 namespace fabric
 {
+namespace detail { class Client; }
+
     /** A client represents a network node of the application in the cluster. */
     class Client : public co::LocalNode
     {
@@ -61,7 +63,7 @@ namespace fabric
         virtual co::CommandQueue* getMainThreadQueue() = 0;
 
         /** @internal */
-        EQFABRIC_API virtual bool dispatchCommand( co::Command& command );
+        EQFABRIC_API virtual bool dispatchCommand( co::CommandPtr command );
 
     protected:
         /** Construct a new client. @internal */
@@ -71,8 +73,7 @@ namespace fabric
         EQFABRIC_API virtual ~Client();
 
     private:
-        struct Private;
-        Private* _private; // placeholder for binary-compatible changes
+        detail::Client* _impl;
     };
 }
 }

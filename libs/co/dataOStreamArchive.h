@@ -63,9 +63,6 @@ public:
     template< typename T >
     void save_array( const boost::serialization::array< T >& a, unsigned int );
 
-private:
-    friend class boost::archive::save_access;
-
     /** @internal enable serialization optimization for arrays. */
     struct use_array_optimization
     {
@@ -73,6 +70,9 @@ private:
         struct apply
             : public boost::serialization::is_bitwise_serializable< T > {};
     };
+
+private:
+    friend class boost::archive::save_access;
 
     /**
      * Save boolean.

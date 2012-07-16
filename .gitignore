@@ -9,6 +9,7 @@
 *.ply.*.bin
 *.vcproj.*.user
 *.log
+*.auto.eqc
 Result_*.rgb*
 ___*
 tt.*

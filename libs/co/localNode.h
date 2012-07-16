@@ -24,6 +24,7 @@
 #include <co/objectHandler.h>   // base class
 #include <co/objectVersion.h>   // VERSION_FOO used inline
 #include <lunchbox/requestHandler.h> // base class
+
 #include <boost/function/function1.hpp>
 #include <boost/function/function4.hpp>
 
@@ -372,10 +373,10 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         CO_API void flushCommands();
 
         /** @internal Clone the given command. */
-        CO_API Command& cloneCommand( Command& command );
+        CO_API CommandPtr cloneCommand( CommandPtr command );
 
         /** @internal Allocate a local command from the receiver thread. */
-        CO_API Command& allocCommand( const uint64_t size );
+        CO_API CommandPtr allocCommand( const uint64_t size );
 
         /**
          * Dispatches a packet to the registered command queue.
@@ -384,7 +385,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
          * @return the result of the operation.
          * @sa Command::invoke
          */
-        CO_API bool dispatchCommand( Command& command );
+        CO_API virtual bool dispatchCommand( CommandPtr command );
 
         /**
          * Acquire a singular send token from the given node.
@@ -435,7 +436,6 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         detail::LocalNode* const _impl;
 
         bool _connectSelf();
-        void _connectMulticast( NodePtr node );
 
         bool _startCommandThread();
         bool _notifyCommandThreadIdle();
@@ -443,6 +443,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         friend class detail::CommandThread;
 
         void _cleanup();
+        void _closeNode( NodePtr node );
         CO_API void _addConnection( ConnectionPtr connection );
         void _removeConnection( ConnectionPtr connection );
 
@@ -467,7 +468,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
             registerCommand( command, func, destinationQueue );
         }
 
-        void _dispatchCommand( Command& command );
+        void _dispatchCommand( CommandPtr command );
         void   _redispatchCommands();
 
         /** The command functions. */
@@ -496,6 +497,7 @@ namespace detail { class LocalNode; class ReceiverThread; class CommandThread; }
         LB_TS_VAR( _cmdThread );
         LB_TS_VAR( _rcvThread );
     };
+
     inline std::ostream& operator << ( std::ostream& os, const LocalNode& node )
     {
         os << static_cast< const Node& >( node );

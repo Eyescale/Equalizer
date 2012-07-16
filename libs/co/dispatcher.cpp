@@ -80,13 +80,13 @@ void Dispatcher::_registerCommand( const uint32_t command, const Func& func,
 }
 
 
-bool Dispatcher::dispatchCommand( Command& command )
+bool Dispatcher::dispatchCommand( CommandPtr command )
 {
-    LBASSERT( command.isValid( ));
+    LBASSERT( command->isValid( ));
     LBVERB << "dispatch " << command << " on " << lunchbox::className( this )
            << std::endl;
 
-    const uint32_t which = command->command;
+    const uint32_t which = (*command)->command;
 #ifndef NDEBUG
     if( which >= _impl->qTable.size( ))
     {
@@ -101,7 +101,7 @@ bool Dispatcher::dispatchCommand( Command& command )
     CommandQueue* queue = _impl->qTable[which];
     if( queue )
     {
-        command.setDispatchFunction( _impl->fTable[which] );
+        command->setDispatchFunction( _impl->fTable[which] );
         queue->push( command );
         return true;
     }

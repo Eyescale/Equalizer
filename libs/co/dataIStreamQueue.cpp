@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -17,6 +17,7 @@
 
 #include "dataIStreamQueue.h"
 
+#include "command.h"
 #include "objectPackets.h"
 #include "objectDataIStream.h"
 
@@ -85,7 +86,7 @@ bool DataIStreamQueue::addDataPacket( const uint128_t& key, Command& command )
     else
         istream = i->second;
 
-    istream->addDataPacket( command );
+    istream->addDataPacket( &command );
     if( istream->isReady( ))
     {
         if( i != _pending.end( ))

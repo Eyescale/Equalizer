@@ -78,17 +78,19 @@ void CPUCompressor::decompress( const void* const* in,
 bool CPUCompressor::initCompressor( const uint32_t dataType,
                                     const float quality, const bool noAlpha )
 {
-    return Compressor::initCompressor(
-        chooseCompressor( dataType, quality, noAlpha ));
+    return Compressor::initCompressor( chooseCompressor( dataType, quality,
+                                                         noAlpha ));
 }
 
 uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType, 
                                           const float minQuality,
                                           const bool ignoreALPHA )
 {
-    uint32_t name = EQ_COMPRESSOR_NONE;
-    float ratio = 1.0f;
-    float minDiffQuality = 1.0f;
+    CompressorInfo candidate;
+    candidate.name = EQ_COMPRESSOR_NONE;
+    candidate.ratio = 1.0f;
+    candidate.quality = 1.0f;
+    candidate.speed = 1.0f;
 
     PluginRegistry& registry = Global::getPluginRegistry();
     const Plugins& plugins = registry.getPlugins();
@@ -101,13 +103,13 @@ uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType,
              j != infos.end(); ++j )
         {
             const CompressorInfo& info = *j;
-            if( info.tokenType != tokenType )
+            if( info.tokenType != tokenType || info.quality < minQuality ||
+                ( info.capabilities & EQ_COMPRESSOR_TRANSFER ))
+            {
                 continue;
+            }
 
-            if( info.capabilities & EQ_COMPRESSOR_TRANSFER )
-                continue;
-
-            float infoRatio = info.ratio;
+            float ratio = info.ratio;
             if( ignoreALPHA && ( info.capabilities&EQ_COMPRESSOR_IGNORE_ALPHA ))
             {
                 switch( tokenType )
@@ -117,27 +119,32 @@ uint32_t CPUCompressor::chooseCompressor( const uint32_t tokenType,
                     case EQ_COMPRESSOR_DATATYPE_4_BYTE:
                     case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
                     case EQ_COMPRESSOR_DATATYPE_4_FLOAT:
-                        infoRatio *= .75f;
+                        ratio *= .75f;
                         break;
 
                     case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
-                        infoRatio *= .9375f; // 30/32
+                        ratio *= .9375f; // 30/32
                         break;
                 }
             }
             
-            const float diffQuality = info.quality - minQuality;
-            if( ratio >= infoRatio && diffQuality <= minDiffQuality &&
-                info.quality >= minQuality )
+            if( ratio > candidate.ratio )
+                continue;
+
+            if( (ratio == candidate.ratio) &&
+                ( candidate.quality > info.quality ||
+                  candidate.speed > info.speed ))
             {
-                minDiffQuality = diffQuality;
-                name = info.name;
-                ratio = infoRatio;
+                // keep candidate with same ratio but better quality|speed
+                continue;
             }
+
+            candidate = info;
+            candidate.ratio = ratio;
         }
     }
 
-    return name;
+    return candidate.name;
 }
 
 }

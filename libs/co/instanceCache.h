@@ -52,7 +52,7 @@ namespace co
          * @return true if the command was entered, false if not.
          */
         CO_API bool add( const ObjectVersion& rev, const uint32_t instanceID, 
-                         Command& command, const uint32_t usage = 0 );
+                         CommandPtr command, const uint32_t usage = 0 );
 
         /** Remove all items from the given node. */
         void remove( const NodeID& node );

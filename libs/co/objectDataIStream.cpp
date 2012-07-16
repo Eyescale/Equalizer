@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -26,7 +26,6 @@
 namespace co
 {
 ObjectDataIStream::ObjectDataIStream()
-        : _usedCommand( 0 )
 {
     _reset();
 }
@@ -39,14 +38,8 @@ ObjectDataIStream::~ObjectDataIStream()
 ObjectDataIStream::ObjectDataIStream( const ObjectDataIStream& from )
         : DataIStream( from )
         , _commands( from._commands )
-        , _usedCommand( 0 )
         , _version( from._version )
 {
-    for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
-    {
-        Command* command = *i;
-        command->retain();
-    }
 }
 
 void ObjectDataIStream::reset()
@@ -57,27 +50,17 @@ void ObjectDataIStream::reset()
 
 void ObjectDataIStream::_reset()
 {
-    if( _usedCommand )
-    {
-        _usedCommand->release();
-        _usedCommand = 0;
-    }
-    while( !_commands.empty( ))
-    {
-        Command* command = _commands.front();
-        command->release();
-        _commands.pop_front();
-    }
-
+    _usedCommand = 0;
+    _commands.clear();
     _version = VERSION_INVALID;
 }
 
-void ObjectDataIStream::addDataPacket( Command& command )
+void ObjectDataIStream::addDataPacket( CommandPtr command )
 {
     LB_TS_THREAD( _thread );
     LBASSERT( !isReady( ));
 
-    const ObjectDataPacket* packet = command.get< ObjectDataPacket >();
+    const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
 #ifndef NDEBUG
     if( _commands.empty( ))
     {
@@ -93,8 +76,7 @@ void ObjectDataIStream::addDataPacket( Command& command )
     }
 #endif
 
-    command.retain();
-    _commands.push_back( &command );
+    _commands.push_back( command );
     if( packet->last )
         _setReady();
 }
@@ -107,7 +89,7 @@ bool ObjectDataIStream::hasInstanceData() const
         return false;
     }
 
-    const Command* command = _usedCommand ? _usedCommand : _commands.front();
+    const CommandPtr command = _usedCommand ? _usedCommand : _commands.front();
     return( (*command)->command == CMD_OBJECT_INSTANCE );
 }
 
@@ -116,7 +98,7 @@ NodePtr ObjectDataIStream::getMaster()
     if( !_usedCommand && _commands.empty( ))
         return 0;
 
-    const Command* command = _usedCommand ? _usedCommand : _commands.front();
+    const CommandPtr command = _usedCommand ? _usedCommand : _commands.front();
     return command->getNode();
 }
 
@@ -125,9 +107,8 @@ size_t ObjectDataIStream::getDataSize() const
     size_t size = 0;
     for( CommandDequeCIter i = _commands.begin(); i != _commands.end(); ++i )
     {
-        const Command* command = *i;
-        const ObjectDataPacket* packet = 
-            command->get< ObjectDataPacket >();
+        const CommandPtr command = *i;
+        const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
         size += packet->dataSize;
     }
     return size;
@@ -138,16 +119,13 @@ uint128_t ObjectDataIStream::getPendingVersion() const
     if( _commands.empty( ))
         return VERSION_INVALID;
 
-    const Command* command = _commands.back();
+    const CommandPtr command = _commands.back();
     const ObjectDataPacket* packet = command->get< ObjectDataPacket >();
     return packet->version;
 }
 
-const Command* ObjectDataIStream::getNextCommand()
+const CommandPtr ObjectDataIStream::getNextCommand()
 {
-    if( _usedCommand )
-        _usedCommand->release();
-
     if( _commands.empty( ))
         _usedCommand = 0;
     else
@@ -161,7 +139,7 @@ const Command* ObjectDataIStream::getNextCommand()
 bool ObjectDataIStream::getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
                                        const void** chunkData, uint64_t* size )
 {
-    const Command* command = getNextCommand();
+    const CommandPtr command = getNextCommand();
     if( !command )
         return false;
 

@@ -1,10 +1,13 @@
 #Equalizer 1.1 ascii
 
-# one-pipe fullscreen config, covering a 30" LCD one meter in
-# front of the viewer
+# one-pipe fullscreen configuration
+# Note: Uses quad-buffered stereo where available, falls back to anaglyphic
+# stereo otherwise. Uncomment the stereo mode global to force anaglyphic.
+
 global
 {
     EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+    #EQ_COMPOUND_IATTR_STEREO_MODE ANAGLYPH
 }
 
 server
@@ -17,10 +20,7 @@ server
             {
                 window
                 {
-                    channel
-                    {
-                        name "channel"
-                    }
+                    channel { name "channel" }
                 }
             }
         }
@@ -32,5 +32,5 @@ server
             wall {}
             segment { channel "channel" }
         }
-    }    
+    }
 }

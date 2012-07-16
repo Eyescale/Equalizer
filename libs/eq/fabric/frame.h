@@ -125,6 +125,8 @@ namespace detail { class Frame; }
         detail::Frame* const _impl;
     };
 
+    /** Print the frame to the given output stream. @version 1.4 */
+    EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame& );
     /** Print the frame type to the given output stream. @version 1.0 */
     EQFABRIC_API std::ostream& operator << ( std::ostream&, const Frame::Type );
     /** Print the frame buffer value to the given output stream. @version 1.0 */

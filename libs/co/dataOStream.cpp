@@ -250,7 +250,10 @@ void DataOStream::_compress( void* src, const uint64_t size,
 #ifdef EQ_INSTRUMENT_DATAOSTREAM
     nBytesIn += size;
 #endif
-    if( !_compressor->isValid( _compressor->getName( )) || size == 0 )
+    const uint64_t threshold =
+        uint64_t( Global::getIAttribute( Global::IATTR_OBJECT_COMPRESSION ));
+
+    if( !_compressor->isValid( _compressor->getName( )) || size <= threshold )
     {
         _compressorState = STATE_UNCOMPRESSED;
         return;
@@ -320,6 +323,7 @@ uint64_t DataOStream::_getCompressedData( void** chunks, uint64_t* chunkSizes )
     {
         _compressor->getResult( i, &chunks[i], &chunkSizes[i] );
         dataSize += chunkSizes[i];
+        LBASSERTINFO( chunkSizes[i] != 0, i );
     }
 
     return dataSize;

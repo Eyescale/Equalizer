@@ -391,9 +391,9 @@ void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
-        co::Command& command = allocCommand( sizeof( eq::ClientExitPacket ));
+        co::CommandPtr command = allocCommand( sizeof( eq::ClientExitPacket ));
         eq::ClientExitPacket* packet = 
-            command.getModifiable< eq::ClientExitPacket >();
+            command->getModifiable< eq::ClientExitPacket >();
         *packet = eq::ClientExitPacket();
         dispatchCommand( command );
 

@@ -286,6 +286,14 @@ bool Connection::recvSync( void** outBuffer, uint64_t* outBytes,
     return true;
 }
 
+void Connection::resetRecvData( void** buffer, uint64_t* bytes )
+{
+    *buffer = _aioBuffer;
+    *bytes = _aioBytes;
+    _aioBuffer = 0;
+    _aioBytes = 0;
+}
+
 //----------------------------------------------------------------------
 // write
 //----------------------------------------------------------------------
@@ -483,7 +491,7 @@ bool Connection::send( const Connections& connections, Packet& packet,
     const uint64_t headerSize = packet.size;
     for( size_t i = 0; i < nItems; ++i )
     {
-        LBASSERT( sizes[i] > 0 );
+        LBASSERTINFO( sizes[i] != 0, i );
         packet.size += sizes[ i ] + sizeof( uint64_t );
     }
 

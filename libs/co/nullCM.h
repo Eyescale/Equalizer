@@ -36,7 +36,7 @@ namespace co
 
         virtual void init() {}
 
-        virtual void push( const uint128_t&, const uint128_t&, Nodes& )
+        virtual void push( const uint128_t&, const uint128_t&, const Nodes& )
             { LBDONTCALL; }
 
         virtual uint128_t getHeadVersion() const   { return VERSION_NONE; }

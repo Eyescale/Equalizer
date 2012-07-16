@@ -415,12 +415,11 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::Command* command = _queue.pop();
+        co::CommandPtr command = _queue.pop();
         if( !command )
             return; // exit thread
 
         LBCHECK( (*command)( ));
-        command->release();
     }
 }
 
@@ -432,7 +431,7 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
 }
 
@@ -524,7 +523,7 @@ bool Node::_cmdConfigExit( co::Command& command )
     }
     
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().wakeup();
+    transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
     _flushObjects();
 

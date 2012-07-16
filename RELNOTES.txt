@@ -23,13 +23,13 @@
    features, most notably asynchronous readbacks, region of interest and
    thread affinity for increased performance during scalable rendering.
 
-   Equalizer 1.4 beta is a feature release extending the 1.0 API, distilling
-   over seven years of development and decades of experience into a
-   feature-rich, high-performance and mature parallel rendering framework and
-   an object-oriented high-level network library. It is intended for all
+   Equalizer 1.4 is a feature release extending the 1.0 API, distilling over
+   seven years of development and decades of experience into a feature-rich,
+   high-performance and mature parallel rendering framework and an
+   object-oriented high-level network library. It is intended for all
    application developers creating parallel, interactive OpenGL applications.
-   Equalizer 1.4 beta can be retrieved by downloading the source code or one
-   of the precompiled packages.
+   Equalizer 1.4 can be retrieved by downloading the source code or one of
+   the precompiled packages.
 
   1.1. Features
 
@@ -54,8 +54,8 @@
 
 2. New in this release
 
-   Equalizer 1.4 beta contains the following features, enhancements, bug
-   fixes and documentation changes:
+   Equalizer 1.4 contains the following features, enhancements, bug fixes and
+   documentation changes:
 
   2.1. New Features
 
@@ -108,9 +108,14 @@
 
   2.7. Bug Fixes
 
-   Equalizer 1.4 beta includes various bugfixes over the 1.2.1 release,
-   including the following:
+   Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
+   the following:
 
+     * 118: OS X: Async readback doesn't work
+     * 137: 1-window.DFR broken
+     * 136: compositor assertion when using custom frames
+     * 135: Command line option --eq-layout broken
+     * 131: seqPly --help launches application
      * 127: Problem with getdomainname() in SocketConnection::listen()
      * 124: Upload plugins are not freed
      * 121: Packaging: netperf conflicts with other packages
@@ -121,7 +126,6 @@
    The following bugs were known at release time. Please file a Bug Report if
    you find any other issue with this release.
 
-     * 118: OS X: Async readback doesn't work
      * 78: AGL: assertion on interaction with multiple GPUs
      * 77: 7-window.DB.PIXEL.eqc broken
      * 76: 7-window.DPLEX.2D.lb.eqc does not load-balance
@@ -137,7 +141,7 @@
    system. A compatibility matrix can be found on the Equalizer website.
 
    Equalizer requires at least OpenGL 1.1, but uses newer OpenGL features
-   when available. Version 1.4 beta has been tested on:
+   when available. Version 1.4 has been tested on:
 
   3.1. Operating System Support
 

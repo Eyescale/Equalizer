@@ -103,7 +103,7 @@ public:
             }
         }
 
-    Command& newCommand( const Cache which )
+    CommandPtr newCommand( const Cache which )
         {
             _compact( CACHE_SMALL );
             _compact( CACHE_BIG );
@@ -155,7 +155,7 @@ public:
                             }
                         }
 #endif
-                        return *command;
+                        return command;
                     }
                 }
             }
@@ -176,7 +176,7 @@ public:
             _allocs += add;
 #endif
 
-            return *( cache_.back( ));
+            return cache_.back();
         }
 
     /** The caches. */
@@ -245,28 +245,29 @@ void CommandCache::flush()
     _impl->flush();
 }
 
-Command& CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
-                              const uint64_t size )
+CommandPtr CommandCache::alloc( NodePtr node, LocalNodePtr localNode,
+                                const uint64_t size )
 {
     LB_TS_THREAD( _thread );
     LBASSERTINFO( size < LB_BIT48,
                   "Out-of-sync network stream: packet size " << size << "?" );
 
     const Cache which = (size > Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
-    Command& command = _impl->newCommand( which );
+    CommandPtr command = _impl->newCommand( which );
 
-    command.alloc_( node, localNode, size );
+    command->alloc_( node, localNode, size );
     return command;
 }
 
-Command& CommandCache::clone( Command& from )
+CommandPtr CommandCache::clone( CommandPtr from )
 {
     LB_TS_THREAD( _thread );
 
-    const Cache which = (from->size>Packet::minSize) ? CACHE_BIG : CACHE_SMALL;
-    Command& command = _impl->newCommand( which );
+    const Cache which = ( (*from)->size > Packet::minSize ) ? CACHE_BIG :
+                                                              CACHE_SMALL;
+    CommandPtr command = _impl->newCommand( which );
 
-    command.clone_( from );
+    command->clone_( from );
     return command;
 }
 
@@ -284,7 +285,8 @@ std::ostream& operator << ( std::ostream& os, const CommandCache& cache )
         if( !command->isFree( ))
             os << *command << std::endl;
     }
-    return os << lunchbox::enableHeader << lunchbox::exdent << lunchbox::enableFlush ;
+    return os << lunchbox::enableHeader << lunchbox::exdent
+              << lunchbox::enableFlush;
 }
 
 }

@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -67,7 +67,7 @@ uint128_t VersionedSlaveCM::commit( const uint32_t incarnation )
     LBLOG( LOG_OBJECTS ) << "commit v" << _version << " " << command 
                          << std::endl;
 #endif
-    if( !_object->isDirty() || !_master || !_master->isConnected( ))
+    if( !_object->isDirty() || !_master || !_master->isReachable( ))
         return VERSION_NONE;
 
     _ostream.enableCommit( _master );
@@ -324,7 +324,7 @@ bool VersionedSlaveCM::_cmdData( Command& command )
     if( !_currentIStream )
         _currentIStream = _iStreamCache.alloc();
 
-    _currentIStream->addDataPacket( command );
+    _currentIStream->addDataPacket( &command );
     if( _currentIStream->isReady( ))
     {
         const uint128_t& version = _currentIStream->getVersion();

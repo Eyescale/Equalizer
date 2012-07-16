@@ -73,9 +73,9 @@ protected:
 class DataIStream : public co::DataIStream
 {
 public:
-    void addDataCommand( co::Command& command )
+    void addDataCommand( co::CommandPtr command )
         {
-            TESTINFO( command->command == 2, command );
+            TESTINFO( (*command)->command == 2, command );
             _commands.push( command );
         }
 
@@ -87,7 +87,7 @@ protected:
     virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
                                 const void** chunkData, uint64_t* size )
         {
-            co::Command* command = _commands.tryPop();
+            co::CommandPtr command = _commands.tryPop();
             if( !command )
                 return false;
 
@@ -98,8 +98,6 @@ protected:
             *nChunks = packet->nChunks;
             *size = packet->dataSize;
             *chunkData = packet->data;
-
-            command->release();
             return true;
         }
 
@@ -171,21 +169,21 @@ int main( int argc, char **argv )
         TEST( connection->recvSync( 0, 0 ));
         TEST( size );
 
-        co::Command& command = commandCache.alloc( 0, 0, size );
+        co::CommandPtr command = commandCache.alloc( 0, 0, size );
         size -= sizeof( size );
 
         char* ptr = reinterpret_cast< char* >(
-            command.getModifiable< co::Packet >( )) + sizeof( size );
+            command->getModifiable< co::Packet >( )) + sizeof( size );
         connection->recvNB( ptr, size );
         TEST( connection->recvSync( 0, 0 ) );
         TEST( command.isValid( ));
         
-        switch( command->command )
+        switch( (*command)->command )
         {
             case 2:
                 stream.addDataCommand( command );
-                TEST( !command.isFree( ));
-                receiving = !command.get< DataPacket >()->last;
+                TEST( !command->isFree( ));
+                receiving = !command->get< DataPacket >()->last;
                 break;
             default:
                 TEST( false );

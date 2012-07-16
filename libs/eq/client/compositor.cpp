@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -69,7 +69,7 @@ static const char* depthDBKey  = shaderDBKey + 2;
 // Image used for CPU-based assembly
 static lunchbox::PerThread< Image > _resultImage;
 
-static bool _useCPUAssembly( const Frames& frames, Channel* channel, 
+static bool _useCPUAssembly( const Frames& frames, Channel* channel,
                              const bool blendAlpha = false )
 {
     // It doesn't make sense to use CPU-assembly for only one frame
@@ -129,14 +129,14 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
 #endif
 
         const Images& images = frame->getImages();
-        for( Images::const_iterator j = images.begin(); 
+        for( Images::const_iterator j = images.begin();
              j != images.end(); ++j )
         {
             const Image* image = *j;
 
             const bool hasColor = image->hasPixelData( Frame::BUFFER_COLOR );
             const bool hasDepth = image->hasPixelData( Frame::BUFFER_DEPTH );
-            
+
             if( // Not an alpha-blending compositing
                 ( !blendAlpha || !hasColor || !image->hasAlpha( )) &&
                 // and not a depth-sorting compositing
@@ -154,7 +154,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
 
                 switch( colorExternalFormat )
                 {
-                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2: 
+                    case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
                     case EQ_COMPRESSOR_DATATYPE_BGR10_A2:
                         if( !hasDepth )
                             // blending of RGB10A2 not implemented
@@ -170,9 +170,9 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
                 }
 
             }
-            else if( colorInternalFormat != 
+            else if( colorInternalFormat !=
                      image->getInternalFormat( Frame::BUFFER_COLOR ) ||
-                     colorExternalFormat != 
+                     colorExternalFormat !=
                      image->getExternalFormat( Frame::BUFFER_COLOR ))
             {
                 return false;
@@ -181,7 +181,7 @@ static bool _useCPUAssembly( const Frames& frames, Channel* channel,
             {
                 if( depthInternalFormat == 0 && depthExternalFormat == 0 )
                 {
-                    depthInternalFormat = 
+                    depthInternalFormat =
                         image->getInternalFormat( Frame::BUFFER_DEPTH );
                     depthExternalFormat =
                         image->getExternalFormat( Frame::BUFFER_DEPTH );
@@ -320,11 +320,11 @@ bool Compositor::_isSubPixelDecomposition( const Frames& frames )
 {
     if( frames.empty( ))
         return false;
-        
+
     Frames::const_iterator i = frames.begin();
     Frame* frame = *i;
     const SubPixel& subpixel = frame->getSubPixel();
-    
+
     for( ++i; i != frames.end(); ++i)
     {
         frame = *i;
@@ -360,7 +360,7 @@ const Frames Compositor::_extractOneSubPixel( Frames& frames )
 }
 
 uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
-                                             Channel* channel, 
+                                             Channel* channel,
                                              util::Accum* accum )
 {
     if( frames.empty( ))
@@ -409,7 +409,7 @@ uint32_t Compositor::assembleFramesUnsorted( const Frames& frames,
     uint32_t count = 0;
 
     // wait and assemble frames
-    WaitHandle* handle = startWaitFrames( frames, channel ); 
+    WaitHandle* handle = startWaitFrames( frames, channel );
     for( Frame* frame = waitFrame( handle ); frame; frame = waitFrame( handle ))
     {
         if( frame->getImages().empty( ))
@@ -594,14 +594,14 @@ const Image* Compositor::mergeFramesCPU( const Frames& frames,
     }
 
     // assembly
-    _mergeFrames( frames, blendAlpha, 
+    _mergeFrames( frames, blendAlpha,
                   result->getPixelPointer( Frame::BUFFER_COLOR ),
                   destDepth, destPVP );
     return result;
 }
 
-bool Compositor::_collectOutputData( 
-         const Frames& frames, PixelViewport& destPVP, 
+bool Compositor::_collectOutputData(
+         const Frames& frames, PixelViewport& destPVP,
          uint32_t& colorInternalFormat, uint32_t& colorPixelSize,
          uint32_t& colorExternalFormat,
          uint32_t& depthInternalFormat, uint32_t& depthPixelSize,
@@ -612,19 +612,23 @@ bool Compositor::_collectOutputData(
         Frame* frame = *i;
         frame->waitReady( timeout );
 
+#ifdef EQ_2_0_API
         LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
                       frame->getSubPixel() == SubPixel::ALL &&
-#ifdef EQ_2_0_API
                       frame->getFrameData()->getZoom() == Zoom::NONE &&
-#else
-                      frame->getData()->getZoom() == Zoom::NONE &&
-#endif
                       frame->getZoom() == Zoom::NONE,
                       "CPU-based compositing not implemented for given frames");
+#else
+       LBASSERTINFO( frame->getPixel() == Pixel::ALL &&
+                      frame->getSubPixel() == SubPixel::ALL &&
+                      frame->getData()->getZoom() == Zoom::NONE &&
+                      frame->getZoom() == Zoom::NONE,
+                      "CPU-based compositing not implemented for given frames");
+#endif
         if( frame->getPixel() != Pixel::ALL )
             return false;
 
-        const Images& images = frame->getImages();        
+        const Images& images = frame->getImages();
         for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
@@ -637,14 +641,14 @@ bool Compositor::_collectOutputData(
 
             destPVP.merge( image->getPixelViewport() + frame->getOffset( ));
 
-            _collectOutputData( image->getPixelData( Frame::BUFFER_COLOR ), 
-                                colorInternalFormat, colorPixelSize, 
+            _collectOutputData( image->getPixelData( Frame::BUFFER_COLOR ),
+                                colorInternalFormat, colorPixelSize,
                                 colorExternalFormat );
-            
+
             if( image->hasPixelData( Frame::BUFFER_DEPTH ))
             {
-                _collectOutputData( image->getPixelData( Frame::BUFFER_DEPTH ), 
-                                    depthInternalFormat, 
+                _collectOutputData( image->getPixelData( Frame::BUFFER_DEPTH ),
+                                    depthInternalFormat,
                                     depthPixelSize, depthExternalFormat );
             }
         }
@@ -659,8 +663,8 @@ bool Compositor::_collectOutputData(
     return true;
 }
 
-void Compositor::_collectOutputData( const PixelData& pixelData, 
-                                     uint32_t& internalFormat, 
+void Compositor::_collectOutputData( const PixelData& pixelData,
+                                     uint32_t& internalFormat,
                                      uint32_t& pixelSize,
                                      uint32_t& externalFormat )
 {
@@ -684,7 +688,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
 {
     LBASSERT( colorBuffer );
     LBVERB << "Sorted CPU assembly" << std::endl;
-    
+
     // Collect input image information and check preconditions
     uint32_t colorInternalFormat    = 0;
     uint32_t colorExternalFormat    = 0;
@@ -706,7 +710,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     // check output buffers
     const uint32_t area = outPVP.getArea();
     uint32_t nChannels = 0;
-    
+
     switch ( colorInternalFormat )
     {
         case EQ_COMPRESSOR_DATATYPE_RGBA:
@@ -734,7 +738,7 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     {
         LBASSERT( depthBuffer );
         LBASSERT( depthInternalFormat == GL_DEPTH_COMPONENT );
-        LBASSERT( depthExternalFormat == 
+        LBASSERT( depthExternalFormat ==
                   EQ_COMPRESSOR_DATATYPE_DEPTH_UNSIGNED_INT );
 
         if( !depthBuffer )
@@ -755,14 +759,14 @@ bool Compositor::mergeFramesCPU( const Frames& frames,
     return true;
 }
 
-void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha, 
+void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha,
                                void* colorBuffer, void* depthBuffer,
                                const PixelViewport& destPVP )
 {
     for( Frames::const_iterator i = frames.begin(); i != frames.end(); ++i)
     {
         const Frame* frame = *i;
-        const Images& images = frame->getImages();        
+        const Images& images = frame->getImages();
         for( Images::const_iterator j = images.begin(); j != images.end(); ++j )
         {
             const Image* image = *j;
@@ -777,7 +781,7 @@ void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha,
                 _mergeBlendImage( colorBuffer, destPVP,
                                   image, frame->getOffset( ));
             else
-                _merge2DImage( colorBuffer, depthBuffer, destPVP, 
+                _merge2DImage( colorBuffer, depthBuffer, destPVP,
                                image, frame->getOffset());
         }
     }
@@ -785,7 +789,7 @@ void Compositor::_mergeFrames( const Frames& frames, const bool blendAlpha,
 
 void Compositor::_mergeDBImage( void* destColor, void* destDepth,
                                 const PixelViewport& destPVP,
-                                const Image* image, 
+                                const Image* image,
                                 const Vector2i& offset )
 {
     LBASSERT( destColor && destDepth );
@@ -834,7 +838,7 @@ void Compositor::_mergeDBImage( void* destColor, void* destDepth,
                 *destColorIt = *colorIt;
                 *destDepthIt = *depthIt;
             }
-            
+
             ++destColorIt;
             ++destDepthIt;
             ++colorIt;
@@ -872,7 +876,7 @@ void Compositor::_merge2DImage( void* destColor, void* destDepth,
         const size_t skip = ( (destY + y) * destPVP.w + destX ) * pixelSize;
         memcpy( destC + skip, color + y * pvp.w * pixelSize, rowLength);
         // clear depth, for depth-assembly into existing FB
-        if( destD ) 
+        if( destD )
         {
             bzero( destD + skip, rowLength );
         }
@@ -895,10 +899,10 @@ void Compositor::_mergeBlendImage( void* dest, const eq::PixelViewport& destPVP,
     LBASSERT( image->getPixelSize( Frame::BUFFER_COLOR ) == 4 );
     LBASSERT( image->hasPixelData( Frame::BUFFER_COLOR ));
     LBASSERT( image->hasAlpha( ));
-    
+
 #ifdef EQ_USE_PARACOMP_BLEND
     if( pvp == destPVP && offset == eq::Vector2i::ZERO )
-    { 
+    {
         // Use Paracomp to composite
         if( !_mergeImage_PC( PC_COMP_ALPHA_SORT2_HP, dest, 0, image ))
             LBWARN << "Paracomp compositing failed, using fallback"
@@ -981,10 +985,10 @@ static unsigned glToPCFormat( const unsigned glFormat, const unsigned glType )
 #endif
 
 #ifdef EQ_USE_PARACOMP
-bool Compositor::_mergeImage_PC( int operation, void* destColor, 
+bool Compositor::_mergeImage_PC( int operation, void* destColor,
                                  void* destDepth, const Image* source )
 {
-    const unsigned colorFormat = 
+    const unsigned colorFormat =
         glToPCFormat( source->getFormat( Frame::BUFFER_COLOR ),
                       source->getType(   Frame::BUFFER_COLOR ));
 
@@ -996,7 +1000,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
 
     PCchannel input[2];
     PCchannel output[2];
-    
+
     input[0].pixelFormat  = colorFormat;
     input[0].size         = source->getDepth( Frame::BUFFER_COLOR );
     output[0].pixelFormat = colorFormat;
@@ -1018,17 +1022,17 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
     output[0].height    = pvp.h;
     output[0].rowLength = pvp.w * output[0].size;
     output[0].address   = destColor;
-    
+
     const bool useDepth = ( operation == PC_COMP_DEPTH );
     if( useDepth )
     {
-        const unsigned depthFormat = 
+        const unsigned depthFormat =
             glToPCFormat( source->getFormat( Frame::BUFFER_DEPTH ),
                           source->getType(   Frame::BUFFER_DEPTH ));
 
         if( depthFormat == 0 )
         {
-            LBWARN << "Format or type of image not supported by Paracomp" 
+            LBWARN << "Format or type of image not supported by Paracomp"
                    << std::endl;
             return false;
         }
@@ -1066,7 +1070,7 @@ bool Compositor::_mergeImage_PC( int operation, void* destColor,
         nOutputChannels[ 0 ] = 2;
     }
 
-    const PCerr error = pcCompositeEXT( operation, 
+    const PCerr error = pcCompositeEXT( operation,
                                         2, nInputChannels, inputImages,
                                         1, nOutputChannels, outputImage );
     if( error != PC_NO_ERROR )
@@ -1108,7 +1112,7 @@ void Compositor::assembleFrame( const Frame* frame, Channel* channel )
         const Image* image = *i;
         ImageOp op = operation;
         op.zoom.apply( image->getZoom() );
-        op.zoomFilter = (operation.zoom == Zoom::NONE) ? 
+        op.zoomFilter = (operation.zoom == Zoom::NONE) ?
                                         FILTER_NEAREST : frame->getZoomFilter();
         assembleImage( image, op );
     }
@@ -1143,7 +1147,7 @@ void Compositor::assembleImage( const Image* image, const ImageOp& op )
     else if( operation.buffers == ( Frame::BUFFER_COLOR | Frame::BUFFER_DEPTH ))
         assembleImageDB( image, operation );
     else
-        LBWARN << "Don't know how to assemble using buffers " 
+        LBWARN << "Don't know how to assemble using buffers "
                << operation.buffers << std::endl;
 
     clearStencilBuffer( operation );
@@ -1166,25 +1170,21 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     glLineWidth( 1.0f );
     glDepthMask( false );
     glColorMask( false, false, false, false );
-    
+
     const PixelViewport& pvp = image->getPixelViewport();
 
-    glPixelZoom( static_cast< float >( op.pixel.w ),
-                 static_cast< float >( op.pixel.h ));
+    glPixelZoom( float( op.pixel.w ), float( op.pixel.h ));
 
     if( op.pixel.w > 1 )
     {
-        const float width  = static_cast< float >( pvp.w * op.pixel.w );
-        const float step   = static_cast< float >( op.pixel.w );
+        const float width  = float( pvp.w * op.pixel.w );
+        const float step   = float( op.pixel.w );
 
-        const float startX = 
-            static_cast< float >( op.offset.x() + pvp.x ) + 0.5f - 
-            static_cast< float >( op.pixel.w );
+        const float startX = float( op.offset.x() + pvp.x ) + 0.5f - 
+                             float( op.pixel.w );
         const float endX   = startX + width + op.pixel.w + step;
-
-        const float startY = 
-            static_cast< float >( op.offset.y() + pvp.y + op.pixel.y );
-        const float endY   = static_cast< float >( startY + pvp.h*op.pixel.h );
+        const float startY = float( op.offset.y() + pvp.y + op.pixel.y );
+        const float endY   = float( startY + pvp.h*op.pixel.h );
 
         glBegin( GL_QUADS );
         for( float x = startX + op.pixel.x + 1.0f ; x < endX; x += step)
@@ -1198,16 +1198,12 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
     }
     if( op.pixel.h > 1 )
     {
-        const float height = static_cast< float >( pvp.h * op.pixel.h );
-        const float step   = static_cast< float >( op.pixel.h );
-
-        const float startX = 
-            static_cast< float >( op.offset.x() + pvp.x + op.pixel.x );
-        const float endX   = static_cast< float >( startX + pvp.w*op.pixel.w );
-
-        const float startY = 
-            static_cast< float >( op.offset.y() + pvp.y ) + 0.5f - 
-            static_cast< float >( op.pixel.h );
+        const float height = float( pvp.h * op.pixel.h );
+        const float step   = float( op.pixel.h );
+        const float startX = float( op.offset.x() + pvp.x + op.pixel.x );
+        const float endX   = float( startX + pvp.w * op.pixel.w );
+        const float startY = float( op.offset.y() + pvp.y ) + 0.5f -
+                             float( op.pixel.h );
         const float endY   = startY + height + op.pixel.h + step;
 
         glBegin( GL_QUADS );
@@ -1220,11 +1216,11 @@ void Compositor::setupStencilBuffer( const Image* image, const ImageOp& op )
         }
         glEnd();
     }
-    
+
     glDisable( GL_DEPTH_TEST );
     glStencilFunc( GL_EQUAL, 0, 1 );
     glStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
-    
+
     const ColorMask& colorMask = op.channel->getDrawBufferMask();
     glColorMask( colorMask.red, colorMask.green, colorMask.blue, true );
     glDepthMask( true );
@@ -1298,29 +1294,29 @@ void Compositor::_drawPixels( const Image* image, const ImageOp& op,
 
     glDisable( GL_LIGHTING );
     glEnable( GL_TEXTURE_RECTANGLE_ARB );
-    
+
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-    const float startX = static_cast< float >
+    const float startX = float
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
-    const float endX   = static_cast< float >
+    const float endX   = float
         ( op.offset.x() + pvp.x + pvp.w * op.pixel.w*op.zoom.x() + op.pixel.x );
-    const float startY = static_cast< float >
+    const float startY = float
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
-    const float endY   = static_cast< float >
+    const float endY   = float
         ( op.offset.y() + pvp.y + pvp.h * op.pixel.h*op.zoom.y() + op.pixel.y );
 
     glBegin( GL_QUADS );
         glTexCoord2f( 0.0f, 0.0f );
         glVertex3f( startX, startY, 0.0f );
 
-        glTexCoord2f( static_cast< float >( pvp.w ), 0.0f );
+        glTexCoord2f( float( pvp.w ), 0.0f );
         glVertex3f( endX, startY, 0.0f );
 
-        glTexCoord2f( static_cast<float>( pvp.w ), static_cast<float>( pvp.h ));
+        glTexCoord2f( float( pvp.w ), float( pvp.h ));
         glVertex3f( endX, endY, 0.0f );
-        
-        glTexCoord2f( 0.0f, static_cast< float >( pvp.h ));
+
+        glTexCoord2f( 0.0f, float( pvp.h ));
         glVertex3f( startX, endY, 0.0f );
     glEnd();
 
@@ -1350,7 +1346,7 @@ void Compositor::assembleImageDB_FF( const Image* image, const ImageOp& op )
 {
     const PixelViewport& pvp = image->getPixelViewport();
 
-    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp 
+    LBLOG( LOG_ASSEMBLY ) << "assembleImageDB, fixed function " << pvp
                           << std::endl;
 
     // Z-Based sort-last assembly
@@ -1394,7 +1390,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     Channel*               channel = op.channel; // needed for glewGetContext
     Window::ObjectManager* objects = channel->getObjectManager();
     const bool useImageTexture = image->getStorageType() == Frame::TYPE_TEXTURE;
-      
+
     const util::Texture* textureColor = 0;
     const util::Texture* textureDepth = 0;
     if ( useImageTexture )
@@ -1421,9 +1417,9 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
 
     if( program == Window::ObjectManager::INVALID )
     {
-        // Create fragment shader which reads color and depth values from 
+        // Create fragment shader which reads color and depth values from
         // rectangular textures
-        const GLuint shader = objects->newShader( shaderDBKey, 
+        const GLuint shader = objects->newShader( shaderDBKey,
                                                   GL_FRAGMENT_SHADER );
         LBASSERT( shader != Window::ObjectManager::INVALID );
 
@@ -1440,7 +1436,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         GLint status;
         glGetShaderiv( shader, GL_COMPILE_STATUS, &status );
         if( !status )
-            LBERROR << "Failed to compile fragment shader for DB compositing" 
+            LBERROR << "Failed to compile fragment shader for DB compositing"
                     << std::endl;
 
         program = objects->newProgram( shaderDBKey );
@@ -1451,14 +1447,14 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
         glGetProgramiv( program, GL_LINK_STATUS, &status );
         if( !status )
         {
-            LBWARN << "Failed to link shader program for DB compositing" 
+            LBWARN << "Failed to link shader program for DB compositing"
                    << std::endl;
             return;
         }
 
         // use fragment shader and setup uniforms
         EQ_GL_CALL( glUseProgram( program ));
-        
+
         const GLint depthParam = glGetUniformLocation( program, "depth" );
         glUniform1i( depthParam, 0 );
         const GLint colorParam = glGetUniformLocation( program, "color" );
@@ -1479,7 +1475,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE1 ));
     textureColor->bind();
     textureColor->applyZoomFilter( op.zoomFilter );
-    
+
     EQ_GL_CALL( glActiveTexture( GL_TEXTURE0 ));
     textureDepth->bind();
     textureDepth->applyZoomFilter( op.zoomFilter );
@@ -1488,17 +1484,17 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     glEnable( GL_DEPTH_TEST );
     glColor3f( 1.0f, 1.0f, 1.0f );
 
-    const float startX = static_cast< float >
+    const float startX = float
         ( op.offset.x() + pvp.x * op.pixel.w + op.pixel.x );
-    const float endX   = static_cast< float >
+    const float endX   = float
         ( op.offset.x() + pvp.getXEnd() * op.pixel.w*op.zoom.x() + op.pixel.x );
-    const float startY = static_cast< float >
+    const float startY = float
         ( op.offset.y() + pvp.y * op.pixel.h + op.pixel.y );
-    const float endY   = static_cast< float >
+    const float endY   = float
         ( op.offset.y() + pvp.getYEnd() * op.pixel.h*op.zoom.y() + op.pixel.y );
 
-    const float w = static_cast< float >( pvp.w );
-    const float h = static_cast< float >( pvp.h );
+    const float w = float( pvp.w );
+    const float h = float( pvp.h );
 
     glBegin( GL_TRIANGLE_STRIP ); {
         glMultiTexCoord2f( GL_TEXTURE0, 0.0f, 0.0f );
@@ -1524,8 +1520,7 @@ void Compositor::assembleImageDB_GLSL( const Image* image, const ImageOp& op )
     EQ_GL_CALL( glUseProgram( 0 ));
 
     if( op.pixel != Pixel::ALL )
-        glPixelZoom( static_cast< float >( op.pixel.w ),
-                     static_cast< float >( op.pixel.h ));
+        glPixelZoom( float( op.pixel.w ), float( op.pixel.h ));
     declareRegion( image, op );
 }
 

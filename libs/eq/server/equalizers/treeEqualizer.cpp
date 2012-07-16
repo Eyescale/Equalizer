@@ -66,7 +66,7 @@ TreeEqualizer::~TreeEqualizer()
 void TreeEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
-    if( isFrozen() || !compound->isRunning( ) || !isActive( ))
+    if( isFrozen() || !compound->isActive( ) || !isActive( ))
         return;
 
     if( !_tree )
@@ -251,7 +251,7 @@ void TreeEqualizer::_update( Node* node )
         const PixelViewport& pvp = channel->getPixelViewport();
         LBASSERT( channel );
 
-        node->resources = compound->isRunning() ? compound->getUsage() : 0.f;
+        node->resources = compound->isActive() ? compound->getUsage() : 0.f;
         node->maxSize.x() = pvp.w; 
         node->maxSize.y() = pvp.h; 
         node->boundaryf = _boundaryf;

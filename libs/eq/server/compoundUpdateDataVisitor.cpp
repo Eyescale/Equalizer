@@ -46,7 +46,7 @@ VisitorResult CompoundUpdateDataVisitor::visit( Compound* compound )
 
 void CompoundUpdateDataVisitor::_updateDrawFinish( Compound* compound )
 {
-    if( compound->testInheritTask( TASK_DRAW ) && compound->isRunning( ))
+    if( compound->testInheritTask( TASK_DRAW ) && compound->isActive( ))
     {
         Channel* channel = compound->getChannel();
         channel->setLastDrawCompound( compound );

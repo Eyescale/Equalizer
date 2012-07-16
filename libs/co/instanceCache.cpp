@@ -83,13 +83,13 @@ InstanceCache::Item::Item()
 {}
 
 bool InstanceCache::add( const ObjectVersion& rev, const uint32_t instanceID,
-                         Command& command, const uint32_t usage )
+                         CommandPtr command, const uint32_t usage )
 {
 #ifdef EQ_INSTRUMENT_CACHE
     ++nWrite;
 #endif
 
-    const NodeID nodeID = command.getNode()->getNodeID();
+    const NodeID nodeID = command->getNode()->getNodeID();
 
     lunchbox::ScopedMutex<> mutex( _items );
     ItemHash::const_iterator i = _items->find( rev.identifier );

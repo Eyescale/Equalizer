@@ -522,6 +522,7 @@ bool Image::startReadback( const uint32_t buffers, const PixelViewport& pvp,
 
     bool needFinish = (buffers & Frame::BUFFER_COLOR) &&
                          _startReadback( Frame::BUFFER_COLOR, zoom, glObjects );
+
     if( (buffers & Frame::BUFFER_DEPTH) &&
         _startReadback( Frame::BUFFER_DEPTH, zoom, glObjects ))
     {
@@ -594,7 +595,8 @@ bool Image::startReadback( const Frame::Buffer buffer,
                                                   texture->getHeight( )),
                                    texture->getName(), flags,
                                    memory.pvp, &memory.pixels ) :
-        downloader->startDownload( _impl->pvp, 0, flags, memory.pvp, &memory.pixels );
+        downloader->startDownload( _impl->pvp, 0, flags, memory.pvp,
+                                   &memory.pixels );
 
     downloader->setGLEWContext( 0 );
 
@@ -1543,7 +1545,7 @@ bool Image::hasPixelData( const Frame::Buffer buffer ) const
 
 bool Image::hasAsyncReadback( const Frame::Buffer buffer ) const
 {
-    return _impl->getMemory(buffer).state == Memory::DOWNLOAD;
+    return _impl->getMemory( buffer ).state == Memory::DOWNLOAD;
 }
 
 bool Image::hasAsyncReadback() const

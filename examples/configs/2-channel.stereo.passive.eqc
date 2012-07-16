@@ -44,13 +44,11 @@ server
             {
                 eye [ LEFT ]
                 channel "channel-left"
-                viewport [ .25 0 .5 1 ]
             }
             segment
             {
                 eye [ RIGHT ]
                 channel "channel-right"
-                viewport [ .25 0 .5 1 ]
             }
             segment
             {
