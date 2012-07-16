@@ -18,8 +18,6 @@
 #ifndef CO_DATASTREAMARCHIVEEXCEPTION_H
 #define CO_DATASTREAMARCHIVEEXCEPTION_H
 
-#define BOOST_ARCHIVE_SOURCE 
-
 #include <boost/lexical_cast.hpp>
 #include <boost/archive/archive_exception.hpp>
 
