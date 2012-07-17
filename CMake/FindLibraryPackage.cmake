@@ -104,6 +104,9 @@ macro(FIND_LIBRARY_PACKAGE name)
   endif()
   string(TOUPPER ${_flp_${name}_INCLUDE} _flp_${name}_INCLUDE_UC)
 
+  # might already be set from a previous run with a different/wrong version
+  unset(${_flp_NAME}_INCLUDE_DIR CACHE)
+
   find_path(${_flp_${name}_UC}_INCLUDE_DIR ${_flp_${name}_INCLUDE}/version.h
     HINTS "${${_flp_${name}_UC}_ROOT}/include" "$ENV{${_flp_${name}_UC}_ROOT}/include"
     PATHS /usr/include /usr/local/include /opt/local/include /opt/include)
@@ -131,34 +134,34 @@ macro(FIND_LIBRARY_PACKAGE name)
     endif()
 
     if(EXISTS "${_flp_Version_file}")
-      file(READ "${_flp_Version_file}" _flp_Version_contents)
+      file(READ "${_flp_Version_file}" _flp_${name}_Version_contents)
     else()
-      set(_flp_Version_contents "unknown")
+      set(_flp_${name}_Version_contents "unknown")
     endif()
 
     # parse version out of version.h
     string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_MAJOR[ \t]+[0-9]+"
-      ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_Version_contents})
+      ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_${name}_Version_contents})
     string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_MINOR[ \t]+[0-9]+"
-      ${_flp_${name}_UC}_VERSION_MINOR ${_flp_Version_contents})
+      ${_flp_${name}_UC}_VERSION_MINOR ${_flp_${name}_Version_contents})
     string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_PATCH[ \t]+[0-9]+"
-      ${_flp_${name}_UC}_VERSION_PATCH ${_flp_Version_contents})
+      ${_flp_${name}_UC}_VERSION_PATCH ${_flp_${name}_Version_contents})
     string(REGEX MATCH "define[ \t]+${_flp_${name}_UC}_VERSION_ABI[ \t]+[0-9]+"
-      ${_flp_${name}_UC}_VERSION_ABI ${_flp_Version_contents})
+      ${_flp_${name}_UC}_VERSION_ABI ${_flp_${name}_Version_contents})
 
     if("${${_flp_${name}_UC}_VERSION_MAJOR}" STREQUAL "") # Try 'include' naming
       string(REGEX MATCH
         "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_MAJOR[ \t]+[0-9]+"
-        ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_Version_contents})
+        ${_flp_${name}_UC}_VERSION_MAJOR ${_flp_${name}_Version_contents})
       string(REGEX MATCH
         "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_MINOR[ \t]+[0-9]+"
-        ${_flp_${name}_UC}_VERSION_MINOR ${_flp_Version_contents})
+        ${_flp_${name}_UC}_VERSION_MINOR ${_flp_${name}_Version_contents})
       string(REGEX MATCH
         "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_PATCH[ \t]+[0-9]+"
-        ${_flp_${name}_UC}_VERSION_PATCH ${_flp_Version_contents})
+        ${_flp_${name}_UC}_VERSION_PATCH ${_flp_${name}_Version_contents})
       string(REGEX MATCH
         "define[ \t]+${_flp_${name}_INCLUDE_UC}_VERSION_ABI[ \t]+[0-9]+"
-        ${_flp_${name}_UC}_VERSION_ABI ${_flp_Version_contents})
+        ${_flp_${name}_UC}_VERSION_ABI ${_flp_${name}_Version_contents})
     endif()
 
     if("${${_flp_${name}_UC}_VERSION_MAJOR}" STREQUAL "")
@@ -200,14 +203,14 @@ macro(FIND_LIBRARY_PACKAGE name)
       string(REGEX MATCH
         "define[ \t]+${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
         ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-        ${_flp_Version_contents})
+        ${_flp_${name}_Version_contents})
 
       # not found -> search 'CO_LUNCHBOX_VERSION'
       if("${${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION}" STREQUAL "")
         string(REGEX MATCH
           "define[ \t]+${_flp_${name}_INCLUDE_UC}_${_flp_${name}_TRANS}_VERSION[ \t]+[0-9.]+"
           ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
-          ${_flp_Version_contents})
+          ${_flp_${name}_Version_contents})
       endif()
 
       # not found -> use _Collage_Lunchbox_version_${CO_VERSION}
@@ -215,7 +218,7 @@ macro(FIND_LIBRARY_PACKAGE name)
         set(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
           ${_${name}_${_flp_trans}_version_${${_flp_${name}_UC}_VERSION}})
       endif()
-      
+
       if(${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION)
         string(REGEX REPLACE ".*[ \t]([0-9.]+)" "\\1"
           ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION
@@ -226,7 +229,11 @@ macro(FIND_LIBRARY_PACKAGE name)
         if(NOT ${_flp_${name}_TRANS}_FOUND)
           set(_flp_${name}_FAIL TRUE)
         endif()
-      # else() no version, don't search for package
+      else()
+        message(WARNING
+          "Can't figure out version of dependent package ${_flp_trans}, "
+          "add ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION to "
+          "${_flp_${name}_INCLUDE}/version.h.")
       endif()
     endforeach()
   else()

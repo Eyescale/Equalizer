@@ -15,19 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_COMMANDS_H
-#define CO_COMMANDS_H
+#ifndef CO_BARRIERCOMMAND_H
+#define CO_BARRIERCOMMAND_H
+
+#include <co/commands.h>
 
 namespace co
 {
-    enum
+    enum BarrierCommand
     {
-        CMD_NODE_COMMAND, //!< A custom node command (NodeCommandPacket)
-        CMD_NODE_INTERNAL, //!< @internal
-        CMD_NODE_CUSTOM = 50,  //!< Commands for subclasses of Node start here
-        CMD_OBJECT_CUSTOM = 10 //!< Commands for subclasses of Object start here
+        CMD_BARRIER_ENTER = CMD_OBJECT_CUSTOM,
+        CMD_BARRIER_ENTER_REPLY,
     };
 }
 
-#endif // CO_COMMANDS_H
+#endif // CO_BARRIERCOMMAND_H
 

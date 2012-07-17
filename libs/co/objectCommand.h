@@ -15,19 +15,23 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_COMMANDS_H
-#define CO_COMMANDS_H
+#ifndef CO_OBJECTCOMMAND_H
+#define CO_OBJECTCOMMAND_H
 
 namespace co
 {
-    enum
+    enum ObjectCommand
     {
-        CMD_NODE_COMMAND, //!< A custom node command (NodeCommandPacket)
-        CMD_NODE_INTERNAL, //!< @internal
-        CMD_NODE_CUSTOM = 50,  //!< Commands for subclasses of Node start here
-        CMD_OBJECT_CUSTOM = 10 //!< Commands for subclasses of Object start here
+        CMD_OBJECT_INSTANCE,
+        CMD_OBJECT_DELTA,
+        CMD_OBJECT_SLAVE_DELTA,
+        CMD_OBJECT_COMMIT,
+        CMD_OBJECT_PUSH,
+        CMD_OBJECT_OBSOLETE,
+        CMD_OBJECT_MAX_VERSION
+        // check that not more then CMD_OBJECT_CUSTOM have been defined!
     };
 }
 
-#endif // CO_COMMANDS_H
+#endif // CO_OBJECTCOMMAND_H
 

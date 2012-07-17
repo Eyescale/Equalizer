@@ -18,7 +18,6 @@
 #include "unbufferedMasterCM.h"
 
 #include "command.h"
-#include "commands.h"
 #include "log.h"
 #include "node.h"
 #include "nodePackets.h"

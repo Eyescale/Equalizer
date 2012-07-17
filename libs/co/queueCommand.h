@@ -15,19 +15,21 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_COMMANDS_H
-#define CO_COMMANDS_H
+#ifndef CO_QUEUECOMMAND_H
+#define CO_QUEUECOMMAND_H
+
+#include <co/commands.h>
 
 namespace co
 {
-    enum
+    enum QueueCommand
     {
-        CMD_NODE_COMMAND, //!< A custom node command (NodeCommandPacket)
-        CMD_NODE_INTERNAL, //!< @internal
-        CMD_NODE_CUSTOM = 50,  //!< Commands for subclasses of Node start here
-        CMD_OBJECT_CUSTOM = 10 //!< Commands for subclasses of Object start here
+        CMD_QUEUE_GET_ITEM = CMD_OBJECT_CUSTOM, // 10
+        CMD_QUEUE_EMPTY,
+        CMD_QUEUE_ITEM,
+        CMD_QUEUE_CUSTOM = 15 //!< Commands for subclasses of queues start here
     };
 }
 
-#endif // CO_COMMANDS_H
+#endif // CO_QUEUECOMMAND_H
 

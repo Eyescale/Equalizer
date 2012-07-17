@@ -22,6 +22,9 @@
 #include <co/packets.h> // base structs
 #include <co/objectVersion.h> // base structs
 
+#include "nodeCommand.h" // CMD enums
+#include "objectCommand.h" // CMD enums
+
 #ifdef _WIN32
 #  include <malloc.h>
 #  define bzero( ptr, size ) memset( ptr, 0, size );
