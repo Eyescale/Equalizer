@@ -63,9 +63,10 @@ SocketConnection::SocketConnection( const ConnectionType type )
 #endif
 
     LBASSERT( type == CONNECTIONTYPE_TCPIP || type == CONNECTIONTYPE_SDP );
-    _description->type = type;
-    _description->bandwidth = (type == CONNECTIONTYPE_TCPIP) ?
-                                  102400 : 819200; // 100MB : 800 MB
+    ConnectionDescriptionPtr description = _getDescription();
+    description->type = type;
+    description->bandwidth = (type == CONNECTIONTYPE_TCPIP) ?
+                                 102400 : 819200; // 100MB : 800 MB
 
     LBVERB << "New SocketConnection @" << (void*)this << std::endl;
 }
@@ -109,22 +110,22 @@ static bool _parseAddress( ConnectionDescriptionPtr description,
 //----------------------------------------------------------------------
 bool SocketConnection::connect()
 {
-    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP ||
-              _description->type == CONNECTIONTYPE_SDP );
-    if( _state != STATE_CLOSED )
+    ConnectionDescriptionPtr description = _getDescription();
+    LBASSERT( description->type == CONNECTIONTYPE_TCPIP ||
+              description->type == CONNECTIONTYPE_SDP );
+    if( !isClosed() )
         return false;
 
-    if( _description->port == 0 )
+    if( description->port == 0 )
         return false;
 
-    _state = STATE_CONNECTING;
-    _fireStateChanged();
+    _setState( STATE_CONNECTING );
 
-    if( _description->getHostname().empty( ))
-        _description->setHostname( "127.0.0.1" );
+    if( description->getHostname().empty( ))
+        description->setHostname( "127.0.0.1" );
 
     sockaddr_in address;
-    if( !_parseAddress( _description, address ))
+    if( !_parseAddress( description, address ))
     {
         LBWARN << "Can't parse connection parameters" << std::endl;
         return false;
@@ -150,8 +151,8 @@ bool SocketConnection::connect()
 
     if( !connected )
     {
-        LBINFO << "Could not connect to '" << _description->getHostname() << ":"
-               << _description->port << "': " << lunchbox::sysError << std::endl;
+        LBINFO << "Could not connect to '" << description->getHostname() << ":"
+               << description->port << "': " << lunchbox::sysError << std::endl;
         close();
         return false;
     }
@@ -160,15 +161,14 @@ bool SocketConnection::connect()
     //fcntl( _readFD, F_SETFL, O_NONBLOCK );
 #endif
     _initAIORead();
-    _state = STATE_CONNECTED;
-    _fireStateChanged();
-    LBINFO << "Connected " << _description->toString() << std::endl;
+    _setState( STATE_CONNECTED );
+    LBINFO << "Connected " << description->toString() << std::endl;
     return true;
 }
 
 void SocketConnection::_close()
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed() )
         return;
 
     if( isListening( ))
@@ -176,7 +176,6 @@ void SocketConnection::_close()
     else if( isConnected( ))
         _exitAIORead();
 
-    _state = STATE_CLOSED;
     LBASSERT( _readFD > 0 ); 
 
 #ifdef _WIN32
@@ -191,7 +190,7 @@ void SocketConnection::_close()
 
     _readFD  = INVALID_SOCKET;
     _writeFD = INVALID_SOCKET;
-    _fireStateChanged();
+    _setState( STATE_CLOSED );
 }
 
 //----------------------------------------------------------------------
@@ -253,10 +252,10 @@ void SocketConnection::_exitAIORead(){ /* NOP */ }
 #ifdef _WIN32
 void SocketConnection::acceptNB()
 {
-    LBASSERT( _state == STATE_LISTENING );
+    LBASSERT( isListening() );
 
     // Create new accept socket
-    const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
+    const DWORD flags = getDescription()->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
 
@@ -294,7 +293,7 @@ void SocketConnection::acceptNB()
 ConnectionPtr SocketConnection::acceptSync()
 {
     LB_TS_THREAD( _recvThread );
-    if( _state != STATE_LISTENING )
+    if( !isListening() )
         return 0;
 
     LBASSERT( _overlappedAcceptData );
@@ -324,7 +323,8 @@ ConnectionPtr SocketConnection::acceptSync()
                           &localLen, (sockaddr**)&remote, &remoteLen );
     _tuneSocket( _overlappedSocket );
 
-    SocketConnection* newConnection = new SocketConnection(_description->type );
+    ConstConnectionDescriptionPtr description = getDescription();
+    SocketConnection* newConnection = new SocketConnection(description->type );
     ConnectionPtr connection( newConnection ); // to keep ref-counting correct
 
     newConnection->_readFD  = _overlappedSocket;
@@ -337,10 +337,11 @@ ConnectionPtr SocketConnection::acceptSync()
     newConnection->_initAIORead();
     _overlappedSocket       = INVALID_SOCKET;
 
-    newConnection->_state                  = STATE_CONNECTED;
-    newConnection->_description->bandwidth = _description->bandwidth;
-    newConnection->_description->port      = ntohs( remote->sin_port );
-    newConnection->_description->setHostname( inet_ntoa( remote->sin_addr ));
+    newConnection->_setState( STATE_CONNECTED );
+    ConnectionDescriptionPtr newDescription = newConnection->getDescription();
+    newDescription->bandwidth = description->bandwidth;
+    newDescription->port = ntohs( remote->sin_port );
+    newDescription->setHostname( inet_ntoa( remote->sin_addr ));
 
     LBINFO << "accepted connection from " << inet_ntoa( remote->sin_addr ) 
            << ":" << ntohs( remote->sin_port ) << std::endl;
@@ -353,7 +354,7 @@ void SocketConnection::acceptNB(){ /* NOP */ }
  
 ConnectionPtr SocketConnection::acceptSync()
 {
-    if( _state != STATE_LISTENING )
+    if( !isListening() )
         return 0;
 
     sockaddr_in newAddress;
@@ -373,14 +374,16 @@ ConnectionPtr SocketConnection::acceptSync()
 
     _tuneSocket( fd );
 
-    SocketConnection* newConnection = new SocketConnection( _description->type);
+    ConstConnectionDescriptionPtr description = getDescription();
+    SocketConnection* newConnection = new SocketConnection( description->type);
 
     newConnection->_readFD      = fd;
     newConnection->_writeFD     = fd;
-    newConnection->_state       = STATE_CONNECTED;
-    newConnection->_description->bandwidth = _description->bandwidth;
-    newConnection->_description->setHostname( inet_ntoa( newAddress.sin_addr ));
-    newConnection->_description->port      = ntohs( newAddress.sin_port );
+    newConnection->_setState( STATE_CONNECTED );
+    ConnectionDescriptionPtr newDescription = newConnection->_getDescription();
+    newDescription->bandwidth = description->bandwidth;
+    newDescription->port = ntohs( newAddress.sin_port );
+    newDescription->setHostname( inet_ntoa( newAddress.sin_addr ));
 
     LBVERB << "accepted connection from " << inet_ntoa(newAddress.sin_addr) 
            << ":" << ntohs( newAddress.sin_port ) << std::endl;
@@ -398,7 +401,7 @@ ConnectionPtr SocketConnection::acceptSync()
 //----------------------------------------------------------------------
 void SocketConnection::readNB( void* buffer, const uint64_t bytes )
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed() )
         return;
 
     WSABUF wsaBuffer = { LB_MIN( bytes, 65535 ),
@@ -454,7 +457,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
         if( err == ERROR_SUCCESS || got > 0 )
         {
             LBWARN << "Got " << lunchbox::sysError << " with " << got
-                   << " bytes on " << _description << std::endl;
+                   << " bytes on " << getDescription() << std::endl;
             return got;
         }
 
@@ -490,7 +493,7 @@ int64_t SocketConnection::readSync( void* buffer, const uint64_t bytes,
 
 int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
 {
-    if( _state != STATE_CONNECTED || _writeFD == INVALID_SOCKET )
+    if( !isConnected() || _writeFD == INVALID_SOCKET )
         return -1;
 
     DWORD  wrote;
@@ -551,18 +554,19 @@ int64_t SocketConnection::write( const void* buffer, const uint64_t bytes )
 
 bool SocketConnection::_createSocket()
 {
+    ConstConnectionDescriptionPtr description = getDescription();
 #ifdef _WIN32
-    const DWORD flags = _description->type == CONNECTIONTYPE_SDP ?
+    const DWORD flags = description->type == CONNECTIONTYPE_SDP ?
                             WSA_FLAG_OVERLAPPED | WSA_FLAG_SDP :
                             WSA_FLAG_OVERLAPPED;
 
     const SOCKET fd = WSASocket( AF_INET, SOCK_STREAM, IPPROTO_TCP, 0,0,flags );
 
-    if( _description->type == CONNECTIONTYPE_SDP )
+    if( description->type == CONNECTIONTYPE_SDP )
         LBINFO << "Created SDP socket" << std::endl;
 #else
     Socket fd;
-    if( _description->type == CONNECTIONTYPE_SDP )
+    if( description->type == CONNECTIONTYPE_SDP )
         fd = ::socket( AF_INET_SDP, SOCK_STREAM, IPPROTO_TCP );
     else
         fd = ::socket( AF_INET, SOCK_STREAM, IPPROTO_TCP );
@@ -609,19 +613,19 @@ void SocketConnection::_tuneSocket( const Socket fd )
 #endif
 bool SocketConnection::listen()
 {
-    LBASSERT( _description->type == CONNECTIONTYPE_TCPIP || 
-              _description->type == CONNECTIONTYPE_SDP );
+    ConnectionDescriptionPtr description = _getDescription();
+    LBASSERT( description->type == CONNECTIONTYPE_TCPIP || 
+              description->type == CONNECTIONTYPE_SDP );
 
-    if( _state != STATE_CLOSED )
+    if( !isClosed( ))
         return false;
 
-    _state = STATE_CONNECTING;
-    _fireStateChanged();
+    _setState( STATE_CONNECTING );
 
     sockaddr_in address;
     const size_t size = sizeof( sockaddr_in ); 
 
-    if( !_parseAddress( _description, address ))
+    if( !_parseAddress( description, address ))
     {
         LBWARN << "Can't parse connection parameters" << std::endl;
         return false;
@@ -658,9 +662,9 @@ bool SocketConnection::listen()
     socklen_t used = size;
     getsockname( _readFD, (struct sockaddr *)&address, &used ); 
 
-    _description->port = ntohs( address.sin_port );
+    description->port = ntohs( address.sin_port );
 
-    std::string hostname = _description->getHostname();
+    std::string hostname = description->getHostname();
     if( hostname.empty( ))
     {
         if( address.sin_addr.s_addr == INADDR_ANY )
@@ -669,21 +673,20 @@ bool SocketConnection::listen()
             gethostname( cHostname, 256 );
             hostname = cHostname;
 
-            _description->setHostname( hostname );
+            description->setHostname( hostname );
         }
         else
-            _description->setHostname( inet_ntoa( address.sin_addr ));
+            description->setHostname( inet_ntoa( address.sin_addr ));
     }
 #ifndef _WIN32
     //fcntl( _readFD, F_SETFL, O_NONBLOCK );
 #endif
     _initAIOAccept();
-    _state = STATE_LISTENING;
-    _fireStateChanged();
+    _setState( STATE_LISTENING );
 
-    LBINFO << "Listening on " << _description->getHostname() << "["
-           << inet_ntoa( address.sin_addr ) << "]:" << _description->port
-           << " (" << _description->toString() << ")" << std::endl;
+    LBINFO << "Listening on " << description->getHostname() << "["
+           << inet_ntoa( address.sin_addr ) << "]:" << description->port
+           << " (" << description->toString() << ")" << std::endl;
 
     return true;
 }

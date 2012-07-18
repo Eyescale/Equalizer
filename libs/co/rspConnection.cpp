@@ -90,8 +90,9 @@ RSPConnection::RSPConnection()
         , _sequence( 0 )
 {
     _buildNewID();
-    _description->type = CONNECTIONTYPE_RSP;
-    _description->bandwidth = 102400;
+    ConnectionDescriptionPtr description = _getDescription();
+    description->type = CONNECTIONTYPE_RSP;
+    description->bandwidth = 102400;
 
     LBCHECK( _event->connect( ));
 
@@ -127,7 +128,7 @@ void RSPConnection::_close()
         lunchbox::sleep( 10 );
     }
 
-    if( _state == STATE_CLOSED )
+    if( isClosed( ))
         return;
 
     if( _thread )
@@ -140,7 +141,7 @@ void RSPConnection::_close()
     }
 
     lunchbox::ScopedWrite mutex( _mutexEvent );
-    _state = STATE_CLOSING;
+    _setState( STATE_CLOSING );
     if( _thread )
     {
          _thread = 0;
@@ -173,8 +174,7 @@ void RSPConnection::_close()
     _threadBuffers.clear();
     _appBuffers.push( 0 ); // unlock any other read/write threads
 
-    _state = STATE_CLOSED;
-    _fireStateChanged();
+    _setState( STATE_CLOSED );
 
     mutex.leave();
     _event->set();
@@ -192,35 +192,35 @@ uint16_t RSPConnection::_buildNewID()
 
 bool RSPConnection::listen()
 {
-    LBASSERT( _description->type == CONNECTIONTYPE_RSP );
+    ConnectionDescriptionPtr description = _getDescription();
+    LBASSERT( description->type == CONNECTIONTYPE_RSP );
 
-    if( _state != STATE_CLOSED )
+    if( !isClosed( ))
         return false;
     
-    _state = STATE_CONNECTING;
+    _setState( STATE_CONNECTING );
     _numBuffers =  Global::getIAttribute( Global::IATTR_RSP_NUM_BUFFERS );
-    _fireStateChanged();
 
     // init udp connection
-    if( _description->port == 0 )
-        _description->port = EQ_DEFAULT_PORT;
-    if( _description->getHostname().empty( ))
-        _description->setHostname( "239.255.42.43" );
-    if( _description->getInterface().empty( ))
-        _description->setInterface( "0.0.0.0" );
+    if( description->port == 0 )
+        description->port = EQ_DEFAULT_PORT;
+    if( description->getHostname().empty( ))
+        description->setHostname( "239.255.42.43" );
+    if( description->getInterface().empty( ))
+        description->setInterface( "0.0.0.0" );
 
     try
     {
         const ip::address readAddress( ip::address::from_string( "0.0.0.0" ));
         const ip::udp::endpoint readEndpoint( readAddress, 
-                                              _description->port );
+                                              description->port );
 
         std::stringstream portStr;
-        portStr << _description->port;
+        portStr << description->port;
         const std::string& port = portStr.str();
         ip::udp::resolver resolver( _ioService );
         const ip::udp::resolver::query queryHN( ip::udp::v4(),
-                                                _description->getHostname(),
+                                                description->getHostname(),
                                                 port );
         const ip::udp::resolver::iterator end;
         const ip::udp::resolver::iterator hostnameIP =
@@ -247,7 +247,8 @@ bool RSPConnection::listen()
         _read->bind( readEndpoint );
 
         const ip::udp::resolver::query queryIF( ip::udp::v4(),
-                                            _description->getInterface(), "0" );
+                                                description->getInterface(),
+                                                "0" );
         const ip::udp::resolver::iterator interfaceIP =
             resolver.resolve( queryIF );
 
@@ -280,7 +281,7 @@ bool RSPConnection::listen()
     // init communication protocol thread
     _thread = new Thread( this );
     _bucketSize = 0;
-    _sendRate = _description->bandwidth;
+    _sendRate = description->bandwidth;
 
     // waits until RSP protocol establishes connection to the multicast network
     if( !_thread->start( ) )
@@ -293,17 +294,15 @@ bool RSPConnection::listen()
     LBASSERT( _appBuffers.isEmpty( ));
     _appBuffers.push( _buffers );
 
-    _fireStateChanged();
-
-    LBINFO << "Listening on " << _description->getHostname() << ":"
-           << _description->port << " (" << _description->toString() << " @"
+    LBINFO << "Listening on " << description->getHostname() << ":"
+           << description->port << " (" << description->toString() << " @"
            << (void*)this << ")" << std::endl;
     return true;
 }
 
 ConnectionPtr RSPConnection::acceptSync()
 {
-    if( _state != STATE_LISTENING )
+    if( !isListening( ))
         return 0;
         
     lunchbox::ScopedWrite mutex( _mutexConnection );
@@ -330,7 +329,7 @@ ConnectionPtr RSPConnection::acceptSync()
 int64_t RSPConnection::readSync( void* buffer, const uint64_t bytes, const bool)
 {
     LBASSERT( bytes > 0 );
-    if( _state != STATE_CONNECTED )
+    if( !isConnected ( ))
         return -1;
 
     uint64_t bytesLeft = bytes;
@@ -408,7 +407,7 @@ void RSPConnection::_handleTimeout( const boost::system::error_code& error )
     if( error == error::operation_aborted )
         return;
     
-    if( _state == STATE_LISTENING )
+    if( isListening( ))
         _handleConnectedTimeout();
     else if( _idAccepted )
         _handleInitTimeout();
@@ -440,13 +439,13 @@ void RSPConnection::_handleAcceptIDTimeout( )
 
 void RSPConnection::_handleInitTimeout( )
 {
-    LBASSERT( _state != STATE_LISTENING );
+    LBASSERT( !isListening( ))
     ++_timeouts;
     if( _timeouts < 20 )
         _sendCountNode();
     else
     {
-        _state = STATE_LISTENING;
+        _setState( STATE_LISTENING );
         LBINFO << "RSP connection " << _id << " listening" << std::endl;
         _timeouts = 0;
         _ioService.stop(); // thread initialized, run restarts
@@ -456,7 +455,7 @@ void RSPConnection::_handleInitTimeout( )
 
 void RSPConnection::_handleConnectedTimeout()
 {
-    if( _state != STATE_LISTENING )
+    if( !isListening( ))
     {
         _ioService.stop();
         return;
@@ -472,7 +471,7 @@ void RSPConnection::_handleConnectedTimeout()
         for( RSPConnectionsCIter i =_children.begin(); i !=_children.end(); ++i)
         {
             RSPConnectionPtr child = *i;
-            child->_state = STATE_CLOSING;
+            child->_setState( STATE_CLOSING );
             child->_appBuffers.push( 0 ); // unlock read func
         }
         _ioService.stop();
@@ -490,7 +489,7 @@ bool RSPConnection::_initThread()
     _setTimeout( 10 ); 
     _asyncReceiveFrom();
     _ioService.run();
-    return _state == STATE_LISTENING;
+    return isListening();
 }
 
 void RSPConnection::_runThread()
@@ -660,11 +659,12 @@ void RSPConnection::_waitWritable( const uint64_t bytes )
     writeWaitTime += clock.getTimef();
 #endif
 
-    if( _sendRate < _description->bandwidth )
+    ConstConnectionDescriptionPtr description = getDescription();
+    if( _sendRate < description->bandwidth )
     {
         _sendRate += int64_t(
             float( Global::getIAttribute( Global::IATTR_RSP_ERROR_UPSCALE )) *
-            float( _description->bandwidth ) * .001f );
+            float( description->bandwidth ) * .001f );
         LBLOG( LOG_RSP ) << "speeding up to " << _sendRate << " KB/s"
                          << std::endl;
     }
@@ -795,11 +795,11 @@ void RSPConnection::_finishWriteQueue( const uint16_t sequence )
 void RSPConnection::_handlePacket( const boost::system::error_code& /* error */,
                                    const size_t /* bytes */ )
 {
-    if( _state == STATE_LISTENING )
+    if( isListening( ))
     {
         _handleConnectedData( _recvBuffer.getData() );
 
-        if( _state == STATE_LISTENING )
+        if( isListening( ))
             _processOutgoing();
         else
         {
@@ -1233,8 +1233,9 @@ void RSPConnection::_addRepeat( const Nack* nacks, uint16_t num )
         }
     }
 
+    ConstConnectionDescriptionPtr description = getDescription();
     if( _sendRate >
-        ( _description->bandwidth >> 
+        ( description->bandwidth >> 
           Global::getIAttribute( Global::IATTR_RSP_MIN_SENDRATE_SHIFT )))
     {
         const float delta = float( lost ) * .001f *
@@ -1393,8 +1394,8 @@ bool RSPConnection::_addConnection( const uint16_t id )
     RSPConnectionPtr connection = new RSPConnection();
     connection->_id = id;
     connection->_parent = this;
-    connection->_state = STATE_CONNECTED;
-    connection->_description = _description;
+    connection->_setState( STATE_CONNECTED );
+    connection->_setDescription( _getDescription( ));
     LBASSERT( connection->_appBuffers.isEmpty( ));
 
     // Make all buffers available for reading
@@ -1443,7 +1444,7 @@ int64_t RSPConnection::write( const void* inData, const uint64_t bytes )
 {
     if ( _parent.isValid() )
         return _parent->write( inData, bytes );
-    LBASSERT( _state == STATE_LISTENING );
+    LBASSERT( isListening( ));
 
     if( !_write )
         return -1;
@@ -1497,7 +1498,7 @@ void RSPConnection::finish()
         LBASSERTINFO( !_parent, "Writes are only allowed on RSP listeners" );
         return;
     }
-    LBASSERT( _state == STATE_LISTENING );
+    LBASSERT( isListening( ));
     _appBuffers.waitSize( _buffers.size( ));
 }
 

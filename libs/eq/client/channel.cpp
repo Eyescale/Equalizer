@@ -1713,7 +1713,7 @@ void Channel::_transmitImage( const ChannelFrameTransmitImagePacket* request )
     }
 
     co::ConnectionPtr connection = toNode->getConnection();
-    co::ConnectionDescriptionPtr description = connection->getDescription();
+    co::ConstConnectionDescriptionPtr description =connection->getDescription();
 
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );

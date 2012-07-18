@@ -41,11 +41,12 @@ namespace co
 inline void gatherConnections( const Nodes& nodes, Connections& result )
 {
     LBASSERT( result.empty( ));
-    typedef stde::hash_map< ConnectionDescriptionPtr, NodePtr,
-                            lunchbox::hashRefPtr< ConnectionDescription > > MCNodes;
+    typedef stde::hash_map< ConstConnectionDescriptionPtr, NodePtr,
+                           lunchbox::hashRefPtr< const ConnectionDescription > >
+        MCNodes;
     MCNodes mcNodes; // first node using a multicast connection
 
-    typedef std::set< ConnectionDescriptionPtr > MCSet;
+    typedef std::set< ConstConnectionDescriptionPtr > MCSet;
     MCSet mcSet; // multicast connection is added
 
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
@@ -55,7 +56,7 @@ inline void gatherConnections( const Nodes& nodes, Connections& result )
 
         if( connection )
         {
-            ConnectionDescriptionPtr desc = connection->getDescription();
+            ConstConnectionDescriptionPtr desc = connection->getDescription();
             if( mcSet.find( desc ) != mcSet.end( )) // already added
                 continue;
 

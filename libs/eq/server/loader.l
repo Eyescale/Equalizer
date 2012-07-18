@@ -193,7 +193,6 @@ TCPIP                           { return EQTOKEN_TCPIP; }
 SDP                             { return EQTOKEN_SDP; }
 IB                              { return EQTOKEN_IB; }
 PIPE                            { return EQTOKEN_PIPE; }
-PGM                             { return EQTOKEN_PGM; }
 RSP                             { return EQTOKEN_RSP; }
 RDMA                            { return EQTOKEN_RDMA; }
 UDT                             { return EQTOKEN_UDT; }
