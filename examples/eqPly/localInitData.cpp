@@ -51,6 +51,7 @@ LocalInitData::LocalInitData()
 #  else
     _filenames.push_back( std::string( EQ_INSTALL_DIR ) +
                           std::string( "share/Equalizer/data" ));
+    _filenames.push_back( std::string( "/usr/share/Equalizer/data" ));
 #  endif
 #else
     _filenames.push_back( std::string( EQ_SOURCE_DIR ) +

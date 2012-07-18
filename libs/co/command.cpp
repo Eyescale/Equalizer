@@ -47,7 +47,6 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
 {
     LB_TS_THREAD( _writeThread );
     LBASSERT( getRefCount() == 1 ); // caller CommandCache
-    LBASSERT( !_master );
     LBASSERTINFO( !_func.isValid(), *this );
     --_freeCount;
 
@@ -79,7 +78,6 @@ void Command::clone_( CommandPtr from )
 {
     LB_TS_THREAD( _writeThread );
     LBASSERT( getRefCount() == 1 ); // caller CommandCache
-    LBASSERT( !_master );
     LBASSERTINFO( !_func.isValid(), *this );
 
     --_freeCount;
