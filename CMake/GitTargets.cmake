@@ -44,7 +44,7 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gitbranchandtag.cmake
      RESULT_VARIABLE notdone WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
    if(notdone)
      message(FATAL_ERROR
-        \"Error creating tag release-${VERSION} on ${BRANCH_VERSION}\")
+        \"Error creating tag release-${VERSION} on branch ${BRANCH_VERSION}\")
    endif()")
 
 add_custom_target(tag
