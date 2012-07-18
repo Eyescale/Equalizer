@@ -43,8 +43,13 @@ set(OUTPUT_INCLUDE_DIR ${CMAKE_BINARY_DIR}/include)
 file(MAKE_DIRECTORY ${OUTPUT_INCLUDE_DIR})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR} ${OUTPUT_INCLUDE_DIR})
 
-string(REGEX REPLACE ".*\\/(share\\/.*)" "\\1/Modules" CMAKE_MODULE_INSTALL_PATH
-  ${CMAKE_ROOT})
+if(MSVC)
+  set(CMAKE_MODULE_INSTALL_PATH
+    "../CMake ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/share/cmake-${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}/Modules")
+else()
+  string(REGEX REPLACE ".*\\/(share\\/.*)" "\\1/Modules"
+    CMAKE_MODULE_INSTALL_PATH ${CMAKE_ROOT})
+endif()
 
 # Boost settings
 if(MSVC)
