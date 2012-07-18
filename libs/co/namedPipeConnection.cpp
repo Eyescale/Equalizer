@@ -89,7 +89,7 @@ bool NamedPipeConnection::connect()
     _initAIORead();
     _setState( STATE_CONNECTED );
 
-    LBINFO << "Connected " << description->toString() << std::endl;
+    LBINFO << "Connected " << getDescription()->toString() << std::endl;
     return true;
 }
 
@@ -181,11 +181,11 @@ bool NamedPipeConnection::listen()
     if( !isClosed( ))
         return false;
 
-    _setState( STATE_CONNECTING )
+    _setState( STATE_CONNECTING );
     _initAIOAccept();
-    _setState( STATE_LISTENING )
+    _setState( STATE_LISTENING );
 
-    LBINFO << "Listening on " << description->toString() << std::endl;
+    LBINFO << "Listening on " << getDescription()->toString() << std::endl;
     return true;
 }
 
@@ -292,7 +292,7 @@ ConnectionPtr NamedPipeConnection::acceptSync()
 
     lunchbox::RefPtr< NamedPipeConnection > newConnection = new NamedPipeConnection;
 
-    newConnection->setDescription( _getDescription( ));
+    newConnection->_setDescription( _getDescription( ));
     newConnection->_fd  = _fd;
     newConnection->_initAIORead();
     newConnection->_setState( STATE_CONNECTED );
