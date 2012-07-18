@@ -48,9 +48,9 @@ namespace detail { class Node; }
 
         CO_API bool isReachable() const;
         CO_API bool isConnected() const;
-        bool isClosed() const;
-        bool isClosing() const;
-        bool isListening() const;
+        CO_API bool isClosed() const;
+        CO_API bool isClosing() const;
+        CO_API bool isListening() const;
         //@}
 
         /** @name Connectivity information. */

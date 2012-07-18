@@ -82,14 +82,15 @@ bool PipeConnection::_createPipes()
     std::stringstream pipeName;
     pipeName << "\\\\.\\pipe\\Collage." << UUID( true );
 
-    _namedPipe = new NamedPipeConnection;
-    _namedPipe->getDescription()->setFilename( pipeName.str() );
+    ConnectionDescriptionPtr desc = new ConnectionDescription;
+    desc->type = CONNECTIONTYPE_NAMEDPIPE;
+    desc->setFilename( pipeName.str( ));
+    _namedPipe = Connection::create( desc );
     if( !_namedPipe->listen( ))
         return false;
     _namedPipe->acceptNB();
 
-    _sibling->_namedPipe = new NamedPipeConnection;
-    _sibling->_namedPipe->getDescription()->setFilename( pipeName.str() );
+    _sibling->_namedPipe = Connection::create( desc );
     if( !_sibling->_namedPipe->connect( ))
     {
         _sibling->_namedPipe = 0;

@@ -78,7 +78,7 @@ SocketConnection::~SocketConnection()
 
 namespace
 {
-static bool _parseAddress( ConnectionDescriptionPtr description,
+static bool _parseAddress( ConstConnectionDescriptionPtr description,
                            sockaddr_in& address )
 {
     address.sin_family      = AF_INET;
@@ -338,7 +338,7 @@ ConnectionPtr SocketConnection::acceptSync()
     _overlappedSocket       = INVALID_SOCKET;
 
     newConnection->_setState( STATE_CONNECTED );
-    ConnectionDescriptionPtr newDescription = newConnection->getDescription();
+    ConnectionDescriptionPtr newDescription = newConnection->_getDescription();
     newDescription->bandwidth = description->bandwidth;
     newDescription->port = ntohs( remote->sin_port );
     newDescription->setHostname( inet_ntoa( remote->sin_addr ));
