@@ -33,8 +33,9 @@ namespace co
 
 PipeConnection::PipeConnection()
 {
-    _description->type = CONNECTIONTYPE_PIPE;
-    _description->bandwidth = 1024000;
+    ConnectionDescriptionPtr description = _getDescription();
+    description->type = CONNECTIONTYPE_PIPE;
+    description->bandwidth = 1024000;
 }
 
 PipeConnection::~PipeConnection()
@@ -47,12 +48,12 @@ PipeConnection::~PipeConnection()
 //----------------------------------------------------------------------
 bool PipeConnection::connect()
 {
-    LBASSERT( _description->type == CONNECTIONTYPE_PIPE );
+    LBASSERT( getDescription()->type == CONNECTIONTYPE_PIPE );
 
-    if( _state != STATE_CLOSED )
+    if( !isClosed( ))
         return false;
 
-    _state = STATE_CONNECTING;
+    _setState( STATE_CONNECTING );
     _sibling = new PipeConnection;
     _sibling->_sibling = this;
 
@@ -62,10 +63,8 @@ bool PipeConnection::connect()
         return false;
     }
 
-    _state = STATE_CONNECTED;
-    _sibling->_state = STATE_CONNECTED;
-
-    _fireStateChanged();
+    _setState( STATE_CONNECTED );
+    _sibling->_setState( STATE_CONNECTED );
     return true;
 }
 
@@ -98,27 +97,24 @@ bool PipeConnection::_createPipes()
     }
 
     _namedPipe = _namedPipe->acceptSync();
-    _state = STATE_CONNECTED;
-    _sibling->_state = STATE_CONNECTED;
     return true;
 }
 
 void PipeConnection::_close()
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed( ))
         return;
 
     _namedPipe->close();
     _namedPipe = 0;
     _sibling = 0;
 
-    _state = STATE_CLOSED;
-    _fireStateChanged();
+    _setState( STATE_CLOSED );
 }
 
 void PipeConnection::readNB( void* buffer, const uint64_t bytes )
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed( ))
         return;
     _namedPipe->readNB( buffer, bytes );
 }
@@ -126,7 +122,7 @@ void PipeConnection::readNB( void* buffer, const uint64_t bytes )
 int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
                                        const bool ignored )
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed( ))
         return -1;
 
     const int64_t bytesRead = _namedPipe->readSync( buffer, bytes, ignored );
@@ -139,7 +135,7 @@ int64_t PipeConnection::readSync( void* buffer, const uint64_t bytes,
 
 int64_t PipeConnection::write( const void* buffer, const uint64_t bytes )
 {
-    if( _state != STATE_CONNECTED )
+    if( !isConnected( ))
         return -1;
 
     return _namedPipe->write( buffer, bytes );
@@ -174,7 +170,7 @@ bool PipeConnection::_createPipes()
 
 void PipeConnection::_close()
 {
-    if( _state == STATE_CLOSED )
+    if( isClosed( ))
         return;
 
     if( _writeFD > 0 )
@@ -187,9 +183,8 @@ void PipeConnection::_close()
         ::close( _readFD );
         _readFD  = 0;
     }
-    _state = STATE_CLOSED;
+    _setState( STATE_CLOSED );
     _sibling = 0;
-    _fireStateChanged();
 }
 #endif // else _WIN32
 

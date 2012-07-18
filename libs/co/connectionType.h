@@ -35,7 +35,6 @@ namespace co
         CONNECTIONTYPE_RDMA,      //!< Infiniband RDMA CM
         CONNECTIONTYPE_UDT,       //!< UDT connection
         CONNECTIONTYPE_MULTICAST = 0x100,
-        CONNECTIONTYPE_PGM,       //!< IP-based multicast connection (PGM)
         CONNECTIONTYPE_RSP        //!< UDP-based reliable stream protocol
     };
 
@@ -49,7 +48,6 @@ namespace co
             case CONNECTIONTYPE_PIPE: return os << "ANON_PIPE";
             case CONNECTIONTYPE_NAMEDPIPE: return os << "PIPE";
             case CONNECTIONTYPE_IB: return os << "IB";
-            case CONNECTIONTYPE_PGM: return os << "PGM";
             case CONNECTIONTYPE_RSP: return os << "RSP";
             case CONNECTIONTYPE_NONE: return os << "NONE";
             case CONNECTIONTYPE_RDMA: return os << "RDMA";

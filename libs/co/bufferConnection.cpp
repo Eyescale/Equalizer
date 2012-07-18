@@ -34,13 +34,13 @@ public:
 BufferConnection::BufferConnection()
         : _impl( new detail::BufferConnection )
 {
-    _state = STATE_CONNECTED;
+    _setState( STATE_CONNECTED );
     LBVERB << "New BufferConnection @" << (void*)this << std::endl;
 }
 
 BufferConnection::~BufferConnection()
 {
-    _state = STATE_CLOSED;
+    _setState( STATE_CLOSED );
     if( !_impl->buffer.isEmpty( ))
         LBWARN << "Deleting BufferConnection with buffered data" << std::endl;
     delete _impl;

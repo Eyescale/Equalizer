@@ -95,7 +95,7 @@ namespace co
         CO_API void setFilename( const std::string& filename );
         CO_API const std::string& getFilename() const;
 
-        CO_API bool isSameMulticastGroup( ConnectionDescriptionPtr rhs );
+        CO_API bool isSameMulticastGroup( ConstConnectionDescriptionPtr rhs );
         //@}
 
         /** @name Attributes */

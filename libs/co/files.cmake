@@ -77,7 +77,6 @@ set(CO_HEADERS
   objectInstanceDataOStream.h
   objectPackets.h
   objectSlaveDataOStream.h
-  pgmConnection.h
   pipeConnection.h
   plugin.h
   rspConnection.h
@@ -123,7 +122,6 @@ set(CO_SOURCES
   objectStore.cpp
   objectVersion.cpp
   packets.cpp
-  pgmConnection.cpp
   pipeConnection.cpp
   plugin.cpp
   pluginRegistry.cpp

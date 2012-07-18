@@ -83,7 +83,7 @@ public:
                 return true;
 
             _clock.reset();
-            co::ConnectionDescriptionPtr desc = 
+            co::ConstConnectionDescriptionPtr desc = 
                 _connection->getDescription();
             const lunchbox::ScopedMutex<> mutex( _mutexPrint );
             std::cerr << "Recv perf: " << _mBytesSec / time * _nSamples
