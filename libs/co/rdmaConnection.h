@@ -170,8 +170,6 @@ public:
 protected:
     virtual ~RDMAConnection( );
 
-    void setState( const State state );
-
 private:
     /* Teardown */
     void _close( );

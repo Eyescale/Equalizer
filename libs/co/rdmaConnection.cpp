@@ -206,8 +206,7 @@ bool RDMAConnection::connect( )
         return false;
 
     _cleanup( );
-
-    setState( STATE_CONNECTING );
+    _setState( STATE_CONNECTING );
 
     if( !_lookupAddress( false ) || ( NULL == _rai ))
     {
@@ -333,8 +332,7 @@ bool RDMAConnection::connect( )
         << " (" << description->toString( ) << ")"
         << std::endl;
 
-    setState( STATE_CONNECTED );
-
+    _setState( STATE_CONNECTED );
     return true;
 
 err:
@@ -359,8 +357,7 @@ bool RDMAConnection::listen( )
         return false;
 
     _cleanup( );
-
-    setState( STATE_CONNECTING );
+    _setState( STATE_CONNECTING );
 
     if( !_lookupAddress( true ))
     {
@@ -426,13 +423,11 @@ bool RDMAConnection::listen( )
         << " (" << description->toString( ) << ")"
         << std::endl;
 
-    setState( STATE_LISTENING );
-
+    _setState( STATE_LISTENING );
     return true;
 
 err:
-    close( );
-
+    close();
     return false;
 }
 

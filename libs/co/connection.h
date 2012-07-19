@@ -92,6 +92,9 @@ namespace detail { class Connection; }
         /** @return true if the connection is in the closed state. */
         bool isClosed() const { return getState() == STATE_CLOSED; }
 
+        /** @return true if the connection is about to close. */
+        bool isClosing() const { return getState() == STATE_CLOSING; }
+
         /** @return true if the connection is in the connected state. */
         bool isConnected() const { return getState() == STATE_CONNECTED; }
 
