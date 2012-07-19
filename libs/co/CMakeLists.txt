@@ -66,13 +66,12 @@ endif()
 source_group(\\ FILES CMakeLists.txt)
 source_group(plugin FILES ${PLUGIN_HEADERS} )
 source_group(collage FILES ${CO_PUBLIC_HEADERS} ${CO_HEADERS} ${CO_SOURCES} )
-source_group(compressor FILES ${CO_COMPRESSOR_HEADERS} ${CO_COMPRESSOR_SOURCES})
+source_group(compressor FILES ${CO_COMPRESSORS})
 
 purple_add_library(Collage SHARED
   HEADERS_PREFIX "co/"
   HEADERS ${CO_PUBLIC_HEADERS} ${PLUGIN_HEADERS}
-  SOURCES ${CO_HEADERS} ${CO_SOURCES} ${CO_COMPRESSOR_HEADERS}
-          ${CO_COMPRESSOR_SOURCES}
+  SOURCES ${CO_HEADERS} ${CO_SOURCES} ${CO_COMPRESSORS}
   LINK_LIBRARIES ${CO_ADD_LINKLIB}
   )
 

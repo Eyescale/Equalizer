@@ -55,6 +55,7 @@ uint64_t _result = 0;
 uint64_t _size = 0;
 float _compressionTime = 0;
 float _decompressionTime = 0;
+float _baseTime = 0.f;
 
 int main( int argc, char **argv )
 {
@@ -82,6 +83,7 @@ std::vector< uint32_t > getCompressorNames( const uint32_t tokenType )
         }
     }
 
+    std::sort( names.begin(), names.end( ));
     return names;
 }
 
@@ -186,12 +188,20 @@ void _testFile()
 
             _testData( *i, name, data, size );
         }
+        if( _baseTime == 0.f )
+            _baseTime = _compressionTime + _decompressionTime;
+
         std::cout << std::setw(24) << "Total, 0x" << std::setw(8)
                   << std::setfill( '0' ) << std::hex << *i << std::dec
                   << std::setfill(' ') << ", " << std::setw(10) << _size << ", "
                   << std::setw(10) << _result << ", " << std::setw(10)
                   << _compressionTime << ", " << std::setw(10)
-                  << _decompressionTime << std::endl << std::endl;
+                  << _decompressionTime << std::endl
+                  << "    info->ratio = " << float(_result) / float(_size)
+                  << "f;" << std::endl
+                  << "    info->speed = " << float(_baseTime) /
+                                    float(_compressionTime + _decompressionTime)
+                  << "f;" << std::endl << std::endl;
     }
 }
 
@@ -232,6 +242,7 @@ void _testRandom()
 
 void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes )
 {
+#pragma omp parallel for
     for( uint64_t i = 0; i < nbytes; ++i )
     {
         TESTINFO( *dst == *src,

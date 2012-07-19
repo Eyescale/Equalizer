@@ -30,8 +30,8 @@ static void _getInfo( EqCompressorInfo* const info )
     info->version = EQ_COMPRESSOR_VERSION;
     info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D;
     info->quality = 1.f;
-    info->ratio   = .6f;
-    info->speed   = .33f;
+    info->ratio   = .55f;
+    info->speed   = .76f;
     info->name = EQ_COMPRESSOR_FASTLZ_BYTE;
     info->tokenType = EQ_COMPRESSOR_DATATYPE_BYTE;
 }

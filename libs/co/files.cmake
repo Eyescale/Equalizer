@@ -138,36 +138,38 @@ set(CO_SOURCES
   zeroconf.cpp
   )
 
-set(CO_COMPRESSOR_HEADERS
+set(CO_COMPRESSORS
+  compressor/compressor.cpp
   compressor/compressor.h
+  compressor/compressorFastLZ.cpp
   compressor/compressorFastLZ.h
-  compressor/compressorRLE4B.h
-  compressor/compressorRLE4BU.h
-  compressor/compressorRLE4HF.h
-  compressor/compressorRLE10A2.h
-  compressor/compressorRLE565.h
-  compressor/compressorRLEB.h
-  compressor/compressorRLEYUV.h
+  compressor/compressorLZF.cpp
   compressor/compressorLZF.h
+  compressor/compressorRLE.ipp
+  compressor/compressorRLE10A2.cpp
+  compressor/compressorRLE10A2.h
+  compressor/compressorRLE4B.cpp
+  compressor/compressorRLE4B.h
+  compressor/compressorRLE4BU.cpp
+  compressor/compressorRLE4BU.h
+  compressor/compressorRLE4HF.cpp
+  compressor/compressorRLE4HF.h
+  compressor/compressorRLE565.cpp
+  compressor/compressorRLE565.h
+  compressor/compressorRLEB.cpp
+  compressor/compressorRLEB.h
+  compressor/compressorRLEYUV.cpp
+  compressor/compressorRLEYUV.h
+  compressor/compressorSnappy.cpp
+  compressor/compressorSnappy.h
+  compressor/fastlz/fastlz.c
   compressor/fastlz/fastlz.h
   compressor/liblzf/lzf.h
-  )
-
-set(CO_COMPRESSOR_SOURCES
-  compressor/compressor.cpp
-  compressor/compressorFastLZ.cpp
-  compressor/compressorRLE.ipp
-  compressor/compressorRLE4B.cpp
-  compressor/compressorRLE4BU.cpp
-  compressor/compressorRLE4HF.cpp
-  compressor/compressorRLE10A2.cpp
-  compressor/compressorRLE565.cpp
-  compressor/compressorRLEB.cpp
-  compressor/compressorRLEYUV.cpp
-  compressor/compressorLZF.cpp
-  compressor/fastlz/fastlz.c
   compressor/liblzf/lzf_c.c
   compressor/liblzf/lzf_d.c
+  compressor/snappy/snappy.h
+  compressor/snappy/snappy.cc
+  compressor/snappy/snappy-sinksource.cc
   )
 
 set(PLUGIN_HEADERS
