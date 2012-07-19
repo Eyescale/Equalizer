@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com> 
- *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2010, Cedric Stalder <cedric.stalder@gmail.com>
+ *               2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -23,46 +23,48 @@
 #include "log.h"
 #include "pluginRegistry.h"
 
+#include <cmath>
+
 namespace co
 {
 bool Plugin::init( const std::string& libraryName )
 {
     if( !_dso.open( libraryName ))
-        return false;        
-    
+        return false;
+
     getNumCompressors = ( GetNumCompressors_t )
         ( _dso.getFunctionPointer( "EqCompressorGetNumCompressors" ));
-    
+
     GetInfo_t getInfo = ( GetInfo_t )
         ( _dso.getFunctionPointer( "EqCompressorGetInfo" ));
-    
+
     compress = ( Compress_t )
         ( _dso.getFunctionPointer( "EqCompressorCompress" ));
-       
+
     decompress = ( Decompress_t )
         ( _dso.getFunctionPointer( "EqCompressorDecompress" ));
 
     getNumResults = ( GetNumResults_t )
         ( _dso.getFunctionPointer( "EqCompressorGetNumResults" ));
-    
+
     getResult = ( GetResult_t )
         ( _dso.getFunctionPointer( "EqCompressorGetResult" ));
-    
+
     deleteDecompressor = ( DeleteDecompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorDeleteDecompressor" ));
-    
+
     deleteCompressor = ( DeleteCompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorDeleteCompressor" ));
-    
+
     newCompressor = ( NewCompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorNewCompressor" ));
-    
+
     newDecompressor = ( NewDecompressor_t )
         ( _dso.getFunctionPointer( "EqCompressorNewDecompressor" ));
 
     isCompatible = ( IsCompatible_t )
         ( _dso.getFunctionPointer( "EqCompressorIsCompatible" ));
-    
+
     download = ( Download_t )
         ( _dso.getFunctionPointer( "EqCompressorDownload" ));
 
@@ -74,7 +76,7 @@ bool Plugin::init( const std::string& libraryName )
 
     upload = ( Upload_t )
         ( _dso.getFunctionPointer( "EqCompressorUpload" ));
-    
+
     const bool foundBase = newDecompressor && newCompressor &&
         deleteCompressor && deleteDecompressor && getInfo && getNumCompressors;
     const bool foundCPU = getResult && getNumResults && decompress && compress;
@@ -82,7 +84,7 @@ bool Plugin::init( const std::string& libraryName )
 
     if( !foundBase || ( !foundCPU && !foundGPU ))
     {
-        LBWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName
            << " failed, at least one entry point missing" << std::endl;
         return false;
     }
@@ -90,7 +92,7 @@ bool Plugin::init( const std::string& libraryName )
     const size_t nCompressors = getNumCompressors();
     if( nCompressors == 0 )
     {
-        LBWARN << "Initializing compression DSO " << libraryName 
+        LBWARN << "Initializing compression DSO " << libraryName
            << " failed, 0 compression engines reported" << std::endl;
         return false;
     }
@@ -113,6 +115,28 @@ bool Plugin::init( const std::string& libraryName )
             _infos.clear();
             return false;
         }
+        info.ratingAlpha = powf( info.speed, .3f ) / info.ratio;
+        info.ratingNoAlpha = info.ratingAlpha;
+
+        if( info.capabilities & EQ_COMPRESSOR_IGNORE_ALPHA )
+        {
+            switch( info.tokenType )
+            {
+              case EQ_COMPRESSOR_DATATYPE_4_BYTE:
+              case EQ_COMPRESSOR_DATATYPE_4_HALF_FLOAT:
+              case EQ_COMPRESSOR_DATATYPE_4_FLOAT:
+                  info.ratingNoAlpha /= .75f;
+                  break;
+
+              case EQ_COMPRESSOR_DATATYPE_RGB10_A2:
+                  info.ratingNoAlpha /= .9375f; // 30/32
+                  break;
+
+              default:
+                  break;
+            }
+        }
+
         if( !( info.capabilities & EQ_COMPRESSOR_TRANSFER ))
         {
             if( info.outputTokenType == EQ_COMPRESSOR_DATATYPE_NONE )
@@ -177,7 +201,7 @@ void Plugin::initChildren()
             {
                 const Plugin* plugin = *j;
                 const CompressorInfos& infos = plugin->getInfos();
-        
+
                 for( CompressorInfos::const_iterator k = infos.begin();
                      k != infos.end(); ++k )
                 {
@@ -202,7 +226,7 @@ void Plugin::initChildren()
             {
                 const Plugin* plugin = *j;
                 const CompressorInfos& infos = plugin->getInfos();
-        
+
                 for( CompressorInfos::const_iterator k = infos.begin();
                      k != infos.end(); ++k )
                 {
