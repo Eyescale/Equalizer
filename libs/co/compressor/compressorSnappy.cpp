@@ -15,11 +15,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include "compressorLZF.h"
+#include "compressorSnappy.h"
 
-extern "C" {
-#include "liblzf/lzf.h"
-}
+#include "snappy/snappy.h"
 
 namespace co
 {
@@ -32,42 +30,43 @@ static void _getInfo( EqCompressorInfo* const info )
     info->version = EQ_COMPRESSOR_VERSION;
     info->capabilities = EQ_COMPRESSOR_DATA_1D | EQ_COMPRESSOR_DATA_2D;
     info->quality = 1.f;
-    info->ratio   = .55f;
-    info->speed   = .82f;
-    info->name = EQ_COMPRESSOR_LZF_BYTE;
+    info->ratio   = .57f;
+    info->speed   = .27f;
+    info->name = EQ_COMPRESSOR_SNAPPY_BYTE;
     info->tokenType = EQ_COMPRESSOR_DATATYPE_BYTE;
 }
 
 static bool _register()
 {
     Compressor::registerEngine(
-        Compressor::Functions( EQ_COMPRESSOR_LZF_BYTE,
+        Compressor::Functions( EQ_COMPRESSOR_SNAPPY_BYTE,
                                _getInfo,
-                               CompressorLZF::getNewCompressor,
-                               CompressorLZF::getNewDecompressor,
-                               CompressorLZF::decompress, 0 ));
+                               CompressorSnappy::getNewCompressor,
+                               CompressorSnappy::getNewDecompressor,
+                               CompressorSnappy::decompress, 0 ));
     return true;
 }
 
 static const bool _initialized = _register();
 }
 
-void CompressorLZF::compress( const void* const inData,
-                              const eq_uint64_t nPixels, const bool useAlpha )
+void CompressorSnappy::compress( const void* const inData,
+                                 const eq_uint64_t nPixels, 
+                                 const bool useAlpha )
 {
     _nResults = 1;
     if( _results.size() < _nResults )
         _results.push_back( new co::plugin::Compressor::Result );
-    const eq_uint64_t maxSize = eq_uint64_t( float( nPixels ) * 1.1f ) + 8;
-    _results[0]->reserve( maxSize );
+    size_t size = snappy::MaxCompressedLength( nPixels );
+    _results[0]->reserve( size );
 
-    const unsigned size = lzf_compress( inData, nPixels,
-                                        _results[0]->getData(), maxSize );
-    _results[0]->resize( size );
+    snappy::RawCompress( (const char*)(inData), nPixels,
+                         (char*)( _results[0]->getData( )), &size );
     assert( size != 0 );
+    _results[0]->setSize( size );
 }
 
-void CompressorLZF::decompress( const void* const* inData,
+void CompressorSnappy::decompress( const void* const* inData,
                                 const eq_uint64_t* const inSizes,
                                 const unsigned nInputs,
                                 void* const outData,
@@ -77,7 +76,8 @@ void CompressorLZF::decompress( const void* const* inData,
     if( nInputs == 0 )
         return;
 
-    lzf_decompress( inData[0], inSizes[0], outData, nPixels );
+    snappy::RawUncompress( (const char*)(inData[0]), inSizes[0],
+                           (char*)(outData) );
 }
 
 }

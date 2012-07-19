@@ -45,6 +45,8 @@ namespace co
 {
 namespace
 {
+typedef lunchbox::RefPtr< UDTConnection > UDTConnectionPtr;
+
 template< class T > inline std::string to_string( const T &t )
 {
     std::stringstream ss; ss << t; return ss.str( );
@@ -457,9 +459,9 @@ ConnectionPtr UDTConnection::acceptSync( )
 {
     struct sockaddr address;
     int addrlen;
-    UDTConnection *newConnection = NULL;
 
     UDTSOCKET newSocket = UDT::accept( _udt, &address, &addrlen );
+    UDTConnectionPtr newConnection = new UDTConnection;
 
     if( UDT::INVALID_SOCK == newSocket )
     {
@@ -470,32 +472,28 @@ ConnectionPtr UDTConnection::acceptSync( )
 
     acknowledge( _notifier );
 
-    newConnection = new UDTConnection( );
     newConnection->_udt = newSocket;
 
     // Do this after accept, otherwise accept itself becomes non-blocking
     static const bool OFF = false;
-    if( !newConnection->setSockOpt( UDT_RCVSYN,
-        static_cast<const void *>( &OFF ), sizeof(OFF) ))
-        goto err;
-
-    ConnectionDescriptionPtr newDescription = newConnection->_getDescription();
-    newDescription->setHostname( ::inet_ntoa(
+    if( newConnection->setSockOpt( UDT_RCVSYN,
+                                   static_cast<const void *>( &OFF ),
+                                   sizeof(OFF) ))
+    {
+        ConnectionDescriptionPtr desc = newConnection->_getDescription();
+        desc->setHostname( ::inet_ntoa(
                                   ((struct sockaddr_in *)&address)->sin_addr ));
-    newDescription->port = ntohs( ((struct sockaddr_in *)&address)->sin_port );
-    newDescription->bandwidth = description->bandwidth;
-    if( newConnection->initialize( ))
-    {
-        newConnection->_setState( STATE_CONNECTED );
-        goto out;
+        desc->port = ntohs( ((struct sockaddr_in *)&address)->sin_port );
+        desc->bandwidth = getDescription()->bandwidth;
+        if( newConnection->initialize( ))
+        {
+            newConnection->_setState( STATE_CONNECTED );
+            goto out;
+        }
     }
-
+    // else goto err;
 err:
-    if( NULL != newConnection )
-    {
-        delete newConnection;
-        newConnection = NULL;
-    }
+    newConnection = 0;
 
 out:
     // Let the event thread continue polling

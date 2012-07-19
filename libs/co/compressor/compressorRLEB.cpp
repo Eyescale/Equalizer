@@ -32,7 +32,7 @@ namespace plugin
 {
 namespace
 {
-REGISTER_ENGINE( CompressorRLEB, BYTE, BYTE, 1., 0.7, 1., false );
+REGISTER_ENGINE( CompressorRLEB, BYTE, BYTE, 1., 0.93, 1., false );
 }
 
 template< typename T >
