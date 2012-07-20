@@ -60,6 +60,31 @@ add_custom_target(erase
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
+add_custom_target(tarball-clone
+  COMMAND ${CMAKE_COMMAND} -E remove_directory
+                              "${CMAKE_PROJECT_NAME}-${VERSION}"
+  COMMAND ${GIT_EXECUTABLE} clone "${CMAKE_SOURCE_DIR}"
+                                  "${CMAKE_PROJECT_NAME}-${VERSION}"
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  COMMENT "Cloning source"
+  )
+
+add_custom_target(tarball-prepare
+  COMMAND ${GIT_EXECUTABLE} checkout -q release-${VERSION}
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ".git"
+  DEPENDS tarball-clone
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}"
+  COMMENT "Preparing ${CMAKE_PROJECT_NAME}-${VERSION}"
+  )
+
+add_custom_target(tarball
+  COMMAND ${CMAKE_COMMAND} -E tar czf "${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
+                                      "${CMAKE_PROJECT_NAME}-${VERSION}"
+  DEPENDS tarball-prepare
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  COMMENT "Creating ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
+  )
+  
 set(_gittargets_TARGETS branch cut tag erase)
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
