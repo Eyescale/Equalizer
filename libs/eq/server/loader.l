@@ -19,6 +19,7 @@
 #include "compound.h"
 #include "equalizers/loadEqualizer.h"
 #include "equalizers/treeEqualizer.h"
+#include <co/connectionType.h>
 
 #include "parser.hpp"
 

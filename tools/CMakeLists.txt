@@ -81,11 +81,6 @@ eq_add_tool(coNetperf
   LINK_LIBRARIES shared Collage
   )
 
-eq_add_tool(coNetproxy
-  SOURCES netproxy/netproxy.cpp
-  LINK_LIBRARIES shared Collage
-  )
-
 eq_add_tool(eqWindowAdmin
   SOURCES windowAdmin/main.cpp
   LINK_LIBRARIES shared EqualizerAdmin

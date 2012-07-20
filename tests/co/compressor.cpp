@@ -158,6 +158,8 @@ void _testFile()
     getFiles( "", files, "*.dylib" );
     getFiles( "/Users/eile/Library/Models/mediumPly/", files, "*.bin" );
     getFiles( "/Users/eile/Library/Models/mediumPly/", files, "*.ply" );
+    getFiles( "/home/eilemann/Software/Models/mediumPly/", files, "*.bin" );
+    getFiles( "/home/eilemann/Software/Models/mediumPly/", files, "*.ply" );
 
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
@@ -210,6 +212,7 @@ void _testRandom()
     size_t size = LB_10MB;
     uint8_t* data = new uint8_t[size];
     lunchbox::RNG rng;
+#pragma omp parallel for
     for( size_t k = 0; k<size; ++k )
         data[k] = rng.get< uint8_t >();
 
@@ -245,10 +248,8 @@ void compare( const uint8_t *dst, const uint8_t *src, const uint32_t nbytes )
 #pragma omp parallel for
     for( uint64_t i = 0; i < nbytes; ++i )
     {
-        TESTINFO( *dst == *src,
-                  int( *dst ) << " != " << int( *src ) << " @ " << i );
-        ++dst;
-        ++src;
+        TESTINFO( dst[i] == src[i],
+                  int( dst[i] ) << " != " << int( src[i] ) << " @ " << i );
     }
 }
 
