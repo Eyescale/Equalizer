@@ -71,7 +71,7 @@ add_custom_target(tarball-clone
 
 add_custom_target(tarball-prepare
   COMMAND ${GIT_EXECUTABLE} checkout -q release-${VERSION}
-  COMMAND ${CMAKE_COMMAND} -E remove_directory ".git"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory .git
   DEPENDS tarball-clone
   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}"
   COMMENT "Preparing ${CMAKE_PROJECT_NAME}-${VERSION}"
@@ -85,7 +85,8 @@ add_custom_target(tarball
   COMMENT "Creating ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
   )
   
-set(_gittargets_TARGETS branch cut tag erase)
+set(_gittargets_TARGETS branch cut tag erase tarball tarball-clone
+  tarball-prepare)
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
   set_target_properties(${_gittargets_TARGET} PROPERTIES FOLDER "git")
