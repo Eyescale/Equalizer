@@ -205,8 +205,7 @@ namespace detail { class Node; }
 
     private:
         detail::Node* const _impl;
-        CO_API friend std::ostream& operator << ( std::ostream& os,
-                                                  const Node& node );
+        CO_API friend std::ostream& operator << ( std::ostream&, const Node& );
 
         /** Ensures the connectivity of this node. */
         CO_API ConnectionPtr _getConnection();
