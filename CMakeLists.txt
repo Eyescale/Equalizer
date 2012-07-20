@@ -48,10 +48,8 @@ include(GitTargets)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
 if(EQUALIZER_USE_GPUSD)
-  find_package(gpusd 1.1.2)
+  find_package(gpusd 1.4.0)
 endif()
-
-set(EQ_FEATURES)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
@@ -67,6 +65,7 @@ include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
 
+set(EQ_FEATURES)
 if(MSVC)
   set(EQ_FEATURES "${EQ_FEATURES} WGL")
   include(UseGnuWin32)
