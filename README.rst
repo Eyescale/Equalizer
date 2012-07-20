@@ -139,6 +139,8 @@ the last release:
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
 
+-   `139`_: Tile compound readback broken
+-   `120`_: Async readback deallocation
 -   `118`_: OS X: Async readback doesn't work
 -   `137`_: 1-window.DFR broken
 -   `136`_: compositor assertion when using custom frames
@@ -156,6 +158,7 @@ following:
 The following bugs were known at release time. Please file a `Bug Report`_ if
 you find any other issue with this release.
 
+-   `138`_: Windows: PBO error when rendering
 -   `78`_: AGL: assertion on interaction with multiple GPUs
 -   `77`_: 7-window.DB.PIXEL.eqc broken
 -   `76`_: 7-window.DPLEX.2D.lb.eqc does not load-balance
@@ -271,6 +274,8 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _139: https://github.com/Eyescale/Equalizer/issues/139
+.. _120: https://github.com/Eyescale/Equalizer/issues/120
 .. _118: https://github.com/Eyescale/Equalizer/issues/118
 .. _137: https://github.com/Eyescale/Equalizer/issues/137
 .. _136: https://github.com/Eyescale/Equalizer/issues/136
@@ -281,6 +286,7 @@ information.
 .. _121: https://github.com/Eyescale/Equalizer/issues/121
 .. _117: https://github.com/Eyescale/Equalizer/issues/117
 .. _Bug Report: https://github.com/Eyescale/Equalizer/issues
+.. _138: https://github.com/Eyescale/Equalizer/issues/138
 .. _78: https://github.com/Eyescale/Equalizer/issues/78
 .. _77: https://github.com/Eyescale/Equalizer/issues/77
 .. _76: https://github.com/Eyescale/Equalizer/issues/76

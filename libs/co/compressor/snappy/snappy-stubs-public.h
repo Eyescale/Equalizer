@@ -36,7 +36,7 @@
 #ifndef UTIL_SNAPPY_OPENSOURCE_SNAPPY_STUBS_PUBLIC_H_
 #define UTIL_SNAPPY_OPENSOURCE_SNAPPY_STUBS_PUBLIC_H_
 
-#if 1
+#ifndef _MSC_VER
 #include <stdint.h>
 #endif
 
@@ -54,16 +54,7 @@
 
 namespace snappy {
 
-#if 1
-typedef int8_t int8;
-typedef uint8_t uint8;
-typedef int16_t int16;
-typedef uint16_t uint16;
-typedef int32_t int32;
-typedef uint32_t uint32;
-typedef int64_t int64;
-typedef uint64_t uint64;
-#else
+#ifdef _MSC_VER
 typedef signed char int8;
 typedef unsigned char uint8;
 typedef short int16;
@@ -72,6 +63,15 @@ typedef int int32;
 typedef unsigned int uint32;
 typedef long long int64;
 typedef unsigned long long uint64;
+#else
+typedef int8_t int8;
+typedef uint8_t uint8;
+typedef int16_t int16;
+typedef uint16_t uint16;
+typedef int32_t int32;
+typedef uint32_t uint32;
+typedef int64_t int64;
+typedef uint64_t uint64;
 #endif
 
 typedef std::string string;

@@ -3,8 +3,10 @@
 
 #info: http://www.itk.org/Wiki/CMake:Component_Install_With_CPack
 
-configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
-  ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
+if(NOT MSVC)
+  configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
+    ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
+endif()
 
 set(CPACK_PACKAGE_VENDOR "www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")

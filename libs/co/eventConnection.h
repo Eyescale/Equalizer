@@ -54,7 +54,7 @@ namespace co
 
     private:
 #ifdef WIN32
-        HANDLE _event;
+        void* _event;
 #else
         PipeConnectionPtr _connection;
         lunchbox::Lock _lock;

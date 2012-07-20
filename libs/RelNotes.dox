@@ -161,6 +161,10 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/139">139</a>:
+    Tile compound readback broken</li<>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/120">120</a>:
+    Async readback deallocation</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
     OS X: Async readback doesn't work</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/137">137</a>:
@@ -188,6 +192,8 @@
   find any other issue with this release.
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/138">138</a>:
+    Windows: PBO error when rendering</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/78">78</a>: AGL:
     assertion on interaction with multiple GPUs</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/77">77</a>:

@@ -85,19 +85,23 @@ bool PipeConnection::_createPipes()
     ConnectionDescriptionPtr desc = new ConnectionDescription;
     desc->type = CONNECTIONTYPE_NAMEDPIPE;
     desc->setFilename( pipeName.str( ));
-    _namedPipe = Connection::create( desc );
+
+    ConnectionPtr connection = Connection::create( desc );
+    _namedPipe = static_cast< NamedPipeConnection* >( connection.get( ));
     if( !_namedPipe->listen( ))
         return false;
     _namedPipe->acceptNB();
 
-    _sibling->_namedPipe = Connection::create( desc );
+    connection = Connection::create( desc );
+    _sibling->_namedPipe = static_cast<NamedPipeConnection*>(connection.get());
     if( !_sibling->_namedPipe->connect( ))
     {
         _sibling->_namedPipe = 0;
         return false;
     }
 
-    _namedPipe = _namedPipe->acceptSync();
+    connection = _namedPipe->acceptSync();
+    _namedPipe = static_cast< NamedPipeConnection* >(connection.get( ));
     return true;
 }
 

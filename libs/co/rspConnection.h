@@ -29,6 +29,7 @@
 #include <lunchbox/clock.h>   // member
 #include <lunchbox/lfQueue.h> // member
 #include <lunchbox/mtQueue.h> // member
+#include <lunchbox/os.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4267)
