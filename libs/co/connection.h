@@ -18,13 +18,10 @@
 #ifndef CO_CONNECTION_H
 #define CO_CONNECTION_H
 
-#include <co/connectionType.h>        // enum
-#include <co/packets.h>               // used in inline method
-#include <co/types.h>                 // Connections type
 #include <co/api.h>
+#include <co/packets.h>               // used in inline method
+#include <co/types.h>
 
-#include <lunchbox/lock.h>
-#include <lunchbox/refPtr.h>
 #include <lunchbox/referenced.h>   // base class
 
 #include <sys/types.h>
@@ -33,8 +30,6 @@
 
 #ifdef _WIN32
 #  define EQ_DEFAULT_PORT (4242)
-#  include <malloc.h>
-#  include <lunchbox/os.h>
 #else
 #  define EQ_DEFAULT_PORT (4242 + getuid())
 #endif
@@ -89,19 +84,19 @@ namespace detail { class Connection; }
         /** @return the State of this connection. @version 1.0 */
         CO_API State getState() const;
 
-        /** @return true if the connection is in the closed state. */
+        /** @return true if the connection is closed. @version 1.0 */
         bool isClosed() const { return getState() == STATE_CLOSED; }
 
-        /** @return true if the connection is about to close. */
+        /** @return true if the connection is about to close. @version 1.0 */
         bool isClosing() const { return getState() == STATE_CLOSING; }
 
-        /** @return true if the connection is in the connected state. */
+        /** @return true if the connection is connected. @version 1.0 */
         bool isConnected() const { return getState() == STATE_CONNECTED; }
 
-        /** @return true if the connection is in the listening state. */
+        /** @return true if the connection is listening. @version 1.0 */
         bool isListening() const { return getState() == STATE_LISTENING; }
 
-        /** @return the description for this connection. */
+        /** @return the description for this connection. @version 1.0 */
         CO_API ConstConnectionDescriptionPtr getDescription() const;
 
         /** @internal */
@@ -116,8 +111,9 @@ namespace detail { class Connection; }
          * The ConnectionDescription of this connection is used to identify the
          * peer's parameters.
          *
-         * @return <code>true</code> if the connection was successfully
-         *         connected, <code>false</code> if not.
+         * @return true if the connection was successfully connected, false
+         *         if not.
+         * @version 1.0
          */
         virtual bool connect() { return false; }
 
@@ -127,23 +123,22 @@ namespace detail { class Connection; }
          * The ConnectionDescription of this connection is used to identify the
          * listening parameters.
          *
-         * @return <code>true</code> if the connection is listening for new
-         *         incoming connections, <code>false</code> if not.
+         * @return true if the connection is listening for new incoming
+         *         connections, false if not.
+         * @version 1.0
          */
         virtual bool listen() { return false; }
 
-        /**
-         * Close a connected or listening connection.
-         */
+        /** Close a connected or listening connection. @version 1.0 */
         virtual void close() {}
         //@}
 
         /** @name Listener Interface */
         //@{
-        /** Add a listener for connection state changes. */
+        /** @internal Add a listener for connection state changes. */
         void addListener( ConnectionListener* listener );
 
-        /** Remove a listener for connection state changes. */
+        /** @internal Remove a listener for connection state changes. */
         void removeListener( ConnectionListener* listener );
         //@}
 
@@ -157,6 +152,7 @@ namespace detail { class Connection; }
          * the accept operation.
          *
          * @sa acceptSync()
+         * @version 1.0
          */
         virtual void acceptNB() { LBUNIMPLEMENTED; }
 
@@ -164,10 +160,10 @@ namespace detail { class Connection; }
          * Complete an accept operation.
          *
          * @return the new connection, 0 on error.
+         * @version 1.0
          */
         virtual ConnectionPtr acceptSync() { LBUNIMPLEMENTED; return 0; }
         //@}
-
 
         /** @name Asynchronous read */
         //@{
@@ -181,6 +177,7 @@ namespace detail { class Connection; }
          * @param buffer the buffer receiving the data.
          * @param bytes the number of bytes to read.
          * @sa recvSync()
+         * @version 1.0
          */
         CO_API void recvNB( void* buffer, const uint64_t bytes );
 
@@ -197,41 +194,12 @@ namespace detail { class Connection; }
          * @param block internal WAR parameter, do not use unless you know
          *              exactly why.
          * @return true if all requested data has been read, false otherwise.
+         * @version 1.0
          */
         CO_API bool recvSync( void** buffer, uint64_t* bytes,
                               const bool block = true );
 
         void resetRecvData( void** buffer, uint64_t* bytes ); //!< @internal
-
-        /**
-         * Start a read operation on the connection.
-         *
-         * This method is the low-level counterpart to recvNB().
-         *
-         * This function returns immediately. The operation's Notifier will
-         * signal data availability, upon which readSync() should be used to
-         * finish the operation.
-         *
-         * @param buffer the buffer receiving the data.
-         * @param bytes the number of bytes to read.
-         * @sa readSync()
-         */
-        virtual void readNB( void* buffer, const uint64_t bytes ) = 0;
-
-        /**
-         * Finish reading data from the connection.
-         *
-         * This method is the low-level counterpart to recvSync().
-         * It may return with a partial read.
-         *
-         * @param buffer the buffer receiving the data.
-         * @param bytes the number of bytes to read.
-         * @param block internal WAR parameter, ignore it in the implementation
-         *              unless you know exactly why not.
-         * @return the number of bytes read, or -1 upon error.
-         */
-        virtual int64_t readSync( void* buffer, const uint64_t bytes,
-                                  const bool block ) = 0;
         //@}
 
         /** @name Synchronous write to the connection */
@@ -249,14 +217,15 @@ namespace detail { class Connection; }
          * @param isLocked true if the connection is locked externally.
          * @return true if all data has been read, false if not.
          * @sa lockSend(), unlockSend()
+         * @version 1.0
          */
         CO_API bool send( const void* buffer, const uint64_t bytes,
                           const bool isLocked = false );
 
-        /** Lock the connection, no other thread can send data. */
+        /** Lock the connection, no other thread can send data. @version 1.0 */
         CO_API void lockSend() const;
 
-        /** Unlock the connection. */
+        /** Unlock the connection. @version 1.0 */
         CO_API void unlockSend() const;
 
         /**
@@ -264,6 +233,7 @@ namespace detail { class Connection; }
          *
          * @param packet the message packet.
          * @return true if all data has been read, false if not.
+         * @version 1.0
          */
         bool send( const Packet& packet )
             { return send( &packet, packet.size ); }
@@ -271,7 +241,7 @@ namespace detail { class Connection; }
         /**
          * Sends a packaged message including a string using the connection.
          *
-         * The packet has to define a 8-byte-aligned, 8-char string at the end
+         * The packet has to define a 8-byte-aligned, 8-char array at the end
          * of the packet. When the packet is sent the whole string is appended
          * to the packet, so that the receiver has to do nothing special to
          * receive and use the full packet.
@@ -279,6 +249,7 @@ namespace detail { class Connection; }
          * @param packet the message packet.
          * @param string the string.
          * @return true if all data has been read, false if not.
+         * @version 1.0
          */
         bool send( Packet& packet, const std::string& string )
             { return send( packet, string.c_str(), string.size()+1 ); }
@@ -292,18 +263,19 @@ namespace detail { class Connection; }
          * @param packet the message packet.
          * @param data the vector containing the data.
          * @return true if all data has been read, false if not.
+         * @version 1.0
          */
         template< typename T >
         bool send( Packet& packet, const std::vector<T>& data );
 
         /**
-         * Sends a packaged message including additional data using the
-         * connection.
+         * Sends a packaged message including additional data.
          *
          * @param packet the message packet.
          * @param data the data.
          * @param size the data size in bytes.
          * @return true if all data has been read, false if not.
+         * @version 1.0
          */
         CO_API bool send( Packet& packet, const void* data,
                           const uint64_t size );
@@ -315,6 +287,7 @@ namespace detail { class Connection; }
          * @param packet      the message packet.
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all connections.
+         * @version 1.0
          */
         static CO_API bool send( const Connections& connections,
                                  const Packet& packet,
@@ -329,6 +302,7 @@ namespace detail { class Connection; }
          * @param size the data size in bytes.
          * @param isLocked true if the connection is locked externally.
          * @return true if the packet was sent successfully to all receivers.
+         * @version 1.0
          */
         static CO_API bool send( const Connections& connections,
                                  Packet& packet, const void* data,
@@ -349,20 +323,12 @@ namespace detail { class Connection; }
          * @param itemSizes an array containing the size of each item.
          * @param nItems the number of data elements.
          * @return true if the packet was sent successfully to all receivers.
+         * @version 1.0
          */
         static bool CO_API send( const Connections& connections,
                                  Packet& packet, const void* const* items,
                                  const uint64_t* itemSizes,
                                  const size_t nItems );
-
-        /**
-         * Write data to the connection.
-         *
-         * @param buffer the buffer containing the message.
-         * @param bytes the number of bytes to write.
-         * @return the number of bytes written, or -1 upon error.
-         */
-        virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
 
         /** @internal Finish all pending send operations. */
         virtual void finish() { LBUNIMPLEMENTED; }
@@ -381,15 +347,65 @@ namespace detail { class Connection; }
         virtual Notifier getNotifier() const = 0;
 
     protected:
-        enum ReadStatus
+        /** Construct a new connection. */
+        Connection();
+
+        /** Destruct this connection. */
+        virtual ~Connection();
+
+        /** @name Low-level IO methods. */
+        //@{
+        enum ReadStatus //!< error codes for readSync()
         {
             READ_TIMEOUT = -2,
             READ_ERROR   = -1
             // >= 0: nBytes read
         };
 
-        Connection();
-        virtual ~Connection();
+        /**
+         * Start a read operation on the connection.
+         *
+         * This method is the low-level counterpart used by recvNB(),
+         * implemented by the concrete connection.
+         *
+         * This function returns immediately. The operation's Notifier will
+         * signal data availability, upon which readSync() is used to finish the
+         * operation.
+         *
+         * @param buffer the buffer receiving the data.
+         * @param bytes the number of bytes to read.
+         * @sa readSync()
+         */
+        virtual void readNB( void* buffer, const uint64_t bytes ) = 0;
+
+        /**
+         * Finish reading data from the connection.
+         *
+         * This method is the low-level counterpart used by recvSync(),
+         * implemented by the concrete connection. It may return with a partial
+         * read.
+         *
+         * @param buffer the buffer receiving the data.
+         * @param bytes the number of bytes to read.
+         * @param block internal WAR parameter, ignore it in the implementation
+         *              unless you know exactly why not.
+         * @return the number of bytes read, or -1 upon error.
+         */
+        virtual int64_t readSync( void* buffer, const uint64_t bytes,
+                                  const bool block ) = 0;
+
+        /**
+         * Write data to the connection.
+         *
+         * This method is the low-level counterpart used by send(), implemented
+         * by the concrete connection. It may return with a partial write.
+         *
+         * @param buffer the buffer containing the message.
+         * @param bytes the number of bytes to write.
+         * @return the number of bytes written, or -1 upon error.
+         */
+        virtual int64_t write( const void* buffer, const uint64_t bytes ) = 0;
+        //@}
 
         /** @internal @name State Changes */
         //@{
