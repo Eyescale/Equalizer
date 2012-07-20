@@ -7,6 +7,17 @@ if(NOT MSVC)
   configure_file(${CMAKE_SOURCE_DIR}/CMake/Equalizer.in.spec 
     ${CMAKE_SOURCE_DIR}/CMake/Equalizer.spec @ONLY)
 endif()
+if(GIT_EXECUTABLE)
+  add_custom_target(tarball-prepare-extra
+    COMMAND ${CMAKE_COMMAND} -E remove_directory tests
+    DEPENDS tarball-clone
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}"
+    COMMENT "Removing tests"
+    )
+  set_target_properties(tarball-prepare-extra PROPERTIES EXCLUDE_FROM_ALL ON)
+  set_target_properties(tarball-prepare-extra PROPERTIES FOLDER "git")
+  add_dependencies(tarball-prepare tarball-prepare-extra)
+endif()
 
 set(CPACK_PACKAGE_VENDOR "www.eyescale.ch")
 set(CPACK_PACKAGE_CONTACT "Stefan Eilemann <eile@eyescale.ch>")
