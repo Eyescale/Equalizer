@@ -1845,8 +1845,8 @@ bool LocalNode::_cmdAddListener( Command& command )
 {
     NodeAddListenerPacket* packet =
         command.getModifiable< NodeAddListenerPacket >();
-    ConnectionDescriptionPtr description =
-        new ConnectionDescription( packet->connectionData );
+    std::string data( packet->connectionData );
+    ConnectionDescriptionPtr description = new ConnectionDescription( data );
     command.getNode()->addConnectionDescription( description );
 
     if( command.getNode() != this )
@@ -1872,8 +1872,8 @@ bool LocalNode::_cmdRemoveListener( Command& command )
     NodeRemoveListenerPacket* packet =
         command.getModifiable< NodeRemoveListenerPacket >();
 
-    ConnectionDescriptionPtr description =
-        new ConnectionDescription( packet->connectionData );
+    std::string data( packet->connectionData );
+    ConnectionDescriptionPtr description = new ConnectionDescription( data );
     LBCHECK( command.getNode()->removeConnectionDescription( description ));
 
     if( command.getNode() != this )

@@ -23,26 +23,9 @@ namespace co
 {
 
 #define SEPARATOR '#'
-#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONNECTION_") + #attr )
 
 namespace
 {
-static std::string _sAttributeStrings[ ConnectionDescription::SATTR_ALL ] =
-{
-    MAKE_ATTR_STRING( SATTR_HOSTNAME ),
-    MAKE_ATTR_STRING( SATTR_PIPE_FILENAME ),
-    MAKE_ATTR_STRING( SATTR_FILL1 ),
-    MAKE_ATTR_STRING( SATTR_FILL2 )
-};
-static std::string _iAttributeStrings[ ConnectionDescription::IATTR_ALL ] =
-{
-    MAKE_ATTR_STRING( IATTR_TYPE ),
-    MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
-    MAKE_ATTR_STRING( IATTR_BANDWIDTH ),
-    MAKE_ATTR_STRING( IATTR_FILL1 ),
-    MAKE_ATTR_STRING( IATTR_FILL2 )
-};
-
 static ConnectionType _getConnectionType( const std::string& string )
 {
     if( string == "TCPIP" )
@@ -69,27 +52,14 @@ static ConnectionType _getConnectionType( const std::string& string )
 }
 }
 
-ConnectionDescription::ConnectionDescription( const char* data )
+ConnectionDescription::ConnectionDescription( std::string& data )
         : type( CONNECTIONTYPE_TCPIP )
         , bandwidth( 0 )
         , port( 0 )
         , _filename( "default" )
 {
-    std::string string( data );
-    fromString( string );
-    LBASSERTINFO( string.empty(), data << " -> " << string );
-}
-
-const std::string& ConnectionDescription::getSAttributeString(
-    const SAttribute attr )
-{
-    return _sAttributeStrings[ attr ];
-}
-
-const std::string& ConnectionDescription::getIAttributeString( 
-    const IAttribute attr )
-{
-    return _iAttributeStrings[ attr ];
+    fromString( data );
+    LBASSERTINFO( data.empty(), data );
 }
 
 std::string ConnectionDescription::toString() const
@@ -239,31 +209,6 @@ bool ConnectionDescription::isSameMulticastGroup(
             port == rhs->port );
 }
 
-std::ostream& operator << ( std::ostream& os, 
-                            const ConnectionDescription& desc)
-{
-    os << lunchbox::disableFlush << lunchbox::disableHeader << "connection"
-       << std::endl
-       << "{" << std::endl << lunchbox::indent
-       << "type          " << desc.type << std::endl
-       << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
-
-    if( !desc.getInterface().empty( ))
-        os << "interface     \"" << desc.getInterface() << "\"" << std::endl;
-
-    if( desc.port != 0 )
-        os << "port          " << desc.port << std::endl;
-
-    if( !desc.getFilename().empty( ))
-        os << "filename      \"" << desc.getFilename() << "\"" << std::endl;
-
-    if( desc.bandwidth != 0 )
-        os << "bandwidth     " << desc.bandwidth << std::endl;
-
-    return os << lunchbox::exdent << "}" << lunchbox::enableHeader << lunchbox::enableFlush
-              << std::endl;
-}
-
 bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )
     const
 {
@@ -327,6 +272,31 @@ bool deserialize( std::string& data, ConnectionDescriptions& descriptions )
     }
 
     return true;
+}
+
+std::ostream& operator << ( std::ostream& os, 
+                            const ConnectionDescription& desc)
+{
+    os << lunchbox::disableFlush << lunchbox::disableHeader << "connection"
+       << std::endl
+       << "{" << std::endl << lunchbox::indent
+       << "type          " << desc.type << std::endl
+       << "hostname      \"" << desc.getHostname() << "\"" << std::endl;
+
+    if( !desc.getInterface().empty( ))
+        os << "interface     \"" << desc.getInterface() << "\"" << std::endl;
+
+    if( desc.port != 0 )
+        os << "port          " << desc.port << std::endl;
+
+    if( !desc.getFilename().empty( ))
+        os << "filename      \"" << desc.getFilename() << "\"" << std::endl;
+
+    if( desc.bandwidth != 0 )
+        os << "bandwidth     " << desc.bandwidth << std::endl;
+
+    return os << lunchbox::exdent << "}" << lunchbox::enableHeader
+              << lunchbox::enableFlush << std::endl;
 }
 
 }

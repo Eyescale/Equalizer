@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -25,6 +25,27 @@ namespace eq
 {
 namespace server
 {
+namespace
+{
+#define MAKE_ATTR_STRING( attr ) ( std::string("EQ_CONNECTION_") + #attr )
+
+static std::string _sAttributeStrings[ ConnectionDescription::SATTR_ALL ] =
+{
+    MAKE_ATTR_STRING( SATTR_HOSTNAME ),
+    MAKE_ATTR_STRING( SATTR_PIPE_FILENAME ),
+    MAKE_ATTR_STRING( SATTR_FILL1 ),
+    MAKE_ATTR_STRING( SATTR_FILL2 )
+};
+static std::string _iAttributeStrings[ ConnectionDescription::IATTR_ALL ] =
+{
+    MAKE_ATTR_STRING( IATTR_TYPE ),
+    MAKE_ATTR_STRING( IATTR_TCPIP_PORT ),
+    MAKE_ATTR_STRING( IATTR_BANDWIDTH ),
+    MAKE_ATTR_STRING( IATTR_FILL1 ),
+    MAKE_ATTR_STRING( IATTR_FILL2 )
+};
+}
+
 ConnectionDescription::ConnectionDescription()
 {
     const Global* global = Global::instance();
@@ -38,6 +59,19 @@ ConnectionDescription::ConnectionDescription()
     port = global->getConnectionIAttribute( IATTR_PORT );
     setFilename( global->getConnectionSAttribute( SATTR_FILENAME ));
 }
+
+const std::string& ConnectionDescription::getSAttributeString(
+    const SAttribute attr )
+{
+    return _sAttributeStrings[ attr ];
+}
+
+const std::string& ConnectionDescription::getIAttributeString( 
+    const IAttribute attr )
+{
+    return _iAttributeStrings[ attr ];
+}
+
 
 }
 }

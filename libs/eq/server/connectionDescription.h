@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -30,6 +30,34 @@ namespace server
     public:
         EQSERVER_API ConnectionDescription();
 
+        /** @name Attributes */
+        //@{
+        // Note: also update string array init in connectionDescription.cpp
+        /** String attributes */
+        enum SAttribute
+        {
+            SATTR_HOSTNAME,
+            SATTR_FILENAME,
+            SATTR_FILL1,
+            SATTR_FILL2,
+            SATTR_ALL
+        };
+
+        /** Integer attributes */
+        enum IAttribute
+        {
+            IATTR_TYPE,
+            IATTR_PORT,
+            IATTR_BANDWIDTH,
+            IATTR_FILL1,
+            IATTR_FILL2,
+            IATTR_ALL
+        };
+        //@}
+
+        static const std::string& getSAttributeString( const SAttribute attr );
+        static const std::string& getIAttributeString( const IAttribute attr );
+
     protected:
         virtual ~ConnectionDescription() {}
 
@@ -39,4 +67,4 @@ namespace server
     };
 }
 }
-#endif // EQNET_CONNECTION_DESCRIPTION_H
+#endif // EQSERVER_CONNECTION_DESCRIPTION_H

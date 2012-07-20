@@ -18,39 +18,18 @@
 #ifndef CO_CONNECTIONDESCRIPTION_H
 #define CO_CONNECTIONDESCRIPTION_H
 
-#include <co/connectionType.h> // member enum
 #include <co/api.h>
+#include <co/connectionType.h> // member enum
 #include <co/types.h>
 
-#include <lunchbox/api.h>
-#include <lunchbox/referenced.h>
+#include <lunchbox/referenced.h> // base class
 
 namespace co
 {
-    /**
-     * Describes Connection parameters.
-     *
-     * @sa Node
-     */
+    /** Describes Connection parameters. */
     class ConnectionDescription : public lunchbox::Referenced
     {
     public:
-        ConnectionDescription() 
-                : type( CONNECTIONTYPE_TCPIP )
-                , bandwidth( 0 )
-                , port( 0 )
-                , _filename( "default" )
-            {}
-
-        ConnectionDescription( const char* data );
-
-        /** @return true if the two descriptions have the same values. */
-        CO_API bool operator == ( const ConnectionDescription& rhs ) const;
-
-        /** @return true if the two descriptions have the different values. */
-        bool operator != ( const ConnectionDescription& rhs ) const
-            { return !( *this == rhs ); }
-
         /** The network protocol for the connection. */
         ConnectionType type;
 
@@ -59,6 +38,25 @@ namespace co
 
         /** The listening port (TCPIP, SDP, IB, MCIP, RDMA). */
         uint16_t port;
+
+        /** Construct a new, default description. @version 1.0 */
+        ConnectionDescription() 
+                : type( CONNECTIONTYPE_TCPIP )
+                , bandwidth( 0 )
+                , port( 0 )
+                , _filename( "default" )
+            {}
+
+        /**
+         * Construct a description from a string representation.
+         *
+         * The given data is consumed, that is, the data string should be empty
+         * on return.
+         *
+         * @sa toString()
+         * @version 1.0
+         */
+        ConnectionDescription( std::string& data );
 
         /** @return this description as a string. */
         CO_API std::string toString() const;
@@ -96,37 +94,14 @@ namespace co
         CO_API const std::string& getFilename() const;
 
         CO_API bool isSameMulticastGroup( ConstConnectionDescriptionPtr rhs );
+
+        /** @return true if the two descriptions have the same values. */
+        CO_API bool operator == ( const ConnectionDescription& rhs ) const;
+
+        /** @return true if the two descriptions have the different values. */
+        bool operator != ( const ConnectionDescription& rhs ) const
+            { return !( *this == rhs ); }
         //@}
-
-        /** @name Attributes */
-        //@{
-        // Note: also update string array init in connectionDescription.cpp
-        /** String attributes */
-        enum SAttribute
-        {
-            SATTR_HOSTNAME,
-            SATTR_FILENAME,
-            SATTR_FILL1,
-            SATTR_FILL2,
-            SATTR_ALL
-        };
-
-        /** Integer attributes */
-        enum IAttribute
-        {
-            IATTR_TYPE,
-            IATTR_PORT,
-            IATTR_BANDWIDTH,
-            IATTR_FILL1,
-            IATTR_FILL2,
-            IATTR_ALL
-        };
-        //@}
-
-        CO_API static const std::string&
-        getSAttributeString( const SAttribute attr );
-        CO_API static const std::string&
-        getIAttributeString( const IAttribute attr );
 
     protected:
         virtual ~ConnectionDescription() {}
