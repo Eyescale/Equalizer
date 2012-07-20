@@ -14,6 +14,7 @@ set(CO_PUBLIC_HEADERS
   connection.h
   connection.ipp
   connectionDescription.h
+  connectionListener.h # TODO make private (ConnectionSet need pimpl)
   connectionSet.h
   connectionType.h
   dataIStream.h
@@ -58,7 +59,6 @@ set(CO_HEADERS
   commandCache.h
   compressor.h
   compressorInfo.h
-  connectionListener.h
   cpuCompressor.h
   dataIStreamQueue.h
   dataOStream.ipp
