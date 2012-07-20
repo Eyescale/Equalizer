@@ -48,7 +48,7 @@ include(GitTargets)
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
 if(EQUALIZER_USE_GPUSD)
-  find_package(gpusd 1.4.0)
+  find_package(gpusd 1.5.0)
 endif()
 
 find_package(Doxygen)
