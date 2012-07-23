@@ -30,21 +30,30 @@ namespace co
     class ConnectionDescription : public lunchbox::Referenced
     {
     public:
-        /** The network protocol for the connection. */
+        /** The network protocol for the connection. @version 1.0 */
         ConnectionType type;
 
-        /** The bandwidth in kilobyte per second for this connection. */
+        /** The bandwidth in kilobyte per second. @version 1.0 */
         int32_t bandwidth;
 
-        /** The listening port (TCPIP, SDP, IB, MCIP, RDMA). */
+        /** The listening port (TCPIP, SDP, IB, MCIP, RDMA). @version 1.0 */
         uint16_t port;
+
+        /** The host name. */
+        std::string hostname;
+
+        /** The host name of the interface (multicast). */
+        std::string interfacename;
+
+        /** The name file using for a pipe. */
+        std::string filename;
 
         /** Construct a new, default description. @version 1.0 */
         ConnectionDescription() 
                 : type( CONNECTIONTYPE_TCPIP )
                 , bandwidth( 0 )
                 , port( 0 )
-                , _filename( "default" )
+                , filename( "default" )
             {}
 
         /**
@@ -58,31 +67,30 @@ namespace co
          */
         ConnectionDescription( std::string& data );
 
-        /** @return this description as a string. */
-        CO_API std::string toString() const;
+        /** Serialize this description to a std::ostream. @version 1.0 */
         CO_API void serialize( std::ostream& os ) const;
 
+        /** @return this description as a string. @version 1.0 */
+        CO_API std::string toString() const;
+
         /** 
-         * Reads the connection description from a string.
+         * Read the connection description from a string.
          * 
          * The string is consumed as the description is parsed. Two different
          * formats are recognized, a human-readable and a machine-readable. The
          * human-readable version has the format
          * <code>hostname[:port][:type]</code> or
          * <code>filename:PIPE</code>. The <code>type</code> parameter can be
-         * TCPIP, SDP, IB, MCIP, PGM or RSP. The machine-readable format
+         * TCPIP, SDP, IB, MCIP, UDT or RSP. The machine-readable format
          * contains all connection description parameters and is not documented.
          *
          * @param data the string containing the connection description.
-         * @return <code>true</code> if the information was read correctly, 
-         *         <code>false</code> if not.
+         * @return true if the information was read correctly, false if not.
+         * @version 1.0
          */
         CO_API bool fromString( std::string& data );
 
-        /** @name Data Access
-         *
-         * std::strings are not public because of DLL allocation issues.
-         */
+        /** @name Data Access */
         //@{
         CO_API void setHostname( const std::string& hostname );
         CO_API const std::string& getHostname() const;
@@ -105,16 +113,6 @@ namespace co
 
     protected:
         virtual ~ConnectionDescription() {}
-
-    private:
-        /** The host name. */
-        std::string _hostname;
-
-        /** The host name of the interface (multicast). */
-        std::string _interface;
-
-        /** The name file using for a pipe. */
-        std::string _filename;
     };
 
     CO_API std::ostream& operator << ( std::ostream&,

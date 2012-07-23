@@ -56,7 +56,7 @@ ConnectionDescription::ConnectionDescription( std::string& data )
         : type( CONNECTIONTYPE_TCPIP )
         , bandwidth( 0 )
         , port( 0 )
-        , _filename( "default" )
+        , filename( "default" )
 {
     fromString( data );
     LBASSERTINFO( data.empty(), data );
@@ -71,8 +71,8 @@ std::string ConnectionDescription::toString() const
 
 void ConnectionDescription::serialize( std::ostream& os ) const
 {
-    os << type << SEPARATOR << bandwidth << SEPARATOR << _hostname  << SEPARATOR
-       << _interface << SEPARATOR << port << SEPARATOR << _filename
+    os << type << SEPARATOR << bandwidth << SEPARATOR << hostname  << SEPARATOR
+       << interfacename << SEPARATOR << port << SEPARATOR << filename
        << SEPARATOR;
 }
 
@@ -87,12 +87,12 @@ bool ConnectionDescription::fromString( std::string& data )
             nextPos = data.find( ':' );
             if( nextPos == std::string::npos ) // assume hostname format
             {
-                _hostname = data;
+                hostname = data;
                 data.clear();
                 return true;
             }
 
-            _hostname = data.substr( 0, nextPos );
+            hostname = data.substr( 0, nextPos );
             data      = data.substr( nextPos + 1 );
 
             while( nextPos != std::string::npos )
@@ -108,8 +108,8 @@ bool ConnectionDescription::fromString( std::string& data )
                     type = _getConnectionType( token );
                     if( type == CONNECTIONTYPE_NAMEDPIPE )
                     {
-                        _filename = _hostname;
-                        _hostname.clear();
+                        filename = hostname;
+                        hostname.clear();
                     }
                     else if( type == CONNECTIONTYPE_NONE )
                         goto error;
@@ -140,14 +140,14 @@ bool ConnectionDescription::fromString( std::string& data )
         if( nextPos == std::string::npos )
             goto error;
 
-        _hostname = data.substr( 0, nextPos );
+        hostname = data.substr( 0, nextPos );
         data      = data.substr( nextPos + 1 );
 
         nextPos = data.find( SEPARATOR );
         if( nextPos == std::string::npos )
             goto error;
 
-        _interface = data.substr( 0, nextPos );
+        interfacename = data.substr( 0, nextPos );
         data       = data.substr( nextPos + 1 );
 
         nextPos = data.find( SEPARATOR );
@@ -162,7 +162,7 @@ bool ConnectionDescription::fromString( std::string& data )
         if( nextPos == std::string::npos )
             goto error;
 
-        _filename = data.substr( 0, nextPos );
+        filename = data.substr( 0, nextPos );
         data = data.substr( nextPos + 1 );
     }
     return true;
@@ -172,40 +172,40 @@ bool ConnectionDescription::fromString( std::string& data )
     return false;
 }
 
-void ConnectionDescription::setHostname( const std::string& hostname )
+void ConnectionDescription::setHostname( const std::string& hostname_ )
 {
-    _hostname = hostname;
+    hostname = hostname_;
 }
 
 void ConnectionDescription::setInterface( const std::string& interface_ )
 {
-    _interface = interface_;
+    interfacename = interface_;
 }
 
-void ConnectionDescription::setFilename( const std::string& filename )
+void ConnectionDescription::setFilename( const std::string& filename_ )
 {
-    _filename = filename;
+    filename = filename_;
 }
 
 const std::string& ConnectionDescription::getFilename() const
 {
-    return _filename;
+    return filename;
 }
 
 const std::string& ConnectionDescription::getHostname() const
 {
-    return _hostname;
+    return hostname;
 }
 
 const std::string& ConnectionDescription::getInterface() const
 {
-    return _interface;
+    return interfacename;
 }
 
 bool ConnectionDescription::isSameMulticastGroup(
     ConstConnectionDescriptionPtr rhs )
 {
-    return( type == rhs->type && _hostname == rhs->_hostname &&
+    return( type == rhs->type && hostname == rhs->hostname &&
             port == rhs->port );
 }
 
@@ -213,8 +213,8 @@ bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )
     const
 {
     return type == rhs.type && bandwidth == rhs.bandwidth &&
-           port == rhs.port && _hostname == rhs._hostname &&
-           _interface == rhs._interface && _filename == rhs._filename;
+           port == rhs.port && hostname == rhs.hostname &&
+           interfacename == rhs.interfacename && filename == rhs.filename;
 }
 
 std::string serialize( const ConnectionDescriptions& descriptions )

@@ -6,7 +6,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 find_package(OpenGL REQUIRED)
-find_package(Lunchbox 1.3.5 REQUIRED)
+find_package(Lunchbox 1.5.0 REQUIRED)
 find_package(GLEW_MX)
 
 include_directories(${LUNCHBOX_INCLUDE_DIRS})

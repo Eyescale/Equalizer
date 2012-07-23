@@ -111,7 +111,7 @@
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
 
-     * 139: Tile compound readback broken<>
+     * 139: Tile compound readback broken
      * 120: Async readback deallocation
      * 118: OS X: Async readback doesn't work
      * 137: 1-window.DFR broken
