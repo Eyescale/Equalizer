@@ -161,6 +161,15 @@ void _testFile()
     getFiles( "/home/eilemann/Software/Models/mediumPly/", files, "*.bin" );
     getFiles( "/home/eilemann/Software/Models/mediumPly/", files, "*.ply" );
 
+    // Limit to 30 files using a pseudo-random selection for reproducability
+    const size_t maxFiles = 30;
+    if( files.size() > maxFiles )
+    {
+        const size_t cut = files.size() - maxFiles;
+        for( size_t i = 0; i < cut; ++i )
+            files.erase( files.begin() + (i * 997 /*prime*/) % files.size( ));
+    }
+
     std::cout.setf( std::ios::right, std::ios::adjustfield );
     std::cout.precision( 5 );
     std::cout << "                File, Compressor,       SIZE, "
