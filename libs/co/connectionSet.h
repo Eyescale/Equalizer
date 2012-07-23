@@ -18,7 +18,8 @@
 #ifndef CO_CONNECTION_SET_H
 #define CO_CONNECTION_SET_H
 
-#include <co/connectionListener.h> // base class
+#include <co/api.h>
+#include <co/types.h>
 #include <lunchbox/thread.h> // for LB_TS_VAR
 
 namespace co
@@ -26,10 +27,10 @@ namespace co
 namespace detail { class ConnectionSet; }
 
     /** Handles events on a set of connections. */
-    class ConnectionSet : public ConnectionListener
+    class ConnectionSet
     {
     public:
-        enum Event
+        enum Event //!< Event types for select()
         {
             EVENT_NONE = 0,        //!< No event has occurred
             EVENT_CONNECT,         //!< A new connection
@@ -43,7 +44,10 @@ namespace detail { class ConnectionSet; }
             EVENT_ALL
         };
 
+        /** Create a new connection set. @version 1.0 */
         CO_API ConnectionSet();
+
+        /** Destruct this connection set. @version 1.0 */
         CO_API ~ConnectionSet();
 
         CO_API void addConnection( ConnectionPtr connection );
@@ -82,7 +86,6 @@ namespace detail { class ConnectionSet; }
 
         bool _setupFDSet();
         bool _buildFDSet();
-        virtual void notifyStateChanged( Connection* );
 
         Event _getSelectResult( const uint32_t index );
         LB_TS_VAR( _selectThread );
