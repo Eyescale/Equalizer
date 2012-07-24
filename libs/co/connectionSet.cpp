@@ -53,29 +53,25 @@ class Thread : public lunchbox::Thread
 {
 public:
     Thread( ConnectionSet* parent )
-        : set( new ConnectionSet )
-        , notifier( CreateEvent( 0, false, false, 0 ))
+        : notifier( CreateEvent( 0, false, false, 0 ))
         , event( ConnectionSet::EVENT_NONE )
         , _parent( parent )
     {}
 
     virtual ~Thread()
-        {
-            delete set;
-            set = 0;
-        }
+        {}
 
-    ConnectionSet* set;
-    HANDLE         notifier;
+    ConnectionSet set;
+    HANDLE        notifier;
 
     lunchbox::Monitor< ConnectionSet::Event > event;
 
 protected:
     virtual void run()
         {
-            while ( !set->isEmpty( ))
+            while ( !set.isEmpty( ))
             {
-                event = set->select();
+                event = set.select();
                 if( event != ConnectionSet::EVENT_INTERRUPT &&
                     event != ConnectionSet::EVENT_NONE )
                 {
@@ -253,17 +249,17 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
                  i != _impl->threads.end(); ++i )
             {
                 Thread* thread = *i;
-                if( thread->set->_impl.connection.size() > MAX_CONNECTIONS )
+                if( thread->set._impl->connections.size() > MAX_CONNECTIONS )
                     continue;
 
-                thread->set->addConnection( connection );
+                thread->set.addConnection( connection );
                 return;
             }
 
             // add to new thread
             Thread* thread = new Thread( this );
-            thread->set->addConnection( connection );
-            thread->set->addConnection( _impl->connections.back( ));
+            thread->set.addConnection( connection );
+            thread->set.addConnection( _impl->connections.back( ));
             _impl->connections.pop_back();
 
             _impl->threads.push_back( thread );
@@ -298,9 +294,9 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
             for( ; k != _impl->threads.end(); ++k )
             {
                 Thread* thread = *k;
-                if( thread->set->removeConnection( connection ))
+                if( thread->set.removeConnection( connection ))
                 {
-                    if( !thread->set->isEmpty( ))
+                    if( !thread->set.isEmpty( ))
                         return true;
 
                     if( thread == _impl->thread )
@@ -340,7 +336,7 @@ void ConnectionSet::clear()
     for( ThreadsIter i =_impl->threads.begin(); i != _impl->threads.end(); ++i )
     {
         Thread* thread = *i;
-        thread->set->clear();
+        thread->set.clear();
         thread->event = EVENT_NONE;
         thread->join();
         delete thread;
@@ -459,8 +455,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         LBASSERT( _impl->fdSet[ i ] == _impl->thread->notifier );
         
         ResetEvent( _impl->thread->notifier ); 
-        _impl->connection = _impl->thread->set->getConnection();
-        _impl->error = _impl->thread->set->getError();
+        _impl->connection = _impl->thread->set.getConnection();
+        _impl->error = _impl->thread->set.getError();
         return _impl->thread->event.get();
     }
     // else locally handled connection
@@ -624,11 +620,11 @@ bool ConnectionSet::_setupFDSet()
     return true;
 }   
 
-std::ostream& operator << ( std::ostream& os, const ConnectionSet* set )
+std::ostream& operator << ( std::ostream& os, const ConnectionSet& set )
 {
-    const Connections& connections = set->getConnections();
+    const Connections& connections = set.getConnections();
 
-    os << "connection set " << (void*)set << ", " << connections.size()
+    os << "connection set " << (void*)&set << ", " << connections.size()
        << " connections";
     
     for( ConnectionsCIter i = connections.begin(); i != connections.end(); ++i )
