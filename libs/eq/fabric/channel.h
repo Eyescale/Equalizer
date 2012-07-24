@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -32,11 +32,11 @@ namespace fabric
     /** Base data transport class for channels. @sa eq::Channel */
     template< class W, class C > class Channel : public Object
     {
-    public: 
+    public:
         typedef LeafVisitor< C > Visitor; //!< The channel visitor type
         typedef W Parent; //!< The parent window type
 
-        /** 
+        /**
          * The drawable format defines the components used as an alternate
          * drawable for this cannel. If an alternate drawable is configured, the
          * channel uses the appropriate targets in place of the window's frame
@@ -50,7 +50,7 @@ namespace fabric
             FBO_DEPTH   = LB_BIT2,     //!< Use an FBO for depth values
             FBO_STENCIL = LB_BIT3      //!< Use an FBO for stencil values
         };
-        
+
         /** @name Data Access */
         //@{
         /** @internal Initialize this channel (calls virtual methods) */
@@ -89,9 +89,9 @@ namespace fabric
         /** @return true if a viewport was specified last. @version 1.0 */
         bool hasFixedViewport() const { return _data.fixedVP; }
 
-        /** 
+        /**
          * Set the near and far planes for this channel.
-         * 
+         *
          * The given near and far planes update the current perspective and
          * orthographics frustum accordingly. Furthermore, they will be used in
          * the future by the server to compute the frusta.
@@ -109,9 +109,9 @@ namespace fabric
          */
         uint32_t getDrawable() const { return _drawable; }
 
-        /** 
-         * Traverse this channel using a channel visitor.
-         * 
+        /**
+         * Perform a depth-first traversal of this channel.
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -149,7 +149,7 @@ namespace fabric
 
         /**
          * @name Context-specific data access.
-         * 
+         *
          * The data returned by these methods depends on the context (callback)
          * they are called from, typically the data for the current rendering
          * task. If they are called outside of a frame task method, they
@@ -207,7 +207,7 @@ namespace fabric
          *
          * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
          * typically applied first to the GL_MODELVIEW matrix.
-         * 
+         *
          * @return the head transformation matrix
          * @version 1.0
          */
@@ -219,7 +219,7 @@ namespace fabric
          *
          * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
          * typically applied first to the GL_MODELVIEW matrix.
-         * 
+         *
          * @return the head transformation matrix
          * @version 1.0
          */
@@ -231,7 +231,7 @@ namespace fabric
          *
          * The view matrix is part of the GL_MODEL*VIEW* matrix, and is
          * typically applied first to the GL_MODELVIEW matrix.
-         * 
+         *
          * @return the head transformation matrix
          * @version 1.0
          */
@@ -315,7 +315,7 @@ namespace fabric
             IATTR_LAST,
             IATTR_ALL = IATTR_LAST + 5
         };
-        
+
         /** @return the value of an integer attribute. @version 1.0 */
         EQFABRIC_INL int32_t getIAttribute( const IAttribute attr ) const;
         /** @return the name of an integer attribute. @version 1.0 */
@@ -325,7 +325,7 @@ namespace fabric
 
         virtual bool omitOutput() const { return false; } //!< @internal
         virtual void output( std::ostream& ) const {} //!< @internal
-        
+
     protected:
         /** Construct a new channel. @internal */
         EQFABRIC_INL Channel( W* parent );
@@ -340,7 +340,7 @@ namespace fabric
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                   const uint64_t dirtyBits );
 
         /** @internal @sa Serializable::setDirty() */
@@ -378,7 +378,7 @@ namespace fabric
             DIRTY_MEMBER        = Object::DIRTY_CUSTOM << 2, //  256
             DIRTY_FRUSTUM       = Object::DIRTY_CUSTOM << 3, //  512
             DIRTY_CAPABILITIES  = Object::DIRTY_CUSTOM << 4, // 1024
-            DIRTY_CHANNEL_BITS = 
+            DIRTY_CHANNEL_BITS =
                DIRTY_ATTRIBUTES | DIRTY_VIEWPORT | DIRTY_MEMBER |
                DIRTY_FRUSTUM | DIRTY_OBJECT_BITS
         };

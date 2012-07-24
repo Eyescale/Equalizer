@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *               2010, Cedric Stalder<cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -59,9 +59,9 @@ namespace fabric
         EQFABRIC_INL NodePath getPath() const;
         P* findPipe( const UUID& id ); //!< @internal
 
-        /** 
-         * Traverse this node and all children using a node visitor.
-         * 
+        /**
+         * Perform a depth-first traversal of this node.
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -118,9 +118,9 @@ namespace fabric
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                const uint64_t dirtyBits );
-        
+
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */

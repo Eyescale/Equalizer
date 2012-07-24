@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -35,8 +35,8 @@ namespace fabric
     {
     public:
         /** A vector of pointers to windows. @version 1.0 */
-        typedef std::vector< W* >  Windows; 
-        
+        typedef std::vector< W* >  Windows;
+
         /** @name Data Access */
         //@{
         /** @return the parent node of this pipe. @version 1.0 */
@@ -59,12 +59,12 @@ namespace fabric
           * @version 1.0
           */
         uint32_t getPort() const { return _port; }
-        
+
         EQFABRIC_INL void setPort( const uint32_t port ); //!< @internal
 
-        /** 
+        /**
          * Returns the device number of this pipe.
-         * 
+         *
          * The device number identifies the X screen for systems using the
          * X11/GLX window system, or the number of the virtual screen for the
          * AGL window system. On Windows systems it identifies the graphics
@@ -97,9 +97,9 @@ namespace fabric
         /** @internal @return the index path to this pipe. */
         EQFABRIC_INL PipePath getPath() const;
 
-        /** 
-         * Traverse this pipe and all children using a pipe visitor.
-         * 
+        /**
+         * Perform a depth-first traversal of this pipe.
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -134,7 +134,7 @@ namespace fabric
         /** @internal @return true if tasks are executed in a separate thread.*/
         bool isThreaded() const
             { return (getIAttribute( IATTR_HINT_THREAD ) == 1 ); }
-        
+
         /** @internal @return the name of a pipe attribute. */
         EQFABRIC_INL static const std::string& getIAttributeString(
                                                       const IAttribute attr );
@@ -165,7 +165,7 @@ namespace fabric
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                              const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                const uint64_t dirtyBits );
 
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
@@ -196,7 +196,7 @@ namespace fabric
     private:
         /** The parent node. */
         N* const _node;
-        
+
         /** The list of windows. */
         Windows _windows;
 
