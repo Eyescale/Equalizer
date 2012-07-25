@@ -73,9 +73,10 @@ add_custom_target(tarball-create
 
 if(GZIP_EXECUTABLE)
   add_custom_target(tarball
-    COMMAND ${GZIP_EXECUTABLE}
-      "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar"
+    COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
+    COMMAND ${GZIP_EXECUTABLE} "${CMAKE_PROJECT_NAME}-${VERSION}.tar"
     DEPENDS tarball-create
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     COMMENT
       "Compressing ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
   )
