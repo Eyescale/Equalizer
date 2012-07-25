@@ -6,6 +6,8 @@ if(NOT GIT_EXECUTABLE)
   return()
 endif()
 
+find_program(GZIP_EXECUTABLE gzip)
+
 math(EXPR _gittargets_ODD_MINOR "${VERSION_MINOR} % 2")
 if(_gittargets_ODD_MINOR)
   math(EXPR BRANCH_VERSION "${VERSION_MINOR} + 1")
@@ -60,33 +62,29 @@ add_custom_target(erase
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   )
 
-add_custom_target(tarball-clone
-  COMMAND ${CMAKE_COMMAND} -E remove_directory
-                              "${CMAKE_PROJECT_NAME}-${VERSION}"
-  COMMAND ${GIT_EXECUTABLE} clone "${CMAKE_SOURCE_DIR}"
-                                  "${CMAKE_PROJECT_NAME}-${VERSION}"
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-  COMMENT "Cloning source"
+add_custom_target(tarball-create
+  COMMAND ${GIT_EXECUTABLE} archive --worktree-attributes
+    --prefix ${CMAKE_PROJECT_NAME}-${VERSION}/
+    -o ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar
+    release-${VERSION}
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  COMMENT "Creating ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar"
   )
 
-add_custom_target(tarball-prepare
-  COMMAND ${GIT_EXECUTABLE} checkout -q release-${VERSION}
-  COMMAND ${CMAKE_COMMAND} -E remove_directory .git
-  DEPENDS tarball-clone
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}"
-  COMMENT "Preparing ${CMAKE_PROJECT_NAME}-${VERSION}"
+if(GZIP_EXECUTABLE)
+  add_custom_target(tarball
+    COMMAND ${CMAKE_COMMAND} -E remove "${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
+    COMMAND ${GZIP_EXECUTABLE} "${CMAKE_PROJECT_NAME}-${VERSION}.tar"
+    DEPENDS tarball-create
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMENT
+      "Compressing ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
   )
+else()
+  add_custom_target(tarball DEPENDS tarball-create)
+endif()
 
-add_custom_target(tarball
-  COMMAND ${CMAKE_COMMAND} -E tar czf "${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
-                                      "${CMAKE_PROJECT_NAME}-${VERSION}"
-  DEPENDS tarball-prepare
-  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-  COMMENT "Creating ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}-${VERSION}.tar.gz"
-  )
-  
-set(_gittargets_TARGETS branch cut tag erase tarball tarball-clone
-  tarball-prepare)
+set(_gittargets_TARGETS branch cut tag erase tarball tarball-create)
 foreach(_gittargets_TARGET ${_gittargets_TARGETS})
   set_target_properties(${_gittargets_TARGET} PROPERTIES EXCLUDE_FROM_ALL ON)
   set_target_properties(${_gittargets_TARGET} PROPERTIES FOLDER "git")
