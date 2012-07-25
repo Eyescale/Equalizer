@@ -284,7 +284,6 @@ public:
             LBASSERTINFO( _receivers.empty(), _receivers.size() );
             LBASSERTINFO( _connectionSet.getSize() <= 1,
                           _connectionSet.getSize( ));
-            _connectionSet.clear();
         }
 
 private:

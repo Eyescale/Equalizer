@@ -20,7 +20,6 @@
 #define CO_RSPCONNECTION_H
 
 #include <co/connection.h> // base class
-#include <co/connectionSet.h> // member
 #include <co/types.h>
 #include "eventConnection.h" // member
 
