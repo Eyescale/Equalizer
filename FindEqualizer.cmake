@@ -219,7 +219,8 @@ else()
   set(_eq_coVersion_1.0.1 "0.3.1")
   set(_eq_coVersion_1.0.0 "0.3.0")
   if( "${_eq_coVersion_${EQUALIZER_VERSION}}" STREQUAL "" )
-    message(WARNING "Collage version for Equalizer ${EQUALIZER_VERSION} unknown")
+    message(WARNING
+      "Unknown Collage version for Equalizer ${EQUALIZER_VERSION}")
   endif()
   find_package(Collage "${_eq_coVersion_${EQUALIZER_VERSION}}" EXACT
                ${_eq_required} ${_eq_quiet})
