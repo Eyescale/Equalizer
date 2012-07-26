@@ -22,14 +22,12 @@
 #include <co/api.h>
 #include <co/types.h>
 
-#include <lunchbox/buffer.h> // member
-#include <lunchbox/types.h>
-
-#include <iostream>
 #include <vector>
 
 namespace co
 {
+namespace detail { class DataIStream; }
+
     /** A std::istream-like input data stream for binary data. */
     class DataIStream
     {
@@ -116,15 +114,7 @@ namespace co
                                     const void** chunkData, uint64_t* size )=0;
 
     private:
-        /** The current input buffer */
-        const uint8_t* _input;
-        /** The size of the input buffer */
-        uint64_t _inputSize;
-        /** The current read position in the buffer */
-        uint64_t  _position;
-
-        CPUCompressor* const _decompressor; //!< current decompressor
-        lunchbox::Bufferb _data; //!< decompressed buffer
+        detail::DataIStream* const _impl;
 
         /**
          * Check that the current buffer has data left, get the next buffer is

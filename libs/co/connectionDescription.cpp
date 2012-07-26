@@ -205,8 +205,8 @@ const std::string& ConnectionDescription::getInterface() const
 bool ConnectionDescription::isSameMulticastGroup(
     ConstConnectionDescriptionPtr rhs )
 {
-    return( type == rhs->type && hostname == rhs->hostname &&
-            port == rhs->port );
+    return( type >= CONNECTIONTYPE_MULTICAST && type == rhs->type &&
+            hostname == rhs->hostname && port == rhs->port );
 }
 
 bool ConnectionDescription::operator == ( const ConnectionDescription& rhs )

@@ -92,15 +92,9 @@ namespace co
 
         /** @name Data Access */
         //@{
-        CO_API void setHostname( const std::string& hostname );
-        CO_API const std::string& getHostname() const;
-
-        CO_API void setInterface( const std::string& interfacename );
-        CO_API const std::string& getInterface() const;
-
-        CO_API void setFilename( const std::string& filename );
-        CO_API const std::string& getFilename() const;
-
+        /** @internal
+         * @return true if the two descriptions configure the same mc group.
+         */
         CO_API bool isSameMulticastGroup( ConstConnectionDescriptionPtr rhs );
 
         /** @return true if the two descriptions have the same values. */
@@ -111,10 +105,23 @@ namespace co
             { return !( *this == rhs ); }
         //@}
 
+        /** @deprecated Data Access */
+        //@{
+        CO_API void setHostname( const std::string& hostname );
+        CO_API const std::string& getHostname() const;
+
+        CO_API void setInterface( const std::string& interfacename );
+        CO_API const std::string& getInterface() const;
+
+        CO_API void setFilename( const std::string& filename );
+        CO_API const std::string& getFilename() const;
+        //@}
+
     protected:
         virtual ~ConnectionDescription() {}
     };
 
+    /** Output the given description in human-readable format. */
     CO_API std::ostream& operator << ( std::ostream&,
                                        const ConnectionDescription& );
 

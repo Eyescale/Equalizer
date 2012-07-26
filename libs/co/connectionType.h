@@ -31,13 +31,14 @@ namespace co
         CONNECTIONTYPE_SDP,       //!< SDP sockets (InfiniBand)
         CONNECTIONTYPE_PIPE,      //!< pipe() based uni-directional connection
         CONNECTIONTYPE_NAMEDPIPE, //!< Named pipe based bidirectional connection
-        CONNECTIONTYPE_IB,        //!< Infiniband based RDMA
+        CONNECTIONTYPE_IB,        //!< Infiniband RDMA (defunct)
         CONNECTIONTYPE_RDMA,      //!< Infiniband RDMA CM
         CONNECTIONTYPE_UDT,       //!< UDT connection
-        CONNECTIONTYPE_MULTICAST = 0x100,
+        CONNECTIONTYPE_MULTICAST = 0x100, //!< @internal MC types after this:
         CONNECTIONTYPE_RSP        //!< UDP-based reliable stream protocol
     };
 
+    /** @internal */
     inline std::ostream& operator << ( std::ostream& os,
                                        const ConnectionType& type )
     {

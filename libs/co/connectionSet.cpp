@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -186,17 +186,19 @@ ConnectionSet::ConnectionSet()
 {}
 ConnectionSet::~ConnectionSet()
 {
-    clear();
+    _clear();
     delete _impl;
 }
 
 size_t ConnectionSet::getSize() const
 {
+    lunchbox::ScopedWrite mutex( _impl->lock );
     return _impl->allConnections.size();
 }
 
 bool ConnectionSet::isEmpty() const
 {
+    lunchbox::ScopedWrite mutex( _impl->lock );
     return _impl->allConnections.empty();
 }
 
@@ -229,7 +231,7 @@ void ConnectionSet::addConnection( ConnectionPtr connection )
 {
     LBASSERT( connection->isConnected() || connection->isListening( ));
 
-    { 
+    {
         lunchbox::ScopedWrite mutex( _impl->lock );
         _impl->allConnections.push_back( connection );
 
@@ -328,7 +330,7 @@ bool ConnectionSet::removeConnection( ConnectionPtr connection )
     return true;
 }
 
-void ConnectionSet::clear()
+void ConnectionSet::_clear()
 {
     _impl->connection = 0;
 
@@ -336,7 +338,7 @@ void ConnectionSet::clear()
     for( ThreadsIter i =_impl->threads.begin(); i != _impl->threads.end(); ++i )
     {
         Thread* thread = *i;
-        thread->set.clear();
+        thread->set._clear();
         thread->event = EVENT_NONE;
         thread->join();
         delete thread;
@@ -429,13 +431,13 @@ ConnectionSet::Event ConnectionSet::select( const uint32_t timeout )
                         return EVENT_INTERRUPT;
                     }
                     if( event == EVENT_DATA && _impl->connection->isListening())
-                        event = EVENT_CONNECT; 
+                        event = EVENT_CONNECT;
                     return event;
                 }
         }
     }
 }
-     
+
 #ifdef _WIN32
 ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
 {
@@ -453,8 +455,8 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t index )
         _impl->thread = _impl->fdSetResult[i].thread;
         LBASSERT( _impl->thread->event != EVENT_NONE );
         LBASSERT( _impl->fdSet[ i ] == _impl->thread->notifier );
-        
-        ResetEvent( _impl->thread->notifier ); 
+
+        ResetEvent( _impl->thread->notifier );
         _impl->connection = _impl->thread->set.getConnection();
         _impl->error = _impl->thread->set.getError();
         return _impl->thread->event.get();
@@ -486,14 +488,13 @@ ConnectionSet::Event ConnectionSet::_getSelectResult( const uint32_t )
 
         if( pollEvents & POLLERR )
         {
-            LBINFO << "Error during poll(): " << lunchbox::sysError << std::endl;
+            LBINFO << "Error during poll(): " << lunchbox::sysError
+                   << std::endl;
             return EVENT_ERROR;
         }
 
-        if( pollEvents & POLLHUP ) // disconnect happened
-            return EVENT_DISCONNECT;
-
-        if( pollEvents & POLLNVAL ) // disconnected connection
+        // disconnect event or disconnected connection
+        if( (pollEvents & POLLHUP) || (pollEvents & POLLNVAL) )
             return EVENT_DISCONNECT;
 
         // Note: Intuitively I would handle the read before HUP to
@@ -552,7 +553,7 @@ bool ConnectionSet::_setupFDSet()
             _impl->lock.unset();
             return false;
         }
-        
+
         _impl->fdSet.append( readHandle );
 
         Result result;
@@ -597,14 +598,14 @@ bool ConnectionSet::_setupFDSet()
         if( fd.fd <= 0 )
         {
             LBINFO << "Cannot select connection " << connection
-                   << ", connection " << typeid( *connection.get( )).name() 
+                   << ", connection " << typeid( *connection.get( )).name()
                    << " doesn't have a file descriptor" << std::endl;
             _impl->connection = connection;
             _impl->lock.unset();
             return false;
         }
 
-        LBVERB << "Listening on " << typeid( *connection.get( )).name() 
+        LBVERB << "Listening on " << typeid( *connection.get( )).name()
                << " @" << (void*)connection.get() << std::endl;
         fd.revents = 0;
 
@@ -618,7 +619,7 @@ bool ConnectionSet::_setupFDSet()
 #endif
 
     return true;
-}   
+}
 
 std::ostream& operator << ( std::ostream& os, const ConnectionSet& set )
 {
@@ -626,32 +627,28 @@ std::ostream& operator << ( std::ostream& os, const ConnectionSet& set )
 
     os << "connection set " << (void*)&set << ", " << connections.size()
        << " connections";
-    
+
     for( ConnectionsCIter i = connections.begin(); i != connections.end(); ++i )
-    {
         os << std::endl << "    " << (*i).get();
-    }
-    
+
     return os;
 }
 
 std::ostream& operator << ( std::ostream& os, const ConnectionSet::Event event )
 {
     if( event >= ConnectionSet::EVENT_ALL )
-        os << "unknown (" << unsigned( event ) << ')';
-    else 
-        os << ( event == ConnectionSet::EVENT_NONE ? "none" :       
-                event == ConnectionSet::EVENT_CONNECT ? "connect" :        
-                event == ConnectionSet::EVENT_DISCONNECT ? "disconnect" :     
-                event == ConnectionSet::EVENT_DATA ? "data" :           
-                event == ConnectionSet::EVENT_TIMEOUT ? "timeout" :        
-                event == ConnectionSet::EVENT_INTERRUPT ? "interrupted" :      
-                event == ConnectionSet::EVENT_ERROR ? "error" :          
-                event == ConnectionSet::EVENT_SELECT_ERROR ? "select error" :   
-                event == ConnectionSet::EVENT_INVALID_HANDLE ? "invalid handle":
-                "ERROR" );
+        return os << "unknown (" << unsigned( event ) << ')';
 
-    return os;
+    return os << ( event == ConnectionSet::EVENT_NONE ? "none" :
+                   event == ConnectionSet::EVENT_CONNECT ? "connect" :
+                   event == ConnectionSet::EVENT_DISCONNECT ? "disconnect" :
+                   event == ConnectionSet::EVENT_DATA ? "data" :
+                   event == ConnectionSet::EVENT_TIMEOUT ? "timeout" :
+                   event == ConnectionSet::EVENT_INTERRUPT ? "interrupted" :
+                   event == ConnectionSet::EVENT_ERROR ? "error" :
+                   event == ConnectionSet::EVENT_SELECT_ERROR ? "select error" :
+                   event == ConnectionSet::EVENT_INVALID_HANDLE ?
+                   "invalid handle" : "ERROR" );
 }
 
 }

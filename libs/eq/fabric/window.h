@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -30,8 +30,8 @@
 namespace eq
 {
     class Window;
-namespace server 
-{ 
+namespace server
+{
     class Window;
 }
 namespace fabric
@@ -41,7 +41,7 @@ namespace fabric
     {
     public:
         /** A vector of pointers to channels. @version 1.0 */
-        typedef std::vector< C* >  Channels; 
+        typedef std::vector< C* >  Channels;
         /** The Window visitor type. @version 1.0 */
         typedef ElementVisitor< W, LeafVisitor< C > > Visitor;
 
@@ -73,20 +73,20 @@ namespace fabric
          */
         const Viewport& getViewport() const { return _data.vp; }
 
-        /** 
+        /**
          * Set the window's pixel viewport wrt its parent pipe.
          *
          * Updates the fractional viewport of the window and its channels
          * accordingly.
-         * 
+         *
          * @param pvp the viewport in pixels.
          * @version 1.0
          */
         EQFABRIC_INL virtual void setPixelViewport(const PixelViewport& pvp);
 
-        /** 
+        /**
          * Set the window's viewport wrt its parent pipe.
-         * 
+         *
          * Updates the fractional pixel viewport of the window and its channels
          * accordingly.
          *
@@ -101,9 +101,9 @@ namespace fabric
         /** @internal Notify this window that the viewport has changed. */
         virtual void notifyViewportChanged();
 
-        /** 
-         * Traverse this window and all children using a window visitor.
-         * 
+        /**
+         * Perform a depth-first traversal of this window.
+         *
          * @param visitor the visitor.
          * @return the result of the visitor traversal.
          * @version 1.0
@@ -117,7 +117,7 @@ namespace fabric
 
         /** @name Attributes */
         //@{
-        /** 
+        /**
          * Window attributes.
          *
          * Most of these attributes are used by the SystemWindow implementation
@@ -157,7 +157,7 @@ namespace fabric
             { return _data.iAttributes[attr]; }
 
         /** @internal @return the name of a window attribute. */
-        EQFABRIC_INL static 
+        EQFABRIC_INL static
         const std::string& getIAttributeString( const IAttribute attr );
         //@}
 
@@ -176,7 +176,7 @@ namespace fabric
                                                CO_COMMIT_NEXT );
         //@}
 
-    protected: 
+    protected:
         /** @internal Construct a new window. */
         Window( P* parent );
 
@@ -189,9 +189,9 @@ namespace fabric
         EQFABRIC_INL virtual void serialize( co::DataOStream& os,
                                                 const uint64_t dirtyBits );
         /** @internal */
-        EQFABRIC_INL virtual void deserialize( co::DataIStream& is, 
+        EQFABRIC_INL virtual void deserialize( co::DataIStream& is,
                                                   const uint64_t dirtyBits );
-        
+
         EQFABRIC_INL virtual void notifyDetach(); //!< @internal
 
         /** @sa Serializable::setDirty() @internal */
@@ -240,11 +240,11 @@ namespace fabric
 
             /** The absolute size and position of the window. */
             PixelViewport pvp;
-        
+
             /** The fractional size and position of the window. */
             Viewport vp;
 
-            /** true if the pixel viewport is mutable, false if the viewport 
+            /** true if the pixel viewport is mutable, false if the viewport
                 is immutable */
             bool fixedVP;
         }
