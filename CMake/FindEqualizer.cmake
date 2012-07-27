@@ -200,6 +200,8 @@ else()
                                     _eq_LIBRARY _eq_INCLUDE_DIR)
   # Matching Collage versions
   set(_eq_coVersion_1.5.0 "0.7.0")
+  set(_eq_coVersion_1.4.0 "0.6.0")
+  set(_eq_coVersion_1.3.7 "0.5.7")
   set(_eq_coVersion_1.3.6 "0.5.6")
   set(_eq_coVersion_1.3.5 "0.5.5")
   set(_eq_coVersion_1.3.2 "0.5.2")
