@@ -86,9 +86,13 @@ public:
             {
                 Data& cache_ = cache[i];
                 for( DataCIter j = cache_.begin(); j != cache_.end(); ++j )
+                    (*j)->free();
+
+                for( DataCIter j = cache_.begin(); j != cache_.end(); ++j )
                 {
                     Command* command = *j;
-                    LBASSERTINFO( command->isFree(), *command );
+                    LBASSERTINFO( command->isFree(),
+                                  *command << " rc " << command->getRefCount( ));
                     delete command;
                 }
                 LBASSERTINFO( size_t( free[i] ) == cache_.size(),

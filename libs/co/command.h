@@ -96,12 +96,13 @@ namespace co
          */
         void clone_( CommandPtr from );
 
+        void free(); //!< @internal
+
     private:
         Command& operator = ( Command& rhs ); // disable assignment
         Command( const Command& from );       // disable copy
         Command();                            // disable default ctor
 
-        void _free();
 
         NodePtr       _node;      //!< The node sending the packet
         LocalNodePtr  _localNode; //!< The node receiving the packet

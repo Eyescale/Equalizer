@@ -15,7 +15,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#define EQ_TEST_RUNTIME 300
 #include <test.h>
 
 #include <co/command.h>
@@ -42,14 +41,13 @@ struct Packet : public co::Packet
         }
 };
 
-
 class Reader : public co::Dispatcher, public lunchbox::Thread
 {
 public:
     bool _cmd( co::Command& command ) { return true; }
     bool _cmdStop( co::Command& command ) { _running = false; return true; }
 
-    Reader() : _running( false )
+    Reader() : index( 0 ), _running( false )
         {
             registerCommand( 0u,
                              co::CommandFunc< Reader >( this, &Reader::_cmd ),
@@ -60,6 +58,8 @@ public:
         }
     virtual ~Reader(){}
 
+    size_t index;
+
 protected:
     virtual void run()
         {
@@ -69,9 +69,13 @@ protected:
             {
                 co::CommandPtr command = _queue.pop();
                 TEST( command->getRefCount() > 0 );
+                // Writer callstack + self reference
+                TESTINFO( index == 0 || command->getRefCount() < 5,
+                          index << ", " << command->getRefCount() );
                 TEST( (*command)( ));
-                yield(); // let writer run ahead a bit
+                TEST( command->getRefCount() > 0 );
             }
+            TEST( _queue.isEmpty( ));
             lunchbox::ScopedFastWrite mutex( _lock );
             rTime = clock.getTime64();
         }
@@ -87,7 +91,10 @@ int main( int argc, char **argv )
     {
         Reader readers[ N_READER ];
         for( size_t i = 0; i < N_READER; ++i )
+        {
+            readers[i].index = i;
             readers[i].start();
+        }
 
         co::CommandCache cache;
         co::LocalNodePtr node = new co::LocalNode;
@@ -104,7 +111,13 @@ int main( int argc, char **argv )
 
             for( size_t i = 1; i < N_READER; ++i )
             {
+#if 1
                 co::CommandPtr clone = cache.clone( command );
+#else
+                co::CommandPtr clone = cache.alloc( node, node, sizeof( Packet));
+                Packet* packet2 = clone->getModifiable< Packet >();
+                *packet2 = Packet();
+#endif
                 readers[i].dispatchCommand( clone );
             }
             ++nOps;
@@ -122,8 +135,8 @@ int main( int argc, char **argv )
             readers[i].join();
         }
 
-        std::cout << nOps / wTime << " write, " << nOps / rTime
-                  << " read ops/ms" << std::endl;
+        std::cout << N_READER * nOps / wTime << " write, "
+                  << N_READER * nOps / rTime << " read ops/ms" << std::endl;
     }
 
     TEST( co::exit( ));

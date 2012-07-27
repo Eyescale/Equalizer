@@ -32,13 +32,14 @@ Command::Command( lunchbox::a_int32_t& freeCounter )
 
 Command::~Command() 
 {
-    _free(); 
+    free(); 
 }
 
 void Command::deleteReferenced( const Referenced* object ) const
 {
     Command* command = const_cast< Command* >( this );
-    command->_master = 0;
+    // DON'T 'command->_master = 0;', command is already reusable and _master
+    // may be set any time. alloc or clone_ will free old master.
     ++command->_freeCount;
 }
 
@@ -48,6 +49,8 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
     LB_TS_THREAD( _writeThread );
     LBASSERT( getRefCount() == 1 ); // caller CommandCache
     LBASSERTINFO( !_func.isValid(), *this );
+    LBASSERT( _freeCount > 0 );
+
     --_freeCount;
 
     size_t allocated = 0;
@@ -61,7 +64,7 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
     {
         allocated =  size - _dataSize;
         _dataSize = LB_MAX( Packet::minSize, size );
-        free( _data );
+        ::free( _data );
         _data = static_cast< Packet* >( malloc( _dataSize ));
     }
 
@@ -70,6 +73,7 @@ size_t Command::alloc_( NodePtr node, LocalNodePtr localNode,
     _func.clear();
     _packet = _data;
     _packet->size = size;
+    _master = 0;
 
     return allocated;
 }
@@ -78,7 +82,9 @@ void Command::clone_( CommandPtr from )
 {
     LB_TS_THREAD( _writeThread );
     LBASSERT( getRefCount() == 1 ); // caller CommandCache
+    LBASSERT( from->getRefCount() > 1 ); // caller CommandCache, self
     LBASSERTINFO( !_func.isValid(), *this );
+    LBASSERT( _freeCount > 0 );
 
     --_freeCount;
 
@@ -88,15 +94,13 @@ void Command::clone_( CommandPtr from )
     _master = from;
 }
 
-void Command::_free()
+void Command::free()
 {
     LB_TS_THREAD( _writeThread );
-    LBASSERT( getRefCount() == 0 );
-    LBASSERT( !_master );
     LBASSERT( !_func.isValid( ));
 
     if( _data )
-        free( _data );
+        ::free( _data );
 
     _data = 0;
     _dataSize = 0;
