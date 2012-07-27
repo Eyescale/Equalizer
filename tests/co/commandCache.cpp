@@ -30,6 +30,9 @@
 #define N_READER 13
 #define RUNTIME 5000
 
+uint64_t rTime = 1;
+lunchbox::SpinLock _lock;
+
 struct Packet : public co::Packet
 {
     Packet()
@@ -58,16 +61,19 @@ public:
     virtual ~Reader(){}
 
 protected:
-
     virtual void run()
         {
+            lunchbox::Clock clock;
             _running = true;
             while( _running )
             {
                 co::CommandPtr command = _queue.pop();
+                TEST( command->getRefCount() > 0 );
                 TEST( (*command)( ));
                 yield(); // let writer run ahead a bit
             }
+            lunchbox::ScopedFastWrite mutex( _lock );
+            rTime = clock.getTime64();
         }
 
 private:
@@ -103,7 +109,6 @@ int main( int argc, char **argv )
             }
             ++nOps;
         }
-
         const uint64_t wTime = clock.getTime64();
 
         for( size_t i = 0; i < N_READER; ++i )
@@ -117,8 +122,7 @@ int main( int argc, char **argv )
             readers[i].join();
         }
 
-        const uint64_t rTime = clock.getTime64();
-        std::cout << nOps / wTime << " write, " << N_READER * nOps / rTime
+        std::cout << nOps / wTime << " write, " << nOps / rTime
                   << " read ops/ms" << std::endl;
     }
 
