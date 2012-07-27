@@ -134,7 +134,7 @@ void Pipe< N, P, W, V >::deserialize( co::DataIStream& is,
 {
     Object::deserialize( is, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        is.read( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_WINDOWS )
     {
         if( isMaster( ))

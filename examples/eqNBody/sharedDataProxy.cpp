@@ -63,14 +63,13 @@ namespace eqNbody
         co::Serializable::deserialize( is, dirtyBits );
 
         if( dirtyBits & DIRTY_DATA ) {
-            is >> _offset >> _numBytes;
-
             LBASSERT(_hPos != NULL);
             LBASSERT(_hVel != NULL);
 
-            is.read(_hPos+_offset, _numBytes);
-            is.read(_hVel+_offset, _numBytes);
-            //is.read(_hCol+_offset, _numBytes);
+            is >> _offset >> _numBytes
+               >> co::Array< void >( _hPos+_offset, _numBytes )
+               >> co::Array< void >( _hVel+_offset, _numBytes );
+            //(_hCol+_offset, _numBytes);
         }        
     }
         

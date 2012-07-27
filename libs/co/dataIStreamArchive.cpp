@@ -16,6 +16,7 @@
  */
 
 #include "dataIStreamArchive.h"
+#include "array.h"
 
 #include <boost/archive/detail/archive_serializer_map.hpp>
 #include <boost/archive/impl/archive_serializer_map.ipp>
@@ -57,7 +58,7 @@ DataIStreamArchive::DataIStreamArchive( DataIStream& stream )
 
 void DataIStreamArchive::load_binary( void* data, std::size_t size )
 {
-    _stream.read( data, size );
+    _stream >> Array< void >( data, size );
 }
 
 void DataIStreamArchive::load( bool& b )

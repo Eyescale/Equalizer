@@ -1,6 +1,15 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+
+27/Jul/2012
+  Made co::DataIStream::read private. Use 'is >> co::Array< T >( ptr, num )'
+  instead.
+
+-----------------------------------1.4-------------------------------------
+
+-----------------------------------1.2-------------------------------------
+
 25/Oct/2011
   Removed co::Object::commitNB and commitSync since request is no longer
   dispatched to command thread. Use commit instead.
