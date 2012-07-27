@@ -297,7 +297,7 @@ information.
 .. _compatibility   matrix:
     http://www.equalizergraphics.com/compatibility.html
 .. _OpenGL 1.1: http://www.opengl.org
-.. _hard-copy: https://www.createspace.com/3800793
+.. _hard-copy: https://www.createspace.com/3943261
 .. _online: http://www.equalizergraphics.com/survey.html
 .. _API     documentation:
     http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html
