@@ -161,8 +161,11 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:
+    Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC thread
+    ordering</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/139">139</a>:
-    Tile compound readback broken</li<>
+    Tile compound readback broken</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/120">120</a>:
     Async readback deallocation</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/118">118</a>:
