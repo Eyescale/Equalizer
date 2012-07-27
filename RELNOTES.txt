@@ -111,6 +111,8 @@
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
 
+     * 147: Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC
+       thread ordering
      * 139: Tile compound readback broken
      * 120: Async readback deallocation
      * 118: OS X: Async readback doesn't work
