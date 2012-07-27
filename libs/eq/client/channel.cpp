@@ -1357,10 +1357,10 @@ struct RBStat
     size_t compressed;
 
     void ref( void* ) { ++_refCount; }
-    void unref( void* )
+    bool unref( void* )
         {
             if( --_refCount > 0 )
-                return;
+                return false;
 
             if( uncompressed > 0 && compressed > 0 )
                 event.event.data.statistic.ratio = float( compressed ) /
@@ -1368,6 +1368,7 @@ struct RBStat
             else
                 event.event.data.statistic.ratio = 1.0f;
             delete this;
+            return true;
         }
 
     int32_t getRefCount() const { return _refCount; }

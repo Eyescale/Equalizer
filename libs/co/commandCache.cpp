@@ -85,15 +85,14 @@ public:
             for( size_t i = 0; i < CACHE_ALL; ++i )
             {
                 Data& cache_ = cache[i];
-                LBASSERTINFO( size_t( free[i] ) == cache_.size(),
-                              free[i] << " != " << cache_.size() );
-
                 for( DataCIter j = cache_.begin(); j != cache_.end(); ++j )
                 {
                     Command* command = *j;
-                    LBASSERT( command->isFree( ));
+                    LBASSERTINFO( command->isFree(), *command );
                     delete command;
                 }
+                LBASSERTINFO( size_t( free[i] ) == cache_.size(),
+                              free[i] << " != " << cache_.size() );
 
                 cache_.clear();
                 cache_.push_back( new Command( free[i] ));
