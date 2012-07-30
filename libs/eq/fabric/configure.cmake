@@ -81,4 +81,4 @@ file(APPEND ${DEFINES_FILE_IN}
   )
 
 update_file(${DEFINES_FILE_IN} ${DEFINES_FILE})
-install(FILES ${DEFINES_FILE} DESTINATION include/co/ COMPONENT dev)
+install(FILES ${DEFINES_FILE} DESTINATION include/eq/fabric COMPONENT dev)
