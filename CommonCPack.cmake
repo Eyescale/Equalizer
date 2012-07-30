@@ -30,9 +30,9 @@ set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.txt)
 # Default component definition
 if(NOT CPACK_COMPONENTS_ALL)
   if(RELEASE_VERSION)
-    set(CPACK_COMPONENTS_ALL lib dev)
+    set(CPACK_COMPONENTS_ALL lib dev apps)
   else()
-    set(CPACK_COMPONENTS_ALL unspecified lib dev)
+    set(CPACK_COMPONENTS_ALL unspecified lib dev app)
   endif()
 
   set(CPACK_COMPONENT_UNSPECIFIED_DISPLAY_NAME "Unspecified")
@@ -47,6 +47,10 @@ if(NOT CPACK_COMPONENTS_ALL)
   set(CPACK_COMPONENT_DEV_DESCRIPTION
     "Header and Library Files for ${CPACK_PROJECT_NAME} Development")
   set(CPACK_COMPONENT_DEV_DEPENDS lib)
+
+  set(CPACK_COMPONENT_APPS_DISPLAY_NAME "${CPACK_PROJECT_NAME} Applications")
+  set(CPACK_COMPONENT_APPS_DESCRIPTION "${CPACK_PROJECT_NAME} Applications")
+  set(CPACK_COMPONENT_APPS_DEPENDS lib)
 endif()
 
 # LSB system information
