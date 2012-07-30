@@ -13,6 +13,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   config.h
   configPackets.h
   configVisitor.h
+  defines.h
   drawableConfig.h
   elementVisitor.h
   equalizerTypes.h

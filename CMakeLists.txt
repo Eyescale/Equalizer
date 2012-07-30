@@ -5,8 +5,6 @@
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
 
-option(EQUALIZER_USE_OPENMP "Test for OpenMP support" ON)
-option(EQUALIZER_FORCE_OPENMP "Force usage of buggy OpenMP implementation" OFF)
 option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
 option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
@@ -16,7 +14,6 @@ option(EQUALIZER_BUILD_2_0_API
   "Enable for pure 2.0 API (breaks compatibility with 1.x API)" OFF)
 
 mark_as_advanced(EQUALIZER_INSTALL_SERVER_HEADERS)
-mark_as_advanced(EQUALIZER_FORCE_OPENMP)
 
 list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 
@@ -81,20 +78,11 @@ include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 set(PTHREAD_LIBRARIES pthread)
 link_directories(${LUNCHBOX_LIBRARY_DIRS})
 
-if(EQUALIZER_USE_OPENMP)
-  find_package(OpenMP)
+if(LUNCHBOX_USE_OPENMP)
+  find_package(OpenMP REQUIRED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
-if(OPENMP_FOUND)
-  if(CMAKE_COMPILER_IS_GNUCXX AND GCC_COMPILER_VERSION VERSION_LESS 4.3 AND
-      NOT EQUALIZER_FORCE_OPENMP)
-    message(STATUS "Disable OpenMP due to bug in gcc ${GCC_COMPILER_VERSION}")
-  else()
-    set(CO_OPENMP_USED 1)
-    set(EQ_FEATURES "${EQ_FEATURES} OpenMP")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif()
-endif(OPENMP_FOUND)
 
 find_package(OFED)
 if(OFED_FOUND)

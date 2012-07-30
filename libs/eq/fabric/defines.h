@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -15,20 +15,19 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef CO_DEFINES_H
-#define CO_DEFINES_H
+#ifndef EQFABRIC_DEFINES_H
+#define EQFABRIC_DEFINES_H
 
-// Lunchbox includes before, the generated files check for LB defines.
-#include <lunchbox/lunchbox.h>
+#include <co/defines.h>
 
 #ifdef __APPLE__
-#  include <co/definesDarwin.h>
+#  include <eq/fabric/definesDarwin.h>
 #endif
 #ifdef __linux
-#  include <co/definesLinux.h>
+#  include <eq/fabric/definesLinux.h>
 #endif
 #ifdef _WIN32 //_MSC_VER
-#  include <co/definesWin32.h>
+#  include <eq/fabric/definesWin32.h>
 #endif
 
-#endif // CO_DEFINES_H
+#endif // EQFABRIC_DEFINES_H

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,9 +19,9 @@
 #ifndef EQUTIL_GPUCOMPRESSOR_H
 #define EQUTIL_GPUCOMPRESSOR_H
 
-#include "../../co/compressor.h" // internal base class
 #include <eq/client/api.h>
 #include <eq/client/types.h>
+#include <co/compressor.h> // base class
 
 namespace eq
 {
@@ -54,7 +54,7 @@ namespace util
          * Determine if the uploader is valid
          *
          * @param externalFormat the input to the uploader.
-         * @param internalFormat the output of the uploader. 
+         * @param internalFormat the output of the uploader.
          * @param capabilities the capabilities required by the uploader.
          */
         bool isValidUploader( const uint32_t externalFormat,
@@ -86,11 +86,11 @@ namespace util
 
         /**
          * Find and init an uploader which wil be compatible with the
-         * specified input and output token type. 
+         * specified input and output token type.
          *
          * If the uploader found is the same that the current uploader,
-         * no change will be make. 
-         * If no uploader found, a reset of the instance data will be 
+         * no change will be make.
+         * If no uploader found, a reset of the instance data will be
          * perform.
          *
          * @param externalFormat the input to the uploader.
@@ -128,10 +128,10 @@ namespace util
                              void**                       out );
 
         /**
-         * Upload data from cpu to the frame buffer or texture 
+         * Upload data from cpu to the frame buffer or texture
          *
          * @param buffer data source
-         * @param pvpIn the dimensions of the input data 
+         * @param pvpIn the dimensions of the input data
          * @param flags capability flags for the compression
          * @param pvpOut the dimensions of the output data
          * @param destination the destination texture name.
@@ -139,7 +139,7 @@ namespace util
         void upload( const void*                  buffer,
                      const fabric::PixelViewport& pvpIn,
                      const uint64_t               flags,
-                     const fabric::PixelViewport& pvpOut,  
+                     const fabric::PixelViewport& pvpOut,
                      const unsigned               destination = 0 );
 
         /**
@@ -149,7 +149,7 @@ namespace util
         uint32_t getExternalFormat() const;
 
         /**
-         * Get the token type accepted by a donwloader or 
+         * Get the token type accepted by a donwloader or
          * produced by the uploader.
          **/
         uint32_t getInternalFormat() const;
@@ -164,10 +164,10 @@ namespace util
         bool hasAlpha() const;
 
         /**
-         * Get the downloader/uploader internal format corresponding to 
+         * Get the downloader/uploader internal format corresponding to
          * an OpenGL token type
          *
-         * @param format the GL format 
+         * @param format the GL format
          * @param type the GL typedata source
          */
         static EQ_API uint32_t getExternalFormat( const uint32_t format,

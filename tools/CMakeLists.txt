@@ -76,11 +76,6 @@ eq_add_tool(eVolveConverter
     eVolveConverter/ddsbase.cpp
   )
 
-eq_add_tool(coNetperf
-  SOURCES netperf/netperf.cpp
-  LINK_LIBRARIES shared Collage
-  )
-
 eq_add_tool(eqWindowAdmin
   SOURCES windowAdmin/main.cpp
   LINK_LIBRARIES shared EqualizerAdmin

@@ -27,15 +27,16 @@
 
 #include <eq/fabric/colorMask.h>
 
+#include <co/compressorInfo.h>
+#include <co/cpuCompressor.h>
 #include <co/global.h>
+#include <co/plugin.h>
 #include <co/pluginRegistry.h>
+
 #include <lunchbox/memoryMap.h>
 #include <lunchbox/omp.h>
 
 // Internal headers
-#include "../../co/plugin.h"
-#include "../../co/compressorInfo.h"
-#include "../../co/cpuCompressor.h"
 #include "../util/gpuCompressor.h"
 
 #include <fstream>
@@ -805,10 +806,7 @@ void Image::clearPixelData( const Frame::Buffer buffer )
         memset_pattern4( data, &pixel, size );
 #else
         bzero( data, size );
-
-#ifdef CO_USE_OPENMP
 #pragma omp parallel for
-#endif
         for( ssize_t i = 3; i < size; i+=4 )
             data[i] = 255;
 #endif
