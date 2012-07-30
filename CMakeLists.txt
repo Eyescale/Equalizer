@@ -186,7 +186,7 @@ else()
 endif()
 add_definitions(${EQ_DEFINITIONS})
 
-add_subdirectory(tools)
+add_subdirectory(tools) # before examples, they depend on it
 if(EQUALIZER_BUILD_EXAMPLES)
   add_subdirectory(examples)
 endif()
