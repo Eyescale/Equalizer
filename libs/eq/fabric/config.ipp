@@ -120,7 +120,7 @@ void Config< S, C, O, L, CV, N, V >::attach( const UUID& id,
 }
 
 template< class C, class V >
-static VisitorResult _acceptImpl( C* config, V& visitor )
+VisitorResult _acceptImpl( C* config, V& visitor )
 { 
     VisitorResult result = visitor.visitPre( config );
     if( result != TRAVERSE_CONTINUE )
