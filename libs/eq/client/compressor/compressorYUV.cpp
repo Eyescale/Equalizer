@@ -89,8 +89,8 @@ CompressorYUV::~CompressorYUV( )
 
 bool CompressorYUV::isCompatible( const GLEWContext* glewContext )
 {
-    return ( GL_ARB_texture_non_power_of_two && 
-             GL_VERSION_2_0 && 
+    return ( GLEW_ARB_texture_non_power_of_two &&
+             GLEW_VERSION_2_0 &&
              GLEW_EXT_framebuffer_object );
 }
 
