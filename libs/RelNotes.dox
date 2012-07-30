@@ -161,6 +161,11 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
+    Channel::configInit initID always 0</li>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:
+    Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC thread
+    ordering</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/139">139</a>:
     Tile compound readback broken</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/120">120</a>:
@@ -247,7 +252,7 @@
 <h3>3.3. Documentation</h3>
 <p>
   The Programming and User Guide is available as a 
-  <a href="https://www.createspace.com/3800793">hard-copy</a>
+  <a href="https://www.createspace.com/3943261">hard-copy</a>
   and <a href="http://www.equalizergraphics.com/survey.html">online</a>.
   The <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
     documentation</a> can be found on the Equalizer website.

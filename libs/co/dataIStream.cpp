@@ -77,7 +77,7 @@ void DataIStream::_reset()
     _impl->position  = 0;
 }
 
-void DataIStream::read( void* data, uint64_t size )
+void DataIStream::_read( void* data, uint64_t size )
 {
     if( !_checkBuffer( ))
     {

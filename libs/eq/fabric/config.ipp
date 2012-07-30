@@ -685,8 +685,8 @@ void Config< S, C, O, L, CV, N, V >::deserialize( co::DataIStream& is,
         is >> _appNodeID;
     if( dirtyBits & Config::DIRTY_ATTRIBUTES )
     {
-        is.read( _fAttributes, C::FATTR_ALL * sizeof( float ));
-        is.read( _iAttributes, C::IATTR_ALL * sizeof( int32_t ));
+        is >> co::Array< float >( _fAttributes, C::FATTR_ALL )
+           >> co::Array< int32_t >( _iAttributes, C::IATTR_ALL );
     }
     if( isMaster( ))
     {

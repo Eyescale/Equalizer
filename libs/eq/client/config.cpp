@@ -462,7 +462,8 @@ uint32_t Config::finishFrame()
             const int64_t pingTimeout = co::Global::getKeepaliveTimeout();
             const int64_t time = getTime() + timeout;
 
-            while( !_impl->finishedFrame.timedWaitGE( frameToFinish, pingTimeout ))
+            while( !_impl->finishedFrame.timedWaitGE( frameToFinish,
+                                                      pingTimeout ))
             {
                 if( getTime() >= time || !getLocalNode()->pingIdleNodes( ))
                 {

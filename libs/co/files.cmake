@@ -4,6 +4,7 @@
 
 set(CO_PUBLIC_HEADERS
   api.h
+  array.h
   barrier.h
   bufferConnection.h
   co.h

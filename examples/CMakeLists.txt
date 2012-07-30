@@ -55,13 +55,14 @@ function(EQ_ADD_EXAMPLE NAME)
   set(THIS_TARGET ${NAME})
   set(THIS_INPUT)
   source_group(\\ FILES ${THIS_SOURCES} ${THIS_HEADERS} ${THIS_SHADERS})
-  add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS} ${SHADERS})
-
-  purple_expand_libraries(LINK_LIBRARIES
-                          ${EQUALIZER_LIBRARIES} ${THIS_LINK_LIBRARIES})
+  add_executable(${THIS_TARGET} MACOSX_BUNDLE ${THIS_SOURCES} ${THIS_HEADERS}
+                 ${SHADERS})
+  purple_expand_libraries(LINK_LIBRARIES ${EQUALIZER_LIBRARIES}
+                          ${THIS_LINK_LIBRARIES})
   target_link_libraries(${THIS_TARGET} ${LINK_LIBRARIES} ${OPENGL_gl_LIBRARY})
 
-  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME} FOLDER "Examples")
+  set_target_properties(${THIS_TARGET} PROPERTIES OUTPUT_NAME ${NAME}
+                        FOLDER "Examples")
   if(APPLE AND AGL) # set preference to 32 bit if AGL is available
     update_file(${CMAKE_SOURCE_DIR}/CMake/MacOSXBundleInfo.plist.in
       ${CMAKE_CURRENT_BINARY_DIR}/MacOSXBundleInfo.plist)

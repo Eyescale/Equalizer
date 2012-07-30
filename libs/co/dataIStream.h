@@ -20,6 +20,7 @@
 #define CO_DATAISTREAM_H
 
 #include <co/api.h>
+#include <co/array.h>
 #include <co/types.h>
 
 #include <vector>
@@ -34,30 +35,29 @@ namespace detail { class DataIStream; }
     public:
         /** @name Internal */
         //@{ 
-        CO_API DataIStream();
-        DataIStream( const DataIStream& );
-        CO_API virtual ~DataIStream();
-
-        /** Get the number of remaining buffers. */
+        /** @internal Get the number of remaining buffers. */
         virtual size_t nRemainingBuffers() const = 0;
 
-        virtual uint128_t getVersion() const = 0;
-
-        virtual void reset() { _reset(); }
+        virtual uint128_t getVersion() const = 0; //!< @internal
+        virtual void reset() { _reset(); } //!< @internal
         //@}
 
         /** @name Data input */
         //@{
-        /** Read a plain data item. */
+        /** Read a plain data item. @version 1.0 */
         template< typename T > DataIStream& operator >> ( T& value )
-            { read( &value, sizeof( value )); return *this; }
+            { _read( &value, sizeof( value )); return *this; }
 
-        /** Read a std::vector of serializable items. */
+        /** Read a C array. @version 1.0 */
+        template< typename T > DataIStream& operator >> ( Array< T > array )
+            { _read( array.data, array.getNumBytes( )); return *this; }
+
+        /** Read a std::vector of serializable items. @version 1.0 */
         template< typename T >
         DataIStream& operator >> ( std::vector< T >& value )
         {
             uint64_t nElems = 0;
-            read( &nElems, sizeof( nElems ));
+            _read( &nElems, sizeof( nElems ));
             value.resize( nElems );
             for( uint64_t i = 0; i < nElems; i++ )
                 (*this) >> value[i];
@@ -65,7 +65,7 @@ namespace detail { class DataIStream; }
             return *this; 
         }
 
-        /**
+        /** @internal
          * Deserialize child objects.
          *
          * Existing children are synced to the new version. New children are
@@ -79,9 +79,6 @@ namespace detail { class DataIStream; }
         template< typename O, typename C >
         void deserializeChildren( O* object, const std::vector< C* >& old,
                                   std::vector< C* >& result );
-
-        /** Read a number of bytes from the stream into a buffer.  */
-        CO_API void read( void* data, uint64_t size );
 
         /** 
          * Get the pointer to the remaining data in the current buffer.
@@ -110,11 +107,21 @@ namespace detail { class DataIStream; }
         CO_API virtual NodePtr getMaster() = 0;
 
     protected:
+        /** @name Internal */
+        //@{ 
+        CO_API DataIStream();
+        DataIStream( const DataIStream& );
+        CO_API virtual ~DataIStream();
+        //@}
+
         virtual bool getNextBuffer( uint32_t* compressor, uint32_t* nChunks,
                                     const void** chunkData, uint64_t* size )=0;
 
     private:
         detail::DataIStream* const _impl;
+
+        /** Read a number of bytes from the stream into a buffer. */
+        CO_API void _read( void* data, uint64_t size );
 
         /**
          * Check that the current buffer has data left, get the next buffer is
@@ -132,12 +139,12 @@ namespace detail { class DataIStream; }
         DataIStream& _readFlatVector ( std::vector< T >& value )
         {
             uint64_t nElems = 0;
-            read( &nElems, sizeof( nElems ));
+            _read( &nElems, sizeof( nElems ));
             LBASSERTINFO( nElems < LB_BIT48,
                   "Out-of-sync co::DataIStream: " << nElems << " elements?" );
             value.resize( size_t( nElems ));
             if( nElems > 0 )
-                read( &value.front(), nElems * sizeof( T ));
+                _read( &value.front(), nElems * sizeof( T ));
             return *this; 
         }
     };
@@ -154,7 +161,7 @@ namespace co{
     inline DataIStream& DataIStream::operator >> ( std::string& str )
     { 
         uint64_t nElems = 0;
-        read( &nElems, sizeof( nElems ));
+        _read( &nElems, sizeof( nElems ));
         LBASSERTINFO( nElems <= getRemainingBufferSize(),
                       nElems << " > " << getRemainingBufferSize( ));
         if( nElems == 0 )

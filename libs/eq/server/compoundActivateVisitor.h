@@ -41,7 +41,13 @@ namespace server
                 if( channel && compound->testInheritEye( _eye ))
                 {
                     if( _activate )
+                    {
                         channel->activate();
+
+                        // Fix https://github.com/Eyescale/Equalizer/issues/147
+                        compound->updateInheritTasks();
+                        channel->addTasks( compound->getInheritTasks( ));
+                    }
                     else
                         channel->deactivate();
                 }
