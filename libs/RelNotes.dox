@@ -161,6 +161,8 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
+    Channel::configInit initID always 0</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:
     Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC thread
     ordering</li>
