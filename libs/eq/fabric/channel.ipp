@@ -144,9 +144,9 @@ void Channel< W, C >::deserialize( co::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.nativeContext.vp ) + 
-                              sizeof( _data.nativeContext.pvp ) + 
-                              sizeof( _data.fixedVP ) + sizeof( _maxSize ));
+            is.getRemainingBuffer( sizeof( _data.nativeContext.vp ) + 
+                                   sizeof( _data.nativeContext.pvp ) + 
+                                   sizeof( _data.fixedVP ) + sizeof( _maxSize ));
     }
     if( dirtyBits & DIRTY_MEMBER )
         is >> _drawable >> _data.nativeContext.view
