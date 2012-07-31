@@ -38,12 +38,6 @@
 #ifdef EQ_USE_MAGELLAN
 #  include <eq/client/node.h>
 #  include <spnav.h>
-
-Display *dpy;
-Window win;
-
-bool magConnectionError = false;
-
 #endif
 
 namespace eq
@@ -54,7 +48,19 @@ namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
 static lunchbox::PerThread< EventHandlers > _eventHandlers;
+
 }
+
+#ifdef EQ_USE_MAGELLAN
+
+namespace
+{
+    static Node* _magellanNode = 0;
+    bool _magConnectionError = false;
+
+    // static bool _magellanGotTranslation = false, _magellanGotRotation = false;
+}
+#endif
 
 EventHandler::EventHandler( WindowIF* window )
         : _window( window )
@@ -62,14 +68,13 @@ EventHandler::EventHandler( WindowIF* window )
     LBASSERT( window );
 
 #ifdef EQ_USE_MAGELLAN
-    win = window->getXDrawable();
-    dpy = window->getXDisplay();
-
-    if(spnav_x11_open(dpy, win) == -1)
+    
+    if(spnav_x11_open(window->getXDisplay(), window->getXDrawable()) == -1)
     { 
         LBWARN << "Failed to connect to the space navigator daemon" << std::endl;
-        magConnectionError = true;
+        _magConnectionError = true;
     }
+
 #endif
 
     if( !_eventHandlers )
@@ -170,16 +175,6 @@ void _getWindowSize( Display* display, XID drawable, ResizeEvent& event )
 }
 }
 
-#ifdef EQ_USE_MAGELLAN
-
-namespace
-{
-    static Node* _magellanNode = 0;
-
-    static bool _magellanGotTranslation = false, _magellanGotRotation = false;
-}
-#endif
-
 void EventHandler::_processEvent( WindowEvent& event )
 {
     LB_TS_THREAD( _thread );
@@ -241,7 +236,8 @@ void EventHandler::_processEvent( WindowEvent& event )
                     cEvent.data.magellan.yRotation = spev.motion.ry;
                     cEvent.data.magellan.zRotation = spev.motion.rz;
 
-                } else if (spev.type == SPNAV_EVENT_BUTTON) 
+                } 
+                else if (spev.type == SPNAV_EVENT_BUTTON) 
                 {
                     cEvent.data.type = Event::MAGELLAN_BUTTON;
                     cEvent.data.magellan.buttons = spev.button.press;
@@ -453,7 +449,7 @@ bool EventHandler::initMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
 
-    if( !_magellanNode && !magConnectionError )
+    if( !_magellanNode && !_magConnectionError )
         _magellanNode = node;
 
 #endif
@@ -463,11 +459,11 @@ bool EventHandler::initMagellan( Node* node )
 bool EventHandler::exitMagellan( Node* node )
 {
 #ifdef EQ_USE_MAGELLAN
-    if( !magConnectionError )
+    if( !_magConnectionError )
     {
         if( _magellanNode == node )
         {
-            if(spnav_close() == -1)
+            if( spnav_close() == -1 )
             {
                 LBWARN << "Couldn't close the connection to the daemon" << std::endl;
                 return false;
