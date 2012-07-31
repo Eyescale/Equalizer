@@ -18,6 +18,7 @@ endmacro(EQ_ADD_TOOL NAME)
 
 include_directories(${CMAKE_SOURCE_DIR}/examples/include
   ${CMAKE_SOURCE_DIR}/examples/eqPly)
+add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})

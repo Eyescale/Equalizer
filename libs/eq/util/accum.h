@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -19,7 +19,6 @@
 #ifndef EQUTIL_ACCUM_H
 #define EQUTIL_ACCUM_H
 
-#include <eq/client/gl.h>  // for GLEW
 #include <eq/util/types.h>
 
 namespace eq
@@ -52,7 +51,7 @@ namespace util
          * @return true if initialized successfully.
          * @version 1.0
          */
-        EQ_API bool init( const PixelViewport& pvp, GLuint textureFormat );
+        EQ_API bool init( const PixelViewport& pvp, unsigned textureFormat );
 
         /** Exit the accum buffer. @version 1.0 */
         EQ_API void exit();
