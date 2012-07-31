@@ -34,7 +34,7 @@ public:
     PixelBufferObject( const GLEWContext* glewContext,
                        const bool threadSafe )
             : lock_( threadSafe ? new lunchbox::Lock : 0 )
-            , error( co::ERROR_NONE )
+            , error( eq::fabric::ERROR_NONE )
             , pboID( 0 )
             , size( 0 )
             , _glewContext( glewContext )
@@ -183,7 +183,7 @@ public:
     void unlock() const { if( lock_ ) lock_->unset(); }
 
     mutable lunchbox::Lock* lock_;
-    mutable co::Error error;   //!< The reason for the last error
+    mutable eq::fabric::Error error;   //!< The reason for the last error
     GLuint  pboID; //!< the PBO GL name
     size_t size;  //!< size of the allocated PBO buffer
 
@@ -191,7 +191,7 @@ private:
     const GLEWContext* const _glewContext;
     GLuint _type; //!< GL_READ_ONLY_ARB or GL_WRITE_ONLY_ARB
 
-    void _setError( const int32_t e ) const { error = co::Error( e ); }
+    void _setError( const int32_t e ) const { error = eq::fabric::Error( e ); }
 
     GLuint _getName() const
         {
@@ -268,7 +268,7 @@ size_t PixelBufferObject::getSize() const
     return _impl->size;
 }
 
-const co::Error& PixelBufferObject::getError() const
+const eq::fabric::Error& PixelBufferObject::getError() const
 {
     return _impl->error;
 }

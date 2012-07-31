@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@ ErrorData _errors[] = {
 
 void initErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -57,7 +57,7 @@ void initErrors()
 
 void exitErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );

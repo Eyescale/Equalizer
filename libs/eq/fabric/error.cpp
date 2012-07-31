@@ -17,8 +17,8 @@
 
 #include "error.h"
 
-#include <co/errorRegistry.h>
-#include <co/global.h>
+#include "errorRegistry.h"
+#include "global.h"
 
 namespace eq
 {
@@ -143,7 +143,7 @@ ErrorData _errors[] = {
 
 void _initErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.setString( _errors[i].code, _errors[i].text );
@@ -151,10 +151,22 @@ void _initErrors()
 
 void _exitErrors()
 {
-    co::ErrorRegistry& registry = co::Global::getErrorRegistry();
+    eq::fabric::ErrorRegistry& registry = eq::fabric::Global::getErrorRegistry();
 
     for( size_t i=0; _errors[i].code != 0; ++i )
         registry.eraseString( _errors[i].code );
+}
+
+std::ostream& operator << ( std::ostream& os, const Error& error )
+{
+    const ErrorRegistry& registry = Global::getErrorRegistry();
+    const std::string& text = registry.getString( error );
+    if( text.empty( ))
+        os << "error 0x" << std::hex << uint32_t( error ) << std::dec;
+    else
+        os << text << " (0x" << std::hex << uint32_t(error) << std::dec << ")";
+
+    return os;
 }
 
 }

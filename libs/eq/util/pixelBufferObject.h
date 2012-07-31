@@ -21,8 +21,9 @@
 
 #include <lunchbox/lock.h>
 
-#include <eq/client/gl.h>   // for GLEW
+#include <eq/client/api.h>
 #include <eq/client/types.h>
+#include <eq/fabric/error.h> // enum
 
 namespace eq
 {
@@ -105,7 +106,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API size_t getSize() const;
 
         /** @return the reason for the last failed operation. @version 1.3 */
-        EQ_API const co::Error& getError() const;
+        EQ_API const eq::fabric::Error& getError() const;
 
         /** @return true if the pbo is intialized. @version 1.3 */
         EQ_API bool isInitialized() const;

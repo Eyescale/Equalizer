@@ -22,8 +22,6 @@
 #include <eq/util/texture.h> // member
 #include <eq/util/types.h>
 
-#include <co/error.h>
-
 #include <vector>
 
 namespace eq
@@ -120,7 +118,7 @@ namespace util
         const Texture& getDepthTexture() const { return _depth; }
 
         /** @return the reason for the last failed operation. @version 1.0 */
-        const co::Error& getError() { return _error; }
+        const eq::fabric::Error& getError() { return _error; }
 
         /** @return the GLEW context. @version 1.0 */
         const GLEWContext* glewGetContext() const { return _glewContext; }
@@ -137,7 +135,7 @@ namespace util
         const GLEWContext* const _glewContext;
 
         /** The reason for the last error. */
-        co::Error _error;
+        eq::fabric::Error _error;
 
         bool _valid;
 

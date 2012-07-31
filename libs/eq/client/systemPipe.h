@@ -59,7 +59,7 @@ namespace eq
         const Pipe* getPipe() const { return _pipe; }
 
         /** @return the last error. @version 1.0 */
-        EQ_API co::Error getError() const;
+        EQ_API eq::fabric::Error getError() const;
 
     protected:
         /** @name Error information. */
