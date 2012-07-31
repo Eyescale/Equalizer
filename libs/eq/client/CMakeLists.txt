@@ -16,7 +16,7 @@ include(compressor/files.cmake)
 
 add_definitions(-DEQ_PLUGIN_BUILD)
 
-set(EQ_LIBRARIES)
+set(EQ_LIBRARIES ${PTHREAD_LIBRARIES})
 if(MAGELLAN_FOUND)
   include_directories(${MAGELLAN_INCLUDE_DIR})
   list(APPEND EQ_LIBRARIES ${MAGELLAN_LIBRARY})
