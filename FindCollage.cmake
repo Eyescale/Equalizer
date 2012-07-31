@@ -77,6 +77,9 @@ set(_Collage_Lunchbox_version_0.5.5 "1.3.5")
 
 # needed if called directly w/o called from FindEqualizer
 if(NOT COLLAGE_ROOT)
+  set(COLLAGE_ROOT ${CO_ROOT})
+endif()
+if(NOT COLLAGE_ROOT)
   set(COLLAGE_ROOT ${EQ_ROOT})
 endif()
 
