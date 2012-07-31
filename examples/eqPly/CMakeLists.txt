@@ -74,6 +74,12 @@ eq_add_example(eqPly
     ${EQUALIZER_ADMIN_LIBRARY}
   )
 
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
+
+if(MSVC) # the custom command below doesn't work on VS
+  return()
+endif()
+
 # create and install .bin files
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(BIN_POSTFIX "64.bin")
@@ -101,4 +107,3 @@ foreach(PLY_FILE ${PLY_FILES})
     COMPONENT data)
 endforeach()
 
-install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)

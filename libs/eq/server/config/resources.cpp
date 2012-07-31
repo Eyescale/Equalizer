@@ -484,7 +484,7 @@ Compound* Resources::_addDSCompound( Compound* root, const Channels& channels )
                 eq::Range( static_cast< float >( start )/100000.f,
                            static_cast< float >( start + step )/100000.f ));
         
-        unsigned y = 0;
+        size_t y = 0;
         for( CompoundsCIter j = children.begin(); j != children.end(); ++j )
         {
             if( i != j )
