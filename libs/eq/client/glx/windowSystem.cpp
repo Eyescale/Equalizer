@@ -21,6 +21,7 @@
 #include "window.h"
 #include "pipe.h"
 #include "messagePump.h"
+ #include "eventHandler.h"
 
 #include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
@@ -101,6 +102,20 @@ static class : WindowSystemIF
 
         XFreeFont( display, fontStruct );
         return true;
+    }
+
+    void configInit( eq::Node* node )
+    {
+#ifdef EQ_USE_MAGELLAN
+        EventHandler::initMagellan(node);
+#endif
+    }
+
+    void configExit( eq::Node* node )
+    {
+#ifdef EQ_USE_MAGELLAN
+        EventHandler::exitMagellan(node);
+#endif
     }
 
 } _glXFactory;
