@@ -1,5 +1,5 @@
  
-/* Copyright (c) 2010-2011, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -18,7 +18,7 @@
 #ifndef EQ_DEFINES_H
 #define EQ_DEFINES_H
 
-#include <co/defines.h>
+#include <eq/fabric/defines.h>
 
 #ifdef __APPLE__
 #  include <eq/client/definesDarwin.h>
