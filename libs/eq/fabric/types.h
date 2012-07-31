@@ -100,19 +100,4 @@ using co::Serializable;
 
 }
 }
-
-#ifndef EQ_2_0_API
-namespace co
-{
-namespace base
-{
-using namespace lunchbox;
-using co::Error;
-using co::ErrorRegistry;
-using co::PluginRegistry;
-using co::Global;
-}
-}
-#endif
-
 #endif // EQFABRIC_TYPES_H
