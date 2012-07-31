@@ -22,7 +22,6 @@
 #include <eq/util/texture.h> // member
 #include <eq/util/types.h>
 
-#include <eq/client/gl.h>           // for GLEW
 #include <co/error.h>
 
 #include <vector>
@@ -37,7 +36,8 @@ namespace util
     public: 
         /** Construct a new Frame Buffer Object. @version 1.0 */
         EQ_API FrameBufferObject( const GLEWContext* const glewContext, 
-                  const GLenum textureTarget = GL_TEXTURE_RECTANGLE_ARB );
+                                  const unsigned textureTarget = 0x84F5
+                                             /*GL_TEXTURE_RECTANGLE_ARB*/ );
 
         /** Destruct the Frame Buffer Object. @version 1.0 */
         EQ_API ~FrameBufferObject();
@@ -70,7 +70,7 @@ namespace util
          * @version 1.0
          */
         EQ_API bool init( const int32_t width, const int32_t height, 
-                          const GLuint colorFormat, const int32_t depthSize,
+                          const unsigned colorFormat, const int32_t depthSize,
                           const int32_t stencilSize );
 
         /** De-initialize the Frame Buffer Object. @version 1.0 */
@@ -129,7 +129,7 @@ namespace util
         bool isValid() const { return _valid; }
 
     private:
-        GLuint _fboID; //!< the FBO GL name
+        unsigned _fboID; //!< the FBO GL name
 
         Textures _colors; //!< Multiple color textures
         Texture _depth;
