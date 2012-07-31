@@ -19,6 +19,7 @@
 #include "texture.h"
 
 #include <eq/client/image.h>
+#include <eq/client/gl.h>
 #include <co/plugins/compressor.h>
 
 namespace eq

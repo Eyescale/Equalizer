@@ -18,6 +18,7 @@
 
 #include "image.h"
 
+#include "gl.h"
 #include "log.h"
 #include "pixelData.h"
 #include "windowSystem.h"

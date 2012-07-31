@@ -20,6 +20,7 @@
 #include "glWindow.h"
 
 #include "error.h"
+#include "gl.h"
 #include "global.h"
 #include "pipe.h"
 

@@ -26,6 +26,7 @@
 #include "config.h"
 #include "exception.h"
 #include "frameData.h"
+#include "gl.h"
 #include "image.h"
 #include "log.h"
 #include "pixelData.h"
