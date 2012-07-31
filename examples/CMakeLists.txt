@@ -77,6 +77,7 @@ function(EQ_ADD_EXAMPLE NAME)
 endfunction(EQ_ADD_EXAMPLE NAME)
 
 include_directories(include)
+add_definitions(-DEQ_SYSTEM_INCLUDES) # get GL headers
 if(GLEW_MX_FOUND)
   include_directories(BEFORE SYSTEM ${GLEW_MX_INCLUDE_DIRS})
 endif()

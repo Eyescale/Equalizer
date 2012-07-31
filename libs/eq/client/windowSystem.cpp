@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Daniel Pfeifer <daniel@pfeifer-mail.de>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -17,6 +17,8 @@
  */
 
 #include "windowSystem.h"
+
+#include "gl.h"
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/gpuInfo.h>

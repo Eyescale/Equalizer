@@ -18,6 +18,8 @@
 
 #include "accumBufferObject.h"
 
+#include <eq/client/gl.h>
+
 namespace eq
 {
 namespace util

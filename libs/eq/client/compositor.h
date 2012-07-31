@@ -19,7 +19,6 @@
 #define EQ_COMPOSITOR_H
 
 #include <eq/client/frame.h>          // nested type Frame::Buffer
-#include <eq/client/gl.h>             // GLEWContext
 #include <eq/client/types.h>          // type definitions
 
 #include <eq/fabric/pixel.h>          // member
