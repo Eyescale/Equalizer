@@ -191,8 +191,8 @@ void Window< P, W, C >::deserialize( co::DataIStream& is,
             notifyViewportChanged();
         }
         else // consume unused data
-            is.advanceBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
-                              sizeof( _data.fixedVP ));
+            is.getRemainingBuffer( sizeof( _data.vp ) + sizeof( _data.pvp ) +
+                                   sizeof( _data.fixedVP ));
     }
 
     if( dirtyBits & DIRTY_DRAWABLECONFIG )
