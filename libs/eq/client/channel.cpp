@@ -1057,7 +1057,7 @@ void Channel::drawStatistics()
             if( data.yPos == 0 )
             {
                 data.yPos = nextY;
-                nextY -= data.threads.count() * (HEIGHT + SPACE);
+                nextY -= uint32_t( data.threads.count() * (HEIGHT + SPACE) );
             }
 
             uint32_t y = data.yPos;
@@ -1080,8 +1080,8 @@ void Channel::drawStatistics()
                   case Statistic::CHANNEL_FRAME_TRANSMIT:
                   case Statistic::CHANNEL_FRAME_COMPRESS:
                   case Statistic::CHANNEL_FRAME_WAIT_SENDTOKEN:
-                    y = data.yPos -
-                        (data.threads.count() - 1) * (HEIGHT + SPACE);
+                    y = data.yPos - uint32_t( (data.threads.count() - 1) *
+                                              (HEIGHT + SPACE));
                     break;
                 default:
                     break;
@@ -1608,7 +1608,7 @@ bool Channel::_asyncFinishReadback( const std::vector< size_t >& imagePos )
                 packet.frameData = frameData;
                 packet.frameNumber = frameNumber;
                 packet.imageIndex = j;
-                packet.nNodes = nodes.size();
+                packet.nNodes = uint32_t( nodes.size( ));
 
                 std::vector< uint128_t > ids = nodes;
                 ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
@@ -1894,7 +1894,7 @@ void Channel::_asyncSetReady( const FrameDataPtr frame, detail::RBStat* stat,
     std::vector< uint128_t > ids = nodes;
     ids.insert( ids.end(), netNodes.begin(), netNodes.end( ));
 
-    ChannelFrameSetReadyPacket packet( frame, stat, nodes.size( ));
+    ChannelFrameSetReadyPacket packet( frame, stat, uint32_t( nodes.size( )));
     send( getLocalNode(), packet, ids );
 }
 

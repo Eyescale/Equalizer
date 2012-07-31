@@ -36,6 +36,7 @@
 #include <string>
 #include <vector>
 
+#pragma warning( disable: 4267 ) // conversion from .. to .., loss of data
 
 namespace snappy {
 

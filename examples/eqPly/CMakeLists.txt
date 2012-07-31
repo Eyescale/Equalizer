@@ -90,7 +90,7 @@ set(PLY_FILES rockerArm.ply screwdriver.ply)
 foreach(PLY_FILE ${PLY_FILES})
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
   add_custom_command(OUTPUT "${BIN_FILE}"
-    COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
+    COMMAND "${CMAKE_BINARY_DIR}/bin/eqPlyConverter"
     "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}"
     MAIN_DEPENDENCY ${PLY_FILE}
     DEPENDS eqPlyConverter
