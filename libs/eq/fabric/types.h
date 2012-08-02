@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@
 #define EQFABRIC_TYPES_H
 
 #include <eq/fabric/api.h>
+#include <eq/fabric/error.h>
 #include <eq/fabric/vmmlib.h>
 #include <co/types.h>
 #include <lunchbox/refPtr.h>
@@ -30,6 +31,7 @@ namespace eq
 namespace fabric
 {
 class ColorMask;
+class ErrorRegistry;
 class Frustum;
 class Pixel;
 class PixelViewport;
@@ -97,7 +99,16 @@ struct WindowPath;
 #ifndef EQ_2_0_API
 using co::Serializable;
 #endif
+}
+}
 
+#ifndef EQ_2_0_API
+namespace co
+{
+using eq::fabric::Error;
+using eq::fabric::ErrorRegistry;
+using eq::fabric::ERROR_NONE;
 }
-}
+#endif
+
 #endif // EQFABRIC_TYPES_H

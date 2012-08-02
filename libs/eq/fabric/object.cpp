@@ -284,7 +284,7 @@ void Object::setError( const int32_t error )
 {
     if( _error == error )
         return;
-    _error = co::Error( error );
+    _error = eq::fabric::Error( error );
     setDirty( DIRTY_ERROR );
 }
 

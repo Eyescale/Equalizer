@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -19,7 +19,7 @@
 #define EQFABRIC_GLOBAL_H
 
 #include <eq/fabric/api.h>
-#include <string>
+#include <eq/fabric/types.h>
 
 namespace eq
 {
@@ -38,6 +38,9 @@ namespace fabric
 
         /** @return the default Equalizer server. */
         EQFABRIC_API static const std::string& getServer();
+
+        /** @return the error registry. @version 1.5 */
+        EQFABRIC_API static ErrorRegistry& getErrorRegistry();
     };
 }
 }

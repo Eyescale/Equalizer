@@ -21,8 +21,9 @@
 
 #include <lunchbox/lock.h>
 
-#include <eq/client/gl.h>   // for GLEW
+#include <eq/client/api.h>
 #include <eq/client/types.h>
+#include <eq/fabric/error.h> // enum
 
 namespace eq
 {
@@ -66,7 +67,7 @@ namespace detail { class PixelBufferObject; }
          * @return true on success, false otherwise
          * @version 1.3
          */
-        EQ_API virtual bool setup( const size_t size, const GLuint type );
+        EQ_API virtual bool setup( const size_t size, const unsigned type );
 
         /** Unbind and de-initialize the pixel buffer object. @version 1.3 */
         EQ_API virtual void destroy();
@@ -105,7 +106,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API size_t getSize() const;
 
         /** @return the reason for the last failed operation. @version 1.3 */
-        EQ_API const co::Error& getError() const;
+        EQ_API const eq::fabric::Error& getError() const;
 
         /** @return true if the pbo is intialized. @version 1.3 */
         EQ_API bool isInitialized() const;
@@ -114,7 +115,7 @@ namespace detail { class PixelBufferObject; }
         EQ_API bool isThreadSafe() const;
 
         /** @return OpenGL ID @version 1.3.2 */
-        GLuint getID() const;
+        unsigned getID() const;
 
     private:
         detail::PixelBufferObject* const _impl;

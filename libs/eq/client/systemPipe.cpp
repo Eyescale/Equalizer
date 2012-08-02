@@ -32,7 +32,7 @@ SystemPipe::~SystemPipe()
 {
 }
 
-co::Error SystemPipe::getError() const
+eq::fabric::Error SystemPipe::getError() const
 {
     return _pipe->getError();
 }

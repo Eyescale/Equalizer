@@ -1,6 +1,12 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+31/Jul/2012
+  Moved ErrorRegistry from Collage to eq::fabric. Use
+  eq::fabric::Global::getErrorRegistry().
+
+  Removed co::DataIStream::advanceBuffer. New parameter for
+  co::DataIStream::getRemainingBuffer() does advance buffer now.
 
 27/Jul/2012
   Made co::DataIStream::read private. Use 'is >> co::Array< T >( ptr, num )'
