@@ -570,12 +570,12 @@ void _magellanEventHandler( io_connect_t connection, natural_t messageType,
                 event.data.originator = _magellanNode->getID();
                 event.data.serial = _magellanNode->getSerial();
                 event.data.magellan.buttons = state->buttons;
-                event.data.magellan.xAxis = state->axis[0];
-                event.data.magellan.yAxis = state->axis[1];
-                event.data.magellan.zAxis = state->axis[2];
+                event.data.magellan.xAxis = state->axis[2];
+                event.data.magellan.yAxis = -state->axis[0];
+                event.data.magellan.zAxis = -state->axis[1];
                 event.data.magellan.xRotation = state->axis[3];
-                event.data.magellan.yRotation = state->axis[4];
-                event.data.magellan.zRotation = state->axis[5];
+                event.data.magellan.yRotation = state->axis[5];
+                event.data.magellan.zRotation = state->axis[4];
 
                 // decipher what command/event is being reported by the driver 
                 switch( state->command ) 

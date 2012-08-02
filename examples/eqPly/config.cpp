@@ -479,12 +479,12 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _spinX = 0;
             _spinY = 0;
             _advance = 0;
-            _frameData.spinModel(  0.0001f * event->data.magellan.zRotation,
-                                  -0.0001f * event->data.magellan.xRotation,
-                                  -0.0001f * event->data.magellan.yRotation );
-            _frameData.moveCamera(  0.0001f * event->data.magellan.xAxis,
-                                   -0.0001f * event->data.magellan.zAxis,
-                                    0.0001f * event->data.magellan.yAxis );
+            _frameData.spinModel( 0.0001f * event->data.magellan.xRotation,
+                                  0.0001f * event->data.magellan.yRotation,
+                                  0.0001f * event->data.magellan.zRotation );
+            _frameData.moveCamera( 0.0001f * event->data.magellan.xAxis,
+                                   0.0001f * event->data.magellan.yAxis,
+                                   0.0001f * event->data.magellan.zAxis );
             _redraw = true;
             return true;
 

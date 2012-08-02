@@ -253,12 +253,12 @@ void EventHandler::_processEvent( WindowEvent& event )
                 {
                   case SPNAV_EVENT_MOTION:
                     event.type = Event::MAGELLAN_AXIS;
-                    event.magellan.xAxis = spev.motion.x;
-                    event.magellan.yAxis = spev.motion.y;
-                    event.magellan.zAxis = spev.motion.z;
-                    event.magellan.xRotation = spev.motion.rx;
-                    event.magellan.yRotation = spev.motion.ry;
-                    event.magellan.zRotation = spev.motion.rz;
+                    event.magellan.xAxis =  spev.motion.x;
+                    event.magellan.yAxis =  spev.motion.y;
+                    event.magellan.zAxis = -spev.motion.z;
+                    event.magellan.xRotation = -spev.motion.rx;
+                    event.magellan.yRotation = -spev.motion.ry;
+                    event.magellan.zRotation =  spev.motion.rz;
                     break;
 
                   case SPNAV_EVENT_BUTTON:
