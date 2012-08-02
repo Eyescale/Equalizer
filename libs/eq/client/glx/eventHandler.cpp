@@ -34,7 +34,7 @@
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
 
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQ_USE_MAGELLAN_GLX
 #  include <spnav.h>
 #endif
 
@@ -81,7 +81,7 @@ EventHandler::EventHandler( WindowIF* window )
         LBINFO << "Using glx::EventHandler without glx::MessagePump, external "
                << "event dispatch assumed" << std::endl;
 
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQ_USE_MAGELLAN_GLX
     lunchbox::ScopedFastWrite mutex( _magellan );
     if( !_magellan->display )
     {
@@ -112,7 +112,7 @@ EventHandler::EventHandler( WindowIF* window )
 
 EventHandler::~EventHandler()
 {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQ_USE_MAGELLAN_GLX
     if( _magellanUsed )
     {
         lunchbox::ScopedFastWrite mutex( _magellan );
@@ -243,7 +243,7 @@ void EventHandler::_processEvent( WindowEvent& event )
 
         case ClientMessage:
         {
-#ifdef EQ_USE_MAGELLAN
+#ifdef EQ_USE_MAGELLAN_GLX
             spnav_event spev;
 
             /* spacenav event */

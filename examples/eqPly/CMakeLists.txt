@@ -95,14 +95,18 @@ endif()
 set(PLY_FILES rockerArm.ply screwdriver.ply)
 foreach(PLY_FILE ${PLY_FILES})
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
-  add_custom_command(OUTPUT "${BIN_FILE}"
+  add_custom_target(${PLY_FILE}.${BIN_POSTFIX} ALL
     COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
     "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}"
-    MAIN_DEPENDENCY ${PLY_FILE}
-    DEPENDS eqPlyConverter
+    DEPENDS ${PLY_FILE} eqPlyConverter
     COMMENT "Creating eqPly kd-Tree for ${PLY_FILE}"
     )
-  add_custom_target("${PLY_FILE}.${BIN_POSTFIX}" ALL DEPENDS "${BIN_FILE}")
+  if(APPLE)
+    set_property(TARGET ${PLY_FILE}.${BIN_POSTFIX} PROPERTY ENVIRONMENT
+      "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIRS}:$ENV{DYLD_LIBRARY_PATH}"
+      )
+  endif()
+
   install(FILES ${PLY_FILE} ${BIN_FILE} DESTINATION share/Equalizer/data
     COMPONENT data)
 endforeach()

@@ -72,11 +72,9 @@ find_package(VMMLIB REQUIRED)
 include_directories(SYSTEM ${VMMLIB_INCLUDE_DIRS})
 
 find_package(Boost 1.41 REQUIRED system regex date_time serialization)
-link_directories(${Boost_LIBRARY_DIRS})
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
 set(PTHREAD_LIBRARIES pthread)
-link_directories(${LUNCHBOX_LIBRARY_DIRS})
 
 if(LUNCHBOX_USE_OPENMP)
   find_package(OpenMP REQUIRED)
