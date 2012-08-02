@@ -26,7 +26,6 @@ else() # installed examples
   set(EQ_GLX_USED @EQ_GLX_USED@)
 
   if(APPLE)
-    link_directories(/usr/X11R6/lib)
     include_directories(SYSTEM /usr/X11R6/include)
     set(EQUALIZER_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
   endif(APPLE)

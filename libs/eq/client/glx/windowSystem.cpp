@@ -21,6 +21,7 @@
 #include "window.h"
 #include "pipe.h"
 #include "messagePump.h"
+ #include "eventHandler.h"
 
 #include <eq/client/glXTypes.h>
 #include <eq/fabric/gpuInfo.h>
@@ -91,7 +92,7 @@ static class : WindowSystemIF
         {
             LBWARN << "Can't load font " << font.str() << ", using fixed"
                    << std::endl;
-            fontStruct = XLoadQueryFont( display, "fixed" ); 
+            fontStruct = XLoadQueryFont( display, "fixed" );
         }
 
         LBASSERT( fontStruct );

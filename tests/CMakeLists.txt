@@ -71,7 +71,7 @@ foreach(FILE ${TEST_FILES})
       add_test(${NAME} ${EXECUTABLE})
       if(APPLE)
         set_property(TEST ${NAME} PROPERTY ENVIRONMENT
-          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIR}:$ENV{DYLD_LIBRARY_PATH}"
+          "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIRS}:$ENV{DYLD_LIBRARY_PATH}"
           )
       endif()
     endif()
