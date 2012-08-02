@@ -3,6 +3,7 @@
 if(NOT DOXYGEN_FOUND)
   return()
 endif()
+find_package(Git)
 
 configure_file(doc/DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
   @ONLY)
@@ -22,7 +23,7 @@ add_dependencies(doxygen doxygen_install)
 if(GIT_EXECUTABLE)
   execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_ORIGIN_URL)
-  string(REGEX REPLACE ".*github.com\\/(.*)\\/.*" "\\1" GIT_ORIGIN_ORG
+  string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
     ${GIT_ORIGIN_URL})
   string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_ORG)
 endif()
