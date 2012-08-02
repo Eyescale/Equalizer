@@ -8,10 +8,10 @@ configure_file(doc/DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
   @ONLY)
 configure_file(doc/Doxyfile ${CMAKE_BINARY_DIR}/doc/Doxyfile @ONLY)
 
-get_property(INSTALL_DEPENDS GLOBAL PROPERTY DOXYGEN_DEP_TARGETS)
+get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
 add_custom_target(doxygen_install
   ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
-  DEPENDS ${DOXYGEN_DEP_TARGETS})
+  DEPENDS ${ALL_DEP_TARGETS})
 
 add_custom_target(doxygen
   ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/doc/Doxyfile
