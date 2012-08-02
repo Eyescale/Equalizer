@@ -92,22 +92,37 @@ else()
   set(BIN_POSTFIX "le${BIN_POSTFIX}")
 endif()
 
+function(INSTALL_PLY IN OUT) # + command
+  set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${OUT}")
+  add_custom_target(${OUT} ALL
+    COMMAND ${ARGN} "${CMAKE_CURRENT_SOURCE_DIR}/${IN}"
+    DEPENDS "${IN}" eqPlyConverter
+    COMMENT "Creating eqPly kd-Tree for ${IN}"
+    )
+  install(FILES ${OUT} DESTINATION share/Equalizer/data COMPONENT data)
+endfunction()
+
 set(PLY_FILES rockerArm.ply screwdriver.ply)
 foreach(PLY_FILE ${PLY_FILES})
-  set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
-  add_custom_target(${PLY_FILE}.${BIN_POSTFIX} ALL
-    COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
-    "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}"
-    DEPENDS ${PLY_FILE} eqPlyConverter
-    COMMENT "Creating eqPly kd-Tree for ${PLY_FILE}"
-    )
   if(APPLE)
-    set_property(TARGET ${PLY_FILE}.${BIN_POSTFIX} PROPERTY ENVIRONMENT
-      "DYLD_LIBRARY_PATH=${LUNCHBOX_LIBRARY_DIRS}:$ENV{DYLD_LIBRARY_PATH}"
-      )
+    foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+      if(${ARCH} MATCHES "64")
+        set(BIN_POSTFIX "64.bin")
+      else()
+        set(BIN_POSTFIX "32.bin")
+      endif()
+      if(EQ_BIG_ENDIAN)
+        set(BIN_POSTFIX "be${BIN_POSTFIX}")
+      else()
+        set(BIN_POSTFIX "le${BIN_POSTFIX}")
+      endif()
+      install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
+        arch -${ARCH} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
+    endforeach()
+  else()
+    install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
   endif()
-
-  install(FILES ${PLY_FILE} ${BIN_FILE} DESTINATION share/Equalizer/data
-    COMPONENT data)
+  install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT data)
 endforeach()
 
