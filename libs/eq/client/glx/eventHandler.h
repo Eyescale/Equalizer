@@ -47,6 +47,9 @@ namespace glx
         /** Destruct the glX event handler. @version 1.0 */
         virtual ~EventHandler();
 
+        static bool initMagellan( Node* node );
+        static bool exitMagellan( Node* node );
+
     private:
         /** The corresponding glX pipe. */
         WindowIF* const _window;

@@ -22,6 +22,7 @@
 #include "windowEvent.h"
 #include "messagePump.h"
 #include "../config.h"
+#include "../configEvent.h"
 #include "../event.h"
 #include "../global.h"
 #include "../log.h"
@@ -34,6 +35,11 @@
 #include <X11/keysym.h>
 #include <X11/XKBlib.h>
 
+#ifdef EQ_USE_MAGELLAN
+#  include <eq/client/node.h>
+#  include <spnav.h>
+#endif
+
 namespace eq
 {
 namespace glx
@@ -42,12 +48,34 @@ namespace
 {
 typedef std::vector< EventHandler* > EventHandlers;
 static lunchbox::PerThread< EventHandlers > _eventHandlers;
+
 }
+
+#ifdef EQ_USE_MAGELLAN
+
+namespace
+{
+    static Node* _magellanNode = 0;
+    bool _magConnectionError = false;
+
+    // static bool _magellanGotTranslation = false, _magellanGotRotation = false;
+}
+#endif
 
 EventHandler::EventHandler( WindowIF* window )
         : _window( window )
 {
     LBASSERT( window );
+
+#ifdef EQ_USE_MAGELLAN
+    
+    if(spnav_x11_open(window->getXDisplay(), window->getXDrawable()) == -1)
+    { 
+        LBWARN << "Failed to connect to the space navigator daemon" << std::endl;
+        _magConnectionError = true;
+    }
+
+#endif
 
     if( !_eventHandlers )
         _eventHandlers = new EventHandlers;
@@ -185,6 +213,45 @@ void EventHandler::_processEvent( WindowEvent& event )
 
         case ClientMessage:
         {
+#ifdef EQ_USE_MAGELLAN
+            spnav_event spev;
+
+            /* spacenav event */
+            if(spnav_x11_event(&xEvent, &spev)) 
+            {
+                /* motion and button events */
+                ConfigEvent cEvent;
+
+                LBASSERT( _magellanNode->getID() != UUID::ZERO );
+                cEvent.data.originator = _magellanNode->getID();
+                cEvent.data.serial = _magellanNode->getSerial();
+
+                if(spev.type == SPNAV_EVENT_MOTION) 
+                {
+                    cEvent.data.type = Event::MAGELLAN_AXIS;
+                    cEvent.data.magellan.xAxis = spev.motion.x;
+                    cEvent.data.magellan.yAxis = spev.motion.y;
+                    cEvent.data.magellan.zAxis = spev.motion.z;
+                    cEvent.data.magellan.xRotation = spev.motion.rx;
+                    cEvent.data.magellan.yRotation = spev.motion.ry;
+                    cEvent.data.magellan.zRotation = spev.motion.rz;
+
+                } 
+                else if (spev.type == SPNAV_EVENT_BUTTON) 
+                {
+                    cEvent.data.type = Event::MAGELLAN_BUTTON;
+                    cEvent.data.magellan.buttons = spev.button.press;
+                    cEvent.data.magellan.button = spev.button.bnum;
+
+                }
+
+                _magellanNode->getConfig()->sendEvent( cEvent );
+
+                /* finally remove any other queued motion events */
+                spnav_remove_events(SPNAV_EVENT_MOTION);
+            } 
+ #endif
+
             Atom deleteAtom = XInternAtom( xEvent.xany.display,
                                            "WM_DELETE_WINDOW", False );
 
@@ -375,6 +442,38 @@ uint32_t EventHandler::_getKey( XEvent& event )
             LBWARN << "Unrecognized X11 key code " << key << std::endl;
             return KC_VOID;
     }
+}
+
+
+bool EventHandler::initMagellan( Node* node )
+{
+#ifdef EQ_USE_MAGELLAN
+
+    if( !_magellanNode && !_magConnectionError )
+        _magellanNode = node;
+
+#endif
+    return true;
+}
+
+bool EventHandler::exitMagellan( Node* node )
+{
+#ifdef EQ_USE_MAGELLAN
+    if( !_magConnectionError )
+    {
+        if( _magellanNode == node )
+        {
+            if( spnav_close() == -1 )
+            {
+                LBWARN << "Couldn't close the connection to the daemon" << std::endl;
+                return false;
+            }
+
+            _magellanNode = 0;
+        }
+    }
+    return true;
+#endif
 }
 
 }
