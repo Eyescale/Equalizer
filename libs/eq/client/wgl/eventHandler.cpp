@@ -625,13 +625,12 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
             event.data.originator = _magellanNode->getID();
             event.data.serial = _magellanNode->getSerial();
             event.data.type = Event::MAGELLAN_AXIS;
-
-            event.data.magellan.xAxis =  _magellanDOFs[2];
-            event.data.magellan.yAxis = -_magellanDOFs[0];
-            event.data.magellan.zAxis = -_magellanDOFs[1];
-            event.data.magellan.xRotation = _magellanDOFs[3];
-            event.data.magellan.yRotation = _magellanDOFs[5];
-            event.data.magellan.zRotation = _magellanDOFs[4];
+            event.data.magellan.xAxis =  _magellanDOFs[0];
+            event.data.magellan.yAxis = -_magellanDOFs[1];
+            event.data.magellan.zAxis = -_magellanDOFs[2];
+            event.data.magellan.xRotation = -_magellanDOFs[3];
+            event.data.magellan.yRotation =  _magellanDOFs[4];
+            event.data.magellan.zRotation =  _magellanDOFs[5];
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
