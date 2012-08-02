@@ -92,7 +92,7 @@ static class : WindowSystemIF
         {
             LBWARN << "Can't load font " << font.str() << ", using fixed"
                    << std::endl;
-            fontStruct = XLoadQueryFont( display, "fixed" ); 
+            fontStruct = XLoadQueryFont( display, "fixed" );
         }
 
         LBASSERT( fontStruct );
@@ -102,20 +102,6 @@ static class : WindowSystemIF
 
         XFreeFont( display, fontStruct );
         return true;
-    }
-
-    void configInit( eq::Node* node )
-    {
-#ifdef EQ_USE_MAGELLAN
-        EventHandler::initMagellan(node);
-#endif
-    }
-
-    void configExit( eq::Node* node )
-    {
-#ifdef EQ_USE_MAGELLAN
-        EventHandler::exitMagellan(node);
-#endif
     }
 
 } _glXFactory;

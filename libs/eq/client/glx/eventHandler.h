@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -47,12 +47,11 @@ namespace glx
         /** Destruct the glX event handler. @version 1.0 */
         virtual ~EventHandler();
 
-        static bool initMagellan( Node* node );
-        static bool exitMagellan( Node* node );
-
     private:
         /** The corresponding glX pipe. */
         WindowIF* const _window;
+
+        bool _magellanUsed; //!< Window registered with spnav
 
         void _dispatch();
         void _processEvent( WindowEvent& event );
