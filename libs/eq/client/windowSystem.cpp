@@ -145,14 +145,14 @@ bool WindowSystem::supports( std::string const& type )
 
 void WindowSystem::configInit( Node* node )
 {
-    if( _stack )
-        _stack->configInit( node );
+    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+        ws->configInit( node );
 }
 
 void WindowSystem::configExit( Node* node )
 {
-    if( _stack )
-        _stack->configExit(node );
+    for( WindowSystemIF* ws = _stack; ws; ws = ws->_next )
+        ws->configExit(node );
 }
 
 std::string WindowSystem::getName() const
