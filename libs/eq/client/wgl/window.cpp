@@ -868,7 +868,10 @@ bool Window::processEvent( const WindowEvent& event )
         // If no other button was pressed already, capture the mouse
         if( event.pointerButtonPress.buttons == event.pointerButtonPress.button )
         {
-            SetCapture( getWGLWindowHandle() );
+            if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON )
+            {
+                SetCapture( getWGLWindowHandle() );
+            }
         }
     }
     if( event.type == Event::WINDOW_POINTER_BUTTON_RELEASE )
@@ -876,7 +879,10 @@ bool Window::processEvent( const WindowEvent& event )
         // If no button is pressed anymore, release the mouse
         if( event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
         {
-            ReleaseCapture();
+            if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON )
+            {
+                ReleaseCapture();
+            }
         }
     }
 
