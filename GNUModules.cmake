@@ -4,10 +4,11 @@
 # Offers a target named 'module' to create a GNU module
 # (http://modules.sourceforge.net/) from your software.
 #
-# The GNUModules.cmake is supposed to be included after Common.cmake and
-# CPackConfig.cmake to gather required variables from them.
-# Additionally, the following variables have to set before including
-# GNUModules.cmake.
+# The GNUModules.cmake is supposed to be included after Common.cmake,
+# CPackConfig.cmake and all targets to gather required variables from
+# them.  
+
+# The following variables have to set before including GNUModules.cmake:
 
 # Need variables defined by (Common)CPackConfig
 if(NOT CPACK_PROJECT_NAME OR NOT CPACK_PACKAGE_VENDOR OR NOT VERSION OR
@@ -32,6 +33,9 @@ if(NOT MODULE_ENV)
 endif()
 
 # the base directory containing all modules on a machine
+if(NOT MODULE_SW_BASEDIR)
+  set(MODULE_SW_BASEDIR $ENV{MODULE_SW_BASEDIR})
+endif()
 if(NOT MODULE_SW_BASEDIR)
   set(MODULE_SW_BASEDIR "/usr/share/Modules")
 endif()
@@ -67,6 +71,8 @@ if(LSB_DISTRIBUTOR_ID MATCHES "RedHatEnterpriseServer")
   set(MODULE_PLATFORM "rhel${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
 elseif(LSB_DISTRIBUTOR_ID MATCHES "Ubuntu")
   set(MODULE_PLATFORM "ubuntu${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
+elseif(APPLE)
+  set(MODULE_PLATFORM "darwin${CMAKE_SYSTEM_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
 else()
   message(STATUS "Unsupported platform for GNUModules, please add support here")
   return()
