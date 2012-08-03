@@ -4,9 +4,9 @@
 # Offers a target named 'module' to create a GNU module
 # (http://modules.sourceforge.net/) from your software.
 #
-# The GNUModules.cmake is supposed to be included after the Common.cmake and
-# the CPackConfig to gather required variables from.
-# Additionally, following variables have to set before including
+# The GNUModules.cmake is supposed to be included after Common.cmake and
+# CPackConfig.cmake to gather required variables from them.
+# Additionally, the following variables have to set before including
 # GNUModules.cmake.
 
 # Specify the environment for your software that the module should setup
@@ -42,7 +42,7 @@ endif()
 # Need variables defined by (Common)CPackConfig
 if(NOT CPACK_PROJECT_NAME OR NOT VERSION OR NOT CMAKE_SYSTEM_PROCESSOR OR
    NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
-  message(FATAL_ERROR "Need CPack before GNUModule")
+  message(FATAL_ERROR "Need CommonCPack before GNUModule")
 endif()
 
 # get the used compiler + its version
@@ -58,7 +58,7 @@ if(LSB_DISTRIBUTOR_ID MATCHES "RedHatEnterpriseServer")
 elseif(LSB_DISTRIBUTOR_ID MATCHES "Ubuntu")
   set(MODULE_PLATFORM "ubuntu${LSB_RELEASE}-${CMAKE_SYSTEM_PROCESSOR}")
 else()
-  message(STATUS "Unsupported platform for GNUModules")
+  message(STATUS "Unsupported platform for GNUModules, please add support here")
   return()
 endif()
 set(MODULE_COMPILER "${MODULE_COMPILER_NAME}${MODULE_COMPILER_VERSION}")
