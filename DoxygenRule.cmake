@@ -1,5 +1,6 @@
 # Copyright (c) 2012 Stefan Eilemann <eile@eyescale.ch>
 
+find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
   return()
 endif()
