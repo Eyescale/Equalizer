@@ -9,6 +9,12 @@
 # Additionally, the following variables have to set before including
 # GNUModules.cmake.
 
+# Need variables defined by (Common)CPackConfig
+if(NOT CPACK_PROJECT_NAME OR NOT CPACK_PACKAGE_VENDOR OR NOT VERSION OR
+   NOT CMAKE_SYSTEM_PROCESSOR OR NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
+  message(FATAL_ERROR "Need CommonCPack before GNUModule")
+endif()
+
 # Specify the environment for your software that the module should setup
 # Example:
 #   set(MODULE_ENV "
@@ -17,17 +23,27 @@
 #   append-path    PATH             $root/bin
 #   append-path    LD_LIBRARY_PATH  $root/lib")
 if(NOT MODULE_ENV)
-  message(FATAL_ERROR "Need MODULE_ENV for GNUModule")
+  string(TOUPPER ${CMAKE_PROJECT_NAME} UPPER_PROJECT_NAME)
+  set(MODULE_ENV "
+  setenv         ${UPPER_PROJECT_NAME}_INCLUDE_DIR  $root/include
+  setenv         ${UPPER_PROJECT_NAME}_ROOT         $root
+  append-path    PATH             $root/bin
+  append-path    LD_LIBRARY_PATH  $root/lib")
 endif()
 
 # the base directory containing all modules on a machine
 if(NOT MODULE_SW_BASEDIR)
-  message(FATAL_ERROR "Need MODULE_SW_BASEDIR for GNUModule")
+  set(MODULE_SW_BASEDIR "/usr/share/Modules")
 endif()
 
 # the category/subdirectory inside the basedir for this software
 if(NOT MODULE_SW_CLASS)
-  message(FATAL_ERROR "Need MODULE_SW_CLASS for GNUModule")
+  set(MODULE_SW_CLASS ${CPACK_PACKAGE_VENDOR})
+endif()
+
+# path in MODULE_SW_BASEDIR to modulefiles
+if(NOT MODULE_MODULEFILES)
+  set(MODULE_MODULEFILES "modulefiles")
 endif()
 
 # optional: list of required modules that need to be loaded before this module
@@ -38,12 +54,6 @@ endif()
 
 ###############################################################################
 
-
-# Need variables defined by (Common)CPackConfig
-if(NOT CPACK_PROJECT_NAME OR NOT VERSION OR NOT CMAKE_SYSTEM_PROCESSOR OR
-   NOT LSB_RELEASE OR NOT LSB_DISTRIBUTOR_ID)
-  message(FATAL_ERROR "Need CommonCPack before GNUModule")
-endif()
 
 # get the used compiler + its version
 get_filename_component(MODULE_COMPILER_NAME ${CMAKE_C_COMPILER} NAME CACHE)
@@ -113,9 +123,10 @@ add_custom_target(module_install
   COMMENT "Installing GNU module source at ${MODULE_SRC_INSTALL}" VERBATIM
   DEPENDS ${ALL_DEP_TARGETS})
 
-set(MODULE_FILE_INSTALL "${MODULE_SW_BASEDIR}/module/modulefiles")
+set(MODULE_FILE_INSTALL "${MODULE_SW_BASEDIR}/${MODULE_MODULEFILES}")
 add_custom_target(module
   ${CMAKE_COMMAND} -E copy ${MODULE_FILENAME} ${MODULE_FILE_INSTALL}/${MODULE_FILENAME}
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Creating GNU module ${MODULE_FILENAME} at ${MODULE_FILE_INSTALL}" VERBATIM)
 add_dependencies(module module_install)
+
