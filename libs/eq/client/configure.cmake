@@ -64,12 +64,14 @@ endif()
 
 set(DEFINES_FILE ${OUTPUT_INCLUDE_DIR}/eq/client/defines${ARCH}.h)
 set(DEFINES_FILE_IN ${CMAKE_CURRENT_BINARY_DIR}/defines${ARCH}.h.in)
+set(OPTIONS_CMAKE ${CMAKE_BINARY_DIR}/options.cmake)
 
 file(WRITE ${DEFINES_FILE_IN}
   "#ifndef EQ_DEFINES_${ARCH}_H\n"
   "#define EQ_DEFINES_${ARCH}_H\n\n"
   "#include <co/defines.h>\n\n"
   )
+file(WRITE ${OPTIONS_CMAKE} "# Optional modules enabled during build\n")
 
 foreach(DEF ${EQUALIZER_DEFINES})
   file(APPEND ${DEFINES_FILE_IN}
@@ -77,6 +79,9 @@ foreach(DEF ${EQUALIZER_DEFINES})
     "#  define ${DEF}\n"
     "#endif\n"
     )
+  if(DEF MATCHES "EQ_")
+    file(APPEND ${OPTIONS_CMAKE} "set(${DEF} ON)\n")
+  endif()
 endforeach(DEF ${EQUALIZER_DEFINES})
 
 if(EQ_AGL_USED) # special case

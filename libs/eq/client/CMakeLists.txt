@@ -72,3 +72,4 @@ if(EQUALIZER_OLD_CLIENT_LAYOUT)
   install(FILES ${CLIENT_HEADERS} DESTINATION include/eq/ COMPONENT eqdev)
 endif()
 
+install(FILES ${OPTIONS_CMAKE} DESTINATION share/Equalizer/CMake COMPONENT dev)
