@@ -1,11 +1,10 @@
 
                          Darwin-Specific Notes
 
- Equalizer is developed on the new OS X versions, please refer to the
- latest release notes for specifics.. Other versions will likely work,
- but are not tested heavily. OS X 10.4 or earlier are no longer
- supported. The minimum gcc version is 4.2, version 4.0.1 is no longer
- supported.
+ Equalizer is developed on new OS X versions, please refer to the latest
+ release notes for specifics. Older versions will likely work, but are
+ not tested regularly. OS X 10.4 or earlier are no longer supported. The
+ minimum gcc version is 4.2.
 
 Prerequisites:
 
