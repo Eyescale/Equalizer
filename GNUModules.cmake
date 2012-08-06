@@ -44,6 +44,9 @@ endif()
 if(NOT MODULE_SW_CLASS)
   set(MODULE_SW_CLASS ${CPACK_PACKAGE_VENDOR})
 endif()
+if(MODULE_SW_CLASS MATCHES "^http://")
+  string(REGEX REPLACE "^http://(.*)" "\\1" MODULE_SW_CLASS ${MODULE_SW_CLASS})
+endif()
 
 # path in MODULE_SW_BASEDIR to modulefiles
 if(NOT MODULE_MODULEFILES)
