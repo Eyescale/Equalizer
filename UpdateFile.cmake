@@ -8,7 +8,7 @@ function(UPDATE_FILE IN OUT)
     return()
   endif()
 
-  configure_file(${IN} ${OUT}.tmp)
+  configure_file(${IN} ${OUT}.tmp @ONLY)
   file(READ ${OUT} _old_contents)
   file(READ ${OUT}.tmp _new_contents)
   if("${_old_contents}" STREQUAL "${_new_contents}")
