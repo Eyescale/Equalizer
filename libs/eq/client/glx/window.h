@@ -42,7 +42,7 @@ namespace glx
         /** @return X11 display connection. @version 1.0 */
         virtual Display* getXDisplay() = 0;
 
-        /** Process the given event. @version 1.0 */
+        /** Process the given event. @version 1.5.1 */
         EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
     };
 
@@ -202,7 +202,7 @@ namespace glx
         /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
         void leaveNVSwapBarrier();
 
-        /** @version 1.0 */
+        /** @version 1.5.1 */
         EQ_API virtual bool processEvent( const WindowEvent& event );
         //@}
 
