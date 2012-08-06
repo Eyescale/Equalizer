@@ -20,6 +20,7 @@
 
 #include "eventHandler.h"
 #include "pipe.h"
+#include "windowEvent.h"
 
 #include "../global.h"
 #include "../pipe.h"
@@ -790,6 +791,41 @@ void Window::leaveNVSwapBarrier()
 #else
     LBUNIMPLEMENTED;
 #endif
+}
+
+bool Window::processEvent( const WindowEvent& event )
+{
+    switch( event.type )
+    {
+      case Event::WINDOW_POINTER_BUTTON_PRESS:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW &&
+            // If no other button was pressed already, capture the mouse
+            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
+        {
+            unsigned int eventMask = ButtonPressMask | ButtonReleaseMask | ButtonMotionMask;
+            int result = XGrabPointer( getXDisplay(), getXDrawable(), False,
+                                       eventMask, GrabModeAsync, GrabModeAsync,
+                                       None, None, CurrentTime );
+            if( result != GrabSuccess )
+            {
+                LBWARN << "Failed to grab mouse: XGrabPointer returned "
+                       << result << std::endl;
+            }
+        }
+        break;
+
+      case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            getIAttribute( eq::Window::IATTR_HINT_DRAWABLE ) == WINDOW &&
+            // If no button is pressed anymore, release the mouse
+            event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
+        {
+            XUngrabPointer( getXDisplay(), CurrentTime );
+        }
+        break;
+    }
+    return SystemWindow::processEvent( event );
 }
 
 void Window::initEventHandler()
