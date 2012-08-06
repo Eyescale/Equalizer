@@ -41,6 +41,9 @@ namespace glx
 
         /** @return X11 display connection. @version 1.0 */
         virtual Display* getXDisplay() = 0;
+
+        /** Process the given event. @version 1.0 */
+        EQ_API virtual bool processEvent( const WindowEvent& event ) = 0;
     };
 
     /** Equalizer default implementation of a glX window */
@@ -198,6 +201,9 @@ namespace glx
 
         /** Unbind a GLX_NV_swap_barrier. @version 1.0 */
         void leaveNVSwapBarrier();
+
+        /** @version 1.0 */
+        EQ_API virtual bool processEvent( const WindowEvent& event );
         //@}
 
     private:
