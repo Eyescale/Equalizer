@@ -134,7 +134,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 return true;
             break;
 
-        case eq::Event::WINDOW_POINTER_BUTTON_PRESS:
+        case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
             const lunchbox::UUID& viewID = event->data.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
@@ -162,7 +162,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             return true;
         }
 
-        case eq::Event::WINDOW_POINTER_BUTTON_RELEASE:
+        case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
             if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
                 && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
@@ -171,7 +171,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             }
             return true;
 
-        case eq::Event::WINDOW_POINTER_MOTION:
+        case eq::Event::CHANNEL_POINTER_MOTION:
             if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
                 _spinX = 0;
