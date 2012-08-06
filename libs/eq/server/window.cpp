@@ -567,6 +567,8 @@ void Window::output( std::ostream& os ) const
                     "hint_statistics    " :
                 i== IATTR_HINT_SCREENSAVER ?
                     "hint_screensaver   " :
+                i== IATTR_HINT_GRAB_POINTER ?
+                    "hint_grab_pointer  " :
                 i== IATTR_PLANES_COLOR ? 
                     "planes_color       " :
                 i== IATTR_PLANES_ALPHA ?
