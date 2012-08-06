@@ -6,7 +6,11 @@
 #
 # The GNUModules.cmake is supposed to be included after Common.cmake,
 # CPackConfig.cmake and all targets to gather required variables from
-# them.  
+# them.
+
+if(MSVC)
+  return()
+endif()
 
 # The following variables have to set before including GNUModules.cmake:
 
@@ -43,9 +47,6 @@ endif()
 # the category/subdirectory inside the basedir for this software
 if(NOT MODULE_SW_CLASS)
   set(MODULE_SW_CLASS ${CPACK_PACKAGE_VENDOR})
-endif()
-if(MODULE_SW_CLASS MATCHES "^http://")
-  string(REGEX REPLACE "^http://(.*)" "\\1" MODULE_SW_CLASS ${MODULE_SW_CLASS})
 endif()
 
 # path in MODULE_SW_BASEDIR to modulefiles
@@ -138,4 +139,3 @@ add_custom_target(module
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Creating GNU module ${MODULE_FILENAME} at ${MODULE_FILE_INSTALL}" VERBATIM)
 add_dependencies(module module_install)
-
