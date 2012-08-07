@@ -137,6 +137,7 @@ namespace fabric
             IATTR_HINT_DRAWABLE,         //!< Window, pbuffer, FBO or OFF
             IATTR_HINT_STATISTICS,       //!< Statistics gathering hint
             IATTR_HINT_SCREENSAVER,      //!< Screensaver (de)activation (WGL)
+            IATTR_HINT_GRAB_POINTER,     //!< Capture mouse outside window
             IATTR_PLANES_COLOR,          //!< No of per-component color planes
             IATTR_PLANES_ALPHA,          //!< No of alpha planes
             IATTR_PLANES_DEPTH,          //!< No of z-buffer planes

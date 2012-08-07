@@ -853,16 +853,37 @@ void Window::exitEventHandler()
 
 bool Window::processEvent( const WindowEvent& event )
 {
-    if( event.type == Event::WINDOW_EXPOSE )
+    switch( event.type )
     {
+      case Event::WINDOW_EXPOSE:
+      {
         LBASSERT( _wglWindow ); // PBuffers should not generate paint events
 
         // Invalidate update rectangle
         PAINTSTRUCT ps;
         BeginPaint( _wglWindow, &ps );
         EndPaint(   _wglWindow, &ps );
-    }
+        break;
+      }
 
+      case Event::WINDOW_POINTER_BUTTON_PRESS:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no other button was pressed already, capture the mouse
+            event.pointerButtonPress.buttons == event.pointerButtonPress.button )
+        {
+            SetCapture( getWGLWindowHandle() );
+        }
+        break;
+
+      case Event::WINDOW_POINTER_BUTTON_RELEASE:
+        if( getIAttribute( eq::Window::IATTR_HINT_GRAB_POINTER ) == ON &&
+            // If no button is pressed anymore, release the mouse
+            event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
+        {
+            ReleaseCapture();
+        }
+        break;
+    }
     return SystemWindow::processEvent( event );
 }
 
