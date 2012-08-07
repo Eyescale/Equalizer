@@ -75,6 +75,7 @@ find_package(Boost 1.41 REQUIRED system regex date_time serialization)
 include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
 
 set(PTHREAD_LIBRARIES pthread)
+link_directories(${LUNCHBOX_LIBRARY_DIRS}) # need path to pthread.lib on Windows
 
 if(LUNCHBOX_USE_OPENMP)
   find_package(OpenMP REQUIRED)
