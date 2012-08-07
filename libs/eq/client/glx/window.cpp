@@ -803,11 +803,19 @@ bool Window::processEvent( const WindowEvent& event )
             // If no other button was pressed already, capture the mouse
             event.pointerButtonPress.buttons == event.pointerButtonPress.button )
         {
-            unsigned int eventMask = ButtonPressMask | ButtonReleaseMask | ButtonMotionMask;
-            int result = XGrabPointer( getXDisplay(), getXDrawable(), False,
-                                       eventMask, GrabModeAsync, GrabModeAsync,
-                                       None, None, CurrentTime );
-            if( result != GrabSuccess )
+            const unsigned int eventMask = ButtonPressMask | ButtonReleaseMask |
+                                           ButtonMotionMask;
+            const int result = XGrabPointer( getXDisplay(), getXDrawable(),
+                                             False, eventMask, GrabModeAsync,
+                                             GrabModeAsync, None, None,
+                                             CurrentTime );
+            if( result == GrabSuccess )
+            {
+                WindowEvent grabEvent = event;
+                grabEvent.type = Event::WINDOW_POINTER_GRAB;
+                processEvent( grabEvent );
+            }
+            else
             {
                 LBWARN << "Failed to grab mouse: XGrabPointer returned "
                        << result << std::endl;
@@ -821,7 +829,14 @@ bool Window::processEvent( const WindowEvent& event )
             // If no button is pressed anymore, release the mouse
             event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
         {
+            // Call early for consistent ordering
+            const bool result = SystemWindow::processEvent( event );
+
+            WindowEvent ungrabEvent = event;
+            ungrabEvent.type = Event::WINDOW_POINTER_UNGRAB;
+            processEvent( ungrabEvent );
             XUngrabPointer( getXDisplay(), CurrentTime );
+            return result;
         }
         break;
     }

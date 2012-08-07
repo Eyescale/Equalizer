@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -213,6 +213,10 @@ namespace eq
             WINDOW_POINTER_BUTTON_PRESS,
             /** Window pointer button release data in pointerButtonRelease */
             WINDOW_POINTER_BUTTON_RELEASE,
+            /** Window pointer grabbed by system window */
+            WINDOW_POINTER_GRAB,
+            /** Window pointer to be released by system window */
+            WINDOW_POINTER_UNGRAB,
 
             KEY_PRESS,            //!< Key press data in keyPress
             KEY_RELEASE,          //!< Key release data in keyRelease

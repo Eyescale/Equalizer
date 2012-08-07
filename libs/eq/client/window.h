@@ -476,7 +476,7 @@ namespace eq
         int64_t _lastSwapTime;
 
         /** List of channels that have grabbed the mouse. */
-        Channels _mouseGrabChannels;
+        Channels _grabbedChannels;
 
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
@@ -485,6 +485,9 @@ namespace eq
         void _addRenderContext( const RenderContext& context );
         friend class Channel;
         
+        /** @return the channels concerned by the given mouse event. */
+        Channels _getEventChannels( const PointerEvent& event );
+
         /** Set up object manager during initialization. */
         void _setupObjectManager();
         /** Release object manager. */
