@@ -77,5 +77,6 @@ file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/index.html"
 "</html>\n"
 )
 
-update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html" index.html)
+update_file("${CMAKE_CURRENT_BINARY_DIR}/index.html"
+  "${CMAKE_CURRENT_SOURCE_DIR}/index.html")
 install(FILES index.html DESTINATION share/${CMAKE_PROJECT_NAME})
