@@ -657,8 +657,15 @@ bool Window::processEvent( const Event& event )
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::WINDOW_POINTER_BUTTON_RELEASE:
         {
+            bool grabPointer =
+                ( getIAttribute( IATTR_HINT_GRAB_POINTER ) == ON );
+            bool isPressEvent =
+                ( event.type == Event::WINDOW_POINTER_BUTTON_PRESS );
+            bool isPointerGrabbed = grabPointer && !isPressEvent;
+
+            const Channels& channels =
+                isPointerGrabbed ? _mouseGrabChannels : getChannels();
             // dispatch pointer events to destination channel, if any
-            const Channels& channels = getChannels();
             for( Channels::const_iterator i = channels.begin();
                  i != channels.end(); ++i )
             {
@@ -672,7 +679,9 @@ bool Window::processEvent( const Event& event )
 
                 // convert y to GL notation (Channel PVP uses GL coordinates)
                 const int32_t y = pvp.h - event.pointer.y;
-                if( !channelPVP.isInside( event.pointer.x, y ))
+
+                // if the mouse is grabbed, don't check againt channel pvp
+                if( !isPointerGrabbed && !channelPVP.isInside( event.pointer.x, y ))
                     continue;
 
                 Event channelEvent = event;
@@ -683,6 +692,10 @@ bool Window::processEvent( const Event& event )
                     break;
                   case Event::WINDOW_POINTER_BUTTON_PRESS:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_PRESS;
+                    if( grabPointer )
+                    {
+                        _mouseGrabChannels.push_back( channel );
+                    }
                     break;
                   case Event::WINDOW_POINTER_BUTTON_RELEASE:
                     channelEvent.type = Event::CHANNEL_POINTER_BUTTON_RELEASE;
@@ -699,6 +712,11 @@ bool Window::processEvent( const Event& event )
                 channelEvent.pointer.x -= channelPVP.x;
                 channelEvent.pointer.y = channelPVP.h - y + channelPVP.y;
                 channel->processEvent( channelEvent );
+            }
+            // clear mouse-grabbing channels *after* events have been forwarded
+            if( event.type == Event::WINDOW_POINTER_BUTTON_RELEASE )
+            {
+                _mouseGrabChannels.clear();
             }
             break;
         }

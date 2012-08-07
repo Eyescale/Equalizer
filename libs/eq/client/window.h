@@ -475,6 +475,9 @@ namespace eq
         /** The time of the last swap command. */
         int64_t _lastSwapTime;
 
+        /** List of channels that have grabbed the mouse. */
+        Channels _mouseGrabChannels;
+
         struct Private;
         Private* _private; // placeholder for binary-compatible changes
 
