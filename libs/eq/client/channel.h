@@ -19,11 +19,10 @@
 #ifndef EQ_CHANNEL_H
 #define EQ_CHANNEL_H
 
-#include <eq/client/event.h>          // member
+#include <eq/client/api.h>
 #include <eq/client/types.h>
 
 #include <eq/fabric/channel.h>        // base class
-#include <eq/fabric/drawableConfig.h> // member
 
 namespace eq
 {
