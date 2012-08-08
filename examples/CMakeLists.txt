@@ -86,11 +86,12 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt
         DESTINATION share/Equalizer/examples COMPONENT examples)
 install(DIRECTORY include DESTINATION share/Equalizer/examples
         COMPONENT examples)
-install(FILES ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/PurpleExpandLibraries.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
-              ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
+install(FILES ${CMAKE_SOURCE_DIR}/CMake/EqStringifyShaders.cmake
               ${CMAKE_SOURCE_DIR}/CMake/FindGLEW_MX.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/FindPackages.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/PurpleExpandLibraries.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/configure.cmake
+              ${CMAKE_SOURCE_DIR}/CMake/ParseArguments.cmake
               DESTINATION share/Equalizer/examples/CMake COMPONENT examples)
 
 if(CUDA_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/eqNBody")
