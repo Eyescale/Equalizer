@@ -625,6 +625,7 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 //======================================================================
 // event-handler methods
 //======================================================================
+
 bool Window::processEvent( const Event& event )
 {
     ConfigEvent configEvent;
@@ -653,28 +654,22 @@ bool Window::processEvent( const Event& event )
         case Event::MAGELLAN_BUTTON:
             break;
 
+        case Event::WINDOW_POINTER_GRAB:
+            _grabbedChannels = _getEventChannels( event.pointer );
+            break;
+        case Event::WINDOW_POINTER_UNGRAB:
+            _grabbedChannels.clear();
+            break;
+
         case Event::WINDOW_POINTER_MOTION:
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::WINDOW_POINTER_BUTTON_RELEASE:
         {
-            // dispatch pointer events to destination channel, if any
-            const Channels& channels = getChannels();
+            const Channels& channels = _getEventChannels( event.pointer );
             for( Channels::const_iterator i = channels.begin();
                  i != channels.end(); ++i )
             {
                 Channel* channel = *i;
-                if( !channel->isDestination( ))
-                    continue;
-
-                const PixelViewport& pvp = getPixelViewport();
-                const PixelViewport& channelPVP =
-                    channel->getNativePixelViewport();
-
-                // convert y to GL notation (Channel PVP uses GL coordinates)
-                const int32_t y = pvp.h - event.pointer.y;
-                if( !channelPVP.isInside( event.pointer.x, y ))
-                    continue;
-
                 Event channelEvent = event;
                 switch( event.type )
                 {
@@ -693,7 +688,12 @@ bool Window::processEvent( const Event& event )
                     LBUNIMPLEMENTED;
                 }
 
-                LBASSERT( channel->getID() != UUID::ZERO );
+                // convert y to GL notation (Channel PVP uses GL coordinates)
+                const PixelViewport& pvp = getPixelViewport();
+                const int32_t y = pvp.h - event.pointer.y;
+                const PixelViewport& channelPVP = 
+                    channel->getNativePixelViewport();
+
                 channelEvent.originator = channel->getID();
                 channelEvent.serial = channel->getSerial();
                 channelEvent.pointer.x -= channelPVP.x;
@@ -734,6 +734,31 @@ bool Window::processEvent( const Event& event )
     Config* config = getConfig();
     config->sendEvent( configEvent );
     return true;
+}
+
+Channels Window::_getEventChannels( const PointerEvent& event )
+{
+    if( !_grabbedChannels.empty( ))
+        return _grabbedChannels;
+
+    Channels result;
+    const Channels& channels = getChannels();
+    for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
+    {
+        Channel* channel = *i;
+        if( !channel->isDestination( ))
+            continue;
+
+        const PixelViewport& pvp = getPixelViewport();
+        const PixelViewport& channelPVP = channel->getNativePixelViewport();
+
+        // convert y to GL notation (Channel PVP uses GL coordinates)
+        const int32_t y = pvp.h - event.y;
+
+        if( channelPVP.isInside( event.x, y ))
+            result.push_back( channel );
+    }
+    return result;
 }
 
 //---------------------------------------------------------------------------

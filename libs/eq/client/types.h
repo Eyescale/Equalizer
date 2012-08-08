@@ -55,9 +55,10 @@ class View;
 class Window;
 class WindowSystem;
 struct ConfigEvent;
-struct PixelData;
-struct Statistic;
 struct Event;
+struct PixelData;
+struct PointerEvent;
+struct Statistic;
 
 using fabric::ANAGLYPH;
 using fabric::ASYNC;

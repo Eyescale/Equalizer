@@ -871,7 +871,10 @@ bool Window::processEvent( const WindowEvent& event )
             // If no other button was pressed already, capture the mouse
             event.pointerButtonPress.buttons == event.pointerButtonPress.button )
         {
-            SetCapture( getWGLWindowHandle() );
+            SetCapture( getWGLWindowHandle( ));
+            WindowEvent grabEvent = event;
+            grabEvent.type = Event::WINDOW_POINTER_GRAB;
+            processEvent( grabEvent );
         }
         break;
 
@@ -880,7 +883,14 @@ bool Window::processEvent( const WindowEvent& event )
             // If no button is pressed anymore, release the mouse
             event.pointerButtonRelease.buttons == PTR_BUTTON_NONE )
         {
+            // Call early for consistent ordering
+            const bool result = SystemWindow::processEvent( event );
+
+            WindowEvent ungrabEvent = event;
+            ungrabEvent.type = Event::WINDOW_POINTER_UNGRAB;
+            processEvent( ungrabEvent );
             ReleaseCapture();
+            return result;
         }
         break;
     }
