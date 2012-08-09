@@ -5,8 +5,6 @@
 cmake_minimum_required(VERSION 2.6.4 FATAL_ERROR)
 project(Equalizer)
 
-option(EQUALIZER_USE_GPUSD "Test for GPU-SD support" ON)
-option(EQUALIZER_USE_HWLOC "Test for hwloc support" ON)
 option(EQUALIZER_USE_MAGELLAN "Test for SpaceMouse support" ON)
 option(EQUALIZER_BUILD_EXAMPLES "Build Equalizer examples." ON)
 option(EQUALIZER_INSTALL_SERVER_HEADERS "Install Equalizer server includes." OFF)
@@ -42,13 +40,12 @@ endif()
 
 include(Common)
 include(GitTargets)
+include(configure)
+
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
 
-if(EQUALIZER_USE_GPUSD)
-  find_package(gpusd 1.5.0)
-endif()
-
 find_package(Doxygen)
+
 if(DOXYGEN_FOUND)
   set (ALL_TARGETS "")
   macro(add_executable _target)
@@ -57,7 +54,6 @@ if(DOXYGEN_FOUND)
   endmacro()
 endif()
 
-include(configure)
 include(UpdateFile)
 include(TestBigEndian)
 test_big_endian(EQ_BIG_ENDIAN)
@@ -68,14 +64,7 @@ if(MSVC)
   include(UseGnuWin32)
 endif(MSVC)
 
-find_package(VMMLIB REQUIRED)
-include_directories(SYSTEM ${VMMLIB_INCLUDE_DIRS})
-
-find_package(Boost 1.41 REQUIRED system regex date_time serialization)
-include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIRS})
-
 set(PTHREAD_LIBRARIES pthread)
-link_directories(${LUNCHBOX_LIBRARY_DIRS}) # need path to pthread.lib on Windows
 
 if(LUNCHBOX_USE_OPENMP)
   find_package(OpenMP REQUIRED)
@@ -83,35 +72,9 @@ if(LUNCHBOX_USE_OPENMP)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
-find_package(OFED)
-if(OFED_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} RDMA")
-endif()
-
-find_package(UDT)
-if(UDT_FOUND)
-  set(EQ_FEATURES "${EQ_FEATURES} UDT")
-endif()
-
-if(EQUALIZER_USE_HWLOC)
-  find_package(HWLOC)
-endif()
 if(HWLOC_FOUND)
   set(EQ_FEATURES "${EQ_FEATURES} HWLOC")
 endif()
-
-if(APPLE)
-  # WAR otherwise MacPorts X11 (/opt/local) is preferred
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
-  LIST(REMOVE_ITEM CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-endif()
-
-find_package(X11)
-
-if(APPLE)
-  LIST(APPEND CMAKE_SYSTEM_LIBRARY_PATH /opt/local/lib)
-  LIST(APPEND CMAKE_SYSTEM_PREFIX_PATH /opt/local)
-endif(APPLE)
 
 if(X11_FOUND)
   if(APPLE)
