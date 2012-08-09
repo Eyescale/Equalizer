@@ -45,15 +45,15 @@ namespace eqNbody
     {
         co::Serializable::serialize( os, dirtyBits );
         
-        if( dirtyBits & DIRTY_DATA ) {
-            os << _offset << _numBytes;
-
+        if( dirtyBits & DIRTY_DATA )
+        {
             LBASSERT(_hPos != NULL);
             LBASSERT(_hVel != NULL);
 
-            os.write(_hPos+_offset, _numBytes);
-            os.write(_hVel+_offset, _numBytes);
-            //os.write(_hCol+_offset, _numBytes);
+            os << _offset << _numBytes
+               << co::Array< void >( _hPos+_offset, _numBytes )
+               << co::Array< void >( _hVel+_offset, _numBytes );
+            //(_hCol+_offset, _numBytes);
         }        
     }
     
@@ -62,7 +62,8 @@ namespace eqNbody
     {
         co::Serializable::deserialize( is, dirtyBits );
 
-        if( dirtyBits & DIRTY_DATA ) {
+        if( dirtyBits & DIRTY_DATA )
+        {
             LBASSERT(_hPos != NULL);
             LBASSERT(_hVel != NULL);
 

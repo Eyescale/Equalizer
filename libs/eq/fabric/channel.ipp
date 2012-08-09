@@ -114,7 +114,7 @@ void Channel< W, C >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
               getWindow()->Serializable::isDirty( W::DIRTY_CHANNELS ));
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_VIEWPORT )
         os << _data.nativeContext.vp << _data.nativeContext.pvp 
            << _data.fixedVP << _maxSize;
