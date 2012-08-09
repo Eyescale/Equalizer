@@ -116,7 +116,7 @@ void Pipe< N, P, W, V >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_WINDOWS && isMaster( ))
     {
         os << _mapNodeObjects();

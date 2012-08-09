@@ -142,7 +142,7 @@ void Window< P, W, C >::serialize( co::DataOStream& os,
 {
     Object::serialize( os, dirtyBits );
     if( dirtyBits & DIRTY_ATTRIBUTES )
-        os.write( _data.iAttributes, IATTR_ALL * sizeof( int32_t ));
+        os << co::Array< int32_t >( _data.iAttributes, IATTR_ALL );
     if( dirtyBits & DIRTY_CHANNELS && isMaster( ))
     {
         os << _mapNodeObjects();
