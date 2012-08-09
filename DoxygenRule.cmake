@@ -24,9 +24,11 @@ add_dependencies(doxygen doxygen_install)
 if(GIT_EXECUTABLE)
   execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_ORIGIN_URL)
-  string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
-    ${GIT_ORIGIN_URL})
-  string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_ORG)
+  if(GIT_ORIGIN_URL) # can be empty for git-svn repos
+    string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
+      ${GIT_ORIGIN_URL})
+    string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_ORG)
+  endif()
 endif()
 if(NOT GIT_ORIGIN_ORG)
   set(GIT_ORIGIN_ORG eyescale)
