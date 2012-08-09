@@ -12,11 +12,13 @@ if(HWLOC_ROOT)
   set(ENV{PKG_CONFIG_PATH} "${HWLOC_ROOT}/lib/pkgconfig")
 endif()
 
-if(NOT HWLOC_FIND_QUIETLY)
+if(HWLOC_FIND_QUIETLY)
+  set(_hwloc_QUIET QUIET)
+else()
   set(_hwloc_output 1)
 endif()
 
-pkg_check_modules(HWLOC hwloc)
+pkg_check_modules(HWLOC hwloc ${_hwloc_QUIET})
 
 if(HWLOC_FOUND)
   find_library(HWLOC_LIBRARY hwloc
