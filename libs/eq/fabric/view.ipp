@@ -148,9 +148,9 @@ void View< L, V, O >::deserialize( co::DataIStream& is,
         is >> _data.capabilities;
     if( dirtyBits & DIRTY_MODE )
     {
-        Mode mode;
+        uint32_t mode;
         is >> mode;
-        activateMode( mode );
+        activateMode( Mode( mode ));
     }
     if( dirtyBits & DIRTY_EQUALIZERS )
         is >> _data.equalizers;

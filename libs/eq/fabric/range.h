@@ -85,4 +85,13 @@ namespace fabric
     }
 }
 }
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Range& value )
+{
+    byteswap( value.start );
+    byteswap( value.end );
+}
+}
 #endif // EQFABRIC_RANGE_H

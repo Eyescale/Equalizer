@@ -133,4 +133,10 @@ namespace detail { class Frame; }
     EQFABRIC_API std::ostream& operator << (std::ostream&, const Frame::Buffer);
 }
 }
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Frame::Type& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
 #endif // EQFABRIC_FRAME_H

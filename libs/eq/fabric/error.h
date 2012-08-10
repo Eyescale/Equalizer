@@ -106,4 +106,9 @@ namespace fabric
     EQFABRIC_API std::ostream& operator << ( std::ostream& os, const Error& );
 }
 }
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Error& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
 #endif // EQFABRIC_ERROR_H
