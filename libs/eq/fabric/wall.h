@@ -172,12 +172,17 @@ namespace fabric
 
 namespace lunchbox
 {
+template<> inline void byteswap( eq::fabric::Wall::Type& value )
+{
+    byteswap( reinterpret_cast< uint32_t& >( value ));
+}
+
 template<> inline void byteswap( eq::fabric::Wall& value )
 {
     byteswap( value.bottomLeft );
     byteswap( value.bottomRight );
     byteswap( value.topLeft );
-    byteswap( reinterpret_cast< uint32_t& >( value.type ));
+    byteswap( value.type );
 }
 }
 #endif // EQFABRIC_WALL_H
