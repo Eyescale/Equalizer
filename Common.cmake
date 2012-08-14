@@ -59,6 +59,10 @@ endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 # Compiler settings
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  set(CMAKE_COMPILER_IS_XLCXX ON)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   include(CompilerVersion)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
@@ -72,7 +76,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
-endif(CMAKE_COMPILER_IS_GNUCXX)
+elseif(CMAKE_COMPILER_IS_XLCXX)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -qnoopt")
+  set(CMAKE_CC_FLAGS_DEBUG "${CMAKE_CC_FLAGS_DEBUG} -qnoopt")
+endif()
 
 if(MSVC)
   add_definitions(
