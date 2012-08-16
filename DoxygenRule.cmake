@@ -24,20 +24,18 @@ add_dependencies(doxygen doxygen_install)
 if(GIT_EXECUTABLE)
   execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_ORIGIN_URL)
-  if(GIT_ORIGIN_URL) # can be empty for git-svn repos
-    string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
-      ${GIT_ORIGIN_URL})
-    string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_ORG)
-  endif()
+  string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
+    "${GIT_ORIGIN_URL}")
 endif()
 if(NOT GIT_ORIGIN_ORG)
-  set(GIT_ORIGIN_ORG eyescale)
+  set(GIT_ORIGIN_ORG Eyescale)
 endif()
+string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_org)
 
 add_custom_target(github
-  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_ORG}/${PROJECT_NAME}-${VERSION}
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_ORG}/${PROJECT_NAME}-${VERSION}
-  COMMENT "Copying API documentation to ${GIT_ORIGIN_ORG}.github.com/${PROJECT_NAME}-${VERSION}"
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION}
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_BINARY_DIR}/doc/html ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION}
+  COMMENT "Copying API documentation to ${GIT_ORIGIN_org}.github.com/${PROJECT_NAME}-${VERSION}"
   VERBATIM)
 add_dependencies(github doxygen)
 
