@@ -1,0 +1,20 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+PortGroup           github 1.0
+PortGroup           cmake 1.0
+
+name                @CMAKE_PROJECT_NAME@
+categories          @CPACK_MACPORTS_CATEGORY@
+maintainers         @CPACK_PACKAGE_CONTACT@
+license             @CPACK_PACKAGE_LICENSE@
+description         @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
+long_description    @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
+
+github.setup        @GIT_ORIGIN_ORG@ ${name} @VERSION@ release-
+depends_lib         @CPACK_MACPORTS_DEPENDS@
+
+supported_archs     ppc ppc64 i386 x86_64
+universal_variant   yes
+checksum {}
