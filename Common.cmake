@@ -6,6 +6,9 @@ list(APPEND CMAKE_PREFIX_PATH ${SystemDrive}:/cygwin/bin)
 if(CMAKE_VERSION VERSION_LESS 2.8)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/2.8)
 endif()
+if(CMAKE_VERSION VERSION_LESS 2.8.3)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/2.8.3)
+endif()
 
 if(NOT CMAKE_BUILD_TYPE)
   if(RELEASE_VERSION)
@@ -56,6 +59,10 @@ endif()
 add_definitions(-DBOOST_ALL_NO_LIB) # Don't use 'pragma lib' on Windows
 
 # Compiler settings
+if(CMAKE_CXX_COMPILER_ID STREQUAL "XL")
+  set(CMAKE_COMPILER_IS_XLCXX ON)
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   include(CompilerVersion)
   COMPILER_DUMPVERSION(GCC_COMPILER_VERSION)
@@ -69,7 +76,10 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   if(NOT WIN32 AND NOT XCODE_VERSION AND NOT RELEASE_VERSION)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
   endif()
-endif(CMAKE_COMPILER_IS_GNUCXX)
+elseif(CMAKE_COMPILER_IS_XLCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -q64")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -q64")
+endif()
 
 if(MSVC)
   add_definitions(
@@ -92,10 +102,14 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(LINUX TRUE)
-  add_definitions(-fPIC)
 
   if(REDHAT AND CMAKE_SYSTEM_PROCESSOR MATCHES "64$")
     set(LIB_SUFFIX 64 CACHE STRING "Library directory suffix")
+  endif()
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc")
+    set(LINUX_PPC 1)
+  else()
+    add_definitions(-fPIC)
   endif()
 endif()
 set(LIBRARY_DIR lib${LIB_SUFFIX})
