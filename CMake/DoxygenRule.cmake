@@ -4,7 +4,9 @@ find_package(Doxygen)
 if(NOT DOXYGEN_FOUND)
   return()
 endif()
+
 find_package(Git)
+include(GithubOrganization)
 
 configure_file(doc/DoxygenLayout.xml ${CMAKE_BINARY_DIR}/doc/DoxygenLayout.xml
   @ONLY)
@@ -20,17 +22,6 @@ add_custom_target(doxygen
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
   COMMENT "Generating API documentation using doxygen" VERBATIM)
 add_dependencies(doxygen doxygen_install)
-
-if(GIT_EXECUTABLE)
-  execute_process(COMMAND ${GIT_EXECUTABLE} config --get remote.origin.url
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE GIT_ORIGIN_URL)
-  string(REGEX REPLACE ".*github.com[\\/:](.*)\\/.*" "\\1" GIT_ORIGIN_ORG
-    "${GIT_ORIGIN_URL}")
-endif()
-if(NOT GIT_ORIGIN_ORG)
-  set(GIT_ORIGIN_ORG Eyescale)
-endif()
-string(TOLOWER ${GIT_ORIGIN_ORG} GIT_ORIGIN_org)
 
 add_custom_target(github
   COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_SOURCE_DIR}/../${GIT_ORIGIN_org}/${PROJECT_NAME}-${VERSION}
