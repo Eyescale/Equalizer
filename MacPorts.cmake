@@ -14,6 +14,13 @@ endif()
 
 include(UpdateFile)
 
+if(NOT CPACK_MACPORTS_VERSION)
+  set(CPACK_MACPORTS_VERSION ${LAST_RELEASE})
+endif()
+if(NOT CPACK_MACPORTS_VERSION)
+  set(CPACK_MACPORTS_VERSION ${VERSION})
+endif()
+
 # format dependencies list into port:name string
 foreach(CPACK_MACPORTS_DEPEND ${CPACK_MACPORTS_DEPENDS})
   if(${CPACK_MACPORTS_DEPEND} MATCHES "port:")
