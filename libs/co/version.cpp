@@ -60,9 +60,8 @@ float Version::getFloat()
 std::string Version::getString()
 {
     std::ostringstream  version;
-    version << CO_VERSION_MAJOR << '.' << CO_VERSION_MINOR;
-    if( CO_VERSION_PATCH > 0 )
-        version << '.' << CO_VERSION_PATCH;
+    version << CO_VERSION_MAJOR << '.' << CO_VERSION_MINOR << '.'
+            << CO_VERSION_PATCH;
 
     const std::string revision = getRevision();
     if( revision != "0" )

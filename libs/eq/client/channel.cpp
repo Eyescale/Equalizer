@@ -27,6 +27,7 @@
 #include "error.h"
 #include "frame.h"
 #include "frameData.h"
+#include "gl.h"
 #include "global.h"
 #include "image.h"
 #include "jitter.h"

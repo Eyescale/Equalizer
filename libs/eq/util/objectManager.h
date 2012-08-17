@@ -19,8 +19,8 @@
 #define EQUTIL_OBJECTMANAGER_H
 
 #include <eq/util/types.h>
+#include <eq/client/api.h>
 
-#include <eq/client/gl.h>              // OpenGL/GLEW types
 #include <lunchbox/api.h>              // EQ_API definition
 #include <lunchbox/debug.h>            // LBASSERT definition
 #include <lunchbox/hash.h>             // member
@@ -74,32 +74,32 @@ namespace util
 
         EQ_API void deleteAll();
 
-        EQ_API GLuint getList( const T& key ) const;
-        EQ_API GLuint newList( const T& key, const GLsizei num = 1 );
-        EQ_API GLuint obtainList( const T& key, const GLsizei num = 1 );
+        EQ_API unsigned getList( const T& key ) const;
+        EQ_API unsigned newList( const T& key, const int num = 1 );
+        EQ_API unsigned obtainList( const T& key, const int num = 1 );
         EQ_API void   deleteList( const T& key );
 
-        EQ_API GLuint getTexture( const T& key ) const;
-        EQ_API GLuint newTexture( const T& key );
-        EQ_API GLuint obtainTexture( const T& key );
+        EQ_API unsigned getTexture( const T& key ) const;
+        EQ_API unsigned newTexture( const T& key );
+        EQ_API unsigned obtainTexture( const T& key );
         EQ_API void   deleteTexture( const T& key );
 
         EQ_API bool   supportsBuffers() const;
-        EQ_API GLuint getBuffer( const T& key ) const;
-        EQ_API GLuint newBuffer( const T& key );
-        EQ_API GLuint obtainBuffer( const T& key );
+        EQ_API unsigned getBuffer( const T& key ) const;
+        EQ_API unsigned newBuffer( const T& key );
+        EQ_API unsigned obtainBuffer( const T& key );
         EQ_API void   deleteBuffer( const T& key );
 
         EQ_API bool   supportsPrograms() const;
-        EQ_API GLuint getProgram( const T& key ) const;
-        EQ_API GLuint newProgram( const T& key );
-        EQ_API GLuint obtainProgram( const T& key );
+        EQ_API unsigned getProgram( const T& key ) const;
+        EQ_API unsigned newProgram( const T& key );
+        EQ_API unsigned obtainProgram( const T& key );
         EQ_API void   deleteProgram( const T& key );
 
         EQ_API bool   supportsShaders() const;
-        EQ_API GLuint getShader( const T& key ) const;
-        EQ_API GLuint newShader( const T& key, const GLenum type );
-        EQ_API GLuint obtainShader( const T& key, const GLenum type );
+        EQ_API unsigned getShader( const T& key ) const;
+        EQ_API unsigned newShader( const T& key, const unsigned type );
+        EQ_API unsigned obtainShader( const T& key, const unsigned type );
         EQ_API void   deleteShader( const T& key );
 
         EQ_API Accum* getEqAccum( const T& key ) const;
@@ -120,8 +120,8 @@ namespace util
 
         EQ_API bool     supportsEqTexture() const;
         EQ_API Texture* getEqTexture( const T& key ) const;
-        EQ_API Texture* newEqTexture( const T& key, const GLenum target );
-        EQ_API Texture* obtainEqTexture( const T& key, const GLenum target );
+        EQ_API Texture* newEqTexture( const T& key, const unsigned target );
+        EQ_API Texture* obtainEqTexture( const T& key, const unsigned target );
         EQ_API void     deleteEqTexture( const T& key );
 
         EQ_API bool               supportsEqFrameBufferObject() const;
@@ -148,8 +148,8 @@ namespace util
     private:
         struct Object
         {
-            GLuint   id;
-            GLuint   num;
+            unsigned   id;
+            unsigned   num;
         };
 
         typedef stde::hash_map< T, Object >     ObjectHash;

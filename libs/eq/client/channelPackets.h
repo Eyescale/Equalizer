@@ -31,7 +31,7 @@ namespace detail { struct RBStat; }
     struct ChannelConfigInitPacket : public ChannelPacket
     {
         ChannelConfigInitPacket( const uint128_t& initID_ )
-                : initID( initID )
+                : initID( initID_ )
             {
                 command = fabric::CMD_CHANNEL_CONFIG_INIT;
                 size    = sizeof( ChannelConfigInitPacket );

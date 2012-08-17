@@ -28,6 +28,7 @@
 #  include "gpuCompressor.h"
 #endif
 
+#include <eq/client/gl.h>
 #include <string.h>
 
 // instantiate desired key types -- see objectManager.cpp

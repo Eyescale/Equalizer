@@ -25,6 +25,7 @@
 #include "configEvent.h"
 #include "error.h"
 #include "event.h"
+#include "gl.h"
 #include "global.h"
 #include "log.h"
 #include "node.h"
@@ -298,6 +299,16 @@ uint32_t Window::getColorFormat() const
         case RGBA16F:  return GL_RGBA16F;
         default:       return GL_RGBA;
     }
+}
+
+void Window::flush() const
+{
+    glFlush();
+}
+
+void Window::finish() const
+{
+    glFinish();
 }
 
 void Window::setSystemWindow( SystemWindow* window )
