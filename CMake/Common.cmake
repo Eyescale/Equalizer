@@ -98,12 +98,15 @@ endif()
 set(LIBRARY_DIR lib${LIB_SUFFIX})
 
 if(APPLE)
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING "Build architectures")
-  else()
-    set(OSX_ARCHITECTURES "i386;x86_64" CACHE STRING "Build architectures")
+  if(NOT CMAKE_OSX_ARCHITECTURES OR CMAKE_OSX_ARCHITECTURES STREQUAL "")
+    if(_CMAKE_OSX_MACHINE MATCHES "ppc")
+      set(CMAKE_OSX_ARCHITECTURES "ppc;ppc64" CACHE
+        STRING "Build architectures for OS X" FORCE)
+    else()
+      set(CMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE
+        STRING "Build architectures for OS X" FORCE)
+    endif()
   endif()
-  set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCHITECTURES})
   set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-isystem ")
   set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ")
   message(STATUS
