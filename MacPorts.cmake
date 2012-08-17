@@ -7,10 +7,6 @@ if(NOT CPACK_MACPORTS_CATEGORY)
   message("Missing CPACK_MACPORTS_CATEGORY for MacPorts generation")
   return()
 endif()
-if(NOT CPACK_MACPORTS_DEPENDS)
-  message("Missing CPACK_MACPORTS_DEPENDS for MacPorts generation")
-  return()
-endif()
 
 include(UpdateFile)
 
