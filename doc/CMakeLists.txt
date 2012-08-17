@@ -19,7 +19,7 @@ configure_file(doxyfooter.html ${CMAKE_CURRENT_BINARY_DIR}/doxyfooter.html
   @ONLY)
 configure_file(Doxyfile.int ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile.int @ONLY)
 
-get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_TARGETS)
+get_property(INSTALL_DEPENDS GLOBAL PROPERTY ALL_DEP_TARGETS)
 add_custom_target(doxygen_install
   ${CMAKE_COMMAND} -D CMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
                    -P ${CMAKE_BINARY_DIR}/cmake_install.cmake

@@ -18,10 +18,10 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 include(revision)
 
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
+set(LAST_RELEASE 1.3.7)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "5")
 set(VERSION_PATCH "0")
-set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 set(CO_VERSION_MAJOR "0")
 set(CO_VERSION_MINOR "7")
@@ -43,16 +43,6 @@ include(GitTargets)
 include(configure)
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/libs)
-
-find_package(Doxygen)
-
-if(DOXYGEN_FOUND)
-  set (ALL_TARGETS "")
-  macro(add_executable _target)
-    _add_executable (${_target} ${ARGN})
-    set_property (GLOBAL APPEND PROPERTY ALL_TARGETS ${_target})
-  endmacro()
-endif()
 
 include(UpdateFile)
 include(TestBigEndian)
@@ -100,17 +90,6 @@ if(APPLE)
   include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
 
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-      "Equalizer build architectures")
-  else()
-    set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-      "Equalizer build architectures")
-  endif()
-  mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
-  
-  set(CMAKE_OSX_ARCHITECTURES "${EQUALIZER_OSX_ARCHITECTURES}")
-  message(STATUS "Building Equalizer ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
   if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
