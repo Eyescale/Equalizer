@@ -38,7 +38,6 @@ set(CLIENT_HEADERS
   channelPackets.h
   channelStatistics.h
   client.h
-  clientPackets.h
   commandQueue.h
   compositor.h
   computeContext.h

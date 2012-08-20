@@ -34,7 +34,6 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/clientPackets.h>
 #include <eq/client/configEvent.h>
 #include <eq/client/configPackets.h>
 #include <eq/client/error.h>
@@ -644,11 +643,11 @@ void Config::_stopNodes()
         stoppingNodes.push_back( node );
         LBASSERT( netNode.isValid( ));
 
-        netNode->send( CMD_SERVER_DESTROY_CONFIG, PACKETTYPE_EQ_SERVER )
+        netNode->send( fabric::CMD_SERVER_DESTROY_CONFIG,
+                       fabric::PACKETTYPE_EQ_SERVER )
                 << getID() << LB_UNDEFINED_UINT32;
 
-        ClientExitPacket clientExitPacket;
-        netNode->send( clientExitPacket );
+        netNode->send( fabric::CMD_CLIENT_EXIT, fabric::PACKETTYPE_EQ_CLIENT );
     }
 
     // now wait that the render clients disconnect
