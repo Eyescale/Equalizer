@@ -17,6 +17,7 @@
 
 #include "canvas.h"
 
+#include "commands.h"
 #include "elementVisitor.h"
 #include "log.h"
 #include "nameFinder.h"

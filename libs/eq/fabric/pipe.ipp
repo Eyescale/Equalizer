@@ -18,6 +18,7 @@
 
 #include "pipe.h"
 
+#include "commands.h"
 #include "elementVisitor.h"
 #include "leafVisitor.h"
 #include "log.h"
@@ -26,6 +27,7 @@
 #include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectOCommand.h>
 
 namespace eq
 {

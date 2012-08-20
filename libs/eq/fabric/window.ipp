@@ -19,6 +19,7 @@
 #include "window.h"
 
 #include "channel.h"
+#include "commands.h"
 #include "elementVisitor.h"
 #include "log.h"
 #include "task.h"

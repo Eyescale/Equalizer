@@ -21,6 +21,7 @@
 #include <eq/fabric/api.h>
 #include <eq/fabric/error.h>        // enum
 #include <eq/fabric/types.h>
+#include <co/objectOCommand.h>      // used inline send()
 #include <co/objectVersion.h>       // member
 #include <co/serializable.h>        // base class
 

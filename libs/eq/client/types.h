@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,7 +22,6 @@
 #include <eq/client/defines.h>
 #include <eq/util/types.h>
 #include <eq/fabric/focusMode.h>
-#include <eq/fabric/queuePackets.h>
 #include <eq/fabric/types.h>
 #include <lunchbox/atomic.h>
 
@@ -91,7 +90,6 @@ using fabric::Projection;
 using fabric::Range;
 using fabric::RenderContext;
 using fabric::SubPixel;
-using fabric::TileTaskPacket;
 using fabric::Viewport;
 using fabric::Wall;
 using fabric::Zoom;
@@ -112,8 +110,8 @@ typedef fabric::LeafVisitor< Channel > ChannelVisitor;
 typedef fabric::ElementVisitor< Canvas, SegmentVisitor > CanvasVisitor;
 
 /** A visitor to traverse windows and children. */
-typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;   
-    
+typedef fabric::ElementVisitor< Window, ChannelVisitor > WindowVisitor;
+
 /** A visitor to traverse pipes and children. */
 typedef fabric::ElementVisitor< Pipe, WindowVisitor > PipeVisitor;
 

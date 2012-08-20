@@ -38,7 +38,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   pixel.h
   pixelViewport.h
   projection.h
-  queuePackets.h
   range.h
   renderContext.h
   segment.h
