@@ -76,7 +76,6 @@ set(CLIENT_HEADERS
   pixelData.h
   segment.h
   server.h
-  serverPackets.h
   statistic.h
   statisticSampler.h
   system.h

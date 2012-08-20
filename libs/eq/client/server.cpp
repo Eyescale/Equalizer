@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,7 +22,6 @@
 #include "configParams.h"
 #include "global.h"
 #include "nodeFactory.h"
-#include "serverPackets.h"
 #include "types.h"
 
 #include <co/command.h>
@@ -52,11 +51,11 @@ void Server::setClient( ClientPtr client )
         return;
 
     co::CommandQueue* queue = client->getMainThreadQueue();
-    registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, 
+    registerCommand( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY,
                      CmdFunc( this, &Server::_cmdChooseConfigReply ), queue );
-    registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, 
+    registerCommand( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY,
                      CmdFunc( this, &Server::_cmdReleaseConfigReply ), queue );
-    registerCommand( fabric::CMD_SERVER_SHUTDOWN_REPLY, 
+    registerCommand( fabric::CMD_SERVER_SHUTDOWN_REPLY,
                      CmdFunc( this, &Server::_cmdShutdownReply ), queue );
 }
 
@@ -65,7 +64,7 @@ co::CommandQueue* Server::getMainThreadQueue()
     return getClient()->getMainThreadQueue();
 }
 
-co::CommandQueue* Server::getCommandThreadQueue() 
+co::CommandQueue* Server::getCommandThreadQueue()
 {
     return getClient()->getCommandThreadQueue();
 }
@@ -83,8 +82,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     }
 
     ClientPtr client = getClient();
-    ServerChooseConfigPacket packet;
-    packet.requestID =  client->registerRequest();
+    const uint32_t requestID =  client->registerRequest();
     packet.flags = parameters.getFlags();
 
     const std::string& workDir = parameters.getWorkDir();
@@ -95,13 +93,14 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
             rendererInfo[i] = '/';
 #endif
 
-    send( packet, rendererInfo );
+    send( fabric::CMD_SERVER_CHOOSE_CONFIG, PACKETTYPE_EQ_SERVER )
+            << requestID << parameters.getFlags() << rendererInfo;
 
-    while( !client->isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( requestID ))
         getClient()->processCommand();
 
     void* ptr = 0;
-    client->waitRequest( packet.requestID, ptr );
+    client->waitRequest( requestID, ptr );
     return static_cast<Config*>( ptr );
 }
 
@@ -109,15 +108,14 @@ void Server::releaseConfig( Config* config )
 {
     LBASSERT( isConnected( ));
     ClientPtr client = getClient();
-    ServerReleaseConfigPacket packet;
-    packet.requestID = client->registerRequest();
-    packet.configID  = config->getID();
-    send( packet );
+    const uint32_t requestID = client->registerRequest();
+    send( fabric::CMD_SERVER_RELEASE_CONFIG, PACKETTYPE_EQ_SERVER )
+            << config->getID() << requestID;
 
-    while( !client->isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( equestID ))
         client->processCommand();
 
-    client->waitRequest( packet.requestID );
+    client->waitRequest( requestID );
 }
 
 bool Server::shutdown()
@@ -126,15 +124,14 @@ bool Server::shutdown()
         return false;
 
     ClientPtr client = getClient();
-    ServerShutdownPacket packet;
-    packet.requestID = client->registerRequest();
-    send( packet );
+    const uint32_t requestID = client->registerRequest();
+    send( fabric::CMD_SERVER_SHUTDOWN, PACKETTYPE_EQ_SERVER ) << requestID;
 
-    while( !client->isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( requestID ))
         getClient()->processCommand();
 
     bool result = false;
-    client->waitRequest( packet.requestID, result );
+    client->waitRequest( requestID, result );
 
     if( result )
         static_cast< co::LocalNode& >( *getClient( )).disconnect( this );
@@ -147,26 +144,26 @@ bool Server::shutdown()
 //---------------------------------------------------------------------------
 bool Server::_cmdChooseConfigReply( co::Command& command )
 {
-    const ServerChooseConfigReplyPacket* packet = 
-        command.get<ServerChooseConfigReplyPacket>();
-    LBVERB << "Handle choose config reply " << packet << std::endl;
+    LBVERB << "Handle choose config reply " << command << std::endl;
 
     co::LocalNodePtr  localNode = command.getLocalNode();
-    if( packet->configID == UUID::ZERO )
+    const UUID configID = command.get< UUID >();
+    const uint32_t requestID = command.get< UUID >();
+    if( configID == UUID::ZERO )
     {
-        localNode->serveRequest( packet->requestID, (void*)0 );
+        localNode->serveRequest( requestID, (void*)0 );
         return true;
     }
 
+    const std::string connectionData = command.get< std::string >();
     const Configs& configs = getConfigs();
-   
     for( Configs::const_iterator i = configs.begin(); i != configs.end(); ++i )
     {
         Config* config = *i;
-        if( config->getID() ==  packet->configID )
+        if( config->getID() == configID )
         {
-            config->setupServerConnections( packet->connectionData );
-            localNode->serveRequest( packet->requestID, config );
+            config->setupServerConnections( connectionData );
+            localNode->serveRequest( requestID, config );
             return true;
         }
     }
@@ -177,21 +174,16 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
 
 bool Server::_cmdReleaseConfigReply( co::Command& command )
 {
-    const ServerReleaseConfigReplyPacket* packet = 
-        command.get<ServerReleaseConfigReplyPacket>();
-
     co::LocalNodePtr localNode = command.getLocalNode();
-    localNode->serveRequest( packet->requestID );
+    localNode->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
 bool Server::_cmdShutdownReply( co::Command& command )
 {
-    const ServerShutdownReplyPacket* packet = 
-        command.get<ServerShutdownReplyPacket>();
-
     co::LocalNodePtr localNode = command.getLocalNode();
-    localNode->serveRequest( packet->requestID, packet->result );
+    localNode->serveRequest( command.get< uint32_t >(),
+                             command.get< bool >( ));
     return true;
 }
 }

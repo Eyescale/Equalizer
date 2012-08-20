@@ -33,7 +33,6 @@
 #endif
 
 #include <eq/admin/packets.h>
-#include <eq/client/serverPackets.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -168,9 +167,7 @@ void Server::handleCommands()
 
 bool Server::_cmdChooseConfig( co::Command& command )
 {
-    const ServerChooseConfigPacket* packet =
-        command.get<ServerChooseConfigPacket>();
-    LBVERB << "Handle choose config " << packet << std::endl;
+    LBVERB << "Handle choose config " << command << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -184,12 +181,15 @@ bool Server::_cmdChooseConfig( co::Command& command )
             config = candidate;
     }
 
+    const uint32_t requestID = command.get< uint32_t >();
+    const uint32_t flags = command.get< uint32_t >();
+
 #ifdef EQ_USE_GPUSD
     if( !config )
     {
         // TODO move session name to ConfigParams
         config = config::Server::configure( this, eq::Global::getConfigFile(),
-                                            packet->flags );
+                                            flags );
         if( config )
         {
             config->register_();
@@ -198,20 +198,20 @@ bool Server::_cmdChooseConfig( co::Command& command )
     }
 #endif
 
-    ServerChooseConfigReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
 
     if( !config )
     {
-        reply.configID = UUID::ZERO;
-        node->send( reply );
+        node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY,
+                    PACKETTYPE_EQ_SERVER )
+                << UUID::ZERO << requestID;
         return true;
     }
 
     ConfigBackupVisitor backup;
     config->accept( backup );
 
-    const std::string  rendererInfo = packet->rendererInfo;
+    const std::string  rendererInfo = command.get< std::string >();
     const size_t       colonPos     = rendererInfo.find( '#' );
     const std::string  workDir      = rendererInfo.substr( 0, colonPos );
     const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
@@ -224,7 +224,6 @@ bool Server::_cmdChooseConfig( co::Command& command )
     node->send( CMD_SERVER_CREATE_CONFIG, PACKETTYPE_EQ_SERVER )
             << co::ObjectVersion( config ) << LB_UNDEFINED_UINT32;
 
-    reply.configID = config->getID();
     server::Node* appNode = config->findApplicationNode();
     const co::ConnectionDescriptions& descs =
         appNode->getConnectionDescriptions();
@@ -247,17 +246,18 @@ bool Server::_cmdChooseConfig( co::Command& command )
         }
     }
 
-    node->send( reply, co::serialize( descs ));
+    node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY, PACKETTYPE_EQ_SERVER )
+            << config->getID() << requestID << co::serialize( descs );
     return true;
 }
 
 bool Server::_cmdReleaseConfig( co::Command& command )
 {
-    const ServerReleaseConfigPacket* packet =
-        command.get<ServerReleaseConfigPacket>();
-    LBVERB << "Handle release config " << packet << std::endl;
+    LBVERB << "Handle release config " << command << std::endl;
 
-    ServerReleaseConfigReplyPacket reply( packet );
+    UUID configID = command.get< UUID >();
+    uint32_t requestID = command.get< uint32_t >();
+
     co::NodePtr node = command.getNode();
 
     Config* config = 0;
@@ -266,14 +266,16 @@ bool Server::_cmdReleaseConfig( co::Command& command )
          i != configs.end() && !config; ++i )
     {
         Config* candidate = *i;
-        if( candidate->getID() == packet->configID )
+        if( candidate->getID() == configID )
             config = candidate;
     }
 
     if( !config )
     {
         LBWARN << "Release request for unknown config" << std::endl;
-        node->send( reply );
+        node->send( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY,
+                    PACKETTYPE_EQ_SERVER )
+                << requestID;
         return true;
     }
 
@@ -283,10 +285,10 @@ bool Server::_cmdReleaseConfig( co::Command& command )
         config->exit(); // Make sure config is exited
     }
 
-    const uint32_t requestID = registerRequest();
-    node->send( CMD_SERVER_DESTROY_CONFIG, PACKETTYPE_EQ_SERVER )
-            << config->getID() << requestID;
-    waitRequest( requestID );
+    const uint32_t destroyRequestID = registerRequest();
+    node->send( fabric::CMD_SERVER_DESTROY_CONFIG, PACKETTYPE_EQ_SERVER )
+            << config->getID() << destroyRequestID;
+    waitRequest( destroyRequestID );
 
 #ifdef EQ_USE_GPUSD
     if( config->isAutoConfig( ))
@@ -303,7 +305,8 @@ bool Server::_cmdReleaseConfig( co::Command& command )
         config->commit();
     }
 
-    node->send( reply );
+    node->send( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY, PACKETTYPE_EQ_SERVER )
+            << requestID;
     LBLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
     return true;
 }
@@ -316,10 +319,8 @@ bool Server::_cmdDestroyConfigReply( co::Command& command )
 
 bool Server::_cmdShutdown( co::Command& command )
 {
-    const ServerShutdownPacket* packet =
-        command.get< ServerShutdownPacket >();
+    const uint32_t requestID = command.get< uint32_t >();
 
-    ServerShutdownReplyPacket reply( packet );
     co::NodePtr node = command.getNode();
 
     if( !_admins.empty( ))
@@ -327,7 +328,8 @@ bool Server::_cmdShutdown( co::Command& command )
         LBWARN << "Ignoring shutdown request, " << _admins.size()
                << " admin clients connected" << std::endl;
 
-        node->send( reply );
+        node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY, PACKETTYPE_EQ_SERVER )
+                << requestID << false;
         return true;
     }
 
@@ -340,7 +342,8 @@ bool Server::_cmdShutdown( co::Command& command )
             LBWARN << "Ignoring shutdown request due to used config"
                    << std::endl;
 
-            node->send( reply );
+            node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY, PACKETTYPE_EQ_SERVER)
+                    << requestID << false;
             return true;
         }
     }
@@ -348,8 +351,8 @@ bool Server::_cmdShutdown( co::Command& command )
     LBINFO << "Shutting down server" << std::endl;
 
     _running = false;
-    reply.result = true;
-    node->send( reply );
+    node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY, PACKETTYPE_EQ_SERVER )
+            << requestID << true;
 
 #ifndef WIN32
     // WAR for 2874188: Lockup at shutdown

@@ -45,7 +45,6 @@
 #endif
 
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/command.h>
 #include <co/queueSlave.h>

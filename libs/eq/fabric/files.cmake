@@ -33,7 +33,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   object.h
   observer.h
   packetType.h
-  packets.h
   paths.h
   pipe.h
   pixel.h

@@ -39,7 +39,6 @@
 
 #include <eq/util/objectManager.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
 #include <co/command.h>
