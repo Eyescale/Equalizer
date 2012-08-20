@@ -132,10 +132,7 @@ void Window::notifyViewportChanged()
     // does send the startFrame() after a resize event.
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-    {
-        fabric::ObjectSyncPacket syncPacket;
-        send( getServer(), syncPacket );
-    }
+        send( getServer(), CMD_OBJECT_SYNC );
 }
 
 void Window::_updateFPS()
@@ -691,7 +688,7 @@ bool Window::processEvent( const Event& event )
                 // convert y to GL notation (Channel PVP uses GL coordinates)
                 const PixelViewport& pvp = getPixelViewport();
                 const int32_t y = pvp.h - event.pointer.y;
-                const PixelViewport& channelPVP = 
+                const PixelViewport& channelPVP =
                     channel->getNativePixelViewport();
 
                 channelEvent.originator = channel->getID();

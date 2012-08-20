@@ -4,12 +4,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,6 +21,7 @@
 #include "nodeType.h"
 #include "packetType.h"
 
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/commandQueue.h>
 #include <co/connection.h>
@@ -51,7 +52,7 @@ bool Client::connectServer( co::NodePtr server )
     {
         connDesc = new co::ConnectionDescription;
         connDesc->port = EQ_DEFAULT_PORT;
-    
+
         const std::string globalServer = Global::getServer();
         const char* envServer = getenv( "EQ_SERVER" );
         std::string address = !globalServer.empty() ? globalServer :
@@ -67,7 +68,7 @@ bool Client::connectServer( co::NodePtr server )
 
     if( connect( server ))
         return true;
-    
+
     if( connDesc.isValid( )) // clean up
         server->removeConnectionDescription( connDesc );
 
@@ -93,30 +94,33 @@ void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
-    co::CommandPtr command = queue->pop( timeout );
-    if( !command ) // just a wakeup()
+    co::BufferPtr buffer = queue->pop( timeout );
+    if( !buffer ) // just a wakeup()
         return;
 
-    LBCHECK( (*command)( ));
+    co::Command command( buffer );
+    LBCHECK( command( ));
 }
 
-bool Client::dispatchCommand( co::CommandPtr command )
+bool Client::dispatchCommand( co::BufferPtr buffer )
 {
+    co::Command command( buffer );
+
     LBVERB << "dispatch " << command << std::endl;
 
-    switch( (*command)->type )
+    switch( command.getType( ))
     {
         case PACKETTYPE_EQ_CLIENT:
-            return co::Dispatcher::dispatchCommand( command );
+            return co::Dispatcher::dispatchCommand( buffer );
 
         case PACKETTYPE_EQ_SERVER:
         {
-            co::NodePtr node = command->getNode();
-            return node->co::Dispatcher::dispatchCommand( command );
+            co::NodePtr node = command.getNode();
+            return node->co::Dispatcher::dispatchCommand( buffer );
         }
 
         default:
-            return co::LocalNode::dispatchCommand( command );
+            return co::LocalNode::dispatchCommand( buffer );
     }
 }
 

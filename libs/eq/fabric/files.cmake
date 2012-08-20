@@ -17,7 +17,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   drawableConfig.h
   elementVisitor.h
   equalizerTypes.h
-  error.h 
+  error.h
   errorRegistry.h
   eye.h
   focusMode.h
@@ -48,7 +48,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   renderContext.h
   segment.h
   server.h
-  serverPackets.h
   subPixel.h
   swapBarrier.h
   task.h

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,16 +36,16 @@ namespace eq
         virtual ~CommandQueue();
 
         /** @sa co::CommandQueue::push(). */
-        virtual void push( co::CommandPtr packet );
+        virtual void push( co::BufferPtr buffer );
 
         /** @sa co::CommandQueue::pushFront(). */
-        virtual void pushFront( co::CommandPtr packet );
+        virtual void pushFront( co::BufferPtr buffer );
 
         /** @sa co::CommandQueue::pop(). */
-        virtual co::CommandPtr pop();
+        virtual co::BufferPtr pop();
 
         /** @sa co::CommandQueue::tryPop(). */
-        virtual co::CommandPtr tryPop();
+        virtual co::BufferPtr tryPop();
 
         /** @sa reset the time spent in pop() and return the previous value. */
         int64_t resetWaitTime()

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,28 +20,12 @@
 #define EQFABRIC_CONFIGPACKETS_H
 
 #include <eq/fabric/packets.h> // base structs
-#include <eq/fabric/serverPackets.h> // used inline
 
 /** @cond IGNORE */
 namespace eq
 {
 namespace fabric
 {
-    struct ConfigCreateReplyPacket : public ConfigPacket
-    {
-        ConfigCreateReplyPacket(const ServerCreateConfigPacket* request)
-                : requestID( request->requestID )
-                , pad( 0 )
-        {
-            command   = CMD_CONFIG_CREATE_REPLY;
-            size      = sizeof( ConfigCreateReplyPacket );
-            objectID  = request->configVersion.identifier;
-        }
-
-        const uint32_t requestID;
-        const uint32_t pad;
-    };
-
     struct ConfigNewLayoutPacket : public ConfigPacket
     {
         ConfigNewLayoutPacket( const uint32_t requestID_ )

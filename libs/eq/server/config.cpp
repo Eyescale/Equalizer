@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -41,7 +41,6 @@
 #include <eq/fabric/configPackets.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
-#include <eq/fabric/serverPackets.h>
 #include <co/command.h>
 #include <lunchbox/sleep.h>
 
@@ -59,7 +58,6 @@ namespace server
 typedef co::CommandFunc<Config> ConfigFunc;
 using fabric::ON;
 using fabric::OFF;
-using fabric::ServerCreateConfigPacket;
 
 Config::Config( ServerPtr parent )
         : Super( parent )
@@ -95,7 +93,7 @@ Config::~Config()
 void Config::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
+
     co::CommandQueue* mainQ = getMainThreadQueue();
     co::CommandQueue* cmdQ = getCommandThreadQueue();
 
@@ -107,11 +105,11 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdUpdate ), mainQ );
     registerCommand( fabric::CMD_CONFIG_CREATE_REPLY,
                      ConfigFunc( this, &Config::_cmdCreateReply ), cmdQ );
-    registerCommand( fabric::CMD_CONFIG_START_FRAME, 
+    registerCommand( fabric::CMD_CONFIG_START_FRAME,
                      ConfigFunc( this, &Config::_cmdStartFrame ), mainQ );
-    registerCommand( fabric::CMD_CONFIG_STOP_FRAMES, 
+    registerCommand( fabric::CMD_CONFIG_STOP_FRAMES,
                      ConfigFunc( this, &Config::_cmdStopFrames ), mainQ );
-    registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES, 
+    registerCommand( fabric::CMD_CONFIG_FINISH_ALL_FRAMES,
                      ConfigFunc( this, &Config::_cmdFinishAllFrames ), mainQ );
 }
 
@@ -120,7 +118,7 @@ namespace
 class ChannelViewFinder : public ConfigVisitor
 {
 public:
-    ChannelViewFinder( const Segment* const segment, const View* const view ) 
+    ChannelViewFinder( const Segment* const segment, const View* const view )
             : _segment( segment ), _view( view ), _result( 0 ) {}
 
     virtual ~ChannelViewFinder(){}
@@ -193,7 +191,7 @@ void Config::activateCanvas( Canvas* canvas )
             continue;
 
         const Views& views = layout->getViews();
-        for( Views::const_iterator j = views.begin(); 
+        for( Views::const_iterator j = views.begin();
              j != views.end(); ++j )
         {
             View* view = *j;
@@ -211,10 +209,10 @@ void Config::activateCanvas( Canvas* canvas )
                         << "View " << view->getName() << view->getViewport()
                         << " doesn't intersect " << segment->getName()
                         << segment->getViewport() << std::endl;
-                
+
                     continue;
                 }
-                      
+
                 Channel* segmentChannel = segment->getChannel();
                 if( !segmentChannel )
                 {
@@ -234,7 +232,7 @@ void Config::activateCanvas( Canvas* canvas )
                 Viewport contribution = viewport;
                 // ... in segment space...
                 contribution.transform( segment->getViewport( ));
-            
+
                 // segment output area
                 if( segmentChannel->hasFixedViewport( ))
                 {
@@ -246,7 +244,7 @@ void Config::activateCanvas( Canvas* canvas )
                     // ...our part of it
                     subViewport.apply( contribution );
                     channel->setViewport( subViewport );
-                    LBLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW )
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << subViewport
@@ -258,7 +256,7 @@ void Config::activateCanvas( Canvas* canvas )
                     LBASSERT( pvp.isValid( ));
                     pvp.apply( contribution );
                     channel->setPixelViewport( pvp );
-                    LBLOG( LOG_VIEW ) 
+                    LBLOG( LOG_VIEW )
                         << "View @" << (void*)view << ' ' << view->getViewport()
                         << " intersects " << segment->getName()
                         << segment->getViewport() << " at " << pvp
@@ -294,7 +292,7 @@ void Config::updateCanvas( Canvas* canvas )
             if( channels.empty( ))
                 LBWARN << "New view without destination channels will be ignored"
                        << std::endl;
-        
+
             for( ChannelsCIter k = channels.begin(); k != channels.end(); ++k )
             {
                 Channel* channel = *k;
@@ -441,7 +439,7 @@ namespace
 {
 template< class C >
 static VisitorResult _accept( C* config, ConfigVisitor& visitor )
-{ 
+{
     VisitorResult result = TRAVERSE_CONTINUE;
     const Compounds& compounds = config->getCompounds();
     for( Compounds::const_iterator i = compounds.begin();
@@ -455,7 +453,7 @@ static VisitorResult _accept( C* config, ConfigVisitor& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -647,9 +645,8 @@ void Config::_stopNodes()
         stoppingNodes.push_back( node );
         LBASSERT( netNode.isValid( ));
 
-        fabric::ServerDestroyConfigPacket destroyConfigPacket;
-        destroyConfigPacket.configID = getID();
-        netNode->send( destroyConfigPacket );
+        netNode->send( CMD_SERVER_DESTROY_CONFIG, PACKETTYPE_EQ_SERVER )
+                << getID() << LB_UNDEFINED_UINT32;
 
         ClientExitPacket clientExitPacket;
         netNode->send( clientExitPacket );
@@ -686,7 +683,7 @@ bool Config::_updateNodes()
 {
     ConfigUpdateVisitor update( _initID, _currentFrame );
     accept( update );
-    
+
     ConfigUpdateSyncVisitor syncUpdate;
     accept( syncUpdate );
 
@@ -730,13 +727,11 @@ uint32_t Config::_createConfig( Node* node )
 
     // create config on each non-app node
     //   app-node already has config from chooseConfig
-    ServerCreateConfigPacket createConfigPacket( this,
-                                            getLocalNode()->registerRequest( ));
+    const uint32_t requestID = getLocalNode()->registerRequest();
+    node->getNode()->send( CMD_SERVER_CREATE_CONFIG, PACKETTYPE_EQ_SERVER )
+            << co::ObjectVersion( this ) << requestID;
 
-    co::NodePtr netNode = node->getNode();
-    netNode->send( createConfigPacket );
-
-    return createConfigPacket.requestID;
+    return requestID;
 }
 
 void Config::_syncClock()
@@ -824,7 +819,7 @@ bool Config::exit()
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
     send( findApplicationNetNode(), exitEvent );
-    
+
     _needsFinish = false;
     _state = STATE_STOPPED;
     return success;
@@ -844,13 +839,13 @@ void Config::_startFrame( const uint128_t& frameID )
     LBLOG( lunchbox::LOG_ANY ) << "----- Start Frame ----- " << _currentFrame
                                << std::endl;
 
-    for( Compounds::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         Compound* compound = *i;
         compound->update( _currentFrame );
     }
-    
+
     ConfigUpdateDataVisitor configDataVisitor;
     accept( configDataVisitor );
 
@@ -881,7 +876,7 @@ void Config::_verifyFrameFinished( const uint32_t frameNumber )
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
         Node* node = *i;
-        if( node->isRunning() && 
+        if( node->isRunning() &&
             node->getFinishedFrame() + getLatency() < frameNumber )
         {
             NodeFailedVisitor nodeFailedVisitor;
@@ -968,7 +963,7 @@ bool Config::_cmdInit( co::Command& command )
         exit();
 
     sync();
-    LBINFO << "Config init " << (reply.result ? "successful: ": "failed: ") 
+    LBINFO << "Config init " << (reply.result ? "successful: ": "failed: ")
            << getError() << std::endl;
 
     reply.version = commit();
@@ -977,9 +972,9 @@ bool Config::_cmdInit( co::Command& command )
     return true;
 }
 
-bool Config::_cmdExit( co::Command& command ) 
+bool Config::_cmdExit( co::Command& command )
 {
-    const ConfigExitPacket* packet = 
+    const ConfigExitPacket* packet =
         command.get<ConfigExitPacket>();
     ConfigExitReplyPacket   reply( packet );
     LBVERB << "handle config exit " << packet << std::endl;
@@ -997,7 +992,7 @@ bool Config::_cmdExit( co::Command& command )
 
 bool Config::_cmdUpdate( co::Command& command )
 {
-    const ConfigUpdatePacket* packet = 
+    const ConfigUpdatePacket* packet =
         command.get<ConfigUpdatePacket>();
 
     LBVERB << "handle config update " << packet << std::endl;
@@ -1019,7 +1014,7 @@ bool Config::_cmdUpdate( co::Command& command )
     ConfigUpdateVersionPacket replyVersion( packet, getVersion(),
                                             localNode->registerRequest( ));
     send( node, replyVersion );
-    
+
     _flushAllFrames();
     _finishedFrame.waitEQ( _currentFrame ); // wait for render clients idle
     localNode->waitRequest( replyVersion.requestID ); // wait for app sync
@@ -1039,9 +1034,9 @@ bool Config::_cmdUpdate( co::Command& command )
     return true;
 }
 
-bool Config::_cmdStartFrame( co::Command& command ) 
+bool Config::_cmdStartFrame( co::Command& command )
 {
-    const ConfigStartFramePacket* packet = 
+    const ConfigStartFramePacket* packet =
         command.get<ConfigStartFramePacket>();
     LBVERB << "handle config frame start " << packet << std::endl;
 
@@ -1057,9 +1052,9 @@ bool Config::_cmdStartFrame( co::Command& command )
     return true;
 }
 
-bool Config::_cmdFinishAllFrames( co::Command& command ) 
+bool Config::_cmdFinishAllFrames( co::Command& command )
 {
-    const ConfigFinishAllFramesPacket* packet = 
+    const ConfigFinishAllFramesPacket* packet =
         command.get<ConfigFinishAllFramesPacket>();
     LBVERB << "handle config all frames finish " << packet << std::endl;
 
@@ -1069,7 +1064,7 @@ bool Config::_cmdFinishAllFrames( co::Command& command )
 
 bool Config::_cmdStopFrames( co::Command& command )
 {
-    const ConfigStopFramesPacket* packet = 
+    const ConfigStopFramesPacket* packet =
         command.get<ConfigStopFramesPacket>();
     LBVERB << "handle config stop frames " << packet << std::endl;
 
@@ -1079,14 +1074,12 @@ bool Config::_cmdStopFrames( co::Command& command )
     return true;
 }
 
-bool Config::_cmdCreateReply( co::Command& command ) 
+bool Config::_cmdCreateReply( co::Command& command )
 {
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );
-    const fabric::ConfigCreateReplyPacket* packet = 
-        command.get< fabric::ConfigCreateReplyPacket >();
 
-    getLocalNode()->serveRequest( packet->requestID );
+    getLocalNode()->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
@@ -1094,7 +1087,7 @@ void Config::output( std::ostream& os ) const
 {
     os << std::endl << lunchbox::disableFlush << lunchbox::disableHeader;
 
-    for( Compounds::const_iterator i = _compounds.begin(); 
+    for( Compounds::const_iterator i = _compounds.begin();
          i != _compounds.end(); ++i )
     {
         os << **i;
