@@ -5,7 +5,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   api.h
   base.h
   canvas.h
-  canvasPackets.h
   channel.h
   client.h
   colorMask.h
@@ -27,7 +26,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   iAttribute.h
   init.h
   layout.h
-  layoutPackets.h
   leafVisitor.h
   log.h
   node.h
@@ -38,7 +36,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   packets.h
   paths.h
   pipe.h
-  pipePackets.h
   pixel.h
   pixelViewport.h
   projection.h
@@ -57,7 +54,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   vmmlib.h
   wall.h
   window.h
-  windowPackets.h
   zoom.h
   )
 

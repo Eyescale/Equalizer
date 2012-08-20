@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2010-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,7 +21,6 @@
 #include "elementVisitor.h"
 #include "leafVisitor.h"
 #include "log.h"
-#include "pipePackets.h"
 #include "task.h"
 
 #include <co/command.h>
@@ -94,10 +93,10 @@ void Pipe< N, P, W, V >::attach( const UUID& id,
     co::CommandQueue* queue = _node->getConfig()->getMainThreadQueue();
     LBASSERT( queue );
 
-    registerCommand( CMD_PIPE_NEW_WINDOW, 
+    registerCommand( CMD_PIPE_NEW_WINDOW,
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindow ),
                      queue );
-    registerCommand( CMD_PIPE_NEW_WINDOW_REPLY, 
+    registerCommand( CMD_PIPE_NEW_WINDOW_REPLY,
                      CmdFunc( this, &Pipe< N, P, W, V >::_cmdNewWindowReply ),
                      0 );
 }
@@ -106,12 +105,12 @@ template< class N, class P, class W, class V >
 uint128_t Pipe< N, P, W, V >::commit( const uint32_t incarnation )
 {
     if( Serializable::isDirty( DIRTY_WINDOWS ))
-        commitChildren< W, PipeNewWindowPacket >( _windows, incarnation );
+        commitChildren< W >( _windows, CMD_PIPE_NEW_WINDOW, incarnation );
     return Object::commit( incarnation );
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::serialize( co::DataOStream& os, 
+void Pipe< N, P, W, V >::serialize( co::DataOStream& os,
                                     const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -198,7 +197,7 @@ void Pipe< N, P, W, V >::notifyDetach()
 template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::create( W** window )
 {
-    *window = _node->getServer()->getNodeFactory()->createWindow( 
+    *window = _node->getServer()->getNodeFactory()->createWindow(
         static_cast< P* >( this ));
     (*window)->init(); // not in ctor, virtual method
 }
@@ -219,7 +218,7 @@ VisitorResult _accept( P* pipe, V& visitor )
         return result;
 
     const typename P::Windows& windows = pipe->getWindows();
-    for( typename P::Windows::const_iterator i = windows.begin(); 
+    for( typename P::Windows::const_iterator i = windows.begin();
          i != windows.end(); ++i )
     {
         switch( (*i)->accept( visitor ))
@@ -230,7 +229,7 @@ VisitorResult _accept( P* pipe, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -244,7 +243,7 @@ VisitorResult _accept( P* pipe, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -272,7 +271,7 @@ PipePath Pipe< N, P, W, V >::getPath() const
     const N* node = getNode();
     LBASSERT( node );
     PipePath path( node->getPath( ));
-    
+
     const typename std::vector< P* >& pipes = node->getPipes();
     typename std::vector< P* >::const_iterator i = std::find( pipes.begin(),
                                                               pipes.end(),
@@ -294,16 +293,16 @@ void Pipe< N, P, W, V >::setIAttribute( const IAttribute attr,
  }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::setDevice( const uint32_t device )  
-{ 
-    _device = device; 
+void Pipe< N, P, W, V >::setDevice( const uint32_t device )
+{
+    _device = device;
     setDirty( DIRTY_MEMBER );
 }
 
 template< class N, class P, class W, class V >
-void Pipe< N, P, W, V >::setPort( const uint32_t port )      
-{ 
-    _port = port; 
+void Pipe< N, P, W, V >::setPort( const uint32_t port )
+{
+    _port = port;
     setDirty( DIRTY_MEMBER );
 }
 
@@ -333,7 +332,7 @@ bool Pipe< N, P, W, V >::_removeWindow( W* window )
 template< class N, class P, class W, class V >
 W* Pipe< N, P, W, V >::_findWindow( const UUID& id )
 {
-    for( typename Windows::const_iterator i = _windows.begin(); 
+    for( typename Windows::const_iterator i = _windows.begin();
          i != _windows.end(); ++i )
     {
         W* window = *i;
@@ -359,7 +358,7 @@ void Pipe< N, P, W, V >::setPixelViewport( const PixelViewport& pvp )
         return;
 
     _data.pvp = pvp;
-    notifyPixelViewportChanged();    
+    notifyPixelViewportChanged();
     LBVERB << "Pipe pvp set: " << _data.pvp << std::endl;
 }
 
@@ -367,7 +366,7 @@ template< class N, class P, class W, class V >
 void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 {
     const Windows& windows = getWindows();
-    for( typename Windows::const_iterator i = windows.begin(); 
+    for( typename Windows::const_iterator i = windows.begin();
          i != windows.end(); ++i )
     {
         (*i)->notifyViewportChanged();
@@ -382,9 +381,6 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
 {
-    const PipeNewWindowPacket* packet =
-        command.get< PipeNewWindowPacket >();
-    
     W* window = 0;
     create( &window );
     LBASSERT( window );
@@ -392,9 +388,8 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
     getLocalNode()->registerObject( window );
     LBASSERT( window->isAttached() );
 
-    PipeNewWindowReplyPacket reply( packet );
-    reply.windowID = window->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), CMD_PIPE_NEW_WINDOW_REPLY )
+            << command.get< uint32_t >() << window->getID();
 
     return true;
 }
@@ -402,9 +397,8 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::Command& command )
 template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& command )
 {
-    const PipeNewWindowReplyPacket* packet =
-        command.get< PipeNewWindowReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->windowID );
+    getLocalNode()->serveRequest( command.get< uint32_t >(),
+                                  command.get< UUID >( ));
 
     return true;
 }
@@ -422,10 +416,10 @@ std::ostream& operator << ( std::ostream& os, const Pipe< N, P, W, V >& pipe )
 
     if( pipe.getPort() != LB_UNDEFINED_UINT32 )
         os << "port     " << pipe.getPort() << std::endl;
-        
+
     if( pipe.getDevice() != LB_UNDEFINED_UINT32 )
         os << "device   " << pipe.getDevice() << std::endl;
-    
+
     const PixelViewport& pvp = pipe.getPixelViewport();
     if( pvp.isValid( ))
         os << "viewport " << pvp << std::endl;
