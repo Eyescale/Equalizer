@@ -82,7 +82,6 @@ set(CLIENT_HEADERS
   systemWindow.h
   types.h
   view.h
-  viewPackets.h
   visitorResult.h
   wglTypes.h
   window.h

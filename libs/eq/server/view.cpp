@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,6 @@
 #include "equalizers/tileEqualizer.h"
 #include "tileQueue.h"
 
-#include <eq/client/viewPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -68,7 +67,7 @@ void View::attach( const UUID& id, const uint32_t instanceID )
     Super::attach( id, instanceID );
 
     co::CommandQueue* mainQ = getServer()->getMainThreadQueue();
-    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING, 
+    registerCommand( fabric::CMD_VIEW_FREEZE_LOAD_BALANCING,
                      ViewFunc( this, &View::_cmdFreezeLoadBalancing ), mainQ );
 }
 
@@ -165,7 +164,7 @@ public:
         {
             (*i)->setFrozen( _freeze );
         }
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
 private:
@@ -197,7 +196,7 @@ public:
             const uint32_t bitmask = _view->getEqualizers();
             equalizer->setActive( ( equalizer->getType() & bitmask ) != 0 );
         }
-        return TRAVERSE_CONTINUE; 
+        return TRAVERSE_CONTINUE;
     }
 
 
@@ -264,7 +263,7 @@ void View::_updateChannels() const
     co::ObjectVersion version( this );
     if( isDirty( ))
         ++version.version;
-        
+
     for( Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
@@ -336,7 +335,7 @@ ViewPath View::getPath() const
     const Layout* layout = getLayout();
     LBASSERT( layout );
     ViewPath path( layout->getPath( ));
-    
+
     const Views& views = layout->getViews();
     Views::const_iterator i = std::find( views.begin(), views.end(), this );
     LBASSERT( i != views.end( ));
@@ -350,7 +349,7 @@ void View::trigger( const Canvas* canvas, const bool active )
     Config* config = getConfig();
 
     // (De)activate destination compounds for canvas/eye(s)
-    for( Channels::const_iterator i = _channels.begin(); 
+    for( Channels::const_iterator i = _channels.begin();
          i != _channels.end(); ++i )
     {
         Channel* channel = *i;
@@ -371,10 +370,10 @@ void View::trigger( const Canvas* canvas, const bool active )
             continue;
 
         ConfigDestCompoundVisitor visitor( channel, true /*activeOnly*/ );
-        config->accept( visitor );     
+        config->accept( visitor );
 
         const Compounds& compounds = visitor.getResult();
-        for( Compounds::const_iterator j = compounds.begin(); 
+        for( Compounds::const_iterator j = compounds.begin();
              j != compounds.end(); ++j )
         {
             Compound* compound = *j;
@@ -514,12 +513,9 @@ float View::_computeFocusRatio( Vector3f& eye )
     return focusDistance / distance;
 }
 
-bool View::_cmdFreezeLoadBalancing( co::Command& command ) 
+bool View::_cmdFreezeLoadBalancing( co::Command& command )
 {
-    const ViewFreezeLoadBalancingPacket* packet = 
-        command.get<ViewFreezeLoadBalancingPacket>();
-
-    FreezeVisitor visitor( this, packet->freeze );
+    FreezeVisitor visitor( this, command.get< bool >( ));
     getConfig()->accept( visitor );
 
     return true;

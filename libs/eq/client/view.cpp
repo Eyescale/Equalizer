@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -24,7 +24,6 @@
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
-#include "viewPackets.h"
 
 #include <co/command.h>
 #include <co/dataIStream.h>
@@ -47,7 +46,7 @@ View::~View()
 void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
-    if( _baseFrustum.getCurrentType() == TYPE_NONE && 
+    if( _baseFrustum.getCurrentType() == TYPE_NONE &&
         ( dirtyBits & DIRTY_FRUSTUM ))
     {
         _baseFrustum = *this; // save baseline data for resizing
@@ -64,7 +63,7 @@ void View::detach()
 
         co::LocalNodePtr localNode = getLocalNode();
         co::CommandPtr command = localNode->allocCommand( sizeof( pkg ));
-        PipeDetachViewPacket* packet = 
+        PipeDetachViewPacket* packet =
             command->getModifiable< PipeDetachViewPacket >();
 
         memcpy( packet, &pkg, sizeof( pkg ));
@@ -99,7 +98,7 @@ const Config* View::getConfig() const
     return 0;
 }
 
-ServerPtr View::getServer() 
+ServerPtr View::getServer()
 {
     Config* config = getConfig();
     LBASSERT( config );
@@ -148,15 +147,13 @@ bool View::handleEvent( const Event& event )
             return true;
         }
     }
-    
+
     return false;
 }
 
 void View::freezeLoadBalancing( const bool onOff )
 {
-    ViewFreezeLoadBalancingPacket packet;
-    packet.freeze = onOff;
-    send( getServer(), packet );
+    send( getServer(), fabric::CMD_VIEW_FREEZE_LOAD_BALANCING ) << onOff;
 }
 
 }
