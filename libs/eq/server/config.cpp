@@ -38,7 +38,6 @@
 #include <eq/client/configEvent.h>
 #include <eq/client/configPackets.h>
 #include <eq/client/error.h>
-#include <eq/fabric/configPackets.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>

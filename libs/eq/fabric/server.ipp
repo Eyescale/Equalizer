@@ -17,7 +17,6 @@
 
 #include "server.h"
 
-#include "configPackets.h"
 #include "configVisitor.h"
 #include "elementVisitor.h"
 #include "leafVisitor.h"

@@ -11,7 +11,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   colorMask.h
   commands.h
   config.h
-  configPackets.h
   configVisitor.h
   defines.h
   drawableConfig.h
