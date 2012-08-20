@@ -32,7 +32,6 @@
 #  include <eq/client/global.h>
 #endif
 
-#include <eq/admin/packets.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -375,10 +374,8 @@ bool Server::_cmdMap( co::Command& command )
                 << co::ObjectVersion( config ) << LB_UNDEFINED_UINT32;
     }
 
-    const admin::ServerMapPacket* packet =
-        command.get< admin::ServerMapPacket >();
-    admin::ServerMapReplyPacket reply( packet );
-    node->send( reply );
+    node->send( fabric::CMD_SERVER_MAP_REPLY, fabric::PACKETTYPE_EQ_SERVER )
+            << command.get< uint32_t >();
     return true;
 }
 
@@ -401,10 +398,8 @@ bool Server::_cmdUnmap( co::Command& command )
         }
     }
 
-    const admin::ServerUnmapPacket* packet =
-        command.get< admin::ServerUnmapPacket >();
-    admin::ServerUnmapReplyPacket reply( packet );
-    node->send( reply );
+    node->send( fabric::CMD_SERVER_UNMAP_REPLY, fabric::PACKETTYPE_EQ_SERVER )
+            << command.get< uint32_t >();
     return true;
 }
 

@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,7 +21,6 @@
 #include "config.h"
 #include "nodeFactory.h"
 
-#include <eq/admin/packets.h>
 #include <co/command.h>
 #include <co/dispatcher.h>
 
@@ -49,36 +48,34 @@ void Server::setClient( ClientPtr client )
         return;
 
     co::CommandQueue* queue = client->getMainThreadQueue();
-    registerCommand( fabric::CMD_SERVER_MAP_REPLY, 
+    registerCommand( fabric::CMD_SERVER_MAP_REPLY,
                      CmdFunc( this, &Server::_cmdMapReply ), queue );
-    registerCommand( fabric::CMD_SERVER_UNMAP_REPLY, 
+    registerCommand( fabric::CMD_SERVER_UNMAP_REPLY,
                      CmdFunc( this, &Server::_cmdUnmapReply ), queue );
 }
 
 void Server::map()
 {
-    ServerMapPacket packet;
     ClientPtr client = getClient();
 
-    packet.requestID = client->registerRequest();
-    send( packet );
+    const uint32_t requestID = client->registerRequest();
+    send( fabric::CMD_SERVER_MAP, fabric::PACKETTYPE_EQ_SERVER ) << requestID;
 
-    while( !client->isRequestServed( packet.requestID ))
+    while( !client->isRequestServed( requestID ))
         client->processCommand();
-    client->waitRequest( packet.requestID );
+    client->waitRequest( requestID );
 }
 
 void Server::unmap()
 {
-    ServerUnmapPacket packet;
     ClientPtr client = getClient();
-    
-    packet.requestID = client->registerRequest();
-    send( packet );
 
-    while( !client->isRequestServed( packet.requestID ))
+    const uint32_t requestID = client->registerRequest();
+    send( fabric::CMD_SERVER_UNMAP, fabric::PACKETTYPE_EQ_SERVER ) << requestID;
+
+    while( !client->isRequestServed( requestID ))
         client->processCommand();
-    client->waitRequest( packet.requestID );
+    client->waitRequest( requestID );
 }
 
 void Server::syncConfig( const co::uint128_t& configID, const co::uint128_t& version  )
@@ -100,20 +97,15 @@ co::CommandQueue* Server::getMainThreadQueue()
 
 bool Server::_cmdMapReply( co::Command& command )
 {
-    const ServerMapReplyPacket* packet = 
-        command.get< ServerMapReplyPacket >();
     ClientPtr client = getClient();
-    client->serveRequest( packet->requestID );
+    client->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
 bool Server::_cmdUnmapReply( co::Command& command )
 {
-    const ServerUnmapReplyPacket* packet = 
-        command.get< ServerUnmapReplyPacket >();
-
     ClientPtr client = getClient();
-    client->serveRequest( packet->requestID );
+    client->serveRequest( command.get< uint32_t >( ));
     return true;
 }
 
