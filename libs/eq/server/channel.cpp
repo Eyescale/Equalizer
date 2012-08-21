@@ -31,7 +31,6 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/channelPackets.h>
 #include <eq/client/log.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
@@ -300,8 +299,7 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     getWindow()->send( fabric::CMD_WINDOW_CREATE_CHANNEL ) << getID();
 
     LBLOG( LOG_INIT ) << "Init channel" << std::endl;
-    ChannelConfigInitPacket packet( initID );
-    send( packet );
+    send( fabric::CMD_CHANNEL_CONFIG_INIT ) << initID;
 }
 
 bool Channel::syncConfigInit()
@@ -330,8 +328,7 @@ void Channel::configExit()
     _state = STATE_EXITING;
 
     LBLOG( LOG_INIT ) << "Exit channel" << std::endl;
-    ChannelConfigExitPacket packet;
-    send( packet );
+    send( fabric::CMD_CHANNEL_CONFIG_EXIT );
 }
 
 bool Channel::syncConfigExit()
@@ -370,14 +367,12 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     LBASSERT( isActive( ))
     LBASSERT( getWindow()->isActive( ));
 
-    ChannelFrameStartPacket startPacket;
-    startPacket.frameNumber = frameNumber;
-    startPacket.version     = getVersion();
-    _setupRenderContext( frameID, startPacket.context );
-
-    send( startPacket );
+    RenderContext context;
+    _setupRenderContext( frameID, context );
+    send( fabric::CMD_CHANNEL_FRAME_START )
+            << context << getVersion() << frameNumber;
     LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  "
-                       << &startPacket << std::endl;
+                       << frameNumber << std::endl;
 
     bool updated = false;
     const Compounds& compounds = getCompounds();
@@ -399,22 +394,17 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
         updated |= visitor.isUpdated();
     }
 
-    ChannelFrameFinishPacket finishPacket;
-    finishPacket.frameNumber = frameNumber;
-    finishPacket.context = startPacket.context;
-
-    send( finishPacket );
+    send( fabric::CMD_CHANNEL_FRAME_FINISH ) << context << frameNumber;
     LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " finish frame  "
-                           << &finishPacket << std::endl;
+                           << frameNumber << std::endl;
     _lastDrawCompound = 0;
 
     return updated;
 }
 
-void Channel::send( co::ObjectPacket& packet )
+co::ObjectOCommand Channel::send( const uint32_t cmd )
 {
-    packet.objectID = getID();
-    getNode()->send( packet );
+    return getNode()->send( cmd, getID( ));
 }
 
 //---------------------------------------------------------------------------
@@ -457,33 +447,30 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 bool Channel::_cmdConfigInitReply( co::Command& command )
 {
-    const ChannelConfigInitReplyPacket* packet =
-        command.get<ChannelConfigInitReplyPacket>();
-    LBLOG( LOG_INIT ) << "handle channel configInit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
                       << std::endl;
 
-    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.get< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
 
 bool Channel::_cmdConfigExitReply( co::Command& command )
 {
-    const ChannelConfigExitReplyPacket* packet =
-        command.get<ChannelConfigExitReplyPacket>();
-    LBLOG( LOG_INIT ) << "handle channel configExit reply " << packet
+    LBLOG( LOG_INIT ) << "handle channel configExit reply " << command
                       << std::endl;
 
-    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 
 bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
-    const ChannelFrameFinishReplyPacket* packet =
-        command.get<ChannelFrameFinishReplyPacket>();
+    const Viewport region = command.get< Viewport >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+    const uint32_t nStatistics = command.get< uint32_t >();
+    const Statistic statistics = command.get< Statistics >();
 
-    _fireLoadData( packet->frameNumber, packet->nStatistics,
-                   packet->statistics, packet->region );
+    _fireLoadData( frameNumber, nStatistics, statistics, region );
     return true;
 }
 

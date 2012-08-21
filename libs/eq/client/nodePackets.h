@@ -19,7 +19,6 @@
 #ifndef EQ_NODEPACKETS_H
 #define EQ_NODEPACKETS_H
 
-#include <eq/client/packets.h>   // base structs
 #include <eq/client/frameData.h> // member
 
 /** @cond IGNORE */

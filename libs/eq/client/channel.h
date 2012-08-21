@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,12 +27,6 @@
 namespace eq
 {
 namespace detail { class Channel; struct RBStat; }
-
-    struct ChannelFinishReadbackPacket;
-    struct ChannelFrameSetReadyNodePacket;
-    struct ChannelFrameSetReadyPacket;
-    struct ChannelFrameTilesPacket;
-    struct ChannelFrameTransmitImagePacket;
 
     /**
      * A channel represents a two-dimensional viewport within a Window.
@@ -63,7 +57,7 @@ namespace detail { class Channel; struct RBStat; }
 
         /**
          * @return true if this channel is stopped, false otherwise.
-         * @version 1.0 
+         * @version 1.0
          */
         EQ_API bool isStopped() const;
 
@@ -88,7 +82,7 @@ namespace detail { class Channel; struct RBStat; }
         /** @return the parent server. @version 1.0 */
         EQ_API ServerPtr getServer();
 
-        /** 
+        /**
          * Get the GLEW context for this channel.
          *
          * The GLEW context is initialized during window initialization, and
@@ -97,7 +91,7 @@ namespace detail { class Channel; struct RBStat; }
          * name to automatically resolve OpenGL function entry
          * points. Therefore, any supported GL function can be called directly
          * from an initialized Channel.
-         * 
+         *
          * @return the extended OpenGL function table for the channel's OpenGL
          *         context.
          * @version 1.0
@@ -138,7 +132,7 @@ namespace detail { class Channel; struct RBStat; }
 
         /**
          * @name Context-specific data access.
-         * 
+         *
          * The data returned by these methods depends on the context (callback)
          * they are called from, typically the data for the current rendering
          * task. If they are called outside of a frame task method, they
@@ -164,15 +158,15 @@ namespace detail { class Channel; struct RBStat; }
          */
         EQ_API const Frames& getOutputFrames();
 
-        /** 
+        /**
          * Get the channel's current View.
-         * 
+         *
          * During a frame task method, i.e., in one of the frameFoo functions,
          * the view is set to the view of the destination channel, that is, the
          * channel for which this channel is executing the rendering
          * task. Outside of a frame task method the native view of the channel,
          * or 0, is returned.
-         * 
+         *
          * @return the channel's view, or 0 if it does not have a view.
          * @sa getNativeView()
          * @version 1.0
@@ -182,7 +176,7 @@ namespace detail { class Channel; struct RBStat; }
         /** Const version of getView(). @version 1.0 */
         EQ_API const View* getView() const;
 
-        /** 
+        /**
          * Returns an orthographic frustum for 2D operations on the view.
          *
          * One unit of the frustum covers one pixel on screen. The frustum is
@@ -202,21 +196,21 @@ namespace detail { class Channel; struct RBStat; }
          * OpenGL state using the context-specific data access above.
          */
         //@{
-        /** 
+        /**
          * Apply the current rendering buffer, including the color mask.
          * @sa getReadBuffer() , getDrawBuffer(), getDrawBufferMask()
          * @version 1.0
          */
         EQ_API virtual void applyBuffer();
 
-        /** 
+        /**
          * Apply the current color mask.
          * @sa applyBuffer(), getDrawBufferMask()
          * @version 1.0
          */
         EQ_API virtual void applyColorMask() const;
 
-        /** 
+        /**
          * Apply the OpenGL viewport for the current rendering task.
          * @sa getViewport()
          * @version 1.0
@@ -249,8 +243,8 @@ namespace detail { class Channel; struct RBStat; }
          */
         EQ_API virtual void applyOrtho() const;
 
-        /** 
-         * Apply an orthographic frustum for pixel-based 2D operations. 
+        /**
+         * Apply an orthographic frustum for pixel-based 2D operations.
          *
          * One unit of the frustum covers one pixel on screen. The frustum is
          * positioned relative to the view.
@@ -258,7 +252,7 @@ namespace detail { class Channel; struct RBStat; }
          */
         EQ_API void applyScreenFrustum() const;
 
-        /** 
+        /**
          * Apply the transformation to position the view frustum.
          * @version 1.0
          * @sa useOrtho()
@@ -277,17 +271,17 @@ namespace detail { class Channel; struct RBStat; }
          */
         EQ_API virtual void applyOrthoTransform() const;
 
-        /** 
+        /**
          * Apply the current alternate frame buffer.
          * @version 1.0
          */
         EQ_API virtual void applyFrameBufferObject();
 
-        /** 
+        /**
          * Rebind the current alternate FBO of the channel or window.
          * @version 1.0
          */
-        EQ_API void bindFrameBuffer();        
+        EQ_API void bindFrameBuffer();
         //@}
 
         /** @name Region of Interest. */
@@ -338,13 +332,13 @@ namespace detail { class Channel; struct RBStat; }
 
         //@}
 
-        /** 
+        /**
          * Process a received event.
          *
-         * The task of this method is to update the channel as necessary, and 
-         * transform the event into an config event to be send to the 
+         * The task of this method is to update the channel as necessary, and
+         * transform the event into an config event to be send to the
          * application using Config::sendEvent().
-         * 
+         *
          * @param event the received event.
          * @return true when the event was handled, false if not.
          * @version 1.0
@@ -371,25 +365,25 @@ namespace detail { class Channel; struct RBStat; }
 
         /** @name Actions */
         //@{
-        /** 
+        /**
          * Start a frame by unlocking all child resources.
-         * 
+         *
          * @param frameNumber the frame to start.
          * @version 1.0
          */
         EQ_API void startFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Signal the completion of a frame to the parent.
-         * 
+         *
          * @param frameNumber the frame to end.
          * @version 1.0
          */
         EQ_API void releaseFrame( const uint32_t frameNumber );
 
-        /** 
+        /**
          * Release the local synchronization of the parent for a frame.
-         * 
+         *
          * @param frameNumber the frame to release.
          * @version 1.0
          */
@@ -420,9 +414,9 @@ namespace detail { class Channel; struct RBStat; }
          * application.
          */
         //@{
-        /** 
+        /**
          * Initialize this channel.
-         * 
+         *
          * @param initID the init identifier.
          * @version 1.0
          */
@@ -455,12 +449,12 @@ namespace detail { class Channel; struct RBStat; }
          * @param frameNumber the frame to finish.
          * @version 1.0
          */
-        EQ_API virtual void frameFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameFinish( const uint128_t& frameID,
                                          const uint32_t frameNumber );
 
-        /** 
+        /**
          * Finish drawing.
-         * 
+         *
          * Called once per frame after the last draw operation. Typically
          * releases the local node thread synchronization for this frame.
          *
@@ -468,43 +462,43 @@ namespace detail { class Channel; struct RBStat; }
          * @param frameNumber the frame to finished with draw.
          * @version 1.0
          */
-        EQ_API virtual void frameDrawFinish( const uint128_t& frameID, 
+        EQ_API virtual void frameDrawFinish( const uint128_t& frameID,
                                              const uint32_t frameNumber );
 
-        /** 
+        /**
          * Clear the frame buffer.
          *
          * Called 0 to n times during one frame.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
         EQ_API virtual void frameClear( const uint128_t& frameID );
 
-        /** 
+        /**
          * Draw the scene.
-         * 
+         *
          * Called 0 to n times during one frame.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
         EQ_API virtual void frameDraw( const uint128_t& frameID );
 
-        /** 
+        /**
          * Assemble all input frames.
-         * 
+         *
          * Called 0 to n times during one frame.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @sa getInputFrames()
          * @version 1.0
          */
         EQ_API virtual void frameAssemble( const uint128_t& frameID );
 
-        /** 
+        /**
          * Read back the rendered frame buffer into the output frames.
-         * 
+         *
          * Called 0 to n times during one frame.
          *
          * @param frameID the per-frame identifier.
@@ -513,25 +507,25 @@ namespace detail { class Channel; struct RBStat; }
          */
          EQ_API virtual void frameReadback( const uint128_t& frameID );
 
-        /** 
+        /**
          * Start updating a destination channel.
          *
          * Called once on each destination channel, e.g., channels which are
          * defined by a view/segment intersection, after frameStart to update a
          * part of a display.
-         * 
+         *
          * @param frameID the per-frame identifier.
          * @version 1.0
          */
         EQ_API virtual void frameViewStart( const uint128_t& frameID );
 
-        /** 
+        /**
          * Finish updating a destination channel.
          *
          * Called once on each destination channel, e.g., channels which are
          * defined by a view/segment intersection, before frameFinish to update
          * a part of a view.
-         * 
+         *
          * This is typically used to do operations on the output channel after
          * it has been fully updated, e.g., to draw a 2D overlay.
          *
@@ -550,7 +544,7 @@ namespace detail { class Channel; struct RBStat; }
         /** Notification that parameters influencing the vp/pvp have changed.*/
         EQ_API virtual void notifyViewportChanged();
 
-        /** 
+        /**
          * Notify interruption of the rendering.
          *
          * This method is called from the Client command thread, as opposed to
@@ -579,7 +573,10 @@ namespace detail { class Channel; struct RBStat; }
         void _initDrawableConfig();
 
         /** Tile render loop. */
-        void _frameTiles( const ChannelFrameTilesPacket* packet );
+        void _frameTiles( const RenderContext& context, const bool isLocal,
+                          const co::ObjectVersion& queueVersion,
+                          const uint32_t tasks, const uint32_t nFrames,
+                          const co::ObjectVersions& frames );
 
         /** Reference the frame for an async operation. */
         void _refFrame( const uint32_t frameNumber );
@@ -588,11 +585,20 @@ namespace detail { class Channel; struct RBStat; }
         void _unrefFrame( const uint32_t frameNumber );
 
         /** Transmit one image of a frame to one node. */
-        void _transmitImage( const ChannelFrameTransmitImagePacket* packet );
-        
+        void _transmitImage( const co::ObjectVersion& frameDataVersion,
+                             const uint128_t& nodeID,
+                             const uint128_t& netNodeID,
+                             const uint64_t imageIndex,
+                             const uint32_t frameNumber,
+                             const uint32_t taskID );
+
         void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
                              co::ObjectVersion* frames );
-        void _finishReadback( const ChannelFinishReadbackPacket* packet );
+        void _finishReadback( const co::ObjectVersion& frameDataVersion,
+                              const uint64_t imageIndex,
+                              const uint32_t frameNumber,
+                              const uint32_t taskID, const uint32_t nNodes,
+                              const std::vector< uint128_t >& IDs );
 
         bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 

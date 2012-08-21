@@ -19,7 +19,6 @@
 #include "window.h"
 
 #include "channel.h"
-#include "channelPackets.h"
 #include "client.h"
 #include "config.h"
 #include "configEvent.h"
@@ -781,12 +780,15 @@ bool Window::_cmdDestroyChannel( co::Command& command )
     Channel* channel = _findChannel( channelID );
     LBASSERT( channel );
 
-    ChannelConfigExitReplyPacket reply( channelID, channel->isStopped( ));
+    const bool isStopped = channel->isStopped();
+
     Config* config = getConfig();
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
-    getServer()->send( reply ); // do not use Object::send()
+    // do not use Object::send()
+    getServer()->send( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
+                       channelID ) << isStopped;
     return true;
 }
 

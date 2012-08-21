@@ -685,11 +685,11 @@ bool Node::removeConnectionDescription( co::ConnectionDescriptionPtr cd )
     return false;
 }
 
-co::ObjectOCommand Node::send( const uint32_t cmd )
+co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
     co::Connections connections( 1, _bufferedTasks );
     return co::ObjectOCommand( connections, COMMANDTYPE_CO_OBJECT,
-                               cmd, getID(), EQ_INSTANCE_ALL );
+                               cmd, id, EQ_INSTANCE_ALL );
 }
 
 void Node::flushSendBuffer()

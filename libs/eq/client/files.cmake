@@ -35,7 +35,6 @@ set(CLIENT_HEADERS
   base.h
   canvas.h
   channel.h
-  channelPackets.h
   channelStatistics.h
   client.h
   commandQueue.h
@@ -68,7 +67,6 @@ set(CLIENT_HEADERS
   nodeFactory.h
   observer.h
   os.h
-  packets.h
   pipe.h
   pixelData.h
   segment.h

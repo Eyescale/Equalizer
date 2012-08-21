@@ -167,7 +167,7 @@ namespace server
         void changeLatency( const uint32_t latency );
         //@}
 
-        co::ObjectOCommand send( const uint32_t cmd );
+        co::ObjectOCommand send( const uint32_t cmd, const UUID& id = getID( ));
 
         void flushSendBuffer();
 

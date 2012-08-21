@@ -31,7 +31,6 @@
 
 #include "channel.ipp"
 
-#include <eq/client/channelPackets.h>
 #include <eq/client/log.h>
 #include <eq/fabric/paths.h>
 
@@ -221,13 +220,11 @@ void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
 
     if( compound->testInheritTask( fabric::TASK_DRAW ))
     {
-        ChannelFrameDrawPacket drawPacket;
-        drawPacket.context = context;
-        drawPacket.finish = _channel->hasListeners(); // finish for eq stats
-        _channel->send( drawPacket );
+        const bool finish = _channel->hasListeners(); // finish for eq stats
+        _channel->send( fabric::CMD_CHANNEL_FRAME_DRAW ) << context << finish;
         _updated = true;
         LBLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " "
-                           << &drawPacket << std::endl;
+                           << finish << std::endl;
     }
 }
 
@@ -235,7 +232,7 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
                                              const RenderContext& context )
 {
     Frames frames;
-    std::vector< co::ObjectVersion > frameIDs;
+    co::ObjectVersions frameIDs;
     const Frames& outputFrames = compound->getOutputFrames();
     for( FramesCIter i = outputFrames.begin(); i != outputFrames.end(); ++i)
     {
@@ -257,21 +254,20 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const UUID& id = outputQueue->getQueueMasterID( context.eye );
         LBASSERT( id != UUID::ZERO );
 
-        ChannelFrameTilesPacket tilesPacket;
-        tilesPacket.isLocal = (_channel == destChannel);
-        tilesPacket.context = context;
-        tilesPacket.tasks = compound->getInheritTasks() &
+        const bool isLocal = (_channel == destChannel);
+        const uint32_t tasks = compound->getInheritTasks() &
                             ( eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
                               eq::fabric::TASK_READBACK );
+        const co::ObjectVersion queueVersion( id, co::VERSION_FIRST ); // eile: ???
+        const uint32_t nFrames = uint32_t( frames.size( ));
 
-        tilesPacket.queueVersion.identifier = id;
-        tilesPacket.queueVersion.version = co::VERSION_FIRST; // eile: ???
-        tilesPacket.nFrames = uint32_t( frames.size( ));
-        _channel->send< co::ObjectVersion >( tilesPacket, frameIDs );
+        _channel->send( fabric::CMD_CHANNEL_FRAME_TILES )
+                << context << isLocal << queueVersion << tasks << nFrames
+                << frameIDs;
 
         _updated = true;
         LBLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
-                           << &tilesPacket << std::endl;
+                           << std::endl;
     }
 }
 
@@ -291,14 +287,11 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     // Channel::frameDrawFinish
     Node* node = _channel->getNode();
 
-    ChannelFrameDrawFinishPacket channelPacket;
-    channelPacket.objectID    = _channel->getID();
-    channelPacket.frameNumber = _frameNumber;
-    channelPacket.frameID     = _frameID;
-
-    node->send( channelPacket );
+    node->send( fabric::CMD_CHANNEL_FRAME_DRAW_FINISH, _channel->getID( ))
+            << _frameID << _frameNumber;
     LBLOG( LOG_TASKS ) << "TASK channel draw finish " << _channel->getName()
-                       <<  " " << &channelPacket << std::endl;
+                       << " frame " << _frameNumber
+                       << " id " << _frameID << std::endl;
 
     // Window::frameDrawFinish
     Window* window = _channel->getWindow();
@@ -344,9 +337,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 
 void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
 {
-    ChannelFrameClearPacket clearPacket;
-    clearPacket.context = context;
-    _channel->send( clearPacket );
+    _channel->send( fabric::CMD_CHANNEL_FRAME_CLEAR ) << context;
     _updated = true;
     LBLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
                        << &clearPacket << std::endl;
@@ -429,14 +420,12 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
         return;
 
     // assemble task
-    ChannelFrameAssemblePacket packet;
-    packet.context   = context;
-    packet.nFrames   = uint32_t( frames.size( ));
-
+    const uint32_t nFrames( frames.size( ));
     LBLOG( LOG_ASSEMBLY | LOG_TASKS )
-        << "TASK assemble " << _channel->getName() <<  " " << &packet
+        << "TASK assemble " << _channel->getName() <<  " nFrames " << nFrames
         << std::endl;
-    _channel->send< co::ObjectVersion >( packet, frames );
+    _channel->send( fabric::CMD_CHANNEL_FRAME_ASSEMBLE )
+            << context << nFrames << frames;
     _updated = true;
 }
 
@@ -468,14 +457,12 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
         return;
 
     // readback task
-    ChannelFrameReadbackPacket packet;
-    packet.context   = context;
-    packet.nFrames   = uint32_t( frames.size( ));
-
-    _channel->send<co::ObjectVersion>( packet, frames );
+    const uint32_t nFrames( frames.size( ));
+    _channel->send( fabric::CMD_CHANNEL_FRAME_READBACK )
+            << context << nFrames << frames;
     _updated = true;
     LBLOG( LOG_ASSEMBLY | LOG_TASKS )
-        << "TASK readback " << _channel->getName() <<  " " << &packet
+        << "TASK readback " << _channel->getName() << " nFrames " << nFrames
         << std::endl;
 }
 
@@ -487,12 +474,9 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
         return;
 
     // view start task
-    ChannelFrameViewStartPacket packet;
-    packet.context = context;
-
-    LBLOG( LOG_TASKS ) << "TASK view start " << _channel->getName() <<  " "
-                           << &packet << std::endl;
-    _channel->send( packet );
+    LBLOG( LOG_TASKS ) << "TASK view start " << _channel->getName()
+                       << std::endl;
+    _channel->send( fabric::CMD_CHANNEL_FRAME_VIEW_START ) << context;
 }
 
 void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
@@ -503,12 +487,9 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
         return;
 
     // view finish task
-    ChannelFrameViewFinishPacket packet;
-    packet.context = context;
-
     LBLOG( LOG_TASKS ) << "TASK view finish " << _channel->getName() <<  " "
-                       << &packet << std::endl;
-    _channel->send( packet );
+                       << std::endl;
+    _channel->send( fabric::CMD_CHANNEL_FRAME_VIEW_FINISH ) << context
 }
 
 }

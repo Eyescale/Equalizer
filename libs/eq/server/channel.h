@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -157,7 +157,7 @@ namespace server
         /** Sync exit of this entity. */
         bool syncConfigExit();
 
-        /** 
+        /**
          * Update one frame.
          *
          * @param frameID a per-frame identifier passed to all rendering
@@ -167,9 +167,7 @@ namespace server
          */
         bool update( const uint128_t& frameID, const uint32_t frameNumber );
 
-        void send( co::ObjectPacket& packet );
-        template< typename T >
-        void send( co::ObjectPacket &packet, const std::vector<T>& data );
+        co::ObjectOCommand send( const uint32_t cmd );
         //@}
 
         /** @name Channel listener interface. */
@@ -222,7 +220,7 @@ namespace server
         void _setupRenderContext( const uint128_t& frameID,
                                   RenderContext& context );
 
-        void _fireLoadData( const uint32_t frameNumber, 
+        void _fireLoadData( const uint32_t frameNumber,
                             const uint32_t nStatistics,
                             const eq::Statistic* statistics,
                             const Viewport& region );
