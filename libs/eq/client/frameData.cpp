@@ -23,7 +23,6 @@
 #include "exception.h"
 #include "image.h"
 #include "log.h"
-#include "nodePackets.h"
 #include "pixelData.h"
 #include "roiFinder.h"
 

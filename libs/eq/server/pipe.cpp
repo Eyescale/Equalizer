@@ -26,8 +26,6 @@
 #include "nodeFactory.h"
 #include "window.h"
 
-#include <eq/client/nodePackets.h>
-#include <eq/client/pipePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
@@ -194,10 +192,7 @@ void Pipe::configInit( const uint128_t& initID, const uint32_t frameNumber )
             << getID() << isThreaded();
 
     LBLOG( LOG_INIT ) << "Init pipe" << std::endl;
-    PipeConfigInitPacket packet;
-    packet.initID = initID;
-    packet.frameNumber = frameNumber;
-    send( packet );
+    send( fabric::CMD_PIPE_CONFIG_INIT ) << initID << frameNumber;
 }
 
 bool Pipe::syncConfigInit()
@@ -230,8 +225,7 @@ void Pipe::configExit()
     _state = STATE_EXITING;
 
     LBLOG( LOG_INIT ) << "Exit pipe" << std::endl;
-    PipeConfigExitPacket packet;
-    send( packet );
+    send( fabric::CMD_PIPE_CONFIG_EXIT );
 }
 
 bool Pipe::syncConfigExit()
@@ -257,15 +251,12 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
         return;
 
     LBASSERT( isActive( ))
-    PipeFrameStartClockPacket startClockPacket;
-    send( startClockPacket );
+    send( fabric::CMD_PIPE_FRAME_START_CLOCK );
 
-    PipeFrameStartPacket startPacket;
-    startPacket.frameID     = frameID;
-    startPacket.frameNumber = frameNumber;
-    startPacket.version     = getVersion();
-    send( startPacket );
-    LBLOG( LOG_TASKS ) << "TASK pipe start frame " << &startPacket << std::endl;
+    send( fabric::CMD_PIPE_FRAME_START )
+            << getVersion() << frameID << frameNumber;
+    LBLOG( LOG_TASKS ) << "TASK pipe start frame " << frameNumber << " id "
+                       << frameID << std::endl;
 
     const Windows& windows = getWindows();
     for( Windows::const_iterator i = windows.begin(); i != windows.end(); ++i )
@@ -276,22 +267,17 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     if( !_lastDrawWindow ) // no FrameDrawFinish sent
     {
-        PipeFrameDrawFinishPacket drawFinishPacket;
-        drawFinishPacket.frameNumber = frameNumber;
-        drawFinishPacket.frameID     = frameID;
-        send( drawFinishPacket );
-        LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName() <<  " "
-                           << &drawFinishPacket << std::endl;
+        send( fabric::CMD_PIPE_FRAME_DRAW_FINISH ) << frameID << frameNumber;
+        LBLOG( LOG_TASKS ) << "TASK pipe draw finish " << getName()
+                           << " frame " << frameNumber
+                           << " id " << frameID << std::endl;
     }
     _lastDrawWindow = 0;
 
-    PipeFrameFinishPacket finishPacket;
-    finishPacket.frameID      = frameID;
-    finishPacket.frameNumber  = frameNumber;
-    send( finishPacket );
+    send( fabric::CMD_PIPE_FRAME_FINISH ) << frameID << frameNumber;
 
-    LBLOG( LOG_TASKS ) << "TASK pipe finish frame  " << &finishPacket
-                       << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK pipe finish frame " << frameNumber
+                       << " id " << frameID << std::endl;
 }
 
 
@@ -301,21 +287,17 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 //===========================================================================
 bool Pipe::_cmdConfigInitReply( co::Command& command )
 {
-    const PipeConfigInitReplyPacket* packet =
-        command.get<PipeConfigInitReplyPacket>();
-    LBVERB << "handle pipe configInit reply " << packet << std::endl;
+    LBVERB << "handle pipe configInit reply " << command << std::endl;
 
-    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.get< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
 
 bool Pipe::_cmdConfigExitReply( co::Command& command )
 {
-    const PipeConfigExitReplyPacket* packet =
-        command.get<PipeConfigExitReplyPacket>();
-    LBVERB << "handle pipe configExit reply " << packet << std::endl;
+    LBVERB << "handle pipe configExit reply " << command << std::endl;
 
-    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 

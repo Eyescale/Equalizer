@@ -29,7 +29,6 @@
 #include "messagePump.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
 #include "observer.h"
 #include "pipe.h"
 #include "server.h"

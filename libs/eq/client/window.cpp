@@ -31,7 +31,6 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "server.h"
 #include "systemWindow.h"
 #include "windowPackets.h"
@@ -841,8 +840,8 @@ bool Window::_cmdConfigExit( co::Command& command )
         _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     }
 
-    PipeDestroyWindowPacket destroyPacket( getID( ));
-    getPipe()->send( getLocalNode(), destroyPacket );
+    getPipe()->send( getLocalNode(),
+                     fabric::CMD_PIPE_DESTROY_WINDOW ) << getID();
     return true;
 }
 

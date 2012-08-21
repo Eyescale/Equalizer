@@ -20,7 +20,6 @@
 #include "config.h"
 #include "event.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
@@ -59,15 +58,16 @@ void View::detach()
     //  Don't send packet to stopping pipe (see issue #11)
     if( _pipe && _pipe->isRunning( ))
     {
-        PipeDetachViewPacket pkg( getID( ));
-
         co::LocalNodePtr localNode = getLocalNode();
-        co::CommandPtr command = localNode->allocCommand( sizeof( pkg ));
-        PipeDetachViewPacket* packet =
-            command->getModifiable< PipeDetachViewPacket >();
 
-        memcpy( packet, &pkg, sizeof( pkg ));
-        _pipe->dispatchCommand( command );
+        co::BufferPtr buffer = localNode->allocCommand( 8 );
+        co::ObjectOCommand command( co::Connections(),
+                                    co::COMMANDTYPE_CO_OBJECT,
+                                    fabric::CMD_PIPE_DETACH_VIEW,
+                                    _pipe->getID(), EQ_INSTANCE_ALL );
+        command << getID();
+        buffer->swap( command.getBuffer( ));
+        _pipe->dispatchCommand( buffer );
     }
     Super::detach();
 }

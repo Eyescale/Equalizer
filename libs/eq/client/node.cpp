@@ -26,10 +26,8 @@
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
 #include "nodeStatistics.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "server.h"
 
 #include <eq/fabric/elementVisitor.h>
@@ -462,13 +460,15 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     LBASSERT( pipe );
     pipe->exitThread();
 
-    PipeConfigExitReplyPacket reply( pipeID, pipe->isStopped( ));
+    const bool isStopped = pipe->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    getServer()->send( reply ); // send to config object
+    // send to config object
+    getServer()->send( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
+                       pipeID ) << isStopped;
     return true;
 }
 

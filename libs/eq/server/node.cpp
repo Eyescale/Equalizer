@@ -28,7 +28,6 @@
 #include "window.h"
 
 #include <eq/client/error.h>
-#include <eq/client/nodePackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <co/barrier.h>

@@ -34,7 +34,6 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
 #include "pipe.h"
 #include "pixelData.h"
 #include "server.h"

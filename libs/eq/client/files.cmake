@@ -70,7 +70,6 @@ set(CLIENT_HEADERS
   os.h
   packets.h
   pipe.h
-  pipePackets.h
   pixelData.h
   segment.h
   server.h

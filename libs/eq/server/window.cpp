@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -26,8 +26,7 @@
 #include "node.h"
 #include "nodeFactory.h"
 #include "pipe.h"
-  
-#include <eq/client/pipePackets.h>
+
 #include <eq/client/windowPackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
@@ -40,7 +39,7 @@ namespace server
 typedef fabric::Window< Pipe, Window, Channel > Super;
 typedef co::CommandFunc<Window> WindowFunc;
 
-Window::Window( Pipe* parent ) 
+Window::Window( Pipe* parent )
         : Super( parent )
         , _active( 0 )
         , _state( STATE_STOPPED )
@@ -70,9 +69,9 @@ void Window::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* cmdQ = getCommandThreadQueue();
     registerCommand( fabric::CMD_OBJECT_SYNC,
                      WindowFunc( this, &Window::_cmdSync ), cmdQ );
-    registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_WINDOW_CONFIG_INIT_REPLY,
                      WindowFunc( this, &Window::_cmdConfigInitReply ), cmdQ );
-    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
                      WindowFunc( this, &Window::_cmdConfigExitReply ), cmdQ );
 }
 
@@ -91,14 +90,14 @@ void Window::postDelete()
     _state = State( _state.get() | STATE_DELETE );
     getConfig()->postNeedsFinish();
 
-    const Channels& channels = getChannels(); 
+    const Channels& channels = getChannels();
     for( Channels::const_iterator i = channels.begin(); i!=channels.end(); ++i )
     {
         (*i)->postDelete();
-    }    
+    }
 }
 
-const Node* Window::getNode() const 
+const Node* Window::getNode() const
 {
     const Pipe* pipe = getPipe();
     LBASSERT( pipe );
@@ -119,14 +118,14 @@ const Config* Window::getConfig() const
     return ( pipe ? pipe->getConfig() : 0);
 }
 
-Config* Window::getConfig() 
+Config* Window::getConfig()
 {
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
     return ( pipe ? pipe->getConfig() : 0);
 }
 
-ServerPtr Window::getServer() 
+ServerPtr Window::getServer()
 {
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
@@ -137,19 +136,19 @@ co::CommandQueue* Window::getMainThreadQueue()
 {
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
-    return pipe->getMainThreadQueue(); 
+    return pipe->getMainThreadQueue();
 }
 
 co::CommandQueue* Window::getCommandThreadQueue()
-{ 
+{
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
-    return pipe->getCommandThreadQueue(); 
+    return pipe->getCommandThreadQueue();
 }
 
 Channel* Window::getChannel( const ChannelPath& path )
 {
-    const Channels& channels = getChannels(); 
+    const Channels& channels = getChannels();
     LBASSERT( channels.size() > path.channelIndex );
 
     if( channels.size() <= path.channelIndex )
@@ -159,7 +158,7 @@ Channel* Window::getChannel( const ChannelPath& path )
 }
 
 void Window::activate()
-{   
+{
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
 
@@ -170,13 +169,13 @@ void Window::activate()
 }
 
 void Window::deactivate()
-{ 
+{
     LBASSERT( _active != 0 );
     Pipe* pipe = getPipe();
     LBASSERT( pipe );
 
-    --_active; 
-    pipe->deactivate(); 
+    --_active;
+    pipe->deactivate();
 
     LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
@@ -193,7 +192,7 @@ void Window::addTasks( const uint32_t tasks )
 // swap barrier operations
 //---------------------------------------------------------------------------
 void Window::_resetSwapBarriers()
-{ 
+{
     Node* node = getNode();
     LBASSERT( node );
 
@@ -248,7 +247,7 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 
         if( beforeSelf ) // some earlier window will do the barrier for us
             return barrier;
-            
+
         // else we will do the barrier, remove from later window
         barriers.erase( k );
         _swapBarriers.push_back( barrier );
@@ -263,8 +262,8 @@ co::Barrier* Window::joinSwapBarrier( co::Barrier* barrier )
 
 co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
                                         co::Barrier* netBarrier )
-{ 
-    LBASSERTINFO( !_nvSwapBarrier, 
+{
+    LBASSERTINFO( !_nvSwapBarrier,
                   "Only one NV_swap_group barrier per window allowed" );
 
     _nvSwapBarrier = swapBarrier;
@@ -284,10 +283,10 @@ co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
 }
 
 
-void Window::send( co::ObjectPacket& packet ) 
+void Window::send( co::ObjectPacket& packet )
 {
-    packet.objectID = getID(); 
-    getNode()->send( packet ); 
+    packet.objectID = getID();
+    getNode()->send( packet );
 }
 
 //===========================================================================
@@ -303,16 +302,15 @@ void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
     _state = STATE_INITIALIZING;
 
     LBLOG( LOG_INIT ) << "Create Window" << std::endl;
-    PipeCreateWindowPacket createWindowPacket;
-    createWindowPacket.windowID = getID();
-    getPipe()->send( createWindowPacket );
+    getPipe()->send( fabric::CMD_PIPE_CREATE_WINDOW ) << getID();
 
     WindowConfigInitPacket packet;
     packet.initID = initID;
-    
+
     LBLOG( LOG_INIT ) << "Init Window" << std::endl;
     send( packet );
-    LBLOG( LOG_TASKS ) << "TASK window configInit  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK window configInit  " << " id " << getID()
+                       << std::endl;
 }
 
 bool Window::syncConfigInit()
@@ -379,10 +377,10 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     startPacket.frameNumber = frameNumber;
     startPacket.version     = getVersion();
     send( startPacket );
-    LBLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket 
+    LBLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket
                            << std::endl;
 
-    const Channels& channels = getChannels(); 
+    const Channels& channels = getChannels();
     _swap = false;
 
     for( ChannelsCIter i = channels.begin(); i != channels.end(); ++i )
@@ -412,7 +410,7 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
     }
 }
 
-void Window::updatePost( const uint128_t& frameID, 
+void Window::updatePost( const uint128_t& frameID,
                          const uint32_t frameNumber )
 {
     if( !isRunning( ))
@@ -443,14 +441,14 @@ void Window::_updateSwap( const uint32_t frameNumber )
     {
         WindowThrottleFramerate packetThrottle;
         packetThrottle.minFrameTime = 1000.0f / _maxFPS;
-        
+
         send( packetThrottle );
-        LBLOG( LOG_TASKS ) << "TASK Throttle framerate  " 
+        LBLOG( LOG_TASKS ) << "TASK Throttle framerate  "
                                << &packetThrottle << std::endl;
 
         _maxFPS = std::numeric_limits< float >::max();
     }
-    
+
     for( co::BarriersCIter i = _swapBarriers.begin();
          i != _swapBarriers.end(); ++i )
     {
@@ -524,10 +522,10 @@ bool Window::_cmdConfigExitReply( co::Command& command )
     LBVERB << "handle window configExit reply " << packet << std::endl;
 
     if( packet->result )
-        _state = State( needsDelete() ? 
+        _state = State( needsDelete() ?
                         STATE_EXIT_SUCCESS|STATE_DELETE : STATE_EXIT_SUCCESS );
     else
-        _state = State( needsDelete() ? 
+        _state = State( needsDelete() ?
                         STATE_EXIT_FAILED | STATE_DELETE : STATE_EXIT_FAILED );
     return true;
 }
@@ -535,7 +533,7 @@ bool Window::_cmdConfigExitReply( co::Command& command )
 void Window::output( std::ostream& os ) const
 {
     bool attrPrinted   = false;
-    
+
     for( IAttribute i = static_cast<IAttribute>( 0 );
          i < IATTR_LAST;
          i = static_cast<IAttribute>( static_cast<uint32_t>( i )+1))
@@ -550,7 +548,7 @@ void Window::output( std::ostream& os ) const
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
-        
+
         os << ( i== IATTR_HINT_STEREO ?
                     "hint_stereo        " :
                 i== IATTR_HINT_DOUBLEBUFFER ?
@@ -569,7 +567,7 @@ void Window::output( std::ostream& os ) const
                     "hint_screensaver   " :
                 i== IATTR_HINT_GRAB_POINTER ?
                     "hint_grab_pointer  " :
-                i== IATTR_PLANES_COLOR ? 
+                i== IATTR_PLANES_COLOR ?
                     "planes_color       " :
                 i== IATTR_PLANES_ALPHA ?
                     "planes_alpha       " :
@@ -585,7 +583,7 @@ void Window::output( std::ostream& os ) const
                     "planes_samples     " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
-    
+
     if( attrPrinted )
         os << lunchbox::exdent << "}" << std::endl << std::endl;
 }
@@ -594,7 +592,7 @@ void Window::output( std::ostream& os ) const
 }
 
 #include "../fabric/window.ipp"
-template class eq::fabric::Window< eq::server::Pipe, eq::server::Window, 
+template class eq::fabric::Window< eq::server::Pipe, eq::server::Window,
                                    eq::server::Channel >;
 
 /** @cond IGNORE */

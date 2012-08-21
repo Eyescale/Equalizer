@@ -27,7 +27,6 @@ namespace eq
 /** @cond IGNORE */
     typedef co::ObjectPacket  ChannelPacket;
     typedef co::ObjectPacket  WindowPacket;
-    typedef co::ObjectPacket  PipePacket;
 /** @endcond */
 }
 
