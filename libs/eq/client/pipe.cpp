@@ -1101,8 +1101,7 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     _impl->state = STATE_STOPPING; // needed in View::detach (from _flushViews)
 
     // send before node gets a chance to send its destroy packet
-    NodeDestroyPipePacket destroyPacket( getID( ));
-    getNode()->send( getLocalNode(), destroyPacket );
+    getNode()->send( getLocalNode(), fabric::CMD_NODE_DESTROY_PIPE ) << getID();
 
     // Flush views before exit since they are created after init
     // - application may need initialized pipe to exit

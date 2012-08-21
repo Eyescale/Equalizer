@@ -460,11 +460,7 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     getConfig()->send( _node, fabric::CMD_CONFIG_CREATE_NODE ) << getID();
 
     LBLOG( LOG_INIT ) << "Init node" << std::endl;
-    NodeConfigInitPacket packet;
-    packet.initID      = initID;
-    packet.frameNumber = frameNumber;
-
-    _send( packet );
+    send( fabric::CMD_NODE_CONFIG_INIT ) << initID << frameNumber,
 }
 
 bool Node::syncConfigInit()
@@ -497,8 +493,7 @@ void Node::configExit()
     _state = STATE_EXITING;
 
     LBLOG( LOG_INIT ) << "Exit node" << std::endl;
-    NodeConfigExitPacket packet;
-    _send( packet );
+    send( fabric::CMD_NODE_CONFIG_EXIT );
     flushSendBuffer();
 }
 
@@ -531,14 +526,12 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     _frameIDs[ frameNumber ] = frameID;
 
-    NodeFrameStartPacket startPacket;
-    startPacket.frameID     = frameID;
-    startPacket.frameNumber = frameNumber;
-    startPacket.version     = getVersion();
+    uint128_t configVersion = co::VERSION_INVALID;
     if( !isApplicationNode( )) // synced in Config::_cmdFrameStart
-        startPacket.configVersion = getConfig()->getVersion();
+        configVersion = getConfig()->getVersion();
 
-    _send( startPacket );
+    send( fabric::CMD_NODE_FRAME_START )
+            << getVersion() << configVersion << frameID << frameNumber;
     LBLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
 
     const Pipes& pipes = getPipes();
@@ -547,21 +540,14 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     if( !_lastDrawPipe ) // no FrameDrawFinish sent
     {
-        NodeFrameDrawFinishPacket drawFinishPacket;
-        drawFinishPacket.frameNumber = frameNumber;
-        drawFinishPacket.frameID     = frameID;
-        _send( drawFinishPacket );
+        send( fabric::CMD_NODE_FRAME_DRAW_FINISH ) << frameID << frameNumber;
         LBLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
                            << &drawFinishPacket << std::endl;
     }
     _lastDrawPipe = 0;
 
-    NodeFrameTasksFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
-    finishPacket.frameNumber = frameNumber;
-    _send( finishPacket );
-    LBLOG( LOG_TASKS ) << "TASK node tasks finish " << &finishPacket
-                           << std::endl;
+    send( fabric::CMD_NODE_FRAME_TASKS_FINISH ) << frameID << frameNumber;
+    LBLOG( LOG_TASKS ) << "TASK node tasks finish " << std::endl;
 
     _finish( frameNumber );
     flushSendBuffer();
@@ -638,11 +624,7 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
     if( i == _frameIDs.end( ))
         return; // finish already send
 
-    NodeFrameFinishPacket packet;
-    packet.frameID     = i->second;
-    packet.frameNumber = frameNumber;
-
-    _send( packet );
+    send( fabric::CMD_NODE_FRAME_FINISH ) << i->second << frameNumber;
     _frameIDs.erase( i );
     LBLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
 }
@@ -704,6 +686,13 @@ bool Node::removeConnectionDescription( co::ConnectionDescriptionPtr cd )
     return false;
 }
 
+co::ObjectOCommand Node::send( const uint32_t cmd )
+{
+    co::Connections connections( 1, _bufferedTasks );
+    return co::ObjectOCommand( connections, COMMANDTYPE_CO_OBJECT,
+                               cmd, getID(), EQ_INSTANCE_ALL );
+}
+
 void Node::flushSendBuffer()
 {
     _bufferedTasks.sendBuffer( _node->getConnection( ));
@@ -714,34 +703,30 @@ void Node::flushSendBuffer()
 //===========================================================================
 bool Node::_cmdConfigInitReply( co::Command& command )
 {
-    const NodeConfigInitReplyPacket* packet =
-        command.get<NodeConfigInitReplyPacket>();
-    LBVERB << "handle configInit reply " << packet << std::endl;
+    LBVERB << "handle configInit reply " << command << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
-    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.get< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
 
     return true;
 }
 
 bool Node::_cmdConfigExitReply( co::Command& command )
 {
-    const NodeConfigExitReplyPacket* packet =
-        command.get<NodeConfigExitReplyPacket>();
-    LBVERB << "handle configExit reply " << packet << std::endl;
+    LBVERB << "handle configExit reply " << command << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
-    _state = packet->result ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
+    _state = command.get< bool >() ? STATE_EXIT_SUCCESS : STATE_EXIT_FAILED;
     return true;
 }
 
 bool Node::_cmdFrameFinishReply( co::Command& command )
 {
-    const NodeFrameFinishReplyPacket* packet =
-        command.get<NodeFrameFinishReplyPacket>();
-    LBVERB << "handle frame finish reply " << packet << std::endl;
+    LBVERB << "handle frame finish reply " << command << std::endl;
 
-    _finishedFrame = packet->frameNumber;
-    getConfig()->notifyNodeFrameFinished( packet->frameNumber );
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    _finishedFrame = frameNumber;
+    getConfig()->notifyNodeFrameFinished( frameNumber );
 
     return true;
 }

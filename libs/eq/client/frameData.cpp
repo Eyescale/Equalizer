@@ -338,21 +338,22 @@ void FrameData::setReady()
     _setReady( _version );
 }
 
-void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
+void FrameData::setReady( const co::ObjectVersion& frameData,
+                          const FrameData::Data& data )
 {
     clear();
-    LBASSERT(  packet->frameData.version.high() == 0 );
-    LBASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT(  frameData.version.high() == 0 );
+    LBASSERT( _readyVersion < frameData.version.low( ));
     LBASSERT( _readyVersion == 0 ||
-              _readyVersion + 1 == packet->frameData.version.low( ));
-    LBASSERT( _version == packet->frameData.version.low( ));
+              _readyVersion + 1 == frameData.version.low( ));
+    LBASSERT( _version == frameData.version.low( ));
 
     _images.swap( _pendingImages );
-    _data = packet->data;
-    _setReady( packet->frameData.version.low());
+    _data = data;
+    _setReady( frameData.version.low());
 
     LBLOG( LOG_ASSEMBLY ) << this << " applied v"
-                          << packet->frameData.version.low() << std::endl;
+                          << frameData.version.low() << std::endl;
 }
 
 void FrameData::_setReady( const uint64_t version )

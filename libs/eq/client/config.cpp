@@ -954,13 +954,14 @@ bool Config::_cmdDestroyNode( co::Command& command )
     if( !node )
         return true;
 
-    NodeConfigExitReplyPacket reply( nodeID, node->isStopped( ));
+    const bool isStopped = node->isStopped();
 
     LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    getServer()->send( reply );
+    getServer()->send( fabric::CMD_NODE_CONFIG_EXIT_REPLY,
+                       nodeID ) << isStopped;
     return true;
 }
 

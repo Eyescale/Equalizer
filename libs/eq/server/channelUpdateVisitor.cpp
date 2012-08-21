@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -88,7 +88,7 @@ bool _setDrawBuffers()
 }
 }
 
-ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel, 
+ChannelUpdateVisitor::ChannelUpdateVisitor( Channel* channel,
                                             const uint128_t frameID,
                                             const uint32_t frameNumber )
         : _channel( channel )
@@ -108,7 +108,7 @@ bool ChannelUpdateVisitor::_skipCompound( const Compound* compound )
 VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 {
     if( !compound->isInheritActive( _eye ))
-        return TRAVERSE_PRUNE;    
+        return TRAVERSE_PRUNE;
 
     _updateDrawFinish( compound );
 
@@ -129,7 +129,7 @@ VisitorResult ChannelUpdateVisitor::visitPre( const Compound* compound )
 VisitorResult ChannelUpdateVisitor::visitLeaf( const Compound* compound )
 {
     if( !compound->isInheritActive( _eye ))
-        return TRAVERSE_CONTINUE;    
+        return TRAVERSE_CONTINUE;
 
     if( _skipCompound( compound ))
     {
@@ -229,7 +229,7 @@ void ChannelUpdateVisitor::_updateDraw( const Compound* compound,
         drawPacket.finish = _channel->hasListeners(); // finish for eq stats
         _channel->send( drawPacket );
         _updated = true;
-        LBLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " " 
+        LBLOG( LOG_TASKS ) << "TASK draw " << _channel->getName() <<  " "
                            << &drawPacket << std::endl;
     }
 }
@@ -317,14 +317,14 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
     windowPacket.frameID     = _frameID;
 
     node->send( windowPacket );
-    LBLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName() 
+    LBLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName()
                            <<  " " << &windowPacket << std::endl;
 
     // Pipe::frameDrawFinish
     Pipe* pipe = _channel->getPipe();
     const Window* lastDrawWindow = pipe->getLastDrawWindow();
     if( lastDrawWindow && lastDrawWindow != window )
-        return;            
+        return;
 
     pipe->setLastDrawWindow( window ); // in case not set
     PipeFrameDrawFinishPacket pipePacket;
@@ -342,14 +342,11 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
         return;
 
     node->setLastDrawPipe( pipe ); // in case not set
-    NodeFrameDrawFinishPacket nodePacket;
-    nodePacket.objectID    = node->getID();
-    nodePacket.frameNumber = _frameNumber;
-    nodePacket.frameID     = _frameID;
 
-    node->send( nodePacket );
+    node->send( fabric::CMD_NODE_FRAME_DRAW_FINISH, node->getID() )
+            << _frameID << _frameNumber;
     LBLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
-                       << &nodePacket << std::endl;
+                       << std::endl;
 }
 
 void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
@@ -393,19 +390,19 @@ eq::ColorMask ChannelUpdateVisitor::_getDrawBufferMask(const Compound* compound)
     switch( _eye )
     {
         case EYE_LEFT:
-            return ColorMask( 
+            return ColorMask(
                 compound->getInheritIAttribute(
                     Compound::IATTR_STEREO_ANAGLYPH_LEFT_MASK ));
         case EYE_RIGHT:
-            return ColorMask( 
-                compound->getInheritIAttribute( 
+            return ColorMask(
+                compound->getInheritIAttribute(
                     Compound::IATTR_STEREO_ANAGLYPH_RIGHT_MASK ));
         default:
             return ColorMask::ALL;
     }
 }
 
-void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound, 
+void ChannelUpdateVisitor::_updatePostDraw( const Compound* compound,
                                             const RenderContext& context )
 {
     _updateAssemble( compound, context );
@@ -423,7 +420,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     LBASSERT( !inputFrames.empty( ));
 
     co::ObjectVersions frames;
-    for( Frames::const_iterator iter = inputFrames.begin(); 
+    for( Frames::const_iterator iter = inputFrames.begin();
          iter != inputFrames.end(); ++iter )
     {
         Frame* frame = *iter;
@@ -443,7 +440,7 @@ void ChannelUpdateVisitor::_updateAssemble( const Compound* compound,
     packet.context   = context;
     packet.nFrames   = uint32_t( frames.size( ));
 
-    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS )
         << "TASK assemble " << _channel->getName() <<  " " << &packet
         << std::endl;
     _channel->send< co::ObjectVersion >( packet, frames );
@@ -484,7 +481,7 @@ void ChannelUpdateVisitor::_updateReadback( const Compound* compound,
 
     _channel->send<co::ObjectVersion>( packet, frames );
     _updated = true;
-    LBLOG( LOG_ASSEMBLY | LOG_TASKS ) 
+    LBLOG( LOG_ASSEMBLY | LOG_TASKS )
         << "TASK readback " << _channel->getName() <<  " " << &packet
         << std::endl;
 }
@@ -495,7 +492,7 @@ void ChannelUpdateVisitor::_updateViewStart( const Compound* compound,
     LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
-    
+
     // view start task
     ChannelFrameViewStartPacket packet;
     packet.context = context;
@@ -511,7 +508,7 @@ void ChannelUpdateVisitor::_updateViewFinish( const Compound* compound,
     LBASSERT( !_skipCompound( compound ));
     if( !compound->testInheritTask( fabric::TASK_VIEW ))
         return;
-    
+
     // view finish task
     ChannelFrameViewFinishPacket packet;
     packet.context = context;

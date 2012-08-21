@@ -25,11 +25,9 @@
 namespace eq
 {
 /** @cond IGNORE */
-    typedef co::ObjectPacket  ConfigPacket;
     typedef co::ObjectPacket  ChannelPacket;
     typedef co::ObjectPacket  WindowPacket;
     typedef co::ObjectPacket  PipePacket;
-    typedef co::ObjectPacket  NodePacket;
 /** @endcond */
 }
 

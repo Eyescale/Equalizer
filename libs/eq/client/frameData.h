@@ -4,12 +4,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,7 +36,6 @@ namespace server { class FrameData; }
 
     class  ROIFinder;
     struct NodeFrameDataTransmitPacket;
-    struct NodeFrameDataReadyPacket;
 
     /**
      * A holder for multiple images.
@@ -108,13 +107,13 @@ namespace server { class FrameData; }
 
         /** Set the range of this frame. @version 1.0 */
         void setRange( const Range& range ) { _data.range = range; }
-        
+
         /**
          * @return the pixel decomposition wrt the destination channel.
          * @version 1.0
          */
         const Pixel& getPixel() const { return _data.pixel; }
-        
+
         /**
          * @return the subpixel decomposition wrt the destination channel.
          * @version 1.0
@@ -181,7 +180,7 @@ namespace server { class FrameData; }
          * selects the most suitable compressor wrt the current image and buffer
          * parameters.
          * @sa _chooseCompressor()
-         * 
+         *
          * @param buffer the frame buffer attachment.
          * @param name the compressor name.
          */
@@ -190,7 +189,7 @@ namespace server { class FrameData; }
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Allocate and add a new image.
          *
          * The allocated image inherits the current quality, storage type from
@@ -218,7 +217,7 @@ namespace server { class FrameData; }
 #ifndef EQ_2_0_API
         /**
          * Read back an image for this frame data.
-         * 
+         *
          * The newly read image is added to the data using newImage(). Existing
          * images are retained.
          *
@@ -232,9 +231,9 @@ namespace server { class FrameData; }
                        const DrawableConfig& config );
 #endif
 
-        /** 
+        /**
          * Start reading back a set of images for this frame data.
-         * 
+         *
          * The newly read images are added to the data using
          * newImage(). Existing images are retained.
          *
@@ -251,7 +250,7 @@ namespace server { class FrameData; }
 
         /**
          * Set the frame data ready.
-         * 
+         *
          * The frame data is automatically set ready by readback() and after
          * receiving an output frame.
          * @version 1.0
@@ -263,32 +262,32 @@ namespace server { class FrameData; }
 
         /** Wait for the frame data to become available. @version 1.0 */
         void waitReady( const uint32_t timeout = LB_TIMEOUT_INDEFINITE ) const;
-        
+
         /** @internal */
         void setVersion( const uint64_t version );
 
-        /** 
+        /**
          * Add a ready listener.
          *
          * The listener value will will be incremented when the frame is ready,
          * which might happen immediately.
-         * 
+         *
          * @param listener the listener.
          * @version 1.0
          */
         void addListener( lunchbox::Monitor<uint32_t>& listener );
 
-        /** 
+        /**
          * Remove a frame listener.
-         * 
+         *
          * @param listener the listener.
          * @version 1.0
          */
         void removeListener( lunchbox::Monitor<uint32_t>& listener );
-        
-        /** 
+
+        /**
          * Disable the usage of a frame buffer attachment for all images.
-         * 
+         *
          * @param buffer the buffer to disable.
          * @version 1.0
          */
@@ -298,7 +297,8 @@ namespace server { class FrameData; }
 
         /** @internal */
         bool addImage( const NodeFrameDataTransmitPacket* packet );
-        void setReady( const NodeFrameDataReadyPacket* packet ); //!< @internal
+        void setReady( const co::ObjectVersion& frameData,
+                       const FrameData::Data& data ); //!< @internal
 
     protected:
         virtual ChangeType getChangeType() const { return INSTANCE; }
@@ -306,7 +306,6 @@ namespace server { class FrameData; }
         virtual void applyInstanceData( co::DataIStream& is );
 
     private:
-        friend struct NodeFrameDataReadyPacket;
         struct Data
         {
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )

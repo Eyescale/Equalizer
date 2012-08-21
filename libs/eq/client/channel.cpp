@@ -2197,9 +2197,8 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& command )
     co::NodePtr toNode = localNode->connect( packet->netNodeID );
     const FrameDataPtr frameData = getNode()->getFrameData( packet->frameData );
 
-    NodeFrameDataReadyPacket readyPacket( frameData );
-    readyPacket.objectID = packet->nodeID;
-    toNode->send( readyPacket );
+    toNode->send( fabric::CMD_NODE_FRAMEDATA_READY, packet->nodeID )
+            << co::ObjectVersion( frameData ) << frameData->_data;
 
     _unrefFrame( packet->frameNumber );
     return true;

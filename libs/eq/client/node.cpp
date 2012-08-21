@@ -216,10 +216,8 @@ void Node::_setAffinity()
             break;
 
         default:
-            NodeAffinityPacket packet;
-            packet.affinity = affinity;
             co::LocalNodePtr node = getLocalNode();
-            send( node, packet );
+            send( node, fabric::CMD_NODE_SET_AFFINITY ) << affinity;
 
             node->setAffinity( affinity );
             break;
@@ -285,13 +283,10 @@ void Node::releaseFrame( const uint32_t frameNumber )
         return;
     _finishedFrame = frameNumber;
 
-    NodeFrameFinishReplyPacket packet;
-    packet.frameNumber = frameNumber;
-
     Config* config = getConfig();
     ServerPtr server = config->getServer();
     co::NodePtr node = server.get();
-    send( node, packet );
+    send( node, fabric::CMD_NODE_FRAME_FINISH_REPLY ) << frameNumber;
 }
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
@@ -438,18 +433,19 @@ void Node::dirtyClientExit()
 //---------------------------------------------------------------------------
 bool Node::_cmdCreatePipe( co::Command& command )
 {
-    const NodeCreatePipePacket* packet =
-        command.get<NodeCreatePipePacket>();
-    LBLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create pipe " << command << std::endl;
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
 
+    const UUID pipeID = command.get< UUID >();
+    const bool threaded = command.get< bool >();
+
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
-    if( packet->threaded )
+    if( threaded )
         pipe->startThread();
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( pipe, packet->pipeID ));
+    LBCHECK( config->mapObject( pipe, pipeID ));
     pipe->notifyMapped();
 
     return true;
@@ -458,16 +454,15 @@ bool Node::_cmdCreatePipe( co::Command& command )
 bool Node::_cmdDestroyPipe( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
+    LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    const NodeDestroyPipePacket* packet =
-        command.get< NodeDestroyPipePacket >();
-    LBLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
+    const UUID pipeID = command.get< UUID >();
 
-    Pipe* pipe = findPipe( packet->pipeID );
+    Pipe* pipe = findPipe( pipeID );
     LBASSERT( pipe );
     pipe->exitThread();
 
-    PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
+    PipeConfigExitReplyPacket reply( pipeID, pipe->isStopped( ));
 
     Config* config = getConfig();
     config->unmapObject( pipe );
@@ -480,38 +475,36 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 bool Node::_cmdConfigInit( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-
-    const NodeConfigInitPacket* packet =
-        command.get<NodeConfigInitPacket>();
-    LBLOG( LOG_INIT ) << "Init node " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init node " << command << std::endl;
 
     _state = STATE_INITIALIZING;
 
-    _currentFrame  = packet->frameNumber;
-    _unlockedFrame = packet->frameNumber;
-    _finishedFrame = packet->frameNumber;
+    const uint128_t initID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    _currentFrame  = frameNumber;
+    _unlockedFrame = frameNumber;
+    _finishedFrame = frameNumber;
     _setAffinity();
 
     transmitter.start();
     setError( ERROR_NONE );
-    NodeConfigInitReplyPacket reply;
-    reply.result = configInit( packet->initID );
+    const uint64_t result = configInit( initID );
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
 
-    _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
+    _state = result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     commit();
-    send( command.getNode(), reply );
+    send( command.getNode(), fabric::CMD_NODE_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
 bool Node::_cmdConfigExit( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-    LBLOG( LOG_INIT ) << "Node exit "
-                      << command.get<NodeConfigExitPacket>() << std::endl;
+    LBLOG( LOG_INIT ) << "Node exit " << command << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -533,11 +526,13 @@ bool Node::_cmdConfigExit( co::Command& command )
 bool Node::_cmdFrameStart( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-    const NodeFrameStartPacket* packet =
-        command.get<NodeFrameStartPacket>();
-    LBVERB << "handle node frame start " << packet << std::endl;
+    LBVERB << "handle node frame start " << command << std::endl;
 
-    const uint32_t frameNumber = packet->frameNumber;
+    const uint128_t version = command.get< uint128_t >();
+    const uint128_t configVersion = command.get< uint128_t >();
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint128_t >();
+
     LBASSERT( _currentFrame == frameNumber-1 );
 
     LBLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
@@ -545,12 +540,12 @@ bool Node::_cmdFrameStart( co::Command& command )
 
     Config* config = getConfig();
 
-    if( packet->configVersion != co::VERSION_INVALID )
-        config->sync( packet->configVersion );
-    sync( packet->version );
+    if( configVersion != co::VERSION_INVALID )
+        config->sync( configVersion );
+    sync( version );
 
     config->_frameStart();
-    frameStart( packet->frameID, frameNumber );
+    frameStart( frameID, frameNumber );
 
     LBASSERTINFO( _currentFrame >= frameNumber,
                   "Node::frameStart() did not start frame " << frameNumber );
@@ -560,15 +555,14 @@ bool Node::_cmdFrameStart( co::Command& command )
 bool Node::_cmdFrameFinish( co::Command& command )
 {
     LB_TS_THREAD( _nodeThread );
-    const NodeFrameFinishPacket* packet =
-        command.get<NodeFrameFinishPacket>();
-    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << std::endl;
 
-    const uint32_t frameNumber = packet->frameNumber;
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     _finishFrame( frameNumber );
-    _frameFinish( packet->frameID, frameNumber );
+    _frameFinish( frameID, frameNumber );
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
@@ -578,23 +572,19 @@ bool Node::_cmdFrameFinish( co::Command& command )
 
 bool Node::_cmdFrameDrawFinish( co::Command& command )
 {
-    const NodeFrameDrawFinishPacket* packet =
-        command.get< NodeFrameDrawFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameDrawFinish( packet->frameID, packet->frameNumber );
+    frameDrawFinish( command.get< uint128_t >(), command.get< uint32_t >( ));
     return true;
 }
 
 bool Node::_cmdFrameTasksFinish( co::Command& command )
 {
-    const NodeFrameTasksFinishPacket* packet =
-        command.get< NodeFrameTasksFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameTasksFinish( packet->frameID, packet->frameNumber );
+    frameTasksFinish( command.get< uint128_t >(), command.get< uint32_t >( ));
     return true;
 }
 
@@ -620,23 +610,22 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
 
 bool Node::_cmdFrameDataReady( co::Command& command )
 {
-    const NodeFrameDataReadyPacket* packet =
-        command.get<NodeFrameDataReadyPacket>();
+    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
+    const FrameData::Data data = command.get< FrameData::Data >();
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
                           << std::endl;
-    FrameDataPtr frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( frameDataVersion );
     LBASSERT( frameData );
     LBASSERT( !frameData->isReady() );
-    frameData->setReady( packet );
+    frameData->setReady( frameDataVersion, data );
     LBASSERT( frameData->isReady() );
     return true;
 }
 
 bool Node::_cmdSetAffinity( co::Command& command )
 {
-    const NodeAffinityPacket* packet = command.get <NodeAffinityPacket>();
-    lunchbox::Thread::setAffinity( packet->affinity );
+    lunchbox::Thread::setAffinity( command.get< int32_t >( ));
     return true;
 }
 }
