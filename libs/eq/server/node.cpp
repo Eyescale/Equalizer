@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com>    
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,7 +27,6 @@
 #include "server.h"
 #include "window.h"
 
-#include <eq/client/configPackets.h>
 #include <eq/client/error.h>
 #include <eq/client/nodePackets.h>
 #include <eq/fabric/elementVisitor.h>
@@ -58,14 +57,14 @@ std::string _cAttributeStrings[] = {
 }
 
 Node::Node( Config* parent )
-    : Super( parent ) 
+    : Super( parent )
     , _active( 0 )
     , _finishedFrame( 0 )
     , _flushedFrame( 0 )
     , _state( STATE_STOPPED )
     , _lastDrawPipe( 0 )
 {
-    const Global* global = Global::instance();    
+    const Global* global = Global::instance();
     for( int i=0; i < Node::SATTR_LAST; ++i )
     {
         const SAttribute attr = static_cast< SAttribute >( i );
@@ -94,9 +93,9 @@ void Node::attach( const UUID& id, const uint32_t instanceID )
     co::CommandQueue* cmdQ = getCommandThreadQueue();
     registerCommand( fabric::CMD_OBJECT_SYNC,
                      NodeFunc( this, &Node::_cmdSync ), cmdQ );
-    registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_NODE_CONFIG_INIT_REPLY,
                      NodeFunc( this, &Node::_cmdConfigInitReply ), cmdQ );
-    registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY, 
+    registerCommand( fabric::CMD_NODE_CONFIG_EXIT_REPLY,
                      NodeFunc( this, &Node::_cmdConfigExitReply ), cmdQ );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH_REPLY,
                      NodeFunc( this, &Node::_cmdFrameFinishReply ), cmdQ );
@@ -139,15 +138,15 @@ void Node::addTasks( const uint32_t tasks )
 }
 
 void Node::activate()
-{   
+{
     ++_active;
     LBLOG( LOG_VIEW ) << "activate: " << _active << std::endl;
 }
 
 void Node::deactivate()
-{ 
+{
     LBASSERT( _active != 0 );
-    --_active; 
+    --_active;
     LBLOG( LOG_VIEW ) << "deactivate: " << _active << std::endl;
 };
 
@@ -194,7 +193,7 @@ namespace
 static co::NodePtr _createNetNode( Node* node )
 {
     co::NodePtr netNode = new co::Node;
-    const co::ConnectionDescriptions& descriptions = 
+    const co::ConnectionDescriptions& descriptions =
         node->getConnectionDescriptions();
     for( co::ConnectionDescriptions::const_iterator i = descriptions.begin();
          i != descriptions.end(); ++i )
@@ -221,7 +220,7 @@ bool Node::connect()
 
     co::LocalNodePtr localNode = getLocalNode();
     LBASSERT( localNode.isValid( ));
-    
+
     if( !_node )
     {
         LBASSERT( !isApplicationNode( ));
@@ -249,7 +248,7 @@ bool Node::launch()
 {
     if( _launch( _host ))
         return true;
-    
+
     // Equalizer 1.0 style: try hostnames from connection descriptions
     for( co::ConnectionDescriptionsCIter i = _connectionDescriptions.begin();
          i != _connectionDescriptions.end(); ++i )
@@ -288,7 +287,7 @@ bool Node::syncLaunch( const lunchbox::Clock& clock )
             _node = node; // Use co::Node already connected
             return true;
         }
-        
+
         lunchbox::sleep( 100 /*ms*/ );
         if( clock.getTime64() > timeOut )
         {
@@ -322,7 +321,7 @@ bool Node::_launch( const std::string& hostname ) const
     std::string cmd;
 
     for( size_t percentPos = command.find( '%' );
-         percentPos != std::string::npos; 
+         percentPos != std::string::npos;
          percentPos = command.find( '%', percentPos+1 ))
     {
         std::ostringstream replacement;
@@ -355,7 +354,7 @@ bool Node::_launch( const std::string& hostname ) const
                 break;
 
             default:
-                LBWARN << "Unknown token " << command[percentPos+1] 
+                LBWARN << "Unknown token " << command[percentPos+1]
                        << std::endl;
                 replacement << '%' << command[percentPos+1];
         }
@@ -399,7 +398,7 @@ std::string Node::_createRemoteCommand() const
         stringStream << libPath << "=" << env << " ";
     for( int i=0; environ[i] != 0; ++i )
     {
-        if( strlen( environ[i] ) > 2 && 
+        if( strlen( environ[i] ) > 2 &&
             ( strncmp( environ[i], "LB_", 3 ) == 0 ||
               strncmp( environ[i], "CO_", 3 ) == 0 ||
               strncmp( environ[i], "EQ_", 3 ) == 0 ))
@@ -438,7 +437,7 @@ std::string Node::_createRemoteCommand() const
 
     stringStream
         << quote << program << quote << " -- --eq-client " << quote
-        << remoteData << workDir << CO_SEPARATOR << ownData << quote 
+        << remoteData << workDir << CO_SEPARATOR << ownData << quote
         << " --co-globals " << quote << collageGlobals << quote;
 
     return stringStream.str();
@@ -458,9 +457,7 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     _frameIDs.clear();
 
     LBLOG( LOG_INIT ) << "Create node" << std::endl;
-    ConfigCreateNodePacket createNodePacket;
-    createNodePacket.nodeID = getID();
-    getConfig()->send( _node, createNodePacket );
+    getConfig()->send( _node, fabric::CMD_CONFIG_CREATE_NODE ) << getID();
 
     LBLOG( LOG_INIT ) << "Init node" << std::endl;
     NodeConfigInitPacket packet;
@@ -507,7 +504,7 @@ void Node::configExit()
 
 bool Node::syncConfigExit()
 {
-    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS ||
               _state == STATE_EXIT_FAILED );
 
     _state.waitNE( STATE_EXITING );
@@ -533,7 +530,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     LBASSERT( isActive( ));
 
     _frameIDs[ frameNumber ] = frameID;
-    
+
     NodeFrameStartPacket startPacket;
     startPacket.frameID     = frameID;
     startPacket.frameNumber = frameNumber;
@@ -667,7 +664,7 @@ co::Barrier* Node::getBarrier()
 
 void Node::changeLatency( const uint32_t latency )
 {
-    for( co::Barriers::const_iterator i = _barriers.begin(); 
+    for( co::Barriers::const_iterator i = _barriers.begin();
          i != _barriers.end(); ++ i )
     {
         co::Barrier* barrier = *i;
@@ -682,7 +679,7 @@ void Node::releaseBarrier( co::Barrier* barrier )
 
 void Node::_flushBarriers()
 {
-    for( std::vector< co::Barrier* >::const_iterator i =_barriers.begin(); 
+    for( std::vector< co::Barrier* >::const_iterator i =_barriers.begin();
          i != _barriers.end(); ++ i )
     {
         co::Barrier* barrier = *i;
@@ -717,7 +714,7 @@ void Node::flushSendBuffer()
 //===========================================================================
 bool Node::_cmdConfigInitReply( co::Command& command )
 {
-    const NodeConfigInitReplyPacket* packet = 
+    const NodeConfigInitReplyPacket* packet =
         command.get<NodeConfigInitReplyPacket>();
     LBVERB << "handle configInit reply " << packet << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
@@ -739,10 +736,10 @@ bool Node::_cmdConfigExitReply( co::Command& command )
 
 bool Node::_cmdFrameFinishReply( co::Command& command )
 {
-    const NodeFrameFinishReplyPacket* packet = 
+    const NodeFrameFinishReplyPacket* packet =
         command.get<NodeFrameFinishReplyPacket>();
     LBVERB << "handle frame finish reply " << packet << std::endl;
-    
+
     _finishedFrame = packet->frameNumber;
     getConfig()->notifyNodeFrameFinished( packet->frameNumber );
 
@@ -763,7 +760,7 @@ void Node::output( std::ostream& os ) const
     }
 
     bool attrPrinted   = false;
-    
+
     for( Node::SAttribute i = static_cast<Node::SAttribute>( 0 );
          i < Node::SATTR_LAST;
          i = static_cast<Node::SAttribute>( static_cast<uint32_t>( i )+1))
@@ -778,14 +775,14 @@ void Node::output( std::ostream& os ) const
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
-        
+
         os << ( i==Node::SATTR_LAUNCH_COMMAND ? "launch_command       " :
                 "ERROR" )
            << "\"" << value << "\"" << std::endl;
     }
-    
+
     for( Node::CAttribute i = static_cast<Node::CAttribute>( 0 );
-         i < Node::CATTR_LAST; 
+         i < Node::CATTR_LAST;
          i = static_cast<Node::CAttribute>( static_cast<uint32_t>( i )+1))
     {
         const char value = getCAttribute( i );
@@ -798,12 +795,12 @@ void Node::output( std::ostream& os ) const
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
-        
+
         os << ( i==Node::CATTR_LAUNCH_COMMAND_QUOTE ? "launch_command_quote " :
                 "ERROR" )
            << "'" << value << "'" << std::endl;
     }
-    
+
     for( Node::IAttribute i = static_cast< Node::IAttribute>( 0 );
          i < Node::IATTR_LAST;
          i = static_cast< Node::IAttribute >( static_cast<uint32_t>( i )+1))
@@ -818,14 +815,14 @@ void Node::output( std::ostream& os ) const
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
-        
+
         os << ( i== Node::IATTR_LAUNCH_TIMEOUT ? "launch_timeout       " :
                 i== Node::IATTR_THREAD_MODEL   ? "thread_model         " :
                 i== Node::IATTR_HINT_AFFINITY  ? "hint_affinity        " :
                 "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
-    
+
     if( attrPrinted )
         os << lunchbox::exdent << "}" << std::endl << std::endl;
 }

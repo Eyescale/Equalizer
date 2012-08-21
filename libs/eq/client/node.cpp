@@ -20,7 +20,6 @@
 
 #include "client.h"
 #include "config.h"
-#include "configPackets.h"
 #include "error.h"
 #include "exception.h"
 #include "frameData.h"
@@ -526,8 +525,8 @@ bool Node::_cmdConfigExit( co::Command& command )
     transmitter.join();
     _flushObjects();
 
-    ConfigDestroyNodePacket destroyPacket( getID( ));
-    getConfig()->send( getLocalNode(), destroyPacket );
+    getConfig()->send( getLocalNode(),
+                       fabric::CMD_CONFIG_DESTROY_NODE ) << getID();
     return true;
 }
 

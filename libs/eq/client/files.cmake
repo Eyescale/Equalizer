@@ -43,7 +43,6 @@ set(CLIENT_HEADERS
   computeContext.h
   config.h
   configEvent.h
-  configPackets.h
   configParams.h
   configStatistics.h
   cudaContext.h
