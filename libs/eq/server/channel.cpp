@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -33,7 +33,6 @@
 
 #include <eq/client/channelPackets.h>
 #include <eq/client/log.h>
-#include <eq/client/windowPackets.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
 #include <lunchbox/debug.h>
@@ -109,11 +108,11 @@ Channel::Channel( const Channel& from )
 void Channel::attach( const UUID& id, const uint32_t instanceID )
 {
     Super::attach( id, instanceID );
-    
+
     co::CommandQueue* mainQ  = getMainThreadQueue();
     co::CommandQueue* cmdQ = getCommandThreadQueue();
 
-    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY, 
+    registerCommand( fabric::CMD_CHANNEL_CONFIG_INIT_REPLY,
                      CmdFunc( this, &Channel::_cmdConfigInitReply ), cmdQ );
     registerCommand( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
                      CmdFunc( this, &Channel::_cmdConfigExitReply ), cmdQ );
@@ -137,7 +136,7 @@ Config* Channel::getConfig()
 {
     Window* window = getWindow();
     LBASSERT( window );
-    return window ? window->getConfig() : 0; 
+    return window ? window->getConfig() : 0;
 }
 
 const Config* Channel::getConfig() const
@@ -147,29 +146,29 @@ const Config* Channel::getConfig() const
     return window ? window->getConfig() : 0;
 }
 
-Node* Channel::getNode() 
-{ 
+Node* Channel::getNode()
+{
     Window* window = getWindow();
     LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
 const Node* Channel::getNode() const
-{ 
+{
     const Window* window = getWindow();
     LBASSERT( window );
     return window ? window->getNode() : 0;
 }
 
-Pipe* Channel::getPipe() 
-{ 
+Pipe* Channel::getPipe()
+{
     Window* window = getWindow();
     LBASSERT( window );
     return window ? window->getPipe() : 0;
 }
 
 const Pipe* Channel::getPipe() const
-{ 
+{
     const Window* window = getWindow();
     LBASSERT( window );
     return window ? window->getPipe() : 0;
@@ -182,15 +181,15 @@ ServerPtr Channel::getServer()
     return ( window ? window->getServer() : 0 );
 }
 
-const Canvas* Channel::getCanvas() const 
-{ 
+const Canvas* Channel::getCanvas() const
+{
     if( !_segment )
         return 0;
-    return _segment->getCanvas(); 
+    return _segment->getCanvas();
 }
 
 const Compounds& Channel::getCompounds() const
-{ 
+{
     return getConfig()->getCompounds();
 }
 
@@ -198,14 +197,14 @@ co::CommandQueue* Channel::getMainThreadQueue()
 {
     Window* window = getWindow();
     LBASSERT( window );
-    return window->getMainThreadQueue(); 
+    return window->getMainThreadQueue();
 }
 
 co::CommandQueue* Channel::getCommandThreadQueue()
 {
     Window* window = getWindow();
     LBASSERT( window );
-    return window->getCommandThreadQueue(); 
+    return window->getCommandThreadQueue();
 }
 
 bool Channel::supportsView( const View* view ) const
@@ -219,27 +218,27 @@ bool Channel::supportsView( const View* view ) const
 }
 
 void Channel::activate()
-{ 
+{
     Window* window = getWindow();
     LBASSERT( window );
 
     ++_active;
     window->activate();
 
-    LBLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "activate: " << _active << " " << (void*)this
                       << std::endl;
 }
 
 void Channel::deactivate()
-{ 
+{
     Window* window = getWindow();
     LBASSERT( _active != 0 );
     LBASSERT( window );
 
-    --_active; 
-    window->deactivate(); 
+    --_active;
+    window->deactivate();
 
-    LBLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this 
+    LBLOG( LOG_VIEW ) << "deactivate: " << _active << " " << (void*)this
                       << std::endl;
 }
 
@@ -298,11 +297,10 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    WindowCreateChannelPacket createChannelPacket( getID( ));
-    getWindow()->send( createChannelPacket );
+    getWindow()->send( fabric::CMD_WINDOW_CREATE_CHANNEL ) << getID();
 
     LBLOG( LOG_INIT ) << "Init channel" << std::endl;
-    ChannelConfigInitPacket packet( initID );    
+    ChannelConfigInitPacket packet( initID );
     send( packet );
 }
 
@@ -338,9 +336,9 @@ void Channel::configExit()
 
 bool Channel::syncConfigExit()
 {
-    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS || 
+    LBASSERT( _state == STATE_EXITING || _state == STATE_EXIT_SUCCESS ||
               _state == STATE_EXIT_FAILED );
-    
+
     _state.waitNE( STATE_EXITING );
     const bool success = ( _state == STATE_EXIT_SUCCESS );
     LBASSERT( success || _state == STATE_EXIT_FAILED );
@@ -359,7 +357,7 @@ void Channel::_setupRenderContext( const uint128_t& frameID,
     context.pvp = getPixelViewport();
     context.view = _view;
     context.vp = getViewport();
-    LBASSERTINFO( getNativeContext().view == context.view, 
+    LBASSERTINFO( getNativeContext().view == context.view,
                   getNativeContext().view << " != " << context.view << " " <<
                   getName( ));
 }
@@ -378,7 +376,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     _setupRenderContext( frameID, startPacket.context );
 
     send( startPacket );
-    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  " 
+    LBLOG( LOG_TASKS ) << "TASK channel " << getName() << " start frame  "
                        << &startPacket << std::endl;
 
     bool updated = false;
@@ -397,7 +395,7 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
 
         visitor.setEye( EYE_RIGHT );
         compound->accept( visitor );
-        
+
         updated |= visitor.isUpdated();
     }
 
@@ -413,8 +411,8 @@ bool Channel::update( const uint128_t& frameID, const uint32_t frameNumber )
     return updated;
 }
 
-void Channel::send( co::ObjectPacket& packet ) 
-{ 
+void Channel::send( co::ObjectPacket& packet )
+{
     packet.objectID = getID();
     getNode()->send( packet );
 }
@@ -439,14 +437,14 @@ void Channel::removeListener(  ChannelListener* listener )
         _listeners.erase( i );
 }
 
-void Channel::_fireLoadData( const uint32_t frameNumber, 
+void Channel::_fireLoadData( const uint32_t frameNumber,
                              const uint32_t nStatistics,
                              const Statistic* statistics,
                              const Viewport& region )
 {
     LB_TS_SCOPED( _serverThread );
 
-    for( ChannelListeners::const_iterator i = _listeners.begin(); 
+    for( ChannelListeners::const_iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
     {
         (*i)->notifyLoadData( this, frameNumber, nStatistics, statistics,
@@ -457,9 +455,9 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 // command handling
 //===========================================================================
-bool Channel::_cmdConfigInitReply( co::Command& command ) 
+bool Channel::_cmdConfigInitReply( co::Command& command )
 {
-    const ChannelConfigInitReplyPacket* packet = 
+    const ChannelConfigInitReplyPacket* packet =
         command.get<ChannelConfigInitReplyPacket>();
     LBLOG( LOG_INIT ) << "handle channel configInit reply " << packet
                       << std::endl;
@@ -468,9 +466,9 @@ bool Channel::_cmdConfigInitReply( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdConfigExitReply( co::Command& command ) 
+bool Channel::_cmdConfigExitReply( co::Command& command )
 {
-    const ChannelConfigExitReplyPacket* packet = 
+    const ChannelConfigExitReplyPacket* packet =
         command.get<ChannelConfigExitReplyPacket>();
     LBLOG( LOG_INIT ) << "handle channel configExit reply " << packet
                       << std::endl;
@@ -481,7 +479,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 
 bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
-    const ChannelFrameFinishReplyPacket* packet = 
+    const ChannelFrameFinishReplyPacket* packet =
         command.get<ChannelFrameFinishReplyPacket>();
 
     _fireLoadData( packet->frameNumber, packet->nStatistics,
@@ -498,7 +496,7 @@ bool Channel::omitOutput() const
 void Channel::output( std::ostream& os ) const
 {
     bool attrPrinted   = false;
-    
+
     for( IAttribute i = static_cast<IAttribute>( 0 );
          i < IATTR_LAST;
          i = static_cast<IAttribute>( static_cast<uint32_t>(i)+1 ))
@@ -513,14 +511,14 @@ void Channel::output( std::ostream& os ) const
             os << "{" << std::endl << lunchbox::indent;
             attrPrinted = true;
         }
-        
+
         os << ( i==IATTR_HINT_STATISTICS ?
                 "hint_statistics   " :
                 i==IATTR_HINT_SENDTOKEN ?
                     "hint_sendtoken    " : "ERROR" )
            << static_cast< fabric::IAttribute >( value ) << std::endl;
     }
-    
+
     if( attrPrinted )
         os << lunchbox::exdent << "}" << std::endl << std::endl;
 }
@@ -531,7 +529,7 @@ void Channel::updateCapabilities()
     getConfig()->accept( visitor );
     ViewSet& views = visitor.getViews();
 
-    for( ViewSet::const_iterator i = views.begin(); i != views.end(); ++i ) 
+    for( ViewSet::const_iterator i = views.begin(); i != views.end(); ++i )
         (*i)->updateCapabilities();
 }
 

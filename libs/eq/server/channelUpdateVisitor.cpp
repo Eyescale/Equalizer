@@ -33,7 +33,6 @@
 
 #include <eq/client/channelPackets.h>
 #include <eq/client/log.h>
-#include <eq/client/windowPackets.h>
 #include <eq/fabric/paths.h>
 
 #include <set>
@@ -309,14 +308,12 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
         return;
 
     window->setLastDrawChannel( _channel ); // in case not set
-    WindowFrameDrawFinishPacket windowPacket;
-    windowPacket.objectID    = window->getID();
-    windowPacket.frameNumber = _frameNumber;
-    windowPacket.frameID     = _frameID;
 
-    node->send( windowPacket );
+    node->send( fabric::CMD_WINDOW_FRAME_DRAW_FINISH, window->getID( ))
+            << _frameID << _frameNumber;
     LBLOG( LOG_TASKS ) << "TASK window draw finish "  << window->getName()
-                           <<  " " << &windowPacket << std::endl;
+                           <<  " frame " << _frameNumber
+                           << " id " << _frameID << std::endl;
 
     // Pipe::frameDrawFinish
     Pipe* pipe = _channel->getPipe();

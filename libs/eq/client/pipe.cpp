@@ -32,7 +32,6 @@
 #include "server.h"
 #include "view.h"
 #include "window.h"
-#include "windowPackets.h"
 
 #include "messagePump.h"
 #include "systemPipe.h"
@@ -1027,13 +1026,15 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
         LBASSERT( candidate->getSharedContextWindow() != window );
     }
 
-    WindowConfigExitReplyPacket reply( windowID, window->isStopped( ));
+    const bool isStopped = window->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    getServer()->send( reply ); // do not use Object::send()
+    // do not use Object::send()
+    getServer()->send( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
+                       windowID ) << isStopped;
     return true;
 }
 

@@ -83,7 +83,6 @@ set(CLIENT_HEADERS
   visitorResult.h
   wglTypes.h
   window.h
-  windowPackets.h
   windowStatistics.h
   windowSystem.h
   zoomFilter.h

@@ -33,7 +33,6 @@
 #include "pipe.h"
 #include "server.h"
 #include "systemWindow.h"
-#include "windowPackets.h"
 #include "windowStatistics.h"
 
 #include <eq/util/objectManager.h>
@@ -761,15 +760,13 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 //---------------------------------------------------------------------------
 bool Window::_cmdCreateChannel( co::Command& command )
 {
-    const WindowCreateChannelPacket* packet =
-        command.get<WindowCreateChannelPacket>();
-    LBLOG( LOG_INIT ) << "Create channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Create channel " << command << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     channel->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( channel, packet->channelID ));
+    LBCHECK( config->mapObject( channel, command.get< UUID >( )));
     LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;
@@ -777,15 +774,14 @@ bool Window::_cmdCreateChannel( co::Command& command )
 
 bool Window::_cmdDestroyChannel( co::Command& command )
 {
-    const WindowDestroyChannelPacket* packet =
-        command.get<WindowDestroyChannelPacket>();
-    LBLOG( LOG_INIT ) << "Destroy channel " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
-    Channel* channel = _findChannel( packet->channelID );
+    const UUID channelID = command.get< UUID >();
+
+    Channel* channel = _findChannel( channelID );
     LBASSERT( channel );
 
-    ChannelConfigExitReplyPacket reply( packet->channelID,
-                                        channel->isStopped( ));
+    ChannelConfigExitReplyPacket reply( channelID, channel->isStopped( ));
     Config* config = getConfig();
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
@@ -796,37 +792,32 @@ bool Window::_cmdDestroyChannel( co::Command& command )
 
 bool Window::_cmdConfigInit( co::Command& command )
 {
-    const WindowConfigInitPacket* packet =
-        command.get<WindowConfigInitPacket>();
-    LBLOG( LOG_INIT ) << "TASK window config init " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
 
     WindowConfigInitReplyPacket reply;
     setError( ERROR_NONE );
 
+    bool result = false;
     if( getPipe()->isRunning( ))
     {
         _state = STATE_INITIALIZING;
-        reply.result = configInit( packet->initID );
-        if( reply.result )
+        result = configInit( command.get< uint128_t >( ));
+        if( result )
             _state = STATE_RUNNING;
     }
     else
-    {
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
-        reply.result = false;
-    }
+
     LBLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
 
     commit();
-    send( command.getNode(), reply );
+    send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
 bool Window::_cmdConfigExit( co::Command& command )
 {
-    const WindowConfigExitPacket* packet =
-        command.get<WindowConfigExitPacket>();
-    LBLOG( LOG_INIT ) << "TASK window config exit " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config exit " << command << std::endl;
 
     if( _state != STATE_STOPPED )
     {
@@ -849,13 +840,16 @@ bool Window::_cmdFrameStart( co::Command& command )
 {
     LB_TS_THREAD( _pipeThread );
 
-    const WindowFrameStartPacket* packet =
-        command.get<WindowFrameStartPacket>();
-    LBLOG( LOG_TASKS ) << "TASK frame start " << getName() <<  " " << packet
+    const uint128_t version = command.get< uint128_t >();
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint128_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
+                       << " frame " << frameNumber << " id " << frameID
                        << std::endl;
 
-    //_grabFrame( packet->frameNumber ); single-threaded
-    sync( packet->version );
+    //_grabFrame( frameNumber ); single-threaded
+    sync( version );
 
     const DrawableConfig& drawableConfig = getDrawableConfig();
     if( drawableConfig.doublebuffered )
@@ -863,18 +857,19 @@ bool Window::_cmdFrameStart( co::Command& command )
     _renderContexts[BACK].clear();
 
     makeCurrent();
-    frameStart( packet->frameID, packet->frameNumber );
+    frameStart( frameID, frameNumber );
     return true;
 }
 
 bool Window::_cmdFrameFinish( co::Command& command )
 {
-    const WindowFrameFinishPacket* packet =
-        command.get<WindowFrameFinishPacket>();
-    LBVERB << "handle window frame sync " << packet << std::endl;
+    LBVERB << "handle window frame sync " << command << std::endl;
+
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint128_t >();
 
     makeCurrent();
-    frameFinish( packet->frameID, packet->frameNumber );
+    frameFinish( frameID, frameNumber );
     return true;
 }
 
@@ -894,14 +889,13 @@ bool Window::_cmdFinish( co::Command& )
 
 bool  Window::_cmdThrottleFramerate( co::Command& command )
 {
-    const WindowThrottleFramerate* packet =
-        command.get< WindowThrottleFramerate >();
     LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
-                       << packet << std::endl;
+                       << command << std::endl;
 
     // throttle to given framerate
     const int64_t elapsed  = getConfig()->getTime() - _lastSwapTime;
-    const float timeLeft = packet->minFrameTime - static_cast<float>( elapsed );
+    const float minFrameTime = command.get< float >();
+    const float timeLeft = minFrameTime - static_cast<float>( elapsed );
 
     if( timeLeft >= 1.f )
     {
@@ -915,30 +909,31 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
 
 bool Window::_cmdBarrier( co::Command& command )
 {
-    const WindowBarrierPacket* packet = command.get<WindowBarrierPacket>();
-    LBVERB << "handle barrier " << packet << std::endl;
+    LBVERB << "handle barrier " << command << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
 
-    _enterBarrier( packet->barrier );
+    _enterBarrier( command.get< co::ObjectVersion >( ));
     return true;
 }
 
 bool Window::_cmdNVBarrier( co::Command& command )
 {
-    const WindowNVBarrierPacket* packet = command.get<WindowNVBarrierPacket>();
     LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
 
+    const co::ObjectVersion netBarrier = command.get< co::ObjectVersion >();
+    const uint32_t group = command.get< uint32_t >();
+    const uint32_t barrier = command.get< uint32_t >();
+
     makeCurrent();
-    _systemWindow->joinNVSwapBarrier( packet->group, packet->barrier );
-    _enterBarrier( packet->netBarrier );
+    _systemWindow->joinNVSwapBarrier( group, barrier );
+    _enterBarrier( netBarrier );
     return true;
 }
 
 bool Window::_cmdSwap( co::Command& command )
 {
-    const WindowSwapPacket* packet = command.get< WindowSwapPacket >();
-    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << packet
+    LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << command
                        << std::endl;
 
     if( getDrawableConfig().doublebuffered )
@@ -953,12 +948,13 @@ bool Window::_cmdSwap( co::Command& command )
 
 bool Window::_cmdFrameDrawFinish( co::Command& command )
 {
-    const WindowFrameDrawFinishPacket* packet =
-        command.get< WindowFrameDrawFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameDrawFinish( packet->frameID, packet->frameNumber );
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint128_t >();
+
+    frameDrawFinish( frameID, frameNumber );
     return true;
 }
 

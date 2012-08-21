@@ -38,7 +38,6 @@
 #include "pixelData.h"
 #include "server.h"
 #include "systemWindow.h"
-#include "windowPackets.h"
 
 #include <eq/util/accum.h>
 #include <eq/util/frameBufferObject.h>
@@ -2011,8 +2010,8 @@ bool Channel::_cmdConfigExit( co::Command& command )
     if( _impl->state != STATE_STOPPED )
         _impl->state = configExit() ? STATE_STOPPED : STATE_FAILED;
 
-    WindowDestroyChannelPacket destroyPacket( getID( ));
-    getWindow()->send( getLocalNode(), destroyPacket );
+    getWindow()->send( getLocalNode(),
+                       fabric::CMD_WINDOW_DESTROY_CHANNEL ) << getID();
     return true;
 }
 

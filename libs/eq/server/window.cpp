@@ -27,7 +27,6 @@
 #include "nodeFactory.h"
 #include "pipe.h"
 
-#include <eq/client/windowPackets.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
@@ -304,11 +303,8 @@ void Window::configInit( const uint128_t& initID, const uint32_t frameNumber )
     LBLOG( LOG_INIT ) << "Create Window" << std::endl;
     getPipe()->send( fabric::CMD_PIPE_CREATE_WINDOW ) << getID();
 
-    WindowConfigInitPacket packet;
-    packet.initID = initID;
-
     LBLOG( LOG_INIT ) << "Init Window" << std::endl;
-    send( packet );
+    send( fabric::CMD_WINDOW_CONFIG_INIT ) << initID;
     LBLOG( LOG_TASKS ) << "TASK window configInit  " << " id " << getID()
                        << std::endl;
 }
@@ -344,8 +340,7 @@ void Window::configExit()
         State( needsDelete() ? STATE_EXITING | STATE_DELETE : STATE_EXITING );
 
     LBLOG( LOG_INIT ) << "Exit Window" << std::endl;
-    WindowConfigExitPacket packet;
-    send( packet );
+    send( fabric::CMD_WINDOW_CONFIG_EXIT );
 }
 
 bool Window::syncConfigExit()
@@ -372,13 +367,10 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
 
     LBASSERT( isActive( ))
 
-    WindowFrameStartPacket startPacket;
-    startPacket.frameID     = frameID;
-    startPacket.frameNumber = frameNumber;
-    startPacket.version     = getVersion();
-    send( startPacket );
-    LBLOG( LOG_TASKS ) << "TASK window start frame  " << &startPacket
-                           << std::endl;
+    send( fabric::CMD_WINDOW_FRAME_START )
+            << getVersion() << frameID << frameNumber;
+    LBLOG( LOG_TASKS ) << "TASK window start frame " << frameNumber
+                       << " id " << frameID << std::endl;
 
     const Channels& channels = getChannels();
     _swap = false;
@@ -394,19 +386,16 @@ void Window::updateDraw( const uint128_t& frameID, const uint32_t frameNumber )
         _lastDrawChannel = 0;
     else // no FrameDrawFinish sent
     {
-        WindowFrameDrawFinishPacket drawFinishPacket;
-        drawFinishPacket.frameNumber = frameNumber;
-        drawFinishPacket.frameID     = frameID;
-        send( drawFinishPacket );
-        LBLOG( LOG_TASKS ) << "TASK window draw finish " << getName() <<  " "
-                           << &drawFinishPacket << std::endl;
+        send( fabric::CMD_WINDOW_FRAME_DRAW_FINISH ) << frameID << frameNumber;
+        LBLOG( LOG_TASKS ) << "TASK window draw finish " << getName()
+                           << " frame " << frameNumber
+                           << " id " << frameID << std::endl;
     }
 
     if( _swapFinish )
     {
-        WindowFlushPacket packet;
-        send( packet );
-        LBLOG( LOG_TASKS ) << "TASK flush " << &packet << std::endl;
+        send( fabric::CMD_WINDOW_FLUSH );
+        LBLOG( LOG_TASKS ) << "TASK flush " << std::endl;
     }
 }
 
@@ -419,32 +408,26 @@ void Window::updatePost( const uint128_t& frameID,
     LBASSERT( isActive( ))
     _updateSwap( frameNumber );
 
-    WindowFrameFinishPacket finishPacket;
-    finishPacket.frameID     = frameID;
-    finishPacket.frameNumber = frameNumber;
-    send( finishPacket );
-    LBLOG( LOG_TASKS ) << "TASK window finish frame  " << &finishPacket
-                           << std::endl;
+    send( fabric::CMD_WINDOW_FRAME_FINISH ) << frameID << frameNumber;
+    LBLOG( LOG_TASKS ) << "TASK window finish frame " << frameNumber
+                       << " id " << frameID << std::endl;
 }
 
 void Window::_updateSwap( const uint32_t frameNumber )
 {
     if( _swapFinish )
     {
-        WindowFinishPacket packet;
-        send( packet );
+        send( fabric::CMD_WINDOW_FINISH );
         LBLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
         _swapFinish = false;
     }
 
     if( _maxFPS < std::numeric_limits< float >::max( ))
     {
-        WindowThrottleFramerate packetThrottle;
-        packetThrottle.minFrameTime = 1000.0f / _maxFPS;
-
-        send( packetThrottle );
+        const float minFrameTime = 1000.0f / _maxFPS;
+        send( fabric::CMD_WINDOW_THROTTLE_FRAMERATE ) << minFrameTime;
         LBLOG( LOG_TASKS ) << "TASK Throttle framerate  "
-                               << &packetThrottle << std::endl;
+                               << minFrameTime << std::endl;
 
         _maxFPS = std::numeric_limits< float >::max();
     }
@@ -460,10 +443,9 @@ void Window::_updateSwap( const uint32_t frameNumber )
             continue;
         }
 
-        WindowBarrierPacket packet;
-        packet.barrier = barrier;
-        send( packet );
-        LBLOG( LOG_TASKS ) << "TASK barrier  " << &packet << std::endl;
+        send( fabric::CMD_WINDOW_BARRIER ) << co::ObjectVersion( barrier );
+        LBLOG( LOG_TASKS ) << "TASK barrier  barrier "
+                           << co::ObjectVersion( barrier ) << std::endl;
     }
 
     if( _nvNetBarrier )
@@ -482,11 +464,10 @@ void Window::_updateSwap( const uint32_t frameNumber )
             // with a barrier.
 
             // Now enter the swap group and post-sync with the barrier again.
-            WindowNVBarrierPacket packet;
-            packet.barrier = _nvSwapBarrier->getNVSwapBarrier();
-            packet.group   = _nvSwapBarrier->getNVSwapGroup();
-            packet.netBarrier = _nvNetBarrier;
-            send( packet );
+            send( fabric::CMD_WINDOW_NV_BARRIER )
+                    << co::ObjectVersion( _nvNetBarrier )
+                    << _nvSwapBarrier->getNVSwapGroup()
+                    << _nvSwapBarrier->getNVSwapBarrier();
         }
     }
 
@@ -494,9 +475,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
 
     if( _swap )
     {
-        WindowSwapPacket packet;
-
-        send( packet );
+        send( fabric::CMD_WINDOW_SWAP );
         LBLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
     }
 }
@@ -506,22 +485,18 @@ void Window::_updateSwap( const uint32_t frameNumber )
 //===========================================================================
 bool Window::_cmdConfigInitReply( co::Command& command )
 {
-    const WindowConfigInitReplyPacket* packet =
-        command.get<WindowConfigInitReplyPacket>();
-    LBVERB << "handle window configInit reply " << packet << std::endl;
+    LBVERB << "handle window configInit reply " << command << std::endl;
 
     LBASSERT( !needsDelete( ));
-    _state = packet->result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    _state = command.get< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
 
 bool Window::_cmdConfigExitReply( co::Command& command )
 {
-    const WindowConfigExitReplyPacket* packet =
-        command.get<WindowConfigExitReplyPacket>();
-    LBVERB << "handle window configExit reply " << packet << std::endl;
+    LBVERB << "handle window configExit reply " << command << std::endl;
 
-    if( packet->result )
+    if( command.get< bool >( ))
         _state = State( needsDelete() ?
                         STATE_EXIT_SUCCESS|STATE_DELETE : STATE_EXIT_SUCCESS );
     else
