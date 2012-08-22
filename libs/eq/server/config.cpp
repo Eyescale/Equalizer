@@ -41,7 +41,10 @@
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/packetType.h>
 #include <eq/fabric/paths.h>
-#include <co/command.h>
+
+#include <co/buffer.h>
+#include <co/objectCommand.h>
+
 #include <lunchbox/sleep.h>
 
 #include "channelStopFrameVisitor.h"
@@ -943,8 +946,10 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdInit( co::Command& command )
+bool Config::_cmdInit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _mainThread );
     LBVERB << "handle config start init " << command << std::endl;
 
@@ -970,8 +975,10 @@ bool Config::_cmdInit( co::Command& command )
     return true;
 }
 
-bool Config::_cmdExit( co::Command& command )
+bool Config::_cmdExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle config exit " << command << std::endl;
     setError( ERROR_NONE );
 
@@ -987,8 +994,10 @@ bool Config::_cmdExit( co::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdate( co::Command& command )
+bool Config::_cmdUpdate( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle config update " << command << std::endl;
 
     const uint32_t versionID = command.get< uint32_t >();
@@ -1031,8 +1040,10 @@ bool Config::_cmdUpdate( co::Command& command )
     return true;
 }
 
-bool Config::_cmdStartFrame( co::Command& command )
+bool Config::_cmdStartFrame( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle config frame start " << command << std::endl;
 
     _startFrame( command.get< uint128_t >( ));
@@ -1046,16 +1057,20 @@ bool Config::_cmdStartFrame( co::Command& command )
     return true;
 }
 
-bool Config::_cmdFinishAllFrames( co::Command& command )
+bool Config::_cmdFinishAllFrames( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle config all frames finish " << command << std::endl;
 
     _flushAllFrames();
     return true;
 }
 
-bool Config::_cmdStopFrames( co::Command& command )
+bool Config::_cmdStopFrames( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle config stop frames " << command << std::endl;
 
     ChannelStopFrameVisitor visitor( _currentFrame );
@@ -1064,8 +1079,10 @@ bool Config::_cmdStopFrames( co::Command& command )
     return true;
 }
 
-bool Config::_cmdCreateReply( co::Command& command )
+bool Config::_cmdCreateReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );
 

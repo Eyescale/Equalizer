@@ -38,9 +38,11 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
+
 #include <co/barrier.h>
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/exception.h>
+#include <co/objectCommand.h>
 #include <lunchbox/sleep.h>
 
 namespace eq
@@ -758,8 +760,10 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Window::_cmdCreateChannel( co::Command& command )
+bool Window::_cmdCreateChannel( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "Create channel " << command << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
@@ -772,8 +776,10 @@ bool Window::_cmdCreateChannel( co::Command& command )
     return true;
 }
 
-bool Window::_cmdDestroyChannel( co::Command& command )
+bool Window::_cmdDestroyChannel( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
     const UUID channelID = command.get< UUID >();
@@ -793,8 +799,10 @@ bool Window::_cmdDestroyChannel( co::Command& command )
     return true;
 }
 
-bool Window::_cmdConfigInit( co::Command& command )
+bool Window::_cmdConfigInit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
 
     setError( ERROR_NONE );
@@ -817,8 +825,10 @@ bool Window::_cmdConfigInit( co::Command& command )
     return true;
 }
 
-bool Window::_cmdConfigExit( co::Command& command )
+bool Window::_cmdConfigExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "TASK window config exit " << command << std::endl;
 
     if( _state != STATE_STOPPED )
@@ -838,8 +848,10 @@ bool Window::_cmdConfigExit( co::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameStart( co::Command& command )
+bool Window::_cmdFrameStart( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _pipeThread );
 
     const uint128_t version = command.get< uint128_t >();
@@ -863,8 +875,10 @@ bool Window::_cmdFrameStart( co::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameFinish( co::Command& command )
+bool Window::_cmdFrameFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle window frame sync " << command << std::endl;
 
     const uint128_t frameID = command.get< uint128_t >();
@@ -889,8 +903,10 @@ bool Window::_cmdFinish( co::Command& )
     return true;
 }
 
-bool  Window::_cmdThrottleFramerate( co::Command& command )
+bool  Window::_cmdThrottleFramerate( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << command << std::endl;
 
@@ -909,8 +925,10 @@ bool  Window::_cmdThrottleFramerate( co::Command& command )
     return true;
 }
 
-bool Window::_cmdBarrier( co::Command& command )
+bool Window::_cmdBarrier( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle barrier " << command << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
 
@@ -918,8 +936,10 @@ bool Window::_cmdBarrier( co::Command& command )
     return true;
 }
 
-bool Window::_cmdNVBarrier( co::Command& command )
+bool Window::_cmdNVBarrier( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
 
@@ -933,8 +953,10 @@ bool Window::_cmdNVBarrier( co::Command& command )
     return true;
 }
 
-bool Window::_cmdSwap( co::Command& command )
+bool Window::_cmdSwap( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << command
                        << std::endl;
 
@@ -948,8 +970,10 @@ bool Window::_cmdSwap( co::Command& command )
     return true;
 }
 
-bool Window::_cmdFrameDrawFinish( co::Command& command )
+bool Window::_cmdFrameDrawFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 

@@ -36,8 +36,8 @@
 
 #include <co/barrier.h>
 #include <co/buffer.h>
-#include <co/command.h>
 #include <co/connection.h>
+#include <co/objectCommand.h>
 #include <lunchbox/scopedMutex.h>
 
 namespace eq
@@ -433,8 +433,10 @@ void Node::dirtyClientExit()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Node::_cmdCreatePipe( co::Command& command )
+bool Node::_cmdCreatePipe( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "Create pipe " << command << std::endl;
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
@@ -453,8 +455,10 @@ bool Node::_cmdCreatePipe( co::Command& command )
     return true;
 }
 
-bool Node::_cmdDestroyPipe( co::Command& command )
+bool Node::_cmdDestroyPipe( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
@@ -476,8 +480,10 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigInit( co::Command& command )
+bool Node::_cmdConfigInit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Init node " << command << std::endl;
 
@@ -505,8 +511,10 @@ bool Node::_cmdConfigInit( co::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigExit( co::Command& command )
+bool Node::_cmdConfigExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Node exit " << command << std::endl;
 
@@ -527,8 +535,10 @@ bool Node::_cmdConfigExit( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameStart( co::Command& command )
+bool Node::_cmdFrameStart( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
     LBVERB << "handle node frame start " << command << std::endl;
 
@@ -556,8 +566,10 @@ bool Node::_cmdFrameStart( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameFinish( co::Command& command )
+bool Node::_cmdFrameFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << std::endl;
@@ -574,8 +586,10 @@ bool Node::_cmdFrameFinish( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDrawFinish( co::Command& command )
+bool Node::_cmdFrameDrawFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
@@ -583,8 +597,10 @@ bool Node::_cmdFrameDrawFinish( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameTasksFinish( co::Command& command )
+bool Node::_cmdFrameTasksFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << command
                        << std::endl;
 
@@ -592,9 +608,12 @@ bool Node::_cmdFrameTasksFinish( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDataTransmit( co::Command& command )
+bool Node::_cmdFrameDataTransmit( co::Command& cmd )
 {
-    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    const co::ObjectVersion frameDataVersion =
+                                             command.get< co::ObjectVersion >();
     const PixelViewport pvp = command.get< PixelViewport >();
     const Zoom zoom = command.get< Zoom >();
     const uint32_t buffers = command.get< uint32_t >();
@@ -623,9 +642,12 @@ bool Node::_cmdFrameDataTransmit( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameDataReady( co::Command& command )
+bool Node::_cmdFrameDataReady( co::Command& cmd )
 {
-    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    const co::ObjectVersion frameDataVersion =
+                                            command.get< co::ObjectVersion >();
     const FrameData::Data data = command.get< FrameData::Data >();
 
     LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
@@ -638,8 +660,10 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     return true;
 }
 
-bool Node::_cmdSetAffinity( co::Command& command )
+bool Node::_cmdSetAffinity( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     lunchbox::Thread::setAffinity( command.get< int32_t >( ));
     return true;
 }

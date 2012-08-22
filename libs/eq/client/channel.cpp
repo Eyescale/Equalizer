@@ -44,6 +44,7 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
 
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/exception.h>
@@ -1938,8 +1939,10 @@ void Channel::_deleteTransferContext()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Channel::_cmdConfigInit( co::Command& command )
+bool Channel::_cmdConfigInit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "TASK channel config init " << command << std::endl;
 
     const Config* config = getConfig();
@@ -1977,8 +1980,10 @@ bool Channel::_cmdConfigInit( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdConfigExit( co::Command& command )
+bool Channel::_cmdConfigExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "Exit channel " << command << std::endl;
 
     _deleteTransferContext();
@@ -1991,8 +1996,10 @@ bool Channel::_cmdConfigExit( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameStart( co::Command& command )
+bool Channel::_cmdFrameStart( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle channel frame start " << command << std::endl;
 
     RenderContext context = command.get< RenderContext >();
@@ -2017,8 +2024,10 @@ bool Channel::_cmdFrameStart( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameFinish( co::Command& command )
+bool Channel::_cmdFrameFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << std::endl;
 
@@ -2033,8 +2042,10 @@ bool Channel::_cmdFrameFinish( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameClear( co::Command& command )
+bool Channel::_cmdFrameClear( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBASSERT( _impl->state == STATE_RUNNING );
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
                        << std::endl;
@@ -2048,8 +2059,10 @@ bool Channel::_cmdFrameClear( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameDraw( co::Command& command )
+bool Channel::_cmdFrameDraw( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
                        << std::endl;
 
@@ -2073,8 +2086,10 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameDrawFinish( co::Command& command )
+bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
@@ -2087,8 +2102,10 @@ bool Channel::_cmdFrameDrawFinish( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameAssemble( co::Command& command )
+bool Channel::_cmdFrameAssemble( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS | LOG_ASSEMBLY )
         << "TASK assemble " << getName() <<  " " << command << std::endl;
 
@@ -2113,8 +2130,10 @@ bool Channel::_cmdFrameAssemble( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameReadback( co::Command& command )
+bool Channel::_cmdFrameReadback( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
                                       << command << std::endl;
 
@@ -2127,8 +2146,10 @@ bool Channel::_cmdFrameReadback( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFinishReadback( co::Command& command )
+bool Channel::_cmdFinishReadback( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << command
                                     << std::endl;
 
@@ -2147,8 +2168,10 @@ bool Channel::_cmdFinishReadback( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameSetReady( co::Command& command )
+bool Channel::_cmdFrameSetReady( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
     detail::RBStat* stat =
             reinterpret_cast< detail::RBStat* >( command.get< void* >( ));
@@ -2168,8 +2191,10 @@ bool Channel::_cmdFrameSetReady( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTransmitImage( co::Command& command )
+bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << command << std::endl;
 
     const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
@@ -2185,8 +2210,10 @@ bool Channel::_cmdFrameTransmitImage( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameSetReadyNode( co::Command& command )
+bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
     const uint128_t nodeID = command.get< uint128_t >();
     const uint128_t netNodeID = command.get< uint128_t >();
@@ -2206,8 +2233,10 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameViewStart( co::Command& command )
+bool Channel::_cmdFrameViewStart( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
                        << std::endl;
 
@@ -2219,8 +2248,10 @@ bool Channel::_cmdFrameViewStart( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameViewFinish( co::Command& command )
+bool Channel::_cmdFrameViewFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
                        << std::endl;
 
@@ -2233,8 +2264,10 @@ bool Channel::_cmdFrameViewFinish( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdStopFrame( co::Command& command )
+bool Channel::_cmdStopFrame( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << command << std::endl;
 
@@ -2242,8 +2275,10 @@ bool Channel::_cmdStopFrame( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameTiles( co::Command& command )
+bool Channel::_cmdFrameTiles( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
                        << command << std::endl;
 
@@ -2257,8 +2292,10 @@ bool Channel::_cmdFrameTiles( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdDeleteTransferContext( co::Command& command )
+bool Channel::_cmdDeleteTransferContext( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_INIT ) << "Delete transfer context " << command << std::endl;
 
     getWindow()->deleteTransferSystemWindow();

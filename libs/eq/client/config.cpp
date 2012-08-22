@@ -42,9 +42,9 @@
 #include <co/buffer.h>
 #include <co/exception.h>
 #include <co/object.h>
-#include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
+#include <co/objectCommand.h>
 #include <lunchbox/scopedMutex.h>
 
 namespace eq
@@ -941,8 +941,10 @@ void Config::_releaseObjects()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Config::_cmdCreateNode( co::Command& command )
+bool Config::_cmdCreateNode( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "Handle create node " << command << std::endl;
 
     Node* node = Global::getNodeFactory()->createNode( this );
@@ -950,8 +952,10 @@ bool Config::_cmdCreateNode( co::Command& command )
     return true;
 }
 
-bool Config::_cmdDestroyNode( co::Command& command )
+bool Config::_cmdDestroyNode( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "Handle destroy node " << command << std::endl;
 
     const UUID nodeID = command.get< UUID >();
@@ -972,8 +976,10 @@ bool Config::_cmdDestroyNode( co::Command& command )
     return true;
 }
 
-bool Config::_cmdInitReply( co::Command& command )
+bool Config::_cmdInitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle init reply " << command << std::endl;
 
     const uint128_t version = command.get< uint128_t >();
@@ -985,8 +991,10 @@ bool Config::_cmdInitReply( co::Command& command )
     return true;
 }
 
-bool Config::_cmdExitReply( co::Command& command )
+bool Config::_cmdExitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBVERB << "handle exit reply " << command << std::endl;
 
     const uint32_t requestID = command.get< uint32_t >();
@@ -997,8 +1005,10 @@ bool Config::_cmdExitReply( co::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdateVersion( co::Command& command )
+bool Config::_cmdUpdateVersion( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const uint128_t version = command.get< uint128_t >();
     const uint32_t versionID = command.get< uint32_t >();
     const uint32_t finishID = command.get< uint32_t >();
@@ -1009,8 +1019,10 @@ bool Config::_cmdUpdateVersion( co::Command& command )
     return true;
 }
 
-bool Config::_cmdUpdateReply( co::Command& command )
+bool Config::_cmdUpdateReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const uint128_t version = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
     const bool result = command.get< bool >();
@@ -1020,15 +1032,19 @@ bool Config::_cmdUpdateReply( co::Command& command )
     return true;
 }
 
-bool Config::_cmdReleaseFrameLocal( co::Command& command )
+bool Config::_cmdReleaseFrameLocal( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     _frameStart(); // never happened from node
     releaseFrameLocal( command.get< uint32_t >( ));
     return true;
 }
 
-bool Config::_cmdFrameFinish( co::Command& command )
+bool Config::_cmdFrameFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBLOG( LOG_TASKS ) << "frame finish " << command << std::endl;
 
     _impl->finishedFrame = command.get< uint32_t >();
@@ -1044,8 +1060,9 @@ bool Config::_cmdFrameFinish( co::Command& command )
     return true;
 }
 
-bool Config::_cmdSyncClock( co::Command& command )
+bool Config::_cmdSyncClock( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     const int64_t time = command.get< int64_t >();
 
     LBVERB << "sync global clock to " << time << ", drift "
@@ -1055,8 +1072,9 @@ bool Config::_cmdSyncClock( co::Command& command )
     return true;
 }
 
-bool Config::_cmdSwapObject( co::Command& command )
+bool Config::_cmdSwapObject( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBVERB << "Cmd swap object " << command << std::endl;
 
     const uint32_t requestID = command.get< uint32_t >();
