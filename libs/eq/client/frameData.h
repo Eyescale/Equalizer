@@ -295,20 +295,6 @@ namespace server { class FrameData; }
          //@}
 
         /** @internal */
-        bool addImage( const co::ObjectVersion& frameDataVersion,
-                       const PixelViewport& pvp, const Zoom& zoom,
-                       const uint32_t buffers, const bool useAlpha,
-                       uint8_t* data );
-        struct Data;
-        void setReady( const co::ObjectVersion& frameData,
-                       const FrameData::Data& data ); //!< @internal
-
-    protected:
-        virtual ChangeType getChangeType() const { return INSTANCE; }
-        virtual void getInstanceData( co::DataOStream& os );
-        virtual void applyInstanceData( co::DataIStream& is );
-
-    private:
         struct Data
         {
             Data() : frameType( Frame::TYPE_MEMORY ), buffers( 0 ), period( 1 )
@@ -330,9 +316,20 @@ namespace server { class FrameData; }
             EQ_API void deserialize( co::DataIStream& is );
         } _data;
 
-        friend class Channel;
-        friend class server::FrameData;
+        /** @internal */
+        bool addImage( const co::ObjectVersion& frameDataVersion,
+                       const PixelViewport& pvp, const Zoom& zoom,
+                       const uint32_t buffers, const bool useAlpha,
+                       uint8_t* data );
+        void setReady( const co::ObjectVersion& frameData,
+                       const FrameData::Data& data ); //!< @internal
 
+    protected:
+        virtual ChangeType getChangeType() const { return INSTANCE; }
+        virtual void getInstanceData( co::DataOStream& os );
+        virtual void applyInstanceData( co::DataIStream& is );
+
+    private:
         Images _images;
         Images _imageCache;
         lunchbox::Lock _imageCacheLock;
