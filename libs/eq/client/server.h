@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -48,9 +48,9 @@ namespace eq
         EQ_API co::CommandQueue* getCommandThreadQueue(); //!< @internal
         //@}
 
-        /** 
+        /**
          * Choose a configuration on the server.
-         * 
+         *
          * @param parameters the configuration parameters
          * @return The chosen config, or 0 if no matching config was found.
          * @sa ConfigParams
@@ -58,9 +58,9 @@ namespace eq
          */
         EQ_API Config* chooseConfig( const ConfigParams& parameters );
 
-        /** 
+        /**
          * Release a configuration.
-         * 
+         *
          * The passed configuration will be destroyed by this function and is no
          * longer valid after the call.
          *
@@ -71,7 +71,10 @@ namespace eq
 
         /** @warning Experimental - may not be supported in the future */
         EQ_API bool shutdown();
-        
+
+        // #145 Todo Naming!
+        co::ObjectOCommand send2( uint32_t cmd, const UUID& objectID );
+
     protected:
         /** @internal Destruct this server. */
         EQ_API virtual ~Server();

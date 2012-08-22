@@ -45,7 +45,8 @@ public:
 
     ConfigEvent()
     {
-        size = sizeof( ConfigEvent );
+        // #145 Todo ConfigEvent
+        //size = sizeof( ConfigEvent );
     }
 
     int32_t steps;

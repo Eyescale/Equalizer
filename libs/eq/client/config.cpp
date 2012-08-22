@@ -39,6 +39,7 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
 
+#include <co/buffer.h>
 #include <co/exception.h>
 #include <co/object.h>
 #include <co/command.h>
@@ -101,7 +102,7 @@ public:
     CommandQueue eventQueue;
 
     /** The last received event to be released. */
-    co::CommandPtr lastEvent;
+    co::BufferPtr lastEvent;
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -574,24 +575,29 @@ void Config::sendEvent( ConfigEvent& event )
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    if( _impl->appNode )
-        send( _impl->appNode, event );
+    // #145 Todo ConfigEvent
+//    if( _impl->appNode )
+//        send( _impl->appNode, event );
 }
 
 const ConfigEvent* Config::nextEvent()
 {
     _impl->lastEvent = _impl->eventQueue.pop();
-    return _impl->lastEvent->get< ConfigEvent >();
+     // #145 Todo ConfigEvent
+    //return _impl->lastEvent->get< ConfigEvent >();
+    return 0;
 }
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    co::CommandPtr command = _impl->eventQueue.tryPop();
-    if( !command )
+    co::BufferPtr buffer = _impl->eventQueue.tryPop();
+    if( !buffer )
         return 0;
 
-    _impl->lastEvent = command;
-    return command->get< ConfigEvent >();
+    _impl->lastEvent = buffer;
+    return 0;
+    // #145 Todo ConfigEvent
+    //return command->get< ConfigEvent >();
 }
 
 bool Config::checkEvent() const
@@ -961,7 +967,7 @@ bool Config::_cmdDestroyNode( co::Command& command )
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    getServer()->send( fabric::CMD_NODE_CONFIG_EXIT_REPLY,
+    getServer()->send2( fabric::CMD_NODE_CONFIG_EXIT_REPLY,
                        nodeID ) << isStopped;
     return true;
 }

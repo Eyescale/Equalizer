@@ -31,7 +31,9 @@
 #include "equalizers/tileEqualizer.h"
 #include "tileQueue.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
+
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,11 +32,13 @@
 using namespace std;
 
 namespace eqNbody
-{    
+{
     ConfigEvent::ConfigEvent() : _proxyID(0)
     {
         _range[0] = _range[1] = 0.0f;
-        size = sizeof( ConfigEvent );
+
+        // #145 Todo ConfigEvent
+        //size = sizeof( ConfigEvent );
     }
 
     std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
@@ -50,7 +52,7 @@ namespace eqNbody
             case ConfigEvent::PROXY_CHANGED:
                 os << "proxychanged";
                 break;
-                
+
             default:
                 os << static_cast< const eq::ConfigEvent* >( event );
                 return os;
@@ -58,5 +60,5 @@ namespace eqNbody
 
         return os;
     }
-    
+
 }

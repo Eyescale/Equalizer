@@ -1029,15 +1029,15 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
         LBASSERT( candidate->getSharedContextWindow() != window );
     }
 
-    const bool isStopped = window->isStopped();
+    const bool stopped = window->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
     // do not use Object::send()
-    getServer()->send( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
-                       windowID ) << isStopped;
+    getServer()->send2( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
+                       windowID ) << stopped;
     return true;
 }
 
@@ -1075,9 +1075,7 @@ bool Pipe::_cmdConfigInit( co::Command& command )
             _impl->state = STATE_RUNNING;
     }
     else
-    {
         setError( ERROR_PIPE_NODE_NOTRUNNING );
-    }
 
     LBLOG( LOG_INIT ) << "TASK pipe config init reply result " << result
                       << std::endl;
@@ -1204,7 +1202,7 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-        send( command.getNode(), CMD_OBJECT_SYNC );
+        send( command.getNode(), fabric::CMD_OBJECT_SYNC );
     return true;
 }
 

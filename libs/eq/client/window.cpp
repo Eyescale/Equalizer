@@ -35,6 +35,7 @@
 #include "windowStatistics.h"
 
 #include <eq/util/objectManager.h>
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 #include <co/barrier.h>
@@ -128,7 +129,7 @@ void Window::notifyViewportChanged()
     // does send the startFrame() after a resize event.
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-        send( getServer(), CMD_OBJECT_SYNC );
+        send( getServer(), fabric::CMD_OBJECT_SYNC );
 }
 
 void Window::_updateFPS()
@@ -780,15 +781,15 @@ bool Window::_cmdDestroyChannel( co::Command& command )
     Channel* channel = _findChannel( channelID );
     LBASSERT( channel );
 
-    const bool isStopped = channel->isStopped();
+    const bool stopped = channel->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
     // do not use Object::send()
-    getServer()->send( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-                       channelID ) << isStopped;
+    getServer()->send2( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
+                       channelID ) << stopped;
     return true;
 }
 
@@ -809,7 +810,7 @@ bool Window::_cmdConfigInit( co::Command& command )
     else
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
 
-    LBLOG( LOG_INIT ) << "TASK window config init reply " << <std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config init reply " << std::endl;
 
     commit();
     send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;
@@ -843,7 +844,7 @@ bool Window::_cmdFrameStart( co::Command& command )
 
     const uint128_t version = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
                        << " frame " << frameNumber << " id " << frameID
@@ -867,7 +868,7 @@ bool Window::_cmdFrameFinish( co::Command& command )
     LBVERB << "handle window frame sync " << command << std::endl;
 
     const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     makeCurrent();
     frameFinish( frameID, frameNumber );
@@ -953,7 +954,7 @@ bool Window::_cmdFrameDrawFinish( co::Command& command )
                        << std::endl;
 
     const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     frameDrawFinish( frameID, frameNumber );
     return true;

@@ -27,8 +27,10 @@
 #include "nodeFactory.h"
 #include "pipe.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
+
 #include <co/command.h>
 
 namespace eq
@@ -417,7 +419,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     if( _swapFinish )
     {
         send( fabric::CMD_WINDOW_FINISH );
-        LBLOG( LOG_TASKS ) << "TASK finish " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK finish " << frameNumber << std::endl;
         _swapFinish = false;
     }
 
@@ -475,7 +477,7 @@ void Window::_updateSwap( const uint32_t frameNumber )
     if( _swap )
     {
         send( fabric::CMD_WINDOW_SWAP );
-        LBLOG( LOG_TASKS ) << "TASK swap  " << &packet << std::endl;
+        LBLOG( LOG_TASKS ) << "TASK swap  " << frameNumber << std::endl;
     }
 }
 

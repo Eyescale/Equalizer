@@ -471,7 +471,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     Global::getNodeFactory()->releasePipe( pipe );
 
     // send to config object
-    getServer()->send( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
+    getServer()->send2( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
                        pipeID ) << stopped;
     return true;
 }

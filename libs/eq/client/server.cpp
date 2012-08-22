@@ -142,6 +142,13 @@ bool Server::shutdown()
     return result;
 }
 
+co::ObjectOCommand Server::send2( uint32_t cmd, const UUID& objectID )
+{
+    co::Connections connections( 1, getConnection( ));
+    return co::ObjectOCommand( connections, co::COMMANDTYPE_CO_OBJECT,
+                           cmd, objectID, EQ_INSTANCE_ALL );
+}
+
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -146,7 +146,7 @@ void TreeEqualizer::_init( Node* node )
     {
         LBASSERT( node->right->mode == MODE_2D );
 
-        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL : 
+        node->left->mode = (node->mode == MODE_VERTICAL) ? MODE_HORIZONTAL :
                                                            MODE_VERTICAL;
         node->right->mode = node->left->mode;
     }
@@ -175,22 +175,20 @@ void TreeEqualizer::_clearTree( Node* node )
 
 void TreeEqualizer::notifyLoadData( Channel* channel,
                                     const uint32_t frameNumber,
-                                    const uint32_t nStatistics,
-                                    const Statistic* statistics,
+                                    const Statistics& statistics,
                                     const Viewport& region )
 {
-    _notifyLoadData( _tree, channel, nStatistics, statistics );
+    _notifyLoadData( _tree, channel, statistics );
 }
 
 void TreeEqualizer::_notifyLoadData( Node* node, Channel* channel,
-                                     const uint32_t nStatistics,
-                                     const Statistic* statistics )
+                                     const Statistics& statistics )
 {
     if( !node )
         return;
 
-    _notifyLoadData( node->left, channel, nStatistics, statistics );
-    _notifyLoadData( node->right, channel, nStatistics, statistics );
+    _notifyLoadData( node->left, channel, statistics );
+    _notifyLoadData( node->right, channel, statistics );
 
     if( !node->compound || node->compound->getChannel() != channel )
         return;
@@ -201,7 +199,7 @@ void TreeEqualizer::_notifyLoadData( Node* node, Channel* channel,
     int64_t endTime   = 0;
     bool    loadSet   = false;
     int64_t timeTransmit = 0;
-    for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
+    for( size_t i = 0; i < statistics.size() && !loadSet; ++i )
     {
         const Statistic& stat = statistics[ i ];
         if( stat.task != taskID ) // from different compound
@@ -252,8 +250,8 @@ void TreeEqualizer::_update( Node* node )
         LBASSERT( channel );
 
         node->resources = compound->isActive() ? compound->getUsage() : 0.f;
-        node->maxSize.x() = pvp.w; 
-        node->maxSize.y() = pvp.h; 
+        node->maxSize.x() = pvp.w;
+        node->maxSize.y() = pvp.h;
         node->boundaryf = _boundaryf;
         node->boundary2i = _boundary2i;
         return;
@@ -288,22 +286,22 @@ void TreeEqualizer::_update( Node* node )
         {
         case MODE_VERTICAL:
             node->maxSize.x() = node->left->maxSize.x() +
-                                node->right->maxSize.x();  
-            node->maxSize.y() = LB_MIN( node->left->maxSize.y(), 
-                                        node->right->maxSize.y() ); 
+                                node->right->maxSize.x();
+            node->maxSize.y() = LB_MIN( node->left->maxSize.y(),
+                                        node->right->maxSize.y() );
             node->boundary2i.x() = node->left->boundary2i.x() +
                                    node->right->boundary2i.x();
-            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(),
                                            node->right->boundary2i.y());
             node->boundaryf = LB_MAX( node->left->boundaryf,
                                       node->right->boundaryf );
             break;
         case MODE_HORIZONTAL:
-            node->maxSize.x() = LB_MIN( node->left->maxSize.x(), 
-                                        node->right->maxSize.x() );  
+            node->maxSize.x() = LB_MIN( node->left->maxSize.x(),
+                                        node->right->maxSize.x() );
             node->maxSize.y() = node->left->maxSize.y() +
-                                node->right->maxSize.y(); 
-            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(), 
+                                node->right->maxSize.y();
+            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(),
                                            node->right->boundary2i.x() );
             node->boundary2i.y() = node->left->boundary2i.y() +
                                    node->right->boundary2i.y();
@@ -311,9 +309,9 @@ void TreeEqualizer::_update( Node* node )
                                       node->right->boundaryf );
             break;
         case MODE_DB:
-            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(), 
+            node->boundary2i.x() = LB_MAX( node->left->boundary2i.x(),
                                            node->right->boundary2i.x() );
-            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(), 
+            node->boundary2i.y() = LB_MAX( node->left->boundary2i.y(),
                                            node->right->boundary2i.y() );
             node->boundaryf = node->left->boundaryf +node->right->boundaryf;
             break;
@@ -419,12 +417,12 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
                 absoluteSplit = end - maxRight;
             else if( left > maxLeft )
                 absoluteSplit = vp.x + maxLeft;
-            
+
             if( (absoluteSplit - vp.x) < boundary )
                 absoluteSplit = vp.x + boundary;
             if( (end - absoluteSplit) < boundary )
                 absoluteSplit = end - boundary;
-                
+
             const uint32_t ratio = uint32_t( absoluteSplit / boundary + .5f );
             absoluteSplit = ratio * boundary;
         }
@@ -478,12 +476,12 @@ void TreeEqualizer::_assign( Node* node, const Viewport& vp,
                 absoluteSplit = end - maxRight;
             else if( left > maxLeft )
                 absoluteSplit = vp.y + maxLeft;
-            
+
             if( (absoluteSplit - vp.y) < boundary )
                 absoluteSplit = vp.y + boundary;
             if( (end - absoluteSplit) < boundary )
                 absoluteSplit = end - boundary;
-                
+
             const uint32_t ratio = uint32_t( absoluteSplit / boundary + .5f );
             absoluteSplit = ratio * boundary;
         }
@@ -559,7 +557,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* node )
     os << lunchbox::disableFlush;
 
     if( node->compound )
-        os << node->compound->getChannel()->getName() << " resources " 
+        os << node->compound->getChannel()->getName() << " resources "
            << node->resources << " max size " << node->maxSize << std::endl;
     else
         os << "split " << node->mode << " @ " << node->split << " resources "
@@ -570,7 +568,7 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer::Node* node )
     return os;
 }
 
-std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os,
                             const TreeEqualizer::Mode mode )
 {
     os << ( mode == TreeEqualizer::MODE_2D         ? "2D" :
@@ -589,12 +587,12 @@ std::ostream& operator << ( std::ostream& os, const TreeEqualizer* lb )
        << "tree_equalizer" << std::endl
        << '{' << std::endl
        << "    mode    " << lb->getMode() << std::endl;
-  
+
     if( lb->getDamping() != 0.5f )
         os << "    damping " << lb->getDamping() << std::endl;
 
     if( lb->getBoundary2i() != Vector2i( 1, 1 ) )
-        os << "    boundary [ " << lb->getBoundary2i().x() << " " 
+        os << "    boundary [ " << lb->getBoundary2i().x() << " "
            << lb->getBoundary2i().y() << " ]" << std::endl;
 
     if( lb->getBoundaryf() != std::numeric_limits<float>::epsilon() )

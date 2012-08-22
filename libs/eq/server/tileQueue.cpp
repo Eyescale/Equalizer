@@ -20,6 +20,8 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/queueItem.h>
+
 
 namespace eq
 {

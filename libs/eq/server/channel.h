@@ -23,6 +23,7 @@
 #include "state.h"  // enum
 #include "types.h"
 
+#include <eq/client/types.h>
 #include <eq/fabric/channel.h>       // base class
 #include <eq/fabric/pixelViewport.h> // member
 #include <eq/fabric/viewport.h>      // member
@@ -33,7 +34,6 @@
 
 namespace eq
 {
-    struct Statistic;
 
 namespace server
 {
@@ -221,8 +221,7 @@ namespace server
                                   RenderContext& context );
 
         void _fireLoadData( const uint32_t frameNumber,
-                            const uint32_t nStatistics,
-                            const eq::Statistic* statistics,
+                            const Statistics& statistics,
                             const Viewport& region );
 
         /* command handler functions. */

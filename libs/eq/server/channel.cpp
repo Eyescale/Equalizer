@@ -32,11 +32,13 @@
 #include "window.h"
 
 #include <eq/client/log.h>
+#include <eq/client/statistic.h>
+
+#include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
+
 #include <co/command.h>
 #include <lunchbox/debug.h>
-
-#include "channel.ipp"
 
 #include <set>
 
@@ -428,8 +430,7 @@ void Channel::removeListener(  ChannelListener* listener )
 }
 
 void Channel::_fireLoadData( const uint32_t frameNumber,
-                             const uint32_t nStatistics,
-                             const Statistic* statistics,
+                             const Statistics& statistics,
                              const Viewport& region )
 {
     LB_TS_SCOPED( _serverThread );
@@ -437,8 +438,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
     for( ChannelListeners::const_iterator i = _listeners.begin();
          i != _listeners.end(); ++i )
     {
-        (*i)->notifyLoadData( this, frameNumber, nStatistics, statistics,
-                              region );
+        (*i)->notifyLoadData( this, frameNumber, statistics, region );
     }
 }
 
@@ -467,10 +467,9 @@ bool Channel::_cmdFrameFinishReply( co::Command& command )
 {
     const Viewport region = command.get< Viewport >();
     const uint32_t frameNumber = command.get< uint32_t >();
-    const uint32_t nStatistics = command.get< uint32_t >();
-    const Statistic statistics = command.get< Statistics >();
+    const Statistics statistics = command.get< Statistics >();
 
-    _fireLoadData( frameNumber, nStatistics, statistics, region );
+    _fireLoadData( frameNumber, statistics, region );
     return true;
 }
 

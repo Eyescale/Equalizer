@@ -20,6 +20,9 @@
 
 #include "node.h"
 
+#include <eq/fabric/commands.h>
+
+
 namespace eq
 {
 namespace server

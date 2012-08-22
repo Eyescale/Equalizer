@@ -39,14 +39,15 @@ namespace eq
      * When subclassing, make sure to set the packet size to the total size of
      * the event structure.
      */
-    struct ConfigEvent : public ConfigPacket
+    // #145 Todo ConfigEvent
+    struct ConfigEvent/* : public co::ObjectOCommand*/
     {
     public:
         /** Construct a new config event. @version 1.0 */
         ConfigEvent()
             {
-                command = fabric::CMD_CONFIG_EVENT;
-                size    = sizeof( ConfigEvent );
+//                command = fabric::CMD_CONFIG_EVENT;
+//                size    = sizeof( ConfigEvent );
             }
 
         Event data; //!< the Event @version 1.0

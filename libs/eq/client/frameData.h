@@ -330,6 +330,7 @@ namespace server { class FrameData; }
             EQ_API void deserialize( co::DataIStream& is );
         } _data;
 
+        friend class Channel;
         friend class server::FrameData;
 
         Images _images;
@@ -378,6 +379,22 @@ namespace server { class FrameData; }
 
     /** Print the frame data to the given output stream. @version 1.4 */
     EQ_API std::ostream& operator << ( std::ostream&, const FrameData& );
+}
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::FrameData::Data& value )
+{
+    byteswap( value.pvp );
+    byteswap( value.frameType );
+    byteswap( value.buffers );
+    byteswap( value.period );
+    byteswap( value.phase );
+    byteswap( value.range );
+    byteswap( value.pixel );
+    byteswap( value.subpixel );
+    byteswap( value.zoom );
+}
 }
 
 #endif // EQ_FRAMEDATA_H

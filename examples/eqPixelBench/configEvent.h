@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,12 +40,13 @@ public:
     {
         READBACK = eq::Event::USER,
         ASSEMBLE,
-        START_LATENCY,
+        START_LATENCY
     };
 
     ConfigEvent()
     {
-        size = sizeof( ConfigEvent );
+        // #145 Todo ConfigEvent
+        //size = sizeof( ConfigEvent );
     }
 
     // channel name is in user event data

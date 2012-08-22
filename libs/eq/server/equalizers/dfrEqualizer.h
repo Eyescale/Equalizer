@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -42,7 +42,7 @@ namespace server
         /** Set the average frame rate for the DFREqualizer  */
         void setFrameRate( const float frameRate ) { _target = frameRate; }
 
-        /** Get the average frame rate for the DFREqualizer  */ 
+        /** Get the average frame rate for the DFREqualizer  */
         float getFrameRate() const{ return _target; }
 
         /** Set the damping factor for the zoom adjustment.  */
@@ -55,14 +55,13 @@ namespace server
         virtual void attach( Compound* compound );
 
         /** @sa CompoundListener::notifyUpdatePre */
-        virtual void notifyUpdatePre( Compound* compound, 
+        virtual void notifyUpdatePre( Compound* compound,
                                       const uint32_t frameNumber );
-        
+
         /** @sa ChannelListener::notifyLoadData */
-        virtual void notifyLoadData( Channel* channel, 
+        virtual void notifyLoadData( Channel* channel,
                                      const uint32_t frameNumber,
-                                     const uint32_t nStatistics,
-                                     const eq::Statistic* statistics,
+                                     const Statistics& statistics,
                                      const Viewport& region );
 
         virtual uint32_t getType() const { return fabric::DFR_EQUALIZER; }

@@ -236,14 +236,15 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
                 continue;
             }
 
-            Tile tile;
-            tile.pvp = tilePVP;
-            tile.vp = tileVP;
+            Tile tileItem;
+            tileItem.pvp = tilePVP;
+            tileItem.vp = tileVP;
 
-            compound->computeTileFrustum( tile.frustum, eye, tile.vp,
+            compound->computeTileFrustum( tileItem.frustum, eye, tileItem.vp,
                                           false );
-            compound->computeTileFrustum( tile.ortho, eye, tile.vp, true );
-            queue->addTile( tile, eye );
+            compound->computeTileFrustum( tileItem.ortho, eye, tileItem.vp,
+                                          true );
+            queue->addTile( tileItem, eye );
         }
     }
 }

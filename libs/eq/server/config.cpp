@@ -36,7 +36,10 @@
 
 #include <eq/client/configEvent.h>
 #include <eq/client/error.h>
+
+#include <eq/fabric/commands.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/packetType.h>
 #include <eq/fabric/paths.h>
 #include <co/command.h>
 #include <lunchbox/sleep.h>
@@ -725,7 +728,8 @@ uint32_t Config::_createConfig( Node* node )
     // create config on each non-app node
     //   app-node already has config from chooseConfig
     const uint32_t requestID = getLocalNode()->registerRequest();
-    node->getNode()->send( CMD_SERVER_CREATE_CONFIG, PACKETTYPE_EQ_SERVER )
+    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG,
+                           fabric::PACKETTYPE_EQ_SERVER )
             << co::ObjectVersion( this ) << requestID;
 
     return requestID;
@@ -814,7 +818,8 @@ bool Config::exit()
 
     ConfigEvent exitEvent;
     exitEvent.data.type = Event::EXIT;
-    send( findApplicationNetNode(), exitEvent );
+    // #145 Todo ConfigEvent
+    //send( findApplicationNetNode(), exitEvent );
 
     _needsFinish = false;
     _state = STATE_STOPPED;

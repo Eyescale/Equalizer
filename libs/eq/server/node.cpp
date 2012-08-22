@@ -28,11 +28,15 @@
 #include "window.h"
 
 #include <eq/client/error.h>
+
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
+
 #include <co/barrier.h>
 #include <co/command.h>
 #include <co/global.h>
+
 #include <lunchbox/clock.h>
 #include <lunchbox/launcher.h>
 #include <lunchbox/os.h>
@@ -459,7 +463,7 @@ void Node::configInit( const uint128_t& initID, const uint32_t frameNumber )
     getConfig()->send( _node, fabric::CMD_CONFIG_CREATE_NODE ) << getID();
 
     LBLOG( LOG_INIT ) << "Init node" << std::endl;
-    send( fabric::CMD_NODE_CONFIG_INIT ) << initID << frameNumber,
+    send( fabric::CMD_NODE_CONFIG_INIT ) << initID << frameNumber;
 }
 
 bool Node::syncConfigInit()
@@ -625,7 +629,7 @@ void Node::_sendFrameFinish( const uint32_t frameNumber )
 
     send( fabric::CMD_NODE_FRAME_FINISH ) << i->second << frameNumber;
     _frameIDs.erase( i );
-    LBLOG( LOG_TASKS ) << "TASK node finish frame  " << &packet << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node finish frame  " << frameNumber << std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -685,10 +689,15 @@ bool Node::removeConnectionDescription( co::ConnectionDescriptionPtr cd )
     return false;
 }
 
+co::ObjectOCommand Node::send( const uint32_t cmd )
+{
+    return send( cmd, getID( ));
+}
+
 co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
-    co::Connections connections( 1, _bufferedTasks );
-    return co::ObjectOCommand( connections, COMMANDTYPE_CO_OBJECT,
+    co::Connections connections/*( 1, _bufferedTasks )*/;
+    return co::ObjectOCommand( connections, co::COMMANDTYPE_CO_OBJECT,
                                cmd, id, EQ_INSTANCE_ALL );
 }
 

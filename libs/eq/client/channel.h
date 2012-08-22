@@ -573,9 +573,9 @@ namespace detail { class Channel; struct RBStat; }
         void _initDrawableConfig();
 
         /** Tile render loop. */
-        void _frameTiles( const RenderContext& context, const bool isLocal,
+        void _frameTiles( RenderContext& context, const bool isLocal,
                           const co::ObjectVersion& queueVersion,
-                          const uint32_t tasks, const uint32_t nFrames,
+                          const uint32_t tasks,
                           const co::ObjectVersions& frames );
 
         /** Reference the frame for an async operation. */
@@ -592,13 +592,14 @@ namespace detail { class Channel; struct RBStat; }
                              const uint32_t frameNumber,
                              const uint32_t taskID );
 
-        void _frameReadback( const uint128_t& frameID, uint32_t nFrames,
-                             co::ObjectVersion* frames );
+        void _frameReadback( const uint128_t& frameID,
+                             const co::ObjectVersions& frames );
         void _finishReadback( const co::ObjectVersion& frameDataVersion,
                               const uint64_t imageIndex,
                               const uint32_t frameNumber,
-                              const uint32_t taskID, const uint32_t nNodes,
-                              const std::vector< uint128_t >& IDs );
+                              const uint32_t taskID,
+                              const std::vector< uint128_t >& nodes,
+                              const std::vector< uint128_t >& netNodes );
 
         bool _asyncFinishReadback( const std::vector< size_t >& imagePos );
 
@@ -620,8 +621,7 @@ namespace detail { class Channel; struct RBStat; }
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        void _setOutputFrames( const uint32_t nFrames,
-                               const co::ObjectVersions frames );
+        void _setOutputFrames( const co::ObjectVersions frames );
         void _resetOutputFrames();
 
         void _deleteTransferContext();

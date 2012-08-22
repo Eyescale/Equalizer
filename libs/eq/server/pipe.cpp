@@ -26,8 +26,10 @@
 #include "nodeFactory.h"
 #include "window.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
+
 #include <co/command.h>
 
 namespace eq

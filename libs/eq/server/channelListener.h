@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,10 +20,10 @@
 
 #include "types.h"
 
+#include <eq/client/types.h>
+
 namespace eq
 {
-    struct Statistic;
-
 namespace server
 {
     /** A listener on various channel operations. */
@@ -32,7 +32,7 @@ namespace server
     public:
         virtual ~ChannelListener(){}
 
-        /** 
+        /**
          * Notify that the channel has received new load data.
          *
          * @param channel the channel
@@ -41,10 +41,9 @@ namespace server
          * @param statistics the frame's statistic.
          * @param region the draw area wrt the channels viewport
          */
-        virtual void notifyLoadData( Channel* channel, 
+        virtual void notifyLoadData( Channel* channel,
                                      const uint32_t frameNumber,
-                                     const uint32_t nStatistics,
-                                     const Statistic* statistics,
+                                     const Statistics& statistics,
                                      const Viewport& region ) = 0;
     };
 }
