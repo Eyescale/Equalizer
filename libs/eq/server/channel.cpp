@@ -37,7 +37,9 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
 
-#include <co/command.h>
+#include <co/buffer.h>
+#include <co/objectCommand.h>
+
 #include <lunchbox/debug.h>
 
 #include <set>
@@ -463,8 +465,10 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
     return true;
 }
 
-bool Channel::_cmdFrameFinishReply( co::Command& command )
+bool Channel::_cmdFrameFinishReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const Viewport region = command.get< Viewport >();
     const uint32_t frameNumber = command.get< uint32_t >();
     const Statistics statistics = command.get< Statistics >();
