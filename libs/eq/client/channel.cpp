@@ -1651,9 +1651,9 @@ void Channel::_asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
                                         << " receiver " << *i << " on " << *j
                                         << std::endl;
         send( getNode()->getLocalNode(),
-              fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE ) << frame << *i << *j
-                                                         << image << frameNumber
-                                                         << taskID;
+              fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE )
+                << co::ObjectVersion( frame ) << *i << *j << image
+                << frameNumber << taskID;
     }
 }
 
