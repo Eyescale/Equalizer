@@ -1402,10 +1402,9 @@ void Channel::_frameTiles( const RenderContext& context, const bool isLocal,
 
     co::QueueSlave* queue = _getQueue( queueVersion );
     LBASSERT( queue );
-    for( co::ObjectCommand queuePacket = queue->pop(); queuePacket;
-         queuePacket = queue->pop( ))
+    for( co::ObjectCommand tile = queue->pop(); tile; tile = queue->pop( ))
     {
-        queuePacket >> context.frustum >> context.ortho
+        tile >> context.frustum >> context.ortho
                     >> context.pvp >> context.vp;
 
         const PixelViewport tilePVP = context.pvp;
@@ -1521,7 +1520,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
 }
 
 void Channel::_setOutputFrames( const uint32_t nFrames,
-                                const co::ObjectVersion* frames )
+                                const co::ObjectVersions frames )
 {
     LB_TS_THREAD( _pipeThread );
     LBASSERT( _impl->outputFrames.empty( ))
@@ -1711,22 +1710,12 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     // use compression on links up to 2 GBit/s
     const bool useCompression = ( description->bandwidth <= 262144 );
 
-    NodeFrameDataTransmitPacket packet;
-    const uint64_t packetSize = sizeof( packet ) - 8 * sizeof( uint8_t );
-
-    packet.objectID    = nodeID;
-    packet.frameData   = frameData;
-    packet.frameNumber = frameNumber;
-
     std::vector< const PixelData* > pixelDatas;
     std::vector< float > qualities;
 
-    packet.size = packetSize;
-    packet.buffers = Frame::BUFFER_NONE;
-    packet.pvp = image->getPixelViewport();
-    packet.useAlpha = image->getAlphaUsage();
-    packet.zoom = image->getZoom();
-    LBASSERT( packet.pvp.isValid( ));
+    uint32_t buffers = Frame::BUFFER_NONE;
+    uint64_t dataSize = 0;
+
 
     {
         uint64_t rawSize( 0 );
@@ -1748,7 +1737,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
             if( image->hasPixelData( buffer ))
             {
                 // format, type, nChunks, compressor name
-                packet.size += sizeof( FrameData::ImageHeader );
+                dataSize += sizeof( FrameData::ImageHeader );
 
                 const PixelData& data = useCompression ?
                     image->compressPixelData( buffer ) :
@@ -1762,26 +1751,26 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                         uint32_t( data.compressedSize.size( ));
                     for( uint32_t k = 0 ; k < nElements; ++k )
                     {
-                        packet.size += sizeof( uint64_t );
-                        packet.size += data.compressedSize[ k ];
+                        dataSize += sizeof( uint64_t );
+                        dataSize += data.compressedSize[ k ];
                     }
                     compressEvent.event.data.statistic.plugins[j] =
                         data.compressorName;
                 }
                 else
                 {
-                    packet.size += sizeof( uint64_t );
-                    packet.size += image->getPixelDataSize( buffer );
+                    dataSize += sizeof( uint64_t );
+                    dataSize += image->getPixelDataSize( buffer );
                 }
 
-                packet.buffers |= buffer;
+                buffers |= buffer;
                 rawSize += image->getPixelDataSize( buffer );
             }
         }
 
         if( rawSize > 0 )
             compressEvent.event.data.statistic.ratio =
-            static_cast< float >( packet.size ) /
+            static_cast< float >( dataSize ) /
             static_cast< float >( rawSize );
     }
 
@@ -1798,10 +1787,19 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         token = getLocalNode()->acquireSendToken( toNode );
     }
 
+    co::ObjectOCommand packet( co::Connections( 1, connection ),
+                               co::COMMANDTYPE_CO_OBJECT,
+                               fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
+                               nodeID, EQ_INSTANCE_ALL );
+    LBASSERT( image->getPixelViewport().isValid( ));
+    packet << frameDataVersion << image->getPixelViewport() << image->getZoom()
+           << buffers << frameNumber << image->getAlphaUsage();
+
     connection->lockSend();
-    connection->send( &packet, packetSize, true );
+    packet.sendUnlocked( dataSize );
+
 #ifndef NDEBUG
-    size_t sentBytes = packetSize;
+    size_t sentBytes = dataSize;
 #endif
 
     for( uint32_t j=0; j < pixelDatas.size(); ++j )
@@ -1846,8 +1844,8 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         }
     }
 #ifndef NDEBUG
-    LBASSERTINFO( sentBytes == packet.size,
-        sentBytes << " != " << packet.size );
+    LBASSERTINFO( sentBytes == dataSize,
+        sentBytes << " != " << dataSize );
 #endif
 
     connection->unlockSend();

@@ -63,7 +63,6 @@ set(CLIENT_HEADERS
   log.h
   messagePump.h
   node.h
-  nodePackets.h
   nodeFactory.h
   observer.h
   os.h

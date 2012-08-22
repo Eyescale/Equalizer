@@ -34,8 +34,7 @@ namespace eq
 {
 namespace server { class FrameData; }
 
-    class  ROIFinder;
-    struct NodeFrameDataTransmitPacket;
+    class ROIFinder;
 
     /**
      * A holder for multiple images.
@@ -296,7 +295,11 @@ namespace server { class FrameData; }
          //@}
 
         /** @internal */
-        bool addImage( const NodeFrameDataTransmitPacket* packet );
+        bool addImage( const co::ObjectVersion& frameDataVersion,
+                       const PixelViewport& pvp, const Zoom& zoom,
+                       const uint32_t buffers, const bool useAlpha,
+                       uint8_t* data );
+        struct Data;
         void setReady( const co::ObjectVersion& frameData,
                        const FrameData::Data& data ); //!< @internal
 

@@ -621,7 +621,7 @@ namespace detail { class Channel; struct RBStat; }
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
         void _setOutputFrames( const uint32_t nFrames,
-                               const co::ObjectVersion* frames );
+                               const co::ObjectVersions frames );
         void _resetOutputFrames();
 
         void _deleteTransferContext();

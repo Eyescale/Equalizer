@@ -24,6 +24,9 @@
 #include "observer.h"
 #include "server.h"
 
+#include <eq/fabric/commands.h>
+
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>

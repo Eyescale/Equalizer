@@ -167,12 +167,9 @@ void Pipe::addTasks( const uint32_t tasks )
     node->addTasks( tasks );
 }
 
-void Pipe::send( co::ObjectPacket& packet )
+co::ObjectOCommand Pipe::send( const uint32_t cmd )
 {
-    Node* node = getNode();
-    LBASSERT( node );
-    packet.objectID = getID();
-    node->send( packet );
+    return getNode()->send( cmd, getID( ));
 }
 
 //===========================================================================

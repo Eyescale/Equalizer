@@ -21,6 +21,9 @@
 #include "config.h"
 #include "nodeFactory.h"
 
+#include <eq/fabric/commands.h>
+#include <eq/fabric/packetType.h>
+
 #include <co/command.h>
 #include <co/dispatcher.h>
 

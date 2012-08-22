@@ -41,8 +41,11 @@
 #  include "cudaContext.h"
 #endif
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
+
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
@@ -682,7 +685,7 @@ void Pipe::cancelThread()
     if( !_impl->thread )
         return;
 
-    co::BufferPtr buffer = allocCommand( 8 );
+    co::BufferPtr buffer = getLocalNode()->allocCommand( 8 );
     co::ObjectOCommand command( co::Connections(), co::COMMANDTYPE_CO_OBJECT,
                                 fabric::CMD_PIPE_EXIT_THREAD, getID(),
                                 EQ_INSTANCE_ALL );

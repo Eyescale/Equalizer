@@ -796,7 +796,6 @@ bool Window::_cmdConfigInit( co::Command& command )
 {
     LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
 
-    WindowConfigInitReplyPacket reply;
     setError( ERROR_NONE );
 
     bool result = false;
@@ -810,7 +809,7 @@ bool Window::_cmdConfigInit( co::Command& command )
     else
         setError( ERROR_WINDOW_PIPE_NOTRUNNING );
 
-    LBLOG( LOG_INIT ) << "TASK window config init reply " << &reply <<std::endl;
+    LBLOG( LOG_INIT ) << "TASK window config init reply " << <std::endl;
 
     commit();
     send( command.getNode(), fabric::CMD_WINDOW_CONFIG_INIT_REPLY ) << result;

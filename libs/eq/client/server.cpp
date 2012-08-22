@@ -24,6 +24,9 @@
 #include "nodeFactory.h"
 #include "types.h"
 
+#include <eq/fabric/commands.h>
+#include <eq/fabric/packetType.h>
+
 #include <co/command.h>
 #include <co/connection.h>
 
@@ -83,7 +86,6 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
 
     ClientPtr client = getClient();
     const uint32_t requestID =  client->registerRequest();
-    packet.flags = parameters.getFlags();
 
     const std::string& workDir = parameters.getWorkDir();
     std::string rendererInfo = workDir + '#' + renderClient;
@@ -93,7 +95,7 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
             rendererInfo[i] = '/';
 #endif
 
-    send( fabric::CMD_SERVER_CHOOSE_CONFIG, PACKETTYPE_EQ_SERVER )
+    send( fabric::CMD_SERVER_CHOOSE_CONFIG, fabric::PACKETTYPE_EQ_SERVER )
             << requestID << parameters.getFlags() << rendererInfo;
 
     while( !client->isRequestServed( requestID ))
@@ -109,10 +111,10 @@ void Server::releaseConfig( Config* config )
     LBASSERT( isConnected( ));
     ClientPtr client = getClient();
     const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_RELEASE_CONFIG, PACKETTYPE_EQ_SERVER )
+    send( fabric::CMD_SERVER_RELEASE_CONFIG, fabric::PACKETTYPE_EQ_SERVER )
             << config->getID() << requestID;
 
-    while( !client->isRequestServed( equestID ))
+    while( !client->isRequestServed( requestID ))
         client->processCommand();
 
     client->waitRequest( requestID );
@@ -125,7 +127,8 @@ bool Server::shutdown()
 
     ClientPtr client = getClient();
     const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_SHUTDOWN, PACKETTYPE_EQ_SERVER ) << requestID;
+    send( fabric::CMD_SERVER_SHUTDOWN, fabric::PACKETTYPE_EQ_SERVER )
+            << requestID;
 
     while( !client->isRequestServed( requestID ))
         getClient()->processCommand();
@@ -148,7 +151,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
 
     co::LocalNodePtr  localNode = command.getLocalNode();
     const UUID configID = command.get< UUID >();
-    const uint32_t requestID = command.get< UUID >();
+    const uint32_t requestID = command.get< uint32_t >();
     if( configID == UUID::ZERO )
     {
         localNode->serveRequest( requestID, (void*)0 );
@@ -162,7 +165,7 @@ bool Server::_cmdChooseConfigReply( co::Command& command )
         Config* config = *i;
         if( config->getID() == configID )
         {
-            config->setupServerConnections( connectionData );
+            config->setupServerConnections( connectionData.c_str( ));
             localNode->serveRequest( requestID, config );
             return true;
         }

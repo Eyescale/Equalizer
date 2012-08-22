@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric.stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -39,11 +39,11 @@ namespace server
     class Window : public fabric::Window< Pipe, Window, Channel >
     {
     public:
-        /** 
+        /**
          * Constructs a new Window.
          */
         EQSERVER_API Window( Pipe* parent );
-        
+
         virtual ~Window();
         /**
          * @name Data Access
@@ -58,7 +58,7 @@ namespace server
 
         /** @return the Server of this window. */
         ServerPtr getServer();
-        
+
         Channel* getChannel( const ChannelPath& path );
 
         co::CommandQueue* getMainThreadQueue();
@@ -97,18 +97,18 @@ namespace server
          */
         void addTasks( const uint32_t tasks );
 
-        /** 
+        /**
          * Join a swap barrier for the next update.
-         * 
+         *
          * @param barrier the net::Barrier for the swap barrier group, or 0 if
          *                this is the first window.
          * @return the net::Barrier for the swap barrier group.
          */
         co::Barrier* joinSwapBarrier( co::Barrier* barrier );
 
-        /** 
+        /**
          * Join a NV_swap_group barrier for the next update.
-         * 
+         *
          * @param swapBarrier the swap barrier containing the NV_swap_group
          *                    parameters.
          * @param netBarrier the net::Barrier to protect the entry from the
@@ -148,7 +148,7 @@ namespace server
         /** Sync exit of this entity. */
         bool syncConfigExit();
 
-        /** 
+        /**
          * Update one frame.
          *
          * @param frameID a per-frame identifier passed to all rendering
@@ -157,7 +157,7 @@ namespace server
          */
         void updateDraw( const uint128_t& frameID, const uint32_t frameNumber );
 
-        /** 
+        /**
          * Trigger the post-draw operations.
          *
          * @param frameID a per-frame identifier passed to all rendering
@@ -167,7 +167,7 @@ namespace server
         void updatePost( const uint128_t& frameID, const uint32_t frameNumber );
         //@}
 
-        void send( co::ObjectPacket& packet );
+        co::ObjectOCommand send( const uint32_t cmd );
         void output( std::ostream& ) const; //!< @internal
 
     protected:
@@ -185,7 +185,7 @@ namespace server
 
         /** The current state for state change synchronization. */
         lunchbox::Monitor< State > _state;
-        
+
         /** The maximum frame rate allowed for this window. */
         float _maxFPS;
 
@@ -206,7 +206,7 @@ namespace server
         /** The flag if the window has to execute a finish */
         bool _swapFinish;
 
-        /** 
+        /**
          * The flag if the window has to swap, i.e, something was done during
          * the last update.
          */
@@ -221,8 +221,8 @@ namespace server
         void _updateSwap( const uint32_t frameNumber );
 
         /* command handler functions. */
-        bool _cmdConfigInitReply( co::Command& command ); 
-        bool _cmdConfigExitReply( co::Command& command ); 
+        bool _cmdConfigInitReply( co::Command& command );
+        bool _cmdConfigExitReply( co::Command& command );
 
         // For access to _fixedPVP
         friend std::ostream& operator << ( std::ostream&, const Window*);

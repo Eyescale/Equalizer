@@ -531,7 +531,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
 
     send( fabric::CMD_NODE_FRAME_START )
             << getVersion() << configVersion << frameID << frameNumber;
-    LBLOG( LOG_TASKS ) << "TASK node start frame " << &startPacket << std::endl;
+    LBLOG( LOG_TASKS ) << "TASK node start frame " << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -541,7 +541,7 @@ void Node::update( const uint128_t& frameID, const uint32_t frameNumber )
     {
         send( fabric::CMD_NODE_FRAME_DRAW_FINISH ) << frameID << frameNumber;
         LBLOG( LOG_TASKS ) << "TASK node draw finish " << getName() <<  " "
-                           << &drawFinishPacket << std::endl;
+                           << std::endl;
     }
     _lastDrawPipe = 0;
 

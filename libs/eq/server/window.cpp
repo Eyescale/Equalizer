@@ -282,10 +282,9 @@ co::Barrier* Window::joinNVSwapBarrier( SwapBarrierConstPtr swapBarrier,
 }
 
 
-void Window::send( co::ObjectPacket& packet )
+co::ObjectOCommand Window::send( const uint32_t cmd )
 {
-    packet.objectID = getID();
-    getNode()->send( packet );
+    return getNode()->send( cmd, getID( ));
 }
 
 //===========================================================================

@@ -340,7 +340,7 @@ void ChannelUpdateVisitor::_sendClear( const RenderContext& context )
     _channel->send( fabric::CMD_CHANNEL_FRAME_CLEAR ) << context;
     _updated = true;
     LBLOG( LOG_TASKS ) << "TASK clear " << _channel->getName() <<  " "
-                       << &clearPacket << std::endl;
+                       << std::endl;
 }
 
 void ChannelUpdateVisitor::_updateFrameRate( const Compound* compound ) const

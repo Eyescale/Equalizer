@@ -30,9 +30,12 @@
 #include "pipe.h"
 #include "server.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
+
 #include <co/barrier.h>
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <lunchbox/scopedMutex.h>
@@ -406,11 +409,12 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::CommandPtr command = _queue.pop();
-        if( !command )
+        co::BufferPtr buffer = _queue.pop();
+        if( !buffer )
             return; // exit thread
 
-        LBCHECK( (*command)( ));
+        co::Command command( buffer );
+        LBCHECK( command( ));
     }
 }
 
@@ -460,7 +464,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
     LBASSERT( pipe );
     pipe->exitThread();
 
-    const bool isStopped = pipe->isStopped();
+    const bool stopped = pipe->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( pipe );
@@ -468,7 +472,7 @@ bool Node::_cmdDestroyPipe( co::Command& command )
 
     // send to config object
     getServer()->send( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
-                       pipeID ) << isStopped;
+                       pipeID ) << stopped;
     return true;
 }
 
@@ -531,7 +535,7 @@ bool Node::_cmdFrameStart( co::Command& command )
     const uint128_t version = command.get< uint128_t >();
     const uint128_t configVersion = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
-    const uint32_t frameNumber = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     LBASSERT( _currentFrame == frameNumber-1 );
 
@@ -566,7 +570,7 @@ bool Node::_cmdFrameFinish( co::Command& command )
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-        send( command.getNode(), CMD_OBJECT_SYNC );
+        send( command.getNode(), fabric::CMD_OBJECT_SYNC );
     return true;
 }
 
@@ -590,21 +594,32 @@ bool Node::_cmdFrameTasksFinish( co::Command& command )
 
 bool Node::_cmdFrameDataTransmit( co::Command& command )
 {
-    const NodeFrameDataTransmitPacket* packet =
-        command.get<NodeFrameDataTransmitPacket>();
+    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
+    const PixelViewport pvp = command.get< PixelViewport >();
+    const Zoom zoom = command.get< Zoom >();
+    const uint32_t buffers = command.get< uint32_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+    const bool useAlpha = command.get< bool >();
+    const uint8_t* data = reinterpret_cast< const uint8_t* >(
+                command.getRemainingBuffer( command.getRemainingBufferSize( )));
 
     LBLOG( LOG_ASSEMBLY )
-        << "received image data for " << packet->frameData << ", buffers "
-        << packet->buffers << " pvp " << packet->pvp << std::endl;
+        << "received image data for " << frameDataVersion << ", buffers "
+        << buffers << " pvp " << pvp << std::endl;
 
-    LBASSERT( packet->pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
-    FrameDataPtr frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( frameDataVersion );
     LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
-                          packet->frameNumber );
-    LBCHECK( frameData->addImage( packet ));
+                          frameNumber );
+
+    // Note on the const_cast: since the PixelData structure stores non-const
+    // pointers, we have to go non-const at some point, even though we do not
+    // modify the data.
+    LBCHECK( frameData->addImage( frameDataVersion, pvp, zoom, buffers,
+                                  useAlpha, const_cast< uint8_t* >( data )));
     return true;
 }
 
@@ -613,7 +628,7 @@ bool Node::_cmdFrameDataReady( co::Command& command )
     const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
     const FrameData::Data data = command.get< FrameData::Data >();
 
-    LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
+    LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
                           << std::endl;
     FrameDataPtr frameData = getFrameData( frameDataVersion );
     LBASSERT( frameData );

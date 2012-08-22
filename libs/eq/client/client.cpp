@@ -30,6 +30,7 @@
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/fabric/packetType.h>
 #include <eq/fabric/view.h>
 
 #include <co/buffer.h>
