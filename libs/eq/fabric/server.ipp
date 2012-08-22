@@ -157,8 +157,10 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
 
     if( requestID != LB_UNDEFINED_UINT32 )
-        command.getNode()->send( CMD_CONFIG_CREATE_REPLY,
-                                 co::COMMANDTYPE_CO_OBJECT ) << requestID;
+        co::ObjectOCommand(
+                    co::Connections( 1, command.getNode()->getConnection( )),
+                    co::COMMANDTYPE_CO_OBJECT, CMD_CONFIG_CREATE_REPLY,
+                    configVersion.identifier, EQ_INSTANCE_ALL ) << requestID;
 
     return true;
 }
