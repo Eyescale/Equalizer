@@ -450,8 +450,10 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
 template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
 {
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< UUID >( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }

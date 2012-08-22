@@ -976,9 +976,12 @@ bool Config::_cmdInitReply( co::Command& command )
 {
     LBVERB << "handle init reply " << command << std::endl;
 
-    sync( command.get< uint128_t >( ));
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< bool >( ));
+    const uint128_t version = command.get< uint128_t >();
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
+
+    sync( version );
+    getLocalNode()->serveRequest( requestID, result );
     return true;
 }
 
@@ -986,9 +989,11 @@ bool Config::_cmdExitReply( co::Command& command )
 {
     LBVERB << "handle exit reply " << command << std::endl;
 
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
+
     _exitMessagePump();
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< bool >( ));
+    getLocalNode()->serveRequest( requestID, result );
     return true;
 }
 
@@ -1006,9 +1011,12 @@ bool Config::_cmdUpdateVersion( co::Command& command )
 
 bool Config::_cmdUpdateReply( co::Command& command )
 {
-    sync( command.get< uint128_t >( ));
-    getClient()->serveRequest( command.get< uint32_t >(),
-                               command.get< bool >( ));
+    const uint128_t version = command.get< uint128_t >();
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
+
+    sync( version );
+    getClient()->serveRequest( requestID, result );
     return true;
 }
 

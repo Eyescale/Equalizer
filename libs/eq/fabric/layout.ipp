@@ -304,8 +304,10 @@ Layout< C, L, V >::_cmdNewView( co::Command& command )
 template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
 {
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< UUID >( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }

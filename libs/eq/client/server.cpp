@@ -192,8 +192,9 @@ bool Server::_cmdReleaseConfigReply( co::Command& command )
 bool Server::_cmdShutdownReply( co::Command& command )
 {
     co::LocalNodePtr localNode = command.getLocalNode();
-    localNode->serveRequest( command.get< uint32_t >(),
-                             command.get< bool >( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const bool result = command.get< bool >();
+    localNode->serveRequest( requestID, result );
     return true;
 }
 }

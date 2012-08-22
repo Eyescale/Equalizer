@@ -865,8 +865,10 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 template< class S, class C, class O, class L, class CV, class N, class V >
 bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& command )
 {
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< UUID >( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }

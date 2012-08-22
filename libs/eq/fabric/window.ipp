@@ -459,8 +459,10 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
 template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
 {
-    getLocalNode()->serveRequest( command.get< uint32_t >(),
-                                  command.get< UUID >( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }

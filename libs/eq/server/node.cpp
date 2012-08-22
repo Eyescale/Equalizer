@@ -696,7 +696,8 @@ co::ObjectOCommand Node::send( const uint32_t cmd )
 
 co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
-    co::Connections connections/*( 1, _bufferedTasks )*/;
+    // #145 Todo use _bufferedTasks
+    co::Connections connections( 1, _node->getConnection( ));
     return co::ObjectOCommand( connections, co::COMMANDTYPE_CO_OBJECT,
                                cmd, id, EQ_INSTANCE_ALL );
 }
