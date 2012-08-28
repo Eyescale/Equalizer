@@ -168,8 +168,8 @@ void Window::_updateFPS()
     }
 
     WindowStatistics stat( Statistic::WINDOW_FPS, this );
-    stat.event.data.statistic.currentFPS = curFPS;
-    stat.event.data.statistic.averageFPS = _avgFPS;
+    stat.event.statistic.currentFPS = curFPS;
+    stat.event.statistic.averageFPS = _avgFPS;
 }
 
 
@@ -624,7 +624,6 @@ void Window::_enterBarrier( co::ObjectVersion barrier )
 
 bool Window::processEvent( const Event& event )
 {
-    ConfigEvent configEvent;
     switch( event.type )
     {
         case Event::WINDOW_HIDE:
@@ -725,10 +724,8 @@ bool Window::processEvent( const Event& event )
             LBUNIMPLEMENTED;
     }
 
-    configEvent.data = event;
-
     Config* config = getConfig();
-    config->sendEvent( configEvent );
+    config->sendEvent( event );
     return true;
 }
 

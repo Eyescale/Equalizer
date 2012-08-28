@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2010, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,54 +28,62 @@
 
 #include "configEvent.h"
 
+#include <co/buffer.h>
+
 namespace eqPixelBench
 {
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::READBACK:
+        case READBACK:
             os  << "readback";
             break;
 
-        case ConfigEvent::ASSEMBLE:
+        case ASSEMBLE:
             os  << "assemble";
             break;
-        case ConfigEvent::START_LATENCY:
+        case START_LATENCY:
             os  << "        ";
             break;
         default:
-            os << static_cast< const eq::ConfigEvent* >( event );
+            os << event;
             return os;
     }
-    
 
-    os << " \"" << event->data.user.data << "\" " << event->formatType
-       << std::string( 32-strlen( event->formatType ), ' ' ) << event->area.x()
-       << "x" << event->area.y() << ": ";
+    eq::ConfigEvent myEvent( event->getBuffer( ));
 
-    if( event->msec < 0.0f )
-        os << "error 0x" << std::hex << static_cast< int >( -event->msec )
+    const float msec = myEvent.get< float >();
+    std::string name = myEvent.get< std::string >();
+    eq::Vector2i area = myEvent.get< eq::Vector2i >();
+    std::string formatType = myEvent.get< std::string >();
+    uint64_t dataSizeGPU = myEvent.get< uint64_t >();
+    uint64_t dataSizeCPU = myEvent.get< uint64_t >();
+
+    os << " \"" << name << "\" " << formatType
+       << std::string( 32-formatType.length(), ' ' ) << area.x()
+       << "x" << area.y() << ": ";
+
+    if( msec < 0.0f )
+        os << "error 0x" << std::hex << static_cast< int >( -msec )
            << std::dec;
     else
-        os << static_cast< uint32_t >( event->area.x() * event->area.y() / 
-                                       event->msec  / 1048.576f )
-           << "MPix/sec (" << event->msec << "ms, " << 
-            unsigned(1000.0f / event->msec) << "FPS)";
+        os << static_cast< uint32_t >( area.x() * area.y() / msec  / 1048.576f )
+           << "MPix/sec (" << msec << "ms, " <<
+            unsigned(1000.0f / msec) << "FPS)";
 
-#if 0
-    if ( event->data.type == ConfigEvent::READBACK )
+    if ( event->data.type == READBACK )
     {
-        os << event->area << "( size GPU : " << event->dataSizeGPU << " bytes ";
-        os << "/ size CPU : " << event->dataSizeCPU << " bytes ";
-        os << "/ time : " <<  event->msec << "ms )";
+        os << area << "( size GPU : " << dataSizeGPU << " bytes ";
+        os << "/ size CPU : " << dataSizeCPU << " bytes ";
+        os << "/ time : " <<  msec << "ms )";
     }
-    else if ( event->data.type == ConfigEvent::ASSEMBLE )
+    else if ( event->data.type == ASSEMBLE )
     {
-        os << event->area << "( size CPU : " << event->dataSizeCPU << " bytes ";
-        os << "/ time : " <<  event->msec << "ms )";
+        os << area << "( size CPU : " << dataSizeCPU << " bytes ";
+        os << "/ time : " <<  msec << "ms )";
     }
-#endif
+
     return os;
 }
 }

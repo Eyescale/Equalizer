@@ -33,28 +33,20 @@ using namespace std;
 
 namespace eqNbody
 {
-    ConfigEvent::ConfigEvent() : _proxyID(0)
-    {
-        _range[0] = _range[1] = 0.0f;
-
-        // #145 Todo ConfigEvent
-        //size = sizeof( ConfigEvent );
-    }
-
-    std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+    std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
     {
         switch( event->data.type )
         {
-            case ConfigEvent::DATA_CHANGED:
+            case DATA_CHANGED:
                 os << "datachanged";
                 break;
 
-            case ConfigEvent::PROXY_CHANGED:
+            case PROXY_CHANGED:
                 os << "proxychanged";
                 break;
 
             default:
-                os << static_cast< const eq::ConfigEvent* >( event );
+                os << event;
                 return os;
         }
 

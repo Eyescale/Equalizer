@@ -35,25 +35,14 @@
 namespace eqPly
 {
 
-struct ConfigEvent : public eq::ConfigEvent
+enum ConfigEventType
 {
-public:
-    enum Type
-    {
-        IDLE_AA_LEFT = eq::Event::USER
-    };
-
-    ConfigEvent()
-    {
-        // #145 Todo ConfigEvent
-        //size = sizeof( ConfigEvent );
-    }
-
-    int32_t steps;
+    IDLE_AA_LEFT = eq::Event::USER
 };
 
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+// #145 Find a way to use operator << again
+std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event );
+
 }
 
 #endif // EQ_PLY_CONFIGEVENT_H
-

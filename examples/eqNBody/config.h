@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -45,32 +45,32 @@ namespace eqNbody
 
         virtual bool init();
         virtual bool exit();
-        
+
         virtual uint32_t startFrame();
-        
+
         void setInitData( const InitData& data ) { _initData = data; }
         const InitData& getInitData() const { return _initData; }
-        
+
         void mapData( const eq::uint128_t& initDataID );
         void releaseData();
-        
+
         virtual bool handleEvent( const eq::ConfigEvent* event );
         bool needsRedraw();
-                
+
     protected:
         virtual ~Config() {}
-        
+
     private:
         InitData    _initData;
         FrameData   _frameData;
         bool        _redraw;
-                
+
         bool _readyToCommit();
         bool _handleKeyEvent( const eq::KeyEvent& event );
 
         void _updateSimulation();
-        void _registerData(const ConfigEvent* event);
-        void _updateData(const ConfigEvent* event);
+        void _registerData(eq::ConfigEvent& event);
+        void _updateData(eq::ConfigEvent& event);
         void _deregisterData();
     };
 }

@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com> 
+ * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,16 +42,16 @@ namespace eqNbody
     class SharedDataProxy;
     class Config;
     class Controller;
-    
+
     class SharedData
     {
     public:
-        
+
         SharedData(Config *cfg);
         virtual ~SharedData();
 
         const FrameData& getFrameData() const { return _frameData; }
-        
+
         void registerMemory( const eq::Range& range );
         void releaseMemory();
         void mapMemory();
@@ -64,15 +64,15 @@ namespace eqNbody
 
         float  getTimeStep() { return _frameData.getTimeStep(); }
         uint32_t getNumBytes() { return _frameData.getNumBytes(); }
-        
+
         bool useStatistics() const { return _frameData.useStatistics(); }
-        
+
     protected:
-        
-    private:   
-        void _sendEvent( ConfigEvent::Type type, const eq::uint128_t& version,
+
+    private:
+        void _sendEvent( ConfigEventType type, const eq::uint128_t& version,
                          const eq::uint128_t& pid, const eq::Range& range);
-        
+
         std::vector< SharedDataProxy* >    _proxies;
         FrameData _frameData;
         Config*   _cfg;

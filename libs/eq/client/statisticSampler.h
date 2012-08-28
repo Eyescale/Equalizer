@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,7 +22,7 @@
 
 namespace eq
 {
-    /** 
+    /**
      * Utility to sample an statistics event.
      *
      * Holds a ConfigEvent, which is initialized from the owner's data during
@@ -32,38 +32,38 @@ namespace eq
     template< typename Owner > class StatisticSampler
     {
     public:
-        /** 
+        /**
          * Construct a new statistics sampler.
-         * 
+         *
          * @param type The statistics type.
          * @param owner The originator of the statistics event.
          * @param frameNumber The current frame.
          * @version 1.0
          */
-        StatisticSampler( const Statistic::Type type, Owner* owner, 
+        StatisticSampler( const Statistic::Type type, Owner* owner,
                           const uint32_t frameNumber = LB_UNDEFINED_UINT32 )
                 : _owner( owner )
             {
                 LBASSERT( owner );
                 LBASSERT( owner->getID() != UUID::ZERO );
                 LBASSERT( owner->getSerial() != EQ_INSTANCE_INVALID );
-                event.data.type                  = Event::STATISTIC;
-                event.data.serial                = owner->getSerial();
-                event.data.originator            = owner->getID();
-                event.data.statistic.type        = type;
-                event.data.statistic.frameNumber = frameNumber;
-                event.data.statistic.resourceName[0] = '\0';
-                event.data.statistic.startTime   = 0;
-                event.data.statistic.endTime     = 0;
+                event.type                  = Event::STATISTIC;
+                event.serial                = owner->getSerial();
+                event.originator            = owner->getID();
+                event.statistic.type        = type;
+                event.statistic.frameNumber = frameNumber;
+                event.statistic.resourceName[0] = '\0';
+                event.statistic.startTime   = 0;
+                event.statistic.endTime     = 0;
 
-                if( event.data.statistic.frameNumber == LB_UNDEFINED_UINT32 )
-                    event.data.statistic.frameNumber = owner->getCurrentFrame();
+                if( event.statistic.frameNumber == LB_UNDEFINED_UINT32 )
+                    event.statistic.frameNumber = owner->getCurrentFrame();
             }
 
         /** Destruct and finish statistics sampling. @version 1.0 */
         virtual ~StatisticSampler() {}
 
-        ConfigEvent event; //!< The statistics event.
+        Event event; //!< The statistics event.
 
     protected:
         Owner* const _owner;

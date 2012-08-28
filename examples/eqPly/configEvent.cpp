@@ -29,18 +29,23 @@
 
 #include "configEvent.h"
 
+#include <co/buffer.h>
+
 namespace eqPly
 {
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
+std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::IDLE_AA_LEFT:
-            os  << event->steps << " FSAA steps to do";
+        case IDLE_AA_LEFT:
+        {
+            eq::ConfigEvent myEvent( event->getBuffer( ));
+            os  << myEvent.get< int32_t >() << " FSAA steps to do";
             break;
+        }
 
         default:
-            os << static_cast< const eq::ConfigEvent* >( event );
+            os << event;
             return os;
     }
 

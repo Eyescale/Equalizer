@@ -33,31 +33,16 @@
 
 namespace eqPixelBench
 {
-struct ConfigEvent : public eq::ConfigEvent
+
+enum ConfigEventType
 {
-public:
-    enum Type
-    {
-        READBACK = eq::Event::USER,
-        ASSEMBLE,
-        START_LATENCY
-    };
-
-    ConfigEvent()
-    {
-        // #145 Todo ConfigEvent
-        //size = sizeof( ConfigEvent );
-    }
-
-    // channel name is in user event data
-    char           formatType[32];
-    eq::Vector2i   area;
-    uint64_t       dataSizeGPU;
-    uint64_t       dataSizeCPU;
-    float          msec;
+    READBACK = eq::Event::USER,
+    ASSEMBLE,
+    START_LATENCY
 };
 
-std::ostream& operator << ( std::ostream& os, const ConfigEvent* event );
+// #145 Find a way to use operator << again
+std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event );
 }
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H

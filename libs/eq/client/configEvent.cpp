@@ -17,12 +17,23 @@
 
 #include "configEvent.h"
 
-using namespace eq;
+#include <co/buffer.h>
 
-std::ostream& eq::operator << ( std::ostream& os, const ConfigEvent* event )
+namespace eq
+{
+
+ConfigEvent::ConfigEvent( co::BufferPtr buffer )
+    : co::ObjectCommand( buffer )
+{
+    *this >> data;
+}
+
+std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
     os << "config event " << ", event "
        << event->data;
 
     return os;
+}
+
 }

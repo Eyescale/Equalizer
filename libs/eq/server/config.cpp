@@ -819,10 +819,7 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    ConfigEvent exitEvent;
-    exitEvent.data.type = Event::EXIT;
-    // #145 Todo ConfigEvent
-    //send( findApplicationNetNode(), exitEvent );
+    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
 
     _needsFinish = false;
     _state = STATE_STOPPED;

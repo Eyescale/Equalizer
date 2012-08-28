@@ -41,74 +41,74 @@ namespace eqNbody
 {
 FrameData::FrameData() : _statistics( true ) , _numDataProxies(0), _hPos(0)
                        , _hVel(0), _hCol(0)
-{       
+{
     _numBodies      = 0;
     _deltaTime      = 0.0f;
     _clusterScale   = 0.0f;
     _velocityScale  = 0.0f;
     _newParameters  = false;
 }
-    
+
 FrameData::~FrameData()
 {
     _numDataProxies = 0;
 }
-    
+
 void FrameData::serialize( co::DataOStream& os, const uint64_t dirtyBits )
-{       
+{
     co::Serializable::serialize( os, dirtyBits );
-        
+
     if( dirtyBits & DIRTY_DATA )
         if(_hPos && _hVel && _hCol)
             os << co::Array< float >( _hPos, _numBodies * 4 )
                << co::Array< float >( _hVel, _numBodies * 4 )
                << co::Array< float >( _hCol, _numBodies * 4 );
-        
+
     if( dirtyBits & DIRTY_FLAGS )
         os << _statistics << _numBodies << _clusterScale << _velocityScale
            << _deltaTime << _newParameters;
-        
+
     if( dirtyBits & DIRTY_PROXYDATA )
         os << _numDataProxies
            << co::Array< co::ObjectVersion >( _dataProxyID, MAX_NGPUS )
            << co::Array< float >( _dataRanges, MAX_NGPUS );
 }
-    
+
 void FrameData::deserialize( co::DataIStream& is,
                              const uint64_t dirtyBits )
 {
     co::Serializable::deserialize( is, dirtyBits );
-        
+
     if( dirtyBits & DIRTY_DATA )
         if(_hPos && _hVel && _hCol)
             is >> co::Array< float >( _hPos, _numBodies*4 )
                >> co::Array< float >( _hVel, _numBodies*4 )
                >> co::Array< float >( _hCol, _numBodies*4 );
-        
+
     if( dirtyBits & DIRTY_FLAGS )
         is >> _statistics >> _numBodies >> _clusterScale >> _velocityScale
            >> _deltaTime >> _newParameters;
-        
+
     if( dirtyBits & DIRTY_PROXYDATA )
         is >> _numDataProxies
            >> co::Array< co::ObjectVersion >( _dataProxyID, MAX_NGPUS )
            >> co::Array< float >( _dataRanges, MAX_NGPUS );
 }
-    
-void FrameData::addProxyID( const eq::uint128_t& pid, const float *range )
+
+void FrameData::addProxyID( const eq::uint128_t& pid, const eq::Range& range )
 {
     LBASSERT(_numDataProxies < MAX_NGPUS);
-        
-    _dataProxyID[_numDataProxies].identifier = pid;  
+
+    _dataProxyID[_numDataProxies].identifier = pid;
     _dataProxyID[_numDataProxies].version = co::VERSION_NONE;
 
-    _dataRanges[_numDataProxies++] = (range[1] - range[0]);
+    _dataRanges[_numDataProxies++] = (range.end - range.start);
     setDirty( DIRTY_PROXYDATA );
 }
-    
+
 void FrameData::updateProxyID( const eq::uint128_t& pid,
                                const eq::uint128_t& version,
-                               const float *range )
+                               const eq::Range& range )
 {
     // TODO: Better use a hash here!
     for(unsigned int i=0; i< _numDataProxies; i++)
@@ -116,61 +116,61 @@ void FrameData::updateProxyID( const eq::uint128_t& pid,
         if( pid == _dataProxyID[i].identifier )
         {
             _dataProxyID[i].version = version;
-            _dataRanges[i] = (range[1] - range[0]);
+            _dataRanges[i] = (range.end - range.start);
             break;
         }
     }
     setDirty( DIRTY_PROXYDATA );
 }
-    
+
 eq::uint128_t FrameData::commit()
 {
     const eq::uint128_t v = co::Serializable::commit();
     for( unsigned int i = 0; i< _numDataProxies; ++i )
         _dataRanges[i] = 0.0f;
-        
+
     return v;
 }
-    
+
 bool FrameData::isReady()
 {
     float length = 0.0f;
-        
+
     for(unsigned int i=0; i<_numDataProxies; i++) {
         length += _dataRanges[i];
     }
-        
+
     // Return true if range [0 1] is covered, otherwise false
     return (length == 1.0f) ? true : false;
 }
-    
+
 eq::uint128_t FrameData::getVersionForProxyID( const eq::uint128_t& pid ) const
-{       
+{
     // TODO: Better use a hash here!
     for( unsigned int i=0; i< _numDataProxies; ++i )
     {
         if( pid == getProxyID( i ))
             return getProxyVersion( i );
     }
-        
+
     return 0;
 }
-    
+
 void FrameData::toggleStatistics()
 {
     _statistics = !_statistics;
     setDirty( DIRTY_FLAGS );
 }
-    
+
 void FrameData::init(const unsigned int numBodies)
 {
     _numBodies  = numBodies;
-                
+
     setDirty( DIRTY_FLAGS );
 }
-    
+
 void FrameData::initHostData()
-{       
+{
 #ifdef ENABLE_HOSTALLOC
     allocateHostArrays(&_hPos, &_hVel, &_hCol, _numBodies*4*sizeof(float));
 #else
@@ -178,14 +178,14 @@ void FrameData::initHostData()
     _hVel       = new float[_numBodies*4];
     _hCol       = new float[_numBodies*4];
 #endif
-        
+
     memset(_hPos, 0, _numBodies*4*sizeof(float));
     memset(_hVel, 0, _numBodies*4*sizeof(float));
     memset(_hCol, 0, _numBodies*4*sizeof(float));
-        
+
     setDirty( DIRTY_DATA );
 }
-    
+
 void FrameData::exit()
 {
     _numDataProxies = 0;
@@ -195,24 +195,24 @@ void FrameData::exit()
     deleteHostArrays(_hPos, _hVel, _hCol);
 #else
     delete [] _hPos;
-    delete [] _hVel;    
-    delete [] _hCol;    
+    delete [] _hVel;
+    delete [] _hCol;
 #endif
 }
-    
+
 void FrameData::updateParameters(NBodyConfig config, float clusterScale, float velocityScale, float ts)
-{       
+{
     _clusterScale   = clusterScale;
     _velocityScale  = velocityScale;
     _deltaTime      = ts;
     _newParameters  = true;
-        
+
     _randomizeData(config);
-        
+
     setDirty( DIRTY_DATA );
     setDirty( DIRTY_FLAGS );
 }
-    
+
 void FrameData::_randomizeData(NBodyConfig config)
 {
     switch(config)
@@ -222,10 +222,10 @@ void FrameData::_randomizeData(NBodyConfig config)
       {
           float scale  = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
           float vscale = _velocityScale * scale;
-                
+
           int p = 0, v = 0;
           unsigned int i = 0;
-          while (i < _numBodies) 
+          while (i < _numBodies)
           {
               eq::Vector3f point;
               //const int scale = 16;
@@ -242,17 +242,17 @@ void FrameData::_randomizeData(NBodyConfig config)
               lenSqr = velocity.squared_length();
               if (lenSqr > 1)
                   continue;
-                    
+
               _hPos[p++] = point.x() * scale; // pos.x
               _hPos[p++] = point.y() * scale; // pos.y
               _hPos[p++] = point.z() * scale; // pos.z
               _hPos[p++] = 1.0f; // mass
-                    
+
               _hVel[v++] = velocity.x() * vscale; // pos.x
               _hVel[v++] = velocity.y() * vscale; // pos.x
               _hVel[v++] = velocity.z() * vscale; // pos.x
               _hVel[v++] = 1.0f; // inverse mass
-                    
+
               i++;
           }
       }
@@ -263,32 +263,32 @@ void FrameData::_randomizeData(NBodyConfig config)
           float vscale = scale * _velocityScale;
           float inner = 2.5f * scale;
           float outer = 4.0f * scale;
-                
+
           int p = 0, v=0;
           unsigned int i = 0;
-          while (i < _numBodies)//for(int i=0; i < numBodies; i++) 
+          while (i < _numBodies)//for(int i=0; i < numBodies; i++)
           {
               float x, y, z;
               x = rand() / (float) RAND_MAX * 2 - 1;
               y = rand() / (float) RAND_MAX * 2 - 1;
               z = rand() / (float) RAND_MAX * 2 - 1;
-                    
+
               eq::Vector3f point( x, y, z );
               float len = point.normalize();
               if (len > 1)
                   continue;
-                    
+
               _hPos[p++] =  point.x() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
               _hPos[p++] =  point.y() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
               _hPos[p++] =  point.z() * (inner + (outer - inner) * rand() / (float) RAND_MAX);
               _hPos[p++] = 1.0f;
-                    
+
               x = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
               y = 0.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
               z = 1.0f; // * (rand() / (float) RAND_MAX * 2 - 1);
               eq::Vector3f axis( x, y, z );
               axis.normalize();
-                    
+
               if (1 - point.dot(axis) < 1e-6)
               {
                   axis.x() = point.y();
@@ -302,7 +302,7 @@ void FrameData::_randomizeData(NBodyConfig config)
               _hVel[v++] = vv.y() * vscale;
               _hVel[v++] = vv.z() * vscale;
               _hVel[v++] = 1.0f;
-                    
+
               i++;
           }
       }
@@ -311,47 +311,47 @@ void FrameData::_randomizeData(NBodyConfig config)
       {
           float scale = _clusterScale * std::max(1.0f, _numBodies / (1024.f));
           float vscale = scale * _velocityScale;
-                
+
           int p = 0, v = 0;
-          for(unsigned int i=0; i < _numBodies;) 
+          for(unsigned int i=0; i < _numBodies;)
           {
               eq::Vector3f point;
-                    
+
               point.x() = rand() / (float) RAND_MAX * 2 - 1;
               point.y() = rand() / (float) RAND_MAX * 2 - 1;
               point.z() = rand() / (float) RAND_MAX * 2 - 1;
-                    
+
               float lenSqr = point.squared_length();
               if (lenSqr > 1)
                   continue;
-                    
+
               _hPos[p++] = point.x() * scale; // pos.x
               _hPos[p++] = point.y() * scale; // pos.y
               _hPos[p++] = point.z() * scale; // pos.z
               _hPos[p++] = 1.0f; // mass
-                    
+
               _hVel[v++] = point.x() * vscale; // pos.x
               _hVel[v++] = point.y() * vscale; // pos.x
               _hVel[v++] = point.z() * vscale; // pos.x
               _hVel[v++] = 1.0f; // inverse mass
-                    
+
               i++;
           }
       }
       break;
     }
-        
+
     if (_hCol)
     {
         int v = 0;
-        for(unsigned int i=0; i < _numBodies; i++) 
+        for(unsigned int i=0; i < _numBodies; i++)
         {
             _hCol[v++] = rand() / (float) RAND_MAX;
             _hCol[v++] = rand() / (float) RAND_MAX;
             _hCol[v++] = rand() / (float) RAND_MAX;
             _hCol[v++] = 1.0f;
         }
-    }       
+    }
 }
 }
 

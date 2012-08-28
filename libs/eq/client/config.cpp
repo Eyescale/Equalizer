@@ -80,7 +80,8 @@ class Config
 {
 public:
     Config()
-            : currentFrame( 0 )
+            : lastEvent( 0 )
+            , currentFrame( 0 )
             , unlockedFrame( 0 )
             , finishedFrame( 0 )
             , running( false )
@@ -90,7 +91,7 @@ public:
 
     ~Config()
     {
-        lastEvent = 0;
+        delete lastEvent;
         appNode = 0;
         lunchbox::Log::setClock( 0 );
     }
@@ -102,7 +103,7 @@ public:
     CommandQueue eventQueue;
 
     /** The last received event to be released. */
-    co::BufferPtr lastEvent;
+    ConfigEvent* lastEvent;
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -151,7 +152,6 @@ Config::~Config()
     LBASSERT( getNodes().empty( ));
     LBASSERT( _impl->latencyObjects->empty() );
 
-    _impl->lastEvent = 0;
     _impl->eventQueue.flush();
     delete _impl;
 }
@@ -340,6 +340,7 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( requestID, ret );
 
+    delete _impl->lastEvent;
     _impl->lastEvent = 0;
     _impl->eventQueue.flush();
     _impl->running = false;
@@ -399,7 +400,7 @@ uint32_t Config::startFrame( const uint128_t& frameID )
     ++_impl->currentFrame;
     LBLOG( lunchbox::LOG_ANY ) << "---- Started Frame ---- "
                                << _impl->currentFrame << std::endl;
-    stat.event.data.statistic.frameNumber = _impl->currentFrame;
+    stat.event.statistic.frameNumber = _impl->currentFrame;
     return _impl->currentFrame;
 }
 
@@ -422,10 +423,10 @@ uint32_t Config::finishFrame()
                                        _impl->currentFrame - latency : 0;
 
     ConfigStatistics stat( Statistic::CONFIG_FINISH_FRAME, this );
-    stat.event.data.statistic.frameNumber = frameToFinish;
+    stat.event.statistic.frameNumber = frameToFinish;
     {
         ConfigStatistics waitStat( Statistic::CONFIG_WAIT_FINISH_FRAME, this );
-        waitStat.event.data.statistic.frameNumber = frameToFinish;
+        waitStat.event.statistic.frameNumber = frameToFinish;
 
         // local draw sync
         if( _needsLocalSync( ))
@@ -568,24 +569,30 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
-void Config::sendEvent( ConfigEvent& event )
+co::ObjectOCommand Config::sendEvent( Event event )
 {
-    LBASSERT( event.data.type != Event::STATISTIC ||
-              event.data.statistic.type != Statistic::NONE );
+    LBASSERT( event.type != Event::STATISTIC ||
+              event.statistic.type != Statistic::NONE );
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    // #145 Todo ConfigEvent
-//    if( _impl->appNode )
-//        send( _impl->appNode, event );
+    co::ObjectOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
+    cmd << event;
+    return cmd;
+}
+
+co::ObjectOCommand Config::sendEvent( uint32_t eventType )
+{
+    Event event;
+    event.type = eventType;
+    return sendEvent( event );
 }
 
 const ConfigEvent* Config::nextEvent()
 {
-    _impl->lastEvent = _impl->eventQueue.pop();
-     // #145 Todo ConfigEvent
-    //return _impl->lastEvent->get< ConfigEvent >();
-    return 0;
+    delete _impl->lastEvent;
+    _impl->lastEvent = new ConfigEvent( _impl->eventQueue.pop( ));
+    return _impl->lastEvent;
 }
 
 const ConfigEvent* Config::tryNextEvent()
@@ -594,10 +601,9 @@ const ConfigEvent* Config::tryNextEvent()
     if( !buffer )
         return 0;
 
-    _impl->lastEvent = buffer;
-    return 0;
-    // #145 Todo ConfigEvent
-    //return command->get< ConfigEvent >();
+    delete _impl->lastEvent;
+    _impl->lastEvent = new ConfigEvent( buffer );
+    return _impl->lastEvent;
 }
 
 bool Config::checkEvent() const

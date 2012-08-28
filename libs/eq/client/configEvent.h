@@ -18,6 +18,7 @@
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
+#include <co/objectCommand.h>  // base class
 #include <eq/client/event.h>   // member
 
 namespace eq
@@ -39,16 +40,11 @@ namespace eq
      * When subclassing, make sure to set the packet size to the total size of
      * the event structure.
      */
-    // #145 Todo ConfigEvent
-    struct ConfigEvent/* : public co::ObjectOCommand*/
+    struct ConfigEvent : public co::ObjectCommand
     {
     public:
         /** Construct a new config event. @version 1.0 */
-        ConfigEvent()
-            {
-//                command = fabric::CMD_CONFIG_EVENT;
-//                size    = sizeof( ConfigEvent );
-            }
+        ConfigEvent( co::BufferPtr buffer );
 
         Event data; //!< the Event @version 1.0
     };
