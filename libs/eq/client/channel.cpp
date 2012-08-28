@@ -1403,11 +1403,12 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
 
     co::QueueSlave* queue = _getQueue( queueVersion );
     LBASSERT( queue );
-    for( co::ObjectCommand tile = queue->pop(); tile.isValid();
-         tile = queue->pop( ))
+    for( ;; )
     {
-        tile >> context.frustum >> context.ortho
-                    >> context.pvp >> context.vp;
+        co::ObjectCommand tile = queue->pop();
+        if( !tile.isValid( ))
+            break;
+        tile >> context.frustum >> context.ortho >> context.pvp >> context.vp;
 
         const PixelViewport tilePVP = context.pvp;
 
