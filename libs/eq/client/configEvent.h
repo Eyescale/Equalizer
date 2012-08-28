@@ -44,7 +44,7 @@ namespace eq
     {
     public:
         /** Construct a new config event. @version 1.0 */
-        ConfigEvent( co::BufferPtr buffer );
+        EQ_API ConfigEvent( co::BufferPtr buffer );
 
         Event data; //!< the Event @version 1.0
     };
