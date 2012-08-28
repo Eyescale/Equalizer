@@ -1792,7 +1792,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     packet.sendUnlocked( imageDataSize );
 
 #ifndef NDEBUG
-    size_t sentBytes = imageDataSize;
+    size_t sentBytes = 0;
 #endif
 
     for( uint32_t j=0; j < pixelDatas.size(); ++j )
