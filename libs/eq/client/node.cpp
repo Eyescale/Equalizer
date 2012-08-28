@@ -589,22 +589,26 @@ bool Node::_cmdFrameFinish( co::Command& cmd )
 bool Node::_cmdFrameDrawFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameDrawFinish( command.get< uint128_t >(), command.get< uint32_t >( ));
+    frameDrawFinish( frameID, frameNumber );
     return true;
 }
 
 bool Node::_cmdFrameTasksFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameTasksFinish( command.get< uint128_t >(), command.get< uint32_t >( ));
+    frameTasksFinish( frameID, frameNumber );
     return true;
 }
 
