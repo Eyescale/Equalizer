@@ -159,7 +159,7 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
     if( requestID != LB_UNDEFINED_UINT32 )
         co::ObjectOCommand(
                     co::Connections( 1, command.getNode()->getConnection( )),
-                    co::COMMANDTYPE_CO_OBJECT, CMD_CONFIG_CREATE_REPLY,
+                    CMD_CONFIG_CREATE_REPLY, co::COMMANDTYPE_CO_OBJECT,
                     configVersion.identifier, EQ_INSTANCE_ALL ) << requestID;
 
     return true;

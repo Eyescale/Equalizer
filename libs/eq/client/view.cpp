@@ -65,8 +65,8 @@ void View::detach()
 
         co::BufferPtr buffer = localNode->allocCommand( 8 );
         co::ObjectOCommand command( co::Connections(),
-                                    co::COMMANDTYPE_CO_OBJECT,
                                     fabric::CMD_PIPE_DETACH_VIEW,
+                                    co::COMMANDTYPE_CO_OBJECT,
                                     _pipe->getID(), EQ_INSTANCE_ALL );
         command << getID();
         buffer->swap( command.getBuffer( ));

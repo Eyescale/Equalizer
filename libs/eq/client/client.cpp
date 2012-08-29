@@ -395,8 +395,8 @@ void Client::notifyDisconnect( co::NodePtr node )
     {
         co::BufferPtr buffer = allocCommand( 8 );
         co::NodeOCommand command( co::Connections(),
-                                  fabric::PACKETTYPE_EQ_CLIENT,
-                                  fabric::CMD_CLIENT_EXIT );
+                                  fabric::CMD_CLIENT_EXIT,
+                                  fabric::PACKETTYPE_EQ_CLIENT );
         buffer->swap( command.getBuffer( ));
         dispatchCommand( buffer );
 
