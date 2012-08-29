@@ -34,8 +34,9 @@
 #include <eq/fabric/paths.h>
 
 #include <co/barrier.h>
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/global.h>
+#include <co/objectCommand.h>
 
 #include <lunchbox/clock.h>
 #include <lunchbox/launcher.h>
@@ -719,8 +720,9 @@ bool Node::_cmdConfigInitReply( co::Command& command )
     return true;
 }
 
-bool Node::_cmdConfigExitReply( co::Command& command )
+bool Node::_cmdConfigExitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBVERB << "handle configExit reply " << command << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
@@ -728,8 +730,9 @@ bool Node::_cmdConfigExitReply( co::Command& command )
     return true;
 }
 
-bool Node::_cmdFrameFinishReply( co::Command& command )
+bool Node::_cmdFrameFinishReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBVERB << "handle frame finish reply " << command << std::endl;
 
     const uint32_t frameNumber = command.get< uint32_t >();
