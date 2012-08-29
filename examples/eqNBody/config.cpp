@@ -123,7 +123,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
     {
       case DATA_CHANGED:
       {
-        // #145 Need non-const event for get() of values
+        // #145 Need copy of event for non-const get() of values :(
         eq::ConfigEvent myEvent( event->getBuffer( ));
           _registerData( myEvent );
           if( _readyToCommit() )
@@ -133,7 +133,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
       case PROXY_CHANGED:
       {
-          // #145 Need non-const event for get() of values
+          // #145 Need copy of event for non-const get() of values :(
           eq::ConfigEvent myEvent( event->getBuffer( ));
           _updateData( myEvent );
           if( _readyToCommit() ) {

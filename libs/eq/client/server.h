@@ -72,7 +72,7 @@ namespace eq
         /** @warning Experimental - may not be supported in the future */
         EQ_API bool shutdown();
 
-        // #145 Todo Naming!
+        // #145 Documentation & API & Naming!
         co::ObjectOCommand send2( uint32_t cmd, const UUID& objectID );
 
     protected:

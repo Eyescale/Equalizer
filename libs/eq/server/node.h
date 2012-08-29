@@ -167,7 +167,7 @@ namespace server
         void changeLatency( const uint32_t latency );
         //@}
 
-        // #145 Todo API
+        // #145 Documentation & API
         co::ObjectOCommand send( const uint32_t cmd );
         co::ObjectOCommand send( const uint32_t cmd, const UUID& id );
 
