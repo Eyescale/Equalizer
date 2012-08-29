@@ -22,8 +22,9 @@
 
 #include "nameFinder.h"
 
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/global.h>
+#include <co/objectCommand.h>
 
 #include "layout.ipp" // Layout::_removeObserver template impl
 
@@ -813,9 +814,10 @@ void Config< S, C, O, L, CV, N, V >::notifyDetach()
 // Command handlers
 //----------------------------------------------------------------------
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
-    co::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     L* layout = 0;
     create( &layout );
     LBASSERT( layout );
@@ -830,8 +832,9 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewLayout(
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
 
     CV* canvas = 0;
     create( &canvas );
@@ -847,8 +850,10 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewCanvas( co::Command& command )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     O* observer = 0;
     create( &observer );
     LBASSERT( observer );
@@ -863,8 +868,10 @@ bool Config< S, C, O, L, CV, N, V >::_cmdNewObserver( co::Command& command )
 }
 
 template< class S, class C, class O, class L, class CV, class N, class V >
-bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& command )
+bool Config< S, C, O, L, CV, N, V >::_cmdNewEntityReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 

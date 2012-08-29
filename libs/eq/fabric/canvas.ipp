@@ -24,9 +24,10 @@
 #include "paths.h"
 #include "segment.h"
 
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectCommand.h>
 
 namespace eq
 {
@@ -431,8 +432,10 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 // Command handlers
 //----------------------------------------------------------------------
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     S* segment = 0;
     create( &segment );
     LBASSERT( segment );
@@ -448,8 +451,10 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& command )
 }
 
 template< class CFG, class C, class S, class L > bool
-Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& command )
+Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 

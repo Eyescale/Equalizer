@@ -447,8 +447,9 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 // command handling
 //===========================================================================
-bool Channel::_cmdConfigInitReply( co::Command& command )
+bool Channel::_cmdConfigInitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
                       << std::endl;
 

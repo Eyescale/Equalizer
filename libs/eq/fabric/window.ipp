@@ -24,9 +24,10 @@
 #include "log.h"
 #include "task.h"
 
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectCommand.h>
 
 namespace eq
 {
@@ -440,8 +441,10 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 // Command handlers
 //----------------------------------------------------------------------
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
+bool Window< P, W, C >::_cmdNewChannel( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     C* channel = 0;
     create( &channel );
     LBASSERT( channel );
@@ -457,8 +460,10 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& command )
 }
 
 template< class P, class W, class C >
-bool Window< P, W, C >::_cmdNewChannelReply( co::Command& command )
+bool Window< P, W, C >::_cmdNewChannelReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 

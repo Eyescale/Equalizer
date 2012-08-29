@@ -406,7 +406,8 @@ bool Server::_cmdUnmap( co::Command& command )
              j != configs.end(); ++j )
         {
             Config* config = *j;
-            node->send( fabric::CMD_SERVER_DESTROY_CONFIG )
+            node->send( fabric::CMD_SERVER_DESTROY_CONFIG,
+                        fabric::PACKETTYPE_EQ_SERVER )
                     << config->getID() << LB_UNDEFINED_UINT32;
         }
     }

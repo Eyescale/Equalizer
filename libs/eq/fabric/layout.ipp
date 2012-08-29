@@ -24,9 +24,11 @@
 #include "observer.h"
 #include "paths.h"
 
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectCommand.h>
+
 #include <lunchbox/stdExt.h>
 
 namespace eq
@@ -285,8 +287,10 @@ V* Layout< C, L, V >::findView( const std::string& name )
 // Command handlers
 //----------------------------------------------------------------------
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewView( co::Command& command )
+Layout< C, L, V >::_cmdNewView( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     V* view = 0;
     create( &view );
     LBASSERT( view );
@@ -302,8 +306,9 @@ Layout< C, L, V >::_cmdNewView( co::Command& command )
 }
 
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
+Layout< C, L, V >::_cmdNewViewReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 
