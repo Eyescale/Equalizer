@@ -66,6 +66,7 @@ Node::Node( Config* parent )
     , _finishedFrame( 0 )
     , _flushedFrame( 0 )
     , _state( STATE_STOPPED )
+    , _bufferedTasks( new co::BufferConnection )
     , _lastDrawPipe( 0 )
 {
     const Global* global = Global::instance();
@@ -697,15 +698,13 @@ co::ObjectOCommand Node::send( const uint32_t cmd )
 
 co::ObjectOCommand Node::send( const uint32_t cmd, const UUID& id )
 {
-    // #145 Todo use _bufferedTasks
-    co::Connections connections( 1, _node->getConnection( ));
-    return co::ObjectOCommand( connections, cmd, co::COMMANDTYPE_CO_OBJECT,
-                               id, EQ_INSTANCE_ALL );
+    return co::ObjectOCommand( co::Connections( 1, _bufferedTasks ), cmd,
+                               co::COMMANDTYPE_CO_OBJECT, id, EQ_INSTANCE_ALL );
 }
 
 void Node::flushSendBuffer()
 {
-    _bufferedTasks.sendBuffer( _node->getConnection( ));
+    _bufferedTasks->sendBuffer( _node->getConnection( ));
 }
 
 //===========================================================================

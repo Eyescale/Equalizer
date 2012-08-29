@@ -274,7 +274,7 @@ namespace server
         std::vector<co::Barrier*> _barriers;
 
         /** Task packets for the current operation. */
-        co::BufferConnection _bufferedTasks;
+        lunchbox::RefPtr< co::BufferConnection > _bufferedTasks;
 
         /** The last draw pipe for this entity */
         const Pipe* _lastDrawPipe;
