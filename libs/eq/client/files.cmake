@@ -35,16 +35,13 @@ set(CLIENT_HEADERS
   base.h
   canvas.h
   channel.h
-  channelPackets.h
   channelStatistics.h
   client.h
-  clientPackets.h
   commandQueue.h
   compositor.h
   computeContext.h
   config.h
   configEvent.h
-  configPackets.h
   configParams.h
   configStatistics.h
   cudaContext.h
@@ -66,17 +63,13 @@ set(CLIENT_HEADERS
   log.h
   messagePump.h
   node.h
-  nodePackets.h
   nodeFactory.h
   observer.h
   os.h
-  packets.h
   pipe.h
-  pipePackets.h
   pixelData.h
   segment.h
   server.h
-  serverPackets.h
   statistic.h
   statisticSampler.h
   system.h
@@ -84,11 +77,9 @@ set(CLIENT_HEADERS
   systemWindow.h
   types.h
   view.h
-  viewPackets.h
   visitorResult.h
   wglTypes.h
   window.h
-  windowPackets.h
   windowStatistics.h
   windowSystem.h
   zoomFilter.h

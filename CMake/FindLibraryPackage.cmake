@@ -230,9 +230,10 @@ macro(FIND_LIBRARY_PACKAGE name)
           set(_flp_${name}_FAIL TRUE)
         endif()
       else()
-        message(WARNING
-          "Can't figure out version of dependent package ${_flp_trans}, "
-          "add ${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION to "
+        message(STATUS
+          "Can't figure out ${_flp_trans} version for "
+          "${name} ${${_flp_${name}_UC}_VERSION}, use "
+          "${_flp_${name}_UC}_${_flp_${name}_TRANS}_VERSION in "
           "${_flp_${name}_INCLUDE}/version.h.")
       endif()
     endforeach()

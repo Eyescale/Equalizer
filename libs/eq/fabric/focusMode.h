@@ -42,4 +42,10 @@ namespace fabric
     }
 }
 }
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::FocusMode& value )
+    { byteswap( reinterpret_cast< uint32_t& >( value )); }
+}
 #endif // EQFABRIC_FOCUSMODE_H

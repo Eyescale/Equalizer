@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -47,7 +47,7 @@ public:
             LBASSERT( channel );
             channel->addListener( _listener );
 
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 
 private:
@@ -65,7 +65,7 @@ public:
             LBASSERT( channel );
             channel->removeListener( _listener );
 
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 
 private:
@@ -112,22 +112,22 @@ void FramerateEqualizer::_init()
 
     // Subscribe to child channel load events
     const Compounds& children = compound->getChildren();
-    
+
     LBASSERT( _loadListeners.empty( ));
     _loadListeners.resize( children.size( ));
-    
+
     for( size_t i = 0; i < children.size(); ++i )
     {
         Compound*      child        = children[i];
         const uint32_t period       = child->getInheritPeriod();
         LoadListener&  loadListener = _loadListeners[i];
-        
+
         loadListener.parent = this;
         loadListener.period = period;
-        
+
         LoadSubscriber subscriber( &loadListener );
         child->accept( subscriber );
-        
+
         _nSamples = LB_MAX( _nSamples, period );
     }
 
@@ -147,18 +147,18 @@ void FramerateEqualizer::_exit()
     {
         Compound*      child        = children[i];
         LoadListener&  loadListener = _loadListeners[i];
-        
+
         LoadUnsubscriber unsubscriber( &loadListener );
         child->accept( unsubscriber );
     }
-    
+
     _loadListeners.clear();
     _times.clear();
     _nSamples = 0;
 }
 
 
-void FramerateEqualizer::notifyUpdatePre( Compound* compound, 
+void FramerateEqualizer::notifyUpdatePre( Compound* compound,
                                           const uint32_t frameNumber )
 {
     _init();
@@ -230,8 +230,8 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
 #endif
             compound->setMaxFPS( fps );
 
-        LBLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/" 
-                        << _times.size() << " samples, " << time << "ms" 
+        LBLOG( LOG_LB2 ) << fps << " Hz from " << nSamples << "/"
+                        << _times.size() << " samples, " << time << "ms"
                         << std::endl;
     }
 
@@ -239,14 +239,14 @@ void FramerateEqualizer::notifyUpdatePre( Compound* compound,
     LBASSERT( _times.size() < 210 );
 }
 
-void FramerateEqualizer::LoadListener::notifyLoadData( 
-    Channel* channel, const uint32_t frameNumber, const uint32_t nStatistics,
-    const eq::Statistic* statistics, const Viewport& region  )
+void FramerateEqualizer::LoadListener::notifyLoadData(
+    Channel* channel, const uint32_t frameNumber, const Statistics& statistics,
+        const Viewport& region  )
 {
     // gather required load data
     int64_t startTime = std::numeric_limits< int64_t >::max();
     int64_t endTime   = 0;
-    for( uint32_t i = 0; i < nStatistics; ++i )
+    for( size_t i = 0; i < statistics.size(); ++i )
     {
         const eq::Statistic& data = statistics[i];
         switch( data.type )
@@ -258,15 +258,15 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
                 startTime = LB_MIN( startTime, data.startTime );
                 endTime   = LB_MAX( endTime, data.endTime );
                 break;
-                
+
             default:
                 break;
         }
     }
-    
+
     if( startTime == std::numeric_limits< int64_t >::max( ))
         return;
-    
+
     if( startTime == endTime ) // very fast draws might report 0 times
         ++endTime;
 
@@ -279,7 +279,7 @@ void FramerateEqualizer::LoadListener::notifyLoadData(
 
         const float time = static_cast< float >( endTime - startTime ) / period;
         frameTime.second = LB_MAX( frameTime.second, time );
-        LBLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel " 
+        LBLOG( LOG_LB2 ) << "Frame " << frameNumber << " channel "
                         << channel->getName() << " time " << time
                         << " period " << period << std::endl;
     }

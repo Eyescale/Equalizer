@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2008, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,10 +30,10 @@
 #define EQ_PIXELBENCH_CHANNEL_H
 
 #include <eq/eq.h>
+#include "configEvent.h"
 
 namespace eqPixelBench
 {
-struct ConfigEvent;
 
 class Channel : public eq::Channel
 {
@@ -46,8 +46,6 @@ protected:
                              const uint32_t frameNumber );
     virtual void frameDraw( const eq::uint128_t& frameID );
 
-    ConfigEvent _createConfigEvent();
-
 private:
     void _draw( const eq::uint128_t& spin );
     void _testFormats( float applyZoom );
@@ -56,6 +54,10 @@ private:
     void _saveImage( const eq::Image* image,
                      const char*      externalformat = "",
                      const char*      info   = "" );
+    void _sendEvent( ConfigEventType type, const float msec,
+                     const eq::Vector2i& area,
+                     const std::string& formatType, const uint64_t dataSizeGPU,
+                     const uint64_t dataSizeCPU );
 
 private:
     eq::Frame _frame;

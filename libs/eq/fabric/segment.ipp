@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,7 +21,6 @@
 #include "leafVisitor.h"
 #include "log.h"
 #include "paths.h"
-#include "pipePackets.h"
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -60,15 +59,15 @@ uint128_t Segment< C, S, CH >::commit( const uint32_t incarnation )
 }
 
 template< class C, class S, class CH >
-void Segment< C, S, CH >::setEyes( const uint32_t eyes ) 
-{ 
+void Segment< C, S, CH >::setEyes( const uint32_t eyes )
+{
     if( _eyes == eyes )
         return;
     setDirty( DIRTY_EYES );
-    _eyes = eyes; 
+    _eyes = eyes;
 }
-        
-template< class C, class S, class CH > void 
+
+template< class C, class S, class CH > void
 Segment< C, S, CH >::serialize( co::DataOStream& os, const uint64_t dirtyBits )
 {
     Object::serialize( os, dirtyBits );
@@ -106,7 +105,7 @@ void Segment< C, S, CH >::deserialize( co::DataIStream& is,
         }
     }
     if( dirtyBits & DIRTY_EYES )
-        is >> _eyes; 
+        is >> _eyes;
 }
 
 template< class C, class S, class CH >
@@ -141,12 +140,12 @@ template< class C, class S, class CH > void Segment< C, S, CH >::restore()
 }
 
 template< class C, class S, class CH >
-void Segment< C, S, CH >::setViewport( const Viewport& vp ) 
+void Segment< C, S, CH >::setViewport( const Viewport& vp )
 {
     if( _vp == vp )
         return;
 
-    _vp = vp; 
+    _vp = vp;
     setDirty( DIRTY_VIEWPORT );
     notifyFrustumChanged();
 }
@@ -170,7 +169,7 @@ void Segment< C, S, CH >::setSwapBarrier( SwapBarrierPtr barrier )
         barrier->setName( out.str( ));
     }
 
-    _swapBarrier = barrier; 
+    _swapBarrier = barrier;
 }
 
 template< class C, class S, class CH >
@@ -182,7 +181,7 @@ void Segment< C, S, CH >::notifyFrustumChanged()
     // if segment has no frustum...
     Wall wall( _canvas->getWall( ));
     wall.apply( _vp );
-                    
+
     switch( _canvas->getCurrentType( ))
     {
         case TYPE_WALL:
@@ -196,10 +195,10 @@ void Segment< C, S, CH >::notifyFrustumChanged()
             setProjection( projection );
             break;
         }
-        default: 
+        default:
             LBUNIMPLEMENTED;
         case TYPE_NONE:
-            break; 
+            break;
     }
 }
 
@@ -240,7 +239,7 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
     os << lunchbox::disableFlush << lunchbox::disableHeader << "segment"
        << std::endl;
     os << "{" << std::endl << lunchbox::indent;
-    
+
     const std::string& name = segment.getName();
     if( !name.empty( ))
         os << "name     \"" << name << "\"" << std::endl;
@@ -256,7 +255,7 @@ std::ostream& operator << ( std::ostream& os, const Segment< C, S, CH >& s )
         else
             os << "channel  " << segment.getChannel()->getPath() << std::endl;
     }
-    
+
     const uint32_t eyes = segment.getEyes();
     if( eyes != EYES_ALL )
     {

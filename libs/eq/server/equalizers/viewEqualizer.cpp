@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -68,7 +68,7 @@ void ViewEqualizer::attach( Compound* compound )
     Equalizer::attach( compound );
 }
 
-void ViewEqualizer::notifyUpdatePre( Compound* compound, 
+void ViewEqualizer::notifyUpdatePre( Compound* compound,
                                      const uint32_t frameNumber )
 {
     LBASSERT( compound == getCompound( ));
@@ -83,11 +83,11 @@ namespace
 class SelfAssigner : public CompoundVisitor
 {
 public:
-    SelfAssigner( const Pipe* self, float& nResources, 
+    SelfAssigner( const Pipe* self, float& nResources,
                   lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _self( self ), _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 ) {}
-    
+
     virtual VisitorResult visitLeaf( Compound* compound )
         {
             if( !compound->isActive( ))
@@ -101,7 +101,7 @@ public:
 
             if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
                 _pipeUsage[ pipe ] = 0.0f;
-            
+
             float& pipeUsage = _pipeUsage[ pipe ];
             if( pipeUsage >= 1.0f )
             {
@@ -119,7 +119,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = 1.0f; // Don't use more than twice
-                LBLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use "
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -134,7 +134,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = use;
-                LBLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use "
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -144,7 +144,7 @@ public:
 
             return TRAVERSE_TERMINATE;
         }
-    
+
     uint32_t getNumChannels() const { return _numChannels; }
 
 private:
@@ -161,7 +161,7 @@ public:
                       lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _self( self ), _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 ) {}
-    
+
     virtual VisitorResult visitLeaf( Compound* compound )
         {
             if( !compound->isActive( ))
@@ -169,7 +169,7 @@ public:
 
             Pipe* pipe = compound->getPipe();
             LBASSERT( pipe );
-            
+
             if( compound->getUsage() == 0.0f || // not previously used
                 pipe == _self)                  // already assigned above
             {
@@ -182,7 +182,7 @@ public:
 
             if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
                 _pipeUsage[ pipe ] = 0.0f;
-            
+
             float& pipeUsage = _pipeUsage[ pipe ];
             if( pipeUsage > 0.0f ) // pipe already partly used
                 return TRAVERSE_CONTINUE;
@@ -196,14 +196,14 @@ public:
             _nResources -= use;
             ++_numChannels;
 
-            LBLOG( LOG_LB1 ) << "  Use " 
+            LBLOG( LOG_LB1 ) << "  Use "
                             << static_cast< unsigned >( use * 100.f + .5f )
                             << "% of " << pipe->getName() << " task "
                             << compound->getTaskID() << ", "
                             << _nResources * 100.f << "% left" << std::endl;
             return TRAVERSE_CONTINUE;
         }
-    
+
     uint32_t getNumChannels() const { return _numChannels; }
 
 private:
@@ -216,12 +216,12 @@ private:
 class NewAssigner : public CompoundVisitor
 {
 public:
-    NewAssigner( float& nResources, 
+    NewAssigner( float& nResources,
                  lunchbox::PtrHash< Pipe*, float >& pipeUsage )
             : _nResources( nResources ), _pipeUsage( pipeUsage )
             , _numChannels( 0 )
             , _fallback( 0 ) {}
-    
+
     virtual VisitorResult visitLeaf( Compound* compound )
         {
             if( !compound->isActive( ))
@@ -235,10 +235,10 @@ public:
 
             Pipe* pipe = compound->getPipe();
             LBASSERT( pipe );
-            
+
             if( _pipeUsage.find( pipe ) == _pipeUsage.end( ))
                 _pipeUsage[ pipe ] = 0.0f;
-            
+
             float& pipeUsage = _pipeUsage[ pipe ];
             if( pipeUsage >= 1.0f )
                 return TRAVERSE_CONTINUE;
@@ -253,7 +253,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = 1.0f; // Don't use more than twice
-                LBLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use "
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -268,7 +268,7 @@ public:
                 compound->setUsage( use );
                 _nResources -= use;
                 pipeUsage = use;
-                LBLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use "
                                 << static_cast< unsigned >( use * 100.f + .5f )
                                 << "% of " << pipe->getName() << " task "
                                 << compound->getTaskID() << ", "
@@ -280,7 +280,7 @@ public:
                 return TRAVERSE_TERMINATE; // done
             return TRAVERSE_CONTINUE;
         }
-    
+
     uint32_t getNumChannels() const { return _numChannels; }
     Compound* getFallback() { return _fallback; }
 
@@ -320,7 +320,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
     if( totalTime == 0 ) // no data
         totalTime = 1;
 
-    const float resourceTime( static_cast< float >( totalTime ) / 
+    const float resourceTime( static_cast< float >( totalTime ) /
                               static_cast< float >( _nPipes ));
     LBLOG( LOG_LB1 ) << resourceTime << "ms/resource" << std::endl;
 
@@ -343,17 +343,17 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         float segmentResources( load.time / resourceTime );
 
-        LBLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " (" 
+        LBLOG( LOG_LB1 ) << "----- balance step 1 for view " << i << " ("
                          << child->getChannel()->getName() << " "
                          << child->getChannel()->getSerial() << ") using "
                          << segmentResources << " resources" << std::endl;
         SelfAssigner assigner( child->getPipe(), segmentResources, pipeUsage );
-        
+
         child->accept( assigner );
         load.missing = assigner.getNumChannels();
         leftOvers[ i ] = segmentResources;
     }
-    
+
     // use previous' frames resources
     for( size_t i = 0; i < size; ++i )
     {
@@ -363,16 +363,16 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
             continue;
 
         float& leftOver = leftOvers[i];
-        LBLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " (" 
+        LBLOG( LOG_LB1 ) << "----- balance step 2 for view " << i << " ("
                          << child->getChannel()->getName() << " "
                          << child->getChannel()->getSerial() << ") using "
                          << leftOver << " resources" << std::endl;
         PreviousAssigner assigner( child->getPipe(), leftOver, pipeUsage );
-        
+
         child->accept( assigner );
         load.missing += assigner.getNumChannels();
     }
-    
+
     // satisfy left-overs
     for( size_t i = 0; i < size; ++i )
     {
@@ -389,11 +389,11 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
         if( leftOver > MIN_USAGE || load.missing == 0 )
         {
-            LBLOG( LOG_LB1 ) << "----- balance step 3 for view " << i << " (" 
+            LBLOG( LOG_LB1 ) << "----- balance step 3 for view " << i << " ("
                             << child->getChannel()->getName() << ") using "
                             << leftOver << " resources" << std::endl;
 
-            NewAssigner assigner( leftOver, pipeUsage );        
+            NewAssigner assigner( leftOver, pipeUsage );
             child->accept( assigner );
             load.missing += assigner.getNumChannels();
 
@@ -405,7 +405,7 @@ void ViewEqualizer::_update( const uint32_t frameNumber )
 
                 fallback->setUsage( leftOver );
                 load.missing = 1;
-                LBLOG( LOG_LB1 ) << "  Use " 
+                LBLOG( LOG_LB1 ) << "  Use "
                                 << static_cast< unsigned >( leftOver*100.f+.5f )
                                 << "% of " << fallback->getPipe()->getName()
                                 << " task " << fallback->getTaskID()
@@ -468,7 +468,7 @@ void ViewEqualizer::_updateListeners()
     {
         LBLOG( LOG_LB1 ) << lunchbox::disableFlush << "Tasks for view " << i
                          << ": ";
-        Listener& listener = _listeners[ i ];        
+        Listener& listener = _listeners[ i ];
         listener.update( children[i] );
         LBLOG(LOG_LB1) << std::endl << lunchbox::enableFlush;
     }
@@ -490,7 +490,7 @@ public:
             const Pipe* pipe = compound->getPipe();
             LBASSERT( pipe );
             _pipes.insert( pipe );
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 
     size_t getNPipes() const { return _pipes.size(); }
@@ -516,8 +516,8 @@ namespace
 class LoadSubscriber : public CompoundVisitor
 {
 public:
-    LoadSubscriber( ChannelListener* listener, 
-                    lunchbox::PtrHash< Channel*, uint32_t >& taskIDs ) 
+    LoadSubscriber( ChannelListener* listener,
+                    lunchbox::PtrHash< Channel*, uint32_t >& taskIDs )
             : _listener( listener )
             , _taskIDs( taskIDs ) {}
 
@@ -534,12 +534,12 @@ public:
             }
             else
             {
-                LBASSERTINFO( 0, 
+                LBASSERTINFO( 0,
                               "View equalizer does not support using channel "<<
                               channel->getName() <<
                               " multiple times in one branch" );
             }
-            return TRAVERSE_CONTINUE; 
+            return TRAVERSE_CONTINUE;
         }
 
 private:
@@ -557,7 +557,7 @@ void ViewEqualizer::Listener::update( Compound* compound )
 
 void ViewEqualizer::Listener::clear()
 {
-    for( TaskIDHash::const_iterator i = _taskIDs.begin(); 
+    for( TaskIDHash::const_iterator i = _taskIDs.begin();
          i != _taskIDs.end(); ++i )
     {
         i->first->removeListener( this );
@@ -566,7 +566,7 @@ void ViewEqualizer::Listener::clear()
 }
 
 ViewEqualizer::Listener::Load ViewEqualizer::Listener::Load::NONE( 0, 0, 1 );
-ViewEqualizer::Listener::Load::Load( const uint32_t frame_, 
+ViewEqualizer::Listener::Load::Load( const uint32_t frame_,
                                      const uint32_t missing_,
                                      const int64_t time_ )
         : frame( frame_ ), missing( missing_ ), nResources( missing_ )
@@ -577,10 +577,9 @@ bool ViewEqualizer::Listener::Load::operator == ( const Load& rhs ) const
     return ( frame == rhs.frame && missing == rhs.missing && time == rhs.time );
 }
 
-void ViewEqualizer::Listener::notifyLoadData( Channel* channel, 
+void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
                                               const uint32_t frameNumber,
-                                              const uint32_t nStatistics,
-                                              const eq::Statistic* statistics,
+                                              const Statistics& statistics,
                                               const Viewport& region )
 {
     Load& load = _getLoad( frameNumber );
@@ -589,18 +588,18 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
 
     LBASSERT( _taskIDs.find( channel ) != _taskIDs.end( ));
     const uint32_t taskID = _taskIDs[ channel ];
-    
+
     // gather relevant load data
     int64_t startTime = std::numeric_limits< int64_t >::max();
     int64_t endTime   = 0;
     bool  loadSet   = false;
     int64_t transmitTime = 0;
-    for( uint32_t i = 0; i < nStatistics && !loadSet; ++i )
+    for( size_t i = 0; i < statistics.size() && !loadSet; ++i )
     {
         const eq::Statistic& data = statistics[i];
         if( data.task != taskID ) // data from another compound
             continue;
-        
+
         switch( data.type )
         {
         case eq::Statistic::CHANNEL_CLEAR:
@@ -622,7 +621,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
         case eq::Statistic::CHANNEL_ASSEMBLE:
             loadSet = true;
             break;
-                
+
         default:
             break;
         }
@@ -630,7 +629,7 @@ void ViewEqualizer::Listener::notifyLoadData( Channel* channel,
 
     if( startTime == std::numeric_limits< int64_t >::max( ))
         return;
-    
+
     LBASSERTINFO( load.missing > 0, load << " for " << channel->getName() <<
                                     " " << channel->getSerial( ));
 
@@ -655,13 +654,13 @@ uint32_t ViewEqualizer::Listener::findYoungestLoad( const uint32_t frame ) const
     for( LoadDeque::const_iterator i = _loads.begin(); i != _loads.end(); ++i )
     {
         const Load& load = *i;
-        if( load.missing == 0 && load.frame <= frame ) 
+        if( load.missing == 0 && load.frame <= frame )
             return load.frame;
     }
     return 0;
 }
 
-const ViewEqualizer::Listener::Load& 
+const ViewEqualizer::Listener::Load&
 ViewEqualizer::Listener::useLoad( const uint32_t frame )
 {
     for( LoadDeque::iterator i = _loads.begin(); i != _loads.end(); ++i )
@@ -682,7 +681,7 @@ ViewEqualizer::Listener::useLoad( const uint32_t frame )
     return Load::NONE;
 }
 
-ViewEqualizer::Listener::Load& 
+ViewEqualizer::Listener::Load&
 ViewEqualizer::Listener::_getLoad( const uint32_t frame )
 {
     for( LoadDeque::iterator i = _loads.begin(); i != _loads.end(); ++i )
@@ -695,7 +694,7 @@ ViewEqualizer::Listener::_getLoad( const uint32_t frame )
     return Load::NONE;
 }
 
-void ViewEqualizer::Listener::newLoad( const uint32_t frameNumber, 
+void ViewEqualizer::Listener::newLoad( const uint32_t frameNumber,
                                        const uint32_t nChannels )
 {
     LBASSERT( nChannels > 0 );
@@ -714,19 +713,19 @@ std::ostream& operator << ( std::ostream& os,
 {
     os << lunchbox::disableFlush << "Listener" << std::endl
        << lunchbox::indent;
-    for( ViewEqualizer::Listener::LoadDeque::const_iterator i = 
+    for( ViewEqualizer::Listener::LoadDeque::const_iterator i =
              listener._loads.begin(); i != listener._loads.end(); ++i )
     {
         os << *i << std::endl;
     }
     os << lunchbox::exdent << lunchbox::enableFlush;
-    return os; 
+    return os;
 }
 
-std::ostream& operator << ( std::ostream& os, 
+std::ostream& operator << ( std::ostream& os,
                             const ViewEqualizer::Listener::Load& load )
 {
-    os << "frame " << load.frame << " missing " << load.missing << " t " 
+    os << "frame " << load.frame << " missing " << load.missing << " t "
        << load.time;
     return os;
 }

@@ -23,7 +23,6 @@
 #include "exception.h"
 #include "image.h"
 #include "log.h"
-#include "nodePackets.h"
 #include "pixelData.h"
 #include "roiFinder.h"
 
@@ -338,21 +337,22 @@ void FrameData::setReady()
     _setReady( _version );
 }
 
-void FrameData::setReady( const NodeFrameDataReadyPacket* packet )
+void FrameData::setReady( const co::ObjectVersion& frameData,
+                          const FrameData::Data& data )
 {
     clear();
-    LBASSERT(  packet->frameData.version.high() == 0 );
-    LBASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT(  frameData.version.high() == 0 );
+    LBASSERT( _readyVersion < frameData.version.low( ));
     LBASSERT( _readyVersion == 0 ||
-              _readyVersion + 1 == packet->frameData.version.low( ));
-    LBASSERT( _version == packet->frameData.version.low( ));
+              _readyVersion + 1 == frameData.version.low( ));
+    LBASSERT( _version == frameData.version.low( ));
 
     _images.swap( _pendingImages );
-    _data = packet->data;
-    _setReady( packet->frameData.version.low());
+    _data = data;
+    _setReady( frameData.version.low());
 
     LBLOG( LOG_ASSEMBLY ) << this << " applied v"
-                          << packet->frameData.version.low() << std::endl;
+                          << frameData.version.low() << std::endl;
 }
 
 void FrameData::_setReady( const uint64_t version )
@@ -397,25 +397,23 @@ void FrameData::removeListener( lunchbox::Monitor<uint32_t>& listener )
     _listeners->erase( i );
 }
 
-bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
+bool FrameData::addImage( const co::ObjectVersion& frameDataVersion,
+                          const PixelViewport& pvp, const Zoom& zoom,
+                          const uint32_t buffers_, const bool useAlpha,
+                          uint8_t* data )
 {
     Image* image = _allocImage( Frame::TYPE_MEMORY, DrawableConfig(),
                                 false /* set quality */ );
 
-    // Note on the const_cast: since the PixelData structure stores non-const
-    // pointers, we have to go non-const at some point, even though we do not
-    // modify the data.
-    uint8_t* data  = const_cast< uint8_t* >( packet->data );
-
-    image->setPixelViewport( packet->pvp );
-    image->setAlphaUsage( packet->useAlpha );
+    image->setPixelViewport( pvp );
+    image->setAlphaUsage( useAlpha );
 
     Frame::Buffer buffers[] = { Frame::BUFFER_COLOR, Frame::BUFFER_DEPTH };
     for( unsigned i = 0; i < 2; ++i )
     {
         const Frame::Buffer buffer = buffers[i];
 
-        if( packet->buffers & buffer )
+        if( buffers_ & buffer )
         {
             PixelData pixelData;
             const ImageHeader* header = reinterpret_cast<ImageHeader*>( data );
@@ -455,13 +453,13 @@ bool FrameData::addImage( const NodeFrameDataTransmitPacket* packet )
                 LBASSERT( size == pixelData.pvp.getArea()*pixelData.pixelSize );
             }
 
-            image->setZoom( packet->zoom );
+            image->setZoom( zoom );
             image->setQuality( buffer, header->quality );
             image->setPixelData( buffer, pixelData );
         }
     }
 
-    LBASSERT( _readyVersion < packet->frameData.version.low( ));
+    LBASSERT( _readyVersion < frameDataVersion.version.low( ));
     _pendingImages.push_back( image );
     return true;
 }

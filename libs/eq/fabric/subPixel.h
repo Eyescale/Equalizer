@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
@@ -115,4 +115,12 @@ namespace fabric
 }
 }
 
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::SubPixel& value )
+{
+    byteswap( value.index );
+    byteswap( value.size );
+}
+}
 #endif // EQFABRIC_SUBPIXEL_H

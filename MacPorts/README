@@ -1,5 +1,0 @@
-
-Incomplete Portfile for MacPorts. To install, do:
-
-* Update the index using 'portindex'
-* Add $PWD to /opt/local/etc/macports/sources.conf

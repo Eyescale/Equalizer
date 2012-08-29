@@ -1,16 +1,16 @@
 
-/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com> 
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com> 
+/* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,7 +27,7 @@
 
 namespace eq
 {
-    /** 
+    /**
      * Yet another key code table to report keys in a window system
      * independent way. Ordinary keys (letters, numbers, etc) are reported
      * using the corresponding ascii code. The naming is oriented on the X11
@@ -131,7 +131,7 @@ namespace eq
         // TODO modifier state
     };
 
-    /** 
+    /**
      * Event for a SpaceMouse movement or click.
      * @warning experimental - may not be supported in the future.
      */
@@ -140,7 +140,7 @@ namespace eq
         uint32_t button;       //!< fired button
         uint32_t buttons;      //!< current state of all buttons
         int16_t xAxis;         //!< X translation
-        int16_t yAxis;         //!< Y translation         
+        int16_t yAxis;         //!< Y translation
         int16_t zAxis;         //!< Z translation
         int16_t xRotation;     //!< X rotation
         int16_t yRotation;     //!< Y rotation
@@ -178,7 +178,7 @@ namespace eq
         {
             WINDOW_EXPOSE = 0,    //!< A window is dirty
             WINDOW_RESIZE,        //!< Window resize data in resize
-            WINDOW_CLOSE,         //!< A window has been closed 
+            WINDOW_CLOSE,         //!< A window has been closed
             WINDOW_HIDE,          //!< A window is hidden
             WINDOW_SHOW,          //!< A window is shown
             WINDOW_SCREENSAVER,   //!< A window screensaver request (Win32 only)
@@ -190,25 +190,25 @@ namespace eq
             POINTER_BUTTON_RELEASE,
             POINTER_WHEEL,        //!< Mouse wheel data in wheel
             //!< Channel pointer movement data in pointerMotion
-            CHANNEL_POINTER_MOTION = POINTER_MOTION, 
+            CHANNEL_POINTER_MOTION = POINTER_MOTION,
             /** Channel pointer button press data in pointerButtonPress */
             CHANNEL_POINTER_BUTTON_PRESS = POINTER_BUTTON_PRESS,
             /** Channel pointer button release data in pointerButtonRelease */
             CHANNEL_POINTER_BUTTON_RELEASE = POINTER_BUTTON_RELEASE,
             //!< Window pointer Mouse wheel data in wheel
-            WINDOW_POINTER_WHEEL = POINTER_WHEEL, 
+            WINDOW_POINTER_WHEEL = POINTER_WHEEL,
 #else
            //!< Channel pointer movement data in pointerMotion
-            CHANNEL_POINTER_MOTION, 
+            CHANNEL_POINTER_MOTION,
             /** Channel pointer button press data in pointerButtonPress */
             CHANNEL_POINTER_BUTTON_PRESS,
             /** Channel pointer button release data in pointerButtonRelease */
             CHANNEL_POINTER_BUTTON_RELEASE,
             //!< Window pointer Mouse wheel data in wheel
-            WINDOW_POINTER_WHEEL, 
+            WINDOW_POINTER_WHEEL,
 #endif
            //!< Window pointer movement data in pointerMotion
-            WINDOW_POINTER_MOTION,  
+            WINDOW_POINTER_MOTION,
             /** Window pointer button press data in pointerButtonPress */
             WINDOW_POINTER_BUTTON_PRESS,
             /** Window pointer button release data in pointerButtonRelease */
@@ -232,7 +232,7 @@ namespace eq
             ALL // must be last
         };
 
-        
+
         uint32_t type;           //!< The event type
 
         // keep before 'uint128_t originator' for alignment
@@ -250,7 +250,7 @@ namespace eq
             ResizeEvent   resize;             //!< Resize event data
             ResizeEvent   show;               //!< Window show event data
             ResizeEvent   hide;               //!< Window hide event data
-            
+
             PointerEvent  pointer;            //!< Pointer event data
             PointerEvent  pointerMotion;      //!< Pointer motion data
             PointerEvent  pointerButtonPress; //!< Mouse button press data
@@ -266,7 +266,7 @@ namespace eq
 
             UserEvent     user;               //!< User-defined event data
         };
-     
+
         /** The last rendering context for the pointer position. */
         RenderContext context;
     };
@@ -285,5 +285,18 @@ namespace eq
     EQ_API std::ostream& operator << ( std::ostream&, const MagellanEvent& );
 }
 
-#endif // EQ_EVENT_H
+namespace lunchbox
+{
+template<> inline void byteswap( eq::Event& value )
+{
+    byteswap( value.type );
+    byteswap( value.serial );
+    byteswap( value.time );
+    byteswap( value.originator );
+    // #145 Todo byteswap union
+    //byteswap( value.union );
+    byteswap( value.context );
+}
+}
 
+#endif // EQ_EVENT_H

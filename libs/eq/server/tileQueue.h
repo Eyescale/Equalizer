@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,11 +29,19 @@ namespace eq
 {
 namespace server
 {
+    struct Tile
+    {
+        eq::Frustumf frustum;
+        eq::Frustumf ortho;
+        eq::PixelViewport pvp;
+        eq::Viewport vp;
+    };
+
     /** A holder for tile data and parameters. */
     class TileQueue : public co::Object
     {
     public:
-        /** 
+        /**
          * Constructs a new TileQueue.
          */
         EQSERVER_API TileQueue();
@@ -61,11 +69,11 @@ namespace server
         const Vector2i& getTileSize() const { return _size; }
 
         /** Add a tile to the queue. */
-        void addTile( const TileTaskPacket& tile, const Eye eye );
+        void addTile( const Tile& tile, const Eye eye );
 
-        /** 
+        /**
          * Cycle the current tile queue.
-         * 
+         *
          * Used for output tile queues to allocate/recycle queue masters.
          *
          * @param frameNumber the current frame number.
@@ -91,7 +99,7 @@ namespace server
         const UUID getQueueMasterID( const Eye eye ) const;
 
     protected:
-        EQSERVER_API virtual ChangeType getChangeType() const 
+        EQSERVER_API virtual ChangeType getChangeType() const
                                                             { return INSTANCE; }
         EQSERVER_API virtual void getInstanceData( co::DataOStream& os );
         EQSERVER_API virtual void applyInstanceData( co::DataIStream& is );

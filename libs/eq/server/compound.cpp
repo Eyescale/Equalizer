@@ -38,7 +38,6 @@
 #include "view.h"
 #include "observer.h"
 
-#include <eq/client/packets.h>
 #include <eq/fabric/paths.h>
 #include <lunchbox/os.h>
 #include <lunchbox/stdExt.h>

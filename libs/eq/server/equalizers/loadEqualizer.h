@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -66,28 +66,27 @@ namespace server
         float getDamping() const { return _damping; }
 
         /** @sa CompoundListener::notifyUpdatePre */
-        virtual void notifyUpdatePre( Compound* compound, 
+        virtual void notifyUpdatePre( Compound* compound,
                                       const uint32_t frameNumber );
 
         /** @sa ChannelListener::notifyLoadData */
-        virtual void notifyLoadData( Channel* channel, 
-                                     const uint32_t frameNumber, 
-                                     const uint32_t nStatistics,
-                                     const eq::Statistic* statistics,
+        virtual void notifyLoadData( Channel* channel,
+                                     const uint32_t frameNumber,
+                                     const Statistics& statistics,
                                      const Viewport& region );
-                                     
+
         /** Set a boundary for 2D tiles. */
         void setBoundary( const Vector2i& boundary )
         {
             LBASSERT( boundary.x() > 0 && boundary.y() > 0 );
-            _boundary2i = boundary; 
+            _boundary2i = boundary;
         }
 
         /** Set a boundary for DB ranges. */
         void setBoundary( const float boundary )
-        { 
+        {
             LBASSERT( boundary > 0.0f );
-            _boundaryf = boundary; 
+            _boundaryf = boundary;
         }
 
         /** @return the boundary for 2D tiles. */
@@ -110,7 +109,7 @@ namespace server
     private:
         Mode  _mode;    //!< The current adaptation mode
         float _damping; //!< The damping factor,  (0: No damping, 1: No changes)
-        
+
         struct Node
         {
             Node() : left(0), right(0), compound(0), mode( MODE_VERTICAL )
@@ -147,7 +146,7 @@ namespace server
 
         typedef std::vector< Data > LBDatas;
         typedef std::pair< uint32_t,  LBDatas > LBFrameData;
-        
+
         std::deque< LBFrameData > _history;
 
         Vector2i _boundary2i;  // default: 1 1
@@ -159,7 +158,7 @@ namespace server
         Node* _buildTree( const Compounds& children );
         void _init( Node* node, const Viewport& vp, const Range& range );
 
-        /** Setup assembly with the compound dest value */  
+        /** Setup assembly with the compound dest value */
         void _updateAssembleTime( Data& data, const Statistic& stat );
 
         /** Clear the tree, does not delete the nodes. */

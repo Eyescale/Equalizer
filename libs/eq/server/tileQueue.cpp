@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,6 +20,8 @@
 
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/queueItem.h>
+
 
 namespace eq
 {
@@ -51,11 +53,12 @@ TileQueue::~TileQueue()
     _compound = 0;
 }
 
-void TileQueue::addTile( const TileTaskPacket& tile, const fabric::Eye eye )
+void TileQueue::addTile( const Tile& tile, const fabric::Eye eye )
 {
     uint32_t index = lunchbox::getIndexOfLastBit(eye);
     LBASSERT( index < NUM_EYES );
-    _queueMaster[index]->_queue.push( tile );
+    _queueMaster[index]->_queue.push()
+            << tile.frustum << tile.ortho << tile.pvp << tile.vp;
 }
 
 void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)
@@ -146,7 +149,7 @@ std::ostream& operator << ( std::ostream& os, const TileQueue* tileQueue )
 {
     if( !tileQueue )
         return os;
-    
+
     os << lunchbox::disableFlush << "tiles" << std::endl;
     os << "{" << std::endl << lunchbox::indent;
 

@@ -1,16 +1,16 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2010, Cedric Stalder <cedric Stalder@gmail.com> 
+ *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -124,7 +124,7 @@ namespace detail { class Config; }
 
         /** @name Operations */
         //@{
-        /** 
+        /**
          * Initialize this configuration.
          *
          * This method is to be called only on the application node on an
@@ -142,14 +142,14 @@ namespace detail { class Config; }
          * methods fails. The application can use setErrorMessage on the render
          * client to pass an error string to the application process, which it
          * can query it using getError().
-         * 
+         *
          * @param initID an identifier to be passed to all init methods.
          * @return true if the initialization was successful, false if not.
          * @version 1.0
          */
         EQ_API virtual bool init( const uint128_t& initID );
 
-        /** 
+        /**
          * Exit this configuration.
          *
          * This method is to be called only on the application node on an
@@ -167,7 +167,7 @@ namespace detail { class Config; }
          */
         EQ_API virtual bool exit();
 
-        /** 
+        /**
          * Update the configuration.
          *
          * This method is to be called only on the application node on an
@@ -188,14 +188,14 @@ namespace detail { class Config; }
          * @version 1.0
          */
         EQ_API bool update();
-        
+
         /** @sa fabric::Config::setLatency() */
         EQ_API virtual void setLatency( const uint32_t latency );
         //@}
 
         /** @name Object registry. */
         //@{
-        /** 
+        /**
          * Register a distributed object.
          *
          * Provided for symmetry with deregisterObject. Forwards registration to
@@ -215,14 +215,14 @@ namespace detail { class Config; }
          */
         EQ_API virtual void deregisterObject( co::Object* object );
 
-        /** 
+        /**
          * Map a distributed object.
          *
          * Provided for symmetry with deregisterObject. Forwards mapping to
          * local client node.
          * @version 1.0
          */
-        EQ_API virtual bool mapObject( co::Object* object, const UUID& id, 
+        EQ_API virtual bool mapObject( co::Object* object, const UUID& id,
                                 const uint128_t& version = co::VERSION_OLDEST );
 
 
@@ -240,9 +240,9 @@ namespace detail { class Config; }
         /** Finalize the mapping of a distributed object. @version 1.0 */
         EQ_API virtual bool mapObjectSync( const uint32_t requestID );
 
-        /** 
+        /**
          * Unmap a mapped object.
-         * 
+         *
          * Provided for symmetry with deregisterObject. Forwards unmapping to
          * local client node.
          * @version 1.0
@@ -255,7 +255,7 @@ namespace detail { class Config; }
 
         /** @name Frame Control */
         //@{
-        /** 
+        /**
          * Request a new frame of rendering.
          *
          * This method is to be called only on the application node on an
@@ -274,7 +274,7 @@ namespace detail { class Config; }
          */
         EQ_API virtual uint32_t startFrame( const uint128_t& frameID );
 
-        /** 
+        /**
          * Finish the rendering of a frame.
          *
          * This method is to be called only on the application node on an
@@ -284,7 +284,7 @@ namespace detail { class Config; }
          * rendering is always synchronized to finish the frame (current -
          * latency). The local rendering is synchronized according to the
          * current thread model (cf. Node::IATTR_THREAD_MODEL)
-         * 
+         *
          * @return the frame number of the globally finished frame, or 0 if no
          *         frame has been finished yet.
          * @version 1.0
@@ -304,7 +304,7 @@ namespace detail { class Config; }
 
         /**
          * Release the local synchronization of the config for a frame.
-         * 
+         *
          * Used by the local Node to release the process-local frame
          * synchronization. An application typically does not call this method
          * directly, it is called from Node::releaseFrameLocal(), which in turn
@@ -331,36 +331,38 @@ namespace detail { class Config; }
 
         /** @name Event handling */
         //@{
-        /** 
+        /**
          * Send an event to the application node.
          *
          * @param event the event.
          * @version 1.0
          */
-        EQ_API void sendEvent( ConfigEvent& event );
+        // #145 API
+        EQ_API co::ObjectOCommand sendEvent( Event event );
+        EQ_API co::ObjectOCommand sendEvent( uint32_t eventType );
 
-        /** 
+        /**
          * Get the next event.
-         * 
+         *
          * To be called only on the application node.
-         * 
+         *
          * The returned event is valid until the next call to this method. This
          * method may block.
-         * 
+         *
          * @return the event.
          * @version 1.0
          * @sa Client::processCommand()
          */
         EQ_API const ConfigEvent* nextEvent();
 
-        /** 
+        /**
          * Try to get the next event.
-         * 
+         *
          * To be called only on the application node.
-         * 
+         *
          * The returned event is valid until the next call to this method. This
          * method does not block.
-         * 
+         *
          * @return a config event, or 0 if no events are pending.
          * @version 1.0
          */
@@ -373,7 +375,7 @@ namespace detail { class Config; }
          * Handle all config events.
          *
          * To be called only on the application node.
-         * 
+         *
          * Called automatically at the end of each frame to handle pending
          * config events. The default implementation calls handleEvent() on all
          * pending events, without blocking.
@@ -381,17 +383,17 @@ namespace detail { class Config; }
          */
         EQ_API virtual void handleEvents();
 
-        /** 
+        /**
          * Handle one config event.
-         * 
+         *
          * @param event the event.
          * @return true if the event requires a redraw, false if not.
          * @version 1.0
          */
         EQ_API virtual bool handleEvent( const ConfigEvent* event );
         //@}
-        
-        /** 
+
+        /**
          * @internal
          * Set up the config's message pump for the given pipe.
          * Used by non-threaded and AGL pipes.
@@ -420,7 +422,7 @@ namespace detail { class Config; }
 
         bool _needsLocalSync() const;
 
-        /** 
+        /**
          * Update statistics for the finished frame, push it to the local node
          * for visualization.
          */

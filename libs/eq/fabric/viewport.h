@@ -194,4 +194,14 @@ namespace fabric
 }
 }
 
+namespace lunchbox
+{
+template<> inline void byteswap( eq::fabric::Viewport& value )
+{
+    byteswap( value.x );
+    byteswap( value.y );
+    byteswap( value.w );
+    byteswap( value.h );
+}
+}
 #endif // EQFABRIC_VIEWPORT_H

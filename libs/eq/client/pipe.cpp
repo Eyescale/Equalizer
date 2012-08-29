@@ -28,13 +28,10 @@
 #include "log.h"
 #include "node.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
-#include "pipePackets.h"
 #include "pipeStatistics.h"
 #include "server.h"
 #include "view.h"
 #include "window.h"
-#include "windowPackets.h"
 
 #include "messagePump.h"
 #include "systemPipe.h"
@@ -44,10 +41,12 @@
 #  include "cudaContext.h"
 #endif
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
-#include <co/command.h>
+
+#include <co/buffer.h>
+#include <co/objectCommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
 #include <sstream>
@@ -291,7 +290,7 @@ void Pipe::setDirty( const uint64_t bits )
 
 #ifndef EQ_2_0_API
 bool Pipe::supportsWindowSystem( const WindowSystem ) const
-{ 
+{
     return true;
 }
 #endif
@@ -366,7 +365,7 @@ int32_t Pipe::_getAutoAffinity() const
     }
 
     // Get the cpuset for the socket connected to GPU attached to the display
-    // defined by its port and device 
+    // defined by its port and device
     hwloc_bitmap_t cpuSet;
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
                                      &cpuSet ) < 0 )
@@ -672,8 +671,7 @@ void Pipe::exitThread()
     if( !_impl->thread )
         return;
 
-    PipeExitThreadPacket packet;
-    send( getLocalNode(), packet );
+    send( getLocalNode(), fabric::CMD_PIPE_EXIT_THREAD );
 
     _impl->thread->join();
     delete _impl->thread;
@@ -687,13 +685,13 @@ void Pipe::cancelThread()
     if( !_impl->thread )
         return;
 
-    PipeExitThreadPacket pkg;
-    co::CommandPtr command = getLocalNode()->allocCommand( sizeof( pkg ));
-    eq::PipeExitThreadPacket* packet =
-        command->getModifiable< eq::PipeExitThreadPacket >();
-
-    memcpy( packet, &pkg, sizeof( pkg ));
-    dispatchCommand( command );
+    // #145 proper local command dispatch!
+    co::BufferPtr buffer = getLocalNode()->allocCommand( 80 );
+    co::ObjectOCommand command( co::Connections(), fabric::CMD_PIPE_EXIT_THREAD,
+                                co::COMMANDTYPE_CO_OBJECT, getID(),
+                                EQ_INSTANCE_ALL );
+    buffer->swap( command.getBuffer( ));
+    dispatchCommand( buffer );
 }
 
 void Pipe::waitExited() const
@@ -948,8 +946,7 @@ void Pipe::_stopTransferThread()
     if( _impl->transferThread.isStopped( ))
         return;
 
-    PipeExitTransferThreadPacket packet;
-    send( getLocalNode(), packet );
+    send( getLocalNode(), fabric::CMD_PIPE_EXIT_TRANSFER_THREAD );
 
     _impl->transferThread.join();
 }
@@ -987,28 +984,30 @@ ComputeContext* Pipe::getComputeContext()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Pipe::_cmdCreateWindow( co::Command& command )
+bool Pipe::_cmdCreateWindow( co::Command& cmd )
 {
-    const PipeCreateWindowPacket* packet =
-        command.get<PipeCreateWindowPacket>();
-    LBLOG( LOG_INIT ) << "Create window " << packet << std::endl;
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    LBLOG( LOG_INIT ) << "Create window " << command << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     window->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( window, packet->windowID ));
+    LBCHECK( config->mapObject( window, command.get< UUID >( )));
 
     return true;
 }
 
-bool Pipe::_cmdDestroyWindow(  co::Command& command  )
+bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
 {
-    const PipeDestroyWindowPacket* packet =
-        command.get<PipeDestroyWindowPacket>();
-    LBLOG( LOG_INIT ) << "Destroy window " << packet << std::endl;
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    Window* window = _findWindow( packet->windowID );
+    LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
+
+    const UUID windowID = command.get< UUID >();
+
+    Window* window = _findWindow( windowID );
     LBASSERT( window );
 
     // re-set shared windows accordingly
@@ -1035,22 +1034,27 @@ bool Pipe::_cmdDestroyWindow(  co::Command& command  )
         LBASSERT( candidate->getSharedContextWindow() != window );
     }
 
-    WindowConfigExitReplyPacket reply( packet->windowID, window->isStopped( ));
+    const bool stopped = window->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    getServer()->send( reply ); // do not use Object::send()
+    // do not use Object::send()
+    getServer()->send2( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
+                       windowID ) << stopped;
     return true;
 }
 
-bool Pipe::_cmdConfigInit( co::Command& command )
+bool Pipe::_cmdConfigInit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _pipeThread );
-    const PipeConfigInitPacket* packet =
-        command.get<PipeConfigInitPacket>();
-    LBLOG( LOG_INIT ) << "Init pipe " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "Init pipe " << command << std::endl;
+
+    const uint128_t initID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     if( !isThreaded( ))
     {
@@ -1058,52 +1062,49 @@ bool Pipe::_cmdConfigInit( co::Command& command )
         _setupCommandQueue();
     }
 
-    PipeConfigInitReplyPacket reply;
     setError( ERROR_NONE );
 
     Node* node = getNode();
     LBASSERT( node );
     node->waitInitialized();
 
+    bool result = false;
     if( node->isRunning( ))
     {
-        _impl->currentFrame  = packet->frameNumber;
-        _impl->finishedFrame = packet->frameNumber;
-        _impl->unlockedFrame = packet->frameNumber;
+        _impl->currentFrame  = frameNumber;
+        _impl->finishedFrame = frameNumber;
+        _impl->unlockedFrame = frameNumber;
         _impl->state = STATE_INITIALIZING;
 
-        reply.result = configInit( packet->initID );
+        result = configInit( initID );
 
-        if( reply.result )
+        if( result )
             _impl->state = STATE_RUNNING;
     }
     else
-    {
         setError( ERROR_PIPE_NODE_NOTRUNNING );
-        reply.result = false;
-    }
 
-    LBLOG( LOG_INIT ) << "TASK pipe config init reply " << &reply << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config init reply result " << result
+                      << std::endl;
 
     co::NodePtr netNode = command.getNode();
 
     commit();
-    send( netNode, reply );
+    send( netNode, fabric::CMD_PIPE_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
-bool Pipe::_cmdConfigExit( co::Command& command )
+bool Pipe::_cmdConfigExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _pipeThread );
-    const PipeConfigExitPacket* packet =
-        command.get<PipeConfigExitPacket>();
-    LBLOG( LOG_INIT ) << "TASK pipe config exit " << packet << std::endl;
+    LBLOG( LOG_INIT ) << "TASK pipe config exit " << command << std::endl;
 
     _impl->state = STATE_STOPPING; // needed in View::detach (from _flushViews)
 
     // send before node gets a chance to send its destroy packet
-    NodeDestroyPipePacket destroyPacket( getID( ));
-    getNode()->send( getLocalNode(), destroyPacket );
+    getNode()->send( getLocalNode(), fabric::CMD_NODE_DESTROY_PIPE ) << getID();
 
     // Flush views before exit since they are created after init
     // - application may need initialized pipe to exit
@@ -1114,8 +1115,10 @@ bool Pipe::_cmdConfigExit( co::Command& command )
     return true;
 }
 
-bool Pipe::_cmdExitThread( co::Command& command )
+bool Pipe::_cmdExitThread( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LBASSERT( _impl->thread );
     _impl->thread->_pipe = 0;
     return true;
@@ -1136,14 +1139,20 @@ bool Pipe::_cmdFrameStartClock( co::Command& )
     return true;
 }
 
-bool Pipe::_cmdFrameStart( co::Command& command )
+bool Pipe::_cmdFrameStart( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _pipeThread );
-    const PipeFrameStartPacket* packet =
-        command.get<PipeFrameStartPacket>();
-    LBVERB << "handle pipe frame start " << packet << std::endl;
-    LBLOG( LOG_TASKS ) << "---- TASK start frame ---- " << packet << std::endl;
-    sync( packet->version );
+    LBVERB << "handle pipe frame start " << command << std::endl;
+
+    const uint128_t version = command.get< uint128_t >();
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "---- TASK start frame ---- frame " << frameNumber
+                       << " id " << frameID << std::endl;
+    sync( version );
     const int64_t lastFrameTime = _impl->frameTime;
 
     _impl->frameTimeMutex.set();
@@ -1156,32 +1165,35 @@ bool Pipe::_cmdFrameStart( co::Command& command )
     if( lastFrameTime > 0 )
     {
         PipeStatistics waitEvent( Statistic::PIPE_IDLE, this );
-        waitEvent.event.data.statistic.idleTime =
+        waitEvent.event.statistic.idleTime =
             _impl->thread ? _impl->thread->getWorkerQueue()->resetWaitTime() :0;
-        waitEvent.event.data.statistic.totalTime =
+        waitEvent.event.statistic.totalTime =
             _impl->frameTime - lastFrameTime;
     }
 
-    const uint32_t frameNumber = packet->frameNumber;
     LBASSERTINFO( _impl->currentFrame + 1 == frameNumber,
                   "current " <<_impl->currentFrame << " start " << frameNumber);
 
-    frameStart( packet->frameID, frameNumber );
+    frameStart( frameID, frameNumber );
     return true;
 }
 
-bool Pipe::_cmdFrameFinish( co::Command& command )
+bool Pipe::_cmdFrameFinish( co::Command& cmd )
 {
-    LB_TS_THREAD( _pipeThread );
-    const PipeFrameFinishPacket* packet =
-        command.get<PipeFrameFinishPacket>();
-    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << packet << std::endl;
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    const uint32_t frameNumber = packet->frameNumber;
+    LB_TS_THREAD( _pipeThread );
+
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << frameNumber
+                       << " id " << frameID << std::endl;
+
     LBASSERTINFO( _impl->currentFrame >= frameNumber,
                   "current " <<_impl->currentFrame << " finish " <<frameNumber);
 
-    frameFinish( packet->frameID, frameNumber );
+    frameFinish( frameID, frameNumber );
 
     LBASSERTINFO( _impl->finishedFrame >= frameNumber,
                   "Pipe::frameFinish() did not release frame " << frameNumber );
@@ -1205,31 +1217,34 @@ bool Pipe::_cmdFrameFinish( co::Command& command )
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-    {
-        fabric::ObjectSyncPacket syncPacket;
-        send( command.getNode(), syncPacket );
-    }
+        send( command.getNode(), fabric::CMD_OBJECT_SYNC );
     return true;
 }
 
-bool Pipe::_cmdFrameDrawFinish( co::Command& command )
+bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _pipeThread );
-    const PipeFrameDrawFinishPacket* packet =
-        command.get< PipeFrameDrawFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName()
+                       << " frame " << frameNumber << " id " << frameID
                        << std::endl;
 
-    frameDrawFinish( packet->frameID, packet->frameNumber );
+    frameDrawFinish( frameID, frameNumber );
     return true;
 }
 
-bool Pipe::_cmdDetachView( co::Command& command )
+bool Pipe::_cmdDetachView( co::Command& cmd )
 {
-    LB_TS_THREAD( _pipeThread );
-    const PipeDetachViewPacket* packet = command.get< PipeDetachViewPacket >();
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    ViewHash::iterator i = _impl->views.find( packet->viewID );
+    LB_TS_THREAD( _pipeThread );
+
+    ViewHash::iterator i = _impl->views.find( command.get< uint128_t >( ));
     if( i != _impl->views.end( ))
     {
         View* view = i->second;

@@ -5,12 +5,12 @@
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,25 +20,24 @@
 
 #include "client.h"
 #include "config.h"
-#include "configPackets.h"
 #include "error.h"
 #include "exception.h"
 #include "frameData.h"
 #include "global.h"
 #include "log.h"
 #include "nodeFactory.h"
-#include "nodePackets.h"
 #include "nodeStatistics.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "server.h"
 
+#include <eq/fabric/commands.h>
 #include <eq/fabric/elementVisitor.h>
-#include <eq/fabric/packets.h>
 #include <eq/fabric/task.h>
+
 #include <co/barrier.h>
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/connection.h>
+#include <co/objectCommand.h>
 #include <lunchbox/scopedMutex.h>
 
 namespace eq
@@ -77,7 +76,7 @@ void Node::attach( const UUID& id, const uint32_t instanceID )
                      NodeFunc( this, &Node::_cmdCreatePipe ), queue );
     registerCommand( fabric::CMD_NODE_DESTROY_PIPE,
                      NodeFunc( this, &Node::_cmdDestroyPipe ), queue );
-    registerCommand( fabric::CMD_NODE_CONFIG_INIT, 
+    registerCommand( fabric::CMD_NODE_CONFIG_INIT,
                      NodeFunc( this, &Node::_cmdConfigInit ), queue );
     registerCommand( fabric::CMD_NODE_SET_AFFINITY,
                      NodeFunc( this, &Node::_cmdSetAffinity), transmitQ );
@@ -87,9 +86,9 @@ void Node::attach( const UUID& id, const uint32_t instanceID )
                      NodeFunc( this, &Node::_cmdFrameStart ), queue );
     registerCommand( fabric::CMD_NODE_FRAME_FINISH,
                      NodeFunc( this, &Node::_cmdFrameFinish ), queue );
-    registerCommand( fabric::CMD_NODE_FRAME_DRAW_FINISH, 
+    registerCommand( fabric::CMD_NODE_FRAME_DRAW_FINISH,
                      NodeFunc( this, &Node::_cmdFrameDrawFinish ), queue );
-    registerCommand( fabric::CMD_NODE_FRAME_TASKS_FINISH, 
+    registerCommand( fabric::CMD_NODE_FRAME_TASKS_FINISH,
                      NodeFunc( this, &Node::_cmdFrameTasksFinish ), queue );
     registerCommand( fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
                      NodeFunc( this, &Node::_cmdFrameDataTransmit ), commandQ );
@@ -218,10 +217,8 @@ void Node::_setAffinity()
             break;
 
         default:
-            NodeAffinityPacket packet;
-            packet.affinity = affinity;
             co::LocalNodePtr node = getLocalNode();
-            send( node, packet );
+            send( node, fabric::CMD_NODE_SET_AFFINITY ) << affinity;
 
             node->setAffinity( affinity );
             break;
@@ -233,12 +230,12 @@ void Node::waitFrameStarted( const uint32_t frameNumber ) const
     _currentFrame.waitGE( frameNumber );
 }
 
-void Node::startFrame( const uint32_t frameNumber ) 
+void Node::startFrame( const uint32_t frameNumber )
 {
     _currentFrame = frameNumber;
 }
 
-void Node::frameFinish( const uint128_t&, const uint32_t frameNumber ) 
+void Node::frameFinish( const uint128_t&, const uint32_t frameNumber )
 {
     releaseFrame( frameNumber );
 }
@@ -256,7 +253,7 @@ void Node::_finishFrame( const uint32_t frameNumber ) const
     }
 }
 
-void Node::_frameFinish( const uint128_t& frameID, 
+void Node::_frameFinish( const uint128_t& frameID,
                          const uint32_t frameNumber )
 {
     frameFinish( frameID, frameNumber );
@@ -265,7 +262,7 @@ void Node::_frameFinish( const uint128_t& frameID,
 
     if( _unlockedFrame < frameNumber )
     {
-        LBWARN << "Finished frame was not locally unlocked, enforcing unlock" 
+        LBWARN << "Finished frame was not locally unlocked, enforcing unlock"
                << std::endl;
         releaseFrameLocal( frameNumber );
     }
@@ -280,27 +277,24 @@ void Node::_frameFinish( const uint128_t& frameID,
 
 void Node::releaseFrame( const uint32_t frameNumber )
 {
-    LBASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber,
                   "current " << _currentFrame << " release " << frameNumber );
 
     if( _finishedFrame >= frameNumber )
         return;
     _finishedFrame = frameNumber;
 
-    NodeFrameFinishReplyPacket packet;
-    packet.frameNumber = frameNumber;
-
     Config* config = getConfig();
     ServerPtr server = config->getServer();
     co::NodePtr node = server.get();
-    send( node, packet );
+    send( node, fabric::CMD_NODE_FRAME_FINISH_REPLY ) << frameNumber;
 }
 
 void Node::releaseFrameLocal( const uint32_t frameNumber )
 {
     LBASSERT( _unlockedFrame <= frameNumber );
     _unlockedFrame = frameNumber;
-    
+
     Config* config = getConfig();
     LBASSERT( config->getNodes().size() == 1 );
     LBASSERT( config->getNodes()[0] == this );
@@ -313,7 +307,7 @@ void Node::releaseFrameLocal( const uint32_t frameNumber )
 void Node::frameStart( const uint128_t&, const uint32_t frameNumber )
 {
     startFrame( frameNumber ); // unlock pipe threads
-    
+
     switch( getIAttribute( IATTR_THREAD_MODEL ))
     {
         case ASYNC:
@@ -348,7 +342,7 @@ void Node::frameDrawFinish( const uint128_t&, const uint32_t frameNumber )
                 if( pipe->getTasks() & fabric::TASK_DRAW )
                     pipe->waitFrameLocal( frameNumber );
             }
-            
+
             releaseFrameLocal( frameNumber );
             break;
         }
@@ -374,7 +368,7 @@ void Node::frameTasksFinish( const uint128_t&, const uint32_t frameNumber )
                 if( pipe->getTasks() != fabric::TASK_NONE )
                     pipe->waitFrameLocal( frameNumber );
             }
-            
+
             releaseFrameLocal( frameNumber );
             break;
         }
@@ -415,11 +409,12 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::CommandPtr command = _queue.pop();
-        if( !command )
+        co::BufferPtr buffer = _queue.pop();
+        if( !buffer )
             return; // exit thread
 
-        LBCHECK( (*command)( ));
+        co::Command command( buffer );
+        LBCHECK( command( ));
     }
 }
 
@@ -438,82 +433,90 @@ void Node::dirtyClientExit()
 //---------------------------------------------------------------------------
 // command handlers
 //---------------------------------------------------------------------------
-bool Node::_cmdCreatePipe( co::Command& command )
+bool Node::_cmdCreatePipe( co::Command& cmd )
 {
-    const NodeCreatePipePacket* packet = 
-        command.get<NodeCreatePipePacket>();
-    LBLOG( LOG_INIT ) << "Create pipe " << packet << std::endl;
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    LBLOG( LOG_INIT ) << "Create pipe " << command << std::endl;
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
 
+    const UUID pipeID = command.get< UUID >();
+    const bool threaded = command.get< bool >();
+
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
-    if( packet->threaded )
+    if( threaded )
         pipe->startThread();
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( pipe, packet->pipeID ));
+    LBCHECK( config->mapObject( pipe, pipeID ));
     pipe->notifyMapped();
 
     return true;
 }
 
-bool Node::_cmdDestroyPipe( co::Command& command )
+bool Node::_cmdDestroyPipe( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
+    LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    const NodeDestroyPipePacket* packet = 
-        command.get< NodeDestroyPipePacket >();
-    LBLOG( LOG_INIT ) << "Destroy pipe " << packet << std::endl;
+    const UUID pipeID = command.get< UUID >();
 
-    Pipe* pipe = findPipe( packet->pipeID );
+    Pipe* pipe = findPipe( pipeID );
     LBASSERT( pipe );
     pipe->exitThread();
 
-    PipeConfigExitReplyPacket reply( packet->pipeID, pipe->isStopped( ));
+    const bool stopped = pipe->isStopped();
 
     Config* config = getConfig();
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    getServer()->send( reply ); // send to config object
+    // send to config object
+    getServer()->send2( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
+                       pipeID ) << stopped;
     return true;
 }
 
-bool Node::_cmdConfigInit( co::Command& command )
+bool Node::_cmdConfigInit( co::Command& cmd )
 {
-    LB_TS_THREAD( _nodeThread );
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    const NodeConfigInitPacket* packet = 
-        command.get<NodeConfigInitPacket>();
-    LBLOG( LOG_INIT ) << "Init node " << packet << std::endl;
+    LB_TS_THREAD( _nodeThread );
+    LBLOG( LOG_INIT ) << "Init node " << command << std::endl;
 
     _state = STATE_INITIALIZING;
 
-    _currentFrame  = packet->frameNumber;
-    _unlockedFrame = packet->frameNumber;
-    _finishedFrame = packet->frameNumber;
+    const uint128_t initID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    _currentFrame  = frameNumber;
+    _unlockedFrame = frameNumber;
+    _finishedFrame = frameNumber;
     _setAffinity();
 
     transmitter.start();
     setError( ERROR_NONE );
-    NodeConfigInitReplyPacket reply;
-    reply.result = configInit( packet->initID );
+    const uint64_t result = configInit( initID );
 
     if( getIAttribute( IATTR_THREAD_MODEL ) == eq::UNDEFINED )
         setIAttribute( IATTR_THREAD_MODEL, eq::DRAW_SYNC );
 
-    _state = reply.result ? STATE_RUNNING : STATE_INIT_FAILED;
+    _state = result ? STATE_RUNNING : STATE_INIT_FAILED;
 
     commit();
-    send( command.getNode(), reply );
+    send( command.getNode(), fabric::CMD_NODE_CONFIG_INIT_REPLY ) << result;
     return true;
 }
 
-bool Node::_cmdConfigExit( co::Command& command )
+bool Node::_cmdConfigExit( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
-    LBLOG( LOG_INIT ) << "Node exit " 
-                      << command.get<NodeConfigExitPacket>() << std::endl;
+    LBLOG( LOG_INIT ) << "Node exit " << command << std::endl;
 
     const Pipes& pipes = getPipes();
     for( Pipes::const_iterator i = pipes.begin(); i != pipes.end(); ++i )
@@ -521,127 +524,151 @@ bool Node::_cmdConfigExit( co::Command& command )
         Pipe* pipe = *i;
         pipe->waitExited();
     }
-    
+
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
     transmitter.getQueue().push( 0 ); // wake up to exit
     transmitter.join();
     _flushObjects();
 
-    ConfigDestroyNodePacket destroyPacket( getID( ));
-    getConfig()->send( getLocalNode(), destroyPacket );
+    getConfig()->send( getLocalNode(),
+                       fabric::CMD_CONFIG_DESTROY_NODE ) << getID();
     return true;
 }
 
-bool Node::_cmdFrameStart( co::Command& command )
+bool Node::_cmdFrameStart( co::Command& cmd )
 {
-    LB_TS_THREAD( _nodeThread );
-    const NodeFrameStartPacket* packet = 
-        command.get<NodeFrameStartPacket>();
-    LBVERB << "handle node frame start " << packet << std::endl;
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    const uint32_t frameNumber = packet->frameNumber;
+    LB_TS_THREAD( _nodeThread );
+    LBVERB << "handle node frame start " << command << std::endl;
+
+    const uint128_t version = command.get< uint128_t >();
+    const uint128_t configVersion = command.get< uint128_t >();
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
     LBASSERT( _currentFrame == frameNumber-1 );
 
     LBLOG( LOG_TASKS ) << "----- Begin Frame ----- " << frameNumber
                        << std::endl;
 
     Config* config = getConfig();
-    
-    if( packet->configVersion != co::VERSION_INVALID )
-        config->sync( packet->configVersion );
-    sync( packet->version );
+
+    if( configVersion != co::VERSION_INVALID )
+        config->sync( configVersion );
+    sync( version );
 
     config->_frameStart();
-    frameStart( packet->frameID, frameNumber );
+    frameStart( frameID, frameNumber );
 
-    LBASSERTINFO( _currentFrame >= frameNumber, 
+    LBASSERTINFO( _currentFrame >= frameNumber,
                   "Node::frameStart() did not start frame " << frameNumber );
     return true;
 }
 
-bool Node::_cmdFrameFinish( co::Command& command )
+bool Node::_cmdFrameFinish( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     LB_TS_THREAD( _nodeThread );
-    const NodeFrameFinishPacket* packet = 
-        command.get<NodeFrameFinishPacket>();
-    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << packet
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
                        << std::endl;
 
-    const uint32_t frameNumber = packet->frameNumber;
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
 
     _finishFrame( frameNumber );
-    _frameFinish( packet->frameID, frameNumber );
+    _frameFinish( frameID, frameNumber );
 
     const uint128_t version = commit();
     if( version != co::VERSION_NONE )
-    {
-        fabric::ObjectSyncPacket syncPacket;
-        send( command.getNode(), syncPacket );
-    }
+        send( command.getNode(), fabric::CMD_OBJECT_SYNC );
     return true;
 }
 
-bool Node::_cmdFrameDrawFinish( co::Command& command )
+bool Node::_cmdFrameDrawFinish( co::Command& cmd )
 {
-    const NodeFrameDrawFinishPacket* packet = 
-        command.get< NodeFrameDrawFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << packet
+    co::ObjectCommand command( cmd.getBuffer( ));
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameDrawFinish( packet->frameID, packet->frameNumber );
+    frameDrawFinish( frameID, frameNumber );
     return true;
 }
 
-bool Node::_cmdFrameTasksFinish( co::Command& command )
+bool Node::_cmdFrameTasksFinish( co::Command& cmd )
 {
-    const NodeFrameTasksFinishPacket* packet = 
-        command.get< NodeFrameTasksFinishPacket >();
-    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << packet
+    co::ObjectCommand command( cmd.getBuffer( ));
+    const uint128_t frameID = command.get< uint128_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK tasks finish " << getName() <<  " " << command
                        << std::endl;
 
-    frameTasksFinish( packet->frameID, packet->frameNumber );
+    frameTasksFinish( frameID, frameNumber );
     return true;
 }
 
-bool Node::_cmdFrameDataTransmit( co::Command& command )
+bool Node::_cmdFrameDataTransmit( co::Command& cmd )
 {
-    const NodeFrameDataTransmitPacket* packet =
-        command.get<NodeFrameDataTransmitPacket>();
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    const co::ObjectVersion frameDataVersion =
+                                             command.get< co::ObjectVersion >();
+    const PixelViewport pvp = command.get< PixelViewport >();
+    const Zoom zoom = command.get< Zoom >();
+    const uint32_t buffers = command.get< uint32_t >();
+    const uint32_t frameNumber = command.get< uint32_t >();
+    const bool useAlpha = command.get< bool >();
+    const uint8_t* data = reinterpret_cast< const uint8_t* >(
+                command.getRemainingBuffer( command.getRemainingBufferSize( )));
 
     LBLOG( LOG_ASSEMBLY )
-        << "received image data for " << packet->frameData << ", buffers "
-        << packet->buffers << " pvp " << packet->pvp << std::endl;
+        << "received image data for " << frameDataVersion << ", buffers "
+        << buffers << " pvp " << pvp << std::endl;
 
-    LBASSERT( packet->pvp.isValid( ));
+    LBASSERT( pvp.isValid( ));
 
-    FrameDataPtr frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( frameDataVersion );
     LBASSERT( !frameData->isReady() );
 
     NodeStatistics event( Statistic::NODE_FRAME_DECOMPRESS, this,
-                          packet->frameNumber );
-    LBCHECK( frameData->addImage( packet ));
+                          frameNumber );
+
+    // Note on the const_cast: since the PixelData structure stores non-const
+    // pointers, we have to go non-const at some point, even though we do not
+    // modify the data.
+    LBCHECK( frameData->addImage( frameDataVersion, pvp, zoom, buffers,
+                                  useAlpha, const_cast< uint8_t* >( data )));
     return true;
 }
 
-bool Node::_cmdFrameDataReady( co::Command& command )
+bool Node::_cmdFrameDataReady( co::Command& cmd )
 {
-    const NodeFrameDataReadyPacket* packet =
-        command.get<NodeFrameDataReadyPacket>();
+    co::ObjectCommand command( cmd.getBuffer( ));
 
-    LBLOG( LOG_ASSEMBLY ) << "received ready for " << packet->frameData
+    const co::ObjectVersion frameDataVersion =
+                                            command.get< co::ObjectVersion >();
+    const FrameData::Data data = command.get< FrameData::Data >();
+
+    LBLOG( LOG_ASSEMBLY ) << "received ready for " << frameDataVersion
                           << std::endl;
-    FrameDataPtr frameData = getFrameData( packet->frameData );
+    FrameDataPtr frameData = getFrameData( frameDataVersion );
     LBASSERT( frameData );
     LBASSERT( !frameData->isReady() );
-    frameData->setReady( packet );
+    frameData->setReady( frameDataVersion, data );
     LBASSERT( frameData->isReady() );
     return true;
 }
 
-bool Node::_cmdSetAffinity( co::Command& command )
+bool Node::_cmdSetAffinity( co::Command& cmd )
 {
-    const NodeAffinityPacket* packet = command.get <NodeAffinityPacket>();
-    lunchbox::Thread::setAffinity( packet->affinity );
+    co::ObjectCommand command( cmd.getBuffer( ));
+
+    lunchbox::Thread::setAffinity( command.get< int32_t >( ));
     return true;
 }
 }

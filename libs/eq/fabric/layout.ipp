@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -17,16 +17,18 @@
 
 #include "layout.h"
 
+#include "commands.h"
 #include "elementVisitor.h"
-#include "layoutPackets.h"
 #include "log.h"
 #include "nameFinder.h"
 #include "observer.h"
 #include "paths.h"
 
-#include <co/command.h>
+#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
+#include <co/objectCommand.h>
+
 #include <lunchbox/stdExt.h>
 
 namespace eq
@@ -67,7 +69,7 @@ void Layout< C, L, V >::attach( const UUID& id,
 
     registerCommand( CMD_LAYOUT_NEW_VIEW,
                      CmdFunc( this, &Layout< C, L, V >::_cmdNewView ), queue );
-    registerCommand( CMD_LAYOUT_NEW_VIEW_REPLY, 
+    registerCommand( CMD_LAYOUT_NEW_VIEW_REPLY,
                      CmdFunc( this, &Layout< C, L, V >::_cmdNewViewReply ), 0 );
 }
 
@@ -75,7 +77,7 @@ template< class C, class L, class V >
 uint128_t Layout< C, L, V >::commit( const uint32_t incarnation )
 {
     // Always traverse views: view proxy objects may be dirty
-    commitChildren< V, LayoutNewViewPacket >( _views, incarnation );
+    commitChildren< V >( _views, CMD_LAYOUT_NEW_VIEW, incarnation );
     return Object::commit( incarnation );
 }
 
@@ -90,7 +92,7 @@ void Layout< C, L, V >::serialize( co::DataOStream& os,
 }
 
 template< class C, class L, class V >
-void Layout< C, L, V >::deserialize( co::DataIStream& is, 
+void Layout< C, L, V >::deserialize( co::DataIStream& is,
                                      const uint64_t dirtyBits )
 {
     Object::deserialize( is, dirtyBits );
@@ -125,7 +127,7 @@ void Layout< C, L, V >::notifyDetach()
 template< class C, class L, class V >
 void Layout< C, L, V >::create( V** view )
 {
-    *view = getConfig()->getServer()->getNodeFactory()->createView( 
+    *view = getConfig()->getServer()->getNodeFactory()->createView(
         static_cast< L* >( this ));
 }
 
@@ -156,7 +158,7 @@ VisitorResult _accept( L* layout, V& visitor )
             case TRAVERSE_PRUNE:
                 result = TRAVERSE_PRUNE;
                 break;
-                
+
             case TRAVERSE_CONTINUE:
             default:
                 break;
@@ -170,7 +172,7 @@ VisitorResult _accept( L* layout, V& visitor )
 
         case TRAVERSE_PRUNE:
             return TRAVERSE_PRUNE;
-                
+
         case TRAVERSE_CONTINUE:
         default:
             break;
@@ -285,11 +287,10 @@ V* Layout< C, L, V >::findView( const std::string& name )
 // Command handlers
 //----------------------------------------------------------------------
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewView( co::Command& command )
+Layout< C, L, V >::_cmdNewView( co::Command& cmd )
 {
-    const LayoutNewViewPacket* packet =
-        command.get< LayoutNewViewPacket >();
-    
+    co::ObjectCommand command( cmd.getBuffer( ));
+
     V* view = 0;
     create( &view );
     LBASSERT( view );
@@ -298,19 +299,20 @@ Layout< C, L, V >::_cmdNewView( co::Command& command )
     view->setAutoObsolete( _config->getLatency() + 1 );
     LBASSERT( view->isAttached() );
 
-    LayoutNewViewReplyPacket reply( packet );
-    reply.viewID = view->getID();
-    send( command.getNode(), reply ); 
+    send( command.getNode(), CMD_LAYOUT_NEW_VIEW_REPLY )
+            << command.get< uint32_t >() << view->getID();
 
     return true;
 }
 
 template< class C, class L, class V > bool
-Layout< C, L, V >::_cmdNewViewReply( co::Command& command )
+Layout< C, L, V >::_cmdNewViewReply( co::Command& cmd )
 {
-    const LayoutNewViewReplyPacket* packet =
-        command.get< LayoutNewViewReplyPacket >();
-    getLocalNode()->serveRequest( packet->requestID, packet->viewID );
+    co::ObjectCommand command( cmd.getBuffer( ));
+    const uint32_t requestID = command.get< uint32_t >();
+    const UUID result = command.get< UUID >();
+
+    getLocalNode()->serveRequest( requestID, result );
 
     return true;
 }
@@ -320,7 +322,7 @@ std::ostream& operator << ( std::ostream& os, const Layout< C, L, V >& layout )
 {
     os << lunchbox::disableFlush << lunchbox::disableHeader << "layout"
        << std::endl;
-    os << "{" << std::endl << lunchbox::indent; 
+    os << "{" << std::endl << lunchbox::indent;
 
     const std::string& name = layout.getName();
     if( !name.empty( ))

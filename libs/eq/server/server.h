@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -37,27 +37,27 @@ namespace server
                                co::LocalNode, ServerVisitor >
     {
     public:
-        /** 
+        /**
          * Constructs a new Server.
          */
         EQSERVER_API Server();
 
-        /** 
+        /**
          * Initialize the server.
          */
         EQSERVER_API void init();
 
-        /** 
+        /**
          * Exit the server.
          */
         EQSERVER_API void exit();
 
-        /** 
+        /**
          * The actual main loop of server.
          */
-        EQSERVER_API void handleCommands(); 
+        EQSERVER_API void handleCommands();
 
-        /** 
+        /**
          * Run the server.
          *
          * Convenience function for init(), handleCommands() and exit().
@@ -77,8 +77,8 @@ namespace server
         virtual ~Server();
 
         /** @sa co::Node::dispatchCommand */
-        virtual bool dispatchCommand( co::CommandPtr command );
-        
+        virtual bool dispatchCommand( co::BufferPtr buffer );
+
     private:
         /** The receiver->main command queue. */
         co::CommandQueue _mainThreadQueue;

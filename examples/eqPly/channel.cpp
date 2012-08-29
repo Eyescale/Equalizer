@@ -154,7 +154,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
     glMateriali(  GL_FRONT, GL_SHININESS, materialShininess );
 
     const FrameData& frameData = _getFrameData();
-    glPolygonMode( GL_FRONT_AND_BACK, 
+    glPolygonMode( GL_FRONT_AND_BACK,
                    frameData.useWireframe() ? GL_LINE : GL_FILL );
 
     const eq::Vector3f& position = frameData.getCameraPosition();
@@ -186,7 +186,7 @@ void Channel::frameDraw( const eq::uint128_t& frameID )
 
     state.setFrustumCulling( true );
     Accum& accum = _accum[ lunchbox::getIndexOfLastBit( getEye()) ];
-    accum.stepsDone = LB_MAX( accum.stepsDone, 
+    accum.stepsDone = LB_MAX( accum.stepsDone,
                               getSubPixel().size * getPeriod( ));
     accum.transfer = true;
 }
@@ -216,7 +216,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         return;
     }
     // else
-    
+
     accum.transfer = true;
     const eq::Frames& frames = getInputFrames();
 
@@ -228,7 +228,7 @@ void Channel::frameAssemble( const eq::uint128_t& frameID )
         if( curSubPixel != eq::SubPixel::ALL )
             accum.transfer = false;
 
-        accum.stepsDone = LB_MAX( accum.stepsDone, frame->getSubPixel().size * 
+        accum.stepsDone = LB_MAX( accum.stepsDone, frame->getSubPixel().size *
                                                    frame->getPeriod( ));
     }
 
@@ -260,7 +260,7 @@ void Channel::frameReadback( const eq::uint128_t& frameID )
         eq::Frame* frame = *i;
         // OPT: Drop alpha channel from all frames during network transport
         frame->setAlphaUsage( false );
-        
+
         if( frameData.isIdle( ))
             frame->setQuality( eq::Frame::BUFFER_COLOR, 1.f );
         else
@@ -359,26 +359,26 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     if( frameData.useStatistics())
         drawStatistics();
 
-    ConfigEvent event;
-    event.data.originator = getID();
-    event.data.type = ConfigEvent::IDLE_AA_LEFT;
+    eq::Event event;
+    event.originator = getID();
+    event.type = IDLE_AA_LEFT;
 
+    int32_t steps = 0;
     if( frameData.isIdle( ))
     {
-        event.steps = 0;
         for( size_t i = 0; i < eq::NUM_EYES; ++i )
-            event.steps = LB_MAX( event.steps, _accum[i].step );
+            steps = LB_MAX( steps, _accum[i].step );
     }
     else
     {
         const View* view = static_cast< const View* >( getView( ));
-        event.steps = view ? view->getIdleSteps() : 0;
+        steps = view ? view->getIdleSteps() : 0;
     }
 
     // if _jitterStep == 0 and no user redraw event happened, the app will exit
     // FSAA idle mode and block on the next redraw event.
     eq::Config* config = getConfig();
-    config->sendEvent( event );
+    config->sendEvent( event ) << steps;
 }
 
 bool Channel::useOrtho() const
@@ -485,7 +485,7 @@ bool Channel::_initAccum()
     // else
     LBVERB << "Initialized "
            << (accum.buffer->usesFBO() ? "FBO accum" : "glAccum")
-           << " buffer for " << getName() << " " << getEye() 
+           << " buffer for " << getName() << " " << getEye()
            << std::endl;
 
     view->setIdleSteps( accum.buffer ? 256 : 0 );
@@ -493,8 +493,8 @@ bool Channel::_initAccum()
 }
 
 bool Channel::stopRendering() const
-{ 
-    return getPipe()->getCurrentFrame() < _frameRestart; 
+{
+    return getPipe()->getCurrentFrame() < _frameRestart;
 }
 
 eq::Vector2f Channel::getJitter() const
@@ -621,7 +621,7 @@ void Channel::_drawModel( const Model* scene )
     const GLuint program = state.getProgram( pipe );
     if( program != VertexBufferState::INVALID )
         glUseProgram( program );
-    
+
     scene->cullDraw( state );
 
     state.setChannel( 0 );
@@ -652,7 +652,7 @@ void Channel::_drawModel( const Model* scene )
         const eq::Vector3ub color = getUniqueColor();
         glColor3ub( color.r(), color.g(), color.b() );
     }
-    else if( currentView && 
+    else if( currentView &&
              frameData.getCurrentViewID() == currentView->getID( ))
     {
         glColor3f( 0.f, 0.f, 0.f );
@@ -700,7 +700,7 @@ void Channel::_drawOverlay()
     texture->bind();
     glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    
+
     const float tWidth = float( texture->getWidth( ) );
     const float tHeight = float( texture->getHeight( ) );
 
@@ -790,7 +790,7 @@ void Channel::_drawHelp()
              pos = help.find( '\n' ))
         {
             glRasterPos3f( 10.f, y, 0.99f );
-            
+
             font->draw( help.substr( 0, pos ));
             help = help.substr( pos + 1 );
             y -= 16.f;
@@ -821,7 +821,7 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
     front.normalize();
     front *= boundingSphere.w();
 
-    const eq::Vector3f center =  
+    const eq::Vector3f center =
         frameData.getCameraPosition().get_sub_vector< 3 >() -
         boundingSphere.get_sub_vector< 3 >();
     const eq::Vector3f nearPoint  = headTransform * ( center - front );
@@ -829,7 +829,7 @@ void Channel::_updateNearFar( const mesh::BoundingSphere& boundingSphere )
 
     if( useOrtho( ))
     {
-        LBASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) > 
+        LBASSERTINFO( fabs( farPoint.z() - nearPoint.z() ) >
                       std::numeric_limits< float >::epsilon(),
                       nearPoint << " == " << farPoint );
         setNearFar( -nearPoint.z(), -farPoint.z() );

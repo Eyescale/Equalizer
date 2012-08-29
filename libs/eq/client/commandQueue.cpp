@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,6 +18,8 @@
 #include "commandQueue.h"
 
 #include "messagePump.h"
+
+#include <co/buffer.h>
 #include <co/command.h>
 #include <lunchbox/clock.h>
 
@@ -40,21 +42,21 @@ CommandQueue::~CommandQueue()
     _messagePump = 0;
 }
 
-void CommandQueue::push(co::CommandPtr inCommand)
+void CommandQueue::push( co::BufferPtr buffer )
 {
-    co::CommandQueue::push( inCommand );
+    co::CommandQueue::push( buffer );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront(co::CommandPtr inCommand)
+void CommandQueue::pushFront( co::BufferPtr buffer )
 {
-    co::CommandQueue::pushFront( inCommand );
+    co::CommandQueue::pushFront( buffer );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-co::CommandPtr CommandQueue::pop()
+co::BufferPtr CommandQueue::pop()
 {
     int64_t start = -1;
     while( true )
@@ -79,14 +81,14 @@ co::CommandPtr CommandQueue::pop()
         else
         {
             start = _clock.getTime64();
-            co::CommandPtr command = co::CommandQueue::pop(); // blocking
+            co::BufferPtr buffer = co::CommandQueue::pop(); // blocking
             _waitTime += ( _clock.getTime64() - start );
-            return command;
+            return buffer;
         }
     }
 }
 
-co::CommandPtr CommandQueue::tryPop()
+co::BufferPtr CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking

@@ -36,6 +36,8 @@
 #include <admin/addWindow.h>
 #include <admin/removeWindow.h>
 
+#include <co/buffer.h>
+
 namespace eqPly
 {
 
@@ -159,14 +161,14 @@ void Config::_loadModels()
     {
         const std::string filename = filenames.back();
         filenames.pop_back();
-     
+
         if( _isPlyfile( filename ))
         {
             Model* model = new Model;
 
             if( _initData.useInvertedFaces() )
                 model->useInvertedFaces();
-        
+
             if( !model->readFromFile( filename.c_str( )))
             {
                 LBWARN << "Can't load model: " << filename << std::endl;
@@ -281,7 +283,7 @@ const Model* Config::getModel( const eq::uint128_t& modelID )
         if( dist->getID() == modelID )
             return _models[ i ];
     }
-    
+
     _modelDist.push_back( new ModelDist );
     Model* model = _modelDist.back()->loadModel( getApplicationNode(),
                                                  getClient(), modelID );
@@ -394,7 +396,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
                 _currentCanvas = 0;
                 return false;
             }
-            
+
             const View* view = _getCurrentView();
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
@@ -415,7 +417,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
         {
-            const eq::PointerEvent& releaseEvent = 
+            const eq::PointerEvent& releaseEvent =
                 event->data.pointerButtonRelease;
             if( releaseEvent.buttons == eq::PTR_BUTTON_NONE)
             {
@@ -502,12 +504,13 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _redraw = true;
             break;
 
-        case ConfigEvent::IDLE_AA_LEFT:
+        case IDLE_AA_LEFT:
             if( _useIdleAA )
             {
-                const ConfigEvent* idleEvent = 
-                    static_cast< const ConfigEvent* >( event );
-                _numFramesAA = LB_MAX( _numFramesAA, idleEvent->steps );
+                // #145 Need non-const event for get() of values
+                eq::ConfigEvent myEvent( event->getBuffer( ));
+                const int32_t steps = myEvent.get< int32_t >();
+                _numFramesAA = LB_MAX( _numFramesAA, steps );
             }
             else
                 _numFramesAA = 0;
@@ -600,7 +603,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
         case 'S':
             _frameData.toggleStatistics();
             return true;
-            
+
         case 'f':
             _freezeLoadBalancing( true );
             return true;
@@ -874,7 +877,7 @@ void Config::_switchModel()
     {
         if( (*i)->getID() != currentID )
             continue;
-                
+
         ++i;
         break;
     }
@@ -1091,7 +1094,7 @@ void Config::_closeAdminServer()
     client->exitLocal();
     LBASSERT( client->getRefCount() == 1 );
     LBASSERT( _admin->getRefCount() == 1 );
-    
+
     _admin = 0;
     eq::admin::exit();
 }

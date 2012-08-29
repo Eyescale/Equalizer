@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2008-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -20,12 +20,13 @@
 #include "config.h"
 #include "event.h"
 #include "pipe.h"
-#include "pipePackets.h"
 #include "layout.h"
 #include "observer.h"
 #include "server.h"
-#include "viewPackets.h"
 
+#include <eq/fabric/commands.h>
+
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -47,7 +48,7 @@ View::~View()
 void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 {
     Super::deserialize( is, dirtyBits );
-    if( _baseFrustum.getCurrentType() == TYPE_NONE && 
+    if( _baseFrustum.getCurrentType() == TYPE_NONE &&
         ( dirtyBits & DIRTY_FRUSTUM ))
     {
         _baseFrustum = *this; // save baseline data for resizing
@@ -60,15 +61,17 @@ void View::detach()
     //  Don't send packet to stopping pipe (see issue #11)
     if( _pipe && _pipe->isRunning( ))
     {
-        PipeDetachViewPacket pkg( getID( ));
-
         co::LocalNodePtr localNode = getLocalNode();
-        co::CommandPtr command = localNode->allocCommand( sizeof( pkg ));
-        PipeDetachViewPacket* packet = 
-            command->getModifiable< PipeDetachViewPacket >();
 
-        memcpy( packet, &pkg, sizeof( pkg ));
-        _pipe->dispatchCommand( command );
+        // #145 proper local command dispatch!
+        co::BufferPtr buffer = localNode->allocCommand( 80 );
+        co::ObjectOCommand command( co::Connections(),
+                                    fabric::CMD_PIPE_DETACH_VIEW,
+                                    co::COMMANDTYPE_CO_OBJECT,
+                                    _pipe->getID(), EQ_INSTANCE_ALL );
+        command << getID();
+        buffer->swap( command.getBuffer( ));
+        _pipe->dispatchCommand( buffer );
     }
     Super::detach();
 }
@@ -99,7 +102,7 @@ const Config* View::getConfig() const
     return 0;
 }
 
-ServerPtr View::getServer() 
+ServerPtr View::getServer()
 {
     Config* config = getConfig();
     LBASSERT( config );
@@ -148,15 +151,13 @@ bool View::handleEvent( const Event& event )
             return true;
         }
     }
-    
+
     return false;
 }
 
 void View::freezeLoadBalancing( const bool onOff )
 {
-    ViewFreezeLoadBalancingPacket packet;
-    packet.freeze = onOff;
-    send( getServer(), packet );
+    send( getServer(), fabric::CMD_VIEW_FREEZE_LOAD_BALANCING ) << onOff;
 }
 
 }

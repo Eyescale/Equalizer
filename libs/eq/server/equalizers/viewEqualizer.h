@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -33,28 +33,28 @@ namespace server
     class ViewEqualizer;
     std::ostream& operator << ( std::ostream& os, const ViewEqualizer* );
 
-    /** 
+    /**
      * An Equalizer allocating resources to multiple destination channels of a
      * single view.
      */
     class ViewEqualizer : public Equalizer
     {
-    public:            
+    public:
         EQSERVER_API ViewEqualizer();
         ViewEqualizer( const ViewEqualizer& from );
         virtual ~ViewEqualizer();
         virtual void toStream( std::ostream& os ) const { os << this; }
-            
+
         /** @sa Equalizer::attach. */
         virtual void attach( Compound* compound );
-        
+
         /** @sa CompoundListener::notifyUpdatePre */
-        virtual void notifyUpdatePre( Compound* compound, 
+        virtual void notifyUpdatePre( Compound* compound,
                                       const uint32_t frameNumber );
 
         virtual uint32_t getType() const { return fabric::VIEW_EQUALIZER; }
 
-    protected:        
+    protected:
         virtual void notifyChildAdded( Compound* compound, Compound* child )
             { LBASSERT( _listeners.empty( )); }
         virtual void notifyChildRemove( Compound* compound, Compound* child )
@@ -70,10 +70,9 @@ namespace server
             void update( Compound* compound );
             void clear();
 
-            virtual void notifyLoadData( Channel* channel, 
+            virtual void notifyLoadData( Channel* channel,
                                          const uint32_t frameNumber,
-                                         const uint32_t nStatistics,
-                                         const eq::Statistic* statistics,
+                                         const Statistics& statistics,
                                          const Viewport& region );
             struct Load
             {
@@ -106,12 +105,12 @@ namespace server
             LoadDeque _loads;
 
             Load& _getLoad( const uint32_t frameNumber );
-            friend std::ostream& operator << ( std::ostream& os, 
+            friend std::ostream& operator << ( std::ostream& os,
                                                const ViewEqualizer::Listener& );
         };
-        friend std::ostream& operator << ( std::ostream& os, 
+        friend std::ostream& operator << ( std::ostream& os,
                                            const ViewEqualizer::Listener& );
-        friend std::ostream& operator << ( std::ostream& os, 
+        friend std::ostream& operator << ( std::ostream& os,
                                          const ViewEqualizer::Listener::Load& );
 
         typedef std::vector< Listener::Load > Loads;
@@ -133,7 +132,7 @@ namespace server
     };
     std::ostream& operator << ( std::ostream& os,
                                 const ViewEqualizer::Listener& listener );
-    std::ostream& operator << ( std::ostream& os, 
+    std::ostream& operator << ( std::ostream& os,
                                 const ViewEqualizer::Listener::Load& load );
 }
 }

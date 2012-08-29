@@ -6,7 +6,11 @@
 #
 # The GNUModules.cmake is supposed to be included after Common.cmake,
 # CPackConfig.cmake and all targets to gather required variables from
-# them.  
+# them.
+
+if(MSVC)
+  return()
+endif()
 
 # The following variables have to set before including GNUModules.cmake:
 
@@ -138,4 +142,3 @@ add_custom_target(module
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Creating GNU module ${MODULE_FILENAME} at ${MODULE_FILE_INSTALL}" VERBATIM)
 add_dependencies(module module_install)
-

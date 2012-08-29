@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -19,7 +19,6 @@
 
 #include "commandQueue.h"
 #include "config.h"
-#include "clientPackets.h"
 #include "node.h"
 #include "global.h"
 #include "init.h"
@@ -31,7 +30,10 @@
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
+#include <eq/fabric/packetType.h>
 #include <eq/fabric/view.h>
+
+#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -67,7 +69,7 @@ Client::Client()
         : Super()
         , _running( false )
 {
-    registerCommand( fabric::CMD_CLIENT_EXIT, 
+    registerCommand( fabric::CMD_CLIENT_EXIT,
                      ClientFunc( this, &Client::_cmdExit ), &_mainThreadQueue );
 
     LBVERB << "New client at " << (void*)this << std::endl;
@@ -228,7 +230,7 @@ bool Client::initLocal( const int argc, char** argv )
                  i < argc-1 && // more args
                  argv[i+1][0] != '-' ) // next arg not an option
         {
-            _activeLayouts.push_back( argv[++i] ); 
+            _activeLayouts.push_back( argv[++i] );
         }
         else if( std::string( "--eq-modelunit" ) == argv[i] &&
                  i < argc-1 && // more args
@@ -245,7 +247,7 @@ bool Client::initLocal( const int argc, char** argv )
 
     if( isClient )
     {
-        LBVERB << "Client node started from command line with option " 
+        LBVERB << "Client node started from command line with option "
                << clientOpts << std::endl;
 
         if( !_setupClient( clientOpts ))
@@ -282,7 +284,7 @@ bool Client::_setupClient( const std::string& clientArgs )
     if( !workDir.empty() && chdir( workDir.c_str( )) == -1 )
         LBWARN << "Can't change working directory to " << workDir << ": "
                << strerror( errno ) << std::endl;
-    
+
     nextPos = description.find( CO_SEPARATOR );
     if( nextPos == std::string::npos )
     {
@@ -350,7 +352,7 @@ float Client::getModelUnit() const
 }
 
 co::NodePtr Client::createNode( const uint32_t type )
-{ 
+{
     switch( type )
     {
         case fabric::NODETYPE_EQ_SERVER:
@@ -391,11 +393,13 @@ void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
-        co::CommandPtr command = allocCommand( sizeof( eq::ClientExitPacket ));
-        eq::ClientExitPacket* packet = 
-            command->getModifiable< eq::ClientExitPacket >();
-        *packet = eq::ClientExitPacket();
-        dispatchCommand( command );
+        // #145 proper local command dispatch!
+        co::BufferPtr buffer = allocCommand( 80 );
+        co::NodeOCommand command( co::Connections(),
+                                  fabric::CMD_CLIENT_EXIT,
+                                  fabric::PACKETTYPE_EQ_CLIENT );
+        buffer->swap( command.getBuffer( ));
+        dispatchCommand( buffer );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;

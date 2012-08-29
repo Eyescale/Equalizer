@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,6 @@
 #include "config.h"
 #include "configEvent.h"
 
-using namespace std;
 
 namespace eqPixelBench
 {
@@ -59,10 +58,10 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-        case ConfigEvent::READBACK:
-        case ConfigEvent::ASSEMBLE:
-        case ConfigEvent::START_LATENCY:
-            cout << static_cast< const ConfigEvent* >( event ) << endl;
+        case READBACK:
+        case ASSEMBLE:
+        case START_LATENCY:
+            std::cout << printEvent( std::cout, event ) << std::endl;
             return true;
 
         default:
