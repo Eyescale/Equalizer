@@ -711,8 +711,9 @@ void Node::flushSendBuffer()
 //===========================================================================
 // command handling
 //===========================================================================
-bool Node::_cmdConfigInitReply( co::Command& command )
+bool Node::_cmdConfigInitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBVERB << "handle configInit reply " << command << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
     _state = command.get< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;

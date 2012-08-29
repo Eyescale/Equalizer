@@ -31,7 +31,8 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 
-#include <co/command.h>
+#include <co/buffer.h>
+#include <co/objectCommand.h>
 
 namespace eq
 {
@@ -484,8 +485,9 @@ void Window::_updateSwap( const uint32_t frameNumber )
 //===========================================================================
 // command handling
 //===========================================================================
-bool Window::_cmdConfigInitReply( co::Command& command )
+bool Window::_cmdConfigInitReply( co::Command& cmd )
 {
+    co::ObjectCommand command( cmd.getBuffer( ));
     LBVERB << "handle window configInit reply " << command << std::endl;
 
     LBASSERT( !needsDelete( ));
