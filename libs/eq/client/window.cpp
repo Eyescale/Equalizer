@@ -760,14 +760,16 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 bool Window::_cmdCreateChannel( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    const UUID channelID = command.get< UUID >();
 
-    LBLOG( LOG_INIT ) << "Create channel " << command << std::endl;
+    LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
+                      << std::endl;
 
     Channel* channel = Global::getNodeFactory()->createChannel( this );
     channel->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( channel, command.get< UUID >( )));
+    LBCHECK( config->mapObject( channel, channelID ));
     LBASSERT( channel->getSerial() != EQ_INSTANCE_INVALID );
 
     return true;
@@ -776,10 +778,10 @@ bool Window::_cmdCreateChannel( co::Command& cmd )
 bool Window::_cmdDestroyChannel( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
-
     const UUID channelID = command.get< UUID >();
+
+    LBLOG( LOG_INIT ) << "Destroy channel " << command << " id " << channelID
+                      << std::endl;
 
     Channel* channel = _findChannel( channelID );
     LBASSERT( channel );
@@ -856,8 +858,8 @@ bool Window::_cmdFrameStart( co::Command& cmd )
     const uint32_t frameNumber = command.get< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK frame start " << getName()
-                       << " frame " << frameNumber << " id " << frameID
-                       << std::endl;
+                       << " " << command << " frame " << frameNumber
+                       << " id " << frameID << std::endl;
 
     //_grabFrame( frameNumber ); single-threaded
     sync( version );
@@ -925,11 +927,12 @@ bool  Window::_cmdThrottleFramerate( co::Command& cmd )
 bool Window::_cmdBarrier( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    const co::ObjectVersion barrier = command.get< co::ObjectVersion >();
 
-    LBVERB << "handle barrier " << command << std::endl;
+    LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
     LBLOG( LOG_TASKS ) << "TASK swap barrier  " << getName() << std::endl;
 
-    _enterBarrier( command.get< co::ObjectVersion >( ));
+    _enterBarrier( barrier );
     return true;
 }
 
@@ -970,12 +973,12 @@ bool Window::_cmdSwap( co::Command& cmd )
 bool Window::_cmdFrameDrawFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
-                       << std::endl;
-
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
+                       << " frame " << frameNumber << " id " << frameID
+                       << std::endl;
 
     frameDrawFinish( frameID, frameNumber );
     return true;

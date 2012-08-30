@@ -686,7 +686,8 @@ void Pipe::cancelThread()
         return;
 
     // #145 proper local command dispatch!
-    co::BufferPtr buffer = getLocalNode()->allocCommand( 80 );
+    co::BufferPtr buffer =
+            getLocalNode()->allocCommand( co::ObjectOCommand::getSize( ));
     co::ObjectOCommand command( co::Connections(), fabric::CMD_PIPE_EXIT_THREAD,
                                 co::COMMANDTYPE_CO_OBJECT, getID(),
                                 EQ_INSTANCE_ALL );
@@ -987,14 +988,16 @@ ComputeContext* Pipe::getComputeContext()
 bool Pipe::_cmdCreateWindow( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    const UUID windowID = command.get< UUID >();
 
-    LBLOG( LOG_INIT ) << "Create window " << command << std::endl;
+    LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
+                      << std::endl;
 
     Window* window = Global::getNodeFactory()->createWindow( this );
     window->init(); // not in ctor, virtual method
 
     Config* config = getConfig();
-    LBCHECK( config->mapObject( window, command.get< UUID >( )));
+    LBCHECK( config->mapObject( window, windowID ));
 
     return true;
 }
@@ -1048,13 +1051,14 @@ bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
 
 bool Pipe::_cmdConfigInit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _pipeThread );
-    LBLOG( LOG_INIT ) << "Init pipe " << command << std::endl;
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t initID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_INIT ) << "Init pipe " << command << " init id " << initID
+                      << " frame " << frameNumber << std::endl;
 
     if( !isThreaded( ))
     {
@@ -1141,14 +1145,15 @@ bool Pipe::_cmdFrameStartClock( co::Command& )
 
 bool Pipe::_cmdFrameStart( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _pipeThread );
-    LBVERB << "handle pipe frame start " << command << std::endl;
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t version = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBVERB << "handle pipe frame start " << command << " frame " << frameNumber
+           << " id " << frameID << std::endl;
 
     LBLOG( LOG_TASKS ) << "---- TASK start frame ---- frame " << frameNumber
                        << " id " << frameID << std::endl;
@@ -1180,15 +1185,14 @@ bool Pipe::_cmdFrameStart( co::Command& cmd )
 
 bool Pipe::_cmdFrameFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _pipeThread );
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
-    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << frameNumber
-                       << " id " << frameID << std::endl;
+    LBLOG( LOG_TASKS ) << "---- TASK finish frame --- " << command << " frame "
+                       << frameNumber << " id " << frameID << std::endl;
 
     LBASSERTINFO( _impl->currentFrame >= frameNumber,
                   "current " <<_impl->currentFrame << " finish " <<frameNumber);
@@ -1223,10 +1227,9 @@ bool Pipe::_cmdFrameFinish( co::Command& cmd )
 
 bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _pipeThread );
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 

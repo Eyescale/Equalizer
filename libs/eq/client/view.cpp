@@ -64,7 +64,8 @@ void View::detach()
         co::LocalNodePtr localNode = getLocalNode();
 
         // #145 proper local command dispatch!
-        co::BufferPtr buffer = localNode->allocCommand( 80 );
+        co::BufferPtr buffer =
+                localNode->allocCommand( co::ObjectOCommand::getSize( ));
         co::ObjectOCommand command( co::Connections(),
                                     fabric::CMD_PIPE_DETACH_VIEW,
                                     co::COMMANDTYPE_CO_OBJECT,

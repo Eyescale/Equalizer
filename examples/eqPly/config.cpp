@@ -507,7 +507,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case IDLE_AA_LEFT:
             if( _useIdleAA )
             {
-                // #145 Need non-const event for get() of values
+                // #145 Need copy of event for non-const get() of values :(
                 eq::ConfigEvent myEvent( event->getBuffer( ));
                 const int32_t steps = myEvent.get< int32_t >();
                 _numFramesAA = LB_MAX( _numFramesAA, steps );

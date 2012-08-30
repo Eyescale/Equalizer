@@ -154,11 +154,13 @@ co::ObjectOCommand Server::send2( uint32_t cmd, const UUID& objectID )
 //---------------------------------------------------------------------------
 bool Server::_cmdChooseConfigReply( co::Command& command )
 {
-    LBVERB << "Handle choose config reply " << command << std::endl;
-
     co::LocalNodePtr  localNode = command.getLocalNode();
     const UUID configID = command.get< UUID >();
     const uint32_t requestID = command.get< uint32_t >();
+
+    LBVERB << "Handle choose config reply " << command << " req " << requestID
+           << " id " << configID << std::endl;
+
     if( configID == UUID::ZERO )
     {
         localNode->serveRequest( requestID, (void*)0 );

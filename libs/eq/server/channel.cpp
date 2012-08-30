@@ -450,10 +450,12 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 bool Channel::_cmdConfigInitReply( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-    LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
-                      << std::endl;
+    const bool result = command.get< bool >();
 
-    _state = command.get< bool >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
+    LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
+                      << " result " << result << std::endl;
+
+    _state = result ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
     return true;
 }
 

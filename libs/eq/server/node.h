@@ -167,7 +167,7 @@ namespace server
         void changeLatency( const uint32_t latency );
         //@}
 
-        // #145 Todo API
+        // #145 Documentation & API
         co::ObjectOCommand send( const uint32_t cmd );
         co::ObjectOCommand send( const uint32_t cmd, const UUID& id );
 
@@ -274,7 +274,7 @@ namespace server
         std::vector<co::Barrier*> _barriers;
 
         /** Task packets for the current operation. */
-        co::BufferConnection _bufferedTasks;
+        lunchbox::RefPtr< co::BufferConnection > _bufferedTasks;
 
         /** The last draw pipe for this entity */
         const Pipe* _lastDrawPipe;
