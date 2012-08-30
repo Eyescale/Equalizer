@@ -141,16 +141,15 @@ void Server::deleteConfigs()
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( co::BufferPtr buffer )
+bool Server::dispatchCommand( co::Command& command )
 {
-    co::Command command( buffer );
     switch( command.getType( ))
     {
         case fabric::PACKETTYPE_EQ_SERVER:
-            return co::Dispatcher::dispatchCommand( buffer );
+            return co::Dispatcher::dispatchCommand( command );
 
         default:
-            return co::LocalNode::dispatchCommand( buffer );
+            return co::LocalNode::dispatchCommand( command );
     }
 }
 

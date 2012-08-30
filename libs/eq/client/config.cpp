@@ -949,7 +949,7 @@ void Config::_releaseObjects()
 //---------------------------------------------------------------------------
 bool Config::_cmdCreateNode( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "Handle create node " << command << std::endl;
 
@@ -960,7 +960,7 @@ bool Config::_cmdCreateNode( co::Command& cmd )
 
 bool Config::_cmdDestroyNode( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "Handle destroy node " << command << std::endl;
 
@@ -984,7 +984,7 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
 
 bool Config::_cmdInitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle init reply " << command << std::endl;
 
@@ -999,7 +999,7 @@ bool Config::_cmdInitReply( co::Command& cmd )
 
 bool Config::_cmdExitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle exit reply " << command << std::endl;
 
@@ -1013,8 +1013,7 @@ bool Config::_cmdExitReply( co::Command& cmd )
 
 bool Config::_cmdUpdateVersion( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
+    co::ObjectCommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint32_t versionID = command.get< uint32_t >();
     const uint32_t finishID = command.get< uint32_t >();
@@ -1027,8 +1026,7 @@ bool Config::_cmdUpdateVersion( co::Command& cmd )
 
 bool Config::_cmdUpdateReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
+    co::ObjectCommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint32_t requestID = command.get< uint32_t >();
     const bool result = command.get< bool >();
@@ -1040,7 +1038,7 @@ bool Config::_cmdUpdateReply( co::Command& cmd )
 
 bool Config::_cmdReleaseFrameLocal( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     _frameStart(); // never happened from node
     releaseFrameLocal( command.get< uint32_t >( ));
@@ -1049,7 +1047,7 @@ bool Config::_cmdReleaseFrameLocal( co::Command& cmd )
 
 bool Config::_cmdFrameFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     _impl->finishedFrame = command.get< uint32_t >();
 
@@ -1069,7 +1067,7 @@ bool Config::_cmdFrameFinish( co::Command& cmd )
 
 bool Config::_cmdSyncClock( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const int64_t time = command.get< int64_t >();
 
     LBVERB << "sync global clock to " << time << ", drift "
@@ -1081,7 +1079,7 @@ bool Config::_cmdSyncClock( co::Command& cmd )
 
 bool Config::_cmdSwapObject( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     LBVERB << "Cmd swap object " << command << std::endl;
 
     const uint32_t requestID = command.get< uint32_t >();

@@ -40,7 +40,6 @@
 #include <eq/fabric/task.h>
 
 #include <co/barrier.h>
-#include <co/buffer.h>
 #include <co/exception.h>
 #include <co/objectCommand.h>
 #include <lunchbox/sleep.h>
@@ -759,7 +758,7 @@ Channels Window::_getEventChannels( const PointerEvent& event )
 //---------------------------------------------------------------------------
 bool Window::_cmdCreateChannel( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const UUID channelID = command.get< UUID >();
 
     LBLOG( LOG_INIT ) << "Create channel " << command  << " id " << channelID
@@ -777,7 +776,7 @@ bool Window::_cmdCreateChannel( co::Command& cmd )
 
 bool Window::_cmdDestroyChannel( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const UUID channelID = command.get< UUID >();
 
     LBLOG( LOG_INIT ) << "Destroy channel " << command << " id " << channelID
@@ -800,7 +799,7 @@ bool Window::_cmdDestroyChannel( co::Command& cmd )
 
 bool Window::_cmdConfigInit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "TASK window config init " << command << std::endl;
 
@@ -826,7 +825,7 @@ bool Window::_cmdConfigInit( co::Command& cmd )
 
 bool Window::_cmdConfigExit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "TASK window config exit " << command << std::endl;
 
@@ -849,7 +848,7 @@ bool Window::_cmdConfigExit( co::Command& cmd )
 
 bool Window::_cmdFrameStart( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LB_TS_THREAD( _pipeThread );
 
@@ -876,7 +875,7 @@ bool Window::_cmdFrameStart( co::Command& cmd )
 
 bool Window::_cmdFrameFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle window frame sync " << command << std::endl;
 
@@ -904,7 +903,7 @@ bool Window::_cmdFinish( co::Command& )
 
 bool  Window::_cmdThrottleFramerate( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_TASKS ) << "TASK throttle framerate " << getName() << " "
                        << command << std::endl;
@@ -926,7 +925,7 @@ bool  Window::_cmdThrottleFramerate( co::Command& cmd )
 
 bool Window::_cmdBarrier( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const co::ObjectVersion barrier = command.get< co::ObjectVersion >();
 
     LBVERB << "handle barrier " << command << " barrier " << barrier << std::endl;
@@ -938,7 +937,7 @@ bool Window::_cmdBarrier( co::Command& cmd )
 
 bool Window::_cmdNVBarrier( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_TASKS ) << "TASK join NV_swap_group" << std::endl;
     LBASSERT( _systemWindow );
@@ -955,7 +954,7 @@ bool Window::_cmdNVBarrier( co::Command& cmd )
 
 bool Window::_cmdSwap( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_TASKS ) << "TASK swap buffers " << getName() << " " << command
                        << std::endl;
@@ -972,7 +971,7 @@ bool Window::_cmdSwap( co::Command& cmd )
 
 bool Window::_cmdFrameDrawFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 

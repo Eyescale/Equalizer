@@ -43,8 +43,11 @@ namespace eq
     struct ConfigEvent : public co::ObjectCommand
     {
     public:
-        /** Construct a new config event. @version 1.0 */
-        EQ_API ConfigEvent( co::BufferPtr buffer );
+        /** @internal Construct a new config event. */
+        ConfigEvent( co::BufferPtr buffer );
+
+        /** Copy-construct a new config event. */
+        EQ_API ConfigEvent( const ConfigEvent& rhs );
 
         Event data; //!< the Event @version 1.0
     };

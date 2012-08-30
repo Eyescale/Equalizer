@@ -72,7 +72,8 @@ void View::detach()
                                     _pipe->getID(), EQ_INSTANCE_ALL );
         command << getID();
         buffer->swap( command.getBuffer( ));
-        _pipe->dispatchCommand( buffer );
+        co::Command cmd( buffer );
+        _pipe->dispatchCommand( cmd );
     }
     Super::detach();
 }

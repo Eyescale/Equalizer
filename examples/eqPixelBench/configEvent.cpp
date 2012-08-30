@@ -28,8 +28,6 @@
 
 #include "configEvent.h"
 
-#include <co/buffer.h>
-
 namespace eqPixelBench
 {
 std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
@@ -51,7 +49,8 @@ std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
             return os;
     }
 
-    eq::ConfigEvent myEvent( event->getBuffer( ));
+    // #145 Need copy of event for non-const get() of values :(
+    eq::ConfigEvent myEvent( *event );
 
     const float msec = myEvent.get< float >();
     std::string name = myEvent.get< std::string >();

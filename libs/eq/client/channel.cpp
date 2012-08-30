@@ -44,7 +44,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/exception.h>
@@ -1941,7 +1940,7 @@ void Channel::_deleteTransferContext()
 //---------------------------------------------------------------------------
 bool Channel::_cmdConfigInit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "TASK channel config init " << command << std::endl;
 
@@ -1982,7 +1981,7 @@ bool Channel::_cmdConfigInit( co::Command& cmd )
 
 bool Channel::_cmdConfigExit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Exit channel " << command << std::endl;
 
@@ -1998,7 +1997,7 @@ bool Channel::_cmdConfigExit( co::Command& cmd )
 
 bool Channel::_cmdFrameStart( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     RenderContext context = command.get< RenderContext >();
     const uint128_t version = command.get< uint128_t >();
@@ -2027,7 +2026,7 @@ bool Channel::_cmdFrameStart( co::Command& cmd )
 
 bool Channel::_cmdFrameFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     RenderContext context = command.get< RenderContext >();
     const uint32_t frameNumber = command.get< uint32_t >();
@@ -2047,7 +2046,7 @@ bool Channel::_cmdFrameClear( co::Command& cmd )
 {
     LBASSERT( _impl->state == STATE_RUNNING );
 
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context  = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
@@ -2063,7 +2062,7 @@ bool Channel::_cmdFrameClear( co::Command& cmd )
 
 bool Channel::_cmdFrameDraw( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context  = command.get< RenderContext >();
     const bool finish = command.get< bool >();
 
@@ -2089,7 +2088,7 @@ bool Channel::_cmdFrameDraw( co::Command& cmd )
 
 bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -2105,7 +2104,7 @@ bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
 
 bool Channel::_cmdFrameAssemble( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
 
@@ -2133,7 +2132,7 @@ bool Channel::_cmdFrameAssemble( co::Command& cmd )
 
 bool Channel::_cmdFrameReadback( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
 
@@ -2149,7 +2148,7 @@ bool Channel::_cmdFrameReadback( co::Command& cmd )
 
 bool Channel::_cmdFinishReadback( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback " << command
                                     << std::endl;
@@ -2171,7 +2170,7 @@ bool Channel::_cmdFinishReadback( co::Command& cmd )
 
 bool Channel::_cmdFrameSetReady( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
     detail::RBStat* stat =
@@ -2194,7 +2193,7 @@ bool Channel::_cmdFrameSetReady( co::Command& cmd )
 
 bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
     const uint128_t nodeID = command.get< uint128_t >();
     const uint128_t netNodeID = command.get< uint128_t >();
@@ -2214,7 +2213,7 @@ bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
 
 bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
     const uint128_t nodeID = command.get< uint128_t >();
@@ -2237,7 +2236,7 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
 
 bool Channel::_cmdFrameViewStart( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
@@ -2252,7 +2251,7 @@ bool Channel::_cmdFrameViewStart( co::Command& cmd )
 
 bool Channel::_cmdFrameViewFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
@@ -2268,7 +2267,7 @@ bool Channel::_cmdFrameViewFinish( co::Command& cmd )
 
 bool Channel::_cmdStopFrame( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_TASKS ) << "TASK channel stop frame " << getName() <<  " "
                        << command << std::endl;
@@ -2279,7 +2278,7 @@ bool Channel::_cmdStopFrame( co::Command& cmd )
 
 bool Channel::_cmdFrameTiles( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const bool isLocal = command.get< bool >();
     const co::ObjectVersion queueVersion = command.get< co::ObjectVersion >();
@@ -2295,7 +2294,7 @@ bool Channel::_cmdFrameTiles( co::Command& cmd )
 
 bool Channel::_cmdDeleteTransferContext( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Delete transfer context " << command << std::endl;
 

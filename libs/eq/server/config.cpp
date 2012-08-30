@@ -42,7 +42,6 @@
 #include <eq/fabric/packetType.h>
 #include <eq/fabric/paths.h>
 
-#include <co/buffer.h>
 #include <co/objectCommand.h>
 
 #include <lunchbox/sleep.h>
@@ -945,7 +944,7 @@ void Config::changeLatency( const uint32_t latency )
 //---------------------------------------------------------------------------
 bool Config::_cmdInit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LB_TS_THREAD( _mainThread );
     LBVERB << "handle config start init " << command << std::endl;
@@ -974,7 +973,7 @@ bool Config::_cmdInit( co::Command& cmd )
 
 bool Config::_cmdExit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle config exit " << command << std::endl;
     setError( ERROR_NONE );
@@ -993,7 +992,7 @@ bool Config::_cmdExit( co::Command& cmd )
 
 bool Config::_cmdUpdate( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle config update " << command << std::endl;
 
@@ -1039,7 +1038,7 @@ bool Config::_cmdUpdate( co::Command& cmd )
 
 bool Config::_cmdStartFrame( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle config frame start " << command << std::endl;
 
@@ -1056,7 +1055,7 @@ bool Config::_cmdStartFrame( co::Command& cmd )
 
 bool Config::_cmdFinishAllFrames( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle config all frames finish " << command << std::endl;
 
@@ -1066,7 +1065,7 @@ bool Config::_cmdFinishAllFrames( co::Command& cmd )
 
 bool Config::_cmdStopFrames( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBVERB << "handle config stop frames " << command << std::endl;
 
@@ -1078,7 +1077,7 @@ bool Config::_cmdStopFrames( co::Command& cmd )
 
 bool Config::_cmdCreateReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LB_TS_THREAD( _cmdThread );
     LB_TS_NOT_THREAD( _mainThread );

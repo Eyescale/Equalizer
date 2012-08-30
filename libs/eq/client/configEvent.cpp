@@ -28,6 +28,12 @@ ConfigEvent::ConfigEvent( co::BufferPtr buffer )
     *this >> data;
 }
 
+ConfigEvent::ConfigEvent( const ConfigEvent& rhs )
+    : co::ObjectCommand( rhs.getBuffer( ))
+{
+    *this >> data;
+}
+
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
     os << "config event " << ", event "

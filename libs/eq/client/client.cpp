@@ -399,7 +399,8 @@ void Client::notifyDisconnect( co::NodePtr node )
                                   fabric::CMD_CLIENT_EXIT,
                                   fabric::PACKETTYPE_EQ_CLIENT );
         buffer->swap( command.getBuffer( ));
-        dispatchCommand( buffer );
+        co::Command cmd( buffer );
+        dispatchCommand( cmd );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;

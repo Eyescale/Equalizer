@@ -30,7 +30,6 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/paths.h>
 
-#include <co/buffer.h>
 #include <co/objectCommand.h>
 
 namespace eq
@@ -287,7 +286,7 @@ void Pipe::update( const uint128_t& frameID, const uint32_t frameNumber )
 //===========================================================================
 bool Pipe::_cmdConfigInitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const bool result = command.get< bool >();
 
     LBVERB << "handle pipe configInit reply " << command << " result " << result

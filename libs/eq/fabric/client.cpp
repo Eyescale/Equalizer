@@ -102,25 +102,23 @@ void Client::processCommand( const uint32_t timeout )
     LBCHECK( command( ));
 }
 
-bool Client::dispatchCommand( co::BufferPtr buffer )
+bool Client::dispatchCommand( co::Command& command )
 {
-    co::Command command( buffer );
-
     LBVERB << "dispatch " << command << std::endl;
 
     switch( command.getType( ))
     {
         case PACKETTYPE_EQ_CLIENT:
-            return co::Dispatcher::dispatchCommand( buffer );
+            return co::Dispatcher::dispatchCommand( command );
 
         case PACKETTYPE_EQ_SERVER:
         {
             co::NodePtr node = command.getNode();
-            return node->co::Dispatcher::dispatchCommand( buffer );
+            return node->co::Dispatcher::dispatchCommand( command );
         }
 
         default:
-            return co::LocalNode::dispatchCommand( buffer );
+            return co::LocalNode::dispatchCommand( command );
     }
 }
 
