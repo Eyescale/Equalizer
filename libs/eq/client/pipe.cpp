@@ -45,7 +45,6 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 
-#include <co/buffer.h>
 #include <co/objectCommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
@@ -685,15 +684,9 @@ void Pipe::cancelThread()
     if( !_impl->thread )
         return;
 
-    // #145 proper local command dispatch!
-    co::BufferPtr buffer =
-            getLocalNode()->allocCommand( co::ObjectOCommand::getSize( ));
-    co::ObjectOCommand command( co::Connections(), fabric::CMD_PIPE_EXIT_THREAD,
-                                co::COMMANDTYPE_CO_OBJECT, getID(),
-                                EQ_INSTANCE_ALL );
-    buffer->swap( command.getBuffer( ));
-    co::Command cmd( buffer );
-    dispatchCommand( cmd );
+    // local command dispatching
+    co::ObjectOCommand( this, getLocalNode(), fabric::CMD_PIPE_EXIT_THREAD,
+                        co::COMMANDTYPE_CO_OBJECT, getID(), EQ_INSTANCE_ALL );
 }
 
 void Pipe::waitExited() const

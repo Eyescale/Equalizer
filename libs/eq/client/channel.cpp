@@ -1788,7 +1788,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
            << packetBuffers << frameNumber << image->getAlphaUsage();
 
     connection->lockSend();
-    packet.sendUnlocked( imageDataSize );
+    packet.setExternalSend( imageDataSize );
 
 #ifndef NDEBUG
     size_t sentBytes = 0;

@@ -26,7 +26,6 @@
 
 #include <eq/fabric/commands.h>
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
@@ -61,19 +60,10 @@ void View::detach()
     //  Don't send packet to stopping pipe (see issue #11)
     if( _pipe && _pipe->isRunning( ))
     {
-        co::LocalNodePtr localNode = getLocalNode();
-
-        // #145 proper local command dispatch!
-        co::BufferPtr buffer =
-                localNode->allocCommand( co::ObjectOCommand::getSize( ));
-        co::ObjectOCommand command( co::Connections(),
-                                    fabric::CMD_PIPE_DETACH_VIEW,
-                                    co::COMMANDTYPE_CO_OBJECT,
-                                    _pipe->getID(), EQ_INSTANCE_ALL );
-        command << getID();
-        buffer->swap( command.getBuffer( ));
-        co::Command cmd( buffer );
-        _pipe->dispatchCommand( cmd );
+        // local command dispatching
+        co::ObjectOCommand( _pipe, getLocalNode(), fabric::CMD_PIPE_DETACH_VIEW,
+                            co::COMMANDTYPE_CO_OBJECT, _pipe->getID(),
+                            EQ_INSTANCE_ALL ) << getID();
     }
     Super::detach();
 }

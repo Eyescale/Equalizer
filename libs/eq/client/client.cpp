@@ -33,7 +33,6 @@
 #include <eq/fabric/packetType.h>
 #include <eq/fabric/view.h>
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connection.h>
 #include <co/connectionDescription.h>
@@ -393,14 +392,9 @@ void Client::notifyDisconnect( co::NodePtr node )
 {
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
-        // #145 proper local command dispatch!
-        co::BufferPtr buffer = allocCommand( co::NodeOCommand::getSize( ));
-        co::NodeOCommand command( co::Connections(),
-                                  fabric::CMD_CLIENT_EXIT,
-                                  fabric::PACKETTYPE_EQ_CLIENT );
-        buffer->swap( command.getBuffer( ));
-        co::Command cmd( buffer );
-        dispatchCommand( cmd );
+        // local command dispatching
+        co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT,
+                          fabric::PACKETTYPE_EQ_CLIENT );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;
