@@ -394,7 +394,7 @@ void Client::notifyDisconnect( co::NodePtr node )
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
         // #145 proper local command dispatch!
-        co::BufferPtr buffer = allocCommand( 80 );
+        co::BufferPtr buffer = allocCommand( co::NodeOCommand::getSize( ));
         co::NodeOCommand command( co::Connections(),
                                   fabric::CMD_CLIENT_EXIT,
                                   fabric::PACKETTYPE_EQ_CLIENT );

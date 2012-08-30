@@ -686,7 +686,8 @@ void Pipe::cancelThread()
         return;
 
     // #145 proper local command dispatch!
-    co::BufferPtr buffer = getLocalNode()->allocCommand( 80 );
+    co::BufferPtr buffer =
+            getLocalNode()->allocCommand( co::ObjectOCommand::getSize( ));
     co::ObjectOCommand command( co::Connections(), fabric::CMD_PIPE_EXIT_THREAD,
                                 co::COMMANDTYPE_CO_OBJECT, getID(),
                                 EQ_INSTANCE_ALL );

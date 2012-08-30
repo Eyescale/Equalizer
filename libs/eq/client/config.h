@@ -338,8 +338,8 @@ namespace detail { class Config; }
          * @version 1.0
          */
         // #145 Documentation & API
-        EQ_API co::ObjectOCommand sendEvent( Event event );
-        EQ_API co::ObjectOCommand sendEvent( uint32_t eventType );
+        EQ_API co::ObjectOCommand sendEvent( const Event& event );
+        EQ_API co::ObjectOCommand sendEvent( const uint32_t eventType );
 
         /**
          * Get the next event.

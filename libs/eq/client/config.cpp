@@ -569,7 +569,7 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
-co::ObjectOCommand Config::sendEvent( Event event )
+co::ObjectOCommand Config::sendEvent( const Event& event )
 {
     LBASSERT( event.type != Event::STATISTIC ||
               event.statistic.type != Statistic::NONE );
@@ -581,7 +581,7 @@ co::ObjectOCommand Config::sendEvent( Event event )
     return cmd;
 }
 
-co::ObjectOCommand Config::sendEvent( uint32_t eventType )
+co::ObjectOCommand Config::sendEvent( const uint32_t eventType )
 {
     Event event;
     event.type = eventType;

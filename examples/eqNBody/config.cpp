@@ -121,45 +121,46 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 {
     switch( event->data.type )
     {
-      case DATA_CHANGED:
-      {
-        // #145 Need copy of event for non-const get() of values :(
-        eq::ConfigEvent myEvent( event->getBuffer( ));
-          _registerData( myEvent );
-          if( _readyToCommit() )
-              _frameData.commit();        // broadcast changed data to all clients
-      }
-          break;
+        case DATA_CHANGED:
+        {
+            // #145 Need copy of event for non-const get() of values :(
+            eq::ConfigEvent myEvent( event->getBuffer( ));
+            _registerData( myEvent );
+            if( _readyToCommit() )
+                _frameData.commit();    // broadcast changed data to all clients
+            break;
+        }
 
-      case PROXY_CHANGED:
-      {
-          // #145 Need copy of event for non-const get() of values :(
-          eq::ConfigEvent myEvent( event->getBuffer( ));
-          _updateData( myEvent );
-          if( _readyToCommit() ) {
-              _updateSimulation();    // update the simulation every nth frame
-              _frameData.commit();    // broadcast changed data to all clients
-          }
-      }
-      break;
+        case PROXY_CHANGED:
+        {
+            // #145 Need copy of event for non-const get() of values :(
+            eq::ConfigEvent myEvent( event->getBuffer( ));
+            _updateData( myEvent );
+            if( _readyToCommit() )
+            {
+                _updateSimulation();    // update the simulation every nth frame
+                _frameData.commit();    // broadcast changed data to all clients
+            }
+            break;
+        }
 
-      case eq::Event::KEY_PRESS:
-          if( _handleKeyEvent( event->data.keyPress ))
-          {
-              _redraw = true;
-              return true;
-          }
-          break;
+        case eq::Event::KEY_PRESS:
+            if( _handleKeyEvent( event->data.keyPress ))
+            {
+                _redraw = true;
+                return true;
+            }
+            break;
 
-      case eq::Event::WINDOW_EXPOSE:
-      case eq::Event::WINDOW_RESIZE:
-      case eq::Event::WINDOW_CLOSE:
-      case eq::Event::VIEW_RESIZE:
-          _redraw = true;
-          break;
+        case eq::Event::WINDOW_EXPOSE:
+        case eq::Event::WINDOW_RESIZE:
+        case eq::Event::WINDOW_CLOSE:
+        case eq::Event::VIEW_RESIZE:
+            _redraw = true;
+            break;
 
-      default:
-          break;
+        default:
+            break;
     }
 
     _redraw |= eq::Config::handleEvent( event );
