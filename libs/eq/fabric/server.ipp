@@ -145,10 +145,11 @@ VisitorResult Server< CL, S, CFG, NF, N, V >::accept( V& visitor ) const
 template< class CL, class S, class CFG, class NF, class N, class V > bool
 Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
 {
-    LBVERB << "Handle create config " << command << std::endl;
-
     const co::ObjectVersion configVersion = command.get< co::ObjectVersion >();
     const uint32_t requestID = command.get< uint32_t >();
+
+    LBVERB << "Handle create config " << command << " config version "
+           << configVersion << " request " << requestID << std::endl;
 
     CFG* config = _nodeFactory->createConfig( static_cast< S* >( this ));
     co::LocalNodePtr localNode = command.getLocalNode();

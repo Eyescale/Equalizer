@@ -172,7 +172,12 @@ void Server::handleCommands()
 
 bool Server::_cmdChooseConfig( co::Command& command )
 {
-    LBVERB << "Handle choose config " << command << std::endl;
+    const uint32_t requestID = command.get< uint32_t >();
+    const uint32_t flags = command.get< uint32_t >();
+    const std::string rendererInfo = command.get< std::string >();
+
+    LBVERB << "Handle choose config " << command << " req " << requestID
+           << " renderer " << rendererInfo << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -185,9 +190,6 @@ bool Server::_cmdChooseConfig( co::Command& command )
         if( !candidate->isUsed() && version == 1.2f )
             config = candidate;
     }
-
-    const uint32_t requestID = command.get< uint32_t >();
-    const uint32_t flags = command.get< uint32_t >();
 
 #ifdef EQ_USE_GPUSD
     if( !config )
@@ -216,7 +218,6 @@ bool Server::_cmdChooseConfig( co::Command& command )
     ConfigBackupVisitor backup;
     config->accept( backup );
 
-    const std::string  rendererInfo = command.get< std::string >();
     const size_t       colonPos     = rendererInfo.find( '#' );
     const std::string  workDir      = rendererInfo.substr( 0, colonPos );
     const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
@@ -259,10 +260,11 @@ bool Server::_cmdChooseConfig( co::Command& command )
 
 bool Server::_cmdReleaseConfig( co::Command& command )
 {
-    LBVERB << "Handle release config " << command << std::endl;
-
     UUID configID = command.get< UUID >();
     uint32_t requestID = command.get< uint32_t >();
+
+    LBVERB << "Handle release config " << command << " config " << configID
+           << std::endl;
 
     co::NodePtr node = command.getNode();
 

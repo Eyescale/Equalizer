@@ -435,14 +435,15 @@ void Node::dirtyClientExit()
 //---------------------------------------------------------------------------
 bool Node::_cmdCreatePipe( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_INIT ) << "Create pipe " << command << std::endl;
     LB_TS_THREAD( _nodeThread );
     LBASSERT( _state >= STATE_INIT_FAILED );
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const UUID pipeID = command.get< UUID >();
     const bool threaded = command.get< bool >();
+
+    LBLOG( LOG_INIT ) << "Create pipe " << command << " id " << pipeID
+                      << std::endl;
 
     Pipe* pipe = Global::getNodeFactory()->createPipe( this );
     if( threaded )
@@ -537,15 +538,16 @@ bool Node::_cmdConfigExit( co::Command& cmd )
 
 bool Node::_cmdFrameStart( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _nodeThread );
-    LBVERB << "handle node frame start " << command << std::endl;
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t version = command.get< uint128_t >();
     const uint128_t configVersion = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBVERB << "handle node frame start " << command << " frame " << frameNumber
+           << " id " << frameID << std::endl;
 
     LBASSERT( _currentFrame == frameNumber-1 );
 
@@ -568,14 +570,15 @@ bool Node::_cmdFrameStart( co::Command& cmd )
 
 bool Node::_cmdFrameFinish( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LB_TS_THREAD( _nodeThread );
-    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
-                       << std::endl;
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
+                       << " frame " << frameNumber << " id " << frameID
+                       << std::endl;
 
     _finishFrame( frameNumber );
     _frameFinish( frameID, frameNumber );
@@ -593,6 +596,7 @@ bool Node::_cmdFrameDrawFinish( co::Command& cmd )
     const uint32_t frameNumber = command.get< uint32_t >();
 
     LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
+                       << " frame " << frameNumber << " id " << frameID
                        << std::endl;
 
     frameDrawFinish( frameID, frameNumber );

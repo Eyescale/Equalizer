@@ -1051,9 +1051,10 @@ bool Config::_cmdFrameFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
 
-    LBLOG( LOG_TASKS ) << "frame finish " << command << std::endl;
-
     _impl->finishedFrame = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "frame finish " << command
+                       << " frame " << _impl->finishedFrame << std::endl;
 
     if( _impl->unlockedFrame < _impl->finishedFrame.get( ))
     {

@@ -2000,11 +2000,12 @@ bool Channel::_cmdFrameStart( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
 
-    LBVERB << "handle channel frame start " << command << std::endl;
-
     RenderContext context = command.get< RenderContext >();
     const uint128_t version = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBVERB << "handle channel frame start " << command << " " << context
+           << " frame " << frameNumber << std::endl;
 
     //_grabFrame( frameNumber ); single-threaded
     sync( version );
@@ -2028,11 +2029,11 @@ bool Channel::_cmdFrameFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
 
-    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
-                       << std::endl;
-
     RenderContext context = command.get< RenderContext >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK frame finish " << getName() <<  " " << command
+                       << " " << context << std::endl;
 
     overrideContext( context );
     frameFinish( context.frameID, frameNumber );
@@ -2044,13 +2045,14 @@ bool Channel::_cmdFrameFinish( co::Command& cmd )
 
 bool Channel::_cmdFrameClear( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
-
     LBASSERT( _impl->state == STATE_RUNNING );
-    LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
-                       << std::endl;
 
+    co::ObjectCommand command( cmd.getBuffer( ));
     RenderContext context  = command.get< RenderContext >();
+
+    LBLOG( LOG_TASKS ) << "TASK clear " << getName() <<  " " << command
+                       << " " << context << std::endl;
+
     _setRenderContext( context );
     ChannelStatistics event( Statistic::CHANNEL_CLEAR, this );
     frameClear( context.frameID );
@@ -2062,12 +2064,11 @@ bool Channel::_cmdFrameClear( co::Command& cmd )
 bool Channel::_cmdFrameDraw( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
-                       << std::endl;
-
     RenderContext context  = command.get< RenderContext >();
     const bool finish = command.get< bool >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw " << getName() <<  " " << command
+                       << " " << context << std::endl;
 
     _setRenderContext( context );
     const uint32_t frameNumber = getCurrentFrame();
@@ -2089,12 +2090,12 @@ bool Channel::_cmdFrameDraw( co::Command& cmd )
 bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
-                       << std::endl;
-
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS ) << "TASK draw finish " << getName() <<  " " << command
+                       << " frame " << frameNumber << " id " << frameID
+                       << std::endl;
 
     ChannelStatistics event( Statistic::CHANNEL_DRAW_FINISH, this );
     frameDrawFinish( frameID, frameNumber );
@@ -2105,12 +2106,12 @@ bool Channel::_cmdFrameDrawFinish( co::Command& cmd )
 bool Channel::_cmdFrameAssemble( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS | LOG_ASSEMBLY )
-        << "TASK assemble " << getName() <<  " " << command << std::endl;
-
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY )
+        << "TASK assemble " << getName() <<  " " << command << " " << context
+        << " nFrames " << frames.size() << std::endl;
 
     _setRenderContext( context );
     ChannelStatistics event( Statistic::CHANNEL_ASSEMBLE, this );
@@ -2133,12 +2134,12 @@ bool Channel::_cmdFrameAssemble( co::Command& cmd )
 bool Channel::_cmdFrameReadback( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
-                                      << command << std::endl;
-
     RenderContext context = command.get< RenderContext >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+
+    LBLOG( LOG_TASKS | LOG_ASSEMBLY ) << "TASK readback " << getName() <<  " "
+                                      << command << " " << context<< " nFrames "
+                                      << frames.size() << std::endl;
 
     _setRenderContext( context );
     _frameReadback( context.frameID, frames );
@@ -2194,15 +2195,16 @@ bool Channel::_cmdFrameSetReady( co::Command& cmd )
 bool Channel::_cmdFrameTransmitImage( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << command << std::endl;
-
     const co::ObjectVersion frameData = command.get< co::ObjectVersion >();
     const uint128_t nodeID = command.get< uint128_t >();
     const uint128_t netNodeID = command.get< uint128_t >();
     const uint64_t imageIndex = command.get< uint64_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
     const uint32_t taskID = command.get< uint32_t >();
+
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit " << command << " frame data "
+                                    << frameData << " receiver " << nodeID
+                                    << " on " << netNodeID << std::endl;
 
     _transmitImage( frameData, nodeID, netNodeID, imageIndex, frameNumber,
                     taskID );
@@ -2236,11 +2238,11 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
 bool Channel::_cmdFrameViewStart( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view start " << getName() <<  " " << command
-                       << std::endl;
+                       << " " << context << std::endl;
 
-    RenderContext context = command.get< RenderContext >();
     _setRenderContext( context );
     frameViewStart( context.frameID );
     resetRenderContext();
@@ -2251,11 +2253,11 @@ bool Channel::_cmdFrameViewStart( co::Command& cmd )
 bool Channel::_cmdFrameViewFinish( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
+    RenderContext context = command.get< RenderContext >();
 
     LBLOG( LOG_TASKS ) << "TASK view finish " << getName() <<  " " << command
-                       << std::endl;
+                       << " " << context << std::endl;
 
-    RenderContext context = command.get< RenderContext >();
     _setRenderContext( context );
     ChannelStatistics event( Statistic::CHANNEL_VIEW_FINISH, this );
     frameViewFinish( context.frameID );
@@ -2278,15 +2280,14 @@ bool Channel::_cmdStopFrame( co::Command& cmd )
 bool Channel::_cmdFrameTiles( co::Command& cmd )
 {
     co::ObjectCommand command( cmd.getBuffer( ));
-
-    LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
-                       << command << std::endl;
-
     RenderContext context = command.get< RenderContext >();
     const bool isLocal = command.get< bool >();
     const co::ObjectVersion queueVersion = command.get< co::ObjectVersion >();
     const uint32_t tasks = command.get< uint32_t >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
+
+    LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
+                       << command << " " << context << std::endl;
 
     _frameTiles( context, isLocal, queueVersion, tasks, frames );
     return true;
