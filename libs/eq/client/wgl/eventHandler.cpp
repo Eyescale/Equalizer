@@ -595,21 +595,21 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
         }
         else if (pRawHid->bRawData[0] == 3) // Buttons
         {
-            ConfigEvent event;
+            Event event;
             LBASSERT( _magellanNode->getID() != UUID::ZERO );
-            event.data.originator = _magellanNode->getID();
-            event.data.serial = _magellanNode->getSerial();
-            event.data.type = Event::MAGELLAN_BUTTON;
-            event.data.magellan.button = 0;
-            event.data.magellan.buttons = 0;
+            event.originator = _magellanNode->getID();
+            event.serial = _magellanNode->getSerial();
+            event.type = Event::MAGELLAN_BUTTON;
+            event.magellan.button = 0;
+            event.magellan.buttons = 0;
             // TODO: find fired button(s) since last buttons event
             
             if( pRawHid->bRawData[1] )
-                event.data.magellan.buttons = PTR_BUTTON1;
+                event.magellan.buttons = PTR_BUTTON1;
             if( pRawHid->bRawData[2] )
-                event.data.magellan.buttons |= PTR_BUTTON2;
+                event.magellan.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
-                event.data.magellan.buttons |= PTR_BUTTON3;
+                event.magellan.buttons |= PTR_BUTTON3;
             _magellanNode->getConfig()->sendEvent( event );
         }
         else
@@ -620,17 +620,17 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
         if (_magellanGotTranslation && _magellanGotRotation)
         {
-            ConfigEvent event;
+            Event event;
             LBASSERT( _magellanNode->getID() != UUID::ZERO );
-            event.data.originator = _magellanNode->getID();
-            event.data.serial = _magellanNode->getSerial();
-            event.data.type = Event::MAGELLAN_AXIS;
-            event.data.magellan.xAxis =  _magellanDOFs[0];
-            event.data.magellan.yAxis = -_magellanDOFs[1];
-            event.data.magellan.zAxis = -_magellanDOFs[2];
-            event.data.magellan.xRotation = -_magellanDOFs[3];
-            event.data.magellan.yRotation =  _magellanDOFs[4];
-            event.data.magellan.zRotation =  _magellanDOFs[5];
+            event.originator = _magellanNode->getID();
+            event.serial = _magellanNode->getSerial();
+            event.type = Event::MAGELLAN_AXIS;
+            event.magellan.xAxis =  _magellanDOFs[0];
+            event.magellan.yAxis = -_magellanDOFs[1];
+            event.magellan.zAxis = -_magellanDOFs[2];
+            event.magellan.xRotation = -_magellanDOFs[3];
+            event.magellan.yRotation =  _magellanDOFs[4];
+            event.magellan.zRotation =  _magellanDOFs[5];
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
