@@ -51,6 +51,8 @@ bool _init( const int argc, char** argv )
 
     // init all available plugins
     PluginRegistry& plugins = Global::getPluginRegistry();
+    plugins.addDirectory( "/opt/local/lib" ); // MacPorts
+
 #ifdef COLLAGE_DSO_NAME
     if( !plugins.addPlugin( COLLAGE_DSO_NAME ) && // Found by LDD
         // Hard-coded compile locations as backup:
