@@ -70,12 +70,12 @@ Config::Config( ServerPtr parent )
         , _needsFinish( false )
 {
     const Global* global = Global::instance();
-    for( int i=0; i<FATTR_ALL; ++i )
+    for( int i=0; i < FATTR_ALL; ++i )
     {
         const FAttribute attr = static_cast< FAttribute >( i );
         setFAttribute( attr, global->getConfigFAttribute( attr ));
     }
-    for( int i=0; i<IATTR_ALL; ++i )
+    for( int i=0; i < IATTR_ALL; ++i )
     {
         const IAttribute attr = static_cast< IAttribute >( i );
         setIAttribute( attr, global->getConfigIAttribute( attr ));
