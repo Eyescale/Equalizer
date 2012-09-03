@@ -21,7 +21,6 @@
 #include "nodeType.h"
 #include "packetType.h"
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/commandQueue.h>
 #include <co/connection.h>
@@ -94,11 +93,10 @@ void Client::processCommand( const uint32_t timeout )
 {
     co::CommandQueue* queue = getMainThreadQueue();
     LBASSERT( queue );
-    co::BufferPtr buffer = queue->pop( timeout );
-    if( !buffer ) // just a wakeup()
+    co::Command command = queue->pop( timeout );
+    if( !command.isValid( )) // just a wakeup()
         return;
 
-    co::Command command( buffer );
     LBCHECK( command( ));
 }
 

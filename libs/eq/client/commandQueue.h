@@ -36,16 +36,16 @@ namespace eq
         virtual ~CommandQueue();
 
         /** @sa co::CommandQueue::push(). */
-        virtual void push( co::BufferPtr buffer );
+        virtual void push( const co::Command& command );
 
         /** @sa co::CommandQueue::pushFront(). */
-        virtual void pushFront( co::BufferPtr buffer );
+        virtual void pushFront( const co::Command& command );
 
         /** @sa co::CommandQueue::pop(). */
-        virtual co::BufferPtr pop();
+        virtual co::Command pop();
 
         /** @sa co::CommandQueue::tryPop(). */
-        virtual co::BufferPtr tryPop();
+        virtual co::Command tryPop();
 
         /** @sa reset the time spent in pop() and return the previous value. */
         int64_t resetWaitTime()

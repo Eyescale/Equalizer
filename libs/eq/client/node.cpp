@@ -35,7 +35,6 @@
 #include <eq/fabric/task.h>
 
 #include <co/barrier.h>
-#include <co/buffer.h>
 #include <co/connection.h>
 #include <co/objectCommand.h>
 #include <lunchbox/scopedMutex.h>
@@ -409,11 +408,10 @@ void Node::TransmitThread::run()
                                lunchbox::className( _node ));
     while( true )
     {
-        co::BufferPtr buffer = _queue.pop();
-        if( !buffer )
+        co::Command command = _queue.pop();
+        if( !command.isValid( ))
             return; // exit thread
 
-        co::Command command( buffer );
         LBCHECK( command( ));
     }
 }
@@ -426,7 +424,8 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    transmitter.getQueue().push( 0 ); // wake up to exit
+    co::Command empty;
+    transmitter.getQueue().push( empty ); // wake up to exit
     transmitter.join();
 }
 
@@ -527,7 +526,8 @@ bool Node::_cmdConfigExit( co::Command& cmd )
     }
 
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    transmitter.getQueue().push( 0 ); // wake up to exit
+    co::Command empty;
+    transmitter.getQueue().push( empty ); // wake up to exit
     transmitter.join();
     _flushObjects();
 

@@ -39,7 +39,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
 
-#include <co/buffer.h>
 #include <co/exception.h>
 #include <co/object.h>
 #include <co/connectionDescription.h>
@@ -597,12 +596,12 @@ const ConfigEvent* Config::nextEvent()
 
 const ConfigEvent* Config::tryNextEvent()
 {
-    co::BufferPtr buffer = _impl->eventQueue.tryPop();
-    if( !buffer )
+    const co::Command& command = _impl->eventQueue.tryPop();
+    if( !command.isValid( ))
         return 0;
 
     delete _impl->lastEvent;
-    _impl->lastEvent = new ConfigEvent( buffer );
+    _impl->lastEvent = new ConfigEvent( command );
     return _impl->lastEvent;
 }
 
@@ -1061,7 +1060,8 @@ bool Config::_cmdFrameFinish( co::Command& cmd )
         _impl->unlockedFrame = _impl->finishedFrame.get();
     }
 
-    getMainThreadQueue()->push( 0 ); // wakeup signal
+    co::Command empty;
+    getMainThreadQueue()->push( empty ); // wakeup signal
     return true;
 }
 

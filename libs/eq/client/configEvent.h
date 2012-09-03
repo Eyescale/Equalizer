@@ -23,6 +23,7 @@
 
 namespace eq
 {
+    // #145 Documentation & API
     /**
      * A config event.
      *
@@ -44,7 +45,7 @@ namespace eq
     {
     public:
         /** @internal Construct a new config event. */
-        ConfigEvent( co::BufferPtr buffer );
+        ConfigEvent( const co::Command& command );
 
         /** Copy-construct a new config event. */
         EQ_API ConfigEvent( const ConfigEvent& rhs );

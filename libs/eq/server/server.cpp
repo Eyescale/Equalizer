@@ -35,7 +35,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/packetType.h>
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -159,8 +158,7 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::BufferPtr buffer = _mainThreadQueue.pop();
-        co::Command command( buffer );
+        co::Command command = _mainThreadQueue.pop();
         if( !command( ))
         {
             LBABORT( "Error handling command " << command );
