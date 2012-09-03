@@ -307,7 +307,8 @@ WindowSystem Pipe::selectWindowSystem() const
 
 void Pipe::_setupCommandQueue()
 {
-    LBINFO << "Set up pipe message pump for " << _impl->windowSystem << std::endl;
+    LBINFO << "Set up pipe message pump for " << _impl->windowSystem
+           << std::endl;
 
     Config* config = getConfig();
     config->setupMessagePump( this );
@@ -413,12 +414,12 @@ void Pipe::_setupAffinity()
     switch( affinity )
     {
         case AUTO:
-            detail::RenderThread::setAffinity( _getAutoAffinity( ));
+            lunchbox::Thread::setAffinity( _getAutoAffinity( ));
             break;
 
         case OFF:
         default:
-            detail::RenderThread::setAffinity( affinity );
+            lunchbox::Thread::setAffinity( affinity );
             break;
     }
 }
