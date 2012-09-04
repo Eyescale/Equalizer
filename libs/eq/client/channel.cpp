@@ -1408,9 +1408,12 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
 
     co::QueueSlave* queue = _getQueue( queueVersion );
     LBASSERT( queue );
-    for( co::ObjectCommand tile = queue->pop(); tile.isValid(); tile = queue->pop( ))
+    for( ;; )
     {
-        
+        co::ObjectCommand tile = queue->pop();
+        if( !tile.isValid( ))
+            break;
+
         tile >> context.frustum >> context.ortho >> context.pvp >> context.vp;
 
         const PixelViewport tilePVP = context.pvp;
@@ -1784,7 +1787,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         token = getLocalNode()->acquireSendToken( toNode );
     }
     LBASSERT( image->getPixelViewport().isValid( ));
-    
+
     co::ObjectOCommand packet( co::Connections( 1, connection ),
                                fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
                                co::COMMANDTYPE_CO_OBJECT,
