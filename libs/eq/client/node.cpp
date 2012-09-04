@@ -467,12 +467,12 @@ bool Node::_cmdDestroyPipe( co::Command& cmd )
     pipe->exitThread();
 
     const bool stopped = pipe->isStopped();
+    pipe->send( getServer(), fabric::CMD_PIPE_CONFIG_EXIT_REPLY ) << stopped;
 
     Config* config = getConfig();
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    pipe->send( getServer(), fabric::CMD_PIPE_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 

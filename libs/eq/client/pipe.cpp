@@ -1031,13 +1031,13 @@ bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
     }
 
     const bool stopped = window->isStopped();
+    window->send( getServer(),
+                  fabric::CMD_WINDOW_CONFIG_EXIT_REPLY ) << stopped;
 
     Config* config = getConfig();
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    window->send( getServer(), 
-                  fabric::CMD_WINDOW_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 

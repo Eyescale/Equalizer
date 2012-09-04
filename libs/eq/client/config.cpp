@@ -969,13 +969,12 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
         return true;
 
     const bool isStopped = node->isStopped();
+    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
 
     LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-// TODO #145 testme
-    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
     return true;
 }
 

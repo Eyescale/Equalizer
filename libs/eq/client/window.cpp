@@ -783,13 +783,13 @@ bool Window::_cmdDestroyChannel( co::Command& cmd )
     LBASSERT( channel );
 
     const bool stopped = channel->isStopped();
+    channel->send( getServer(),
+                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
 
     Config* config = getConfig();
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
-    channel->send( getServer(),
-                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 
