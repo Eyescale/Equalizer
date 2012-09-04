@@ -51,7 +51,7 @@ int main( int argc, char **argv )
         TESTINFO( server.isValid(), "Load of " << filename << " failed" );
         TESTINFO( global->getConfigFAttribute( attr ) == 1.1f ||
                   global->getConfigFAttribute( attr ) == 1.2f,
-                  global->getConfigFAttribute( attr ) << " in " << filename );
+                  global->getConfigFAttribute( attr ) << "f for " << filename );
 
         // convert
         eq::server::Loader::addOutputCompounds( server );

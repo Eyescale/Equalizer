@@ -1,32 +1,42 @@
-# Equalizer 1.2 ascii
-
+#Equalizer 1.2 ascii
+global
+{
+    EQ_WINDOW_IATTR_HINT_FULLSCREEN ON
+}
 server
 {
+    connection { hostname "localhost" }
     config
     {
         appNode
         {
+            connection { hostname "localhost" }
             pipe
             {
+                device 0
                 window
                 {
                     name "left"
                     viewport [ 100 100 480 300 ]
                     channel
                     {
-                        name "channel1"
+                        name "channel2"
                     }
                 }
             }
+        }
+        node
+        {
             pipe
             {
+                device 1
                 window
                 {
                     name "right"
                     viewport [ 580 100 480 300 ]
                     channel
                     {
-                        name "channel2"
+                        name "channel1"
                     }
                 }
             }
