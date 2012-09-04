@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2009-2012, Stefan Eilemann <eile@equalizergraphics.com>
- *               2009, Sarah Amsellem <sarah.amsellem@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *                    2009, Sarah Amsellem <sarah.amsellem@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

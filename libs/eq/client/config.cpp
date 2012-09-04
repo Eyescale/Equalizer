@@ -1,5 +1,6 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
+ *               2010-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *                    2011, Cedric Stalder <cedric Stalder@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
