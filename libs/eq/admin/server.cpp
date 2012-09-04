@@ -62,6 +62,7 @@ void Server::map()
     ClientPtr client = getClient();
 
     const uint32_t requestID = client->registerRequest();
+// TODO #145 use PACKETTYPE_EQ_SERVER as default in send()? reuse Node::getType()?
     send( fabric::CMD_SERVER_MAP, fabric::PACKETTYPE_EQ_SERVER ) << requestID;
 
     while( !client->isRequestServed( requestID ))

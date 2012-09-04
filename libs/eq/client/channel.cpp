@@ -847,7 +847,13 @@ const PixelViewports& Channel::getRegions() const
 
 bool Channel::processEvent( const Event& event )
 {
+#if 0
+TODO #145 implement old API:
+    ConfigEvent configEvent;
+    configEvent.data = event;
+#else
     Event configEvent = event;
+#endif
 
     switch( event.type )
     {
@@ -1402,11 +1408,9 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
 
     co::QueueSlave* queue = _getQueue( queueVersion );
     LBASSERT( queue );
-    for( ;; )
+    for( co::ObjectCommand tile = queue->pop(); tile.isValid(); tile = queue->pop( ))
     {
-        co::ObjectCommand tile = queue->pop();
-        if( !tile.isValid( ))
-            break;
+        
         tile >> context.frustum >> context.ortho >> context.pvp >> context.vp;
 
         const PixelViewport tilePVP = context.pvp;
@@ -1511,7 +1515,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     if( --stats.used != 0 ) // Frame still in use
         return;
 
-    getServer()->send2( fabric::CMD_CHANNEL_FRAME_FINISH_REPLY, getID( ))
+    send( getServer(), fabric::CMD_CHANNEL_FRAME_FINISH_REPLY )
             << stats.region << frameNumber << stats.data;
 
     stats.data.clear();
@@ -1520,7 +1524,7 @@ void Channel::_unrefFrame( const uint32_t frameNumber )
     _impl->finishedFrame = frameNumber;
 }
 
-void Channel::_setOutputFrames( const co::ObjectVersions frames )
+void Channel::_setOutputFrames( const co::ObjectVersions& frames )
 {
     LB_TS_THREAD( _pipeThread );
     LBASSERT( _impl->outputFrames.empty( ))
@@ -1614,8 +1618,9 @@ void Channel::_finishReadback( const co::ObjectVersion& frameDataVersion,
                                const uint32_t frameNumber,
                                const uint32_t taskID,
                                const std::vector< uint128_t >& nodes,
-                               const std::vector< uint128_t >& netNodes  )
+                               const std::vector< uint128_t >& netNodes )
 {
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Finish readback" << std::endl;
     FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
     const Images& images = frameData->getImages();
     Image* image = images[ imageIndex ];
@@ -1649,8 +1654,7 @@ void Channel::_asyncTransmit( FrameDataPtr frame, const uint32_t frameNumber,
         LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Start transmit frame data " << frame
                                         << " receiver " << *i << " on " << *j
                                         << std::endl;
-        send( getNode()->getLocalNode(),
-              fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE )
+        send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_TRANSMIT_IMAGE )
                 << co::ObjectVersion( frame ) << *i << *j << image
                 << frameNumber << taskID;
     }
@@ -1663,6 +1667,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                               const uint32_t frameNumber,
                               const uint32_t taskID )
 {
+    LBLOG( LOG_TASKS|LOG_ASSEMBLY ) << "Transmit" << std::endl;
     FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
     LBASSERT( frameData );
 
@@ -1778,17 +1783,17 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
         waitEvent.event.statistic.task = taskID;
         token = getLocalNode()->acquireSendToken( toNode );
     }
-
+    LBASSERT( image->getPixelViewport().isValid( ));
+    
     co::ObjectOCommand packet( co::Connections( 1, connection ),
                                fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
                                co::COMMANDTYPE_CO_OBJECT,
                                nodeID, EQ_INSTANCE_ALL );
-    LBASSERT( image->getPixelViewport().isValid( ));
     packet << frameDataVersion << image->getPixelViewport() << image->getZoom()
            << packetBuffers << frameNumber << image->getAlphaUsage();
 
     connection->lockSend();
-    packet.setExternalSend( imageDataSize );
+    packet.sendHeaderUnlocked( imageDataSize );
 
 #ifndef NDEBUG
     size_t sentBytes = 0;
@@ -1886,6 +1891,7 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
 
     const uint32_t frameNumber = stat->event.event.statistic.frameNumber;
     std::vector<uint128_t>::const_iterator j = netNodes.begin();
+// TODO #145 move loop to cmdHandler, use one packet
     for( std::vector<uint128_t>::const_iterator i = nodes.begin();
          i != nodes.end(); ++i, ++j )
     {
@@ -2172,12 +2178,11 @@ bool Channel::_cmdFrameSetReady( co::Command& cmd )
 {
     co::ObjectCommand command( cmd );
 
-    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
-    detail::RBStat* stat =
-            reinterpret_cast< detail::RBStat* >( command.get< void* >( ));
-    const std::vector< uint128_t > nodes =
+    const co::ObjectVersion frameDataVersion = command.get<co::ObjectVersion>();
+    detail::RBStat* stat = command.get< detail::RBStat* >();
+    const std::vector< uint128_t >& nodes =
             command.get< std::vector< uint128_t > >();
-    const std::vector< uint128_t > netNodes =
+    const std::vector< uint128_t >& netNodes =
             command.get< std::vector< uint128_t > >();
 
     LBASSERT( stat->event.event.statistic.frameNumber > 0 );
@@ -2215,9 +2220,9 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
 {
     co::ObjectCommand command( cmd );
 
-    const co::ObjectVersion frameDataVersion = command.get< co::ObjectVersion >();
-    const uint128_t nodeID = command.get< uint128_t >();
-    const uint128_t netNodeID = command.get< uint128_t >();
+    const co::ObjectVersion& frameDataVersion = command.get< co::ObjectVersion >();
+    const uint128_t& nodeID = command.get< uint128_t >();
+    const uint128_t& netNodeID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
     co::LocalNodePtr localNode = getLocalNode();
@@ -2303,6 +2308,11 @@ bool Channel::_cmdDeleteTransferContext( co::Command& cmd )
     return true;
 }
 
+}
+
+namespace lunchbox
+{
+template<> inline void byteswap( eq::detail::RBStat*& value ) { /*NOP*/ }
 }
 
 #include "../fabric/channel.ipp"

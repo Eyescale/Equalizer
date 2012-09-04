@@ -170,7 +170,9 @@ void Server::handleCommands()
 bool Server::_cmdChooseConfig( co::Command& command )
 {
     const uint32_t requestID = command.get< uint32_t >();
-    const uint32_t flags = command.get< uint32_t >();
+    uint32_t flags;
+    command >> flags;
+
     const std::string rendererInfo = command.get< std::string >();
 
     LBVERB << "Handle choose config " << command << " req " << requestID
@@ -208,7 +210,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     {
         node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY,
                     fabric::PACKETTYPE_EQ_SERVER )
-                << UUID::ZERO << requestID;
+            << UUID::ZERO << requestID;
         return true;
     }
 

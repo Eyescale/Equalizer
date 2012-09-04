@@ -462,9 +462,7 @@ bool Node::_cmdDestroyPipe( co::Command& cmd )
     LB_TS_THREAD( _nodeThread );
     LBLOG( LOG_INIT ) << "Destroy pipe " << command << std::endl;
 
-    const UUID pipeID = command.get< UUID >();
-
-    Pipe* pipe = findPipe( pipeID );
+    Pipe* pipe = findPipe( command.get< UUID >( ));
     LBASSERT( pipe );
     pipe->exitThread();
 
@@ -474,9 +472,7 @@ bool Node::_cmdDestroyPipe( co::Command& cmd )
     config->unmapObject( pipe );
     Global::getNodeFactory()->releasePipe( pipe );
 
-    // send to config object
-    getServer()->send2( fabric::CMD_PIPE_CONFIG_EXIT_REPLY,
-                       pipeID ) << stopped;
+    pipe->send( getServer(), fabric::CMD_PIPE_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 

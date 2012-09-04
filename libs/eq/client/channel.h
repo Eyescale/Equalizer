@@ -621,7 +621,7 @@ namespace detail { class Channel; struct RBStat; }
         /** Get the channel's current input queue. */
         co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
 
-        void _setOutputFrames( const co::ObjectVersions frames );
+        void _setOutputFrames( const co::ObjectVersions& frames );
         void _resetOutputFrames();
 
         void _deleteTransferContext();
