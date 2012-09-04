@@ -140,7 +140,7 @@ endif(X11_FOUND)
 
 if(APPLE)
   add_definitions(-DDarwin)
-  foreach(ARCH CMAKE_OSX_ARCHITECTURES)
+  foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
     if(ARCH STREQUAL "ppc" OR ARCH STREQUAL "i386")
       set(EQ_AGL_USED 1)
       list(APPEND EQ_EXAMPLES_OSX_ARCHITECTURES ${ARCH})

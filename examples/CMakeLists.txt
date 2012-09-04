@@ -36,6 +36,7 @@ else() # installed examples
 endif()
 
 set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
+message(STATUS "Building examples for ${CMAKE_OSX_ARCHITECTURES}")
 
 include(EqStringifyShaders)
 
