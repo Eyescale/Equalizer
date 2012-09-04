@@ -131,41 +131,30 @@ if(APPLE)
 endif(APPLE)
 
 if(X11_FOUND)
+  set(EQ_GLX_USED 1)
   if(APPLE)
-    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}" )
-    set(EQ_AGL_USED 1)
-    set(EQ_GLX_USED 1)
-  else(APPLE)
-    set(EQ_GLX_USED 1)
-  endif(APPLE)
+    link_directories(/usr/X11R6/lib)
+    include_directories(SYSTEM /usr/X11R6/include)
+  endif()
 endif(X11_FOUND)
 
-if(EQ_GLX_USED)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
-  set(EQ_FEATURES "${EQ_FEATURES} GLX")
-endif(EQ_GLX_USED)
-if(EQ_AGL_USED)
-  set(EQ_FEATURES "${EQ_FEATURES} AGL")
-endif(EQ_AGL_USED)
-
 if(APPLE)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
-
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-      "Equalizer build architectures")
-  else()
-    set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-      "Equalizer build architectures")
+  foreach(ARCH CMAKE_OSX_ARCHITECTURES)
+    if(ARCH STREQUAL "ppc" OR ARCH STREQUAL "i386")
+      set(EQ_AGL_USED 1)
+      list(APPEND EQ_EXAMPLES_OSX_ARCHITECTURES ${ARCH})
+    endif()
+  endforeach()
+  if(NOT EQ_EXAMPLES_OSX_ARCHITECTURES)
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
   endif()
-  mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
-  
-  set(CMAKE_OSX_ARCHITECTURES "${EQUALIZER_OSX_ARCHITECTURES}")
-  message(STATUS "Building Equalizer ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
+
+  set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
+  set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
+
+  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
@@ -173,8 +162,16 @@ if(APPLE)
   endif()
 endif(APPLE)
 
+if(EQ_GLX_USED)
+  include_directories(SYSTEM ${X11_INCLUDE_DIR})
+  set(EQ_FEATURES "${EQ_FEATURES} GLX")
+endif(EQ_GLX_USED)
+if(EQ_AGL_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} AGL(32bit)")
+endif(EQ_AGL_USED)
+
 list(APPEND EQ_DEFINITIONS
-    -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+  -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND EQ_DEFINITIONS -DEQ_2_0_API)

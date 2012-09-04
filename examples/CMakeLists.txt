@@ -28,21 +28,13 @@ else() # installed examples
   if(APPLE)
     link_directories(/usr/X11R6/lib)
     include_directories(SYSTEM /usr/X11R6/include)
-    set(EQUALIZER_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES "@EQ_EXAMPLES_OSX_ARCHITECTURES@")
   endif(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
   endif()
 endif()
-if(EQ_AGL_USED)
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "ppc")
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES "ppc" CACHE STRING
-      "Equalizer examples build architectures")
-  else()
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES "i386" CACHE STRING
-      "Equalizer examples build architectures")
-  endif()
-endif()
+
 set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
 
 include(EqStringifyShaders)

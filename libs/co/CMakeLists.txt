@@ -9,20 +9,6 @@ include(files.cmake)
 option(COLLAGE_AGGRESSIVE_CACHING "Disable to reduce memory consumption" ON)
 mark_as_advanced(COLLAGE_AGGRESSIVE_CACHING)
 
-if(APPLE)
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(COLLAGE_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-        "Collage build architectures")
-  else()
-    set(COLLAGE_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-        "Collage build architectures")
-  endif()
-  mark_as_advanced(COLLAGE_OSX_ARCHITECTURES)
-  set(CMAKE_OSX_ARCHITECTURES "${COLLAGE_OSX_ARCHITECTURES}")
-  message(STATUS
-    "Building Collage ${CO_VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
-endif()
-
 add_definitions(-DEQ_PLUGIN_BUILD)
 
 set(VERSION ${CO_VERSION})

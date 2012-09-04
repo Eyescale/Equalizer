@@ -86,7 +86,9 @@ else()
   set(BIN_POSTFIX "le${BIN_POSTFIX}")
 endif()
 
-set(PLY_FILES rockerArm.ply screwdriver.ply)
+if(NOT CMAKE_BUILD_WITH_INSTALL_RPATH) # MacPorts WAR
+  set(PLY_FILES rockerArm.ply screwdriver.ply)
+endif()
 foreach(PLY_FILE ${PLY_FILES})
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
   add_custom_command(OUTPUT "${BIN_FILE}"
@@ -100,5 +102,4 @@ foreach(PLY_FILE ${PLY_FILES})
   install(FILES ${PLY_FILE} ${BIN_FILE} DESTINATION share/Equalizer/data
     COMPONENT data)
 endforeach()
-
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
