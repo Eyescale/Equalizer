@@ -29,8 +29,6 @@
 
 #include "configEvent.h"
 
-#include <co/buffer.h>
-
 namespace eqPly
 {
 std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
@@ -39,7 +37,8 @@ std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event )
     {
         case IDLE_AA_LEFT:
         {
-            eq::ConfigEvent myEvent( event->getBuffer( ));
+            // #145 Need copy of event for non-const get() of values :(
+            eq::ConfigEvent myEvent( *event );
             os  << myEvent.get< int32_t >() << " FSAA steps to do";
             break;
         }

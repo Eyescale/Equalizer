@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-#include <co/buffer.h>
-
 namespace eqNbody
 {
 
@@ -124,7 +122,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case DATA_CHANGED:
         {
             // #145 Need copy of event for non-const get() of values :(
-            eq::ConfigEvent myEvent( event->getBuffer( ));
+            eq::ConfigEvent myEvent( *event );
             _registerData( myEvent );
             if( _readyToCommit() )
                 _frameData.commit();    // broadcast changed data to all clients
@@ -134,7 +132,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case PROXY_CHANGED:
         {
             // #145 Need copy of event for non-const get() of values :(
-            eq::ConfigEvent myEvent( event->getBuffer( ));
+            eq::ConfigEvent myEvent( *event );
             _updateData( myEvent );
             if( _readyToCommit() )
             {

@@ -24,7 +24,6 @@
 #include "observer.h"
 #include "paths.h"
 
-#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/objectCommand.h>
@@ -289,7 +288,7 @@ V* Layout< C, L, V >::findView( const std::string& name )
 template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewView( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     V* view = 0;
     create( &view );
@@ -308,7 +307,7 @@ Layout< C, L, V >::_cmdNewView( co::Command& cmd )
 template< class C, class L, class V > bool
 Layout< C, L, V >::_cmdNewViewReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();
 

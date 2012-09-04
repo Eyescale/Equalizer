@@ -37,7 +37,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/paths.h>
 
-#include <co/buffer.h>
 #include <co/objectCommand.h>
 
 #include <lunchbox/debug.h>
@@ -449,7 +448,7 @@ void Channel::_fireLoadData( const uint32_t frameNumber,
 //===========================================================================
 bool Channel::_cmdConfigInitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const bool result = command.get< bool >();
 
     LBLOG( LOG_INIT ) << "handle channel configInit reply " << command
@@ -470,7 +469,7 @@ bool Channel::_cmdConfigExitReply( co::Command& command )
 
 bool Channel::_cmdFrameFinishReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const Viewport region = command.get< Viewport >();
     const uint32_t frameNumber = command.get< uint32_t >();

@@ -45,7 +45,6 @@
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/task.h>
 
-#include <co/buffer.h>
 #include <co/objectCommand.h>
 #include <co/queueSlave.h>
 #include <co/worker.h>
@@ -685,14 +684,9 @@ void Pipe::cancelThread()
     if( !_impl->thread )
         return;
 
-    // #145 proper local command dispatch!
-    co::BufferPtr buffer =
-            getLocalNode()->allocCommand( co::ObjectOCommand::getSize( ));
-    co::ObjectOCommand command( co::Connections(), fabric::CMD_PIPE_EXIT_THREAD,
-                                co::COMMANDTYPE_CO_OBJECT, getID(),
-                                EQ_INSTANCE_ALL );
-    buffer->swap( command.getBuffer( ));
-    dispatchCommand( buffer );
+    // local command dispatching
+    co::ObjectOCommand( this, getLocalNode(), fabric::CMD_PIPE_EXIT_THREAD,
+                        co::COMMANDTYPE_CO_OBJECT, getID(), EQ_INSTANCE_ALL );
 }
 
 void Pipe::waitExited() const
@@ -987,7 +981,7 @@ ComputeContext* Pipe::getComputeContext()
 //---------------------------------------------------------------------------
 bool Pipe::_cmdCreateWindow( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const UUID windowID = command.get< UUID >();
 
     LBLOG( LOG_INIT ) << "Create window " << command << " id " << windowID
@@ -1004,7 +998,7 @@ bool Pipe::_cmdCreateWindow( co::Command& cmd )
 
 bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
@@ -1053,7 +1047,7 @@ bool Pipe::_cmdConfigInit( co::Command& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t initID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1100,7 +1094,7 @@ bool Pipe::_cmdConfigInit( co::Command& cmd )
 
 bool Pipe::_cmdConfigExit( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LB_TS_THREAD( _pipeThread );
     LBLOG( LOG_INIT ) << "TASK pipe config exit " << command << std::endl;
@@ -1121,7 +1115,7 @@ bool Pipe::_cmdConfigExit( co::Command& cmd )
 
 bool Pipe::_cmdExitThread( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LBASSERT( _impl->thread );
     _impl->thread->_pipe = 0;
@@ -1147,7 +1141,7 @@ bool Pipe::_cmdFrameStart( co::Command& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t version = command.get< uint128_t >();
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
@@ -1187,7 +1181,7 @@ bool Pipe::_cmdFrameFinish( co::Command& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1229,7 +1223,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
 {
     LB_TS_THREAD( _pipeThread );
 
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     const uint128_t frameID = command.get< uint128_t >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
@@ -1243,7 +1237,7 @@ bool Pipe::_cmdFrameDrawFinish( co::Command& cmd )
 
 bool Pipe::_cmdDetachView( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     LB_TS_THREAD( _pipeThread );
 

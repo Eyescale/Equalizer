@@ -77,7 +77,7 @@ namespace server
         virtual ~Server();
 
         /** @sa co::Node::dispatchCommand */
-        virtual bool dispatchCommand( co::BufferPtr buffer );
+        virtual bool dispatchCommand( co::Command& command );
 
     private:
         /** The receiver->main command queue. */

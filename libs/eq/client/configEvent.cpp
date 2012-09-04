@@ -17,13 +17,18 @@
 
 #include "configEvent.h"
 
-#include <co/buffer.h>
 
 namespace eq
 {
 
-ConfigEvent::ConfigEvent( co::BufferPtr buffer )
-    : co::ObjectCommand( buffer )
+ConfigEvent::ConfigEvent( const co::Command& command )
+    : co::ObjectCommand( command )
+{
+    *this >> data;
+}
+
+ConfigEvent::ConfigEvent( const ConfigEvent& rhs )
+    : co::ObjectCommand( rhs )
 {
     *this >> data;
 }

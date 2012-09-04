@@ -34,7 +34,6 @@
 #include <eq/fabric/paths.h>
 
 #include <co/barrier.h>
-#include <co/buffer.h>
 #include <co/global.h>
 #include <co/objectCommand.h>
 
@@ -712,7 +711,7 @@ void Node::flushSendBuffer()
 //===========================================================================
 bool Node::_cmdConfigInitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     LBVERB << "handle configInit reply " << command << std::endl;
     LBASSERT( _state == STATE_INITIALIZING );
     _state = command.get< uint64_t >() ? STATE_INIT_SUCCESS : STATE_INIT_FAILED;
@@ -722,7 +721,7 @@ bool Node::_cmdConfigInitReply( co::Command& cmd )
 
 bool Node::_cmdConfigExitReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     LBVERB << "handle configExit reply " << command << std::endl;
     LBASSERT( _state == STATE_EXITING );
 
@@ -732,7 +731,7 @@ bool Node::_cmdConfigExitReply( co::Command& cmd )
 
 bool Node::_cmdFrameFinishReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
     LBVERB << "handle frame finish reply " << command << std::endl;
 
     const uint32_t frameNumber = command.get< uint32_t >();

@@ -24,7 +24,6 @@
 #include "log.h"
 #include "task.h"
 
-#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/objectCommand.h>
@@ -443,7 +442,7 @@ void Window< P, W, C >::_setDrawableConfig(const DrawableConfig& drawableConfig)
 template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannel( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     C* channel = 0;
     create( &channel );
@@ -462,7 +461,7 @@ bool Window< P, W, C >::_cmdNewChannel( co::Command& cmd )
 template< class P, class W, class C >
 bool Window< P, W, C >::_cmdNewChannelReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

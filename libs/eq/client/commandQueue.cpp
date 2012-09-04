@@ -19,7 +19,6 @@
 
 #include "messagePump.h"
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <lunchbox/clock.h>
 
@@ -42,21 +41,21 @@ CommandQueue::~CommandQueue()
     _messagePump = 0;
 }
 
-void CommandQueue::push( co::BufferPtr buffer )
+void CommandQueue::push( const co::Command& command )
 {
-    co::CommandQueue::push( buffer );
+    co::CommandQueue::push( command );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-void CommandQueue::pushFront( co::BufferPtr buffer )
+void CommandQueue::pushFront( const co::Command& command )
 {
-    co::CommandQueue::pushFront( buffer );
+    co::CommandQueue::pushFront( command );
     if( _messagePump )
         _messagePump->postWakeup();
 }
 
-co::BufferPtr CommandQueue::pop()
+co::Command CommandQueue::pop()
 {
     int64_t start = -1;
     while( true )
@@ -81,14 +80,14 @@ co::BufferPtr CommandQueue::pop()
         else
         {
             start = _clock.getTime64();
-            co::BufferPtr buffer = co::CommandQueue::pop(); // blocking
+            const co::Command& command = co::CommandQueue::pop(); // blocking
             _waitTime += ( _clock.getTime64() - start );
-            return buffer;
+            return command;
         }
     }
 }
 
-co::BufferPtr CommandQueue::tryPop()
+co::Command CommandQueue::tryPop()
 {
     if( _messagePump )
         _messagePump->dispatchAll(); // non-blocking

@@ -24,7 +24,6 @@
 #include "log.h"
 #include "task.h"
 
-#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/objectCommand.h>
@@ -383,7 +382,7 @@ void Pipe< N, P, W, V >::notifyPixelViewportChanged()
 template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindow( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     W* window = 0;
     create( &window );
@@ -401,7 +400,7 @@ Pipe< N, P, W, V >::_cmdNewWindow( co::Command& cmd )
 template< class N, class P, class W, class V > bool
 Pipe< N, P, W, V >::_cmdNewWindowReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

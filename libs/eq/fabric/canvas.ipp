@@ -24,7 +24,6 @@
 #include "paths.h"
 #include "segment.h"
 
-#include <co/buffer.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/objectCommand.h>
@@ -434,7 +433,7 @@ void Canvas< CFG, C, S, L >::unsetFrustum()
 template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     S* segment = 0;
     create( &segment );
@@ -453,7 +452,7 @@ Canvas< CFG, C, S, L >::_cmdNewSegment( co::Command& cmd )
 template< class CFG, class C, class S, class L > bool
 Canvas< CFG, C, S, L >::_cmdNewSegmentReply( co::Command& cmd )
 {
-    co::ObjectCommand command( cmd.getBuffer( ));
+    co::ObjectCommand command( cmd );
 
     const uint32_t requestID = command.get< uint32_t >();
     const UUID result = command.get< UUID >();

@@ -36,8 +36,6 @@
 #include <admin/addWindow.h>
 #include <admin/removeWindow.h>
 
-#include <co/buffer.h>
-
 namespace eqPly
 {
 
@@ -508,7 +506,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             if( _useIdleAA )
             {
                 // #145 Need copy of event for non-const get() of values :(
-                eq::ConfigEvent myEvent( event->getBuffer( ));
+                eq::ConfigEvent myEvent( *event );
                 const int32_t steps = myEvent.get< int32_t >();
                 _numFramesAA = LB_MAX( _numFramesAA, steps );
             }

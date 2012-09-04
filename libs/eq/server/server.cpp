@@ -35,7 +35,6 @@
 #include <eq/fabric/commands.h>
 #include <eq/fabric/packetType.h>
 
-#include <co/buffer.h>
 #include <co/command.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
@@ -141,16 +140,15 @@ void Server::deleteConfigs()
 //===========================================================================
 // packet handling methods
 //===========================================================================
-bool Server::dispatchCommand( co::BufferPtr buffer )
+bool Server::dispatchCommand( co::Command& command )
 {
-    co::Command command( buffer );
     switch( command.getType( ))
     {
         case fabric::PACKETTYPE_EQ_SERVER:
-            return co::Dispatcher::dispatchCommand( buffer );
+            return co::Dispatcher::dispatchCommand( command );
 
         default:
-            return co::LocalNode::dispatchCommand( buffer );
+            return co::LocalNode::dispatchCommand( command );
     }
 }
 
@@ -160,8 +158,7 @@ void Server::handleCommands()
     _running = true;
     while( _running ) // set to false in _cmdShutdown()
     {
-        co::BufferPtr buffer = _mainThreadQueue.pop();
-        co::Command command( buffer );
+        co::Command command = _mainThreadQueue.pop();
         if( !command( ))
         {
             LBABORT( "Error handling command " << command );
