@@ -154,18 +154,7 @@ if(APPLE)
   include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
 
-  if(_CMAKE_OSX_MACHINE MATCHES "ppc")
-    set(EQUALIZER_OSX_ARCHITECTURES "ppc;ppc64" CACHE STRING
-      "Equalizer build architectures")
-  else()
-    set(EQUALIZER_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING
-      "Equalizer build architectures")
-  endif()
-  mark_as_advanced(EQUALIZER_OSX_ARCHITECTURES)
-  
-  set(CMAKE_OSX_ARCHITECTURES "${EQUALIZER_OSX_ARCHITECTURES}")
-  message(STATUS "Building Equalizer ${VERSION} for ${CMAKE_OSX_ARCHITECTURES}")
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
+  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
@@ -174,7 +163,7 @@ if(APPLE)
 endif(APPLE)
 
 list(APPEND EQ_DEFINITIONS
-    -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+  -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND EQ_DEFINITIONS -DEQ_2_0_API)
