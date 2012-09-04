@@ -963,9 +963,7 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
 
     LBVERB << "Handle destroy node " << command << std::endl;
 
-    const UUID nodeID = command.get< UUID >();
-
-    Node* node = _findNode( nodeID );
+    Node* node = _findNode( command.get< UUID >( ));
     LBASSERT( node );
     if( !node )
         return true;
@@ -976,8 +974,8 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
     unmapObject( node );
     Global::getNodeFactory()->releaseNode( node );
 
-    getServer()->send2( fabric::CMD_NODE_CONFIG_EXIT_REPLY,
-                       nodeID ) << isStopped;
+// TODO #145 testme
+    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
     return true;
 }
 

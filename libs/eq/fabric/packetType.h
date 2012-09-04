@@ -24,6 +24,7 @@ namespace eq
 {
 namespace fabric
 {
+// TODO #145 rename to CommandType
     /** Packet types to identify the target of a packet. */
     enum PacketType
     {

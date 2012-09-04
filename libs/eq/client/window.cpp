@@ -777,12 +777,9 @@ bool Window::_cmdCreateChannel( co::Command& cmd )
 bool Window::_cmdDestroyChannel( co::Command& cmd )
 {
     co::ObjectCommand command( cmd );
-    const UUID channelID = command.get< UUID >();
+    LBLOG( LOG_INIT ) << "Destroy channel " << command << std::endl;
 
-    LBLOG( LOG_INIT ) << "Destroy channel " << command << " id " << channelID
-                      << std::endl;
-
-    Channel* channel = _findChannel( channelID );
+    Channel* channel = _findChannel( command.get< UUID >( ));
     LBASSERT( channel );
 
     const bool stopped = channel->isStopped();
@@ -791,9 +788,8 @@ bool Window::_cmdDestroyChannel( co::Command& cmd )
     config->unmapObject( channel );
     Global::getNodeFactory()->releaseChannel( channel );
 
-    // do not use Object::send()
-    getServer()->send2( fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY,
-                       channelID ) << stopped;
+    channel->send( getServer(),
+                   fabric::CMD_CHANNEL_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 

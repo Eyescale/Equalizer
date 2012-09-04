@@ -1003,9 +1003,7 @@ bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
 
     LBLOG( LOG_INIT ) << "Destroy window " << command << std::endl;
 
-    const UUID windowID = command.get< UUID >();
-
-    Window* window = _findWindow( windowID );
+    Window* window = _findWindow( command.get< UUID >( ));
     LBASSERT( window );
 
     // re-set shared windows accordingly
@@ -1038,9 +1036,8 @@ bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
     config->unmapObject( window );
     Global::getNodeFactory()->releaseWindow( window );
 
-    // do not use Object::send()
-    getServer()->send2( fabric::CMD_WINDOW_CONFIG_EXIT_REPLY,
-                       windowID ) << stopped;
+    window->send( getServer(), 
+                  fabric::CMD_WINDOW_CONFIG_EXIT_REPLY ) << stopped;
     return true;
 }
 
