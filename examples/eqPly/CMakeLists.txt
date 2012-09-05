@@ -86,20 +86,20 @@ else()
   set(BIN_POSTFIX "le${BIN_POSTFIX}")
 endif()
 
-if(NOT CMAKE_BUILD_WITH_INSTALL_RPATH) # MacPorts WAR
-  set(PLY_FILES rockerArm.ply screwdriver.ply)
-endif()
+set(PLY_FILES rockerArm.ply screwdriver.ply)
 foreach(PLY_FILE ${PLY_FILES})
-  set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
-  add_custom_command(OUTPUT "${BIN_FILE}"
-    COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
-    "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}"
-    MAIN_DEPENDENCY ${PLY_FILE}
-    DEPENDS eqPlyConverter
-    COMMENT "Creating eqPly kd-Tree for ${PLY_FILE}"
-    )
-  add_custom_target("${PLY_FILE}.${BIN_POSTFIX}" ALL DEPENDS "${BIN_FILE}")
-  install(FILES ${PLY_FILE} ${BIN_FILE} DESTINATION share/Equalizer/data
-    COMPONENT data)
+  if(NOT CMAKE_BUILD_WITH_INSTALL_RPATH) # MacPorts WAR
+    set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}.${BIN_POSTFIX}")
+    add_custom_command(OUTPUT "${BIN_FILE}"
+      COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter"
+      "${CMAKE_CURRENT_SOURCE_DIR}/${PLY_FILE}"
+      MAIN_DEPENDENCY ${PLY_FILE}
+      DEPENDS eqPlyConverter
+      COMMENT "Creating eqPly kd-Tree for ${PLY_FILE}"
+      )
+    add_custom_target("${PLY_FILE}.${BIN_POSTFIX}" ALL DEPENDS "${BIN_FILE}")
+    install(FILES ${BIN_FILE} DESTINATION share/Equalizer/data COMPONENT data)
+  endif()
+  install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT data)
 endforeach()
 install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
