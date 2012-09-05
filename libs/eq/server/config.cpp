@@ -39,8 +39,8 @@
 #include <eq/client/error.h>
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/commandType.h>
 #include <eq/fabric/iAttribute.h>
-#include <eq/fabric/packetType.h>
 #include <eq/fabric/paths.h>
 
 #include <co/objectCommand.h>
@@ -649,10 +649,10 @@ void Config::_stopNodes()
         LBASSERT( netNode.isValid( ));
 
         netNode->send( fabric::CMD_SERVER_DESTROY_CONFIG,
-                       fabric::PACKETTYPE_EQ_SERVER )
+                       fabric::COMMANDTYPE_EQ_SERVER )
                 << getID() << LB_UNDEFINED_UINT32;
 
-        netNode->send( fabric::CMD_CLIENT_EXIT, fabric::PACKETTYPE_EQ_CLIENT );
+        netNode->send( fabric::CMD_CLIENT_EXIT, fabric::COMMANDTYPE_EQ_CLIENT );
     }
 
     // now wait that the render clients disconnect
@@ -732,7 +732,7 @@ uint32_t Config::_createConfig( Node* node )
     //   app-node already has config from chooseConfig
     const uint32_t requestID = getLocalNode()->registerRequest();
     node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG,
-                           fabric::PACKETTYPE_EQ_SERVER )
+                           fabric::COMMANDTYPE_EQ_SERVER )
             << co::ObjectVersion( this ) << requestID;
 
     return requestID;
@@ -750,7 +750,7 @@ void Config::_syncClock()
             co::NodePtr netNode = node->getNode();
             LBASSERT( netNode->isConnected( ));
 
-            send( netNode, 
+            send( netNode,
                   fabric::CMD_CONFIG_SYNC_CLOCK ) << getServer()->getTime();
         }
     }

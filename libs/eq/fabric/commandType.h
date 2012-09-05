@@ -16,8 +16,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef EQFABRIC_PACKETTYPE_H
-#define EQFABRIC_PACKETTYPE_H
+#ifndef EQFABRIC_COMMANDTTYPE_H
+#define EQFABRIC_COMMANDTTYPE_H
 
 #include <co/commands.h> // 'base' enum
 
@@ -25,14 +25,13 @@ namespace eq
 {
 namespace fabric
 {
-// TODO #145 rename to CommandType
-    /** Packet types to identify the target of a packet. */
-    enum PacketType
+    /** Command types to identify the target of a command. */
+    enum CommandType
     {
-        PACKETTYPE_EQ_CLIENT = co::COMMANDTYPE_CO_CUSTOM, // 128
-        PACKETTYPE_EQ_SERVER,
-        PACKETTYPE_EQ_CUSTOM = 1<<8 // 256
+        COMMANDTYPE_EQ_CLIENT = co::COMMANDTYPE_CO_CUSTOM, // 128
+        COMMANDTYPE_EQ_SERVER,
+        COMMANDTYPE_EQ_CUSTOM = 1<<8 // 256
     };
 }
 }
-#endif // EQFABRIC_PACKETTYPE_H
+#endif // EQFABRIC_COMMANDTTYPE_H

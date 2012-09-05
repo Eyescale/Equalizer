@@ -58,7 +58,7 @@ void View::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
 void View::detach()
 {
     // if pipe is not running, detach comes from _flushViews in state stopping
-    //  Don't send packet to stopping pipe (see issue #11)
+    //  Don't send command to stopping pipe (see issue #11)
     if( _pipe && _pipe->isRunning( ))
     {
         // local command dispatching

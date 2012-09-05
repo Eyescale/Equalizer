@@ -26,7 +26,7 @@
 #include "types.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/packetType.h>
+#include <eq/fabric/commandType.h>
 
 #include <co/command.h>
 #include <co/connection.h>
@@ -96,8 +96,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     std::replace( workDir.begin(), workDir.end(), '\\', '/' );
 #endif
 
-    send( fabric::CMD_SERVER_CHOOSE_CONFIG, fabric::PACKETTYPE_EQ_SERVER )
-        << requestID << parameters.getFlags() << workDir << renderClient 
+    send( fabric::CMD_SERVER_CHOOSE_CONFIG, fabric::COMMANDTYPE_EQ_SERVER )
+        << requestID << parameters.getFlags() << workDir << renderClient
         << eq::Global::getConfigFile();
 
     while( !client->isRequestServed( requestID ))
@@ -113,7 +113,7 @@ void Server::releaseConfig( Config* config )
     LBASSERT( isConnected( ));
     ClientPtr client = getClient();
     const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_RELEASE_CONFIG, fabric::PACKETTYPE_EQ_SERVER )
+    send( fabric::CMD_SERVER_RELEASE_CONFIG, fabric::COMMANDTYPE_EQ_SERVER )
             << config->getID() << requestID;
 
     while( !client->isRequestServed( requestID ))
@@ -129,7 +129,7 @@ bool Server::shutdown()
 
     ClientPtr client = getClient();
     const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_SHUTDOWN, fabric::PACKETTYPE_EQ_SERVER )
+    send( fabric::CMD_SERVER_SHUTDOWN, fabric::COMMANDTYPE_EQ_SERVER )
             << requestID;
 
     while( !client->isRequestServed( requestID ))

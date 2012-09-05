@@ -23,7 +23,7 @@
 #include "nodeFactory.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/packetType.h>
+#include <eq/fabric/commandType.h>
 
 #include <co/command.h>
 #include <co/dispatcher.h>
@@ -63,8 +63,8 @@ void Server::map()
     ClientPtr client = getClient();
 
     const uint32_t requestID = client->registerRequest();
-// TODO #145 use PACKETTYPE_EQ_SERVER as default in send()? reuse Node::getType()?
-    send( fabric::CMD_SERVER_MAP, fabric::PACKETTYPE_EQ_SERVER ) << requestID;
+// TODO #145 use COMMANDTYPE_EQ_SERVER as default in send()? reuse Node::getType()?
+    send( fabric::CMD_SERVER_MAP, fabric::COMMANDTYPE_EQ_SERVER ) << requestID;
 
     while( !client->isRequestServed( requestID ))
         client->processCommand();
@@ -76,7 +76,7 @@ void Server::unmap()
     ClientPtr client = getClient();
 
     const uint32_t requestID = client->registerRequest();
-    send( fabric::CMD_SERVER_UNMAP, fabric::PACKETTYPE_EQ_SERVER ) << requestID;
+    send( fabric::CMD_SERVER_UNMAP, fabric::COMMANDTYPE_EQ_SERVER ) << requestID;
 
     while( !client->isRequestServed( requestID ))
         client->processCommand();

@@ -34,7 +34,7 @@
 #endif
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/packetType.h>
+#include <eq/fabric/commandType.h>
 
 #include <co/command.h>
 #include <co/connectionDescription.h>
@@ -139,13 +139,13 @@ void Server::deleteConfigs()
 }
 
 //===========================================================================
-// packet handling methods
+// Command handling methods
 //===========================================================================
 bool Server::dispatchCommand( co::Command& command )
 {
     switch( command.getType( ))
     {
-        case fabric::PACKETTYPE_EQ_SERVER:
+        case fabric::COMMANDTYPE_EQ_SERVER:
             return co::Dispatcher::dispatchCommand( command );
 
         default:
@@ -210,7 +210,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     if( !config )
     {
         node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY,
-                    fabric::PACKETTYPE_EQ_SERVER )
+                    fabric::COMMANDTYPE_EQ_SERVER )
             << UUID::ZERO << requestID;
         return true;
     }
@@ -222,7 +222,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     config->setRenderClient( renderClient );
     config->commit();
 
-    node->send( fabric::CMD_SERVER_CREATE_CONFIG, fabric::PACKETTYPE_EQ_SERVER )
+    node->send( fabric::CMD_SERVER_CREATE_CONFIG, fabric::COMMANDTYPE_EQ_SERVER )
             << co::ObjectVersion( config ) << LB_UNDEFINED_UINT32;
 
     server::Node* appNode = config->findApplicationNode();
@@ -248,7 +248,7 @@ bool Server::_cmdChooseConfig( co::Command& command )
     }
 
     node->send( fabric::CMD_SERVER_CHOOSE_CONFIG_REPLY,
-                fabric::PACKETTYPE_EQ_SERVER )
+                fabric::COMMANDTYPE_EQ_SERVER )
             << config->getID() << requestID << co::serialize( descs );
     return true;
 }
@@ -277,7 +277,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     {
         LBWARN << "Release request for unknown config" << std::endl;
         node->send( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY,
-                    fabric::PACKETTYPE_EQ_SERVER )
+                    fabric::COMMANDTYPE_EQ_SERVER )
                 << requestID;
         return true;
     }
@@ -290,7 +290,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
 
     const uint32_t destroyRequestID = registerRequest();
     node->send( fabric::CMD_SERVER_DESTROY_CONFIG,
-                fabric::PACKETTYPE_EQ_SERVER )
+                fabric::COMMANDTYPE_EQ_SERVER )
             << config->getID() << destroyRequestID;
     waitRequest( destroyRequestID );
 
@@ -310,7 +310,7 @@ bool Server::_cmdReleaseConfig( co::Command& command )
     }
 
     node->send( fabric::CMD_SERVER_RELEASE_CONFIG_REPLY,
-                fabric::PACKETTYPE_EQ_SERVER )
+                fabric::COMMANDTYPE_EQ_SERVER )
             << requestID;
     LBLOG( lunchbox::LOG_ANY ) << "----- Released Config -----" << std::endl;
     return true;
@@ -334,7 +334,7 @@ bool Server::_cmdShutdown( co::Command& command )
                << " admin clients connected" << std::endl;
 
         node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY,
-                    fabric::PACKETTYPE_EQ_SERVER )
+                    fabric::COMMANDTYPE_EQ_SERVER )
                 << requestID << false;
         return true;
     }
@@ -349,7 +349,7 @@ bool Server::_cmdShutdown( co::Command& command )
                    << std::endl;
 
             node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY,
-                        fabric::PACKETTYPE_EQ_SERVER)
+                        fabric::COMMANDTYPE_EQ_SERVER)
                     << requestID << false;
             return true;
         }
@@ -359,7 +359,7 @@ bool Server::_cmdShutdown( co::Command& command )
 
     _running = false;
     node->send( fabric::CMD_SERVER_SHUTDOWN_REPLY,
-                fabric::PACKETTYPE_EQ_SERVER )
+                fabric::COMMANDTYPE_EQ_SERVER )
             << requestID << true;
 
 #ifndef WIN32
@@ -380,11 +380,11 @@ bool Server::_cmdMap( co::Command& command )
     {
         Config* config = *i;
         node->send( fabric::CMD_SERVER_CREATE_CONFIG,
-                    fabric::PACKETTYPE_EQ_SERVER )
+                    fabric::COMMANDTYPE_EQ_SERVER )
                 << co::ObjectVersion( config ) << LB_UNDEFINED_UINT32;
     }
 
-    node->send( fabric::CMD_SERVER_MAP_REPLY, fabric::PACKETTYPE_EQ_SERVER )
+    node->send( fabric::CMD_SERVER_MAP_REPLY, fabric::COMMANDTYPE_EQ_SERVER )
             << command.get< uint32_t >();
     return true;
 }
@@ -404,12 +404,12 @@ bool Server::_cmdUnmap( co::Command& command )
         {
             Config* config = *j;
             node->send( fabric::CMD_SERVER_DESTROY_CONFIG,
-                        fabric::PACKETTYPE_EQ_SERVER )
+                        fabric::COMMANDTYPE_EQ_SERVER )
                     << config->getID() << LB_UNDEFINED_UINT32;
         }
     }
 
-    node->send( fabric::CMD_SERVER_UNMAP_REPLY, fabric::PACKETTYPE_EQ_SERVER )
+    node->send( fabric::CMD_SERVER_UNMAP_REPLY, fabric::COMMANDTYPE_EQ_SERVER )
             << command.get< uint32_t >();
     return true;
 }

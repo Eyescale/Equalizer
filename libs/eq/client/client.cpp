@@ -27,11 +27,11 @@
 #include "server.h"
 
 #include <eq/fabric/commands.h>
+#include <eq/fabric/commandType.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/elementVisitor.h>
 #include <eq/fabric/nodeType.h>
-#include <eq/fabric/packetType.h>
 #include <eq/fabric/view.h>
 
 #include <co/command.h>
@@ -370,7 +370,7 @@ co::NodePtr Client::createNode( const uint32_t type )
 bool Client::_cmdExit( co::Command& command )
 {
     _running = false;
-    // Close connection here, this is the last packet we'll get on it
+    // Close connection here, this is the last command we'll get on it
     command.getLocalNode()->disconnect( command.getNode( ));
     return true;
 }
@@ -395,7 +395,7 @@ void Client::notifyDisconnect( co::NodePtr node )
     {
         // local command dispatching
         co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT,
-                          fabric::PACKETTYPE_EQ_CLIENT );
+                          fabric::COMMANDTYPE_EQ_CLIENT );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;

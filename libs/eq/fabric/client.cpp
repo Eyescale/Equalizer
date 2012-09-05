@@ -18,9 +18,9 @@
 
 #include "client.h"
 
+#include "commandType.h"
 #include "global.h"
 #include "nodeType.h"
-#include "packetType.h"
 
 #include <co/command.h>
 #include <co/commandQueue.h>
@@ -107,10 +107,10 @@ bool Client::dispatchCommand( co::Command& command )
 
     switch( command.getType( ))
     {
-        case PACKETTYPE_EQ_CLIENT:
+        case COMMANDTYPE_EQ_CLIENT:
             return co::Dispatcher::dispatchCommand( command );
 
-        case PACKETTYPE_EQ_SERVER:
+        case COMMANDTYPE_EQ_SERVER:
         {
             co::NodePtr node = command.getNode();
             return node->co::Dispatcher::dispatchCommand( command );

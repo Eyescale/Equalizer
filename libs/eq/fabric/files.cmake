@@ -1,5 +1,6 @@
 # Copyright (c) 2010 Daniel Pfeifer <daniel@pfeifer-mail.de>
 #               2010-2012 Stefan Eilemann <eile@eyescale.ch>
+#                    2012 Daniel Nachbaur <danielnachbaur@gmail.com>
 
 set(EQ_FABRIC_PUBLIC_HEADERS
   api.h
@@ -9,6 +10,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   client.h
   colorMask.h
   commands.h
+  commandType.h
   config.h
   configVisitor.h
   defines.h
@@ -32,7 +34,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   nodeType.h
   object.h
   observer.h
-  packetType.h
   paths.h
   pipe.h
   pixel.h
