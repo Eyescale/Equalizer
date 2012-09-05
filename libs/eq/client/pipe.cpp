@@ -550,20 +550,20 @@ void Pipe::flushFrames( ObjectManager* om )
     _impl->outputFrameDatas.clear();
 }
 
-co::QueueSlave* Pipe::getQueue( const co::ObjectVersion& queueVersion )
+co::QueueSlave* Pipe::getQueue( const UUID& queueID )
 {
     LB_TS_THREAD( _pipeThread );
-    if( queueVersion.identifier == UUID::ZERO )
+    if( queueID == UUID::ZERO )
         return 0;
 
-    co::QueueSlave* queue = _impl->queues[ queueVersion.identifier ];
+    co::QueueSlave* queue = _impl->queues[ queueID ];
     if( !queue )
     {
         queue = new co::QueueSlave;
         ClientPtr client = getClient();
-        LBCHECK( client->mapObject( queue, queueVersion ));
+        LBCHECK( client->mapObject( queue, queueID ));
 
-        _impl->queues[ queueVersion.identifier ] = queue;
+        _impl->queues[ queueID ] = queue;
     }
 
     return queue;
@@ -998,7 +998,7 @@ bool Pipe::_cmdCreateWindow( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdDestroyWindow(  co::Command& cmd )
+bool Pipe::_cmdDestroyWindow( co::Command& cmd )
 {
     co::ObjectCommand command( cmd );
 
@@ -1112,10 +1112,8 @@ bool Pipe::_cmdConfigExit( co::Command& cmd )
     return true;
 }
 
-bool Pipe::_cmdExitThread( co::Command& cmd )
+bool Pipe::_cmdExitThread( co::Command& )
 {
-    co::ObjectCommand command( cmd );
-
     LBASSERT( _impl->thread );
     _impl->thread->_pipe = 0;
     return true;

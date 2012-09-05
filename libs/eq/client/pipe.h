@@ -122,7 +122,7 @@ namespace detail { class Pipe; class RenderThread; }
                          const Eye eye, const bool output );
 
         /** @internal @return the queue for the given identifier and version. */
-        co::QueueSlave* getQueue( const co::ObjectVersion& queueVersion );
+        co::QueueSlave* getQueue( const UUID& queueID );
 
         /** @internal Clear the frame cache and delete all frames. */
         void flushFrames( ObjectManager* om );

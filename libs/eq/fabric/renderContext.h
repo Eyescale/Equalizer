@@ -39,6 +39,7 @@ namespace fabric
     {
     public:
         EQFABRIC_API RenderContext();
+        EQFABRIC_API RenderContext& operator = ( const Tile& tile );
 
         Frustumf       frustum;        //!< frustum for projection matrix
         Frustumf       ortho;          //!< ortho frustum for projection matrix

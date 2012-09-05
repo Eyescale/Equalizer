@@ -174,10 +174,11 @@ bool Server::_cmdChooseConfig( co::Command& command )
     uint32_t flags;
     command >> flags;
 
-    const std::string rendererInfo = command.get< std::string >();
+    const std::string& workDir = command.get< std::string >();
+    const std::string& renderClient = command.get< std::string >();
 
     LBVERB << "Handle choose config " << command << " req " << requestID
-           << " renderer " << rendererInfo << std::endl;
+           << " renderer " << workDir << '/' << renderClient << std::endl;
 
     Config* config = 0;
     const Configs& configs = getConfigs();
@@ -194,9 +195,8 @@ bool Server::_cmdChooseConfig( co::Command& command )
 #ifdef EQ_USE_GPUSD
     if( !config )
     {
-        // TODO move session name to ConfigParams
-        config = config::Server::configure( this, eq::Global::getConfigFile(),
-                                            flags );
+        const std::string& configFile = command.get< std::string >();
+        config = config::Server::configure( this, configFile, flags );
         if( config )
         {
             config->register_();
@@ -217,11 +217,6 @@ bool Server::_cmdChooseConfig( co::Command& command )
 
     ConfigBackupVisitor backup;
     config->accept( backup );
-
-    const size_t       colonPos     = rendererInfo.find( '#' );
-    const std::string  workDir      = rendererInfo.substr( 0, colonPos );
-    const std::string  renderClient = rendererInfo.substr( colonPos + 1 );
-
     config->setApplicationNetNode( node );
     config->setWorkDir( workDir );
     config->setRenderClient( renderClient );

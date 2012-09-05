@@ -425,8 +425,7 @@ void Node::dirtyClientExit()
         Pipe* pipe = *i;
         pipe->cancelThread();
     }
-    co::Command empty;
-    transmitter.getQueue().push( empty ); // wake up to exit
+    transmitter.getQueue().push( co::Command( )); // wake up to exit
     transmitter.join();
 }
 
@@ -468,10 +467,10 @@ bool Node::_cmdDestroyPipe( co::Command& cmd )
     pipe->exitThread();
 
     const bool stopped = pipe->isStopped();
-    pipe->send( getServer(), fabric::CMD_PIPE_CONFIG_EXIT_REPLY ) << stopped;
 
     Config* config = getConfig();
     config->unmapObject( pipe );
+    pipe->send( getServer(), fabric::CMD_PIPE_CONFIG_EXIT_REPLY ) << stopped;
     Global::getNodeFactory()->releasePipe( pipe );
 
     return true;
@@ -523,8 +522,7 @@ bool Node::_cmdConfigExit( co::Command& cmd )
     }
 
     _state = configExit() ? STATE_STOPPED : STATE_FAILED;
-    co::Command empty;
-    transmitter.getQueue().push( empty ); // wake up to exit
+    transmitter.getQueue().push( co::Command( )); // wake up to exit
     transmitter.join();
     _flushObjects();
 

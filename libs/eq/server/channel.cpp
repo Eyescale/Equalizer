@@ -300,9 +300,8 @@ void Channel::configInit( const uint128_t& initID, const uint32_t frameNumber )
     LBASSERT( _state == STATE_STOPPED );
     _state = STATE_INITIALIZING;
 
-    getWindow()->send( fabric::CMD_WINDOW_CREATE_CHANNEL ) << getID();
-
     LBLOG( LOG_INIT ) << "Init channel" << std::endl;
+    getWindow()->send( fabric::CMD_WINDOW_CREATE_CHANNEL ) << getID();
     send( fabric::CMD_CHANNEL_CONFIG_INIT ) << initID;
 }
 

@@ -18,10 +18,10 @@
 
 #include "tileQueue.h"
 
+#include <eq/fabric/tile.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 #include <co/queueItem.h>
-
 
 namespace eq
 {
@@ -57,8 +57,7 @@ void TileQueue::addTile( const Tile& tile, const fabric::Eye eye )
 {
     uint32_t index = lunchbox::getIndexOfLastBit(eye);
     LBASSERT( index < NUM_EYES );
-    _queueMaster[index]->_queue.push()
-            << tile.frustum << tile.ortho << tile.pvp << tile.vp;
+    _queueMaster[index]->_queue.push() << tile;
 }
 
 void TileQueue::cycleData( const uint32_t frameNumber, const Compound* compound)

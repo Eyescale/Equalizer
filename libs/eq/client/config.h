@@ -402,7 +402,7 @@ namespace detail { class Config; }
         void setupMessagePump( Pipe* pipe );
 
         /** @internal Set up appNode connections configured by server. */
-        void setupServerConnections( const char* connectionData );
+        void setupServerConnections( const std::string& connectionData );
 
     protected:
         /** @internal */

@@ -74,7 +74,8 @@ public:
         lunchbox::a_int32_t used;
     };
 
-    typedef lunchbox::Buffer< FrameStatistics > StatisticsRB;
+    typedef std::vector< FrameStatistics > StatisticsRB;
+    typedef StatisticsRB::const_iterator StatisticsRBCIter;
 
     /** Global statistics events, index per frame and channel. */
     lunchbox::Lockable< StatisticsRB, lunchbox::SpinLock > statistics;

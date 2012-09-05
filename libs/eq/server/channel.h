@@ -34,7 +34,6 @@
 
 namespace eq
 {
-
 namespace server
 {
     class ChannelListener;

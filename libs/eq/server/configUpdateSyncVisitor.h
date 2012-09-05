@@ -67,8 +67,7 @@ public:
 
     bool getResult() const { return _result; }
     bool needsSync() const { return _sync; }
-    eq::fabric::Error getError() const
-        { LBASSERTINFO( _error == ERROR_NONE, _error ); return _error; }
+    eq::fabric::Error getError() const { return _error; }
 
 private:
     bool _result; // success or failure

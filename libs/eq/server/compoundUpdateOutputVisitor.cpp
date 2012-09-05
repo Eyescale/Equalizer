@@ -32,6 +32,7 @@
 
 #include <eq/client/log.h>
 #include <eq/fabric/iAttribute.h>
+#include <eq/fabric/tile.h>
 
 #define TILE_STRATEGY ZigzagStrategy
 
@@ -237,10 +238,7 @@ void CompoundUpdateOutputVisitor::_addTilesToQueue( TileQueue* queue,
                 continue;
             }
 
-            Tile tileItem;
-            tileItem.pvp = tilePVP;
-            tileItem.vp = tileVP;
-
+            Tile tileItem( tilePVP, tileVP );
             compound->computeTileFrustum( tileItem.frustum, eye, tileItem.vp,
                                           false );
             compound->computeTileFrustum( tileItem.ortho, eye, tileItem.vp,

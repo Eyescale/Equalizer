@@ -91,6 +91,7 @@ using fabric::Projection;
 using fabric::Range;
 using fabric::RenderContext;
 using fabric::SubPixel;
+using fabric::Tile;
 using fabric::Viewport;
 using fabric::Wall;
 using fabric::Zoom;

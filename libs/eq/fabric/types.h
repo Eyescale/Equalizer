@@ -41,6 +41,7 @@ class Range;
 class RenderContext;
 class SubPixel;
 class SwapBarrier;
+class Tile;
 class Viewport;
 class Wall;
 class Zoom;

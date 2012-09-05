@@ -116,9 +116,6 @@ template<> inline void byteswap( eq::Statistic& value )
 
     byteswap( value.startTime );
     byteswap( value.endTime );
-
-    for( size_t i = 0; i < 32; ++i )
-        byteswap( value.resourceName[i] );
 }
 }
 

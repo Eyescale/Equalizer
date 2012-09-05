@@ -29,14 +29,6 @@ namespace eq
 {
 namespace server
 {
-    struct Tile
-    {
-        eq::Frustumf frustum;
-        eq::Frustumf ortho;
-        eq::PixelViewport pvp;
-        eq::Viewport vp;
-    };
-
     /** A holder for tile data and parameters. */
     class TileQueue : public co::Object
     {

@@ -575,8 +575,7 @@ namespace detail { class Channel; struct RBStat; }
 
         /** Tile render loop. */
         void _frameTiles( RenderContext& context, const bool isLocal,
-                          const co::ObjectVersion& queueVersion,
-                          const uint32_t tasks,
+                          const UUID& queueID, const uint32_t tasks,
                           const co::ObjectVersions& frames );
 
         /** Reference the frame for an async operation. */
@@ -620,7 +619,7 @@ namespace detail { class Channel; struct RBStat; }
                         const std::vector< uint128_t >& netNodes );
 
         /** Get the channel's current input queue. */
-        co::QueueSlave* _getQueue( const co::ObjectVersion& queueVersion );
+        co::QueueSlave* _getQueue( const UUID& queueID );
 
         void _setOutputFrames( const co::ObjectVersions& frames );
         void _resetOutputFrames();

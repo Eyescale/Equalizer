@@ -44,6 +44,7 @@
 #include <eq/util/objectManager.h>
 #include <eq/fabric/commands.h>
 #include <eq/fabric/task.h>
+#include <eq/fabric/tile.h>
 
 #include <co/command.h>
 #include <co/connectionDescription.h>
@@ -328,8 +329,8 @@ void Channel::addStatistic( Event& event )
 {
     {
         const uint32_t frameNumber = event.statistic.frameNumber;
-        const size_t index = frameNumber % _impl->statistics->getSize();
-        LBASSERT( index < _impl->statistics->getSize( ));
+        const size_t index = frameNumber % _impl->statistics->size();
+        LBASSERT( index < _impl->statistics->size( ));
         LBASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
         lunchbox::ScopedFastWrite mutex( _impl->statistics );
@@ -494,11 +495,11 @@ const View* Channel::getView() const
     return pipe->getView( getContext().view );
 }
 
-co::QueueSlave* Channel::_getQueue( const co::ObjectVersion& queueVersion )
+co::QueueSlave* Channel::_getQueue( const UUID& queueID )
 {
     LB_TS_THREAD( _pipeThread );
     Pipe* pipe = getPipe();
-    return pipe->getQueue( queueVersion );
+    return pipe->getQueue( queueID );
 }
 
 View* Channel::getNativeView()
@@ -518,9 +519,10 @@ const View* Channel::getNativeView() const
 void Channel::changeLatency( const uint32_t latency )
 {
 #ifndef NDEBUG
-    for( size_t i = 0; i < _impl->statistics->getSize(); ++i )
+    for( detail::Channel::StatisticsRBCIter i = _impl->statistics->begin();
+         i != _impl->statistics->end(); ++i )
     {
-        LBASSERT( (*_impl->statistics)[ i ].used == 0 );
+        LBASSERT( (*i).used == 0 );
     }
 #endif //NDEBUG
     _impl->statistics->resize( latency + 1 );
@@ -1385,8 +1387,7 @@ private:
 typedef lunchbox::RefPtr< detail::RBStat > RBStatPtr;
 
 void Channel::_frameTiles( RenderContext& context, const bool isLocal,
-                           const co::ObjectVersion& queueVersion,
-                           const uint32_t tasks,
+                           const UUID& queueID, const uint32_t tasks,
                            const co::ObjectVersions& frames )
 {
     _setRenderContext( context );
@@ -1406,15 +1407,16 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
     int64_t readbackTime = 0;
     bool hasAsyncReadback = false;
 
-    co::QueueSlave* queue = _getQueue( queueVersion );
+    co::QueueSlave* queue = _getQueue( queueID );
     LBASSERT( queue );
     for( ;; )
     {
-        co::ObjectCommand tile = queue->pop();
-        if( !tile.isValid( ))
+        co::ObjectCommand tileCmd = queue->pop();
+        if( !tileCmd.isValid( ))
             break;
 
-        tile >> context.frustum >> context.ortho >> context.pvp >> context.vp;
+        const Tile& tile = tileCmd.get< Tile >();
+        context = tile;
 
         const PixelViewport tilePVP = context.pvp;
 
@@ -1505,7 +1507,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
 
 void Channel::_refFrame( const uint32_t frameNumber )
 {
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
     LBASSERTINFO( stats.used > 0, frameNumber );
     ++stats.used;
@@ -1513,7 +1515,7 @@ void Channel::_refFrame( const uint32_t frameNumber )
 
 void Channel::_unrefFrame( const uint32_t frameNumber )
 {
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
     if( --stats.used != 0 ) // Frame still in use
         return;
@@ -2087,7 +2089,7 @@ bool Channel::_cmdFrameDraw( co::Command& cmd )
     // Update ROI for server equalizers
     if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
     resetRenderContext();
@@ -2289,14 +2291,14 @@ bool Channel::_cmdFrameTiles( co::Command& cmd )
     co::ObjectCommand command( cmd );
     RenderContext context = command.get< RenderContext >();
     const bool isLocal = command.get< bool >();
-    const co::ObjectVersion queueVersion = command.get< co::ObjectVersion >();
+    const UUID& queueID = command.get< UUID >();
     const uint32_t tasks = command.get< uint32_t >();
     const co::ObjectVersions frames = command.get< co::ObjectVersions >();
 
     LBLOG( LOG_TASKS ) << "TASK channel frame tiles " << getName() <<  " "
                        << command << " " << context << std::endl;
 
-    _frameTiles( context, isLocal, queueVersion, tasks, frames );
+    _frameTiles( context, isLocal, queueID, tasks, frames );
     return true;
 }
 

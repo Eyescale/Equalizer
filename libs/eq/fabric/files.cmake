@@ -45,6 +45,7 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   subPixel.h
   swapBarrier.h
   task.h
+  tile.h
   types.h
   view.h
   viewport.h

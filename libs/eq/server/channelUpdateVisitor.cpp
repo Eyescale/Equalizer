@@ -259,11 +259,9 @@ void ChannelUpdateVisitor::_updateDrawTiles( const Compound* compound,
         const uint32_t tasks = compound->getInheritTasks() &
                             ( eq::fabric::TASK_CLEAR | eq::fabric::TASK_DRAW |
                               eq::fabric::TASK_READBACK );
-        const co::ObjectVersion queueVersion( id, co::VERSION_FIRST ); // eile: ???
 
         _channel->send( fabric::CMD_CHANNEL_FRAME_TILES )
-                << context << isLocal << queueVersion << tasks << frameIDs;
-
+                << context << isLocal << id << tasks << frameIDs;
         _updated = true;
         LBLOG( LOG_TASKS ) << "TASK tiles " << _channel->getName() <<  " "
                            << std::endl;
@@ -328,7 +326,7 @@ void ChannelUpdateVisitor::_updateDrawFinish( const Compound* compound ) const
 
     node->setLastDrawPipe( pipe ); // in case not set
 
-    node->send( fabric::CMD_NODE_FRAME_DRAW_FINISH, node->getID() )
+    node->send( fabric::CMD_NODE_FRAME_DRAW_FINISH, node->getID( ))
             << _frameID << _frameNumber;
     LBLOG( LOG_TASKS ) << "TASK node draw finish " << node->getName() <<  " "
                        << std::endl;

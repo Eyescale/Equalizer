@@ -740,8 +740,6 @@ uint32_t Config::_createConfig( Node* node )
 
 void Config::_syncClock()
 {
-    const int64_t time = getServer()->getTime();
-
     const Nodes& nodes = getNodes();
     for( Nodes::const_iterator i = nodes.begin(); i != nodes.end(); ++i )
     {
@@ -752,7 +750,8 @@ void Config::_syncClock()
             co::NodePtr netNode = node->getNode();
             LBASSERT( netNode->isConnected( ));
 
-            send( netNode, fabric::CMD_CONFIG_SYNC_CLOCK ) << time;
+            send( netNode, 
+                  fabric::CMD_CONFIG_SYNC_CLOCK ) << getServer()->getTime();
         }
     }
 }
@@ -819,6 +818,7 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
+// TODO code is wrong, fix by moving to client? #145
     send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
 
     _needsFinish = false;

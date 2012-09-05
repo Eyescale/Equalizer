@@ -840,7 +840,7 @@ MessagePump* Config::getMessagePump()
     return 0;
 }
 
-void Config::setupServerConnections( const char* connectionData )
+void Config::setupServerConnections( const std::string& connectionData )
 {
     std::string data = connectionData;
     co::ConnectionDescriptions descriptions;
@@ -970,10 +970,10 @@ bool Config::_cmdDestroyNode( co::Command& cmd )
         return true;
 
     const bool isStopped = node->isStopped();
-    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
 
     LBASSERT( node->getPipes().empty( ));
     unmapObject( node );
+    node->send( getServer(), fabric::CMD_NODE_CONFIG_EXIT_REPLY ) << isStopped;
     Global::getNodeFactory()->releaseNode( node );
 
     return true;

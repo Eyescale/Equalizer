@@ -157,12 +157,8 @@ Server< CL, S, CFG, NF, N, V >::_cmdCreateConfig( co::Command& command )
     localNode->mapObject( config, configVersion );
     co::Global::setIAttribute( co::Global::IATTR_ROBUSTNESS,
                                config->getIAttribute( CFG::IATTR_ROBUSTNESS ));
-
     if( requestID != LB_UNDEFINED_UINT32 )
-        co::ObjectOCommand(
-                    co::Connections( 1, command.getNode()->getConnection( )),
-                    CMD_CONFIG_CREATE_REPLY, co::COMMANDTYPE_CO_OBJECT,
-                    configVersion.identifier, EQ_INSTANCE_ALL ) << requestID;
+        config->send( command.getNode(), CMD_CONFIG_CREATE_REPLY ) << requestID;
 
     return true;
 }
