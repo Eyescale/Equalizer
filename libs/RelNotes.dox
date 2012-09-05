@@ -161,6 +161,8 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/157">157</a>:
+    Crash in Image::upload when no uploader is found</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
     Channel::configInit initID always 0</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:

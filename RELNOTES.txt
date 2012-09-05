@@ -111,6 +111,7 @@
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
 
+     * 157: Crash in Image::upload when no uploader is found
      * 149: Channel::configInit initID always 0
      * 147: Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC
        thread ordering
