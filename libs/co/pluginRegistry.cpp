@@ -122,8 +122,7 @@ void PluginRegistry::removeDirectory( const std::string& path )
 void PluginRegistry::init()
 {
     // for each directory
-    for( Strings::const_iterator i = _directories.begin();
-         i != _directories.end(); ++i )
+    for( StringsCIter i = _directories.begin(); i != _directories.end(); ++i )
     {
         const std::string& dir = *i;
         LBLOG( LOG_PLUGIN ) << "Searching plugins in " << dir << std::endl;
@@ -163,14 +162,40 @@ void PluginRegistry::init()
     }
 }
 
-bool PluginRegistry::addPlugin( const std::string& filename )
+namespace
 {
+Plugin* _loadPlugin( const std::string& filename, const Strings& directories )
+{
+    if( filename.size() < 3 )
+        return 0;
+
     Plugin* plugin = new Plugin(); 
-    if( !plugin->init( filename ))
+    if( plugin->init( filename ))
+        return plugin;
+
+    if( filename[0] == '/' || filename[1] == ':' /* Win drive letter */ )
     {
         delete plugin;
-        return false;
+        return 0;
     }
+
+    for( StringsCIter i = directories.begin(); i != directories.end(); ++i )
+    {
+        const std::string& dir = *i;
+        if( plugin->init( dir + "/" + filename ))
+            return plugin;
+    }
+
+    delete plugin;
+    return 0;
+}
+}
+
+bool PluginRegistry::addPlugin( const std::string& filename )
+{
+    Plugin* plugin = _loadPlugin( filename, _directories );
+    if( !plugin )
+        return false;
 
     const CompressorInfos& infos = plugin->getInfos();
     for( Plugins::const_iterator i = _plugins.begin(); i != _plugins.end(); ++i)

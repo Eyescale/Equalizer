@@ -487,8 +487,9 @@ bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
     if( !uploader->isValidUploader( externalFormat, internalFormat, flags ) &&
         !uploader->initUploader( externalFormat, internalFormat, flags ))
     {
-        EQWARN << "Can't initialize upload plugin for " << externalFormat
-               << " -> " << internalFormat << " upload" << std::endl;
+        EQWARN << "Can't initialize upload plugin for " << std::hex
+               << externalFormat << " -> " << internalFormat << std::dec
+               << " upload" << std::endl;
         return false;
     }
 
