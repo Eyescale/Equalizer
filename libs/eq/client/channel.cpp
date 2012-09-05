@@ -329,8 +329,8 @@ void Channel::addStatistic( Event& event )
 {
     {
         const uint32_t frameNumber = event.statistic.frameNumber;
-        const size_t index = frameNumber % _impl->statistics->getSize();
-        LBASSERT( index < _impl->statistics->getSize( ));
+        const size_t index = frameNumber % _impl->statistics->size();
+        LBASSERT( index < _impl->statistics->size( ));
         LBASSERTINFO( _impl->statistics.data[ index ].used > 0, frameNumber );
 
         lunchbox::ScopedFastWrite mutex( _impl->statistics );
@@ -519,9 +519,10 @@ const View* Channel::getNativeView() const
 void Channel::changeLatency( const uint32_t latency )
 {
 #ifndef NDEBUG
-    for( size_t i = 0; i < _impl->statistics->getSize(); ++i )
+    for( detail::Channel::StatisticsRBCIter i = _impl->statistics->begin();
+         i != _impl->statistics->end(); ++i )
     {
-        LBASSERT( (*_impl->statistics)[ i ].used == 0 );
+        LBASSERT( (*i).used == 0 );
     }
 #endif //NDEBUG
     _impl->statistics->resize( latency + 1 );
@@ -1498,7 +1499,7 @@ void Channel::_frameTiles( const ChannelFrameTilesPacket* packet )
 
 void Channel::_refFrame( const uint32_t frameNumber )
 {
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
     LBASSERTINFO( stats.used > 0, frameNumber );
     ++stats.used;
@@ -1506,7 +1507,7 @@ void Channel::_refFrame( const uint32_t frameNumber )
 
 void Channel::_unrefFrame( const uint32_t frameNumber )
 {
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& stats = _impl->statistics.data[ index ];
     if( --stats.used != 0 ) // Frame still in use
         return;
@@ -2032,7 +2033,7 @@ bool Channel::_cmdFrameStart( co::Command& command )
     bindFrameBuffer();
     frameStart( packet->context.frameID, packet->frameNumber );
 
-    const size_t index = packet->frameNumber % _impl->statistics->getSize();
+    const size_t index = packet->frameNumber % _impl->statistics->size();
     detail::Channel::FrameStatistics& statistic = _impl->statistics.data[index];
     LBASSERTINFO( statistic.used == 0,
                   "Frame " << packet->frameNumber << " used " <<statistic.used);
@@ -2090,7 +2091,7 @@ bool Channel::_cmdFrameDraw( co::Command& command )
     // Update ROI for server equalizers
     if( !getRegion().isValid( ))
         declareRegion( getPixelViewport( ));
-    const size_t index = frameNumber % _impl->statistics->getSize();
+    const size_t index = frameNumber % _impl->statistics->size();
     _impl->statistics.data[ index ].region = getRegion() / getPixelViewport();
 
     resetRenderContext();
