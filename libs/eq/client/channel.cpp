@@ -1895,16 +1895,10 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
     frame->setReady();
 
     const uint32_t frameNumber = stat->event.event.statistic.frameNumber;
-    std::vector<uint128_t>::const_iterator j = netNodes.begin();
-// TODO #145 move loop to cmdHandler, use one send command
-    for( std::vector<uint128_t>::const_iterator i = nodes.begin();
-         i != nodes.end(); ++i, ++j )
-    {
-        _refFrame( frameNumber );
+    _refFrame( frameNumber );
 
-        send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY_NODE )
-                << co::ObjectVersion( frame ) << *i << *j << frameNumber;
-    }
+    send( getLocalNode(), fabric::CMD_CHANNEL_FRAME_SET_READY_NODE )
+            << co::ObjectVersion( frame ) << nodes << netNodes << frameNumber;
 
     const DrawableConfig& dc = getDrawableConfig();
     const size_t colorBytes = ( 3 * dc.colorBits + dc.alphaBits ) / 8;
@@ -2226,19 +2220,25 @@ bool Channel::_cmdFrameSetReadyNode( co::Command& cmd )
     co::ObjectCommand command( cmd );
 
     const co::ObjectVersion& frameDataVersion = command.get< co::ObjectVersion >();
-    const uint128_t& nodeID = command.get< uint128_t >();
-    const uint128_t& netNodeID = command.get< uint128_t >();
+    const std::vector< uint128_t >& nodes =
+            command.get< std::vector< uint128_t > >();
+    const std::vector< uint128_t >& netNodes =
+            command.get< std::vector< uint128_t > >();
     const uint32_t frameNumber = command.get< uint32_t >();
 
     co::LocalNodePtr localNode = getLocalNode();
-    co::NodePtr toNode = localNode->connect( netNodeID );
     const FrameDataPtr frameData = getNode()->getFrameData( frameDataVersion );
 
-    co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
-                        fabric::CMD_NODE_FRAMEDATA_READY,
-                        co::COMMANDTYPE_CO_OBJECT, nodeID,
-                        EQ_INSTANCE_ALL )
+    std::vector< uint128_t >::const_iterator j = netNodes.begin();
+    for( std::vector< uint128_t >::const_iterator i = nodes.begin();
+         i != nodes.end(); ++i, ++j )
+    {
+        co::NodePtr toNode = localNode->connect( *j );
+        co::ObjectOCommand( co::Connections( 1, toNode->getConnection( )),
+                            fabric::CMD_NODE_FRAMEDATA_READY,
+                            co::COMMANDTYPE_CO_OBJECT, *i, EQ_INSTANCE_ALL )
             << frameDataVersion << frameData->_data;
+    }
 
     _unrefFrame( frameNumber );
     return true;
