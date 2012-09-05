@@ -13,7 +13,7 @@ description         @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
 long_description    @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
 
 github.setup        @GIT_ORIGIN_ORG@ ${name} @CPACK_MACPORTS_VERSION@ release-
-depends_lib         @CPACK_MACPORTS_DEPENDS@
+depends_lib        @CPACK_MACPORTS_DEPENDS@
 
 supported_archs     ppc ppc64 i386 x86_64
 universal_variant   yes
