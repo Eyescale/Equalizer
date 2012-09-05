@@ -81,17 +81,6 @@ if(MSVC) # the custom command below doesn't work on VS
 endif()
 
 # create and install .bin files
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(BIN_POSTFIX "64.bin")
-else()
-  set(BIN_POSTFIX "32.bin")
-endif()
-if(EQ_BIG_ENDIAN)
-  set(BIN_POSTFIX "be${BIN_POSTFIX}")
-else()
-  set(BIN_POSTFIX "le${BIN_POSTFIX}")
-endif()
-
 function(INSTALL_PLY IN OUT) # + command
   set(BIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/${OUT}")
   add_custom_target(${OUT} ALL
@@ -104,9 +93,24 @@ endfunction()
 
 set(PLY_FILES rockerArm.ply screwdriver.ply)
 foreach(PLY_FILE ${PLY_FILES})
-  if(APPLE)
-    foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
-      if(${ARCH} MATCHES "64")
+  if(NOT CMAKE_BUILD_WITH_INSTALL_RPATH) # MacPorts WAR
+    if(APPLE)
+      foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+        if(${ARCH} MATCHES "64")
+          set(BIN_POSTFIX "64.bin")
+        else()
+          set(BIN_POSTFIX "32.bin")
+        endif()
+        if(${ARCH} MATCHES "ppc")
+          set(BIN_POSTFIX "be${BIN_POSTFIX}")
+        else()
+          set(BIN_POSTFIX "le${BIN_POSTFIX}")
+        endif()
+        install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
+          arch -${ARCH} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
+      endforeach()
+    else()
+      if(CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(BIN_POSTFIX "64.bin")
       else()
         set(BIN_POSTFIX "32.bin")
@@ -117,12 +121,9 @@ foreach(PLY_FILE ${PLY_FILES})
         set(BIN_POSTFIX "le${BIN_POSTFIX}")
       endif()
       install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
-        arch -${ARCH} "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
-    endforeach()
-  else()
-    install_ply("${PLY_FILE}" "${PLY_FILE}.${BIN_POSTFIX}"
-      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/eqPlyConverter")
+    endif()
   endif()
   install(FILES ${PLY_FILE} DESTINATION share/Equalizer/data COMPONENT data)
 endforeach()
-
+install(FILES logo.rgb DESTINATION share/Equalizer/data COMPONENT data)
