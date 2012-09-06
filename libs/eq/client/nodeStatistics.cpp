@@ -73,7 +73,7 @@ NodeStatistics::~NodeStatistics()
 
     Config* config = _owner->getConfig();
     event.statistic.endTime = config->getTime();
-    config->sendEvent( event );
+    config->sendEvent( event.type ) << event;
 }
 
 }

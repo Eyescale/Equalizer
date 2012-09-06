@@ -47,8 +47,8 @@ namespace detail { class EventCommand; }
         /** Destruct an event command. @version 1.5.1 */
         EQ_API ~EventCommand();
 
-        /** @return the event data. @version 1.5.1 */
-        EQ_API const Event& getEvent() const;
+        /** @return the event type. @version 1.5.1 */
+        EQ_API uint32_t getEventType() const;
 
     private:
         EventCommand();

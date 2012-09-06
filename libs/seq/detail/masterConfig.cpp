@@ -210,11 +210,14 @@ bool MasterConfig::handleEvent( const eq::ConfigEvent* event )
 #endif
 bool MasterConfig::handleEvent( eq::EventCommand command )
 {
-    switch( command.getEvent().type )
+    switch( command.getEventType( ))
     {
       case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
-          _currentViewID = command.getEvent().context.view.identifier;
+      {
+          const eq::Event& event = command.get< eq::Event >();
+          _currentViewID = event.context.view.identifier;
           return true;
+      }
 
       case eq::Event::KEY_PRESS:
       case eq::Event::KEY_RELEASE:
@@ -244,7 +247,8 @@ bool MasterConfig::handleEvent( eq::EventCommand command )
       case eq::Event::STATISTIC:
       {
           Config::handleEvent( command );
-          if( command.getEvent().statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
+          const eq::Event& event = command.get< eq::Event >();
+          if( event.statistic.type != eq::Statistic::CONFIG_FINISH_FRAME )
               return false;
 
           ViewUpdateVisitor viewUpdate( _redraw );

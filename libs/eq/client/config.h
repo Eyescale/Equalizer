@@ -379,11 +379,11 @@ namespace detail { class Config; }
          * event. The event will be send after the command is destroyed,
          * aka when it is running out of scope.
          *
-         * @param event the event.
+         * @param type the event type.
          * @return the event command to pass additional data to
          * @version 1.5.1
          */
-        EQ_API co::ObjectOCommand sendEvent( const Event& event );
+        EQ_API co::ObjectOCommand sendEvent( const uint32_t type );
 
         /**
          * Get the next event.

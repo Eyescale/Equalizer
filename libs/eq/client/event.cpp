@@ -82,14 +82,6 @@ Event::Event()
     bzero( &user, sizeof( user ));
 }
 
-Event::Event( const uint32_t type_ )
-    : type( type_ )
-    , serial( 0 )
-    , originator( UUID::ZERO )
-{
-    bzero( &user, sizeof( user ));
-}
-
 std::ostream& operator << ( std::ostream& os, const Event& event )
 {
     os << event.type << ':' << event.originator << ' ';

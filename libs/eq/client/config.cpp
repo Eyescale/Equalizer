@@ -606,26 +606,22 @@ const ConfigEvent* Config::tryNextEvent()
 const ConfigEvent* Config::_convertEvent( co::ObjectCommand command )
 {
     LBASSERT( command.isValid( ));
+    LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT_OLD );
     _impl->lastEvent = command;
 
-    uint64_t size = sizeof( Event );
-    if( command.getCommand() == fabric::CMD_CONFIG_EVENT_OLD )
-        size = command.get< uint64_t >();
-
+    const uint64_t size = command.get< uint64_t >();
     return reinterpret_cast< const ConfigEvent* >
                                           ( command.getRemainingBuffer( size ));
 }
 #endif
 
-co::ObjectOCommand Config::sendEvent( const Event& event )
+co::ObjectOCommand Config::sendEvent( const uint32_t type )
 {
-    LBASSERT( event.type != Event::STATISTIC ||
-              event.statistic.type != Statistic::NONE );
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
     co::ObjectOCommand cmd( send( _impl->appNode, fabric::CMD_CONFIG_EVENT ));
-    cmd << event;
+    cmd << type;
     return cmd;
 }
 
@@ -639,11 +635,8 @@ EventCommand Config::getNextEvent( const uint32_t timeout ) const
 bool Config::handleEvent( EventCommand command )
 {
     LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
-#ifndef EQ_2_0_API
-    if( handleEvent( _convertEvent( command )))
-        return true;
-#endif
-    return _handleEvent( command.getEvent( ));
+    const Event& event = command.get< Event >();
+    return _handleEvent( event );
 }
 
 bool Config::checkEvent() const

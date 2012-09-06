@@ -71,7 +71,8 @@ bool ViewData::handleEvent( const eq::ConfigEvent* event )
 #endif
 bool ViewData::handleEvent( eq::EventCommand command )
 {
-    return _handleEvent( command.getEvent( ));
+    const eq::Event& event = command.get< eq::Event >();
+    return _handleEvent( event );
 }
 
 bool ViewData::_handleEvent( const eq::Event& event )

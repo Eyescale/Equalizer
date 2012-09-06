@@ -376,19 +376,22 @@ bool Config::_needNewFrame()
 
 bool Config::handleEvent( eq::EventCommand command )
 {
-    const eq::Event& event = command.getEvent();
-    switch( event.type )
+    switch( command.getEventType( ))
     {
         case eq::Event::KEY_PRESS:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             if( _handleKeyEvent( event.keyPress ))
             {
                 _redraw = true;
                 return true;
             }
             break;
+        }
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
+            const eq::Event& event = command.get< eq::Event >();
             const eq::uint128_t& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == eq::UUID::ZERO )
@@ -417,6 +420,7 @@ bool Config::handleEvent( eq::EventCommand command )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
         {
+            const eq::Event& event = command.get< eq::Event >();
             const eq::PointerEvent& releaseEvent =
                 event.pointerButtonRelease;
             if( releaseEvent.buttons == eq::PTR_BUTTON_NONE)
@@ -438,6 +442,8 @@ bool Config::handleEvent( eq::EventCommand command )
             break;
         }
         case eq::Event::CHANNEL_POINTER_MOTION:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             switch( event.pointerMotion.buttons )
             {
               case eq::PTR_BUTTON1:
@@ -469,15 +475,21 @@ bool Config::handleEvent( eq::EventCommand command )
                   return true;
             }
             break;
+        }
 
         case eq::Event::WINDOW_POINTER_WHEEL:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             _frameData.moveCamera( -0.05f * event.pointerWheel.yAxis,
                                    0.f,
                                    0.05f * event.pointerWheel.xAxis );
             _redraw = true;
             return true;
+        }
 
         case eq::Event::MAGELLAN_AXIS:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             _spinX = 0;
             _spinY = 0;
             _advance = 0;
@@ -489,13 +501,17 @@ bool Config::handleEvent( eq::EventCommand command )
                                    0.0001f * event.magellan.zAxis );
             _redraw = true;
             return true;
+        }
 
         case eq::Event::MAGELLAN_BUTTON:
+        {
+            const eq::Event& event = command.get< eq::Event >();
             if( event.magellan.button == eq::PTR_BUTTON1 )
                 _frameData.toggleColorMode();
 
             _redraw = true;
             return true;
+        }
 
         case eq::Event::WINDOW_EXPOSE:
         case eq::Event::WINDOW_RESIZE:

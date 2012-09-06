@@ -29,7 +29,7 @@ class EventCommand
 public:
     EventCommand() {}
 
-    Event data;
+    uint32_t eventType;
 };
 }
 
@@ -55,17 +55,17 @@ EventCommand::~EventCommand()
 void EventCommand::_init()
 {
     if( isValid( ))
-        *this >> _impl->data;
+        *this >> _impl->eventType;
 }
 
-const Event& EventCommand::getEvent() const
+uint32_t EventCommand::getEventType() const
 {
-    return _impl->data;
+    return _impl->eventType;
 }
 
 std::ostream& operator << ( std::ostream& os, const EventCommand& event )
 {
-    os << "Event command, event " << event.getEvent();
+    os << "Event command, event type " << event.getEventType();
     return os;
 }
 

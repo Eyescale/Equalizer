@@ -818,8 +818,11 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT )
-            << Event( Event::EXIT );
+    // TODO: is this needed? sender of CMD_CONFIG_EXIT is the appNode itself
+    // which sets the running state to false anyway. Besides, this event is
+    // not handled by the appNode because it is already in exiting procedure
+    // and does not call handleEvents anymore
+    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
 
     _needsFinish = false;
     _state = STATE_STOPPED;

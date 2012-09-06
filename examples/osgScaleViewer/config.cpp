@@ -172,8 +172,8 @@ bool Config::handleEvent( eq::EventCommand command )
 {
     const float moveSpeed = .1f;
 
-    const eq::Event& event = command.getEvent();
-    switch( event.type )
+    const eq::Event& event = command.get< eq::Event >();
+    switch( command.getEventType( ))
     {
         // set mMoveDirection to a null vector after a key is released
         // so that the updating of the camera position stops

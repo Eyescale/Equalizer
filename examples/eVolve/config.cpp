@@ -128,8 +128,8 @@ void Config::_resetMessage()
 
 bool Config::handleEvent( eq::EventCommand command )
 {
-    const eq::Event& event = command.getEvent();
-    switch( event.type )
+    const eq::Event& event = command.get< eq::Event >();
+    switch( command.getEventType( ))
     {
         case eq::Event::KEY_PRESS:
             if( _handleKeyEvent( event.keyPress ))

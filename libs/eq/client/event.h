@@ -174,9 +174,6 @@ namespace eq
         /** Construct a new event. */
         EQ_API Event();
 
-        /** Construct a new event with a known type. @version 1.5.1 */
-        EQ_API Event( const uint32_t type );
-
         /** The type of the event. */
         enum Type // Also update string table in event.cpp
         {

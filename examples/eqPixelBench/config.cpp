@@ -57,13 +57,13 @@ uint32_t Config::startFrame( const eq::uint128_t& frameID )
 
 bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( command.getEvent().type )
+    switch( command.getEventType( ))
     {
     case READBACK:
     case ASSEMBLE:
     case START_LATENCY:
     {
-        switch( command.getEvent().type )
+        switch( command.getEventType( ))
         {
         case READBACK:
             std::cout << "readback";
@@ -96,13 +96,13 @@ bool Config::handleEvent( eq::EventCommand command )
                       << "MPix/sec (" << msec << "ms, "
                       << unsigned(1000.0f / msec) << "FPS)";
 
-        if( command.getEvent().type == READBACK )
+        if( command.getEventType() == READBACK )
         {
             std::cout << area << "( size GPU : " << dataSizeGPU << " bytes ";
             std::cout << "/ size CPU : " << dataSizeCPU << " bytes ";
             std::cout << "/ time : " <<  msec << "ms )";
         }
-        else if( command.getEvent().type == ASSEMBLE )
+        else if( command.getEventType() == ASSEMBLE )
         {
             std::cout << area << "( size CPU : " << dataSizeCPU << " bytes ";
             std::cout << "/ time : " <<  msec << "ms )";

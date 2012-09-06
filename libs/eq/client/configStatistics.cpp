@@ -46,7 +46,7 @@ ConfigStatistics::ConfigStatistics( const Statistic::Type type,
 ConfigStatistics::~ConfigStatistics()
 {
     event.statistic.endTime = _owner->getTime();
-    _owner->sendEvent( event );
+    _owner->sendEvent( event.type ) << event;
 }
 
 }

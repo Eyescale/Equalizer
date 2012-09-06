@@ -360,10 +360,6 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     if( frameData.useStatistics())
         drawStatistics();
 
-    eq::Event event;
-    event.originator = getID();
-    event.type = IDLE_AA_LEFT;
-
     int32_t steps = 0;
     if( frameData.isIdle( ))
     {
@@ -379,7 +375,7 @@ void Channel::frameViewFinish( const eq::uint128_t& frameID )
     // if _jitterStep == 0 and no user redraw event happened, the app will exit
     // FSAA idle mode and block on the next redraw event.
     eq::Config* config = getConfig();
-    config->sendEvent( event ) << steps;
+    config->sendEvent( IDLE_AA_LEFT ) << steps;
 }
 
 bool Channel::useOrtho() const

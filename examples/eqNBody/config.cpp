@@ -118,14 +118,14 @@ bool Config::needsRedraw()
 
 bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( command.getEvent().type )
+    switch( command.getEventType( ))
     {
         case DATA_CHANGED:
         {
             _registerData( command );
             if( _readyToCommit() )
                 _frameData.commit();    // broadcast changed data to all clients
-            break;
+            return false;
         }
 
         case PROXY_CHANGED:
@@ -136,16 +136,19 @@ bool Config::handleEvent( eq::EventCommand command )
                 _updateSimulation();    // update the simulation every nth frame
                 _frameData.commit();    // broadcast changed data to all clients
             }
-            break;
+            return false;
         }
 
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( command.getEvent().keyPress ))
+        {
+            const eq::Event& event = command.get< eq::Event >();
+            if( _handleKeyEvent( event.keyPress ))
             {
                 _redraw = true;
                 return true;
             }
             break;
+        }
 
         case eq::Event::WINDOW_EXPOSE:
         case eq::Event::WINDOW_RESIZE:
