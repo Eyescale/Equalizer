@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2005-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -263,7 +264,7 @@ namespace server
         /** The number of the last finished frame. */
         uint32_t _finishedFrame;
 
-        /** The number of the last flushed frame (frame finish packet sent). */
+        /** The number of the last flushed frame (frame finish command sent). */
         uint32_t _flushedFrame;
 
         /** The current state for state change synchronization. */
@@ -272,7 +273,7 @@ namespace server
         /** The cached barriers. */
         std::vector<co::Barrier*> _barriers;
 
-        /** Task packets for the current operation. */
+        /** Task commands for the current operation. */
         co::BufferConnectionPtr _bufferedTasks;
 
         /** The last draw pipe for this entity */
@@ -297,7 +298,7 @@ namespace server
         /** flush cached barriers. */
         void _flushBarriers();
 
-        /** Send the frame finish packet for the given frame number. */
+        /** Send the frame finish command for the given frame number. */
         void _sendFrameFinish( const uint32_t frameNumber );
 
         /* Command handler functions. */

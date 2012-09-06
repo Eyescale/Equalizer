@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -1715,7 +1715,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     std::vector< const PixelData* > pixelDatas;
     std::vector< float > qualities;
 
-    uint32_t packetBuffers = Frame::BUFFER_NONE;
+    uint32_t commandBuffers = Frame::BUFFER_NONE;
     uint64_t imageDataSize = 0;
 
 
@@ -1765,7 +1765,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
                     imageDataSize += image->getPixelDataSize( buffer );
                 }
 
-                packetBuffers |= buffer;
+                commandBuffers |= buffer;
                 rawSize += image->getPixelDataSize( buffer );
             }
         }
@@ -1779,7 +1779,7 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     if( pixelDatas.empty( ))
         return;
 
-    // send image pixel data packet
+    // send image pixel data command
     co::LocalNode::SendToken token;
     if( getIAttribute( IATTR_HINT_SENDTOKEN ) == ON )
     {
@@ -1790,15 +1790,15 @@ void Channel::_transmitImage( const co::ObjectVersion& frameDataVersion,
     }
     LBASSERT( image->getPixelViewport().isValid( ));
 
-    co::ObjectOCommand packet( co::Connections( 1, connection ),
-                               fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
-                               co::COMMANDTYPE_CO_OBJECT,
-                               nodeID, EQ_INSTANCE_ALL );
-    packet << frameDataVersion << image->getPixelViewport() << image->getZoom()
-           << packetBuffers << frameNumber << image->getAlphaUsage();
+    co::ObjectOCommand command( co::Connections( 1, connection ),
+                                fabric::CMD_NODE_FRAMEDATA_TRANSMIT,
+                                co::COMMANDTYPE_CO_OBJECT,
+                                nodeID, EQ_INSTANCE_ALL );
+    command << frameDataVersion << image->getPixelViewport() << image->getZoom()
+            << commandBuffers << frameNumber << image->getAlphaUsage();
 
     connection->lockSend();
-    packet.sendHeaderUnlocked( imageDataSize );
+    command.sendHeaderUnlocked( imageDataSize );
 
 #ifndef NDEBUG
     size_t sentBytes = 0;
@@ -1896,7 +1896,7 @@ void Channel::_setReady( FrameDataPtr frame, detail::RBStat* stat,
 
     const uint32_t frameNumber = stat->event.event.statistic.frameNumber;
     std::vector<uint128_t>::const_iterator j = netNodes.begin();
-// TODO #145 move loop to cmdHandler, use one packet
+// TODO #145 move loop to cmdHandler, use one send command
     for( std::vector<uint128_t>::const_iterator i = nodes.begin();
          i != nodes.end(); ++i, ++j )
     {

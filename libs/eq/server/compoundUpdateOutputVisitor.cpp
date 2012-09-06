@@ -76,7 +76,7 @@ void CompoundUpdateOutputVisitor::_updateQueues( Compound* compound )
 
         queue->cycleData( _frameNumber, compound );
 
-        //----- Generate tile task packets
+        //----- Generate tile task commands
         _generateTiles( queue, compound );
         _outputTileQueues[name] = queue;
     }
