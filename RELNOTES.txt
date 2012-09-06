@@ -60,11 +60,11 @@
   2.1. New Features
 
      * Asynchronous readback support
+     * Region of interest for scalable rendering and load-balancing
      * Automatic CPU-GPU affinity
      * Application-specific scaling to visualize data in a scale different to
        1:1 in immersive environments
      * VirtualGL-aware auto-configuration
-     * Region of interest for scalable rendering and load-balancing
      * Zeroconf support and node discovery
      * Blocking co::Object::commit
      * Extensible packet dispatch
@@ -111,6 +111,7 @@
    Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including
    the following:
 
+     * 157: Crash in Image::upload when no uploader is found
      * 149: Channel::configInit initID always 0
      * 147: Repeated Canvas::useLayout OFF/ON causes violation of DRAW_SYNC
        thread ordering

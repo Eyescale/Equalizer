@@ -18,15 +18,10 @@ list(APPEND CMAKE_MODULE_PATH ${Equalizer_SOURCE_DIR}/CMake)
 include(revision)
 
 set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
-set(LAST_RELEASE 1.3.7)
+set(LAST_RELEASE 1.4.0)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "5")
 set(VERSION_PATCH "0")
-
-set(CO_VERSION_MAJOR "0")
-set(CO_VERSION_MINOR "7")
-set(CO_VERSION_PATCH "0")
-set(CO_VERSION ${CO_VERSION_MAJOR}.${CO_VERSION_MINOR}.${CO_VERSION_PATCH})
 
 if(CMAKE_OSX_DEPLOYMENT_TARGET)
   set(EQ_OSX_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
@@ -71,30 +66,32 @@ if(HWLOC_FOUND)
 endif()
 
 if(X11_FOUND)
+  set(EQ_GLX_USED 1)
   if(APPLE)
-    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}" )
-    set(EQ_AGL_USED 1)
-    set(EQ_GLX_USED 1)
-  else(APPLE)
-    set(EQ_GLX_USED 1)
-  endif(APPLE)
+    link_directories(/usr/X11R6/lib)
+    include_directories(SYSTEM /usr/X11R6/include)
+  endif()
 endif(X11_FOUND)
 
-if(EQ_GLX_USED)
-  include_directories(SYSTEM ${X11_INCLUDE_DIR})
-  set(EQ_FEATURES "${EQ_FEATURES} GLX")
-endif(EQ_GLX_USED)
-if(EQ_AGL_USED)
-  set(EQ_FEATURES "${EQ_FEATURES} AGL")
-endif(EQ_AGL_USED)
-
 if(APPLE)
-  link_directories(/usr/X11R6/lib)
-  include_directories(SYSTEM /usr/X11R6/include)
   add_definitions(-DDarwin)
 
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "64")
+  foreach(ARCH ${CMAKE_OSX_ARCHITECTURES})
+    if(ARCH STREQUAL "ppc" OR ARCH STREQUAL "i386")
+      set(EQ_AGL_USED 1)
+      list(APPEND EQ_EXAMPLES_OSX_ARCHITECTURES ${ARCH})
+    endif()
+  endforeach()
+  if(NOT EQ_EXAMPLES_OSX_ARCHITECTURES)
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES ${CMAKE_OSX_ARCHITECTURES})
+  endif()
+  list(REMOVE_DUPLICATES EQ_EXAMPLES_OSX_ARCHITECTURES)
+
+  set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-isystem ") # Disabled by GNU.cmake!?
+  set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -mmacosx-version-min=${EQ_OSX_VERSION}")
+
+  if(CMAKE_OSX_ARCHITECTURES MATCHES "64")
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
@@ -102,8 +99,16 @@ if(APPLE)
   endif()
 endif(APPLE)
 
+if(EQ_GLX_USED)
+  include_directories(SYSTEM ${X11_INCLUDE_DIR})
+  set(EQ_FEATURES "${EQ_FEATURES} GLX")
+endif(EQ_GLX_USED)
+if(EQ_AGL_USED)
+  set(EQ_FEATURES "${EQ_FEATURES} AGL(32bit)")
+endif(EQ_AGL_USED)
+
 list(APPEND EQ_DEFINITIONS
-    -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
+  -DEQ_BUILD_DIR="${CMAKE_BINARY_DIR}/" -DEQ_SOURCE_DIR="${CMAKE_SOURCE_DIR}/")
 
 if(EQUALIZER_BUILD_2_0_API)
   list(APPEND EQ_DEFINITIONS -DEQ_2_0_API)

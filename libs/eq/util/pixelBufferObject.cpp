@@ -222,7 +222,7 @@ PixelBufferObject::~PixelBufferObject()
     delete _impl;
 }
 
-bool PixelBufferObject::setup( const size_t size, const GLuint type )
+bool PixelBufferObject::setup( const size_t size, const unsigned type )
 {
     lunchbox::ScopedWrite mutex( _impl->lock_ );
     return _impl->setup( size, type );

@@ -122,11 +122,11 @@ co::ConnectionPtr _startLocalServer()
     dirNames.push_back( "" );
 
 #ifdef EQ_BUILD_DIR
-#ifdef NDEBUG
+#  ifdef NDEBUG
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Release/" );
-#else
+#  else
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/Debug/" );
-#endif
+#  endif
     dirNames.push_back( std::string( EQ_BUILD_DIR ) + "lib/" );
 #endif
 
@@ -135,6 +135,7 @@ co::ConnectionPtr _startLocalServer()
 #elif defined (_WIN32)
     const std::string libName = "libEqualizerServer.dll";
 #elif defined (Darwin)
+    dirNames.push_back( "/opt/local/lib/" ); // MacPorts
     const std::string libName = "libEqualizerServer.dylib";
 #else
     const std::string libName = "libEqualizerServer.so";

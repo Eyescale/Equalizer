@@ -470,7 +470,7 @@ const PixelData& Image::getPixelData( const Frame::Buffer buffer ) const
     return _impl->getMemory( buffer );
 }
 
-void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
+bool Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                     const Vector2i& position, ObjectManager* glObjects ) const
 {
     LBASSERT( glObjects );
@@ -486,8 +486,14 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
                            ( texture ? texture->getCompressorTarget() :
                                        EQ_COMPRESSOR_USE_FRAMEBUFFER );
 
-    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ))
-        uploader->initUploader( externalFormat, internalFormat, flags );
+    if( !uploader->isValidUploader( externalFormat, internalFormat, flags ) &&
+        !uploader->initUploader( externalFormat, internalFormat, flags ))
+    {
+        EQWARN << "Can't initialize upload plugin for " << std::hex
+               << externalFormat << " -> " << internalFormat << std::dec
+               << " upload" << std::endl;
+        return false;
+    }
 
     PixelViewport pvp = getPixelViewport();
     pvp.x = position.x() + pvp.x;
@@ -497,6 +503,7 @@ void Image::upload( const Frame::Buffer buffer, util::Texture* texture,
 
     uploader->upload( pixelData.pixels, pixelData.pvp, flags, pvp,
                       texture ? texture->getName() : 0 );
+    return true;
 }
 
 //---------------------------------------------------------------------------

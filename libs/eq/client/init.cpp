@@ -221,6 +221,7 @@ void _initPlugins()
 #endif
 
     plugins.addDirectory( ".eqPlugins" );
+    plugins.addDirectory( "/opt/local/lib" ); // MacPorts
 
     const char* home = getenv( "HOME" );
     if( home )
