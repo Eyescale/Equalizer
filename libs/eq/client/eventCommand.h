@@ -39,7 +39,7 @@ namespace detail { class EventCommand; }
     {
     public:
         /** @internal */
-        EventCommand( const co::Command& command );
+        EQ_API EventCommand( const co::Command& command );
 
         /** Copy-construct an event command. @version 1.5.1 */
         EQ_API EventCommand( const EventCommand& rhs );

@@ -80,8 +80,8 @@ Config* Server::chooseConfig( const ConfigParams& parameters )
     if( !isConnected( ))
         return 0;
 
-    const std::string renderClient = parameters.getRenderClient();
-    const std::string workDir = parameters.getWorkDir();
+    std::string renderClient = parameters.getRenderClient();
+    std::string workDir = parameters.getWorkDir();
     if( renderClient.empty( ))
     {
         LBWARN << "No render client in ConfigParams specified" << std::endl;

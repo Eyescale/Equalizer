@@ -610,7 +610,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
                 event.magellan.buttons |= PTR_BUTTON2;
             if( pRawHid->bRawData[3] )
                 event.magellan.buttons |= PTR_BUTTON3;
-            _magellanNode->getConfig()->sendEvent( event );
+            _magellanNode->getConfig()->sendEvent( event.type ) << event;
         }
         else
         {
@@ -634,7 +634,7 @@ void EventHandler::_magellanEventHandler( LPARAM lParam )
 
             _magellanGotRotation = false;
             _magellanGotTranslation = false;
-            _magellanNode->getConfig()->sendEvent( event );
+            _magellanNode->getConfig()->sendEvent( event.type ) << event;
         }
     }
 #endif
