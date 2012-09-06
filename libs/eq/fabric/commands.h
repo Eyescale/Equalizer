@@ -1,17 +1,17 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder  <cedric Stalder@gmail.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -94,6 +94,9 @@ namespace fabric
         CMD_CONFIG_FINISH_ALL_FRAMES,
         CMD_CONFIG_STOP_FRAMES,
         CMD_CONFIG_EVENT,
+#ifndef EQ_2_0_API
+        CMD_CONFIG_EVENT_OLD,
+#endif
         CMD_CONFIG_SYNC_CLOCK,
         CMD_CONFIG_SWAP_OBJECT,
         CMD_CONFIG_CUSTOM = 45 // some buffer for binary-compatible patches
@@ -108,12 +111,12 @@ namespace fabric
         CMD_NODE_CONFIG_EXIT_REPLY,
         CMD_NODE_CREATE_PIPE,
         CMD_NODE_DESTROY_PIPE,
-        CMD_NODE_FRAME_START, 
+        CMD_NODE_FRAME_START,
         CMD_NODE_FRAME_FINISH,
         CMD_NODE_FRAME_FINISH_REPLY,
         CMD_NODE_FRAME_DRAW_FINISH,
         CMD_NODE_FRAME_TASKS_FINISH,
-        CMD_NODE_FRAMEDATA_TRANSMIT,       
+        CMD_NODE_FRAMEDATA_TRANSMIT,
         CMD_NODE_FRAMEDATA_READY,
         CMD_NODE_CUSTOM = 35  // some buffer for binary-compatible patches
     };
@@ -125,7 +128,7 @@ namespace fabric
         CMD_PIPE_CONFIG_INIT,
         CMD_PIPE_CONFIG_INIT_REPLY,
         CMD_PIPE_CONFIG_EXIT,
-        CMD_PIPE_CONFIG_EXIT_REPLY, 
+        CMD_PIPE_CONFIG_EXIT_REPLY,
         CMD_PIPE_CREATE_WINDOW,
         CMD_PIPE_DESTROY_WINDOW,
         CMD_PIPE_FRAME_START,

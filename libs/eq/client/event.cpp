@@ -1,16 +1,17 @@
 
 /* Copyright (c) 2007-2011, Stefan Eilemann <eile@equalizergraphics.com>
- *                    2011, Cedric Stalder <cedric.stalder@gmail.com>  
+ *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -46,9 +47,9 @@ public:
             "pointer button release";
         _names[Event::WINDOW_POINTER_WHEEL] = "pointer wheel";
         _names[Event::WINDOW_POINTER_MOTION] = "window pointer motion";
-        _names[Event::WINDOW_POINTER_BUTTON_PRESS] = 
+        _names[Event::WINDOW_POINTER_BUTTON_PRESS] =
             "window pointer button press";
-        _names[Event::WINDOW_POINTER_BUTTON_RELEASE] = 
+        _names[Event::WINDOW_POINTER_BUTTON_RELEASE] =
             "window pointer button release";
         _names[Event::KEY_PRESS] = "key press";
         _names[Event::KEY_RELEASE] = "key release";
@@ -77,6 +78,14 @@ Event::Event()
         : type( UNKNOWN )
         , serial( 0 )
         , originator( UUID::ZERO )
+{
+    bzero( &user, sizeof( user ));
+}
+
+Event::Event( const uint32_t type_ )
+    : type( type_ )
+    , serial( 0 )
+    , originator( UUID::ZERO )
 {
     bzero( &user, sizeof( user ));
 }
@@ -122,7 +131,7 @@ std::ostream& operator << ( std::ostream& os, const Event& event )
         default:
             break;
     }
-    
+
     //os << ", context " << event.context <<;
     return os;
 }
@@ -131,7 +140,7 @@ std::ostream& operator << ( std::ostream& os, const Event::Type& type)
 {
     if( type >= Event::ALL )
         os << "unknown (" << static_cast<unsigned>( type ) << ')';
-    else 
+    else
         os << _eventTypeNames[ type ];
 
     return os;
@@ -146,7 +155,7 @@ std::ostream& operator << ( std::ostream& os, const ResizeEvent& event )
 std::ostream& operator << ( std::ostream& os, const PointerEvent& event )
 {
     os << '[' << event.x << "], [" << event.y << "] d(" << event.dx << ", "
-       << event.dy << ')' << " wheel " << '[' << event.xAxis << ", " 
+       << event.dy << ')' << " wheel " << '[' << event.xAxis << ", "
        << event.yAxis << "] buttons ";
 
     if( event.buttons == PTR_BUTTON_NONE ) os << "none";

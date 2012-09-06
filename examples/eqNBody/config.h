@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,7 +55,7 @@ namespace eqNbody
         void mapData( const eq::uint128_t& initDataID );
         void releaseData();
 
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+        virtual bool handleEvent( eq::EventCommand command );
         bool needsRedraw();
 
     protected:
@@ -69,8 +70,8 @@ namespace eqNbody
         bool _handleKeyEvent( const eq::KeyEvent& event );
 
         void _updateSimulation();
-        void _registerData(eq::ConfigEvent& event);
-        void _updateData(eq::ConfigEvent& event);
+        void _registerData( eq::EventCommand& command );
+        void _updateData( eq::EventCommand& command );
         void _deregisterData();
     };
 }

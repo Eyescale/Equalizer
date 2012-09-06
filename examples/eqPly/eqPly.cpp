@@ -124,7 +124,7 @@ int EqPly::run()
     // 4. run main loop
     uint32_t maxFrames = _initData.getMaxFrames();
     int lastFrame = 0;
-    
+
     clock.reset();
     while( config->isRunning( ) && maxFrames-- )
     {
@@ -154,7 +154,7 @@ int EqPly::run()
             }
             else  // no pending commands, block on user event
             {
-                const eq::ConfigEvent* event = config->nextEvent();
+                const eq::EventCommand& event = config->getNextEvent();
                 if( !config->handleEvent( event ))
                     LBVERB << "Unhandled " << event << std::endl;
             }

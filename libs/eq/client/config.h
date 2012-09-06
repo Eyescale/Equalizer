@@ -1,7 +1,7 @@
 
 /* Copyright (c) 2005-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2010, Cedric Stalder <cedric Stalder@gmail.com>
- *                    2011, Daniel Nachbaur <danielnachbaur@gmail.com>
+ *               2011-2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -332,15 +332,14 @@ namespace detail { class Config; }
 
         /** @name Event handling */
         //@{
+#ifndef EQ_2_0_API
         /**
          * Send an event to the application node.
          *
          * @param event the event.
          * @version 1.0
          */
-        // #145 Documentation & API
-        EQ_API co::ObjectOCommand sendEvent( const Event& event );
-        EQ_API co::ObjectOCommand sendEvent( const uint32_t eventType );
+        EQ_API void sendEvent( ConfigEvent& event );
 
         /**
          * Get the next event.
@@ -368,6 +367,45 @@ namespace detail { class Config; }
          * @version 1.0
          */
         EQ_API const ConfigEvent* tryNextEvent();
+#endif
+
+        /**
+         * Send an event to the application node.
+         *
+         * The returned command can be used to pass additional data to the
+         * event. The event will be send after the command is destroyed,
+         * aka when it is running out of scope.
+         *
+         * @param event the event.
+         * @return the event command to pass additional data to
+         * @version 1.5.1
+         */
+        EQ_API co::ObjectOCommand sendEvent( const Event& event );
+
+        /**
+         * Get the next event.
+         *
+         * To be called only on the application node.
+         *
+         * The returned event command is valid until it gets out of scope. This
+         * method does not block if the given timeout is 0.
+         *
+         * @param timeout time in ms to wait for incoming events
+         * @return the event command.
+         * @version 1.5.1
+         * @sa Client::processCommand()
+         */
+        EQ_API EventCommand getNextEvent( const uint32_t timeout =
+                                            LB_TIMEOUT_INDEFINITE ) const;
+
+        /**
+         * Handle one config event.
+         *
+         * @param command the event command.
+         * @return true if the event requires a redraw, false if not.
+         * @version 1.5.1
+         */
+        EQ_API virtual bool handleEvent( EventCommand command );
 
         /** @return true if events are pending. @version 1.0 */
         EQ_API bool checkEvent() const;
@@ -384,6 +422,7 @@ namespace detail { class Config; }
          */
         EQ_API virtual void handleEvents();
 
+#ifndef EQ_2_0_API
         /**
          * Handle one config event.
          *
@@ -392,6 +431,7 @@ namespace detail { class Config; }
          * @version 1.0
          */
         EQ_API virtual bool handleEvent( const ConfigEvent* event );
+#endif
         //@}
 
         /**
@@ -422,6 +462,12 @@ namespace detail { class Config; }
         friend class Node;
 
         bool _needsLocalSync() const;
+
+        bool _handleEvent( const Event& event );
+
+#ifndef EQ_2_0_API
+        const ConfigEvent* _convertEvent( co::ObjectCommand command );
+#endif
 
         /**
          * Update statistics for the finished frame, push it to the local node

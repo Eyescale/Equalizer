@@ -29,7 +29,6 @@ namespace admin
     class Layout;
     class Node;
     class Observer;
-    struct ConfigEvent;
 
     class Config : public fabric::Config< Server, Config, Observer, Layout,
                                           Canvas, Node, ConfigVisitor >

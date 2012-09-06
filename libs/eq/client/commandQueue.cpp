@@ -56,7 +56,7 @@ void CommandQueue::pushFront( const co::Command& command )
         _messagePump->postWakeup();
 }
 
-co::Command CommandQueue::pop()
+co::Command CommandQueue::pop( const uint32_t timeout )
 {
     int64_t start = -1;
     while( true )
@@ -69,7 +69,7 @@ co::Command CommandQueue::pop()
         {
             if( start > -1 )
                 _waitTime += ( _clock.getTime64() - start );
-            return co::CommandQueue::pop();
+            return co::CommandQueue::pop( timeout );
         }
 
         if( _messagePump )
@@ -81,7 +81,8 @@ co::Command CommandQueue::pop()
         else
         {
             start = _clock.getTime64();
-            const co::Command& command = co::CommandQueue::pop(); // blocking
+            // blocking
+            const co::Command& command = co::CommandQueue::pop( timeout );
             _waitTime += ( _clock.getTime64() - start );
             return command;
         }

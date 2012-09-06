@@ -22,7 +22,6 @@
 #include "channel.h"
 #include "client.h"
 #include "config.h"
-#include "configEvent.h"
 #include "error.h"
 #include "event.h"
 #include "gl.h"

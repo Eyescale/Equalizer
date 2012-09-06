@@ -45,11 +45,11 @@ namespace eqPly
     class View;
 
     /**
-     * The configuration, run be the EqPly application. 
+     * The configuration, run be the EqPly application.
      *
      * A configuration instance manages configuration-specific data: it
      * distributes the initialization and model data, updates frame-specific
-     * data and manages frame generation based on event handling. 
+     * data and manages frame generation based on event handling.
      */
     class Config : public eq::Config
     {
@@ -74,7 +74,7 @@ namespace eqPly
         const Model* getModel( const eq::uint128_t& id );
 
         /** @sa eq::Config::handleEvent */
-        virtual bool handleEvent( const eq::ConfigEvent* event );
+        virtual bool handleEvent( eq::EventCommand command );
 
         /** @return true if the application is idling. */
         bool isIdleAA();
@@ -89,7 +89,7 @@ namespace eqPly
         virtual ~Config();
 
         /** Synchronize config and admin copy. */
-        virtual co::uint128_t sync( 
+        virtual co::uint128_t sync(
                              const co::uint128_t& version = co::VERSION_HEAD );
 
     private:

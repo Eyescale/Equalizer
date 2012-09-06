@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -39,10 +40,6 @@ namespace eqNbody
         DATA_CHANGED = eq::Event::USER,
         PROXY_CHANGED
     };
-
-    // #145 Find a way to use operator << again
-    std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event );
 }
 
 #endif // EQNBODY_CONFIGEVENT_H
-

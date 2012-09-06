@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -36,6 +37,7 @@ namespace seq
 
         /** @name Operations */
         //@{
+#ifndef EQ_2_0_API
         /**
          * Handle the given event.
          *
@@ -45,6 +47,16 @@ namespace seq
          * @version 1.0
          */
         SEQ_API virtual bool handleEvent( const eq::ConfigEvent* event );
+#endif
+        /**
+         * Handle the given event command.
+         *
+         * The default implementation provides a pointer-based camera model and
+         * some key event handling, all of which can be modified by overwriting
+         * this method and handling the appropriate events.
+         * @version 1.5.1
+         */
+        SEQ_API virtual bool handleEvent( eq::EventCommand command );
 
         /** Rotate the model matrix by the given increments. @version 1.0 */
         SEQ_API void spinModel( const float x, const float y, const float z );
@@ -113,6 +125,8 @@ namespace seq
             DIRTY_STATISTICS = co::Serializable::DIRTY_CUSTOM << 1, // 2
             DIRTY_ORTHO = co::Serializable::DIRTY_CUSTOM << 2 // 4
         };
+
+        bool _handleEvent( const eq::Event& event );
 
         Matrix4f _modelMatrix;
         int32_t _spinX, _spinY;

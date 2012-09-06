@@ -374,12 +374,13 @@ bool Config::_needNewFrame()
              _tracker.isRunning() || _redraw );
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( event->data.type )
+    const eq::Event& event = command.getEvent();
+    switch( event.type )
     {
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event->data.keyPress ))
+            if( _handleKeyEvent( event.keyPress ))
             {
                 _redraw = true;
                 return true;
@@ -388,7 +389,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const eq::uint128_t& viewID = event->data.context.view.identifier;
+            const eq::uint128_t& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == eq::UUID::ZERO )
             {
@@ -417,7 +418,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
         {
             const eq::PointerEvent& releaseEvent =
-                event->data.pointerButtonRelease;
+                event.pointerButtonRelease;
             if( releaseEvent.buttons == eq::PTR_BUTTON_NONE)
             {
                 if( releaseEvent.button == eq::PTR_BUTTON1 )
@@ -437,7 +438,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
         }
         case eq::Event::CHANNEL_POINTER_MOTION:
-            switch( event->data.pointerMotion.buttons )
+            switch( event.pointerMotion.buttons )
             {
               case eq::PTR_BUTTON1:
                   _spinX = 0;
@@ -445,24 +446,24 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
                   if( _frameData.usePilotMode())
                       _frameData.spinCamera(
-                          -0.005f * event->data.pointerMotion.dy,
-                          -0.005f * event->data.pointerMotion.dx );
+                          -0.005f * event.pointerMotion.dy,
+                          -0.005f * event.pointerMotion.dx );
                   else
                       _frameData.spinModel(
-                          -0.005f * event->data.pointerMotion.dy,
-                          -0.005f * event->data.pointerMotion.dx, 0.f );
+                          -0.005f * event.pointerMotion.dy,
+                          -0.005f * event.pointerMotion.dx, 0.f );
                   _redraw = true;
                   return true;
 
               case eq::PTR_BUTTON2:
-                  _advance = -event->data.pointerMotion.dy;
+                  _advance = -event.pointerMotion.dy;
                   _frameData.moveCamera( 0.f, 0.f, .005f * _advance );
                   _redraw = true;
                   return true;
 
               case eq::PTR_BUTTON3:
-                  _frameData.moveCamera(  .0005f * event->data.pointerMotion.dx,
-                                         -.0005f * event->data.pointerMotion.dy,
+                  _frameData.moveCamera(  .0005f * event.pointerMotion.dx,
+                                         -.0005f * event.pointerMotion.dy,
                                           0.f );
                   _redraw = true;
                   return true;
@@ -470,9 +471,9 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
 
         case eq::Event::WINDOW_POINTER_WHEEL:
-            _frameData.moveCamera( -0.05f * event->data.pointerWheel.yAxis,
+            _frameData.moveCamera( -0.05f * event.pointerWheel.yAxis,
                                    0.f,
-                                   0.05f * event->data.pointerWheel.xAxis );
+                                   0.05f * event.pointerWheel.xAxis );
             _redraw = true;
             return true;
 
@@ -480,17 +481,17 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             _spinX = 0;
             _spinY = 0;
             _advance = 0;
-            _frameData.spinModel( 0.0001f * event->data.magellan.xRotation,
-                                  0.0001f * event->data.magellan.yRotation,
-                                  0.0001f * event->data.magellan.zRotation );
-            _frameData.moveCamera( 0.0001f * event->data.magellan.xAxis,
-                                   0.0001f * event->data.magellan.yAxis,
-                                   0.0001f * event->data.magellan.zAxis );
+            _frameData.spinModel( 0.0001f * event.magellan.xRotation,
+                                  0.0001f * event.magellan.yRotation,
+                                  0.0001f * event.magellan.zRotation );
+            _frameData.moveCamera( 0.0001f * event.magellan.xAxis,
+                                   0.0001f * event.magellan.yAxis,
+                                   0.0001f * event.magellan.zAxis );
             _redraw = true;
             return true;
 
         case eq::Event::MAGELLAN_BUTTON:
-            if( event->data.magellan.button == eq::PTR_BUTTON1 )
+            if( event.magellan.button == eq::PTR_BUTTON1 )
                 _frameData.toggleColorMode();
 
             _redraw = true;
@@ -506,9 +507,8 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         case IDLE_AA_LEFT:
             if( _useIdleAA )
             {
-                // #145 Need copy of event for non-const get() of values :(
-                eq::ConfigEvent myEvent( *event );
-                const int32_t steps = myEvent.get< int32_t >();
+                const int32_t steps = command.get< int32_t >();
+                LBINFO << steps << " FSAA steps to do" << std::endl;
                 _numFramesAA = LB_MAX( _numFramesAA, steps );
             }
             else
@@ -519,7 +519,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
     }
 
-    _redraw |= eq::Config::handleEvent( event );
+    _redraw |= eq::Config::handleEvent( command );
     return _redraw;
 }
 

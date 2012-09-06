@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com> 
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -129,11 +130,9 @@ void SharedData::updateMemory(const eq::Range& range, Controller *controller)
     _sendEvent( PROXY_CHANGED, version, local->getID(), range) ;
 }
 
-void SharedData::_sendEvent( ConfigEventType type,
-                             const eq::uint128_t& version,
-                             const eq::uint128_t& pid,
-                             const eq::Range& range)
+void SharedData::_sendEvent( ConfigEventType type, const eq::uint128_t& version,
+                             const eq::uint128_t& pid, const eq::Range& range )
 {
-    _cfg->sendEvent( type ) << pid << range << version;
+    _cfg->sendEvent( eq::Event( type )) << pid << range << version;
 }
 }

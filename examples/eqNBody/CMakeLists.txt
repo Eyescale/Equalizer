@@ -34,7 +34,6 @@ eq_add_example(eqNBody
     channel.cpp
     client.cpp
     config.cpp
-    configEvent.cpp
     controller.cpp
     frameData.cpp
     initData.cpp

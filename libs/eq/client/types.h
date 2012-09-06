@@ -38,6 +38,7 @@ class CommandQueue;
 class ComputeContext;
 class Config;
 class ConfigParams;
+class EventCommand;
 class Frame;
 class FrameData;
 class Image;
@@ -54,7 +55,9 @@ class SystemWindow;
 class View;
 class Window;
 class WindowSystem;
+#ifndef EQ_2_0_API
 struct ConfigEvent;
+#endif
 struct Event;
 struct PixelData;
 struct PointerEvent;

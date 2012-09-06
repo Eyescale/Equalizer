@@ -451,7 +451,7 @@ void Channel::_sendEvent( ConfigEventType type, const float msec,
         name = strName.str();
     }
 
-    getConfig()->sendEvent( type )
+    getConfig()->sendEvent( eq::Event( type ))
             << msec << name << area << formatType << dataSizeGPU << dataSizeCPU;
 }
 

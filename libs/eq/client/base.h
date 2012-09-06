@@ -1,15 +1,15 @@
 
-/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2010-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -18,16 +18,16 @@
 #ifndef EQCLIENT_H
 #define EQCLIENT_H
 
-/** 
+/**
  * @namespace eq
  * @brief The Equalizer client library.
  *
  * This namespace implements the application-visible API to access the Equalizer
- * server. 
+ * server.
  *
  * The Client represents the application instance and co::Node. A Client can
  * connect to a Server to retrieve a Config.
- * 
+ *
  * The Server, Config, Node, Window and Channel hierarchy represents the
  * rendering entities as described in the configuration file. Each process in
  * the cluster only has the local entities instantiated, that is, there is at
@@ -85,9 +85,12 @@
 #include <eq/client/client.h>
 #include <eq/client/compositor.h>
 #include <eq/client/config.h>
-#include <eq/client/configEvent.h>
+#ifndef EQ_2_0_API
+#  include <eq/client/configEvent.h>
+#endif
 #include <eq/client/configParams.h>
 #include <eq/client/event.h>
+#include <eq/client/eventCommand.h>
 #include <eq/client/error.h>
 #include <eq/client/exception.h>
 #include <eq/client/frame.h>

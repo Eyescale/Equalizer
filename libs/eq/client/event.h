@@ -1,6 +1,7 @@
 
 /* Copyright (c) 2006-2012, Stefan Eilemann <eile@equalizergraphics.com>
  *                    2011, Cedric Stalder <cedric.stalder@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -172,6 +173,9 @@ namespace eq
     {
         /** Construct a new event. */
         EQ_API Event();
+
+        /** Construct a new event with a known type. @version 1.5.1 */
+        EQ_API Event( const uint32_t type );
 
         /** The type of the event. */
         enum Type // Also update string table in event.cpp

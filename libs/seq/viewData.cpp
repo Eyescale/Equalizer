@@ -1,15 +1,16 @@
 
-/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch> 
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
  * by the Free Software Foundation.
- *  
+ *
  * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -17,7 +18,11 @@
 
 #include "viewData.h"
 
-#include <eq/client/configEvent.h>
+#ifndef EQ_2_0_API
+#  include <eq/client/configEvent.h>
+#endif
+#include <eq/client/event.h>
+#include <eq/client/eventCommand.h>
 #include <co/dataIStream.h>
 #include <co/dataOStream.h>
 
@@ -58,15 +63,25 @@ void ViewData::deserialize( co::DataIStream& is, const uint64_t dirtyBits )
     if( dirtyBits & DIRTY_ORTHO )
         is >> _ortho;
 }
-
+#ifndef EQ_2_0_API
 bool ViewData::handleEvent( const eq::ConfigEvent* event )
 {
-    switch( event->data.type )
+    return _handleEvent( event->data );
+}
+#endif
+bool ViewData::handleEvent( eq::EventCommand command )
+{
+    return _handleEvent( command.getEvent( ));
+}
+
+bool ViewData::_handleEvent( const eq::Event& event )
+{
+    switch( event.type )
     {
       case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
       {
-          const eq::PointerEvent& releaseEvent = 
-              event->data.pointerButtonRelease;
+          const eq::PointerEvent& releaseEvent =
+              event.pointerButtonRelease;
           if( releaseEvent.buttons == eq::PTR_BUTTON_NONE )
           {
               if( releaseEvent.button == eq::PTR_BUTTON1 )
@@ -84,23 +99,23 @@ bool ViewData::handleEvent( const eq::ConfigEvent* event )
           return false;
       }
       case eq::Event::CHANNEL_POINTER_MOTION:
-          switch( event->data.pointerMotion.buttons )
+          switch( event.pointerMotion.buttons )
           {
             case eq::PTR_BUTTON1:
                 _spinX = 0;
                 _spinY = 0;
-                spinModel( -0.005f * event->data.pointerMotion.dy,
-                           -0.005f * event->data.pointerMotion.dx, 0.f );
+                spinModel( -0.005f * event.pointerMotion.dy,
+                           -0.005f * event.pointerMotion.dx, 0.f );
                 return true;
 
             case eq::PTR_BUTTON2:
-                _advance = -event->data.pointerMotion.dy;
+                _advance = -event.pointerMotion.dy;
                 moveModel( 0.f, 0.f, .005f * _advance );
                 return true;
 
             case eq::PTR_BUTTON3:
-                moveModel(  .0005f * event->data.pointerMotion.dx,
-                           -.0005f * event->data.pointerMotion.dy, 0.f );
+                moveModel(  .0005f * event.pointerMotion.dx,
+                           -.0005f * event.pointerMotion.dy, 0.f );
                 return true;
 
             default:
@@ -108,24 +123,24 @@ bool ViewData::handleEvent( const eq::ConfigEvent* event )
           }
 
       case eq::Event::WINDOW_POINTER_WHEEL:
-          moveModel( -0.05f * event->data.pointerWheel.yAxis, 0.f,
-                      0.05f * event->data.pointerWheel.xAxis );
+          moveModel( -0.05f * event.pointerWheel.yAxis, 0.f,
+                      0.05f * event.pointerWheel.xAxis );
           return true;
 
       case eq::Event::MAGELLAN_AXIS:
           _spinX = 0;
           _spinY = 0;
           _advance = 0;
-          spinModel(  0.0001f * event->data.magellan.zRotation,
-                     -0.0001f * event->data.magellan.xRotation,
-                     -0.0001f * event->data.magellan.yRotation );
-          moveModel(  0.0001f * event->data.magellan.xAxis,
-                     -0.0001f * event->data.magellan.zAxis,
-                      0.0001f * event->data.magellan.yAxis );
+          spinModel(  0.0001f * event.magellan.zRotation,
+                     -0.0001f * event.magellan.xRotation,
+                     -0.0001f * event.magellan.yRotation );
+          moveModel(  0.0001f * event.magellan.xAxis,
+                     -0.0001f * event.magellan.zAxis,
+                      0.0001f * event.magellan.yAxis );
           return true;
 
       case eq::Event::KEY_PRESS:
-          switch( event->data.keyPress.key )
+          switch( event.keyPress.key )
           {
             case 's':
                 showStatistics( !getStatistics( ));
@@ -183,7 +198,7 @@ void  ViewData::setOrtho( const bool on )
 {
     if( _ortho == on )
         return;
-    
+
     _ortho = on;
     setDirty( DIRTY_ORTHO );
 }

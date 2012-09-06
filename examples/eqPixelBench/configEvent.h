@@ -42,8 +42,6 @@ enum ConfigEventType
     START_LATENCY
 };
 
-// #145 Find a way to use operator << again
-std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event );
 }
 
 #endif // EQ_PIXELBENCH_CONFIGEVENT_H

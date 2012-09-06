@@ -1,6 +1,7 @@
 
 /*
  * Copyright (c) 2009, Philippe Robert <philippe.robert@gmail.com>
+ *               2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -115,15 +116,13 @@ bool Config::needsRedraw()
     return ( _redraw );
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( event->data.type )
+    switch( command.getEvent().type )
     {
         case DATA_CHANGED:
         {
-            // #145 Need copy of event for non-const get() of values :(
-            eq::ConfigEvent myEvent( *event );
-            _registerData( myEvent );
+            _registerData( command );
             if( _readyToCommit() )
                 _frameData.commit();    // broadcast changed data to all clients
             break;
@@ -131,9 +130,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
 
         case PROXY_CHANGED:
         {
-            // #145 Need copy of event for non-const get() of values :(
-            eq::ConfigEvent myEvent( *event );
-            _updateData( myEvent );
+            _updateData( command );
             if( _readyToCommit() )
             {
                 _updateSimulation();    // update the simulation every nth frame
@@ -143,7 +140,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         }
 
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event->data.keyPress ))
+            if( _handleKeyEvent( command.getEvent().keyPress ))
             {
                 _redraw = true;
                 return true;
@@ -161,7 +158,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
             break;
     }
 
-    _redraw |= eq::Config::handleEvent( event );
+    _redraw |= eq::Config::handleEvent( command );
     return _redraw;
 }
 
@@ -214,19 +211,19 @@ void Config::_updateSimulation()
     }
 }
 
-void Config::_registerData(eq::ConfigEvent& event)
+void Config::_registerData( eq::EventCommand& command )
 {
-    const eq::uint128_t pid = event.get< eq::uint128_t >();
-    const eq::Range range = event.get< eq::Range >();
+    const eq::uint128_t pid = command.get< eq::uint128_t >();
+    const eq::Range range = command.get< eq::Range >();
 
     _frameData.addProxyID( pid, range );
 }
 
-void Config::_updateData(eq::ConfigEvent& event)
+void Config::_updateData( eq::EventCommand& command )
 {
-    const eq::uint128_t pid = event.get< eq::uint128_t >();
-    const eq::Range range = event.get< eq::Range >();
-    const eq::uint128_t version = event.get< eq::uint128_t >();
+    const eq::uint128_t pid = command.get< eq::uint128_t >();
+    const eq::Range range = command.get< eq::Range >();
+    const eq::uint128_t version = command.get< eq::uint128_t >();
 
     _frameData.updateProxyID( pid, version, range );
 }

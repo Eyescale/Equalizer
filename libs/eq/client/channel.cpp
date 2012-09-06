@@ -23,7 +23,9 @@
 #include "client.h"
 #include "compositor.h"
 #include "config.h"
-#include "configEvent.h"
+#ifndef EQ_2_0_API
+#  include "configEvent.h"
+#endif
 #include "error.h"
 #include "frame.h"
 #include "frameData.h"
@@ -849,13 +851,7 @@ const PixelViewports& Channel::getRegions() const
 
 bool Channel::processEvent( const Event& event )
 {
-#if 0
-TODO #145 implement old API:
-    ConfigEvent configEvent;
-    configEvent.data = event;
-#else
     Event configEvent = event;
-#endif
 
     switch( event.type )
     {
@@ -901,7 +897,7 @@ enum
 {
     THREAD_MAIN,
     THREAD_ASYNC1,
-    THREAD_ASYNC2,
+    THREAD_ASYNC2
 };
 
 struct EntityData

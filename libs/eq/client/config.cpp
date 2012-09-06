@@ -22,8 +22,11 @@
 #include "canvas.h"
 #include "channel.h"
 #include "client.h"
-#include "configEvent.h"
+#ifndef EQ_2_0_API
+#  include "configEvent.h"
+#endif
 #include "configStatistics.h"
+#include "eventCommand.h"
 #include "global.h"
 #include "layout.h"
 #include "log.h"
@@ -44,7 +47,6 @@
 #include <co/object.h>
 #include <co/connectionDescription.h>
 #include <co/global.h>
-#include <co/objectCommand.h>
 #include <lunchbox/scopedMutex.h>
 
 namespace eq
@@ -80,8 +82,7 @@ class Config
 {
 public:
     Config()
-            : lastEvent( 0 )
-            , currentFrame( 0 )
+            : currentFrame( 0 )
             , unlockedFrame( 0 )
             , finishedFrame( 0 )
             , running( false )
@@ -91,7 +92,6 @@ public:
 
     ~Config()
     {
-        delete lastEvent;
         appNode = 0;
         lunchbox::Log::setClock( 0 );
     }
@@ -102,8 +102,10 @@ public:
     /** The receiver->app thread event queue. */
     CommandQueue eventQueue;
 
+#ifndef EQ_2_0_API
     /** The last received event to be released. */
-    ConfigEvent* lastEvent;
+    co::Command lastEvent;
+#endif
 
     /** The connections configured by the server for this config. */
     co::Connections connections;
@@ -179,6 +181,10 @@ void Config::attach( const UUID& id, const uint32_t instanceID )
                      ConfigFunc( this, &Config::_cmdReleaseFrameLocal ), queue);
     registerCommand( fabric::CMD_CONFIG_FRAME_FINISH,
                      ConfigFunc( this, &Config::_cmdFrameFinish ), 0 );
+#ifndef EQ_2_0_API
+    registerCommand( fabric::CMD_CONFIG_EVENT_OLD, ConfigFunc( 0, 0 ),
+                     &_impl->eventQueue );
+#endif
     registerCommand( fabric::CMD_CONFIG_EVENT, ConfigFunc( 0, 0 ),
                      &_impl->eventQueue );
     registerCommand( fabric::CMD_CONFIG_SYNC_CLOCK,
@@ -340,8 +346,9 @@ bool Config::exit()
     bool ret = false;
     localNode->waitRequest( requestID, ret );
 
-    delete _impl->lastEvent;
-    _impl->lastEvent = 0;
+#ifndef EQ_2_0_API
+    _impl->lastEvent.clear();
+#endif
     _impl->eventQueue.flush();
     _impl->running = false;
     return ret;
@@ -569,6 +576,47 @@ void Config::changeLatency( const uint32_t latency )
     accept( changeLatencyVisitor );
 }
 
+#ifndef EQ_2_0_API
+void Config::sendEvent( ConfigEvent& event )
+{
+    LBASSERT( event.data.type != Event::STATISTIC ||
+              event.data.statistic.type != Statistic::NONE );
+    LBASSERT( getAppNodeID() != co::NodeID::ZERO );
+    LBASSERT( _impl->appNode );
+
+    co::ObjectOCommand cmd( send( _impl->appNode,
+                                  fabric::CMD_CONFIG_EVENT_OLD ));
+    cmd << event.size << co::Array< void >( &event, event.size );
+}
+
+const ConfigEvent* Config::nextEvent()
+{
+    EventCommand command = getNextEvent( LB_TIMEOUT_INDEFINITE );
+    return _convertEvent( command );
+}
+
+const ConfigEvent* Config::tryNextEvent()
+{
+    EventCommand command = getNextEvent( 0 );
+    if( !command.isValid( ))
+        return 0;
+    return _convertEvent( command );
+}
+
+const ConfigEvent* Config::_convertEvent( co::ObjectCommand command )
+{
+    LBASSERT( command.isValid( ));
+    _impl->lastEvent = command;
+
+    uint64_t size = sizeof( Event );
+    if( command.getCommand() == fabric::CMD_CONFIG_EVENT_OLD )
+        size = command.get< uint64_t >();
+
+    return reinterpret_cast< const ConfigEvent* >
+                                          ( command.getRemainingBuffer( size ));
+}
+#endif
+
 co::ObjectOCommand Config::sendEvent( const Event& event )
 {
     LBASSERT( event.type != Event::STATISTIC ||
@@ -581,29 +629,21 @@ co::ObjectOCommand Config::sendEvent( const Event& event )
     return cmd;
 }
 
-co::ObjectOCommand Config::sendEvent( const uint32_t eventType )
+EventCommand Config::getNextEvent( const uint32_t timeout ) const
 {
-    Event event;
-    event.type = eventType;
-    return sendEvent( event );
+    if( timeout == 0 )
+        return _impl->eventQueue.tryPop();
+    return _impl->eventQueue.pop( timeout );
 }
 
-const ConfigEvent* Config::nextEvent()
+bool Config::handleEvent( EventCommand command )
 {
-    delete _impl->lastEvent;
-    _impl->lastEvent = new ConfigEvent( _impl->eventQueue.pop( ));
-    return _impl->lastEvent;
-}
-
-const ConfigEvent* Config::tryNextEvent()
-{
-    const co::Command& command = _impl->eventQueue.tryPop();
-    if( !command.isValid( ))
-        return 0;
-
-    delete _impl->lastEvent;
-    _impl->lastEvent = new ConfigEvent( command );
-    return _impl->lastEvent;
+    LBASSERT( command.getCommand() == fabric::CMD_CONFIG_EVENT );
+#ifndef EQ_2_0_API
+    if( handleEvent( _convertEvent( command )))
+        return true;
+#endif
+    return _handleEvent( command.getEvent( ));
 }
 
 bool Config::checkEvent() const
@@ -613,13 +653,24 @@ bool Config::checkEvent() const
 
 void Config::handleEvents()
 {
-    for( const ConfigEvent* event = tryNextEvent(); event; event=tryNextEvent())
-        handleEvent( event );
+    for( ;; )
+    {
+        EventCommand eventCommand = getNextEvent( 0 );
+        if( !eventCommand.isValid( ))
+            break;
+
+#ifndef EQ_2_0_API
+        if( eventCommand.getCommand() == fabric::CMD_CONFIG_EVENT_OLD )
+            handleEvent( _convertEvent( eventCommand ));
+        else
+#endif
+        handleEvent( eventCommand );
+    }
 }
 
-bool Config::handleEvent( const ConfigEvent* event )
+bool Config::_handleEvent( const Event& event )
 {
-    switch( event->data.type )
+    switch( event.type )
     {
         case Event::EXIT:
         case Event::WINDOW_CLOSE:
@@ -627,7 +678,7 @@ bool Config::handleEvent( const ConfigEvent* event )
             return true;
 
         case Event::KEY_PRESS:
-            if( event->data.keyPress.key == KC_ESCAPE )
+            if( event.keyPress.key == KC_ESCAPE )
             {
                 _impl->running = false;
                 return true;
@@ -636,7 +687,7 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::WINDOW_POINTER_BUTTON_PRESS:
         case Event::CHANNEL_POINTER_BUTTON_PRESS:
-            if( event->data.pointerButtonPress.buttons ==
+            if( event.pointerButtonPress.buttons ==
                 ( PTR_BUTTON1 | PTR_BUTTON2 | PTR_BUTTON3 ))
             {
                 _impl->running = false;
@@ -646,14 +697,14 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::STATISTIC:
         {
-            LBLOG( LOG_STATS ) << event->data << std::endl;
+            LBLOG( LOG_STATS ) << event << std::endl;
 
-            const uint32_t originator = event->data.serial;
-            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event->data );
+            const uint32_t originator = event.serial;
+            LBASSERTINFO( originator != EQ_INSTANCE_INVALID, event );
             if( originator == 0 )
                 return false;
 
-            const Statistic& statistic = event->data.statistic;
+            const Statistic& statistic = event.statistic;
             const uint32_t   frame     = statistic.frameNumber;
             LBASSERT( statistic.type != Statistic::NONE )
 
@@ -692,10 +743,10 @@ bool Config::handleEvent( const ConfigEvent* event )
 
         case Event::VIEW_RESIZE:
         {
-            LBASSERT( event->data.originator != UUID::ZERO );
-            View* view = find< View >( event->data.originator );
+            LBASSERT( event.originator != UUID::ZERO );
+            View* view = find< View >( event.originator );
             if( view )
-                return view->handleEvent( event->data );
+                return view->handleEvent( event );
             break;
         }
     }
@@ -703,6 +754,12 @@ bool Config::handleEvent( const ConfigEvent* event )
     return false;
 }
 
+#ifndef EQ_2_0_API
+bool Config::handleEvent( const ConfigEvent* event )
+{
+    return _handleEvent( event->data );
+}
+#endif
 bool Config::_needsLocalSync() const
 {
     const Nodes& nodes = getNodes();

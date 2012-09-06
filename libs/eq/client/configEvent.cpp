@@ -15,30 +15,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef EQ_2_0_API
 #include "configEvent.h"
-
 
 namespace eq
 {
 
-ConfigEvent::ConfigEvent( const co::Command& command )
-    : co::ObjectCommand( command )
-{
-    *this >> data;
-}
-
-ConfigEvent::ConfigEvent( const ConfigEvent& rhs )
-    : co::ObjectCommand( rhs )
-{
-    *this >> data;
-}
-
 std::ostream& operator << ( std::ostream& os, const ConfigEvent* event )
 {
-    os << "config event " << ", event "
-       << event->data;
+    os << "config event " << ", event " << event->data;
 
     return os;
 }
 
 }
+#endif

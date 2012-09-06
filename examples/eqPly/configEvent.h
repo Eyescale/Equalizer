@@ -41,9 +41,6 @@ enum ConfigEventType
     IDLE_AA_LEFT = eq::Event::USER
 };
 
-// #145 Find a way to use operator << again
-std::ostream& printEvent( std::ostream& os, const eq::ConfigEvent* event );
-
 }
 
 #endif // EQ_PLY_CONFIGEVENT_H

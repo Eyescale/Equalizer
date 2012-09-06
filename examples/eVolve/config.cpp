@@ -1,6 +1,7 @@
 
-/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com> 
+/* Copyright (c) 2006-2011, Stefan Eilemann <eile@equalizergraphics.com>
  *               2007-2011, Maxim Makhinya  <maxmah@gmail.com>
+ *                    2012, Daniel Nachbaur <danielnachbaur@gmail.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -125,25 +126,26 @@ void Config::_resetMessage()
     }
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( event->data.type )
+    const eq::Event& event = command.getEvent();
+    switch( event.type )
     {
         case eq::Event::KEY_PRESS:
-            if( _handleKeyEvent( event->data.keyPress ))
+            if( _handleKeyEvent( event.keyPress ))
                 return true;
             break;
 
         case eq::Event::CHANNEL_POINTER_BUTTON_PRESS:
         {
-            const lunchbox::UUID& viewID = event->data.context.view.identifier;
+            const lunchbox::UUID& viewID = event.context.view.identifier;
             _frameData.setCurrentViewID( viewID );
             if( viewID == lunchbox::UUID::ZERO )
             {
                 _currentCanvas = 0;
                 return true;
             }
-            
+
             const eq::View* view = find< eq::View >( viewID );
             const eq::Layout* layout = view->getLayout();
             const eq::Canvases& canvases = getCanvases();
@@ -163,36 +165,36 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         }
 
         case eq::Event::CHANNEL_POINTER_BUTTON_RELEASE:
-            if( event->data.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
-                && event->data.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
+            if( event.pointerButtonRelease.buttons == eq::PTR_BUTTON_NONE
+                && event.pointerButtonRelease.button  == eq::PTR_BUTTON1 )
             {
-                _spinY = event->data.pointerButtonRelease.dx;
-                _spinX = event->data.pointerButtonRelease.dy;
+                _spinY = event.pointerButtonRelease.dx;
+                _spinX = event.pointerButtonRelease.dy;
             }
             return true;
 
         case eq::Event::CHANNEL_POINTER_MOTION:
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON1 )
+            if( event.pointerMotion.buttons == eq::PTR_BUTTON1 )
             {
                 _spinX = 0;
                 _spinY = 0;
 
-                _frameData.spinCamera(  -0.005f * event->data.pointerMotion.dy,
-                                        -0.005f * event->data.pointerMotion.dx);
+                _frameData.spinCamera(  -0.005f * event.pointerMotion.dy,
+                                        -0.005f * event.pointerMotion.dx);
                 return true;
             }
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON2 ||
-                event->data.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
+            if( event.pointerMotion.buttons == eq::PTR_BUTTON2 ||
+                event.pointerMotion.buttons == ( eq::PTR_BUTTON1 |
                                                        eq::PTR_BUTTON3 ))
             {
                 _frameData.moveCamera( .0, .0,
-                                        .005f*event->data.pointerMotion.dy );
+                                        .005f*event.pointerMotion.dy );
                 return true;
             }
-            if( event->data.pointerMotion.buttons == eq::PTR_BUTTON3 )
+            if( event.pointerMotion.buttons == eq::PTR_BUTTON3 )
             {
-                _frameData.moveCamera( .0005f * event->data.pointerMotion.dx,
-                                      -.0005f * event->data.pointerMotion.dy, 
+                _frameData.moveCamera( .0005f * event.pointerMotion.dx,
+                                      -.0005f * event.pointerMotion.dy,
                                        .0f );
                 return true;
             }
@@ -201,7 +203,7 @@ bool Config::handleEvent( const eq::ConfigEvent* event )
         default:
             break;
     }
-    return eq::Config::handleEvent( event );
+    return eq::Config::handleEvent( command );
 }
 
 bool Config::_handleKeyEvent( const eq::KeyEvent& event )
@@ -304,7 +306,7 @@ bool Config::_handleKeyEvent( const eq::KeyEvent& event )
             if( !layout )
                 return true;
 
-            const eq::View* current = 
+            const eq::View* current =
                               find< eq::View >( _frameData.getCurrentViewID( ));
 
             const eq::Views& views = layout->getViews();

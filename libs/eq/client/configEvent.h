@@ -18,12 +18,11 @@
 #ifndef EQ_CONFIGEVENT_H
 #define EQ_CONFIGEVENT_H
 
-#include <co/objectCommand.h>  // base class
 #include <eq/client/event.h>   // member
 
 namespace eq
 {
-    // #145 Documentation & API
+#ifndef EQ_2_0_API
     /**
      * A config event.
      *
@@ -41,21 +40,22 @@ namespace eq
      * When subclassing, make sure to set the packet size to the total size of
      * the event structure.
      */
-    struct ConfigEvent : public co::ObjectCommand
+    struct ConfigEvent
     {
     public:
-        /** @internal Construct a new config event. */
-        ConfigEvent( const co::Command& command );
-
-        /** Copy-construct a new config event. */
-        EQ_API ConfigEvent( const ConfigEvent& rhs );
+        ConfigEvent()
+            {
+                size = sizeof( ConfigEvent );
+            }
 
         Event data; //!< the Event @version 1.0
+        uint64_t size;
     };
 
     /** Print the config event to the given output stream. @version 1.0 */
     EQ_API std::ostream& operator << ( std::ostream& os,
                                        const ConfigEvent* event );
+#endif
 }
 
 #endif // EQ_CONFIGEVENT_H

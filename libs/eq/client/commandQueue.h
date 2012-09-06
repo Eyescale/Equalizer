@@ -43,7 +43,8 @@ namespace eq
         virtual void pushFront( const co::Command& command );
 
         /** @sa co::CommandQueue::pop(). */
-        virtual co::Command pop();
+        virtual co::Command pop( const uint32_t timeout =
+                                    LB_TIMEOUT_INDEFINITE );
 
         /** @sa co::CommandQueue::tryPop(). */
         virtual co::Command tryPop();

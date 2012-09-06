@@ -35,8 +35,8 @@
 #include "view.h"
 #include "window.h"
 
-#include <eq/client/configEvent.h>
 #include <eq/client/error.h>
+#include <eq/client/event.h>
 
 #include <eq/fabric/commands.h>
 #include <eq/fabric/commandType.h>
@@ -818,8 +818,8 @@ bool Config::exit()
 
     const bool success = _updateRunning();
 
-// TODO code is wrong, fix by moving to client? #145
-    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT ) << Event::EXIT;
+    send( findApplicationNetNode(), fabric::CMD_CONFIG_EVENT )
+            << Event( Event::EXIT );
 
     _needsFinish = false;
     _state = STATE_STOPPED;

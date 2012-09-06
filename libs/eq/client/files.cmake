@@ -41,13 +41,13 @@ set(CLIENT_HEADERS
   compositor.h
   computeContext.h
   config.h
-  configEvent.h
   configParams.h
   configStatistics.h
   cudaContext.h
   defines.h
   error.h
   event.h
+  eventCommand.h
   eventHandler.h
   exception.h
   eye.h
@@ -95,11 +95,11 @@ set(CLIENT_SOURCES
   compositor.cpp
   computeContext.cpp
   config.cpp
-  configEvent.cpp
   configParams.cpp
   configStatistics.cpp
   cudaContext.cpp
   event.cpp
+  eventCommand.cpp
   eventHandler.cpp
   frame.cpp
   frameData.cpp
@@ -133,6 +133,11 @@ set(CLIENT_SOURCES
   worker.cpp
   )
 
+if(NOT EQUALIZER_BUILD_2_0_API)
+  list(APPEND CLIENT_HEADERS configEvent.h)
+  list(APPEND CLIENT_SOURCES configEvent.cpp)
+endif()
+
 if(EQ_AGL_USED)
   set(AGL_SOURCES
     agl/eventHandler.cpp
@@ -142,7 +147,7 @@ if(EQ_AGL_USED)
     agl/windowSystem.cpp
   )
   list(APPEND CLIENT_SOURCES ${AGL_SOURCES})
-endif(EQ_AGL_USED)
+endif()
 
 if(EQ_GLX_USED)
   set(GLX_SOURCES
@@ -154,7 +159,7 @@ if(EQ_GLX_USED)
     glXTypes.cpp
   )
   list(APPEND CLIENT_SOURCES ${GLX_SOURCES})
-endif(EQ_GLX_USED)
+endif()
 
 if(WIN32)
   set(WGL_SOURCES
@@ -165,5 +170,5 @@ if(WIN32)
     wgl/windowSystem.cpp
   )
   list(APPEND CLIENT_SOURCES ${WGL_SOURCES})
-endif(WIN32)
+endif()
 

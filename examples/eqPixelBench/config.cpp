@@ -55,18 +55,63 @@ uint32_t Config::startFrame( const eq::uint128_t& frameID )
     return eq::Config::startFrame( frameID );
 }
 
-bool Config::handleEvent( const eq::ConfigEvent* event )
+bool Config::handleEvent( eq::EventCommand command )
 {
-    switch( event->data.type )
+    switch( command.getEvent().type )
     {
+    case READBACK:
+    case ASSEMBLE:
+    case START_LATENCY:
+    {
+        switch( command.getEvent().type )
+        {
         case READBACK:
+            std::cout << "readback";
+            break;
         case ASSEMBLE:
+            std::cout << "assemble";
+            break;
         case START_LATENCY:
-            std::cout << printEvent( std::cout, event ) << std::endl;
-            return true;
-
         default:
-            return eq::Config::handleEvent( event );
+            std::cout << "        ";
+        }
+
+        const float msec = command.get< float >();
+        const std::string& name = command.get< std::string >();
+        const eq::Vector2i area = command.get< eq::Vector2i >();
+        const std::string& formatType = command.get< std::string >();
+        const uint64_t dataSizeGPU = command.get< uint64_t >();
+        const uint64_t dataSizeCPU = command.get< uint64_t >();
+
+        std::cout << " \"" << name << "\" " << formatType
+                  << std::string( 32-formatType.length(), ' ' ) << area.x()
+                  << "x" << area.y() << ": ";
+
+        if( msec < 0.0f )
+            std::cout << "error 0x" << std::hex << static_cast< int >( -msec )
+                      << std::dec;
+        else
+            std::cout << static_cast< uint32_t >( area.x() * area.y() /
+                                                  msec / 1048.576f )
+                      << "MPix/sec (" << msec << "ms, "
+                      << unsigned(1000.0f / msec) << "FPS)";
+
+        if( command.getEvent().type == READBACK )
+        {
+            std::cout << area << "( size GPU : " << dataSizeGPU << " bytes ";
+            std::cout << "/ size CPU : " << dataSizeCPU << " bytes ";
+            std::cout << "/ time : " <<  msec << "ms )";
+        }
+        else if( command.getEvent().type == ASSEMBLE )
+        {
+            std::cout << area << "( size CPU : " << dataSizeCPU << " bytes ";
+            std::cout << "/ time : " <<  msec << "ms )";
+        }
+        return true;
+    }
+
+    default:
+        return eq::Config::handleEvent( command );
     }
 }
 }
