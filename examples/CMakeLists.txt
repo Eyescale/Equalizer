@@ -27,22 +27,27 @@ else() # installed examples
 
   if(APPLE)
     include_directories(SYSTEM /usr/X11R6/include)
-    set(EQUALIZER_OSX_ARCHITECTURES "@EQUALIZER_OSX_ARCHITECTURES@")
+    set(EQ_EXAMPLES_OSX_ARCHITECTURES "@EQ_EXAMPLES_OSX_ARCHITECTURES@")
   endif(APPLE)
   if(EQ_AGL_USED)
     find_library(CARBON_LIBRARY Carbon)
   endif()
 endif()
-if(EQ_AGL_USED)
-  if(EQUALIZER_OSX_ARCHITECTURES MATCHES "ppc")
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES "ppc" CACHE STRING
-      "Equalizer examples build architectures")
-  else()
-    set(EQ_EXAMPLES_OSX_ARCHITECTURES "i386" CACHE STRING
-      "Equalizer examples build architectures")
-  endif()
-endif()
+
 set(CMAKE_OSX_ARCHITECTURES ${EQ_EXAMPLES_OSX_ARCHITECTURES})
+message(STATUS "Building examples for ${CMAKE_OSX_ARCHITECTURES}")
+
+# filter out -arch settings from environment (MacPorts...)
+set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
+foreach(ARCH ${ALL_OSX_ARCHITECTURES})
+  list(FIND CMAKE_OSX_ARCHITECTURES ${ARCH} INDEX)
+  if(INDEX EQUAL -1) # Arch not enabled
+    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_EXE_LINKER_FLAGS
+      ${CMAKE_EXE_LINKER_FLAGS})
+  endif()
+endforeach()
 
 include(EqStringifyShaders)
 

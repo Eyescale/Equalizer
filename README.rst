@@ -74,11 +74,11 @@ documentation changes:
 ~~~~~~~~~~~~~~~~~
 
 -   `Asynchronous readback`_ support
+-   `Region of interest`_ for scalable rendering and load-balancing
 -   `Automatic CPU-GPU affinity`_
 -   `Application-specific scaling`_ to visualize data in a scale
     different to 1:1 in immersive environments
 -   `VirtualGL-aware auto-configuration`_
--   `Region of interest`_ for scalable rendering and load-balancing
 
 -   `Zeroconf support and node discovery`_
 -   `Blocking co::Object::commit`_
@@ -139,6 +139,7 @@ the last release:
 Equalizer 1.4 includes various bugfixes over the 1.2.1 release, including the
 following:
 
+-   `157`_: Crash in Image::upload when no uploader is found
 -   `149`_: Channel::configInit initID always 0
 -   `147`_: Repeated Canvas::useLayout OFF/ON causes violation of
     DRAW_SYNC thread ordering
@@ -252,14 +253,14 @@ information.
 .. _detailed feature list: /features.html
 .. _Asynchronous       readback:
     http://www.equalizergraphics.com/documents/design/asyncCompositing.html
+.. _Region       of interest:
+    http://www.equalizergraphics.com/documents/design/roi.html
 .. _Automatic       CPU-GPU affinity:
     https://github.com/Eyescale/Equalizer/issues/57
 .. _Application-specific       scaling:
     https://github.com/Eyescale/Equalizer/issues/63
 .. _VirtualGL-aware       auto-configuration:
     https://github.com/Eyescale/Equalizer/issues/67
-.. _Region       of interest:
-    http://www.equalizergraphics.com/documents/design/roi.html
 .. _Zeroconf       support and node discovery:
     https://github.com/Eyescale/Equalizer/issues/122
 .. _Blocking       co::Object::commit:
@@ -277,6 +278,7 @@ information.
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
+.. _157: https://github.com/Eyescale/Equalizer/issues/157
 .. _149: https://github.com/Eyescale/Equalizer/issues/149
 .. _147: https://github.com/Eyescale/Equalizer/issues/147
 .. _139: https://github.com/Eyescale/Equalizer/issues/139

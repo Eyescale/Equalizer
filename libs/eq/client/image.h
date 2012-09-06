@@ -337,9 +337,10 @@ namespace detail { class Image; }
          * @param texture the target texture, or 0 for frame buffer upload.
          * @param position the destination offset wrt current GL viewport.
          * @param glObjects the OpenGL object manager for the current context.
+         * @return true on success, false on error.
          * @version 1.0
          */
-        EQ_API void upload( const Frame::Buffer buffer, util::Texture* texture,
+        EQ_API bool upload( const Frame::Buffer buffer, util::Texture* texture,
                             const Vector2i& position,
                             ObjectManager* glObjects ) const;
 

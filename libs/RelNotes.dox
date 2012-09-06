@@ -81,6 +81,8 @@
 <ul>
   <li><a href="http://www.equalizergraphics.com/documents/design/asyncCompositing.html">Asynchronous
       readback</a> support</li>
+  <li><a href="http://www.equalizergraphics.com/documents/design/roi.html">Region
+      of interest</a> for scalable rendering and load-balancing</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/57">Automatic
       CPU-GPU affinity</a></li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/63">Application-specific
@@ -88,8 +90,6 @@
     environments</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/67">VirtualGL-aware
       auto-configuration</a></li>
-  <li><a href="http://www.equalizergraphics.com/documents/design/roi.html">Region
-      of interest</a> for scalable rendering and load-balancing</li>
 </ul>
 <ul>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/122">Zeroconf
@@ -161,6 +161,8 @@
   following:
 </p>
 <ul>
+  <li><a href="https://github.com/Eyescale/Equalizer/issues/157">157</a>:
+    Crash in Image::upload when no uploader is found</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/149">149</a>:
     Channel::configInit initID always 0</li>
   <li><a href="https://github.com/Eyescale/Equalizer/issues/147">147</a>:
