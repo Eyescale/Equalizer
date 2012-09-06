@@ -65,7 +65,7 @@ public:
 };
 }
 
-Texture::Texture( const GLenum target, const GLEWContext* const glewContext )
+Texture::Texture( const unsigned target, const GLEWContext* const glewContext )
         : _impl( new detail::Texture( target, glewContext ))
 {}
 
