@@ -43,10 +43,10 @@ set(ALL_OSX_ARCHITECTURES ppc ppc64 i386 x86_64)
 foreach(ARCH ${ALL_OSX_ARCHITECTURES})
   list(FIND CMAKE_OSX_ARCHITECTURES ${ARCH} INDEX)
   if(INDEX EQUAL -1) # Arch not enabled
-    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
+    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
     string(REGEX REPLACE "-arch ${ARCH}" "" CMAKE_EXE_LINKER_FLAGS
-      ${CMAKE_EXE_LINKER_FLAGS})
+      "${CMAKE_EXE_LINKER_FLAGS}")
   endif()
 endforeach()
 
