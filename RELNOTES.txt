@@ -60,11 +60,11 @@
   2.1. New Features
 
      * Asynchronous readback support
+     * Region of interest for scalable rendering and load-balancing
      * Automatic CPU-GPU affinity
      * Application-specific scaling to visualize data in a scale different to
        1:1 in immersive environments
      * VirtualGL-aware auto-configuration
-     * Region of interest for scalable rendering and load-balancing
      * Zeroconf support and node discovery
      * Blocking co::Object::commit
      * Extensible packet dispatch
