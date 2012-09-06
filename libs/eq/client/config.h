@@ -338,6 +338,7 @@ namespace detail { class Config; }
          *
          * @param event the event.
          * @version 1.0
+         * @deprecated
          */
         EQ_API void sendEvent( ConfigEvent& event );
 
@@ -351,6 +352,7 @@ namespace detail { class Config; }
          *
          * @return the event.
          * @version 1.0
+         * @deprecated
          * @sa Client::processCommand()
          */
         EQ_API const ConfigEvent* nextEvent();
@@ -364,6 +366,7 @@ namespace detail { class Config; }
          * method does not block.
          *
          * @return a config event, or 0 if no events are pending.
+         * @deprecated
          * @version 1.0
          */
         EQ_API const ConfigEvent* tryNextEvent();
@@ -429,6 +432,7 @@ namespace detail { class Config; }
          * @param event the event.
          * @return true if the event requires a redraw, false if not.
          * @version 1.0
+         * @deprecated
          */
         EQ_API virtual bool handleEvent( const ConfigEvent* event );
 #endif

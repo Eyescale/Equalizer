@@ -1,6 +1,14 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+06/Sep/2012
+  New API in eq::Config & seq::ViewData for event handling. sendEvent() &
+  handleEvent() have changed signatures, getNextEvent() supersedes
+  tryNextEvent() & nextEvent().  
+  eq::ConfigEvent is replaced by co::ObjectOCommand for sending and by
+  eq::EventCommand for receiving events.
+  Old API is deprecated and will be removed in version 2.0.
+
 31/Jul/2012
   Moved ErrorRegistry from Collage to eq::fabric. Use
   eq::fabric::Global::getErrorRegistry().

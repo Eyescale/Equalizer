@@ -21,7 +21,7 @@ set(RELEASE_VERSION OFF) # OFF or 'Mm0' ABI version
 set(LAST_RELEASE 1.4.0)
 set(VERSION_MAJOR "1")
 set(VERSION_MINOR "5")
-set(VERSION_PATCH "0")
+set(VERSION_PATCH "1")
 
 if(CMAKE_OSX_DEPLOYMENT_TARGET)
   set(EQ_OSX_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
@@ -95,7 +95,7 @@ if(APPLE)
     set(CUDA_FOUND 0)
     message(STATUS "  Disable CUDA due to missing 64 bit libraries")
   else()
-    set(CUDA_64_BIT_DEVICE_CODE OFF) 
+    set(CUDA_64_BIT_DEVICE_CODE OFF)
   endif()
 endif(APPLE)
 

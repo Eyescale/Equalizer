@@ -45,6 +45,7 @@ namespace seq
          * some key event handling, all of which can be modified by overwriting
          * this method and handling the appropriate events.
          * @version 1.0
+         * @deprecated
          */
         SEQ_API virtual bool handleEvent( const eq::ConfigEvent* event );
 #endif
