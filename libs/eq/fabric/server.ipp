@@ -188,8 +188,8 @@ Server< CL, S, CFG, NF, N, V >::_cmdDestroyConfig( co::Command& command )
     _nodeFactory->releaseConfig( config );
 
     if( requestID != LB_UNDEFINED_UINT32 )
-        command.getNode()->send( CMD_SERVER_DESTROY_CONFIG_REPLY,
-                                 COMMANDTYPE_EQ_SERVER ) << requestID;
+        command.getNode()->send( CMD_SERVER_DESTROY_CONFIG_REPLY )
+                << requestID;
 
     return true;
 }

@@ -10,7 +10,6 @@ set(EQ_FABRIC_PUBLIC_HEADERS
   client.h
   colorMask.h
   commands.h
-  commandType.h
   config.h
   configVisitor.h
   defines.h

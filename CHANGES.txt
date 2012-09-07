@@ -1,6 +1,9 @@
 
 This file lists all changes in the public Equalizer API, latest on top:
 
+07/Sep/2012
+  Removed COMMANDTYPE_EQ_CUSTOM. Use COMMANDTYPE_CO_CUSTOM instead.
+
 06/Sep/2012
   New API in eq::Config & seq::ViewData for event handling. sendEvent() &
   handleEvent() have changed signatures, getNextEvent() supersedes

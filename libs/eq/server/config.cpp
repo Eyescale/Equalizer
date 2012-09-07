@@ -39,7 +39,6 @@
 #include <eq/client/event.h>
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/commandType.h>
 #include <eq/fabric/iAttribute.h>
 #include <eq/fabric/paths.h>
 
@@ -648,11 +647,9 @@ void Config::_stopNodes()
         stoppingNodes.push_back( node );
         LBASSERT( netNode.isValid( ));
 
-        netNode->send( fabric::CMD_SERVER_DESTROY_CONFIG,
-                       fabric::COMMANDTYPE_EQ_SERVER )
+        netNode->send( fabric::CMD_SERVER_DESTROY_CONFIG )
                 << getID() << LB_UNDEFINED_UINT32;
-
-        netNode->send( fabric::CMD_CLIENT_EXIT, fabric::COMMANDTYPE_EQ_CLIENT );
+        netNode->send( fabric::CMD_CLIENT_EXIT );
     }
 
     // now wait that the render clients disconnect
@@ -731,8 +728,7 @@ uint32_t Config::_createConfig( Node* node )
     // create config on each non-app node
     //   app-node already has config from chooseConfig
     const uint32_t requestID = getLocalNode()->registerRequest();
-    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG,
-                           fabric::COMMANDTYPE_EQ_SERVER )
+    node->getNode()->send( fabric::CMD_SERVER_CREATE_CONFIG )
             << co::ObjectVersion( this ) << requestID;
 
     return requestID;

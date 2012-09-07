@@ -18,9 +18,10 @@
 
 #include "client.h"
 
-#include "commandType.h"
 #include "global.h"
 #include "nodeType.h"
+
+#include <eq/fabric/commands.h>
 
 #include <co/command.h>
 #include <co/commandQueue.h>
@@ -105,20 +106,16 @@ bool Client::dispatchCommand( co::Command& command )
 {
     LBVERB << "dispatch " << command << std::endl;
 
-    switch( command.getType( ))
+    if( command.getCommand() == fabric::CMD_CLIENT_EXIT )
+        return co::Dispatcher::dispatchCommand( command );
+
+    if( command.getCommand() >= co::CMD_NODE_CUSTOM )
     {
-        case COMMANDTYPE_EQ_CLIENT:
-            return co::Dispatcher::dispatchCommand( command );
-
-        case COMMANDTYPE_EQ_SERVER:
-        {
-            co::NodePtr node = command.getNode();
-            return node->co::Dispatcher::dispatchCommand( command );
-        }
-
-        default:
-            return co::LocalNode::dispatchCommand( command );
+        co::NodePtr node = command.getNode();
+        return node->co::Dispatcher::dispatchCommand( command );
     }
+
+    return co::LocalNode::dispatchCommand( command );
 }
 
 }

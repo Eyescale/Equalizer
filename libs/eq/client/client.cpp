@@ -27,7 +27,6 @@
 #include "server.h"
 
 #include <eq/fabric/commands.h>
-#include <eq/fabric/commandType.h>
 #include <eq/fabric/configVisitor.h>
 #include <eq/fabric/leafVisitor.h>
 #include <eq/fabric/elementVisitor.h>
@@ -395,8 +394,7 @@ void Client::notifyDisconnect( co::NodePtr node )
     if( node->getType() == eq::fabric::NODETYPE_EQ_SERVER )
     {
         // local command dispatching
-        co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT,
-                          fabric::COMMANDTYPE_EQ_CLIENT );
+        co::NodeOCommand( this, this, fabric::CMD_CLIENT_EXIT );
 
         ServerPtr server = static_cast< Server* >( node.get( ));
         StopNodesVisitor stopNodes;
@@ -406,4 +404,3 @@ void Client::notifyDisconnect( co::NodePtr node )
 }
 
 }
-

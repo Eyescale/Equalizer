@@ -77,9 +77,6 @@ namespace server
     protected:
         virtual ~Server();
 
-        /** @sa co::Node::dispatchCommand */
-        virtual bool dispatchCommand( co::Command& command );
-
     private:
         /** The receiver->main command queue. */
         co::CommandQueue _mainThreadQueue;
