@@ -171,9 +171,6 @@ namespace eq
      */
     struct Event
     {
-        /** Construct a new event. */
-        EQ_API Event();
-
         /** The type of the event. */
         enum Type // Also update string table in event.cpp
         {
@@ -233,6 +230,8 @@ namespace eq
             ALL // must be last
         };
 
+        /** Construct a new event. @version 1.0 */
+        EQ_API Event( const uint32_t type = UNKNOWN );
 
         uint32_t type;           //!< The event type
 

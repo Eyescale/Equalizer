@@ -74,8 +74,8 @@ private:
 static EventTypeNames _eventTypeNames;
 }
 
-Event::Event()
-        : type( UNKNOWN )
+Event::Event( const uint32_t type_ )
+        : type( type_ )
         , serial( 0 )
         , originator( UUID::ZERO )
 {

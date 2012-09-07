@@ -584,9 +584,8 @@ void Config::sendEvent( ConfigEvent& event )
     LBASSERT( getAppNodeID() != co::NodeID::ZERO );
     LBASSERT( _impl->appNode );
 
-    co::ObjectOCommand cmd( send( _impl->appNode,
-                                  fabric::CMD_CONFIG_EVENT_OLD ));
-    cmd << event.size << co::Array< void >( &event, event.size );
+    send( _impl->appNode, fabric::CMD_CONFIG_EVENT_OLD )
+        << event.size << co::Array< void >( &event, event.size );
 }
 
 const ConfigEvent* Config::nextEvent()
@@ -610,6 +609,8 @@ const ConfigEvent* Config::_convertEvent( co::ObjectCommand command )
     _impl->lastEvent = command;
 
     const uint64_t size = command.get< uint64_t >();
+    // TODO #145 check for type !old and return 0; ?
+
     return reinterpret_cast< const ConfigEvent* >
                                           ( command.getRemainingBuffer( size ));
 }

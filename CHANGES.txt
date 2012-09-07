@@ -8,6 +8,9 @@ This file lists all changes in the public Equalizer API, latest on top:
   New API in eq::Config & seq::ViewData for event handling. sendEvent() &
   handleEvent() have changed signatures, getNextEvent() supersedes
   tryNextEvent() & nextEvent().  
+
+#145: Not EventOCommand for sending?
+
   eq::ConfigEvent is replaced by co::ObjectOCommand for sending and by
   eq::EventCommand for receiving events.
   Old API is deprecated and will be removed in version 2.0.

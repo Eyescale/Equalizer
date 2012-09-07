@@ -1412,7 +1412,7 @@ void Channel::_frameTiles( RenderContext& context, const bool isLocal,
             break;
 
         const Tile& tile = tileCmd.get< Tile >();
-        context = tile;
+        context.apply( tile );
 
         const PixelViewport tilePVP = context.pvp;
 

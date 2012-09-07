@@ -452,7 +452,7 @@ void Channel::_sendEvent( ConfigEventType type, const float msec,
     }
 
     getConfig()->sendEvent( type )
-            << msec << name << area << formatType << dataSizeGPU << dataSizeCPU;
+        << msec << name << area << formatType << dataSizeGPU << dataSizeCPU;
 }
 
 void Channel::_saveImage( const eq::Image* image,
