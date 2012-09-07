@@ -211,8 +211,7 @@ The `API documentation`_ can be found on the Equalizer website.
 As with any open source project, the available source code, in particular the
 shipped `examples`_ provide a reference for developing or porting
 applications. The `Developer Documentation`_ on the website provides further
-design documents for specific features. XCode users can download a
-`Documentation Set`_.
+design documents for specific features.
 
 
 3.4. Support
@@ -273,8 +272,8 @@ information.
     https://github.com/Eyescale/Equalizer/issues/123
 .. _Multi-GPU NVidia       optimization:
     https://github.com/Eyescale/Equalizer/issues/95
-.. _API       documentation:
-    http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html
+.. _API       documentation: http://www.equalizergraphics.com/documents/D
+    eveloper/doxies/Equalizer-1.4.0/index.html
 .. _Programming and       User Guide:
     http://www.equalizergraphics.com/survey.html
 .. _Tile compounds: /documents/design/tileCompounds.html
@@ -311,8 +310,6 @@ information.
 .. _examples: https://github.com/Eyescale/Equalizer/tree/1.3.5/examples
 .. _Developer Documentation:
     http://www.equalizergraphics.com/doc_developer.html
-.. _Documentation     Set: http://www.equalizergraphics.com/documents/Dev
-    eloper/API-1.4/ch.eyescale.Equalizer.docset.zip
 .. _     Developer Mailing List: http://www.equalizergraphics.com/cgi-
     bin/mailman/listinfo/eq-dev
 .. _     info@equalizergraphics.com:
