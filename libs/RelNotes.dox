@@ -145,7 +145,7 @@
   last release:
 </p>
 <ul>
-  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/index.html">API
+  <li>Full <a href="http://www.equalizergraphics.com/documents/Developer/doxies/Equalizer-1.4.0/index.html">API
       documentation</a> for the public Equalizer API</li>
   <li>The <a href="http://www.equalizergraphics.com/survey.html">Programming and
       User Guide</a> has been extended to 107 pages and 60 figures</li>
@@ -265,10 +265,7 @@
   <a href="https://github.com/Eyescale/Equalizer/tree/1.3.5/examples">examples</a>
   provide a reference for developing or porting applications. The
   <a href="http://www.equalizergraphics.com/doc_developer.html">Developer Documentation</a> on the website
-  provides further design documents for specific features. XCode users can
-  download
-  a <a href="http://www.equalizergraphics.com/documents/Developer/API-1.4/ch.eyescale.Equalizer.docset.zip">Documentation
-    Set</a>.
+  provides further design documents for specific features.
 </p>
 
 <a name="support"></a>
