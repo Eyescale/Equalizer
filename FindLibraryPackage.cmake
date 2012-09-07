@@ -253,7 +253,7 @@ macro(FIND_LIBRARY_PACKAGE name)
         if(_flp_${name}_out)
           message(${_flp_version_output_type}
             "Version ${${name}_FIND_VERSION} of ${name} is required exactly. "
-            "Version ${${_flp_${name}_UC}_VERSION} was found.")
+            "Version ${${_flp_${name}_UC}_VERSION} was found in ${${_flp_${name}_UC}_INCLUDE_DIR}.")
         endif()
       endif()
     else()
