@@ -367,39 +367,43 @@ int32_t Pipe::_getAutoAffinity() const
     }
 
     // Get the cpuset for the socket connected to GPU attached to the display
-    // defined by its port and device 
-    hwloc_bitmap_t cpuSet;
+    // defined by its port and device
+    hwloc_bitmap_t cpuSet;  // alloc in hwloc_gl_get_display_cpuset
     if( hwloc_gl_get_display_cpuset( topology, int( port ), int( device ),
                                      &cpuSet ) < 0 )
     {
         LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_gl_get_display_cpuset() failed" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
-    const int numCpus = hwloc_get_nbobjs_inside_cpuset_by_type( topology, cpuSet,
-                                                              HWLOC_OBJ_SOCKET );
+    const int numCpus = hwloc_get_nbobjs_inside_cpuset_by_type( topology,
+                                                     cpuSet, HWLOC_OBJ_SOCKET );
     if( numCpus != 1 )
     {
         LBINFO << "Automatic pipe thread placement failed: GPU attached to "
                << numCpus << " processors" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
     const hwloc_obj_t cpuObj = hwloc_get_obj_inside_cpuset_by_type( topology,
-                                                   cpuSet, HWLOC_OBJ_SOCKET, 0 );
+                                                  cpuSet, HWLOC_OBJ_SOCKET, 0 );
     if( cpuObj == 0 )
     {
         LBINFO << "Automatic pipe thread placement failed: "
                << "hwloc_get_obj_inside_cpuset_by_type() failed" << std::endl;
         hwloc_topology_destroy( topology );
+        hwloc_bitmap_free( cpuSet );
         return lunchbox::Thread::NONE;
     }
 
     const int cpuIndex = cpuObj->logical_index;
     hwloc_topology_destroy( topology );
+    hwloc_bitmap_free( cpuSet );
     return cpuIndex + lunchbox::Thread::SOCKET;
 #else
     LBINFO << "Automatic thread placement not supported, no hwloc GL support"
