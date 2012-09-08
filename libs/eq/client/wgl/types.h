@@ -1,5 +1,5 @@
 
-/* Copyright (c) 2011, Stefan Eilemann <eile@eyescale.ch>
+/* Copyright (c) 2011-2012, Stefan Eilemann <eile@eyescale.ch>
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 2.1 as published
@@ -35,6 +35,9 @@ class Window;
 class WindowIF;
 class WindowEvent;
 
+/** @cond INTERNAL */
+typedef void* HPBUFFERARB;
+/** @endcond */
 }
 }
 
