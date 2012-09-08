@@ -37,8 +37,4 @@ class WindowEvent;
 }
 }
 
-/** @cond INTERNAL */
-typedef void* HPBUFFERARB;
-/** @endcond */
-
 #endif // EQ_WGL_TYPES_H
