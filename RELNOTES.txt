@@ -173,8 +173,7 @@
    As with any open source project, the available source code, in particular
    the shipped examples provide a reference for developing or porting
    applications. The Developer Documentation on the website provides further
-   design documents for specific features. XCode users can download a
-   Documentation Set.
+   design documents for specific features.
 
   3.4. Support
 
